@@ -12,7 +12,9 @@
         {{ content }}
       </div>
     </div>
-
+    {% for file in site.static_files %}
+      {{ file.path }}
+    {% endfor %}
     {% include footer.html %}
 
   </body>
