@@ -1,0 +1,15 @@
+# Site settings
+title: OSIS - Open Student Information System
+email: osis@uclouvain.be
+description: > # this means to ignore newlines until "baseurl:"
+  OSIS stands for Open Student Information System. It's an application
+  designed to manage the core business of higher education institutions,
+  such as universities, faculties, institutes and professional schools.
+  The core business involves the administration of students, teachers, courses, programs and so on.
+baseurl: "" # the subpath of your site, e.g. /blog/
+url: "http://uclouvain.github.io/osis-louvain" # the base hostname & protocol for your site
+twitter_username: osis_louvain
+github_username:  uclouvain
+
+# Build settings
+markdown: kramdown
