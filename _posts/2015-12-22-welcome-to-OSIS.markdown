@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Welcome to OSIS!"
-date:   2015-12-18 21:55:32
+date:   2015-12-22 21:55:32
 categories: osis website
 ---
 
