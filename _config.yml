@@ -6,7 +6,7 @@ description: > # this means to ignore newlines until "baseurl:"
   designed to manage the core business of higher education institutions,
   such as universities, faculties, institutes and professional schools.
   The core business involves the administration of students, teachers, courses, programs and so on.
-baseurl: "" # the subpath of your site, e.g. /blog/
+baseurl: "/osis-louvain" # the subpath of your site, e.g. /blog/
 url: "http://uclouvain.github.io/osis-louvain" # the base hostname & protocol for your site
 twitter_username: osis_louvain
 github_username:  uclouvain
