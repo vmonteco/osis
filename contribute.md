@@ -4,7 +4,7 @@ title: Contribute
 permalink: /contribute/
 ---
 
-There are several ways to contribute to OSIS. You don't even need to be a Python developer
+There are several ways to contribute to OSIS. You don't even need to be a Python developer.
 
 # Code of Conduct *
 
