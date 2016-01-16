@@ -4,7 +4,7 @@ title: Community
 permalink: /community/
 ---
 
-Every software community starts with a core team, whose members were the first ones to believe in the project. This is a major part of the team that is responsible for making OSIS available to you. They give their best to make your institution run smoothly.
+Every software community starts with a core team, whose members were the first ones to believe in the project. This is a major part of the team that is responsible for making OSIS available to you. They give their best to make your higher education institution run smoothly.
 
 <img src="{{ site.url }}/assets/core_team.jpg">
 
