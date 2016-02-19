@@ -38,7 +38,7 @@ following links:
 [English, UK](http://uclouvain.github.io/osis-louvain-documentation/doc/development/data-manual.html)
 
 If you use OSIS and found something undocumented, do not hesitate to [create
-an issue](https://github.com/uclouvain/osis-louvain/issues/new) or even try
+an issue](https://github.com/uclouvain/osis/issues/new) or even try
 documenting it yourself as a form of contributing to the project. You can also
 translate it to your native language. The documentation is written in
 [Asciidoc](http://www.methods.co.nz/asciidoc/), specifically in the
