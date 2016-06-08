@@ -11,5 +11,3 @@ url: "http://uclouvain.github.io/osis" # the base hostname & protocol for your s
 twitter_username: osis_louvain
 github_username:  uclouvain
 
-# Build settings
-markdown: kramdown
