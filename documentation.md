@@ -15,10 +15,10 @@ OSIS documentation is spread in a series of 4 books. They are:
       <td><a href="{{ site.url }}/assets/osis-data-preview.pdf"><img src="{{ site.url }}/assets/osis-data-icon.png" border="1"></a></td>
     </tr>
     <tr>
-      <td>Performing Academic Processes</td>
-      <td>User Experience Design</td>
-      <td>Development and Operations</td>
-      <td>Data Model and Analysis</td>
+      <td><a href="{{ site.url }}/assets/osis-preview.pdf">Performing Academic Processes</a></td>
+      <td><a href="{{ site.url }}/assets/osis-ux-preview.pdf">User Experience Design</a></td>
+      <td><a href="{{ site.url }}/assets/osis-devops-preview.pdf">Development and Operations</a></td>
+      <td><a href="{{ site.url }}/assets/osis-data-preview.pdf">Data Model and Analysis</a></td>
     </tr>
   </tbody>
 </table>
