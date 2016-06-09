@@ -19,7 +19,7 @@ the entire university or unique for each faculty.
 
 Honestly, this is not the most expected functionality for those who want to
 start using OSIS from day one. There are a lot of things that come first. But
-the reason why the score encoding is coming sooner is rater simple: OSIS
+the reason why the score encoding is coming sooner is rather simple: OSIS
 is replacing an existing application that doesn't fulfill the needs of UCL
 anymore. As we develop OSIS, we get anxious to see it in production as soon and
 frequent as possible. But we cannot simply wait until all features of the old
@@ -48,7 +48,7 @@ There are three ways of encoding scores:
    back into OSIS to register the scores.
 3. _paper encoding_: the application generates an A4 printable PDF file for
    each course and the teacher fills in the scores and send the paper form to
-   the faculty. The faculty staff get busy encoding scores from paper to OSIS.
+   the faculty. The faculty staff gets busy encoding scores from paper to OSIS.
 
 <img src="{{ site.url }}/assets/posts/online_encoding.png">
 
@@ -85,6 +85,6 @@ not change the same data. It would make the exchange between them very hard to
 implement. So, every time OSIS modifies business data it means it takes
 ownership of the data and the old application doesn't modify that data anymore.
 
-In the up coming weeks we will work on the academic calendar, which is useful
+In the upcoming weeks we will work on the academic calendar, which is useful
 for the score encoding because it defines the start and the end of the exam
 sessions and the deadline to encode the scores.
