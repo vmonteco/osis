@@ -2,7 +2,7 @@
 layout: post
 title:  "Encoding the Scores of Thousands of Students"
 date:   2016-06-01 06:00:00
-categories: osis release scores
+categories: release scores
 ---
 
 Today, we are glad to announce the very first operational release of OSIS. It

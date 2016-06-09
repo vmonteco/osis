@@ -9,8 +9,8 @@ layout: default
   </header>
   {{site.posts[0].content}}
   <br>
-  <hr>
-  <h2>Previously on OSIS</h2>
+  <hr style="border-width: 5px;" noshade>
+  <h3 style="text-align: right;">Previously on OSIS Website</h3>
   <ul class="post-list">
     {% for post in site.posts offset:1 limit:5 %}
       <li>
@@ -23,5 +23,5 @@ layout: default
   </ul>
 
   <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | prepend: site.baseurl }}">via RSS</a>.</p>
-  <hr>
+  <hr style="border-width: 5px;" noshade>
 </div>
