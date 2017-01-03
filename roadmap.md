@@ -10,6 +10,6 @@ of the university. When it fully replaces the current application then the
 project reaches its final milestone, which is the stable release 1.0.0. It marks
 the beginning of the maintenance phase, whose first version will be 1.1.0.
 
-- [OSIS](roadmap/osis/)
-- [OSIS-Portal](roadmap/osis_portal/)
-- [OSIS-Common](roadmap/osis_common/)
+- [OSIS](/osis/roadmap/osis/)
+- [OSIS-Portal](/osis/roadmap/osis_portal/)
+- [OSIS-Common](/osis/roadmap/osis_common/)
