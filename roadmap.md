@@ -2,6 +2,7 @@
 layout: page
 title: Roadmap
 permalink: /roadmap/
+categories: ['main']
 ---
 
 All OSIS' versions starts with 0 because it is not yet fulfilling all the needs
