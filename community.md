@@ -2,6 +2,7 @@
 layout: page
 title: Community
 permalink: /community/
+categories: ['main']
 ---
 
 Every software community starts with a core team, whose members were the first

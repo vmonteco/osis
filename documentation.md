@@ -2,6 +2,7 @@
 layout: page
 title: Documentation
 permalink: /documentation/
+categories: ['main']
 ---
 
 OSIS documentation is spread in a series of 4 books. They are:

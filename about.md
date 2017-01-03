@@ -2,6 +2,7 @@
 layout: page
 title: About
 permalink: /about/
+categories: ['main']
 ---
 
 OSIS (Open Student Information System) is a lightweight and yet highly scalable

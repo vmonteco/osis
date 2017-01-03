@@ -2,6 +2,7 @@
 layout: page
 title: Contribute
 permalink: /contribute/
+categories: ['main']
 ---
 
 There are several ways to contribute to OSIS. You don't even need to be a Python
