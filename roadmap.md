@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Roadmap
+title: Roadmaps
 permalink: /roadmap/
 categories: ['main']
 ---
@@ -10,6 +10,6 @@ of the university. When it fully replaces the current application then the
 project reaches its final milestone, which is the stable release 1.0.0. It marks
 the beginning of the maintenance phase, whose first version will be 1.1.0.
 
-- [OSIS](/osis/roadmap/osis/)
-- [OSIS-Portal](/osis/roadmap/osis_portal/)
-- [OSIS-Common](/osis/roadmap/osis_common/)
+- [OSIS](/osis/roadmap/osis/) - 0.15.0
+- [OSIS-Portal](/osis/roadmap/osis_portal/) - 0.4.0
+- [OSIS-Common](/osis/roadmap/osis_common/) - 0.9.0
