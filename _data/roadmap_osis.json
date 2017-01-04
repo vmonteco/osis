@@ -1,0 +1,54 @@
+[
+  {
+    "year": 2017,
+    "unreleased": [
+      {
+        "version": "0.40.0",
+        "date": "2017-12-18",
+        "added": [],
+        "changed": [],
+        "deprecated": [],
+        "removed": [],
+        "fixed": [],
+        "security": []
+      },
+      {
+        "version": "0.39.0",
+        "date": "2017-12-04",
+        "added": [],
+        "changed": [],
+        "deprecated": [],
+        "removed": [],
+        "fixed": [],
+        "security": []
+      }
+    ],
+    "released": []
+  },
+  {
+    "year": 2016,
+    "unreleased": [],
+    "released": [
+      {
+        "version": "0.2.0",
+        "date": "2016-02-12",
+        "added": [],
+        "changed": [],
+        "deprecated": [],
+        "removed": [],
+        "fixed": [],
+        "security": []
+      },
+      {
+        "version": "0.1.0",
+        "date": "2016-01-31",
+        "added": [],
+        "changed": [],
+        "deprecated": [],
+        "removed": [],
+        "fixed": [],
+        "security": []
+      }
+    ]
+  }
+]
