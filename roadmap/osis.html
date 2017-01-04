@@ -6,7 +6,19 @@ categories: ['osis']
 ---
 
 {% for year in site.data.roadmap_osis %}
-  {{ year.year }}
+  <h2>{{ year.year }}</h2>
+  {% if year.unreleased %}
+    <h3>Unreleased</h3>
+    {% for unreleased in year.unreleased %}
+      <h4>{{ unreleased.version }} - {{ unreleased.date }}</h4>
+    {% endfor %}
+  {% endif %}
+  {% if year.released %}
+    <h3>Released</h3>
+    {% for released in year.released %}
+      <h4>{{ released.version }} - {{ released.date }}</h4>
+    {% endfor %}
+  {% endif %}
 {% endfor %}
 
 <pre>
