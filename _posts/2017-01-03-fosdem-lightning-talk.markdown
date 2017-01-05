@@ -31,7 +31,7 @@ source. It also means:
 * inspiration for entrepreneurs to build integrated services to improve students
   academic experience;
 * empower departments, endowed with the necessary expertise, to fulfill their
-  particular needs by extending OSIS for their needs;
+  particular needs by extending OSIS;
 * build up students' experience on real world projects to boost their chances
   when applying for a job; and
 * reduced maintenance cost for the University thanks to the range of reliable
