@@ -8,7 +8,7 @@ categories: community conference presentation
 We are happy to share with you the news we received today: our proposal to
 present OSIS at [FOSDEM](https://fosdem.org/2017/about/) was accepted! That's
 the first time we present the project to the Open Source community, fortunately,
-in the most important free software conferences in Europe.
+in the most important free software conference in Europe.
 
 <img src="{{ site.url }}/assets/posts/fosdem.jpg" alt="Copyright Christophe
 Villeneuve, Mozilla">
@@ -17,7 +17,7 @@ We are going to present our [experience on the development of OSIS at Universit√
 catholique de Louvain](https://fosdem.org/2017/schedule/event/open_student_info_system/)
 (UCL). The presentation will take place in [room H.2215, Ferrer (H) building at
 the ULB Solbosch Campus in Brussels](https://fosdem.org/2017/schedule/buildings/#h),
-on Monday, February 5th at 13h40.
+on Sunday, February 5th at 13h40.
 
 We intend to share with the community the joy of building OSIS, the transition
 from proprietary to open source, the cultural and technical shift, the
