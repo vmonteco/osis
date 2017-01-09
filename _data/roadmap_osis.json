@@ -241,19 +241,20 @@
         "removed": null,
         "fixed": null,
         "security": null
-      },
+      }
+    ],
+    "released": [
       {
         "version": "0.16.0",
         "date": "2017-01-16",
-        "added": null,
+        "added": ["#345 bla bla bla", "#346 bla bla bla"],
         "changed": null,
         "deprecated": null,
-        "removed": null,
+        "removed": ["#348 bla bla bla", "#347 bla bla bla"],
         "fixed": null,
         "security": null
       }
-    ],
-    "released": null
+    ]
   },
   {
     "year": 2016,
