@@ -246,7 +246,7 @@
     "released": [
       {
         "version": "0.16.0",
-        "date": "2017-01-16",
+        "date": "2017-01-25",
         "added": ["#1642 The right to submit scores doesn't depend on the function of the teacher anymore, but on a boolean condition.",
                   "#1621 Data is synchronized with external systems and now OSIS is informing users when was the last time data was injected and exported.",
                   "#1640 [Technical] Added the necessary entities to enable the new modules: teaching charges (charge de l'ensignement) and charge application (candidature en ligne).",
