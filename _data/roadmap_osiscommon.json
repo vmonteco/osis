@@ -245,11 +245,12 @@
       {
         "version": "0.10.0",
         "date": "2017-01-16",
-        "added": null,
-        "changed": null,
+        "added": ["#102 Defined standard storage durations for uploaded files"],
+        "changed": ["#109 [Technical] We have written our own algorithm to serialize objects to compensate the lack of LIFO guarantees in RabbitMQ queues.",
+                    "#104 [Technical] Reusing the same code to print the score encoding paper sheet in OSIS and OSIS-Portal."],
         "deprecated": null,
         "removed": null,
-        "fixed": null,
+        "fixed": ["#95 The error that the listener was not acknowledging the queue after receiving a message has been fixed."],
         "security": null
       }
     ],
