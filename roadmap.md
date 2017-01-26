@@ -19,9 +19,9 @@ the backoffice ([OSIS](https://github.com/uclouvain/osis)),
 the frontoffice ([OSIS-Portal](https://github.com/uclouvain/osis-portal)) and
 the shared code between them ([OSIS-Common](https://github.com/uclouvain/osis-common)).
 
-- [OSIS](/osis/roadmap/osis/) - 0.15.0
-- [OSIS-Portal](/osis/roadmap/osis_portal/) - 0.4.0
-- [OSIS-Common](/osis/roadmap/osis_common/) - 0.9.0
+- [OSIS](/osis/roadmap/osis/) - 0.16.0
+- [OSIS-Portal](/osis/roadmap/osis_portal/) - 0.5.0
+- [OSIS-Common](/osis/roadmap/osis_common/) - 0.10.0
 
 OSIS uses Semantic Versioning to rule the version numbers. Please, read the
 documentation at [semver.org](http://semver.org) to understand why the numbers
