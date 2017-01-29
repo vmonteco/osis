@@ -231,19 +231,19 @@
         "removed": null,
         "fixed": null,
         "security": null
-      },
+      }
+    ],
+    "released": [
       {
         "version": "0.11.0",
         "date": "2017-01-30",
         "added": null,
-        "changed": null,
+        "changed": ["#117 Adapt the script that allow to migrate manually data between osis and osis-portal to the new serialization model."],
         "deprecated": null,
         "removed": null,
         "fixed": null,
         "security": null
-      }
-    ],
-    "released": [
+      },
       {
         "version": "0.10.0",
         "date": "2017-01-25",

@@ -231,19 +231,20 @@
         "removed": null,
         "fixed": null,
         "security": null
-      },
+      }
+    ],
+    "released": [
       {
         "version": "0.6.0",
         "date": "2017-01-30",
         "added": null,
-        "changed": null,
+        "changed": ["#572 Change French traduction of InstitutionalGradeType 'Master spécialisé' into 'Master de spécialisation'",
+                    "#702 Correction and improvement of student_performance."],
         "deprecated": null,
         "removed": null,
         "fixed": null,
         "security": null
-      }
-    ],
-    "released": [
+      },
       {
         "version": "0.5.0",
         "date": "2017-01-25",

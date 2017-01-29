@@ -231,19 +231,19 @@
         "removed": null,
         "fixed": null,
         "security": null
-      },
+      }
+    ],
+    "released": [
       {
         "version": "0.17.0",
         "date": "2017-01-30",
-        "added": null,
-        "changed": null,
+        "added": ["#1427 It is now possible to upload a pdf File in the 'Assistant' application."],
+        "changed": ["#1711 Update reference to osis-common, to use the new serialisation model for initial migration script."],
         "deprecated": null,
         "removed": null,
         "fixed": null,
         "security": null
-      }
-    ],
-    "released": [
+      },
       {
         "version": "0.16.0",
         "date": "2017-01-25",
