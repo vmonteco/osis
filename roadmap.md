@@ -19,7 +19,7 @@ the backoffice ([OSIS](https://github.com/uclouvain/osis)),
 the frontoffice ([OSIS-Portal](https://github.com/uclouvain/osis-portal)) and
 the shared code between them ([OSIS-Common](https://github.com/uclouvain/osis-common)).
 
-- [OSIS](/osis/roadmap/osis/) - 0.17.0
+- [OSIS](/osis/roadmap/osis/) - 0.17.1
 - [OSIS-Portal](/osis/roadmap/osis_portal/) - 0.6.0
 - [OSIS-Common](/osis/roadmap/osis_common/) - 0.11.0
 
