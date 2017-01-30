@@ -235,6 +235,16 @@
     ],
     "released": [
       {
+        "version": "0.17.1",
+        "date": "2017-01-30",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#1710 Fixed wrong value 'Absent' in ExamEnrollment.justification fields"],
+        "security": null
+      },
+      {
         "version": "0.17.0",
         "date": "2017-01-30",
         "added": ["#1427 It is now possible to upload a pdf File in the 'Assistant' application."],
