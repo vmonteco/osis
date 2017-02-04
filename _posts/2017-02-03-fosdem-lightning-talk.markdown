@@ -7,7 +7,7 @@ categories: community conference presentation
 
 If you attended our talk at FOSDEM'2017, you're well aware that the Catholique University of Louvain (Université catholique de Louvain - UCL) has decided to
 rewrite their core business applications in Python/Django, abandon the slow
-evolution and poor scalability of the JavaEE platform and make the new
+evolution and poor scalability of the JavaEE platform and made the new
 application freely available as open source software. The talk shared with the
 community the experience on building OSIS, the open source transition, the
 cultural and technical shift, the engagement of students, teachers and employees
@@ -37,23 +37,49 @@ user experience.
 <img src="{{ site.url }}/assets/posts/osis-studies-administration.png"
 alt="OSIS administration interface based on Django Admin">
 
-OSIS (Open Student Information System) is an application designed to manage the
-core business of higher education institutions. It is free and open source under
-the terms of GPL v3 public license, aligned with the strong spirit of knowledge
-sharing and collaboration with the community. The project is sponsored by
-Université catholique de Louvain (UCL) in the context of its long term goal of
-modernising its information systems towards the next generation of students,
-devices, practices and technologies.
+On the other hand, been motivated about a technology and starting a project from
+scratch didn't accredited us to open up the code. Nevertheless, we did it, in a
+GitHub repository since the very first line of code. However, people were
+hardcoding references to internal resources, writing code in french instead of
+english, leaving no-sense comments, badly formatted code, forgetting to add the
+license on the top of the files and all sorts of things, as they used to do in
+the past. Fortunately, GitHub offers pull requests and we were able to review
+contributions before they got public. Over time all these problems were gone
 
-We aim that UCL and many other higher education institutions adopt OSIS to be
-able to maintain, control and monitor the entire student’s career. This extends
-from the admission to the diploma and all information orbiting this fundamental
-process, such as planning the academic year, managing partnerships with other
-institutions for exchange and mobility programs, assigning teachers to courses
-and courses to students, etc. At the current stage, OSIS is designed to fulfil
-UCL’s needs, but it can be properly adapted to fulfil more needs coming from
-other institutions interested in joining the project, which is the case of
-Université Saint-Louis, Bruxelles.
+As the project evolved, it started calling attention of the academic community.
+A week before going into production for general use, a computer science student
+has detected a serious security flaw. We were not properly using Django security
+and we spent the weekend fixing it. We were lucky to have his input. This would
+not have happened if the project was not open source and we would be in big
+trouble writing proprietary software. We had the chance to present the project
+several times for academic and administrative staff and new opportunities
+appeared from nowhere. As we were busy rewriting the old application:
+
+* A group of faculties, with their own resources, decided to contribute with an
+  application to manage dissertations and theses.
+* The faculty of medicine contributed with an app to manage students'
+  internships.
+* An administrative department will son manage the assignment of teachers'
+  assistants.
+* INGInious, another open source project developed in the computer science
+  department to conduct online programming exams, will soon submit the scores of
+  the students directly to the assessment app.
+
+Many other additional applications will be under discussion in the coming
+months. That's an amount of work our fixed team of 5 programmers wouldn't be
+able to do any time soon. Being open source attracted contributions from 14
+individuals as well as the engagement of the Université Saint-Louis in Brussels,
+saving lots of money and time.
+
+<img src="{{ site.url }}/assets/posts/celebrating-first-general-availability.jpg"
+alt="Celebrating the first general availability of OSIS">
+
+We wish that many other higher education institutions join OSIS to build the
+state of the art in terms of management of the entire student’s lifecycle. This
+extends from the admission to the diploma and all information orbiting this
+fundamental process, such as planning the academic year, managing partnerships
+with other institutions for exchange and mobility programs, assigning teachers
+to courses and courses to students, etc.
 
 For us, offering a reusable system is not the only advantage of being open
 source. It also means:
@@ -68,11 +94,6 @@ source. It also means:
 * reduced maintenance cost for the University thanks to the range of reliable
   open source products required by the application.
 
-But the path to open source was not simple. It required lots of discussions to
-finally find a realistic long term formula to meet the institution's major
-goals. Now that it is our reality, this history cannot be kept aside, but shared
-with FOSDEM's community. We are going to answer the following questions during
-the presentation:
 
 * Why we are sharing our core business applications before any other higher
   education institution.

@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "OSIS Presentation at FOSDEM 2017"
+title:  "Proposal to present OSIS Accepted at FOSDEM'2017"
 date:   2017-01-03 06:00:00
 categories: community conference presentation
 ---
