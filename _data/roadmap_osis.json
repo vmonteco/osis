@@ -231,12 +231,24 @@
         "removed": null,
         "fixed": null,
         "security": null
+      }
+    ],
+    "released": [
+      {
+        "version": "0.17.1",
+        "date": "2017-01-30",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#1710 Fixed wrong value 'Absent' in ExamEnrollment.justification fields"],
+        "security": null
       },
       {
         "version": "0.17.0",
         "date": "2017-01-30",
-        "added": null,
-        "changed": null,
+        "added": ["#1427 It is now possible to upload a pdf File in the 'Assistant' application."],
+        "changed": ["#1711 Update reference to osis-common, to use the new serialisation model for initial migration script."],
         "deprecated": null,
         "removed": null,
         "fixed": null,
@@ -244,16 +256,23 @@
       },
       {
         "version": "0.16.0",
-        "date": "2017-01-16",
-        "added": null,
-        "changed": null,
+        "date": "2017-01-25",
+        "added": ["#1642 The right to submit scores doesn't depend on the function of the teacher anymore, but on a boolean condition.",
+                  "#1621 Data is synchronized with external systems and now OSIS is informing users when was the last time data was injected and exported.",
+                  "#1640 [Technical] Added the necessary entities to enable the new modules: teaching charges (charge de l'ensignement) and charge application (candidature en ligne).",
+                  "#1678 The academic calendar is used to activate and deactivate the charge application for the teachers."],
+        "changed": ["#1639 [Technical] An existing entity, attribution, was moved from the base module to the attribution module.",
+                    "#1648 [Technical] Improved an existing entity - attribution_charge - for better accommodating data from the legacy application.",
+                    "#1659 [Technical] Reusing the same code to print the score encoding paper sheet in OSIS and OSIS-Portal",
+                    "#1669 A better message was put in place to explain modifications in the address to be printed in the score encoding paper sheet.",
+                    "#1622 Changed the order of score encoding justifications to better represent the logic of the business."],
         "deprecated": null,
         "removed": null,
-        "fixed": null,
+        "fixed": ["#1655 The error when the teacher encodes 'absent' but the application show 'unjustified absence' has been fixed.",
+                  "#1624 The error when the user pressed enter to jump from a field to another in the online score encoding and the page was not scrolling has been fixed."],
         "security": null
       }
-    ],
-    "released": null
+    ]
   },
   {
     "year": 2016,

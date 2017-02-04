@@ -231,12 +231,15 @@
         "removed": null,
         "fixed": null,
         "security": null
-      },
+      }
+    ],
+    "released": [
       {
         "version": "0.6.0",
         "date": "2017-01-30",
         "added": null,
-        "changed": null,
+        "changed": ["#572 Change French traduction of InstitutionalGradeType 'Master spécialisé' into 'Master de spécialisation'",
+                    "#702 Correction and improvement of student_performance."],
         "deprecated": null,
         "removed": null,
         "fixed": null,
@@ -244,16 +247,22 @@
       },
       {
         "version": "0.5.0",
-        "date": "2017-01-16",
-        "added": null,
-        "changed": null,
+        "date": "2017-01-25",
+        "added": ["#680 [Technical] Integrated OSIS with a analytical tool to generate statistics about OSIS usage.",
+                  "#672 The academic calendar is used to activate and deactivate the charge application for the teachers.",
+                  "#624 Added a new module to manage the online charge application (candidature en ligne)",
+                  "#606 #607 Added a new module to show teaching charges (charge de l'enseignement)",
+                  "#658 Implementation of management features to the publication of final scores."],
+        "changed": ["#678 #685 Improved the presentation of the final scores according to the requests made by users",
+                    "#667 [Technical] Removed dependencies from CouchBase.",
+                    "#661 [Technical] Reusing the same code to print the score encoding paper sheet in OSIS and OSIS-Portal"],
         "deprecated": null,
         "removed": null,
-        "fixed": null,
+        "fixed": ["#682 The problem on the download of the paper scoresheet has been solved.",
+                  "#639 [Technical] the field of a table was increased because a person has a very big name."],
         "security": null
       }
-    ],
-    "released": null
+    ]
   },
   {
     "year": 2016,

@@ -231,12 +231,14 @@
         "removed": null,
         "fixed": null,
         "security": null
-      },
+      }
+    ],
+    "released": [
       {
         "version": "0.11.0",
         "date": "2017-01-30",
         "added": null,
-        "changed": null,
+        "changed": ["#117 Adapt the script that allow to migrate manually data between osis and osis-portal to the new serialization model."],
         "deprecated": null,
         "removed": null,
         "fixed": null,
@@ -244,16 +246,16 @@
       },
       {
         "version": "0.10.0",
-        "date": "2017-01-16",
-        "added": null,
-        "changed": null,
+        "date": "2017-01-25",
+        "added": ["#102 Defined standard storage durations for uploaded files"],
+        "changed": ["#109 [Technical] We have written our own algorithm to serialize objects to compensate the lack of LIFO guarantees in RabbitMQ queues.",
+                    "#104 [Technical] Reusing the same code to print the score encoding paper sheet in OSIS and OSIS-Portal."],
         "deprecated": null,
         "removed": null,
-        "fixed": null,
+        "fixed": ["#95 The error that the listener was not acknowledging the queue after receiving a message has been fixed."],
         "security": null
       }
-    ],
-    "released": null
+    ]
   },
   {
     "year": 2016,
