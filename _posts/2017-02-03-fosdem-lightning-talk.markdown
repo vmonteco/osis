@@ -39,12 +39,29 @@ alt="OSIS administration interface based on Django Admin">
 
 On the other hand, been motivated about a technology and starting a project from
 scratch didn't accredited us to open up the code. Nevertheless, we did it, in a
-GitHub repository since the very first line of code. However, people were
-hardcoding references to internal resources, writing code in french instead of
-english, leaving no-sense comments, badly formatted code, forgetting to add the
-license on the top of the files and all sorts of things, as they used to do in
-the past. Fortunately, GitHub offers pull requests and we were able to review
-contributions before they got public. Over time all these problems were gone
+GitHub repository since the very first line of code. As a knowledge engine, UCL
+wanted to see how much better the university would become in terms of efficiency
+if all the processes and functionalities were openly available for constant
+evaluations and contributions from the academic community, instead of closed for
+a group of opinionated authorities how have no or little knowledge about how
+people actually works on the field. It also wanted to:
+
+* inspire entrepreneurs to build integrated services to improve students
+  academic experience;
+* empower departments, endowed with the necessary expertise, to fulfill their
+  particular needs by extending OSIS;
+* build up students' experience on real world projects to boost their chances
+  when applying for a job or founding a company; and
+* reduce maintenance cost for the University thanks to the range of reliable
+  open source products required by the application.
+
+At the beginning, the development team had a lot to learn about this new thing
+called open source. They were hardcoding references to internal resources,
+writing code in french instead of english, leaving no-sense comments, badly
+formatted code, forgetting to add the license on the top of the files and all
+sorts of things, as they used to do in the past. Fortunately, GitHub offers pull
+requests and we were able to review contributions before they go public. Over
+time all these problems were gone.
 
 As the project evolved, it started calling attention of the academic community.
 A week before going into production for general use, a computer science student
@@ -81,22 +98,7 @@ fundamental process, such as planning the academic year, managing partnerships
 with other institutions for exchange and mobility programs, assigning teachers
 to courses and courses to students, etc.
 
-For us, offering a reusable system is not the only advantage of being open
-source. It also means:
 
-* fully transparent operations for the entire academic community;
-* inspiration for entrepreneurs to build integrated services to improve students
-  academic experience;
-* empower departments, endowed with the necessary expertise, to fulfill their
-  particular needs by extending OSIS;
-* build up students' experience on real world projects to boost their chances
-  when applying for a job or founding a company; and
-* reduced maintenance cost for the University thanks to the range of reliable
-  open source products required by the application.
-
-
-* Why we are sharing our core business applications before any other higher
-  education institution.
 * How the academic community persuaded us to use Python/Django/PostgreSQL
   instead of JavaEE.
 * How we are adapting to this new reality that requires much more discipline and
