@@ -5,9 +5,10 @@ date:   2017-02-03 06:00:00
 categories: community conference presentation
 ---
 
-If you attended our talk at FOSDEM'2017, you're well aware that the Catholique University of Louvain (Université catholique de Louvain - UCL) has decided to
+If you attended our talk at FOSDEM'2017, you're well aware that the Catholique
+University of Louvain (Université catholique de Louvain - UCL) has decided to
 rewrite their core business applications in Python/Django, abandon the slow
-evolution and poor scalability of the JavaEE platform and made the new
+evolution and poor scalability of the JavaEE platform, and make the new
 application freely available as open source software. The talk shared with the
 community the experience on building OSIS, the open source transition, the
 cultural and technical shift, the engagement of students, teachers and employees
@@ -20,9 +21,11 @@ period, we have had great and tough moments. The greatest moment was the release
 of the score encoding app that has helped to save an enormous amount of time
 of teachers and administrative staff, by modernizing a previously manual and
 paper-based process. The toughest one was the struggle to implement the
-admission process, which revealed the fragility of our management style. But
-along the way, we have had many more wins than failures. Among all the problems
-we had in the past, we can confidently say that we are almost done with them.
+admission process, revealing that despite the simplification of the technical
+part the business complexity is still challenging. But along the way, we have
+had many more wins than failures. Most of problems we've faced in the past are
+now solved and 
+Among all the problems we've had in the past, we can confidently say that we are almost done with them.
 
 The full technical shift may seem radical for many, but the transition from
 Java to Python was the easiest part. Python allowed us to get rid of slow
@@ -60,8 +63,8 @@ called open source. They were hardcoding references to internal resources,
 writing code in french instead of english, leaving no-sense comments, badly
 formatted code, forgetting to add the license on the top of the files and all
 sorts of things, as they used to do in the past. Fortunately, GitHub offers pull
-requests and we were able to review contributions before they go public. Over
-time all these problems were gone.
+requests and we were able to review contributions before they got public. Over
+time, all these problems were gone.
 
 As the project evolved, it started calling attention of the academic community.
 A week before going into production for general use, a computer science student
