@@ -15,39 +15,42 @@ cultural and technical shift, the engagement of students, teachers and employees
 on the improvement of their own user experience, the costs implied and the
 productivity gains.
 
+<img src="{{ site.url }}/assets/posts/fosdem-mendonca.png"
+alt="Hildeberto Mendonça presenting OSIS at FOSDEM">
+
 The first release of OSIS happened a year ago, on January 31, 2016. We can say
 that this presentation is the celebration of its first anniversary. During this
 period, we have had great and tough moments. The greatest moment was the release
 of the score encoding app that has helped to save an enormous amount of time
-of teachers and administrative staff, by modernizing a previously manual and
-paper-based process. The toughest one was the struggle to implement the
-admission process, revealing that despite the simplification of the technical
-part the business complexity is still challenging. But along the way, we have
-had many more wins than failures. Most of problems we've faced in the past are
-now solved and 
-Among all the problems we've had in the past, we can confidently say that we are almost done with them.
+of teachers and administrative staff, by modernizing a previously paper-based
+process. The toughest one was the struggle to implement the admission process,
+revealing that the business complexity is still challenging, despite the
+simplification of the technical part. But along the way, we have had many more
+wins than failures, given that most of problems we've faced in the past are now
+solved.
 
 The full technical shift may seem radical for many, but the transition from
 Java to Python was the easiest part. Python allowed us to get rid of slow
 compilations, long redeployments, verbose code and a complex type system. The
-productivity skyrocketed instantaneously and all we had to do was to train the
-team on the fly, with almost no evangelization discourse. Nowadays, when we have
-to maintain the old system people get easily depressed, eager to come back to
-Python. Django is actually the perfect replacement for JavaEE. We get the entire
-administration for free and write just enough custom features to improve the
-user experience.
+productivity skyrocketed instantaneously. Python is so straightforward that
+we've trained the team on the fly, with almost no evangelization discourse.
+Nowadays, when we have to maintain the old Java system people feel disappointed,
+eager to come back to Python. Django is actually the perfect replacement for
+JavaEE. We get the entire administration for free and write just enough custom
+features to improve the user experience.
 
 <img src="{{ site.url }}/assets/posts/osis-studies-administration.png"
 alt="OSIS administration interface based on Django Admin">
 
 On the other hand, been motivated about a technology and starting a project from
-scratch didn't accredited us to open up the code. Nevertheless, we did it, in a
-GitHub repository since the very first line of code. As a knowledge engine, UCL
-wanted to see how much better the university would become in terms of efficiency
-if all the processes and functionalities were openly available for constant
-evaluations and contributions from the academic community, instead of closed for
-a group of opinionated authorities how have no or little knowledge about how
-people actually works on the field. It also wanted to:
+scratch didn't accredited us to open up the code right away. Nevertheless, we
+did it, in a GitHub repository since the very first line of code. As a knowledge
+engine, UCL wanted to see how much better the university would become in terms
+of efficiency if all the processes and functionalities were openly available for
+constant evaluations and contributions from the academic community, instead of
+closed to a group of experienced users who have valuable knowledge about the
+business, but little knowledge about how people actually use the application on
+the field. The university also wanted to:
 
 * inspire entrepreneurs to build integrated services to improve students
   academic experience;
@@ -55,56 +58,47 @@ people actually works on the field. It also wanted to:
   particular needs by extending OSIS;
 * build up students' experience on real world projects to boost their chances
   when applying for a job or founding a company; and
-* reduce maintenance cost for the University thanks to the range of reliable
-  open source products required by the application.
+* reduce maintenance cost thanks to the stack of reliable open source products
+  required by the application.
 
 At the beginning, the development team had a lot to learn about this new thing
-called open source. They were hardcoding references to internal resources,
-writing code in french instead of english, leaving no-sense comments, badly
-formatted code, forgetting to add the license on the top of the files and all
-sorts of things, as they used to do in the past. Fortunately, GitHub offers pull
-requests and we were able to review contributions before they got public. Over
-time, all these problems were gone.
+called Open Source Software (OSS). They were hardcoding references to internal
+resources, writing code in French instead of English, leaving no-sense comments
+for people out of context, badly formatted code, forgetting to add the license
+on the top of the files and all sorts of things, exactly like they used to do in
+the past. Fortunately, GitHub offers pull requests and we were able to review
+contributions before they got public. Over time, the culture changed and all
+these problems are gone.
 
 As the project evolved, it started calling attention of the academic community.
-A week before going into production for general use, a computer science student
-has detected a serious security flaw. We were not properly using Django security
-and we spent the weekend fixing it. We were lucky to have his input. This would
-not have happened if the project was not open source and we would be in big
-trouble writing proprietary software. We had the chance to present the project
-several times for academic and administrative staff and new opportunities
-appeared from nowhere. As we were busy rewriting the old application:
+We had the chance to present the project several times for academic and
+administrative staff, generating new opportunities such as:
 
-* A group of faculties, with their own resources, decided to contribute with an
-  application to manage dissertations and theses.
-* The faculty of medicine contributed with an app to manage students'
-  internships.
-* An administrative department will son manage the assignment of teachers'
+* A group of faculties decided to contribute with an application to manage
+  dissertations and theses. More and more faculties are joining the initiative.
+* The faculty of medicine contributed with an app to manage internships.
+* An administrative department will son manage the assignment of research
   assistants.
 * INGInious, another open source project developed in the computer science
   department to conduct online programming exams, will soon submit the scores of
-  the students directly to the assessment app.
+  the students directly to the score encoding app.
 
-Many other additional applications will be under discussion in the coming
+Many other additional applications will be under discussions in the coming
 months. That's an amount of work our fixed team of 5 programmers wouldn't be
-able to do any time soon. Being open source attracted contributions from 14
+able to do. Being open source attracted contributions from 13 additional
 individuals as well as the engagement of the Université Saint-Louis in Brussels,
 saving lots of money and time.
 
-<img src="{{ site.url }}/assets/posts/celebrating-first-general-availability.jpg"
-alt="Celebrating the first general availability of OSIS">
+<img src="{{ site.url }}/assets/posts/osis-admission.jpg"
+alt="The Frontoffice part of OSIS">
 
-We wish that many other higher education institutions join OSIS to build the
-state of the art in terms of management of the entire student’s lifecycle. This
-extends from the admission to the diploma and all information orbiting this
-fundamental process, such as planning the academic year, managing partnerships
-with other institutions for exchange and mobility programs, assigning teachers
-to courses and courses to students, etc.
+We wish many other higher education institutions join OSIS in the future to
+build the state of the art of student's lifecycle management. This extends from
+the admission to the diploma and all information orbiting this fundamental
+process, such as planning the academic year, managing partnerships with other
+institutions for exchange and mobility programs, assigning teachers to courses
+and courses to students, etc. Any knowledge and technical exchange would be
+extremely valuable.
 
-
-* How the academic community persuaded us to use Python/Django/PostgreSQL
-  instead of JavaEE.
-* How we are adapting to this new reality that requires much more discipline and
-  high quality craftsmanship work.
-* Why there is no doubt we will succeed in this entrepreneurship.
-* Why we need your help to better manage and write this open source software.
+Last but not least, we would like to thank FOSDEM's team for the excellent
+organization and for attracting so many smart people from all over Europe.
