@@ -89,7 +89,7 @@ able to do. Being open source attracted contributions from 13 additional
 individuals as well as the engagement of the Université Saint-Louis in Brussels,
 saving lots of money and time.
 
-<img src="{{ site.url }}/assets/posts/osis-admission.jpg"
+<img src="{{ site.url }}/assets/posts/osis-admission.png"
 alt="The Frontoffice part of OSIS">
 
 We wish many other higher education institutions join OSIS in the future to
