@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "OSIS Presentation at FOSDEM 2017"
-date:   2017-02-03 06:00:00
+date:   2017-02-13 06:00:00
 categories: community conference presentation
 ---
 
@@ -100,5 +100,5 @@ institutions for exchange and mobility programs, assigning teachers to courses
 and courses to students, etc. Any knowledge and technical exchange would be
 extremely valuable.
 
-Last but not least, we would like to thank FOSDEM's team for the excellent
+Last, but not least, we would like to thank FOSDEM's team for the excellent
 organization and for attracting so many smart people from all over Europe.
