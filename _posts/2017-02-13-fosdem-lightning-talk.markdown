@@ -15,7 +15,7 @@ cultural and technical shift, the engagement of students, teachers and employees
 on the improvement of their own user experience, the costs implied and the
 productivity gains.
 
-<img src="{{ site.url }}/assets/posts/fosdem-mendonca.png"
+<img src="{{ site.url }}/assets/posts/fosdem-mendonca.jpg"
 alt="Hildeberto Mendonça presenting OSIS at FOSDEM">
 
 The first release of OSIS happened a year ago, on January 31, 2016. We can say
