@@ -121,7 +121,9 @@
         "removed": null,
         "fixed": null,
         "security": null
-      },
+      }
+    ],
+    "released": [
       {
         "version": "0.28.0",
         "date": "2017-06-19",
@@ -325,9 +327,7 @@
         "removed": null,
         "fixed": null,
         "security": null
-      }
-    ],
-    "released": [
+      },
       {
         "version": "0.17.1",
         "date": "2017-01-30",
