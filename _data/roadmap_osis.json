@@ -125,6 +125,16 @@
     ],
     "released": [
       {
+        "version": "0.28.1",
+        "date": "2017-06-20",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#2490 [Technical] Do not remove the users from the groupe 'program managers' when removing a program manager from a offer."],
+        "security": null
+      },
+      {
         "version": "0.28.0",
         "date": "2017-06-19",
         "added": ["#2357 [Technical] Added unit tests to verify the administration of program managers.",
@@ -326,6 +336,76 @@
         "deprecated": null,
         "removed": null,
         "fixed": null,
+        "security": null
+      },
+      {
+        "version": "0.17.8",
+        "date": "2017-02-07",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#1762 [Technical] Updated reference to osis-common (0.11.6)."],
+        "security": null
+      },
+      {
+        "version": "0.17.7",
+        "date": "2017-02-05",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#1751 [Technical] Updated reference to osis-common."],
+        "security": null
+      },
+      {
+        "version": "0.17.6",
+        "date": "2017-02-04",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#1747 [Technical] Updated reference to osis-common and put in place a better logger for the queue auto reconnection."],
+        "security": null
+      },
+      {
+        "version": "0.17.5",
+        "date": "2017-02-04",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#1737 Updated reference to osis-common (0.11.3)."],
+        "security": null
+      },
+      {
+        "version": "0.17.4",
+        "date": "2017-02-01",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#1730 [Technical] Updated reference to osis-common (0.11.2)."],
+        "security": null
+      },
+      {
+        "version": "0.17.3",
+        "date": "2017-01-31",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#1726 Removed the possibility of changing the end date of the score encoding as a program manager."],
+        "security": null
+      },
+      {
+        "version": "0.17.2",
+        "date": "2017-01-31",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#1724 [Technical] Updated reference to osis-common (0.11.1) and adapted the default settings."],
         "security": null
       },
       {

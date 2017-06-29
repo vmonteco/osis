@@ -133,6 +133,16 @@
         "security": null
       },
       {
+        "version": "0.16.1",
+        "date": "2017-06-28",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#1122 Clearly show a message to explain the user must use VPN to access an application in the intranet."],
+        "security": null
+      },
+      {
         "version": "0.16.0",
         "date": "2017-06-05",
         "added": null,
@@ -256,14 +266,114 @@
     ],
     "released": [
       {
+        "version": "0.6.10",
+        "date": "2017-02-09",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#773 Correction in signals responsible for groups management on user creation.",
+                  "#778 Raised the length of user last_name and username DB fields."],
+        "security": null
+      },
+      {
+        "version": "0.6.9",
+        "date": "2017-02-07",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#769 [Technical] Updated reference to osis-common (0.11.6)."],
+        "security": null
+      },
+      {
+        "version": "0.6.8",
+        "date": "2017-02-07",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#765 Fixes in the screen of student's performance results."],
+        "security": null
+      },
+      {
+        "version": "0.6.7",
+        "date": "2017-02-05",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#750 Fixes in the screen of student's performance results."],
+        "security": null
+      },
+      {
+        "version": "0.6.6",
+        "date": "2017-02-04",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#754 [Technical] Updated reference to osis-common (0.11.4) and fixed the queue listener."],
+        "security": null
+      },
+      {
+        "version": "0.6.5",
+        "date": "2017-02-04",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#747 [Technical] Updated reference to osis-common (0.11.3)."],
+        "security": null
+      },
+      {
+        "version": "0.6.4",
+        "date": "2017-02-01",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#737 [Technical] Changed the url returned by the login method."],
+        "security": null
+      },
+      {
+        "version": "0.6.3",
+        "date": "2017-02-01",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#732 [Technical] ScoreEncoding doesn't inherits from SerialisableModel anymore."],
+        "security": null
+      },
+      {
+        "version": "0.6.2",
+        "date": "2017-02-01",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#728 [Tecnical] Update osis-common ref (0.11.2). Add try except when calling rpc queue client."],
+        "security": null
+      },
+      {
+        "version": "0.6.1",
+        "date": "2017-01-31",
+        "added": null,
+        "changed": null,
+        "deprecated": null,
+        "removed": null,
+        "fixed": ["#720 [Technical] Update reference to the latest version (0.11.1) of uclouvain/osis-common and adapted the default settings."],
+        "security": null
+      },
+      {
         "version": "0.6.0",
         "date": "2017-01-30",
         "added": null,
-        "changed": ["#572 Change French traduction of InstitutionalGradeType 'Master spécialisé' into 'Master de spécialisation'",
-                    "#702 Correction and improvement of student_performance."],
+        "changed": ["#702 Correction and improvement of student_performance."],
         "deprecated": null,
         "removed": null,
-        "fixed": null,
+        "fixed": ["#572 French translation of 'InstitutionalGradeType 'Master spécialisé' is changed to 'Master de spécialisation'."],
         "security": null
       },
       {
