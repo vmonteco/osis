@@ -15,5 +15,6 @@ django-dotenv==1.4.1
 pendulum==1.2.0
 djangorestframework==3.3.2
 requests==2.18.3
+django-redis==4.8.0
 
 -r ./osis_common/requirements.txt

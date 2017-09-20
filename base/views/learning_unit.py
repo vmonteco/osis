@@ -24,7 +24,6 @@
 #
 ##############################################################################
 import datetime
-import re
 from collections import OrderedDict
 from django.contrib import messages
 from django.conf import settings
@@ -39,6 +38,7 @@ from base import models as mdl
 from base.business import learning_unit_year_volumes
 from base.business import learning_unit_year_with_context
 from attribution import models as mdl_attr
+from base.decorators import cache_filter
 from base.models import entity_container_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -83,6 +83,7 @@ MAX_RECORDS = 1000
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
+@cache_filter()
 def learning_units(request):
     if request.GET.get('academic_year_id'):
         form = LearningUnitYearForm(request.GET)
