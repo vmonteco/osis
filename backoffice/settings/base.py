@@ -136,6 +136,8 @@ if os.environ.get("CACHE_ENABLED", 'False').lower() == 'true':
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
                 "SERIALIZER": "django_redis.serializers.json.JSONSerializer",
+                "SOCKET_CONNECT_TIMEOUT": 2,
+                "SOCKET_TIMEOUT": 2,
             },
             "KEY_PREFIX": os.environ.get("REDIS_PREFIX", 'osis')
         }

@@ -23,19 +23,31 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import traceback
+
+import logging
+
+from django.conf import settings
 from django.core.cache import cache
 from functools import wraps
 
 CACHE_FILTER_TIMEOUT = None
 
+logger = logging.getLogger(settings.DEFAULT_LOGGER)
 
 def cache_filter(param_list=None):
     def decorator(func):
         @wraps(func)
         def inner(request, *args, **kwargs):
-            if request.GET:
-                _save_filter_to_cache(request, param_list)
-            _restore_filter_from_cache(request)
+            try:
+                if request.GET:
+                    _save_filter_to_cache(request, param_list)
+                _restore_filter_from_cache(request)
+            except Exception:
+                logger.warning('An error occured with cache system')
+                trace = traceback.format_exc()
+                logger.error(trace)
+
             return func(request, *args, **kwargs)
         return inner
     return decorator
