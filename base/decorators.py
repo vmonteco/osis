@@ -33,17 +33,25 @@ def cache_filter(param_list=None):
     def decorator(func):
         @wraps(func)
         def inner(request, *args, **kwargs):
-            param_encoded = [{key: value} for key, value in request.GET.items() if key in param_list]  \
-                            if param_list else request.GET
-            _save_to_cache(request, param_encoded)
+            if request.GET:
+                _save_filter_to_cache(request, param_list)
+            _restore_filter_from_cache(request)
             return func(request, *args, **kwargs)
         return inner
     return decorator
 
 
-def _save_to_cache(request, param_to_cache):
+def _save_filter_to_cache(request, param_list):
+    param_to_cache = [{key: value} for key, value in request.GET.items() if key in param_list] \
+                     if param_list else request.GET
     key = get_filter_key(request)
     cache.set(key, param_to_cache, timeout=CACHE_FILTER_TIMEOUT)
+
+
+def _restore_filter_from_cache(request):
+    cached_value = _get_from_cache(request)
+    if cached_value:
+        request.GET = cached_value
 
 
 def _get_from_cache(request):
