@@ -127,7 +127,7 @@ DATABASES = {
 }
 
 
-if os.environ.get("CACHE_ENABLED", False).lower() == 'true':
+if os.environ.get("CACHE_ENABLED", 'False').lower() == 'true':
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
