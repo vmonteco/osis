@@ -142,6 +142,8 @@ if os.environ.get("CACHE_ENABLED", 'False').lower() == 'true':
             "KEY_PREFIX": os.environ.get("REDIS_PREFIX", 'osis')
         }
     }
+    SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+    SESSION_CACHE_ALIAS = "default"
 
 
 
