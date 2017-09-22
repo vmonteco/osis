@@ -55,6 +55,7 @@ from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
+from base.utils import navigation_objects
 from cms import models as mdl_cms
 from cms.enums import entity_name
 from base.forms.learning_units import LearningUnitYearForm, CreateLearningUnitYearForm
@@ -106,13 +107,19 @@ def learning_units(request):
         'current_academic_year': mdl.academic_year.current_academic_year(),
         'experimental_phase': True
     })
+
+    #Set ids in cache in order to improve navigation
+    if found_learning_units:
+        objects_ids = [{'id': data.id, 'value': data.acronym} for data in found_learning_units]
+        navigation_objects.set_objects_ids(request, 'learning_units_ids', objects_ids)
+
     return layout.render(request, "learning_units.html", context)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_identification(request, learning_unit_year_id):
-    context = _get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
     learning_unit_year = context['learning_unit_year']
     context['learning_container_year_partims'] = _get_partims_related(learning_unit_year)
     context['organization'] = _get_organization_from_learning_unit_year(learning_unit_year)
@@ -122,21 +129,20 @@ def learning_unit_identification(request, learning_unit_year_id):
     context.update(_get_all_attributions(learning_unit_year))
     context['components'] = get_components_identification(learning_unit_year)
     context['volume_distribution'] = volume_distribution(learning_unit_year)
-
     return layout.render(request, "learning_unit/identification.html", context)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_formations(request, learning_unit_year_id):
-    context = _get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
     return layout.render(request, "learning_unit/formations.html", context)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_components(request, learning_unit_year_id):
-    context = _get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
     context['components'] = get_same_container_year_components(context['learning_unit_year'], True)
     context['tab_active'] = 'components'
     context['experimental_phase'] = True
@@ -160,7 +166,7 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
     if request.method == 'POST':
         _learning_unit_volumes_management_edit(request, learning_unit_year_id)
 
-    context = _get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
     context['learning_units'] = learning_unit_year_with_context.get_with_context(
         learning_container_year_id=context['learning_unit_year'].learning_container_year_id
     )
@@ -208,7 +214,7 @@ def _perserve_volume_encoded(request, context):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_pedagogy(request, learning_unit_year_id):
-    context = _get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
     learning_unit_year = context['learning_unit_year']
 
     CMS_LABEL = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
@@ -239,7 +245,7 @@ def learning_unit_pedagogy_edit(request, learning_unit_year_id):
         return HttpResponseRedirect(reverse("learning_unit_pedagogy",
                                             kwargs={'learning_unit_year_id':learning_unit_year_id}))
 
-    context = _get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
     label_name = request.GET.get('label')
     language = request.GET.get('language')
     text_lb = text_label.find_root_by_name(label_name)
@@ -261,7 +267,7 @@ def learning_unit_pedagogy_edit(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_attributions(request, learning_unit_year_id):
-    context = _get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
     context['attributions'] = mdl_attr.attribution.find_by_learning_unit_year(learning_unit_year=learning_unit_year_id)
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/attributions.html", context)
@@ -270,14 +276,14 @@ def learning_unit_attributions(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_proposals(request, learning_unit_year_id):
-    context = _get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
     return layout.render(request, "learning_unit/proposals.html", context)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_specifications(request, learning_unit_year_id):
-    context = _get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
     learning_unit_year = context['learning_unit_year']
 
     CMS_LABEL = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
@@ -306,7 +312,7 @@ def learning_unit_specifications_edit(request, learning_unit_year_id):
         return HttpResponseRedirect(reverse("learning_unit_specifications",
                                             kwargs={'learning_unit_year_id': learning_unit_year_id}))
 
-    context = _get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
     label_name = request.GET.get('label')
     text_lb = text_label.find_root_by_name(label_name)
     language = request.GET.get('language')
@@ -346,13 +352,17 @@ def _get_common_context_list_learning_unit_years():
     return context
 
 
-def _get_common_context_learning_unit_year(learning_unit_year_id):
+def _get_common_context_learning_unit_year(request, learning_unit_year_id):
     learning_unit_year = mdl.learning_unit_year.find_by_id(learning_unit_year_id)
 
     context = {
         'learning_unit_year': learning_unit_year,
         'current_academic_year': mdl.academic_year.current_academic_year()
     }
+
+    context.update(
+        navigation_objects.get_next_and_previous_object(request, 'learning_units_ids', learning_unit_year_id)
+    )
     return context
 
 
@@ -579,7 +589,7 @@ def _is_used_by_full_learning_unit_year(a_learning_class_year):
 @permission_required('base.change_learningcomponentyear', raise_exception=True)
 @require_http_methods(["GET", "POST"])
 def learning_unit_component_edit(request, learning_unit_year_id):
-    context = _get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
     learning_component_id = request.GET.get('learning_component_year_id')
     context['learning_component_year'] = mdl.learning_component_year.find_by_id(learning_component_id)
 
@@ -603,7 +613,7 @@ def learning_unit_component_edit(request, learning_unit_year_id):
 @permission_required('base.change_learningclassyear', raise_exception=True)
 @require_http_methods(["GET", "POST"])
 def learning_class_year_edit(request, learning_unit_year_id):
-    context = _get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
     context.update(
         {'learning_class_year': mdl.learning_class_year.find_by_id(request.GET.get('learning_class_year_id')),
          'learning_component_year':
