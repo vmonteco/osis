@@ -55,7 +55,4 @@ def _get_next_id_object(list_ids, current_index_id):
 
 
 def _get_previous_id_object(list_ids, current_index_id):
-    try:
-        return list_ids[current_index_id - 1]
-    except:
-        return None
+    return list_ids[current_index_id - 1] if current_index_id > 0 else None

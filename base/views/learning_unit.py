@@ -30,6 +30,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
+from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
@@ -96,8 +97,9 @@ def learning_units(request):
         if not _check_if_display_message(request, found_learning_units):
             found_learning_units = None
 
-    context = _get_common_context_list_learning_unit_years()
+    _cache_learning_unit_years(request, found_learning_units)
 
+    context = _get_common_context_list_learning_unit_years()
     context.update({
         'form': form,
         'academic_years': mdl.academic_year.find_academic_years(),
@@ -107,13 +109,24 @@ def learning_units(request):
         'current_academic_year': mdl.academic_year.current_academic_year(),
         'experimental_phase': True
     })
-
-    #Set ids in cache in order to improve navigation
-    if found_learning_units:
-        objects_ids = [{'id': data.id, 'value': data.acronym} for data in found_learning_units]
-        navigation_objects.set_objects_ids(request, 'learning_units_ids', objects_ids)
-
     return layout.render(request, "learning_units.html", context)
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+@require_http_methods(['POST'])
+def learning_units_update_cache(request):
+    form = LearningUnitYearForm(request.POST)
+    if form.is_valid():
+        found_learning_units = form.get_learning_units()
+        _cache_learning_unit_years(request, found_learning_units)
+    return HttpResponse(status=204)
+
+
+def _cache_learning_unit_years(request, learning_unit_years):
+    if learning_unit_years:
+        objects_ids = [{'id': data.id, 'value': data.acronym} for data in learning_unit_years]
+        navigation_objects.set_objects_ids(request, 'learning_units_ids', objects_ids)
 
 
 @login_required

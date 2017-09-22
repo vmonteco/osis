@@ -38,6 +38,21 @@ from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_Y
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from reference.models.language import find_all_languages
 
+ORDER_COLUMNS = (
+    ('academic_year__year', _("academic_year_small")),
+    ('acronym', _("code")),
+    ('title', _("title")),
+    ('learning_container_year__container_type', _("type")),
+    ('subtype', _("subtype")),
+    ('requirement_entity_small', _("requirement_entity_small")),
+    ('allocation_entity_small', _("allocation_entity_small")),
+    ('credits', _("credits")),
+    ('status', _("active")),
+)
+SORT = (
+    ('asc', _("asc")),
+    ('desc', _("desc")),
+)
 
 class LearningUnitYearForm(forms.Form):
     academic_year_id = forms.CharField(max_length=10, required=False)
@@ -46,6 +61,8 @@ class LearningUnitYearForm(forms.Form):
         widget=forms.TextInput(attrs={'size': '10', 'class': 'form-control'}),
         max_length=20, required=False)
     with_entity_subordinated = forms.BooleanField(required=False)
+    order_by = forms.ChoiceField(choices=ORDER_COLUMNS, widget=forms.HiddenInput(), required=False)
+    sort = forms.ChoiceField(choices=SORT, widget=forms.HiddenInput(), required=False)
 
     def clean_acronym(self):
         MIN_ACRONYM_LENGTH = 3
@@ -54,6 +71,12 @@ class LearningUnitYearForm(forms.Form):
         if data_cleaned and len(data_cleaned) < MIN_ACRONYM_LENGTH:
             raise ValidationError(_('LU_WARNING_INVALID_ACRONYM'))
         return data_cleaned
+
+    def clean_sort(self):
+        data_cleaned = self.cleaned_data.get('sort')
+        if data_cleaned == 'desc':
+            return '-'
+        return ''
 
     def clean_academic_year_id(self):
         data_cleaned = self.cleaned_data.get('academic_year_id')
@@ -84,10 +107,13 @@ class LearningUnitYearForm(forms.Form):
                                              to_attr='entity_containers_year')
 
         clean_data['learning_container_year_id'] = _get_filter_learning_container_ids(clean_data)
+        order_by = self.cleaned_data['order_by'] if self.cleaned_data['order_by'] else 'academic_year__year'
+        sort = self.cleaned_data['sort'] if self.cleaned_data['sort'] else ''
+
         learning_units = mdl.learning_unit_year.search(**clean_data) \
             .select_related('academic_year', 'learning_container_year') \
             .prefetch_related(entity_container_prefetch) \
-            .order_by('academic_year__year', 'acronym')
+            .order_by("".join([sort, order_by]))
         return [_append_latest_entities(learning_unit) for learning_unit in learning_units]
 
 

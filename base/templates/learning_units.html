@@ -51,7 +51,8 @@
     </div>
 </div>
 <div class="panel panel-default">
-    <form style="border-bottom: 1px solid #ddd;" method="get" action="{% url 'learning_units'%}" id="form_learning_units" name="search">
+    <form style="border-bottom: 1px solid #ddd;" method="get" action="{% url 'learning_units'%}" id="form_learning_units" name="search"
+          data-update-cache-url="{% url 'learning_units_update_cache'%}">
         <div class="panel-body">
             <div class="row">
                 <div class="col-md-2">
@@ -154,6 +155,8 @@
                 </div>
             </div>
         </div>
+        {{ form.order_by }}
+        {{ form.sort }}
     </form>
     <div style="margin-top:10px;">
         {% include "template_messages.html" %}
@@ -169,15 +172,15 @@
         <strong style="margin-left:10px;color:grey;"> {{learning_units|length}} {% trans 'learning_units'|lower %} </strong>
         <table id="table_learning_units" class="table table-striped table-hover">
             <thead>
-                <th>{% trans 'academic_year_small'%}</th>
-                <th>{% trans 'code'%}</th>
-                <th  id="lu_title_sort" ">{% trans 'title'%}</th>
-                <th>{% trans 'type'%}</th>
-                <th>{% trans 'subtype'%}</th>
-                <th>{% trans 'requirement_entity_small'%}</th>
-                <th>{% trans 'allocation_entity_small'%}</th>
-                <th>{% trans 'credits'%}</th>
-                <th>{% trans 'active'|title%}</th>
+                <th data-order="academic_year__year">{% trans 'academic_year_small'%}</th>
+                <th data-order="acronym">{% trans 'code'%}</th>
+                <th data-order="title">{% trans 'title'%}</th>
+                <th data-order="learning_container_year__container_type">{% trans 'type'%}</th>
+                <th data-order="subtype">{% trans 'subtype'%}</th>
+                <th data-order="requirement_entity_small" >{% trans 'requirement_entity_small'%}</th>
+                <th data-order="allocation_entity_small">{% trans 'allocation_entity_small'%}</th>
+                <th data-order="credits">{% trans 'credits'%}</th>
+                <th data-order="status">{% trans 'active'|title%}</th>
             </thead>
             {% for learning_unit in learning_units %}
             <tr>
@@ -222,23 +225,46 @@
 <script>
     $(document).ready(function()
     {
-        $('#table_learning_units').DataTable(
-            {
-                columnDefs: [
-                    { targets: 2, type: 'diacritics-neutralise'}
-                ],
-                "stateSave": true,
-                "paging" : false,
-                "ordering" : true,
-                "info"  : false,
-                "searching" : false,
-                "language": {
-                    "oAria": {
-                        "sSortAscending":  "{% trans 'datatable_sortascending'%}",
-                        "sSortDescending": "{% trans 'datatable_sortdescending'%}",
-                    }
+        function update_cache() {
+            var form = $("#form_learning_units");
+            $.ajax({
+                url: form.attr("data-update-cache-url"),
+                data: form.serialize(),
+                type: 'post',
+                dataType: 'json'
+            });
+        }
+
+        var table = $('#table_learning_units').DataTable({
+            columnDefs: [
+                { targets: 2, type: 'diacritics-neutralise'}
+            ],
+            "stateSave": true,
+            "paging" : false,
+            "ordering" : true,
+            "info"  : false,
+            "searching" : false,
+            "language": {
+                "oAria": {
+                    "sSortAscending":  "{% trans 'datatable_sortascending'%}",
+                    "sSortDescending": "{% trans 'datatable_sortdescending'%}",
                 }
-            })
-    ;});
+            }
+        });
+
+        // Event on ordering cell - Refresh cache
+        $('#table_learning_units').on('order.dt', function() {
+            var order = table.order();
+
+            var order_by = $('#table_learning_units th:eq(' + order[0][0] + ')').data('order')
+            var sort = order[0][1]
+
+            //Set order by to input value order by
+            $('#id_order_by').val(order_by)
+            $('#id_sort').val(sort)
+
+            update_cache()
+        });
+    });
 </script>
 {% endblock %}
