@@ -856,6 +856,7 @@ def check_acronym(request):
     if learning_unit_years:
         existing_acronym = True
         valid = False
+
     return JsonResponse({'valid': valid,
                          'existing_acronym': existing_acronym,
                          'existed_acronym': existed_acronym,
