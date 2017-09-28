@@ -30,7 +30,6 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
-from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
@@ -56,7 +55,6 @@ from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
-from base.utils import navigation_objects
 from cms import models as mdl_cms
 from cms.enums import entity_name
 from base.forms.learning_units import LearningUnitYearForm, CreateLearningUnitYearForm
@@ -97,8 +95,6 @@ def learning_units(request):
         if not _check_if_display_message(request, found_learning_units):
             found_learning_units = None
 
-    _cache_learning_unit_years(request, found_learning_units)
-
     context = _get_common_context_list_learning_unit_years()
     context.update({
         'form': form,
@@ -110,23 +106,6 @@ def learning_units(request):
         'experimental_phase': True
     })
     return layout.render(request, "learning_units.html", context)
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-@require_http_methods(['POST'])
-def learning_units_update_cache(request):
-    form = LearningUnitYearForm(request.POST)
-    if form.is_valid():
-        found_learning_units = form.get_learning_units()
-        _cache_learning_unit_years(request, found_learning_units)
-    return HttpResponse(status=204)
-
-
-def _cache_learning_unit_years(request, learning_unit_years):
-    if learning_unit_years:
-        objects_ids = [{'id': data.id, 'value': data.acronym} for data in learning_unit_years]
-        navigation_objects.set_objects_ids(request, 'learning_units_ids', objects_ids)
 
 
 @login_required
@@ -372,10 +351,6 @@ def _get_common_context_learning_unit_year(request, learning_unit_year_id):
         'learning_unit_year': learning_unit_year,
         'current_academic_year': mdl.academic_year.current_academic_year()
     }
-
-    context.update(
-        navigation_objects.get_next_and_previous_object(request, 'learning_units_ids', learning_unit_year_id)
-    )
     return context
 
 

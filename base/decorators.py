@@ -23,8 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import traceback
-
 import logging
 
 from django.conf import settings
@@ -46,10 +44,7 @@ def cache_filter(param_list=None):
                     _save_filter_to_cache(request, param_list)
                 _restore_filter_from_cache(request, param_list)
             except Exception:
-                logger.warning('An error occured with cache system')
-                trace = traceback.format_exc()
-                logger.error(trace)
-
+                logger.exception('An error occured with cache system')
             return func(request, *args, **kwargs)
         return inner
     return decorator
