@@ -23,19 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.conf import settings
-
 CONTEXT_KEY_PREVIOUS = 'previous_object'
 CONTEXT_KEY_NEXT = 'next_object'
 
 
 def set_objects_ids(request, session_key, list_ids):
-    if settings.CACHE_ENABLED:
-        request.session[session_key] = list_ids
+    request.session[session_key] = list_ids
 
 
 def get_next_and_previous_object(request, session_key, current_id):
-    object_ids = request.session.get(session_key, []) if settings.CACHE_ENABLED else []
+    object_ids = request.session.get(session_key, [])
     current_index_id = _get_current_index(object_ids, current_id)
     return {
         CONTEXT_KEY_PREVIOUS: _get_previous_id_object(object_ids, current_index_id),
@@ -55,4 +52,4 @@ def _get_next_id_object(list_ids, current_index_id):
 
 
 def _get_previous_id_object(list_ids, current_index_id):
-    return list_ids[current_index_id - 1] if current_index_id > 0 else None
+    return list_ids[current_index_id - 1] if list_ids and current_index_id > 0 else None

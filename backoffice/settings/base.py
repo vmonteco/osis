@@ -142,9 +142,9 @@ if CACHE_ENABLED:
             "KEY_PREFIX": os.environ.get("REDIS_PREFIX", 'osis')
         }
     }
-    SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-    SESSION_CACHE_ALIAS = "default"
 
+SESSION_ENGINE = "django.contrib.sessions.backends.cache" if CACHE_ENABLED else \
+                        "django.contrib.sessions.backends.signed_cookies"
 
 
 # Internationalization
