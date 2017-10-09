@@ -132,6 +132,8 @@ urlpatterns = [
         url(r'^$', education_group.education_groups, name='education_groups'),
         url(r'^(?P<education_group_year_id>[0-9]+)/', include([
             url(r'^$', education_group.education_group_read, name='education_group_read'),
+            url(r'^2M$', education_group.education_group_2m, name='education_group_2m'),
+
         ]))
     ])),
 

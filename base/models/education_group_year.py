@@ -25,6 +25,7 @@
 ##############################################################################
 from django.db import models
 from django.contrib import admin
+
 from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
     diploma_printing_orientation, active_status, duration_unit
 from base.models import offer_year_domain as mdl_offer_year_domain
@@ -32,12 +33,13 @@ from base.models import offer_year_entity as mdl_offer_year_entity
 from base.models import entity_version as mdl_entity_version
 from base.models.enums import education_group_categories
 from base.models.enums import offer_year_entity_type
+from base.models.group_element_year import GroupElementYear
 
 
 class EducationGroupYearAdmin(admin.ModelAdmin):
     list_display = ('acronym', 'title', 'academic_year', 'education_group_type', 'changed')
     fieldsets = ((None, {'fields': ('academic_year', 'acronym', 'title', 'education_group_type', 'education_group',
-                                    'active', 'partial_deliberation', 'admission_exam',
+                                    'active', 'partial_deliberation', 'admission_exam', 'category',
                                     'funding', 'funding_direction', 'funding_cud', 'funding_direction_cud',
                                     'academic_type', 'university_certificate', 'fee_type', 'enrollment_campus',
                                     'main_teaching_campus', 'dissertation', 'internship',
@@ -124,6 +126,22 @@ class EducationGroupYear(models.Model):
             return ev
         return None
 
+    # TODO check if this properties are allowed.
+    # It could be easier to use directly a FK (parent) as a column of the table
+    @property
+    def parent_by_group_element_year(self):
+        group_element_year = GroupElementYear.objects.filter(child_branch=self).first()
+        return group_element_year.parent if group_element_year else None
+
+    @property
+    def children_by_group_element_year(self):
+        children = []
+        group_elements_year = GroupElementYear.objects.filter(parent=self)
+        for group_element_year in group_elements_year:
+            if group_element_year.child_branch:
+                children.append(group_element_year.child_branch)
+        return children
+
 
 def find_by_id(an_id):
     try:
@@ -158,4 +176,10 @@ def search(*args, **kwargs):
             qs = qs.filter(education_group_type=kwargs['education_group_type'])
 
     return qs.select_related('education_group_type', 'academic_year')
+
+
+
+
+
+
 

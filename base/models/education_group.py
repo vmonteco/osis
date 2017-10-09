@@ -44,3 +44,5 @@ class EducationGroup(models.Model):
         permissions = (
             ("can_access_education_group", "Can access education_group"),
         )
+
+

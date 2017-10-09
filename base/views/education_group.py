@@ -76,6 +76,13 @@ def _education_group_identification_tab(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
     return layout.render(request, "education_group/tab_identification.html", locals())
 
+@login_required
+@permission_required('base.can_access_offer', raise_exception=True)
+def education_group_2m(request, education_group_year_id):
+    education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+    print(education_group_year.parent_by_group_element_year)
+    return layout.render(request, "education_group/tab_2m.html", locals())
+
 
 def get_education_group_years(academic_yr, acronym, entity):
     if entity:
