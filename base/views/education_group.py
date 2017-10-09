@@ -69,10 +69,6 @@ def _check_if_display_message(request, education_groups):
 @login_required
 @permission_required('base.can_access_offer', raise_exception=True)
 def education_group_read(request, education_group_year_id):
-    return _education_group_identification_tab(request, education_group_year_id)
-
-
-def _education_group_identification_tab(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
     return layout.render(request, "education_group/tab_identification.html", locals())
 
@@ -80,17 +76,16 @@ def _education_group_identification_tab(request, education_group_year_id):
 @permission_required('base.can_access_offer', raise_exception=True)
 def education_group_2m(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
-    print(education_group_year.parent_by_group_element_year)
     return layout.render(request, "education_group/tab_2m.html", locals())
 
-
+# TODO unused method
 def get_education_group_years(academic_yr, acronym, entity):
     if entity:
-        education_group_year_entitys = []
+        education_group_year_entities = []
         education_group_years = mdl.education_group_year.search(academic_yr=academic_yr, acronym=acronym)
         for education_group_yr in education_group_years:
             if education_group_yr.management_entity and education_group_yr.management_entity.acronym.upper() == entity.upper():
-                education_group_year_entitys.append(education_group_yr)
-        return education_group_year_entitys
+                education_group_year_entities.append(education_group_yr)
+        return education_group_year_entities
     else:
         return mdl.education_group_year.search(academic_yr=academic_yr, acronym=acronym)

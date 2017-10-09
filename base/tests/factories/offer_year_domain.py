@@ -25,24 +25,19 @@
 ##############################################################################
 import factory
 import factory.fuzzy
-
-from base.models.enums import education_group_categories
 from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.education_group import EducationGroupFactory
+from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.offer import OfferFactory
+from base.tests.factories.offer_year import OfferYearFactory
+from base.tests.factories.structure import StructureFactory
 from base.tests.factories.offer_type import OfferTypeFactory
+from reference.models.domain import Domain
 
 
-def generate_title(education_group_year):
-    return '{obj.academic_year} {obj.acronym}'.format(obj=education_group_year).lower()
-
-
-class EducationGroupYearFactory(factory.django.DjangoModelFactory):
+class OfferYearDomainFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = "base.EducationGroupYear"
+        model = "base.OfferYearDomain"
 
-    education_group = factory.SubFactory(EducationGroupFactory)
-    academic_year = factory.SubFactory(AcademicYearFactory)
-    acronym = factory.Sequence(lambda n: 'Education %d' % n)
-    title = factory.LazyAttribute(generate_title)
-    category = education_group_categories.TRAINING
-    education_group_type = factory.SubFactory(OfferTypeFactory)
+    offer_year = factory.SubFactory(OfferYearFactory)
+    education_group_year = factory.SubFactory(EducationGroupYearFactory)
+    domain = Domain()

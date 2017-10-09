@@ -150,7 +150,7 @@ def find_by_id(an_id):
         return None
 
 
-def search(*args, **kwargs):
+def search(**kwargs):
     qs = EducationGroupYear.objects
 
     if "id" in kwargs:

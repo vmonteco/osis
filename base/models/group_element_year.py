@@ -30,10 +30,11 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 
 class GroupElementYearAdmin(SerializableModelAdmin):
-    list_display = ('parent', 'child_branch', 'child_leaf')
-    fieldsets = ((None, {'fields': ('parent', 'child_branch', 'child_leaf')}),)
+    list_display = ('parent', 'child_branch',
+                    'child_leaf', 'learning_unit_year')
+    fieldsets = ((None, {'fields': ('parent', 'child_branch', 'child_leaf', 'learning_unit_year')}),)
 
-    raw_id_fields = ('parent', 'child_branch', 'child_leaf')
+    raw_id_fields = ('parent', 'child_branch', 'child_leaf', 'learning_unit_year')
 
 
 class GroupElementYear(SerializableModel):
@@ -41,4 +42,5 @@ class GroupElementYear(SerializableModel):
     changed = models.DateTimeField(null=True, auto_now=True)
     parent = models.ForeignKey('EducationGroupYear', related_name='parent', blank=True, null=True)
     child_branch = models.ForeignKey('EducationGroupYear', related_name='child_branch', blank=True, null=True)
-    child_leaf = models.ForeignKey('LearningUnitYear', related_name='child_leaf', blank=True, null=True)
+    child_leaf = models.ForeignKey('EducationGroupYear', related_name='child_leaf', blank=True, null=True)
+    learning_unit_year = models.ForeignKey('LearningUnitYear', blank=True, null=True)

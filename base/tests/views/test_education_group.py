@@ -32,6 +32,7 @@ from django.test import TestCase, RequestFactory
 from base.models.academic_calendar import AcademicCalendar
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.group_element_year import GroupElementYearFactory
 
 
 def save(self, *args, **kwargs):
@@ -130,3 +131,31 @@ class EducationGroupViewTestCase(TestCase):
         request, template, context = mock_render.call_args[0]
 
         self.assertEqual(template, 'education_group/tab_identification.html')
+
+    @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.views.layout.render')
+    @mock.patch('base.models.program_manager.is_program_manager', return_value=True)
+    def test_education_group_2m(self,
+                                  mock_program_manager,
+                                  mock_render,
+                                  mock_decorators):
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+
+        education_group_year_child = EducationGroupYearFactory(academic_year=self.academic_year)
+        education_group_year_parent = EducationGroupYearFactory(academic_year=self.academic_year)
+        GroupElementYearFactory(parent=education_group_year_parent, child_branch=education_group_year_child)
+
+        request = mock.Mock(method='GET')
+
+        from base.views.education_group import education_group_2m
+
+        education_group_2m(request, education_group_year_child.id)
+
+        self.assertTrue(mock_render.called)
+
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'education_group/tab_2m.html')
+
+        self.assertEqual(context['education_group_year'].parent_by_group_element_year, education_group_year_parent)
