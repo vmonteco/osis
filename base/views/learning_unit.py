@@ -167,10 +167,6 @@ def _is_a_valid_volume_key(post_key):
     return post_key in learning_unit_year_volumes.VALID_VOLUMES_KEYS
 
 
-def _perserve_volume_encoded(request, context):
-    pass
-
-
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_pedagogy(request, learning_unit_year_id):
@@ -299,6 +295,7 @@ def _check_if_display_message(request, found_learning_units):
             messages.add_message(request, messages.WARNING, _('too_many_results'))
             return False
     return True
+
 
 def _get_common_context_list_learning_unit_years():
     today = datetime.date.today()
@@ -716,6 +713,7 @@ def learning_units_activity(request):
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units_service_course(request):
     return learning_units_search(request, 2)
+
 
 def learning_units_search(request, search_type):
     if request.GET.get('academic_year_id'):
