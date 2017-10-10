@@ -65,8 +65,8 @@ class EducationGroupYearTest(TestCase):
         management_entity = self.education_group_year_1.management_entity
         self.assertIsNone(management_entity)
 
-        parent_by_group_element_year = self.education_group_year_1.parent_by_group_element_year
-        self.assertIsNone(parent_by_group_element_year)
+        parent_by_training = self.education_group_year_1.parent_by_training
+        self.assertIsNone(parent_by_training)
 
         children_by_group_element_year = self.education_group_year_1.children_by_group_element_year
         self.assertListEqual(children_by_group_element_year, [])

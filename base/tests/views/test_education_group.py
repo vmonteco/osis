@@ -158,4 +158,4 @@ class EducationGroupViewTestCase(TestCase):
 
         self.assertEqual(template, 'education_group/tab_2m.html')
 
-        self.assertEqual(context['education_group_year'].parent_by_group_element_year, education_group_year_parent)
+        self.assertEqual(context['education_group_year'].parent_by_training, education_group_year_parent)

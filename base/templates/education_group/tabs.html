@@ -26,16 +26,16 @@
 
 {% url 'education_group_read' education_group_year_id=education_group_year.id as url_identification_tab %}
 
-{% if education_group_year.parent_by_group_element_year %}
+{% if education_group_year.parent_by_training %}
 {% url 'education_group_2m' education_group_year_id=education_group_year.id as url_2m_tab %}
 {% endif %}
 
 
 <ul class="nav nav-tabs" role="tablist">
-    {% if education_group_year.parent_by_group_element_year %}
+    {% if education_group_year.parent_by_training %}
     <li role="presentation" {% if request.path == url_2m_tab %} class="active" {% endif %}>
         <a href="{% url 'education_group_2m' education_group_year_id=education_group_year.id %}" role="tab">
-            {{ education_group_year.parent_by_group_element_year.acronym }}
+            {{ education_group_year.parent_by_training.acronym }}
         </a>
     </li>
     {% endif %}

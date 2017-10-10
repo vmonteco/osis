@@ -53,3 +53,9 @@ class JustificationValueException(Exception):
     def __init__(self, message=None, errors=None):
         super(JustificationValueException, self).__init__(message)
         self.errors = errors
+
+
+class NumberOfParentException(Exception):
+    def __init__(self, message=None, errors=None):
+        super(NumberOfParentException, self).__init__(message)
+        self.errors = errors

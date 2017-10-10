@@ -33,6 +33,7 @@ from base.models import offer_year_entity as mdl_offer_year_entity
 from base.models import entity_version as mdl_entity_version
 from base.models.enums import education_group_categories
 from base.models.enums import offer_year_entity_type
+from base.models.exceptions import NumberOfParentException
 from base.models.group_element_year import GroupElementYear
 
 
@@ -126,21 +127,30 @@ class EducationGroupYear(models.Model):
             return ev
         return None
 
-    # TODO check if this properties are allowed.
-    # It could be easier to use directly a FK (parent) as a column of the table
     @property
-    def parent_by_group_element_year(self):
-        group_element_year = GroupElementYear.objects.filter(child_branch=self).first()
-        return group_element_year.parent if group_element_year else None
+    def parent_by_training(self):
+        parents = [parent for parent in self.parents_by_group_element_year
+                   if parent.category == education_group_categories.TRAINING]
+        # If another parent is found, it will raise an error!
+        if len(parents) > 1:
+            raise NumberOfParentException('Only one training parent is allowed')
+
+        elif len(parents) == 0:
+            return None
+
+        return parents[0]
+
+    @property
+    def parents_by_group_element_year(self):
+        group_elements_year = GroupElementYear.objects.filter(child_branch=self)
+        return [group_element_year.parent for group_element_year in group_elements_year
+                if group_element_year.parent]
 
     @property
     def children_by_group_element_year(self):
-        children = []
         group_elements_year = GroupElementYear.objects.filter(parent=self)
-        for group_element_year in group_elements_year:
-            if group_element_year.child_branch:
-                children.append(group_element_year.child_branch)
-        return children
+        return [group_element_year.child_branch for group_element_year in group_elements_year
+                if group_element_year.child_branch]
 
 
 def find_by_id(an_id):
@@ -176,9 +186,6 @@ def search(**kwargs):
             qs = qs.filter(education_group_type=kwargs['education_group_type'])
 
     return qs.select_related('education_group_type', 'academic_year')
-
-
-
 
 
 
