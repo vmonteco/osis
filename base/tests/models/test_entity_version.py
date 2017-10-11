@@ -161,6 +161,9 @@ class EntityVersionTest(TestCase):
         self.assertEqual(entity_version.find("ENTITY_V_0", search_date), self.entity_versions[0])
         self.assertEqual(entity_version.find("ENTITY_V_1", search_date), self.entity_versions[1])
         self.assertEqual(entity_version.find("NOT_EXISTING_ENTITY", search_date), None)
+        self.assertEqual(entity_version.find_by_id(self.entity_versions[0].id), self.entity_versions[0])
+        self.assertIsNone(entity_version.find_by_id(None))
+
 
     def test_search_matching_entity_version(self):
         self.assertCountEqual(

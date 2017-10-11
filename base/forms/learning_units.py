@@ -45,6 +45,7 @@ MIN_ACRONYM_LENGTH = 3
 MAX_RECORDS = 1000
 SERVICE_COURSE = 'SERVICE_COURSE'
 PARENT_FACULTY = 'PARENT_FACULTY'
+EMPTY_FIELD = "---------"
 
 class LearningUnitYearForm(forms.Form):
     academic_year_id = forms.CharField(max_length=10, required=False)
@@ -251,16 +252,16 @@ def _get_latest_entity_version(entity_container_year):
 
 
 def create_main_campuses_list():
-    return [(None, "---------"), ] + [(elem.id, elem.name) for elem in find_main_campuses()]
+    return [(None, EMPTY_FIELD), ] + [(elem.id, elem.name) for elem in find_main_campuses()]
 
 
 def create_main_entities_version_list():
-    return [(None, "---------"), ] + [(entity_version.id, entity_version.acronym) for entity_version
+    return [(None, EMPTY_FIELD), ] + [(entity_version.id, entity_version.acronym) for entity_version
                                       in find_main_entities_version()]
 
 
 def create_learning_container_year_type_list():
-    return ((None, "---------"),) + LEARNING_CONTAINER_YEAR_TYPES
+    return ((None, EMPTY_FIELD),) + LEARNING_CONTAINER_YEAR_TYPES
 
 
 def create_languages_list():

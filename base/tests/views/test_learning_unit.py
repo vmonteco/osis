@@ -57,6 +57,7 @@ from base.models.enums import entity_container_year_link_type
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.user import SuperUserFactory
 from base.views import learning_unit as learning_unit_view
+from base.business import learning_unit as learning_unit_business
 from django.utils.translation import ugettext_lazy as _
 
 from reference.tests.factories.country import CountryFactory
@@ -255,7 +256,7 @@ class LearningUnitViewTestCase(TestCase):
 
     def test_get_components_no_learning_container_yr(self):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year)
-        self.assertEqual(len(learning_unit_view.get_same_container_year_components(learning_unit_year, False)), 0)
+        self.assertEqual(len(learning_unit_business.get_same_container_year_components(learning_unit_year, False)), 0)
 
     def test_get_components_with_classes(self):
         l_container = LearningContainerFactory()
@@ -269,7 +270,7 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=l_container_year)
 
-        components = learning_unit_view.get_same_container_year_components(learning_unit_year, True)
+        components = learning_unit_business.get_same_container_year_components(learning_unit_year, True)
         self.assertEqual(len(components), 1)
         self.assertEqual(len(components[0]['learning_component_year'].classes), 2)
 
@@ -342,7 +343,7 @@ class LearningUnitViewTestCase(TestCase):
         LearningUnitComponentFactory(learning_unit_year=learning_unit_yr_2,
                                      learning_component_year=learning_component_yr)
 
-        self.assertEqual(learning_unit_view._learning_unit_usage(learning_component_yr), 'LBIOLA, LBIOLB')
+        self.assertEqual(learning_unit_business._learning_unit_usage(learning_component_yr), 'LBIOLA, LBIOLB')
 
     def test_learning_unit_usage_with_complete_LU(self):
         learning_container_yr = LearningContainerYearFactory(academic_year=self.current_academic_year,
@@ -357,7 +358,7 @@ class LearningUnitViewTestCase(TestCase):
         LearningUnitComponentFactory(learning_unit_year=learning_unit_yr_1,
                                      learning_component_year=learning_component_yr)
 
-        self.assertEqual(learning_unit_view._learning_unit_usage(learning_component_yr), 'LBIOL')
+        self.assertEqual(learning_unit_business._learning_unit_usage(learning_component_yr), 'LBIOL')
 
     def test_learning_unit_usage_by_class_with_complete_LU(self):
         academic_year = AcademicYearFactory(year=2016)
@@ -375,7 +376,7 @@ class LearningUnitViewTestCase(TestCase):
         learning_class_year = LearningClassYearFactory(learning_component_year=learning_component_yr)
         LearningUnitComponentClassFactory(learning_unit_component=learning_unit_component,
                                           learning_class_year=learning_class_year)
-        self.assertEqual(learning_unit_view._learning_unit_usage_by_class(learning_class_year), 'LBIOL')
+        self.assertEqual(learning_unit_business._learning_unit_usage_by_class(learning_class_year), 'LBIOL')
 
     def test_component_save(self):
         learning_unit_yr = LearningUnitYearFactory(academic_year=self.current_academic_year,
