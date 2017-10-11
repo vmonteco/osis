@@ -2133,3 +2133,5 @@ msgstr "Ou"
 msgid "AND"
 msgstr "Et"
 
+msgid "language_association"
+msgstr "Opérateur langues principales"

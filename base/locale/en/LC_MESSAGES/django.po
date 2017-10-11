@@ -2127,3 +2127,6 @@ msgstr "Or"
 msgid "AND"
 msgstr "And"
 
+msgid "language_association"
+msgstr "Primary language operator"
+
