@@ -2118,14 +2118,6 @@ msgstr "Mini training"
 msgid "GROUP"
 msgstr "Group"
 
-msgid "ENGLISH"
-msgstr "English"
+msgid "PRIMARY_LANGUAGE"
+msgstr "Primary anguage"
 
-msgid "FRENCH"
-msgstr "French"
-
-msgid "FRENCH_OR_ENGLISH"
-msgstr "French or english"
-
-msgid "FRENCH_AND_ENGLISH"
-msgstr "French and english"

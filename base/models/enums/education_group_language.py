@@ -23,14 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-EN = "ENGLISH"
-FR = "FRENCH"
-FR_OR_EN = "FRENCH_OR_ENGLISH"
-FR_AND_EN = "FRENCH_AND_ENGLISH"
+PRIMARY_LANGUAGE = "PRIMARY_LANGUAGE"
 
-LANGUAGES = (
-    (EN, EN),
-    (FR, FR),
-    (FR_OR_EN, FR_OR_EN),
-    (FR_AND_EN, FR_AND_EN),
+TYPES = (
+    (PRIMARY_LANGUAGE, PRIMARY_LANGUAGE),
 )

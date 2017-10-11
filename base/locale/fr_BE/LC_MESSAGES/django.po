@@ -2124,14 +2124,6 @@ msgstr "Mini formation"
 msgid "GROUP"
 msgstr "Groupe"
 
-msgid "ENGLISH"
-msgstr "Anglais"
+msgid "PRIMARY_LANGUAGE"
+msgstr "Langue principale"
 
-msgid "FRENCH"
-msgstr "Français"
-
-msgid "FRENCH_OR_ENGLISH"
-msgstr "Français ou anglais"
-
-msgid "FRENCH_AND_ENGLISH"
-msgstr "Français et anglais"

@@ -31,7 +31,6 @@ from base.models import offer_year_domain as mdl_offer_year_domain
 from base.models import offer_year_entity as mdl_offer_year_entity
 from base.models import entity_version as mdl_entity_version
 from base.models.enums import education_group_categories
-from base.models.enums import education_group_languages
 from base.models.enums import offer_year_entity_type
 
 class EducationGroupYearAdmin(admin.ModelAdmin):
@@ -88,8 +87,7 @@ class EducationGroupYear(models.Model):
     inter_university_french_community = models.BooleanField(default=False)
     inter_university_belgium = models.BooleanField(default=False)
     inter_university_abroad = models.BooleanField(default=False)
-    #primary_language = models.ForeignKey('reference.Language', blank=True, null=True)
-    primary_language = models.CharField(max_length=30, choices=education_group_languages.LANGUAGES, default=education_group_languages.FR, blank=True, null=True)
+    primary_language = models.ForeignKey('reference.Language', blank=True, null=True)
     keywords = models.CharField(max_length=320, blank=True, null=True)
     duration = models.IntegerField(blank=True, null=True)
     duration_unit = models.CharField(max_length=40,
