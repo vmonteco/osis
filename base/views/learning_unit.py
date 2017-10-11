@@ -39,6 +39,7 @@ from base.business import learning_unit_year_volumes
 from base.business import learning_unit_year_with_context
 from attribution import models as mdl_attr
 from base.decorators import cache_filter
+from base.business.learning_unit_year_with_context import volume_learning_component_year
 from base.models import entity_container_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -57,7 +58,7 @@ from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from cms import models as mdl_cms
 from cms.enums import entity_name
-from base.forms.learning_units import LearningUnitYearForm, CreateLearningUnitYearForm
+from base.forms.learning_units import LearningUnitYearForm, CreateLearningUnitYearForm, MAX_RECORDS
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
@@ -69,49 +70,17 @@ from . import layout
 from django.http import JsonResponse
 
 
-UNDEFINED_VALUE = '?'
-
-HOURLY_VOLUME_KEY = 'hourly_volume'
-TOTAL_VOLUME_KEY = 'total_volume'
-VOLUME_PARTIAL_KEY = 'volume_partial'
-VOLUME_REMAINING_KEY = 'volume_remaining'
-
-VOLUME_FOR_UNKNOWN_QUADRIMESTER = -1
-
-MAX_RECORDS = 1000
-
-
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 @cache_filter()
 def learning_units(request):
-    if request.GET.get('academic_year_id'):
-        form = LearningUnitYearForm(request.GET)
-    else:
-        form = LearningUnitYearForm()
-    found_learning_units = None
-    if form.is_valid():
-        found_learning_units = form.get_learning_units()
-        if not _check_if_display_message(request, found_learning_units):
-            found_learning_units = None
-
-    context = _get_common_context_list_learning_unit_years()
-    context.update({
-        'form': form,
-        'academic_years': mdl.academic_year.find_academic_years(),
-        'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
-        'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
-        'learning_units': found_learning_units,
-        'current_academic_year': mdl.academic_year.current_academic_year(),
-        'experimental_phase': True
-    })
-    return layout.render(request, "learning_units.html", context)
+    return learning_units_search(request, 1)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_identification(request, learning_unit_year_id):
-    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id)
     learning_unit_year = context['learning_unit_year']
     context['learning_container_year_partims'] = _get_partims_related(learning_unit_year)
     context['organization'] = _get_organization_from_learning_unit_year(learning_unit_year)
@@ -120,21 +89,21 @@ def learning_unit_identification(request, learning_unit_year_id):
     context['show_subtype'] = _show_subtype(learning_unit_year)
     context.update(_get_all_attributions(learning_unit_year))
     context['components'] = get_components_identification(learning_unit_year)
-    context['volume_distribution'] = volume_distribution(learning_unit_year)
+
     return layout.render(request, "learning_unit/identification.html", context)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_formations(request, learning_unit_year_id):
-    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id)
     return layout.render(request, "learning_unit/formations.html", context)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_components(request, learning_unit_year_id):
-    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id)
     context['components'] = get_same_container_year_components(context['learning_unit_year'], True)
     context['tab_active'] = 'components'
     context['experimental_phase'] = True
@@ -158,7 +127,7 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
     if request.method == 'POST':
         _learning_unit_volumes_management_edit(request, learning_unit_year_id)
 
-    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id)
     context['learning_units'] = learning_unit_year_with_context.get_with_context(
         learning_container_year_id=context['learning_unit_year'].learning_container_year_id
     )
@@ -199,6 +168,7 @@ def _extract_volumes_from_data(request):
 def _is_a_valid_volume_key(post_key):
     return post_key in learning_unit_year_volumes.VALID_VOLUMES_KEYS
 
+
 def _perserve_volume_encoded(request, context):
     pass
 
@@ -206,7 +176,7 @@ def _perserve_volume_encoded(request, context):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_pedagogy(request, learning_unit_year_id):
-    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id)
     learning_unit_year = context['learning_unit_year']
 
     CMS_LABEL = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
@@ -237,7 +207,7 @@ def learning_unit_pedagogy_edit(request, learning_unit_year_id):
         return HttpResponseRedirect(reverse("learning_unit_pedagogy",
                                             kwargs={'learning_unit_year_id':learning_unit_year_id}))
 
-    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id)
     label_name = request.GET.get('label')
     language = request.GET.get('language')
     text_lb = text_label.find_root_by_name(label_name)
@@ -259,7 +229,7 @@ def learning_unit_pedagogy_edit(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_attributions(request, learning_unit_year_id):
-    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id)
     context['attributions'] = mdl_attr.attribution.find_by_learning_unit_year(learning_unit_year=learning_unit_year_id)
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/attributions.html", context)
@@ -268,14 +238,14 @@ def learning_unit_attributions(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_proposals(request, learning_unit_year_id):
-    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id)
     return layout.render(request, "learning_unit/proposals.html", context)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_specifications(request, learning_unit_year_id):
-    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id)
     learning_unit_year = context['learning_unit_year']
 
     CMS_LABEL = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
@@ -304,7 +274,7 @@ def learning_unit_specifications_edit(request, learning_unit_year_id):
         return HttpResponseRedirect(reverse("learning_unit_specifications",
                                             kwargs={'learning_unit_year_id': learning_unit_year_id}))
 
-    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id)
     label_name = request.GET.get('label')
     text_lb = text_label.find_root_by_name(label_name)
     language = request.GET.get('language')
@@ -344,7 +314,7 @@ def _get_common_context_list_learning_unit_years():
     return context
 
 
-def _get_common_context_learning_unit_year(request, learning_unit_year_id):
+def _get_common_context_learning_unit_year(learning_unit_year_id):
     learning_unit_year = mdl.learning_unit_year.find_by_id(learning_unit_year_id)
 
     context = {
@@ -365,16 +335,13 @@ def get_same_container_year_components(learning_unit_year, with_classes=False):
                 learning_class_year.used_by_learning_units_year = _learning_unit_usage_by_class(learning_class_year)
                 learning_class_year.is_used_by_full_learning_unit_year = _is_used_by_full_learning_unit_year(learning_class_year)
 
-        entity_container_yrs = mdl.entity_container_year.find_by_learning_container_year(
-            learning_component_year.learning_container_year,
-            entity_container_year_link_type.REQUIREMENT_ENTITY)
-        entity_component_yr = mdl.entity_component_year.find_by_entity_container_years(entity_container_yrs,
-                                                                                       learning_component_year).first()
         used_by_learning_unit = mdl.learning_unit_component.search(learning_component_year, learning_unit_year)
 
+        entity_components_yr = EntityComponentYear.objects.filter(learning_component_year=learning_component_year)
+
         components.append({'learning_component_year': learning_component_year,
-                           'entity_component_yr': entity_component_yr,
-                           'volumes': volumes(entity_component_yr),
+                           'entity_component_yr': entity_components_yr.first(),
+                           'volumes': volume_learning_component_year(learning_component_year, entity_components_yr),
                            'learning_unit_usage': _learning_unit_usage(learning_component_year),
                            'used_by_learning_unit': used_by_learning_unit
                            })
@@ -438,90 +405,6 @@ def _get_cms_label_data(cms_label, user_language):
     return cms_label_data
 
 
-def volumes(entity_component_yr):
-    if entity_component_yr:
-        if not entity_component_yr.hourly_volume_total:
-            return dict.fromkeys([HOURLY_VOLUME_KEY, TOTAL_VOLUME_KEY, VOLUME_PARTIAL_KEY, VOLUME_REMAINING_KEY],
-                                 UNDEFINED_VALUE)
-
-        if entity_component_yr.hourly_volume_partial is None:
-            return {HOURLY_VOLUME_KEY: entity_component_yr.hourly_volume_total,
-                    TOTAL_VOLUME_KEY: UNDEFINED_VALUE,
-                    VOLUME_PARTIAL_KEY: UNDEFINED_VALUE,
-                    VOLUME_REMAINING_KEY: UNDEFINED_VALUE}
-
-        if unknown_volume_partial(entity_component_yr):
-            return {HOURLY_VOLUME_KEY: entity_component_yr.hourly_volume_total,
-                    TOTAL_VOLUME_KEY: 'partial_or_remaining',
-                    VOLUME_PARTIAL_KEY: '({})'.format(entity_component_yr.hourly_volume_total),
-                    VOLUME_REMAINING_KEY: '({})'.format(entity_component_yr.hourly_volume_total)}
-
-        return {HOURLY_VOLUME_KEY: entity_component_yr.hourly_volume_total,
-                TOTAL_VOLUME_KEY: format_nominal_volume(entity_component_yr),
-                VOLUME_PARTIAL_KEY: format_volume_zero(entity_component_yr.hourly_volume_partial),
-                VOLUME_REMAINING_KEY: format_volume_remaining(entity_component_yr)}
-
-
-def unknown_volume_partial(entity_component_yr):
-    return entity_component_yr.hourly_volume_partial == VOLUME_FOR_UNKNOWN_QUADRIMESTER
-
-
-def format_nominal_volume(entity_component_yr):
-    if entity_component_yr.hourly_volume_total == entity_component_yr.hourly_volume_partial:
-        return 'partial'
-    elif entity_component_yr.hourly_volume_partial == 0:
-        return 'remaining'
-    else:
-        return 'partial_remaining'
-
-
-def format_volume_remaining(entity_component_yr):
-    volume_remaining = entity_component_yr.hourly_volume_total - entity_component_yr.hourly_volume_partial
-    if volume_remaining == 0:
-        return '-'
-    return volume_remaining
-
-
-def volume_distribution(learning_unit_yr):
-    a_learning_container_yr = learning_unit_yr.learning_container_year
-    component_partial_exists = False
-    component_remaining_exists = False
-
-    if a_learning_container_yr:
-        learning_component_yrs = mdl.learning_component_year.find_by_learning_container_year(a_learning_container_yr)
-
-        for learning_component_year in learning_component_yrs:
-            if mdl.learning_unit_component.search(learning_component_year, learning_unit_yr).exists():
-                entity_container_yrs = mdl.entity_container_year\
-                    .find_by_learning_container_year(learning_component_year.learning_container_year,
-                                                     entity_container_year_link_type.REQUIREMENT_ENTITY)
-                entity_component_yrs = mdl.entity_component_year\
-                    .find_by_entity_container_years(entity_container_yrs, learning_component_year)
-                for entity_component_yr in entity_component_yrs:
-                    if entity_component_yr.hourly_volume_partial is None:
-                        return UNDEFINED_VALUE
-                    else:
-                        if entity_component_yr.hourly_volume_partial == entity_component_yr.hourly_volume_total:
-                            component_partial_exists = True
-                        if entity_component_yr.hourly_volume_partial == 0.00:
-                            component_remaining_exists = True
-                        if entity_component_yr.hourly_volume_partial == VOLUME_FOR_UNKNOWN_QUADRIMESTER:
-                            return _('partial_or_remaining')
-                        if entity_component_yr.hourly_volume_partial > 0.00 and entity_component_yr.hourly_volume_partial < entity_component_yr.hourly_volume_total:
-                            return _('partial_remaining')
-
-        if component_partial_exists:
-            if component_remaining_exists:
-                return _('partial_remaining')
-            else:
-                return _('partial')
-        else:
-            if component_remaining_exists:
-                return _('remaining')
-
-    return None
-
-
 def _learning_unit_usage(a_learning_component_year):
     learning_unit_component = mdl.learning_unit_component.find_by_learning_component_year(a_learning_component_year)
     ch = ""
@@ -539,12 +422,6 @@ def _learning_unit_usage_by_class(a_learning_class_year):
     return ", ".join(list(queryset))
 
 
-def format_volume_zero(volume):
-    if volume == 0:
-        return '-'
-    return volume
-
-
 def get_components_identification(learning_unit_yr):
     a_learning_container_yr = learning_unit_yr.learning_container_year
     components = []
@@ -553,13 +430,12 @@ def get_components_identification(learning_unit_yr):
 
         for learning_component_year in learning_component_year_list:
             if mdl.learning_unit_component.search(learning_component_year, learning_unit_yr).exists():
-                entity_container_yrs = mdl.entity_container_year.find_by_learning_container_year(learning_component_year.learning_container_year,
-                                                                                                 entity_container_year_link_type.REQUIREMENT_ENTITY)
-                entity_component_yr = mdl.entity_component_year.find_by_entity_container_years(entity_container_yrs,
-                                                                                               learning_component_year).first()
+                entity_components_yr = EntityComponentYear.objects.filter(learning_component_year=learning_component_year)
+
                 components.append({'learning_component_year': learning_component_year,
-                                   'entity_component_yr': entity_component_yr,
-                                   'volumes': volumes(entity_component_yr),
+                                   'entity_component_yr': entity_components_yr.first(),
+                                   'volumes': volume_learning_component_year(learning_component_year,
+                                                                             entity_components_yr),
                                    'learning_unit_usage': _learning_unit_usage(learning_component_year)})
     return components
 
@@ -577,7 +453,7 @@ def _is_used_by_full_learning_unit_year(a_learning_class_year):
 @permission_required('base.change_learningcomponentyear', raise_exception=True)
 @require_http_methods(["GET", "POST"])
 def learning_unit_component_edit(request, learning_unit_year_id):
-    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id)
     learning_component_id = request.GET.get('learning_component_year_id')
     context['learning_component_year'] = mdl.learning_component_year.find_by_id(learning_component_id)
 
@@ -601,7 +477,7 @@ def learning_unit_component_edit(request, learning_unit_year_id):
 @permission_required('base.change_learningclassyear', raise_exception=True)
 @require_http_methods(["GET", "POST"])
 def learning_class_year_edit(request, learning_unit_year_id):
-    context = _get_common_context_learning_unit_year(request, learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id)
     context.update(
         {'learning_class_year': mdl.learning_class_year.find_by_id(request.GET.get('learning_class_year_id')),
          'learning_component_year':
@@ -642,7 +518,7 @@ def learning_unit_year_add(request):
         form = CreateLearningUnitYearForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            current_academic_year = mdl.academic_year.current_academic_year()
+            starting_academic_year = mdl.academic_year.starting_academic_year()
             academic_year = data['academic_year']
             year = academic_year.year
             status = check_status(data)
@@ -658,17 +534,12 @@ def learning_unit_year_add(request):
                 additional_entity_version_2 = mdl.entity_version.find_by_id(data['additional_entity_2'])
             new_learning_container = create_learning_container(year)
             new_learning_unit = create_learning_unit(data, new_learning_container, year)
-            if year < current_academic_year.year:
+            while year < starting_academic_year.year+6:
+                academic_year = mdl.academic_year.find_academic_year_by_year(year)
                 create_learning_unit_structure(additional_entity_version_1, additional_entity_version_2,
                                                allocation_entity_version, data, form, new_learning_container,
-                                               new_learning_unit, requirement_entity_version, status, year)
-            else:
-                while year < current_academic_year.year+6:
-                    if year > current_academic_year.year:
-                        create_learning_unit_structure(additional_entity_version_1, additional_entity_version_2,
-                                                       allocation_entity_version, data, form, new_learning_container,
-                                                       new_learning_unit, requirement_entity_version, status, year)
-                    year = year+1
+                                               new_learning_unit, requirement_entity_version, status, academic_year)
+                year = year+1
             return redirect('learning_units')
         else:
             return layout.render(request, "learning_unit/learning_unit_form.html", {'form': form})
@@ -678,9 +549,8 @@ def learning_unit_year_add(request):
 
 def create_learning_unit_structure(additional_entity_version_1, additional_entity_version_2, allocation_entity_version,
                                    data, form, new_learning_container, new_learning_unit, requirement_entity_version,
-                                   status, year):
-    an_academic_year = mdl.academic_year.find_academic_year_by_year(year)
-    new_learning_container_year = create_learning_container_year(an_academic_year, data,
+                                   status, academic_year):
+    new_learning_container_year = create_learning_container_year(academic_year, data,
                                                                  new_learning_container)
     new_requirement_entity = create_entity_container_year(requirement_entity_version,
                                                           new_learning_container_year,
@@ -694,10 +564,10 @@ def create_learning_unit_structure(additional_entity_version_1, additional_entit
         create_entity_container_year(additional_entity_version_2, new_learning_container_year,
                                      ADDITIONAL_REQUIREMENT_ENTITY_2)
     if data['learning_container_year_type'] == COURSE:
-        create_course(an_academic_year, form, new_learning_container_year, new_learning_unit,
+        create_course(academic_year, form, new_learning_container_year, new_learning_unit,
                       new_requirement_entity, status)
     else:
-        create_another_type(an_academic_year, form, new_learning_container_year, new_learning_unit,
+        create_another_type(academic_year, form, new_learning_container_year, new_learning_unit,
                             new_requirement_entity, status)
 
 
@@ -770,7 +640,7 @@ def create_learning_container_year(academic_year, data, learning_container):
     new_learning_container_year = LearningContainerYear(academic_year=academic_year,
                                                         learning_container=learning_container,
                                                         title=data['title'],
-                                                        acronym=data['acronym'],
+                                                        acronym=data['acronym'].upper(),
                                                         container_type=data['learning_container_year_type'],
                                                         language=a_language)
     new_learning_container_year.save()
@@ -786,7 +656,7 @@ def create_entity_container_year(entity_version, learning_container_year, type):
 
 
 def create_learning_unit(data, learning_container, year):
-    new_learning_unit = LearningUnit(acronym=data['acronym'], title=data['title'], start_year=year,
+    new_learning_unit = LearningUnit(acronym=data['acronym'].upper(), title=data['title'], start_year=year,
                                      periodicity=data['periodicity'], learning_container=learning_container,
                                      faculty_remark=data['faculty_remark'], other_remark=data['other_remark'])
     new_learning_unit.save()
@@ -800,7 +670,7 @@ def create_learning_unit_year(academic_year, form, learning_container_year, lear
         internship_subtype = None
     new_learning_unit_year = LearningUnitYear(academic_year=academic_year, learning_unit=learning_unit,
                                               learning_container_year=learning_container_year,
-                                              acronym=form.data['acronym'],
+                                              acronym=form.data['acronym'].upper(),
                                               title=form.data['title'],
                                               title_english=form.data['title_english'],
                                               subtype=form.data['subtype'],
@@ -836,3 +706,44 @@ def check_acronym(request):
                          'existing_acronym': existing_acronym,
                          'existed_acronym': existed_acronym,
                          'last_using': last_using}, safe=False)
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+@cache_filter()
+def learning_units_activity(request):
+    return learning_units_search(request, 1)
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+@cache_filter()
+def learning_units_service_course(request):
+    return learning_units_search(request, 2)
+
+def learning_units_search(request, search_type):
+    if request.GET.get('academic_year_id'):
+        form = LearningUnitYearForm(request.GET)
+    else:
+        form = LearningUnitYearForm()
+    found_learning_units = None
+    if form.is_valid():
+        if search_type == 1:
+            found_learning_units = form.get_activity_learning_units()
+        else:
+            if search_type == 2:
+                found_learning_units = form.get_service_course_learning_units()
+        _check_if_display_message(request, found_learning_units)
+
+    context = _get_common_context_list_learning_unit_years()
+    context.update({
+        'form': form,
+        'academic_years': mdl.academic_year.find_academic_years(),
+        'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
+        'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
+        'learning_units': found_learning_units,
+        'current_academic_year': mdl.academic_year.current_academic_year(),
+        'experimental_phase': True,
+        'search_type': search_type
+    })
+    return layout.render(request, "learning_units.html", context)
