@@ -2127,3 +2127,9 @@ msgstr "Groupe"
 msgid "PRIMARY_LANGUAGE"
 msgstr "Langue principale"
 
+msgid "OR"
+msgstr "Ou"
+
+msgid "AND"
+msgstr "Et"
+
