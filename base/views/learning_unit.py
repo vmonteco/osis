@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseRedirect
@@ -34,10 +35,10 @@ from base.business import learning_unit_year_volumes
 from base.business import learning_unit_year_with_context
 from attribution import models as mdl_attr
 from base.business.learning_unit import create_learning_unit, create_learning_unit_structure, \
-    get_common_context_learning_unit_year, get_cms_label_data, learning_unit_volumes_management_edit, \
+    get_common_context_learning_unit_year, get_cms_label_data, \
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_partims_related, get_campus_from_learning_unit_year, \
-    get_all_attributions, get_common_context_list_learning_unit_years, check_if_display_message
+    get_all_attributions, get_10_last_academic_years
 from base.models.enums import learning_container_year_types
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
@@ -47,13 +48,18 @@ from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, Learning
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_class import LearningClassEditForm
 from base.models.enums import learning_unit_year_subtypes
+from base.forms.learning_units import MAX_RECORDS
 from cms.models import text_label
 from . import layout
 from django.http import JsonResponse
+from django.contrib import messages
+from django.utils.translation import ugettext_lazy as _
+
 
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
                       'other_informations', 'online_resources']
+DEFAULT_LANGUAGE=3 #French
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
@@ -83,19 +89,26 @@ def learning_units_search(request, search_type):
 
         check_if_display_message(request, found_learning_units)
 
-    context = get_common_context_list_learning_unit_years()
-    context.update({
+    context = {
         'form': form,
-        'academic_years': mdl.academic_year.find_academic_years(),
+        'academic_years': get_10_last_academic_years(),
         'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
         'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
         'learning_units': found_learning_units,
         'current_academic_year': mdl.academic_year.current_academic_year(),
         'experimental_phase': True,
         'search_type': search_type
-    })
+    }
     return layout.render(request, "learning_units.html", context)
 
+
+def check_if_display_message(request, found_learning_units):
+    if not found_learning_units:
+        messages.add_message(request, messages.WARNING, _('no_result'))
+    elif len(found_learning_units) > MAX_RECORDS:
+        messages.add_message(request, messages.WARNING, _('too_many_results'))
+        return False
+    return True
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
@@ -145,7 +158,7 @@ def volumes_validation(request, learning_unit_year_id):
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_volumes_management(request, learning_unit_year_id):
     if request.method == 'POST':
-        learning_unit_volumes_management_edit(request, learning_unit_year_id)
+        _learning_unit_volumes_management_edit(request, learning_unit_year_id)
 
     context = get_common_context_learning_unit_year(learning_unit_year_id)
     context['learning_units'] = learning_unit_year_with_context.get_with_context(
@@ -331,11 +344,10 @@ def learning_class_year_edit(request, learning_unit_year_id):
 
 @login_required
 def learning_unit_create(request, academic_year):
-    # TODO language cannot be referenced by a id!
     form = CreateLearningUnitYearForm(initial={'academic_year': academic_year,
                                                'subtype': FULL,
                                                'learning_container_year_type': EMPTY_FIELD,
-                                               'language': 3})
+                                               'language': DEFAULT_LANGUAGE})
     return layout.render(request, "learning_unit/learning_unit_form.html", {'form': form})
 
 
@@ -355,6 +367,7 @@ def learning_unit_year_add(request):
             additional_entity_version_2 = mdl.entity_version.find_by_id(data['additional_entity_2'])
             new_learning_container = LearningContainer.objects.create(start_year=year)
             new_learning_unit = create_learning_unit(data, new_learning_container, year)
+            # TODO What's the meaning of 6 ?
             while year < starting_academic_year.year + 6:
                 academic_year = mdl.academic_year.find_academic_year_by_year(year)
                 create_learning_unit_structure(additional_entity_version_1, additional_entity_version_2,
@@ -395,3 +408,18 @@ def check_acronym(request):
                          'existing_acronym': existing_acronym,
                          'existed_acronym': existed_acronym,
                          'last_using': last_using}, safe=False)
+
+
+def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
+    errors = None
+    volumes_encoded = extract_volumes_from_data(request.POST.dict())
+
+    try:
+        errors = learning_unit_year_volumes.update_volumes(learning_unit_year_id, volumes_encoded)
+    except Exception as e:
+        error_msg = e.messages[0] if isinstance(e, ValidationError) else e.args[0]
+        messages.add_message(request, messages.ERROR, _(error_msg))
+
+    if errors:
+        for error_msg in errors:
+            messages.add_message(request, messages.ERROR, error_msg)

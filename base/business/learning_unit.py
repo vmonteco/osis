@@ -25,9 +25,6 @@
 ##############################################################################
 import datetime
 from collections import OrderedDict
-from django.contrib import messages
-from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
 from base import models as mdl
 from base.business import learning_unit_year_volumes
 from base.business.learning_unit_year_with_context import volume_learning_component_year
@@ -47,24 +44,8 @@ from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from cms import models as mdl_cms
 from cms.enums import entity_name
-from base.forms.learning_units import MAX_RECORDS
 from base.models.enums import learning_unit_year_subtypes
 from reference.models import language
-
-
-def learning_unit_volumes_management_edit(request, learning_unit_year_id):
-    errors = None
-    volumes_encoded = extract_volumes_from_data(request.POST.dict())
-
-    try:
-        errors = learning_unit_year_volumes.update_volumes(learning_unit_year_id, volumes_encoded)
-    except Exception as e:
-        error_msg = e.messages[0] if isinstance(e, ValidationError) else e.args[0]
-        messages.add_message(request, messages.ERROR, _(error_msg))
-
-    if errors:
-        for error_msg in errors:
-            messages.add_message(request, messages.ERROR, error_msg)
 
 
 def extract_volumes_from_data(post_data):
@@ -84,21 +65,10 @@ def _is_a_valid_volume_key(post_key):
     return post_key in learning_unit_year_volumes.VALID_VOLUMES_KEYS
 
 
-def check_if_display_message(request, found_learning_units):
-    if not found_learning_units:
-        messages.add_message(request, messages.WARNING, _('no_result'))
-    elif len(found_learning_units) > MAX_RECORDS:
-        messages.add_message(request, messages.WARNING, _('too_many_results'))
-        return False
-    return True
-
-
-def get_common_context_list_learning_unit_years():
+def get_10_last_academic_years():
     today = datetime.date.today()
     date_ten_years_before = today.replace(year=today.year - 10)
-    academic_years = mdl.academic_year.find_academic_years().filter(start_date__gte=date_ten_years_before)
-
-    return {'academic_years': academic_years}
+    return mdl.academic_year.find_academic_years().filter(start_date__gte=date_ten_years_before)
 
 
 def get_common_context_learning_unit_year(learning_unit_year_id):
