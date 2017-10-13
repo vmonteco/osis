@@ -9,7 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('base', '0166_educationgrouporganization'),
+        ('base', '0157_entitymanager_entity'),
         ('attribution', '0015_attribution_deleted'),
     ]
 
