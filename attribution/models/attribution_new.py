@@ -25,11 +25,10 @@
 ##############################################################################
 from django.db import models
 from attribution.models.enums import function
+from osis_common.models.auditable_model import AuditableModelAdmin, AuditableModel
 
-from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
-
-class AttributionNewAdmin(SerializableModelAdmin):
+class AttributionNewAdmin(AuditableModelAdmin):
     list_display = ('tutor', 'function', 'score_responsible', 'learning_container_year', 'start_year', 'end_year', 'changed')
     list_filter = ('function', 'learning_container_year__academic_year', 'score_responsible')
     fieldsets = ((None, {'fields': ('learning_container_year', 'tutor', 'function', 'score_responsible', 'start_year',
@@ -39,7 +38,7 @@ class AttributionNewAdmin(SerializableModelAdmin):
                      'tutor__person__global_id']
 
 
-class AttributionNew(SerializableModel):
+class AttributionNew(AuditableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     learning_container_year = models.ForeignKey('base.LearningContainerYear')

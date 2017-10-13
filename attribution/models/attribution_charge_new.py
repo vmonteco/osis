@@ -24,10 +24,11 @@
 #
 ##############################################################################
 from django.db import models
-from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
+
+from osis_common.models.auditable_model import AuditableModel, AuditableModelAdmin
 
 
-class AttributionChargeNewAdmin(SerializableModelAdmin):
+class AttributionChargeNewAdmin(AuditableModelAdmin):
     list_display = ('attribution', 'learning_class_year', 'allocation_charge')
     raw_id_fields = ('attribution', 'learning_class_year')
     search_fields = ['attribution__tutor__person__first_name', 'attribution__tutor__person__last_name',
@@ -36,7 +37,7 @@ class AttributionChargeNewAdmin(SerializableModelAdmin):
     list_filter = ('learning_class_year__learning_component_year__type',)
 
 
-class AttributionChargeNew(SerializableModel):
+class AttributionChargeNew(AuditableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     attribution = models.ForeignKey('AttributionNew')
     learning_class_year = models.ForeignKey('base.LearningClassYear')
