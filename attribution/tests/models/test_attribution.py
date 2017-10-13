@@ -25,9 +25,7 @@
 ##############################################################################
 import datetime
 from django.test import TestCase
-from django.contrib.auth.models import User
 from base.tests.factories import tutor, user, structure, entity_manager, academic_year, learning_unit_year
-from base.tests.models import test_learning_unit_year, test_tutor
 from attribution.models import attribution
 from base.tests.models.test_person import create_person_with_user
 
