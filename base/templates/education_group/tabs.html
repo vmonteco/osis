@@ -25,11 +25,11 @@
 {% endcomment %}
 
 {% url 'education_group_read' education_group_year_id=education_group_year.id as url_identification_tab %}
+{% url 'education_group_diplomas' education_group_year_id=education_group_year.id as url_diplomas_tab %}
 
 {% if education_group_year.parent_by_training %}
 {% url 'education_group_2m' education_group_year_id=education_group_year.id as url_2m_tab %}
 {% endif %}
-
 
 <ul class="nav nav-tabs" role="tablist">
     {% if education_group_year.parent_by_training %}
@@ -45,7 +45,11 @@
             {% trans 'identification'%}
         </a>
     </li>
-
+    <li role="presentation" {% if request.path == url_diplomas_tab %} class="active" {% endif %}>
+        <a href="{{url_diplomas_tab}}" role="tab">
+            {% trans 'diplomas_certificates' %}
+        </a>
+    </li>
 </ul>
 
 

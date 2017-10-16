@@ -27,6 +27,10 @@ from django.conf.urls import url, include
 
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group
+from django.conf import settings
+from django.conf.urls.static import static
+
+
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -133,7 +137,7 @@ urlpatterns = [
         url(r'^(?P<education_group_year_id>[0-9]+)/', include([
             url(r'^$', education_group.education_group_read, name='education_group_read'),
             url(r'^2M$', education_group.education_group_2m, name='education_group_2m'),
-
+            url(r'^diplomas/$', education_group.education_group_diplomas, name='education_group_diplomas'),
         ]))
     ])),
 
@@ -177,3 +181,8 @@ urlpatterns = [
         ]))
     ])),
 ]
+
+if settings.DEBUG:
+    urlpatterns +=  static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
