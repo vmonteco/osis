@@ -53,7 +53,7 @@ class OfferProposition(SerializableModel):
     end_jury_visibility = models.DateField(default=timezone.now)
     start_edit_title = models.DateField(default=timezone.now)
     end_edit_title = models.DateField(default=timezone.now)
-    offer_proposition_group = models.ForeignKey(OfferPropositionGroup, null=True)
+    offer_proposition_group = models.ForeignKey(OfferPropositionGroup, null=True, blank=True)
 
     @property
     def in_periode_visibility_proposition(self):
@@ -122,7 +122,10 @@ def get_by_dissertation(dissert):
 
 
 def find_by_id(offer_proposition_id):
-    return OfferProposition.objects.get(pk=offer_proposition_id)
+    try:
+        return OfferProposition.objects.get(pk=offer_proposition_id)
+    except ObjectDoesNotExist:
+        return None
 
 
 def find_all_ordered_by_acronym():
