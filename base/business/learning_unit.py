@@ -73,12 +73,10 @@ def get_10_last_academic_years():
 
 def get_common_context_learning_unit_year(learning_unit_year_id):
     learning_unit_year = mdl.learning_unit_year.find_by_id(learning_unit_year_id)
-
-    context = {
+    return {
         'learning_unit_year': learning_unit_year,
         'current_academic_year': mdl.academic_year.current_academic_year()
     }
-    return context
 
 
 def get_same_container_year_components(learning_unit_year, with_classes=False):
@@ -140,6 +138,7 @@ def get_all_attributions(learning_unit_year):
     if learning_unit_year.learning_container_year:
         all_attributions = entity_container_year.find_last_entity_version_grouped_by_linktypes(
             learning_unit_year.learning_container_year)
+
         attributions['requirement_entity'] = all_attributions.get(entity_container_year_link_type.REQUIREMENT_ENTITY)
         attributions['allocation_entity'] = all_attributions.get(entity_container_year_link_type.ALLOCATION_ENTITY)
         attributions['additional_requirement_entities'] = [

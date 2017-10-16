@@ -61,7 +61,7 @@ def find_last_entity_version_grouped_by_linktypes(learning_container_year, link_
                  queryset=entity_version.find_latest_version(lcy_start_date),
                  to_attr="entity_versions")
         )
-    return {ecy.type: _get_latest_entity_version(ecy) for ecy in entity_container_years}
+    return {ecy.type: get_latest_entity_version(ecy) for ecy in entity_container_years}
 
 
 def search(*args, **kwargs):
@@ -92,11 +92,9 @@ def search(*args, **kwargs):
     return queryset.select_related('learning_container_year__academic_year', 'entity')
 
 
-def _get_latest_entity_version(entity_container_year):
-    entity_version = None
+def get_latest_entity_version(entity_container_year):
     if entity_container_year.entity.entity_versions:
-        entity_version = entity_container_year.entity.entity_versions[-1]
-    return entity_version
+        return entity_container_year.entity.entity_versions[-1]
 
 
 def find_requirement_entity(learning_container_year):

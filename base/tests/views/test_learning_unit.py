@@ -25,6 +25,8 @@
 ##############################################################################
 import datetime
 from unittest import mock
+
+from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
@@ -228,6 +230,30 @@ class LearningUnitViewTestCase(TestCase):
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_units.html')
         self.assertEqual(len(context['learning_units']), 6)
+
+    @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.views.layout.render')
+    def test_learning_units_search_with_service_course(self, mock_render, mock_decorators):
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+        self._prepare_context_learning_units_search()
+        request_factory = RequestFactory()
+        filter_data = {
+            'academic_year_id': self.current_academic_year.id,
+            'requirement_entity_acronym': 'AGRO',
+            'with_entity_subordinated': True
+        }
+        from base.views.learning_unit import learning_units_service_course
+
+        request = request_factory.get(reverse(learning_units_service_course), data=filter_data)
+        request.user = mock.Mock()
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+        learning_units_service_course(request)
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        self.assertEqual(template, 'learning_units.html')
+        self.assertEqual(len(context['learning_units']), 0)
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')

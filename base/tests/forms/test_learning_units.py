@@ -36,7 +36,7 @@ from base.tests.factories.entity_version import EntityVersionFactory
 from base.models.enums import entity_container_year_link_type
 from reference.tests.factories.country import CountryFactory
 from base.forms.learning_units import LearningUnitYearForm
-from base.forms.learning_units import is_service_course
+from base.forms.learning_units import _is_service_course
 
 ACRONYM_LU = "LDROI1001"
 
@@ -65,7 +65,7 @@ class TestLearningUnitForm(TestCase):
         form = LearningUnitYearForm(data=self.get_valid_data())
         self.assertTrue(form.is_valid())
         found_learning_units = form.get_activity_learning_units()
-        self.assertTrue(is_service_course(found_learning_units[0]))
+        self.assertTrue(_is_service_course(found_learning_units[0]))
 
     def test_is_not_service_course(self):
 
@@ -74,7 +74,7 @@ class TestLearningUnitForm(TestCase):
         form = LearningUnitYearForm(data=self.get_valid_data())
         self.assertTrue(form.is_valid())
         found_learning_units = form.get_activity_learning_units()
-        self.assertFalse(is_service_course(found_learning_units[0]))
+        self.assertFalse(_is_service_course(found_learning_units[0]))
 
     def build_allocation_entity_not_in_fac_tree(self):
         entity_allocation = EntityFactory()

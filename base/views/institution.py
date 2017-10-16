@@ -32,8 +32,6 @@ from base import models as mdl
 from base.models import entity_version as entity_version_mdl
 from base.models.enums import entity_type
 from . import layout
-from django.contrib import messages
-from django.utils.translation import ugettext_lazy as _
 
 
 @login_required

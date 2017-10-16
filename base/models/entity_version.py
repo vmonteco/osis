@@ -43,16 +43,33 @@ class EntityVersionAdmin(admin.ModelAdmin):
     readonly_fields = ('find_direct_children', 'count_direct_children', 'find_descendants', 'get_parent_version')
 
 
+class EntityVersionQuerySet(models.QuerySet):
+    def current(self, date):
+        if date:
+            return self.filter(Q(end_date__gte=date) | Q(end_date__isnull=True), start_date__lte=date, )
+        else:
+            return self
+
+    def entity(self, entity):
+        return self.filter(entity=entity)
+
+
 class EntityVersion(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     entity = models.ForeignKey('Entity')
     title = models.CharField(db_index=True, max_length=255)
     acronym = models.CharField(db_index=True, max_length=20)
-    entity_type = models.CharField(choices=entity_type.ENTITY_TYPES, max_length=50, db_index=True, blank=True, null=True)
+    entity_type = models.CharField(choices=entity_type.ENTITY_TYPES, max_length=50, db_index=True, blank=True,
+                                   null=True)
     parent = models.ForeignKey('Entity', related_name='parent_of', blank=True, null=True)
     start_date = models.DateField(db_index=True)
     end_date = models.DateField(db_index=True, blank=True, null=True)
+
+    objects = EntityVersionQuerySet.as_manager()
+
+    _descendants = None
+    _children = []
 
     def __str__(self):
         return "{} ({} - {} - {} to {})".format(
@@ -81,16 +98,16 @@ class EntityVersion(models.Model):
     def search_entity_versions_with_overlapping_dates(self):
         if self.end_date:
             qs = EntityVersion.objects.filter(
-                    Q(start_date__range=(self.start_date, self.end_date)) |
-                    Q(end_date__range=(self.start_date, self.end_date)) |
-                    (
-                        Q(start_date__lte=self.start_date) & Q(end_date__gte=self.end_date)
-                    )
+                Q(start_date__range=(self.start_date, self.end_date)) |
+                Q(end_date__range=(self.start_date, self.end_date)) |
+                (
+                    Q(start_date__lte=self.start_date) & Q(end_date__gte=self.end_date)
                 )
+            )
         else:
             qs = EntityVersion.objects.filter(
-                    end_date__gte=self.start_date
-                )
+                end_date__gte=self.start_date
+            )
 
         return qs.exclude(id=self.id)
 
@@ -100,31 +117,49 @@ class EntityVersion(models.Model):
     def count_entity_versions_same_acronym_overlapping_dates(self):
         return self.search_entity_versions_with_overlapping_dates().filter(acronym=self.acronym).count()
 
-    def _direct_children(self, date):
+    def _direct_children(self, date=None):
         if date is None:
             date = timezone.now().date()
 
         if self._contains_given_date(date):
-            return EntityVersion.objects.filter(parent=self.entity, start_date__lte=date)\
-                                            .filter(Q(end_date__gte=date) | Q(end_date__isnull=True))
-        else:
-            return None
+            return EntityVersion.objects.current(date).filter(parent=self.entity)
 
     def find_direct_children(self, date=None):
-        direct_children = self._direct_children(date)
+        if not date:
+            direct_children = self.children
+        else:
+            direct_children = self._direct_children(date)
         return list(direct_children) if direct_children else []
 
     def count_direct_children(self, date=None):
-        direct_children = self._direct_children(date)
-        return direct_children.count() if direct_children else 0
+        return len(self.find_direct_children(date))
 
+    @property
+    def descendants(self):
+        if not self._descendants:
+            self._descendants = self.__find_descendants()
+
+        return self._descendants
+
+    @property
+    def children(self):
+        if not self._children:
+            direct_children = self._direct_children()
+            self._children = list(direct_children) if direct_children else []
+        return self._children
+
+    # TODO ! Recursive with db access
     def find_descendants(self, date=None):
+        return self.__find_descendants(date)
+
+    def __find_descendants(self, date=None):
         descendants = []
-        if self.count_direct_children(date) > 0:
-            direct_children = self.find_direct_children(date)
+
+        direct_children = self.find_direct_children(date)
+        if len(direct_children) > 0:
             descendants.extend(direct_children)
             for child in direct_children:
-                descendants.extend(child.find_descendants(date))
+                descendants.extend(child.__find_descendants(date))
 
         return sorted(descendants, key=lambda an_entity: an_entity.acronym)
 
@@ -133,14 +168,11 @@ class EntityVersion(models.Model):
             date = timezone.now().date()
 
         if self._contains_given_date(date):
-            qs = EntityVersion.objects.filter(entity=self.parent, start_date__lte=date) \
-                                      .filter(Q(end_date__gte=date) | Q(end_date__isnull=True))
+            qs = EntityVersion.objects.current(date).entity(self.parent)
             try:
                 return qs.get()
             except ObjectDoesNotExist:
                 return None
-        else:
-            return None
 
     def _contains_given_date(self, date):
         if self.start_date and self.end_date:
@@ -156,7 +188,7 @@ class EntityVersion(models.Model):
             return {
                 'id': self.id,
                 'acronym': self.acronym,
-                'children': [child.get_organogram_data(level) for child in self.find_direct_children()]
+                'children': [child.get_organogram_data(level) for child in self.children]
             }
         else:
             return {
@@ -181,17 +213,11 @@ def find(acronym, date=None):
 
 
 def find_latest_version(date):
-    return EntityVersion.objects.filter(Q(end_date__gte=date) | Q(end_date__isnull=True),
-                                        start_date__lte=date)\
-                                .order_by('-start_date')
+    return EntityVersion.objects.current(date).order_by('-start_date')
 
 
 def get_last_version(entity, date=None):
-    qs = EntityVersion.objects.filter(entity=entity)
-
-    if date:
-        qs = qs.filter(Q(end_date__gte=date) | Q(end_date__isnull=True),
-                       start_date__lte=date)
+    qs = EntityVersion.objects.current(date).entity(entity)
 
     return qs.latest('start_date')
     # find_latest_version(academic_year.current_academic_year().start_date).get(entity=entity)
@@ -201,8 +227,7 @@ def get_by_entity_and_date(entity, date):
     if date is None:
         date = timezone.now()
     try:
-        entity_version = EntityVersion.objects.filter(Q(end_date__gte=date) | Q(end_date__isnull=True),
-                                                      entity=entity, start_date__lte=date)
+        entity_version = EntityVersion.objects.current(date).entity(entity)
     except ObjectDoesNotExist:
         return None
     return entity_version
@@ -224,10 +249,10 @@ def search(**kwargs):
         queryset = queryset.filter(entity_type__exact=kwargs['entity_type'])
 
     if 'start_date' in kwargs:
-            queryset = queryset.filter(start_date__exact=kwargs['start_date'])
+        queryset = queryset.filter(start_date__exact=kwargs['start_date'])
 
     if 'end_date' in kwargs:
-            queryset = queryset.filter(end_date__exact=kwargs['end_date'])
+        queryset = queryset.filter(end_date__exact=kwargs['end_date'])
 
     return queryset.select_related('parent')
 
@@ -283,16 +308,16 @@ def _match_dates(osis_date, esb_date):
 
 
 def find_main_entities_version():
-    entities_version = find_latest_version(date=datetime.datetime.now(get_tzinfo()))\
+    entities_version = find_latest_version(date=datetime.datetime.now(get_tzinfo())) \
         .filter(entity_type__in=[entity_type.SECTOR, entity_type.FACULTY, entity_type.SCHOOL,
                                  entity_type.INSTITUTE, entity_type.DOCTORAL_COMMISSION],
                 entity__organization__type=MAIN).order_by('acronym')
     return entities_version
 
 
-def find_first_latest_version_by_period(ent,start_date, end_date):
-    return EntityVersion.objects.filter(Q(end_date__lte=end_date) | Q(end_date__isnull=True),
-                                        start_date__gte=start_date, entity=ent) \
+def find_first_latest_version_by_period(ent, start_date, end_date):
+    return EntityVersion.objects.entity(ent).filter(Q(end_date__lte=end_date) | Q(end_date__isnull=True),
+                                                    start_date__gte=start_date) \
         .order_by('-start_date').first()
 
 
@@ -313,8 +338,5 @@ def find_parent_faculty_version(child_entity_ver, academic_yr):
     return None
 
 
-def find_latest_version_by_entity(ent,date):
-    return EntityVersion.objects.filter(Q(end_date__gte=date) | Q(end_date__isnull=True),
-                                        start_date__lte=date, entity=ent).select_related('entity',
-                                                                                         'parent') \
-        .first()
+def find_latest_version_by_entity(ent, date):
+    return EntityVersion.objects.current(date).entity(ent).select_related('entity', 'parent').first()
