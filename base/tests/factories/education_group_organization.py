@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,24 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-from django.contrib import admin
+import factory
+import factory.fuzzy
+
+from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.organization import OrganizationFactory
 
 
-class EducationGroupAdmin(admin.ModelAdmin):
-    list_display = ('id', 'changed', 'start_year', 'end_year')
-
-
-class EducationGroup(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    start_year = models.IntegerField(blank=True, null=True)
-    end_year = models.IntegerField(blank=True, null=True)
-
-    def __str__(self):
-        return "{}".format(self.id)
-
+class EducationGroupOrganizationFactory(factory.django.DjangoModelFactory):
     class Meta:
-        permissions = (
-            ("can_access_education_group", "Can access education_group"),
-        )
+        model = "base.EducationGroupOrganization"
+
+    education_group_year = factory.SubFactory(EducationGroupYearFactory)
+    organization = factory.SubFactory(OrganizationFactory)

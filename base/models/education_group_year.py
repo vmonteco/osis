@@ -193,7 +193,3 @@ def search(**kwargs):
             qs = qs.filter(education_group_type=kwargs['education_group_type'])
 
     return qs.select_related('education_group_type', 'academic_year')
-
-
-
-

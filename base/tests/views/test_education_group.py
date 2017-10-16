@@ -31,7 +31,7 @@ from django.test import TestCase, RequestFactory
 
 from base.models.academic_calendar import AcademicCalendar
 from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.education_group_year import EducationGroupYearFactory, EducationGroupOrganizationFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 
 
@@ -119,7 +119,7 @@ class EducationGroupViewTestCase(TestCase):
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
 
         education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
-
+        organization = EducationGroupOrganizationFactory(education_group_year=education_group_year)
         request = mock.Mock(method='GET')
 
         from base.views.education_group import education_group_read
@@ -131,6 +131,9 @@ class EducationGroupViewTestCase(TestCase):
         request, template, context = mock_render.call_args[0]
 
         self.assertEqual(template, 'education_group/tab_identification.html')
+        self.assertEqual(context['education_group_year'].coorganizations.first(), organization)
+        self.assertEqual(context['education_group_year'].coorganizations.first().address, organization.address)
+
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
@@ -159,3 +162,4 @@ class EducationGroupViewTestCase(TestCase):
         self.assertEqual(template, 'education_group/tab_2m.html')
 
         self.assertEqual(context['education_group_year'].parent_by_training, education_group_year_parent)
+
