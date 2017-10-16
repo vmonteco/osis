@@ -71,12 +71,8 @@ def _check_if_display_message(request, an_education_groups):
 @permission_required('base.can_access_offer', raise_exception=True)
 def education_group_read(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
-    coorganizations = []
-    for coorganization in mdl.education_group_organization.search(education_group_year):
-        coorganizations.append({'coorganization':coorganization,
-                                'address' : mdl.organization_address.find_by_organization(coorganization.organization).first()})
-
     return layout.render(request, "education_group/tab_identification.html", locals())
+
 
 @login_required
 @permission_required('base.can_access_offer', raise_exception=True)

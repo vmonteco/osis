@@ -26,9 +26,10 @@
 from django.db import models
 from django.contrib import admin
 
+from base.models.education_group_organization import EducationGroupOrganization
 from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
     diploma_printing_orientation, active_status, duration_unit
-from base.models import offer_year_domain as mdl_offer_year_domain
+from base.models import offer_year_domain as mdl_offer_year_domain, education_group_organization
 from base.models import offer_year_entity as mdl_offer_year_entity
 from base.models import entity_version as mdl_entity_version
 from base.models.enums import education_group_categories
@@ -100,6 +101,8 @@ class EducationGroupYear(models.Model):
                                      blank=True, null=True)
     enrollment_enabled = models.BooleanField(default=False)
 
+    _coorganizations = None
+
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
 
@@ -135,10 +138,8 @@ class EducationGroupYear(models.Model):
         if len(parents) > 1:
             raise NumberOfParentException('Only one training parent is allowed')
 
-        elif len(parents) == 0:
-            return None
-
-        return parents[0]
+        elif len(parents) == 1:
+            return parents[0]
 
     @property
     def parents_by_group_element_year(self):
@@ -151,6 +152,12 @@ class EducationGroupYear(models.Model):
         group_elements_year = GroupElementYear.objects.filter(parent=self)
         return [group_element_year.child_branch for group_element_year in group_elements_year
                 if group_element_year.child_branch]
+
+    @property
+    def coorganizations(self):
+        if not self._coorganizations:
+            self._coorganizations = education_group_organization.search(self)
+        return self._coorganizations
 
 
 def find_by_id(an_id):

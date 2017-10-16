@@ -25,7 +25,10 @@
 ##############################################################################
 from django.db import models
 from django.contrib import admin
+
+from base.models import organization_address
 from base.models.enums import diploma_coorganization
+from base.models.organization_address import OrganizationAddress
 
 
 class EducationGroupOrganizationAdmin(admin.ModelAdmin):
@@ -50,7 +53,15 @@ class EducationGroupOrganization(models.Model):
                                choices=diploma_coorganization.DiplomaCoorganizationTypes.choices(),
                                default=diploma_coorganization.DiplomaCoorganizationTypes.NOT_CONCERNED)
 
+    _address = None
+
+    @property
+    def address(self):
+        if not self._address:
+            self._address = organization_address.find_by_organization(self.organization).first()
+        return self._address
+
+
 def search(education_group_year):
     if education_group_year:
         return EducationGroupOrganization.objects.filter(education_group_year=education_group_year)
-    return None

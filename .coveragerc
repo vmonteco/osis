@@ -2,7 +2,13 @@
 branch = True
 source = .
 omit =
-    */migrations/*
+   */migrations/*
+   */tests/*
+   dissertation/*
+   assistant/*
+   doc/*
+   osis_common/*
+   internship/*
 
 [report]
 fail_under = 100
