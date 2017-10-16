@@ -49,6 +49,8 @@ class AttributionNew(AuditableModel):
     end_year = models.IntegerField(blank=True, null=True)
     function = models.CharField(max_length=35, blank=True, null=True, choices=function.FUNCTIONS, db_index=True)
     score_responsible = models.BooleanField(default=False)
+    volume_cm = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
+    volume_tp = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
 
     def __str__(self):
         return u"%s - %s" % (self.tutor.person, self.function)

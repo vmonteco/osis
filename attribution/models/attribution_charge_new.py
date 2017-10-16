@@ -41,7 +41,7 @@ class AttributionChargeNew(AuditableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     attribution = models.ForeignKey('AttributionNew')
     learning_class_year = models.ForeignKey('base.LearningClassYear')
-    allocation_charge = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
+    allocation_charge = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
 
     def __str__(self):
         return u"%s" % str(self.attribution)
