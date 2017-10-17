@@ -23,8 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-PRIMARY_LANGUAGE = "PRIMARY_LANGUAGE"
+from base.models.utils.utils import ChoiceEnum
 
-TYPES = (
-    (PRIMARY_LANGUAGE, PRIMARY_LANGUAGE),
-)
+class education_group_language(ChoiceEnum):
+    PRIMARY_LANGUAGE = "PRIMARY_LANGUAGE"

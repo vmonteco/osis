@@ -23,10 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-OR = "OR"
-AND = "AND"
+from base.models.utils.utils import ChoiceEnum
 
-ASSOCIATIONS = (
-    (OR, OR),
-    (AND, AND),
-)
+class education_group_language(ChoiceEnum):
+    OR = "OR"
+    AND = "AND"

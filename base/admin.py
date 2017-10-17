@@ -42,6 +42,9 @@ admin.site.register(education_group.EducationGroup,
 admin.site.register(education_group_language.EducationGroupLanguage,
                     education_group_language.EducationGroupLanguageAdmin)
 
+admin.site.register(education_group_organization.EducationGroupOrganization,
+                    education_group_organization.EducationGroupOrganizationAdmin)
+
 admin.site.register(education_group_year.EducationGroupYear,
                     education_group_year.EducationGroupYearAdmin)
 

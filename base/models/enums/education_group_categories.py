@@ -23,12 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-TRAINING = "TRAINING"
-MINI_TRAINING = "MINI_TRAINING"
-GROUP = "GROUP"
+from base.models.utils.utils import ChoiceEnum
 
-CATEGORIES = (
-    (TRAINING, TRAINING),
-    (MINI_TRAINING, MINI_TRAINING),
-    (GROUP, GROUP),
-)
+class education_group_categories(ChoiceEnum):
+    PRIMARY_LANGUAGE = "PRIMARY_LANGUAGE"
+    MINI_TRAINING = "MINI_TRAINING"
+    GROUP = "GROUP"
