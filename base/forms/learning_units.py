@@ -30,7 +30,7 @@ from django.db.models import Prefetch
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 from base import models as mdl
-from base.models.campus import find_main_campuses
+from base.models.campus import find_administration_campuses
 from base.models.entity_version import find_main_entities_version
 from base.models.enums import entity_container_year_link_type
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
@@ -251,7 +251,7 @@ def _get_latest_entity_version(entity_container_year):
 
 
 def create_main_campuses_list():
-    return [(None, "---------"), ] + [(elem.id, elem.name) for elem in find_main_campuses()]
+    return [(None, "---------"), ] + [(elem.id, elem.name) for elem in find_administration_campuses()]
 
 
 def create_main_entities_version_list():
@@ -268,6 +268,10 @@ def create_languages_list():
 
 
 class CreateLearningUnitYearForm(forms.ModelForm):
+    first_letter = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control text-center',
+                                                                                 'id': 'first_letter',
+                                                                                 'maxlength': "1",
+                                                                                 'readonly': 'readonly'}))
     learning_container_year_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
                                                      widget=forms.Select(attrs={'class': 'form-control',
                                                                                 'onchange': 'showDiv(this.value)',
@@ -283,7 +287,8 @@ class CreateLearningUnitYearForm(forms.ModelForm):
                                                       choices=PERIODICITY_TYPES))
     campus = forms.ChoiceField(choices=lazy(create_main_campuses_list, tuple),
                                widget=forms.Select(attrs={'class': 'form-control',
-                                                          'id': 'campus'}))
+                                                          'id': 'campus',
+                                                          'onchange': 'setFirstLetter()'}))
     requirement_entity = forms.ChoiceField(choices=lazy(create_main_entities_version_list, tuple),
                                            widget=forms.Select(attrs={'class': 'form-control',
                                                                       'id': 'requirement_entity',
@@ -312,10 +317,10 @@ class CreateLearningUnitYearForm(forms.ModelForm):
 
     class Meta:
         model = mdl.learning_unit_year.LearningUnitYear
-        fields = ['learning_container_year_type', 'acronym', 'academic_year', 'status', 'internship_subtype',
-                  'periodicity', 'credits', 'campus', 'title', 'title_english', 'additional_entity_1',
-                  'additional_entity_2', 'allocation_entity', 'requirement_entity', 'subtype', 'language', 'session',
-                  'faculty_remark', 'other_remark', ]
+        fields = ['first_letter', 'learning_container_year_type', 'acronym', 'academic_year', 'status',
+                  'internship_subtype', 'periodicity', 'credits', 'campus', 'title', 'title_english',
+                  'additional_entity_1', 'additional_entity_2', 'allocation_entity', 'requirement_entity', 'subtype',
+                  'language', 'session', 'faculty_remark', 'other_remark', ]
 
         widgets = {'acronym': forms.TextInput(attrs={'class': 'form-control form-acronym',
                                                      'id': 'acronym',
@@ -344,15 +349,16 @@ class CreateLearningUnitYearForm(forms.ModelForm):
                    }
 
     def is_valid(self):
-
         valid = super(CreateLearningUnitYearForm, self).is_valid()
         academic_year = mdl.academic_year.find_academic_year_by_id(self.data['academic_year'])
-        learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, self.data['acronym'])
+        learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year,
+                                                                           self.data['first_letter']+self.data['acronym'])
         learning_unit_years_list = [learning_unit_year.acronym.lower() for learning_unit_year in learning_unit_years]
         if valid:
             if self.cleaned_data['acronym'].lower() in learning_unit_years_list:
                 self.add_error('acronym', _('existing_acronym'))
-            elif not re.match(self.acronym_regex, self.cleaned_data['acronym'].upper()):
+            elif not re.match(self.acronym_regex,
+                              self.cleaned_data['first_letter'].upper()+self.cleaned_data['acronym'].upper()):
                 self.add_error('acronym', _('invalid_acronym'))
             elif self.cleaned_data['learning_container_year_type'] == INTERNSHIP \
                     and not (self.cleaned_data['internship_subtype']):

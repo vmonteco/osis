@@ -638,7 +638,7 @@ def create_learning_container_year(academic_year, data, learning_container):
     new_learning_container_year = LearningContainerYear(academic_year=academic_year,
                                                         learning_container=learning_container,
                                                         title=data['title'],
-                                                        acronym=data['acronym'].upper(),
+                                                        acronym=data['first_letter'].upper()+data['acronym'].upper(),
                                                         container_type=data['learning_container_year_type'],
                                                         language=a_language)
     new_learning_container_year.save()
@@ -654,9 +654,10 @@ def create_entity_container_year(entity_version, learning_container_year, type):
 
 
 def create_learning_unit(data, learning_container, year):
-    new_learning_unit = LearningUnit(acronym=data['acronym'].upper(), title=data['title'], start_year=year,
-                                     periodicity=data['periodicity'], learning_container=learning_container,
-                                     faculty_remark=data['faculty_remark'], other_remark=data['other_remark'])
+    new_learning_unit = LearningUnit(acronym=data['first_letter'].upper()+data['acronym'].upper(), title=data['title'],
+                                     start_year=year, periodicity=data['periodicity'],
+                                     learning_container=learning_container, faculty_remark=data['faculty_remark'],
+                                     other_remark=data['other_remark'])
     new_learning_unit.save()
     return new_learning_unit
 
@@ -668,7 +669,7 @@ def create_learning_unit_year(academic_year, form, learning_container_year, lear
         internship_subtype = None
     new_learning_unit_year = LearningUnitYear(academic_year=academic_year, learning_unit=learning_unit,
                                               learning_container_year=learning_container_year,
-                                              acronym=form.data['acronym'].upper(),
+                                              acronym=form.data['first_letter'].upper()+form.data['acronym'].upper(),
                                               title=form.data['title'],
                                               title_english=form.data['title_english'],
                                               subtype=form.data['subtype'],
@@ -704,6 +705,12 @@ def check_acronym(request):
                          'existing_acronym': existing_acronym,
                          'existed_acronym': existed_acronym,
                          'last_using': last_using}, safe=False)
+
+
+def check_code(request):
+    campus_id = request.GET['campus']
+    campus = mdl.campus.find_by_id(campus_id)
+    return JsonResponse({'code': campus.code}, safe=False)
 
 
 @login_required
