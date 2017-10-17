@@ -31,7 +31,8 @@ from django.test import TestCase, RequestFactory
 
 from base.models.academic_calendar import AcademicCalendar
 from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.education_group_year import EducationGroupYearFactory, EducationGroupOrganizationFactory
+from base.tests.factories.education_group_organization import EducationGroupOrganizationFactory
+from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 
 
@@ -62,7 +63,7 @@ class EducationGroupViewTestCase(TestCase):
         request = request_factory.get(reverse('education_groups'), data={
             'acronym': 'EDPH2',
             'academic_year': self.academic_year.id,
-            'type': '' #Simulate all type
+            'type': ''  # Simulate all type
         })
         request.user = mock.Mock()
 
@@ -88,7 +89,7 @@ class EducationGroupViewTestCase(TestCase):
         request = request_factory.get(reverse('education_groups'), data={
             'acronym': '',
             'academic_year': self.academic_year.id,
-            'type': '' #Simulate all type
+            'type': ''  # Simulate all type
         })
         request.user = mock.Mock()
 
@@ -134,14 +135,13 @@ class EducationGroupViewTestCase(TestCase):
         self.assertEqual(context['education_group_year'].coorganizations.first(), organization)
         self.assertEqual(context['education_group_year'].coorganizations.first().address, organization.address)
 
-
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager', return_value=True)
     def test_education_group_2m(self,
-                                  mock_program_manager,
-                                  mock_render,
-                                  mock_decorators):
+                                mock_program_manager,
+                                mock_render,
+                                mock_decorators):
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
 
@@ -162,4 +162,3 @@ class EducationGroupViewTestCase(TestCase):
         self.assertEqual(template, 'education_group/tab_2m.html')
 
         self.assertEqual(context['education_group_year'].parent_by_training, education_group_year_parent)
-
