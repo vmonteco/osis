@@ -71,6 +71,7 @@ def entities_search(request):
 def entity_read(request, entity_version_id):
     entity_version = mdl.entity_version.find_by_id(entity_version_id)
     entity_parent = entity_version.get_parent_version()
+    descendants = entity_version.descendants
     return layout.render(request, "entity/identification.html", locals())
 
 

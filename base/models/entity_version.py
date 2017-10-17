@@ -124,7 +124,7 @@ class EntityVersion(models.Model):
             date = timezone.now().date()
 
         if self._contains_given_date(date):
-            return EntityVersion.objects.current(date).filter(parent=self.entity)
+            return EntityVersion.objects.current(date).filter(parent=self.entity).select_related('entity')
 
     def find_direct_children(self, date=None):
         if not date:
@@ -151,11 +151,13 @@ class EntityVersion(models.Model):
         return self._children
 
     def find_descendants(self, date=None):
+        if date is None:
+            date = timezone.now().date()
+
         return self.__find_descendants(date)
 
     def __find_descendants(self, date=None):
         descendants = []
-
         direct_children = self.find_direct_children(date)
         if len(direct_children) > 0:
             descendants.extend(direct_children)
