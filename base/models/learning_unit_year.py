@@ -117,7 +117,7 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
     if academic_year_id:
         queryset = queryset.filter(academic_year=academic_year_id)
 
-    if acronym:
+    if acronym and (((acronym.find('(+)'))<0) and (acronym.find('(*)'))<0):
         if ((acronym.find('^'))>=0 or (acronym.find('*'))>0 or
         (acronym.find('$'))>0 or (acronym.find('+')) or (acronym.find('.'))>0):
             queryset = queryset.filter(acronym__regex=r"(" + acronym + ")")
