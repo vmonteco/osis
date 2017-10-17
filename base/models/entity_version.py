@@ -31,6 +31,7 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
+from base.models.academic_year import AcademicYear
 from base.models.enums import entity_type
 from base.models.enums.organization_type import MAIN
 from osis_common.utils.datetime import get_tzinfo
@@ -70,6 +71,7 @@ class EntityVersion(models.Model):
 
     _descendants = None
     _children = []
+    _parent_faculty_version = {}
 
     def __str__(self):
         return "{} ({} - {} - {} to {})".format(
@@ -148,7 +150,6 @@ class EntityVersion(models.Model):
             self._children = list(direct_children) if direct_children else []
         return self._children
 
-    # TODO ! Recursive with db access
     def find_descendants(self, date=None):
         return self.__find_descendants(date)
 
@@ -162,6 +163,20 @@ class EntityVersion(models.Model):
                 descendants.extend(child.__find_descendants(date))
 
         return sorted(descendants, key=lambda an_entity: an_entity.acronym)
+
+    def find_parent_faculty_version(self, academic_yr):
+        if not isinstance(academic_yr, AcademicYear):
+            return None
+        if not self._parent_faculty_version.get(academic_yr.id):
+            parent_entity = getattr(self, "parent")
+            if parent_entity:
+                parent_entity_version = find_latest_version_by_entity(parent_entity, academic_yr.start_date)
+                if parent_entity_version:
+                    if parent_entity_version.entity_type == entity_type.FACULTY:
+                        self._parent_faculty_version[academic_yr.id] = parent_entity_version
+                    else:
+                        self._parent_faculty_version[academic_yr.id] = parent_entity_version.find_parent_faculty_version(academic_yr)
+        return self._parent_faculty_version.get(academic_yr.id)
 
     def get_parent_version(self, date=None):
         if date is None:
@@ -315,28 +330,20 @@ def find_main_entities_version():
     return entities_version
 
 
+def find_last_faculty_entities_version():
+    return EntityVersion.objects.filter(entity_type=entity_type.FACULTY,
+                                        entity__organization__type=MAIN).order_by('entity', '-start_date')\
+        .distinct('entity')
+
+
 def find_first_latest_version_by_period(ent, start_date, end_date):
     return EntityVersion.objects.entity(ent).filter(Q(end_date__lte=end_date) | Q(end_date__isnull=True),
                                                     start_date__gte=start_date) \
         .order_by('-start_date').first()
 
 
-def find_parent_faculty_version(child_entity_ver, academic_yr):
-    if child_entity_ver:
-        if child_entity_ver.parent is None:
-            return None
-        else:
-            entity_parent_version = find_latest_version_by_entity(child_entity_ver.parent,
-                                                                  academic_yr.start_date)
-            if entity_parent_version is None:
-                return None
-            else:
-                if entity_parent_version.entity_type == entity_type.FACULTY:
-                    return entity_parent_version
-                else:
-                    return find_parent_faculty_version(entity_parent_version, academic_yr)
-    return None
 
 
-def find_latest_version_by_entity(ent, date):
-    return EntityVersion.objects.current(date).entity(ent).select_related('entity', 'parent').first()
+
+def find_latest_version_by_entity(entity, date):
+    return EntityVersion.objects.current(date).entity(entity).select_related('entity', 'parent').first()

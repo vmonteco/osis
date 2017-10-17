@@ -25,6 +25,8 @@
 ##############################################################################
 from django.test import TestCase
 from django.utils import timezone
+
+from base.business.entity_version import _is_service_course
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
@@ -36,7 +38,6 @@ from base.tests.factories.entity_version import EntityVersionFactory
 from base.models.enums import entity_container_year_link_type
 from reference.tests.factories.country import CountryFactory
 from base.forms.learning_units import LearningUnitYearForm
-from base.forms.learning_units import _is_service_course
 
 ACRONYM_LU = "LDROI1001"
 
@@ -65,7 +66,12 @@ class TestLearningUnitForm(TestCase):
         form = LearningUnitYearForm(data=self.get_valid_data())
         self.assertTrue(form.is_valid())
         found_learning_units = form.get_activity_learning_units()
-        self.assertTrue(_is_service_course(found_learning_units[0]))
+        learning_unit = found_learning_units[0]
+        requirement_entity_version = learning_unit.entities.get(entity_container_year_link_type.REQUIREMENT_ENTITY)
+        learning_container_year = learning_unit.learning_container_year
+        entity_parent = requirement_entity_version.find_parent_faculty_version(learning_container_year.academic_year)
+
+        self.assertTrue( _is_service_course(learning_unit.academic_year, requirement_entity_version, learning_container_year, entity_parent))
 
     def test_is_not_service_course(self):
 
@@ -74,7 +80,12 @@ class TestLearningUnitForm(TestCase):
         form = LearningUnitYearForm(data=self.get_valid_data())
         self.assertTrue(form.is_valid())
         found_learning_units = form.get_activity_learning_units()
-        self.assertFalse(_is_service_course(found_learning_units[0]))
+        learning_unit = found_learning_units[0]
+        requirement_entity_version = learning_unit.entities.get(entity_container_year_link_type.REQUIREMENT_ENTITY)
+        learning_container_year = learning_unit.learning_container_year
+        entity_parent = requirement_entity_version.find_parent_faculty_version(learning_container_year.academic_year)
+
+        self.assertFalse(_is_service_course(learning_unit.academic_year, requirement_entity_version, learning_container_year, entity_parent))
 
     def build_allocation_entity_not_in_fac_tree(self):
         entity_allocation = EntityFactory()

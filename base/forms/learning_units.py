@@ -24,27 +24,28 @@
 #
 ##############################################################################
 import re
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Prefetch
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
+
 from base import models as mdl
+from base.business.entity_version import SERVICE_COURSE
+from base.business.learning_unit_year_with_context import append_latest_entities
+from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none
+from base.models import entity_version as mdl_entity_version
 from base.models.campus import find_main_campuses
-from base.models.entity_container_year import get_latest_entity_version
 from base.models.entity_version import find_main_entities_version
 from base.models.enums import entity_container_year_link_type
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from reference.models.language import find_all_languages
-from base.models import entity_container_year as mdl_entity_container_year
-from base.models import entity_version as mdl_entity_version
 
 MIN_ACRONYM_LENGTH = 3
 
 MAX_RECORDS = 1000
-SERVICE_COURSE = 'SERVICE_COURSE'
-PARENT_FACULTY = 'PARENT_FACULTY'
 EMPTY_FIELD = "---------"
 
 
@@ -58,7 +59,7 @@ class LearningUnitYearForm(forms.Form):
 
     def clean_acronym(self):
         data_cleaned = self.cleaned_data.get('acronym')
-        data_cleaned = _treat_empty_or_str_none_as_none(data_cleaned)
+        data_cleaned = treat_empty_or_str_none_as_none(data_cleaned)
         if data_cleaned and len(data_cleaned) < MIN_ACRONYM_LENGTH:
             raise ValidationError(_('LU_WARNING_INVALID_ACRONYM'))
         return data_cleaned
@@ -82,8 +83,7 @@ class LearningUnitYearForm(forms.Form):
         return data_cleaned
 
     def clean(self):
-        clean_data = _clean_data(self.cleaned_data)
-        return clean_data
+        return get_clean_data(self.cleaned_data)
 
     def get_activity_learning_units(self):
         return self.get_learning_units(False)
@@ -91,15 +91,15 @@ class LearningUnitYearForm(forms.Form):
     def get_learning_units(self, service_course_search):
         clean_data = self.cleaned_data
 
+        entity_version_prefetch = Prefetch('entity__entityversion_set',
+                                           queryset=mdl_entity_version.search(),
+                                           to_attr='entity_versions')
+
         entity_container_prefetch = Prefetch('learning_container_year__entitycontaineryear_set',
                                              queryset=mdl.entity_container_year.search(
                                                  link_type=[entity_container_year_link_type.ALLOCATION_ENTITY,
                                                             entity_container_year_link_type.REQUIREMENT_ENTITY])
-                                             .prefetch_related(
-                                                 Prefetch('entity__entityversion_set',
-                                                          queryset=mdl_entity_version.search(),
-                                                          to_attr='entity_versions')
-                                             ),
+                                             .prefetch_related(entity_version_prefetch),
                                              to_attr='entity_containers_year')
 
         clean_data['learning_container_year_id'] = _get_filter_learning_container_ids(clean_data)
@@ -108,68 +108,35 @@ class LearningUnitYearForm(forms.Form):
                                              'learning_container_year__academic_year') \
                              .prefetch_related(entity_container_prefetch) \
                              .order_by('academic_year__year', 'acronym')[:MAX_RECORDS + 1]
-        list_results = [_append_latest_entities(learning_unit, service_course_search) for learning_unit in
-                        learning_units]
 
-        return list_results
+        return [append_latest_entities(learning_unit, service_course_search) for learning_unit in
+                learning_units]
 
     def get_service_course_learning_units(self):
-        learning_units_service_course = self.get_learning_units_service_course(True)
+        learning_units_service_course = self.get_learning_units(True)
         service_courses = []
 
         allocation_entity_acronym = self.cleaned_data['allocation_entity_acronym']
         requirement_entity_acronym = self.cleaned_data['requirement_entity_acronym']
 
         for learning_unit_service_course in learning_units_service_course:
-            allocation_entity_service_course = learning_unit_service_course.entities.\
+            allocation_entity_service_course = learning_unit_service_course.entities. \
                 get(entity_container_year_link_type.ALLOCATION_ENTITY)
-            requirement_entity_service_course = learning_unit_service_course.entities.\
+            requirement_entity_service_course = learning_unit_service_course.entities. \
                 get(entity_container_year_link_type.REQUIREMENT_ENTITY)
 
             if SERVICE_COURSE in learning_unit_service_course.entities and allocation_entity_service_course:
-
-                if allocation_entity_acronym and not requirement_entity_acronym:
-                    if allocation_entity_service_course.acronym == allocation_entity_acronym:
+                if not requirement_entity_acronym:
+                    if allocation_entity_acronym:
+                        if allocation_entity_service_course.acronym == allocation_entity_acronym:
+                            service_courses.append(learning_unit_service_course)
+                elif requirement_entity_service_course.acronym == requirement_entity_acronym:
+                    if not allocation_entity_acronym:
                         service_courses.append(learning_unit_service_course)
-                if requirement_entity_acronym and not allocation_entity_acronym:
-                    if requirement_entity_service_course.acronym == requirement_entity_acronym:
-                        service_courses.append(learning_unit_service_course)
-                if requirement_entity_acronym and allocation_entity_acronym:
-                    if allocation_entity_service_course.acronym == allocation_entity_acronym \
-                            and requirement_entity_service_course.acronym == requirement_entity_acronym:
+                    elif allocation_entity_service_course.acronym == allocation_entity_acronym:
                         service_courses.append(learning_unit_service_course)
 
         return service_courses
-
-    def get_learning_units_service_course(self, service_course_search):
-        clean_data = self.cleaned_data
-
-        entity_container_prefetch = Prefetch('learning_container_year__entitycontaineryear_set',
-                                             queryset=mdl.entity_container_year.search(
-                                                 link_type=[entity_container_year_link_type.ALLOCATION_ENTITY,
-                                                            entity_container_year_link_type.REQUIREMENT_ENTITY])
-                                             .prefetch_related(
-                                                 Prefetch('entity__entityversion_set',
-                                                          queryset=mdl_entity_version.search(),  # TODO
-                                                          to_attr='entity_versions')
-                                             ),
-                                             to_attr='entity_containers_year')
-
-        clean_data['learning_container_year_id'] = _get_filter_learning_container_ids(clean_data)
-        learning_units = mdl.learning_unit_year.search(**clean_data) \
-            .select_related('academic_year', 'learning_container_year', 'learning_container_year__academic_year') \
-            .prefetch_related(entity_container_prefetch) \
-            .order_by('academic_year__year', 'acronym')
-        # same query as get_learning_units but without max records number
-        return [_append_latest_entities(learning_unit, service_course_search) for learning_unit in learning_units]
-
-
-def _clean_data(datas_to_clean):
-    return {key: _treat_empty_or_str_none_as_none(value) for (key, value) in datas_to_clean.items()}
-
-
-def _treat_empty_or_str_none_as_none(data):
-    return None if not data or data == "NONE" else data
 
 
 def _get_filter_learning_container_ids(filter_data):
@@ -203,56 +170,6 @@ def _get_entities_ids(requirement_entity_acronym, with_entity_subordinated):
             all_descendants = entity_version.find_descendants(entity_version.start_date)
             entities_ids |= {descendant.entity.id for descendant in all_descendants}
     return list(entities_ids)
-
-
-def _is_service_course(learning_unit_yr, requirement_entity_version, learning_container_year, entity_parent):
-    entity_container_yr_requirement = mdl_entity_container_year.find_requirement_entity(learning_container_year)
-    entity_container_yr_allocation = mdl_entity_container_year.find_allocation_entity(learning_container_year)
-
-    if not entity_parent and entity_container_yr_requirement:
-        entity_parent = entity_container_yr_requirement.entity
-    else:
-        entity_parent = entity_parent.entity
-
-    requirement_entity = mdl_entity_version.get_last_version(entity_parent)
-
-    if entity_container_yr_allocation == requirement_entity_version:
-        return False
-
-    if entity_container_yr_allocation:
-        allocation_entity = mdl_entity_version.get_last_version(entity_container_yr_allocation.entity)
-        if allocation_entity in requirement_entity.find_descendants(learning_unit_yr.academic_year.start_date):
-            return False
-
-    return True
-
-
-def _append_latest_entities(learning_unit, service_course_search):
-    learning_unit.entities = {}
-    learning_container_year = learning_unit.learning_container_year
-    if learning_container_year and learning_container_year.entity_containers_year:
-        for entity_container_yr in learning_container_year.entity_containers_year:
-            link_type = entity_container_yr.type
-            learning_unit.entities[link_type] = get_latest_entity_version(entity_container_yr)
-
-    requirement_entity_version = learning_unit.entities.get(entity_container_year_link_type.REQUIREMENT_ENTITY)
-    learning_unit_alloc_entity = learning_unit.entities.get(entity_container_year_link_type.ALLOCATION_ENTITY)
-
-    if service_course_search and requirement_entity_version:
-        entity_parent = mdl.entity_version.find_parent_faculty_version(requirement_entity_version,
-                                                                       learning_container_year.academic_year)
-        if entity_parent:
-            learning_unit.entities[PARENT_FACULTY] = entity_parent
-        else:
-            learning_unit.entities[PARENT_FACULTY] = requirement_entity_version
-
-        if learning_unit_alloc_entity and requirement_entity_version != learning_unit_alloc_entity:
-            learning_unit.entities[SERVICE_COURSE] = _is_service_course(learning_unit, requirement_entity_version,
-                                                                        learning_container_year, entity_parent)
-        else:
-            learning_unit.entities[SERVICE_COURSE] = False
-
-    return learning_unit
 
 
 def create_main_campuses_list():

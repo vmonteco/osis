@@ -23,8 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models import entity_version, offer_year_entity
+from base.models import entity_version, offer_year_entity, entity_container_year
 from base.models import entity
+
+SERVICE_COURSE = 'SERVICE_COURSE'
+PARENT_FACULTY = 'PARENT_FACULTY'
 
 
 def find_from_offer_year(offer_year):
@@ -81,3 +84,24 @@ def create_version(version, same_entity, parent):
     except AttributeError:
         new_version = None
     return new_version
+
+
+def _is_service_course(academic_year, requirement_entity_version, learning_container_year, entity_parent):
+    entity_container_yr_allocation = entity_container_year.find_allocation_entity(learning_container_year)
+    if entity_container_yr_allocation == requirement_entity_version:
+        return False
+
+    elif entity_container_yr_allocation:
+        entity_container_yr_requirement = entity_container_year.find_requirement_entity(learning_container_year)
+
+        if not entity_parent and entity_container_yr_requirement:
+            entity_parent = entity_container_yr_requirement.entity
+        else:
+            entity_parent = entity_parent.entity
+
+        allocation_entity = entity_version.get_last_version(entity_container_yr_allocation.entity)
+        requirement_entity = entity_version.get_last_version(entity_parent)
+        if allocation_entity in requirement_entity.find_descendants(academic_year.start_date):
+            return False
+
+    return True

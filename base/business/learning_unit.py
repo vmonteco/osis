@@ -26,12 +26,10 @@
 import datetime
 from collections import OrderedDict
 from base import models as mdl
-from base.business import learning_unit_year_volumes
 from base.business.learning_unit_year_with_context import volume_learning_component_year
 from base.models import entity_container_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
-from base.models.enums import entity_container_year_link_type
 from base.models.enums import learning_container_year_types
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
     ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2
@@ -46,6 +44,18 @@ from cms import models as mdl_cms
 from cms.enums import entity_name
 from base.models.enums import learning_unit_year_subtypes
 from reference.models import language
+
+# List of key that a user can modify
+VALID_VOLUMES_KEYS = [
+    'VOLUME_TOTAL',
+    'VOLUME_Q1',
+    'VOLUME_Q2',
+    'PLANNED_CLASSES',
+    'VOLUME_' + REQUIREMENT_ENTITY,
+    'VOLUME_' + ADDITIONAL_REQUIREMENT_ENTITY_1,
+    'VOLUME_' + ADDITIONAL_REQUIREMENT_ENTITY_2,
+    'VOLUME_TOTAL_REQUIREMENT_ENTITIES'
+]
 
 
 def extract_volumes_from_data(post_data):
@@ -62,7 +72,7 @@ def extract_volumes_from_data(post_data):
 
 
 def _is_a_valid_volume_key(post_key):
-    return post_key in learning_unit_year_volumes.VALID_VOLUMES_KEYS
+    return post_key in VALID_VOLUMES_KEYS
 
 
 def get_10_last_academic_years():
@@ -139,12 +149,11 @@ def get_all_attributions(learning_unit_year):
         all_attributions = entity_container_year.find_last_entity_version_grouped_by_linktypes(
             learning_unit_year.learning_container_year)
 
-        attributions['requirement_entity'] = all_attributions.get(entity_container_year_link_type.REQUIREMENT_ENTITY)
-        attributions['allocation_entity'] = all_attributions.get(entity_container_year_link_type.ALLOCATION_ENTITY)
+        attributions['requirement_entity'] = all_attributions.get(REQUIREMENT_ENTITY)
+        attributions['allocation_entity'] = all_attributions.get(ALLOCATION_ENTITY)
         attributions['additional_requirement_entities'] = [
             all_attributions[link_type] for link_type in all_attributions
-            if link_type not in [entity_container_year_link_type.REQUIREMENT_ENTITY,
-                                 entity_container_year_link_type.ALLOCATION_ENTITY]
+            if link_type not in [REQUIREMENT_ENTITY, ALLOCATION_ENTITY]
         ]
     return attributions
 
@@ -302,3 +311,4 @@ def create_learning_unit_year(academic_year, form, learning_container_year, lear
                                            internship_subtype=form.data.get('internship_subtype'),
                                            status=status,
                                            session=form.data['session'])
+
