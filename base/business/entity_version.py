@@ -105,3 +105,5 @@ def _is_service_course(academic_year, requirement_entity_version, learning_conta
             return False
 
     return True
+
+
