@@ -27,13 +27,16 @@ from django.db import models
 
 from osis_common.models.auditable_model import AuditableModel, AuditableModelAdmin
 
+from attribution.models.enums import function
+
 
 class AttributionChargeNewAdmin(AuditableModelAdmin):
-    list_display = ('attribution', 'learning_class_year', 'allocation_charge')
+    list_display = ('attribution', 'function', 'learning_class_year', 'allocation_charge')
     raw_id_fields = ('attribution', 'learning_class_year')
     search_fields = ['attribution__tutor__person__first_name', 'attribution__tutor__person__last_name',
                      'attribution__tutor__person__global_id',
-                     'learning_class_year__learning_component_year__learning_container_year__learning_unit_year__acronym']
+                     'learning_class_year__learning_component_year__learning_container_year__learning_unit_year__acronym',
+                     'function']
     list_filter = ('learning_class_year__learning_component_year__type',)
 
 
@@ -41,7 +44,8 @@ class AttributionChargeNew(AuditableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     attribution = models.ForeignKey('AttributionNew')
     learning_class_year = models.ForeignKey('base.LearningClassYear')
+    function = models.CharField(max_length=35, blank=True, null=True, choices=function.FUNCTIONS, db_index=True)
     allocation_charge = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
 
     def __str__(self):
-        return u"%s" % str(self.attribution)
+        return u"%s - %s" % (str(self.attribution), self.function)
