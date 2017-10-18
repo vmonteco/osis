@@ -26,7 +26,6 @@
 from django.db import models
 from django.contrib import admin
 
-from base.models.education_group_organization import EducationGroupOrganization
 from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
     diploma_printing_orientation, active_status, duration_unit
 from base.models import offer_year_domain as mdl_offer_year_domain, education_group_organization
@@ -34,7 +33,7 @@ from base.models import offer_year_entity as mdl_offer_year_entity
 from base.models import entity_version as mdl_entity_version
 from base.models.enums import education_group_categories
 from base.models.enums import offer_year_entity_type
-from base.models.exceptions import NumberOfParentException
+from base.models.exceptions import MaximumOneParentAllowedException
 from base.models.group_element_year import GroupElementYear
 
 
@@ -134,22 +133,21 @@ class EducationGroupYear(models.Model):
     def parent_by_training(self):
         parents = [parent for parent in self.parents_by_group_element_year
                    if parent.category == education_group_categories.TRAINING]
-        # If another parent is found, it will raise an error!
         if len(parents) > 1:
-            raise NumberOfParentException('Only one training parent is allowed')
+            raise MaximumOneParentAllowedException('Only one training parent is allowed')
 
         elif len(parents) == 1:
             return parents[0]
 
     @property
     def parents_by_group_element_year(self):
-        group_elements_year = GroupElementYear.objects.filter(child_branch=self)
+        group_elements_year = GroupElementYear.objects.filter(child_branch=self).select_related('parent')
         return [group_element_year.parent for group_element_year in group_elements_year
                 if group_element_year.parent]
 
     @property
     def children_by_group_element_year(self):
-        group_elements_year = GroupElementYear.objects.filter(parent=self)
+        group_elements_year = GroupElementYear.objects.filter(parent=self).select_related('child_branch')
         return [group_element_year.child_branch for group_element_year in group_elements_year
                 if group_element_year.child_branch]
 
