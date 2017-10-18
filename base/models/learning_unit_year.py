@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import re
 from django.db import models
 
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
@@ -31,6 +32,8 @@ from base.models import entity_container_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type
 
+
+REGEX_ACRONYM_CHARSET = "[A-Z0-9$*+.^]+"
 
 class LearningUnitYearAdmin(SerializableModelAdmin):
     list_display = ('external_id', 'acronym', 'title', 'academic_year', 'credits', 'changed', 'structure', 'status')
@@ -117,9 +120,8 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
     if academic_year_id:
         queryset = queryset.filter(academic_year=academic_year_id)
 
-    if acronym and acronym.find('(+)')<0 and acronym.find('(*)')<0:
-        if (acronym.find('^')>=0 or acronym.find('*')>0 or
-        acronym.find('$')>0 or acronym.find('+') or acronym.find('.')>0):
+    if check_if_acronym_regex_is_valid(acronym):
+        if (acronym.find('^')>=0 or acronym.find('*')>0 or acronym.find('$')>0 or acronym.find('+')>0 or acronym.find('.')>0):
             queryset = queryset.filter(acronym__regex=r"(" + acronym + ")")
         else:
             queryset = queryset.filter(acronym__icontains=acronym)
@@ -156,3 +158,7 @@ def find_gte_year_acronym(academic_yr, acronym):
 def find_lt_year_acronym(academic_yr, acronym):
     return LearningUnitYear.objects.filter(academic_year__year__lt=academic_yr.year,
                                            acronym__iexact=acronym).order_by('academic_year')
+
+def check_if_acronym_regex_is_valid(acronym):
+    if isinstance(acronym,str):
+        return re.fullmatch(REGEX_ACRONYM_CHARSET, acronym.upper())
