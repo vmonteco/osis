@@ -254,7 +254,7 @@
 
     function validate_acronym () {
         $('#acronym_message').removeClass("error-message").text("");
-        if($('#acronym').val()!=""){
+        if($('#first_letter').val()!=""){
             window.valid_acronym = false;
             window.acronym_already_used = false;
             if(/{{ form.acronym_regex }}/.test($('#first_letter').val().toUpperCase()+$('#acronym').val().toUpperCase())) {
