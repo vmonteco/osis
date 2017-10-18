@@ -50,16 +50,15 @@
                             <div class="row" style="margin:0;">
                                 <div class="col-md-3" style="padding-right:0;">
                                     <label>
-                                        {% trans 'acronym' %}
+                                        {% trans 'acronym' %}*
                                     </label>
                                     {{ form.first_letter }}
                                 </div>
-                                <div class="col-md-9" style="padding:0;">
-                                    <label>*</label>
-                                    <abbr title="{% trans 'acronym_rules' %}">
-                                        <span class="glyphicon glyphicon-question-sign pull-right"
-                                              style="font-size: 14pt;" aria-hidden="true"></span>
-                                    </abbr>
+                                <abbr title="{% trans 'acronym_rules' %}">
+                                    <span class="glyphicon glyphicon-question-sign pull-right"
+                                          title="{% trans 'acronym_rules' %}" style="font-size: 14pt;"
+                                          aria-hidden="true"></span></abbr>
+                                <div class="col-md-9" style="padding:0;margin-top:7px;">
                                     {{ form.acronym }}
                                     <span class='error' id="{{ form.acronym.name }}_message" for='{{ form.acronym.name }}' generated="true"/>
                                     {% if form.acronym.errors %}
@@ -202,32 +201,35 @@
             </div>
             {{ form.subtype }}
             <div class="panel-body">
-                <button type="submit" id="learning_unit_year_add" class="btn btn-primary" name="action" value="add" role="button"
-                            title="{% trans 'add' %}">{% trans 'save' %}</button>
+                <button type="button" id="learning_unit_year_add" class="btn btn-primary" title="{% trans 'add' %}">{% trans 'save' %}</button>
             </div>
         </form>
+
+        <!-- Modal -->
+        <div class="modal fade" id="prolongOrCreateModal" tabindex="-1" role="dialog" aria-labelledby="prolongOrCreateModalLabel">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              </div>
+              <div class="modal-body">
+                {% trans 'prolong_or_create_learning_unit_message' %}
+              </div>
+              <div class="modal-footer">
+                  <button type="submit" id="buttonCreate" class="btn btn-primary" form="LearningUnitYearForm" value="Submit">{% trans 'create' %}</button>
+                  <button type="button" class="btn btn-info" data-dismiss="modal">{% trans 'prolong' %}</button>
+                  <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'cancel' %}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}
 {% block script %}
 <script>
     const internship = "INTERNSHIP";
-    $( document ).ready(function() {
-        if('{{form.learning_container_year_type.value}}' == internship)
-            document.getElementById('internship').disabled = false;
-        else
-            document.getElementById('internship').disabled = true;
-
-        if('{{form.requirement_entity.value}}' =="0")
-            document.getElementById('allocation_entity_1').disabled = false;
-        else
-            document.getElementById('allocation_entity_1').disabled = true;
-
-        if('{{form.additional_entity_1.value}}' =="0")
-            document.getElementById('allocation_entity_2').disabled = false;
-        else
-            document.getElementById('allocation_entity_2').disabled = true;
-    });
 
     function showDiv(elem){
        if(elem == internship)
@@ -235,7 +237,6 @@
        else
            document.getElementById('internship').disabled = true;
     }
-    window.valid_acronym = false;
 
     function showAdditionalEntity1(elem){
        if(elem != "")
@@ -251,12 +252,46 @@
            document.getElementById('allocation_entity_2').disabled = true;
     }
 
+    function validate_acronym () {
+        $('#acronym_message').removeClass("error-message").text("");
+        if($('#acronym').val()!=""){
+            window.valid_acronym = false;
+            window.acronym_already_used = false;
+            if(/{{ form.acronym_regex }}/.test($('#first_letter').val().toUpperCase()+$('#acronym').val().toUpperCase())) {
+                $.ajax({
+                    url: "/learning_units/check?acronym=" + $('#first_letter').val() + $('#acronym').val() + "&year_id=" + $('#academic_year').val()
+                }).done(function(data){
+                    if (data['valid']){
+                        window.valid_acronym = true;
+                        if(data['existed_acronym'] && !data['existing_acronym']){
+                            $('#acronym_message').addClass("error").text("{% trans 'existed_acronym' %}"+data['last_using']);
+                            $("#acronym_message").css("color","orange");
+                            window.acronym_already_used = true;
+                        }
+                    }else{
+                        window.valid_acronym = false;
+                        if(data['existing_acronym']){
+                            $('#acronym_message').addClass("error").text("{% trans 'existing_acronym' %}");
+                            $("#acronym_message").css("color","red");
+                            window.acronym_already_used = true;
+                        }
+                    }
+                });
+            } else {
+                window.valid_acronym = false;
+                $('#acronym_message').addClass("error").text("{% trans 'invalid_acronym' %}");
+                $("#acronym_message").css("color","red");
+            }
+        }
+    };
+
     function setFirstLetter(){
         $.ajax({
             url: "/learning_units/check_code?campus=" + $('#campus').val()
         }).done(function(data){
             if (data['code']){
                 document.getElementById('first_letter').value = data['code'];
+                validate_acronym();
             }else{
                 document.getElementById('first_letter').value = "";
             }
@@ -271,43 +306,40 @@
             required: "{% trans 'field_is_required' %}"
         });
 
-        function validate_acronym () {
-            $('#acronym_message').removeClass("error-message").text("");
+        if('{{form.learning_container_year_type.value}}' == internship)
+            document.getElementById('internship').disabled = false;
+        else
+            document.getElementById('internship').disabled = true;
 
-	        if(/{{ form.acronym_regex }}/.test($('#first_letter').val().toUpperCase()+$('#acronym').val().toUpperCase())) {
-                $.ajax({
-                    url: "/learning_units/check?acronym=" + $('#first_letter').val() + $('#acronym').val() + "&year_id=" + $('#academic_year').val()
-                }).done(function(data){
-                    if (data['valid']){
-                        window.valid_acronym = true;
-                        if(data['existed_acronym'] && !data['existing_acronym']){
-                            $('#acronym_message').addClass("error").text("{% trans 'existed_acronym' %}"+data['last_using']);
-                            $("#acronym_message").css("color","orange");
-                        }
-                    }else{
-                        window.valid_acronym = false;
-                        if(data['existing_acronym']){
-                            $('#acronym_message').addClass("error").text("{% trans 'existing_acronym' %}");
-                            $("#acronym_message").css("color","red");
-                        }
-                    }
-                });
-            } else {
-                window.valid_acronym = false;
-                $('#acronym_message').addClass("error").text("{% trans 'invalid_acronym' %}");
-                $("#acronym_message").css("color","red");
-            }
-        };
+        if('{{form.requirement_entity.value}}' =="0")
+            document.getElementById('allocation_entity_1').disabled = false;
+        else
+            document.getElementById('allocation_entity_1').disabled = true;
+
+        if('{{form.additional_entity_1.value}}' =="0")
+            document.getElementById('allocation_entity_2').disabled = false;
+        else
+            document.getElementById('allocation_entity_2').disabled = true;
 
         $('#acronym').change(validate_acronym);
         $('#academic_year').change(validate_acronym);
-
         $("#LearningUnitYearForm").submit(function( event ) {
             if (!window.valid_acronym) {
                 $("#acronym").focus();
             }
             return window.valid_acronym;
+        });
 
+        $('#learning_unit_year_add').click(function() {
+            if(window.acronym_already_used){
+                $("#prolongOrCreateModal").modal();
+            } else {
+                $("#LearningUnitYearForm").submit();
+            }
+        });
+
+        $('#buttonCreate').click(function() {
+            $("#prolongOrCreateModal").modal('hide');
         });
     });
 </script>
