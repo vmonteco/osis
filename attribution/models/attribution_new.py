@@ -53,3 +53,6 @@ class AttributionNew(AuditableModel):
 
     def __str__(self):
         return u"%s - %s" % (self.tutor.person, self.function)
+
+    class Meta:
+        unique_together = ('learning_container_year', 'tutor', 'function')
