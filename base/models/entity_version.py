@@ -139,7 +139,7 @@ class EntityVersion(models.Model):
     @property
     def descendants(self):
         if not self._descendants:
-            self._descendants = self.__find_descendants()
+            self._descendants = self.find_descendants()
 
         return self._descendants
 
@@ -151,18 +151,12 @@ class EntityVersion(models.Model):
         return self._children
 
     def find_descendants(self, date=None):
-        if date is None:
-            date = timezone.now().date()
-
-        return self.__find_descendants(date)
-
-    def __find_descendants(self, date=None):
         descendants = []
         direct_children = self.find_direct_children(date)
         if len(direct_children) > 0:
             descendants.extend(direct_children)
             for child in direct_children:
-                descendants.extend(child.__find_descendants(date))
+                descendants.extend(child.find_descendants(date))
 
         return sorted(descendants, key=lambda an_entity: an_entity.acronym)
 
@@ -278,16 +272,20 @@ def count(**kwargs):
     return search(**kwargs).count()
 
 
-def search_entities(acronym=None, title=None, type=None):
+def search_entities(acronym=None, title=None, type=None, with_entity=None):
     if not acronym and not title and not type:
         return
     queryset = EntityVersion.objects
+    if with_entity:
+        queryset = queryset.select_related('entity__organization')
+
     if acronym:
         queryset = queryset.filter(acronym__iexact=acronym)
     if title:
         queryset = queryset.filter(title__icontains=title)
     if type:
         queryset = queryset.filter(entity_type=type)
+
     return queryset
 
 
@@ -344,9 +342,6 @@ def find_first_latest_version_by_period(ent, start_date, end_date):
     return EntityVersion.objects.entity(ent).filter(Q(end_date__lte=end_date) | Q(end_date__isnull=True),
                                                     start_date__gte=start_date) \
         .order_by('-start_date').first()
-
-
-
 
 
 def find_latest_version_by_entity(entity, date):

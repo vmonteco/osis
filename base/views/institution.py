@@ -61,7 +61,8 @@ def entities(request):
 def entities_search(request):
     entities_version = mdl.entity_version.search_entities(acronym=request.GET.get('acronym'),
                                                           title=request.GET.get('title'),
-                                                          type=request.GET.get('type_choices'))
+                                                          type=request.GET.get('type_choices'),
+                                                          with_entity=True)
     return layout.render(request, "entities.html", {'entities_version': entities_version,
                                                     'init': "1",
                                                     'types': entity_type.ENTITY_TYPES})
