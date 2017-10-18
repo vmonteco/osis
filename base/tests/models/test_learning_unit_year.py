@@ -69,4 +69,4 @@ class LearningUnitYearTest(TestCase):
         regex='^LD.+1+'
         query_result=learning_unit_year.search(acronym=regex)
         self.assertEqual(len(query_result), 1)
-        self.assertEqual(self.learning_unit_year.acronym, query_result[0])
+        self.assertEqual(self.learning_unit_year.acronym, query_result[0].acronym)
