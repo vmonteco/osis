@@ -90,7 +90,7 @@ class EducationGroupYear(models.Model):
     inter_university_belgium = models.BooleanField(default=False)
     inter_university_abroad = models.BooleanField(default=False)
     primary_language = models.ForeignKey('reference.Language', blank=True, null=True)
-    language_association = models.CharField(max_length=5, choices=education_group_association.ASSOCIATIONS, blank=True, null=True)
+    language_association = models.CharField(max_length=5, choices=education_group_association.EducationGroupAssociations.choices(), blank=True, null=True)
     keywords = models.CharField(max_length=320, blank=True, null=True)
     duration = models.IntegerField(blank=True, null=True)
     duration_unit = models.CharField(max_length=40,
