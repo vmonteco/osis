@@ -66,5 +66,5 @@ class LearningUnitYearTest(TestCase):
         self.assertEqual(l_unit_3.subdivision, 'B')
 
     def test_search_acronym_by_regex(self):
-        regex='^LD.+2+'
+        regex='^LD.+1+'
         self.assertEqual(self.learning_unit_year.acronym,  learning_unit_year.search(acronym=regex))
