@@ -33,7 +33,8 @@ from base.models.enums import learning_unit_year_subtypes, learning_container_ye
     learning_unit_year_session, entity_container_year_link_type
 
 
-REGEX_ACRONYM_CHARSET = "[A-Z0-9$*+.^]+"
+AUTHORIZED_REGEX_CHARS = "$*+.^"
+REGEX_ACRONYM_CHARSET = "[A-Z0-9"+ AUTHORIZED_REGEX_CHARS +"]+"
 
 class LearningUnitYearAdmin(SerializableModelAdmin):
     list_display = ('external_id', 'acronym', 'title', 'academic_year', 'credits', 'changed', 'structure', 'status')
@@ -113,6 +114,10 @@ def find_by_acronym(acronym):
                                    .select_related('learning_container_year')
 
 
+def _is_regex(acronym):
+    return set(AUTHORIZED_REGEX_CHARS).intersection(set(acronym))
+
+
 def search(academic_year_id=None, acronym=None, learning_container_year_id=None, learning_unit=None,
            title=None, subtype=None, status=None, container_type=None, *args, **kwargs):
     queryset = LearningUnitYear.objects
@@ -120,8 +125,8 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
     if academic_year_id:
         queryset = queryset.filter(academic_year=academic_year_id)
 
-    if check_if_acronym_regex_is_valid(acronym):
-        if (acronym.find('^')>=0 or acronym.find('*')>0 or acronym.find('$')>0 or acronym.find('+')>0 or acronym.find('.')>0):
+    if acronym:
+        if _is_regex(acronym):
             queryset = queryset.filter(acronym__regex=r"(" + acronym + ")")
         else:
             queryset = queryset.filter(acronym__icontains=acronym)

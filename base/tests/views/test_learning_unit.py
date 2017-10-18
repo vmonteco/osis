@@ -236,7 +236,7 @@ class LearningUnitViewTestCase(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_units.html')
-        self.assertIsNone(context['learning_units'])
+        self.assertEqual(context['form'].errors['acronym'], [_('LU_ERRORS_INVALID_REGEX_SYNTAX')])
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
