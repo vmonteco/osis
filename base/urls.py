@@ -80,7 +80,7 @@ urlpatterns = [
         url(r'^new/', include([
             url(r'^academic_year_id=(?P<academic_year>[0-9]+)$', learning_unit.learning_unit_create,
                 name="learning_unit_create"),
-            url(r'^learning_unit_year_add/$', learning_unit.learning_unit_year_add, name='learning_unit_year_add')
+            url(r'^learning_unit_year_add/$', learning_unit.learning_unit_year_add, name='learning_unit_year_add'),
         ])),
         url(r'^(?P<learning_unit_year_id>[0-9]+)/', include([
             url(r'^$', learning_unit.learning_unit_identification, name='learning_unit'),
@@ -136,6 +136,7 @@ urlpatterns = [
         url(r'^$', education_group.education_groups, name='education_groups'),
         url(r'^(?P<education_group_year_id>[0-9]+)/', include([
             url(r'^$', education_group.education_group_read, name='education_group_read'),
+            url(r'^parent/$', education_group.education_group_parent_read, name='education_group_parent_read'),
             url(r'^diplomas/$', education_group.education_group_diplomas, name='education_group_diplomas'),
         ]))
     ])),
