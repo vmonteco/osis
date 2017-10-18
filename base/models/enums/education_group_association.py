@@ -25,6 +25,6 @@
 ##############################################################################
 from base.models.utils.utils import ChoiceEnum
 
-class education_group_language(ChoiceEnum):
+class EducationGroupAssociations(ChoiceEnum):
     OR = "OR"
     AND = "AND"

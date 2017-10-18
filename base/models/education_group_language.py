@@ -33,7 +33,7 @@ class EducationGroupLanguageAdmin(admin.ModelAdmin):
 
 
 class EducationGroupLanguage(models.Model):
-    type = models.CharField(max_length=255, choices=education_group_language.TYPES)
+    type = models.CharField(max_length=255, choices=education_group_language.EducationGroupLanguages.choices())
     order = models.IntegerField()
     education_group_year = models.ForeignKey('base.EducationGroupYear')
     language = models.ForeignKey('reference.Language')

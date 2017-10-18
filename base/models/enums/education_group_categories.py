@@ -25,7 +25,7 @@
 ##############################################################################
 from base.models.utils.utils import ChoiceEnum
 
-class education_group_categories(ChoiceEnum):
+class EducationGroupCategories(ChoiceEnum):
     PRIMARY_LANGUAGE = "PRIMARY_LANGUAGE"
     MINI_TRAINING = "MINI_TRAINING"
     GROUP = "GROUP"
