@@ -23,19 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-from django.contrib import admin
+SUBSCRIBED = 'SUBSCRIBED'
+PROVISORY = 'PROVISORY'
 
-
-class GroupElementYearAdmin(admin.ModelAdmin):
-    list_display = ('parent', 'child_branch', 'child_leaf',)
-    fieldsets = ((None, {'fields': ('parent', 'child_branch', 'child_leaf',)}),)
-    raw_id_fields = ('parent', 'child_branch', 'child_leaf',)
-
-
-class GroupElementYear(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    parent = models.ForeignKey('EducationGroupYear', related_name='parent', blank=True, null=True)
-    child_branch = models.ForeignKey('EducationGroupYear', related_name='child_branch', blank=True, null=True)
-    child_leaf = models.ForeignKey('LearningUnitYear', related_name='child_leaf', blank=True, null=True)
+STATES = (
+    (SUBSCRIBED, SUBSCRIBED),
+    (PROVISORY, PROVISORY))
