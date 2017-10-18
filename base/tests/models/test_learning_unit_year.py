@@ -26,6 +26,7 @@
 from django.test import TestCase
 from django.utils import timezone
 from attribution.models import attribution
+from base.models import learning_unit_year
 from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
@@ -63,3 +64,7 @@ class LearningUnitYearTest(TestCase):
         self.assertFalse(l_unit_1.subdivision)
         self.assertEqual(l_unit_2.subdivision, 'A')
         self.assertEqual(l_unit_3.subdivision, 'B')
+
+    def test_search_acronym_by_regex(self):
+        regex='^LD.+2+'
+        self.assertEqual(self.learning_unit_year.acronym,  learning_unit_year.search(acronym=regex))
