@@ -138,6 +138,8 @@ urlpatterns = [
             url(r'^$', education_group.education_group_read, name='education_group_read'),
             url(r'^parent/$', education_group.education_group_parent_read, name='education_group_parent_read'),
             url(r'^diplomas/$', education_group.education_group_diplomas, name='education_group_diplomas'),
+            url(r'^informations/$', education_group.education_group_general_informations, name='education_group_general_informations'),
+
         ]))
     ])),
 
