@@ -23,12 +23,20 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-TRAINING = "TRAINING"
-MINI_TRAINING = "MINI_TRAINING"
-GROUP = "GROUP"
+from django.db import models
+from django.contrib import admin
+from reference.models import language
+from base.models.enums import education_group_language
 
-CATEGORIES = (
-    (TRAINING, TRAINING),
-    (MINI_TRAINING, MINI_TRAINING),
-    (GROUP, GROUP),
-)
+class EducationGroupLanguageAdmin(admin.ModelAdmin):
+    list_display = ('type', 'order', 'education_group_year', 'language')
+
+
+class EducationGroupLanguage(models.Model):
+    type = models.CharField(max_length=255, choices=education_group_language.EducationGroupLanguages.choices())
+    order = models.IntegerField()
+    education_group_year = models.ForeignKey('base.EducationGroupYear')
+    language = models.ForeignKey('reference.Language')
+
+    def __str__(self):
+        return "{}".format(self.id)

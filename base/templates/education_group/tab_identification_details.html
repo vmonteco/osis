@@ -90,6 +90,13 @@
                             <strong class="text-primary">{% trans parent.other_language_activities %}</strong>
                         {% else %}
                         {% endif %}
+                        <br><br>
+                        <label>{% trans 'language_association'%}</label><br>
+                        {% if education_group_year.language_association %}
+                            {% trans education_group_year.language_association %}
+                        {% else %}
+                            &nbsp;
+                        {% endif %}
                     </div>
                     <div class="col-md-6">
                         <label>{% trans 'enrollment_enabled' %}</label><br>
