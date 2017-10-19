@@ -32,7 +32,7 @@ from cms.models import translated_text
 
 class EducationGroupGeneralInformationsForm(forms.Form):
     education_group_year = language = None
-    text_labels_name = ['resume', 'skills', 'evaluation']
+    text_labels_name = ['introduction', 'profile', 'job', 'program']
 
     def __init__(self, *args, **kwargs):
         self.education_group_year = kwargs.pop('education_group_year', None)
