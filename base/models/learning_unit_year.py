@@ -127,7 +127,7 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
 
     if acronym:
         if _is_regex(acronym):
-            queryset = queryset.filter(acronym__regex=r"(" + acronym + ")")
+            queryset = queryset.filter(acronym__iregex=r"(" + acronym + ")")
         else:
             queryset = queryset.filter(acronym__icontains=acronym)
 
