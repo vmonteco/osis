@@ -2127,6 +2127,18 @@ msgstr "Mini formation"
 msgid "GROUP"
 msgstr "Groupe"
 
+msgid "PRIMARY_LANGUAGE"
+msgstr "Langue principale"
+
+msgid "OR"
+msgstr "Ou"
+
+msgid "AND"
+msgstr "Et"
+
+msgid "language_association"
+msgstr "Opérateur langues principales"
+
 msgid "prolong_or_create_learning_unit_message"
 msgstr "Le <b>sigle</b> utilisé est <b>déjà existant</b>. Vous avez le choix entre <b>créer</b> une toute nouvelle "
        "unité d'enseignement qui reprendra ce sigle ou bien <b>prolonger</b> l'unité d'enseignement de même sigle "

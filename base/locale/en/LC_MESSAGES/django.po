@@ -2121,6 +2121,18 @@ msgstr "Mini training"
 msgid "GROUP"
 msgstr "Group"
 
+msgid "PRIMARY_LANGUAGE"
+msgstr "Primary anguage"
+
+msgid "OR"
+msgstr "Or"
+
+msgid "AND"
+msgstr "And"
+
+msgid "language_association"
+msgstr "Primary language operator"
+
 msgid "prolong_or_create_learning_unit_message"
 msgstr "The acronym <b>already exists</b>. You can either <b>create</b> a new learning unit using that acronym or "
        "you can prolong the learning unit of the same acronym (this will redirect to the modification of the learninig"
