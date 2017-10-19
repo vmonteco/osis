@@ -35,6 +35,7 @@ from base.models.entity_version import find_main_entities_version
 from base.models.enums import entity_container_year_link_type
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
+from base.models.learning_unit_year import check_if_acronym_regex_is_valid
 from reference.models.language import find_all_languages
 import re
 from base.models import entity_container_year as mdl_entity_container_year
@@ -60,6 +61,8 @@ class LearningUnitYearForm(forms.Form):
         data_cleaned = _treat_empty_or_str_none_as_none(data_cleaned)
         if data_cleaned and len(data_cleaned) < MIN_ACRONYM_LENGTH:
             raise ValidationError(_('LU_WARNING_INVALID_ACRONYM'))
+        elif data_cleaned and len(data_cleaned) >= MIN_ACRONYM_LENGTH and check_if_acronym_regex_is_valid(data_cleaned) is None:
+            raise ValidationError(_('LU_ERRORS_INVALID_REGEX_SYNTAX'))
         return data_cleaned
 
     def clean_academic_year_id(self):

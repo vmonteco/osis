@@ -62,11 +62,11 @@ def find_by_id(organization_id):
 
 
 def search(acronym=None, name=None, type=None, prefix=None):
-    out  = None
+    out = None
     queryset = Organization.objects
 
     if acronym:
-        queryset = queryset.filter(acronym__iexact=acronym)
+        queryset = queryset.filter(acronym__icontains=acronym)
 
     if name:
         queryset = queryset.filter(name__icontains=name)
@@ -81,6 +81,7 @@ def search(acronym=None, name=None, type=None, prefix=None):
         out = queryset
 
     return out
+
 
 def find_by_type(type, order_by=None):
 

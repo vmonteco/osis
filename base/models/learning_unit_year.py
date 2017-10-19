@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import re
 from django.db import models
 
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
@@ -31,6 +32,9 @@ from base.models import entity_container_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type
 
+
+AUTHORIZED_REGEX_CHARS = "$*+.^"
+REGEX_ACRONYM_CHARSET = "[A-Z0-9"+ AUTHORIZED_REGEX_CHARS +"]+"
 
 class LearningUnitYearAdmin(SerializableModelAdmin):
     list_display = ('external_id', 'acronym', 'title', 'academic_year', 'credits', 'changed', 'structure', 'status')
@@ -110,6 +114,10 @@ def find_by_acronym(acronym):
                                    .select_related('learning_container_year')
 
 
+def _is_regex(acronym):
+    return set(AUTHORIZED_REGEX_CHARS).intersection(set(acronym))
+
+
 def search(academic_year_id=None, acronym=None, learning_container_year_id=None, learning_unit=None,
            title=None, subtype=None, status=None, container_type=None, *args, **kwargs):
     queryset = LearningUnitYear.objects
@@ -118,7 +126,10 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
         queryset = queryset.filter(academic_year=academic_year_id)
 
     if acronym:
-        queryset = queryset.filter(acronym__icontains=acronym)
+        if _is_regex(acronym):
+            queryset = queryset.filter(acronym__iregex=r"(" + acronym + ")")
+        else:
+            queryset = queryset.filter(acronym__icontains=acronym)
 
     if learning_container_year_id is not None:
         if isinstance(learning_container_year_id, list):
@@ -152,3 +163,7 @@ def find_gte_year_acronym(academic_yr, acronym):
 def find_lt_year_acronym(academic_yr, acronym):
     return LearningUnitYear.objects.filter(academic_year__year__lt=academic_yr.year,
                                            acronym__iexact=acronym).order_by('academic_year')
+
+def check_if_acronym_regex_is_valid(acronym):
+    if isinstance(acronym,str):
+        return re.fullmatch(REGEX_ACRONYM_CHARSET, acronym.upper())

@@ -39,6 +39,9 @@ admin.site.register(campus.Campus,
 admin.site.register(education_group.EducationGroup,
                     education_group.EducationGroupAdmin)
 
+admin.site.register(education_group_language.EducationGroupLanguage,
+                    education_group_language.EducationGroupLanguageAdmin)
+
 admin.site.register(education_group_organization.EducationGroupOrganization,
                     education_group_organization.EducationGroupOrganizationAdmin)
 
