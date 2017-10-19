@@ -208,7 +208,7 @@
               </div>
               <div class="modal-footer">
                   <button type="submit" id="buttonCreate" class="btn btn-primary" form="LearningUnitYearForm" value="Submit">{% trans 'create' %}</button>
-                  <button type="button" class="btn btn-info" data-dismiss="modal">{% trans 'prolong' %}</button>
+                  <button type="button" class="btn btn-info" >{% trans 'prolong' %}</button>
                   <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'cancel' %}</button>
               </div>
             </div>
@@ -317,10 +317,6 @@
             } else {
                 $("#LearningUnitYearForm").submit();
             }
-        });
-
-        $('#buttonCreate').click(function() {
-            $("#prolongOrCreateModal").modal('hide');
         });
     });
 </script>

@@ -2128,8 +2128,9 @@ msgid "GROUP"
 msgstr "Groupe"
 
 msgid "prolong_or_create_learning_unit_message"
-msgstr "Le sigle utilisé est <b>déjà existant</b>. Souhaitez-vous <b>créer</b> une nouvelle unité d'enseignement en utilisant ce sigle"
-       " ou bien <b>prolonger</b> l'unité d'enseignement de même sigle ? "
+msgstr "Le <b>sigle</b> utilisé est <b>déjà existant</b>. Vous avez le choix entre <b>créer</b> une toute nouvelle "
+       "unité d'enseignement qui reprendra ce sigle ou bien <b>prolonger</b> l'unité d'enseignement de même sigle "
+       "(ce qui vous redigera vers l'écran de modification de l'unité d'enseignement) ? "
 
 msgid "create"
 msgstr "Créer"
