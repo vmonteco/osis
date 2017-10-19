@@ -179,7 +179,7 @@ class StudentViewTestCase(TestCase):
         self.assertEqual(response.content, b'an image')
 
     def test_student_picture_for_non_existent_student(self):
-        non_existent_student_id = 42
+        non_existent_student_id = 666
         request = RequestFactory().get(reverse('student_picture', args=[non_existent_student_id]))
         request.user = self.program_manager_1.person.user
 
