@@ -23,13 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import re
 from django import forms
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Prefetch
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 from base import models as mdl
+from base.forms.bootstrap import BootstrapForm
 from base.models.campus import find_administration_campuses
 from base.models.entity_version import find_main_entities_version
 from base.models.enums import entity_container_year_link_type
@@ -45,6 +45,7 @@ MIN_ACRONYM_LENGTH = 3
 MAX_RECORDS = 1000
 SERVICE_COURSE = 'SERVICE_COURSE'
 PARENT_FACULTY = 'PARENT_FACULTY'
+
 
 class LearningUnitYearForm(forms.Form):
     academic_year_id = forms.CharField(max_length=10, required=False)
@@ -253,10 +254,6 @@ def _get_latest_entity_version(entity_container_year):
     return entity_version
 
 
-def create_main_campuses_list():
-    return [(None, "---------"), ] + [(elem.id, elem.name) for elem in find_administration_campuses()]
-
-
 def create_main_entities_version_list():
     return [(None, "---------"), ] + [(entity_version.id, entity_version.acronym) for entity_version
                                       in find_main_entities_version()]
@@ -270,86 +267,45 @@ def create_languages_list():
     return [(language.id, language.name) for language in find_all_languages()]
 
 
-class CreateLearningUnitYearForm(forms.ModelForm):
-    first_letter = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control text-center',
-                                                                                 'id': 'first_letter',
+class CreateLearningUnitYearForm(BootstrapForm):
+    acronym = forms.CharField(widget=forms.TextInput(attrs={'maxlength': "15", 'required': True}))
+    academic_year = forms.ModelChoiceField(queryset=mdl.academic_year.find_academic_years(), required=True,
+                                           empty_label=_('all_label'))
+    status = forms.CharField(required=False, widget=forms.CheckboxInput())
+    internship_subtype = forms.ChoiceField(choices=((None, "---------"),) +
+                                           mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES,
+                                           required=True)
+    credits = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
+    title = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
+    title_english = forms.CharField(required=False, widget=forms.TextInput())
+    session = forms.ChoiceField(choices=((None, "---------"),) +
+                                mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION,
+                                required=False)
+    subtype = forms.CharField(widget=forms.HiddenInput())
+    first_letter = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'text-center',
                                                                                  'maxlength': "1",
                                                                                  'readonly': 'readonly'}))
     learning_container_year_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
-                                                     widget=forms.Select(attrs={'class': 'form-control',
-                                                                                'onchange': 'showDiv(this.value)',
-                                                                                'id': 'learning_container_year_type'}))
-    faculty_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'class': 'form-control',
-                                                                                  'id': 'faculty_remark',
-                                                                                  'rows': 2}))
-    other_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'class': 'form-control',
-                                                                                'id': 'other_remark',
-                                                                                'rows': 2}))
-    periodicity = forms.CharField(widget=forms.Select(attrs={'class': 'form-control',
-                                                             'id': 'periodicity'},
-                                                      choices=PERIODICITY_TYPES))
-    campus = forms.ChoiceField(choices=lazy(create_main_campuses_list, tuple),
-                               widget=forms.Select(attrs={'class': 'form-control',
-                                                          'id': 'campus',
-                                                          'onchange': 'setFirstLetter()'}))
+                                                     widget=forms.Select(attrs={'onchange': 'showInternshipSubtype(this.value)'}))
+    faculty_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
+    other_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
+    periodicity = forms.CharField(widget=forms.Select(choices=PERIODICITY_TYPES))
+    campus = forms.ModelChoiceField(queryset=find_administration_campuses(),
+                                    widget=forms.Select(attrs={'onchange': 'setFirstLetter()'}))
     requirement_entity = forms.ChoiceField(choices=lazy(create_main_entities_version_list, tuple),
-                                           widget=forms.Select(attrs={'class': 'form-control',
-                                                                      'id': 'requirement_entity',
-                                                                      'onchange': 'showAdditionalEntity1(this.value)'}))
+                                           widget=forms.Select(attrs={'onchange': 'showAdditionalEntity(this.value, "id_additional_entity_1")'}))
     allocation_entity = forms.ChoiceField(choices=lazy(create_main_entities_version_list, tuple),
-                                          required=False,
-                                          widget=forms.Select(attrs={'class': 'form-control',
-                                                                     'id': 'allocation_entity'}))
+                                          required=False)
     additional_entity_1 = forms.ChoiceField(choices=lazy(create_main_entities_version_list, tuple),
                                             required=False,
-                                            widget=forms.Select(attrs={'class': 'form-control',
-                                                                       'id': 'allocation_entity_1',
-                                                                       'disabled': 'disabled',
-                                                                       'onchange': 'showAdditionalEntity2(this.value)'})
-                                            )
+                                            widget=forms.Select(attrs={'onchange': 'showAdditionalEntity(this.value, "id_additional_entity_2")',
+                                                                       'disable': 'disable'}))
     additional_entity_2 = forms.ChoiceField(choices=lazy(create_main_entities_version_list, tuple),
                                             required=False,
-                                            widget=forms.Select(attrs={'class': 'form-control',
-                                                                       'id': 'allocation_entity_2',
-                                                                       'disabled': 'disabled'}))
-    language = forms.ChoiceField(choices=lazy(create_languages_list, tuple),
-                                 widget=forms.Select(attrs={'class': 'form-control',
-                                                            'id': 'language'}))
+                                            widget=forms.Select(attrs={'disable': 'disable'}))
+    language = forms.ChoiceField(choices=lazy(create_languages_list, tuple))
 
     acronym_regex = "^[LMNPWX][A-Z]{2,4}\d{4}$"
-
-    class Meta:
-        model = mdl.learning_unit_year.LearningUnitYear
-        fields = ['first_letter', 'learning_container_year_type', 'acronym', 'academic_year', 'status',
-                  'internship_subtype', 'periodicity', 'credits', 'campus', 'title', 'title_english',
-                  'additional_entity_1', 'additional_entity_2', 'allocation_entity', 'requirement_entity', 'subtype',
-                  'language', 'session', 'faculty_remark', 'other_remark', ]
-
-        widgets = {'acronym': forms.TextInput(attrs={'class': 'form-control form-acronym',
-                                                     'id': 'acronym',
-                                                     'maxlength': "15",
-                                                     'required': True}),
-                   'academic_year': forms.Select(attrs={'class': 'form-control',
-                                                        'id': 'academic_year',
-                                                        'required': True}),
-                   'status': forms.CheckboxInput(attrs={'id': 'status'}),
-                   'internship_subtype': forms.Select(attrs={'class': 'form-control',
-                                                             'id': 'internship',
-                                                             'disabled': 'disabled'}),
-                   'credits': forms.TextInput(attrs={'class': 'form-control',
-                                                     'id': 'credits',
-                                                     'required': True}),
-                   'title': forms.TextInput(attrs={'class': 'form-control',
-                                                   'id': 'title',
-                                                   'required': True}),
-                   'title_english': forms.TextInput(attrs={'class': 'form-control',
-                                                           'id': 'title_english',
-                                                           'required': False}),
-                   'session': forms.Select(attrs={'class': 'form-control',
-                                                  'id': 'session',
-                                                  'required': False}),
-                   'subtype': forms.HiddenInput()
-                   }
 
     def is_valid(self):
         if not super(CreateLearningUnitYearForm, self).is_valid():

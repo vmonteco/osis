@@ -231,35 +231,22 @@
 <script>
     const internship = "INTERNSHIP";
 
-    function showDiv(elem){
-       if(elem == internship)
-           document.getElementById('internship').disabled = false;
-       else
-           document.getElementById('internship').disabled = true;
+    function showInternshipSubtype(elem){
+        document.getElementById('id_internship_subtype').disabled = elem != internship;
     }
 
-    function showAdditionalEntity1(elem){
-       if(elem != "")
-           document.getElementById('allocation_entity_1').disabled = false;
-       else
-           document.getElementById('allocation_entity_1').disabled = true;
-    }
-
-    function showAdditionalEntity2(elem){
-       if(elem != "")
-           document.getElementById('allocation_entity_2').disabled = false;
-       else
-           document.getElementById('allocation_entity_2').disabled = true;
+    function showAdditionalEntity(elem, id){
+        document.getElementById(id).disabled = elem == "";
     }
 
     function validate_acronym () {
         $('#acronym_message').removeClass("error-message").text("");
-        if($('#first_letter').val()!=""){
+        if($('#id_first_letter').val()!=""){
             window.valid_acronym = false;
             window.acronym_already_used = false;
-            if(/{{ form.acronym_regex }}/.test($('#first_letter').val().toUpperCase()+$('#acronym').val().toUpperCase())) {
+            if(/{{ form.acronym_regex }}/.test($('#id_first_letter').val().toUpperCase()+$('#id_acronym').val().toUpperCase())) {
                 $.ajax({
-                    url: "/learning_units/check?acronym=" + $('#first_letter').val() + $('#acronym').val() + "&year_id=" + $('#academic_year').val()
+                    url: "/learning_units/check?acronym=" + $('#id_first_letter').val() + $('#id_acronym').val() + "&year_id=" + $('#id_academic_year').val()
                 }).done(function(data){
                     if (data['valid']){
                         window.valid_acronym = true;
@@ -287,14 +274,10 @@
 
     function setFirstLetter(){
         $.ajax({
-            url: "/learning_units/check_code?campus=" + $('#campus').val()
+            url: "/learning_units/check_code?campus=" + $('#id_campus').val()
         }).done(function(data){
-            if (data['code']){
-                document.getElementById('first_letter').value = data['code'];
-                validate_acronym();
-            }else{
-                document.getElementById('first_letter').value = "";
-            }
+            document.getElementById('id_first_letter').value = data['code'] = data['code'];
+            validate_acronym();
         });
     }
 
@@ -306,26 +289,15 @@
             required: "{% trans 'field_is_required' %}"
         });
 
-        if('{{form.learning_container_year_type.value}}' == internship)
-            document.getElementById('internship').disabled = false;
-        else
-            document.getElementById('internship').disabled = true;
+        showInternshipSubtype('{{form.learning_container_year_type.value}}');
+        document.getElementById('id_additional_entity_1').disabled = '{{form.requirement_entity.value}}' != "0";
+        document.getElementById('id_additional_entity_2').disabled = '{{form.requirement_entity_1.value}}' != "0";
 
-        if('{{form.requirement_entity.value}}' =="0")
-            document.getElementById('allocation_entity_1').disabled = false;
-        else
-            document.getElementById('allocation_entity_1').disabled = true;
-
-        if('{{form.additional_entity_1.value}}' =="0")
-            document.getElementById('allocation_entity_2').disabled = false;
-        else
-            document.getElementById('allocation_entity_2').disabled = true;
-
-        $('#acronym').change(validate_acronym);
-        $('#academic_year').change(validate_acronym);
+        $('#id_acronym').change(validate_acronym);
+        $('#id_academic_year').change(validate_acronym);
         $("#LearningUnitYearForm").submit(function( event ) {
             if (!window.valid_acronym) {
-                $("#acronym").focus();
+                $("#id_acronym").focus();
             }
             return window.valid_acronym;
         });

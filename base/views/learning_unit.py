@@ -528,7 +528,7 @@ def learning_unit_year_add(request):
         starting_academic_year = mdl.academic_year.starting_academic_year()
         academic_year = data['academic_year']
         year = academic_year.year
-        status = check_status(data)
+        status = data['status']
         additional_entity_version_1 = None
         additional_entity_version_2 = None
         allocation_entity_version = None
@@ -601,14 +601,6 @@ def create_course(an_academic_year, form, new_learning_container_year, new_learn
                                                        status)
     create_learning_unit_component(new_learning_unit_year, new_lecturing, LECTURING)
     create_learning_unit_component(new_learning_unit_year, new_practical_exercise, PRACTICAL_EXERCISES)
-
-
-def check_status(data):
-    if data['status'] == 'on':
-        status = True
-    else:
-        status = False
-    return status
 
 
 def create_learning_component_year(learning_container_year, acronym, type):
