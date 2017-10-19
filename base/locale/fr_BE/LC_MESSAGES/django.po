@@ -1448,6 +1448,9 @@ msgstr "Veuillez préciser une année académique."
 msgid "LU_ERRORS_YEAR_WITH_ACRONYM"
 msgstr "Veuillez préciser une année académique ou entrer un acronyme valide."
 
+msgid "LU_ERRORS_INVALID_REGEX_SYNTAX"
+msgstr "Expression régulière incorrecte!"
+
 msgid "ANNUAL"
 msgstr "Annuel"
 
