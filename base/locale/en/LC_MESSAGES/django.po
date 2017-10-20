@@ -2134,9 +2134,10 @@ msgid "language_association"
 msgstr "Primary language operator"
 
 msgid "prolong_or_create_learning_unit_message"
-msgstr "The acronym <b>already exists</b>. You can either <b>create</b> a new learning unit using that acronym or "
-       "you can prolong the learning unit of the same acronym (this will redirect to the modification of the learninig"
-       " unit) ?"
+msgstr "<p>The acronym <b>already exists</b>.</p>"
+       "<p>You have the choice between:"
+       "<ul><li><b>create</b> a new learning unit using that acronym</li>"
+       "<li><b>prolong</b> the learning unit of the same acronym</li></ul>"
 
 msgid "create"
 msgstr "Create"

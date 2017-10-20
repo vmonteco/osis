@@ -313,7 +313,12 @@
 
         $('#learning_unit_year_add').click(function() {
             if(window.acronym_already_used){
-                $("#prolongOrCreateModal").modal();
+                $form = $("#LearningUnitYearForm")
+                $form.validate();
+                var formIsValid = $form.valid();
+                if(formIsValid){
+                  $("#prolongOrCreateModal").modal();
+                }
             } else {
                 $("#LearningUnitYearForm").submit();
             }
