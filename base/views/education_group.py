@@ -135,16 +135,13 @@ def _education_group_general_informations_tab(request, education_group_year_id):
                                                                      language=en_language)}
     return layout.render(request, "education_group/tab_general_informations.html", context)
 
+
 def _get_cms_label_data(cms_label, user_language):
     cms_label_data = OrderedDict()
 
     translated_labels = mdl_cms.translated_text_label.search(text_entity=entity_name.OFFER_YEAR,
                                                              labels=cms_label,
                                                              language=user_language)
-    # for label in cms_label:
-    #     for trans in translated_labels:
-    #         if trans.text_label.label == label:
-    #             cms_label_data[label] = trans.label
 
     for label in cms_label:
         translated_text = next((trans.label for trans in translated_labels if trans.text_label.label == label), None)
