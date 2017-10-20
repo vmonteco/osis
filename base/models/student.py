@@ -26,15 +26,14 @@
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 
-from base.models.enums import student_academic_enrollment_state
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from base.models import person
 
 
 class StudentAdmin(SerializableModelAdmin):
-    list_display = ('person', 'registration_id', 'academic_enrollment_state', 'changed')
+    list_display = ('person', 'registration_id', 'changed',)
     fieldsets = ((None, {'fields': ('registration_id', 'person')}),)
-    list_filter = ('person__gender', 'person__language', 'academic_enrollment_state',)
+    list_filter = ('person__gender', 'person__language',)
     raw_id_fields = ('person', )
     search_fields = ['person__first_name', 'person__last_name', 'registration_id']
 
@@ -44,8 +43,7 @@ class Student(SerializableModel):
     changed = models.DateTimeField(null=True, auto_now=True)
     registration_id = models.CharField(max_length=10, unique=True, db_index=True)
     person = models.ForeignKey('Person')
-    academic_enrollment_state = models.CharField(max_length=15, choices=student_academic_enrollment_state.STATES, blank=True,
-                                                 null=True)
+
 
     def __str__(self):
         return u"%s (%s)" % (self.person, self.registration_id)
