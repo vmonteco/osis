@@ -2140,9 +2140,13 @@ msgid "language_association"
 msgstr "Opérateur langues principales"
 
 msgid "prolong_or_create_learning_unit_message"
-msgstr "Le <b>sigle</b> utilisé est <b>déjà existant</b>. Vous avez le choix entre <b>créer</b> une toute nouvelle "
-       "unité d'enseignement qui reprendra ce sigle ou bien <b>prolonger</b> l'unité d'enseignement de même sigle "
-       "(ce qui vous redigera vers l'écran de modification de l'unité d'enseignement) ? "
+msgstr "<p>Le <b>sigle</b> utilisé est <b>déjà existant</b>.</p>"
+       "<p>Vous avez le choix entre :"
+       "<ul><li>soit <b>créer</b> une nouvelle UE qui reprendra ce sigle </li>"
+       "<li>soit <b>prolonger</b> l'unité d'enseignement de même sigle </li></ul></p>"
+
+msgid "confirm_your_action"
+msgstr "Confirmer votre action."
 
 msgid "create"
 msgstr "Créer"
