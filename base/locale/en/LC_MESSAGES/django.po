@@ -2139,6 +2139,9 @@ msgstr "<p>The acronym <b>already exists</b>.</p>"
        "<ul><li><b>create</b> a new learning unit using that acronym</li>"
        "<li><b>prolong</b> the learning unit of the same acronym</li></ul>"
 
+msgid "confirm_your_action"
+msgstr "Confirm your action."
+
 msgid "create"
 msgstr "Create"
 
