@@ -25,7 +25,7 @@
 ##############################################################################
 import re
 from django import forms
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Prefetch
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
@@ -35,6 +35,7 @@ from base.models.entity_version import find_main_entities_version
 from base.models.enums import entity_container_year_link_type
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
+from base.models.learning_unit_year import check_if_acronym_regex_is_valid
 from reference.models.language import find_all_languages
 import re
 from base.models import entity_container_year as mdl_entity_container_year
@@ -57,8 +58,10 @@ class LearningUnitYearForm(forms.Form):
     def clean_acronym(self):
         data_cleaned = self.cleaned_data.get('acronym')
         data_cleaned = _treat_empty_or_str_none_as_none(data_cleaned)
-        if data_cleaned and len(data_cleaned) < MIN_ACRONYM_LENGTH:
+        if (data_cleaned and len(data_cleaned) < MIN_ACRONYM_LENGTH):
             raise ValidationError(_('LU_WARNING_INVALID_ACRONYM'))
+        elif data_cleaned and len(data_cleaned) >= MIN_ACRONYM_LENGTH and check_if_acronym_regex_is_valid(data_cleaned) is None:
+            raise ValidationError(_('LU_ERRORS_INVALID_REGEX_SYNTAX'))
         return data_cleaned
 
     def clean_academic_year_id(self):
@@ -190,6 +193,7 @@ def _get_entities_ids(requirement_entity_acronym, with_entity_subordinated):
             entities_ids |= {descendant.entity.id for descendant in all_descendants}
     return list(entities_ids)
 
+
 def is_service_course(learning_unit_yr):
     requirement_entity_version = learning_unit_yr.entities[entity_container_year_link_type.REQUIREMENT_ENTITY]
 
@@ -216,6 +220,7 @@ def is_service_course(learning_unit_yr):
                 return False
 
     return True
+
 
 def _append_latest_entities(learning_unit, service_course_search):
     learning_unit.entities = {}
@@ -265,7 +270,6 @@ def create_learning_container_year_type_list():
 
 def create_languages_list():
     return [(language.id, language.name) for language in find_all_languages()]
-
 
 class CreateLearningUnitYearForm(forms.ModelForm):
     learning_container_year_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
@@ -344,11 +348,13 @@ class CreateLearningUnitYearForm(forms.ModelForm):
                    }
 
     def is_valid(self):
-
         if not super(CreateLearningUnitYearForm, self).is_valid():
             return False
-        academic_year = mdl.academic_year.find_academic_year_by_id(self.data['academic_year'])
-        learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, self.data['acronym'])
+        try:
+            academic_year = mdl.academic_year.find_academic_year_by_id(self.data.get('academic_year'))
+        except ObjectDoesNotExist:
+            return False
+        learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, self.data.get('acronym'))
         learning_unit_years_list = [learning_unit_year.acronym.lower() for learning_unit_year in learning_unit_years]
         if self.cleaned_data['acronym'].lower() in learning_unit_years_list:
             self.add_error('acronym', _('existing_acronym'))

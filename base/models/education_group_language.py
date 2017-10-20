@@ -23,39 +23,20 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.db import models
+from django.contrib import admin
+from reference.models import language
+from base.models.enums import education_group_language
+
+class EducationGroupLanguageAdmin(admin.ModelAdmin):
+    list_display = ('type', 'order', 'education_group_year', 'language')
 
 
-class StartDateHigherThanEndDateException(Exception):
-    def __init__(self, message=None, errors=None):
-        super(StartDateHigherThanEndDateException, self).__init__(message)
-        self.errors = errors
+class EducationGroupLanguage(models.Model):
+    type = models.CharField(max_length=255, choices=education_group_language.EducationGroupLanguages.choices())
+    order = models.IntegerField()
+    education_group_year = models.ForeignKey('base.EducationGroupYear')
+    language = models.ForeignKey('reference.Language')
 
-
-class FunctionArgumentMissingException(Exception):
-    def __init__(self, message=None, errors=None):
-        super(FunctionArgumentMissingException, self).__init__(message)
-        self.errors = errors
-
-
-class TxtLabelOrderExitsException(Exception):
-    def __init__(self, message=None, errors=None):
-        super(TxtLabelOrderExitsException, self).__init__(message)
-        self.errors = errors
-
-
-class TxtLabelOrderMustExitsException(Exception):
-    def __init__(self, message=None, errors=None):
-        super(TxtLabelOrderMustExitsException, self).__init__(message)
-        self.errors = errors
-
-
-class JustificationValueException(Exception):
-    def __init__(self, message=None, errors=None):
-        super(JustificationValueException, self).__init__(message)
-        self.errors = errors
-
-
-class MaximumOneParentAllowedException(Exception):
-    def __init__(self, message=None, errors=None):
-        super(MaximumOneParentAllowedException, self).__init__(message)
-        self.errors = errors
+    def __str__(self):
+        return "{}".format(self.id)

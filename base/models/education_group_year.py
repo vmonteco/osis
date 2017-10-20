@@ -25,19 +25,22 @@
 ##############################################################################
 from django.db import models
 from django.contrib import admin
+
 from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
     diploma_printing_orientation, active_status, duration_unit
-from base.models import offer_year_domain as mdl_offer_year_domain
+from base.models import offer_year_domain as mdl_offer_year_domain, education_group_organization
 from base.models import offer_year_entity as mdl_offer_year_entity
 from base.models import entity_version as mdl_entity_version
 from base.models.enums import education_group_categories
+from base.models.enums import education_group_association
 from base.models.enums import offer_year_entity_type
-
+from base.models.exceptions import MaximumOneParentAllowedException
+from base.models.group_element_year import GroupElementYear
 
 class EducationGroupYearAdmin(admin.ModelAdmin):
     list_display = ('acronym', 'title', 'academic_year', 'education_group_type', 'changed')
     fieldsets = ((None, {'fields': ('academic_year', 'acronym', 'title', 'education_group_type', 'education_group',
-                                    'active', 'partial_deliberation', 'admission_exam',
+                                    'active', 'partial_deliberation', 'admission_exam', 'category',
                                     'funding', 'funding_direction', 'funding_cud', 'funding_direction_cud',
                                     'academic_type', 'university_certificate', 'fee_type', 'enrollment_campus',
                                     'main_teaching_campus', 'dissertation', 'internship',
@@ -46,7 +49,8 @@ class EducationGroupYearAdmin(admin.ModelAdmin):
                                     'diploma_printing_orientation', 'diploma_printing_title',
                                     'inter_organization_information', 'inter_university_french_community',
                                     'inter_university_belgium', 'inter_university_abroad', 'primary_language',
-                                    'keywords', 'duration', 'duration_unit', 'title_english', 'enrollment_enabled')}),)
+                                    'language_association','keywords', 'duration', 'duration_unit', 'title_english',
+                                    'enrollment_enabled')}),)
     list_filter = ('academic_year', 'education_group_type')
     raw_id_fields = ('education_group_type', 'academic_year', 'education_group')
     search_fields = ['acronym']
@@ -89,6 +93,7 @@ class EducationGroupYear(models.Model):
     inter_university_belgium = models.BooleanField(default=False)
     inter_university_abroad = models.BooleanField(default=False)
     primary_language = models.ForeignKey('reference.Language', blank=True, null=True)
+    language_association = models.CharField(max_length=5, choices=education_group_association.EducationGroupAssociations.choices(), blank=True, null=True)
     keywords = models.CharField(max_length=320, blank=True, null=True)
     duration = models.IntegerField(blank=True, null=True)
     duration_unit = models.CharField(max_length=40,
@@ -96,6 +101,8 @@ class EducationGroupYear(models.Model):
                                      default=duration_unit.DurationUnits.QUADRIMESTER,
                                      blank=True, null=True)
     enrollment_enabled = models.BooleanField(default=False)
+
+    _coorganizations = None
 
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
@@ -124,6 +131,34 @@ class EducationGroupYear(models.Model):
             return ev
         return None
 
+    @property
+    def parent_by_training(self):
+        parents = [parent for parent in self.parents_by_group_element_year
+                   if parent.category == education_group_categories.TRAINING]
+        if len(parents) > 1:
+            raise MaximumOneParentAllowedException('Only one training parent is allowed')
+
+        elif len(parents) == 1:
+            return parents[0]
+
+    @property
+    def parents_by_group_element_year(self):
+        group_elements_year = GroupElementYear.objects.filter(child_branch=self).select_related('parent')
+        return [group_element_year.parent for group_element_year in group_elements_year
+                if group_element_year.parent]
+
+    @property
+    def children_by_group_element_year(self):
+        group_elements_year = GroupElementYear.objects.filter(parent=self).select_related('child_branch')
+        return [group_element_year.child_branch for group_element_year in group_elements_year
+                if group_element_year.child_branch]
+
+    @property
+    def coorganizations(self):
+        if not self._coorganizations:
+            self._coorganizations = education_group_organization.search(self)
+        return self._coorganizations
+
 
 def find_by_id(an_id):
     try:
@@ -132,7 +167,7 @@ def find_by_id(an_id):
         return None
 
 
-def search(*args, **kwargs):
+def search(**kwargs):
     qs = EducationGroupYear.objects
 
     if "id" in kwargs:
@@ -158,4 +193,3 @@ def search(*args, **kwargs):
             qs = qs.filter(education_group_type=kwargs['education_group_type'])
 
     return qs.select_related('education_group_type', 'academic_year')
-
