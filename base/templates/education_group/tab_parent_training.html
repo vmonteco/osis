@@ -25,36 +25,37 @@
 {% endcomment %}
 
 {% block breadcrumb %}
-{% include "education_group/breadcrumb.html" %}
+    {% include "education_group/breadcrumb.html" %}
 {% endblock %}
 
 {% block content %}
 
-{% include "education_group/header.html" %}
+    {% include "education_group/header.html" %}
 
-<div class="panel panel-default">
-    <div class="panel-body" id="tabs">
+    <div class="panel panel-default">
+        <div class="panel-body" id="tabs">
 
-        {% include "education_group/tabs.html" %}
-
-        <div class="tab-content" id="tab_content">
-            <div role="tabpanel" class="tab-pane active" id="diplomas">
-                <br>
-                <label>{% trans 'university_certificate_desc' %}</label><br>
-                {% if education_group_year.university_certificate %}
-                    {% trans 'yes'%}
-                {% else %}
-                    {% trans 'no'%}
-                {% endif %}
-                <br><br>
-                <label>{% trans 'diploma_title'%}</label><br>
-                {{education_group_year.diploma_printing_title | default_if_none:'-'}}
-                <br><br>
-                <label>{% trans 'professionnal_title'%}</label><br>
-                {{education_group_year.professional_title | default_if_none:'-'}}
+            {% include "education_group/tabs.html" %}
+            {% with  education_group_year=education_group_year.parent_by_training  %}
+            <div class="tab-content" id="tab_content">
+                <div role="tabpanel" class="tab-pane active" id="identification">
+                    <br>
+                    <div class="row">
+                        <div class="col-md-6">
+                        <label>{% trans 'focuses'%}</label> :
+                        {% for child in education_group_year.children_by_group_element_year %}
+                            <a href="{% url 'education_group_read' child.id %}">
+                                    {{ child.acronym }}
+                            </a>
+                            {% if not forloop.last %},&nbsp;{% endif %}
+                        {% endfor %}
+                        </div>
+                    </div>
+                    <br>
+                    {% include "education_group/tab_identification_details.html" %}
+                </div>
             </div>
+            {% endwith %}
         </div>
     </div>
-</div>
-
 {% endblock %}
