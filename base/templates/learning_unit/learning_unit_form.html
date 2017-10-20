@@ -38,7 +38,8 @@
 </div>
 <div class="panel panel-default">
     <div class="panel-body">
-        <form method="post" action="{% url 'learning_unit_year_add' %}" id="LearningUnitYearForm">
+        <form method="post" action="{% url 'learning_unit_year_add' %}" id="LearningUnitYearForm"
+        data-validate-url="{% url 'check_acronym'%}">
             {% csrf_token %}
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -230,6 +231,7 @@
 {% block script %}
 <script>
     const internship = "INTERNSHIP";
+    var form = $('#LearningUnitYearForm').closest("form");
 
     function showInternshipSubtype(elem){
         document.getElementById('id_internship_subtype').disabled = elem != internship;
@@ -245,8 +247,9 @@
             window.valid_acronym = false;
             window.acronym_already_used = false;
             if(/{{ form.acronym_regex }}/.test($('#id_first_letter').val().toUpperCase()+$('#id_acronym').val().toUpperCase())) {
+                var url = "?acronym=" + $('#id_first_letter').val() + $('#id_acronym').val() + "&year_id=" + $('#id_academic_year').val()
                 $.ajax({
-                    url: "/learning_units/check?acronym=" + $('#id_first_letter').val() + $('#id_acronym').val() + "&year_id=" + $('#id_academic_year').val()
+                    url: form.attr("data-validate-url")+url
                 }).done(function(data){
                     if (data['valid']){
                         window.valid_acronym = true;

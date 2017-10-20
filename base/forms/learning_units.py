@@ -308,7 +308,7 @@ class CreateLearningUnitYearForm(BootstrapForm):
                                             widget=forms.Select(attrs={'disable': 'disable'}))
     language = forms.ChoiceField(choices=lazy(create_languages_list, tuple))
 
-    acronym_regex = "^[LMNPWX][A-Z]{2,4}\d{4}$"
+    acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}$"
 
     def is_valid(self):
         if not super(CreateLearningUnitYearForm, self).is_valid():
