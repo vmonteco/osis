@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,37 +23,18 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import template
-from django.template.defaultfilters import date
-from django.utils.translation import ugettext_lazy as _
+import factory
+import factory.fuzzy
+from base.models.enums import education_group_language
+from base.tests.factories.education_group_year import EducationGroupYearFactory
+from reference.tests.factories.language import LanguageFactory
 
 
-register = template.Library()
+class EducationGroupLanguageFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "base.EducationGroupLanguage"
 
-
-@register.filter
-def format(value, arg):
-    return value % arg
-
-
-@register.filter
-def str_format(value, args):
-    if args is None:
-        return value
-    args_list = args.split('|')
-    return value.format(*args_list)
-
-
-@register.filter
-def date_in_form_format(value):
-    pattern = _('date_format_string')
-
-    if type(value).__name__ == 'str':
-        return value
-    else:
-        return date(value, pattern)
-
-
-@register.filter
-def join_with_spaces(array, arg):
-    return " {} ".format(arg).join(array)
+    type = education_group_language.EducationGroupLanguages
+    education_group_year = factory.SubFactory(EducationGroupYearFactory)
+    language = factory.SubFactory(LanguageFactory)
+    order = factory.fuzzy.FuzzyInteger(1, 5)
