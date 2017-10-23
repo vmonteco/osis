@@ -35,13 +35,6 @@ from django.utils.translation import ugettext_lazy as _
 UNDEFINED_VALUE = ''
 VOLUME_FOR_UNKNOWN_QUADRIMESTER = -1
 
-TOTAL_VOLUME_KEY = 'VOLUME_TOTAL'
-VOLUME_PARTIAL_KEY = 'VOLUME_Q1'
-VOLUME_REMAINING_KEY = 'VOLUME_Q2'
-PLANNED_CLASSES_KEY = 'PLANNED_CLASSES'
-VOLUME_TOTAL_REQUIREMENT_ENTITIES_KEY = 'VOLUME_TOTAL_REQUIREMENT_ENTITIES'
-VOLUME_QUARTER_KEY = 'VOLUME_QUARTER'
-
 
 class LearningUnitYearWithContext:
     def __init__(self, **kwargs):
@@ -179,11 +172,11 @@ def volume_learning_component_year(learning_component_year, entity_components_ye
         volume_remaining = volume_total - volume_partial
 
     return {
-        TOTAL_VOLUME_KEY: volume_total,
-        VOLUME_PARTIAL_KEY: volume_partial,
-        VOLUME_REMAINING_KEY: volume_remaining,
-        PLANNED_CLASSES_KEY: planned_classes,
-        VOLUME_QUARTER_KEY: volume_distribution(volume_total, volume_partial)
+        'VOLUME_TOTAL': volume_total,
+        'VOLUME_Q1': volume_partial,
+        'VOLUME_Q2': volume_remaining,
+        'PLANNED_CLASSES': planned_classes,
+        'VOLUME_QUARTER': volume_distribution(volume_total, volume_partial)
     }
 
 
