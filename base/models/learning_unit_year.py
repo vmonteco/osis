@@ -30,7 +30,7 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 from base.models import entity_container_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, internship_subtypes, \
-    learning_unit_year_session, entity_container_year_link_type
+    learning_unit_year_session, entity_container_year_link_type, learning_unit_year_semesters
 
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
@@ -64,10 +64,12 @@ class LearningUnitYear(SerializableModel):
     in_charge = models.BooleanField(default=False)
     structure = models.ForeignKey('Structure', blank=True, null=True)
     internship_subtype = models.CharField(max_length=50, blank=True, null=True,
-                               choices=internship_subtypes.INTERNSHIP_SUBTYPES)
+                                          choices=internship_subtypes.INTERNSHIP_SUBTYPES)
     status = models.BooleanField(default=False)
     session = models.CharField(max_length=50, blank=True, null=True,
                                choices=learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION)
+    semester = models.CharField(max_length=4, blank=True, null=True,
+                                choices=learning_unit_year_semesters.LEARNING_UNIT_YEAR_SEMESTERS)
 
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
