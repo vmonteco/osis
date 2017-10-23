@@ -28,8 +28,10 @@ from django.contrib import admin
 from reference.models import language
 from base.models.enums import education_group_language
 
+
 class EducationGroupLanguageAdmin(admin.ModelAdmin):
     list_display = ('type', 'order', 'education_group_year', 'language')
+    raw_id_fields = ('education_group_year', 'language')
 
 
 class EducationGroupLanguage(models.Model):
