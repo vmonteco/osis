@@ -33,9 +33,9 @@ class AttributionChargeNewAdmin(AuditableModelAdmin):
     raw_id_fields = ('attribution', 'learning_component_year')
     search_fields = ['attribution__tutor__person__first_name', 'attribution__tutor__person__last_name',
                      'attribution__tutor__person__global_id',
-                     'learning_component_year__learning_container_year__learning_unit_year__acronym',
-                     'function']
-    list_filter = ('learning_component_year__type',)
+                     'learning_component_year__learning_container_year__acronym',
+                     'attribution__function']
+    list_filter = ('learning_component_year__type', 'attribution__learning_container_year__academic_year')
 
 
 class AttributionChargeNew(AuditableModel):
