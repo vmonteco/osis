@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load format %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -77,15 +78,8 @@
                         {% endif %}
                         <br><br>
                         <label>{% trans 'primary_language'%}</label><br>
-                        {% if education_group_languages %}
-                            {% for education_group_language in education_group_languages %}
-                                {% if education_group_language == education_group_languages.0 %}
-                                    {{ education_group_language.language.name }}
-                                {% else %}
-                                    {% trans education_group_year.language_association|lower %} {{ education_group_language.language.name }}
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
+                            {% trans education_group_year.language_association|lower|add:" " as comparator %}
+                            {{ education_group_languages|join_with_spaces:comparator }}
                         <br><br>
                         <label>{% trans 'other_language_activities'%}</label><br>
                         {% if education_group_year.other_language_activities %}
