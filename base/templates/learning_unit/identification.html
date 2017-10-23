@@ -128,8 +128,8 @@
                                         {{learning_unit_year.learning_container_year.language | default_if_none:'' }}
                                     </div>
                                     <div class="col-md-9">
-                                        <label>{% trans 'learning_unit_quarter' %}</label><br>
-                                        {{ volume_distribution }}
+                                        <label>{% trans 'semester' %}</label><br>
+                                        {{ learning_unit_year.semester | default_if_none:'' }}
                                     </div>
                                 </div>
                             </div>
