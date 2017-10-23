@@ -77,10 +77,14 @@
                         {% endif %}
                         <br><br>
                         <label>{% trans 'primary_language'%}</label><br>
-                        {% if education_group_year.primary_language.name %}
-                            {{ education_group_year.primary_language.name }}
-                        {% elif parent.primary_language.name %}
-                            <strong class="text-primary">{{ parent.primary_language.name }}</strong>
+                        {% if education_group_languages %}
+                            {% for education_group_language in education_group_languages %}
+                                {% if education_group_language == education_group_languages.0 %}
+                                    {{ education_group_language.language.name }}
+                                {% else %}
+                                    {% trans education_group_year.language_association|lower %} {{ education_group_language.language.name }}
+                                {% endif %}
+                            {% endfor %}
                         {% endif %}
                         <br><br>
                         <label>{% trans 'other_language_activities'%}</label><br>
@@ -89,13 +93,6 @@
                         {% elif parent.other_language_activities %}
                             <strong class="text-primary">{% trans parent.other_language_activities %}</strong>
                         {% else %}
-                        {% endif %}
-                        <br><br>
-                        <label>{% trans 'language_association'%}</label><br>
-                        {% if education_group_year.language_association %}
-                            {% trans education_group_year.language_association %}
-                        {% else %}
-                            &nbsp;
                         {% endif %}
                     </div>
                     <div class="col-md-6">

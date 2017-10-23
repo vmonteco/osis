@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,29 +23,18 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-from django.contrib import admin
-from reference.models import language
+import factory
+import factory.fuzzy
 from base.models.enums import education_group_language
+from base.tests.factories.education_group_year import EducationGroupYearFactory
+from reference.tests.factories.language import LanguageFactory
 
 
-class EducationGroupLanguageAdmin(admin.ModelAdmin):
-    list_display = ('type', 'order', 'education_group_year', 'language')
-    raw_id_fields = ('education_group_year', 'language')
+class EducationGroupLanguageFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "base.EducationGroupLanguage"
 
-
-class EducationGroupLanguage(models.Model):
-    type = models.CharField(max_length=255, choices=education_group_language.EducationGroupLanguages.choices())
-    order = models.IntegerField()
-    education_group_year = models.ForeignKey('base.EducationGroupYear')
-    language = models.ForeignKey('reference.Language')
-
-    def __str__(self):
-        return "{}".format(self.id)
-
-
-def find_by_education_group_year(education_group_year):
-    try:
-        return EducationGroupLanguage.objects.filter(education_group_year=education_group_year).order_by('order')
-    except EducationGroupLanguage.DoesNotExist:
-        return None
+    type = education_group_language.EducationGroupLanguages
+    education_group_year = factory.SubFactory(EducationGroupYearFactory)
+    language = factory.SubFactory(LanguageFactory)
+    order = factory.fuzzy.FuzzyInteger(1, 5)
