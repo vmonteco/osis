@@ -239,7 +239,7 @@ def count(**kwargs):
 def search_entities(acronym=None, title=None, type=None):
     queryset = EntityVersion.objects
     if acronym:
-        queryset = queryset.filter(acronym__iexact=acronym)
+        queryset = queryset.filter(acronym__icontains=acronym)
     if title:
         queryset = queryset.filter(title__icontains=title)
     if type:

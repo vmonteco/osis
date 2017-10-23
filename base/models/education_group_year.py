@@ -32,10 +32,10 @@ from base.models import offer_year_domain as mdl_offer_year_domain, education_gr
 from base.models import offer_year_entity as mdl_offer_year_entity
 from base.models import entity_version as mdl_entity_version
 from base.models.enums import education_group_categories
+from base.models.enums import education_group_association
 from base.models.enums import offer_year_entity_type
 from base.models.exceptions import MaximumOneParentAllowedException
 from base.models.group_element_year import GroupElementYear
-
 
 class EducationGroupYearAdmin(admin.ModelAdmin):
     list_display = ('acronym', 'title', 'academic_year', 'education_group_type', 'changed')
@@ -49,7 +49,8 @@ class EducationGroupYearAdmin(admin.ModelAdmin):
                                     'diploma_printing_orientation', 'diploma_printing_title',
                                     'inter_organization_information', 'inter_university_french_community',
                                     'inter_university_belgium', 'inter_university_abroad', 'primary_language',
-                                    'keywords', 'duration', 'duration_unit', 'title_english', 'enrollment_enabled')}),)
+                                    'language_association','keywords', 'duration', 'duration_unit', 'title_english',
+                                    'enrollment_enabled')}),)
     list_filter = ('academic_year', 'education_group_type')
     raw_id_fields = ('education_group_type', 'academic_year', 'education_group')
     search_fields = ['acronym']
@@ -92,6 +93,7 @@ class EducationGroupYear(models.Model):
     inter_university_belgium = models.BooleanField(default=False)
     inter_university_abroad = models.BooleanField(default=False)
     primary_language = models.ForeignKey('reference.Language', blank=True, null=True)
+    language_association = models.CharField(max_length=5, choices=education_group_association.EducationGroupAssociations.choices(), blank=True, null=True)
     keywords = models.CharField(max_length=320, blank=True, null=True)
     duration = models.IntegerField(blank=True, null=True)
     duration_unit = models.CharField(max_length=40,
