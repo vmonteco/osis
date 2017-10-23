@@ -151,3 +151,21 @@ class LearningUnitYearWithContextTestCase(TestCase):
         self.assertEqual(data.get(learning_unit_year_with_context.VOLUME_QUARTER_KEY), _('partial_remaining'))
         self.assertEqual(data.get(learning_unit_year_with_context.VOLUME_PARTIAL_KEY), 12)
         self.assertEqual(data.get(learning_unit_year_with_context.VOLUME_REMAINING_KEY), 3)
+
+    def test_volume_distribution(self):
+        self.assertEqual(
+            learning_unit_year_with_context.volume_distribution(60, 60),
+            _('partial')
+        )
+        self.assertEqual(
+            learning_unit_year_with_context.volume_distribution(60, 30),
+            _('partial_remaining')
+        )
+        self.assertEqual(
+            learning_unit_year_with_context.volume_distribution(60, 0),
+            _('remaining')
+        )
+        self.assertEqual(
+            learning_unit_year_with_context.volume_distribution(60, -1),
+            _('partial_or_remaining')
+        )
