@@ -36,7 +36,7 @@ from base.business.entity_version import SERVICE_COURSE
 from base.business.learning_unit_year_with_context import append_latest_entities
 from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none
 from base.models import entity_version as mdl_entity_version
-from base.models.campus import find_main_campuses, Campus
+from base.models.campus import find_main_campuses
 from base.models.entity_version import find_main_entities_version
 from base.models.enums import entity_container_year_link_type
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
