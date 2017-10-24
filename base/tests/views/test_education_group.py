@@ -60,14 +60,14 @@ class EducationGroupViewTestCase(TestCase):
         EducationGroupYearFactory(acronym='ARKE2A', academic_year=self.academic_year)
         EducationGroupYearFactory(acronym='HIST2A', academic_year=self.academic_year)
 
-        request = request_factory.get(reverse('education_groups'), data={
+        from base.views.education_group import education_groups
+        request = request_factory.get(reverse(education_groups), data={
             'acronym': 'EDPH2',
             'academic_year': self.academic_year.id,
             'type': ''  # Simulate all type
         })
         request.user = mock.Mock()
 
-        from base.views.education_group import education_groups
         education_groups(request)
 
         self.assertTrue(mock_render.called)
@@ -86,7 +86,8 @@ class EducationGroupViewTestCase(TestCase):
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
 
         request_factory = RequestFactory()
-        request = request_factory.get(reverse('education_groups'), data={
+        from base.views.education_group import education_groups
+        request = request_factory.get(reverse(education_groups), data={
             'acronym': '',
             'academic_year': self.academic_year.id,
             'type': ''  # Simulate all type
@@ -97,7 +98,6 @@ class EducationGroupViewTestCase(TestCase):
         setattr(request, 'session', {})
         setattr(request, '_messages', FallbackStorage(request))
 
-        from base.views.education_group import education_groups
         education_groups(request)
 
         self.assertTrue(mock_render.called)
