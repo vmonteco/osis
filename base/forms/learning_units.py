@@ -36,7 +36,7 @@ from base.business.entity_version import SERVICE_COURSE
 from base.business.learning_unit_year_with_context import append_latest_entities
 from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none
 from base.models import entity_version as mdl_entity_version
-from base.models.campus import find_main_campuses
+from base.models.campus import find_main_campuses, Campus
 from base.models.entity_version import find_main_entities_version
 from base.models.enums import entity_container_year_link_type
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
@@ -172,21 +172,8 @@ def _get_entities_ids(requirement_entity_acronym, with_entity_subordinated):
     return list(entities_ids)
 
 
-def create_main_campuses_list():
-    return [(None, EMPTY_FIELD), ] + [(elem.id, elem.name) for elem in find_main_campuses()]
-
-
-def create_main_entities_version_list():
-    return [(None, EMPTY_FIELD), ] + [(entity_version.id, entity_version.acronym) for entity_version
-                                      in find_main_entities_version()]
-
-
 def create_learning_container_year_type_list():
     return ((None, EMPTY_FIELD),) + LEARNING_CONTAINER_YEAR_TYPES
-
-
-def create_languages_list():
-    return [(language.id, language.name) for language in find_all_languages()]
 
 
 class CreateLearningUnitYearForm(forms.ModelForm):
@@ -203,32 +190,31 @@ class CreateLearningUnitYearForm(forms.ModelForm):
     periodicity = forms.CharField(widget=forms.Select(attrs={'class': 'form-control',
                                                              'id': 'periodicity'},
                                                       choices=PERIODICITY_TYPES))
-    campus = forms.ChoiceField(choices=lazy(create_main_campuses_list, tuple),
-                               widget=forms.Select(attrs={'class': 'form-control',
-                                                          'id': 'campus'}))
-    requirement_entity = forms.ChoiceField(choices=lazy(create_main_entities_version_list, tuple),
-                                           widget=forms.Select(attrs={'class': 'form-control',
-                                                                      'id': 'requirement_entity',
-                                                                      'onchange': 'showAdditionalEntity1(this.value)'}))
-    allocation_entity = forms.ChoiceField(choices=lazy(create_main_entities_version_list, tuple),
-                                          required=False,
-                                          widget=forms.Select(attrs={'class': 'form-control',
-                                                                     'id': 'allocation_entity'}))
-    additional_entity_1 = forms.ChoiceField(choices=lazy(create_main_entities_version_list, tuple),
-                                            required=False,
-                                            widget=forms.Select(attrs={'class': 'form-control',
-                                                                       'id': 'allocation_entity_1',
-                                                                       'disabled': 'disabled',
-                                                                       'onchange': 'showAdditionalEntity2(this.value)'})
-                                            )
-    additional_entity_2 = forms.ChoiceField(choices=lazy(create_main_entities_version_list, tuple),
-                                            required=False,
-                                            widget=forms.Select(attrs={'class': 'form-control',
-                                                                       'id': 'allocation_entity_2',
-                                                                       'disabled': 'disabled'}))
-    language = forms.ChoiceField(choices=lazy(create_languages_list, tuple),
-                                 widget=forms.Select(attrs={'class': 'form-control',
-                                                            'id': 'language'}))
+    campus = forms.ModelChoiceField(find_main_campuses(), widget=forms.Select(attrs={'class': 'form-control',
+                                                                                     'id': 'campus'}))
+    requirement_entity = forms.ModelChoiceField(find_main_entities_version(),
+                                                widget=forms.Select(attrs={'class': 'form-control',
+                                                                           'id': 'requirement_entity',
+                                                                           'onchange': 'showAdditionalEntity1(this.value)'}))
+    allocation_entity = forms.ModelChoiceField(find_main_entities_version(),
+                                               required=False,
+                                               widget=forms.Select(attrs={'class': 'form-control',
+                                                                          'id': 'allocation_entity'}))
+    additional_entity_1 = forms.ModelChoiceField(find_main_entities_version(),
+                                                 required=False,
+                                                 widget=forms.Select(attrs={'class': 'form-control',
+                                                                            'id': 'allocation_entity_1',
+                                                                            'disabled': 'disabled',
+                                                                            'onchange': 'showAdditionalEntity2(this.value)'})
+                                                 )
+    additional_entity_2 = forms.ModelChoiceField(find_main_entities_version(),
+                                                 required=False,
+                                                 widget=forms.Select(attrs={'class': 'form-control',
+                                                                            'id': 'allocation_entity_2',
+                                                                            'disabled': 'disabled'}))
+    language = forms.ModelChoiceField(find_all_languages(), empty_label=None,
+                                      widget=forms.Select(attrs={'class': 'form-control',
+                                                                 'id': 'language'}))
 
     acronym_regex = "^[LMNPWX][A-Z]{2,4}\d{4}$"
 
@@ -287,4 +273,3 @@ class CreateLearningUnitYearForm(forms.ModelForm):
             return False
         else:
             return True
-

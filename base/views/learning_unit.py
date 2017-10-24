@@ -23,18 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
-from collections import OrderedDict
-
-from django.contrib import messages
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
-from django.views.decorators.http import require_http_methods
-from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods, require_POST
 
 from base import models as mdl
@@ -45,7 +39,7 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     get_common_context_learning_unit_year, get_cms_label_data, \
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_partims_related, get_campus_from_learning_unit_year, \
-    get_all_attributions, get_10_last_academic_years
+    get_all_attributions, get_last_academic_years
 from base.models.enums import learning_container_year_types
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
@@ -57,6 +51,7 @@ from base.forms.learning_class import LearningClassEditForm
 from base.models.enums import learning_unit_year_subtypes
 from base.forms.learning_units import MAX_RECORDS
 from cms.models import text_label
+from reference.models import language
 from . import layout
 from django.http import JsonResponse
 from django.contrib import messages
@@ -66,7 +61,7 @@ from django.utils.translation import ugettext_lazy as _
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
                       'other_informations', 'online_resources']
-DEFAULT_LANGUAGE=3 #French
+
 LEARNING_UNIT_CREATION_SPAN_YEARS = 6
 
 
@@ -320,7 +315,7 @@ def learning_unit_create(request, academic_year):
     form = CreateLearningUnitYearForm(initial={'academic_year': academic_year,
                                                'subtype': FULL,
                                                'learning_container_year_type': EMPTY_FIELD,
-                                               'language': DEFAULT_LANGUAGE})
+                                               'language': language.find_by_code('FR')})
     return layout.render(request, "learning_unit/learning_unit_form.html", {'form': form})
 
 
@@ -338,13 +333,13 @@ def learning_unit_year_add(request):
         additional_entity_version_1 = None
         additional_entity_version_2 = None
         allocation_entity_version = None
-        requirement_entity_version = mdl.entity_version.find_by_id(data['requirement_entity'])
+        requirement_entity_version = data['requirement_entity']
         if data.get('allocation_entity'):
-            allocation_entity_version = mdl.entity_version.find_by_id(data['allocation_entity'])
+            allocation_entity_version = data['allocation_entity']
         if data.get('additional_entity_1'):
-            additional_entity_version_1 = mdl.entity_version.find_by_id(data['additional_entity_1'])
+            additional_entity_version_1 = data['additional_entity_1']
         if data.get('additional_entity_2'):
-            additional_entity_version_2 = mdl.entity_version.find_by_id(data['additional_entity_2'])
+            additional_entity_version_2 = data['additional_entity_2']
         new_learning_container = LearningContainer.objects.create(start_year=year)
         new_learning_unit = create_learning_unit(data, new_learning_container, year)
         while year < starting_academic_year.year + LEARNING_UNIT_CREATION_SPAN_YEARS:
@@ -416,7 +411,7 @@ def _learning_units_search(request, search_type):
 
     context = {
         'form': form,
-        'academic_years': get_10_last_academic_years(),
+        'academic_years': get_last_academic_years(),
         'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
         'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
         'learning_units': found_learning_units,

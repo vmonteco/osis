@@ -69,8 +69,10 @@ def create_full_entity(request):
 
 def update_existing_entity(existing_entity, request):
     update_entity(existing_entity, request.data)
-    new_versions_count = create_versions_of_existing_entity(request, existing_entity)
-    updated_versions_count = update_end_date_of_existing_versions(request, existing_entity)
+    new_versions_count = create_versions_of_existing_entity(request.data.get('entityversion_set'),
+                                                            existing_entity)
+    updated_versions_count = update_end_date_of_existing_versions(request.data.get('entityversion_set'),
+                                                                  existing_entity)
     entity_serializer = EntitySerializer(existing_entity)
     data = entity_serializer.data
     data['new_versions_count'] = new_versions_count

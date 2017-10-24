@@ -124,7 +124,7 @@ class LearningUnitViewTestCase(TestCase):
         self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL, start_date=today,
                                                    end_date=today.replace(year=today.year + 1))
         self.campus = CampusFactory(organization=self.organization)
-        self.language = LanguageFactory()
+        self.language = LanguageFactory(code='FR')
         self.a_superuser = SuperUserFactory()
         self.client.force_login(self.a_superuser)
 
@@ -740,6 +740,7 @@ class LearningUnitCreate(TestCase):
     def setUp(self):
         self.person = PersonFactory()
         self.url = reverse('learning_unit_create', args=[2015])
+        self.language = LanguageFactory(code='FR')
 
         self.client.force_login(self.person.user)
 
@@ -760,8 +761,7 @@ class LearningUnitCreate(TestCase):
         content_type = ContentType.objects.get_for_model(LearningUnit)
         permission = Permission.objects.get(codename="can_access_learningunit",
                                             content_type=content_type)
-        self.person.user.user_permissions.add(permission
-                                              )
+        self.person.user.user_permissions.add(permission)
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, OK)

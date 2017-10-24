@@ -29,7 +29,8 @@ from decimal import Decimal
 from django.db import models
 
 from base import models as mdl
-from base.business.entity_version import PARENT_FACULTY, _is_service_course, SERVICE_COURSE
+from base.business import entity_version as business_entity_version
+from base.models import entity_container_year, entity_version
 from base.models.enums import entity_container_year_link_type as entity_types
 from django.utils.translation import ugettext_lazy as _
 
@@ -108,16 +109,16 @@ def append_latest_entities(learning_unit, service_course_search=False):
     if service_course_search and requirement_entity_version:
         entity_parent = requirement_entity_version.find_parent_faculty_version(learning_container_year.academic_year)
         if entity_parent:
-            learning_unit.entities[PARENT_FACULTY] = entity_parent
+            learning_unit.entities[business_entity_version.PARENT_FACULTY] = entity_parent
         else:
-            learning_unit.entities[PARENT_FACULTY] = requirement_entity_version
+            learning_unit.entities[business_entity_version.PARENT_FACULTY] = requirement_entity_version
 
         if learning_unit_alloc_entity and requirement_entity_version != learning_unit_alloc_entity:
-            learning_unit.entities[SERVICE_COURSE] = _is_service_course(learning_unit.academic_year,
+            learning_unit.entities[business_entity_version.SERVICE_COURSE] = is_service_course(learning_unit.academic_year,
                                                                         requirement_entity_version,
                                                                         learning_container_year, entity_parent)
         else:
-            learning_unit.entities[SERVICE_COURSE] = False
+            learning_unit.entities[business_entity_version.SERVICE_COURSE] = False
 
     return learning_unit
 
@@ -225,3 +226,24 @@ def volume_distribution(volume_total, volume_partial):
                 return _('remaining')
 
     return None
+
+
+def is_service_course(academic_year, requirement_entity_version, learning_container_year, entity_parent):
+    entity_container_yr_allocation = entity_container_year.find_allocation_entity(learning_container_year)
+    if entity_container_yr_allocation == requirement_entity_version:
+        return False
+
+    elif entity_container_yr_allocation:
+        entity_container_yr_requirement = entity_container_year.find_requirement_entity(learning_container_year)
+
+        if not entity_parent and entity_container_yr_requirement:
+            entity_parent = entity_container_yr_requirement.entity
+        else:
+            entity_parent = entity_parent.entity
+
+        allocation_entity = entity_version.get_last_version(entity_container_yr_allocation.entity)
+        requirement_entity = entity_version.get_last_version(entity_parent)
+        if allocation_entity in requirement_entity.find_descendants(academic_year.start_date):
+            return False
+
+    return True

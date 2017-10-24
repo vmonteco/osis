@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models import entity_version, offer_year_entity, entity_container_year
+from base.models import entity_version, offer_year_entity
 from base.models import entity
 
 SERVICE_COURSE = 'SERVICE_COURSE'
@@ -50,9 +50,8 @@ def update_entity(existing_entity, data):
     existing_entity.save()
 
 
-def create_versions_of_existing_entity(request, same_entity):
+def create_versions_of_existing_entity(entityversion_data, same_entity):
     new_versions_count = 0
-    entityversion_data = request.data.get('entityversion_set')
     for version in entityversion_data:
         identical_versions_count = entity_version.count_identical_versions(same_entity, version)
         if not identical_versions_count:
@@ -65,9 +64,8 @@ def create_versions_of_existing_entity(request, same_entity):
     return new_versions_count
 
 
-def update_end_date_of_existing_versions(request, same_entity):
+def update_end_date_of_existing_versions(entityversion_data, same_entity):
     updated_versions_count = 0
-    entityversion_data = request.data.get('entityversion_set')
     for version in entityversion_data:
         to_update_versions = entity_version.find_update_candidates_versions(same_entity, version)
         for to_update_version in to_update_versions:
@@ -84,26 +82,3 @@ def create_version(version, same_entity, parent):
     except AttributeError:
         new_version = None
     return new_version
-
-
-def _is_service_course(academic_year, requirement_entity_version, learning_container_year, entity_parent):
-    entity_container_yr_allocation = entity_container_year.find_allocation_entity(learning_container_year)
-    if entity_container_yr_allocation == requirement_entity_version:
-        return False
-
-    elif entity_container_yr_allocation:
-        entity_container_yr_requirement = entity_container_year.find_requirement_entity(learning_container_year)
-
-        if not entity_parent and entity_container_yr_requirement:
-            entity_parent = entity_container_yr_requirement.entity
-        else:
-            entity_parent = entity_parent.entity
-
-        allocation_entity = entity_version.get_last_version(entity_container_yr_allocation.entity)
-        requirement_entity = entity_version.get_last_version(entity_parent)
-        if allocation_entity in requirement_entity.find_descendants(academic_year.start_date):
-            return False
-
-    return True
-
-

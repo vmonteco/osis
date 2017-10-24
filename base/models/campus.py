@@ -51,5 +51,4 @@ def find_by_organization(organization):
 
 
 def find_main_campuses():
-    campuses = Campus.objects.filter(organization__type=MAIN).order_by('name')
-    return campuses
+    return Campus.objects.filter(organization__type=MAIN).order_by('name')

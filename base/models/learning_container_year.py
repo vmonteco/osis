@@ -25,9 +25,8 @@
 ##############################################################################
 from django.contrib import admin
 from django.db import models
-from base.models import learning_unit_year
-from base.models.enums import learning_unit_year_subtypes, learning_container_year_types
-from reference.models import language
+from base.models.enums import learning_container_year_types
+
 
 class LearningContainerYearAdmin(admin.ModelAdmin):
     list_display = ('learning_container', 'academic_year', 'container_type', 'acronym', 'title')

@@ -30,11 +30,10 @@ from base.business.learning_unit_year_with_context import volume_learning_compon
 from base.models import entity_container_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
+from base.models.enums import entity_container_year_link_type
+from base.models.enums import learning_component_year_type
 from base.models.enums import learning_container_year_types
-from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
-    ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2
-from base.models.enums.learning_component_year_type import PRACTICAL_EXERCISES, LECTURING
-from base.models.enums.learning_container_year_types import COURSE
+from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LearningUnit
@@ -42,8 +41,8 @@ from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from cms import models as mdl_cms
 from cms.enums import entity_name
-from base.models.enums import learning_unit_year_subtypes
 from reference.models import language
+
 
 # List of key that a user can modify
 VALID_VOLUMES_KEYS = [
@@ -51,9 +50,9 @@ VALID_VOLUMES_KEYS = [
     'VOLUME_Q1',
     'VOLUME_Q2',
     'PLANNED_CLASSES',
-    'VOLUME_' + REQUIREMENT_ENTITY,
-    'VOLUME_' + ADDITIONAL_REQUIREMENT_ENTITY_1,
-    'VOLUME_' + ADDITIONAL_REQUIREMENT_ENTITY_2,
+    'VOLUME_' + entity_container_year_link_type.REQUIREMENT_ENTITY,
+    'VOLUME_' + entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
+    'VOLUME_' + entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2,
     'VOLUME_TOTAL_REQUIREMENT_ENTITIES'
 ]
 
@@ -75,9 +74,9 @@ def _is_a_valid_volume_key(post_key):
     return post_key in VALID_VOLUMES_KEYS
 
 
-def get_10_last_academic_years():
+def get_last_academic_years(last_years=10):
     today = datetime.date.today()
-    date_ten_years_before = today.replace(year=today.year - 10)
+    date_ten_years_before = today.replace(year=today.year - last_years)
     return mdl.academic_year.find_academic_years().filter(start_date__gte=date_ten_years_before)
 
 
@@ -149,11 +148,12 @@ def get_all_attributions(learning_unit_year):
         all_attributions = entity_container_year.find_last_entity_version_grouped_by_linktypes(
             learning_unit_year.learning_container_year)
 
-        attributions['requirement_entity'] = all_attributions.get(REQUIREMENT_ENTITY)
-        attributions['allocation_entity'] = all_attributions.get(ALLOCATION_ENTITY)
+        attributions['requirement_entity'] = all_attributions.get(entity_container_year_link_type.REQUIREMENT_ENTITY)
+        attributions['allocation_entity'] = all_attributions.get(entity_container_year_link_type.ALLOCATION_ENTITY)
         attributions['additional_requirement_entities'] = [
             all_attributions[link_type] for link_type in all_attributions
-            if link_type not in [REQUIREMENT_ENTITY, ALLOCATION_ENTITY]
+            if link_type not in [entity_container_year_link_type.REQUIREMENT_ENTITY,
+                                 entity_container_year_link_type.ALLOCATION_ENTITY]
         ]
     return attributions
 
@@ -209,8 +209,7 @@ def get_components_identification(learning_unit_yr):
 
 
 def _is_used_by_full_learning_unit_year(a_learning_class_year):
-    learning_unit_component_class = mdl.learning_unit_component_class.find_by_learning_class_year(a_learning_class_year)
-    for index, l in enumerate(learning_unit_component_class):
+    for l in mdl.learning_unit_component_class.find_by_learning_class_year(a_learning_class_year):
         if l.learning_unit_component.learning_unit_year.subdivision is None:
             return True
 
@@ -226,19 +225,20 @@ def create_learning_unit_structure(additional_entity_version_1, additional_entit
                title=data['title'],
                acronym=data['acronym'].upper(),
                container_type=data['learning_container_year_type'],
-               language=language.find_by_id(data['language']))
+               language=data['language'])
     new_requirement_entity = create_entity_container_year(requirement_entity_version,
                                                           new_learning_container_year,
-                                                          REQUIREMENT_ENTITY)
+                                                          entity_container_year_link_type.REQUIREMENT_ENTITY)
     if allocation_entity_version:
-        create_entity_container_year(allocation_entity_version, new_learning_container_year, ALLOCATION_ENTITY)
+        create_entity_container_year(allocation_entity_version, new_learning_container_year,
+                                     entity_container_year_link_type.ALLOCATION_ENTITY)
     if additional_entity_version_1:
         create_entity_container_year(additional_entity_version_1, new_learning_container_year,
-                                     ADDITIONAL_REQUIREMENT_ENTITY_1)
+                                     entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
     if additional_entity_version_2:
         create_entity_container_year(additional_entity_version_2, new_learning_container_year,
-                                     ADDITIONAL_REQUIREMENT_ENTITY_2)
-    if data['learning_container_year_type'] == COURSE:
+                                     entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
+    if data['learning_container_year_type'] == learning_container_year_types.COURSE:
         create_course(academic_year, form, new_learning_container_year, new_learning_unit,
                       new_requirement_entity, status)
     else:
@@ -261,9 +261,10 @@ def create_another_type(an_academic_year, form, new_learning_container_year, new
 
 def create_course(an_academic_year, form, new_learning_container_year, new_learning_unit,
                   new_requirement_entity, status):
-    new_lecturing = create_learning_component_year(new_learning_container_year, "CM1", LECTURING)
+    new_lecturing = create_learning_component_year(new_learning_container_year, "CM1",
+                                                   learning_component_year_type.LECTURING)
     new_practical_exercise = create_learning_component_year(new_learning_container_year, "TP1",
-                                                            PRACTICAL_EXERCISES)
+                                                            learning_component_year_type.PRACTICAL_EXERCISES)
     EntityComponentYear.objects.create(entity_container_year=new_requirement_entity,
                                        learning_component_year=new_lecturing)
     EntityComponentYear.objects.create(entity_container_year=new_requirement_entity,
@@ -272,8 +273,10 @@ def create_course(an_academic_year, form, new_learning_container_year, new_learn
                                                        new_learning_container_year,
                                                        new_learning_unit,
                                                        status)
-    create_learning_unit_component(new_learning_unit_year, new_lecturing, LECTURING)
-    create_learning_unit_component(new_learning_unit_year, new_practical_exercise, PRACTICAL_EXERCISES)
+    create_learning_unit_component(new_learning_unit_year, new_lecturing,
+                                   learning_component_year_type.LECTURING)
+    create_learning_unit_component(new_learning_unit_year, new_practical_exercise,
+                                   learning_component_year_type.PRACTICAL_EXERCISES)
 
 
 def create_learning_component_year(learning_container_year, acronym, type_learning_component_year):
@@ -311,4 +314,6 @@ def create_learning_unit_year(academic_year, form, learning_container_year, lear
                                            internship_subtype=form.data.get('internship_subtype'),
                                            status=status,
                                            session=form.data['session'])
+
+
 

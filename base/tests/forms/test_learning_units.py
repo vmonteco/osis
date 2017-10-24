@@ -26,7 +26,7 @@
 from django.test import TestCase
 from django.utils import timezone
 
-from base.business.entity_version import _is_service_course
+from base.business.learning_unit_year_with_context import is_service_course
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
@@ -71,7 +71,7 @@ class TestLearningUnitForm(TestCase):
         learning_container_year = learning_unit.learning_container_year
         entity_parent = requirement_entity_version.find_parent_faculty_version(learning_container_year.academic_year)
 
-        self.assertTrue( _is_service_course(learning_unit.academic_year, requirement_entity_version, learning_container_year, entity_parent))
+        self.assertTrue(is_service_course(learning_unit.academic_year, requirement_entity_version, learning_container_year, entity_parent))
 
     def test_is_not_service_course(self):
 
@@ -85,7 +85,7 @@ class TestLearningUnitForm(TestCase):
         learning_container_year = learning_unit.learning_container_year
         entity_parent = requirement_entity_version.find_parent_faculty_version(learning_container_year.academic_year)
 
-        self.assertFalse(_is_service_course(learning_unit.academic_year, requirement_entity_version, learning_container_year, entity_parent))
+        self.assertFalse(is_service_course(learning_unit.academic_year, requirement_entity_version, learning_container_year, entity_parent))
 
     def build_allocation_entity_not_in_fac_tree(self):
         entity_allocation = EntityFactory()
