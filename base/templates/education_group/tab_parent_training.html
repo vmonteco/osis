@@ -34,13 +34,28 @@
 
     <div class="panel panel-default">
         <div class="panel-body" id="tabs">
+
             {% include "education_group/tabs.html" %}
+            {% with  education_group_year=education_group_year.parent_by_training  %}
             <div class="tab-content" id="tab_content">
                 <div role="tabpanel" class="tab-pane active" id="identification">
+                    <br>
+                    <div class="row">
+                        <div class="col-md-6">
+                        <label>{% trans 'focuses'%}</label> :
+                        {% for child in education_group_year.children_by_group_element_year %}
+                            <a href="{% url 'education_group_read' child.id %}">
+                                    {{ child.acronym }}
+                            </a>
+                            {% if not forloop.last %},&nbsp;{% endif %}
+                        {% endfor %}
+                        </div>
+                    </div>
                     <br>
                     {% include "education_group/tab_identification_details.html" %}
                 </div>
             </div>
+            {% endwith %}
         </div>
     </div>
 {% endblock %}

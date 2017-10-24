@@ -31,7 +31,9 @@ from django.test import TestCase, RequestFactory
 
 from base.models.academic_calendar import AcademicCalendar
 from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.education_group_organization import EducationGroupOrganizationFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.group_element_year import GroupElementYearFactory
 
 
 def save(self, *args, **kwargs):
@@ -61,7 +63,7 @@ class EducationGroupViewTestCase(TestCase):
         request = request_factory.get(reverse('education_groups'), data={
             'acronym': 'EDPH2',
             'academic_year': self.academic_year.id,
-            'type': '' #Simulate all type
+            'type': ''  # Simulate all type
         })
         request.user = mock.Mock()
 
@@ -87,7 +89,7 @@ class EducationGroupViewTestCase(TestCase):
         request = request_factory.get(reverse('education_groups'), data={
             'acronym': '',
             'academic_year': self.academic_year.id,
-            'type': '' #Simulate all type
+            'type': ''  # Simulate all type
         })
         request.user = mock.Mock()
 
@@ -118,7 +120,7 @@ class EducationGroupViewTestCase(TestCase):
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
 
         education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
-
+        organization = EducationGroupOrganizationFactory(education_group_year=education_group_year)
         request = mock.Mock(method='GET')
 
         from base.views.education_group import education_group_read
@@ -130,3 +132,33 @@ class EducationGroupViewTestCase(TestCase):
         request, template, context = mock_render.call_args[0]
 
         self.assertEqual(template, 'education_group/tab_identification.html')
+        self.assertEqual(context['education_group_year'].coorganizations.first(), organization)
+        self.assertEqual(context['education_group_year'].coorganizations.first().address, organization.address)
+
+    @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.views.layout.render')
+    @mock.patch('base.models.program_manager.is_program_manager', return_value=True)
+    def test_education_group_parent_read(self,
+                                         mock_program_manager,
+                                         mock_render,
+                                         mock_decorators):
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+
+        education_group_year_child = EducationGroupYearFactory(academic_year=self.academic_year)
+        education_group_year_parent = EducationGroupYearFactory(academic_year=self.academic_year)
+        GroupElementYearFactory(parent=education_group_year_parent, child_branch=education_group_year_child)
+
+        request = mock.Mock(method='GET')
+
+        from base.views.education_group import education_group_parent_read
+
+        education_group_parent_read(request, education_group_year_child.id)
+
+        self.assertTrue(mock_render.called)
+
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'education_group/tab_parent_training.html')
+
+        self.assertEqual(context['education_group_year'].parent_by_training, education_group_year_parent)

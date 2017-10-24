@@ -46,9 +46,9 @@ def education_groups(request):
 
     object_list = None
     if form.is_valid():
-       object_list = form.get_object_list()
-       if not _check_if_display_message(request, object_list):
-           object_list = None
+        object_list = form.get_object_list()
+        if not _check_if_display_message(request, object_list):
+            object_list = None
 
     context = {
         'form': form,
@@ -58,32 +58,50 @@ def education_groups(request):
     return layout.render(request, "education_groups.html", context)
 
 
-def _check_if_display_message(request, education_groups):
-    if not education_groups:
+def _check_if_display_message(request, an_education_groups):
+    if not an_education_groups:
         messages.add_message(request, messages.WARNING, _('no_result'))
-    elif len(education_groups) > MAX_RECORDS:
+    elif len(an_education_groups) > MAX_RECORDS:
         messages.add_message(request, messages.WARNING, _('too_many_results'))
         return False
     return True
 
+
 @login_required
 @permission_required('base.can_access_offer', raise_exception=True)
 def education_group_read(request, education_group_year_id):
-    return _education_group_identification_tab(request, education_group_year_id)
-
-
-def _education_group_identification_tab(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+    education_group_languages = [education_group_language.language.name for education_group_language in
+                                 mdl.education_group_language.find_by_education_group_year(education_group_year)]
     return layout.render(request, "education_group/tab_identification.html", locals())
+
+
+@login_required
+@permission_required('base.can_access_offer', raise_exception=True)
+def education_group_parent_read(request, education_group_year_id):
+    education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+    return layout.render(request, "education_group/tab_parent_training.html", locals())
 
 
 def get_education_group_years(academic_yr, acronym, entity):
     if entity:
-        education_group_year_entitys = []
+        education_group_year_entities = []
         education_group_years = mdl.education_group_year.search(academic_yr=academic_yr, acronym=acronym)
         for education_group_yr in education_group_years:
-            if education_group_yr.management_entity and education_group_yr.management_entity.acronym.upper() == entity.upper():
-                education_group_year_entitys.append(education_group_yr)
-        return education_group_year_entitys
+            if education_group_yr.management_entity and\
+                            education_group_yr.management_entity.acronym.upper() == entity.upper():
+                education_group_year_entities.append(education_group_yr)
+        return education_group_year_entities
     else:
         return mdl.education_group_year.search(academic_yr=academic_yr, acronym=acronym)
+
+
+@login_required
+@permission_required('base.can_access_offer', raise_exception=True)
+def education_group_diplomas(request, education_group_year_id):
+    return _education_group_diplomas_tab(request, education_group_year_id)
+
+
+def _education_group_diplomas_tab(request, education_group_year_id):
+    education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+    return layout.render(request, "education_group/tab_diplomas.html", locals())

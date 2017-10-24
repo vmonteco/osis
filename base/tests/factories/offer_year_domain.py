@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,12 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-TRAINING = "TRAINING"
-MINI_TRAINING = "MINI_TRAINING"
-GROUP = "GROUP"
+import factory
+import factory.fuzzy
+from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.offer import OfferFactory
+from base.tests.factories.offer_year import OfferYearFactory
+from base.tests.factories.structure import StructureFactory
+from base.tests.factories.offer_type import OfferTypeFactory
+from reference.models.domain import Domain
 
-CATEGORIES = (
-    (TRAINING, TRAINING),
-    (MINI_TRAINING, MINI_TRAINING),
-    (GROUP, GROUP),
-)
+
+class OfferYearDomainFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "base.OfferYearDomain"
+
+    offer_year = factory.SubFactory(OfferYearFactory)
+    education_group_year = factory.SubFactory(EducationGroupYearFactory)
+    domain = Domain()

@@ -25,22 +25,36 @@
 {% endcomment %}
 
 {% block breadcrumb %}
-    {% include "education_group/breadcrumb.html" %}
+{% include "education_group/breadcrumb.html" %}
 {% endblock %}
 
 {% block content %}
 
-    {% include "education_group/header.html" %}
+{% include "education_group/header.html" %}
 
-    <div class="panel panel-default">
-        <div class="panel-body" id="tabs">
-            {% include "education_group/tabs.html" %}
-            <div class="tab-content" id="tab_content">
-                <div role="tabpanel" class="tab-pane active" id="identification">
-                    <br>
-                    {% include "education_group/tab_identification_details.html" %}
-                </div>
+<div class="panel panel-default">
+    <div class="panel-body" id="tabs">
+
+        {% include "education_group/tabs.html" %}
+
+        <div class="tab-content" id="tab_content">
+            <div role="tabpanel" class="tab-pane active" id="diplomas">
+                <br>
+                <label>{% trans 'university_certificate_desc' %}</label><br>
+                {% if education_group_year.university_certificate %}
+                    {% trans 'yes'%}
+                {% else %}
+                    {% trans 'no'%}
+                {% endif %}
+                <br><br>
+                <label>{% trans 'diploma_title'%}</label><br>
+                {{education_group_year.diploma_printing_title | default_if_none:'-'}}
+                <br><br>
+                <label>{% trans 'professionnal_title'%}</label><br>
+                {{education_group_year.professional_title | default_if_none:'-'}}
             </div>
         </div>
     </div>
+</div>
+
 {% endblock %}
