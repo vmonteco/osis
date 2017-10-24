@@ -41,6 +41,7 @@ from base.models.entity_version import find_main_entities_version
 from base.models.enums import entity_container_year_link_type
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
+from base.models.learning_unit_year import check_if_acronym_regex_is_valid
 from reference.models.language import find_all_languages
 
 MIN_ACRONYM_LENGTH = 3
@@ -62,6 +63,8 @@ class LearningUnitYearForm(forms.Form):
         data_cleaned = treat_empty_or_str_none_as_none(data_cleaned)
         if data_cleaned and len(data_cleaned) < MIN_ACRONYM_LENGTH:
             raise ValidationError(_('LU_WARNING_INVALID_ACRONYM'))
+        elif data_cleaned and len(data_cleaned) >= MIN_ACRONYM_LENGTH and check_if_acronym_regex_is_valid(data_cleaned) is None:
+            raise ValidationError(_('LU_ERRORS_INVALID_REGEX_SYNTAX'))
         return data_cleaned
 
     def clean_academic_year_id(self):
@@ -115,7 +118,6 @@ class LearningUnitYearForm(forms.Form):
     def get_service_course_learning_units(self):
         learning_units_service_course = self.get_learning_units(True)
         service_courses = []
-
         allocation_entity_acronym = self.cleaned_data['allocation_entity_acronym']
         requirement_entity_acronym = self.cleaned_data['requirement_entity_acronym']
 
@@ -174,7 +176,6 @@ def _get_entities_ids(requirement_entity_acronym, with_entity_subordinated):
 
 def create_learning_container_year_type_list():
     return ((None, EMPTY_FIELD),) + LEARNING_CONTAINER_YEAR_TYPES
-
 
 class CreateLearningUnitYearForm(forms.ModelForm):
     learning_container_year_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),

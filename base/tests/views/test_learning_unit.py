@@ -201,6 +201,48 @@ class LearningUnitViewTestCase(TestCase):
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
+    def test_learning_units_search_by_acronym_with_valid_regex(self, mock_render, mock_decorators):
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+        self._prepare_context_learning_units_search()
+        request_factory = RequestFactory()
+        filter_data = {
+            'academic_year_id': self.current_academic_year.id,
+            'status': True,
+            'acronym': '^DRT.+A'
+        }
+        request = request_factory.get(reverse('learning_units'), data=filter_data)
+        request.user = mock.Mock()
+        from base.views.learning_unit import learning_units
+        learning_units(request)
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        self.assertEqual(template, 'learning_units.html')
+        self.assertEqual(len(context['learning_units']), 1)
+
+    @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.views.layout.render')
+    def test_learning_units_search_by_acronym_with_invalid_regex(self, mock_render, mock_decorators):
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+        self._prepare_context_learning_units_search()
+        request_factory = RequestFactory()
+        filter_data = {
+            'academic_year_id': self.current_academic_year.id,
+            'status': True,
+            'acronym': '^LB(+)2+'
+        }
+        request = request_factory.get(reverse('learning_units'), data=filter_data)
+        request.user = mock.Mock()
+        from base.views.learning_unit import learning_units
+        learning_units(request)
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        self.assertEqual(template, 'learning_units.html')
+        self.assertEqual(context['form'].errors['acronym'], [_('LU_ERRORS_INVALID_REGEX_SYNTAX')])
+
+    @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.views.layout.render')
     def test_learning_units_search_with_requirement_entity(self, mock_render, mock_decorators):
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func

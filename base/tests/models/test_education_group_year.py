@@ -26,6 +26,7 @@
 import datetime
 from django.test import TestCase
 from base.models.education_group_year import *
+from base.tests.factories.academic_year import AcademicYearFactory
 
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.offer_year_domain import OfferYearDomainFactory
@@ -33,8 +34,9 @@ from base.tests.factories.offer_year_domain import OfferYearDomainFactory
 
 class EducationGroupYearTest(TestCase):
     def setUp(self):
-        self.education_group_year_1 = EducationGroupYearFactory()
-        self.education_group_year_2 = EducationGroupYearFactory()
+        academic_year = AcademicYearFactory()
+        self.education_group_year_1 = EducationGroupYearFactory(academic_year=academic_year)
+        self.education_group_year_2 = EducationGroupYearFactory(academic_year=academic_year)
         self.education_group_year_2.category = education_group_categories.MINI_TRAINING
         self.education_group_year_2.save()
 
