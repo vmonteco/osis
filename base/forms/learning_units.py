@@ -177,6 +177,12 @@ def _get_entities_ids(requirement_entity_acronym, with_entity_subordinated):
 def create_learning_container_year_type_list():
     return ((None, EMPTY_FIELD),) + LEARNING_CONTAINER_YEAR_TYPES
 
+
+class EntitiesVersionChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.acronym
+
+
 class CreateLearningUnitYearForm(forms.ModelForm):
     learning_container_year_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
                                                      widget=forms.Select(attrs={'class': 'form-control',
@@ -193,22 +199,22 @@ class CreateLearningUnitYearForm(forms.ModelForm):
                                                       choices=PERIODICITY_TYPES))
     campus = forms.ModelChoiceField(find_main_campuses(), widget=forms.Select(attrs={'class': 'form-control',
                                                                                      'id': 'campus'}))
-    requirement_entity = forms.ModelChoiceField(find_main_entities_version(),
+    requirement_entity = EntitiesVersionChoiceField(find_main_entities_version(),
                                                 widget=forms.Select(attrs={'class': 'form-control',
                                                                            'id': 'requirement_entity',
                                                                            'onchange': 'showAdditionalEntity1(this.value)'}))
-    allocation_entity = forms.ModelChoiceField(find_main_entities_version(),
+    allocation_entity = EntitiesVersionChoiceField(find_main_entities_version(),
                                                required=False,
                                                widget=forms.Select(attrs={'class': 'form-control',
                                                                           'id': 'allocation_entity'}))
-    additional_entity_1 = forms.ModelChoiceField(find_main_entities_version(),
+    additional_entity_1 = EntitiesVersionChoiceField(find_main_entities_version(),
                                                  required=False,
                                                  widget=forms.Select(attrs={'class': 'form-control',
                                                                             'id': 'allocation_entity_1',
                                                                             'disabled': 'disabled',
                                                                             'onchange': 'showAdditionalEntity2(this.value)'})
                                                  )
-    additional_entity_2 = forms.ModelChoiceField(find_main_entities_version(),
+    additional_entity_2 = EntitiesVersionChoiceField(find_main_entities_version(),
                                                  required=False,
                                                  widget=forms.Select(attrs={'class': 'form-control',
                                                                             'id': 'allocation_entity_2',
