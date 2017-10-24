@@ -23,26 +23,24 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
-
-from base.models.enums import education_group_categories
+from django.test import TestCase
+from base.models.education_group_language import find_by_education_group_year
 from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.education_group import EducationGroupFactory
-from base.tests.factories.offer_type import OfferTypeFactory
+from base.tests.factories.education_group_language import EducationGroupLanguageFactory
+from base.tests.factories.education_group_year import EducationGroupYearFactory
+from reference.tests.factories.language import LanguageFactory
 
 
-def generate_title(education_group_year):
-    return '{obj.academic_year} {obj.acronym}'.format(obj=education_group_year).lower()
+class EducationGroupLanguageTest(TestCase):
+    def setUp(self):
+        academic_year = AcademicYearFactory()
+        self.education_group_year = EducationGroupYearFactory(academic_year=academic_year)
+        self.language = LanguageFactory()
+        self.education_group_language_1 = EducationGroupLanguageFactory(education_group_year=self.education_group_year,
+                                                                        language=self.language)
+        self.education_group_language_2 = EducationGroupLanguageFactory(education_group_year=self.education_group_year,
+                                                                        language=self.language)
 
-
-class EducationGroupYearFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "base.EducationGroupYear"
-
-    education_group = factory.SubFactory(EducationGroupFactory)
-    academic_year = factory.SubFactory(AcademicYearFactory)
-    acronym = factory.Sequence(lambda n: 'Education %d' % n)
-    title = factory.LazyAttribute(generate_title)
-    category = education_group_categories.TRAINING
-    education_group_type = factory.SubFactory(OfferTypeFactory)
+    def test_find_by_education_group_year(self):
+        education_group_year = find_by_education_group_year(self.education_group_year)
+        self.assertEqual(education_group_year.count(), 2)

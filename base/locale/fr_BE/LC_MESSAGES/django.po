@@ -1448,6 +1448,9 @@ msgstr "Veuillez préciser une année académique."
 msgid "LU_ERRORS_YEAR_WITH_ACRONYM"
 msgstr "Veuillez préciser une année académique ou entrer un acronyme valide."
 
+msgid "LU_ERRORS_INVALID_REGEX_SYNTAX"
+msgstr "Expression régulière incorrecte!"
+
 msgid "ANNUAL"
 msgstr "Annuel"
 
@@ -2123,3 +2126,60 @@ msgstr "Mini formation"
 
 msgid "GROUP"
 msgstr "Groupe"
+
+msgid "PRIMARY_LANGUAGE"
+msgstr "Langue principale"
+
+msgid "OR"
+msgstr "Ou"
+
+msgid "AND"
+msgstr "Et"
+
+msgid "language_association"
+msgstr "Opérateur langues principales"
+
+msgid "prolong_or_create_learning_unit_message"
+msgstr "<p>Le <b>sigle</b> utilisé est <b>déjà existant</b>.</p>"
+       "<p>Vous avez le choix entre :"
+       "<ul><li>soit <b>créer</b> une nouvelle UE qui reprendra ce sigle </li>"
+       "<li>soit <b>prolonger</b> l'unité d'enseignement de même sigle </li></ul></p>"
+
+msgid "confirm_your_action"
+msgstr "Confirmer votre action."
+
+msgid "create"
+msgstr "Créer"
+
+msgid "prolong"
+msgstr "Prolonger"
+
+msgid "diplomas_certificates"
+msgstr "Diplômes /  Certificats"
+
+msgid "diploma_title"
+msgstr "Intitulé du diplôme/du certificat"
+
+msgid "professionnal_title"
+msgstr "Titre professionnel"
+
+msgid "university_certificate_desc"
+msgstr "Mène à diplôme/à certificat"
+
+msgid "program_coorganization"
+msgstr "Programme co-organisés avec d'autres institutions"
+
+msgid "for_all_students"
+msgstr "Pour tous les étudiants"
+
+msgid "diploma"
+msgstr "Diplôme"
+
+msgid "UNIQUE"
+msgstr "Diplôme unique"
+
+msgid "SEPARATE"
+msgstr "Diplôme séparé"
+
+msgid "NOT_CONCERNED"
+msgstr "Non concerné"

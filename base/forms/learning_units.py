@@ -25,7 +25,7 @@
 ##############################################################################
 import re
 from django import forms
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Prefetch
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
@@ -35,6 +35,7 @@ from base.models.entity_version import find_main_entities_version
 from base.models.enums import entity_container_year_link_type
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
+from base.models.learning_unit_year import check_if_acronym_regex_is_valid
 from reference.models.language import find_all_languages
 import re
 from base.models import entity_container_year as mdl_entity_container_year
@@ -57,8 +58,10 @@ class LearningUnitYearForm(forms.Form):
     def clean_acronym(self):
         data_cleaned = self.cleaned_data.get('acronym')
         data_cleaned = _treat_empty_or_str_none_as_none(data_cleaned)
-        if data_cleaned and len(data_cleaned) < MIN_ACRONYM_LENGTH:
+        if (data_cleaned and len(data_cleaned) < MIN_ACRONYM_LENGTH):
             raise ValidationError(_('LU_WARNING_INVALID_ACRONYM'))
+        elif data_cleaned and len(data_cleaned) >= MIN_ACRONYM_LENGTH and check_if_acronym_regex_is_valid(data_cleaned) is None:
+            raise ValidationError(_('LU_ERRORS_INVALID_REGEX_SYNTAX'))
         return data_cleaned
 
     def clean_academic_year_id(self):
@@ -266,7 +269,6 @@ def create_learning_container_year_type_list():
 def create_languages_list():
     return [(language.id, language.name) for language in find_all_languages()]
 
-
 class CreateLearningUnitYearForm(forms.ModelForm):
     learning_container_year_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
                                                      widget=forms.Select(attrs={'class': 'form-control',
@@ -344,24 +346,25 @@ class CreateLearningUnitYearForm(forms.ModelForm):
                    }
 
     def is_valid(self):
-
-        valid = super(CreateLearningUnitYearForm, self).is_valid()
-        academic_year = mdl.academic_year.find_academic_year_by_id(self.data['academic_year'])
-        learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, self.data['acronym'])
+        if not super(CreateLearningUnitYearForm, self).is_valid():
+            return False
+        try:
+            academic_year = mdl.academic_year.find_academic_year_by_id(self.data.get('academic_year'))
+        except ObjectDoesNotExist:
+            return False
+        learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, self.data.get('acronym'))
         learning_unit_years_list = [learning_unit_year.acronym.lower() for learning_unit_year in learning_unit_years]
-        if valid:
-            if self.cleaned_data['acronym'].lower() in learning_unit_years_list:
-                self.add_error('acronym', _('existing_acronym'))
-            elif not re.match(self.acronym_regex, self.cleaned_data['acronym'].upper()):
-                self.add_error('acronym', _('invalid_acronym'))
-            elif self.cleaned_data['learning_container_year_type'] == INTERNSHIP \
-                    and not (self.cleaned_data['internship_subtype']):
-                self._errors['internship_subtype'] = _('field_is_required')
-            elif not self.cleaned_data['credits']:
-                self._errors['credits'] = _('field_is_required')
-                return False
-            else:
-                return True
-        return False
+        if self.cleaned_data['acronym'].lower() in learning_unit_years_list:
+            self.add_error('acronym', _('existing_acronym'))
+        elif not re.match(self.acronym_regex, self.cleaned_data['acronym'].upper()):
+            self.add_error('acronym', _('invalid_acronym'))
+        elif self.cleaned_data['learning_container_year_type'] == INTERNSHIP \
+                and not (self.cleaned_data['internship_subtype']):
+            self._errors['internship_subtype'] = _('field_is_required')
+        elif not self.cleaned_data['credits']:
+            self._errors['credits'] = _('field_is_required')
+            return False
+        else:
+            return True
 
 

@@ -239,7 +239,7 @@ def count(**kwargs):
 def search_entities(acronym=None, title=None, type=None):
     queryset = EntityVersion.objects
     if acronym:
-        queryset = queryset.filter(acronym__iexact=acronym)
+        queryset = queryset.filter(acronym__icontains=acronym)
     if title:
         queryset = queryset.filter(title__icontains=title)
     if type:
@@ -285,6 +285,12 @@ def find_main_entities_version():
         .filter(entity_type__in=[entity_type.SECTOR, entity_type.FACULTY, entity_type.SCHOOL,
                                  entity_type.INSTITUTE, entity_type.DOCTORAL_COMMISSION],
                 entity__organization__type=MAIN).order_by('acronym')
+    return entities_version
+
+
+def find_last_faculty_entities_version():
+    entities_version = EntityVersion.objects.filter(entity_type=entity_type.FACULTY,
+                                                    entity__organization__type=MAIN).order_by('entity', '-start_date').distinct('entity')
     return entities_version
 
 
