@@ -177,6 +177,44 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Button trigger modal for deletion of learning unit -->
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modalDelete">
+                      {% trans 'delete' %}
+                    </button>
+
+                    <!-- Modal for deletion of UE-->
+                    <div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="modalDeleteLabel">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="modalDeleteLabel">Etes-vous sur ?</h4>
+                          </div>
+                          <div class="modal-body">
+                            <p>Cette opération est <b>permanente</b> et ne peut pas être défaite. Vous perdrez à jamais
+                              les données liées à l'UE <b>{{learning_unit_year.acronym}}</b>.
+                             </p>
+
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                  <label for="inputAcronym" style="font-weight:normal">Taper l'acronyme de l'UE pour confirmer:</label>
+                                  <input type="text" class="form-control" id="inputAcronym">
+                                </div>
+
+                                <button type="button" class="btn btn-warning">Oui, je confirme et je suis conscient des conséquences.</button>
+
+                            </form>
+
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
                 </div>
             </div>
         </div>
