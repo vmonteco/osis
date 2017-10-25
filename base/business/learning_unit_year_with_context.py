@@ -32,9 +32,6 @@ from base import models as mdl
 from base.models.enums import entity_container_year_link_type as entity_types
 from django.utils.translation import ugettext_lazy as _
 
-UNDEFINED_VALUE = ''
-VOLUME_FOR_UNKNOWN_QUADRIMESTER = -1
-
 
 class LearningUnitYearWithContext:
     def __init__(self, **kwargs):
