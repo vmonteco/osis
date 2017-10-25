@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('base', '0170_remove_student_academic_enrollment_state'),
+        ('base', '0171_auto_20171017_1132'),
     ]
 
     operations = [
