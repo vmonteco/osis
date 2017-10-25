@@ -24,6 +24,8 @@
 #
 ##############################################################################
 from django.db import models
+from django.db.models import Prefetch
+
 from base.models.enums import component_type
 from base.models.learning_unit_component_class import LearningUnitComponentClass
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
@@ -81,7 +83,7 @@ def search(a_learning_component_year=None, a_learning_unit_year=None):
     if a_learning_unit_year:
         queryset = queryset.filter(learning_unit_year=a_learning_unit_year)
 
-    return queryset
+    return queryset.select_related('learning_unit_year__academic_year')
 
 
 def used_by(learning_component_year, learning_unit_year):

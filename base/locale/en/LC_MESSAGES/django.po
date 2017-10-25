@@ -2177,3 +2177,6 @@ msgstr "Separate diploma"
 
 msgid "NOT_CONCERNED"
 msgstr "Not concerned"
+
+msgid "publish_attribution_to_portal"
+msgstr "Publish attribution to portal"

@@ -2183,3 +2183,6 @@ msgstr "Diplôme séparé"
 
 msgid "NOT_CONCERNED"
 msgstr "Non concerné"
+
+msgid "publish_attribution_to_portal"
+msgstr "Publication des attributions sur Osis-Portal"

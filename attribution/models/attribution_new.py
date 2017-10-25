@@ -24,10 +24,18 @@
 #
 ##############################################################################
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
+from attribution.business import attribution_json
 from osis_common.models.auditable_model import AuditableModelAdmin, AuditableModel
 
 from attribution.models.enums import function
+
+
+def published_to_portal(modeladmin, request, queryset):
+    global_ids = list(queryset.values_list('tutor__person__global_id', flat=True))
+    return attribution_json.publish_to_portal(global_ids)
+published_to_portal.short_description = _("publish_attribution_to_portal")
 
 
 class AttributionNewAdmin(AuditableModelAdmin):
@@ -37,6 +45,7 @@ class AttributionNewAdmin(AuditableModelAdmin):
     raw_id_fields = ('learning_container_year', 'tutor')
     search_fields = ['tutor__person__first_name', 'tutor__person__last_name', 'learning_container_year__acronym',
                      'tutor__person__global_id', 'function']
+    actions = [published_to_portal]
 
 
 class AttributionNew(AuditableModel):
@@ -56,3 +65,24 @@ class AttributionNew(AuditableModel):
 
     class Meta:
         unique_together = ('learning_container_year', 'tutor', 'function')
+
+
+def search(*args, **kwargs):
+    qs = AttributionNew.objects.all()
+
+    if "tutor" in kwargs:
+        qs = qs.filter(tutor=kwargs['tutor'])
+    if "learning_container_year" in kwargs:
+        if isinstance(kwargs['learning_container_year'], list):
+            qs = qs.filter(learning_container_year__in=kwargs['learning_container_year'])
+        else:
+            qs = qs.filter(learning_container_year=kwargs['learning_container_year'])
+    if "score_responsible" in kwargs:
+        qs = qs.filter(score_responsible=kwargs['score_responsible'])
+    if "global_id" in kwargs:
+        if isinstance(kwargs['global_id'], list):
+            qs = qs.filter(tutor__person__global_id__in=kwargs['global_id'])
+        else:
+            qs = qs.filter(tutor__person__global_id=kwargs['global_id'])
+
+    return qs.select_related('tutor__person', 'learning_container_year')
