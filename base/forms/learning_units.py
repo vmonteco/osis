@@ -195,7 +195,6 @@ def _get_entities_ids(requirement_entity_acronym, with_entity_subordinated):
             entities_ids |= {descendant.entity.id for descendant in all_descendants}
     return list(entities_ids)
 
-
 def is_service_course(learning_unit_yr):
     requirement_entity_version = learning_unit_yr.entities[entity_container_year_link_type.REQUIREMENT_ENTITY]
 
@@ -222,7 +221,6 @@ def is_service_course(learning_unit_yr):
                 return False
 
     return True
-
 
 def _append_latest_entities(learning_unit, service_course_search):
     learning_unit.entities = {}

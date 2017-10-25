@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,18 +23,18 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from attribution.models import *
-from django.contrib import admin
+import factory
+import factory.fuzzy
+from base.models.enums import education_group_language
+from base.tests.factories.education_group_year import EducationGroupYearFactory
+from reference.tests.factories.language import LanguageFactory
 
 
-admin.site.register(attribution.Attribution,
-                    attribution.AttributionAdmin)
+class EducationGroupLanguageFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "base.EducationGroupLanguage"
 
-admin.site.register(attribution_charge.AttributionCharge,
-                    attribution_charge.AttributionChargeAdmin)
-
-admin.site.register(attribution_new.AttributionNew,
-                    attribution_new.AttributionNewAdmin)
-
-admin.site.register(attribution_charge_new.AttributionChargeNew,
-                    attribution_charge_new.AttributionChargeNewAdmin)
+    type = education_group_language.EducationGroupLanguages
+    education_group_year = factory.SubFactory(EducationGroupYearFactory)
+    language = factory.SubFactory(LanguageFactory)
+    order = factory.fuzzy.FuzzyInteger(1, 5)

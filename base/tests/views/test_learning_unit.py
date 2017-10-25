@@ -25,7 +25,6 @@
 ##############################################################################
 import datetime
 from unittest import mock
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
@@ -46,7 +45,7 @@ from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.enums.learning_unit_year_session import SESSION_P23
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
-from base.tests.factories.academic_year import AcademicYearFactory, AcademicYearFakerFactory
+from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
@@ -57,12 +56,13 @@ from base.tests.factories.learning_component_year import LearningComponentYearFa
 from base.tests.factories.learning_container import LearningContainerFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
+from base.tests.factories.entity_component_year import EntityComponentYearFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.models.enums import entity_container_year_link_type
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.user import SuperUserFactory
-from base.tests.factories.person import PersonFactory
 from base.views import learning_unit as learning_unit_view
+from django.utils.translation import ugettext_lazy as _
 
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory

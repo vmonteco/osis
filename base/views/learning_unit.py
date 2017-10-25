@@ -25,7 +25,6 @@
 ##############################################################################
 import datetime
 from collections import OrderedDict
-
 from django.contrib import messages
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -35,7 +34,6 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods, require_POST
-
 from base import models as mdl
 from base.business import learning_unit_year_volumes
 from base.business import learning_unit_year_with_context
@@ -207,7 +205,7 @@ def learning_unit_pedagogy_edit(request, learning_unit_year_id):
         if form.is_valid():
             form.save()
         return HttpResponseRedirect(reverse("learning_unit_pedagogy",
-                                            kwargs={'learning_unit_year_id':learning_unit_year_id}))
+                                            kwargs={'learning_unit_year_id': learning_unit_year_id}))
 
     context = _get_common_context_learning_unit_year(learning_unit_year_id)
     label_name = request.GET.get('label')
@@ -330,7 +328,8 @@ def _get_common_context_learning_unit_year(learning_unit_year_id):
 def get_same_container_year_components(learning_unit_year, with_classes=False):
     learning_container_year = learning_unit_year.learning_container_year
     components = []
-    learning_components_year = mdl.learning_component_year.find_by_learning_container_year(learning_container_year, with_classes)
+    learning_components_year = mdl.learning_component_year.find_by_learning_container_year(learning_container_year,
+                                                                                           with_classes)
 
     for learning_component_year in learning_components_year:
         if learning_component_year.classes:
@@ -544,7 +543,7 @@ def learning_unit_year_add(request):
         while year < starting_academic_year.year + LEARNING_UNIT_CREATION_SPAN_YEARS:
             academic_year = mdl.academic_year.find_academic_year_by_year(year)
             create_learning_unit_structure(additional_entity_version_1, additional_entity_version_2,
-                                           allocation_entity_version, data, form, new_learning_container,
+                                           allocation_entity_version, data, new_learning_container,
                                            new_learning_unit, requirement_entity_version, status, academic_year)
             year = year+1
         return redirect('learning_units')
@@ -553,7 +552,7 @@ def learning_unit_year_add(request):
 
 
 def create_learning_unit_structure(additional_entity_version_1, additional_entity_version_2, allocation_entity_version,
-                                   data, form, new_learning_container, new_learning_unit, requirement_entity_version,
+                                   data, new_learning_container, new_learning_unit, requirement_entity_version,
                                    status, academic_year):
     new_learning_container_year = create_learning_container_year(academic_year, data,
                                                                  new_learning_container)
