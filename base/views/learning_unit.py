@@ -679,6 +679,8 @@ def create_learning_unit_year(academic_year, data, learning_container_year, lear
     return new_learning_unit_year
 
 
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
 def check_acronym(request):
     acronym = request.GET['acronym']
     year_id = request.GET['year_id']
@@ -705,6 +707,8 @@ def check_acronym(request):
                          'last_using': last_using}, safe=False)
 
 
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
 def check_code(request):
     campus_id = request.GET['campus']
     campus = mdl.campus.find_by_id(campus_id)
