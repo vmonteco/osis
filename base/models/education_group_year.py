@@ -101,6 +101,7 @@ class EducationGroupYear(models.Model):
                                      default=duration_unit.DurationUnits.QUADRIMESTER,
                                      blank=True, null=True)
     enrollment_enabled = models.BooleanField(default=False)
+    code_scs = models.CharField(max_length=15, db_index=True, null=True)
 
     _coorganizations = None
 

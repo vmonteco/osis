@@ -38,7 +38,13 @@
             <div class="tab-content" id="tab_content">
                 <div role="tabpanel" class="tab-pane active" id="identification">
                     <br>
-                    {% include "education_group/tab_identification_details.html" %}
+                    {% if education_group_year.category == 'TRAINING' %}
+                        {% include "education_group/identification_training_details.html" %}
+                    {% elif education_group_year.category == 'MINI_TRAINING' %}
+                        {% include "education_group/identification_mini_training_details.html" %}
+                    {% elif education_group_year.category == 'GROUP' %}
+                        {% include "education_group/identification_group_details.html" %}
+                    {% endif %}
                 </div>
             </div>
         </div>
