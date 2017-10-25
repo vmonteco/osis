@@ -150,6 +150,7 @@ def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
         for error_msg in errors:
             messages.add_message(request, messages.ERROR, error_msg)
 
+
 @login_required
 @permission_required('base.can_delete_learningunit', raise_exception=True)
 def learning_unit_delete(request, learning_unit_year_id):
@@ -166,6 +167,8 @@ def learning_unit_delete(request, learning_unit_year_id):
                                                                          str(registered_students)))
     else:
         learning_unit_year.delete()
+        return redirect('learning_units')
+    return redirect('learning_unit', learning_unit_year_id=learning_unit_year_id)
 
 
 def _extract_volumes_from_data(request):

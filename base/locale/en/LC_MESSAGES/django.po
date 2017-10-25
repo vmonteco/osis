@@ -2187,3 +2187,6 @@ msgstr "Yes, I confirm and am aware of the consequences."
 msgid "msg_modal_delete_learning_unit"
 msgstr "<p>This operation is <b>permanent</b> and cannot be undone. You will lose for ever"
        " the data linked to the learning unit <b>%s</b>.</p>"
+
+msgid "cannot_delete_learning_unit"
+msgstr "Could not delete the learning unit for the following reasons :"

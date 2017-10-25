@@ -23,7 +23,17 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
-
+{% if messages %}
+<div class="alert alert-danger alert-dismissible" role="alert">
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  {% trans 'cannot_delete_learning_unit' %}
+  <ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="danger"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
 <div class="row page-header" style="margin-top:25px;">
     <div class="col-md-1">
         <ul class="pager">
@@ -47,6 +57,7 @@
         </ul>
     </div>
 
+    <!-- Dropdown to select actions to apply on learning unit -->
     <div class="col-md-2 col-md-offset-10">
       <div class="dropdown">
         <button id="dLabel" class="btn btn-default" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -81,9 +92,7 @@
 
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-warning">
-          {% trans 'i_confirm_and_am_aware' %}
-        </button>
+        <a class="btn btn-warning" href="{% url 'learning_unit_delete' learning_unit_year_id=learning_unit_year.id %}" role="button">{% trans 'i_confirm_and_am_aware' %}</a>
         <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'cancel' %}</button>
       </div>
     </div>

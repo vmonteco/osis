@@ -98,6 +98,7 @@ urlpatterns = [
             url(r'^volumes/', include([
                 url(u'^$', learning_unit.learning_unit_volumes_management, name="learning_unit_volumes_management"),
                 url(u'^validation/$', learning_unit.volumes_validation, name="volumes_validation")])),
+            url(r'^delete/$', learning_unit.learning_unit_delete, name="learning_unit_delete"),
         ])),
         url(r'^check/$', learning_unit.check_acronym, name="check_acronym"),
         url(r'^check_code/$', learning_unit.check_code, name="check_code"),
@@ -185,5 +186,3 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns +=  static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-
