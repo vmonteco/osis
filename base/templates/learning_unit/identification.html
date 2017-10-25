@@ -179,6 +179,8 @@
                         </div>
                     </div>
 
+                    {% if "base" in perms %}
+                      {% if "base.delete_learningunit" in perms %}
                     <!-- Button trigger modal for deletion of learning unit -->
                     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modalDelete">
                       {% trans 'delete' %}
@@ -215,6 +217,9 @@
                         </div>
                       </div>
                     </div>
+
+                      {% endif %}
+                    {% endif %}
 
                 </div>
             </div>
