@@ -29,15 +29,18 @@ from base.models.education_group_year import *
 from base.tests.factories.academic_year import AcademicYearFactory
 
 from base.tests.factories.education_group_year import EducationGroupYearFactory
-from base.tests.factories.offer_year_domain import OfferYearDomainFactory
+from base.tests.factories.education_group_year import EducationGroupTypeFakerFactory
 
 
 class EducationGroupYearTest(TestCase):
     def setUp(self):
         academic_year = AcademicYearFactory()
-        self.education_group_year_1 = EducationGroupYearFactory(academic_year=academic_year)
-        self.education_group_year_2 = EducationGroupYearFactory(academic_year=academic_year)
-        self.education_group_year_2.category = education_group_categories.MINI_TRAINING
+        self.education_group_type_1 = EducationGroupTypeFakerFactory()
+        self.education_group_type_2 = EducationGroupTypeFakerFactory()
+        self.education_group_year_1 = EducationGroupYearFactory(academic_year=academic_year,
+                                                                education_group_type=self.education_group_type_1)
+        self.education_group_year_2 = EducationGroupYearFactory(academic_year=academic_year,
+                                                                education_group_type=self.education_group_type_2)
         self.education_group_year_2.save()
 
     def test_find_by_id(self):
@@ -50,9 +53,6 @@ class EducationGroupYearTest(TestCase):
     def test_search(self):
         result = search(id=[self.education_group_year_1.id, self.education_group_year_2.id])
         self.assertEqual(len(result), 2)
-
-        result = search(category=self.education_group_year_2.category)
-        self.assertEqual(result.first().category, self.education_group_year_2.category)
 
         result = search(education_group_type=self.education_group_year_2.education_group_type)
         self.assertEqual(result.first().education_group_type, self.education_group_year_2.education_group_type)

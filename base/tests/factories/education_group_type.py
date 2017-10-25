@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,31 +23,19 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-from django.contrib import admin
+import factory
+import factory.fuzzy
 
+from factory.django import DjangoModelFactory
+from faker import Faker
 
-class EducationGroupTypeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', )
-    fieldsets = ((None, {'fields': ('name', 'category', )}),)
-    list_filter = ('name', 'category', )
-    search_fields = ['name', 'category']
+fake = Faker()
 
+class EducationGroupTypeFakerFactory(DjangoModelFactory):
+    class Meta:
+        model = "base.EducationGroupType"
 
-class EducationGroupType(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    category = models.CharField(max_length=255)
-    name = models.CharField(max_length=255)
+    external_id = factory.Sequence(lambda n: '10000000%02d' % n)
+    category = factory.Sequence(lambda n: 'Category - %d' % n)
+    name = factory.Sequence(lambda n: 'Type of category - %d' % n)
 
-    def __str__(self):
-        return u"%s" % self.name
-
-
-def find_all():
-    return EducationGroupType.objects.order_by('name')
-
-def find_by_category(category=None):
-    return EducationGroupType.objects.filter(category=category).order_by('name')
-
-def find_by_type(type=None):
-    return EducationGroupType.objects.filter(type=type).order_by('name')
