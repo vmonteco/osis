@@ -26,9 +26,11 @@
 import logging
 import pika
 import pika.exceptions
+import time
 
 from django.conf import settings
 from django.db.models import Prefetch
+from django.utils import timezone
 
 from osis_common.queue import queue_sender
 
@@ -86,16 +88,19 @@ def _get_all_attributions_with_charges(global_ids):
 
     return qs.prefetch_related(
             Prefetch('attributionchargenew_set',
-                     queryset= attributioncharge_prefetch,
+                     queryset=attributioncharge_prefetch,
                      to_attr='attribution_charges')
     )
 
 
 def _group_attributions_by_global_id(attribution_list):
     attributions_grouped = {}
+    computation_datetime = time.mktime(timezone.now().timetuple())
     for attribution in attribution_list:
         key = attribution.tutor.person.global_id
-        attributions_grouped.setdefault(key, {'global_id': key, 'attributions': []})
+        attributions_grouped.setdefault(key, {'global_id': key,
+                                              'computation_datetime': computation_datetime,
+                                              'attributions': []})
         attributions_grouped[key]['attributions'].extend(_split_attribution_by_learning_unit_year(attribution))
     return attributions_grouped
 
