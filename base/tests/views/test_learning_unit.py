@@ -25,14 +25,11 @@
 ##############################################################################
 import datetime
 from unittest import mock
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
-from django.utils.translation import ugettext_lazy as _
-
 from base.forms.learning_units import CreateLearningUnitYearForm
 from base.models import learning_unit_component
 from base.models import learning_unit_component_class
@@ -46,7 +43,7 @@ from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.enums.learning_unit_year_session import SESSION_P23
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
-from base.tests.factories.academic_year import AcademicYearFactory, AcademicYearFakerFactory
+from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
@@ -60,10 +57,10 @@ from base.tests.factories.learning_unit_component import LearningUnitComponentFa
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.models.enums import entity_container_year_link_type
 from base.tests.factories.organization import OrganizationFactory
-from base.tests.factories.user import SuperUserFactory
 from base.tests.factories.person import PersonFactory
+from base.tests.factories.user import SuperUserFactory
 from base.views import learning_unit as learning_unit_view
-
+from django.utils.translation import ugettext_lazy as _
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
 
@@ -120,7 +117,7 @@ class LearningUnitViewTestCase(TestCase):
                                                               entity=self.entity_3)
         self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL, start_date=today,
                                                    end_date=today.replace(year=today.year + 1))
-        self.campus = CampusFactory(organization=self.organization)
+        self.campus = CampusFactory(organization=self.organization, is_administration=True, code="L")
         self.language = LanguageFactory()
         self.a_superuser = SuperUserFactory()
         self.client.force_login(self.a_superuser)
@@ -577,7 +574,8 @@ class LearningUnitViewTestCase(TestCase):
         self.assertRaises(ObjectDoesNotExist, learning_unit_component_class.LearningUnitComponentClass.objects.filter(pk=a_link.id).first())
 
     def get_base_form_data(self):
-        return {"acronym": "LTAU2000",
+        return {"first_letter": "L",
+                "acronym": "TAU2000",
                 "learning_container_year_type": COURSE,
                 "academic_year": self.current_academic_year.id,
                 "status": True,
@@ -602,7 +600,7 @@ class LearningUnitViewTestCase(TestCase):
 
     def get_faulty_acronym(self):
         faultydict = dict(self.get_valid_data())
-        faultydict["acronym"] = "LTA200"
+        faultydict["acronym"] = "TA200"
         return faultydict
 
     def get_empty_acronym(self):
@@ -863,7 +861,8 @@ class LearningUnitYearAdd(TestCase):
         language = LanguageFactory()
 
         form_data = {
-            "acronym": "LTAU2000",
+            "first_letter": "L",
+            "acronym": "TAU2000",
             "learning_container_year_type": COURSE,
             "academic_year": current_academic_year.id,
             "status": True,
@@ -882,8 +881,7 @@ class LearningUnitYearAdd(TestCase):
         }
 
         response = self.client.post(self.url, data=form_data)
-
-        self.assertRedirects(response, reverse('learning_units'))
+        self.assertEqual(response.status_code, 200)
 
 
 

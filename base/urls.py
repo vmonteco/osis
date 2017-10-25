@@ -104,6 +104,7 @@ urlpatterns = [
                 url(u'^validation/$', learning_unit.volumes_validation, name="volumes_validation")])),
         ])),
         url(r'^check/$', learning_unit.check_acronym, name="check_acronym"),
+        url(r'^check_code/$', learning_unit.check_code, name="check_code"),
     ])),
 
     url(r'^my_osis/', include([
