@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load format %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -77,11 +78,9 @@
                         {% endif %}
                         <br><br>
                         <label>{% trans 'primary_language'%}</label><br>
-                        {% if education_group_year.primary_language.name %}
-                            {{ education_group_year.primary_language.name }}
-                        {% elif parent.primary_language.name %}
-                            <strong class="text-primary">{{ parent.primary_language.name }}</strong>
-                        {% endif %}
+                            {% if education_group_languages %}
+                                {{ education_group_languages|join_with_spaces:education_group_year.language_association }}
+                            {% endif %}
                         <br><br>
                         <label>{% trans 'other_language_activities'%}</label><br>
                         {% if education_group_year.other_language_activities %}
@@ -89,13 +88,6 @@
                         {% elif parent.other_language_activities %}
                             <strong class="text-primary">{% trans parent.other_language_activities %}</strong>
                         {% else %}
-                        {% endif %}
-                        <br><br>
-                        <label>{% trans 'language_association'%}</label><br>
-                        {% if education_group_year.language_association %}
-                            {% trans education_group_year.language_association %}
-                        {% else %}
-                            &nbsp;
                         {% endif %}
                     </div>
                     <div class="col-md-6">
@@ -128,7 +120,6 @@
                             {% endif %}
                             </strong>
                         {% endif %}
-                        <br><br>
                         <br><br>
                         <label>{% trans 'admission_exam' %}</label><br>
                         {% if education_group_year.admission_exam %}
