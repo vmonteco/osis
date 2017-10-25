@@ -569,33 +569,33 @@ def create_learning_unit_structure(additional_entity_version_1, additional_entit
         create_entity_container_year(additional_entity_version_2, new_learning_container_year,
                                      ADDITIONAL_REQUIREMENT_ENTITY_2)
     if data['learning_container_year_type'] == COURSE:
-        create_course(academic_year, form, new_learning_container_year, new_learning_unit,
+        create_course(academic_year, data, new_learning_container_year, new_learning_unit,
                       new_requirement_entity, status)
     else:
-        create_another_type(academic_year, form, new_learning_container_year, new_learning_unit,
+        create_another_type(academic_year, data, new_learning_container_year, new_learning_unit,
                             new_requirement_entity, status)
 
 
-def create_another_type(an_academic_year, form, new_learning_container_year, new_learning_unit, new_requirement_entity,
+def create_another_type(an_academic_year, data, new_learning_container_year, new_learning_unit, new_requirement_entity,
                         status):
     new_learning_component_year = create_learning_component_year(new_learning_container_year,
                                                                  "NT1", None)
     create_entity_component_year(new_requirement_entity, new_learning_component_year)
-    new_learning_unit_year = create_learning_unit_year(an_academic_year, form,
+    new_learning_unit_year = create_learning_unit_year(an_academic_year, data,
                                                        new_learning_container_year,
                                                        new_learning_unit,
                                                        status)
     create_learning_unit_component(new_learning_unit_year, new_learning_component_year, None)
 
 
-def create_course(an_academic_year, form, new_learning_container_year, new_learning_unit,
+def create_course(an_academic_year, data, new_learning_container_year, new_learning_unit,
                   new_requirement_entity, status):
     new_lecturing = create_learning_component_year(new_learning_container_year, "CM1", LECTURING)
     new_practical_exercise = create_learning_component_year(new_learning_container_year, "TP1",
                                                             PRACTICAL_EXERCISES)
     create_entity_component_year(new_requirement_entity, new_lecturing)
     create_entity_component_year(new_requirement_entity, new_practical_exercise)
-    new_learning_unit_year = create_learning_unit_year(an_academic_year, form,
+    new_learning_unit_year = create_learning_unit_year(an_academic_year, data,
                                                        new_learning_container_year,
                                                        new_learning_unit,
                                                        status)
@@ -637,7 +637,7 @@ def create_learning_container_year(academic_year, data, learning_container):
     new_learning_container_year = LearningContainerYear(academic_year=academic_year,
                                                         learning_container=learning_container,
                                                         title=data['title'],
-                                                        acronym=data['first_letter'].upper()+data['acronym'].upper(),
+                                                        acronym=data['acronym'],
                                                         container_type=data['learning_container_year_type'],
                                                         language=a_language)
     new_learning_container_year.save()
@@ -653,7 +653,7 @@ def create_entity_container_year(entity_version, learning_container_year, type):
 
 
 def create_learning_unit(data, learning_container, year):
-    new_learning_unit = LearningUnit(acronym=data['first_letter'].upper()+data['acronym'].upper(), title=data['title'],
+    new_learning_unit = LearningUnit(acronym=data['acronym'], title=data['title'],
                                      start_year=year, periodicity=data['periodicity'],
                                      learning_container=learning_container, faculty_remark=data['faculty_remark'],
                                      other_remark=data['other_remark'])
@@ -661,21 +661,21 @@ def create_learning_unit(data, learning_container, year):
     return new_learning_unit
 
 
-def create_learning_unit_year(academic_year, form, learning_container_year, learning_unit, status):
-    if form.data.get('internship_subtype'):
-        internship_subtype = form.data['internship_subtype']
+def create_learning_unit_year(academic_year, data, learning_container_year, learning_unit, status):
+    if data.get('internship_subtype'):
+        internship_subtype = data['internship_subtype']
     else:
         internship_subtype = None
     new_learning_unit_year = LearningUnitYear(academic_year=academic_year, learning_unit=learning_unit,
                                               learning_container_year=learning_container_year,
-                                              acronym=form.data['first_letter'].upper()+form.data['acronym'].upper(),
-                                              title=form.data['title'],
-                                              title_english=form.data['title_english'],
-                                              subtype=form.data['subtype'],
-                                              credits=form.data['credits'],
+                                              acronym=data['acronym'],
+                                              title=data['title'],
+                                              title_english=data['title_english'],
+                                              subtype=data['subtype'],
+                                              credits=data['credits'],
                                               internship_subtype=internship_subtype,
                                               status=status,
-                                              session=form.data['session'])
+                                              session=data['session'])
     new_learning_unit_year.save()
     return new_learning_unit_year
 

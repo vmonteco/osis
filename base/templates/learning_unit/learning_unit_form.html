@@ -39,7 +39,7 @@
 <div class="panel panel-default">
     <div class="panel-body">
         <form method="post" action="{% url 'learning_unit_year_add' %}" id="LearningUnitYearForm"
-        data-validate-url="{% url 'check_acronym'%}">
+        data-validate-url="{% url 'check_acronym'%}" code-validate-url="{% url 'check_code'%}">
             {% csrf_token %}
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -277,8 +277,9 @@
     };
 
     function setFirstLetter(){
+        var url = "?campus=" + $('#id_campus').val()
         $.ajax({
-            url: "/learning_units/check_code?campus=" + $('#id_campus').val()
+            url: form.attr("code-validate-url")+url
         }).done(function(data){
             document.getElementById('id_first_letter').value = data['code'] = data['code'];
             validate_acronym();

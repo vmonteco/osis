@@ -277,7 +277,7 @@ class CreateLearningUnitYearForm(BootstrapForm):
     status = forms.CharField(required=False, widget=forms.CheckboxInput())
     internship_subtype = forms.ChoiceField(choices=((None, "---------"),) +
                                            mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES,
-                                           required=True)
+                                           required=False)
     credits = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
     title = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
     title_english = forms.CharField(required=False, widget=forms.TextInput())
@@ -310,19 +310,23 @@ class CreateLearningUnitYearForm(BootstrapForm):
 
     acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}$"
 
+    def clean_acronym(self):
+        data_cleaned = self.data.get('first_letter')+self.cleaned_data.get('acronym')
+        if data_cleaned:
+            return data_cleaned.upper()
+
     def is_valid(self):
-        if not super(CreateLearningUnitYearForm, self).is_valid():
+        if not super().is_valid():
             return False
         try:
             academic_year = mdl.academic_year.find_academic_year_by_id(self.data.get('academic_year'))
         except ObjectDoesNotExist:
             return False
-        learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year,
-                                                                           self.data['first_letter']+self.data['acronym'])
+        learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, self.data['acronym'])
         learning_unit_years_list = [learning_unit_year.acronym.lower() for learning_unit_year in learning_unit_years]
-        if self.cleaned_data['first_letter'].lower()+self.cleaned_data['acronym'].lower() in learning_unit_years_list:
+        if self.data['acronym'] in learning_unit_years_list:
             self.add_error('acronym', _('existing_acronym'))
-        elif not re.match(self.acronym_regex, self.cleaned_data['first_letter'].upper()+self.cleaned_data['acronym'].upper()):
+        elif not re.match(self.acronym_regex, self.cleaned_data['acronym']):
             self.add_error('acronym', _('invalid_acronym'))
         elif self.cleaned_data['learning_container_year_type'] == INTERNSHIP \
                 and not (self.cleaned_data['internship_subtype']):
