@@ -162,47 +162,31 @@ def volume_learning_component_year(learning_component_year, entity_components_ye
     volume_partial = learning_component_year.hourly_volume_partial
     planned_classes = learning_component_year.planned_classes or 1
     volume_total = Decimal(volume_total_charge / planned_classes)
+    distribution = component_volume_distribution(volume_total, volume_partial)
 
-    if volume_partial == VOLUME_FOR_UNKNOWN_QUADRIMESTER:
-        volume_remaining = VOLUME_FOR_UNKNOWN_QUADRIMESTER
-    elif volume_partial is None:
-        volume_remaining = UNDEFINED_VALUE
-        volume_partial = UNDEFINED_VALUE
+    if distribution is None:
+        volume_partial = None
+        volume_remaining = None
     else:
         volume_remaining = volume_total - volume_partial
 
     return {
         'VOLUME_TOTAL': volume_total,
+        'VOLUME_QUARTER': distribution,
         'VOLUME_Q1': volume_partial,
         'VOLUME_Q2': volume_remaining,
-        'PLANNED_CLASSES': planned_classes,
-        'VOLUME_QUARTER': volume_distribution(volume_total, volume_partial)
+        'PLANNED_CLASSES': planned_classes
     }
 
 
-def volume_distribution(volume_total, volume_partial):
-    component_partial_exists = False
-    component_remaining_exists = False
-
-    if volume_partial is None or volume_partial is UNDEFINED_VALUE:
-        return UNDEFINED_VALUE
+def component_volume_distribution(volume_total, volume_partial):
+    if volume_total is None or volume_total == 0.00 or volume_partial is None:
+        return None
+    elif volume_partial == volume_total:
+        return _('partial')
+    elif volume_partial == 0.00:
+        return _('remaining')
+    elif 0.00 < volume_partial < volume_total:
+        return _('partial_remaining')
     else:
-        if volume_partial == volume_total:
-            component_partial_exists = True
-        if volume_partial == 0.00:
-            component_remaining_exists = True
-        if volume_partial == VOLUME_FOR_UNKNOWN_QUADRIMESTER:
-            return _('partial_or_remaining')
-        if (volume_partial > 0.00) and (volume_partial < volume_total):
-            return _('partial_remaining')
-
-        if component_partial_exists:
-            if component_remaining_exists:
-                return _('partial_remaining')
-            else:
-                return _('partial')
-        else:
-            if component_remaining_exists:
-                return _('remaining')
-
-    return None
+        return None
