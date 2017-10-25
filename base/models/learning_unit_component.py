@@ -24,10 +24,8 @@
 #
 ##############################################################################
 from django.db import models
-from django.db.models import Prefetch
 
 from base.models.enums import component_type
-from base.models.learning_unit_component_class import LearningUnitComponentClass
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
@@ -60,7 +58,7 @@ def find_by_learning_year_type(a_learning_unit_year=None, a_type=None):
         try:
             return LearningUnitComponent.objects.get(learning_unit_year=a_learning_unit_year,
                                                      type=a_type)
-        except ObjectDoesNotExist:
+        except LearningUnitComponent.ObjectDoesNotExist:
             return None
     return None
 

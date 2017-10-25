@@ -25,7 +25,6 @@
 ##############################################################################
 from django.db import models
 
-from attribution.models import attribution_new
 from osis_common.models.auditable_model import AuditableModel, AuditableModelAdmin
 
 
