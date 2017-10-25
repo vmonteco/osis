@@ -30,8 +30,6 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
-from django.utils.translation import ugettext_lazy as _
-
 from base.forms.learning_units import CreateLearningUnitYearForm
 from base.models import learning_unit_component
 from base.models import learning_unit_component_class
@@ -56,14 +54,13 @@ from base.tests.factories.learning_component_year import LearningComponentYearFa
 from base.tests.factories.learning_container import LearningContainerFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
-from base.tests.factories.entity_component_year import EntityComponentYearFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.models.enums import entity_container_year_link_type
 from base.tests.factories.organization import OrganizationFactory
+from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import SuperUserFactory
 from base.views import learning_unit as learning_unit_view
 from django.utils.translation import ugettext_lazy as _
-
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
 
