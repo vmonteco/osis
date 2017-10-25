@@ -26,15 +26,16 @@
 import re
 from django.db import models
 
+from base.models.enums.learning_unit_year_subtypes import PARTIM, FULL
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
-from base.models import entity_container_year
+from base.models import entity_container_year, learning_component_year, learning_unit_enrollment
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type
 
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
-REGEX_ACRONYM_CHARSET = "[A-Z0-9"+ AUTHORIZED_REGEX_CHARS +"]+"
+REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
 
 class LearningUnitYearAdmin(SerializableModelAdmin):
     list_display = ('external_id', 'acronym', 'title', 'academic_year', 'credits', 'changed', 'structure', 'status')
@@ -102,6 +103,17 @@ class LearningUnitYear(SerializableModel):
             learning_container_year=self.learning_container_year
         ).first()
         return entity_container_yr.entity if entity_container_yr else None
+
+    def delete(self, msg=[], *args, **kwargs):
+        if self.is_deletable(msg):
+            return super().delete(args, kwargs)
+
+    def is_deletable(self, msg):
+        for l_unit_enrollment in learning_unit_enrollment.find_by_learning_unit_year(self):
+            msg.append("-> Error : {}".format(l_unit_enrollment))
+        if self.subtype == FULL:
+            self.learning_container_year.is_deletable(msg)
+        return not msg
 
 
 def find_by_id(learning_unit_year_id):

@@ -75,6 +75,11 @@ class LearningComponentYear(models.Model):
     def real_classes(self):
         return len(learning_class_year.find_by_learning_component_year(self))
 
+    def is_deletable(self, msg):
+        for l_class_year in learning_class_year.find_by_learning_component_year(self):
+            msg.append("l_class_year : " + l_class_year.acronym)
+        return not msg
+
 
 def find_by_id(learning_component_year_id):
     return LearningComponentYear.objects.get(pk=learning_component_year_id)

@@ -27,6 +27,11 @@ from django.test import TestCase
 from django.utils import timezone
 from attribution.models import attribution
 from base.models import learning_unit_year
+from base.models.enums.learning_unit_year_subtypes import PARTIM, FULL
+from base.tests.factories.learning_class_year import LearningClassYearFactory
+from base.tests.factories.learning_component_year import LearningComponentYearFactory
+from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
+from base.tests.factories.learning_unit_enrollment import LearningUnitEnrollmentFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
@@ -70,3 +75,26 @@ class LearningUnitYearTest(TestCase):
         query_result_valid=learning_unit_year.search(acronym=regex_valid)
         self.assertEqual(len(query_result_valid), 1)
         self.assertEqual(self.learning_unit_year.acronym, query_result_valid[0].acronym)
+
+    def test_is_deletable(self):
+        l_container_year = LearningContainerYearFactory(acronym="LBIR1212", academic_year=self.academic_year)
+        l_unit_1 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
+                                           academic_year=self.academic_year, subtype=FULL)
+        msg = []
+        self.assertTrue(l_unit_1.is_deletable(msg))
+        self.assertEqual(msg, [])
+
+        l_unit_2 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
+                                           academic_year=self.academic_year, subtype=PARTIM)
+
+        l_enrollement_1 = LearningUnitEnrollmentFactory(learning_unit_year=l_unit_1)
+
+        self.assertFalse(l_unit_1.is_deletable(msg))
+        print(msg)
+
+        msg = []
+        component = LearningComponentYearFactory(learning_container_year=l_container_year)
+        LearningClassYearFactory(learning_component_year=component)
+
+        self.assertFalse(l_unit_1.is_deletable(msg))
+        print(msg)

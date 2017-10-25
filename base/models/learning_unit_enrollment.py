@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.db import models
+
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
@@ -71,3 +72,8 @@ def find_by_student(a_student):
 
 def find_by_offer_enrollment(an_offer_enrollment):
     return LearningUnitEnrollment.objects.filter(offer_enrollment=an_offer_enrollment)
+
+
+def find_by_learning_unit_year(a_learning_unit_year):
+    return LearningUnitEnrollment.objects.filter(learning_unit_year=a_learning_unit_year)
+

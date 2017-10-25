@@ -32,9 +32,13 @@ from base.models.enums import learning_unit_year_subtypes
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from django.utils import timezone
 
 
 class LearningContainerYearTest(TestCase):
+    def setUp(self):
+        self.academic_year = AcademicYearFactory(year=timezone.now().year)
+
     def test_find_by_id_with_id(self):
         l_container_year = LearningContainerYearFactory()
         self.assertEqual(l_container_year, learning_container_year.find_by_id(l_container_year.id))
@@ -43,3 +47,16 @@ class LearningContainerYearTest(TestCase):
         with self.assertRaises(ValueError):
             learning_container_year.find_by_id("BAD VALUE")
 
+    def test_is_deletable(self):
+        l_container_year = LearningContainerYearFactory()
+        l_unit_1 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
+                                           academic_year=self.academic_year, subtype=learning_unit_year_subtypes.FULL)
+        msg = []
+        self.assertTrue(l_container_year.is_deletable(msg))
+        self.assertListEqual(msg, [])
+
+        l_unit_2 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
+                                           academic_year=self.academic_year, subtype=learning_unit_year_subtypes.PARTIM)
+
+        self.assertFalse(l_container_year.is_deletable(msg))
+        self.assertEqual(msg[0], '-> Error : a partim LBIR1212 is linked to the learning unit ')

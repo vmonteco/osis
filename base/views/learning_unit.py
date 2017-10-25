@@ -84,7 +84,7 @@ def learning_units(request):
 def learning_unit_identification(request, learning_unit_year_id):
     context = _get_common_context_learning_unit_year(learning_unit_year_id)
     learning_unit_year = context['learning_unit_year']
-    context['learning_container_year_partims'] = _get_partims_related(learning_unit_year)
+    context['learning_container_year_partims'] = learning_unit_year.learning_container_year.get_partims_related()
     context['organization'] = _get_organization_from_learning_unit_year(learning_unit_year)
     context['campus'] = _get_campus_from_learning_unit_year(learning_unit_year)
     context['experimental_phase'] = True
@@ -151,6 +151,23 @@ def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
     if errors:
         for error_msg in errors:
             messages.add_message(request, messages.ERROR, error_msg)
+
+@login_required
+@permission_required('base.can_delete_learningunit', raise_exception=True)
+def learning_unit_delete(request, learning_unit_year_id):
+    learning_unit_year = mdl.learning_unit_year.find_by_id(learning_unit_year_id)
+    partims = learning_unit_year.learning_container_year.get_partims_related()
+    classes = []
+    registered_students = []
+    if partims:
+        messages.add_message(request, messages.WARNING, '{} : {}'.format(_('existing_partims'), str(partims)))
+    elif classes:
+        messages.add_message(request, messages.WARNING, '{} : {}'.format(_('existing_classes'), str(classes)))
+    elif registered_students:
+        messages.add_message(request, messages.WARNING, '{} : {}'.format(_('existing_registered_student'),
+                                                                         str(registered_students)))
+    else:
+        learning_unit_year.delete()
 
 
 def _extract_volumes_from_data(request):
@@ -330,7 +347,8 @@ def _get_common_context_learning_unit_year(learning_unit_year_id):
 def get_same_container_year_components(learning_unit_year, with_classes=False):
     learning_container_year = learning_unit_year.learning_container_year
     components = []
-    learning_components_year = mdl.learning_component_year.find_by_learning_container_year(learning_container_year, with_classes)
+    learning_components_year = mdl.learning_component_year.find_by_learning_container_year(learning_container_year,
+                                                                                           with_classes)
 
     for learning_component_year in learning_components_year:
         if learning_component_year.classes:
@@ -349,14 +367,6 @@ def get_same_container_year_components(learning_unit_year, with_classes=False):
                            'used_by_learning_unit': used_by_learning_unit
                            })
     return components
-
-
-def _get_partims_related(learning_unit_year):
-    learning_container_year = learning_unit_year.learning_container_year
-    if learning_container_year:
-        return mdl.learning_unit_year.search(learning_container_year_id=learning_container_year,
-                                             subtype=learning_unit_year_subtypes.PARTIM)\
-            .exclude(learning_container_year__isnull=True).order_by('acronym')
 
 
 def _show_subtype(learning_unit_year):

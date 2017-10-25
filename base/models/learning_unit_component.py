@@ -23,7 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+
+from base.models import learning_class_year
 from base.models.enums import component_type
 from base.models.learning_unit_component_class import LearningUnitComponentClass
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
@@ -51,6 +54,11 @@ class LearningUnitComponent(SerializableModel):
         permissions = (
             ("can_access_learningunit", "Can access learning unit"),
         )
+
+    def is_deletable(self, msg):
+        for l_class_year in learning_class_year.find_by_learning_component_year(self):
+            msg.append("l_class_year : "+ l_class_year.acronym)
+        return not msg
 
 
 def find_by_learning_year_type(a_learning_unit_year=None, a_type=None):

@@ -65,6 +65,7 @@ class LearningUnit(SerializableModel):
             ("can_access_learningunit", "Can access learning unit"),
             ("can_edit_learningunit_pedagogy", "Can edit learning unit pedagogy"),
             ("can_edit_learningunit_specification", "Can edit learning unit specification"),
+            ("can_delete_learningunit", "Can delete learning unit"),
         )
 
 
