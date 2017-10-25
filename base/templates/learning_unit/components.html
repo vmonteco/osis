@@ -46,7 +46,6 @@
                             <th>{% trans 'code' %}</th>
                             <th>{% trans 'description' %}</th>
                             <th>{% trans 'volume' %}</th>
-                            <th>{% trans 'volume_quarter' %}</th>
                             <th>{% trans 'volume_partial' %}</th>
                             <th>{% trans 'volume_remaining' %}</th>
                             <th>{% trans 'real_on_planned_classrooms' %}</th>
@@ -87,7 +86,6 @@
                                 </span>
                             </td>
                             <td>{{ component.volumes.VOLUME_TOTAL | default_if_none:''}}</td>
-                            <td>{{ component.volumes.VOLUME_QUARTER | default_if_none:'' }}</td>
                             <td>{{ component.volumes.VOLUME_Q1 | default_if_none:'' }}</td>
                             <td>{{ component.volumes.VOLUME_Q2 | default_if_none:'' }}</td>
                             <td>
