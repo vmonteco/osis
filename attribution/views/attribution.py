@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
+from rest_framework import serializers
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -31,10 +31,17 @@ from rest_framework.decorators import api_view
 from attribution.business import attribution_json
 
 
+class RecomputePortalSerializer(serializers.Serializer):
+    global_ids = serializers.ListField(child=serializers.CharField(), required=False)
+
+
 @api_view(['POST'])
 def recompute_portal(request):
-    result = attribution_json.publish_to_portal()
-    if result:
-        return Response(status=status.HTTP_202_ACCEPTED)
+    serializer = RecomputePortalSerializer(data=request.POST)
+    if serializer.is_valid():
+        global_ids = serializer.data['global_ids'] if serializer.data['global_ids'] else None
+        result = attribution_json.publish_to_portal(global_ids)
+        if result:
+            return Response(status=status.HTTP_202_ACCEPTED)
     return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
