@@ -2178,5 +2178,8 @@ msgstr "Separate diploma"
 msgid "NOT_CONCERNED"
 msgstr "Not concerned"
 
+msgid "organization_address_save_error"
+msgstr "Impossible to save the organization address"
+
 msgid "category"
 msgstr "Category"
