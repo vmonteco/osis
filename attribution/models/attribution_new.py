@@ -24,37 +24,35 @@
 #
 ##############################################################################
 from django.db import models
-from base.models.enums.organization_type import MAIN
-from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
+
+from osis_common.models.auditable_model import AuditableModelAdmin, AuditableModel
+
+from attribution.models.enums import function
 
 
-class CampusAdmin(SerializableModelAdmin):
-    list_display = ('name', 'organization', 'changed')
-    list_filter = ('organization',)
-    fieldsets = ((None, {'fields': ('name', 'organization', 'code', 'is_administration')}),)
-    search_fields = ['name', 'organization__name']
+class AttributionNewAdmin(AuditableModelAdmin):
+    list_display = ('tutor', 'score_responsible', 'function', 'learning_container_year', 'start_year', 'end_year', 'changed')
+    list_filter = ('learning_container_year__academic_year', 'score_responsible')
+    fieldsets = ((None, {'fields': ('learning_container_year', 'tutor', 'score_responsible', 'start_year', 'end_year')}),)
+    raw_id_fields = ('learning_container_year', 'tutor')
+    search_fields = ['tutor__person__first_name', 'tutor__person__last_name', 'learning_container_year__acronym',
+                     'tutor__person__global_id', 'function']
 
 
-class Campus(SerializableModel):
+class AttributionNew(AuditableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
-    name = models.CharField(max_length=100, blank=True, null=True)
-    organization = models.ForeignKey('Organization')
-    code = models.CharField(max_length=1, blank=True, null=True)
-    is_administration = models.BooleanField(default=False)
+    learning_container_year = models.ForeignKey('base.LearningContainerYear')
+    tutor = models.ForeignKey('base.Tutor')
+    function = models.CharField(max_length=35, blank=True, null=True, choices=function.FUNCTIONS, db_index=True)
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
+    start_year = models.IntegerField(blank=True, null=True)
+    end_year = models.IntegerField(blank=True, null=True)
+    score_responsible = models.BooleanField(default=False)
 
     def __str__(self):
-        return u"%s" % self.name
+        return u"%s - %s" % (self.tutor.person, self.function)
 
-
-def find_by_organization(organization):
-    return Campus.objects.filter(organization=organization)\
-                         .order_by('name')
-
-
-def find_administration_campuses():
-    return Campus.objects.filter(organization__type=MAIN, is_administration=True).order_by('name')
-
-
-def find_by_id(campus_id):
-    return Campus.objects.get(id=campus_id)
+    class Meta:
+        unique_together = ('learning_container_year', 'tutor', 'function')
