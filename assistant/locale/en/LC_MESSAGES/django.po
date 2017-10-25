@@ -362,6 +362,15 @@ msgstr "Exercises, workshops, seminars - associated with hours of volume 2, whic
 msgid "mandate"
 msgstr "Mandate"
 
+msgid "mandate_edit"
+msgstr "Mandate edition"
+
+msgid "mandate_reviews_view"
+msgstr "Reviews"
+
+msgid "mandate_view"
+msgstr "Assistant file and opinion"
+
 msgid "mandates"
 msgstr "Mandates"
 
@@ -373,9 +382,6 @@ msgstr "List of mandates"
 
 msgid "matricule_number"
 msgstr "Registration number"
-
-msgid "mandate_view"
-msgstr "Assistant file and opinion"
 
 msgid "must_enter_supervisor_if_registered_or_in_progress"
 msgstr "The promoter must be identified"
