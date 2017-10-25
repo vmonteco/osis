@@ -86,11 +86,13 @@ def _get_all_attributions_with_charges(global_ids):
     else:
         qs = mdl_attribution.attribution_new.search()
 
-    return qs.prefetch_related(
-            Prefetch('attributionchargenew_set',
-                     queryset=attributioncharge_prefetch,
-                     to_attr='attribution_charges')
-    )
+    return qs.exclude(tutor__person__global_id__isnull=True)\
+             .exclude(tutor__person__global_id="")\
+             .prefetch_related(
+                    Prefetch('attributionchargenew_set',
+                             queryset=attributioncharge_prefetch,
+                             to_attr='attribution_charges')
+            )
 
 
 def _group_attributions_by_global_id(attribution_list):
