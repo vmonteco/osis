@@ -2183,3 +2183,13 @@ msgstr "Diplôme séparé"
 
 msgid "NOT_CONCERNED"
 msgstr "Non concerné"
+
+msgid "organization_address_save_error"
+msgstr "Impossible d'enregistrer l'adresse de l'organisation"
+
+msgid "i_confirm_and_am_aware"
+msgstr "Oui, je confirme et je suis conscient des conséquences."
+
+msgid "msg_modal_delete_learning_unit"
+msgstr "<p>Cette opération est <b>permanente</b> et ne peut pas être défaite. Vous perdrez à jamais"
+       " les données liées à l'UE <b>%s</b>.</p>"

@@ -1,3 +1,5 @@
+{% load i18n %}
+{% load format %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -14,7 +16,7 @@
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* M{% load format %}ERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
 *
 * A copy of this license - GNU General Public License - is available
@@ -44,7 +46,51 @@
             </li>
         </ul>
     </div>
+
+    <div class="col-md-2 col-md-offset-10">
+      <div class="dropdown">
+        <button id="dLabel" class="btn btn-default" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> {% trans 'actions'  %}
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dLabel">
+          {% if "base" in perms %}
+            {% if "base.delete_learningunit" in perms %}
+          <!-- Trigger modal for deletion of learning unit -->
+          <li><a href="#" data-toggle="modal" data-target="#modalDelete">{% trans 'delete' %}</a></li>
+            {% endif %}
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+
 </div>
+
+{% if "base" in perms %}
+  {% if "base.delete_learningunit" in perms %}
+<!-- Modal for deletion of UE-->
+<div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="modalDeleteLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="modalDeleteLabel">{% trans 'are_you_sure' %}</h4>
+      </div>
+      <div class="modal-body">
+        {% trans 'msg_modal_delete_learning_unit' as msg_modal_delete_learning_unit %}{{ msg_modal_delete_learning_unit | format:learning_unit_year.acronym | safe}}
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-warning">
+          {% trans 'i_confirm_and_am_aware' %}
+        </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'cancel' %}</button>
+      </div>
+    </div>
+  </div>
+</div>
+  {% endif %}
+{% endif %}
 
 <script type="text/javascript">
     var removeNavButtons = function() {
@@ -108,4 +154,3 @@
         removeNavButtons();
     }
 </script>
-

@@ -2177,3 +2177,13 @@ msgstr "Separate diploma"
 
 msgid "NOT_CONCERNED"
 msgstr "Not concerned"
+
+msgid "organization_address_save_error"
+msgstr "Impossible to save the organization address"
+
+msgid "i_confirm_and_am_aware"
+msgstr "Yes, I confirm and am aware of the consequences."
+
+msgid "msg_modal_delete_learning_unit"
+msgstr "<p>This operation is <b>permanent</b> and cannot be undone. You will lose for ever"
+       " the data linked to the learning unit <b>%s</b>.</p>"
