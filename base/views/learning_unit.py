@@ -30,7 +30,6 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.views.decorators.http import require_http_methods, require_POST
-
 from base import models as mdl
 from base.business import learning_unit_year_volumes
 from base.business import learning_unit_year_with_context
@@ -330,30 +329,25 @@ def learning_unit_year_add(request):
         academic_year = data['academic_year']
         year = academic_year.year
         status = data['status'] == 'on'
-        additional_entity_version_1 = None
-        additional_entity_version_2 = None
-        allocation_entity_version = None
-        requirement_entity_version = data['requirement_entity']
-        if data.get('allocation_entity'):
-            allocation_entity_version = data['allocation_entity']
-        if data.get('additional_entity_1'):
-            additional_entity_version_1 = data['additional_entity_1']
-        if data.get('additional_entity_2'):
-            additional_entity_version_2 = data['additional_entity_2']
+        additional_entity_version_1 = data.get('additional_entity_1')
+        additional_entity_version_2 = data.get('additional_entity_2')
+        allocation_entity_version = data.get('allocation_entity')
+        requirement_entity_version = data.get('requirement_entity')
+
         new_learning_container = LearningContainer.objects.create(start_year=year)
         new_learning_unit = create_learning_unit(data, new_learning_container, year)
         while year < starting_academic_year.year + LEARNING_UNIT_CREATION_SPAN_YEARS:
             academic_year = mdl.academic_year.find_academic_year_by_year(year)
             create_learning_unit_structure(additional_entity_version_1, additional_entity_version_2,
-                                           allocation_entity_version, data, form, new_learning_container,
+                                           allocation_entity_version, data, new_learning_container,
                                            new_learning_unit, requirement_entity_version, status, academic_year)
             year = year+1
         return redirect('learning_units')
     else:
         return layout.render(request, "learning_unit/learning_unit_form.html", {'form': form})
 
-
 @login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
 def check_acronym(request):
     acronym = request.GET['acronym']
     year_id = request.GET['year_id']
@@ -379,6 +373,14 @@ def check_acronym(request):
                          'existed_acronym': existed_acronym,
                          'last_using': last_using}, safe=False)
 
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+def check_code(request):
+    campus_id = request.GET['campus']
+    campus = mdl.campus.find_by_id(campus_id)
+    return JsonResponse({'code': campus.code}, safe=False)
 
 
 @login_required
