@@ -52,41 +52,41 @@
             <div class="row">
                 <div class="col-md-2">
                     <label>{% trans 'fgs' %}</label><br>
-                    {{ person.global_id }}
+                    <span id="fgs">{{ person.global_id }}</span>
                 </div>
                 <div class="col-md-3">
                     <label>{% trans 'firstname' %}</label><br>
-                    {{ person.first_name }}
+                    <span id="first_name">{{ person.first_name }}</span>
                     {% if person.middle_name %}
-                        {{ person.middle_name }}
+                        <span id="middle_name">{{ person.middle_name }}</span>
                     {% endif %}
                 </div>
                 <div class="col-md-3">
                     <label>{% trans 'lastname' %}</label><br>
-                    {{ person.last_name }}
+                    <span id="last_name">{{ person.last_name }}</span>
                 </div>
                 <div class="col-md-1">
                     <label>{% trans 'gender' %}</label><br>
-                    {{ person.gender }}
+                    <span id="gender">{{ person.gender }}</span>
                 </div>
             </div>
             <br>
             <div class="row">
                 <div class="col-md-4">
                     <label>{% trans 'email' %}</label><br>
-                    {{ person.email | default_if_none:'-' }}
+                    <span id="email">{{ person.email | default_if_none:'-' }}</span>
                 </div>
                 <div class="col-md-3">
                     <label>{% trans 'fixed_line_phone' %}</label><br>
-                    {{ person.phone | default_if_none:'-' }}
+                    <span id="phone">{{ person.phone | default_if_none:'-' }}</span>
                 </div>
                 <div class="col-md-2">
                     <label>{% trans 'mobile_phone' %}</label><br>
-                    {{ person.phone_mobile | default_if_none:'-' }}
+                    <span id="mobile_phone">{{ person.phone_mobile | default_if_none:'-' }}</span>
                 </div>
                 <div class="col-md-2">
                     <label>{% trans 'language' %}</label><br>
-                    {{ person.language | default_if_none:'-' }}
+                    <span id="language">{{ person.language | default_if_none:'-' }}</span>
                 </div>
             </div>
             {% if addresses %}
@@ -95,12 +95,12 @@
                 <div class="list-group">
                     {% for address in addresses %}
                         <a href="#" class="list-group-item">
-                            <h4 class="list-group-item-heading">{{ address.label | default_if_none:'' }}</h4>
+                            <h4 class="list-group-item-heading" id="address_label_{{ forloop.counter0 }}">{{ address.label | default_if_none:'' }}</h4>
                             <p class="list-group-item-text">
-                                <address>
-                                    {{ address.location | default_if_none:'' }}<br>
-                                    {{ address.postal_code | default_if_none:'' }} {{ address.city | default_if_none:''}} <br>
-                                    {{ address.country | default_if_none:'' }}
+                                <address id="address_{{ forloop.counter0 }}">
+                                    <span id="address_location_{{ forloop.counter0 }}">{{ address.location | default_if_none:'' }}</span><br>
+                                    <span id="address_zip_code_{{ forloop.counter0 }}">{{ address.postal_code | default_if_none:'' }}</span> <span id="address_city_{{ forloop.counter0 }}">{{ address.city | default_if_none:''}}</span><br>
+                                    <span id="address_country_{{ forloop.counter0 }}">{{ address.country | default_if_none:'' }}</span>
                                 </address>
                             </p>
                         </a>

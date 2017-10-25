@@ -18,3 +18,7 @@ gitpython
 requests==2.18.3
 
 -r ./osis_common/requirements.txt
+
+behave
+behave_django
+selenium

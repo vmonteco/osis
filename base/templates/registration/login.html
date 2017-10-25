@@ -28,7 +28,7 @@
 {% block content %}
   <h1>{% trans 'log-in' %}</h1>
   {% if form.errors %}
-    <p class="text-danger">
+    <p class="text-danger" id="login-errors">
       {% trans 'msg_error_username_password_not_matching' %}
     </p>
   {% endif %}
