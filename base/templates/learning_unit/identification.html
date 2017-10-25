@@ -203,7 +203,9 @@
                                   <input type="text" class="form-control" id="inputAcronym">
                                 </div>
 
-                                <button type="button" class="btn btn-warning">Oui, je confirme et je suis conscient des conséquences.</button>
+                                <button type="button" class="btn btn-warning" disabled="disabled" id="btnConfirmDelete">
+                                  Oui, je confirme et je suis conscient des conséquences.
+                                </button>
 
                             </form>
 
@@ -220,4 +222,18 @@
         </div>
     </div>
 </div>
+{% endblock %}
+{% block script %}
+<script type="text/javascript">
+  $( document ).ready(function() {
+    const learningUnitAcronym = "{{ learning_unit_year.acronym }}";
+    $("#inputAcronym").on('input', function(){
+      if(this.value === learningUnitAcronym){
+        $("#btnConfirmDelete").prop("disabled", false);
+      } else {
+        $("#btnConfirmDelete").prop("disabled", "disabled");
+      }
+    });
+  });
+</script>
 {% endblock %}
