@@ -2177,3 +2177,6 @@ msgstr "Separate diploma"
 
 msgid "NOT_CONCERNED"
 msgstr "Not concerned"
+
+msgid "category"
+msgstr "Category"

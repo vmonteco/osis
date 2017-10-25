@@ -54,7 +54,7 @@
                      {{form.title}}
                 </div>
                  <div class="col-md-3">
-                    <label for="id_of_type">{% trans 'of_category'%}</label>
+                    <label for="id_of_type">{% trans 'category'%}</label>
                      {{form.category}}
                 </div>
                 <div class="col-md-2">
@@ -66,6 +66,20 @@
                 <div class="col-md-2">
                     <label for="id_entity">{% trans 'entity_management' %}</label>
                     {{ form.entity_management }}
+                </div>
+                <div class="col-md-2">
+                    <label for="id_requirement_entity_acronym">{% trans 'requirement_entity_small' %}</label>
+                    {{ form.requirement_entity_acronym }}
+                </div>
+                <div class="col-md-7">
+                    <div style="display:inline-block;">
+                        <input type="checkbox" id="id_with_entity_subordinated"
+                               name="with_entity_subordinated" style="margin-top:37px;"
+                               {% if request.GET.with_entity_subordinated and 'on' == request.GET.with_entity_subordinated %}
+                        checked
+                        {% endif %} >
+                        <label>{% trans 'with_entity_subordinated_small' %}</label>
+                    </div>
                 </div>
                 <div class="col-md-10 text-right" style="line-height:55px;">
                     <button type="submit" id="bt_submit_education_groups_search"
