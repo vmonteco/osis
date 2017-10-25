@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% load format %}
 {% load staticfiles %}
 {% load i18n %}
 {% load learning_unit %}
@@ -189,29 +190,27 @@
                         <div class="modal-content">
                           <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title" id="modalDeleteLabel">Etes-vous sur ?</h4>
+                            <h4 class="modal-title" id="modalDeleteLabel">{% trans 'are_you_sure' %}</h4>
                           </div>
                           <div class="modal-body">
-                            <p>Cette opération est <b>permanente</b> et ne peut pas être défaite. Vous perdrez à jamais
-                              les données liées à l'UE <b>{{learning_unit_year.acronym}}</b>.
-                             </p>
+                            {% trans 'msg_modal_delete_learning_unit' as msg_modal_delete_learning_unit %}{{ msg_modal_delete_learning_unit | format:learning_unit_year.acronym | safe}}
 
                             <form method="post">
                                 {% csrf_token %}
                                 <div class="form-group">
-                                  <label for="inputAcronym" style="font-weight:normal">Taper l'acronyme de l'UE pour confirmer:</label>
+                                  <label for="inputAcronym" style="font-weight:normal">{% trans 'type_acronym_to_delete' %}</label>
                                   <input type="text" class="form-control" id="inputAcronym">
                                 </div>
 
                                 <button type="button" class="btn btn-warning" disabled="disabled" id="btnConfirmDelete">
-                                  Oui, je confirme et je suis conscient des conséquences.
+                                  {% trans 'i_confirm_and_am_aware' %}
                                 </button>
 
                             </form>
 
                           </div>
                           <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'cancel' %}</button>
                           </div>
                         </div>
                       </div>
