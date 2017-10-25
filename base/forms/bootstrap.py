@@ -43,4 +43,6 @@ class BootstrapForm(forms.Form):
 def set_form_control(self):
     for field in iter(self.fields):
         attr_class = self.fields[field].widget.attrs.get('class') or ''
-        self.fields[field].widget.attrs['class'] = attr_class + ' form-control'
+        # Exception because we don't apply form-control on widget checkbox
+        if self.fields[field].widget.template_name != 'django/forms/widgets/checkbox.html':
+            self.fields[field].widget.attrs['class'] = attr_class + ' form-control'
