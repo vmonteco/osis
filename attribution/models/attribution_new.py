@@ -26,13 +26,12 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from attribution.business import attribution_json
 from osis_common.models.auditable_model import AuditableModelAdmin, AuditableModel
-
 from attribution.models.enums import function
 
 
 def published_to_portal(modeladmin, request, queryset):
+    from attribution.business import attribution_json
     global_ids = list(queryset.values_list('tutor__person__global_id', flat=True))
     return attribution_json.publish_to_portal(global_ids)
 published_to_portal.short_description = _("publish_attribution_to_portal")

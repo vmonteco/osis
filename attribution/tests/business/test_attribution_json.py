@@ -29,8 +29,7 @@ from decimal import Decimal
 from django.test import TestCase
 
 
-from base.models.learning_unit_component import LearningUnitComponent
-from base.models.learning_unit_year import LearningUnitYear
+
 from base.models.enums import learning_component_year_type, learning_unit_year_subtypes
 
 from attribution.business import attribution_json
@@ -99,6 +98,7 @@ class AttributionJsonTest(TestCase):
 
     def test_learning_unit_in_charge_false(self):
         # Set learning unit year [LBIR1210] in charge to false
+        from base.models.learning_unit_year import LearningUnitYear
         LearningUnitYear.objects.filter(acronym='LBIR1210', academic_year=self.academic_year).update(in_charge=False)
 
         attrib_list = attribution_json._compute_list()
@@ -158,6 +158,8 @@ def _create_learning_unit_year_with_components(academic_year, l_container, acron
 
 
 def _create_attribution_charge(academic_year, attribution, l_acronym, volume_cm=None, volume_tp=None):
+    from base.models.learning_unit_component import LearningUnitComponent
+
     if volume_cm is not None:
         l_unit_component = LearningUnitComponent.objects.filter(
             learning_unit_year__acronym=l_acronym,
