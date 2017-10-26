@@ -43,19 +43,11 @@ logger = logging.getLogger(settings.DEFAULT_LOGGER)
 
 def publish_to_portal(global_ids=None):
     attribution_list = _compute_list(global_ids)
-    credentials = pika.PlainCredentials(settings.QUEUES.get('QUEUE_USER'),
-                                        settings.QUEUES.get('QUEUE_PASSWORD'))
-    rabbit_settings = pika.ConnectionParameters(settings.QUEUES.get('QUEUE_URL'),
-                                                settings.QUEUES.get('QUEUE_PORT'),
-                                                settings.QUEUES.get('QUEUE_CONTEXT_ROOT'),
-                                                credentials)
     queue_name = settings.QUEUES.get('QUEUES_NAME', {}).get('ATTRIBUTION_RESPONSE')
 
     if queue_name:
         try:
-            connect = pika.BlockingConnection(rabbit_settings)
-            channel = connect.channel()
-            queue_sender.send_message(queue_name, attribution_list, connect, channel)
+            queue_sender.send_message(queue_name, attribution_list)
         except (RuntimeError, pika.exceptions.ConnectionClosed, pika.exceptions.ChannelClosed,
                  pika.exceptions.AMQPError):
             logger.exception('Could not recompute attributions for portal...')
