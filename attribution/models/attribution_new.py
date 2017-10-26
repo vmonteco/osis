@@ -30,13 +30,6 @@ from osis_common.models.auditable_model import AuditableModelAdmin, AuditableMod
 from attribution.models.enums import function
 
 
-def published_to_portal(modeladmin, request, queryset):
-    from attribution.business import attribution_json
-    global_ids = list(queryset.values_list('tutor__person__global_id', flat=True))
-    return attribution_json.publish_to_portal(global_ids)
-published_to_portal.short_description = _("publish_attribution_to_portal")
-
-
 class AttributionNewAdmin(AuditableModelAdmin):
     list_display = ('tutor', 'score_responsible', 'function', 'learning_container_year', 'start_year', 'end_year', 'changed')
     list_filter = ('learning_container_year__academic_year', 'score_responsible')
@@ -44,7 +37,13 @@ class AttributionNewAdmin(AuditableModelAdmin):
     raw_id_fields = ('learning_container_year', 'tutor')
     search_fields = ['tutor__person__first_name', 'tutor__person__last_name', 'learning_container_year__acronym',
                      'tutor__person__global_id', 'function']
-    actions = [published_to_portal]
+    actions = ['publish_attribution_to_portal']
+
+    def publish_attribution_to_portal(self, request, queryset):
+        from attribution.business import attribution_json
+        global_ids = list(queryset.values_list('tutor__person__global_id', flat=True))
+        return attribution_json.publish_to_portal(global_ids)
+    publish_attribution_to_portal.short_description = _("publish_attribution_to_portal")
 
 
 class AttributionNew(AuditableModel):

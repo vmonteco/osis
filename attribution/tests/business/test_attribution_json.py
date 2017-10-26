@@ -93,7 +93,7 @@ class AttributionJsonTest(TestCase):
         self.assertEqual(len(attrib_tutor_2['attributions']), 1)
         self.assertEqual(attrib_tutor_2['attributions'][0]['acronym'], "LBIR1210B")
         self.assertEqual(attrib_tutor_2['attributions'][0]['function'], function.CO_HOLDER)
-        self.assertEqual(attrib_tutor_2['attributions'][0][learning_component_year_type.LECTURING + '_CHARGE'], "7.5")
+        self.assertEqual(attrib_tutor_2['attributions'][0][learning_component_year_type.LECTURING], "7.5")
         self.assertRaises(KeyError, lambda: attrib_tutor_2['attributions'][0][learning_component_year_type.PRACTICAL_EXERCISES + '_CHARGE'])
 
     def test_learning_unit_in_charge_false(self):
@@ -112,8 +112,8 @@ class AttributionJsonTest(TestCase):
         self.assertEqual(len(attrib_tutor_1['attributions']), 1)
         self.assertEqual(attrib_tutor_1['attributions'][0]['acronym'], "LBIR1210A")
         self.assertEqual(attrib_tutor_1['attributions'][0]['function'], function.HOLDER)
-        self.assertEqual(attrib_tutor_1['attributions'][0][learning_component_year_type.PRACTICAL_EXERCISES + '_CHARGE'], "5.0")
-        self.assertRaises(KeyError, lambda: attrib_tutor_1['attributions'][0][learning_component_year_type.LECTURING + '_CHARGE'])
+        self.assertEqual(attrib_tutor_1['attributions'][0][learning_component_year_type.PRACTICAL_EXERCISES], "5.0")
+        self.assertRaises(KeyError, lambda: attrib_tutor_1['attributions'][0][learning_component_year_type.LECTURING])
 
     def test_two_attribution_function_to_same_learning_unit(self):
         new_attrib = AttributionNewFactory(learning_container_year=self.l_container, tutor=self.tutor_1,
