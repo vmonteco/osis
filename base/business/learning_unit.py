@@ -106,7 +106,6 @@ def get_same_container_year_components(learning_unit_year, with_classes=False):
         entity_components_yr = EntityComponentYear.objects.filter(learning_component_year=learning_component_year)
 
         components.append({'learning_component_year': learning_component_year,
-                           'entity_component_yr': entity_components_yr.first(),
                            'volumes': volume_learning_component_year(learning_component_year, entity_components_yr),
                            'learning_unit_usage': _learning_unit_usage(learning_component_year),
                            'used_by_learning_unit': used_by_learning_unit
@@ -172,8 +171,9 @@ def get_cms_label_data(cms_label, user_language):
 
 
 def _learning_unit_usage(a_learning_component_year):
-    learning_unit_component = mdl.learning_unit_component.find_by_learning_component_year(a_learning_component_year)
-    return ", ".join(l.learning_unit_year.acronym for l in learning_unit_component)
+    components = mdl.learning_unit_component.find_by_learning_component_year(a_learning_component_year)
+    return ", ".join(["{} ({})".format(c.learning_unit_year.acronym, c.learning_unit_year.quadrimester or '?')
+                      for c in components])
 
 
 def _learning_unit_usage_by_class(a_learning_class_year):
@@ -198,8 +198,7 @@ def get_components_identification(learning_unit_yr):
                 components.append({'learning_component_year': learning_component_year,
                                    'entity_component_yr': entity_components_yr.first(),
                                    'volumes': volume_learning_component_year(learning_component_year,
-                                                                             entity_components_yr),
-                                   'learning_unit_usage': _learning_unit_usage(learning_component_year)})
+                                                                             entity_components_yr)})
     return components
 
 
@@ -308,7 +307,8 @@ def create_learning_unit_year(academic_year, data, learning_container_year, lear
                                            credits=data['credits'],
                                            internship_subtype=data.get('internship_subtype'),
                                            status=status,
-                                           session=data['session'])
+                                           session=data['session'],
+                                           quadrimester=data['quadrimester'])
 
 
 

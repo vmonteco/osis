@@ -61,6 +61,9 @@
                                 <tr>
                                     <td>
                                         <b>{{ learning_unit.acronym }}</b>
+                                        <abbr title="{% trans 'quadrimester' %} : {{ learning_unit.quadrimester | default_if_none:'?' }}">
+                                            ({{ learning_unit.quadrimester | default_if_none:'?' }})
+                                        </abbr>
                                     </td>
                                     <td></td>
                                     <td style="background-color: #d7d9db">

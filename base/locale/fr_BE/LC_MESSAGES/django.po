@@ -1708,8 +1708,8 @@ msgstr "Vol. Q1"
 msgid "volume_remaining"
 msgstr "Vol. Q2"
 
-msgid "learning_unit_quarter"
-msgstr "Quadri. de l'UE"
+msgid "quadrimester"
+msgstr "Quadrimestre"
 
 msgid "composition"
 msgstr "Composition"
