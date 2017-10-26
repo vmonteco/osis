@@ -140,7 +140,10 @@
                                         <td></td>
                                         <td style="background-color: #cce6ff">
                                             <input id="PLANNED_CLASSES_{{learning_unit.id}}_{{component.id}}"
-                                                   class="form-control" name="PLANNED_CLASSES_{{learning_unit.id}}_{{component.id}}" type="text"
+                                                   name="PLANNED_CLASSES_{{learning_unit.id}}_{{component.id}}"
+                                                   type="text"
+                                                   maxlength="3"
+                                                   class="form-control"
                                                    value="{{ data.PLANNED_CLASSES | default_if_none:0 }}">
                                         </td>
                                         <td></td>
@@ -195,6 +198,8 @@
 
 {% block script %}
     <script type="text/javascript">
+        const comma = ",";
+        const dot = ".";
 
         $('#form_validation_errors').hide();
         $('#form_validation_success').hide();
@@ -203,6 +208,7 @@
 
 
         function validate_form(e) {
+            validateDecimals(this);
             var form = $(this).closest("form");
             $("#btn_save_volumes").prop('disabled', true);
             $.ajax({
@@ -235,6 +241,29 @@
             errors_block.show();
         }
 
+        function validateDecimals(el) {
+            var decimal_character=defineDecimalCharacter(el.value);
+            var v = parseFloat(el.value);
+            el.value = (isNaN(v)) ? '' : v.toFixed(2);
+            pos_dot = el.value.indexOf(dot);
+            if (decimal_character == comma && pos_dot != -1){
+                el.value = el.value.replace(dot, decimal_character);
+            }
+        }
+
+        function defineDecimalCharacter(number){
+            var pos_dot = number.indexOf(dot);
+            if (pos_dot == -1){
+                return comma;
+            }
+            return dot;
+        }
+
+        $("input[id^='PLANNED_CLASSES_']").keyup(function () {
+            this.value = this.value.replace(/[^1-9]/g,'');
+        });
+
     </script>
 {% endblock %}
 
+c
