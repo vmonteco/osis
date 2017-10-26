@@ -172,8 +172,9 @@ def get_cms_label_data(cms_label, user_language):
 
 
 def _learning_unit_usage(a_learning_component_year):
-    learning_unit_component = mdl.learning_unit_component.find_by_learning_component_year(a_learning_component_year)
-    return ", ".join(l.learning_unit_year.acronym for l in learning_unit_component)
+    components = mdl.learning_unit_component.find_by_learning_component_year(a_learning_component_year)
+    return ", ".join(["{} ({})".format(c.learning_unit_year.acronym, c.learning_unit_year.semester or '?')
+                      for c in components])
 
 
 def _learning_unit_usage_by_class(a_learning_class_year):
