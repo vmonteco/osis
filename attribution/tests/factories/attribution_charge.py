@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -28,44 +28,19 @@ import factory
 import factory.fuzzy
 from faker import Faker
 
-from base.tests.factories.learning_container_year import LearningContainerYearFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
-from base.tests.factories.tutor import TutorFactory
+from attribution.tests.factories.attribution import AttributionNewFactory
+from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from osis_common.utils.datetime import get_tzinfo
-from attribution.models.enums import function
-
 
 fake = Faker()
 
 
-class AttributionFactory(factory.django.DjangoModelFactory):
+class AttributionChargeFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = "attribution.Attribution"
+        model = "attribution.AttributionChargeNew"
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = fake.date_time_this_decade(before_now=True, after_now=True, tzinfo=get_tzinfo())
-    start_date = None
-    end_date = None
-    start_year = None
-    end_year = None
-    function = factory.Iterator(function.FUNCTIONS, getter=lambda c: c[0])
-    learning_unit_year = factory.SubFactory(LearningUnitYearFakerFactory)
-    tutor = factory.SubFactory(TutorFactory)
-    score_responsible = False
-
-
-class AttributionNewFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "attribution.AttributionNew"
-
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = fake.date_time_this_decade(before_now=True, after_now=True, tzinfo=get_tzinfo())
-    learning_container_year = factory.SubFactory(LearningContainerYearFactory)
-    tutor = factory.SubFactory(TutorFactory)
-    function = factory.Iterator(function.FUNCTIONS, getter=lambda c: c[0])
-    start_date = None
-    end_date = None
-    start_year = None
-    end_year = None
-    score_responsible = False
+    attribution = factory.SubFactory(AttributionNewFactory)
+    learning_component_year = factory.SubFactory(LearningComponentYearFactory)
+    allocation_charge = 0
     deleted = False
