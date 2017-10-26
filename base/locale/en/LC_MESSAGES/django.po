@@ -2134,8 +2134,13 @@ msgid "language_association"
 msgstr "Primary language operator"
 
 msgid "prolong_or_create_learning_unit_message"
-msgstr "The acronym <b>already exists</b>. You can either <b>create</b> a new learning unit using that acronym or "
-       "you can prolong the learning unit of the same acronym ?"
+msgstr "<p>The acronym <b>already exists</b>.</p>"
+       "<p>You have the choice between:"
+       "<ul><li><b>create</b> a new learning unit using that acronym</li>"
+       "<li><b>prolong</b> the learning unit of the same acronym</li></ul>"
+
+msgid "confirm_your_action"
+msgstr "Confirm your action."
 
 msgid "create"
 msgstr "Create"
@@ -2172,3 +2177,6 @@ msgstr "Separate diploma"
 
 msgid "NOT_CONCERNED"
 msgstr "Not concerned"
+
+msgid "organization_address_save_error"
+msgstr "Impossible to save the organization address"

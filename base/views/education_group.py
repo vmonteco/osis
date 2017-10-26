@@ -78,6 +78,8 @@ def _check_if_display_message(request, an_education_groups):
 @permission_required('base.can_access_offer', raise_exception=True)
 def education_group_read(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+    education_group_languages = [education_group_language.language.name for education_group_language in
+                                 mdl.education_group_language.find_by_education_group_year(education_group_year)]
     return layout.render(request, "education_group/tab_identification.html", locals())
 
 

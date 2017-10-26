@@ -23,18 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from attribution.models import *
-from django.contrib import admin
 
 
-admin.site.register(attribution.Attribution,
-                    attribution.AttributionAdmin)
+def get_clean_data(datas_to_clean):
+    return {key: treat_empty_or_str_none_as_none(value) for (key, value) in datas_to_clean.items()}
 
-admin.site.register(attribution_charge.AttributionCharge,
-                    attribution_charge.AttributionChargeAdmin)
 
-admin.site.register(attribution_new.AttributionNew,
-                    attribution_new.AttributionNewAdmin)
-
-admin.site.register(attribution_charge_new.AttributionChargeNew,
-                    attribution_charge_new.AttributionChargeNewAdmin)
+def treat_empty_or_str_none_as_none(data):
+    return None if not data or data == "NONE" else data

@@ -52,3 +52,9 @@ def date_in_form_format(value):
         return value
     else:
         return date(value, pattern)
+
+
+@register.filter
+def join_with_spaces(array, arg):
+    arg = "-" if arg is None else arg
+    return " {} ".format(_(arg).lower()).join(array)

@@ -23,40 +23,36 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib import admin
 from django.db import models
-from base.models.enums import learning_container_year_types
+
+from osis_common.models.auditable_model import AuditableModelAdmin, AuditableModel
+
+from attribution.models.enums import function
 
 
-class LearningContainerYearAdmin(admin.ModelAdmin):
-    list_display = ('learning_container', 'academic_year', 'container_type', 'acronym', 'title')
-    fieldsets = ((None, {'fields': ('learning_container', 'academic_year', 'container_type', 'acronym', 'title',
-                                    'title_english', 'language')}),)
-    search_fields = ['acronym']
-    list_filter = ('academic_year',)
+class AttributionNewAdmin(AuditableModelAdmin):
+    list_display = ('tutor', 'score_responsible', 'function', 'learning_container_year', 'start_year', 'end_year', 'changed')
+    list_filter = ('learning_container_year__academic_year', 'score_responsible')
+    fieldsets = ((None, {'fields': ('learning_container_year', 'tutor', 'score_responsible', 'start_year', 'end_year')}),)
+    raw_id_fields = ('learning_container_year', 'tutor')
+    search_fields = ['tutor__person__first_name', 'tutor__person__last_name', 'learning_container_year__acronym',
+                     'tutor__person__global_id', 'function']
 
 
-class LearningContainerYear(models.Model):
+class AttributionNew(AuditableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
-    academic_year = models.ForeignKey('AcademicYear')
-    learning_container = models.ForeignKey('LearningContainer')
-    container_type = models.CharField(max_length=20, blank=True, null=True,
-                                      choices=learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES)
-    title = models.CharField(max_length=255)
-    title_english = models.CharField(max_length=250, blank=True, null=True)
-    acronym = models.CharField(max_length=10)
     changed = models.DateTimeField(null=True, auto_now=True)
-    language = models.ForeignKey('reference.Language', blank=True, null=True)
-    campus = models.ForeignKey('Campus', blank=True, null=True)
+    learning_container_year = models.ForeignKey('base.LearningContainerYear')
+    tutor = models.ForeignKey('base.Tutor')
+    function = models.CharField(max_length=35, blank=True, null=True, choices=function.FUNCTIONS, db_index=True)
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
+    start_year = models.IntegerField(blank=True, null=True)
+    end_year = models.IntegerField(blank=True, null=True)
+    score_responsible = models.BooleanField(default=False)
 
     def __str__(self):
-        return u"%s - %s" % (self.acronym, self.title)
+        return u"%s - %s" % (self.tutor.person, self.function)
 
     class Meta:
-        permissions = (
-            ("can_access_learningcontaineryear", "Can access learning container year"),
-        )
-
-
-def find_by_id(learning_container_year_id):
-    return LearningContainerYear.objects.get(pk=learning_container_year_id)
+        unique_together = ('learning_container_year', 'tutor', 'function')
