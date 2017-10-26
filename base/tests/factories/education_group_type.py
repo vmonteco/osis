@@ -27,11 +27,8 @@ import factory
 import factory.fuzzy
 
 from factory.django import DjangoModelFactory
-from faker import Faker
 
-fake = Faker()
-
-class EducationGroupTypeFakerFactory(DjangoModelFactory):
+class EducationGroupTypeFactory(DjangoModelFactory):
     class Meta:
         model = "base.EducationGroupType"
 

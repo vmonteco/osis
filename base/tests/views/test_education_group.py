@@ -32,7 +32,7 @@ from django.test import TestCase, RequestFactory
 from base.models.academic_calendar import AcademicCalendar
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_organization import EducationGroupOrganizationFactory
-from base.tests.factories.education_group_type import EducationGroupTypeFakerFactory
+from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 
@@ -146,7 +146,7 @@ class EducationGroupViewTestCase(TestCase):
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
 
-        education_group_type = EducationGroupTypeFakerFactory()
+        education_group_type = EducationGroupTypeFactory()
 
         education_group_year_child = EducationGroupYearFactory(academic_year=self.academic_year,
                                                                 education_group_type=education_group_type)

@@ -28,7 +28,7 @@ import factory.fuzzy
 
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group import EducationGroupFactory
-from base.tests.factories.education_group_type import EducationGroupTypeFakerFactory
+from base.tests.factories.education_group_type import EducationGroupTypeFactory
 
 
 def generate_title(education_group_year):
@@ -43,4 +43,4 @@ class EducationGroupYearFactory(factory.django.DjangoModelFactory):
     academic_year = factory.SubFactory(AcademicYearFactory)
     acronym = factory.Sequence(lambda n: 'Education %d' % n)
     title = factory.LazyAttribute(generate_title)
-    education_group_type = factory.SubFactory(EducationGroupTypeFakerFactory)
+    education_group_type = factory.SubFactory(EducationGroupTypeFactory)

@@ -23,20 +23,19 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
 from django.test import TestCase
 from base.models.education_group_year import *
 from base.tests.factories.academic_year import AcademicYearFactory
 
 from base.tests.factories.education_group_year import EducationGroupYearFactory
-from base.tests.factories.education_group_year import EducationGroupTypeFakerFactory
+from base.tests.factories.education_group_type import EducationGroupTypeFactory
 
 
 class EducationGroupYearTest(TestCase):
     def setUp(self):
         academic_year = AcademicYearFactory()
-        self.education_group_type_1 = EducationGroupTypeFakerFactory()
-        self.education_group_type_2 = EducationGroupTypeFakerFactory()
+        self.education_group_type_1 = EducationGroupTypeFactory()
+        self.education_group_type_2 = EducationGroupTypeFactory()
         self.education_group_year_1 = EducationGroupYearFactory(academic_year=academic_year,
                                                                 education_group_type=self.education_group_type_1)
         self.education_group_year_2 = EducationGroupYearFactory(academic_year=academic_year,
