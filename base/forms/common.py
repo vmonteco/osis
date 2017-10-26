@@ -23,26 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import forms
 
 
-class BootstrapModelForm(forms.ModelForm):
-
-    def __init__(self, *args, **kwargs):
-        super(BootstrapModelForm, self).__init__(*args, **kwargs)
-        set_form_control(self)
+def get_clean_data(datas_to_clean):
+    return {key: treat_empty_or_str_none_as_none(value) for (key, value) in datas_to_clean.items()}
 
 
-class BootstrapForm(forms.Form):
-
-    def __init__(self, *args, **kwargs):
-        super(BootstrapForm, self).__init__(*args, **kwargs)
-        set_form_control(self)
-
-
-def set_form_control(self):
-    for field in iter(self.fields):
-        attr_class = self.fields[field].widget.attrs.get('class') or ''
-        # Exception because we don't apply form-control on widget checkbox
-        if self.fields[field].widget.template_name != 'django/forms/widgets/checkbox.html':
-            self.fields[field].widget.attrs['class'] = attr_class + ' form-control'
+def treat_empty_or_str_none_as_none(data):
+    return None if not data or data == "NONE" else data
