@@ -30,17 +30,18 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 from base.models import entity_container_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, internship_subtypes, \
-    learning_unit_year_session, entity_container_year_link_type, learning_unit_year_semesters
+    learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters
 
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9"+ AUTHORIZED_REGEX_CHARS +"]+"
 
+
 class LearningUnitYearAdmin(SerializableModelAdmin):
     list_display = ('external_id', 'acronym', 'title', 'academic_year', 'credits', 'changed', 'structure', 'status')
     fieldsets = ((None, {'fields': ('academic_year', 'learning_unit', 'acronym', 'title', 'title_english', 'credits',
                                     'decimal_scores', 'structure', 'learning_container_year',
-                                    'subtype', 'status', 'internship_subtype', 'session', 'semester')}),)
+                                    'subtype', 'status', 'internship_subtype', 'session', 'quadrimester')}),)
     list_filter = ('academic_year', 'vacant', 'in_charge', 'decimal_scores')
     raw_id_fields = ('learning_unit', 'learning_container_year', 'structure')
     search_fields = ['acronym', 'structure__acronym', 'external_id']
@@ -68,8 +69,8 @@ class LearningUnitYear(SerializableModel):
     status = models.BooleanField(default=False)
     session = models.CharField(max_length=50, blank=True, null=True,
                                choices=learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION)
-    semester = models.CharField(max_length=4, blank=True, null=True,
-                                choices=learning_unit_year_semesters.LEARNING_UNIT_YEAR_SEMESTERS)
+    quadrimester = models.CharField(max_length=4, blank=True, null=True,
+                                    choices=learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
 
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)

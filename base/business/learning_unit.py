@@ -172,7 +172,7 @@ def get_cms_label_data(cms_label, user_language):
 
 def _learning_unit_usage(a_learning_component_year):
     components = mdl.learning_unit_component.find_by_learning_component_year(a_learning_component_year)
-    return ", ".join(["{} ({})".format(c.learning_unit_year.acronym, c.learning_unit_year.semester or '?')
+    return ", ".join(["{} ({})".format(c.learning_unit_year.acronym, c.learning_unit_year.quadrimester or '?')
                       for c in components])
 
 
@@ -308,7 +308,7 @@ def create_learning_unit_year(academic_year, data, learning_container_year, lear
                                            internship_subtype=data.get('internship_subtype'),
                                            status=status,
                                            session=data['session'],
-                                           semester=data['semester'])
+                                           quadrimester=data['quadrimester'])
 
 
 

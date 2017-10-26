@@ -28,7 +28,7 @@ Q2 = "Q2"
 Q1and2 = "Q1&2"
 Q1or2 = "Q1|2"
 
-LEARNING_UNIT_YEAR_SEMESTERS = (
+LEARNING_UNIT_YEAR_QUADRIMESTERS = (
     (Q1, Q1),
     (Q2, Q2),
     (Q1and2, Q1and2),

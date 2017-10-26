@@ -1702,8 +1702,8 @@ msgstr "Vol. Q1"
 msgid "volume_remaining"
 msgstr "Vol. Q2"
 
-msgid "semester"
-msgstr "Semester"
+msgid "quadrimester"
+msgstr "Quadrimester"
 
 msgid "composition"
 msgstr "Composition"
