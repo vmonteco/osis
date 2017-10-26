@@ -81,7 +81,7 @@ def learning_units_service_course(request):
 def learning_unit_identification(request, learning_unit_year_id):
     context = get_common_context_learning_unit_year(learning_unit_year_id)
     learning_unit_year = context['learning_unit_year']
-    context['learning_container_year_partims'] = learning_unit_year.learning_container_year.get_partims_related()
+    context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
     context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
     context['campus'] = get_campus_from_learning_unit_year(learning_unit_year)
     context['experimental_phase'] = True

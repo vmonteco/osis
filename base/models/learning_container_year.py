@@ -27,6 +27,7 @@ from django.contrib import admin
 from django.db import models
 from base.models import learning_unit_year, learning_component_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types
+from django.utils.translation import ugettext_lazy as _
 
 
 class LearningContainerYearAdmin(admin.ModelAdmin):
@@ -62,7 +63,7 @@ class LearningContainerYear(models.Model):
         for partim in self.get_partims_related():
             sub_msg = []
             if not (partim.is_deletable(sub_msg)):
-                msg.append("-> Error : a partim {} is linked to the learning unit ".format(partim.acronym))
+                msg.append(_("cannot_delete_learning_unit_partim_enrollments"))
                 msg.append(sub_msg)
 
         learning_components_year = learning_component_year.find_by_learning_container_year(self, True)
@@ -75,8 +76,7 @@ class LearningContainerYear(models.Model):
 
     def get_partims_related(self):
         return learning_unit_year.search(learning_container_year_id=self,
-                                         subtype=learning_unit_year_subtypes.PARTIM) \
-            .exclude(learning_container_year__isnull=True).order_by('acronym')
+                                         subtype=learning_unit_year_subtypes.PARTIM).order_by('acronym')
 
 
 def find_by_id(learning_container_year_id):

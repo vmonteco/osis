@@ -2189,4 +2189,31 @@ msgstr "<p>This operation is <b>permanent</b> and cannot be undone. You will los
        " the data linked to the learning unit <b>%s</b>.</p>"
 
 msgid "cannot_delete_learning_unit"
-msgstr "Could not delete the learning unit for the following reasons :"
+msgstr "Could not delete the LU <b>%s</b> from the year %s for the following reasons :"
+
+msgid "cannot_delete_learning_unit_enrollments"
+msgstr "There is enrollments in the learning unit %s for the year %s"
+
+msgid "cannot_delete_learning_unit_partim_enrollments"
+msgstr "There is enrollments in the partim %s for the year %s"
+
+msgid "cannot_delete_learning_unit_class_enrollments"
+msgstr "There is enrollments in the class %s for the year %s"
+
+msgid "cannot_delete_learning_unit_tutor"
+msgstr "The LU %s is assigned to %s for the year %s"
+
+msgid "cannot_delete_learning_unit_partim_tutor"
+msgstr "The partim %s is assigned to %s for the year %s"
+
+msgid "cannot_delete_learning_unit_class_tutor"
+msgstr "The class %s is assigned to %s for the year %s"
+
+msgid "cannot_delete_learning_unit_offer_type"
+msgstr "The LU %s is included  in the group %s of the program %s for the year %s"
+
+msgid "cannot_delete_learning_unit_partim_offer_type"
+msgstr "The partim %s is included  in the group %s of the program %s for the year %s"
+
+msgid "cannot_delete_learning_unit_class_offer_type"
+msgstr "The class %s is included  in the group %s of the program %s for the year %s"

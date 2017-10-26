@@ -2192,7 +2192,34 @@ msgstr "Oui, je confirme et je suis conscient des conséquences."
 
 msgid "msg_modal_delete_learning_unit"
 msgstr "<p>Cette opération est <b>permanente</b> et ne peut pas être défaite. Vous perdrez à jamais"
-       " les données liées à l'UE <b>%s</b>.</p>"
+       " les données liées à l'UE <b>%(learning_unit)</b>.</p>"
 
- msgid "cannot_delete_learning_unit"
- msgstr "Impossible de supprimer l'UE pour les raisons suivantes:"
+msgid "cannot_delete_learning_unit"
+msgstr "L’UE <b>%(learning_unit)</b> dont vous demandez la suppression à partir de l’année %(year) fait l’objet des liens suivants à supprimer au préalable :"
+
+msgid "cannot_delete_learning_unit_enrollments"
+msgstr "L’UE %(learning_unit) fait l’objet d’inscriptions l’année %(year)"
+
+msgid "cannot_delete_learning_unit_partim_enrollments"
+msgstr "Le partim %(partim) fait l’objet d’inscriptions l’année %(year)"
+
+msgid "cannot_delete_learning_unit_class_enrollments"
+msgstr "La classe %(class) fait l’objet d’inscriptions l’année %(year)"
+
+msgid "cannot_delete_learning_unit_tutor"
+msgstr "L’UE %(learning_unit) est attribué à %(tutor) l’année %(year)"
+
+msgid "cannot_delete_learning_unit_partim_tutor"
+msgstr "Le partim %(partim) est attribué à %(tutor) l’année %(year)"
+
+msgid "cannot_delete_learning_unit_class_tutor"
+msgstr "La classe %(class) est attribué à %(tutor) l’année %(year)"
+
+msgid "cannot_delete_learning_unit_offer_type"
+msgstr "L’UE %(learning_unit) est repris dans le groupement %s du programme %s l’année %(year)"
+
+msgid "cannot_delete_learning_unit_partim_offer_type"
+msgstr "Le partim %(partim) est repris dans le groupement %(group) du programme %(program) l’année %(year)"
+
+msgid "cannot_delete_learning_unit_class_offer_type"
+msgstr "La classe %(class) est repris dans le groupement %(group) du programme %(program) l’année %(year)"

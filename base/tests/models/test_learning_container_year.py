@@ -31,6 +31,7 @@ from base.models import learning_container_year
 from base.models.enums import learning_unit_year_subtypes
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.learning_unit_enrollment import LearningUnitEnrollmentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from django.utils import timezone
 
@@ -58,5 +59,7 @@ class LearningContainerYearTest(TestCase):
         l_unit_2 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
                                            academic_year=self.academic_year, subtype=learning_unit_year_subtypes.PARTIM)
 
-        self.assertFalse(l_container_year.is_deletable(msg))
+        LearningUnitEnrollmentFactory()
+        l_container_year.is_deletable(msg)
+        print(msg)
         self.assertEqual(msg[0], '-> Error : a partim LBIR1212 is linked to the learning unit ')

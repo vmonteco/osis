@@ -26,12 +26,13 @@
 import re
 from django.db import models
 
-from base.models.enums.learning_unit_year_subtypes import PARTIM, FULL
+from base.models.enums.learning_unit_year_subtypes import FULL
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
-from base.models import entity_container_year, learning_component_year, learning_unit_enrollment
+from base.models import entity_container_year, learning_unit_enrollment
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type
+from django.utils.translation import ugettext_lazy as _
 
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
@@ -109,11 +110,17 @@ class LearningUnitYear(SerializableModel):
             return super().delete(args, kwargs)
 
     def is_deletable(self, msg):
-        for l_unit_enrollment in learning_unit_enrollment.find_by_learning_unit_year(self):
-            msg.append("-> Error : {}".format(l_unit_enrollment))
+        for l in learning_unit_enrollment.find_by_learning_unit_year(self):
+            print("yop")
+            msg.append(_("cannot_delete_learning_unit_enrollments")%{'learning_unit': self.acronym,
+                                                                     'year': str(self.academic_year)})
         if self.subtype == FULL:
             self.learning_container_year.is_deletable(msg)
         return not msg
+
+    def get_partims_related(self):
+        if self.subtype == FULL and self.learning_container_year:
+            return self.learning_container_year.get_partims_related()
 
 
 def find_by_id(learning_unit_year_id):
