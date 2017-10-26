@@ -309,7 +309,8 @@ def create_learning_unit_year(academic_year, data, learning_container_year, lear
                                            credits=data['credits'],
                                            internship_subtype=data.get('internship_subtype'),
                                            status=status,
-                                           session=data['session'])
+                                           session=data['session'],
+                                           semester=data['semester'])
 
 
 

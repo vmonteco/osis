@@ -42,6 +42,7 @@ from base.models.entity_version import find_main_entities_version
 from base.models.enums import entity_container_year_link_type
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
+from base.models.enums.learning_unit_year_semesters import LEARNING_UNIT_YEAR_SEMESTERS
 from base.models.learning_unit_year import check_if_acronym_regex_is_valid
 from reference.models.language import find_all_languages
 
@@ -208,6 +209,8 @@ class CreateLearningUnitYearForm(BootstrapForm):
     faculty_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
     other_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
     periodicity = forms.CharField(widget=forms.Select(choices=PERIODICITY_TYPES))
+    semester = forms.CharField(widget=forms.Select(choices=((None, EMPTY_FIELD),) + LEARNING_UNIT_YEAR_SEMESTERS),
+                               required=False)
     campus = forms.ModelChoiceField(queryset=find_administration_campuses(),
                                     widget=forms.Select(attrs={'onchange': 'setFirstLetter()'}))
 
