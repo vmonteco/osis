@@ -460,10 +460,10 @@ class LearningUnitViewTestCase(TestCase):
         url = reverse('learning_unit_component_edit', args=[learning_unit_yr.id])
         qs = 'learning_component_year_id={}'.format(self.learning_component_yr.id)
 
-        response = self.client.post('{}?{}'.format(url, qs), data={"planned_classes": "1", "used_by": "on"})
+        response = self.client.post('{}?{}'.format(url, qs), data={"used_by": "on"})
         self.learning_component_yr.refresh_from_db()
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(self.learning_component_yr.planned_classes, 1)
+
 
     def test_component_save_delete_link(self):
         learning_unit_yr = LearningUnitYearFactory(academic_year=self.current_academic_year,

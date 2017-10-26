@@ -34,9 +34,8 @@ class LearningUnitComponentEditForm(forms.ModelForm):
 
     class Meta:
         model = LearningComponentYear
-        fields = ['planned_classes', 'comment']
+        fields = ['comment']
         widgets = {
-            'planned_classes': forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}),
             'comment': forms.Textarea(attrs={'class': 'form-control', 'rows': 5})
         }
 
