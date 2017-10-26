@@ -405,6 +405,7 @@ class LearningUnitViewTestCase(TestCase):
 
         learning_unit_yr_1 = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      acronym='LBIOLA',
+                                                     semester='Q1',
                                                      learning_container_year=learning_container_yr)
         learning_unit_yr_2 = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      acronym='LBIOLB',
