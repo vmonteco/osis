@@ -106,7 +106,6 @@ def get_same_container_year_components(learning_unit_year, with_classes=False):
         entity_components_yr = EntityComponentYear.objects.filter(learning_component_year=learning_component_year)
 
         components.append({'learning_component_year': learning_component_year,
-                           'entity_component_yr': entity_components_yr.first(),
                            'volumes': volume_learning_component_year(learning_component_year, entity_components_yr),
                            'learning_unit_usage': _learning_unit_usage(learning_component_year),
                            'used_by_learning_unit': used_by_learning_unit
@@ -199,8 +198,7 @@ def get_components_identification(learning_unit_yr):
                 components.append({'learning_component_year': learning_component_year,
                                    'entity_component_yr': entity_components_yr.first(),
                                    'volumes': volume_learning_component_year(learning_component_year,
-                                                                             entity_components_yr),
-                                   'learning_unit_usage': _learning_unit_usage(learning_component_year)})
+                                                                             entity_components_yr)})
     return components
 
 
