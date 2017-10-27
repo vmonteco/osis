@@ -30,8 +30,6 @@
 <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap.min.css' %}">
 {% endblock %}
 {% block breadcrumb %}
-<li><a href="{% url 'institution' %}" id="lnk_institution">{% trans 'institution' %}</a></li>
-<li><a href="{% url 'mandates' %}" id="lnk_mandates">{% trans 'mandates' %}</a></li>
 <li><a href="{% url 'reviewer_mandates_list' %}" id="lnk_reviewer_delegation">{% trans 'reviewer_mandates_list' %}
 </a></li>
 <li class="active">{% trans 'reviewer_delegation' %}</li>
@@ -67,8 +65,8 @@
                 <td align="center">
                 {% for rev in entity_version.entity.reviewer_set.all %}
                     {% if "ASSISTANT" in rev.role %}
-                    {{ rev.person }}
-                    {% elif entity.reviewer_set.all|length < 2 %}
+                        {{ rev.person }}
+                    {% elif entity_version.entity.reviewer_set.all|length < 2 %}
                     <form id=entity_version.entity.id method="POST" action="{% url 'reviewer_delegation_add' %}">
                     {{ form.non_field_errors }}
  		            {% csrf_token %}

@@ -30,8 +30,6 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.11/css/dataTables.bootstrap.min.css">
 {% endblock %}
 {% block breadcrumb %}
-<li><a href="{% url 'institution' %}" id="lnk_institution">{% trans 'institution' %}</a></li>
-<li><a href="{% url 'mandates' %}" id="lnk_mandates">{% trans 'mandates' %}</a></li>
 <li><a href="{% url 'manager_home' %}" id="lnk_manager_home">{% trans 'assistants' %}</a></li>
 <li class="active">{% trans 'mandates_list' %}</li>
 {% endblock %}
@@ -115,9 +113,9 @@
                              color: #EFC345;"
                         {% endif %}
                         {% if review.reviewer %}
-                            title="{{ review.reviewer }}">
+                            title="{% trans review.reviewer.role %} : {{ review.reviewer.person }}">
                         {% else %}
-                            title="{{ mandate.assistant.supervisor }} : {% trans 'phd_supervisor' %}">
+                            title="{% trans 'PHD_SUPERVISOR' %} : {{ mandate.assistant.supervisor }}">
                         {% endif %}
                         </i>
                     {% endif %}
