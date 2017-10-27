@@ -23,13 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
 from django.test import TestCase
 from base.models.education_group_year import *
 from base.tests.factories.academic_year import AcademicYearFactory
 
 from base.tests.factories.education_group_year import EducationGroupYearFactory
-from base.tests.factories.offer_year_domain import OfferYearDomainFactory
 
 
 class EducationGroupYearTest(TestCase):

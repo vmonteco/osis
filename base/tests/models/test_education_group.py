@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,31 +23,23 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-from django.contrib import admin
+from django.test import TestCase
+from base.models.education_group import *
+
+from base.tests.factories.education_group import EducationGroupFactory
 
 
-class EducationGroupAdmin(admin.ModelAdmin):
-    list_display = ('id', 'changed', 'start_year', 'end_year')
+class EducationGroupTest(TestCase):
+    def setUp(self):
+        self.education_group = EducationGroupFactory()
+        self.education_group.save()
 
+    def test_return_str_format(self):
+        self.assertEqual(self.education_group.__str__(), str(self.education_group.id))
 
-class EducationGroup(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    start_year = models.IntegerField(blank=True, null=True)
-    end_year = models.IntegerField(blank=True, null=True)
+    def test_find_by_id(self):
+        education_group = find_by_id(self.education_group.id)
+        self.assertEqual(education_group, self.education_group)
 
-    def __str__(self):
-        return "{}".format(self.id)
-
-    class Meta:
-        permissions = (
-            ("can_access_education_group", "Can access education_group"),
-        )
-
-
-def find_by_id(an_id):
-    try:
-        return EducationGroup.objects.get(pk=an_id)
-    except EducationGroup.DoesNotExist:
-        return None
+        education_group = find_by_id(-1)
+        self.assertIsNone(education_group)
