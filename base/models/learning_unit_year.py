@@ -42,7 +42,7 @@ class LearningUnitYearAdmin(SerializableModelAdmin):
     fieldsets = ((None, {'fields': ('academic_year', 'learning_unit', 'acronym', 'title', 'title_english', 'credits',
                                     'decimal_scores', 'structure', 'learning_container_year',
                                     'subtype', 'status', 'internship_subtype', 'session', 'quadrimester')}),)
-    list_filter = ('academic_year', 'vacant', 'in_charge', 'decimal_scores')
+    list_filter = ('academic_year', 'decimal_scores')
     raw_id_fields = ('learning_unit', 'learning_container_year', 'structure')
     search_fields = ['acronym', 'structure__acronym', 'external_id']
 
@@ -60,8 +60,6 @@ class LearningUnitYear(SerializableModel):
                                choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES)
     credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     decimal_scores = models.BooleanField(default=False)
-    vacant = models.BooleanField(default=False)
-    in_charge = models.BooleanField(default=False)
     structure = models.ForeignKey('Structure', blank=True, null=True)
     internship_subtype = models.CharField(max_length=50, blank=True, null=True,
                                           choices=internship_subtypes.INTERNSHIP_SUBTYPES)
@@ -104,6 +102,10 @@ class LearningUnitYear(SerializableModel):
             learning_container_year=self.learning_container_year
         ).first()
         return entity_container_yr.entity if entity_container_yr else None
+
+    @property
+    def in_charge(self):
+        return self.learning_container_year and self.learning_container_year.in_charge
 
 
 def find_by_id(learning_unit_year_id):

@@ -51,7 +51,8 @@ class AttributionJsonTest(TestCase):
         self.academic_year = AcademicYearFactory(year=today.year, start_date=today)
 
         # Creation Container / UE and components related
-        self.l_container = LearningContainerYearFactory(academic_year=self.academic_year, acronym="LBIR1210")
+        self.l_container = LearningContainerYearFactory(academic_year=self.academic_year, acronym="LBIR1210",
+                                                        in_charge=True)
         _create_learning_unit_year_with_components(academic_year=self.academic_year, l_container=self.l_container,
                                                    acronym="LBIR1210",subtype=learning_unit_year_subtypes.FULL)
         _create_learning_unit_year_with_components(academic_year=self.academic_year, l_container=self.l_container,
@@ -97,9 +98,8 @@ class AttributionJsonTest(TestCase):
         self.assertRaises(KeyError, lambda: attrib_tutor_2['attributions'][0][learning_component_year_type.PRACTICAL_EXERCISES + '_CHARGE'])
 
     def test_learning_unit_in_charge_false(self):
-        # Set learning unit year [LBIR1210] in charge to false
-        from base.models.learning_unit_year import LearningUnitYear
-        LearningUnitYear.objects.filter(acronym='LBIR1210', academic_year=self.academic_year).update(in_charge=False)
+        self.l_container.in_charge = False
+        self.l_container.save()
 
         attrib_list = attribution_json._compute_list()
         self.assertIsInstance(attrib_list, list)
@@ -144,7 +144,7 @@ class AttributionJsonTest(TestCase):
 
 def _create_learning_unit_year_with_components(academic_year, l_container, acronym, subtype):
     l_unit_year = LearningUnitYearFactory(academic_year=academic_year, learning_container_year=l_container,
-                                          acronym=acronym, subtype=subtype, in_charge=True)
+                                          acronym=acronym, subtype=subtype)
 
     # Create component - CM - TP
     l_component_cm = LearningComponentYearFactory(learning_container_year=l_container,
@@ -177,5 +177,3 @@ def _create_attribution_charge(academic_year, attribution, l_acronym, volume_cm=
         AttributionChargeFactory(attribution=attribution,
                                  learning_component_year=l_unit_component.learning_component_year,
                                  allocation_charge=volume_tp)
-
-

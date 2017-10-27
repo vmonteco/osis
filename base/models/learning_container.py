@@ -31,6 +31,7 @@ class LearningContainerAdmin(admin.ModelAdmin):
     list_display = ('external_id',)
     fieldsets = ((None, {'fields': ('external_id',)}),)
     search_fields = ['external_id']
+    list_filter = ('in_charge', 'vacant',)
 
 
 class LearningContainer(models.Model):
@@ -39,7 +40,8 @@ class LearningContainer(models.Model):
     auto_renewal_until = models.IntegerField(null=True)
     start_year = models.IntegerField(null=True)
     team = models.BooleanField(default=False)
-
+    vacant = models.BooleanField(default=False)
+    in_charge = models.BooleanField(default=False)
 
     def __str__(self):
         return u"%s" % (self.external_id)

@@ -57,8 +57,6 @@ class LearningUnitYearFactory(DjangoModelFactory):
     subtype = factory.Iterator(learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, getter=operator.itemgetter(0))
     credits = factory.fuzzy.FuzzyDecimal(99)
     decimal_scores = False
-    vacant = False
-    in_charge = False
     status = True
 
 
@@ -76,6 +74,4 @@ class LearningUnitYearFakerFactory(DjangoModelFactory):
     subtype = factory.Iterator(learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, getter=operator.itemgetter(0))
     credits = factory.fuzzy.FuzzyDecimal(9)
     decimal_scores = False
-    vacant = False
-    in_charge = False
     status = True

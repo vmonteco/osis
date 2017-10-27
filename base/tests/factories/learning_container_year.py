@@ -41,8 +41,10 @@ class LearningContainerYearFactory(factory.django.DjangoModelFactory):
     external_id = factory.Sequence(lambda n: '10000000%02d' % n)
     academic_year = factory.SubFactory(AcademicYearFactory)
     learning_container = factory.SubFactory(LearningContainerFactory)
-    container_type = factory.Iterator(learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES, getter=operator.itemgetter(0))
+    container_type = factory.Iterator(learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
+                                      getter=operator.itemgetter(0))
     title = factory.Sequence(lambda n: 'Learning container year - %d' % n)
     acronym = factory.Sequence(lambda n: 'LCY-%d' % n)
     changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    in_charge = False
