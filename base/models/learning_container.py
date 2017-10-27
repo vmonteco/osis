@@ -38,6 +38,8 @@ class LearningContainer(models.Model):
     changed = models.DateTimeField(null=True, auto_now=True)
     auto_renewal_until = models.IntegerField(null=True)
     start_year = models.IntegerField(null=True)
+    team = models.BooleanField(default=False)
+
 
     def __str__(self):
         return u"%s" % (self.external_id)

@@ -60,7 +60,6 @@ class LearningUnitYear(SerializableModel):
                                choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES)
     credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     decimal_scores = models.BooleanField(default=False)
-    team = models.BooleanField(default=False)
     vacant = models.BooleanField(default=False)
     in_charge = models.BooleanField(default=False)
     structure = models.ForeignKey('Structure', blank=True, null=True)
