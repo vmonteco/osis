@@ -246,7 +246,8 @@
 
         function validateDecimals(el) {
             var decimal_character=defineDecimalCharacter(el.value);
-            var v = parseFloat(el.value);
+
+            var v = valueToFix(el.value, decimal_character);
             el.value = (isNaN(v)) ? '' : v.toFixed(2);
             pos_dot = el.value.indexOf(dot);
             if (decimal_character == comma && pos_dot != -1){
@@ -262,6 +263,13 @@
             return dot;
         }
 
+        function valueToFix(number, decimal_character){
+            if (decimal_character == comma) {
+                return parseFloat(number.replace(comma, dot));
+            }
+            return parseFloat(number);
+        }
+        
         $("input[id^='PLANNED_CLASSES_']").keyup(function () {
             this.value = this.value.replace(/[^1-9]/g,'');
         });
