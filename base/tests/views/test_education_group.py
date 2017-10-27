@@ -34,11 +34,6 @@ from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_organization import EducationGroupOrganizationFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
-from base.tests.factories.person import PersonFactory
-from base.tests.factories.user import UserFactory
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
-from base.models.offer import Offer
 
 
 def save(self, *args, **kwargs):
@@ -51,12 +46,6 @@ class EducationGroupViewTestCase(TestCase):
         self.academic_year = AcademicYearFactory(start_date=today,
                                                  end_date=today.replace(year=today.year + 1),
                                                  year=today.year)
-        self.person = PersonFactory()
-        content_type = ContentType.objects.get_for_model(Offer)
-        permission = Permission.objects.get(codename="can_access_offer",
-                                            content_type=content_type)
-        self.person.user.user_permissions.add(permission)
-        self.client.force_login(self.person.user)
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
@@ -161,7 +150,6 @@ class EducationGroupViewTestCase(TestCase):
         GroupElementYearFactory(parent=education_group_year_parent, child_branch=education_group_year_child)
 
         request = mock.Mock(method='GET')
-        request.user = mock.Mock()
 
         from base.views.education_group import education_group_parent_read
 
@@ -177,7 +165,9 @@ class EducationGroupViewTestCase(TestCase):
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
+    @mock.patch('base.models.person.get_user_interface_language', return_value=True)
     def test_education_group_general_informations(self,
+                                                  mock_get_user_interface_language,
                                                   mock_render,
                                                   mock_decorators):
         mock_decorators.login_required = lambda x: x
@@ -186,7 +176,6 @@ class EducationGroupViewTestCase(TestCase):
         education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
 
         request = mock.Mock(method='GET')
-        request.user = self.person.user
 
         from base.views.education_group import education_group_general_informations
 

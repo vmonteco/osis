@@ -123,7 +123,7 @@ def education_group_general_informations(request, education_group_year_id):
 def _education_group_general_informations_tab(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
 
-    CMS_LABEL = ['introduction', 'profile', 'job', 'program']
+    CMS_LABEL = get_text_labels_names(entity_name.OFFER_YEAR)
 
     fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
     en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
@@ -132,9 +132,9 @@ def _education_group_general_informations_tab(request, education_group_year_id):
                'cms_labels_translated': _get_cms_label_data(CMS_LABEL,
                                                             mdl.person.get_user_interface_language(request.user)),
                'form_french': EducationGroupGeneralInformationsForm(education_group_year=education_group_year,
-                                                                    language=fr_language),
+                                                                    language=fr_language, text_labels_name=CMS_LABEL),
                'form_english': EducationGroupGeneralInformationsForm(education_group_year=education_group_year,
-                                                                     language=en_language)}
+                                                                     language=en_language, text_labels_name=CMS_LABEL)}
     return layout.render(request, "education_group/tab_general_informations.html", context)
 
 
@@ -149,3 +149,11 @@ def _get_cms_label_data(cms_label, user_language):
         translated_text = next((trans.label for trans in translated_labels if trans.text_label.label == label), None)
         cms_label_data[label] = translated_text
     return cms_label_data
+
+
+def get_text_labels_names(an_entity_name):
+    text_labels_names = mdl_cms.text_label.find_by_entity(an_entity_name)
+    liste = []
+    for tln in text_labels_names:
+        liste.append(tln.label)
+    return liste

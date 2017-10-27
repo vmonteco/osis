@@ -28,17 +28,19 @@ from django.utils.safestring import mark_safe
 from ckeditor.widgets import CKEditorWidget
 from cms.enums import entity_name
 from cms.models import translated_text
+from cms import models as mdl_cms
 
 
 class EducationGroupGeneralInformationsForm(forms.Form):
     education_group_year = language = None
-    text_labels_name = ['introduction', 'profile', 'job', 'program']
+    text_labels_name = None
 
     def __init__(self, *args, **kwargs):
         self.education_group_year = kwargs.pop('education_group_year', None)
         self.language = kwargs.pop('language', None)
+        self.text_labels_name = kwargs.pop('text_labels_name', None)
         self.load_initial()
-        super(EducationGroupGeneralInformationsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def load_initial(self):
         translated_texts_list = self._get_all_translated_text_related()

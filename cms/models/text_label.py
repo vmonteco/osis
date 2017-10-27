@@ -121,3 +121,7 @@ def find_root_by_name(text_label_name):
     return TextLabel.objects.prefetch_related(
                                 Prefetch('translatedtextlabel_set',to_attr="translated_text_labels")
                             ).get(label=text_label_name, order=1, parent__isnull=True)
+
+
+def find_by_entity(an_entity_name):
+    return TextLabel.objects.filter(entity=an_entity_name).order_by('order')
