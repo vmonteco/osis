@@ -1702,8 +1702,8 @@ msgstr "Vol. Q1"
 msgid "volume_remaining"
 msgstr "Vol. Q2"
 
-msgid "learning_unit_quarter"
-msgstr "LU quarter"
+msgid "quadrimester"
+msgstr "Quadrimester"
 
 msgid "composition"
 msgstr "Composition"
@@ -2180,6 +2180,9 @@ msgstr "Not concerned"
 
 msgid "organization_address_save_error"
 msgstr "Impossible to save the organization address"
+
+msgid "publish_attribution_to_portal"
+msgstr "Publish attribution to portal"
 
 msgid "category"
 msgstr "Category"

@@ -1708,8 +1708,8 @@ msgstr "Vol. Q1"
 msgid "volume_remaining"
 msgstr "Vol. Q2"
 
-msgid "learning_unit_quarter"
-msgstr "Quadri. de l'UE"
+msgid "quadrimester"
+msgstr "Quadrimestre"
 
 msgid "composition"
 msgstr "Composition"
@@ -2186,6 +2186,9 @@ msgstr "Non concerné"
 
 msgid "organization_address_save_error"
 msgstr "Impossible d'enregistrer l'adresse de l'organisation"
+
+msgid "publish_attribution_to_portal"
+msgstr "Publication des attributions sur Osis-Portal"
 
 msgid "category"
 msgstr "Catégorie"
