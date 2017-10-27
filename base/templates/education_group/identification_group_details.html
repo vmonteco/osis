@@ -29,6 +29,29 @@
     <div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>{% trans 'acronym'%}</label><br>
+                        {% if education_group_year.acronym %}
+                            {{ education_group_year.acronym }}
+                        {% elif parent.acronym %}
+                            <strong class="text-primary">{{ parent.acronym }}</strong>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label>{% trans 'code'%}</label><br>
+                        {% if education_group_year.partial_acronym %}
+                            {{ education_group_year.partial_acronym }}
+                        {% elif parent.partial_acronym %}
+                            <strong class="text-primary">{{ parent.partial_acronym }}</strong>
+                        {% else %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-body">
                 <label>{% trans 'title_in_french'%}</label><br>
                 <strong class="text-primary">{{ parent.title | default_if_none:'' }}</strong>
                 {{ education_group_year.title | default_if_none:'-' }}
@@ -47,24 +70,11 @@
             <div class="panel-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <label>{% trans 'training_type'%}</label><br>
-                        {% if education_group_year.education_group_type %}
-                            {% trans education_group_year.education_group_type.name %}
-                        {% elif parent.education_group_type %}
-                &nbsp;                                    <strong class="text-primary">{% trans parent.education_group_type.name %}</strong>
+                        <label>{% trans 'type'%}</label><br>
+                        {% if education_group_year.category %}
+                            {% trans education_group_year.category %}
                         {%else%}
-                        {% endif %}
-                        <br><br>
-                        <label>{% trans 'academic_type'%}</label><br>
-                        {% if education_group_year.academic_type %}
-                            {% trans education_group_year.academic_type %}
-                        {%else%}<strong class="text-primary">{% trans parent.academic_type %}</strong>
-                        {% endif %}
-                        <br><br>
-                        <label>{% trans 'studies_domain'%}</label><br>
-                        {% if education_group_year.domains %}
-                            {% trans education_group_year.domains %}
-                        {%else%}<strong class="text-primary">{% trans parent.domains %}</strong>
+                            <strong class="text-primary">{% trans parent.category %}</strong>
                         {% endif %}
                         <br><br>
                         <label>{% trans 'duration'%}</label><br>
@@ -78,9 +88,25 @@
                         {% endif %}
                         <br><br>
                         <label>{% trans 'primary_language'%}</label><br>
-                            {% if education_group_languages %}
-                                {{ education_group_languages|join_with_spaces:education_group_year.language_association }}
-                            {% endif %}
+                        {% if education_group_languages %}
+                            {{ education_group_languages|join_with_spaces:education_group_year.language_association }}
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label>{% trans 'training_type'%}</label><br>
+                        {% if education_group_year.education_group_type %}
+                            {% trans education_group_year.education_group_type.name %}
+                        {% elif parent.education_group_type %}
+                &nbsp;                                    <strong class="text-primary">{% trans parent.education_group_type.name %}</strong>
+                        {%else%}
+                        {% endif %}
+                        <br><br>
+                        <label>{% trans 'credits'%}</label><br>
+                        {% if education_group_year.credits %}
+                            {{ education_group_year.credits }}
+                        {% elif parent.credits %}
+                            <strong class="text-primary">{{ parent.credits }}</strong>
+                        {% endif %}
                         <br><br>
                         <label>{% trans 'other_language_activities'%}</label><br>
                         {% if education_group_year.other_language_activities %}
@@ -90,93 +116,6 @@
                         {% else %}
                         {% endif %}
                     </div>
-                    <div class="col-md-6">
-                        <label>{% trans 'enrollment_enabled' %}</label><br>
-                        {% if education_group_year.enrollment_enabled %}
-                             {% trans 'yes'%}
-                        {% elif education_group_year.enrollment_enabled != None %}
-                            {% trans 'no'%}
-                        {% else %}
-                            <strong class="text-primary">
-                            {% if parent.enrollment_enabled %}
-                                {% trans 'yes'%}
-                            {% else %}
-                                {% trans 'no'%}
-                            {% endif %}
-                            </strong>
-                        {% endif %}
-                        <br><br>
-                        <label>{% trans 'partial_deliberation' %}</label><br>
-                        {% if education_group_year.partial_deliberation %}
-                            {% trans 'yes'%}
-                        {% elif education_group_year.partial_deliberation != None %}
-                            {% trans 'no'%}
-                        {% else %}
-                            <strong class="text-primary">
-                            {% if parent.partial_deliberation %}
-                                {% trans 'yes'%}
-                            {% else %}
-                                {% trans 'no'%}
-                            {% endif %}
-                            </strong>
-                        {% endif %}
-                        <br><br>
-                        <label>{% trans 'admission_exam' %}</label><br>
-                        {% if education_group_year.admission_exam %}
-                            {% trans 'yes'%}
-                        {% elif education_group_year.admission_exam != None %}
-                            {% trans 'no'%}
-                        {% else %}
-                            <strong class="text-primary">
-                            {% if parent.admission_exam %}
-                                {% trans 'yes'%}
-                            {% else %}
-                                {% trans 'no'%}
-                            {% endif %}
-                            </strong>
-                        {% endif %}
-                        <br><br>
-                        <label>{% trans 'university_certificate' %}</label><br>
-                        {% if education_group_year.university_certificate %}
-                            {% trans 'yes'%}
-                        {% elif education_group_year.university_certificate != None %}
-                            {% trans 'no'%}
-                        {% else %}
-                            <strong class="text-primary">
-                            {% if parent.university_certificate %}
-                                {% trans 'yes'%}
-                            {% else %}
-                                {% trans 'no'%}
-                            {% endif %}
-                            </strong>
-                        {% endif %}
-                        <br><br>
-                        <label>{% trans 'dissertation' %}</label><br>
-                        {% if education_group_year.dissertation %}
-                            {% trans 'yes'%}
-                        {% elif education_group_year.dissertation != None %}
-                            {% trans 'no'%}
-                        {% else %}
-                            <strong class="text-primary">
-                            {% if parent.dissertation %}
-                                {% trans 'yes'%}
-                            {% else %}
-                                {% trans 'no'%}
-                            {% endif %}
-                            </strong>
-                        {% endif %}
-                        <br><br>
-                        <label>{% trans 'internship' %}</label><br>
-                        {% if education_group_year.internship %}
-                            {% trans education_group_year.internship%}
-                        {% elif parent.internship %}
-                            <strong class="text-primary">
-                            {% trans parent.internship%}
-                            </strong>
-                        {% else %}
-                        {% endif %}
-                        <br><br>
-                    </div>
                 </div>
             </div>
         </div>
@@ -184,69 +123,6 @@
     <div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <label>{% trans 'status'%}</label><br>
-                        {%if education_group_year.active%}
-                            {% trans education_group_year.active %}
-                        {% elif parent.active %}
-                            <strong class="text-primary">
-                            {% trans parent.active%}
-                            </strong>
-                        {% endif%}
-                    </div>
-                    <div class="col-md-6">
-                        <label>{% trans 'schedule_type'%}</label><br>
-                        {% if education_group_year.schedule_type %}
-                            {% trans education_group_year.schedule_type %}
-                        {% elif parent.schedule_type %}
-                            <strong class="text-primary">
-                            {% trans parent.schedule_type%}
-                            </strong>
-                        {%else%}
-                            &nbsp;
-                        {%endif%}
-                    </div>
-                </div>
-                <br>
-                <div class="row">
-                    <div class="col-md-6">
-                        <label>{% trans 'enrollment_campus'%}</label><br>
-                        {% if education_group_year.enrollment_campus %}
-                            {{ education_group_year.enrollment_campus }}
-                        {% elif parent.enrollment_campus %}
-                            <strong class="text-primary">
-                            {{ parent.enrollment_campus }}
-                            </strong>
-                        {%else%}
-                            '-'
-                        {%endif%}
-                    </div>
-                    <div class="col-md-6">
-                        <label>{% trans 'learning_location'%}</label><br>
-                        {% if education_group_year.main_teaching_campus %}
-                            {{ education_group_year.main_teaching_campus }}
-                        {% elif parent.main_teaching_campus %}
-                            <strong class="text-primary">
-                            {{ parent.main_teaching_campus }}
-                            </strong>
-                        {%else%}
-                            '-'
-                        {%endif%}
-                    </div>
-                </div>
-                <br>
-                <label>{% trans 'other_campus_activities'%}</label><br>
-                {% if education_group_year.other_campus_activities %}
-                    {% trans education_group_year.other_campus_activities %}
-                {% elif parent.other_campus_activities %}
-                    <strong class="text-primary">
-                    {% trans parent.other_campus_activities %}
-                    </strong>
-                {%else%}
-                {%endif%}
-                <br>
-                <br>
                 <div class="row">
                     <div class="col-md-6">
                         <label>{% trans 'administration_entity'%}</label><br>
@@ -296,55 +172,65 @@
                         {% endif%}
                     </div>
                 </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>{% trans 'enrollment_campus'%}</label><br>
+                        {% if education_group_year.enrollment_campus %}
+                            {{ education_group_year.enrollment_campus }}
+                        {% elif parent.enrollment_campus %}
+                            <strong class="text-primary">
+                            {{ parent.enrollment_campus }}
+                            </strong>
+                        {%else%}
+                            '-'
+                        {%endif%}
+                    </div>
+                    <div class="col-md-6">
+                        <label>{% trans 'learning_location'%}</label><br>
+                        {% if education_group_year.main_teaching_campus %}
+                            {{ education_group_year.main_teaching_campus }}
+                        {% elif parent.main_teaching_campus %}
+                            <strong class="text-primary">
+                            {{ parent.main_teaching_campus }}
+                            </strong>
+                        {%else%}
+                            '-'
+                        {%endif%}
+                    </div>
+                </div>
+                <br>
+                <label>{% trans 'other_campus_activities'%}</label><br>
+                {% if education_group_year.other_campus_activities %}
+                    {% trans education_group_year.other_campus_activities %}
+                {% elif parent.other_campus_activities %}
+                    <strong class="text-primary">
+                    {% trans parent.other_campus_activities %}
+                    </strong>
+                {%else%}
+                {%endif%}
+                <br>
             </div>
         </div>
         <div class="panel panel-default">
             <div class="panel-body">
-                <label>{% trans 'funding' %}</label><br>
-                {% if education_group_year.funding %}
-                    {% trans 'yes'%}
-                {% elif education_group_year.funding != None %}
-                    {% trans 'no'%}
-                {% else %}
-                    <strong class="text-primary">
-                    {% if parent.funding %}
-                        {% trans 'yes'%}
-                    {% else %}
-                        {% trans 'no'%}
+                <div>
+                    <label>{% trans 'remark'%}</label><br>
+                    {% if education_group_year.remark %}
+                        {{ education_group_year.remark }}
+                    {% elif parent.remark %}
+                        <strong class="text-primary">{{ parent.remark }}</strong>
                     {% endif %}
-                    </strong>
-                {% endif %}
-                <br><br>
-                <label>{% trans 'funding_direction' %}</label><br>
-                {% if education_group_year.funding_direction %}
-                    {% trans education_group_year.funding_direction %}
-                {% elif parent.funding_direction %}
-                    <strong class="text-primary">{% trans parent.funding_direction %}</strong>
-                {%else%}
-                {%endif%}
-                <br><br>
-                <label>{% trans 'funding_cud' %}</label><br>
-                {% if education_group_year.funding_cud %}
-                    {% trans 'yes'%}
-                {% elif education_group_year.funding_cud != None %}
-                    {% trans 'no'%}
-                {% else %}
-                    <strong class="text-primary">
-                    {% if parent.funding_cud %}
-                        {% trans 'yes'%}
+                    <br><br>
+                    <label>{% trans 'remark_english'%}</label><br>
+                    {% if education_group_year.remark_english %}
+                        {{ education_group_year.remark_english }}
+                    {% elif parent.remark_english %}
+                        <strong class="text-primary">{{ parent.remark_english }}</strong>
                     {% else %}
-                        {% trans 'no'%}
                     {% endif %}
-                    </strong>
-                {% endif %}
-                <br><br>
-                <label>{% trans 'cud_funding_direction' %}</label><br>
-                {% if education_group_year.funding_direction_cud %}
-                    {% trans education_group_year.funding_direction_cud %}
-                {% elif parent.funding_direction_cud %}
-                    <strong class="text-primary">{% trans parent.funding_direction_cud %}</strong>
-                {%else%}&nbsp;
-                {%endif%}
+                    <br>
+                </div>
             </div>
         </div>
     </div>

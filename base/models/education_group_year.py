@@ -37,11 +37,12 @@ from base.models.enums import offer_year_entity_type
 from base.models.exceptions import MaximumOneParentAllowedException
 from base.models.group_element_year import GroupElementYear
 
+
 class EducationGroupYearAdmin(admin.ModelAdmin):
     list_display = ('acronym', 'title', 'academic_year', 'education_group_type', 'changed')
-    fieldsets = ((None, {'fields': ('academic_year', 'acronym', 'title', 'education_group_type', 'education_group',
-                                    'active', 'partial_deliberation', 'admission_exam', 'category',
-                                    'funding', 'funding_direction', 'funding_cud', 'funding_direction_cud',
+    fieldsets = ((None, {'fields': ('academic_year', 'acronym', 'partial_acronym', 'title', 'education_group_type',
+                                    'education_group', 'active', 'partial_deliberation', 'admission_exam', 'category',
+                                    'credits', 'funding', 'funding_direction', 'funding_cud', 'funding_direction_cud',
                                     'academic_type', 'university_certificate', 'fee_type', 'enrollment_campus',
                                     'main_teaching_campus', 'dissertation', 'internship',
                                     'schedule_type', 'english_activities', 'other_language_activities',
@@ -49,8 +50,8 @@ class EducationGroupYearAdmin(admin.ModelAdmin):
                                     'diploma_printing_orientation', 'diploma_printing_title',
                                     'inter_organization_information', 'inter_university_french_community',
                                     'inter_university_belgium', 'inter_university_abroad', 'primary_language',
-                                    'language_association','keywords', 'duration', 'duration_unit', 'title_english',
-                                    'enrollment_enabled')}),)
+                                    'language_association', 'keywords', 'duration', 'duration_unit', 'title_english',
+                                    'enrollment_enabled', 'remark', 'remark_english')}),)
     list_filter = ('academic_year', 'education_group_type')
     raw_id_fields = ('education_group_type', 'academic_year', 'education_group')
     search_fields = ['acronym']
@@ -101,7 +102,10 @@ class EducationGroupYear(models.Model):
                                      default=duration_unit.DurationUnits.QUADRIMESTER,
                                      blank=True, null=True)
     enrollment_enabled = models.BooleanField(default=False)
-    code_scs = models.CharField(max_length=15, db_index=True, null=True)
+    partial_acronym = models.CharField(max_length=15, db_index=True, null=True)
+    credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    remark = models.TextField(blank=True, null=True)
+    remark_english = models.TextField(blank=True, null=True)
 
     _coorganizations = None
 
