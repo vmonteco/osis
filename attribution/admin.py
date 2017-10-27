@@ -38,3 +38,6 @@ admin.site.register(attribution_new.AttributionNew,
 
 admin.site.register(attribution_charge_new.AttributionChargeNew,
                     attribution_charge_new.AttributionChargeNewAdmin)
+
+admin.site.register(tutor_application.TutorApplication,
+                    tutor_application.TutorApplicationAdmin)

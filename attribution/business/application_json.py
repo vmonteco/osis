@@ -23,9 +23,34 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from attribution.models import attribution
-from attribution.models import attribution_charge
-from attribution.models import attribution_new
-from attribution.models import attribution_charge_new
-from attribution.models import tutor_application
+import logging
+import pika
+import pika.exceptions
 
+from django.conf import settings
+
+from osis_common.queue import queue_sender
+
+
+logger = logging.getLogger(settings.DEFAULT_LOGGER)
+
+
+def publish_to_portal(global_ids=None):
+    application_list = _compute_list(global_ids)
+    queue_name = settings.QUEUES.get('QUEUES_NAME', {}).get('ATTRIBUTION_RESPONSE')
+
+    if queue_name:
+        try:
+            queue_sender.send_message(queue_name, application_list)
+        except (RuntimeError, pika.exceptions.ConnectionClosed, pika.exceptions.ChannelClosed,
+                 pika.exceptions.AMQPError):
+            logger.exception('Could not recompute attributions for portal...')
+            return False
+        return True
+    else:
+        logger.exception('Could not recompute attributions for portal because not queue name ATTRIBUTION_RESPONSE')
+        return False
+
+
+def _compute_list(global_ids=None):
+    return []
