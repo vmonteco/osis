@@ -317,10 +317,12 @@ def form_part6_save(request):
                     txt_template_ref = 'assistant_phd_supervisor_txt'
                     send_message(person=assistant.supervisor, html_template_ref=html_template_ref,
                                  txt_template_ref=txt_template_ref, assistant=assistant)
-                elif mandate.assistant_type == "TEACHING_ASSISTANT":
-                    mandate.state = assistant_mandate_state.SUPERVISION
-                else:
+                elif mandate_entity.find_by_mandate_and_type(mandate, entity_type.INSTITUTE):
                     mandate.state = assistant_mandate_state.RESEARCH
+                elif mandate_entity.find_by_mandate_and_type(mandate, entity_type.POLE):
+                    mandate.state = assistant_mandate_state.RESEARCH
+                else:
+                    mandate.state = assistant_mandate_state.SUPERVISION
                 current_mandate.save()
                 return HttpResponseRedirect(reverse('assistant_mandates'))
             else:

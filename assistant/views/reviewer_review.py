@@ -140,24 +140,14 @@ def review_save(request):
         if 'validate_and_submit' in request.POST:
             current_review.status = review_status.DONE
             current_review.save()
-            if mandate.state == assistant_mandate_state.PHD_SUPERVISOR:
-                if mandate_entity.find_by_mandate_and_type(mandate, entity_type.INSTITUTE):
-                    mandate.state = assistant_mandate_state.RESEARCH
-                elif mandate_entity.find_by_mandate_and_type(mandate, entity_type.POLE):
-                    mandate.state = assistant_mandate_state.RESEARCH
-                else:
-                    mandate.state = assistant_mandate_state.SUPERVISION
-            elif mandate.state == assistant_mandate_state.RESEARCH:
+            if mandate.state == assistant_mandate_state.RESEARCH:
                 mandate.state = assistant_mandate_state.SUPERVISION
             elif mandate.state == assistant_mandate_state.SUPERVISION:
                 mandate.state = assistant_mandate_state.VICE_RECTOR
             elif mandate.state == assistant_mandate_state.VICE_RECTOR:
                 mandate.state = assistant_mandate_state.DONE
             mandate.save()
-            if current_review.reviewer is not None:
-                return HttpResponseRedirect(reverse("reviewer_mandates_list"))
-            else:
-                return HttpResponseRedirect(reverse("phd_supervisor_assistants_list"))
+            return HttpResponseRedirect(reverse("reviewer_mandates_list"))
         elif 'save' in request.POST:
             current_review.status = review_status.IN_PROGRESS
             current_review.save()
