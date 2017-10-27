@@ -91,6 +91,7 @@ def get_field_qs(field, **kwargs):
         return EntityChoiceField(queryset=base.models.entity.find_versions_from_entites(
             entity.search(entity_type=entity_type.SECTOR) |
             entity.search(entity_type=entity_type.FACULTY) |
+            entity.search(entity_type=entity_type.LOGISTICS_ENTITY) |
             entity.search(entity_type=entity_type.SCHOOL) |
             entity.search(entity_type=entity_type.INSTITUTE) |
             entity.search(entity_type=entity_type.POLE), None))
@@ -314,7 +315,7 @@ class ReviewerForm(ModelForm):
     role = forms.ChoiceField(required=True, choices=reviewer_role.ROLE_CHOICES)
     entities = \
         entity.search(entity_type=entity_type.INSTITUTE) | entity.search(entity_type=entity_type.FACULTY) | \
-        entity.search(entity_type=entity_type.SECTOR)
+        entity.search(entity_type=entity_type.SECTOR) | entity.search(entity_type=entity_type.LOGISTICS_ENTITY)
     entity = EntityChoiceField(required=True, queryset=base.models.entity.find_versions_from_entites(entities, None))
 
     class Meta:
