@@ -31,8 +31,6 @@ from base.models.enums import academic_type, fee, internship_presence, schedule_
 from base.models import offer_year_domain as mdl_offer_year_domain, education_group_organization
 from base.models import offer_year_entity as mdl_offer_year_entity
 from base.models import entity_version as mdl_entity_version
-from base.models import education_group_type as mdl_education_group_type
-from base.models.enums import education_group_categories
 from base.models.enums import education_group_association
 from base.models.enums import offer_year_entity_type
 from base.models.exceptions import MaximumOneParentAllowedException
