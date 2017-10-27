@@ -43,12 +43,6 @@
             </div>
             <div class="modal-body">
                 {% csrf_token %}
-                 <div class="form-group row">
-                    <label class="col-sm-3" style="margin-top:5px;">{% trans 'planned_classrooms'%}</label>
-                    <div class="col-sm-3">
-                        {{ form.planned_classes }}
-                    </div>
-                 </div>
                 <label>{% trans 'description'%}</label>
                 {{ form.comment }}
                 <br>

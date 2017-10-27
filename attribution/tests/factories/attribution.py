@@ -28,6 +28,7 @@ import factory
 import factory.fuzzy
 from faker import Faker
 
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.tests.factories.tutor import TutorFactory
 from osis_common.utils.datetime import get_tzinfo
@@ -51,3 +52,20 @@ class AttributionFactory(factory.django.DjangoModelFactory):
     learning_unit_year = factory.SubFactory(LearningUnitYearFakerFactory)
     tutor = factory.SubFactory(TutorFactory)
     score_responsible = False
+
+
+class AttributionNewFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "attribution.AttributionNew"
+
+    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
+    changed = fake.date_time_this_decade(before_now=True, after_now=True, tzinfo=get_tzinfo())
+    learning_container_year = factory.SubFactory(LearningContainerYearFactory)
+    tutor = factory.SubFactory(TutorFactory)
+    function = factory.Iterator(function.FUNCTIONS, getter=lambda c: c[0])
+    start_date = None
+    end_date = None
+    start_year = None
+    end_year = None
+    score_responsible = False
+    deleted = False
