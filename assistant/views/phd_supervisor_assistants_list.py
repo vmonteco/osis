@@ -64,6 +64,8 @@ class AssistantsListView(LoginRequiredMixin, UserPassesTestMixin, ListView, Form
     def get_context_data(self, **kwargs):
         context = super(AssistantsListView, self).get_context_data(**kwargs)
         context['year'] = academic_year.current_academic_year().year
+        start_date = academic_year.find_academic_year_by_id(int(self.request.session.get(
+            'selected_academic_year'))).start_date
         context['is_reviewer'] = self.is_reviewer
         context['current_reviewer'] = self.reviewer
         if self.reviewer:
@@ -76,4 +78,13 @@ class AssistantsListView(LoginRequiredMixin, UserPassesTestMixin, ListView, Form
             context['can_delegate'] = can_delegate
         else:
             context['can_delegate'] = False
+        for mandate in context['object_list']:
+            entities = []
+            entities_id = mandate.mandateentity_set.all().order_by('id')
+            for entity in entities_id:
+                current_entityversion = entity_version.get_by_entity_and_date(entity.entity, start_date)[0]
+                if current_entityversion is None:
+                    current_entityversion = entity_version.get_last_version(entity.entity)
+                entities.append(current_entityversion)
+            mandate.entities = entities
         return context
