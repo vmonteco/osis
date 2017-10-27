@@ -31,9 +31,9 @@ from attribution.models.enums import function
 
 
 class TutorApplicationAdmin(AuditableModelAdmin):
-    list_display = ('tutor', 'function', 'learning_container_year', 'volume_cm', 'volume_tp', 'changed')
+    list_display = ('tutor', 'function', 'learning_container_year', 'volume_lecturing', 'volume_pratical_exercice', 'changed')
     list_filter = ('learning_container_year__academic_year', )
-    fieldsets = ((None, {'fields': ('learning_container_year', 'tutor', 'function', 'volume_cm', 'volume_tp')}),)
+    fieldsets = ((None, {'fields': ('learning_container_year', 'tutor', 'function', 'volume_lecturing', 'volume_pratical_exercice')}),)
     raw_id_fields = ('learning_container_year', 'tutor')
     search_fields = ['tutor__person__first_name', 'tutor__person__last_name', 'learning_container_year__acronym',
                      'tutor__person__global_id', 'function']
@@ -52,8 +52,8 @@ class TutorApplication(AuditableModel):
     learning_container_year = models.ForeignKey('base.LearningContainerYear')
     tutor = models.ForeignKey('base.Tutor')
     function = models.CharField(max_length=35, blank=True, null=True, choices=function.FUNCTIONS, db_index=True)
-    volume_cm = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
-    volume_tp = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
+    volume_lecturing = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
+    volume_pratical_exercice = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
 
     class Meta:
         unique_together = ('learning_container_year', 'tutor', 'function')
