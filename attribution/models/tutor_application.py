@@ -57,3 +57,6 @@ class TutorApplication(AuditableModel):
 
     class Meta:
         unique_together = ('learning_container_year', 'tutor', 'function')
+
+    def __str__(self):
+        return u"%s - %s" % (self.tutor, self.function)
