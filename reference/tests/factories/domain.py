@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# OSIS stands for Open Student Information System. It's an application
+#    OSIS stands for Open Student Information System. It's an application
 #    designed to manage the core business of higher education institutions,
 #    such as universities, faculties, institutes and professional schools.
 #    The core business involves the administration of students, teachers,
@@ -23,18 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import string
 import factory
-import factory.fuzzy
 
 from factory import DjangoModelFactory
+from reference.models.enums import domain_type
+from reference.tests.factories.decree import DecreeFactory
 
 
-class LanguageFactory(DjangoModelFactory):
+class DomainFactory(DjangoModelFactory):
     class Meta:
-        model = 'reference.Language'
+        model = "reference.Domain"
 
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    code = factory.Faker('random_element', elements=('ABC', 'DEF', 'GHI'))
-    name = factory.Faker('country')
-    recognized = factory.Faker('boolean', chance_of_getting_true=50)
+    parent = None
+    decree = factory.SubFactory(DecreeFactory)
+    name = factory.Sequence(lambda n: 'Domain %d' % n)
+    type = domain_type.UNKNOWN
+    adhoc = factory.Faker('boolean', chance_of_getting_true=50)
+    national = factory.Faker('boolean', chance_of_getting_true=50)
+    reference = factory.Faker('text', max_nb_chars=10)
