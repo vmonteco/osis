@@ -46,6 +46,10 @@ class EducationGroupYearTest(TestCase):
                                                         type=offer_year_entity_type.ENTITY_ADMINISTRATION)
         self.entity_version_admin = EntityVersionFactory(entity=self.offer_year_entity_admin.entity,
                                                          parent=None)
+        self.offer_year_entity_management = OfferYearEntityFactory(education_group_year=self.education_group_year_2,
+                                                        type=offer_year_entity_type.ENTITY_MANAGEMENT)
+        self.entity_version_management = EntityVersionFactory(entity=self.offer_year_entity_management.entity,
+                                                         parent=None)
 
     def test_find_by_id(self):
         education_group_year = find_by_id(self.education_group_year_1.id)
@@ -88,3 +92,6 @@ class EducationGroupYearTest(TestCase):
 
         administration_entity = self.education_group_year_2.administration_entity
         self.assertEqual(administration_entity, self.entity_version_admin)
+
+        management_entity = self.education_group_year_2.management_entity
+        self.assertEqual(management_entity, self.entity_version_management)
