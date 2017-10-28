@@ -34,7 +34,8 @@ from .text_label import TextLabel
 class TranslatedTextAdmin(admin.ModelAdmin):
     list_display = ('text_label', 'entity', 'reference', 'language', 'text',)
     ordering = ('text_label',)
-
+    list_filter = ('entity',)
+    search_fields = ['reference']
 
 class TranslatedText(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
@@ -70,3 +71,10 @@ def get_or_create(entity, reference, text_label, language):
                                                  text_label=text_label,
                                                  language=language)
     return translated_text
+
+
+def find_by_entity_reference(an_entity_name, an_education_group_year_id):
+    return TranslatedText.objects.filter(text_label__entity=an_entity_name,
+                                         reference=an_education_group_year_id)\
+        .order_by('text_label__order')\
+        .values_list('text_label__label', flat=True)

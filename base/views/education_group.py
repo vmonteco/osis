@@ -34,8 +34,6 @@ from base.models.enums import education_group_categories
 from . import layout
 from cms.enums import entity_name
 from cms import models as mdl_cms
-from cms.models import text_label
-from reference.models.language import find_by_id
 from collections import OrderedDict
 from django.conf import settings
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
@@ -95,7 +93,7 @@ def get_education_group_years(academic_yr, acronym, entity):
         education_group_year_entities = []
         education_group_years = mdl.education_group_year.search(academic_yr=academic_yr, acronym=acronym)
         for education_group_yr in education_group_years:
-            if education_group_yr.management_entity and\
+            if education_group_yr.management_entity and \
                             education_group_yr.management_entity.acronym.upper() == entity.upper():
                 education_group_year_entities.append(education_group_yr)
         return education_group_year_entities
@@ -123,7 +121,7 @@ def education_group_general_informations(request, education_group_year_id):
 def _education_group_general_informations_tab(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
 
-    CMS_LABEL = get_text_labels_names(entity_name.OFFER_YEAR)
+    CMS_LABEL = mdl_cms.translated_text.find_by_entity_reference(entity_name.OFFER_YEAR, education_group_year_id)
 
     fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
     en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
@@ -148,12 +146,5 @@ def _get_cms_label_data(cms_label, user_language):
     for label in cms_label:
         translated_text = next((trans.label for trans in translated_labels if trans.text_label.label == label), None)
         cms_label_data[label] = translated_text
+
     return cms_label_data
-
-
-def get_text_labels_names(an_entity_name):
-    text_labels_names = mdl_cms.text_label.find_by_entity(an_entity_name)
-    liste = []
-    for tln in text_labels_names:
-        liste.append(tln.label)
-    return liste
