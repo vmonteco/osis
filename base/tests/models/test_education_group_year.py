@@ -29,6 +29,9 @@ from base.tests.factories.academic_year import AcademicYearFactory
 
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.offer_year_domain import OfferYearDomainFactory
+from base.tests.factories.offer_year_entity import OfferYearEntityFactory
+from base.tests.factories.entity_version import EntityVersionFactory
+
 
 class EducationGroupYearTest(TestCase):
     def setUp(self):
@@ -39,6 +42,10 @@ class EducationGroupYearTest(TestCase):
         self.education_group_year_2.save()
 
         self.offer_year_domain = OfferYearDomainFactory(education_group_year=self.education_group_year_2)
+        self.offer_year_entity_admin = OfferYearEntityFactory(education_group_year=self.education_group_year_2,
+                                                        type=offer_year_entity_type.ENTITY_ADMINISTRATION)
+        self.entity_version_admin = EntityVersionFactory(entity=self.offer_year_entity_admin.entity,
+                                                         parent=None)
 
     def test_find_by_id(self):
         education_group_year = find_by_id(self.education_group_year_1.id)
@@ -61,10 +68,6 @@ class EducationGroupYearTest(TestCase):
         domains = self.education_group_year_1.domains
         self.assertEqual(domains, '')
 
-        domains = self.education_group_year_2.domains
-        offer_year_domain = "{}-{} ".format(self.offer_year_domain.domain.decree, self.offer_year_domain.domain.name)
-        self.assertEqual(domains, offer_year_domain)
-
         administration_entity = self.education_group_year_1.administration_entity
         self.assertIsNone(administration_entity)
 
@@ -76,3 +79,12 @@ class EducationGroupYearTest(TestCase):
 
         children_by_group_element_year = self.education_group_year_1.children_by_group_element_year
         self.assertListEqual(children_by_group_element_year, [])
+
+    def test_properties_not_none(self):
+
+        domains = self.education_group_year_2.domains
+        offer_year_domain = "{}-{} ".format(self.offer_year_domain.domain.decree, self.offer_year_domain.domain.name)
+        self.assertEqual(domains, offer_year_domain)
+
+        administration_entity = self.education_group_year_2.administration_entity
+        self.assertEqual(administration_entity, self.entity_version_admin)
