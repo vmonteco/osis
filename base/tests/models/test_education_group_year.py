@@ -28,7 +28,7 @@ from base.models.education_group_year import *
 from base.tests.factories.academic_year import AcademicYearFactory
 
 from base.tests.factories.education_group_year import EducationGroupYearFactory
-
+from base.tests.factories.offer_year_domain import OfferYearDomainFactory
 
 class EducationGroupYearTest(TestCase):
     def setUp(self):
@@ -37,6 +37,8 @@ class EducationGroupYearTest(TestCase):
         self.education_group_year_2 = EducationGroupYearFactory(academic_year=academic_year)
         self.education_group_year_2.category = education_group_categories.MINI_TRAINING
         self.education_group_year_2.save()
+
+        self.offer_year_domain = OfferYearDomainFactory(education_group_year=self.education_group_year_2)
 
     def test_find_by_id(self):
         education_group_year = find_by_id(self.education_group_year_1.id)
@@ -58,6 +60,10 @@ class EducationGroupYearTest(TestCase):
     def test_properties_none(self):
         domains = self.education_group_year_1.domains
         self.assertEqual(domains, '')
+
+        domains = self.education_group_year_2.domains
+        offer_year_domain = "{}-{} ".format(self.offer_year_domain.domain.decree, self.offer_year_domain.domain.name)
+        self.assertEqual(domains, offer_year_domain)
 
         administration_entity = self.education_group_year_1.administration_entity
         self.assertIsNone(administration_entity)
