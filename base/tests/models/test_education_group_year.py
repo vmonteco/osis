@@ -133,4 +133,3 @@ class EducationGroupYearTest(TestCase):
 
         with self.assertRaises(MaximumOneParentAllowedException):
             parent_by_training=self.education_group_year_1.parent_by_training
-            
