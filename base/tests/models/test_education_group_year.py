@@ -37,8 +37,6 @@ from base.tests.factories.group_element_year import GroupElementYearFactory
 
 class EducationGroupYearTest(TestCase):
 
-    academic_years=[]
-
     def setUp(self):
 
         academic_year = AcademicYearFactory()
