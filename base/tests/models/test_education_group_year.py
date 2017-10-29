@@ -51,10 +51,10 @@ class EducationGroupYearTest(TestCase):
         self.education_group_year_3.category = education_group_categories.TRAINING
         self.education_group_year_3.save()
         self.education_group_year_4 = EducationGroupYearFactory(academic_year=academic_year)
-        self.education_group_year_4.category = education_group_categories.MINI_TRAINING
+        self.education_group_year_4.category = education_group_categories.GROUP
         self.education_group_year_4.save()
         self.education_group_year_5 = EducationGroupYearFactory(academic_year=academic_year)
-        self.education_group_year_5.category = education_group_categories.MINI_TRAINING
+        self.education_group_year_5.category = education_group_categories.GROUP
         self.education_group_year_5.save()
 
         self.offer_year_2 = OfferYearFactory(academic_year=academic_year)
@@ -89,8 +89,18 @@ class EducationGroupYearTest(TestCase):
         result = search(id=[self.education_group_year_1.id, self.education_group_year_2.id])
         self.assertEqual(len(result), 2)
 
+        result = search(id=self.education_group_year_1.id)
+        self.assertEqual(result.first(), self.education_group_year_1)
+
+        result = search(category=[self.education_group_year_2.category, self.education_group_year_3.category])
+        self.assertEqual(len(result), 3)
+
         result = search(category=self.education_group_year_2.category)
         self.assertEqual(result.first().category, self.education_group_year_2.category)
+
+        result = search(education_group_type=[self.education_group_year_2.education_group_type,
+                                              self.education_group_year_3.education_group_type])
+        self.assertEqual(len(result), 2)
 
         result = search(education_group_type=self.education_group_year_3.education_group_type)
         self.assertEqual(result.first().education_group_type, self.education_group_year_3.education_group_type)
@@ -125,4 +135,3 @@ class EducationGroupYearTest(TestCase):
 
         with self.assertRaises(MaximumOneParentAllowedException):
             parent_by_training=self.education_group_year_1.parent_by_training
-
