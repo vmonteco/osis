@@ -25,31 +25,58 @@
 ##############################################################################
 from django.test import TestCase
 from base.models.education_group_year import *
+from base.models.exceptions import MaximumOneParentAllowedException, StartDateHigherThanEndDateException
 from base.tests.factories.academic_year import AcademicYearFactory
-
 from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.offer_year import OfferYearFactory
 from base.tests.factories.offer_year_domain import OfferYearDomainFactory
 from base.tests.factories.offer_year_entity import OfferYearEntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.group_element_year import GroupElementYearFactory
 
 
 class EducationGroupYearTest(TestCase):
+
+    academic_years=[]
+
     def setUp(self):
+
         academic_year = AcademicYearFactory()
+
         self.education_group_year_1 = EducationGroupYearFactory(academic_year=academic_year)
         self.education_group_year_2 = EducationGroupYearFactory(academic_year=academic_year)
         self.education_group_year_2.category = education_group_categories.MINI_TRAINING
         self.education_group_year_2.save()
+        self.education_group_year_3 = EducationGroupYearFactory(academic_year=academic_year)
+        self.education_group_year_3.category = education_group_categories.TRAINING
+        self.education_group_year_3.save()
+        self.education_group_year_4 = EducationGroupYearFactory(academic_year=academic_year)
+        self.education_group_year_4.category = education_group_categories.MINI_TRAINING
+        self.education_group_year_4.save()
+        self.education_group_year_5 = EducationGroupYearFactory(academic_year=academic_year)
+        self.education_group_year_5.category = education_group_categories.MINI_TRAINING
+        self.education_group_year_5.save()
 
-        self.offer_year_domain = OfferYearDomainFactory(education_group_year=self.education_group_year_2)
-        self.offer_year_entity_admin = OfferYearEntityFactory(education_group_year=self.education_group_year_2,
-                                                        type=offer_year_entity_type.ENTITY_ADMINISTRATION)
+        self.offer_year_2 = OfferYearFactory(academic_year=academic_year)
+        self.offer_year_domain = OfferYearDomainFactory(offer_year=self.offer_year_2,
+                                                        education_group_year=self.education_group_year_2)
+        self.offer_year_entity_admin = OfferYearEntityFactory(offer_year=self.offer_year_2,
+                                                              education_group_year=self.education_group_year_2,
+                                                              type=offer_year_entity_type.ENTITY_ADMINISTRATION)
         self.entity_version_admin = EntityVersionFactory(entity=self.offer_year_entity_admin.entity,
                                                          parent=None)
-        self.offer_year_entity_management = OfferYearEntityFactory(education_group_year=self.education_group_year_2,
-                                                        type=offer_year_entity_type.ENTITY_MANAGEMENT)
+
+        self.offer_year_3 = OfferYearFactory(academic_year=academic_year)
+        self.offer_year_entity_management = OfferYearEntityFactory(offer_year=self.offer_year_3,
+                                                                   education_group_year=self.education_group_year_3,
+                                                                   type=offer_year_entity_type.ENTITY_MANAGEMENT)
         self.entity_version_management = EntityVersionFactory(entity=self.offer_year_entity_management.entity,
                                                          parent=None)
+
+        self.group_element_year_4 = GroupElementYearFactory(parent=self.education_group_year_3,
+                                                     child_branch=self.education_group_year_1)
+        self.group_element_year_5 = GroupElementYearFactory(parent=self.education_group_year_3,
+                                                     child_branch=self.education_group_year_1)
 
     def test_find_by_id(self):
         education_group_year = find_by_id(self.education_group_year_1.id)
@@ -65,8 +92,8 @@ class EducationGroupYearTest(TestCase):
         result = search(category=self.education_group_year_2.category)
         self.assertEqual(result.first().category, self.education_group_year_2.category)
 
-        result = search(education_group_type=self.education_group_year_2.education_group_type)
-        self.assertEqual(result.first().education_group_type, self.education_group_year_2.education_group_type)
+        result = search(education_group_type=self.education_group_year_3.education_group_type)
+        self.assertEqual(result.first().education_group_type, self.education_group_year_3.education_group_type)
 
     def test_properties_none(self):
         domains = self.education_group_year_1.domains
@@ -78,7 +105,7 @@ class EducationGroupYearTest(TestCase):
         management_entity = self.education_group_year_1.management_entity
         self.assertIsNone(management_entity)
 
-        parent_by_training = self.education_group_year_1.parent_by_training
+        parent_by_training = self.education_group_year_2.parent_by_training
         self.assertIsNone(parent_by_training)
 
         children_by_group_element_year = self.education_group_year_1.children_by_group_element_year
@@ -93,5 +120,9 @@ class EducationGroupYearTest(TestCase):
         administration_entity = self.education_group_year_2.administration_entity
         self.assertEqual(administration_entity, self.entity_version_admin)
 
-        management_entity = self.education_group_year_2.management_entity
+        management_entity = self.education_group_year_3.management_entity
         self.assertEqual(management_entity, self.entity_version_management)
+
+        with self.assertRaises(MaximumOneParentAllowedException):
+            parent_by_training=self.education_group_year_1.parent_by_training
+
