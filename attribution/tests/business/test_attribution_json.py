@@ -28,8 +28,6 @@ from datetime import date
 from decimal import Decimal
 from django.test import TestCase
 
-
-
 from base.models.enums import learning_component_year_type, learning_unit_year_subtypes
 
 from attribution.business import attribution_json
@@ -109,11 +107,7 @@ class AttributionJsonTest(TestCase):
             (attrib for attrib in attrib_list if attrib['global_id'] == self.tutor_1.person.global_id),
             None)
         self.assertTrue(attrib_tutor_1)
-        self.assertEqual(len(attrib_tutor_1['attributions']), 1)
-        self.assertEqual(attrib_tutor_1['attributions'][0]['acronym'], "LBIR1210A")
-        self.assertEqual(attrib_tutor_1['attributions'][0]['function'], function.HOLDER)
-        self.assertEqual(attrib_tutor_1['attributions'][0][learning_component_year_type.PRACTICAL_EXERCISES], "5.0")
-        self.assertRaises(KeyError, lambda: attrib_tutor_1['attributions'][0][learning_component_year_type.LECTURING])
+        self.assertEqual(len(attrib_tutor_1['attributions']), 0)
 
     def test_two_attribution_function_to_same_learning_unit(self):
         new_attrib = AttributionNewFactory(learning_container_year=self.l_container, tutor=self.tutor_1,
