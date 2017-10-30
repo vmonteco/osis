@@ -23,12 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib import admin
 from django.db import models
 from base.models.enums import learning_container_year_types
+from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
-class LearningContainerYearAdmin(admin.ModelAdmin):
+class LearningContainerYearAdmin(SerializableModelAdmin):
     list_display = ('learning_container', 'academic_year', 'container_type', 'acronym', 'title')
     fieldsets = ((None, {'fields': ('learning_container', 'academic_year', 'container_type', 'acronym', 'title',
                                     'title_english', 'language')}),)
@@ -36,7 +36,7 @@ class LearningContainerYearAdmin(admin.ModelAdmin):
     list_filter = ('academic_year',)
 
 
-class LearningContainerYear(models.Model):
+class LearningContainerYear(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     academic_year = models.ForeignKey('AcademicYear')
     learning_container = models.ForeignKey('LearningContainer')
