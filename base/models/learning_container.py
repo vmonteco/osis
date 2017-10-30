@@ -31,7 +31,6 @@ class LearningContainerAdmin(admin.ModelAdmin):
     list_display = ('external_id',)
     fieldsets = ((None, {'fields': ('external_id',)}),)
     search_fields = ['external_id']
-    list_filter = ('in_charge', 'vacant',)
 
 
 class LearningContainer(models.Model):

@@ -33,7 +33,7 @@ class LearningContainerYearAdmin(SerializableModelAdmin):
     fieldsets = ((None, {'fields': ('learning_container', 'academic_year', 'container_type', 'acronym', 'title',
                                     'title_english', 'language')}),)
     search_fields = ['acronym']
-    list_filter = ('academic_year',)
+    list_filter = ('academic_year', 'in_charge', 'vacant',)
 
 
 class LearningContainerYear(SerializableModel):
