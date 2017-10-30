@@ -50,9 +50,10 @@ class LearningComponentYear(SerializableModel):
     planned_classes = models.IntegerField(blank=True, null=True)
     hourly_volume_partial = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
     deleted = models.BooleanField(default=False)
+    volume_declared_vacant = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
 
     def __str__(self):
-        return u"%s - %s - %s" % (self.acronym, self.learning_container_year.acronym , self.title)
+        return u"%s - %s - %s" % (self.acronym, self.learning_container_year.acronym, self.title)
 
     class Meta:
         permissions = (
@@ -85,8 +86,7 @@ def find_by_learning_container_year(learning_container_year, with_classes=False)
                                         .order_by('type', 'acronym')
     if with_classes:
         queryset = queryset.prefetch_related(
-             models.Prefetch('learningclassyear_set',
-             to_attr="classes")
+             models.Prefetch('learningclassyear_set', to_attr="classes")
         )
 
     return queryset
