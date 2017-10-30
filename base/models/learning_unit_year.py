@@ -34,7 +34,7 @@ from base.models.enums import learning_unit_year_subtypes, learning_container_ye
 
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
-REGEX_ACRONYM_CHARSET = "[A-Z0-9"+ AUTHORIZED_REGEX_CHARS +"]+"
+REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
 
 
 class LearningUnitYearAdmin(SerializableModelAdmin):
@@ -168,6 +168,7 @@ def find_lt_year_acronym(academic_yr, acronym):
     return LearningUnitYear.objects.filter(academic_year__year__lt=academic_yr.year,
                                            acronym__iexact=acronym).order_by('academic_year')
 
+
 def check_if_acronym_regex_is_valid(acronym):
-    if isinstance(acronym,str):
+    if isinstance(acronym, str):
         return re.fullmatch(REGEX_ACRONYM_CHARSET, acronym.upper())
