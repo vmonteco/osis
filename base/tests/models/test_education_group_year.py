@@ -24,8 +24,8 @@
 #
 ##############################################################################
 from django.test import TestCase
-from base.models.education_group_year import *
-from base.models.exceptions import MaximumOneParentAllowedException, StartDateHigherThanEndDateException
+from base.models.education_group_year import education_group_categories, offer_year_entity_type, find_by_id, search
+from base.models.exceptions import MaximumOneParentAllowedException
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.offer_year import OfferYearFactory
@@ -87,9 +87,6 @@ class EducationGroupYearTest(TestCase):
         result = search(id=[self.education_group_year_1.id, self.education_group_year_2.id])
         self.assertEqual(len(result), 2)
 
-        result = search(id=self.education_group_year_1.id)
-        self.assertEqual(result.first(), self.education_group_year_1)
-
         result = search(category=[self.education_group_year_2.category, self.education_group_year_3.category])
         self.assertEqual(len(result), 3)
 
@@ -100,36 +97,38 @@ class EducationGroupYearTest(TestCase):
                                               self.education_group_year_3.education_group_type])
         self.assertEqual(len(result), 2)
 
-        result = search(education_group_type=self.education_group_year_3.education_group_type)
-        self.assertEqual(result.first().education_group_type, self.education_group_year_3.education_group_type)
-
-    def test_properties_none(self):
+    def test_domains_property(self):
         domains = self.education_group_year_1.domains
         self.assertEqual(domains, '')
-
-        administration_entity = self.education_group_year_1.administration_entity
-        self.assertIsNone(administration_entity)
-
-        management_entity = self.education_group_year_1.management_entity
-        self.assertIsNone(management_entity)
-
-        parent_by_training = self.education_group_year_2.parent_by_training
-        self.assertIsNone(parent_by_training)
-
-        children_by_group_element_year = self.education_group_year_1.children_by_group_element_year
-        self.assertListEqual(children_by_group_element_year, [])
-
-    def test_properties_not_none(self):
 
         domains = self.education_group_year_2.domains
         offer_year_domain = "{}-{} ".format(self.offer_year_domain.domain.decree, self.offer_year_domain.domain.name)
         self.assertEqual(domains, offer_year_domain)
 
+    def test_administration_entity_property(self):
+        administration_entity = self.education_group_year_1.administration_entity
+        self.assertIsNone(administration_entity)
+
         administration_entity = self.education_group_year_2.administration_entity
         self.assertEqual(administration_entity, self.entity_version_admin)
+
+    def test_management_entity_property(self):
+        management_entity = self.education_group_year_1.management_entity
+        self.assertIsNone(management_entity)
 
         management_entity = self.education_group_year_3.management_entity
         self.assertEqual(management_entity, self.entity_version_management)
 
+    def test_parent_by_training_property(self):
+        parent_by_training = self.education_group_year_2.parent_by_training
+        self.assertIsNone(parent_by_training)
+
         with self.assertRaises(MaximumOneParentAllowedException):
             parent_by_training=self.education_group_year_1.parent_by_training
+
+    def test_children_by_group_element_year_property(self):
+        children_by_group_element_year = self.education_group_year_1.children_by_group_element_year
+        self.assertListEqual(children_by_group_element_year, [])
+
+
+

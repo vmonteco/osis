@@ -44,10 +44,3 @@ class EducationGroup(models.Model):
         permissions = (
             ("can_access_education_group", "Can access education_group"),
         )
-
-
-def find_by_id(an_id):
-    try:
-        return EducationGroup.objects.get(pk=an_id)
-    except EducationGroup.DoesNotExist:
-        return None
