@@ -48,6 +48,9 @@ class LearningContainerYear(SerializableModel):
     changed = models.DateTimeField(null=True, auto_now=True)
     language = models.ForeignKey('reference.Language', blank=True, null=True)
     campus = models.ForeignKey('Campus', blank=True, null=True)
+    team = models.BooleanField(default=False)
+    vacant = models.BooleanField(default=False)
+    in_charge = models.BooleanField(default=False)
 
     def __str__(self):
         return u"%s - %s" % (self.acronym, self.title)

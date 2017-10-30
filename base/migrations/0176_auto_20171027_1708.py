@@ -25,17 +25,17 @@ class Migration(migrations.Migration):
             name='vacant',
         ),
         migrations.AddField(
-            model_name='learningcontainer',
+            model_name='learningcontaineryear',
             name='in_charge',
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='learningcontainer',
+            model_name='learningcontaineryear',
             name='team',
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='learningcontainer',
+            model_name='learningcontaineryear',
             name='vacant',
             field=models.BooleanField(default=False),
         ),
