@@ -2183,3 +2183,21 @@ msgstr "Impossible to save the organization address"
 
 msgid "publish_attribution_to_portal"
 msgstr "Publish attribution to portal"
+
+msgid "WITHOUT_OBJECT"
+msgstr "without object"
+
+msgid "INTERNAL"
+msgstr "Reserved for interns"
+
+msgid "EXTERNAL"
+msgstr "Open to external"
+
+msgid "EXCEPTIONAL_PROCEDURE"
+msgstr "Exceptional procedure"
+
+msgid "DECLARED_NOT_VACANT"
+msgstr "Vacant but do not publish"
+
+msgid "DO_NOT_ASSIGN"
+msgstr "Do not assign"

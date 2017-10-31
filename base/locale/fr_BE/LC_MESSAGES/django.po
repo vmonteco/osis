@@ -2189,3 +2189,21 @@ msgstr "Impossible d'enregistrer l'adresse de l'organisation"
 
 msgid "publish_attribution_to_portal"
 msgstr "Publication des attributions sur Osis-Portal"
+
+msgid "WITHOUT_OBJECT"
+msgstr "Sans object"
+
+msgid "INTERNAL"
+msgstr "Réservé aux internes"
+
+msgid "EXTERNAL"
+msgstr "Ouvert aux externes"
+
+msgid "EXCEPTIONAL_PROCEDURE"
+msgstr "Procédure exceptionnelle"
+
+msgid "DECLARED_NOT_VACANT"
+msgstr "Vacant à ne pas publier"
+
+msgid "DO_NOT_ASSIGN"
+msgstr "A ne pas attribuer"
