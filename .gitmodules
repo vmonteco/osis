@@ -5,3 +5,6 @@
 [submodule "internship"]
 	path = internship
 	url = https://github.com/uclouvain/osis-internship.git
+[submodule "osis-internship"]
+	path = osis-internship
+	url = https://github.com/uclouvain/osis-internship.git

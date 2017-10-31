@@ -2184,9 +2184,6 @@ msgstr "Impossible to save the organization address"
 msgid "publish_attribution_to_portal"
 msgstr "Publish attribution to portal"
 
-msgid "WITHOUT_OBJECT"
-msgstr "without object"
-
 msgid "RESEVED_FOR_INTERNS"
 msgstr "Reserved for interns"
 
