@@ -34,7 +34,7 @@ class LearningContainerYearAdmin(SerializableModelAdmin):
     fieldsets = ((None, {'fields': ('learning_container', 'academic_year', 'container_type', 'acronym', 'title',
                                     'title_english', 'language')}),)
     search_fields = ['acronym']
-    list_filter = ('academic_year', 'in_charge', 'vacant',)
+    list_filter = ('academic_year', 'in_charge', 'is_vacant',)
 
 
 class LearningContainerYear(SerializableModel):
@@ -51,7 +51,7 @@ class LearningContainerYear(SerializableModel):
     campus = models.ForeignKey('Campus', blank=True, null=True)
     team = models.BooleanField(default=False)
     is_vacant = models.BooleanField(default=False)
-    type_declaration_vacant = models.CharField(max_length=100, blank=null, null=True,
+    type_declaration_vacant = models.CharField(max_length=100, blank=True, null=True,
                                                choices=vacant_declaration_type.DECLARATION_TYPE)
     in_charge = models.BooleanField(default=False)
 
