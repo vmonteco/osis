@@ -2193,16 +2193,16 @@ msgstr "Publication des attributions sur Osis-Portal"
 msgid "WITHOUT_OBJECT"
 msgstr "Sans object"
 
-msgid "INTERNAL"
+msgid "RESEVED_FOR_INTERNS"
 msgstr "Réservé aux internes"
 
-msgid "EXTERNAL"
+msgid "OPEN_FOR_EXTERNS"
 msgstr "Ouvert aux externes"
 
 msgid "EXCEPTIONAL_PROCEDURE"
 msgstr "Procédure exceptionnelle"
 
-msgid "DECLARED_NOT_VACANT"
+msgid "VACANT_NOT_PUBLISH"
 msgstr "Vacant à ne pas publier"
 
 msgid "DO_NOT_ASSIGN"

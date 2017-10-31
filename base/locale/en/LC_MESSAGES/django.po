@@ -2187,16 +2187,16 @@ msgstr "Publish attribution to portal"
 msgid "WITHOUT_OBJECT"
 msgstr "without object"
 
-msgid "INTERNAL"
+msgid "RESEVED_FOR_INTERNS"
 msgstr "Reserved for interns"
 
-msgid "EXTERNAL"
-msgstr "Open to external"
+msgid "OPEN_FOR_EXTERNS"
+msgstr "Open to externs"
 
 msgid "EXCEPTIONAL_PROCEDURE"
 msgstr "Exceptional procedure"
 
-msgid "DECLARED_NOT_VACANT"
+msgid "VACANT_NOT_PUBLISH"
 msgstr "Vacant but do not publish"
 
 msgid "DO_NOT_ASSIGN"
