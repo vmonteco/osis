@@ -27,9 +27,8 @@ import factory
 import factory.fuzzy
 import datetime
 import string
-from base.tests.factories.academic_calendar import AcademicCalendarFactory
+
 from base.tests.factories.education_group_year import EducationGroupYearFactory
-from base.tests.factories.offer_year import OfferYearFactory
 from osis_common.utils.datetime import get_tzinfo
 
 

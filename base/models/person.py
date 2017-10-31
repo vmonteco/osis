@@ -130,10 +130,11 @@ def get_user_interface_language(user):
 
 
 def change_language(user, new_language):
-    if new_language:
-        person = Person.objects.get(user=user)
-        person.language = new_language
-        person.save()
+    if new_language in (l[0] for l in settings.LANGUAGES):
+        person = find_by_user(user)
+        if person:
+            person.language = new_language
+            person.save()
 
 
 def find_by_global_id(global_id):

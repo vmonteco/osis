@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,20 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.forms import ModelForm
+import factory
 
-from internship.models.period import Period
-from django import forms
-from functools import partial
-
-
-DateInput = partial(forms.DateInput, {'class': 'datepicker'})
+from factory import DjangoModelFactory
+from reference.models.enums import domain_type
+from reference.tests.factories.decree import DecreeFactory
 
 
-class PeriodForm(ModelForm):
+class DomainFactory(DjangoModelFactory):
     class Meta:
-        model = Period
-        fields = ['name', 'date_start', 'date_end']
-        widgets = {'date_start': forms.DateInput(format='%d/%m/%Y'),
-                   'date_end': forms.DateInput(format='%d/%m/%Y'),
-                   }
+        model = "reference.Domain"
+
+    parent = None
+    decree = factory.SubFactory(DecreeFactory)
+    name = factory.Sequence(lambda n: 'Domain %d' % n)
+    type = domain_type.UNKNOWN
+    adhoc = factory.Faker('boolean', chance_of_getting_true=50)
+    national = factory.Faker('boolean', chance_of_getting_true=50)
+    reference = factory.Faker('text', max_nb_chars=10)
