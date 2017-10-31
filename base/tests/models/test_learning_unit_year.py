@@ -30,7 +30,6 @@ from base.models import learning_unit_year
 from base.models.enums.learning_unit_year_subtypes import PARTIM, FULL
 from base.tests.factories.learning_class_year import LearningClassYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
-from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_enrollment import LearningUnitEnrollmentFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.academic_year import AcademicYearFactory
@@ -84,10 +83,13 @@ class LearningUnitYearTest(TestCase):
         self.assertTrue(l_unit_1.is_deletable(msg))
         self.assertEqual(msg, [])
 
-        l_unit_2 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
+        l_unit_2 = LearningUnitYearFactory(acronym="LBIR1212A", learning_container_year=l_container_year,
+                                           academic_year=self.academic_year, subtype=PARTIM)
+        l_unit_3 = LearningUnitYearFactory(acronym="LBIR1212B", learning_container_year=l_container_year,
                                            academic_year=self.academic_year, subtype=PARTIM)
 
         l_enrollement_1 = LearningUnitEnrollmentFactory(learning_unit_year=l_unit_1)
+        l_enrollement_2 = LearningUnitEnrollmentFactory(learning_unit_year=l_unit_2)
 
         self.assertFalse(l_unit_1.is_deletable(msg))
         print(msg)

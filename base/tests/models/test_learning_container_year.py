@@ -27,13 +27,17 @@ import datetime
 
 from django.test import TestCase
 
+from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
 from base.models import learning_container_year
 from base.models.enums import learning_unit_year_subtypes
 from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_enrollment import LearningUnitEnrollmentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 
 
 class LearningContainerYearTest(TestCase):
@@ -59,7 +63,40 @@ class LearningContainerYearTest(TestCase):
         l_unit_2 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
                                            academic_year=self.academic_year, subtype=learning_unit_year_subtypes.PARTIM)
 
-        LearningUnitEnrollmentFactory()
+        LearningUnitEnrollmentFactory(learning_unit_year=l_unit_2)
+        LearningUnitEnrollmentFactory(learning_unit_year=l_unit_2)
+        LearningUnitEnrollmentFactory(learning_unit_year=l_unit_2)
+
+        group_1 = GroupElementYearFactory(child_leaf=l_unit_2)
+        group_2 = GroupElementYearFactory(child_leaf=l_unit_2)
+
+        component = LearningUnitComponentFactory(learning_unit_year=l_unit_2)
+        attribution_charge_1 = AttributionChargeNewFactory(learning_component_year=component.learning_component_year)
+        attribution_charge_2 = AttributionChargeNewFactory(learning_component_year=component.learning_component_year)
+
         l_container_year.is_deletable(msg)
-        print(msg)
-        self.assertEqual(msg[0], '-> Error : a partim LBIR1212 is linked to the learning unit ')
+        self.assertIn(_("cannot_delete_learning_unit_partim_enrollments") % {'partim': l_unit_2.acronym,
+                                                                             'year': l_unit_2.academic_year,
+                                                                             'count': 3},
+                      msg)
+        self.assertIn(_("cannot_delete_learning_unit_partim_tutor") % {'partim': l_unit_2.acronym,
+                                                                       'year': l_unit_2.academic_year,
+                                                                       'tutor': attribution_charge_1.attribution.tutor},
+                      msg)
+        self.assertIn(_("cannot_delete_learning_unit_partim_tutor") % {'partim': l_unit_2.acronym,
+                                                                       'year': l_unit_2.academic_year,
+                                                                       'tutor': attribution_charge_2.attribution.tutor},
+                      msg)
+
+        self.assertIn(
+            _('cannot_delete_learning_unit_partim_offer_type') % {'partim': l_unit_2.acronym,
+                                                                  'group': group_1.parent.acronym,
+                                                                  'program': group_1.parent.education_group_type,
+                                                                  'year': l_unit_2.academic_year},
+            msg)
+        self.assertIn(
+            _('cannot_delete_learning_unit_partim_offer_type') % {'partim': l_unit_2.acronym,
+                                                                  'group': group_2.parent.acronym,
+                                                                  'program': group_2.parent.education_group_type,
+                                                                  'year': l_unit_2.academic_year},
+            msg)

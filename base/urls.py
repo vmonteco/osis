@@ -99,6 +99,7 @@ urlpatterns = [
                 url(u'^$', learning_unit.learning_unit_volumes_management, name="learning_unit_volumes_management"),
                 url(u'^validation/$', learning_unit.volumes_validation, name="volumes_validation")])),
             url(r'^delete/$', learning_unit.learning_unit_delete, name="learning_unit_delete"),
+            url(r'^delete_full/$', learning_unit.learning_unit_delete_full, name="learning_unit_delete_full"),
         ])),
         url(r'^check/$', learning_unit.check_acronym, name="check_acronym"),
         url(r'^check_code/$', learning_unit.check_code, name="check_code"),

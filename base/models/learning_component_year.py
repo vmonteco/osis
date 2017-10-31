@@ -26,6 +26,7 @@
 from django.db import models
 from django.contrib import admin
 
+from attribution.models.attribution_charge_new import AttributionChargeNew
 from base.models.enums import learning_component_year_type, learning_container_year_types
 from base.models import learning_class_year
 
@@ -52,7 +53,7 @@ class LearningComponentYear(models.Model):
     deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return u"%s - %s - %s" % (self.acronym, self.learning_container_year.acronym , self.title)
+        return u"%s - %s - %s" % (self.acronym, self.learning_container_year.acronym, self.title)
 
     class Meta:
         permissions = (
@@ -62,7 +63,8 @@ class LearningComponentYear(models.Model):
     @property
     def type_letter_acronym(self):
         if self.learning_container_year.container_type == learning_container_year_types.COURSE:
-            if self.type == learning_component_year_type.LECTURING or self.type == learning_component_year_type.PRACTICAL_EXERCISES:
+            if self.type == learning_component_year_type.LECTURING \
+                    or self.type == learning_component_year_type.PRACTICAL_EXERCISES:
                 return self.acronym
             return None
         else:
@@ -75,10 +77,8 @@ class LearningComponentYear(models.Model):
     def real_classes(self):
         return len(learning_class_year.find_by_learning_component_year(self))
 
-    def is_deletable(self, msg):
-        for l_class_year in learning_class_year.find_by_learning_component_year(self):
-            msg.append("l_class_year : " + l_class_year.acronym)
-        return not msg
+    def get_attributions_charge(self):
+        return AttributionChargeNew.objects.filter(learning_component_year=self).select_related('attribution__tutor')
 
 
 def find_by_id(learning_component_year_id):
@@ -86,12 +86,12 @@ def find_by_id(learning_component_year_id):
 
 
 def find_by_learning_container_year(learning_container_year, with_classes=False):
-    queryset = LearningComponentYear.objects.filter(learning_container_year=learning_container_year)\
-                                        .order_by('type', 'acronym')
+    queryset = LearningComponentYear.objects.filter(learning_container_year=learning_container_year) \
+        .order_by('type', 'acronym')
     if with_classes:
         queryset = queryset.prefetch_related(
-             models.Prefetch('learningclassyear_set',
-             to_attr="classes")
+            models.Prefetch('learningclassyear_set',
+                            to_attr="classes")
         )
 
     return queryset

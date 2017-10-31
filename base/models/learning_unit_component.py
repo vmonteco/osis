@@ -26,10 +26,10 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
-from base.models import learning_class_year
 from base.models.enums import component_type
-from base.models.learning_unit_component_class import LearningUnitComponentClass
+from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
+from django.utils.translation import ugettext_lazy as _
 
 
 class LearningUnitComponentAdmin(SerializableModelAdmin):
@@ -56,8 +56,18 @@ class LearningUnitComponent(SerializableModel):
         )
 
     def is_deletable(self, msg):
-        for l_class_year in learning_class_year.find_by_learning_component_year(self):
-            msg.append("l_class_year : "+ l_class_year.acronym)
+        for attribution_charge in self.learning_component_year.get_attributions_charge():
+            attribution = attribution_charge.attribution
+            if self.learning_unit_year.subtype == FULL:
+                msg.append(_("cannot_delete_learning_unit_tutor") %
+                           {'learning_unit': self.learning_unit_year.acronym,
+                            'tutor': attribution.tutor,
+                            'year': self.learning_unit_year.academic_year})
+            if self.learning_unit_year.subtype == PARTIM:
+                msg.append(_("cannot_delete_learning_unit_partim_tutor") %
+                           {'partim': self.learning_unit_year.acronym,
+                            'tutor': attribution.tutor,
+                            'year': self.learning_unit_year.academic_year})
         return not msg
 
 

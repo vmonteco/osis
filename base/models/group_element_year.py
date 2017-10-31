@@ -25,6 +25,9 @@
 ##############################################################################
 from django.db import models
 from django.contrib import admin
+from django.utils.translation import ugettext_lazy as _
+
+from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 
 
 class GroupElementYearAdmin(admin.ModelAdmin):
@@ -39,3 +42,19 @@ class GroupElementYear(models.Model):
     parent = models.ForeignKey('EducationGroupYear', related_name='parent', blank=True, null=True)
     child_branch = models.ForeignKey('EducationGroupYear', related_name='child_branch', blank=True, null=True)
     child_leaf = models.ForeignKey('LearningUnitYear', related_name='child_leaf', blank=True, null=True)
+
+    def is_deletable(self, msg):
+        if self.parent:
+            if self.child_leaf.subtype == FULL:
+                msg.append(_('cannot_delete_learning_unit_offer_type') % {'learning_unit': self.child_leaf.acronym,
+                                                                          'group': self.parent.acronym,
+                                                                          'program': self.parent.education_group_type,
+                                                                          'year': self.child_leaf.academic_year})
+            elif self.child_leaf.subtype == PARTIM:
+                msg.append(
+                    _('cannot_delete_learning_unit_partim_offer_type') % {'partim': self.child_leaf.acronym,
+                                                                          'group': self.parent.acronym,
+                                                                          'program': self.parent.education_group_type,
+                                                                          'year': self.child_leaf.academic_year})
+
+        return not msg

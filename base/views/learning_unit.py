@@ -27,6 +27,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
+from django.db.models.deletion import ProtectedError
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.views.decorators.http import require_http_methods, require_POST
@@ -55,7 +56,6 @@ from . import layout
 from django.http import JsonResponse
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
-
 
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
@@ -139,20 +139,57 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
 @permission_required('base.can_delete_learningunit', raise_exception=True)
 def learning_unit_delete(request, learning_unit_year_id):
     learning_unit_year = mdl.learning_unit_year.find_by_id(learning_unit_year_id)
-    partims = learning_unit_year.learning_container_year.get_partims_related()
-    classes = []
-    registered_students = []
-    if partims:
-        messages.add_message(request, messages.WARNING, '{} : {}'.format(_('existing_partims'), str(partims)))
-    elif classes:
-        messages.add_message(request, messages.WARNING, '{} : {}'.format(_('existing_classes'), str(classes)))
-    elif registered_students:
-        messages.add_message(request, messages.WARNING, '{} : {}'.format(_('existing_registered_student'),
-                                                                         str(registered_students)))
-    else:
-        learning_unit_year.delete()
+    msg = []
+    if learning_unit_year.is_deletable(msg) and request.method == 'POST':
+        try:
+            #learning_unit_year.delete()
+            messages.add_message(request, messages.SUCCESS, _("msg_success_delete_learning_unit")
+                                 % {'learning_unit': learning_unit_year.acronym})
+
+        except ProtectedError as e:
+            messages.add_message(request, messages.ERROR, str(e))
+
         return redirect('learning_units')
-    return redirect('learning_unit', learning_unit_year_id=learning_unit_year_id)
+
+    else:
+        if msg:
+            context = {'title': _('cannot_delete_learning_unit')
+                                % {'learning_unit': learning_unit_year.acronym,
+                                   'year': learning_unit_year.academic_year},
+                       'messages_deletion': msg}
+        else:
+            context = {'title': _('msg_modal_delete_learning_unit')}
+
+        return layout.render(request, "learning_unit/deletion.html", context)
+
+
+@login_required
+@permission_required('base.can_delete_learningunit', raise_exception=True)
+def learning_unit_delete_full(request, learning_unit_year_id):
+    learning_unit_year = mdl.learning_unit_year.find_by_id(learning_unit_year_id)
+    learning_unit = learning_unit_year.learning_unit
+    msg = []
+    if learning_unit.is_deletable(msg) and request.method == 'POST':
+        try:
+            #learning_unit.delete()
+            messages.add_message(request, messages.SUCCESS, _("msg_success_delete_learning_unit")
+                                 % {'learning_unit': learning_unit.acronym})
+
+        except ProtectedError as e:
+            messages.add_message(request, messages.ERROR, str(e))
+
+        return redirect('learning_units')
+
+    else:
+        if msg:
+            context = {'title': _('cannot_delete_learning_unit') % {'learning_unit': learning_unit.acronym,
+                                                                    'year': learning_unit_year.academic_year},
+                       'messages_deletion': msg}
+
+        else:
+            context = {'title': _('msg_modal_delete_full_learning_unit')}
+
+        return layout.render(request, "learning_unit/deletion.html", context)
 
 
 @login_required
@@ -362,10 +399,11 @@ def learning_unit_year_add(request):
             create_learning_unit_structure(additional_entity_version_1, additional_entity_version_2,
                                            allocation_entity_version, data, form, new_learning_container,
                                            new_learning_unit, requirement_entity_version, status, academic_year)
-            year = year+1
+            year = year + 1
         return redirect('learning_units')
     else:
         return layout.render(request, "learning_unit/learning_unit_form.html", {'form': form})
+
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
@@ -393,7 +431,6 @@ def check_acronym(request):
                          'existing_acronym': existing_acronym,
                          'existed_acronym': existed_acronym,
                          'last_using': last_using}, safe=False)
-
 
 
 @login_required

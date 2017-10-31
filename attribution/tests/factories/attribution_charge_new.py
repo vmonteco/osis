@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,33 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-from django.contrib import admin
-from django.utils.translation import ugettext_lazy as _
+import string
+import factory
+import factory.fuzzy
+from faker import Faker
+
+from attribution.tests.factories.attribution_new import AttributionNewFactory
+from base.tests.factories.learning_component_year import LearningComponentYearFactory
+
+fake = Faker()
 
 
-class LearningClassYearAdmin(admin.ModelAdmin):
-    list_display = ('learning_component_year', 'acronym')
-    fieldsets = ((None, {'fields': ('learning_component_year', 'acronym', 'description')}),)
-    search_fields = ['acronym']
-    raw_id_fields = ('learning_component_year',)
-
-
-class LearningClassYear(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    learning_component_year = models.ForeignKey('LearningComponentYear')
-    acronym = models.CharField(max_length=3)
-    description = models.CharField(max_length=100, blank=True, null=True)
-
+class AttributionChargeNewFactory(factory.django.DjangoModelFactory):
     class Meta:
-        permissions = (
-            ("can_access_learningclassyear", "Can access learning class year"),
-        )
+        model = "attribution.AttributionChargeNew"
 
-
-def find_by_id(learning_class_year_id):
-    return LearningClassYear.objects.get(pk=learning_class_year_id)
-
-
-def find_by_learning_component_year(a_learning_component_year):
-    return LearningClassYear.objects.filter(learning_component_year=a_learning_component_year).order_by("acronym")
+    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
+    attribution = factory.SubFactory(AttributionNewFactory)
+    learning_component_year = factory.SubFactory(LearningComponentYearFactory)

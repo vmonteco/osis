@@ -25,6 +25,8 @@
 ##############################################################################
 import datetime
 from unittest import mock
+
+from django.contrib.messages.api import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Permission
@@ -49,6 +51,7 @@ from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_unit_component_class import LearningUnitComponentClassFactory
+from base.tests.factories.learning_unit_enrollment import LearningUnitEnrollmentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.learning_class_year import LearningClassYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
@@ -66,7 +69,6 @@ from django.utils.translation import ugettext_lazy as _
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
 
-
 OK = 200
 ACCESS_DENIED = 401
 
@@ -74,9 +76,9 @@ ACCESS_DENIED = 401
 class LearningUnitViewTestCase(TestCase):
     def setUp(self):
         today = datetime.date.today()
-        self.academic_year_1 = AcademicYearFactory.build(start_date=today.replace(year=today.year+1),
-                                                         end_date=today.replace(year=today.year+2),
-                                                         year=today.year+1)
+        self.academic_year_1 = AcademicYearFactory.build(start_date=today.replace(year=today.year + 1),
+                                                         end_date=today.replace(year=today.year + 2),
+                                                         year=today.year + 1)
         self.academic_year_2 = AcademicYearFactory.build(start_date=today.replace(year=today.year + 2),
                                                          end_date=today.replace(year=today.year + 3),
                                                          year=today.year + 2)
@@ -93,7 +95,7 @@ class LearningUnitViewTestCase(TestCase):
                                                          end_date=today.replace(year=today.year + 7),
                                                          year=today.year + 6)
         self.current_academic_year = AcademicYearFactory(start_date=today,
-                                                         end_date=today.replace(year=today.year+1),
+                                                         end_date=today.replace(year=today.year + 1),
                                                          year=today.year)
         super(AcademicYear, self.academic_year_1).save()
         super(AcademicYear, self.academic_year_2).save()
@@ -112,11 +114,11 @@ class LearningUnitViewTestCase(TestCase):
                                                               type=entity_container_year_link_type.REQUIREMENT_ENTITY,
                                                               entity=self.entity)
         self.entity_container_yr_2 = EntityContainerYearFactory(learning_container_year=self.learning_container_yr,
-                                                              type=entity_container_year_link_type.REQUIREMENT_ENTITY,
-                                                              entity=self.entity_2)
+                                                                type=entity_container_year_link_type.REQUIREMENT_ENTITY,
+                                                                entity=self.entity_2)
         self.entity_container_yr_3 = EntityContainerYearFactory(learning_container_year=self.learning_container_yr,
-                                                              type=entity_container_year_link_type.REQUIREMENT_ENTITY,
-                                                              entity=self.entity_3)
+                                                                type=entity_container_year_link_type.REQUIREMENT_ENTITY,
+                                                                entity=self.entity_3)
         self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL, start_date=today,
                                                    end_date=today.replace(year=today.year + 1))
 
@@ -474,7 +476,8 @@ class LearningUnitViewTestCase(TestCase):
         qs = 'learning_component_year_id={}'.format(self.learning_component_yr.id)
 
         response = self.client.post('{}?{}'.format(url, qs), data={"planned_classes": "1"})
-        self.assertRaises(ObjectDoesNotExist, learning_unit_component.LearningUnitComponent.objects.filter(pk=learning_unit_compnt.id).first())
+        self.assertRaises(ObjectDoesNotExist, learning_unit_component.LearningUnitComponent.objects.filter(
+            pk=learning_unit_compnt.id).first())
 
     def test_component_save_create_link(self):
         learning_unit_yr = LearningUnitYearFactory(academic_year=self.current_academic_year,
@@ -565,7 +568,8 @@ class LearningUnitViewTestCase(TestCase):
         learning_class_yr = LearningClassYearFactory(learning_component_year=self.learning_component_yr)
 
         response = self.client.post('{}?{}&{}'.format(reverse('learning_class_year_edit', args=[learning_unit_yr.id]),
-                                                      'learning_component_year_id={}'.format(self.learning_component_yr.id),
+                                                      'learning_component_year_id={}'.format(
+                                                          self.learning_component_yr.id),
                                                       'learning_class_year_id={}'.format(learning_class_yr.id)),
                                     data={"used_by": "on"})
         self.learning_component_yr.refresh_from_db()
@@ -579,7 +583,8 @@ class LearningUnitViewTestCase(TestCase):
         learning_class_yr = LearningClassYearFactory(learning_component_year=self.learning_component_yr)
 
         response = self.client.post('{}?{}&{}'.format(reverse('learning_class_year_edit', args=[learning_unit_yr.id]),
-                                                      'learning_component_year_id={}'.format(self.learning_component_yr.id),
+                                                      'learning_component_year_id={}'.format(
+                                                          self.learning_component_yr.id),
                                                       'learning_class_year_id={}'.format(learning_class_yr.id)),
                                     data={"used_by": "on"})
 
@@ -595,10 +600,13 @@ class LearningUnitViewTestCase(TestCase):
                                                    learning_class_year=learning_class_yr)
 
         response = self.client.post('{}?{}&{}'.format(reverse('learning_class_year_edit', args=[learning_unit_yr.id]),
-                                                      'learning_component_year_id={}'.format(self.learning_component_yr.id),
-                                                      'learning_class_year_id={}'.format(learning_class_yr.id)), data={})
+                                                      'learning_component_year_id={}'.format(
+                                                          self.learning_component_yr.id),
+                                                      'learning_class_year_id={}'.format(learning_class_yr.id)),
+                                    data={})
 
-        self.assertRaises(ObjectDoesNotExist, learning_unit_component_class.LearningUnitComponentClass.objects.filter(pk=a_link.id).first())
+        self.assertRaises(ObjectDoesNotExist,
+                          learning_unit_component_class.LearningUnitComponentClass.objects.filter(pk=a_link.id).first())
 
     def get_base_form_data(self):
         return {"first_letter": "L",
@@ -665,7 +673,7 @@ class LearningUnitViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
-            str(response.content , encoding='utf8'),
+            str(response.content, encoding='utf8'),
             {'valid': True,
              'existing_acronym': False,
              'existed_acronym': False,
@@ -688,7 +696,7 @@ class LearningUnitViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
-            str(response.content , encoding='utf8'),
+            str(response.content, encoding='utf8'),
             {'valid': False,
              'existing_acronym': True,
              'existed_acronym': False,
@@ -708,7 +716,7 @@ class LearningUnitViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
-            str(response.content , encoding='utf8'),
+            str(response.content, encoding='utf8'),
             {'valid': True,
              'existing_acronym': False,
              'existed_acronym': True,
@@ -720,7 +728,8 @@ class LearningUnitViewTestCase(TestCase):
             learning_units_year = [learning_units_year]
         data = {}
         for learning_unit_year in learning_units_year:
-            data['VOLUME_TOTAL_REQUIREMENT_ENTITIES_{}_{}'.format(learning_unit_year.id, self.learning_component_yr.id)] = [60]
+            data['VOLUME_TOTAL_REQUIREMENT_ENTITIES_{}_{}'.format(learning_unit_year.id,
+                                                                  self.learning_component_yr.id)] = [60]
             data['VOLUME_Q1_{}_{}'.format(learning_unit_year.id, self.learning_component_yr.id)] = [10]
             data['VOLUME_Q2_{}_{}'.format(learning_unit_year.id, self.learning_component_yr.id)] = [20]
             data['VOLUME_TOTAL_{}_{}'.format(learning_unit_year.id, self.learning_component_yr.id)] = [30]
@@ -740,7 +749,7 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_year.save()
 
         request_factory = RequestFactory()
-        url = reverse("learning_unit_volumes_management" , args=[learning_unit_year.id])
+        url = reverse("learning_unit_volumes_management", args=[learning_unit_year.id])
         # GET request
         request = request_factory.get(url)
         request.user = mock.Mock()
@@ -766,7 +775,7 @@ class LearningUnitViewTestCase(TestCase):
         url = reverse("volumes_validation", args=[learning_unit_year.id])
 
         data = self._get_volumes_data(learning_unit_year)
-        #TODO inject wrong data
+        # TODO inject wrong data
         response = self.client.get(url, data, **kwargs)
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
@@ -807,7 +816,7 @@ class LearningUnitCreate(TestCase):
         self.assertEqual(response.status_code, OK)
         self.assertTemplateUsed(response, 'learning_unit/learning_unit_form.html')
 
-        self.assertIsInstance(response.context['form'],  CreateLearningUnitYearForm)
+        self.assertIsInstance(response.context['form'], CreateLearningUnitYearForm)
 
 
 class LearningUnitYearAdd(TestCase):
@@ -909,3 +918,71 @@ class LearningUnitYearAdd(TestCase):
 
         response = self.client.post(self.url, data=form_data)
         self.assertEqual(response.status_code, 200)
+
+
+class LearningUnitDelete(TestCase):
+    def setUp(self):
+        pass
+
+    @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.models.program_manager.is_program_manager')
+    def test_learning_unit_delete_success(self, mock_program_manager, mock_decorators):
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+        mock_program_manager.return_value = True
+
+        ly1 = LearningUnitYearFactory()
+
+        from base.views.learning_unit import learning_unit_delete
+
+        request_factory = RequestFactory()
+
+        request = request_factory.get(reverse(learning_unit_delete, args=[ly1.id]))
+        request.user = mock.Mock()
+
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        learning_unit_delete(request, ly1.id)
+
+        msg = [m.message for m in get_messages(request)]
+        self.assertIn(_('msg_success_delete_learning_unit') % {'learning_unit': ly1.acronym},
+                      msg)
+
+        with self.assertRaises(ObjectDoesNotExist):
+            LearningUnitYear.objects.get(id=ly1.id)
+
+    @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.models.program_manager.is_program_manager')
+    def test_learning_unit_delete_error(self, mock_program_manager, mock_decorators):
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+        mock_program_manager.return_value = True
+
+        ly1 = LearningUnitYearFactory()
+        LearningUnitEnrollmentFactory(learning_unit_year=ly1)
+
+        from base.views.learning_unit import learning_unit_delete
+
+        request_factory = RequestFactory()
+
+        request = request_factory.get(reverse(learning_unit_delete, args=[ly1.id]))
+        request.user = mock.Mock()
+
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        learning_unit_delete(request, ly1.id)
+
+        msg = [m.message for m in get_messages(request)]
+        self.assertIn(_('cannot_delete_learning_unit')
+                      % {'learning_unit': ly1.acronym,
+                         'year': ly1.academic_year},
+                      msg)
+        self.assertIn(_("cannot_delete_learning_unit_enrollments")
+                      % {'learning_unit': ly1.acronym,
+                         'year': ly1.academic_year,
+                         'count': 1},
+                      msg)
+
+        self.assertIsNotNone(LearningUnitYear.objects.get(id=ly1.id))

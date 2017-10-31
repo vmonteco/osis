@@ -24,6 +24,8 @@
 #
 ##############################################################################
 from django.db import models
+
+from base.models.learning_unit_year import LearningUnitYear
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 
@@ -67,6 +69,14 @@ class LearningUnit(SerializableModel):
             ("can_edit_learningunit_specification", "Can edit learning unit specification"),
             ("can_delete_learningunit", "Can delete learning unit"),
         )
+
+    def is_deletable(self, msg):
+        for ly in self.get_learning_units_year():
+            ly.is_deletable(msg)
+        return not msg
+
+    def get_learning_units_year(self):
+        return LearningUnitYear.objects.filter(learning_unit=self)
 
 
 def find_by_id(learning_unit_id):

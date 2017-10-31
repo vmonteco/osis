@@ -26,17 +26,18 @@
 import re
 from django.db import models
 
-from base.models.enums.learning_unit_year_subtypes import FULL
+from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
+from base.models.group_element_year import GroupElementYear
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
-from base.models import entity_container_year, learning_unit_enrollment
+from base.models import entity_container_year, learning_unit_enrollment, learning_unit_component
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type
 from django.utils.translation import ugettext_lazy as _
 
-
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
+
 
 class LearningUnitYearAdmin(SerializableModelAdmin):
     list_display = ('external_id', 'acronym', 'title', 'academic_year', 'credits', 'changed', 'structure', 'status')
@@ -66,7 +67,7 @@ class LearningUnitYear(SerializableModel):
     in_charge = models.BooleanField(default=False)
     structure = models.ForeignKey('Structure', blank=True, null=True)
     internship_subtype = models.CharField(max_length=50, blank=True, null=True,
-                               choices=internship_subtypes.INTERNSHIP_SUBTYPES)
+                                          choices=internship_subtypes.INTERNSHIP_SUBTYPES)
     status = models.BooleanField(default=False)
     session = models.CharField(max_length=50, blank=True, null=True,
                                choices=learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION)
@@ -105,32 +106,60 @@ class LearningUnitYear(SerializableModel):
         ).first()
         return entity_container_yr.entity if entity_container_yr else None
 
-    def delete(self, msg=[], *args, **kwargs):
-        if self.is_deletable(msg):
-            return super().delete(args, kwargs)
+    def delete(self, *args, **kwargs):
+        if self.is_deletable([]):
+            super().delete()
+            for newer_learning_unit_year in self.get_newer_learning_units_year():
+                newer_learning_unit_year.delete()
 
     def is_deletable(self, msg):
-        for l in learning_unit_enrollment.find_by_learning_unit_year(self):
-            print("yop")
-            msg.append(_("cannot_delete_learning_unit_enrollments")%{'learning_unit': self.acronym,
-                                                                     'year': str(self.academic_year)})
-        if self.subtype == FULL:
+        enrollment_count = len(learning_unit_enrollment.find_by_learning_unit_year(self))
+        if enrollment_count > 0:
+            if self.subtype == FULL:
+                msg.append(_("cannot_delete_learning_unit_enrollments") % {'learning_unit': self.acronym,
+                                                                           'year': self.academic_year,
+                                                                           'count': enrollment_count})
+            elif self.subtype == PARTIM:
+                msg.append(_("cannot_delete_learning_unit_partim_enrollments") % {'partim': self.acronym,
+                                                                                  'year': self.academic_year,
+                                                                                  'count': enrollment_count})
+        if self.subtype == FULL and self.learning_container_year:
             self.learning_container_year.is_deletable(msg)
+
+        for component in self.get_learning_unit_components():
+            component.is_deletable(msg)
+
+        for group_element_year in self.get_group_elements_year():
+            group_element_year.is_deletable(msg)
+
+        for newer_learning_unit_year in self.get_newer_learning_units_year():
+            newer_learning_unit_year.is_deletable(msg)
+
         return not msg
 
     def get_partims_related(self):
         if self.subtype == FULL and self.learning_container_year:
             return self.learning_container_year.get_partims_related()
 
+    def get_learning_unit_components(self):
+        return learning_unit_component.find_by_learning_unit_year(self)
+
+    def get_group_elements_year(self):
+        return GroupElementYear.objects.filter(child_leaf=self).select_related('parent')
+
+    def get_newer_learning_units_year(self):
+        return LearningUnitYear.objects.filter(learning_unit=self.learning_unit,
+                                               academic_year__year__gt=self.academic_year.year)
+
 
 def find_by_id(learning_unit_year_id):
-    return LearningUnitYear.objects.select_related('learning_container_year__learning_container')\
-                                   .get(pk=learning_unit_year_id)
+    return LearningUnitYear.objects.select_related('learning_container_year__learning_container') \
+        .get(pk=learning_unit_year_id)
 
 
 def find_by_acronym(acronym):
-    return LearningUnitYear.objects.filter(acronym=acronym)\
-                                   .select_related('learning_container_year')
+    return LearningUnitYear.objects.filter(acronym=acronym) \
+        .select_related('learning_container_year')
 
 
 def _is_regex(acronym):
@@ -183,6 +212,7 @@ def find_lt_year_acronym(academic_yr, acronym):
     return LearningUnitYear.objects.filter(academic_year__year__lt=academic_yr.year,
                                            acronym__iexact=acronym).order_by('academic_year')
 
+
 def check_if_acronym_regex_is_valid(acronym):
-    if isinstance(acronym,str):
+    if isinstance(acronym, str):
         return re.fullmatch(REGEX_ACRONYM_CHARSET, acronym.upper())
