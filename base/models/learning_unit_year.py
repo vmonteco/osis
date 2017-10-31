@@ -106,11 +106,29 @@ class LearningUnitYear(SerializableModel):
         ).first()
         return entity_container_yr.entity if entity_container_yr else None
 
-    def delete(self, *args, **kwargs):
-        if self.is_deletable([]):
-            super().delete()
-            for newer_learning_unit_year in self.get_newer_learning_units_year():
-                newer_learning_unit_year.delete()
+    def delete(self, msg=[], *args, **kwargs):
+        for newer_learning_unit_year in self.get_newer_learning_units_year():
+            newer_learning_unit_year.delete(msg)
+
+        if self.learning_container_year and self.subtype == FULL:
+            self.learning_container_year.delete(msg)
+
+        for component in self.get_learning_unit_components():
+            component.delete(msg)
+
+        result = super().delete(*args, **kwargs)
+
+        if self.subtype == PARTIM:
+            subtype = _('The partim')
+        else:
+            subtype = _('The learning unit')
+
+        msg.append(_('%(subtype)s %(acronym)s has been deleted for the year %(year)s') \
+                   % {'subtype': subtype,
+                      'acronym':  self.acronym,
+                      'year': self.academic_year})
+        print(msg)
+        return result
 
     def is_deletable(self, msg):
         enrollment_count = len(learning_unit_enrollment.find_by_learning_unit_year(self))
@@ -149,7 +167,7 @@ class LearningUnitYear(SerializableModel):
 
     def get_newer_learning_units_year(self):
         return LearningUnitYear.objects.filter(learning_unit=self.learning_unit,
-                                               academic_year__year__gt=self.academic_year.year)
+                                               academic_year__year__gt=self.academic_year.year).order_by('-academic_year')
 
 
 def find_by_id(learning_unit_year_id):

@@ -30,27 +30,31 @@
 {% endblock %}
 
 {% block content %}
-
-    <h4>{{ title | safe }}</h4>
-    <!-- Display errors when deleting a learning unit -->
-    {% if messages_deletion %}
-        <div class="alert alert-danger" role="alert">
+<div class="panel panel-warning" >
+    <div class="panel-heading">
+        <h2 class="panel-title">
+            {{ title | safe }}
+        </h2>
+    </div>
+    <div class="panel-body">
+        <!-- Display errors when deleting a learning unit -->
+        {% if messages_deletion %}
             <ul class="messages">
                 {% for message in messages_deletion %}
-                    <li{% if message.tags %} class="danger"{% endif %}>{{ message }}</li>
+                    <li>{{ message }}</li>
                 {% endfor %}
             </ul>
-        </div>
-    {% else %}
-        <h4>{% trans 'are_you_sure' %}</h4>
-        <form method="post" style="display: inline;">
-            {% csrf_token %}
-            <input type="hidden" name="learning_unit_id" value="{{ learning_unit.id }}" />
-            <button type="submit" class="btn btn-default btn-sm">
-                <span class="glyphicon glyphicon-trash"></span>
-            </button>
-        </form>
-        <button type="button" onclick="javascript:history.back()" class="btn btn-default">{% trans 'cancel' %}</button>
-    {% endif %}
-
+        {% else %}
+            {% trans 'are_you_sure' %}
+            </div>
+            <div class="panel-footer">
+                <form method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="learning_unit_id" value="{{ learning_unit.id }}" />
+                    <button type="button" onclick="javascript:history.back()" class="btn btn-default">{% trans 'cancel' %}</button>
+                    <button type="submit" class="btn btn-danger">{% trans 'i_confirm_and_am_aware' %}</button>
+                </form>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

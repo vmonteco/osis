@@ -27,6 +27,7 @@ import datetime
 from unittest import mock
 
 from django.contrib.messages.api import get_messages
+from django.contrib import messages
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Permission
@@ -50,6 +51,7 @@ from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_component_class import LearningUnitComponentClassFactory
 from base.tests.factories.learning_unit_enrollment import LearningUnitEnrollmentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
@@ -925,36 +927,66 @@ class LearningUnitDelete(TestCase):
         pass
 
     @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager')
-    def test_learning_unit_delete_success(self, mock_program_manager, mock_decorators):
+    def test_learning_unit_delete_success(self, mock_program_manager, mock_render, mock_decorators):
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
         mock_program_manager.return_value = True
 
-        ly1 = LearningUnitYearFactory()
+        l1 = LearningUnitFactory()
+        ay1 = AcademicYearFactory(year=2000)
+        ay2 = AcademicYearFactory(year=2001)
+        ay3 = AcademicYearFactory(year=2002)
+
+        lcy2 = LearningContainerYearFactory()
+        ly1 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay1)
+        ly2 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay2, learning_container_year=lcy2, subtype=FULL)
+        ly3 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay3)
+
+        lcomponent = LearningComponentYearFactory()
+        lclass = LearningClassYearFactory(learning_component_year=lcomponent)
+        lclass = LearningClassYearFactory(learning_component_year=lcomponent)
+        lunitcompont = LearningUnitComponentFactory(learning_unit_year=ly2, learning_component_year=lcomponent)
+
 
         from base.views.learning_unit import learning_unit_delete
 
         request_factory = RequestFactory()
 
-        request = request_factory.get(reverse(learning_unit_delete, args=[ly1.id]))
+        request = request_factory.get(reverse(learning_unit_delete, args=[ly2.id]))
         request.user = mock.Mock()
 
+        learning_unit_delete(request, ly2.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(_('msg_warning_delete_learning_unit') % ly2, context['title'])
+
+        # click on accept button
+        request = request_factory.post(reverse(learning_unit_delete, args=[ly2.id]))
+        request.user = mock.Mock()
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
-        learning_unit_delete(request, ly1.id)
+        learning_unit_delete(request, ly2.id)
 
-        msg = [m.message for m in get_messages(request)]
-        self.assertIn(_('msg_success_delete_learning_unit') % {'learning_unit': ly1.acronym},
-                      msg)
+        msg = [m.level for m in get_messages(request)]
+        self.assertIn(messages.SUCCESS, msg)
 
         with self.assertRaises(ObjectDoesNotExist):
-            LearningUnitYear.objects.get(id=ly1.id)
+            LearningUnitYear.objects.get(id=ly2.id)
+
+        with self.assertRaises(ObjectDoesNotExist):
+            LearningUnitYear.objects.get(id=ly3.id)
+
+        self.assertIsNotNone(LearningUnitYear.objects.get(id=ly1.id))
 
     @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager')
-    def test_learning_unit_delete_error(self, mock_program_manager, mock_decorators):
+    def test_learning_unit_delete_error(self, mock_program_manager, mock_render, mock_decorators):
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
         mock_program_manager.return_value = True
@@ -970,15 +1002,17 @@ class LearningUnitDelete(TestCase):
         request.user = mock.Mock()
 
         setattr(request, 'session', 'session')
-        setattr(request, '_messages', FallbackStorage(request))
 
         learning_unit_delete(request, ly1.id)
 
-        msg = [m.message for m in get_messages(request)]
-        self.assertIn(_('cannot_delete_learning_unit')
-                      % {'learning_unit': ly1.acronym,
-                         'year': ly1.academic_year},
-                      msg)
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        msg = context.get('messages_deletion', [])
+        self.assertEqual(_('cannot_delete_learning_unit')
+                         % {'learning_unit': ly1.acronym,
+                            'year': ly1.academic_year},
+                         context['title'])
         self.assertIn(_("cannot_delete_learning_unit_enrollments")
                       % {'learning_unit': ly1.acronym,
                          'year': ly1.academic_year,

@@ -25,7 +25,6 @@
 ##############################################################################
 from django.db import models
 from django.contrib import admin
-from django.utils.translation import ugettext_lazy as _
 
 
 class LearningClassYearAdmin(admin.ModelAdmin):
@@ -45,6 +44,9 @@ class LearningClassYear(models.Model):
         permissions = (
             ("can_access_learningclassyear", "Can access learning class year"),
         )
+
+    def __str__(self):
+        return u'%s-%s' %(self.learning_component_year.acronym, self.acronym)
 
 
 def find_by_id(learning_class_year_id):

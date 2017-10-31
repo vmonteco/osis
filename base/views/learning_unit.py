@@ -142,9 +142,12 @@ def learning_unit_delete(request, learning_unit_year_id):
     msg = []
     if learning_unit_year.is_deletable(msg) and request.method == 'POST':
         try:
-            #learning_unit_year.delete()
-            messages.add_message(request, messages.SUCCESS, _("msg_success_delete_learning_unit")
-                                 % {'learning_unit': learning_unit_year.acronym})
+            learning_unit_year.delete()
+            success_msg = _('You asked the deletion of the learning unit %(acronym)s from the year %(year)s') \
+                          % {'acronym': learning_unit_year.acronym,
+                             'year': learning_unit_year.academic_year}
+            messages.add_message(request, messages.SUCCESS, success_msg)
+
 
         except ProtectedError as e:
             messages.add_message(request, messages.ERROR, str(e))
@@ -158,7 +161,7 @@ def learning_unit_delete(request, learning_unit_year_id):
                                    'year': learning_unit_year.academic_year},
                        'messages_deletion': msg}
         else:
-            context = {'title': _('msg_modal_delete_learning_unit')}
+            context = {'title': _('msg_warning_delete_learning_unit') % learning_unit_year}
 
         return layout.render(request, "learning_unit/deletion.html", context)
 
@@ -171,7 +174,7 @@ def learning_unit_delete_full(request, learning_unit_year_id):
     msg = []
     if learning_unit.is_deletable(msg) and request.method == 'POST':
         try:
-            #learning_unit.delete()
+            learning_unit.delete()
             messages.add_message(request, messages.SUCCESS, _("msg_success_delete_learning_unit")
                                  % {'learning_unit': learning_unit.acronym})
 
@@ -182,12 +185,12 @@ def learning_unit_delete_full(request, learning_unit_year_id):
 
     else:
         if msg:
-            context = {'title': _('cannot_delete_learning_unit') % {'learning_unit': learning_unit.acronym,
-                                                                    'year': learning_unit_year.academic_year},
+            context = {'title': _('cannot_delete_learning_unit')
+                                % {'learning_unit': learning_unit.acronym,
+                                   'year': learning_unit_year.academic_year},
                        'messages_deletion': msg}
-
         else:
-            context = {'title': _('msg_modal_delete_full_learning_unit')}
+            context = {'title': _('msg_warning_delete_learning_unit') % learning_unit}
 
         return layout.render(request, "learning_unit/deletion.html", context)
 

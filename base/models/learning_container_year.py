@@ -58,6 +58,11 @@ class LearningContainerYear(models.Model):
             ("can_access_learningcontaineryear", "Can access learning container year"),
         )
 
+    def delete(self, msg=[], *args, **kwargs):
+        for partim in self.get_partims_related():
+            msg.append(partim.delete(msg))
+        return super().delete(*args, **kwargs)
+
     def is_deletable(self, msg):
         for partim in self.get_partims_related():
             partim.is_deletable(msg)
