@@ -129,7 +129,7 @@ class LearningUnitYear(SerializableModel):
     def is_deletable(self, msg):
         enrollment_count = len(learning_unit_enrollment.find_by_learning_unit_year(self))
         if enrollment_count > 0:
-            subtype = _('The partim') if self.subtype == PARTIM else _('The learning unit')
+            subtype = _('the partim') if self.subtype == PARTIM else _('the learning unit')
             msg.append(_("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s") %
                        {'subtype': subtype,
                         'acronym': self.acronym,

@@ -78,6 +78,11 @@ class LearningUnit(SerializableModel):
     def get_learning_units_year(self):
         return LearningUnitYear.objects.filter(learning_unit=self)
 
+    def delete(self, msg=[], *args, **kwargs):
+        for ly in self.get_learning_units_year():
+            ly.delete(msg)
+        return super().delete(*args, **kwargs)
+
 
 def find_by_id(learning_unit_id):
     return LearningUnit.objects.get(pk=learning_unit_id)

@@ -45,16 +45,13 @@ class GroupElementYear(models.Model):
 
     def is_deletable(self, msg):
         if self.parent:
-            if self.child_leaf.subtype == FULL:
-                msg.append(_('cannot_delete_learning_unit_offer_type') % {'learning_unit': self.child_leaf.acronym,
-                                                                          'group': self.parent.acronym,
-                                                                          'program': self.parent.education_group_type,
-                                                                          'year': self.child_leaf.academic_year})
-            elif self.child_leaf.subtype == PARTIM:
-                msg.append(
-                    _('cannot_delete_learning_unit_partim_offer_type') % {'partim': self.child_leaf.acronym,
-                                                                          'group': self.parent.acronym,
-                                                                          'program': self.parent.education_group_type,
-                                                                          'year': self.child_leaf.academic_year})
+            subtype = _('The learning unit') if self.child_leaf.subtype == FULL else _('The partim')
+            msg.append(
+                _('%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s')
+                % {'subtype': subtype,
+                   'acronym': self.child_leaf.acronym,
+                   'group': self.parent.acronym,
+                   'program': self.parent.education_group_type,
+                   'year': self.child_leaf.academic_year})
 
         return not msg

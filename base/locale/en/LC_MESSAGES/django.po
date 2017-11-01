@@ -2188,26 +2188,35 @@ msgid "msg_warning_delete_learning_unit"
 msgstr "This operation is <strong>permanent</strong> and cannot be undone. You will lose for ever"
        " the data linked to the learning unit <strong>%s</strong>."
 
-msgid "msg_success_delete_learning_unit"
-msgstr "The learning unit %(learning_unit)s has been successfully deleted."
+msgid "The learning unit %(acronym)s has been successfully deleted for all years."
+msgstr ""
 
-msgid "cannot_delete_learning_unit"
+msgid "cannot_delete_learning_unit_year"
 msgstr "Could not delete the LU <strong>%(learning_unit)s</strong> from the year %(year)s for the following reasons :"
 
-msgid "cannot_delete_learning_unit_enrollments"
-msgstr "There is %(count)d enrollments in the learning unit %(learning_unit)s for the year %(year)s"
+msgid "cannot_delete_learning_unit"
+msgstr "Could not delete the LU <strong>%(learning_unit)s</strong> for the following reasons :"
 
-msgid "cannot_delete_learning_unit_partim_enrollments"
-msgstr "There is %(count)d enrollments in the partim %(partim)s for the year %(year)s"
+msgid "There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s"
+msgstr ""
 
-msgid "cannot_delete_learning_unit_tutor"
-msgstr "The LU %(learning_unit)s is assigned to %(tutor)s for the year %(year)s"
+msgid "%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s"
+msgstr ""
 
-msgid "cannot_delete_learning_unit_partim_tutor"
-msgstr "The partim %(partim)s is assigned to %(tutor)s for the year %(year)s"
+msgid "%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s"
+msgstr ""
 
-msgid "cannot_delete_learning_unit_offer_type"
-msgstr "The LU %(learning_unit)s is included  in the group %(group)s of the program %(program)s for the year %(year)s"
+msgid "the partim"
+msgstr ""
 
-msgid "cannot_delete_learning_unit_partim_offer_type"
-msgstr "The partim %(partim)s is included  in the group %(group)s of the program %(program)s for the year %(year)s"
+msgid "The partim"
+msgstr ""
+
+msgid "The learning unit"
+msgstr ""
+
+msgid "the learning unit"
+msgstr ""
+
+msgid "You asked the deletion of the learning unit %(acronym)s from the year %(year)s"
+msgstr ""
