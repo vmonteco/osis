@@ -100,24 +100,28 @@ def send_mail_after_academic_calendar_changes(academic_calendar, offer_year_cale
     return message_service.send_messages(message_content)
 
 
-def send_mail_after_deletion_of_learning_unit_year(persons, learning_unit, partims, classes, academic_year, ):
+def send_mail_after_the_learning_unit_year_deletion(learning_unit_year,academic_year,msg_list):
     """
     Send email to the program managers after deletions made on a learning_unit_year or partials or classes
-    :param persons: the list of the managers of the learning unit
-    :param learning_unit: the deleted learning unit
-    :param partims : the list of the deleted partims
-    :param classes : the list of the deleted classes
+    :param learning_unit_year: the deleted learning unit
+    :param academic_year: starting academic year at which the deletion must start
+    :param msg_list : the list of the messages detailing the deletion
     :return An error message if the template is not in the database
     """
+
+    #At the moment, there is no link between managers and learning_units. So here is an empty list.
+    #Later on, we will have to call a function like 'get_managers(learning_unit_year)' instead.
+    #Something like this :
+    #managers = learning_unit_year.get_managers_of_learning_unit_year(learning_unit_year)
+    managers = []
 
     html_template_ref = 'learning_unit_year_deletion_html'
     txt_template_ref = 'learning_unit_year_deletion_html'
 
-    receivers = [message_config.create_receiver(person.id, person.email, person.language) for person in persons]
-    suject_data = {'learning_unit_name': learning_unit_name}
-    template_base_data = {'learning_unit_name': learning_unit_name,
-                          'encoding_status':    _('encoding_status_ended') if all_encoded
-                          else _('encoding_status_notended')
+    receivers = [message_config.create_receiver(manager.id, manager.email, manager.language) for manager in managers]
+    suject_data = {'learning_unit_year': learning_unit_year}
+    template_base_data = {'learning_unit_year': learning_unit_year,
+                          'academic_year': academic_year
                           }
     header_txt = ['acronym', 'sessionn', 'registration_number', 'lastname', 'firstname', 'score', 'documentation']
     submitted_enrollments_data = [

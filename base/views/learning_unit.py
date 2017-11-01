@@ -510,16 +510,3 @@ def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
     if errors:
         for error_msg in errors:
             messages.add_message(request, messages.ERROR, error_msg)
-
-
-def _send_mail_for_the_learning_unit_year_deletion():
-    enrollments = filter_enrollments_by_offer_year(all_enrollments, offer_year)
-    progress = mdl.exam_enrollment.calculate_exam_enrollment_progress(enrollments)
-    offer_acronym = offer_year.acronym
-    sent_error_message = None
-    if progress == 100:
-        persons = list(set([tutor.person for tutor in mdl.tutor.find_by_learning_unit(learning_unit_year)]))
-        sent_error_message = send_mail_after_deletion_of_learning_unit_year(persons, enrollments,
-                                                                                 learning_unit_year.acronym,
-                                                                                 offer_acronym)
-    return sent_error_message
