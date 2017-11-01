@@ -75,28 +75,39 @@ class LearningContainerYearTest(TestCase):
         attribution_charge_2 = AttributionChargeNewFactory(learning_component_year=component.learning_component_year)
 
         l_container_year.is_deletable(msg)
-        self.assertIn(_("cannot_delete_learning_unit_partim_enrollments") % {'partim': l_unit_2.acronym,
-                                                                             'year': l_unit_2.academic_year,
-                                                                             'count': 3},
+        self.assertEqual(_("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s")
+                      % {'subtype': _('the partim'),
+                         'acronym': l_unit_2.acronym,
+                         'year': l_unit_2.academic_year,
+                         'count': 3},
+                      msg[0])
+
+        msg_delete_tutor = _("%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s")
+        self.assertIn(msg_delete_tutor % {'subtype': _('The partim'),
+                                          'acronym': l_unit_2.acronym,
+                                          'year': l_unit_2.academic_year,
+                                          'tutor': attribution_charge_1.attribution.tutor},
                       msg)
-        self.assertIn(_("cannot_delete_learning_unit_partim_tutor") % {'partim': l_unit_2.acronym,
-                                                                       'year': l_unit_2.academic_year,
-                                                                       'tutor': attribution_charge_1.attribution.tutor},
-                      msg)
-        self.assertIn(_("cannot_delete_learning_unit_partim_tutor") % {'partim': l_unit_2.acronym,
-                                                                       'year': l_unit_2.academic_year,
-                                                                       'tutor': attribution_charge_2.attribution.tutor},
+        self.assertIn(msg_delete_tutor % {'subtype': _('The partim'),
+                                          'acronym': l_unit_2.acronym,
+                                          'year': l_unit_2.academic_year,
+                                          'tutor': attribution_charge_2.attribution.tutor},
                       msg)
 
-        self.assertIn(
-            _('cannot_delete_learning_unit_partim_offer_type') % {'partim': l_unit_2.acronym,
-                                                                  'group': group_1.parent.acronym,
-                                                                  'program': group_1.parent.education_group_type,
-                                                                  'year': l_unit_2.academic_year},
-            msg)
-        self.assertIn(
-            _('cannot_delete_learning_unit_partim_offer_type') % {'partim': l_unit_2.acronym,
-                                                                  'group': group_2.parent.acronym,
-                                                                  'program': group_2.parent.education_group_type,
-                                                                  'year': l_unit_2.academic_year},
-            msg)
+        msg_delete_offer_type = _(
+            '%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s')
+
+        self.assertIn(msg_delete_offer_type
+                      % {'subtype': _('The partim'),
+                         'acronym': l_unit_2.acronym,
+                         'group': group_1.parent.acronym,
+                         'program': group_1.parent.education_group_type,
+                         'year': l_unit_2.academic_year},
+                      msg)
+        self.assertIn(msg_delete_offer_type
+                      % {'subtype': _('The partim'),
+                         'acronym': l_unit_2.acronym,
+                         'group': group_2.parent.acronym,
+                         'program': group_2.parent.education_group_type,
+                         'year': l_unit_2.academic_year},
+                      msg)

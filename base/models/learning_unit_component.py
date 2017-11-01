@@ -63,17 +63,12 @@ class LearningUnitComponent(SerializableModel):
         for attribution_charge in self.learning_component_year.get_attributions_charge():
             attribution = attribution_charge.attribution
 
-            if self.learning_unit_year.subtype == FULL:
-                msg.append(_("cannot_delete_learning_unit_tutor") %
-                           {'learning_unit': self.learning_unit_year.acronym,
-                            'tutor': attribution.tutor,
-                            'year': self.learning_unit_year.academic_year})
-
-            if self.learning_unit_year.subtype == PARTIM:
-                msg.append(_("cannot_delete_learning_unit_partim_tutor") %
-                           {'partim': self.learning_unit_year.acronym,
-                            'tutor': attribution.tutor,
-                            'year': self.learning_unit_year.academic_year})
+            subtype = _('The partim') if self.learning_unit_year.subtype == PARTIM else _('The learning unit')
+            msg.append(_("%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s") %
+                       {'subtype': subtype,
+                        'acronym': self.learning_unit_year.acronym,
+                        'tutor': attribution.tutor,
+                        'year': self.learning_unit_year.academic_year})
         return not msg
 
 

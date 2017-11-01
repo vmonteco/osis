@@ -992,6 +992,72 @@ class LearningUnitDelete(TestCase):
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager')
+    def test_learning_unit_delete_all_success(self, mock_program_manager, mock_render, mock_decorators):
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+        mock_program_manager.return_value = True
+
+        l1 = LearningUnitFactory()
+        ay1 = AcademicYearFactory(year=2000)
+        ay2 = AcademicYearFactory(year=2001)
+        ay3 = AcademicYearFactory(year=2002)
+        ay4 = AcademicYearFactory(year=2003)
+
+        lcy2 = LearningContainerYearFactory()
+        ly1 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay1)
+        ly2 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay2, learning_container_year=lcy2, subtype=FULL)
+        ly3 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay3)
+        ly4 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay4)
+
+        lcomponent = LearningComponentYearFactory()
+        lclass = LearningClassYearFactory(learning_component_year=lcomponent)
+        lclass = LearningClassYearFactory(learning_component_year=lcomponent)
+        lunitcompont = LearningUnitComponentFactory(learning_unit_year=ly2, learning_component_year=lcomponent)
+
+        from base.views.learning_unit import learning_unit_delete_all
+
+        request_factory = RequestFactory()
+
+        request = request_factory.get(reverse(learning_unit_delete_all, args=[ly2.id]))
+        request.user = mock.Mock()
+
+        learning_unit_delete_all(request, ly2.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(_('msg_warning_delete_learning_unit') % l1, context['title'])
+
+        # click on accept button
+        request = request_factory.post(reverse(learning_unit_delete_all, args=[ly2.id]))
+        request.user = mock.Mock()
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        learning_unit_delete_all(request, ly2.id)
+
+        msg_level = [m.level for m in get_messages(request)]
+        msg = [m.message for m in get_messages(request)]
+
+        self.assertEqual(len(msg), 5)
+        self.assertIn(messages.SUCCESS, msg_level)
+
+        with self.assertRaises(ObjectDoesNotExist):
+            LearningUnitYear.objects.get(id=ly2.id)
+
+        with self.assertRaises(ObjectDoesNotExist):
+            LearningUnitYear.objects.get(id=ly3.id)
+
+        with self.assertRaises(ObjectDoesNotExist):
+            LearningUnitYear.objects.get(id=ly4.id)
+
+        with self.assertRaises(ObjectDoesNotExist):
+            LearningUnitYear.objects.get(id=ly1.id)
+
+
+    @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.views.layout.render')
+    @mock.patch('base.models.program_manager.is_program_manager')
     def test_learning_unit_delete_error(self, mock_program_manager, mock_render, mock_decorators):
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
@@ -1015,12 +1081,54 @@ class LearningUnitDelete(TestCase):
         request, template, context = mock_render.call_args[0]
 
         msg = context.get('messages_deletion', [])
-        self.assertEqual(_('cannot_delete_learning_unit')
+        self.assertEqual(_('cannot_delete_learning_unit_year')
                          % {'learning_unit': ly1.acronym,
                             'year': ly1.academic_year},
                          context['title'])
-        self.assertIn(_("cannot_delete_learning_unit_enrollments")
-                      % {'learning_unit': ly1.acronym,
+
+        self.assertIn(_("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s")
+                      % {'subtype': _('the learning unit'),
+                         'acronym': ly1.acronym,
+                         'year': ly1.academic_year,
+                         'count': 1},
+                      msg)
+
+        self.assertIsNotNone(LearningUnitYear.objects.get(id=ly1.id))
+
+    @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.views.layout.render')
+    @mock.patch('base.models.program_manager.is_program_manager')
+    def test_learning_unit_delete_all_error(self, mock_program_manager, mock_render, mock_decorators):
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+        mock_program_manager.return_value = True
+
+        l1 = LearningUnitFactory()
+        ly1 = LearningUnitYearFactory(learning_unit=l1)
+        LearningUnitEnrollmentFactory(learning_unit_year=ly1)
+
+        from base.views.learning_unit import learning_unit_delete_all
+
+        request_factory = RequestFactory()
+
+        request = request_factory.get(reverse(learning_unit_delete_all, args=[ly1.id]))
+        request.user = mock.Mock()
+
+        setattr(request, 'session', 'session')
+
+        learning_unit_delete_all(request, ly1.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        msg = context.get('messages_deletion', [])
+        self.assertEqual(_('cannot_delete_learning_unit')
+                         % {'learning_unit': l1.acronym},
+                         context['title'])
+
+        self.assertIn(_("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s")
+                      % {'subtype': _('the learning unit'),
+                         'acronym': ly1.acronym,
                          'year': ly1.academic_year,
                          'count': 1},
                       msg)
