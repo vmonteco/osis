@@ -24,54 +24,85 @@
 #
 ##############################################################################
 import datetime
+
+from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
+
+from base.models.learning_class_year import LearningClassYear
 from base.models.learning_container import LearningContainer
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.academic_year import AcademicYear
+from base.tests.factories.learning_class_year import LearningClassYearFactory
+from base.tests.factories.learning_component_year import LearningComponentYearFactory
+from base.tests.factories.learning_container import LearningContainerFactory
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 
 now = datetime.datetime.now()
 
 
 class LearningComponentYearTest(TestCase):
-
     current_academic_year = None
 
     def setUp(self):
         self.current_academic_year = AcademicYear(year=(now.year),
-                                     start_date=datetime.datetime(now.year, now.month, 15),
-                                     end_date=datetime.datetime(now.year + 1, now.month, 28))
+                                                  start_date=datetime.datetime(now.year, now.month, 15),
+                                                  end_date=datetime.datetime(now.year + 1, now.month, 28))
         self.current_academic_year.save()
 
-        self.current_academic_year_different = AcademicYear(year=(now.year)-1,
-                                     start_date=datetime.datetime(now.year-1, now.month, 15),
-                                     end_date=datetime.datetime(now.year + 2, now.month, 28))
+        self.current_academic_year_different = AcademicYear(year=(now.year) - 1,
+                                                            start_date=datetime.datetime(now.year - 1, now.month, 15),
+                                                            end_date=datetime.datetime(now.year + 2, now.month, 28))
         self.current_academic_year_different.save()
 
     def test_creation_learning_unit_component_class_with_different_year(self):
-
         learning_container = LearningContainer()
 
         learning_container_year = LearningContainerYear(title="Biology",
                                                         acronym="LBIO1212",
                                                         academic_year=self.current_academic_year,
                                                         learning_container=learning_container)
-        #Composant annualisé est associé à son composant et à son conteneur annualisé
+        # Composant annualisé est associé à son composant et à son conteneur annualisé
         learning_component_year = LearningComponentYear(learning_container_year=learning_container_year,
                                                         title="Cours magistral",
                                                         acronym="/C",
                                                         comment="TEST")
 
-        #UE associée à un conteneur d'une année différente du composant
-        learning_unit_year = LearningUnitYear(  title="Biology",
-                                                acronym="LBIO1212",
-                                                academic_year=self.current_academic_year_different,
-                                                learning_container_year=learning_container_year)
+        # UE associée à un conteneur d'une année différente du composant
+        learning_unit_year = LearningUnitYear(title="Biology",
+                                              acronym="LBIO1212",
+                                              academic_year=self.current_academic_year_different,
+                                              learning_container_year=learning_container_year)
 
-        #Association du conteneur et de son composant dont les années académiques diffèrent l'une de l'autre
+        # Association du conteneur et de son composant dont les années académiques diffèrent l'une de l'autre
         LearningUnitComponent(learning_component_year=learning_component_year,
                               learning_unit_year=learning_unit_year)
 
         self.assertEqual(learning_component_year.learning_container_year, learning_unit_year.learning_container_year)
+
+    def test_delete_learning_unit_component_class(self):
+        # Composant annualisé est associé à son composant et à son conteneur annualisé
+        learning_component_year = LearningComponentYearFactory(title="Cours magistral",
+                                                               acronym="/C",
+                                                               comment="TEST")
+
+        number_classes = 10
+        for _ in range(number_classes):
+            LearningClassYearFactory(learning_component_year=learning_component_year)
+
+        # Association du conteneur et de son composant dont les années académiques diffèrent l'une de l'autre
+        learning_unit_component = LearningUnitComponentFactory(learning_component_year=learning_component_year)
+        msg = []
+        learning_unit_component.delete(msg)
+
+        self.assertEqual(LearningClassYear.objects.all().count(), 0)
+        self.assertEqual(len(msg), number_classes)
+        with self.assertRaises(ObjectDoesNotExist):
+            LearningUnitComponent.objects.get(id=learning_component_year.id)
+
+        with self.assertRaises(ObjectDoesNotExist):
+            LearningUnitComponent.objects.get(id=learning_unit_component.id)

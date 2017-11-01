@@ -55,14 +55,20 @@ class LearningUnitComponent(SerializableModel):
             ("can_access_learningunit", "Can access learning unit"),
         )
 
+    def delete(self, msg=[], *args, **kwargs):
+        self.learning_component_year.delete(msg)
+        return super().delete(*args, **kwargs)
+
     def is_deletable(self, msg):
         for attribution_charge in self.learning_component_year.get_attributions_charge():
             attribution = attribution_charge.attribution
+
             if self.learning_unit_year.subtype == FULL:
                 msg.append(_("cannot_delete_learning_unit_tutor") %
                            {'learning_unit': self.learning_unit_year.acronym,
                             'tutor': attribution.tutor,
                             'year': self.learning_unit_year.academic_year})
+
             if self.learning_unit_year.subtype == PARTIM:
                 msg.append(_("cannot_delete_learning_unit_partim_tutor") %
                            {'partim': self.learning_unit_year.acronym,

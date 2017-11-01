@@ -29,6 +29,9 @@ from django.contrib import admin
 from attribution.models.attribution_charge_new import AttributionChargeNew
 from base.models.enums import learning_component_year_type, learning_container_year_types
 from base.models import learning_class_year
+from django.utils.translation import ugettext_lazy as _
+
+from base.models.learning_class_year import LearningClassYear
 
 
 class LearningComponentYearAdmin(admin.ModelAdmin):
@@ -79,6 +82,15 @@ class LearningComponentYear(models.Model):
 
     def get_attributions_charge(self):
         return AttributionChargeNew.objects.filter(learning_component_year=self).select_related('attribution__tutor')
+
+    def delete(self, msg=[], *args, **kwargs):
+        for l_class_year in learning_class_year.find_by_learning_component_year(self):
+            l_class_year.delete()
+            msg.append(_('The class %(acronym)s has been deleted for the year %(year)s')
+                       % {'acronym': l_class_year,
+                          'year': self.learning_container_year.academic_year})
+
+        return super().delete(*args, **kwargs)
 
 
 def find_by_id(learning_component_year_id):
