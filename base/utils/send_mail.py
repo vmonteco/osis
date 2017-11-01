@@ -100,6 +100,63 @@ def send_mail_after_academic_calendar_changes(academic_calendar, offer_year_cale
     return message_service.send_messages(message_content)
 
 
+def send_mail_after_deletion_of_learning_unit_year(persons, learning_unit, partims, classes, academic_year, ):
+    """
+    Send email to the program managers after deletions made on a learning_unit_year or partials or classes
+    :param persons: the list of the managers of the learning unit
+    :param learning_unit: the deleted learning unit
+    :param partims : the list of the deleted partims
+    :param classes : the list of the deleted classes
+    :return An error message if the template is not in the database
+    """
+
+    html_template_ref = 'learning_unit_year_deletion_html'
+    txt_template_ref = 'learning_unit_year_deletion_html'
+
+    receivers = [message_config.create_receiver(person.id, person.email, person.language) for person in persons]
+    suject_data = {'learning_unit_name': learning_unit_name}
+    template_base_data = {'learning_unit_name': learning_unit_name,
+                          'encoding_status':    _('encoding_status_ended') if all_encoded
+                          else _('encoding_status_notended')
+                          }
+    header_txt = ['acronym', 'sessionn', 'registration_number', 'lastname', 'firstname', 'score', 'documentation']
+    submitted_enrollments_data = [
+        (
+            enrollment.learning_unit_enrollment.offer_enrollment.offer_year.acronym,
+            enrollment.session_exam.number_session,
+            enrollment.learning_unit_enrollment.offer_enrollment.student.registration_id,
+            enrollment.learning_unit_enrollment.offer_enrollment.student.person.last_name,
+            enrollment.learning_unit_enrollment.offer_enrollment.student.person.first_name,
+            enrollment.score_final,
+            _(enrollment.justification_final) if enrollment.justification_final else None,
+        ) for enrollment in submitted_enrollments]
+    table = message_config.create_table('submitted_enrollments', header_txt, submitted_enrollments_data)
+
+    message_content = message_config.create_message_content(html_template_ref, txt_template_ref, [table], receivers,
+                                                            template_base_data, suject_data)
+    return message_service.send_messages(message_content)
+
+
+    {{ first_name }}
+    {{ last_name }}
+    {{ learning_unit }}
+    {{ academic_year }}
+    {{ partims }}
+    {{ partims_start_date }}
+    {{ partims_end_date }}
+    {{ classes }}
+    {{ classes_start_date }}
+    {{ classes_end_date }}
+    {{ ue_start_date }}
+    {{ ue_end_date }}
+
+    message_content = message_config.create_message_content(html_template_ref, txt_template_ref,
+                                                            None, receivers, template_base_data, suject_data)
+
+    return message_service.send_messages(message_content)
+
+
+
 def send_message_after_all_encoded_by_manager(persons, enrollments, learning_unit_acronym, offer_acronym):
     """
     Send a message to all tutor from a learning unit when all scores are submitted by program manager
