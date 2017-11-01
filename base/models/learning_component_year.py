@@ -31,6 +31,8 @@ from base.models.enums import learning_component_year_type, learning_container_y
 from base.models import learning_class_year
 from django.utils.translation import ugettext_lazy as _
 
+from base.models.learning_class_year import LearningClassYear
+
 
 class LearningComponentYearAdmin(admin.ModelAdmin):
     list_display = ('learning_container_year', 'title', 'acronym', 'type', 'comment')
@@ -82,13 +84,14 @@ class LearningComponentYear(models.Model):
         return AttributionChargeNew.objects.filter(learning_component_year=self).select_related('attribution__tutor')
 
     def delete(self, msg=[], *args, **kwargs):
-        if learning_class_year in learning_class_year.find_by_learning_component_year(self):
-            learning_class_year.delete()
+        for l_class_year in learning_class_year.find_by_learning_component_year(self):
+            l_class_year.delete()
             msg.append(_('The class %(acronym)s has been deleted for the year %(year)s')
-                       % {'acronym': learning_class_year,
+                       % {'acronym': l_class_year,
                           'year': self.learning_container_year.academic_year})
 
-        return super().delete()
+        return super().delete(*args, **kwargs)
+
 
 def find_by_id(learning_component_year_id):
     return LearningComponentYear.objects.get(pk=learning_component_year_id)

@@ -107,8 +107,9 @@ class LearningUnitYear(SerializableModel):
         return entity_container_yr.entity if entity_container_yr else None
 
     def delete(self, msg=[], *args, **kwargs):
-        for newer_learning_unit_year in self.get_newer_learning_units_year():
-            newer_learning_unit_year.delete(msg)
+        next_year = self.get_learning_unit_next_year()
+        if next_year:
+            next_year.delete(msg)
 
         if self.learning_container_year and self.subtype == FULL:
             self.learning_container_year.delete(msg)
@@ -118,29 +119,23 @@ class LearningUnitYear(SerializableModel):
 
         result = super().delete(*args, **kwargs)
 
-        if self.subtype == PARTIM:
-            subtype = _('The partim')
-        else:
-            subtype = _('The learning unit')
-
+        subtype = _('The partim') if self.subtype == PARTIM else _('The learning unit')
         msg.append(_('%(subtype)s %(acronym)s has been deleted for the year %(year)s') \
                    % {'subtype': subtype,
                       'acronym':  self.acronym,
                       'year': self.academic_year})
-        print(msg)
         return result
 
     def is_deletable(self, msg):
         enrollment_count = len(learning_unit_enrollment.find_by_learning_unit_year(self))
         if enrollment_count > 0:
-            if self.subtype == FULL:
-                msg.append(_("cannot_delete_learning_unit_enrollments") % {'learning_unit': self.acronym,
-                                                                           'year': self.academic_year,
-                                                                           'count': enrollment_count})
-            elif self.subtype == PARTIM:
-                msg.append(_("cannot_delete_learning_unit_partim_enrollments") % {'partim': self.acronym,
-                                                                                  'year': self.academic_year,
-                                                                                  'count': enrollment_count})
+            subtype = _('The partim') if self.subtype == PARTIM else _('The learning unit')
+            msg.append(_("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s") %
+                       {'subtype': subtype,
+                        'acronym': self.acronym,
+                        'year': self.academic_year,
+                        'count': enrollment_count})
+
         if self.subtype == FULL and self.learning_container_year:
             self.learning_container_year.is_deletable(msg)
 
@@ -150,8 +145,9 @@ class LearningUnitYear(SerializableModel):
         for group_element_year in self.get_group_elements_year():
             group_element_year.is_deletable(msg)
 
-        for newer_learning_unit_year in self.get_newer_learning_units_year():
-            newer_learning_unit_year.is_deletable(msg)
+        next_year = self.get_learning_unit_next_year()
+        if next_year:
+            next_year.is_deletable(msg)
 
         return not msg
 
@@ -165,9 +161,12 @@ class LearningUnitYear(SerializableModel):
     def get_group_elements_year(self):
         return GroupElementYear.objects.filter(child_leaf=self).select_related('parent')
 
-    def get_newer_learning_units_year(self):
-        return LearningUnitYear.objects.filter(learning_unit=self.learning_unit,
-                                               academic_year__year__gt=self.academic_year.year).order_by('-academic_year')
+    def get_learning_unit_next_year(self):
+        try:
+            return LearningUnitYear.objects.get(learning_unit=self.learning_unit,
+                                                academic_year__year=(self.academic_year.year+1))
+        except LearningUnitYear.DoesNotExist:
+            return None
 
 
 def find_by_id(learning_unit_year_id):

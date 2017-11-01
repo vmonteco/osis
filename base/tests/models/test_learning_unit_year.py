@@ -28,6 +28,7 @@ from django.utils import timezone
 from attribution.models import attribution
 from base.models import learning_unit_year
 from base.models.enums.learning_unit_year_subtypes import PARTIM, FULL
+from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.learning_class_year import LearningClassYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from base.tests.factories.learning_unit_enrollment import LearningUnitEnrollmentFactory
@@ -88,15 +89,21 @@ class LearningUnitYearTest(TestCase):
         l_unit_3 = LearningUnitYearFactory(acronym="LBIR1212B", learning_container_year=l_container_year,
                                            academic_year=self.academic_year, subtype=PARTIM)
 
-        l_enrollement_1 = LearningUnitEnrollmentFactory(learning_unit_year=l_unit_1)
-        l_enrollement_2 = LearningUnitEnrollmentFactory(learning_unit_year=l_unit_2)
+        LearningUnitEnrollmentFactory(learning_unit_year=l_unit_1)
+        LearningUnitEnrollmentFactory(learning_unit_year=l_unit_2)
 
         self.assertFalse(l_unit_1.is_deletable(msg))
-        print(msg)
+        self.assertEqual(len(msg), 2)
+
+    def test_delete_next_years(self):
+        l_unit = LearningUnitFactory()
+
+        dict_learning_units = {}
+        for year in range(2000, 2017):
+            academic_year = AcademicYearFactory(year=year)
+            dict_learning_units[year] = LearningUnitYearFactory(academic_year=academic_year, learning_unit=l_unit)
 
         msg = []
-        component = LearningComponentYearFactory(learning_container_year=l_container_year)
-        LearningClassYearFactory(learning_component_year=component)
-
-        self.assertFalse(l_unit_1.is_deletable(msg))
-        print(msg)
+        dict_learning_units[2007].delete(msg)
+        self.assertEqual(LearningUnitYear.objects.filter(academic_year__year__gte=2007, learning_unit=l_unit).count(), 0)
+        self.assertEqual(len(msg), 10)

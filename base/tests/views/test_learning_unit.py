@@ -938,17 +938,18 @@ class LearningUnitDelete(TestCase):
         ay1 = AcademicYearFactory(year=2000)
         ay2 = AcademicYearFactory(year=2001)
         ay3 = AcademicYearFactory(year=2002)
+        ay4 = AcademicYearFactory(year=2003)
 
         lcy2 = LearningContainerYearFactory()
         ly1 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay1)
         ly2 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay2, learning_container_year=lcy2, subtype=FULL)
         ly3 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay3)
+        ly4 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay4)
 
         lcomponent = LearningComponentYearFactory()
         lclass = LearningClassYearFactory(learning_component_year=lcomponent)
         lclass = LearningClassYearFactory(learning_component_year=lcomponent)
         lunitcompont = LearningUnitComponentFactory(learning_unit_year=ly2, learning_component_year=lcomponent)
-
 
         from base.views.learning_unit import learning_unit_delete
 
@@ -972,14 +973,19 @@ class LearningUnitDelete(TestCase):
 
         learning_unit_delete(request, ly2.id)
 
-        msg = [m.level for m in get_messages(request)]
-        self.assertIn(messages.SUCCESS, msg)
+        msg_level = [m.level for m in get_messages(request)]
+        msg = [m.message for m in get_messages(request)]
+        self.assertEqual(len(msg), 4)
+        self.assertIn(messages.SUCCESS, msg_level)
 
         with self.assertRaises(ObjectDoesNotExist):
             LearningUnitYear.objects.get(id=ly2.id)
 
         with self.assertRaises(ObjectDoesNotExist):
             LearningUnitYear.objects.get(id=ly3.id)
+
+        with self.assertRaises(ObjectDoesNotExist):
+            LearningUnitYear.objects.get(id=ly4.id)
 
         self.assertIsNotNone(LearningUnitYear.objects.get(id=ly1.id))
 
