@@ -55,7 +55,7 @@ class TextLabel(models.Model):
         unique_together = ('parent', 'order')
 
     def __str__(self):
-        return "{} - {} - {}".format(self.entity,self.label, self.order)
+        return "{} - {}".format(self.entity, self.order)
 
     def save(self, *args, **kwargs):
         parent_db = None
