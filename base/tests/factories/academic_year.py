@@ -37,6 +37,7 @@ fake = Faker()
 class AcademicYearFactory(DjangoModelFactory):
     class Meta:
         model = "base.AcademicYear"
+        django_get_or_create = ('year',)
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
     changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),

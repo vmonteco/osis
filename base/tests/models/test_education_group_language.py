@@ -41,6 +41,9 @@ class EducationGroupLanguageTest(TestCase):
         self.education_group_language_2 = EducationGroupLanguageFactory(education_group_year=self.education_group_year,
                                                                         language=self.language)
 
+    def test_return_str_format(self):
+        self.assertEqual(self.education_group_language_1.__str__(), str(self.education_group_language_1.id))
+
     def test_find_by_education_group_year(self):
-        education_group_year = find_by_education_group_year(self.education_group_year)
+        education_group_year = find_by_education_group_year(self.education_group_year.id)
         self.assertEqual(education_group_year.count(), 2)

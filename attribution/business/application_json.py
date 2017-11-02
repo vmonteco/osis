@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,24 +23,34 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
-import datetime
-import string
+import logging
+import pika
+import pika.exceptions
 
-from base.tests.factories.education_group_year import EducationGroupYearFactory
-from osis_common.utils.datetime import get_tzinfo
+from django.conf import settings
 
-
-class GroupElementYearFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "base.GroupElementYear"
-
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    parent = factory.SubFactory(EducationGroupYearFactory)
-    child_branch = factory.SubFactory(EducationGroupYearFactory)
+from osis_common.queue import queue_sender
 
 
+logger = logging.getLogger(settings.DEFAULT_LOGGER)
 
+
+def publish_to_portal(global_ids=None):
+    application_list = _compute_list(global_ids)
+    queue_name = settings.QUEUES.get('QUEUES_NAME', {}).get('ATTRIBUTION_RESPONSE')
+
+    if queue_name:
+        try:
+            queue_sender.send_message(queue_name, application_list)
+        except (RuntimeError, pika.exceptions.ConnectionClosed, pika.exceptions.ChannelClosed,
+                 pika.exceptions.AMQPError):
+            logger.exception('Could not recompute attributions for portal...')
+            return False
+        return True
+    else:
+        logger.exception('Could not recompute attributions for portal because not queue name ATTRIBUTION_RESPONSE')
+        return False
+
+
+def _compute_list(global_ids=None):
+    return []
