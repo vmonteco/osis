@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,18 +23,3 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
-from cms.enums import entity_name
-import operator
-
-
-class TextLabelFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "cms.TextLabel"
-
-    parent = None
-    entity = factory.Iterator(entity_name.ENTITY_NAME, getter=operator.itemgetter(0))
-    label = factory.fuzzy.FuzzyText(prefix="Label ", length=20)
-    order = factory.fuzzy.FuzzyInteger(1, 10)
-    published = factory.Iterator([True, False])
