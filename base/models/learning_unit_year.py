@@ -106,7 +106,9 @@ class LearningUnitYear(SerializableModel):
         ).first()
         return entity_container_yr.entity if entity_container_yr else None
 
-    def delete(self, msg=[], *args, **kwargs):
+    def delete(self, msg=None, *args, **kwargs):
+        if msg is None:
+            msg = []
         next_year = self.get_learning_unit_next_year()
         if next_year:
             next_year.delete(msg)
@@ -120,10 +122,13 @@ class LearningUnitYear(SerializableModel):
         result = super().delete(*args, **kwargs)
 
         subtype = _('The partim') if self.subtype == PARTIM else _('The learning unit')
-        msg.append(_('%(subtype)s %(acronym)s has been deleted for the year %(year)s') \
+        msg.append(_("%(subtype)s %(acronym)s has been deleted for the year %(year)s") \
                    % {'subtype': subtype,
                       'acronym':  self.acronym,
                       'year': self.academic_year})
+
+        self.learning_unit.end_year = self.academic_year.year - 1
+
         return result
 
     def is_deletable(self, msg):

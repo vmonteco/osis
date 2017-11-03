@@ -50,6 +50,7 @@ from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_class import LearningClassEditForm
 from base.models.enums import learning_unit_year_subtypes
 from base.forms.learning_units import MAX_RECORDS
+from base.utils.send_mail import send_mail_after_the_learning_unit_year_deletion
 from cms.models import text_label
 from reference.models import language
 from . import layout
@@ -151,6 +152,9 @@ def learning_unit_delete(request, learning_unit_year_id):
             for msg in messages_deletion:
                 messages.add_message(request, messages.SUCCESS, msg)
 
+            send_mail_after_the_learning_unit_year_deletion([], learning_unit_year.acronym,
+                                                            learning_unit_year.academic_year, messages_deletion)
+
         except ProtectedError as e:
             messages.add_message(request, messages.ERROR, str(e))
 
@@ -158,12 +162,12 @@ def learning_unit_delete(request, learning_unit_year_id):
 
     else:
         if messages_deletion:
-            context = {'title': _('cannot_delete_learning_unit_year')
+            context = {'title': _("cannot_delete_learning_unit_year")
                                 % {'learning_unit': learning_unit_year.acronym,
                                    'year': learning_unit_year.academic_year},
                        'messages_deletion': messages_deletion}
         else:
-            context = {'title': _('msg_warning_delete_learning_unit') % learning_unit_year}
+            context = {'title': _("msg_warning_delete_learning_unit") % learning_unit_year}
 
         return layout.render(request, "learning_unit/deletion.html", context)
 
@@ -182,6 +186,8 @@ def learning_unit_delete_all(request, learning_unit_year_id):
                                  % {'acronym': learning_unit.acronym})
             for messages_deletion in messages_deletion:
                 messages.add_message(request, messages.SUCCESS, messages_deletion)
+
+            send_mail_after_the_learning_unit_year_deletion([], learning_unit.acronym, None, messages_deletion)
 
         except ProtectedError as e:
             messages.add_message(request, messages.ERROR, str(e))

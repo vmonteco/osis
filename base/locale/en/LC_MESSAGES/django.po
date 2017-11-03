@@ -2206,6 +2206,12 @@ msgstr ""
 msgid "%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s"
 msgstr ""
 
+msgid "%(subtype)s %(acronym)s has been deleted for the year %(year)s"
+msgstr ""
+
+msgid "The class %(acronym)s has been deleted for the year %(year)s"
+msgstr ""
+
 msgid "the partim"
 msgstr ""
 
@@ -2219,6 +2225,12 @@ msgid "the learning unit"
 msgstr ""
 
 msgid "You asked the deletion of the learning unit %(acronym)s from the year %(year)s"
+msgstr ""
+
+msgid "Delete from this academic year"
+msgstr ""
+
+msgid "Delete all the learning unit"
 msgstr ""
 
 msgid "publish_attribution_to_portal"

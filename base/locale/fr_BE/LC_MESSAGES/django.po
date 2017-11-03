@@ -2203,7 +2203,6 @@ msgstr "L’UE <strong>%(learning_unit)s</strong> dont vous demandez la suppress
 msgid "cannot_delete_learning_unit"
 msgstr "L’UE <strong>%(learning_unit)s</strong> dont vous demandez la suppression fait l’objet des liens suivants à supprimer au préalable :"
 
-
 msgid "There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s"
 msgstr "%(subtype)s %(acronym)s fait l’objet de %(count)d inscription(s) l’année %(year)s"
 
@@ -2212,6 +2211,12 @@ msgstr "%(subtype)s %(acronym)s est attribué à %(tutor)s l’année %(year)s"
 
 msgid "%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s"
 msgstr "%(subtype)s %(acronym)s est repris dans le groupement %(group)s du programme %(program)s l’année %(year)s"
+
+msgid "%(subtype)s %(acronym)s has been deleted for the year %(year)s"
+msgstr "%(subtype)s %(acronym)s a été supprimé(e) pour l'année %(year)s"
+
+msgid "The class %(acronym)s has been deleted for the year %(year)s"
+msgstr "La classe %(acronym)s a été suprrimée pour l'année %(year)s"
 
 msgid "the partim"
 msgstr "le partim"
@@ -2225,9 +2230,14 @@ msgstr "L'unité d'enseignement"
 msgid "the learning unit"
 msgstr "l'unité d'enseignement"
 
-msgid "You asked the deletion of the learning unit %(acronym)s from the year %(year)s"
-msgstr "Vous avez demandé la suppressioin de l'unité d'enseignement %(acronym)s à partir de l'année %(year)s"
+msgid "Delete from this academic year"
+msgstr "Supprimer à partir de cette année académique"
 
+msgid "Delete all the learning unit"
+msgstr "Supprimer toute l'unité d'enseignement"
+
+msgid "You asked the deletion of the learning unit %(acronym)s from the year %(year)s"
+msgstr "Vous avez demandé la suppression de l'unité d'enseignement %(acronym)s à partir de l'année %(year)s"
 
 msgid "publish_attribution_to_portal"
 msgstr "Publication des attributions sur Osis-Portal"

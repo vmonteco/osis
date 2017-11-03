@@ -82,10 +82,12 @@ class LearningComponentYear(SerializableModel):
     def get_attributions_charge(self):
         return AttributionChargeNew.objects.filter(learning_component_year=self).select_related('attribution__tutor')
 
-    def delete(self, msg=[], *args, **kwargs):
+    def delete(self, msg=None, *args, **kwargs):
+        if msg is None:
+            msg = []
         for l_class_year in learning_class_year.find_by_learning_component_year(self):
             l_class_year.delete()
-            msg.append(_('The class %(acronym)s has been deleted for the year %(year)s')
+            msg.append(_("The class %(acronym)s has been deleted for the year %(year)s")
                        % {'acronym': l_class_year,
                           'year': self.learning_container_year.academic_year})
 

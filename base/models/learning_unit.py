@@ -78,7 +78,9 @@ class LearningUnit(SerializableModel):
     def get_learning_units_year(self):
         return LearningUnitYear.objects.filter(learning_unit=self)
 
-    def delete(self, msg=[], *args, **kwargs):
+    def delete(self, msg=None, *args, **kwargs):
+        if msg is None:
+            msg = []
         for ly in self.get_learning_units_year():
             ly.delete(msg)
         return super().delete(*args, **kwargs)

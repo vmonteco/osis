@@ -64,7 +64,9 @@ class LearningContainerYear(SerializableModel):
             ("can_access_learningcontaineryear", "Can access learning container year"),
         )
 
-    def delete(self, msg=[], *args, **kwargs):
+    def delete(self, msg=None, *args, **kwargs):
+        if msg is None:
+            msg = []
         for partim in self.get_partims_related():
             msg.append(partim.delete(msg))
         return super().delete(*args, **kwargs)

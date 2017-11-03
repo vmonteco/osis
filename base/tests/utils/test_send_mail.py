@@ -69,7 +69,8 @@ class TestSendMessage(TestCase):
         mock_class.send.return_value = None
         self.assertIsInstance(mock_class, EmailMultiAlternatives)
         send_mail.send_mail_after_the_learning_unit_year_deletion(self.persons,
-                                                                  self.learning_unit_year,
+                                                                  self.learning_unit_year.acronym,
+                                                                  self.academic_year,
                                                                   self.msg_list)
         call_args = mock_class.call_args
         subject = call_args[0][0]
@@ -97,7 +98,6 @@ class TestSendMessage(TestCase):
     def assert_subject_mail(self, subject, learning_unit_acronym, offer_year_acronym):
         self.assertIn(learning_unit_acronym, subject)
         self.assertIn(offer_year_acronym, subject)
-
 
 
 def add_message_template_txt():
@@ -155,3 +155,4 @@ def add_message_template_html():
         language="en"
     )
     msg_template.save()
+

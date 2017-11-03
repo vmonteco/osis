@@ -43,7 +43,7 @@ from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.internship_subtypes import TEACHING_INTERNSHIP
 from base.models.enums.learning_container_year_types import COURSE
 from base.models.enums.learning_unit_periodicity import ANNUAL
-from base.models.enums.learning_unit_year_subtypes import FULL
+from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.enums.learning_unit_year_session import SESSION_P23
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
@@ -1087,8 +1087,9 @@ class LearningUnitDelete(TestCase):
                             'year': ly1.academic_year},
                          context['title'])
 
+        subtype = _('the partim') if ly1.subtype == PARTIM else _('the learning unit')
         self.assertIn(_("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s")
-                      % {'subtype': _('the learning unit'),
+                      % {'subtype': subtype,
                          'acronym': ly1.acronym,
                          'year': ly1.academic_year,
                          'count': 1},
@@ -1127,8 +1128,9 @@ class LearningUnitDelete(TestCase):
                          % {'learning_unit': l1.acronym},
                          context['title'])
 
+        subtype = _('the partim') if ly1.subtype == PARTIM else _('the learning unit')
         self.assertIn(_("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s")
-                      % {'subtype': _('the learning unit'),
+                      % {'subtype': subtype,
                          'acronym': ly1.acronym,
                          'year': ly1.academic_year,
                          'count': 1},
