@@ -50,7 +50,6 @@ from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_class import LearningClassEditForm
 from base.models.enums import learning_unit_year_subtypes
 from base.forms.learning_units import MAX_RECORDS
-from base.utils.send_mail import send_mail_after_deletion_of_learning_unit_year
 from cms.models import text_label
 from reference.models import language
 from . import layout

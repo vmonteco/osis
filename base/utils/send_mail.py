@@ -100,7 +100,7 @@ def send_mail_after_academic_calendar_changes(academic_calendar, offer_year_cale
     return message_service.send_messages(message_content)
 
 
-def send_mail_after_the_learning_unit_year_deletion(learning_unit_year,academic_year,msg_list):
+def send_mail_after_the_learning_unit_year_deletion(managers,learning_unit_year,msg_list):
     """
     Send email to the program managers after deletions made on a learning_unit_year or partials or classes
     :param learning_unit_year: the deleted learning unit
@@ -113,52 +113,19 @@ def send_mail_after_the_learning_unit_year_deletion(learning_unit_year,academic_
     #Later on, we will have to call a function like 'get_managers(learning_unit_year)' instead.
     #Something like this :
     #managers = learning_unit_year.get_managers_of_learning_unit_year(learning_unit_year)
-    managers = []
+    #managers = []
 
     html_template_ref = 'learning_unit_year_deletion_html'
-    txt_template_ref = 'learning_unit_year_deletion_html'
-
+    txt_template_ref = 'learning_unit_year_deletion_txt'
     receivers = [message_config.create_receiver(manager.id, manager.email, manager.language) for manager in managers]
-    suject_data = {'learning_unit_year': learning_unit_year}
-    template_base_data = {'learning_unit_year': learning_unit_year,
-                          'academic_year': academic_year
+    suject_data = {'learning_unit_acronym': learning_unit_year.acronym}
+    template_base_data = {'learning_unit_acronym': learning_unit_year.acronym,
+                          'academic_year': learning_unit_year.academic_year,
+                          'msg_list':msg_list,
                           }
-    header_txt = ['acronym', 'sessionn', 'registration_number', 'lastname', 'firstname', 'score', 'documentation']
-    submitted_enrollments_data = [
-        (
-            enrollment.learning_unit_enrollment.offer_enrollment.offer_year.acronym,
-            enrollment.session_exam.number_session,
-            enrollment.learning_unit_enrollment.offer_enrollment.student.registration_id,
-            enrollment.learning_unit_enrollment.offer_enrollment.student.person.last_name,
-            enrollment.learning_unit_enrollment.offer_enrollment.student.person.first_name,
-            enrollment.score_final,
-            _(enrollment.justification_final) if enrollment.justification_final else None,
-        ) for enrollment in submitted_enrollments]
-    table = message_config.create_table('submitted_enrollments', header_txt, submitted_enrollments_data)
-
-    message_content = message_config.create_message_content(html_template_ref, txt_template_ref, [table], receivers,
-                                                            template_base_data, suject_data)
+    message_content = message_config.create_message_content(html_template_ref, txt_template_ref, None, receivers,
+                                                            template_base_data, suject_data, None)
     return message_service.send_messages(message_content)
-
-
-    {{ first_name }}
-    {{ last_name }}
-    {{ learning_unit }}
-    {{ academic_year }}
-    {{ partims }}
-    {{ partims_start_date }}
-    {{ partims_end_date }}
-    {{ classes }}
-    {{ classes_start_date }}
-    {{ classes_end_date }}
-    {{ ue_start_date }}
-    {{ ue_end_date }}
-
-    message_content = message_config.create_message_content(html_template_ref, txt_template_ref,
-                                                            None, receivers, template_base_data, suject_data)
-
-    return message_service.send_messages(message_content)
-
 
 
 def send_message_after_all_encoded_by_manager(persons, enrollments, learning_unit_acronym, offer_acronym):
