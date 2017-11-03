@@ -32,8 +32,10 @@ from .text_label import TextLabel
 class TranslatedTextLabelAdmin(admin.ModelAdmin):
     list_display = ('label', 'language', 'text_label',)
     fieldsets = ((None, {'fields': ('label', 'language', 'text_label')}),)
+    search_fields = ['label', 'text_label__label']
     ordering = ('label',)
     raw_id_fields = ('text_label',)
+    list_filter = ('language',)
 
 
 class TranslatedTextLabel(models.Model):

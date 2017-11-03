@@ -33,9 +33,11 @@ from cms.enums.entity_name import ENTITY_NAME
 
 class TextLabelAdmin(admin.ModelAdmin):
     list_display = ('parent', 'entity', 'label', 'order', 'published',)
+    search_fields = ['label']
     ordering = ('entity',)
     actions = ['delete_selected']
     raw_id_fields = ('parent',)
+    list_filter = ('published',)
 
     def delete_selected(self, request, obj):
         for text_label in obj.all():
