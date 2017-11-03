@@ -24,17 +24,20 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
 
 from attribution.models.attribution_charge_new import AttributionChargeNew
 from base.models.enums import learning_component_year_type, learning_container_year_types
 from base.models import learning_class_year
+<<<<<<< HEAD
 from django.utils.translation import ugettext_lazy as _
 
 from base.models.learning_class_year import LearningClassYear
+=======
+from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
+>>>>>>> dev
 
 
-class LearningComponentYearAdmin(admin.ModelAdmin):
+class LearningComponentYearAdmin(SerializableModelAdmin):
     list_display = ('learning_container_year', 'title', 'acronym', 'type', 'comment')
     fieldsets = ((None, {'fields': ('learning_container_year', 'title', 'acronym',
                                     'type', 'comment', 'planned_classes', 'hourly_volume_partial')}),)
@@ -43,7 +46,7 @@ class LearningComponentYearAdmin(admin.ModelAdmin):
     list_filter = ('learning_container_year__academic_year',)
 
 
-class LearningComponentYear(models.Model):
+class LearningComponentYear(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     learning_container_year = models.ForeignKey('LearningContainerYear')
     title = models.CharField(max_length=255, blank=True, null=True)
@@ -54,6 +57,7 @@ class LearningComponentYear(models.Model):
     planned_classes = models.IntegerField(blank=True, null=True)
     hourly_volume_partial = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
     deleted = models.BooleanField(default=False)
+    volume_declared_vacant = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
 
     def __str__(self):
         return u"%s - %s - %s" % (self.acronym, self.learning_container_year.acronym, self.title)
@@ -102,8 +106,7 @@ def find_by_learning_container_year(learning_container_year, with_classes=False)
         .order_by('type', 'acronym')
     if with_classes:
         queryset = queryset.prefetch_related(
-            models.Prefetch('learningclassyear_set',
-                            to_attr="classes")
+             models.Prefetch('learningclassyear_set', to_attr="classes")
         )
 
     return queryset

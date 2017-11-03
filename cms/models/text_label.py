@@ -55,7 +55,7 @@ class TextLabel(models.Model):
         unique_together = ('parent', 'order')
 
     def __str__(self):
-        return "{} - {}".format(self.entity,self.order)
+        return "{} - {}".format(self.entity, self.order)
 
     def save(self, *args, **kwargs):
         parent_db = None
@@ -121,3 +121,4 @@ def find_root_by_name(text_label_name):
     return TextLabel.objects.prefetch_related(
                                 Prefetch('translatedtextlabel_set',to_attr="translated_text_labels")
                             ).get(label=text_label_name, order=1, parent__isnull=True)
+

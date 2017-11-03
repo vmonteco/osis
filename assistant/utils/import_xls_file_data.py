@@ -36,16 +36,16 @@ from assistant.utils import manager_access
 from assistant.models.enums import assistant_type, assistant_phd_inscription, assistant_mandate_renewal
 from base.models.enums import entity_type
 
-COLS_NUMBER = 22
+COLS_NUMBER = 23
 ASSISTANTS_IMPORTED = 0
 MANDATES_IMPORTED = 0
 ASSISTANTS_UPDATED = 0
 MANDATES_UPDATED = 0
 PERSONS_NOT_FOUND = 0
-COLS_TITLES = ['SECTOR', 'FACULTY', 'SCHOOL', 'INSTITUTE', 'POLE', 'SAP_ID', 'GLOBAL_ID', 'LAST_NAME',
-               'FIRST_NAME', 'FULLTIME_EQUIVALENT', 'ENTRY_DATE', 'END_DATE', 'ASSISTANT_TYPE_CODE', 'SCALE',
-               'CONTRACT_DURATION', 'CONTRACT_DURATION_FTE', 'RENEWAL_TYPE', 'ABSENCES', 'COMMENT', 'OTHER_STATUS',
-               'EMAIL', 'FGS']
+COLS_TITLES = ['SECTOR','LOGISTICS_ENTITY', 'FACULTY', 'SCHOOL', 'INSTITUTE', 'POLE', 'SAP_ID', 'GLOBAL_ID',
+               'LAST_NAME', 'FIRST_NAME', 'FULLTIME_EQUIVALENT', 'ENTRY_DATE', 'END_DATE', 'ASSISTANT_TYPE_CODE',
+               'SCALE', 'CONTRACT_DURATION', 'CONTRACT_DURATION_FTE', 'RENEWAL_TYPE', 'ABSENCES', 'COMMENT',
+               'OTHER_STATUS', 'EMAIL', 'FGS']
 ASSISTANT_TYPES_ALIASES = {
     'ST': assistant_type.ASSISTANT,
     'AS': assistant_type.TEACHING_ASSISTANT
@@ -101,6 +101,10 @@ def read_xls_mandates(request, file_name):
                                                             entity_type.SECTOR)
                 if sector:
                     link_mandate_to_entity(mandate, sector)
+                logistic_entity = search_entity_by_acronym_and_type(current_record.get('LOGISTICS_ENTITY'),
+                                                           entity_type.LOGISTICS_ENTITY)
+                if logistic_entity:
+                    link_mandate_to_entity(mandate, logistic_entity)
                 faculty = search_entity_by_acronym_and_type(current_record.get('FACULTY'),
                                                             entity_type.FACULTY)
                 if faculty:
@@ -143,10 +147,10 @@ def xls_row_to_dict(row, titles):
     record_to_import = {}
     current_col = 0
     for cell in row:
-        if titles[current_col] == 'FGS' and len(cell.value) != 8:
-            record_to_import[titles[current_col]] = cell.value.zfill(8)
+        if titles[current_col] == 'FGS' and len(str(cell.value)) != 8:
+            record_to_import[titles[current_col]] = str(cell.value).zfill(8)
         else:
-            record_to_import[titles[current_col]] = cell.value
+            record_to_import[titles[current_col]] = str(cell.value)
         current_col += 1
     return record_to_import
 
@@ -237,6 +241,7 @@ def check_file_format(request, titles_rows):
     if len(titles_rows) != COLS_NUMBER:
         messages.add_message(request, messages.ERROR, _('columns_number_error'))
         return False
+    print(titles_rows)
     if titles_rows != COLS_TITLES:
         messages.add_message(request, messages.ERROR, _('columns_title_error'))
         messages.add_message(request, messages.ERROR, COLS_TITLES)

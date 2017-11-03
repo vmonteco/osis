@@ -106,27 +106,35 @@
                             <label>{% trans 'language' %}</label>
                             {{ form.language }}
                         </div>
-                        <div class="col-md-2">
-                            <label>
-                                {% trans 'credits' %}*
-                            </label>
-                            {{ form.credits }}
-                            <label {% if form.errors.credits %}style="color:red;"{% endif %}>
-                                {{ form.errors.credits| striptags }}
-                            </label>
-                        </div>
-                        <div class="col-md-2">
-                            <label {% if form.errors.session %}style="color:red;"{% endif %}>
-                                {% trans 'session_title' %}
-                            </label>
-                            {{ form.session }}
-                            <label {% if form.errors.session %}style="color:red;"{% endif %}>
-                                {{ form.errors.session| striptags }}
-                            </label>
-                        </div>
-                        <div class="col-md-2">
-                            {{ form.status }}
-                            <label>{% trans 'active_title' %}</label>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label>
+                                        {% trans 'credits' %}*
+                                    </label>
+                                    {{ form.credits }}
+                                    <label {% if form.errors.credits %}style="color:red;"{% endif %}>
+                                        {{ form.errors.credits| striptags }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3">
+                                    <label {% if form.errors.session %}style="color:red;"{% endif %}>
+                                        {% trans 'session_title' %}
+                                    </label>
+                                    {{ form.session }}
+                                    <label {% if form.errors.session %}style="color:red;"{% endif %}>
+                                        {{ form.errors.session| striptags }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>{% trans 'quadrimester' %}</label>
+                                    {{ form.quadrimester }}
+                                </div>
+                                <div class="col-md-3">
+                                    {{ form.status }}
+                                    <label>{% trans 'active_title' %}</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
             </div>

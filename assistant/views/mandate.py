@@ -31,7 +31,7 @@ from django.utils.translation import ugettext as _
 from openpyxl import Workbook
 from openpyxl.writer.excel import save_virtual_workbook
 from base.models.enums import entity_type
-from base.models import academic_year
+from base.models import academic_year, entity
 from base.views import layout
 from assistant.forms import MandateForm, entity_inline_formset
 from assistant import models as assistant_mdl
@@ -192,7 +192,7 @@ def construct_line(mandate):
 
 def get_entities_for_mandate(mandate):
     entities_id = mandate.mandateentity_set.all().order_by('id').values_list('entity', flat=True)
-    entities = find_versions_from_entites(entities_id, mandate.academic_year.start_date)
+    entities = entity.find_versions_from_entites(entities_id, mandate.academic_year.start_date)
     i = 0
     mandate_entities = []
     for ent in entities:

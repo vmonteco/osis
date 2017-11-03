@@ -25,6 +25,7 @@
 ##############################################################################
 from django.conf.urls import url, include
 
+from attribution.views import attribution
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group
 from django.conf import settings
@@ -53,7 +54,10 @@ urlpatterns = [
         url(r'^storage/$', common.storage, name='storage'),
     ])),
 
-    url(r'^api/v1/entities/$', entity.post_entities, name='post_entities'),
+    url(r'^api/v1/', include([
+        url(r'^entities/$', entity.post_entities, name='post_entities'),
+        url(r'^attribution/recompute_portal$', attribution.recompute_portal, name='recompute_attribution_portal'),
+    ])),
 
     url(r'^catalog/$', common.catalog, name='catalog'),
 
@@ -141,6 +145,8 @@ urlpatterns = [
             url(r'^$', education_group.education_group_read, name='education_group_read'),
             url(r'^parent/$', education_group.education_group_parent_read, name='education_group_parent_read'),
             url(r'^diplomas/$', education_group.education_group_diplomas, name='education_group_diplomas'),
+            url(r'^informations/$', education_group.education_group_general_informations, name='education_group_general_informations'),
+
         ]))
     ])),
 

@@ -23,21 +23,22 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib import admin
 from django.db import models
 from base.models import learning_unit_year, learning_component_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types
+from base.models.enums import vacant_declaration_type
+from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
-class LearningContainerYearAdmin(admin.ModelAdmin):
+class LearningContainerYearAdmin(SerializableModelAdmin):
     list_display = ('learning_container', 'academic_year', 'container_type', 'acronym', 'title')
     fieldsets = ((None, {'fields': ('learning_container', 'academic_year', 'container_type', 'acronym', 'title',
                                     'title_english', 'language')}),)
     search_fields = ['acronym']
-    list_filter = ('academic_year',)
+    list_filter = ('academic_year', 'in_charge', 'is_vacant',)
 
 
-class LearningContainerYear(models.Model):
+class LearningContainerYear(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     academic_year = models.ForeignKey('AcademicYear')
     learning_container = models.ForeignKey('LearningContainer')
@@ -49,6 +50,11 @@ class LearningContainerYear(models.Model):
     changed = models.DateTimeField(null=True, auto_now=True)
     language = models.ForeignKey('reference.Language', blank=True, null=True)
     campus = models.ForeignKey('Campus', blank=True, null=True)
+    team = models.BooleanField(default=False)
+    is_vacant = models.BooleanField(default=False)
+    type_declaration_vacant = models.CharField(max_length=100, blank=True, null=True,
+                                               choices=vacant_declaration_type.DECLARATION_TYPE)
+    in_charge = models.BooleanField(default=False)
 
     def __str__(self):
         return u"%s - %s" % (self.acronym, self.title)

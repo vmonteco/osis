@@ -403,7 +403,7 @@ def learning_unit_year_add(request):
             academic_year = mdl.academic_year.find_academic_year_by_year(year)
 
             create_learning_unit_structure(additional_entity_version_1, additional_entity_version_2,
-                                           allocation_entity_version, data, form, new_learning_container,
+                                           allocation_entity_version, data, new_learning_container,
                                            new_learning_unit, requirement_entity_version, status, academic_year)
             year = year + 1
         return redirect('learning_units')

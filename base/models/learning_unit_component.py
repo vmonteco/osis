@@ -23,11 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 from base.models.enums import component_type
-from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
+from base.models.enums.learning_unit_year_subtypes import PARTIM
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from django.utils.translation import ugettext_lazy as _
 
@@ -77,7 +76,7 @@ def find_by_learning_year_type(a_learning_unit_year=None, a_type=None):
         try:
             return LearningUnitComponent.objects.get(learning_unit_year=a_learning_unit_year,
                                                      type=a_type)
-        except ObjectDoesNotExist:
+        except LearningUnitComponent.ObjectDoesNotExist:
             return None
     return None
 
@@ -100,7 +99,7 @@ def search(a_learning_component_year=None, a_learning_unit_year=None):
     if a_learning_unit_year:
         queryset = queryset.filter(learning_unit_year=a_learning_unit_year)
 
-    return queryset
+    return queryset.select_related('learning_unit_year__academic_year')
 
 
 def used_by(learning_component_year, learning_unit_year):

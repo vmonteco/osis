@@ -59,11 +59,11 @@ class LearningUnitYearTest(TestCase):
 
     def test_subdivision_computation(self):
         l_container_year = LearningContainerYearFactory(acronym="LBIR1212", academic_year=self.academic_year)
-        l_unit_1 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year= l_container_year,
+        l_unit_1 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
                                            academic_year=self.academic_year)
-        l_unit_2 = LearningUnitYearFactory(acronym="LBIR1212A", learning_container_year= l_container_year,
+        l_unit_2 = LearningUnitYearFactory(acronym="LBIR1212A", learning_container_year=l_container_year,
                                            academic_year=self.academic_year)
-        l_unit_3 = LearningUnitYearFactory(acronym="LBIR1212B", learning_container_year= l_container_year,
+        l_unit_3 = LearningUnitYearFactory(acronym="LBIR1212B", learning_container_year=l_container_year,
                                            academic_year=self.academic_year)
 
         self.assertFalse(l_unit_1.subdivision)
@@ -71,8 +71,8 @@ class LearningUnitYearTest(TestCase):
         self.assertEqual(l_unit_3.subdivision, 'B')
 
     def test_search_acronym_by_regex(self):
-        regex_valid='^LD.+1+'
-        query_result_valid=learning_unit_year.search(acronym=regex_valid)
+        regex_valid = '^LD.+1+'
+        query_result_valid = learning_unit_year.search(acronym=regex_valid)
         self.assertEqual(len(query_result_valid), 1)
         self.assertEqual(self.learning_unit_year.acronym, query_result_valid[0].acronym)
 
@@ -107,3 +107,16 @@ class LearningUnitYearTest(TestCase):
         dict_learning_units[2007].delete(msg)
         self.assertEqual(LearningUnitYear.objects.filter(academic_year__year__gte=2007, learning_unit=l_unit).count(), 0)
         self.assertEqual(len(msg), 10)
+
+    def test_property_in_charge(self):
+        self.assertFalse(self.learning_unit_year.in_charge)
+
+        a_container_year = LearningContainerYearFactory(acronym=self.learning_unit_year.acronym,
+                                                        academic_year=self.academic_year)
+        self.learning_unit_year.learning_container_year = a_container_year
+
+        self.assertFalse(self.learning_unit_year.in_charge)
+
+        a_container_year.in_charge = True
+
+        self.assertTrue(self.learning_unit_year.in_charge)
