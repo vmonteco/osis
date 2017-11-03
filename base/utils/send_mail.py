@@ -100,6 +100,34 @@ def send_mail_after_academic_calendar_changes(academic_calendar, offer_year_cale
     return message_service.send_messages(message_content)
 
 
+def send_mail_after_the_learning_unit_year_deletion(managers,learning_unit_year,msg_list):
+    """
+    Send email to the program managers after deletions made on a learning_unit_year or partials or classes
+    :param learning_unit_year: the deleted learning unit
+    :param academic_year: starting academic year at which the deletion must start
+    :param msg_list : the list of the messages detailing the deletion
+    :return An error message if the template is not in the database
+    """
+
+    #At the moment, there is no link between managers and learning_units. So here is an empty list.
+    #Later on, we will have to call a function like 'get_managers(learning_unit_year)' instead.
+    #Something like this :
+    #managers = learning_unit_year.get_managers_of_learning_unit_year(learning_unit_year)
+    #managers = []
+
+    html_template_ref = 'learning_unit_year_deletion_html'
+    txt_template_ref = 'learning_unit_year_deletion_txt'
+    receivers = [message_config.create_receiver(manager.id, manager.email, manager.language) for manager in managers]
+    suject_data = {'learning_unit_acronym': learning_unit_year.acronym}
+    template_base_data = {'learning_unit_acronym': learning_unit_year.acronym,
+                          'academic_year': learning_unit_year.academic_year,
+                          'msg_list':msg_list,
+                          }
+    message_content = message_config.create_message_content(html_template_ref, txt_template_ref, None, receivers,
+                                                            template_base_data, suject_data, None)
+    return message_service.send_messages(message_content)
+
+
 def send_message_after_all_encoded_by_manager(persons, enrollments, learning_unit_acronym, offer_acronym):
     """
     Send a message to all tutor from a learning unit when all scores are submitted by program manager
