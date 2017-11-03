@@ -50,7 +50,7 @@ class MandataryAdmin(admin.ModelAdmin):
                                     'end_date')}),)
     
     raw_id_fields = ('mandate', 'person')
-    search_fields = ['person']
+    search_fields = ['person__first_name', 'person__last_name']
 
 
 class Mandatary(models.Model):
