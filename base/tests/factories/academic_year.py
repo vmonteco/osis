@@ -30,8 +30,19 @@ import datetime
 from django.utils import timezone
 from factory.django import DjangoModelFactory
 from faker import Faker
+from base.models.academic_year import AcademicYear
 from osis_common.utils.datetime import get_tzinfo
 fake = Faker()
+
+
+def build_future_academic_years(from_date=None, quantity=6):
+    if not from_date:
+        from_date = datetime.date.today()
+    for index in range(1, quantity+1):
+        ac_year = AcademicYearFactory.build(start_date=from_date.replace(year=from_date.year+index),
+                                            end_date=from_date.replace(year=from_date.year+index+1),
+                                            year=from_date.year+index)
+        super(AcademicYear, ac_year).save()
 
 
 class AcademicYearFactory(DjangoModelFactory):

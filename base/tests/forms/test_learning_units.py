@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils import timezone
 from mock import patch
@@ -40,7 +39,7 @@ from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.models.enums import entity_container_year_link_type
 from reference.tests.factories.country import CountryFactory
-from base.forms import learning_units
+from base.forms import learning_unit_search
 
 ACRONYM_LU = "LDROI1001"
 
@@ -66,7 +65,7 @@ class TestLearningUnitForm(TestCase):
         self.build_faculty_entity_tree()
 
         self.build_allocation_entity_not_in_fac_tree()
-        form = learning_units.LearningUnitYearForm(data=self.get_valid_data())
+        form = learning_unit_search.LearningUnitSearchForm(data=self.get_valid_data())
         self.assertTrue(form.is_valid())
         found_learning_units = form.get_activity_learning_units()
         learning_unit = found_learning_units[0]
@@ -80,7 +79,7 @@ class TestLearningUnitForm(TestCase):
 
         self.build_allocation_entity_in_fac_tree()
 
-        form = learning_units.LearningUnitYearForm(data=self.get_valid_data())
+        form = learning_unit_search.LearningUnitSearchForm(data=self.get_valid_data())
         self.assertTrue(form.is_valid())
         found_learning_units = form.get_activity_learning_units()
         learning_unit = found_learning_units[0]
@@ -167,7 +166,7 @@ class TestLearningUnitForm(TestCase):
 
     @patch("base.models.learning_unit_year.count_search_results")
     def test_case_maximum_results_reached(self, mock_count):
-        mock_count.return_value = learning_units.MAX_RECORDS + 1
-        form = learning_units.LearningUnitYearForm(data=self.get_valid_data())
+        mock_count.return_value = learning_unit_search.MAX_RECORDS + 1
+        form = learning_unit_search.LearningUnitSearchForm(data=self.get_valid_data())
         self.assertRaises(TooManyResultsException, form.is_valid)
 
