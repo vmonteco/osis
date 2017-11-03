@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import time
+from datetime import date
 from django.contrib.auth.decorators import user_passes_test
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
@@ -36,7 +37,7 @@ from base.views import layout
 from assistant.forms import MandateForm, entity_inline_formset
 from assistant import models as assistant_mdl
 from assistant.models import assistant_mandate, review
-from assistant.models.enums import assistant_type, reviewer_role
+from assistant.models.enums import reviewer_role, assistant_mandate_state
 
 
 def user_is_manager(user):
@@ -98,60 +99,26 @@ def generate_xls():
     workbook = Workbook(encoding='utf-8')
     worksheet = workbook.active
     worksheet.title = "mandates"
-    worksheet.append([_("name"),
+    worksheet.append([_("sector"),
+                      _("faculty"),
+                      _("institute"),
+                      _("matricule"),
+                      _("name"),
                       _("firstname"),
-                      _("fgs"),
-                      _("sap_id"),
+                      _("age"),
+                      _("choice"),
+                      _("renewal_type"),
                       _("assistant_type"),
                       _("fulltime_equivalent"),
-                      _("entry_date"),
-                      _("exit_date"),
-                      _("scale"),
-                      _("contract_period"),
-                      _("eft_contract_period"),
-                      _("renewal_type"),
+                      _("contract_duration_fte"),
+                      _("contract_duration"),
+                      _("end_date"),
+                      _("comment"),
                       _("absences"),
-                      _("comments"),
-                      _("others_status"),
-                      _("sector"),
-                      _("faculty"),
-                      _("school"),
-                      _("institute"),
-                      _("pole"),
-                      _("phd_supervisor"),
-                      _("thesis_title"),
-                      _("doctorate_inscription_date"),
-                      _("confirmation_test_date"),
-                      _("thesis_date"),
-                      _("expected_doctorate_date"),
-                      _("doctorate_inscription"),
-                      _("doctorate_remark"),
-                      _("functions_outside_ucl"),
-                      _("external_mandate"),
-                      _("teaching_percentage"),
-                      _("research_percentage"),
-                      _("service_percentage"),
-                      _("formation_percentage"),
-                      _("phd_supervisor_reviewer"),
-                      _("phd_supervisor_review"),
-                      _("phd_supervisor_justification"),
-                      _("phd_supervisor_comment"),
-                      _("phd_supervisor_confidential"),
-                      _("research_supervisor_reviewer"),
-                      _("research_review"),
-                      _("research_justification"),
-                      _("research_comment"),
-                      _("research_confidential"),
-                      _("supervision_supervisor_reviewer"),
-                      _("supervision_review"),
-                      _("supervision_justification"),
-                      _("supervision_comment"),
-                      _("supervision_confidential"),
-                      _("vice_rector_supervisor_reviewer"),
-                      _("vice_rector_review"),
-                      _("vice_rector_justification"),
-                      _("vice_rector_comment"),
-                      _("vice_rector_confidential")
+                      _("sector_vice_rector_review"),
+                      _("justification"),
+                      _("comment"),
+                      _("confidential"),
                       ])
     mandates = assistant_mandate.find_by_academic_year(academic_year.current_academic_year())
     for mandate in mandates:
@@ -161,31 +128,31 @@ def generate_xls():
 
 
 def construct_line(mandate):
-    line = [str(mandate.assistant.person.last_name),
-            str(mandate.assistant.person.first_name),
-            mandate.assistant.person.global_id,
-            mandate.sap_id,
-            str(mandate.assistant_type),
-            mandate.fulltime_equivalent,
-            mandate.entry_date,
-            mandate.end_date,
-            mandate.scale,
-            mandate.contract_duration,
-            mandate.contract_duration_fte,
-            mandate.renewal_type,
-            mandate.absences,
-            mandate.comment,
-            mandate.other_status,
-            ]
-    line += get_entities_for_mandate(mandate)
-    line += get_assistant_doctorate_details(mandate)
-    line += [mandate.external_functions,
-             mandate.external_contract]
-    line += [mandate.tutoring_percent,
-             mandate.research_percent,
-             mandate.service_activities_percent,
-             mandate.formation_activities_percent
-             ]
+    line = get_entities_for_mandate(mandate)
+    line += [
+        mandate.sap_id,
+        str(mandate.assistant.person.last_name),
+        str(mandate.assistant.person.first_name),
+        calculate_age(mandate.assistant.person.birth_date),
+    ]
+    if mandate.state != assistant_mandate_state.DECLINED:
+        line += [
+            _("accepted"),
+        ]
+    else:
+        line += [
+            _(assistant_mandate_state.DECLINED),
+                 ]
+    line += [
+        _(mandate.renewal_type),
+        _(str(mandate.assistant_type)),
+        mandate.fulltime_equivalent,
+        mandate.contract_duration_fte,
+        mandate.contract_duration,
+        mandate.end_date,
+        mandate.comment,
+        mandate.absences if mandate.absences != 'None' else '',
+    ]
     line += get_reviews(mandate)
     return line
 
@@ -200,53 +167,27 @@ def get_entities_for_mandate(mandate):
             mandate_entities = [ent.acronym]
         elif ent.entity_type == entity_type.FACULTY:
             mandate_entities += [ent.acronym]
-        elif ent.entity_type == entity_type.SCHOOL:
-            for j in range(i, 1):
-                mandate_entities += ['']
-            mandate_entities += [ent.acronym]
         elif ent.entity_type == entity_type.INSTITUTE:
             for j in range(i, 2):
-                mandate_entities += ['']
-            mandate_entities += [ent.acronym]
-        elif ent.entity_type == entity_type.POLE:
-            for j in range(i, 3):
                 mandate_entities += ['']
             mandate_entities += [ent.acronym]
         i += 1
     return mandate_entities
 
 
-def get_assistant_doctorate_details(mandate):
-    if mandate.assistant_type == assistant_type.TEACHING_ASSISTANT:
-        return [''] * 8
-    else:
-        ass = mandate.assistant
-        return [
-            str(ass.supervisor),
-            ass.thesis_title,
-            ass.phd_inscription_date,
-            ass.confirmation_test_date,
-            ass.thesis_date,
-            ass.expected_phd_date,
-            ass.inscription,
-            ass.remark
-        ]
-
-
 def get_reviews(mandate):
     reviews_details = []
-    reviews = review.find_by_mandate(mandate.id)
-    for idx, rev in enumerate(reviews):
-        if rev.reviewer is None:
-            reviews_details += [str(rev.mandate.assistant.supervisor)] if rev.mandate.assistant.supervisor is not None \
-                else ['']
-        elif idx == 0:
-            reviews_details.extend(['' for i in range(5)])
-            if rev.reviewer.role == reviewer_role.SUPERVISION:
-                reviews_details.extend(['' for i in range(5)])
-            reviews_details.append(str(rev.reviewer.person))
-        reviews_details += [rev.advice] if rev.advice is not None else ['']
-        reviews_details += [rev.justification] if rev.justification is not None else ['']
-        reviews_details += [rev.remark] if rev.remark is not None else ['']
-        reviews_details += [rev.confidential] if rev.confidential is not None else ['']
+    vrs_review = review.find_review_for_mandate_by_role(mandate.id, reviewer_role.VICE_RECTOR)
+    if vrs_review:
+        reviews_details += [_(vrs_review.advice)] if vrs_review.advice is not None else ['']
+        reviews_details += [vrs_review.justification] if vrs_review.justification is not None else ['']
+        reviews_details += [vrs_review.remark] if vrs_review.remark is not None else ['']
+        reviews_details += [vrs_review.confidential] if vrs_review.confidential is not None else ['']
     return reviews_details
+
+
+def calculate_age(born=None):
+    if born is None:
+        return None
+    today = date.today()
+    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
