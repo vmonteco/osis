@@ -62,9 +62,9 @@ class Mandatary(models.Model):
     end_date = models.DateField(auto_now=False, auto_now_add=False)
 
 
-def find_by_education_group(an_education_group, an_academic_year):
-    return Mandatary.objects.filter(mandate__education_group=an_education_group,
-                                    start_date__gte=an_academic_year.start_date,
+def find_by_education_group_year(an_education_group_year):
+    return Mandatary.objects.filter(mandate__education_group=an_education_group_year.education_group,
+                                    start_date__gte=an_education_group_year.academic_year.start_date,
                                     end_date__lte=an_academic_year.end_date)\
         .order_by('mandate__function', 'person')
 

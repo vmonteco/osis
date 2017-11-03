@@ -2216,3 +2216,21 @@ msgstr "Jury"
 
 msgid "signatory_qualification"
 msgstr "Signatory's qualification"
+
+msgid "course_enrollment"
+msgstr "Course enrollment"
+
+msgid "marks_presentation"
+msgstr "Marks presentation"
+
+msgid "dissertation_presentation"
+msgstr "Dissertation présentation"
+
+msgid "scores_diffusion"
+msgstr "Scores diffusion"
+
+msgid "session"
+msgstr "Session"
+
+msgid "at"
+msgstr "at"

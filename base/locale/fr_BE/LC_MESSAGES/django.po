@@ -2222,3 +2222,21 @@ msgstr "Jury"
 
 msgid "signatory_qualification"
 msgstr "Qualification du signataire"
+
+msgid "course_enrollment"
+msgstr "Inscription aux cours"
+
+msgid "marks_presentation"
+msgstr "Remise des notes"
+
+msgid "dissertation_presentation"
+msgstr "Remise du mémoire"
+
+msgid "scores_diffusion"
+msgstr "Diffusion des notes"
+
+msgid "session"
+msgstr "Session"
+
+msgid "at"
+msgstr "à"

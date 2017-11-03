@@ -37,6 +37,7 @@ from cms import models as mdl_cms
 from collections import OrderedDict
 from django.conf import settings
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
+from django.utils import timezone
 
 
 @login_required
@@ -156,7 +157,18 @@ def education_group_administrative_data(request, education_group_year_id):
 
 
 def _education_group_administrative_data_tab(request, education_group_year_id):
+    now = timezone.now()
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
     context = {'education_group_year': education_group_year,
-               'mandataries': mdl.mandatary.find_by_education_group(education_group_year.education_group, education_group_year.academic_year)}
+               'dates_course_enrollment':{'start': now,'end': now},
+               'start_dates_exams_enrollments': {'session1':now, 'session2': now, 'session3': now},
+               'end_dates_exams_enrollments': {'session1': now, 'session2': now, 'session3': now  },
+               'dates_marks_presentation': {'session1': now, 'session2': now, 'session3': now  },
+               'dates_dissertation_presentation': {'session1': now, 'session2': now, 'session3': now  },
+               'dates_deliberation': {'session1': now, 'session2': now, 'session3': now  },
+               'times_deliberation': {'session1': '10:00', 'session2': '10:00', 'session3': '10:00'  },
+               'dates_scores_diffusion': {'session1': now, 'session2': now, 'session3': now  },
+               'times_scores_diffusion': {'session1': '10:00', 'session2': '10:00', 'session3': '10:00'  },
+               'mandataries': mdl.mandatary.find_by_education_group_year(education_group_year),
+               'pgm_mgrs': ['prof1', 'prof2']}
     return layout.render(request, "education_group/tab_administrative_data.html", context)
