@@ -34,8 +34,8 @@ from django.utils.translation import ugettext_lazy as _
 from base import models as mdl
 from base.business.entity_version import SERVICE_COURSE
 from base.business.learning_unit_year_with_context import append_latest_entities
-from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none
-from base.models import entity_version as mdl_entity_version
+from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, TooManyResultsException
+from base.models import entity_version as mdl_entity_version, learning_unit_year
 from base.forms.bootstrap import BootstrapForm
 from base.models.campus import find_administration_campuses
 from base.models.entity_version import find_main_entities_version
@@ -43,10 +43,8 @@ from base.models.enums import entity_container_year_link_type
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
-from base.models.learning_unit_year import check_if_acronym_regex_is_valid
 from reference.models.language import find_all_languages
 
-MIN_ACRONYM_LENGTH = 3
 
 MAX_RECORDS = 1000
 EMPTY_FIELD = "---------"
@@ -63,9 +61,7 @@ class LearningUnitYearForm(forms.Form):
     def clean_acronym(self):
         data_cleaned = self.cleaned_data.get('acronym')
         data_cleaned = treat_empty_or_str_none_as_none(data_cleaned)
-        if data_cleaned and len(data_cleaned) < MIN_ACRONYM_LENGTH:
-            raise ValidationError(_('LU_WARNING_INVALID_ACRONYM'))
-        elif data_cleaned and len(data_cleaned) >= MIN_ACRONYM_LENGTH and check_if_acronym_regex_is_valid(data_cleaned) is None:
+        if data_cleaned and learning_unit_year.check_if_acronym_regex_is_valid(data_cleaned) is None:
             raise ValidationError(_('LU_ERRORS_INVALID_REGEX_SYNTAX'))
         return data_cleaned
 
@@ -88,6 +84,8 @@ class LearningUnitYearForm(forms.Form):
         return data_cleaned
 
     def clean(self):
+        if self.cleaned_data and learning_unit_year.count_search_results(**self.cleaned_data) > MAX_RECORDS:
+            raise TooManyResultsException
         return get_clean_data(self.cleaned_data)
 
     def get_activity_learning_units(self):
@@ -112,7 +110,7 @@ class LearningUnitYearForm(forms.Form):
                              .select_related('academic_year', 'learning_container_year',
                                              'learning_container_year__academic_year') \
                              .prefetch_related(entity_container_prefetch) \
-                             .order_by('academic_year__year', 'acronym')[:MAX_RECORDS + 1]
+                             .order_by('academic_year__year', 'acronym')
 
         return [append_latest_entities(learning_unit, service_course_search) for learning_unit in
                 learning_units]

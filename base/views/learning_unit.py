@@ -39,6 +39,7 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_partims_related, get_campus_from_learning_unit_year, \
     get_all_attributions, get_last_academic_years
+from base.forms.common import TooManyResultsException
 from base.models.enums import learning_container_year_types
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
@@ -403,14 +404,17 @@ def _learning_units_search(request, search_type):
         form = LearningUnitYearForm()
 
     found_learning_units = None
-    if form.is_valid():
+    try:
+        if form.is_valid():
 
-        if search_type == 1:
-            found_learning_units = form.get_activity_learning_units()
-        elif search_type == 2:
-            found_learning_units = form.get_service_course_learning_units()
+            if search_type == 1:
+                found_learning_units = form.get_activity_learning_units()
+            elif search_type == 2:
+                found_learning_units = form.get_service_course_learning_units()
 
-        _check_if_display_message(request, found_learning_units)
+            _check_if_display_message(request, found_learning_units)
+    except TooManyResultsException:
+        messages.add_message(request, messages.ERROR, _('too_many_results'))
 
     context = {
         'form': form,
@@ -428,9 +432,6 @@ def _learning_units_search(request, search_type):
 def _check_if_display_message(request, found_learning_units):
     if not found_learning_units:
         messages.add_message(request, messages.WARNING, _('no_result'))
-    elif len(found_learning_units) > MAX_RECORDS:
-        messages.add_message(request, messages.WARNING, _('too_many_results'))
-        return False
     return True
 
 
