@@ -28,13 +28,8 @@ from django.db import models
 from attribution.models.attribution_charge_new import AttributionChargeNew
 from base.models.enums import learning_component_year_type, learning_container_year_types
 from base.models import learning_class_year
-<<<<<<< HEAD
 from django.utils.translation import ugettext_lazy as _
-
-from base.models.learning_class_year import LearningClassYear
-=======
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
->>>>>>> dev
 
 
 class LearningComponentYearAdmin(SerializableModelAdmin):
