@@ -36,6 +36,7 @@ class TranslatedTextAdmin(admin.ModelAdmin):
     ordering = ('text_label',)
     list_filter = ('entity',)
     search_fields = ['reference']
+    raw_id_fields = ('text_label',)
 
 class TranslatedText(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)

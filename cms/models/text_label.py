@@ -35,6 +35,7 @@ class TextLabelAdmin(admin.ModelAdmin):
     list_display = ('parent', 'entity', 'label', 'order', 'published',)
     ordering = ('entity',)
     actions = ['delete_selected']
+    raw_id_fields = ('parent',)
 
     def delete_selected(self, request, obj):
         for text_label in obj.all():
@@ -55,7 +56,7 @@ class TextLabel(models.Model):
         unique_together = ('parent', 'order')
 
     def __str__(self):
-        return "{} - {}".format(self.entity, self.order)
+        return "{} - {}".format(self.label, self.order)
 
     def save(self, *args, **kwargs):
         parent_db = None

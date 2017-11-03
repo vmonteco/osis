@@ -33,6 +33,7 @@ class TranslatedTextLabelAdmin(admin.ModelAdmin):
     list_display = ('label', 'language', 'text_label',)
     fieldsets = ((None, {'fields': ('label', 'language', 'text_label')}),)
     ordering = ('label',)
+    raw_id_fields = ('text_label',)
 
 
 class TranslatedTextLabel(models.Model):
