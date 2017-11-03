@@ -148,3 +148,15 @@ def _get_cms_label_data(cms_label, user_language):
         cms_label_data[label] = translated_text
 
     return cms_label_data
+
+@login_required
+@permission_required('base.can_access_offer', raise_exception=True)
+def education_group_administrative_data(request, education_group_year_id):
+    return _education_group_administrative_data_tab(request, education_group_year_id)
+
+
+def _education_group_administrative_data_tab(request, education_group_year_id):
+    education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+    context = {'education_group_year': education_group_year,
+               'mandataries': mdl.mandatary.find_by_education_group(education_group_year.education_group, education_group_year.academic_year)}
+    return layout.render(request, "education_group/tab_administrative_data.html", context)

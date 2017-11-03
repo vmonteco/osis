@@ -52,7 +52,7 @@ class EducationGroupYearAdmin(admin.ModelAdmin):
                                     'language_association','keywords', 'duration', 'duration_unit', 'title_english',
                                     'enrollment_enabled')}),)
     list_filter = ('academic_year', 'education_group_type')
-    raw_id_fields = ('education_group_type', 'academic_year', 'education_group')
+    raw_id_fields = ('education_group_type', 'academic_year', 'education_group','enrollment_campus', 'main_teaching_campus', 'primary_language')
     search_fields = ['acronym']
 
 

@@ -2213,3 +2213,12 @@ msgstr "Secrétaire"
 
 msgid "SIGNATORY"
 msgstr "Signataire"
+
+msgid "administrative_data"
+msgstr "Données administratives"
+
+msgid "jury"
+msgstr "Jury"
+
+msgid "signatory_qualification"
+msgstr "Qualification du signataire"

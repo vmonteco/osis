@@ -2207,3 +2207,12 @@ msgstr "Secretary"
 
 msgid "SIGNATORY"
 msgstr "Signatory"
+
+msgid "administrative_data"
+msgstr "Administrative data"
+
+msgid "jury"
+msgstr "Jury"
+
+msgid "signatory_qualification"
+msgstr "Signatory's qualification"

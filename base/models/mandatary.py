@@ -50,7 +50,7 @@ class MandataryAdmin(admin.ModelAdmin):
                                     'end_date')}),)
     
     raw_id_fields = ('mandate', 'person')
-    search_fields = ['person']
+    search_fields = ['person__first_name', 'person__last_name']
 
 
 class Mandatary(models.Model):
@@ -60,4 +60,11 @@ class Mandatary(models.Model):
     person = models.ForeignKey('Person')
     start_date = models.DateField(auto_now=False, auto_now_add=False)
     end_date = models.DateField(auto_now=False, auto_now_add=False)
+
+
+def find_by_education_group(an_education_group, an_academic_year):
+    return Mandatary.objects.filter(mandate__education_group=an_education_group,
+                                    start_date__gte=an_academic_year.start_date,
+                                    end_date__lte=an_academic_year.end_date)\
+        .order_by('mandate__function', 'person')
 
