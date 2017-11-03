@@ -30,8 +30,7 @@ from base.views import learning_unit, offer, common, institution, organization, 
     my_osis, entity, student, education_group
 from django.conf import settings
 from django.conf.urls.static import static
-
-
+from base.views import learning_unit_search
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -78,9 +77,9 @@ urlpatterns = [
     ])),
 
     url(r'^learning_units/', include([
-        url(r'^$', learning_unit.learning_units, name='learning_units'),
-        url(r'^by_activity/', learning_unit.learning_units, name='learning_units_activity'),
-        url(r'^by_service_course/', learning_unit.learning_units_service_course, name='learning_units_service_course'),
+        url(r'^$', learning_unit_search.learning_units, name='learning_units'),
+        url(r'^by_activity/', learning_unit_search.learning_units, name='learning_units_activity'),
+        url(r'^by_service_course/', learning_unit_search.learning_units_service_course, name='learning_units_service_course'),
         url(r'^new/', include([
             url(r'^academic_year_id=(?P<academic_year>[0-9]+)$', learning_unit.learning_unit_create,
                 name="learning_unit_create"),

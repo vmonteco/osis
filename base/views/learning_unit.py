@@ -30,6 +30,10 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.views.decorators.http import require_http_methods, require_POST
+from django.http import JsonResponse
+from django.contrib import messages
+from django.utils.translation import ugettext_lazy as _
+
 from base import models as mdl
 from base.business import learning_unit_year_volumes
 from base.business import learning_unit_year_with_context
@@ -38,47 +42,24 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     get_common_context_learning_unit_year, get_cms_label_data, \
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_partims_related, get_campus_from_learning_unit_year, \
-    get_all_attributions, get_last_academic_years
-from base.forms.common import TooManyResultsException
-from base.models.enums import learning_container_year_types
+    get_all_attributions
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
-from base.forms.learning_unit_search import LearningUnitSearchForm
 from base.forms.learning_unit_creation import EMPTY_FIELD
 from base.forms.learning_unit_creation import CreateLearningUnitYearForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_class import LearningClassEditForm
-from base.models.enums import learning_unit_year_subtypes
 from cms.models import text_label
 from reference.models import language
 from . import layout
-from django.http import JsonResponse
-from django.contrib import messages
-from django.utils.translation import ugettext_lazy as _
-
 
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
                       'other_informations', 'online_resources']
 
 LEARNING_UNIT_CREATION_SPAN_YEARS = 6
-
-SIMPLE_SEARCH = 1
-SERVICE_COURSES_SEARCH = 2
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def learning_units(request):
-    return _learning_units_search(request, SIMPLE_SEARCH)
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def learning_units_service_course(request):
-    return _learning_units_search(request, SERVICE_COURSES_SEARCH)
 
 
 @login_required
@@ -387,56 +368,6 @@ def check_code(request):
     campus_id = request.GET['campus']
     campus = mdl.campus.find_by_id(campus_id)
     return JsonResponse({'code': campus.code}, safe=False)
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def learning_units_activity(request):
-    return _learning_units_search(request, SIMPLE_SEARCH)
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def learning_units_service_course(request):
-    return _learning_units_search(request, SERVICE_COURSES_SEARCH)
-
-
-def _learning_units_search(request, search_type):
-    if request.GET.get('academic_year_id'):
-        form = LearningUnitSearchForm(request.GET)
-    else:
-        form = LearningUnitSearchForm()
-
-    found_learning_units = None
-    try:
-        if form.is_valid():
-
-            if search_type == SIMPLE_SEARCH:
-                found_learning_units = form.get_activity_learning_units()
-            elif search_type == SERVICE_COURSES_SEARCH:
-                found_learning_units = form.get_service_course_learning_units()
-
-            _check_if_display_message(request, found_learning_units)
-    except TooManyResultsException:
-        messages.add_message(request, messages.ERROR, _('too_many_results'))
-
-    context = {
-        'form': form,
-        'academic_years': get_last_academic_years(),
-        'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
-        'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
-        'learning_units': found_learning_units,
-        'current_academic_year': mdl.academic_year.current_academic_year(),
-        'experimental_phase': True,
-        'search_type': search_type
-    }
-    return layout.render(request, "learning_units.html", context)
-
-
-def _check_if_display_message(request, found_learning_units):
-    if not found_learning_units:
-        messages.add_message(request, messages.WARNING, _('no_result'))
-    return True
 
 
 def _learning_unit_volumes_management_edit(request, learning_unit_year_id):

@@ -207,7 +207,7 @@ class LearningUnitSearchTest(TestCase):
         request = request_factory.get(reverse('learning_units'))
         request.user = mock.Mock()
 
-        from base.views.learning_unit import learning_units
+        from base.views.learning_unit_search import learning_units
 
         learning_units(request)
 
@@ -239,7 +239,7 @@ class LearningUnitSearchTest(TestCase):
         }
         request = request_factory.get(reverse('learning_units'), data=filter_data)
         request.user = mock.Mock()
-        from base.views.learning_unit import learning_units
+        from base.views.learning_unit_search import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -260,7 +260,7 @@ class LearningUnitSearchTest(TestCase):
         }
         request = request_factory.get(reverse('learning_units'), data=filter_data)
         request.user = mock.Mock()
-        from base.views.learning_unit import learning_units
+        from base.views.learning_unit_search import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -281,7 +281,7 @@ class LearningUnitSearchTest(TestCase):
         }
         request = request_factory.get(reverse('learning_units'), data=filter_data)
         request.user = mock.Mock()
-        from base.views.learning_unit import learning_units
+        from base.views.learning_unit_search import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -301,7 +301,7 @@ class LearningUnitSearchTest(TestCase):
         }
         request = request_factory.get(reverse('learning_units'), data=filter_data)
         request.user = mock.Mock()
-        from base.views.learning_unit import learning_units
+        from base.views.learning_unit_search import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -322,7 +322,7 @@ class LearningUnitSearchTest(TestCase):
         }
         request = request_factory.get(reverse('learning_units'), data=filter_data)
         request.user = mock.Mock()
-        from base.views.learning_unit import learning_units
+        from base.views.learning_unit_search import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -341,7 +341,7 @@ class LearningUnitSearchTest(TestCase):
             'requirement_entity_acronym': 'AGRO',
             'with_entity_subordinated': True
         }
-        from base.views.learning_unit import learning_units_service_course
+        from base.views.learning_unit_search import learning_units_service_course
 
         request = request_factory.get(reverse(learning_units_service_course), data=filter_data)
         request.user = mock.Mock()
