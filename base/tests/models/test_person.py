@@ -136,6 +136,6 @@ class PersonTest(PersonTestCase):
     def test_calculate_age(self):
         a_person = PersonFactory()
         a_person.birth_date = datetime.datetime.now() - datetime.timedelta(days=((30*365)+15))
-        self.assertEquals(person.calculate_age(a_person.birth_date), 30)
+        self.assertEquals(person.calculate_age(a_person), 30)
         a_person.birth_date = datetime.datetime.now() - datetime.timedelta(days=((30*365)-5))
-        self.assertEquals(person.calculate_age(a_person.birth_date), 29)
+        self.assertEquals(person.calculate_age(a_person), 29)
