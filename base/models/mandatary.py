@@ -43,7 +43,7 @@ from django.contrib import admin
 
 
 class MandataryAdmin(admin.ModelAdmin):
-    list_display = ('mandate', 'person')
+    list_display = ('mandate', 'person', 'start_date', 'end_date')
     fieldsets = ((None, {'fields': ('mandate',
                                     'person',
                                     'start_date',
@@ -64,7 +64,7 @@ class Mandatary(models.Model):
 
 def find_by_education_group_year(an_education_group_year):
     return Mandatary.objects.filter(mandate__education_group=an_education_group_year.education_group,
-                                    start_date__gte=an_education_group_year.academic_year.start_date,
-                                    end_date__lte=an_education_group_year.academic_year.end_date)\
+                                    start_date__lte=an_education_group_year.academic_year.start_date,
+                                    end_date__gte=an_education_group_year.academic_year.end_date)\
         .order_by('mandate__function', 'person')
 

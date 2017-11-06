@@ -30,7 +30,7 @@ register = template.Library()
 
 @register.filter
 def offer_year_calendar_display(value_start, value_end):
-    if not value_start is None and not value_end is None:
-        if value_start <= date.today() and value_end >=date.today():
+    if not value_start.date() is None and not value_end.date() is None:
+        if value_start.date() <= date.today() and value_end.date() >=date.today():
             return "font-weight:bold;"
     return ""
