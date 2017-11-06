@@ -31,8 +31,7 @@ from django.utils.translation import ugettext as _
 from openpyxl import Workbook
 from openpyxl.writer.excel import save_virtual_workbook
 from base.models.enums import entity_type
-from base.models import academic_year, entity
-from base.models.person import calculate_age
+from base.models import academic_year, entity, person
 from base.views import layout
 from assistant.forms import MandateForm, entity_inline_formset
 from assistant import models as assistant_mdl
@@ -133,7 +132,7 @@ def construct_line(mandate):
         mandate.sap_id,
         str(mandate.assistant.person.last_name),
         str(mandate.assistant.person.first_name),
-        calculate_age(mandate.assistant.person.birth_date),
+        person.calculate_age(mandate.assistant.person),
     ]
     if mandate.state != assistant_mandate_state.DECLINED:
         line += [

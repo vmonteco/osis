@@ -181,8 +181,9 @@ def annotate_with_first_last_names():
     return queryset
 
 
-def calculate_age(born=None):
-    if born is None:
+def calculate_age(person):
+    if person.birth_date is None:
         return None
     today = date.today()
-    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+    return today.year - person.birth_date.year - ((today.month, today.day) < (person.birth_date.month,
+                                                                              person.birth_date.day))
