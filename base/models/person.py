@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from datetime import date
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import User
@@ -179,3 +180,9 @@ def annotate_with_first_last_names():
     queryset = queryset.annotate(begin_by_last_name=Lower(Concat('last_name', Value(' '), 'first_name')))
     return queryset
 
+
+def calculate_age(born=None):
+    if born is None:
+        return None
+    today = date.today()
+    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))

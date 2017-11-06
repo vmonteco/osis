@@ -24,7 +24,6 @@
 #
 ##############################################################################
 import time
-from datetime import date
 from django.contrib.auth.decorators import user_passes_test
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
@@ -33,6 +32,7 @@ from openpyxl import Workbook
 from openpyxl.writer.excel import save_virtual_workbook
 from base.models.enums import entity_type
 from base.models import academic_year, entity
+from base.models.person import calculate_age
 from base.views import layout
 from assistant.forms import MandateForm, entity_inline_formset
 from assistant import models as assistant_mdl
@@ -186,8 +186,4 @@ def get_reviews(mandate):
     return reviews_details
 
 
-def calculate_age(born=None):
-    if born is None:
-        return None
-    today = date.today()
-    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+
