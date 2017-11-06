@@ -59,10 +59,10 @@ class AcademicCalendarForm(bootstrap.BootstrapModelForm):
         date_format = str(_('date_format'))
 
         if off_year_calendar_max and self.cleaned_data['end_date'] \
-                and self.cleaned_data['end_date'] < off_year_calendar_max.end_date:
+                and self.cleaned_data['end_date'] < off_year_calendar_max.end_date.date():
             error_msg = "%s." % (_('academic_calendar_offer_year_calendar_end_date_error')
                                  % (self.instance.title,
-                                    off_year_calendar_max.end_date.strftime(date_format),
+                                    off_year_calendar_max.end_date.date().strftime(date_format),
                                     self.instance.title,
                                     off_year_calendar_max.offer_year.acronym))
             self._errors['end_date'] = error_msg

@@ -35,7 +35,7 @@ from django.utils.translation import ugettext as _
 class OfferYearCalendarAdmin(admin.ModelAdmin):
     list_display = ('academic_calendar', 'offer_year', 'start_date', 'end_date', 'changed', 'customized')
     fieldsets = ((None, {'fields': ('offer_year', 'academic_calendar', 'start_date', 'end_date', 'customized')}),)
-    raw_id_fields = ('offer_year',)
+    raw_id_fields = ('offer_year', 'education_group_year')
     search_fields = ['offer_year__acronym']
     list_filter = ('academic_calendar__academic_year', 'academic_calendar__reference', 'customized')
 
@@ -45,9 +45,11 @@ class OfferYearCalendar(models.Model):
     changed = models.DateTimeField(null=True, auto_now=True)
     academic_calendar = models.ForeignKey('AcademicCalendar')
     offer_year = models.ForeignKey('OfferYear')
-    start_date = models.DateField(blank=True, null=True, db_index=True)
-    end_date = models.DateField(blank=True, null=True, db_index=True)
+    start_date = models.DateTimeField(blank=True, null=True, db_index=True)
+    end_date = models.DateTimeField(blank=True, null=True, db_index=True)
     customized = models.BooleanField(default=False)
+    education_group_year = models.ForeignKey('EducationGroupYear', blank=True, null=True)
+
 
     def update_dates(self, start_date, end_date):
         if self.customized:
@@ -70,14 +72,6 @@ class OfferYearCalendar(models.Model):
         if self.start_end_dates_set() and self.end_date < self.start_date:
             raise AttributeError(_('end_start_date_error'))
 
-    def end_date_validation(self, academic_end_date):
-        if self.end_dates_set(academic_end_date) and self.end_date > academic_end_date:
-            raise AttributeError(_('academic_end_date_error'))
-
-    def start_date_validation(self, academic_start_date):
-        if self.start_dates_set(academic_start_date) and self.start_date < academic_start_date:
-            raise AttributeError(_('academic_start_date_error'))
-
     def start_end_dates_set(self):
         return self.start_date and self.end_date
 
@@ -91,9 +85,9 @@ class OfferYearCalendar(models.Model):
         date_ac = getattr(self.academic_calendar, date_field)
         date_oyc = getattr(self.offer_year.academic_year, date_field)
         if date_ac:
-            return date_ac
+            return  datetime.datetime.combine(date_ac, datetime.datetime.min.time())
         elif date_oyc:
-            return date_oyc
+            return datetime.datetime.combine(date_oyc, datetime.datetime.min.time())
         else:
             None
 
