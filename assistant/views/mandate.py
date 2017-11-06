@@ -160,12 +160,10 @@ def construct_line(mandate):
 def get_entities_for_mandate(mandate):
     ent_type = {entity_type.SECTOR, entity_type.FACULTY, entity_type.LOGISTICS_ENTITY, entity_type.INSTITUTE}
     entities_id = mandate.mandateentity_set.all().order_by('id').values_list('entity', flat=True)
-    entities = entity.find_versions_from_entites(entities_id, mandate.academic_year.start_date)
-    entities = (ent for ent in entity.find_versions_from_entites(entities_id, mandate.academic_year.start_date) if ent.entity_type in ent_type)
-    i = 0
-    mandate_entities = ['','','','']
+    entities = (ent for ent in entity.find_versions_from_entites(entities_id, mandate.academic_year.start_date)
+                if ent.entity_type in ent_type)
+    mandate_entities = [''] * 4
     for ent in entities:
-        print(ent.entity_type)
         if ent.entity_type == entity_type.SECTOR:
             mandate_entities[0] = ent.acronym
         elif ent.entity_type == entity_type.FACULTY:
@@ -174,7 +172,6 @@ def get_entities_for_mandate(mandate):
             mandate_entities[2] = ent.acronym
         else:
             mandate_entities[3] = ent.acronym
-    print(mandate_entities)
     return mandate_entities
 
 
@@ -187,6 +184,3 @@ def get_reviews(mandate):
         reviews_details += [vrs_review.remark] if vrs_review.remark is not None else ['']
         reviews_details += [vrs_review.confidential] if vrs_review.confidential is not None else ['']
     return reviews_details
-
-
-
