@@ -26,6 +26,7 @@
 import functools
 import contextlib
 import factory
+import datetime
 from django.test import TestCase
 from django.test import override_settings
 from base.models import person
@@ -131,3 +132,10 @@ class PersonTest(PersonTestCase):
         person.change_language(usr, "en")
         a_person = person.find_by_user(usr)
         self.assertEquals(a_person.language, "en")
+
+    def test_calculate_age(self):
+        a_person = PersonFactory()
+        a_person.birth_date = datetime.datetime.now() - datetime.timedelta(days=((30*365)+15))
+        self.assertEquals(person.calculate_age(a_person), 30)
+        a_person.birth_date = datetime.datetime.now() - datetime.timedelta(days=((30*365)-5))
+        self.assertEquals(person.calculate_age(a_person), 29)
