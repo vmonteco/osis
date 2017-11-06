@@ -23,22 +23,58 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
 from django.test import TestCase
-from base.models.education_group_year import *
+from base.models.education_group_year import education_group_categories, offer_year_entity_type, find_by_id, search
+from base.models.exceptions import MaximumOneParentAllowedException
 from base.tests.factories.academic_year import AcademicYearFactory
-
 from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.offer_year import OfferYearFactory
 from base.tests.factories.offer_year_domain import OfferYearDomainFactory
+from base.tests.factories.offer_year_entity import OfferYearEntityFactory
+from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.group_element_year import GroupElementYearFactory
 
 
 class EducationGroupYearTest(TestCase):
+
     def setUp(self):
+
         academic_year = AcademicYearFactory()
+
         self.education_group_year_1 = EducationGroupYearFactory(academic_year=academic_year)
         self.education_group_year_2 = EducationGroupYearFactory(academic_year=academic_year)
         self.education_group_year_2.category = education_group_categories.MINI_TRAINING
         self.education_group_year_2.save()
+        self.education_group_year_3 = EducationGroupYearFactory(academic_year=academic_year)
+        self.education_group_year_3.category = education_group_categories.TRAINING
+        self.education_group_year_3.save()
+        self.education_group_year_4 = EducationGroupYearFactory(academic_year=academic_year)
+        self.education_group_year_4.category = education_group_categories.GROUP
+        self.education_group_year_4.save()
+        self.education_group_year_5 = EducationGroupYearFactory(academic_year=academic_year)
+        self.education_group_year_5.category = education_group_categories.GROUP
+        self.education_group_year_5.save()
+
+        self.offer_year_2 = OfferYearFactory(academic_year=academic_year)
+        self.offer_year_domain = OfferYearDomainFactory(offer_year=self.offer_year_2,
+                                                        education_group_year=self.education_group_year_2)
+        self.offer_year_entity_admin = OfferYearEntityFactory(offer_year=self.offer_year_2,
+                                                              education_group_year=self.education_group_year_2,
+                                                              type=offer_year_entity_type.ENTITY_ADMINISTRATION)
+        self.entity_version_admin = EntityVersionFactory(entity=self.offer_year_entity_admin.entity,
+                                                         parent=None)
+
+        self.offer_year_3 = OfferYearFactory(academic_year=academic_year)
+        self.offer_year_entity_management = OfferYearEntityFactory(offer_year=self.offer_year_3,
+                                                                   education_group_year=self.education_group_year_3,
+                                                                   type=offer_year_entity_type.ENTITY_MANAGEMENT)
+        self.entity_version_management = EntityVersionFactory(entity=self.offer_year_entity_management.entity,
+                                                         parent=None)
+
+        self.group_element_year_4 = GroupElementYearFactory(parent=self.education_group_year_3,
+                                                     child_branch=self.education_group_year_1)
+        self.group_element_year_5 = GroupElementYearFactory(parent=self.education_group_year_3,
+                                                     child_branch=self.education_group_year_1)
 
     def test_find_by_id(self):
         education_group_year = find_by_id(self.education_group_year_1.id)
@@ -51,24 +87,48 @@ class EducationGroupYearTest(TestCase):
         result = search(id=[self.education_group_year_1.id, self.education_group_year_2.id])
         self.assertEqual(len(result), 2)
 
+        result = search(category=[self.education_group_year_2.category, self.education_group_year_3.category])
+        self.assertEqual(len(result), 3)
+
         result = search(category=self.education_group_year_2.category)
         self.assertEqual(result.first().category, self.education_group_year_2.category)
 
-        result = search(education_group_type=self.education_group_year_2.education_group_type)
-        self.assertEqual(result.first().education_group_type, self.education_group_year_2.education_group_type)
+        result = search(education_group_type=[self.education_group_year_2.education_group_type,
+                                              self.education_group_year_3.education_group_type])
+        self.assertEqual(len(result), 2)
 
-    def test_properties_none(self):
+    def test_domains_property(self):
         domains = self.education_group_year_1.domains
         self.assertEqual(domains, '')
 
+        domains = self.education_group_year_2.domains
+        offer_year_domain = "{}-{} ".format(self.offer_year_domain.domain.decree, self.offer_year_domain.domain.name)
+        self.assertEqual(domains, offer_year_domain)
+
+    def test_administration_entity_property(self):
         administration_entity = self.education_group_year_1.administration_entity
         self.assertIsNone(administration_entity)
 
+        administration_entity = self.education_group_year_2.administration_entity
+        self.assertEqual(administration_entity, self.entity_version_admin)
+
+    def test_management_entity_property(self):
         management_entity = self.education_group_year_1.management_entity
         self.assertIsNone(management_entity)
 
-        parent_by_training = self.education_group_year_1.parent_by_training
+        management_entity = self.education_group_year_3.management_entity
+        self.assertEqual(management_entity, self.entity_version_management)
+
+    def test_parent_by_training_property(self):
+        parent_by_training = self.education_group_year_2.parent_by_training
         self.assertIsNone(parent_by_training)
 
+        with self.assertRaises(MaximumOneParentAllowedException):
+            parent_by_training=self.education_group_year_1.parent_by_training
+
+    def test_children_by_group_element_year_property(self):
         children_by_group_element_year = self.education_group_year_1.children_by_group_element_year
         self.assertListEqual(children_by_group_element_year, [])
+
+
+

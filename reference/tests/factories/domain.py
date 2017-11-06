@@ -24,23 +24,20 @@
 #
 ##############################################################################
 import factory
-import factory.fuzzy
-import datetime
-import string
 
-from base.tests.factories.education_group_year import EducationGroupYearFactory
-from osis_common.utils.datetime import get_tzinfo
+from factory import DjangoModelFactory
+from reference.models.enums import domain_type
+from reference.tests.factories.decree import DecreeFactory
 
 
-class GroupElementYearFactory(factory.django.DjangoModelFactory):
+class DomainFactory(DjangoModelFactory):
     class Meta:
-        model = "base.GroupElementYear"
+        model = "reference.Domain"
 
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    parent = factory.SubFactory(EducationGroupYearFactory)
-    child_branch = factory.SubFactory(EducationGroupYearFactory)
-
-
-
+    parent = None
+    decree = factory.SubFactory(DecreeFactory)
+    name = factory.Sequence(lambda n: 'Domain %d' % n)
+    type = domain_type.UNKNOWN
+    adhoc = factory.Faker('boolean', chance_of_getting_true=50)
+    national = factory.Faker('boolean', chance_of_getting_true=50)
+    reference = factory.Faker('text', max_nb_chars=10)

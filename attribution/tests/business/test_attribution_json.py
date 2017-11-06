@@ -28,8 +28,6 @@ from datetime import date
 from decimal import Decimal
 from django.test import TestCase
 
-
-
 from base.models.enums import learning_component_year_type, learning_unit_year_subtypes
 
 from attribution.business import attribution_json
@@ -51,7 +49,8 @@ class AttributionJsonTest(TestCase):
         self.academic_year = AcademicYearFactory(year=today.year, start_date=today)
 
         # Creation Container / UE and components related
-        self.l_container = LearningContainerYearFactory(academic_year=self.academic_year, acronym="LBIR1210")
+        self.l_container = LearningContainerYearFactory(academic_year=self.academic_year, acronym="LBIR1210",
+                                                        in_charge=True)
         _create_learning_unit_year_with_components(academic_year=self.academic_year, l_container=self.l_container,
                                                    acronym="LBIR1210",subtype=learning_unit_year_subtypes.FULL)
         _create_learning_unit_year_with_components(academic_year=self.academic_year, l_container=self.l_container,
@@ -97,9 +96,8 @@ class AttributionJsonTest(TestCase):
         self.assertRaises(KeyError, lambda: attrib_tutor_2['attributions'][0][learning_component_year_type.PRACTICAL_EXERCISES + '_CHARGE'])
 
     def test_learning_unit_in_charge_false(self):
-        # Set learning unit year [LBIR1210] in charge to false
-        from base.models.learning_unit_year import LearningUnitYear
-        LearningUnitYear.objects.filter(acronym='LBIR1210', academic_year=self.academic_year).update(in_charge=False)
+        self.l_container.in_charge = False
+        self.l_container.save()
 
         attrib_list = attribution_json._compute_list()
         self.assertIsInstance(attrib_list, list)
@@ -109,11 +107,7 @@ class AttributionJsonTest(TestCase):
             (attrib for attrib in attrib_list if attrib['global_id'] == self.tutor_1.person.global_id),
             None)
         self.assertTrue(attrib_tutor_1)
-        self.assertEqual(len(attrib_tutor_1['attributions']), 1)
-        self.assertEqual(attrib_tutor_1['attributions'][0]['acronym'], "LBIR1210A")
-        self.assertEqual(attrib_tutor_1['attributions'][0]['function'], function.HOLDER)
-        self.assertEqual(attrib_tutor_1['attributions'][0][learning_component_year_type.PRACTICAL_EXERCISES], "5.0")
-        self.assertRaises(KeyError, lambda: attrib_tutor_1['attributions'][0][learning_component_year_type.LECTURING])
+        self.assertEqual(len(attrib_tutor_1['attributions']), 0)
 
     def test_two_attribution_function_to_same_learning_unit(self):
         new_attrib = AttributionNewFactory(learning_container_year=self.l_container, tutor=self.tutor_1,
@@ -144,7 +138,7 @@ class AttributionJsonTest(TestCase):
 
 def _create_learning_unit_year_with_components(academic_year, l_container, acronym, subtype):
     l_unit_year = LearningUnitYearFactory(academic_year=academic_year, learning_container_year=l_container,
-                                          acronym=acronym, subtype=subtype, in_charge=True)
+                                          acronym=acronym, subtype=subtype)
 
     # Create component - CM - TP
     l_component_cm = LearningComponentYearFactory(learning_container_year=l_container,
@@ -177,5 +171,3 @@ def _create_attribution_charge(academic_year, attribution, l_acronym, volume_cm=
         AttributionChargeFactory(attribution=attribution,
                                  learning_component_year=l_unit_component.learning_component_year,
                                  allocation_charge=volume_tp)
-
-

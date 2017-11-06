@@ -16,6 +16,15 @@ development environment. During this section, we explain in details how to do
 that in a Debian-based distribution (Debian Linux, Ubuntu, Mint, etc.). This is
 the recommended operating system for development and deployment.
 
+Since we are going to install many things using the `apt-get` command, let's 
+update the package lists from remore repositories first:
+
+    $ sudo apt-get update
+
+This command gets information about the newest versions of packages and their
+dependencies. This way, we make sure we are getting the latest version of
+whatever we need to install.
+
 If your operating system is not based on Debian Linux then you can rely on a
 virtual machine as a development environment. For the virtual machine, we
 suggest  https://www.virtualbox.org[VirtualBox] as virtual runtime and
@@ -42,18 +51,18 @@ OSIS. The source code is necessary to develop and deploy OSIS and we start the
 instructions by explaining how to install and configure it. We can use `apt-get`
 to install Git:
 
-    $ sudo apt-get update
     $ sudo apt-get install git
 
-The `update` command downloads package lists from remote repositories to get
-information about the newest versions of packages and their dependencies. This
-way, we make sure we are getting the last version of Git and all other
-dependencies. Then `install git` performs the installation. We can test it by
-cloning the repository:
+We can test the installation by cloning the OSIS repository:
 
     $ mkdir -p ~/python/projects/osis
     $ cd ~/python/projects/osis
     $ git clone git@github.com:uclouvain/osis.git
+
+The source code has some submodules that have to be cloned as well:
+
+    $ git submodule init
+    $ git submodule update
 
 Next, we add some personal information in the local Git installation to make
 sure you are well identified in all commits:
@@ -200,29 +209,20 @@ following advantages:
 - Easily testable with Selenium.
 - In general, more productive than most of the alternatives.
 
-The repository `osis` is a Django application. We already cloned that when
-installing git. At that point we executed the following commands:
-
-    $ cd ~/python/projects/osis
-    $ git clone git@github.com:uclouvain/osis.git
-
-Install the Python virtual environment and other system dependencies:
+The repository `uclouvain/osis` is a Django application. We already cloned that 
+when <<installing-git>>. Now, we move forward installing the Python virtual 
+environment and other system dependencies:
 
     $ sudo apt-get install build-essential python-virtualenv libjpeg-dev libpng-dev gettext
 
 In the new repository, create a virtual environment to isolate all dependencies
 of the project:
 
-    $ cd osis
+    $ cd ~/python/projects/osis/osis
     $ virtualenv --python=python3.4 venv
 
 [[installing-application]]
 === Installing the Application
-
-Intitialize the submodule 'osis-common':
-
-    $ git submodule init
-    $ git submodule update
 
 Start the virtual environment and install the dependencies:
 

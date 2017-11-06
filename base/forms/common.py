@@ -31,3 +31,8 @@ def get_clean_data(datas_to_clean):
 
 def treat_empty_or_str_none_as_none(data):
     return None if not data or data == "NONE" else data
+
+
+class TooManyResultsException(Exception):
+    def __init__(self):
+        super().__init__("Too many results returned.")

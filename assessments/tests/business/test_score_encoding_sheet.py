@@ -34,6 +34,7 @@ from attribution.tests.factories.attribution import AttributionFactory
 from base.models.exam_enrollment import ExamEnrollment
 
 from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.exam_enrollment import ExamEnrollmentFactory
@@ -64,6 +65,7 @@ class ScoreSheetAddressTest(TestCase):
 
     def _create_data_for_entity_address(self, entity_type):
         past_date = datetime.datetime(year=2015, month=1, day=1)
+        education_group_year=EducationGroupYearFactory(academic_year=self.academic_year)
         country = CountryFactory()
         entity = EntityFactory(country=country)
         EntityVersionFactory(entity=entity,
@@ -71,7 +73,8 @@ class ScoreSheetAddressTest(TestCase):
                              end_date=None)
         OfferYearEntityFactory(offer_year=self.offer_year,
                                entity=entity,
-                               type=entity_type)
+                               type=entity_type,
+                               education_group_year=education_group_year)
         return entity
 
     def test_case_address_from_entity_administration(self):

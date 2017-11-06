@@ -25,13 +25,9 @@
 ##############################################################################
 import factory
 import factory.fuzzy
-from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
-from base.tests.factories.offer import OfferFactory
 from base.tests.factories.offer_year import OfferYearFactory
-from base.tests.factories.structure import StructureFactory
-from base.tests.factories.offer_type import OfferTypeFactory
-from reference.models.domain import Domain
+from reference.tests.factories.domain import DomainFactory
 
 
 class OfferYearDomainFactory(factory.django.DjangoModelFactory):
@@ -40,4 +36,4 @@ class OfferYearDomainFactory(factory.django.DjangoModelFactory):
 
     offer_year = factory.SubFactory(OfferYearFactory)
     education_group_year = factory.SubFactory(EducationGroupYearFactory)
-    domain = Domain()
+    domain = factory.SubFactory(DomainFactory)

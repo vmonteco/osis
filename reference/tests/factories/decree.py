@@ -23,24 +23,19 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import string
 import factory
 import factory.fuzzy
 import datetime
-import string
 
-from base.tests.factories.education_group_year import EducationGroupYearFactory
-from osis_common.utils.datetime import get_tzinfo
+from factory import DjangoModelFactory
 
 
-class GroupElementYearFactory(factory.django.DjangoModelFactory):
+class DecreeFactory(DjangoModelFactory):
     class Meta:
-        model = "base.GroupElementYear"
+        model = "reference.Decree"
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    parent = factory.SubFactory(EducationGroupYearFactory)
-    child_branch = factory.SubFactory(EducationGroupYearFactory)
-
-
-
+    name = factory.Faker('text', max_nb_chars=80)
+    start_date = datetime.date(2015, 1, 1).isoformat()
+    end_date = datetime.date(2015, 12, 31).isoformat()
