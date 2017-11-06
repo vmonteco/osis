@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% load staticfiles %}
 {% load i18n %}
-
+{% load learning_unit %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -25,3 +25,218 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
+
+{% block breadcrumb %}
+<li><a href="{% url 'catalog' %}" id="lnk_catalog">{% trans 'formation_catalogue' %}</a></li>
+<li><a href="{% url 'learning_units' %}" id="lnk_learning_units">{% trans 'learning_units' %}</a></li>
+<li><a href="{% url 'learning_unit' learning_unit_year.id %}" id="lnk_learning_units">{{learning_unit_year.acronym}}</a></li>
+<li class="active">{% trans 'proposal' %}</li>{% endblock %}
+
+{% block content %}
+
+{% include "learning_unit/header.html" %}
+
+<div class="panel panel-default" >
+    <div class="panel-body" id="tabs" >
+      {% with identification=True %}
+        {% include "learning_unit/tabs.html" %}
+      {% endwith %}
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="identification">
+                <br/>
+                <form method="post">
+
+                  <div class="row">
+                      <div class="col-md-8">
+                          <div class="panel panel-default">
+                              <div class="panel-body">
+                                  <div class="row">
+
+                                      <div class="form-group col-md-3">
+                                          <label for"inputCode">{% trans 'code'%}</label>
+                                          <input type="text" class="form-control" id="inputCode"></input>
+                                      </div>
+
+                                      <div class="col-md-3">
+                                          <label>{% trans 'partims' %}</label>
+                                          <div>
+                                              {% for partim in learning_container_year_partims %}
+                                              {% if forloop.counter > 1 %}
+                                              ,
+                                              {% endif%}
+                                              {{ partim.subdivision}}
+                                              {% endfor %}
+                                          </div>
+                                      </div>
+
+                                      <div class="form_group col-md-3">
+                                          <label for="inputType">{% trans 'type' %}</label>
+                                          <select class="form-control" id="inputType">
+                                            <option>
+                                              TODO
+                                            </option>
+                                          </select>
+                                      </div>
+
+                                      <div class="col-md-3">
+                                          <label>{% trans 'internship_subtype' %}</label>
+                                          {% if learning_unit_year.internship_subtype %}
+                                              {% trans learning_unit_year.internship_subtype %}
+                                          {% endif %}
+                                      </div>
+
+                                  </div>
+
+                                  <div class="row" style="margin-top:10px;">
+
+                                      <div class="from-group col-md-3">
+                                          <label for="inputCredits ">{% trans 'nominal_credits' %}</label>
+                                          <input type="text" class="form-control" id="inputCredits"></input>
+                                      </div>
+
+                                      <div class="form-group col-md-3">
+                                          <label for="inputPeriodicity">{% trans 'periodicity' %}</label>
+                                          <select class="form-control" id="inputPeriodicity">
+                                            <option>
+                                              TODO
+                                            </option>
+                                          </select>
+                                      </div>
+
+                                      <div class="form-group col-md-3">
+                                          <label for="inputStatus">{% trans 'status' %}</label>
+                                          <select class="form-control" id="inputStatus">
+                                            <option>
+                                              TODO
+                                            </option>
+                                          </select>
+                                      </div>
+
+                                  </div>
+
+                                  <br>
+
+                                  <div class="form-group">
+                                    <label input="inputTitleOfficial1">{% trans 'title_official' %} - {% trans 'part1' %}</label>
+                                    <input type="text" class="form-control" id="inputTitleOfficial1"></input>
+                                  </div>
+
+                                  <div class="form-group">
+                                    <label input="inputTitleOfficial2">{% trans 'title_official' %} - {% trans 'part2' %}</label>
+                                    <input type="text" class="form-control" id="inputTitleOfficial2"></input>
+                                  </div>
+
+                                  <div class="form-group">
+                                    <label input="inputTitleEnglish1">{% trans 'title_in_english' %} - {% trans 'part1' %}</label>
+                                    <input type="text" class="form-control" id="inputTitleEnglish1"></input>
+                                  </div>
+
+                                  <div class="form-group">
+                                    <label input="inputTitleEnglish2">{% trans 'title_in_english' %} - {% trans 'part2' %}</label>
+                                    <input type="text" class="form-control" id="inputTitleEnglish1"></input>
+                                  </div>
+
+                                  <div class="row">
+
+                                    <div class="form-group col-md-3">
+                                        <label for="inputLanguage">{% trans 'language' %}</label>
+                                        <select class="form-control" id="inputLanguage">
+                                          <option>
+                                            TODO
+                                          </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-9">
+                                        <label>{% trans 'quadrimester' %}</label>
+                                        {{ learning_unit_year.quadrimester | default_if_none:'' }}
+                                    </div>
+
+                                  </div>
+                              </div>
+                          </div>
+
+                          {% if components %}
+                              {% include "learning_unit/components_identification.html" %}
+                          {% endif %}
+
+                      </div>
+
+                      <div class="col-md-4">
+                          <div class="panel panel-default">
+                              <div class="panel-body">
+
+                                  <label>{% trans 'institution'%}</label><br>
+                                   {% if organization %}
+                                      <a href="{% url 'organization_read' organization_id=organization.id %}">
+                                          {{ organization.name }}
+                                      </a>
+                                   {% endif %}
+                                   <br>
+
+                                  <div class="form-group">
+                                      <label for="inputLocalization">{% trans 'localization' %}</label>
+                                      <select class="form-control" id="inputLocalization">
+                                        <option>
+                                          TODO
+                                        </option>
+                                      </select>
+                                  </div>
+
+                                  <div class="form-group">
+                                      <label for="inputRequirementEntity">{% trans 'requirement_entity'%}</label>
+                                      <select class="form-control" id="inputRequirementEntity">
+                                        <option>
+                                          TODO
+                                        </option>
+                                      </select>
+                                  </div>
+
+                                  <div class="form-group">
+                                      <label for="inputAllocationEntity">{% trans 'allocation_entity'%}</label>
+                                      <select class="form-control" id="inputAllocationEntity">
+                                        <option>
+                                          TODO
+                                        </option>
+                                      </select>
+                                  </div>
+
+                                  <div class="form-group">
+                                      <label for="inputAdditionalRequirementEntity1">{% trans 'additional_requirement_entity' %} 1</label>
+                                      <select class="form-control" id="inputAdditionalRequirementEntity1">
+                                        <option>
+                                          TODO
+                                        </option>
+                                      </select>
+                                  </div>
+
+                                  <div class="form-group">
+                                      <label for="inputAdditionalRequirementEntity2">{% trans 'additional_requirement_entity' %} 2</label>
+                                      <select class="form-control" id="inputAdditionalRequirementEntity2">
+                                        <option>
+                                          TODO
+                                        </option>
+                                      </select>
+                                  </div>
+
+                                  <div class="form-group">
+                                    <label for="inputAcademicYear">{% trans 'academic_years'%}</label>
+                                    <select class="form-control" id="inputAcademicYear">
+                                      <option>
+                                        TODO
+                                      </option>
+                                    </select>
+                                  </div>
+
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

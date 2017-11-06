@@ -94,7 +94,6 @@ urlpatterns = [
             url(r'^pedagogy/edit/$', learning_unit.learning_unit_pedagogy_edit, name="learning_unit_pedagogy_edit"),
             url(r'^attributions/$', learning_unit.learning_unit_attributions,
                 name="learning_unit_attributions"),
-            url(r'^proposals/$', learning_unit.learning_unit_proposals, name="learning_unit_proposals"),
             url(r'^proposal/', include([
                 url(r'^modification/$', learning_unit_proposal.propose_modification_of_learning_unit,
                     name="learning_unit_modification_proposal")
