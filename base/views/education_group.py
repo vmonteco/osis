@@ -38,6 +38,7 @@ from collections import OrderedDict
 from django.conf import settings
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
 from django.utils import timezone
+from base.models.enums import academic_calendar_type
 
 
 @login_required
@@ -159,16 +160,28 @@ def education_group_administrative_data(request, education_group_year_id):
 def _education_group_administrative_data_tab(request, education_group_year_id):
     now = timezone.now()
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+
+
     context = {'education_group_year': education_group_year,
                'dates_course_enrollment':{'start': now,'end': now},
-               'start_dates_exams_enrollments': {'session1':now, 'session2': now, 'session3': now},
-               'end_dates_exams_enrollments': {'session1': now, 'session2': now, 'session3': now  },
-               'dates_marks_presentation': {'session1': now, 'session2': now, 'session3': now  },
-               'dates_dissertation_presentation': {'session1': now, 'session2': now, 'session3': now  },
-               'dates_deliberation': {'session1': now, 'session2': now, 'session3': now  },
-               'times_deliberation': {'session1': '10:00', 'session2': '10:00', 'session3': '10:00'  },
-               'dates_scores_diffusion': {'session1': now, 'session2': now, 'session3': now  },
-               'times_scores_diffusion': {'session1': '10:00', 'session2': '10:00', 'session3': '10:00'  },
                'mandataries': mdl.mandatary.find_by_education_group_year(education_group_year),
                'pgm_mgrs': ['prof1', 'prof2']}
+    context.update({'exam_enrollments': get_dates(academic_calendar_type.EXAM_ENROLLMENTS,education_group_year)})
+    context.update({'scores_exam_submission': get_dates(academic_calendar_type.SCORES_EXAM_SUBMISSION,education_group_year)})
+    context.update({'dissertation_submission': get_dates(academic_calendar_type.DISSERTATION_SUBMISSION,education_group_year)})
+    context.update({'deliberation': get_dates(academic_calendar_type.DELIBERATION,education_group_year)})
+    context.update({'scores_exam_diffusion': get_dates(academic_calendar_type.SCORES_EXAM_DIFFUSION,education_group_year)})
     return layout.render(request, "education_group/tab_administrative_data.html", context)
+
+
+def get_dates(an_academic_calendar_type, an_education_group_year):
+    date_dict={}
+    cpt = 1
+    while cpt <= 3:
+        session1 = mdl.session_exam_calendar.find_by_session_reference(cpt,an_academic_calendar_type,an_education_group_year.academic_year)
+        if session1:
+            dates = mdl.offer_year_calendar.find_by_education_group_year(session1.academic_calendar, an_education_group_year)
+            key = 'session{}'.format(cpt)
+            date_dict.update({key:dates})
+        cpt =cpt +1
+    return date_dict

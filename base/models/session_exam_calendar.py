@@ -114,3 +114,12 @@ def find_deliberation_date(nb_session, offer_year):
                                             offer_year_cal.academic_calendar.start_date
 
     return None
+
+
+def find_by_session_reference(nb_session, a_reference, an_academic_year):
+    try:
+        return SessionExamCalendar.objects.get(number_session=nb_session,
+                                               academic_calendar__reference=a_reference,
+                                               academic_calendar__academic_year=an_academic_year)
+    except SessionExamCalendar.DoesNotExist:
+        return None

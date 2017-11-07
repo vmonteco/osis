@@ -48,40 +48,72 @@
                         <table class="table">
                             <thead>
                                 <th></th>
-                                <th>{% trans 'session' %} 1</th>
-                                <th>{% trans 'session' %} 2</th>
-                                <th>{% trans 'session' %} 3</th>
+                                <th>{% trans 'session_title' %} 1</th>
+                                <th>{% trans 'session_title' %} 2</th>
+                                <th>{% trans 'session_title' %} 3</th>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td><label>{% trans 'exams_enrollments' %}</label></td>
-                                    <td>{% trans 'from' %} {{start_dates_exams_enrollments.session1| default_if_none:'-'|date:"d/m/Y"}} {% trans 'to' %} {{ end_dates_exams_enrollments.session1| default_if_none:'-'|date:"d/m/Y" }}</td>
-                                    <td>{% trans 'from' %} {{start_dates_exams_enrollments.session2| default_if_none:'-'|date:"d/m/Y"}} {% trans 'to' %} {{ end_dates_exams_enrollments.session2| default_if_none:'-'|date:"d/m/Y" }}</td>
-                                    <td>{% trans 'from' %} {{start_dates_exams_enrollments.session3| default_if_none:'-'|date:"d/m/Y"}} {% trans 'to' %} {{ end_dates_exams_enrollments.session3 | default_if_none:'-'|date:"d/m/Y"}}</td>
+                                    <td>
+                                        {% if exam_enrollments.session1 %}
+                                            <label>{% trans 'from' %}</label> {{exam_enrollments.session1.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'to' %}</label> {{ exam_enrollments.session1.end_date| default_if_none:'-'|date:"d/m/Y" }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if exam_enrollments.session2 %}
+                                            <label>{% trans 'from' %}</label> {{exam_enrollments.session2.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'to' %}</label> {{ exam_enrollments.session2.end_date| default_if_none:'-'|date:"d/m/Y" }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if exam_enrollments.session3 %}
+                                            <label>{% trans 'from' %}</label> {{exam_enrollments.session3.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'to' %}</label> {{ exam_enrollments.session3.end_date | default_if_none:'-'|date:"d/m/Y"}}
+                                        {% endif %}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td><label>{% trans 'marks_presentation' %}</label></td>
-                                    <td>{{dates_marks_presentation.session1| default_if_none:'-'|date:"d/m/Y"}}</td>
-                                    <td>{{dates_marks_presentation.session2| default_if_none:'-'|date:"d/m/Y"}}</td>
-                                    <td>{{dates_marks_presentation.session3| default_if_none:'-'|date:"d/m/Y"}}</td>
+                                    <td>{{scores_exam_submission.session1.start_date| default_if_none:'-'|date:"d/m/Y"}}</td>
+                                    <td>{{scores_exam_submission.session2.start_date| default_if_none:'-'|date:"d/m/Y"}}</td>
+                                    <td>{{scores_exam_submission.session3.start_date| default_if_none:'-'|date:"d/m/Y"}}</td>
                                 </tr>
                                 <tr>
                                     <td><label>{% trans 'dissertation_presentation' %}</label></td>
-                                    <td> {{dates_dissertation_presentation.session1| default_if_none:'-'|date:"d/m/Y"}}</td>
-                                    <td>{{dates_dissertation_presentation.session2| default_if_none:'-'|date:"d/m/Y"}}</td>
-                                    <td>{{dates_dissertation_presentation.session3| default_if_none:'-'|date:"d/m/Y"}}</td>
+                                    <td>{{dissertation_submission.session1.start_date| default_if_none:'-'|date:"d/m/Y"}}</td>
+                                    <td>{{dissertation_submission.session2.start_date| default_if_none:'-'|date:"d/m/Y"}}</td>
+                                    <td>{{dissertation_submission.session3.start_date| default_if_none:'-'|date:"d/m/Y"}}</td>
                                 </tr>
                                 <tr>
                                     <td><label>{% trans 'DELIBERATION' %}</label></td>
-                                    <td>{{ dates_deliberation.session1| default_if_none:'-'|date:"d/m/Y"}} {% trans 'at' %} {{ times_deliberation.session1}}</td>
-                                    <td>{{ dates_deliberation.session2| default_if_none:'-'|date:"d/m/Y"}} {% trans 'at' %} {{ times_deliberation.session2}}</td>
-                                    <td>{{ dates_deliberation.session3| default_if_none:'-'|date:"d/m/Y"}} {% trans 'at' %} {{ times_deliberation.session3}}</td>
+                                    <td>
+                                        {% if deliberation.session1 %}
+                                            {{ deliberation.session1.start_date| default_if_none:'-'|date:"d/m/Y"}}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if deliberation.session2 %}
+                                            {{ deliberation.session2.start_date| default_if_none:'-'|date:"d/m/Y"}} </td>
+                                        {% endif %}
+                                    <td>
+                                        {% if deliberation.session3 %}
+                                            {{ deliberation.session3.start_date| default_if_none:'-'|date:"d/m/Y"}} </td>
+                                        {% endif %}
                                 </tr>
                                 <tr>
                                     <td><label>{% trans 'scores_diffusion' %}</label></td>
-                                    <td>{{ dates_scores_diffusion.session1| default_if_none:'-'|date:"d/m/Y"}} {% trans 'at' %} {{ times_scores_diffusion.session1}}</td>
-                                    <td>{{ dates_scores_diffusion.session2| default_if_none:'-'|date:"d/m/Y"}} {% trans 'at' %} {{ times_scores_diffusion.session2}}</td>
-                                    <td>{{ dates_scores_diffusion.session3| default_if_none:'-'|date:"d/m/Y"}} {% trans 'at' %} {{ times_scores_diffusion.session3}}</td>
+                                    <td>
+                                        {% if scores_exam_diffusion.session1 %}
+                                            {{ scores_exam_diffusion.session1.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ scores_exam_diffusion.session1.start_date | default_if_none:'-'|date:"H:i"}}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if scores_exam_diffusion.session2 %}
+                                            {{ scores_exam_diffusion.session2.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ scores_exam_diffusion.session2.start_date | default_if_none:'-'|date:"H:i"}}</td>
+                                        {% endif %}
+                                    <td>
+                                        {% if scores_exam_diffusion.session3 %}
+                                            {{ scores_exam_diffusion.session3.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ scores_exam_diffusion.session3.start_date | default_if_none:'-'|date:"H:i"}}</td>
+                                        {% endif %}
                                 </tr>
                             </tbody>
                         </table>
