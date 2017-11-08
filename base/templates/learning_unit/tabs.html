@@ -33,10 +33,10 @@
 
 
 <ul class="nav nav-tabs" role="tablist">
-    <li role="presentation" {% if request.path == url_identification or identification %} class="active" {% endif %}>
+    <li role="presentation" {% if request.path == url_identification %} class="active" {% endif %}>
         <a href="{% url 'learning_unit' learning_unit_year.id %}" role="tab">
-		{% trans 'identification'%}
-	</a>
+		        {% trans 'identification'%}
+	     </a>
     </li>
     <li role="presentation" {% if request.path == url_formations %} class="active" {% endif %}>
         <a role="tab" >

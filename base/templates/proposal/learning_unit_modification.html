@@ -34,13 +34,12 @@
 
 {% block content %}
 
-{% include "learning_unit/header.html" %}
+{% with disabled_nav=True %}
+  {% include "learning_unit/header.html" %}
+{% endwith %}
 
 <div class="panel panel-default" >
     <div class="panel-body" id="tabs" >
-      {% with identification=True %}
-        {% include "learning_unit/tabs.html" %}
-      {% endwith %}
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="identification">
                 <br/>
