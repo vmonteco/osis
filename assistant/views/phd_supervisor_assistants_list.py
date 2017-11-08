@@ -64,8 +64,7 @@ class AssistantsListView(LoginRequiredMixin, UserPassesTestMixin, ListView, Form
     def get_context_data(self, **kwargs):
         context = super(AssistantsListView, self).get_context_data(**kwargs)
         context['year'] = academic_year.current_academic_year().year
-        start_date = academic_year.find_academic_year_by_id(int(self.request.session.get(
-            'selected_academic_year'))).start_date
+        start_date = academic_year.current_academic_year().start_date
         context['is_reviewer'] = self.is_reviewer
         context['current_reviewer'] = self.reviewer
         if self.reviewer:

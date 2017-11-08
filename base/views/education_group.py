@@ -32,6 +32,11 @@ from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
 from base.models.enums import education_group_categories
 
 from . import layout
+from cms.enums import entity_name
+from cms import models as mdl_cms
+from collections import OrderedDict
+from django.conf import settings
+from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
 
 
 @login_required
@@ -88,7 +93,7 @@ def get_education_group_years(academic_yr, acronym, entity):
         education_group_year_entities = []
         education_group_years = mdl.education_group_year.search(academic_yr=academic_yr, acronym=acronym)
         for education_group_yr in education_group_years:
-            if education_group_yr.management_entity and\
+            if education_group_yr.management_entity and \
                             education_group_yr.management_entity.acronym.upper() == entity.upper():
                 education_group_year_entities.append(education_group_yr)
         return education_group_year_entities
@@ -105,3 +110,41 @@ def education_group_diplomas(request, education_group_year_id):
 def _education_group_diplomas_tab(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
     return layout.render(request, "education_group/tab_diplomas.html", locals())
+
+
+@login_required
+@permission_required('base.can_access_offer', raise_exception=True)
+def education_group_general_informations(request, education_group_year_id):
+    return _education_group_general_informations_tab(request, education_group_year_id)
+
+
+def _education_group_general_informations_tab(request, education_group_year_id):
+    education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+
+    CMS_LABEL = mdl_cms.translated_text.find_by_entity_reference(entity_name.OFFER_YEAR, education_group_year_id)
+
+    fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
+    en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
+
+    context = {'education_group_year': education_group_year,
+               'cms_labels_translated': _get_cms_label_data(CMS_LABEL,
+                                                            mdl.person.get_user_interface_language(request.user)),
+               'form_french': EducationGroupGeneralInformationsForm(education_group_year=education_group_year,
+                                                                    language=fr_language, text_labels_name=CMS_LABEL),
+               'form_english': EducationGroupGeneralInformationsForm(education_group_year=education_group_year,
+                                                                     language=en_language, text_labels_name=CMS_LABEL)}
+    return layout.render(request, "education_group/tab_general_informations.html", context)
+
+
+def _get_cms_label_data(cms_label, user_language):
+    cms_label_data = OrderedDict()
+
+    translated_labels = mdl_cms.translated_text_label.search(text_entity=entity_name.OFFER_YEAR,
+                                                             labels=cms_label,
+                                                             language=user_language)
+
+    for label in cms_label:
+        translated_text = next((trans.label for trans in translated_labels if trans.text_label.label == label), None)
+        cms_label_data[label] = translated_text
+
+    return cms_label_data

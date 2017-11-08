@@ -99,55 +99,45 @@ class LearningUnitYearWithContextTestCase(TestCase):
         self.assertDictEqual(learning_unit_year_with_context._get_requirement_entities_volumes(components),
                              wanted_response)
 
-    def test_volumes_unknwon_quadrimester(self):
-        self.learning_component_yr.hourly_volume_partial = -1
-        self.entity_component_yr.hourly_volume_total = 30
-
-        data = learning_unit_year_with_context.volume_learning_component_year(self.learning_component_yr,
-                                                                              self.entity_components_yr)
-        self.assertEqual(data.get(learning_unit_year_with_context.TOTAL_VOLUME_KEY), 30)
-        self.assertEqual(data.get(learning_unit_year_with_context.VOLUME_QUARTER_KEY), _('partial_or_remaining'))
-        self.assertEqual(data.get(learning_unit_year_with_context.VOLUME_PARTIAL_KEY),
-                         learning_unit_year_with_context.VOLUME_FOR_UNKNOWN_QUADRIMESTER)
-        self.assertEqual(data.get(learning_unit_year_with_context.VOLUME_REMAINING_KEY),
-                         learning_unit_year_with_context.VOLUME_FOR_UNKNOWN_QUADRIMESTER)
-
-    def test_volumes_undefined(self):
-        self.learning_component_yr.hourly_volume_partial = None
+    def test_volume_learning_component_year(self):
         self.entity_component_yr.hourly_volume_total = 15
 
-        data = learning_unit_year_with_context.volume_learning_component_year(self.learning_component_yr,
-                                                                              self.entity_components_yr)
-        self.assertEqual(data.get(learning_unit_year_with_context.TOTAL_VOLUME_KEY), 15)
-        self.assertEqual(data.get(learning_unit_year_with_context.VOLUME_QUARTER_KEY),
-                         learning_unit_year_with_context.UNDEFINED_VALUE)
-        self.assertEqual(data.get(learning_unit_year_with_context.VOLUME_PARTIAL_KEY),
-                         learning_unit_year_with_context.UNDEFINED_VALUE)
-        self.assertEqual(data.get(learning_unit_year_with_context.VOLUME_REMAINING_KEY),
-                         learning_unit_year_with_context.UNDEFINED_VALUE)
-
-    def test_volumes(self):
         self.learning_component_yr.hourly_volume_partial = 0
-        self.entity_component_yr.hourly_volume_total = 15
         data = learning_unit_year_with_context.volume_learning_component_year(self.learning_component_yr,
                                                                               self.entity_components_yr)
-        self.assertEqual(data.get(learning_unit_year_with_context.TOTAL_VOLUME_KEY), 15)
-        self.assertEqual(data.get(learning_unit_year_with_context.VOLUME_QUARTER_KEY), _('remaining'))
-        self.assertEqual(data.get(learning_unit_year_with_context.VOLUME_PARTIAL_KEY), 0)
-        self.assertEqual(data.get(learning_unit_year_with_context.VOLUME_REMAINING_KEY), 15)
+        self.assertEqual(data.get('VOLUME_TOTAL'), 15)
+        self.assertEqual(data.get('VOLUME_QUARTER'), _('remaining'))
+        self.assertEqual(data.get('VOLUME_Q1'), 0)
+        self.assertEqual(data.get('VOLUME_Q2'), 15)
 
-        self.learning_component_yr.hourly_volume_partial=15
+        self.learning_component_yr.hourly_volume_partial = 15
         data = learning_unit_year_with_context.volume_learning_component_year(self.learning_component_yr,
                                                                               self.entity_components_yr)
-        self.assertEqual(data.get(learning_unit_year_with_context.TOTAL_VOLUME_KEY), 15)
-        self.assertEqual(data.get(learning_unit_year_with_context.VOLUME_PARTIAL_KEY), 15)
-        self.assertEqual(data.get(learning_unit_year_with_context.VOLUME_QUARTER_KEY), _('partial'))
-        self.assertEqual(data.get(learning_unit_year_with_context.VOLUME_REMAINING_KEY), 0)
+        self.assertEqual(data.get('VOLUME_TOTAL'), 15)
+        self.assertEqual(data.get('VOLUME_QUARTER'), _('partial'))
+        self.assertEqual(data.get('VOLUME_Q1'), 15)
+        self.assertEqual(data.get('VOLUME_Q2'), 0)
 
-        self.learning_component_yr.hourly_volume_partial=12
+        self.learning_component_yr.hourly_volume_partial = 12
         data = learning_unit_year_with_context.volume_learning_component_year(self.learning_component_yr,
                                                                               self.entity_components_yr)
-        self.assertEqual(data.get(learning_unit_year_with_context.TOTAL_VOLUME_KEY), 15)
-        self.assertEqual(data.get(learning_unit_year_with_context.VOLUME_QUARTER_KEY), _('partial_remaining'))
-        self.assertEqual(data.get(learning_unit_year_with_context.VOLUME_PARTIAL_KEY), 12)
-        self.assertEqual(data.get(learning_unit_year_with_context.VOLUME_REMAINING_KEY), 3)
+        self.assertEqual(data.get('VOLUME_TOTAL'), 15)
+        self.assertEqual(data.get('VOLUME_QUARTER'), _('partial_remaining'))
+        self.assertEqual(data.get('VOLUME_Q1'), 12)
+        self.assertEqual(data.get('VOLUME_Q2'), 3)
+
+        self.learning_component_yr.hourly_volume_partial = None
+        data = learning_unit_year_with_context.volume_learning_component_year(self.learning_component_yr,
+                                                                              self.entity_components_yr)
+        self.assertEqual(data.get('VOLUME_TOTAL'), 15)
+        self.assertEqual(data.get('VOLUME_QUARTER'), None)
+        self.assertEqual(data.get('VOLUME_Q1'), None)
+        self.assertEqual(data.get('VOLUME_Q2'), None)
+
+    def test_volume_distribution(self):
+        self.assertEqual(learning_unit_year_with_context.component_volume_distribution(30, 30), _('partial'))
+        self.assertEqual(learning_unit_year_with_context.component_volume_distribution(30, 0), _('remaining'))
+        self.assertEqual(learning_unit_year_with_context.component_volume_distribution(30, 15), _('partial_remaining'))
+        self.assertEqual(learning_unit_year_with_context.component_volume_distribution(30, None), None)
+        self.assertEqual(learning_unit_year_with_context.component_volume_distribution(None, 15), None)
+        self.assertEqual(learning_unit_year_with_context.component_volume_distribution(None, None), None)

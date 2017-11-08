@@ -1153,7 +1153,7 @@ msgid "learning_unit_title"
 msgstr "Intitulé du cours"
 
 msgid "too_many_results"
-msgstr "Votre recherche retourne trop de résultats, veuillez spécifier la recherche."
+msgstr "Votre recherche renvoie trop de résultats, veuillez affiner vos critères de recherche."
 
 msgid "tooltip_delete_message"
 msgstr "Supprimer le message"
@@ -1708,8 +1708,8 @@ msgstr "Vol. Q1"
 msgid "volume_remaining"
 msgstr "Vol. Q2"
 
-msgid "learning_unit_quarter"
-msgstr "Quadri. de l'UE"
+msgid "quadrimester"
+msgstr "Quadrimestre"
 
 msgid "composition"
 msgstr "Composition"
@@ -2183,3 +2183,24 @@ msgstr "Diplôme séparé"
 
 msgid "NOT_CONCERNED"
 msgstr "Non concerné"
+
+msgid "organization_address_save_error"
+msgstr "Impossible d'enregistrer l'adresse de l'organisation"
+
+msgid "publish_attribution_to_portal"
+msgstr "Publication des attributions sur Osis-Portal"
+
+msgid "RESEVED_FOR_INTERNS"
+msgstr "Réservé aux internes"
+
+msgid "OPEN_FOR_EXTERNS"
+msgstr "Ouvert aux externes"
+
+msgid "EXCEPTIONAL_PROCEDURE"
+msgstr "Procédure exceptionnelle"
+
+msgid "VACANT_NOT_PUBLISH"
+msgstr "Vacant à ne pas publier"
+
+msgid "DO_NOT_ASSIGN"
+msgstr "A ne pas attribuer"
