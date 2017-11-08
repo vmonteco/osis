@@ -58,3 +58,4 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertTrue(response.status_code, 202)
         self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
         self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
+        self.assertEqual(response.context['experimental_phase'], True)

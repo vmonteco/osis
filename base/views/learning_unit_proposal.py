@@ -32,4 +32,5 @@ from base.models.learning_unit_year import LearningUnitYear
 @login_required
 def propose_modification_of_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
-    return render(request, 'proposal/learning_unit_modification.html', {'learning_unit_year': learning_unit_year})
+    return render(request, 'proposal/learning_unit_modification.html', {'learning_unit_year': learning_unit_year,
+                                                                        'experimental_phase': True})
