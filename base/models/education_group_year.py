@@ -158,7 +158,6 @@ class EducationGroupYear(models.Model):
         return self._coorganizations
 
     def is_training(self):
-        print(self.education_group_type.category)
         return self.education_group_type.category == education_group_categories.TRAINING
 
 

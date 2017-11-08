@@ -27,21 +27,19 @@ from django import forms
 from django.db import models
 from django.forms import ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
+from django.utils.html import escape
+from django.utils.html import conditional_escape
 
 from base.forms.bootstrap import BootstrapForm
-from base.models import academic_year, education_group_year, entity_version, offer_type, offer_year_entity
+from base.models import academic_year, education_group_year, entity_version, offer_year_entity
 from base.models import entity
-from base.models.entity_version import find_last_faculty_entities_version, EntityVersion
-from base.models.enums import education_group_categories, offer_year_entity_type
+from base.models.education_group_type import EducationGroupType
+from base.models.entity_version import find_last_faculty_entities_version
+from base.models.enums import offer_year_entity_type
 from base.models.enums import entity_type
+from base.models.enums import education_group_categories
 
 MAX_RECORDS = 1000
-
-EDUCATION_GROUP_CATEGORIES = (
-    (education_group_categories.TRAINING, _('TRAINING')),
-    (education_group_categories.MINI_TRAINING, _('MINI_TRAINING')),
-    (education_group_categories.GROUP, _('GROUP')),
-)
 
 
 class EntityManagementModelChoiceField(ModelChoiceField):
@@ -49,12 +47,61 @@ class EntityManagementModelChoiceField(ModelChoiceField):
         return obj.acronym
 
 
+class SelectWithData(forms.Select):
+    def render_option(self, selected_choices, option_value, option_label):
+        obj_data = {
+            obj.id: {
+                data_attr: getattr(obj, data_attr) for data_attr in self.data_attrs
+            } for obj in self.queryset
+        }
+        print('data:' +str(obj_data))
+        data_text = u''
+        for data_attr in self.data_attrs:
+            data_text += u' data-{}="{}" '.format(
+                data_attr,
+                escape(obj_data[option_value][data_attr])
+            )
+
+        selected_html = (option_value in selected_choices) and u' selected="selected"' or ''
+        return u'<option value="{}"{}{}>{}</option>'.format(
+            escape(option_value),
+            data_text,
+            selected_html,
+            conditional_escape(option_label)
+        )
+
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option_dict = super(forms.Select, self).create_option(name, value, label, selected, index,
+                                                              subindex=subindex, attrs=attrs)
+        if value:
+            option_dict['attrs']['category'] = self.queryset.get(id=value).category
+        return option_dict
+
+
+class ModelChoiceFieldWithData(forms.ModelChoiceField):
+    widget = SelectWithData
+
+    def __init__(self, queryset, **kwargs):
+        data_attrs = kwargs.pop('data_attrs')
+        super(ModelChoiceFieldWithData, self).__init__(queryset, **kwargs)
+        self.widget.queryset = queryset
+        self.widget.data_attrs = data_attrs
+
+
 class EducationGroupFilter(BootstrapForm):
     academic_year = forms.ModelChoiceField(queryset=academic_year.find_academic_years(), required=False,
                                            empty_label=_('all_label'))
-    education_group_type = forms.ModelChoiceField(queryset=offer_type.find_all(), required=False,
-                                                  empty_label=_('all_label'))
-    category = forms.ChoiceField(EDUCATION_GROUP_CATEGORIES, required=False)
+
+
+
+    education_group_type = ModelChoiceFieldWithData(
+        queryset=EducationGroupType.objects.all(),
+        data_attrs=('category',))
+
+    #education_group_type = forms.ModelChoiceField(queryset=offer_type.find_all(), widget=setattr('class',education_group_category.name,education_group_type.name),required=False,
+    #                                             empty_label=_('all_label'))
+
+    category = forms.ChoiceField(education_group_categories.CATEGORIES, required=False)
     acronym = title = forms.CharField(
         widget=forms.TextInput(attrs={'size': '10'}),
         max_length=20, required=False)
@@ -62,6 +109,12 @@ class EducationGroupFilter(BootstrapForm):
 
     def clean_category(self):
         data_cleaned = self.cleaned_data.get('category')
+        if data_cleaned:
+            return data_cleaned
+        return None
+
+    def clean_types(self):
+        data_cleaned = self.cleaned_data.get('type')
         if data_cleaned:
             return data_cleaned
         return None
