@@ -31,7 +31,7 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 class CampusAdmin(SerializableModelAdmin):
     list_display = ('name', 'organization', 'changed')
     list_filter = ('organization',)
-    fieldsets = ((None, {'fields': ('name', 'organization')}),)
+    fieldsets = ((None, {'fields': ('name', 'organization', 'code', 'is_administration')}),)
     search_fields = ['name', 'organization__name']
 
 
@@ -40,6 +40,8 @@ class Campus(SerializableModel):
     changed = models.DateTimeField(null=True, auto_now=True)
     name = models.CharField(max_length=100, blank=True, null=True)
     organization = models.ForeignKey('Organization')
+    code = models.CharField(max_length=1, blank=True, null=True)
+    is_administration = models.BooleanField(default=False)
 
     def __str__(self):
         return u"%s" % self.name
@@ -50,6 +52,9 @@ def find_by_organization(organization):
                          .order_by('name')
 
 
-def find_main_campuses():
-    campuses = Campus.objects.filter(organization__type=MAIN).order_by('name')
-    return campuses
+def find_administration_campuses():
+    return Campus.objects.filter(organization__type=MAIN, is_administration=True).order_by('name')
+
+
+def find_by_id(campus_id):
+    return Campus.objects.get(id=campus_id)

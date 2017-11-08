@@ -25,6 +25,7 @@
 ##############################################################################
 from django.conf.urls import url, include
 
+from attribution.views import attribution
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group
 from django.conf import settings
@@ -53,7 +54,10 @@ urlpatterns = [
         url(r'^storage/$', common.storage, name='storage'),
     ])),
 
-    url(r'^api/v1/entities/$', entity.post_entities, name='post_entities'),
+    url(r'^api/v1/', include([
+        url(r'^entities/$', entity.post_entities, name='post_entities'),
+        url(r'^attribution/recompute_portal$', attribution.recompute_portal, name='recompute_attribution_portal'),
+    ])),
 
     url(r'^catalog/$', common.catalog, name='catalog'),
 
@@ -75,7 +79,7 @@ urlpatterns = [
 
     url(r'^learning_units/', include([
         url(r'^$', learning_unit.learning_units, name='learning_units'),
-        url(r'^by_activity/', learning_unit.learning_units_activity, name='learning_units_activity'),
+        url(r'^by_activity/', learning_unit.learning_units, name='learning_units_activity'),
         url(r'^by_service_course/', learning_unit.learning_units_service_course, name='learning_units_service_course'),
         url(r'^new/', include([
             url(r'^academic_year_id=(?P<academic_year>[0-9]+)$', learning_unit.learning_unit_create,
@@ -100,6 +104,7 @@ urlpatterns = [
                 url(u'^validation/$', learning_unit.volumes_validation, name="volumes_validation")])),
         ])),
         url(r'^check/$', learning_unit.check_acronym, name="check_acronym"),
+        url(r'^check_code/$', learning_unit.check_code, name="check_code"),
     ])),
 
     url(r'^my_osis/', include([
@@ -138,6 +143,8 @@ urlpatterns = [
             url(r'^$', education_group.education_group_read, name='education_group_read'),
             url(r'^parent/$', education_group.education_group_parent_read, name='education_group_parent_read'),
             url(r'^diplomas/$', education_group.education_group_diplomas, name='education_group_diplomas'),
+            url(r'^informations/$', education_group.education_group_general_informations, name='education_group_general_informations'),
+
         ]))
     ])),
 

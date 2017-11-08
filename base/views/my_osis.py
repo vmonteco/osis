@@ -123,6 +123,7 @@ def profile_lang(request):
     request.session[translation.LANGUAGE_SESSION_KEY] = ui_language
     return profile(request)
 
+
 @login_required
 def profile_lang_edit(request, ui_language):
     mdl.person.change_language(request.user, ui_language)

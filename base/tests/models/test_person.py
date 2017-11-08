@@ -26,11 +26,13 @@
 import functools
 import contextlib
 import factory
+import datetime
 from django.test import TestCase
 from django.test import override_settings
 from base.models import person
 from base.models.enums import person_source_type
 from base.tests.factories.person import PersonFactory, generate_person_email
+from base.tests.factories import user
 
 
 def create_person(first_name, last_name, email=None):
@@ -39,8 +41,8 @@ def create_person(first_name, last_name, email=None):
     return a_person
 
 
-def create_person_with_user(user):
-    a_person = person.Person(first_name=user.first_name, last_name=user.last_name, user=user)
+def create_person_with_user(usr):
+    a_person = person.Person(first_name=usr.first_name, last_name=usr.last_name, user=usr)
     a_person.save()
     return a_person
 
@@ -115,4 +117,25 @@ class PersonTest(PersonTestCase):
         self.assertEqual(len(person.search_employee(a_lastname)), 2)
         self.assertEqual(len(person.search_employee("{} {}".format(a_lastname, a_firstname))), 1)
 
+    def test_change_to_invalid_language(self):
+        usr = user.UserFactory()
+        usr.save()
+        a_person = create_person_with_user(usr)
+        person.change_language(usr, 'ru')
+        self.assertNotEquals(a_person.language, "ru")
 
+    def test_change_language(self):
+        usr = user.UserFactory()
+        usr.save()
+        create_person_with_user(usr)
+
+        person.change_language(usr, "en")
+        a_person = person.find_by_user(usr)
+        self.assertEquals(a_person.language, "en")
+
+    def test_calculate_age(self):
+        a_person = PersonFactory()
+        a_person.birth_date = datetime.datetime.now() - datetime.timedelta(days=((30*365)+15))
+        self.assertEquals(person.calculate_age(a_person), 30)
+        a_person.birth_date = datetime.datetime.now() - datetime.timedelta(days=((30*365)-5))
+        self.assertEquals(person.calculate_age(a_person), 29)
