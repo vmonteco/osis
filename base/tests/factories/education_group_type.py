@@ -24,15 +24,16 @@
 #
 ##############################################################################
 import factory
-import factory.fuzzy
 
 from factory.django import DjangoModelFactory
+
+from base.models.enums import education_group_categories
 
 class EducationGroupTypeFactory(DjangoModelFactory):
     class Meta:
         model = "base.EducationGroupType"
 
     external_id = factory.Sequence(lambda n: '10000000%02d' % n)
-    category = factory.Sequence(lambda n: 'Category - %d' % n)
+    category = education_group_categories.CATEGORIES
     name = factory.Sequence(lambda n: 'Type of category - %d' % n)
 

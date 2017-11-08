@@ -33,6 +33,7 @@ from base.models import offer_year_entity as mdl_offer_year_entity
 from base.models import entity_version as mdl_entity_version
 from base.models.enums import education_group_association
 from base.models.enums import offer_year_entity_type
+from base.models.enums import education_group_categories
 from base.models.exceptions import MaximumOneParentAllowedException
 from base.models.group_element_year import GroupElementYear
 
@@ -132,7 +133,7 @@ class EducationGroupYear(models.Model):
     @property
     def parent_by_training(self):
         parents = [parent for parent in self.parents_by_group_element_year
-                   if parent.education_group_type.category == self.education_group_type.category]
+                   if parent.is_training()]
         if len(parents) > 1:
             raise MaximumOneParentAllowedException('Only one training parent is allowed')
         elif len(parents) == 1:
@@ -156,6 +157,10 @@ class EducationGroupYear(models.Model):
             self._coorganizations = education_group_organization.search(education_group_year=self)
         return self._coorganizations
 
+    def is_training(self):
+        print(self.education_group_type.category)
+        return self.education_group_type.category == education_group_categories.TRAINING
+
 
 def find_by_id(an_id):
     try:
@@ -178,11 +183,6 @@ def search(**kwargs):
         qs = qs.filter(acronym__icontains=kwargs['acronym'])
     if "title" in kwargs:
         qs = qs.filter(title__icontains=kwargs['title'])
-    if "category" in kwargs:
-        if isinstance(kwargs['category'], list):
-            qs = qs.filter(category__in=kwargs['category'])
-        else:
-            qs = qs.filter(category=kwargs['category'])
     if "education_group_type" in kwargs:
         if isinstance(kwargs['education_group_type'], list):
             qs = qs.filter(education_group_type__in=kwargs['education_group_type'])

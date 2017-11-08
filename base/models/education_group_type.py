@@ -38,7 +38,7 @@ class EducationGroupTypeAdmin(admin.ModelAdmin):
 
 class EducationGroupType(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
-    category = models.CharField(max_length=20, blank=True, null=True, choices=education_group_categories.CATEGORIES, default=education_group_categories.TRAINING)
+    category = models.CharField(max_length=25, choices=education_group_categories.CATEGORIES, default=education_group_categories.TRAINING)
     name = models.CharField(max_length=255)
 
     def __str__(self):
@@ -51,5 +51,5 @@ def find_all():
 def find_by_category(category=None):
     return EducationGroupType.objects.filter(category=category).order_by('name')
 
-def find_by_type(type=None):
-    return EducationGroupType.objects.filter(type=type).order_by('name')
+def find_by_name(name=None):
+    return EducationGroupType.objects.filter(name=name)
