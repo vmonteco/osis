@@ -153,7 +153,7 @@ class EducationGroupYear(models.Model):
     @property
     def coorganizations(self):
         if not self._coorganizations:
-            self._coorganizations = education_group_organization.search(self)
+            self._coorganizations = education_group_organization.search(education_group_year=self)
         return self._coorganizations
 
 

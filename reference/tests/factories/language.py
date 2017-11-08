@@ -24,11 +24,13 @@
 #
 ##############################################################################
 import string
-
+import factory
 import factory.fuzzy
 
+from factory import DjangoModelFactory
 
-class LanguageFactory(factory.DjangoModelFactory):
+
+class LanguageFactory(DjangoModelFactory):
     class Meta:
         model = 'reference.Language'
 

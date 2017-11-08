@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,24 +23,3 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
-import datetime
-import string
-
-from base.tests.factories.education_group_year import EducationGroupYearFactory
-from osis_common.utils.datetime import get_tzinfo
-
-
-class GroupElementYearFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "base.GroupElementYear"
-
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    parent = factory.SubFactory(EducationGroupYearFactory)
-    child_branch = factory.SubFactory(EducationGroupYearFactory)
-
-
-

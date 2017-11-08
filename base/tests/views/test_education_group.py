@@ -167,3 +167,27 @@ class EducationGroupViewTestCase(TestCase):
         self.assertEqual(template, 'education_group/tab_parent_training.html')
 
         self.assertEqual(context['education_group_year'].parent_by_training, education_group_year_parent)
+
+    @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.views.layout.render')
+    @mock.patch('base.models.person.get_user_interface_language', return_value=True)
+    def test_education_group_general_informations(self,
+                                                  mock_get_user_interface_language,
+                                                  mock_render,
+                                                  mock_decorators):
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+
+        education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
+
+        request = mock.Mock(method='GET')
+
+        from base.views.education_group import education_group_general_informations
+
+        education_group_general_informations(request, education_group_year.id)
+
+        self.assertTrue(mock_render.called)
+
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'education_group/tab_general_informations.html')

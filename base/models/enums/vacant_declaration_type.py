@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,24 +23,18 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
-import datetime
-import string
+from django.utils.translation import ugettext_lazy as _
 
-from base.tests.factories.education_group_year import EducationGroupYearFactory
-from osis_common.utils.datetime import get_tzinfo
+RESEVED_FOR_INTERNS = "RESEVED_FOR_INTERNS"
+OPEN_FOR_EXTERNS = "OPEN_FOR_EXTERNS"
+EXCEPTIONAL_PROCEDURE = "EXCEPTIONAL_PROCEDURE"
+VACANT_NOT_PUBLISH = "VACANT_NOT_PUBLISH"
+DO_NOT_ASSIGN = "DO_NOT_ASSIGN"
 
-
-class GroupElementYearFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "base.GroupElementYear"
-
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    parent = factory.SubFactory(EducationGroupYearFactory)
-    child_branch = factory.SubFactory(EducationGroupYearFactory)
-
-
-
+DECLARATION_TYPE = (
+    (RESEVED_FOR_INTERNS, _(RESEVED_FOR_INTERNS)),
+    (OPEN_FOR_EXTERNS, _(OPEN_FOR_EXTERNS)),
+    (EXCEPTIONAL_PROCEDURE, _(EXCEPTIONAL_PROCEDURE)),
+    (VACANT_NOT_PUBLISH, _(VACANT_NOT_PUBLISH)),
+    (DO_NOT_ASSIGN, _(DO_NOT_ASSIGN))
+)

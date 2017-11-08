@@ -62,6 +62,7 @@ class EducationGroupOrganization(models.Model):
         return self._address
 
 
-def search(education_group_year):
-    if education_group_year:
-        return EducationGroupOrganization.objects.filter(education_group_year=education_group_year)
+def search(**kwargs):
+
+    if "education_group_year" in kwargs:
+        return EducationGroupOrganization.objects.filter(education_group_year=kwargs['education_group_year'])

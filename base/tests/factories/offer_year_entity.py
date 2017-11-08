@@ -31,6 +31,7 @@ import string
 from base.models.enums import offer_year_entity_type
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.offer_year import OfferYearFactory
+from base.tests.factories.education_group_year import EducationGroupYearFactory
 from osis_common.utils.datetime import get_tzinfo
 
 
@@ -44,3 +45,4 @@ class OfferYearEntityFactory(factory.DjangoModelFactory):
     offer_year = factory.SubFactory(OfferYearFactory)
     entity = factory.SubFactory(EntityFactory)
     type = factory.Iterator(offer_year_entity_type.TYPES, getter=operator.itemgetter(0))
+    education_group_year = factory.SubFactory(EducationGroupYearFactory)

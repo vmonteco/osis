@@ -25,6 +25,8 @@
 ##############################################################################
 import factory
 import factory.fuzzy
+from cms.enums import entity_name
+import operator
 
 
 class TextLabelFactory(factory.django.DjangoModelFactory):
@@ -32,7 +34,7 @@ class TextLabelFactory(factory.django.DjangoModelFactory):
         model = "cms.TextLabel"
 
     parent = None
-    entity = factory.fuzzy.FuzzyText(prefix="Entity ", length=20)
+    entity = factory.Iterator(entity_name.ENTITY_NAME, getter=operator.itemgetter(0))
     label = factory.fuzzy.FuzzyText(prefix="Label ", length=20)
     order = factory.fuzzy.FuzzyInteger(1, 10)
     published = factory.Iterator([True, False])

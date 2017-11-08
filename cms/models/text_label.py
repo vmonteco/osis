@@ -33,8 +33,11 @@ from cms.enums.entity_name import ENTITY_NAME
 
 class TextLabelAdmin(admin.ModelAdmin):
     list_display = ('parent', 'entity', 'label', 'order', 'published',)
+    search_fields = ['label']
     ordering = ('entity',)
     actions = ['delete_selected']
+    raw_id_fields = ('parent',)
+    list_filter = ('published',)
 
     def delete_selected(self, request, obj):
         for text_label in obj.all():
@@ -55,7 +58,7 @@ class TextLabel(models.Model):
         unique_together = ('parent', 'order')
 
     def __str__(self):
-        return "{} - {}".format(self.entity,self.order)
+        return "{} - {}".format(self.label, self.order)
 
     def save(self, *args, **kwargs):
         parent_db = None
@@ -121,3 +124,4 @@ def find_root_by_name(text_label_name):
     return TextLabel.objects.prefetch_related(
                                 Prefetch('translatedtextlabel_set',to_attr="translated_text_labels")
                             ).get(label=text_label_name, order=1, parent__isnull=True)
+

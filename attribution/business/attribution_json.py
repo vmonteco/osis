@@ -69,7 +69,7 @@ def _get_all_attributions_with_charges(global_ids):
         .prefetch_related(
             Prefetch('learning_component_year__learningunitcomponent_set',
                      queryset=mdl_base.learning_unit_component.search()
-                                                              .filter(learning_unit_year__in_charge=True),
+                        .filter(learning_unit_year__learning_container_year__in_charge=True),
                      to_attr='learning_unit_components')
     )
 
@@ -121,4 +121,3 @@ def _split_attribution_by_learning_unit_year(attribution):
             })
 
     return attribution_splitted.values()
-
