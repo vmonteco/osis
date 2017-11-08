@@ -54,7 +54,7 @@
                      {{form.title}}
                 </div>
                  <div class="col-md-3">
-                    <label for="id_of_type">{% trans 'category'%}</label>
+                    <label for="id_category">{% trans 'category'%}</label>
                      {{form.category}}
                 </div>
                 <div class="col-md-2">
@@ -108,7 +108,7 @@
 				            <a href="{% url 'education_group_read' education_group_year_id=education_group_year.id %}"
                                id="lnk_offer_{education_group_year.id}}">{{ education_group_year.acronym }}</a>
 			            </td>
-                        <td>{{ education_group_year.title }}</a></td>
+                        <td>{{ education_group_year.title }}</td>
                         <td>{{ education_group_year.education_group_type.name }}</td>
                         <td>{{ education_group_year.entity_management.acronym }}</td>
                     </tr>
@@ -123,6 +123,35 @@
 
 {% block script %}
 <script>
+    jQuery.fn.filterTypeByCategory = function(category) {
+        return this.each(function () {
+            var select = this;
+            var options = [];
+            $(select).find('option').each(function () {
+                options.push({
+                    value: $(this).val(),
+                    category: $(this).attr('category'),
+                    text: $(this).text()
+                });
+            });
+            $(select).data('options', options);
+
+            $(category).on('change', function () {
+                var options = $(select).empty().data('options');
+                var newCategory = $(category).val();
+
+                $.each(options, function (i) {
+                    var option = options[i];
+                    if (option.category === newCategory) {
+                        $(select).append(
+                            $('<option>').text(option.text).val(option.value).attr('category', option.category)
+                        );
+                    }
+                });
+            });
+        });
+    };
+
     $(document).ready(function()
     {
         $('#table_education_groups').DataTable(
@@ -142,6 +171,8 @@
                     }
                 }
             })
-    ;});
+
+        $('#id_education_group_type').filterTypeByCategory($('#id_category'));
+    });
 </script>
 {% endblock %}
