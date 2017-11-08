@@ -45,7 +45,7 @@
             <div role="tabpanel" class="tab-pane active" id="identification">
                 <br/>
                 <form method="post">
-
+                  {% csrf_token %}
                   <div class="row">
                       <div class="col-md-8">
                           <div class="panel panel-default">
@@ -231,6 +231,15 @@
                               </div>
                           </div>
                       </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-2 col-md-offset-8">
+                      <button type="submit" class="btn btn-primary">{% trans 'save' %}</button>
+                    </div>
+                    <div class="col-md-2">
+                      <a href="{% url 'learning_unit' learning_unit_year.id %}" class="btn btn-default" role="button">{% trans 'cancel' %}</a>
+                    </div>
                   </div>
 
                 </form>
