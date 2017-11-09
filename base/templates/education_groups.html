@@ -137,15 +137,20 @@
             $(select).data('options', options);
 
             $(category).on('change', function () {
+                var current = $(select).val();
                 var options = $(select).empty().data('options');
                 var newCategory = $(category).val();
 
                 $.each(options, function (i) {
                     var option = options[i];
-                    if (option.category === newCategory) {
+                    if (option.category === newCategory || option.value === "") {
                         $(select).append(
                             $('<option>').text(option.text).val(option.value).attr('category', option.category)
                         );
+                        // Try to keep the old value
+                        if (current === option.value) {
+                            $(select).val(option.value)
+                        }
                     }
                 });
             }).trigger('change');
