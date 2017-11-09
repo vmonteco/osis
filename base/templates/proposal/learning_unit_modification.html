@@ -40,8 +40,11 @@
 
 <div class="panel panel-default" >
     <div class="panel-body" id="tabs" >
-        <div class="tab-content">
-            <div role="tabpanel" class="tab-pane active" id="identification">
+
+      {% include "proposal/tabs.html" %}
+
+        <div class="tab-content" id="tab_content">
+            <div role="tabpanel" class="tab-pane active">
                 <br/>
                 <form method="post">
                   {% csrf_token %}
