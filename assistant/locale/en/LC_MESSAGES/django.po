@@ -25,6 +25,9 @@ msgstr "Absences"
 msgid "accept"
 msgstr "Accept"
 
+msgid "accepted"
+msgstr "Accepted"
+
 msgid "action"
 msgstr "Action"
 
@@ -39,6 +42,9 @@ msgstr "Address"
 
 msgid "advice"
 msgstr "Opinion"
+
+msgid "age"
+msgstr "Age"
 
 msgid "app_dates"
 msgstr "Mandates renewal procedure dates"
@@ -108,6 +114,9 @@ msgstr "Date of birth"
 
 msgid "cancel"
 msgstr "Cancel"
+
+msgid "choice"
+msgstr "Choice"
 
 msgid "choose_person_as_reviewer_for"
 msgstr "Choose a person as reviewer for"
@@ -467,6 +476,9 @@ msgstr "Publication(s) in preparation"
 msgid "publishing_field_service"
 msgstr "Activities in the field of publishing (editorial board,...)"
 
+msgid "refused"
+msgstr "Refused"
+
 msgid "registered_phd"
 msgstr "Enrolled in the Ph.D. program"
 
@@ -550,6 +562,9 @@ msgstr "search by course acronym"
 
 msgid "search_by_email_or_last_name"
 msgstr "search by email or last name"
+
+msgid "sector"
+msgstr "Sector"
 
 msgid "sector_representation"
 msgstr "Within the sector (board and/or council)"
