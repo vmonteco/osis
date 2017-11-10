@@ -187,5 +187,7 @@ def search(**kwargs):
             qs = qs.filter(education_group_type__in=kwargs['education_group_type'])
         else:
             qs = qs.filter(education_group_type=kwargs['education_group_type'])
+    elif "category" in kwargs:
+        qs = qs.filter(education_group_type__category=kwargs['category'])
 
     return qs.select_related('education_group_type', 'academic_year')

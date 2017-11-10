@@ -52,8 +52,9 @@ class SelectWithData(forms.Select):
     def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
         option_dict = super(forms.Select, self).create_option(name, value, label, selected, index,
                                                               subindex=subindex, attrs=attrs)
-        if value:
-            option_dict['attrs']['category'] = self.data_attrs.get(value).category
+        group_type = self.data_attrs.get(value)
+        if group_type:
+            option_dict['attrs']['category'] = group_type.category
         return option_dict
 
 
@@ -86,14 +87,11 @@ class EducationGroupFilter(BootstrapForm):
     def get_object_list(self):
         clean_data = {key: value for key, value in self.cleaned_data.items() if value is not None}
 
-        offer_year_entity_prefetch = models.Prefetch(
-            'offeryearentity_set',
+        entity_versions_prefetch = models.Prefetch('entity__entityversion_set', to_attr='entity_versions')
+        offer_year_entity_prefetch = models.Prefetch('offeryearentity_set',
             queryset=offer_year_entity.search(type=offer_year_entity_type.ENTITY_MANAGEMENT)\
-                                      .prefetch_related(
-                                         models.Prefetch('entity__entityversion_set', to_attr='entity_versions')
-                                      ),
-            to_attr='offer_year_entities'
-        )
+                                                     .prefetch_related(entity_versions_prefetch),
+                                                     to_attr='offer_year_entities')
         if clean_data.get('entity_management'):
             clean_data['id'] = _get_filter_entity_management(clean_data['entity_management'])
 

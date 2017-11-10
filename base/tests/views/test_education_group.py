@@ -29,8 +29,11 @@ from unittest import mock
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
 
+from base.forms.education_groups import EducationGroupFilter
 from base.models.academic_calendar import AcademicCalendar
-from base.models.enums.education_group_categories import TRAINING
+from base.models.education_group_year import EducationGroupYear
+from base.models.enums import education_group_categories
+from base.models.enums.education_group_categories import TRAINING, MINI_TRAINING
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_organization import EducationGroupOrganizationFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
@@ -49,6 +52,10 @@ class EducationGroupViewTestCase(TestCase):
                                                  end_date=today.replace(year=today.year + 1),
                                                  year=today.year)
 
+        self.type_training = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
+        self.type_minitraining = EducationGroupTypeFactory(category=education_group_categories.MINI_TRAINING)
+        self.type_group = EducationGroupTypeFactory(category=education_group_categories.GROUP)
+
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
     def test_education_groups_search(self, mock_render, mock_decorators):
@@ -66,7 +73,8 @@ class EducationGroupViewTestCase(TestCase):
         request = request_factory.get(reverse(education_groups), data={
             'acronym': 'EDPH2',
             'academic_year': self.academic_year.id,
-            'type': ''  # Simulate all type
+            'category': '',
+            'education_group_type': ''
         })
         request.user = mock.Mock()
 
@@ -78,6 +86,93 @@ class EducationGroupViewTestCase(TestCase):
 
         self.assertEqual(template, 'education_groups.html')
         self.assertEqual(len(context['object_list']), 1)
+
+    @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.views.layout.render')
+    def test_education_groups_search_by_type(self, mock_render, mock_decorators):
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+
+        request_factory = RequestFactory()
+
+        # Create educations group year
+        EducationGroupYearFactory(acronym='EDPH2', academic_year=self.academic_year)
+        EducationGroupYearFactory(acronym='ARKE2A', academic_year=self.academic_year)
+        result = EducationGroupYearFactory(acronym='HIST2A', academic_year=self.academic_year,
+                                  education_group_type=self.type_minitraining)
+
+        from base.views.education_group import education_groups
+        request = request_factory.get(reverse(education_groups), data={
+            'acronym': '',
+            'academic_year': self.academic_year.id,
+            'category': '',
+            'education_group_type': self.type_minitraining.id
+        })
+        request.user = mock.Mock()
+
+        education_groups(request)
+
+        self.assertTrue(mock_render.called)
+
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'education_groups.html')
+        self.assertEqual(len(context['object_list']), 1)
+        self.assertIn(result, context['object_list'])
+
+    @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.views.layout.render')
+    def test_education_groups_search_by_category(self, mock_render, mock_decorators):
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+
+        request_factory = RequestFactory()
+
+        # Create educations group year
+        EducationGroupYearFactory(acronym='EDPH2', academic_year=self.academic_year)
+        EducationGroupYearFactory(acronym='ARKE2A', academic_year=self.academic_year)
+        result = EducationGroupYearFactory(acronym='HIST2A', academic_year=self.academic_year,
+                                           education_group_type=self.type_minitraining)
+
+        from base.views.education_group import education_groups
+        request = request_factory.get(reverse(education_groups), data={
+            'acronym': '',
+            'academic_year': self.academic_year.id,
+            'category': MINI_TRAINING,
+            'education_group_type': ''
+        })
+        request.user = mock.Mock()
+
+        education_groups(request)
+
+        self.assertTrue(mock_render.called)
+
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'education_groups.html')
+        self.assertEqual(len(context['object_list']), 1)
+        self.assertIn(result, context['object_list'])
+
+    @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.views.layout.render')
+    def test_education_groups_search_post(self, mock_render, mock_decorators):
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+
+        request_factory = RequestFactory()
+
+        from base.views.education_group import education_groups
+        request = request_factory.post(reverse(education_groups), data={})
+        request.user = mock.Mock()
+
+        education_groups(request)
+
+        self.assertTrue(mock_render.called)
+
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'education_groups.html')
+        self.assertIsInstance(context.get('form'), EducationGroupFilter)
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
