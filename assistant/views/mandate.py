@@ -51,6 +51,7 @@ def user_is_manager(user):
 def mandate_edit(request):
     mandate_id = request.POST.get("mandate_id")
     mandate = assistant_mdl.assistant_mandate.find_mandate_by_id(mandate_id)
+    supervisor = mandate.assistant.supervisor
     form = MandateForm(initial={'comment': mandate.comment,
                                 'renewal_type': mandate.renewal_type,
                                 'absences': mandate.absences,
@@ -60,7 +61,8 @@ def mandate_edit(request):
                                 }, prefix="mand", instance=mandate)
     formset = entity_inline_formset(instance=mandate, prefix="entity")
     
-    return layout.render(request, 'mandate_form.html', {'mandate': mandate, 'form': form, 'formset': formset})
+    return layout.render(request, 'mandate_form.html', {'mandate': mandate, 'form': form, 'formset': formset,
+                                                        'supervisor': supervisor})
 
 
 @user_passes_test(user_is_manager, login_url='access_denied')
