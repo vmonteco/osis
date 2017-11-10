@@ -28,6 +28,7 @@ from django.core.urlresolvers import reverse
 
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
+from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 
 
 class TestLearningUnitModificationProposal(TestCase):
@@ -60,6 +61,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
         self.assertEqual(response.context['experimental_phase'], True)
         self.assertEqual(response.context['person'], None)
+        self.assertIsInstance(response.context['form'], LearningUnitProposalModificationForm)
 
     def test_get_request(self):
         response = self.client.get(self.url)
@@ -69,3 +71,23 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
         self.assertEqual(response.context['experimental_phase'], True)
         self.assertEqual(response.context['person'], self.person)
+
+        self.assertIsInstance(response.context['form'], LearningUnitProposalModificationForm)
+        form_initial = response.context['form'].initial
+        self.assertEqual(form_initial['academic_year'], self.learning_unit_year.academic_year.pk)
+        self.assertEqual(form_initial['first_letter'], self.learning_unit_year.acronym[0])
+        self.assertEqual(form_initial['acronym'], self.learning_unit_year.acronym[1:])
+        self.assertEqual(form_initial['title'], self.learning_unit_year.title)
+        self.assertEqual(form_initial['title_english'], self.learning_unit_year.title_english)
+        self.assertEqual(form_initial['subtype'], self.learning_unit_year.subtype)
+        self.assertEqual(form_initial['internship_subtype'], self.learning_unit_year.internship_subtype)
+        self.assertEqual(form_initial['credits'], self.learning_unit_year.credits)
+        self.assertEqual(form_initial['periodicity'], self.learning_unit_year.learning_unit.periodicity)
+        self.assertEqual(form_initial['status'], self.learning_unit_year.status)
+        self.assertEqual(form_initial['language'], self.learning_unit_year.learning_container_year.language)
+        self.assertEqual(form_initial['quadrimester'], self.learning_unit_year.quadrimester)
+        # self.assertEqual(form_initial['requirement_entity'], None)
+        # self.assertEqual(form_initial['allocation_entity'], None)
+        # self.assertEqual(form_initial['additional_entity_1'], None)
+        # self.assertEqual(form_initial['additional_entity_2'], None)
+        self.assertEqual(form_initial['campus'], self.learning_unit_year.learning_container_year.campus)

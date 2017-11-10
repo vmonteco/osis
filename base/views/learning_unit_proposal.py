@@ -28,12 +28,30 @@ from django.contrib.auth.decorators import login_required
 
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import find_by_user
+from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 
 
 @login_required
 def propose_modification_of_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
     user_person = find_by_user(request.user)
+    initial_data = {
+        "academic_year": learning_unit_year.academic_year.pk,
+        "first_letter": learning_unit_year.acronym[0],
+        "acronym": learning_unit_year.acronym[1:],
+        "title": learning_unit_year.title,
+        "title_english": learning_unit_year.title_english,
+        "subtype": learning_unit_year.subtype,
+        "internship_subtype": learning_unit_year.internship_subtype,
+        "credits": learning_unit_year.credits,
+        "periodicity": learning_unit_year.learning_unit.periodicity,
+        "status": learning_unit_year.status,
+        "language": learning_unit_year.learning_container_year.language,
+        "quadrimester": learning_unit_year.quadrimester,
+        "campus": learning_unit_year.learning_container_year.campus
+    }
+    form = LearningUnitProposalModificationForm(initial=initial_data)
     return render(request, 'proposal/learning_unit_modification.html', {'learning_unit_year': learning_unit_year,
                                                                         'person': user_person,
+                                                                        'form': form,
                                                                         'experimental_phase': True})

@@ -33,10 +33,9 @@ from factory.django import DjangoModelFactory
 from faker import Faker
 
 from base.models.enums import learning_unit_year_subtypes
-from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.academic_year import AcademicYearFakerFactory
-from base.tests.factories.learning_unit import LearningUnitFactory
-from base.tests.factories.learning_unit import LearningUnitFakerFactory
+from base.tests.factories.academic_year import AcademicYearFactory, AcademicYearFakerFactory
+from base.tests.factories.learning_unit import LearningUnitFactory, LearningUnitFakerFactory
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from osis_common.utils.datetime import get_tzinfo
 
 fake = Faker()
@@ -65,12 +64,12 @@ class LearningUnitYearFakerFactory(DjangoModelFactory):
         model = "base.LearningUnitYear"
 
     external_id = factory.Sequence(lambda n: '10000000%02d' % n)
-    academic_year = factory.SubFactory(AcademicYearFakerFactory)
+    academic_year = factory.LazyAttribute(lambda obj: obj.learning_container_year.academic_year)
     learning_unit = factory.SubFactory(LearningUnitFakerFactory)
-    learning_container_year = None
+    learning_container_year = factory.SubFactory(LearningContainerYearFactory)
     changed = fake.date_time_this_decade(before_now=True, after_now=True, tzinfo=get_tzinfo())
-    acronym = factory.Sequence(lambda n: 'LUY-%d' % n)
-    title = factory.Sequence(lambda n: 'Learning unit year - %d' % n)
+    acronym = factory.LazyAttribute(lambda obj: obj.learning_container_year.acronym)
+    title = factory.LazyAttribute(lambda obj: obj.learning_container_year.title)
     subtype = factory.Iterator(learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, getter=operator.itemgetter(0))
     credits = factory.fuzzy.FuzzyDecimal(9)
     decimal_scores = False
