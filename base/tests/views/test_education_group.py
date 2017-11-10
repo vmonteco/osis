@@ -125,7 +125,7 @@ class EducationGroupViewTestCase(TestCase):
 
         from base.views.education_group import education_group_read
 
-        education_group_read(request, education_group_year.id)
+        education_group_read(request, education_group_year.id, education_group_year.id)
 
         self.assertTrue(mock_render.called)
 
