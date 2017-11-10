@@ -2204,3 +2204,15 @@ msgstr "Vacant à ne pas publier"
 
 msgid "DO_NOT_ASSIGN"
 msgstr "A ne pas attribuer"
+
+msgid "folder"
+msgstr "Dossier"
+
+msgid "introduced_by"
+msgstr "Introduit par"
+
+msgid "the"
+msgstr "Le"
+
+msgid "proposal_management"
+msgstr "Gestion de la proposition"

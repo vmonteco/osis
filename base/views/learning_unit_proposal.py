@@ -27,10 +27,13 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 
 from base.models.learning_unit_year import LearningUnitYear
+from base.models.person import find_by_user
 
 
 @login_required
 def propose_modification_of_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
+    user_person = find_by_user(request.user)
     return render(request, 'proposal/learning_unit_modification.html', {'learning_unit_year': learning_unit_year,
+                                                                        'person': user_person,
                                                                         'experimental_phase': True})

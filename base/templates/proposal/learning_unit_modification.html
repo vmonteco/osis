@@ -54,9 +54,16 @@
                               <div class="panel-body">
                                   <div class="row">
 
-                                      <div class="form-group col-md-3">
-                                          <label for"inputCode">{% trans 'code'%}</label>
+                                      <div class="col-md-3" style="padding-left:0;">
+                                        <div class="col-md-12">
+                                          <label for"inputCode">{% trans 'acronym'%}*</label>
+                                        </div>
+                                        <div class="col-md-4" style="padding-right:0;">
+                                          <input type "text" class="form-control" id="inputLocationCode" readonly></input>
+                                        </div>
+                                        <div class="col-md-8" style="padding-left:0;">
                                           <input type="text" class="form-control" id="inputCode"></input>
+                                        </div>
                                       </div>
 
                                       <div class="col-md-3">
@@ -82,9 +89,11 @@
 
                                       <div class="col-md-3">
                                           <label>{% trans 'internship_subtype' %}</label>
-                                          {% if learning_unit_year.internship_subtype %}
-                                              {% trans learning_unit_year.internship_subtype %}
-                                          {% endif %}
+                                          <select class="form-control" id="inputType" disabled>
+                                            <option>
+                                              TODO
+                                            </option>
+                                          </select>
                                       </div>
 
                                   </div>
@@ -232,7 +241,69 @@
 
                               </div>
                           </div>
+
+                          <div class="panel panel-default">
+                              <div class="panel-body">
+                                <p>{% trans 'proposal_management' %}</p>
+                                <div class="row">
+
+                                  <div class="col-md-4">
+                                    <label for="inputTypeProposal">{% trans 'type' %}</label>
+                                  </div>
+                                  <div class="col-md-8">
+                                    <input type="text" class="form-control" id="inputTypeProposal" readonly></input>
+                                  </div>
+
+                                  <br><br>
+
+                                  <div class="col-md-4">
+                                    <label for="inputStatus">{% trans 'status' %}</label>
+                                  </div>
+                                  <div class="col-md-8">
+                                    <input type="text" class="form-control" id="inputStatus" readonly></input>
+                                  </div>
+
+                                  <br><br>
+
+                                  <div class="col-md-4">
+                                    <label for="inputFolder">{% trans 'folder' %}</label>
+                                  </div>
+                                  <div class="col-md-4">
+                                    <select class="form-control" id="inputEntityFolder">
+                                      <option>
+                                        TODO
+                                      </option>
+                                    </select>
+                                  </div>
+                                  <div class="col-md-4">
+                                    <input type="number" class="form-control" id="inputFolder" ></input>
+                                  </div>
+
+                                  <br><br>
+
+                                  <div class="col-md-4">
+                                    <b>{% trans 'introduced_by' %}</b>
+                                  </div>
+                                  <div class="col-md-8">
+                                    {{ person|default_if_none:request.user }}
+                                  </div>
+
+                                  <br><br>
+
+                                  <div class="col-md-4">
+                                    <b>{% trans 'the' %}</b>
+                                  </div>
+                                  <div class="col-md-8">
+                                    {% now "d/m/Y" %}
+                                  </div>
+
+                                </div>
+
+                              </div>
+                          </div>
+
                       </div>
+
                   </div>
 
                   <div class="row">
