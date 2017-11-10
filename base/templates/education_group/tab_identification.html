@@ -37,16 +37,44 @@
             {% include "education_group/tabs.html" %}
             <div class="tab-content" id="tab_content">
                 <div role="tabpanel" class="tab-pane active" id="identification">
-                    <br>
-                    {% if education_group_year.category == 'TRAINING' %}
-                        {% include "education_group/identification_training_details.html" %}
-                    {% elif education_group_year.category == 'MINI_TRAINING' %}
-                        {% include "education_group/identification_mini_training_details.html" %}
-                    {% elif education_group_year.category == 'GROUP' %}
-                        {% include "education_group/identification_group_details.html" %}
-                    {% endif %}
+                    <div class="row">
+                        <div class="col-md-3">
+                            <br>
+                            {% include "education_group/training_tree.html" %}
+                        </div>
+                        <div class="col-md-9">
+                            <br>
+                            {% if education_group_year.category == 'TRAINING' %}
+                                {% include "education_group/identification_training_details.html" %}
+                            {% elif education_group_year.category == 'MINI_TRAINING' %}
+                                {% include "education_group/identification_mini_training_details.html" %}
+                            {% elif education_group_year.category == 'GROUP' %}
+                                {% include "education_group/identification_group_details.html" %}
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+{% endblock %}
+{% block script %}
+<script>
+    $(document).ready(function(){
+		$("#browser").treeview({
+			toggle: function() {
+				console.log("%s was toggled.", $(this).find(">span").text());
+			}
+		});
+
+		$("#add").click(function() {
+			var branches = $("<li><span class='folder'>New Sublist</span><ul>" +
+				"<li><span class='file'>Item1</span></li>" +
+				"<li><span class='file'>Item2</span></li></ul></li>").appendTo("#browser");
+			$("#browser").treeview({
+				add: branches
+			});
+		});
+	});
+</script>
 {% endblock %}
