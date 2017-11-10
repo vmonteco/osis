@@ -65,8 +65,7 @@ class LearningComponentYear(SerializableModel):
     @property
     def type_letter_acronym(self):
         if self.learning_container_year.container_type == learning_container_year_types.COURSE:
-            if self.type == learning_component_year_type.LECTURING \
-                    or self.type == learning_component_year_type.PRACTICAL_EXERCISES:
+            if self.type in (learning_component_year_type.LECTURING, learning_component_year_type.PRACTICAL_EXERCISES):
                 return self.acronym
             return None
         else:

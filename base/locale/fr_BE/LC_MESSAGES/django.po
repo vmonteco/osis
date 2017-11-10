@@ -2194,29 +2194,29 @@ msgid "msg_warning_delete_learning_unit"
 msgstr "Cette opération est <strong>permanente</strong> et ne peut pas être défaite. Vous perdrez à jamais"
        " les données liées à l'UE <strong>%s</strong>."
 
-msgid "The learning unit %(acronym)s has been successfully deleted for all years."
-msgstr "L'unité d'enseignement %(acronym)s a été supprimée avec succès pour toutes les années."
+msgid "The learning unit {acronym} has been successfully deleted for all years."
+msgstr "L'unité d'enseignement {acronym} a été supprimée avec succès pour toutes les années."
 
 msgid "cannot_delete_learning_unit_year"
-msgstr "L’UE <strong>%(learning_unit)s</strong> dont vous demandez la suppression à partir de l’année %(year)s fait l’objet des liens suivants à supprimer au préalable :"
+msgstr "L’UE <strong>{learning_unit}</strong> dont vous demandez la suppression à partir de l’année {year} fait l’objet des liens suivants à supprimer au préalable :"
 
 msgid "cannot_delete_learning_unit"
-msgstr "L’UE <strong>%(learning_unit)s</strong> dont vous demandez la suppression fait l’objet des liens suivants à supprimer au préalable :"
+msgstr "L’UE <strong>{learning_unit}</strong> dont vous demandez la suppression fait l’objet des liens suivants à supprimer au préalable :"
 
-msgid "There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s"
-msgstr "%(subtype)s %(acronym)s fait l’objet de %(count)d inscription(s) l’année %(year)s"
+msgid "There is {count} enrollments in {subtype} {acronym} for the year {year}"
+msgstr "{subtype} {acronym} fait l’objet de {count} inscription(s) l’année {year}"
 
-msgid "%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s"
-msgstr "%(subtype)s %(acronym)s est attribué à %(tutor)s l’année %(year)s"
+msgid "{subtype} {acronym} is assigned to {tutor} for the year {year}"
+msgstr "{subtype} {acronym} est attribué à {tutor} l’année {year}"
 
-msgid "%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s"
-msgstr "%(subtype)s %(acronym)s est repris dans le groupement %(group)s du programme %(program)s l’année %(year)s"
+msgid "{subtype} {acronym} is included in the group {group} of the program {program} for the year {year}"
+msgstr "{subtype} {acronym} est repris dans le groupement {group} du programme {program} l’année {year}"
 
-msgid "%(subtype)s %(acronym)s has been deleted for the year %(year)s"
-msgstr "%(subtype)s %(acronym)s a été supprimé(e) pour l'année %(year)s"
+msgid "{subtype} {acronym} has been deleted for the year {year}"
+msgstr "{subtype} {acronym} a été supprimé(e) pour l'année {year}"
 
-msgid "The class %(acronym)s has been deleted for the year %(year)s"
-msgstr "La classe %(acronym)s a été suprrimée pour l'année %(year)s"
+msgid "The class {acronym} has been deleted for the year {year}"
+msgstr "La classe {acronym} a été suprrimée pour l'année {year}"
 
 msgid "the partim"
 msgstr "le partim"
@@ -2236,8 +2236,8 @@ msgstr "Supprimer à partir de cette année académique"
 msgid "Delete all the learning unit"
 msgstr "Supprimer toute l'unité d'enseignement"
 
-msgid "You asked the deletion of the learning unit %(acronym)s from the year %(year)s"
-msgstr "Vous avez demandé la suppression de l'unité d'enseignement %(acronym)s à partir de l'année %(year)s"
+msgid "You asked the deletion of the learning unit {acronym} from the year {year}"
+msgstr "Vous avez demandé la suppression de l'unité d'enseignement {acronym} à partir de l'année {year}"
 
 msgid "publish_attribution_to_portal"
 msgstr "Publication des attributions sur Osis-Portal"

@@ -46,7 +46,7 @@ class LearningClassYear(models.Model):
         )
 
     def __str__(self):
-        return u'%s-%s' %(self.learning_component_year.acronym, self.acronym)
+        return u'{}-{}'.format(self.learning_component_year.acronym, self.acronym)
 
 
 def find_by_id(learning_class_year_id):

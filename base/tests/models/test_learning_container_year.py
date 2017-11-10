@@ -58,7 +58,7 @@ class LearningContainerYearTest(TestCase):
                                            academic_year=self.academic_year, subtype=learning_unit_year_subtypes.FULL)
         msg = []
         self.assertTrue(l_container_year.is_deletable(msg))
-        self.assertListEqual(msg, [])
+        self.assertEqual(len(msg), 0)
 
         l_unit_2 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
                                            academic_year=self.academic_year, subtype=learning_unit_year_subtypes.PARTIM)
@@ -75,39 +75,38 @@ class LearningContainerYearTest(TestCase):
         attribution_charge_2 = AttributionChargeNewFactory(learning_component_year=component.learning_component_year)
 
         l_container_year.is_deletable(msg)
-        self.assertEqual(_("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s")
-                      % {'subtype': _('the partim'),
-                         'acronym': l_unit_2.acronym,
-                         'year': l_unit_2.academic_year,
-                         'count': 3},
-                      msg[0])
+        self.assertEqual(_("There is {count} enrollments in {subtype} {acronym} for the year {year}")
+                         .format(subtype=_('the partim'),
+                                 acronym=l_unit_2.acronym,
+                                 year=l_unit_2.academic_year,
+                                 count=3),
+                         msg[0])
 
-        msg_delete_tutor = _("%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s")
-        self.assertIn(msg_delete_tutor % {'subtype': _('The partim'),
-                                          'acronym': l_unit_2.acronym,
-                                          'year': l_unit_2.academic_year,
-                                          'tutor': attribution_charge_1.attribution.tutor},
+        msg_delete_tutor = _("{subtype} {acronym} is assigned to {tutor} for the year {year}")
+        self.assertIn(msg_delete_tutor.format(subtype=_('The partim'),
+                                              acronym=l_unit_2.acronym,
+                                              year=l_unit_2.academic_year,
+                                              tutor=attribution_charge_1.attribution.tutor),
                       msg)
-        self.assertIn(msg_delete_tutor % {'subtype': _('The partim'),
-                                          'acronym': l_unit_2.acronym,
-                                          'year': l_unit_2.academic_year,
-                                          'tutor': attribution_charge_2.attribution.tutor},
+        self.assertIn(msg_delete_tutor.format(subtype=_('The partim'),
+                                              acronym=l_unit_2.acronym,
+                                              year=l_unit_2.academic_year,
+                                              tutor=attribution_charge_2.attribution.tutor),
                       msg)
 
         msg_delete_offer_type = _(
-            '%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s')
+            '{subtype} {acronym} is included in the group {group} of the program {program} for the year {year}')
 
-        self.assertIn(msg_delete_offer_type
-                      % {'subtype': _('The partim'),
-                         'acronym': l_unit_2.acronym,
-                         'group': group_1.parent.acronym,
-                         'program': group_1.parent.education_group_type,
-                         'year': l_unit_2.academic_year},
+        self.assertIn(msg_delete_offer_type.format(subtype=_('The partim'),
+                                                   acronym=l_unit_2.acronym,
+                                                   group=group_1.parent.acronym,
+                                                   program=group_1.parent.education_group_type,
+                                                   year=l_unit_2.academic_year),
                       msg)
-        self.assertIn(msg_delete_offer_type
-                      % {'subtype': _('The partim'),
-                         'acronym': l_unit_2.acronym,
-                         'group': group_2.parent.acronym,
-                         'program': group_2.parent.education_group_type,
-                         'year': l_unit_2.academic_year},
+
+        self.assertIn(msg_delete_offer_type.format(subtype=_('The partim'),
+                                                   acronym=l_unit_2.acronym,
+                                                   group=group_2.parent.acronym,
+                                                   program=group_2.parent.education_group_type,
+                                                   year=l_unit_2.academic_year),
                       msg)

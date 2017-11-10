@@ -26,7 +26,6 @@
 import re
 from django.db import models
 
-from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.group_element_year import GroupElementYear
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
@@ -113,7 +112,7 @@ class LearningUnitYear(SerializableModel):
         if next_year:
             next_year.delete(msg)
 
-        if self.learning_container_year and self.subtype == FULL:
+        if self.learning_container_year and self.subtype == learning_unit_year_subtypes.FULL:
             self.learning_container_year.delete(msg)
 
         for component in self.get_learning_unit_components():
@@ -121,7 +120,7 @@ class LearningUnitYear(SerializableModel):
 
         result = super().delete(*args, **kwargs)
 
-        subtype = _('The partim') if self.subtype == PARTIM else _('The learning unit')
+        subtype = _('The partim') if self.subtype == learning_unit_year_subtypes.PARTIM else _('The learning unit')
         msg.append(_("%(subtype)s %(acronym)s has been deleted for the year %(year)s") \
                    % {'subtype': subtype,
                       'acronym':  self.acronym,
@@ -134,14 +133,14 @@ class LearningUnitYear(SerializableModel):
     def is_deletable(self, msg):
         enrollment_count = len(learning_unit_enrollment.find_by_learning_unit_year(self))
         if enrollment_count > 0:
-            subtype = _('the partim') if self.subtype == PARTIM else _('the learning unit')
+            subtype = _('the partim') if self.subtype == learning_unit_year_subtypes.PARTIM else _('the learning unit')
             msg.append(_("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s") %
                        {'subtype': subtype,
                         'acronym': self.acronym,
                         'year': self.academic_year,
                         'count': enrollment_count})
 
-        if self.subtype == FULL and self.learning_container_year:
+        if self.subtype == learning_unit_year_subtypes.FULL and self.learning_container_year:
             self.learning_container_year.is_deletable(msg)
 
         for component in self.get_learning_unit_components():
@@ -157,7 +156,7 @@ class LearningUnitYear(SerializableModel):
         return not msg
 
     def get_partims_related(self):
-        if self.subtype == FULL and self.learning_container_year:
+        if self.subtype == learning_unit_year_subtypes.FULL and self.learning_container_year:
             return self.learning_container_year.get_partims_related()
 
     def get_learning_unit_components(self):

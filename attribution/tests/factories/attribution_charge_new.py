@@ -26,12 +26,9 @@
 import string
 import factory
 import factory.fuzzy
-from faker import Faker
 
 from attribution.tests.factories.attribution_new import AttributionNewFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
-
-fake = Faker()
 
 
 class AttributionChargeNewFactory(factory.django.DjangoModelFactory):

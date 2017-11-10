@@ -27,7 +27,7 @@ from django.db import models
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
+from base.models.enums import learning_unit_year_subtypes
 
 
 class GroupElementYearAdmin(admin.ModelAdmin):
@@ -45,7 +45,7 @@ class GroupElementYear(models.Model):
 
     def is_deletable(self, msg):
         if self.parent:
-            subtype = _('The learning unit') if self.child_leaf.subtype == FULL else _('The partim')
+            subtype = _('The learning unit') if self.child_leaf.subtype == learning_unit_year_subtypes.FULL else _('The partim')
             msg.append(
                 _('%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s')
                 % {'subtype': subtype,

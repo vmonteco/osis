@@ -44,7 +44,6 @@ from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.internship_subtypes import TEACHING_INTERNSHIP
 from base.models.enums.learning_container_year_types import COURSE
 from base.models.enums.learning_unit_periodicity import ANNUAL
-from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.enums.learning_unit_year_session import SESSION_P23
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
@@ -627,7 +626,7 @@ class LearningUnitViewTestCase(TestCase):
                 "allocation_entity": self.entity_version.id,
                 "additional_entity_1": self.entity_version.id,
                 "additional_entity_2": self.entity_version.id,
-                "subtype": FULL,
+                "subtype": learning_unit_year_subtypes.FULL,
                 "language": self.language.id,
                 "session": SESSION_P23,
                 "faculty_remark": "faculty remark",
@@ -922,7 +921,7 @@ class LearningUnitYearAdd(TestCase):
             "title": "LAW",
             "title_english": "LAW",
             "requirement_entity": entity_version.id,
-            "subtype": FULL,
+            "subtype": learning_unit_year_subtypes.FULL,
             "language": language.id,
             "session": SESSION_P23,
             "faculty_remark": "faculty remark",
@@ -953,7 +952,8 @@ class LearningUnitDelete(TestCase):
 
         lcy2 = LearningContainerYearFactory()
         ly1 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay1)
-        ly2 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay2, learning_container_year=lcy2, subtype=FULL)
+        ly2 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay2, learning_container_year=lcy2,
+                                      subtype=learning_unit_year_subtypes.FULL)
         ly3 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay3)
         ly4 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay4)
 
@@ -974,7 +974,7 @@ class LearningUnitDelete(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
 
-        self.assertEqual(_('msg_warning_delete_learning_unit') % ly2, context['title'])
+        self.assertEqual(_('msg_warning_delete_learning_unit').format(ly2), context['title'])
 
         # click on accept button
         request = request_factory.post(reverse(learning_unit_delete, args=[ly2.id]))
@@ -1016,7 +1016,8 @@ class LearningUnitDelete(TestCase):
 
         lcy2 = LearningContainerYearFactory()
         ly1 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay1)
-        ly2 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay2, learning_container_year=lcy2, subtype=FULL)
+        ly2 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay2, learning_container_year=lcy2,
+                                      subtype=learning_unit_year_subtypes.FULL)
         ly3 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay3)
         ly4 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay4)
 
@@ -1037,7 +1038,7 @@ class LearningUnitDelete(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
 
-        self.assertEqual(_('msg_warning_delete_learning_unit') % l1, context['title'])
+        self.assertEqual(_('msg_warning_delete_learning_unit').format(l1), context['title'])
 
         # click on accept button
         request = request_factory.post(reverse(learning_unit_delete_all, args=[ly2.id]))
@@ -1093,16 +1094,15 @@ class LearningUnitDelete(TestCase):
 
         msg = context.get('messages_deletion', [])
         self.assertEqual(_('cannot_delete_learning_unit_year')
-                         % {'learning_unit': ly1.acronym,
-                            'year': ly1.academic_year},
+                         .format(learning_unit=ly1.acronym, year=ly1.academic_year),
                          context['title'])
 
-        subtype = _('the partim') if ly1.subtype == PARTIM else _('the learning unit')
-        self.assertIn(_("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s")
-                      % {'subtype': subtype,
-                         'acronym': ly1.acronym,
-                         'year': ly1.academic_year,
-                         'count': 1},
+        subtype = _('the partim') if ly1.subtype == learning_unit_year_subtypes.PARTIM else _('the learning unit')
+        self.assertIn(_("There is {count} enrollments in {subtype} {acronym} for the year {year}")
+                      .format(subtype=subtype,
+                              acronym=ly1.acronym,
+                              year=ly1.academic_year,
+                              count=1),
                       msg)
 
         self.assertIsNotNone(LearningUnitYear.objects.get(id=ly1.id))
@@ -1134,16 +1134,15 @@ class LearningUnitDelete(TestCase):
         request, template, context = mock_render.call_args[0]
 
         msg = context.get('messages_deletion', [])
-        self.assertEqual(_('cannot_delete_learning_unit')
-                         % {'learning_unit': l1.acronym},
+        self.assertEqual(_('cannot_delete_learning_unit').format(learning_unit=l1.acronym),
                          context['title'])
 
-        subtype = _('the partim') if ly1.subtype == PARTIM else _('the learning unit')
-        self.assertIn(_("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s")
-                      % {'subtype': subtype,
-                         'acronym': ly1.acronym,
-                         'year': ly1.academic_year,
-                         'count': 1},
+        subtype = _('the partim') if ly1.subtype == learning_unit_year_subtypes.PARTIM else _('the learning unit')
+        self.assertIn(_("There is {count} enrollments in {subtype} {acronym} for the year {year}")
+                      .format(subtype=subtype,
+                              acronym=ly1.acronym,
+                              year=ly1.academic_year,
+                              count=1),
                       msg)
 
         self.assertIsNotNone(LearningUnitYear.objects.get(id=ly1.id))

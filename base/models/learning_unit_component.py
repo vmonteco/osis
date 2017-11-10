@@ -26,8 +26,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
-from base.models.enums import component_type
-from base.models.enums.learning_unit_year_subtypes import PARTIM
+from base.models.enums import component_type, learning_unit_year_subtypes
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from django.utils.translation import ugettext_lazy as _
 
@@ -65,7 +64,7 @@ class LearningUnitComponent(SerializableModel):
         for attribution_charge in self.learning_component_year.get_attributions_charge():
             attribution = attribution_charge.attribution
 
-            subtype = _('The partim') if self.learning_unit_year.subtype == PARTIM else _('The learning unit')
+            subtype = _('The partim') if self.learning_unit_year.subtype == learning_unit_year_subtypes.PARTIM else _('The learning unit')
             msg.append(_("%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s") %
                        {'subtype': subtype,
                         'acronym': self.learning_unit_year.acronym,

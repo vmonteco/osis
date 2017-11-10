@@ -51,14 +51,16 @@ class TestSendMessage(TestCase):
                                                                                           self.offer_year,
                                                                                           self.learning_unit_year)
 
-        self.msg_list = ['The partim TEST_A has been deleted for the year '+str(self.academic_year.year),
-                         'The partim TEST_B has been deleted for the year '+str(self.academic_year.year),
-                         'The class TEST_C has been deleted for the year '+str(self.academic_year.year),
-                         'The class TEST_A_C1 has been deleted for the year '+str(self.academic_year.year),
-                         'The class TEST_A_C2 has been deleted for the year '+str(self.academic_year.year),
-                         'The class TEST_B_C1 has been deleted for the year '+str(self.academic_year.year),
-                         'The class TEST_B_C2 has been deleted for the year '+str(self.academic_year.year),
-                         'The learning unit TEST has been successfully deleted for all years']
+        self.msg_list = [
+            'The partim TEST_A has been deleted for the year '+str(self.academic_year.year),
+            'The partim TEST_B has been deleted for the year '+str(self.academic_year.year),
+            'The class TEST_C has been deleted for the year '+str(self.academic_year.year),
+            'The class TEST_A_C1 has been deleted for the year '+str(self.academic_year.year),
+            'The class TEST_A_C2 has been deleted for the year '+str(self.academic_year.year),
+            'The class TEST_B_C1 has been deleted for the year '+str(self.academic_year.year),
+            'The class TEST_B_C2 has been deleted for the year '+str(self.academic_year.year),
+            'The learning unit TEST has been successfully deleted for all years'
+        ]
 
         add_message_template_html()
         add_message_template_txt()

@@ -27,10 +27,8 @@ from django.test import TestCase
 from django.utils import timezone
 from attribution.models import attribution
 from base.models import learning_unit_year
-from base.models.enums.learning_unit_year_subtypes import PARTIM, FULL
+from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit_year import LearningUnitYear
-from base.tests.factories.learning_class_year import LearningClassYearFactory
-from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from base.tests.factories.learning_unit_enrollment import LearningUnitEnrollmentFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.academic_year import AcademicYearFactory
@@ -79,15 +77,15 @@ class LearningUnitYearTest(TestCase):
     def test_is_deletable(self):
         l_container_year = LearningContainerYearFactory(acronym="LBIR1212", academic_year=self.academic_year)
         l_unit_1 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
-                                           academic_year=self.academic_year, subtype=FULL)
+                                           academic_year=self.academic_year, subtype=learning_unit_year_subtypes.FULL)
         msg = []
         self.assertTrue(l_unit_1.is_deletable(msg))
         self.assertEqual(msg, [])
 
         l_unit_2 = LearningUnitYearFactory(acronym="LBIR1212A", learning_container_year=l_container_year,
-                                           academic_year=self.academic_year, subtype=PARTIM)
+                                           academic_year=self.academic_year, subtype=learning_unit_year_subtypes.PARTIM)
         l_unit_3 = LearningUnitYearFactory(acronym="LBIR1212B", learning_container_year=l_container_year,
-                                           academic_year=self.academic_year, subtype=PARTIM)
+                                           academic_year=self.academic_year, subtype=learning_unit_year_subtypes.PARTIM)
 
         LearningUnitEnrollmentFactory(learning_unit_year=l_unit_1)
         LearningUnitEnrollmentFactory(learning_unit_year=l_unit_2)
