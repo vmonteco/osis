@@ -113,7 +113,6 @@ def send_mail_after_the_learning_unit_year_deletion(managers, acronym, academic_
     #Later on, we will have to call a function like 'get_managers(learning_unit_year)' instead.
     #Something like this :
     #managers = learning_unit_year.get_managers_of_learning_unit_year(learning_unit_year)
-    #managers = []
 
     html_template_ref = 'learning_unit_year_deletion_html'
     txt_template_ref = 'learning_unit_year_deletion_txt'

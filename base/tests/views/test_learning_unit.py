@@ -468,7 +468,6 @@ class LearningUnitViewTestCase(TestCase):
         self.learning_component_yr.refresh_from_db()
         self.assertEqual(response.status_code, 302)
 
-
     def test_component_save_delete_link(self):
         learning_unit_yr = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                    learning_container_year=self.learning_container_yr)
@@ -945,44 +944,43 @@ class LearningUnitDelete(TestCase):
         mock_program_manager.return_value = True
 
         l1 = LearningUnitFactory()
-        ay1 = AcademicYearFactory(year=2000)
-        ay2 = AcademicYearFactory(year=2001)
-        ay3 = AcademicYearFactory(year=2002)
-        ay4 = AcademicYearFactory(year=2003)
+        academic_years = [AcademicYearFactory(year=2000 + y) for y in range(4)]
 
         lcy2 = LearningContainerYearFactory()
-        ly1 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay1)
-        ly2 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay2, learning_container_year=lcy2,
-                                      subtype=learning_unit_year_subtypes.FULL)
-        ly3 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay3)
-        ly4 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay4)
+        learning_unit_years = [LearningUnitYearFactory(learning_unit=l1, academic_year=academic_years[y]) for y in
+                               range(4)]
+        learning_unit_years[1].learning_container_year = lcy2
+        learning_unit_years[1].subtype = learning_unit_year_subtypes.FULL
+        learning_unit_years[1].save()
 
         lcomponent = LearningComponentYearFactory()
-        lclass = LearningClassYearFactory(learning_component_year=lcomponent)
-        lclass = LearningClassYearFactory(learning_component_year=lcomponent)
-        lunitcompont = LearningUnitComponentFactory(learning_unit_year=ly2, learning_component_year=lcomponent)
+
+        LearningClassYearFactory(learning_component_year=lcomponent)
+        LearningClassYearFactory(learning_component_year=lcomponent)
+        LearningUnitComponentFactory(learning_unit_year=learning_unit_years[1],
+                                     learning_component_year=lcomponent)
 
         from base.views.learning_unit import learning_unit_delete
 
         request_factory = RequestFactory()
 
-        request = request_factory.get(reverse(learning_unit_delete, args=[ly2.id]))
+        request = request_factory.get(reverse(learning_unit_delete, args=[learning_unit_years[1].id]))
         request.user = mock.Mock()
 
-        learning_unit_delete(request, ly2.id)
+        learning_unit_delete(request, learning_unit_years[1].id)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
 
-        self.assertEqual(_('msg_warning_delete_learning_unit') % ly2, context['title'])
+        self.assertEqual(_('msg_warning_delete_learning_unit') % learning_unit_years[1], context['title'])
 
         # click on accept button
-        request = request_factory.post(reverse(learning_unit_delete, args=[ly2.id]))
+        request = request_factory.post(reverse(learning_unit_delete, args=[learning_unit_years[1].id]))
         request.user = mock.Mock()
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
-        learning_unit_delete(request, ly2.id)
+        learning_unit_delete(request, learning_unit_years[1].id)
 
         msg_level = [m.level for m in get_messages(request)]
         msg = [m.message for m in get_messages(request)]
@@ -990,15 +988,15 @@ class LearningUnitDelete(TestCase):
         self.assertIn(messages.SUCCESS, msg_level)
 
         with self.assertRaises(ObjectDoesNotExist):
-            LearningUnitYear.objects.get(id=ly2.id)
+            LearningUnitYear.objects.get(id=learning_unit_years[1].id)
 
         with self.assertRaises(ObjectDoesNotExist):
-            LearningUnitYear.objects.get(id=ly3.id)
+            LearningUnitYear.objects.get(id=learning_unit_years[2].id)
 
         with self.assertRaises(ObjectDoesNotExist):
-            LearningUnitYear.objects.get(id=ly4.id)
+            LearningUnitYear.objects.get(id=learning_unit_years[3].id)
 
-        self.assertIsNotNone(LearningUnitYear.objects.get(id=ly1.id))
+        self.assertIsNotNone(LearningUnitYear.objects.get(id=learning_unit_years[0].id))
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
@@ -1009,31 +1007,29 @@ class LearningUnitDelete(TestCase):
         mock_program_manager.return_value = True
 
         l1 = LearningUnitFactory()
-        ay1 = AcademicYearFactory(year=2000)
-        ay2 = AcademicYearFactory(year=2001)
-        ay3 = AcademicYearFactory(year=2002)
-        ay4 = AcademicYearFactory(year=2003)
+        academic_years = [AcademicYearFactory(year=2000 + y) for y in range(4)]
 
         lcy2 = LearningContainerYearFactory()
-        ly1 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay1)
-        ly2 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay2, learning_container_year=lcy2,
-                                      subtype=learning_unit_year_subtypes.FULL)
-        ly3 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay3)
-        ly4 = LearningUnitYearFactory(learning_unit=l1, academic_year=ay4)
+
+        learning_unit_years = [LearningUnitYearFactory(learning_unit=l1, academic_year=academic_years[y]) for y in
+                               range(4)]
+        learning_unit_years[1].learning_container_year = lcy2
+        learning_unit_years[1].subtype = learning_unit_year_subtypes.FULL
+        learning_unit_years[1].save()
 
         lcomponent = LearningComponentYearFactory()
-        lclass = LearningClassYearFactory(learning_component_year=lcomponent)
-        lclass = LearningClassYearFactory(learning_component_year=lcomponent)
-        lunitcompont = LearningUnitComponentFactory(learning_unit_year=ly2, learning_component_year=lcomponent)
+        LearningClassYearFactory(learning_component_year=lcomponent)
+        LearningClassYearFactory(learning_component_year=lcomponent)
+        LearningUnitComponentFactory(learning_unit_year=learning_unit_years[1], learning_component_year=lcomponent)
 
         from base.views.learning_unit import learning_unit_delete_all
 
         request_factory = RequestFactory()
 
-        request = request_factory.get(reverse(learning_unit_delete_all, args=[ly2.id]))
+        request = request_factory.get(reverse(learning_unit_delete_all, args=[learning_unit_years[1].id]))
         request.user = mock.Mock()
 
-        learning_unit_delete_all(request, ly2.id)
+        learning_unit_delete_all(request, learning_unit_years[1].id)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -1041,31 +1037,21 @@ class LearningUnitDelete(TestCase):
         self.assertEqual(_('msg_warning_delete_learning_unit') % l1, context['title'])
 
         # click on accept button
-        request = request_factory.post(reverse(learning_unit_delete_all, args=[ly2.id]))
+        request = request_factory.post(reverse(learning_unit_delete_all, args=[learning_unit_years[1].id]))
         request.user = mock.Mock()
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
-        learning_unit_delete_all(request, ly2.id)
+        learning_unit_delete_all(request, learning_unit_years[1].id)
 
         msg_level = [m.level for m in get_messages(request)]
         msg = [m.message for m in get_messages(request)]
-
         self.assertEqual(len(msg), 5)
         self.assertIn(messages.SUCCESS, msg_level)
 
-        with self.assertRaises(ObjectDoesNotExist):
-            LearningUnitYear.objects.get(id=ly2.id)
-
-        with self.assertRaises(ObjectDoesNotExist):
-            LearningUnitYear.objects.get(id=ly3.id)
-
-        with self.assertRaises(ObjectDoesNotExist):
-            LearningUnitYear.objects.get(id=ly4.id)
-
-        with self.assertRaises(ObjectDoesNotExist):
-            LearningUnitYear.objects.get(id=ly1.id)
-
+        for y in range(4):
+            with self.assertRaises(ObjectDoesNotExist):
+                LearningUnitYear.objects.get(id=learning_unit_years[y].id)
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')

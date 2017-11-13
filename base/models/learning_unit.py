@@ -76,13 +76,17 @@ class LearningUnit(SerializableModel):
         return not msg
 
     def get_learning_units_year(self):
-        return LearningUnitYear.objects.filter(learning_unit=self)
+        return LearningUnitYear.objects.filter(learning_unit=self).order_by('academic_year__year')\
+            .select_related('learning_container_year')
 
     def delete(self, msg=None, *args, **kwargs):
         if msg is None:
             msg = []
-        for ly in self.get_learning_units_year():
-            ly.delete(msg)
+
+        first_learning_unit_year = self.get_learning_units_year().first()
+        if first_learning_unit_year:
+            first_learning_unit_year.delete(msg)
+
         return super().delete(*args, **kwargs)
 
 
