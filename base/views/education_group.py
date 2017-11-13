@@ -165,7 +165,7 @@ def _education_group_administrative_data_tab(request, education_group_year_id):
     context = {'education_group_year': education_group_year,
                'course_enrollment':get_dates(academic_calendar_type.COURSE_ENROLLMENT, education_group_year),
                'mandataries': mdl.mandatary.find_by_education_group_year(education_group_year),
-               'pgm_mgrs': get_program_managers(education_group_year.education_group)}
+               'pgm_mgrs': mdl.program_manager.find_by_education_group(education_group_year.education_group)}
     context.update({'exam_enrollments': get_sessions_dates(academic_calendar_type.EXAM_ENROLLMENTS,education_group_year)})
     context.update({'scores_exam_submission': get_sessions_dates(academic_calendar_type.SCORES_EXAM_SUBMISSION,education_group_year)})
     context.update({'dissertation_submission': get_sessions_dates(academic_calendar_type.DISSERTATION_SUBMISSION,education_group_year)})
@@ -189,8 +189,6 @@ def get_sessions_dates(an_academic_calendar_type, an_education_group_year):
 
 def get_dates(an_academic_calendar_type, an_education_group_year):
     date_dict={}
-    print('get_dates')
-    print(an_academic_calendar_type)
     ac = mdl.academic_calendar.find_by_reference(an_academic_calendar_type, an_education_group_year.academic_year)
     if ac:
         dates = mdl.offer_year_calendar.find_by_education_group_year(ac, an_education_group_year)
@@ -199,5 +197,4 @@ def get_dates(an_academic_calendar_type, an_education_group_year):
     return date_dict
 
 def get_program_managers(an_education_group):
-    print(an_education_group.id)
-    return mdl.program_manager.find_by_education_group(an_education_group)
+    return
