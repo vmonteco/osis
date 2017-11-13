@@ -42,8 +42,10 @@ def generate_start_date(offer_year_calendar):
 
 def generate_end_date(offer_year_calendar):
     if offer_year_calendar.academic_calendar:
-        # return datetime.datetime.combine(offer_year_calendar.academic_calendar.end_date, datetime.datetime.min.time())
-        return datetime.datetime(offer_year_calendar.academic_calendar.end_date.year, offer_year_calendar.academic_calendar.end_date.month, offer_year_calendar.academic_calendar.end_date.day, tzinfo=get_tzinfo())
+        return datetime.datetime(offer_year_calendar.academic_calendar.end_date.year,
+                                 offer_year_calendar.academic_calendar.end_date.month,
+                                 offer_year_calendar.academic_calendar.end_date.day,
+                                 tzinfo=get_tzinfo())
     else:
         return datetime.datetime(2099, 1, 1, tzinfo=get_tzinfo())
 

@@ -86,9 +86,9 @@ class OfferYearCalendar(models.Model):
         date_ac = getattr(self.academic_calendar, date_field)
         date_oyc = getattr(self.offer_year.academic_year, date_field)
         if date_ac:
-            return  datetime.datetime.combine(date_ac, datetime.datetime.min.time())
+            return datetime(year=date_ac.year, month=date_ac.month, day=date_ac.day)
         elif date_oyc:
-            return datetime.datetime.combine(date_oyc, datetime.datetime.min.time())
+            return datetime(year=date_oyc.year, month=date_oyc.month, day=date_oyc.day)
         else:
             None
 
