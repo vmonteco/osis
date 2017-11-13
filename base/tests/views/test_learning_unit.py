@@ -974,7 +974,7 @@ class LearningUnitDelete(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
 
-        self.assertEqual(_('msg_warning_delete_learning_unit').format(ly2), context['title'])
+        self.assertEqual(_('msg_warning_delete_learning_unit') % ly2, context['title'])
 
         # click on accept button
         request = request_factory.post(reverse(learning_unit_delete, args=[ly2.id]))
@@ -1038,7 +1038,7 @@ class LearningUnitDelete(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
 
-        self.assertEqual(_('msg_warning_delete_learning_unit').format(l1), context['title'])
+        self.assertEqual(_('msg_warning_delete_learning_unit') % l1, context['title'])
 
         # click on accept button
         request = request_factory.post(reverse(learning_unit_delete_all, args=[ly2.id]))
@@ -1094,15 +1094,16 @@ class LearningUnitDelete(TestCase):
 
         msg = context.get('messages_deletion', [])
         self.assertEqual(_('cannot_delete_learning_unit_year')
-                         .format(learning_unit=ly1.acronym, year=ly1.academic_year),
+                         % {'learning_unit': ly1.acronym,
+                            'year': ly1.academic_year},
                          context['title'])
 
         subtype = _('the partim') if ly1.subtype == learning_unit_year_subtypes.PARTIM else _('the learning unit')
-        self.assertIn(_("There is {count} enrollments in {subtype} {acronym} for the year {year}")
-                      .format(subtype=subtype,
-                              acronym=ly1.acronym,
-                              year=ly1.academic_year,
-                              count=1),
+        self.assertIn(_("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s")
+                      % {'subtype': subtype,
+                         'acronym': ly1.acronym,
+                         'year': ly1.academic_year,
+                         'count': 1},
                       msg)
 
         self.assertIsNotNone(LearningUnitYear.objects.get(id=ly1.id))
@@ -1134,15 +1135,16 @@ class LearningUnitDelete(TestCase):
         request, template, context = mock_render.call_args[0]
 
         msg = context.get('messages_deletion', [])
-        self.assertEqual(_('cannot_delete_learning_unit').format(learning_unit=l1.acronym),
+        self.assertEqual(_('cannot_delete_learning_unit')
+                         % {'learning_unit': l1.acronym},
                          context['title'])
 
         subtype = _('the partim') if ly1.subtype == learning_unit_year_subtypes.PARTIM else _('the learning unit')
-        self.assertIn(_("There is {count} enrollments in {subtype} {acronym} for the year {year}")
-                      .format(subtype=subtype,
-                              acronym=ly1.acronym,
-                              year=ly1.academic_year,
-                              count=1),
+        self.assertIn(_("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s")
+                      % {'subtype': subtype,
+                         'acronym': ly1.acronym,
+                         'year': ly1.academic_year,
+                         'count': 1},
                       msg)
 
         self.assertIsNotNone(LearningUnitYear.objects.get(id=ly1.id))

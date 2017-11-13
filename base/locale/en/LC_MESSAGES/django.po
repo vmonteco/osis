@@ -2188,28 +2188,28 @@ msgid "msg_warning_delete_learning_unit"
 msgstr "This operation is <strong>permanent</strong> and cannot be undone. You will lose for ever"
        " the data linked to the learning unit <strong>%s</strong>."
 
-msgid "The learning unit {acronym} has been successfully deleted for all years."
+msgid "The learning unit %(acronym)s has been successfully deleted for all years."
 msgstr ""
 
 msgid "cannot_delete_learning_unit_year"
-msgstr "Could not delete the LU <strong>{learning_unit}</strong> from the year {year} for the following reasons :"
+msgstr "Could not delete the LU <strong>%(learning_unit)s</strong> from the year %(year)s for the following reasons :"
 
 msgid "cannot_delete_learning_unit"
-msgstr "Could not delete the LU <strong>{learning_unit}</strong> for the following reasons :"
+msgstr "Could not delete the LU <strong>%(learning_unit)s</strong> for the following reasons :"
 
-msgid "There is {count} enrollments in {subtype} {acronym} for the year {year}"
+msgid "There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s"
 msgstr ""
 
-msgid "{subtype} {acronym} is assigned to {tutor} for the year {year}"
+msgid "%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s"
 msgstr ""
 
-msgid "{subtype} {acronym} is included in the group {group} of the program {program} for the year {year}"
+msgid "%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s"
 msgstr ""
 
-msgid "{subtype} {acronym} has been deleted for the year {year}"
+msgid "%(subtype)s %(acronym)s has been deleted for the year %(year)s"
 msgstr ""
 
-msgid "The class {acronym} has been deleted for the year {year}"
+msgid "The class %(acronym)s has been deleted for the year %(year)s"
 msgstr ""
 
 msgid "the partim"
@@ -2224,7 +2224,7 @@ msgstr ""
 msgid "the learning unit"
 msgstr ""
 
-msgid "You asked the deletion of the learning unit {acronym} from the year {year}"
+msgid "You asked the deletion of the learning unit %(acronym)s from the year %(year)s"
 msgstr ""
 
 msgid "Delete from this academic year"

@@ -148,10 +148,9 @@ def learning_unit_delete(request, learning_unit_year_id):
     if learning_unit_year.is_deletable(messages_deletion) and request.method == 'POST':
         try:
             learning_unit_year.delete(messages_deletion)
-
-            success_msg = _("You asked the deletion of the learning unit {acronym} from the year {year}")\
-                .format(acronym=learning_unit_year.acronym, year=learning_unit_year.academic_year)
-
+            success_msg = _("You asked the deletion of the learning unit %(acronym)s from the year %(year)s") \
+                          % {'acronym': learning_unit_year.acronym,
+                             'year': learning_unit_year.academic_year}
             messages.add_message(request, messages.SUCCESS, success_msg)
 
             for msg in messages_deletion:
@@ -167,11 +166,12 @@ def learning_unit_delete(request, learning_unit_year_id):
 
     else:
         if messages_deletion:
-            context = {'title': _("cannot_delete_learning_unit_year").format(learning_unit=learning_unit_year.acronym,
-                                                                             year=learning_unit_year.academic_year),
+            context = {'title': _("cannot_delete_learning_unit_year")
+                                % {'learning_unit': learning_unit_year.acronym,
+                                   'year': learning_unit_year.academic_year},
                        'messages_deletion': messages_deletion}
         else:
-            context = {'title': _("msg_warning_delete_learning_unit").format(learning_unit_year)}
+            context = {'title': _("msg_warning_delete_learning_unit") % learning_unit_year}
 
         return layout.render(request, "learning_unit/deletion.html", context)
 
@@ -186,9 +186,8 @@ def learning_unit_delete_all(request, learning_unit_year_id):
         try:
             learning_unit.delete(messages_deletion)
             messages.add_message(request, messages.SUCCESS,
-                                 _("The learning unit {acronym} has been successfully deleted for all years.")
-                                 .format(acronym=learning_unit.acronym))
-
+                                 _("The learning unit %(acronym)s has been successfully deleted for all years.")
+                                 % {'acronym': learning_unit.acronym})
             for messages_deletion in messages_deletion:
                 messages.add_message(request, messages.SUCCESS, messages_deletion)
 
@@ -201,10 +200,10 @@ def learning_unit_delete_all(request, learning_unit_year_id):
 
     else:
         if messages_deletion:
-            context = {'title': _('cannot_delete_learning_unit').format(learning_unit=learning_unit.acronym),
+            context = {'title': _('cannot_delete_learning_unit') % {'learning_unit': learning_unit.acronym},
                        'messages_deletion': messages_deletion}
         else:
-            context = {'title': _('msg_warning_delete_learning_unit').format(learning_unit)}
+            context = {'title': _('msg_warning_delete_learning_unit') % learning_unit}
 
         return layout.render(request, "learning_unit/deletion.html", context)
 
