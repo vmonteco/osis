@@ -84,13 +84,19 @@
             {% if supervisor is None %}
                 {% trans 'supervisor' %} : {% trans 'no_supervisor' %}
             {% elif mandate.state == 'PHD_SUPERVISOR' %}
-
-				    <label id="label_for_search_persons" for="search_persons">
-					    {% trans 'supervisor' %} : {{ supervisor }}</label>
-				    <input id="search_persons" name="search_persons" size="100" class="form-control"
-                        placeholder="{% trans 'search_by_email_or_last_name' %}">
-                    <input type="hidden" name="person_id" id="person_id">
-
+                {% trans 'supervisor' %} : {{ supervisor }}
+                <br>
+                <label id="label_for_search_persons" for="search_persons">
+                    {% trans 'substitute_supervisor' %}
+                </label>
+                <input id="search_persons" name="search_persons" size="100" class="form-control"
+                       placeholder="{% trans 'search_by_email_or_last_name' %}">
+                <input type="hidden" name="person_id" id="person_id">
+            {% elif mandate.state == 'TRTS' %}
+                {% trans 'supervisor' %} : {{ supervisor }}
+                <div class="checkbox">
+                    <label><input type="checkbox" name="del_rev" value="yes">{% trans 'delete' %}</label>
+                </div>
             {% else %}
                 {% trans 'supervisor' %} : {{ supervisor }}
             {% endif %}
@@ -129,8 +135,8 @@
 </div>
 {% endblock %}
 {% block script %}
-<script type="text/javascript" src="{% static 'js/jquery-ui.js' %}">
-
+<script type="text/javascript" src="{% static 'js/jquery-ui.js' %}"></script>
+<script>
 window.onload = function() {
     $('#person_id').empty();
 };

@@ -617,6 +617,9 @@ msgstr "Startup procedure"
 msgid "students_service"
 msgstr "Information for future students (CIO, shows, Campus Days, Midi Masters,...)"
 
+msgid "substitute_supervisor"
+msgstr "Substitute promoter"
+
 msgid "summary"
 msgstr "Summary"
 

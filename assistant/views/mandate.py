@@ -33,6 +33,7 @@ from openpyxl.writer.excel import save_virtual_workbook
 from base.models.enums import entity_type
 from base.models import academic_year, entity, person
 from base.views import layout
+from assistant.utils.send_email import send_message
 from assistant.forms import MandateForm, entity_inline_formset
 from assistant import models as assistant_mdl
 from assistant.models import assistant_mandate, review
@@ -69,6 +70,23 @@ def mandate_edit(request):
 def mandate_save(request):
     mandate_id = request.POST.get("mandate_id")
     mandate = assistant_mdl.assistant_mandate.find_mandate_by_id(mandate_id)
+    if request.POST.get('del_rev'):
+        mandate.assistant.supervisor = None
+        mandate.assistant.save()
+    elif request.POST.get('person_id'):
+        substitute_supervisor = None
+        try:
+            substitute_supervisor = person.find_by_id(request.POST.get('person_id'))
+        except ObjectDoesNotExist:
+            substitute_supervisor = None
+        if substitute_supervisor:
+            mandate.assistant.supervisor = substitute_supervisor
+            mandate.assistant.save()
+            html_template_ref = 'assistant_phd_supervisor_html'
+            txt_template_ref = 'assistant_phd_supervisor_txt'
+            send_message(person=substitute_supervisor, html_template_ref=html_template_ref,
+                         txt_template_ref=txt_template_ref, assistant=mandate.assistant)
+
     form = MandateForm(data=request.POST, instance=mandate, prefix='mand')
     formset = entity_inline_formset(request.POST, request.FILES, instance=mandate, prefix='entity')
     if form.is_valid():
@@ -185,6 +203,3 @@ def get_reviews(mandate):
         reviews_details += [vrs_review.remark] if vrs_review.remark is not None else ['']
         reviews_details += [vrs_review.confidential] if vrs_review.confidential is not None else ['']
     return reviews_details
-
-
-
