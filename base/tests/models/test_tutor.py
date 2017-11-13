@@ -111,9 +111,9 @@ class TestTutorAdmin(TestCase):
         setattr(request, 'session', 'session')
         msg = FallbackStorage(request)
         setattr(request, '_messages', msg)
-        ma = tutor.TutorAdmin(tutor.Tutor, self.site)
+        tutor_admin = tutor.TutorAdmin(tutor.Tutor, self.site)
         queryset = tutor.Tutor.objects.all()
-        ma.add_to_group(request, queryset)
+        tutor_admin.add_to_group(request, queryset)
         msg = [m.message for m in get_messages(request)]
         self.assertIn("{} users added to the group 'tutors'.".format(10), msg)
 
@@ -123,8 +123,8 @@ class TestTutorAdmin(TestCase):
         setattr(request, '_messages', msg)
         for group in Group.objects.all():
             group.delete()
-        ma = tutor.TutorAdmin(tutor.Tutor, self.site)
+        tutor_admin = tutor.TutorAdmin(tutor.Tutor, self.site)
         queryset = tutor.Tutor.objects.all()
-        ma.add_to_group(request, queryset)
+        tutor_admin.add_to_group(request, queryset)
         msg = [m.message for m in get_messages(request)]
         self.assertIn("Group tutors doesn't exist.", msg)
