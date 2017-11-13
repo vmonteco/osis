@@ -24,12 +24,12 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-{% with  parent=education_group_year.parent_by_training  %}
+{% with  parent=education_group_year.parent_by_training %}
 <div class="row">
     <div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-body">
-                <label>{% trans 'title_in_french'%}</label><br>
+                <label>{% trans 'title_in_french' %}</label><br>
                 <strong class="text-primary">{{ parent.title | default_if_none:'' }}</strong>
                 {{ education_group_year.title | default_if_none:'-' }}
                 <br><br>
@@ -37,7 +37,7 @@
                 <strong class="text-primary">{{ parent.title_english | default_if_none:'' }}</strong>
                 {{ education_group_year.title_english | default_if_none:'' }}
                 <br><br>
-                <label>{% trans 'keywords'%}</label><br>
+                <label>{% trans 'keywords' %}</label><br>
                 <strong class="text-primary">{{ parent.keywords | default_if_none:'' }}</strong>
                 {{ education_group_year.keywords | default_if_none:'' }}
                 <br>
@@ -47,14 +47,14 @@
             <div class="panel-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <label>{% trans 'type'%}</label><br>
+                        <label>{% trans 'type' %}</label><br>
                         {% if education_group_year.category %}
                             {% trans education_group_year.category %}
-                        {%else%}
+                        {% else %}
                             <strong class="text-primary">{% trans parent.category %}</strong>
                         {% endif %}
                         <br><br>
-                        <label>{% trans 'duration'%}</label><br>
+                        <label>{% trans 'duration' %}</label><br>
                         {% if education_group_year.duration %}
                             {{ education_group_year.duration }}
                             &nbsp;{% trans education_group_year.duration_unit %}
@@ -71,31 +71,31 @@
                         <br><br>
                         <label>{% trans 'internship' %}</label><br>
                         {% if education_group_year.internship %}
-                            {% trans education_group_year.internship%}
+                            {% trans education_group_year.internship %}
                         {% elif parent.internship %}
                             <strong class="text-primary">
-                            {% trans parent.internship%}
+                            {% trans parent.internship %}
                             </strong>
                         {% else %}
                         {% endif %}
                     </div>
                     <div class="col-md-6">
-                        <label>{% trans 'training_type'%}</label><br>
+                        <label>{% trans 'training_type' %}</label><br>
                         {% if education_group_year.education_group_type %}
                             {% trans education_group_year.education_group_type.name %}
                         {% elif parent.education_group_type %}
                 &nbsp;                                    <strong class="text-primary">{% trans parent.education_group_type.name %}</strong>
-                        {%else%}
+                        {% else %}
                         {% endif %}
                         <br><br>
-                        <label>{% trans 'credits'%}</label><br>
+                        <label>{% trans 'credits' %}</label><br>
                         {% if education_group_year.credits %}
                             {{ education_group_year.credits }}
                         {% elif parent.credits %}
                             <strong class="text-primary">{{ parent.credits }}</strong>
                         {% endif %}
                         <br><br>
-                        <label>{% trans 'other_language_activities'%}</label><br>
+                        <label>{% trans 'other_language_activities' %}</label><br>
                         {% if education_group_year.other_language_activities %}
                             {% trans education_group_year.other_language_activities %}
                         {% elif parent.other_language_activities %}
@@ -112,7 +112,7 @@
             <div class="panel-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <label>{% trans 'acronym'%}</label><br>
+                        <label>{% trans 'acronym' %}</label><br>
                         {% if education_group_year.acronym %}
                             {{ education_group_year.acronym }}
                         {% elif parent.acronym %}
@@ -135,66 +135,66 @@
             <div class="panel-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <label>{% trans 'administration_entity'%}</label><br>
+                        <label>{% trans 'administration_entity' %}</label><br>
                         {% if education_group_year.administration_entity %}
                             {{ education_group_year.administration_entity.acronym}}
                         {% elif parent.administration_entity %}
                             <strong class="text-primary">
                             {{ parent.administration_entity.acronym }}
                             </strong>
-                        {% endif%}
+                        {% endif %}
                     </div>
                     <div class="col-md-6">
-                        <label>{% trans 'management_entity'%}</label><br>
+                        <label>{% trans 'management_entity' %}</label><br>
                         {% if education_group_year.management_entity %}
                             {{ education_group_year.management_entity.acronym }}
                         {% elif parent.management_entity %}
                             <strong class="text-primary">
                             {{ parent.management_entity.acronym }}
                             </strong>
-                        {% endif%}
+                        {% endif %}
                     </div>
                 </div>
                 <br>
                 <div class="row">
                     <div class="col-md-6">
-                        <label>{% trans 'start'%}</label><br>
+                        <label>{% trans 'start' %}</label><br>
                         {% if education_group_year.education_group.start_year %}
                             {{ education_group_year.education_group.start_year }}
                         {% elif parent.education_group.start_year %}
                             <strong class="text-primary">
                             {{ parent.education_group.start_year }}
                             </strong>
-                        {%else%}
+                        {% else %}
                             '-'
-                        {%endif%}
+                        {% endif %}
                     </div>
                     <div class="col-md-6">
-                        <label>{% trans 'end'%}</label><br>
+                        <label>{% trans 'end' %}</label><br>
                         {% if education_group_year.education_group.end_year and education_group_year.education_group.end_year != 2099 %}
                             {{ education_group_year.education_group.end_year }}
                         {% elif parent.education_group.end_year and parent.education_group.end_year != 2099 %}
                             <strong class="text-primary">
                             {{ parent.education_group.end_year }}
                             </strong>
-                        {% else%}
+                        {% else %}
                             {% trans 'unspecified' %}
-                        {% endif%}
+                        {% endif %}
                     </div>
                 </div>
                 <br>
                 <div class="row">
                     <div class="col-md-6">
-                        <label>{% trans 'enrollment_campus'%}</label><br>
+                        <label>{% trans 'enrollment_campus' %}</label><br>
                         {% if education_group_year.enrollment_campus %}
                             {{ education_group_year.enrollment_campus }}
                         {% elif parent.enrollment_campus %}
                             <strong class="text-primary">
                             {{ parent.enrollment_campus }}
                             </strong>
-                        {%else%}
+                        {% else %}
                             '-'
-                        {%endif%}
+                        {% endif %}
                     </div>
                     <div class="col-md-6">
                         <label>{% trans 'learning_location'%}</label><br>
@@ -204,21 +204,21 @@
                             <strong class="text-primary">
                             {{ parent.main_teaching_campus }}
                             </strong>
-                        {%else%}
+                        {% else %}
                             '-'
-                        {%endif%}
+                        {% endif %}
                     </div>
                 </div>
                 <br>
-                <label>{% trans 'other_campus_activities'%}</label><br>
+                <label>{% trans 'other_campus_activities' %}</label><br>
                 {% if education_group_year.other_campus_activities %}
                     {% trans education_group_year.other_campus_activities %}
                 {% elif parent.other_campus_activities %}
                     <strong class="text-primary">
                     {% trans parent.other_campus_activities %}
                     </strong>
-                {%else%}
-                {%endif%}
+                {% else %}
+                {% endif %}
                 <br>
             </div>
         </div>
@@ -228,81 +228,80 @@
     <div class="panel-body">
         <label>{% trans 'program_coorganization' %}</label>
         {% if education_group_year.coorganizations %}
-
-        <table class="table" id="tbl_coorganization">
-            <thead>
-            <th>{% trans 'institution'%}</th>
-            <th></th>
-            <th>{% trans 'for_all_students'%}</th>
-            <th>{% trans 'enrollment_campus'%}</th>
-            <th>{% trans 'diploma' %}</th>
-            </thead>
-            {% for c in education_group_year.coorganizations %}
+            <table class="table" id="tbl_coorganization">
                 <tr>
-                    <td>
-                        {{c.address.country.name}} - {{c.address.city}}<br>
-                        {{c.organization.name}}
-                    </td>
-                    <td>{% if c.organization.logo %}
-                            <img src="{{c.organization.logo.url}}"
-                                 width="50px"/>
-                        {%endif%}
-                    </td>
-                    <td>
-                        {% if c.all_students%}
-                        {% trans 'yes' %}
-                        {% else%}
-                        {% trans 'no' %}
-                        {% endif%}
-                    </td>
-                    <td>
-                        {% if c.enrollment_place %}
-                        {% trans 'yes' %}
-                        {% else%}
-                        {% trans 'no' %}
-                        {% endif%}
-                    </td>
-                    <td>
-                        {% if c.diploma %}
-                        {% trans coorganization.diploma %}
-                        {% endif %}
-                    </td>
+                    <th>{% trans 'institution' %}</th>
+                    <th></th>
+                    <th>{% trans 'for_all_students' %}</th>
+                    <th>{% trans 'enrollment_campus' %}</th>
+                    <th>{% trans 'diploma' %}</th>
                 </tr>
-            {% endfor%}
-            {% for c in parent.coorganizations %}
-                <tr class="text-primary">
-                    <td>
-                        {{c.address.country.name}} - {{c.address.city}}<br>
-                        {{c.organization.name}}
-                    </td>
-                    <td>{% if c.organization.logo %}
-                            <img src="{{c.organization.logo.url}}"
-                                 width="50px"/>
-                        {%endif%}
-                    </td>
-                    <td>
-                        {% if c.all_students%}
-                        {% trans 'yes' %}
-                        {% else%}
-                        {% trans 'no' %}
-                        {% endif%}
-                    </td>
-                    <td>
-                        {% if c.enrollment_place %}
-                        {% trans 'yes' %}
-                        {% else%}
-                        {% trans 'no' %}
-                        {% endif%}
-                    </td>
-                    <td>
-                        {% if c.diploma %}
-                        {% trans coorganization.diploma %}
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor%}
-        </table>
-        {% endif%}
+                {% for c in education_group_year.coorganizations %}
+                    <tr>
+                        <td>
+                            {{ c.address.country.name }} - {{ c.address.city }}<br>
+                            {{ c.organization.name }}
+                        </td>
+                        <td>{% if c.organization.logo %}
+                                <img src="{{ c.organization.logo.url }}"
+                                     width="50px"/>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if c.all_students %}
+                                {% trans 'yes' %}
+                            {% else %}
+                                {% trans 'no' %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if c.enrollment_place %}
+                                {% trans 'yes' %}
+                            {% else %}
+                                {% trans 'no' %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if c.diploma %}
+                                {% trans coorganization.diploma %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% for c in parent.coorganizations %}
+                    <tr class="text-primary">
+                        <td>
+                            {{ c.address.country.name }} - {{ c.address.city }}<br>
+                            {{ c.organization.name }}
+                        </td>
+                        <td>{% if c.organization.logo %}
+                                <img src="{{ c.organization.logo.url }}"
+                                     width="50px"/>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if c.all_students %}
+                                {% trans 'yes' %}
+                            {% else%}
+                                {% trans 'no' %}
+                            {% endif%}
+                        </td>
+                        <td>
+                            {% if c.enrollment_place %}
+                                {% trans 'yes' %}
+                            {% else %}
+                                {% trans 'no' %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if c.diploma %}
+                                {% trans coorganization.diploma %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
     </div>
 </div>
 {% endwith %}

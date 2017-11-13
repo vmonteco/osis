@@ -75,11 +75,12 @@ def _check_if_display_message(request, an_education_groups):
 @login_required
 @permission_required('base.can_access_offer', raise_exception=True)
 def education_group_read(request, education_group_year_id):
+    root = request.GET.get('root')
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
     education_group_languages = [education_group_language.language.name for education_group_language in
                                  mdl.education_group_language.find_by_education_group_year(education_group_year)]
-    if request.GET.get('root'):
-        parent = mdl.education_group_year.find_by_id(request.GET.get('root'))
+    if root:
+        parent = mdl.education_group_year.find_by_id(root)
     else:
         parent = education_group_year
     return layout.render(request, "education_group/tab_identification.html", locals())
@@ -88,11 +89,12 @@ def education_group_read(request, education_group_year_id):
 @login_required
 @permission_required('base.can_access_offer', raise_exception=True)
 def education_group_parent_read(request, education_group_year_id):
+    root = request.GET.get('root')
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
     education_group_languages = [education_group_language.language.name for education_group_language in
                                  mdl.education_group_language.find_by_education_group_year(education_group_year)]
-    if request.GET.get('root'):
-        parent = mdl.education_group_year.find_by_id(request.GET.get('root'))
+    if root:
+        parent = mdl.education_group_year.find_by_id(root)
     else:
         parent = education_group_year
     return layout.render(request, "education_group/tab_identification.html", locals())
