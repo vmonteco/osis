@@ -9,7 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('base', '0178_auto_20171031_1544'),
+        ('base', '0181_removed_nullable_uuid'),
     ]
 
     operations = [
@@ -43,5 +43,20 @@ class Migration(migrations.Migration):
             model_name='mandatary',
             name='person',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='base.Person'),
+        ),
+        migrations.AddField(
+            model_name='offeryearcalendar',
+            name='education_group_year',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='base.EducationGroupYear'),
+        ),
+        migrations.AlterField(
+            model_name='offeryearcalendar',
+            name='start_date',
+            field=models.DateTimeField(blank=True, db_index=True, null=True),
+        ),
+        migrations.AlterField(
+            model_name='offeryearcalendar',
+            name='end_date',
+            field=models.DateTimeField(blank=True, db_index=True, null=True),
         ),
     ]
