@@ -59,7 +59,6 @@
                             {% trans education_group_year.education_group_type.name %}
                         {% elif parent.education_group_type %}
                             <strong class="text-primary">{% trans parent.education_group_type.name %}</strong><br>
-                        {% else %}
                         {% endif %}
                         <br><br>
                         <label>{% trans 'academic_type' %}</label><br>
@@ -189,7 +188,6 @@
                             {% trans education_group_year.other_language_activities %}
                         {% elif parent.other_language_activities %}
                             <strong class="text-primary">{% trans parent.other_language_activities %}</strong>
-                        {% else %}
                         {% endif %}
                     </div>
                 </div>
@@ -214,7 +212,6 @@
                             {{ education_group_year.partial_acronym }}
                         {% elif parent.partial_acronym %}
                             <strong class="text-primary">{{ parent.partial_acronym }}</strong>
-                        {% else %}
                         {% endif %}
                     </div>
                 </div>
@@ -231,7 +228,6 @@
                             <strong class="text-primary">
                             {% trans parent.active %}
                             </strong>
-                        {% else %}
                         {% endif %}
                     </div>
                     <div class="col-md-6">
@@ -242,7 +238,6 @@
                             <strong class="text-primary">
                             {% trans parent.schedule_type %}
                             </strong>
-                        {% else %}
                         {% endif %}
                     </div>
                 </div>
@@ -331,7 +326,6 @@
                     <strong class="text-primary">
                     {% trans parent.other_campus_activities %}
                     </strong>
-                {% else %}
                 {% endif %}
                 <br>
             </div>
@@ -381,7 +375,6 @@
                     {% trans education_group_year.funding_direction_cud %}
                 {% elif parent.funding_direction_cud %}
                     <strong class="text-primary">{% trans parent.funding_direction_cud %}</strong>
-                {% else %}&nbsp;
                 {% endif %}
             </div>
         </div>
@@ -426,7 +419,7 @@
                         </td>
                         <td>
                             {% if c.diploma %}
-                            {% trans coorganization.diploma %}
+                                {% trans coorganization.diploma %}
                             {% endif %}
                         </td>
                     </tr>

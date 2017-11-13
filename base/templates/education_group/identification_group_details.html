@@ -44,7 +44,6 @@
                             {{ education_group_year.partial_acronym }}
                         {% elif parent.partial_acronym %}
                             <strong class="text-primary">{{ parent.partial_acronym }}</strong>
-                        {% else %}
                         {% endif %}
                     </div>
                 </div>
@@ -97,8 +96,7 @@
                         {% if education_group_year.education_group_type %}
                             {% trans education_group_year.education_group_type.name %}
                         {% elif parent.education_group_type %}
-                &nbsp;                                    <strong class="text-primary">{% trans parent.education_group_type.name %}</strong>
-                        {%else%}
+                            &nbsp;<strong class="text-primary">{% trans parent.education_group_type.name %}</strong>
                         {% endif %}
                         <br><br>
                         <label>{% trans 'credits' %}</label><br>
@@ -113,7 +111,6 @@
                             {% trans education_group_year.other_language_activities %}
                         {% elif parent.other_language_activities %}
                             <strong class="text-primary">{% trans parent.other_language_activities %}</strong>
-                        {% else %}
                         {% endif %}
                     </div>
                 </div>
@@ -207,7 +204,6 @@
                     <strong class="text-primary">
                     {% trans parent.other_campus_activities %}
                     </strong>
-                {% else %}
                 {% endif %}
                 <br>
             </div>
@@ -227,7 +223,6 @@
                         {{ education_group_year.remark_english }}
                     {% elif parent.remark_english %}
                         <strong class="text-primary">{{ parent.remark_english }}</strong>
-                    {% else %}
                     {% endif %}
                     <br>
                 </div>
