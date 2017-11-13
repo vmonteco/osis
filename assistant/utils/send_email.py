@@ -27,7 +27,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import redirect
 from django.utils import timezone
 from assistant.models import assistant_mandate, settings, manager, reviewer
-from assistant.models.enums import message_type
+from assistant.models.enums import message_type, assistant_mandate_renewal
 from assistant.models.message import Message
 from assistant.utils import manager_access
 from base.models import academic_year
@@ -39,7 +39,7 @@ def send_message_to_assistants(request):
     mandates_for_current_academic_year = assistant_mandate.find_by_academic_year(
         academic_year.current_academic_year())
     for mandate in mandates_for_current_academic_year:
-        if mandate.renewal_type == 'normal':
+        if mandate.renewal_type == assistant_mandate_renewal.NORMAL:
             html_template_ref = 'assistant_assistants_startup_normal_renewal_html'
             txt_template_ref = 'assistant_assistants_startup_normal_renewal_txt'
         else:
