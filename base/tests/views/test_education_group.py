@@ -112,7 +112,9 @@ class EducationGroupViewTestCase(TestCase):
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager', return_value=True)
+    @mock.patch('base.models.education_group_year.find_by_id')
     def test_education_group_read(self,
+                                  mock_find_by_id,
                                   mock_program_manager,
                                   mock_render,
                                   mock_decorators):
@@ -124,8 +126,8 @@ class EducationGroupViewTestCase(TestCase):
         request = mock.Mock(method='GET')
 
         from base.views.education_group import education_group_read
-
-        education_group_read(request, education_group_year.id, education_group_year.id)
+        mock_find_by_id.return_value = education_group_year
+        education_group_read(request, education_group_year.id)
 
         self.assertTrue(mock_render.called)
 
@@ -138,7 +140,9 @@ class EducationGroupViewTestCase(TestCase):
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager', return_value=True)
+    @mock.patch('base.models.education_group_year.find_by_id')
     def test_education_group_parent_read(self,
+                                         mock_find_by_id,
                                          mock_program_manager,
                                          mock_render,
                                          mock_decorators):
@@ -148,11 +152,10 @@ class EducationGroupViewTestCase(TestCase):
         education_group_year_child = EducationGroupYearFactory(academic_year=self.academic_year)
         education_group_year_parent = EducationGroupYearFactory(academic_year=self.academic_year)
         GroupElementYearFactory(parent=education_group_year_parent, child_branch=education_group_year_child)
-
         request = mock.Mock(method='GET')
 
         from base.views.education_group import education_group_parent_read
-
+        mock_find_by_id.return_value = education_group_year_child
         education_group_parent_read(request, education_group_year_child.id)
 
         self.assertTrue(mock_render.called)

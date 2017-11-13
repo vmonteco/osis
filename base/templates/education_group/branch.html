@@ -29,7 +29,7 @@
         <ul>
             <li>
                 <span {% if elem.children_by_group_element_year %} class="folder" {% else %} class="file" {% endif %}>
-                    <a href="{% url 'education_group_read' education_group_year_id=elem.id parent=parent.id %}">
+                    <a href="{% url 'education_group_read' education_group_year_id=elem.id %}?root={{ parent.id}}">
                         {{ elem.acronym }}
                     </a>
                 </span>
