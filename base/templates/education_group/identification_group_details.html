@@ -241,13 +241,13 @@
         {% if education_group_year.coorganizations %}
 
         <table class="table" id="tbl_coorganization">
-            <thead>
-            <th>{% trans 'institution'%}</th>
-            <th></th>
-            <th>{% trans 'for_all_students'%}</th>
-            <th>{% trans 'enrollment_campus'%}</th>
-            <th>{% trans 'diploma' %}</th>
-            </thead>
+            <tr>
+                <th>{% trans 'institution'%}</th>
+                <th></th>
+                <th>{% trans 'for_all_students'%}</th>
+                <th>{% trans 'enrollment_campus'%}</th>
+                <th>{% trans 'diploma' %}</th>
+            </tr>
             {% for c in education_group_year.coorganizations %}
                 <tr>
                     <td>
