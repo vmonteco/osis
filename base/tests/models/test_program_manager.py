@@ -113,4 +113,4 @@ class FindByOfferYearTest(TestCase):
         self.assertIsNone(program_manager.find_by_education_group(None))
         an_education_group= EducationGroupFactory()
         a_program_manager = ProgramManagerFactory(education_group=an_education_group)
-        self.assertEquals(program_manager.find_by_education_group(an_education_group), a_program_manager)
+        self.assertEquals(program_manager.find_by_education_group(an_education_group).first(), a_program_manager)

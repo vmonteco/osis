@@ -1153,7 +1153,7 @@ msgid "learning_unit_title"
 msgstr "Intitulé du cours"
 
 msgid "too_many_results"
-msgstr "Votre recherche retourne trop de résultats, veuillez spécifier la recherche."
+msgstr "Votre recherche renvoie trop de résultats, veuillez affiner vos critères de recherche."
 
 msgid "tooltip_delete_message"
 msgstr "Supprimer le message"

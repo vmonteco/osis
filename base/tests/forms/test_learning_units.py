@@ -23,10 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils import timezone
+from mock import patch
 
 from base.business.learning_unit_year_with_context import is_service_course
+from base.forms.common import TooManyResultsException
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
@@ -37,7 +40,7 @@ from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.models.enums import entity_container_year_link_type
 from reference.tests.factories.country import CountryFactory
-from base.forms.learning_units import LearningUnitYearForm
+from base.forms import learning_units
 
 ACRONYM_LU = "LDROI1001"
 
@@ -63,7 +66,7 @@ class TestLearningUnitForm(TestCase):
         self.build_faculty_entity_tree()
 
         self.build_allocation_entity_not_in_fac_tree()
-        form = LearningUnitYearForm(data=self.get_valid_data())
+        form = learning_units.LearningUnitYearForm(data=self.get_valid_data())
         self.assertTrue(form.is_valid())
         found_learning_units = form.get_activity_learning_units()
         learning_unit = found_learning_units[0]
@@ -77,7 +80,7 @@ class TestLearningUnitForm(TestCase):
 
         self.build_allocation_entity_in_fac_tree()
 
-        form = LearningUnitYearForm(data=self.get_valid_data())
+        form = learning_units.LearningUnitYearForm(data=self.get_valid_data())
         self.assertTrue(form.is_valid())
         found_learning_units = form.get_activity_learning_units()
         learning_unit = found_learning_units[0]
@@ -161,3 +164,10 @@ class TestLearningUnitForm(TestCase):
             learning_container_year=self.l_container_year,
             type=entity_container_year_link_type.ALLOCATION_ENTITY
         )
+
+    @patch("base.models.learning_unit_year.count_search_results")
+    def test_case_maximum_results_reached(self, mock_count):
+        mock_count.return_value = learning_units.MAX_RECORDS + 1
+        form = learning_units.LearningUnitYearForm(data=self.get_valid_data())
+        self.assertRaises(TooManyResultsException, form.is_valid)
+
