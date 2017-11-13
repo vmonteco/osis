@@ -29,10 +29,10 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class ProposalState(Enum):
-    FACULTY = "faculty"
-    CENTRAL = "central"
-    SUSPENDED = "suspended"
-    ACCEPTED = "accepted"
-    REFUSED = "refused"
+    FACULTY = "FACULTY"
+    CENTRAL = "CENTRAL"
+    SUSPENDED = "SUSPENDED"
+    ACCEPTED = "ACCEPTED"
+    REFUSED = "REFUSED"
 
 CHOICES = tuple((name, _(name)) for name, member in ProposalState.__members__.items())

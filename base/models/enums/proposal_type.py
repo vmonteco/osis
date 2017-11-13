@@ -28,10 +28,10 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class ProposalType(Enum):
-    CREATION = "creation"
-    MODIFICATION = "modification"
-    TRANSFORMATION = "transformation"
-    TRANSFORMATION_AND_MODIFICATION = "transformation_and_modification"
-    SUPPRESSION = "suppression"
+    CREATION = "CREATION"
+    MODIFICATION = "MODIFICATION"
+    TRANSFORMATION = "TRANSFORMATION"
+    TRANSFORMATION_AND_MODIFICATION = "TRANSFORMATION_AND_MODIFICATION"
+    SUPPRESSION = "SUPPRESSION"
 
 CHOICES = tuple((name, _(name)) for name, member in ProposalType.__members__.items())

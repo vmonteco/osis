@@ -27,7 +27,7 @@ import re
 
 from django import forms
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.db.models import Prefetch
+from django.db.models import Prefetch, QuerySet
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 

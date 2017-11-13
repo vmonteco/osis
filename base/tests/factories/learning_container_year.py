@@ -30,7 +30,9 @@ import factory.fuzzy
 
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_container import LearningContainerFactory
+from base.tests.factories.campus import CampusFactory
 from base.models.enums import learning_container_year_types
+from reference.tests.factories.language import LanguageFactory
 from osis_common.utils.datetime import get_tzinfo
 
 
@@ -45,6 +47,8 @@ class LearningContainerYearFactory(factory.django.DjangoModelFactory):
                                       getter=operator.itemgetter(0))
     title = factory.Sequence(lambda n: 'Learning container year - %d' % n)
     acronym = factory.Sequence(lambda n: 'LCY-%d' % n)
+    campus = factory.SubFactory(CampusFactory)
+    language = factory.SubFactory(LanguageFactory)
     changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
     in_charge = False
