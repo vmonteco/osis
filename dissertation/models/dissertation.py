@@ -182,7 +182,6 @@ def count_by_proposition(prop_dissert):
 
 
 def get_next_status(dissert, operation):
-    print('in_get_nex_status ,'+ dissert.title +' '+ operation)
     if operation == "go_forward":
         if dissert.status == 'DRAFT' or dissert.status == 'DIR_KO':
             return 'DIR_SUBMIT'
