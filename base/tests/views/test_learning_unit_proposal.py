@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
+
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
@@ -56,12 +58,8 @@ class TestLearningUnitModificationProposal(TestCase):
         self.person.delete()
         response = self.client.get(self.url)
 
-        self.assertTrue(response.status_code, 202)
-        self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
-        self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
-        self.assertEqual(response.context['experimental_phase'], True)
-        self.assertEqual(response.context['person'], None)
-        self.assertIsInstance(response.context['form'], LearningUnitProposalModificationForm)
+        self.assertEqual(response.status_code, 404)
+        self.assertTemplateUsed(response, "page_not_found.html")
 
     def test_get_request(self):
         response = self.client.get(self.url)
@@ -91,3 +89,5 @@ class TestLearningUnitModificationProposal(TestCase):
         # self.assertEqual(form_initial['additional_entity_1'], None)
         # self.assertEqual(form_initial['additional_entity_2'], None)
         self.assertEqual(form_initial['campus'], self.learning_unit_year.learning_container_year.campus)
+        self.assertEqual(form_initial['person'], self.person.pk)
+        self.assertEqual(form_initial['date'], datetime.date.today())
