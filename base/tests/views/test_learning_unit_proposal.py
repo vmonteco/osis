@@ -77,6 +77,8 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(form_initial['acronym'], self.learning_unit_year.acronym[1:])
         self.assertEqual(form_initial['title'], self.learning_unit_year.title)
         self.assertEqual(form_initial['title_english'], self.learning_unit_year.title_english)
+        self.assertEqual(form_initial['learning_container_year_type'], self.learning_unit_year.
+                         learning_container_year.container_type)
         self.assertEqual(form_initial['subtype'], self.learning_unit_year.subtype)
         self.assertEqual(form_initial['internship_subtype'], self.learning_unit_year.internship_subtype)
         self.assertEqual(form_initial['credits'], self.learning_unit_year.credits)

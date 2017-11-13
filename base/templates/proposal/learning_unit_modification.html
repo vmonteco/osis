@@ -56,13 +56,13 @@
 
                                       <div class="col-md-3" style="padding-left:0;">
                                         <div class="col-md-12">
-                                          <label for"inputCode">{% trans 'acronym'%}*</label>
+                                          <label for"id_acronym">{% trans 'acronym'%}*</label>
                                         </div>
                                         <div class="col-md-4" style="padding-right:0;">
-                                          <input type "text" class="form-control" id="inputLocationCode" readonly></input>
+                                          {{ form.first_letter }}
                                         </div>
                                         <div class="col-md-8" style="padding-left:0;">
-                                          <input type="text" class="form-control" id="inputCode"></input>
+                                          {{ form.acronym }}
                                         </div>
                                       </div>
 
@@ -79,21 +79,13 @@
                                       </div>
 
                                       <div class="form_group col-md-3">
-                                          <label for="inputType">{% trans 'type' %}</label>
-                                          <select class="form-control" id="inputType">
-                                            <option>
-                                              TODO
-                                            </option>
-                                          </select>
+                                          <label for="id_learning_container_year_type">{% trans 'type' %}</label>
+                                          {{ form.learning_container_year_type }}
                                       </div>
 
                                       <div class="col-md-3">
-                                          <label>{% trans 'internship_subtype' %}</label>
-                                          <select class="form-control" id="inputType" disabled>
-                                            <option>
-                                              TODO
-                                            </option>
-                                          </select>
+                                          <label for="id_internship_subtype">{% trans 'internship_subtype' %}</label>
+                                          {{ form.internship_subtype }}
                                       </div>
 
                                   </div>
@@ -101,26 +93,18 @@
                                   <div class="row" style="margin-top:10px;">
 
                                       <div class="from-group col-md-3">
-                                          <label for="inputCredits ">{% trans 'nominal_credits' %}</label>
-                                          <input type="text" class="form-control" id="inputCredits"></input>
+                                          <label for="id_credits">{% trans 'nominal_credits' %}</label>
+                                          {{ form.credits }}
                                       </div>
 
                                       <div class="form-group col-md-3">
-                                          <label for="inputPeriodicity">{% trans 'periodicity' %}</label>
-                                          <select class="form-control" id="inputPeriodicity">
-                                            <option>
-                                              TODO
-                                            </option>
-                                          </select>
+                                          <label for="id_periodicity">{% trans 'periodicity' %}</label>
+                                          {{ form.periodicity }}
                                       </div>
 
                                       <div class="form-group col-md-3">
-                                          <label for="inputStatus">{% trans 'status' %}</label>
-                                          <select class="form-control" id="inputStatus">
-                                            <option>
-                                              TODO
-                                            </option>
-                                          </select>
+                                          {{ form.status }}
+                                          <label for="id_status">{% trans 'active_title' %}</label>
                                       </div>
 
                                   </div>
@@ -128,29 +112,25 @@
                                   <br>
 
                                   <div class="form-group">
-                                    <label input="inputTitleOfficial1">{% trans 'title_official' %}</label>
-                                    <input type="text" class="form-control" id="inputTitleOfficial"></input>
+                                    <label for="id_title">{% trans 'title_official' %}</label>
+                                    {{ form.title }}
                                   </div>
 
                                   <div class="form-group">
-                                    <label input="inputTitleEnglish1">{% trans 'title_in_english' %}</label>
-                                    <input type="text" class="form-control" id="inputTitleEnglish"></input>
+                                    <label for="id_title_english">{% trans 'title_in_english' %}</label>
+                                    {{ form.title_english }}
                                   </div>
 
                                   <div class="row">
 
                                     <div class="form-group col-md-3">
-                                        <label for="inputLanguage">{% trans 'language' %}</label>
-                                        <select class="form-control" id="inputLanguage">
-                                          <option>
-                                            TODO
-                                          </option>
-                                        </select>
+                                        <label for="id_language">{% trans 'language' %}</label>
+                                        {{ form.language }}
                                     </div>
 
                                     <div class="col-md-9">
-                                        <label>{% trans 'quadrimester' %}</label>
-                                        {{ learning_unit_year.quadrimester | default_if_none:'' }}
+                                        <label for="id_quadrimester">{% trans 'quadrimester' %}</label>
+                                        {{ form.quadrimester }}
                                     </div>
 
                                   </div>
@@ -176,57 +156,33 @@
                                    <br>
 
                                   <div class="form-group">
-                                      <label for="inputLocalization">{% trans 'localization' %}</label>
-                                      <select class="form-control" id="inputLocalization">
-                                        <option>
-                                          TODO
-                                        </option>
-                                      </select>
+                                      <label for="id_campus">{% trans 'localization' %}</label>
+                                      {{ form.campus }}
                                   </div>
 
                                   <div class="form-group">
-                                      <label for="inputRequirementEntity">{% trans 'requirement_entity'%}</label>
-                                      <select class="form-control" id="inputRequirementEntity">
-                                        <option>
-                                          TODO
-                                        </option>
-                                      </select>
+                                      <label for="id_requirement_entity">{% trans 'requirement_entity'%}</label>
+                                      {{ form.requirement_entity }}
                                   </div>
 
                                   <div class="form-group">
-                                      <label for="inputAllocationEntity">{% trans 'allocation_entity'%}</label>
-                                      <select class="form-control" id="inputAllocationEntity">
-                                        <option>
-                                          TODO
-                                        </option>
-                                      </select>
+                                      <label for="id_allocation_entity">{% trans 'allocation_entity'%}</label>
+                                      {{ form.allocation_entity }}
                                   </div>
 
                                   <div class="form-group">
-                                      <label for="inputAdditionalRequirementEntity1">{% trans 'additional_requirement_entity' %} 1</label>
-                                      <select class="form-control" id="inputAdditionalRequirementEntity1">
-                                        <option>
-                                          TODO
-                                        </option>
-                                      </select>
+                                      <label for="id_additional_entity_1">{% trans 'additional_requirement_entity' %} 1</label>
+                                      {{ form.additional_entity_1 }}
                                   </div>
 
                                   <div class="form-group">
-                                      <label for="inputAdditionalRequirementEntity2">{% trans 'additional_requirement_entity' %} 2</label>
-                                      <select class="form-control" id="inputAdditionalRequirementEntity2">
-                                        <option>
-                                          TODO
-                                        </option>
-                                      </select>
+                                      <label for="id_additional_entity_2">{% trans 'additional_requirement_entity' %} 2</label>
+                                      {{ form.additional_entity_2 }}
                                   </div>
 
                                   <div class="form-group">
-                                    <label for="inputAcademicYear">{% trans 'academic_years'%}</label>
-                                    <select class="form-control" id="inputAcademicYear">
-                                      <option>
-                                        TODO
-                                      </option>
-                                    </select>
+                                    <label for="id_academic_year">{% trans 'academic_years'%}</label>
+                                    {{ form.academic_year }}
                                   </div>
 
                               </div>
@@ -238,7 +194,7 @@
                                 <div class="row">
 
                                   <div class="col-md-4">
-                                    <label for="inputTypeProposal">{% trans 'type' %}</label>
+                                    <label for="id_type_proposal">{% trans 'type' %}</label>
                                   </div>
                                   <div class="col-md-8">
                                     <input type="text" class="form-control" id="inputTypeProposal" readonly></input>
@@ -247,7 +203,7 @@
                                   <br><br>
 
                                   <div class="col-md-4">
-                                    <label for="inputStatus">{% trans 'status' %}</label>
+                                    <label for="id_state_proposal">{% trans 'status' %}</label>
                                   </div>
                                   <div class="col-md-8">
                                     <input type="text" class="form-control" id="inputStatus" readonly></input>
@@ -256,7 +212,7 @@
                                   <br><br>
 
                                   <div class="col-md-4">
-                                    <label for="inputFolder">{% trans 'folder' %}</label>
+                                    <label for="id_folder_id">{% trans 'folder' %}</label>
                                   </div>
                                   <div class="col-md-4">
                                     <select class="form-control" id="inputEntityFolder">

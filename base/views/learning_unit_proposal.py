@@ -43,6 +43,7 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
         "acronym": learning_unit_year.acronym[1:],
         "title": learning_unit_year.title,
         "title_english": learning_unit_year.title_english,
+        "learning_container_year_type": learning_unit_year.learning_container_year.container_type,
         "subtype": learning_unit_year.subtype,
         "internship_subtype": learning_unit_year.internship_subtype,
         "credits": learning_unit_year.credits,
