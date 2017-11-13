@@ -56,7 +56,7 @@
 
                                       <div class="col-md-3" style="padding-left:0;">
                                         <div class="col-md-12">
-                                          <label for"id_acronym">{% trans 'acronym'%}*</label>
+                                          <label for"{{ form.acronym.id_for_label }}">{% trans 'acronym'%}*</label>
                                         </div>
                                         <div class="col-md-4" style="padding-right:0;">
                                           {{ form.first_letter }}
@@ -79,12 +79,12 @@
                                       </div>
 
                                       <div class="form_group col-md-3">
-                                          <label for="id_learning_container_year_type">{% trans 'type' %}</label>
+                                          <label for="{{ form.learning_container_year_type.id_for_label }}">{% trans 'type' %}</label>
                                           {{ form.learning_container_year_type }}
                                       </div>
 
                                       <div class="col-md-3">
-                                          <label for="id_internship_subtype">{% trans 'internship_subtype' %}</label>
+                                          <label for="{{ form.internship_subtype.id_for_label }}">{% trans 'internship_subtype' %}</label>
                                           {{ form.internship_subtype }}
                                       </div>
 
@@ -93,18 +93,18 @@
                                   <div class="row" style="margin-top:10px;">
 
                                       <div class="from-group col-md-3">
-                                          <label for="id_credits">{% trans 'nominal_credits' %}</label>
+                                          <label for="{{ form.credits.id_for_label }}">{% trans 'nominal_credits' %}</label>
                                           {{ form.credits }}
                                       </div>
 
                                       <div class="form-group col-md-3">
-                                          <label for="id_periodicity">{% trans 'periodicity' %}</label>
+                                          <label for="{{ form.periodicity.id_for_label }}">{% trans 'periodicity' %}</label>
                                           {{ form.periodicity }}
                                       </div>
 
                                       <div class="form-group col-md-3">
                                           {{ form.status }}
-                                          <label for="id_status">{% trans 'active_title' %}</label>
+                                          <label for="{{ form.status.id_for_label }}">{% trans 'active_title' %}</label>
                                       </div>
 
                                   </div>
@@ -112,24 +112,24 @@
                                   <br>
 
                                   <div class="form-group">
-                                    <label for="id_title">{% trans 'title_official' %}</label>
+                                    <label for="{{ form.title.id_for_label }}">{% trans 'title_official' %}</label>
                                     {{ form.title }}
                                   </div>
 
                                   <div class="form-group">
-                                    <label for="id_title_english">{% trans 'title_in_english' %}</label>
+                                    <label for="{{ form.title_english.id_for_label }}">{% trans 'title_in_english' %}</label>
                                     {{ form.title_english }}
                                   </div>
 
                                   <div class="row">
 
                                     <div class="form-group col-md-3">
-                                        <label for="id_language">{% trans 'language' %}</label>
+                                        <label for="{{ form.language.id_for_label }}">{% trans 'language' %}</label>
                                         {{ form.language }}
                                     </div>
 
                                     <div class="col-md-9">
-                                        <label for="id_quadrimester">{% trans 'quadrimester' %}</label>
+                                        <label for="{{ form.quadrimester.id_for_label }}">{% trans 'quadrimester' %}</label>
                                         {{ form.quadrimester }}
                                     </div>
 
@@ -148,40 +148,39 @@
                               <div class="panel-body">
 
                                   <label>{% trans 'institution'%}</label><br>
-                                   {% if organization %}
-                                      <a href="{% url 'organization_read' organization_id=organization.id %}">
-                                          {{ organization.name }}
-                                      </a>
+                                   {% if learning_unit_year.learning_container_year.campus %}
+                                          {{ learning_unit_year.learning_container_year.campus.organization.name }}
                                    {% endif %}
-                                   <br>
+
+                                   <br><br>
 
                                   <div class="form-group">
-                                      <label for="id_campus">{% trans 'localization' %}</label>
+                                      <label for="{{ form.campus.id_for_label }}">{% trans 'localization' %}</label>
                                       {{ form.campus }}
                                   </div>
 
                                   <div class="form-group">
-                                      <label for="id_requirement_entity">{% trans 'requirement_entity'%}</label>
+                                      <label for="{{ form.requirement_entity.id_for_label }}">{% trans 'requirement_entity'%}</label>
                                       {{ form.requirement_entity }}
                                   </div>
 
                                   <div class="form-group">
-                                      <label for="id_allocation_entity">{% trans 'allocation_entity'%}</label>
+                                      <label for="{{ form.allocation_entity.id_for_label }}">{% trans 'allocation_entity'%}</label>
                                       {{ form.allocation_entity }}
                                   </div>
 
                                   <div class="form-group">
-                                      <label for="id_additional_entity_1">{% trans 'additional_requirement_entity' %} 1</label>
+                                      <label for="{{ form.additional_entity_1.id_for_label }}">{% trans 'additional_requirement_entity' %} 1</label>
                                       {{ form.additional_entity_1 }}
                                   </div>
 
                                   <div class="form-group">
-                                      <label for="id_additional_entity_2">{% trans 'additional_requirement_entity' %} 2</label>
+                                      <label for="{{ form.additional_entity_2.id_for_label }}">{% trans 'additional_requirement_entity' %} 2</label>
                                       {{ form.additional_entity_2 }}
                                   </div>
 
                                   <div class="form-group">
-                                    <label for="id_academic_year">{% trans 'academic_years'%}</label>
+                                    <label for="{{ form.academic_year.id_for_label }}">{% trans 'academic_years'%}</label>
                                     {{ form.academic_year }}
                                   </div>
 
@@ -194,35 +193,31 @@
                                 <div class="row">
 
                                   <div class="col-md-4">
-                                    <label for="id_type_proposal">{% trans 'type' %}</label>
+                                    <label for="{{ form.type_proposal.id_for_label }}">{% trans 'type' %}</label>
                                   </div>
                                   <div class="col-md-8">
-                                    <input type="text" class="form-control" id="inputTypeProposal" readonly></input>
+                                    {{ form.type_proposal }}
                                   </div>
 
                                   <br><br>
 
                                   <div class="col-md-4">
-                                    <label for="id_state_proposal">{% trans 'status' %}</label>
+                                    <label for="{{ form.state_proposal.id_for_label }}">{% trans 'status' %}</label>
                                   </div>
                                   <div class="col-md-8">
-                                    <input type="text" class="form-control" id="inputStatus" readonly></input>
+                                    {{ form.state_proposal }}
                                   </div>
 
                                   <br><br>
 
                                   <div class="col-md-4">
-                                    <label for="id_folder_id">{% trans 'folder' %}</label>
+                                    <label for="{{ form.folder_id.id_for_label }}">{% trans 'folder' %}</label>
                                   </div>
                                   <div class="col-md-4">
-                                    <select class="form-control" id="inputEntityFolder">
-                                      <option>
-                                        TODO
-                                      </option>
-                                    </select>
+                                    {{ form.folder_entity }}
                                   </div>
                                   <div class="col-md-4">
-                                    <input type="number" class="form-control" id="inputFolder" ></input>
+                                    {{ form.folder_id }}
                                   </div>
 
                                   <br><br>

@@ -31,9 +31,13 @@ from base.models.entity_version import find_main_entities_version
 from base.models.enums import proposal_type, proposal_state
 
 
+def add_none_choice(choices):
+    return ((None, "-----"),) + choices
+
+
 class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
-    type_proposal = forms.ChoiceField(choices=proposal_type.CHOICES)
-    state_proposal = forms.ChoiceField(choices=proposal_state.CHOICES)
+    type_proposal = forms.ChoiceField(choices=add_none_choice(proposal_type.CHOICES))
+    state_proposal = forms.ChoiceField(choices=add_none_choice(proposal_state.CHOICES))
     person = forms.ModelChoiceField(queryset=Person.objects.all(), widget=forms.HiddenInput())
     folder_entity = EntitiesVersionChoiceField(find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
