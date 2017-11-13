@@ -57,7 +57,7 @@ def dict_deletion_learning_unit_year(learning_unit_year):
 
     next_year = learning_unit_year.get_learning_unit_next_year()
     if next_year:
-        msg.update(dict_deletion_learning_unit(next_year))
+        msg.update(dict_deletion_learning_unit_year(next_year))
 
     return msg
 
@@ -102,7 +102,7 @@ def delete_learning_unit(learning_unit):
 
     first_learning_unit_year = learning_unit.get_learning_units_year().first()
     if first_learning_unit_year:
-        msg.extend(first_learning_unit_year.delete(msg))
+        msg.extend(delete_learning_unit_year(first_learning_unit_year))
 
     learning_unit.delete()
 

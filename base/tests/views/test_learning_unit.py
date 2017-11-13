@@ -1084,7 +1084,7 @@ class LearningUnitDelete(TestCase):
                             'year': ly1.academic_year},
                          context['title'])
 
-        subtype = _('the partim') if ly1.subtype == learning_unit_year_subtypes.PARTIM else _('the learning unit')
+        subtype = _('The partim') if ly1.subtype == learning_unit_year_subtypes.PARTIM else _('The learning unit')
         self.assertIn(_("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s")
                       % {'subtype': subtype,
                          'acronym': ly1.acronym,
@@ -1125,7 +1125,7 @@ class LearningUnitDelete(TestCase):
                          % {'learning_unit': l1.acronym},
                          context['title'])
 
-        subtype = _('the partim') if ly1.subtype == learning_unit_year_subtypes.PARTIM else _('the learning unit')
+        subtype = _('The partim') if ly1.subtype == learning_unit_year_subtypes.PARTIM else _('The learning unit')
         self.assertIn(_("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s")
                       % {'subtype': subtype,
                          'acronym': ly1.acronym,

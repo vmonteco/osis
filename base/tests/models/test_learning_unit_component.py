@@ -84,25 +84,3 @@ class LearningComponentYearTest(TestCase):
 
         self.assertEqual(learning_component_year.learning_container_year, learning_unit_year.learning_container_year)
 
-    def test_delete_learning_unit_component_class(self):
-        # Composant annualisé est associé à son composant et à son conteneur annualisé
-        learning_component_year = LearningComponentYearFactory(title="Cours magistral",
-                                                               acronym="/C",
-                                                               comment="TEST")
-
-        number_classes = 10
-        for _ in range(number_classes):
-            LearningClassYearFactory(learning_component_year=learning_component_year)
-
-        # Association du conteneur et de son composant dont les années académiques diffèrent l'une de l'autre
-        learning_unit_component = LearningUnitComponentFactory(learning_component_year=learning_component_year)
-        msg = []
-        learning_unit_component.delete(msg)
-
-        self.assertEqual(LearningClassYear.objects.all().count(), 0)
-        self.assertEqual(len(msg), number_classes)
-        with self.assertRaises(ObjectDoesNotExist):
-            LearningUnitComponent.objects.get(id=learning_component_year.id)
-
-        with self.assertRaises(ObjectDoesNotExist):
-            LearningUnitComponent.objects.get(id=learning_unit_component.id)

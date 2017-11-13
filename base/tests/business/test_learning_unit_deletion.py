@@ -23,14 +23,19 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 
 from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
 from base.business import learning_unit_deletion
 from base.models.enums import learning_unit_year_subtypes
+from base.models.learning_class_year import LearningClassYear
+from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
+from base.tests.factories.learning_class_year import LearningClassYearFactory
+from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
@@ -138,3 +143,25 @@ class LearningUnitYearDeletion(TestCase):
         msg = learning_unit_deletion.delete_learning_unit_year(dict_learning_units[2007])
         self.assertEqual(LearningUnitYear.objects.filter(academic_year__year__gte=2007, learning_unit=l_unit).count(), 0)
         self.assertEqual(len(msg), 10)
+
+    def test_delete_learning_unit_component_class(self):
+        # Composant annualisé est associé à son composant et à son conteneur annualisé
+        learning_component_year = LearningComponentYearFactory(title="Cours magistral",
+                                                               acronym="/C",
+                                                               comment="TEST")
+
+        number_classes = 10
+        for _ in range(number_classes):
+            LearningClassYearFactory(learning_component_year=learning_component_year)
+
+        # Association du conteneur et de son composant dont les années académiques diffèrent l'une de l'autre
+        learning_unit_component = LearningUnitComponentFactory(learning_component_year=learning_component_year)
+        msg = learning_unit_deletion.delete_learning_component_year(learning_component_year)
+
+        self.assertEqual(LearningClassYear.objects.all().count(), 0)
+        self.assertEqual(len(msg), number_classes)
+        with self.assertRaises(ObjectDoesNotExist):
+            LearningUnitComponent.objects.get(id=learning_component_year.id)
+
+        with self.assertRaises(ObjectDoesNotExist):
+            LearningUnitComponent.objects.get(id=learning_unit_component.id)
