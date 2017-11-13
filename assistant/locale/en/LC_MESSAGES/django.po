@@ -52,6 +52,9 @@ msgstr "Mandates renewal procedure dates"
 msgid "apply"
 msgstr "Apply"
 
+msgid "assistants_contract_end_dates"
+msgstr "Assistants contract ending dates"
+
 msgid "assistant_form"
 msgstr "Assistant file"
 
