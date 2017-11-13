@@ -163,18 +163,18 @@ def _education_group_administrative_data_tab(request, education_group_year_id):
 
 
     context = {'education_group_year': education_group_year,
-               'dates_course_enrollment':{'start': now,'end': now},
+               'course_enrollment':get_dates(academic_calendar_type.COURSE_ENROLLMENT, education_group_year),
                'mandataries': mdl.mandatary.find_by_education_group_year(education_group_year),
                'pgm_mgrs': ['prof1', 'prof2']}
-    context.update({'exam_enrollments': get_dates(academic_calendar_type.EXAM_ENROLLMENTS,education_group_year)})
-    context.update({'scores_exam_submission': get_dates(academic_calendar_type.SCORES_EXAM_SUBMISSION,education_group_year)})
-    context.update({'dissertation_submission': get_dates(academic_calendar_type.DISSERTATION_SUBMISSION,education_group_year)})
-    context.update({'deliberation': get_dates(academic_calendar_type.DELIBERATION,education_group_year)})
-    context.update({'scores_exam_diffusion': get_dates(academic_calendar_type.SCORES_EXAM_DIFFUSION,education_group_year)})
+    context.update({'exam_enrollments': get_sessions_dates(academic_calendar_type.EXAM_ENROLLMENTS,education_group_year)})
+    context.update({'scores_exam_submission': get_sessions_dates(academic_calendar_type.SCORES_EXAM_SUBMISSION,education_group_year)})
+    context.update({'dissertation_submission': get_sessions_dates(academic_calendar_type.DISSERTATION_SUBMISSION,education_group_year)})
+    context.update({'deliberation': get_sessions_dates(academic_calendar_type.DELIBERATION,education_group_year)})
+    context.update({'scores_exam_diffusion': get_sessions_dates(academic_calendar_type.SCORES_EXAM_DIFFUSION,education_group_year)})
     return layout.render(request, "education_group/tab_administrative_data.html", context)
 
 
-def get_dates(an_academic_calendar_type, an_education_group_year):
+def get_sessions_dates(an_academic_calendar_type, an_education_group_year):
     date_dict={}
     cpt = 1
     while cpt <= 3:
@@ -184,4 +184,18 @@ def get_dates(an_academic_calendar_type, an_education_group_year):
             key = 'session{}'.format(cpt)
             date_dict.update({key:dates})
         cpt =cpt +1
+    return date_dict
+
+
+def get_dates(an_academic_calendar_type, an_education_group_year):
+    date_dict={}
+    print('get_dates')
+    print(an_academic_calendar_type)
+    ac = mdl.academic_calendar.find_by_reference(an_academic_calendar_type, an_education_group_year.academic_year)
+    if ac:
+        print('ac')
+        dates = mdl.offer_year_calendar.find_by_education_group_year(ac, an_education_group_year)
+        print(dates.start_date)
+        date_dict.update({'dates':dates})
+
     return date_dict
