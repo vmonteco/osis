@@ -74,38 +74,6 @@ class LearningUnitYearTest(TestCase):
         self.assertEqual(len(query_result_valid), 1)
         self.assertEqual(self.learning_unit_year.acronym, query_result_valid[0].acronym)
 
-    def test_is_deletable(self):
-        l_container_year = LearningContainerYearFactory(acronym="LBIR1212", academic_year=self.academic_year)
-        l_unit_1 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
-                                           academic_year=self.academic_year, subtype=learning_unit_year_subtypes.FULL)
-        msg = []
-        self.assertTrue(l_unit_1.is_deletable(msg))
-        self.assertEqual(msg, [])
-
-        l_unit_2 = LearningUnitYearFactory(acronym="LBIR1212A", learning_container_year=l_container_year,
-                                           academic_year=self.academic_year, subtype=learning_unit_year_subtypes.PARTIM)
-        l_unit_3 = LearningUnitYearFactory(acronym="LBIR1212B", learning_container_year=l_container_year,
-                                           academic_year=self.academic_year, subtype=learning_unit_year_subtypes.PARTIM)
-
-        LearningUnitEnrollmentFactory(learning_unit_year=l_unit_1)
-        LearningUnitEnrollmentFactory(learning_unit_year=l_unit_2)
-
-        self.assertFalse(l_unit_1.is_deletable(msg))
-        self.assertEqual(len(msg), 2)
-
-    def test_delete_next_years(self):
-        l_unit = LearningUnitFactory()
-
-        dict_learning_units = {}
-        for year in range(2000, 2017):
-            academic_year = AcademicYearFactory(year=year)
-            dict_learning_units[year] = LearningUnitYearFactory(academic_year=academic_year, learning_unit=l_unit)
-
-        msg = []
-        dict_learning_units[2007].delete(msg)
-        self.assertEqual(LearningUnitYear.objects.filter(academic_year__year__gte=2007, learning_unit=l_unit).count(), 0)
-        self.assertEqual(len(msg), 10)
-
     def test_property_in_charge(self):
         self.assertFalse(self.learning_unit_year.in_charge)
 
