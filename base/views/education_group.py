@@ -95,7 +95,7 @@ def education_group_parent_read(request, education_group_year_id):
         parent = mdl.education_group_year.find_by_id(request.GET.get('root'))
     else:
         parent = education_group_year
-    return layout.render(request, "education_group/tab_parent_training.html", locals())
+    return layout.render(request, "education_group/tab_identification.html", locals())
 
 
 def get_education_group_years(academic_yr, acronym, entity):
