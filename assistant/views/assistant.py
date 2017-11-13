@@ -91,7 +91,7 @@ def mandate_change_state(request):
         faculty = mandate_entity.find_by_mandate_and_type(mandate, entity_type.FACULTY)
         if faculty:
             faculty_dean = reviewer.find_by_entity_and_role(
-                faculty.first().structure, reviewer_role.SUPERVISION).first()
+                faculty.first().entity, reviewer_role.SUPERVISION).first()
             assistant = academic_assistant.find_by_person(person.find_by_user(request.user))
             html_template_ref = 'assistant_dean_assistant_decline_html'
             txt_template_ref = 'assistant_dean_assistant_decline_txt'
