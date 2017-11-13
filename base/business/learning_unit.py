@@ -303,4 +303,3 @@ def create_learning_unit_year(academic_year, data, learning_container_year, lear
                                            quadrimester=data['quadrimester'])
 
 
-

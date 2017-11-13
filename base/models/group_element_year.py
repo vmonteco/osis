@@ -42,16 +42,3 @@ class GroupElementYear(models.Model):
     parent = models.ForeignKey('EducationGroupYear', related_name='parent', blank=True, null=True)
     child_branch = models.ForeignKey('EducationGroupYear', related_name='child_branch', blank=True, null=True)
     child_leaf = models.ForeignKey('LearningUnitYear', related_name='child_leaf', blank=True, null=True)
-
-    def is_deletable(self, msg):
-        if self.parent:
-            subtype = _('The learning unit') if self.child_leaf.subtype == learning_unit_year_subtypes.FULL else _('The partim')
-            msg.append(
-                _('%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s')
-                % {'subtype': subtype,
-                   'acronym': self.child_leaf.acronym,
-                   'group': self.parent.acronym,
-                   'program': self.parent.education_group_type,
-                   'year': self.child_leaf.academic_year})
-
-        return not msg

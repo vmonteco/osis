@@ -54,24 +54,6 @@ class LearningUnitComponent(SerializableModel):
             ("can_access_learningunit", "Can access learning unit"),
         )
 
-    def delete(self, msg=None, *args, **kwargs):
-        if msg is None:
-            msg = []
-        self.learning_component_year.delete(msg)
-        return super().delete(*args, **kwargs)
-
-    def is_deletable(self, msg):
-        for attribution_charge in self.learning_component_year.get_attributions_charge():
-            attribution = attribution_charge.attribution
-
-            subtype = _('The partim') if self.learning_unit_year.subtype == learning_unit_year_subtypes.PARTIM else _('The learning unit')
-            msg.append(_("%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s") %
-                       {'subtype': subtype,
-                        'acronym': self.learning_unit_year.acronym,
-                        'tutor': attribution.tutor,
-                        'year': self.learning_unit_year.academic_year})
-        return not msg
-
 
 def find_by_learning_year_type(a_learning_unit_year=None, a_type=None):
     if a_learning_unit_year and a_type:
