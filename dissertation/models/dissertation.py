@@ -105,6 +105,7 @@ class Dissertation(SerializableModel):
                                       'dissertation_adviser_new_project_dissertation',
                                       get_promoteur_by_dissertation(self)
                                       )
+
         self.set_status(next_status)
 
     def manager_accept(self):
@@ -114,7 +115,7 @@ class Dissertation(SerializableModel):
             next_status = get_next_status(self, "accept")
             emails_dissert.send_email(self, 'dissertation_accepted_by_com', self.author)
             self.set_status(next_status)
-        elif self.status == 'EVA_SUBMIT' or self.status == 'EVA_KO':
+        elif self.status == 'EVA_SUBMIT' or self.status == 'EVA_KO' or self.status == 'DEFENDED':
             next_status = get_next_status(self, "accept")
             self.set_status(next_status)
 
@@ -181,6 +182,7 @@ def count_by_proposition(prop_dissert):
 
 
 def get_next_status(dissert, operation):
+    print('in_get_nex_status ,'+ dissert.title +' '+ operation)
     if operation == "go_forward":
         if dissert.status == 'DRAFT' or dissert.status == 'DIR_KO':
             return 'DIR_SUBMIT'
