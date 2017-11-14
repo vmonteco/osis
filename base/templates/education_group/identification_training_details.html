@@ -280,9 +280,9 @@
                     </div>
                     <div class="col-md-6">
                         <label>{% trans 'end'%}</label><br>
-                        {% if education_group_year.education_group.end_year and education_group_year.education_group.end_year != 2099 %}
+                        {% if education_group_year.education_group.end_year and education_group_year.education_group.end_year %}
                             {{ education_group_year.education_group.end_year }}
-                        {% elif parent.education_group.end_year and parent.education_group.end_year != 2099 %}
+                        {% elif parent.education_group.end_year and parent.education_group.end_year %}
                             <strong class="text-primary">
                             {{ parent.education_group.end_year }}
                             </strong>
