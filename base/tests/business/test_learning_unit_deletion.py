@@ -49,11 +49,11 @@ class LearningUnitYearDeletion(TestCase):
     def setUp(self):
         self.academic_year = AcademicYearFactory(year=timezone.now().year)
 
-    def test_check_container_year_deletion(self):
+    def test_check_related_partims_deletion(self):
         l_container_year = LearningContainerYearFactory()
         l_unit_1 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
                                            academic_year=self.academic_year, subtype=learning_unit_year_subtypes.FULL)
-        msg = learning_unit_deletion._check_container_year_deletion(l_container_year)
+        msg = learning_unit_deletion._check_related_partims_deletion(l_container_year)
         self.assertEqual(len(msg.values()), 0)
 
         l_unit_2 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
@@ -70,7 +70,7 @@ class LearningUnitYearDeletion(TestCase):
         attribution_charge_1 = AttributionChargeNewFactory(learning_component_year=component.learning_component_year)
         attribution_charge_2 = AttributionChargeNewFactory(learning_component_year=component.learning_component_year)
 
-        msg = learning_unit_deletion._check_container_year_deletion(l_container_year)
+        msg = learning_unit_deletion._check_related_partims_deletion(l_container_year)
         msg = list(msg.values())
 
         self.assertIn(_("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s")

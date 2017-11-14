@@ -47,7 +47,7 @@ def check_learning_unit_year_deletion(learning_unit_year):
                                      'count': enrollment_count}
 
     if learning_unit_year.subtype == learning_unit_year_subtypes.FULL and learning_unit_year.learning_container_year:
-        msg.update(_check_container_year_deletion(learning_unit_year.learning_container_year))
+        msg.update(_check_related_partims_deletion(learning_unit_year.learning_container_year))
 
     for component in learning_unit_component.find_by_learning_unit_year(learning_unit_year):
         msg.update(_check_learning_unit_component_deletion(component))
@@ -89,7 +89,7 @@ def _check_learning_unit_component_deletion(l_unit_component):
     return msg
 
 
-def _check_container_year_deletion(learning_container_year):
+def _check_related_partims_deletion(learning_container_year):
     msg = {}
     for partim in learning_container_year.get_partims_related():
         msg.update(check_learning_unit_year_deletion(partim))
