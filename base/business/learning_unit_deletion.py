@@ -28,14 +28,14 @@ from base.models.enums import learning_unit_year_subtypes
 from django.utils.translation import ugettext_lazy as _
 
 
-def dict_deletion_learning_unit(learning_unit):
+def check_learning_unit_deletion(learning_unit):
     msg = {}
     for learning_unit_year in learning_unit.get_learning_units_year():
-        msg.update(dict_deletion_learning_unit_year(learning_unit_year))
+        msg.update(check_learning_unit_year_deletion(learning_unit_year))
     return msg
 
 
-def dict_deletion_learning_unit_year(learning_unit_year):
+def check_learning_unit_year_deletion(learning_unit_year):
     msg = {}
 
     enrollment_count = len(learning_unit_enrollment.find_by_learning_unit_year(learning_unit_year))
@@ -47,22 +47,22 @@ def dict_deletion_learning_unit_year(learning_unit_year):
                                      'count': enrollment_count}
 
     if learning_unit_year.subtype == learning_unit_year_subtypes.FULL and learning_unit_year.learning_container_year:
-        msg.update(dict_deletion_learning_container_year(learning_unit_year.learning_container_year))
+        msg.update(_check_container_year_deletion(learning_unit_year.learning_container_year))
 
     for component in learning_unit_component.find_by_learning_unit_year(learning_unit_year):
-        msg.update(dict_deletion_learning_unit_component(component))
+        msg.update(_check_learning_unit_component_deletion(component))
 
     for group_element_year in learning_unit_year.get_list_group_element_year():
-        msg.update(dict_deletion_group_element_year(group_element_year))
+        msg.update(_check_group_element_year_deletion(group_element_year))
 
     next_year = learning_unit_year.get_learning_unit_next_year()
     if next_year:
-        msg.update(dict_deletion_learning_unit_year(next_year))
+        msg.update(check_learning_unit_year_deletion(next_year))
 
     return msg
 
 
-def dict_deletion_group_element_year(group_element_year):
+def _check_group_element_year_deletion(group_element_year):
     msg = {}
 
     if group_element_year.parent:
@@ -76,7 +76,7 @@ def dict_deletion_group_element_year(group_element_year):
     return msg
 
 
-def dict_deletion_learning_unit_component(l_unit_component):
+def _check_learning_unit_component_deletion(l_unit_component):
     msg = {}
     for attribution_charge in l_unit_component.learning_component_year.get_attributions_charge():
         attribution = attribution_charge.attribution
@@ -89,10 +89,10 @@ def dict_deletion_learning_unit_component(l_unit_component):
     return msg
 
 
-def dict_deletion_learning_container_year(learning_container_year):
+def _check_container_year_deletion(learning_container_year):
     msg = {}
     for partim in learning_container_year.get_partims_related():
-        msg.update(dict_deletion_learning_unit_year(partim))
+        msg.update(check_learning_unit_year_deletion(partim))
 
     return msg
 
@@ -117,10 +117,10 @@ def delete_learning_unit_year(learning_unit_year):
         msg.extend(delete_learning_unit_year(next_year))
 
     if learning_unit_year.learning_container_year and learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
-        msg.extend(delete_learning_container_year(learning_unit_year.learning_container_year))
+        msg.extend(_delete_learning_container_year(learning_unit_year.learning_container_year))
 
     for component in learning_unit_component.find_by_learning_unit_year(learning_unit_year):
-        delete_learning_unit_component(component)
+        _delete_learning_unit_component(component)
 
     learning_unit_year.delete()
 
@@ -134,7 +134,7 @@ def delete_learning_unit_year(learning_unit_year):
     return msg
 
 
-def delete_learning_container_year(learning_unit_container):
+def _delete_learning_container_year(learning_unit_container):
     msg = []
 
     for partim in learning_unit_container.get_partims_related():
@@ -144,7 +144,7 @@ def delete_learning_container_year(learning_unit_container):
     return msg
 
 
-def delete_learning_unit_component(l_unit_component):
+def _delete_learning_unit_component(l_unit_component):
     msg = []
 
     msg.extend(l_unit_component.learning_component_year.delete(msg))

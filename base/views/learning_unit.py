@@ -144,7 +144,7 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
 @permission_required('base.can_delete_learningunit', raise_exception=True)
 def learning_unit_delete(request, learning_unit_year_id):
     learning_unit_year = mdl.learning_unit_year.find_by_id(learning_unit_year_id)
-    messages_deletion = learning_unit_deletion.dict_deletion_learning_unit_year(learning_unit_year)
+    messages_deletion = learning_unit_deletion.check_learning_unit_year_deletion(learning_unit_year)
     if not messages_deletion and request.method == 'POST':
         try:
             result = learning_unit_deletion.delete_learning_unit_year(learning_unit_year)
@@ -182,7 +182,7 @@ def learning_unit_delete_all(request, learning_unit_year_id):
     learning_unit_year = mdl.learning_unit_year.find_by_id(learning_unit_year_id)
     learning_unit = learning_unit_year.learning_unit
 
-    messages_deletion = learning_unit_deletion.dict_deletion_learning_unit(learning_unit)
+    messages_deletion = learning_unit_deletion.check_learning_unit_deletion(learning_unit)
 
     if not messages_deletion and request.method == 'POST':
         try:

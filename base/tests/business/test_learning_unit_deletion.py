@@ -53,7 +53,7 @@ class LearningUnitYearDeletion(TestCase):
         l_container_year = LearningContainerYearFactory()
         l_unit_1 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
                                            academic_year=self.academic_year, subtype=learning_unit_year_subtypes.FULL)
-        msg = learning_unit_deletion.dict_deletion_learning_container_year(l_container_year)
+        msg = learning_unit_deletion._check_container_year_deletion(l_container_year)
         self.assertEqual(len(msg.values()), 0)
 
         l_unit_2 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
@@ -70,7 +70,7 @@ class LearningUnitYearDeletion(TestCase):
         attribution_charge_1 = AttributionChargeNewFactory(learning_component_year=component.learning_component_year)
         attribution_charge_2 = AttributionChargeNewFactory(learning_component_year=component.learning_component_year)
 
-        msg = learning_unit_deletion.dict_deletion_learning_container_year(l_container_year)
+        msg = learning_unit_deletion._check_container_year_deletion(l_container_year)
         msg = list(msg.values())
 
         self.assertIn(_("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s")
@@ -114,7 +114,7 @@ class LearningUnitYearDeletion(TestCase):
         l_container_year = LearningContainerYearFactory(acronym="LBIR1212", academic_year=self.academic_year)
         l_unit_1 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
                                            academic_year=self.academic_year, subtype=learning_unit_year_subtypes.FULL)
-        msg = learning_unit_deletion.dict_deletion_learning_unit_year(l_unit_1)
+        msg = learning_unit_deletion.check_learning_unit_year_deletion(l_unit_1)
 
         msg = list(msg.values())
         self.assertEqual(msg, [])
@@ -127,7 +127,7 @@ class LearningUnitYearDeletion(TestCase):
         LearningUnitEnrollmentFactory(learning_unit_year=l_unit_1)
         LearningUnitEnrollmentFactory(learning_unit_year=l_unit_2)
 
-        msg = learning_unit_deletion.dict_deletion_learning_unit_year(l_unit_1)
+        msg = learning_unit_deletion.check_learning_unit_year_deletion(l_unit_1)
 
         msg = list(msg.values())
         self.assertEqual(len(msg), 2)
