@@ -83,7 +83,7 @@
             <div class="form-group">
             {% if supervisor is None %}
                 {% trans 'supervisor' %} : {% trans 'no_supervisor' %}
-            {% elif mandate.state == 'PHD_SUPERVISOR' %}
+            {% elif mandate.state == assistant_mandate_state.PHD_SUPERVISOR %}
                 {% trans 'supervisor' %} : {{ supervisor }}
                 <br>
                 <label id="label_for_search_persons" for="search_persons">
@@ -92,7 +92,7 @@
                 <input id="search_persons" name="search_persons" size="100" class="form-control"
                        placeholder="{% trans 'search_by_email_or_last_name' %}">
                 <input type="hidden" name="person_id" id="person_id">
-            {% elif mandate.state == 'TRTS' %}
+            {% elif mandate.state == assistant_mandate_state.TRTS %}
                 {% trans 'supervisor' %} : {{ supervisor }}
                 <div class="checkbox">
                     <label><input type="checkbox" name="del_rev" value="yes">{% trans 'delete' %}</label>

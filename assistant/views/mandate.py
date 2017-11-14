@@ -63,6 +63,7 @@ def mandate_edit(request):
     formset = entity_inline_formset(instance=mandate, prefix="entity")
     
     return layout.render(request, 'mandate_form.html', {'mandate': mandate, 'form': form, 'formset': formset,
+                                                        'assistant_mandate_state': assistant_mandate_state,
                                                         'supervisor': supervisor})
 
 
@@ -74,19 +75,17 @@ def mandate_save(request):
         mandate.assistant.supervisor = None
         mandate.assistant.save()
     elif request.POST.get('person_id'):
-        substitute_supervisor = None
         try:
             substitute_supervisor = person.find_by_id(request.POST.get('person_id'))
+            if substitute_supervisor:
+                mandate.assistant.supervisor = substitute_supervisor
+                mandate.assistant.save()
+                html_template_ref = 'assistant_phd_supervisor_html'
+                txt_template_ref = 'assistant_phd_supervisor_txt'
+                send_message(person=substitute_supervisor, html_template_ref=html_template_ref,
+                             txt_template_ref=txt_template_ref, assistant=mandate.assistant)
         except ObjectDoesNotExist:
-            substitute_supervisor = None
-        if substitute_supervisor:
-            mandate.assistant.supervisor = substitute_supervisor
-            mandate.assistant.save()
-            html_template_ref = 'assistant_phd_supervisor_html'
-            txt_template_ref = 'assistant_phd_supervisor_txt'
-            send_message(person=substitute_supervisor, html_template_ref=html_template_ref,
-                         txt_template_ref=txt_template_ref, assistant=mandate.assistant)
-
+            pass
     form = MandateForm(data=request.POST, instance=mandate, prefix='mand')
     formset = entity_inline_formset(request.POST, request.FILES, instance=mandate, prefix='entity')
     if form.is_valid():
