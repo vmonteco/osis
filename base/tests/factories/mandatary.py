@@ -36,18 +36,19 @@ from base.tests.factories.mandate import MandateFactory
 from base.tests.factories.person import PersonFactory
 fake = Faker()
 
+
 def generate_start_date(academic_calendar):
     if academic_calendar.academic_year:
         return academic_calendar.academic_year.start_date
     else:
-        return datetime.date(timezone.now().year, 9, 30)
+        return datetime.date(datetime.timezone.now().year, 9, 30)
 
 
 def generate_end_date(academic_calendar):
     if academic_calendar.academic_year:
         return academic_calendar.academic_year.end_date
     else:
-        return datetime.date(timezone.now().year+1, 9, 30)
+        return datetime.date(datetime.timezone.now().year + 1, 9, 30)
 
 
 class MandataryFactory(DjangoModelFactory):

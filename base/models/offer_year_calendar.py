@@ -52,6 +52,9 @@ class OfferYearCalendar(models.Model):
     customized = models.BooleanField(default=False)
     education_group_year = models.ForeignKey('EducationGroupYear', blank=True, null=True)
 
+    class Meta:
+        unique_together = ('academic_calendar', 'education_group_year')
+
     def update_dates(self, start_date, end_date):
         if self.customized:
             if start_date < self.end_date:
@@ -172,9 +175,9 @@ def find_latest_end_date_by_academic_calendar(academic_calendar_id):
         return None
 
 
-def find_by_education_group_year(an_academic_calendar,  an_education_group_year):
-    results= OfferYearCalendar.objects.filter(academic_calendar=an_academic_calendar,
-                                              education_group_year=an_education_group_year)
-    if results:
-        return results.first()
-    return None
+def get_by_education_group_year_and_academic_calendar(an_academic_calendar, an_education_group_year):
+    try:
+        return OfferYearCalendar.objects.get(academic_calendar=an_academic_calendar,
+                                             education_group_year=an_education_group_year)
+    except ObjectDoesNotExist:
+        return None

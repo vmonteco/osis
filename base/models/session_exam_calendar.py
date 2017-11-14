@@ -116,7 +116,7 @@ def find_deliberation_date(nb_session, offer_year):
     return None
 
 
-def find_by_session_reference(nb_session, a_reference, an_academic_year):
+def get_by_session_reference_and_academic_year(nb_session, a_reference, an_academic_year):
     try:
         return SessionExamCalendar.objects.get(number_session=nb_session,
                                                academic_calendar__reference=a_reference,

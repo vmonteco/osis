@@ -128,7 +128,7 @@ def find_by_ids(academic_calendars_id):
     return AcademicCalendar.objects.filter(pk__in=academic_calendars_id)
 
 
-def find_by_reference(a_reference, an_academic_year):
+def get_by_reference_and_academic_year(a_reference, an_academic_year):
     try:
         return AcademicCalendar.objects.get(reference=a_reference, academic_year=an_academic_year)
     except AcademicCalendar.DoesNotExist:

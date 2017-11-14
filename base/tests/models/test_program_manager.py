@@ -107,10 +107,10 @@ class FindByOfferYearTest(TestCase):
                               person=a_person)
         self.assertEquals(len(program_manager.find_by_person_exclude_offer_list(a_person,
                                                                                 [offer_yr1],
-                                                                                self.academic_year)),1)
+                                                                                self.academic_year)), 1)
 
     def test_find_by_education_group(self):
         self.assertIsNone(program_manager.find_by_education_group(None))
-        an_education_group= EducationGroupFactory()
+        an_education_group = EducationGroupFactory()
         a_program_manager = ProgramManagerFactory(education_group=an_education_group)
-        self.assertEquals(program_manager.find_by_education_group(an_education_group).first(), a_program_manager)
+        self.assertEquals(list(program_manager.find_by_education_group(an_education_group)), [a_program_manager])

@@ -132,8 +132,7 @@ class EducationGroupYear(models.Model):
         result = mdl_offer_year_entity.find_by_education_group_year_first(self,
                                                                           offer_year_entity_type.ENTITY_ADMINISTRATION)
         if result:
-            ev = mdl_entity_version.get_last_version(result.entity)
-            return ev
+            return mdl_entity_version.get_last_version(result.entity)
         return None
 
     @property
@@ -141,8 +140,7 @@ class EducationGroupYear(models.Model):
         result = mdl_offer_year_entity.find_by_education_group_year_first(self,
                                                                           offer_year_entity_type.ENTITY_MANAGEMENT)
         if result:
-            ev = mdl_entity_version.get_last_version(result.entity)
-            return ev
+            return mdl_entity_version.get_last_version(result.entity)
         return None
 
     @property
