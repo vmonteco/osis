@@ -25,10 +25,9 @@
 ##############################################################################
 from django import forms
 from django.db import models
+from django.db.models.fields import BLANK_CHOICE_DASH
 from django.forms import ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
-from django.utils.html import escape
-from django.utils.html import conditional_escape
 
 from base.forms.bootstrap import BootstrapForm
 from base.models import academic_year, education_group_year, entity_version, offer_year_entity
@@ -48,33 +47,14 @@ class EntityManagementModelChoiceField(ModelChoiceField):
 
 
 class SelectWithData(forms.Select):
-    def render_option(self, selected_choices, option_value, option_label):
-        obj_data = {
-            obj.id: {
-                data_attr: getattr(obj, data_attr) for data_attr in self.data_attrs
-            } for obj in self.queryset
-        }
-        print('data:' +str(obj_data))
-        data_text = u''
-        for data_attr in self.data_attrs:
-            data_text += u' data-{}="{}" '.format(
-                data_attr,
-                escape(obj_data[option_value][data_attr])
-            )
-
-        selected_html = (option_value in selected_choices) and u' selected="selected"' or ''
-        return u'<option value="{}"{}{}>{}</option>'.format(
-            escape(option_value),
-            data_text,
-            selected_html,
-            conditional_escape(option_label)
-        )
+    data_attrs = {}
 
     def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
         option_dict = super(forms.Select, self).create_option(name, value, label, selected, index,
                                                               subindex=subindex, attrs=attrs)
-        if value:
-            option_dict['attrs']['category'] = self.queryset.get(id=value).category
+        group_type = self.data_attrs.get(value)
+        if group_type:
+            option_dict['attrs']['category'] = group_type.category
         return option_dict
 
 
@@ -82,49 +62,36 @@ class ModelChoiceFieldWithData(forms.ModelChoiceField):
     widget = SelectWithData
 
     def __init__(self, queryset, **kwargs):
-        data_attrs = kwargs.pop('data_attrs')
         super(ModelChoiceFieldWithData, self).__init__(queryset, **kwargs)
-        self.widget.queryset = queryset
-        self.widget.data_attrs = data_attrs
+        self.widget.data_attrs = queryset.in_bulk()
 
 
 class EducationGroupFilter(BootstrapForm):
     academic_year = forms.ModelChoiceField(queryset=academic_year.find_academic_years(), required=False,
                                            empty_label=_('all_label'))
 
-    education_group_type = ModelChoiceFieldWithData(
-        queryset=EducationGroupType.objects.all(),
-        data_attrs=('category',))
+    category = forms.ChoiceField(choices=BLANK_CHOICE_DASH + list(education_group_categories.CATEGORIES),
+                                 required=False)
 
-    category = forms.ChoiceField(education_group_categories.CATEGORIES, required=False)
-    acronym = title = forms.CharField(
-        widget=forms.TextInput(attrs={'size': '10'}),
-        max_length=20, required=False)
+    education_group_type = ModelChoiceFieldWithData(queryset=EducationGroupType.objects.all(), required=False)
+
+    acronym = title = forms.CharField(widget=forms.TextInput(attrs={'size': '10'}), max_length=20, required=False)
+
     entity_management = EntityManagementModelChoiceField(queryset=find_last_faculty_entities_version(), required=False)
 
     def clean_category(self):
         data_cleaned = self.cleaned_data.get('category')
         if data_cleaned:
             return data_cleaned
-        return None
-
-    def clean_types(self):
-        data_cleaned = self.cleaned_data.get('type')
-        if data_cleaned:
-            return data_cleaned
-        return None
 
     def get_object_list(self):
         clean_data = {key: value for key, value in self.cleaned_data.items() if value is not None}
 
-        offer_year_entity_prefetch = models.Prefetch(
-            'offeryearentity_set',
+        entity_versions_prefetch = models.Prefetch('entity__entityversion_set', to_attr='entity_versions')
+        offer_year_entity_prefetch = models.Prefetch('offeryearentity_set',
             queryset=offer_year_entity.search(type=offer_year_entity_type.ENTITY_MANAGEMENT)\
-                                      .prefetch_related(
-                                         models.Prefetch('entity__entityversion_set', to_attr='entity_versions')
-                                      ),
-            to_attr='offer_year_entities'
-        )
+                                                     .prefetch_related(entity_versions_prefetch),
+                                                     to_attr='offer_year_entities')
         if clean_data.get('entity_management'):
             clean_data['id'] = _get_filter_entity_management(clean_data['entity_management'])
 
