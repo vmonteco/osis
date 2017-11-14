@@ -32,9 +32,6 @@ from django.utils import timezone
 
 
 class LearningContainerYearTest(TestCase):
-    def setUp(self):
-        self.academic_year = AcademicYearFactory(year=timezone.now().year)
-
     def test_find_by_id_with_id(self):
         l_container_year = LearningContainerYearFactory()
         self.assertEqual(l_container_year, learning_container_year.find_by_id(l_container_year.id))

@@ -26,9 +26,8 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
-from base.models.enums import component_type, learning_unit_year_subtypes
+from base.models.enums import component_type
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
-from django.utils.translation import ugettext_lazy as _
 
 
 class LearningUnitComponentAdmin(SerializableModelAdmin):

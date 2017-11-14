@@ -70,10 +70,6 @@ class LearningUnit(SerializableModel):
             ("can_delete_learningunit", "Can delete learning unit"),
         )
 
-    def get_learning_units_year(self):
-        return LearningUnitYear.objects.filter(learning_unit=self).order_by('academic_year__year')\
-            .select_related('learning_container_year')
-
 
 def find_by_id(learning_unit_id):
     return LearningUnit.objects.get(pk=learning_unit_id)

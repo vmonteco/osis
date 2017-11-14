@@ -192,3 +192,7 @@ def find_lt_year_acronym(academic_yr, acronym):
 def check_if_acronym_regex_is_valid(acronym):
     if isinstance(acronym, str):
         return re.fullmatch(REGEX_ACRONYM_CHARSET, acronym.upper())
+
+
+def find_by_learning_unit(learning_unit):
+    return search(learning_unit=learning_unit).order_by('academic_year__year')

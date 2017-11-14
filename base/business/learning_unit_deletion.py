@@ -23,14 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models import learning_unit_enrollment, learning_unit_component, learning_class_year
+from base.models import learning_unit_enrollment, learning_unit_component, learning_class_year, learning_unit_year as learn_unit_year_model
 from base.models.enums import learning_unit_year_subtypes
 from django.utils.translation import ugettext_lazy as _
 
 
 def check_learning_unit_deletion(learning_unit):
     msg = {}
-    for learning_unit_year in learning_unit.get_learning_units_year():
+    for learning_unit_year in learn_unit_year_model.find_by_learning_unit(learning_unit):
         msg.update(check_learning_unit_year_deletion(learning_unit_year))
     return msg
 
@@ -100,7 +100,7 @@ def _check_container_year_deletion(learning_container_year):
 def delete_learning_unit(learning_unit):
     msg = []
 
-    first_learning_unit_year = learning_unit.get_learning_units_year().first()
+    first_learning_unit_year = learn_unit_year_model.find_by_learning_unit(learning_unit).first()
     if first_learning_unit_year:
         msg.extend(delete_learning_unit_year(first_learning_unit_year))
 
