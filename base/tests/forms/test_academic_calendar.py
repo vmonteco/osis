@@ -33,6 +33,7 @@ from base.tests.models.test_academic_calendar import create_academic_calendar
 from base.tests.factories.offer_year_calendar import OfferYearCalendarFactory
 from base.tests.factories.offer_year import OfferYearFactory
 from base.forms.academic_calendar import AcademicCalendarForm
+from django.test.utils import override_settings
 
 
 class TestAcademicCalendarForm(TestCase):
@@ -59,6 +60,7 @@ class TestAcademicCalendarForm(TestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(form.errors['start_date'], _('start_date_must_be_lower_than_end_date'))
 
+    @override_settings(USE_TZ=False)
     def test_with_end_date_inferior_to_offer_year_calendar_end_date(self):
         an_academic_calendar = create_academic_calendar(an_academic_year=self.an_academic_year)
         an_offer_year = OfferYearFactory(academic_year=self.an_academic_year)
