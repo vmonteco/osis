@@ -23,14 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import template
-from datetime import date
+PRESIDENT = "PRESIDENT"
+SECRETARY = "SECRETARY"
+SIGNATORY = "SIGNATORY"
 
-register = template.Library()
 
-@register.filter
-def offer_year_calendar_display(value_start, value_end):
-    if value_start.date() and value_end.date():
-        if value_start.date() <= date.today() <= value_end.date():
-            return "font-weight:bold;"
-    return ""
+MANDATE_TYPES = (
+    (PRESIDENT, PRESIDENT),
+    (SECRETARY, SECRETARY),
+    (SIGNATORY, SIGNATORY)
+)
+

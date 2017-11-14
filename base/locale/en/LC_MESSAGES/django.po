@@ -2198,3 +2198,12 @@ msgstr "Vacant but do not publish"
 
 msgid "DO_NOT_ASSIGN"
 msgstr "Do not assign"
+
+msgid "PRESIDENT"
+msgstr "President"
+
+msgid "SECRETARY"
+msgstr "Secretary"
+
+msgid "SIGNATORY"
+msgstr "Signatory"
