@@ -27,12 +27,15 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db.models.deletion import ProtectedError
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.views.decorators.http import require_http_methods, require_POST
+from django.http import JsonResponse
+from django.contrib import messages
+from django.utils.translation import ugettext_lazy as _
+
 from base import models as mdl
-from base.business import learning_unit_year_volumes, learning_unit_deletion
+from base.business import learning_unit_year_volumes
 from base.business import learning_unit_year_with_context
 from attribution import models as mdl_attr
 from base.business.learning_unit import create_learning_unit, create_learning_unit_structure, \
@@ -50,14 +53,9 @@ from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, Learning
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_class import LearningClassEditForm
 from base.models.enums import learning_unit_year_subtypes
-from base.forms.learning_units import MAX_RECORDS
-from base.utils.send_mail import send_mail_after_the_learning_unit_year_deletion
 from cms.models import text_label
 from reference.models import language
 from . import layout
-from django.http import JsonResponse
-from django.contrib import messages
-from django.utils.translation import ugettext_lazy as _
 
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
@@ -138,76 +136,6 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
     context['tab_active'] = 'components'
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/volumes_management.html", context)
-
-
-@login_required
-@permission_required('base.can_delete_learningunit', raise_exception=True)
-def delete_from_given_learning_unit_year(request, learning_unit_year_id):
-    learning_unit_year = mdl.learning_unit_year.find_by_id(learning_unit_year_id)
-    messages_deletion = learning_unit_deletion.check_learning_unit_year_deletion(learning_unit_year)
-    if not messages_deletion and request.method == 'POST':
-        try:
-            result = learning_unit_deletion.delete_learning_unit_year(learning_unit_year)
-            success_msg = _("You asked the deletion of the learning unit %(acronym)s from the year %(year)s") \
-                          % {'acronym': learning_unit_year.acronym,
-                             'year': learning_unit_year.academic_year}
-            messages.add_message(request, messages.SUCCESS, success_msg)
-
-            for msg in result:
-                messages.add_message(request, messages.SUCCESS, msg)
-
-            send_mail_after_the_learning_unit_year_deletion([], learning_unit_year.acronym,
-                                                            learning_unit_year.academic_year, result)
-
-        except ProtectedError as e:
-            messages.add_message(request, messages.ERROR, str(e))
-
-        return redirect('learning_units')
-
-    else:
-        if messages_deletion:
-            context = {'title': _("cannot_delete_learning_unit_year")
-                                % {'learning_unit': learning_unit_year.acronym,
-                                   'year': learning_unit_year.academic_year},
-                       'messages_deletion': messages_deletion.values()}
-        else:
-            context = {'title': _("msg_warning_delete_learning_unit") % learning_unit_year}
-
-        return layout.render(request, "learning_unit/deletion.html", context)
-
-
-@login_required
-@permission_required('base.can_delete_learningunit', raise_exception=True)
-def delete_all_learning_units_year(request, learning_unit_year_id):
-    learning_unit_year = mdl.learning_unit_year.find_by_id(learning_unit_year_id)
-    learning_unit = learning_unit_year.learning_unit
-
-    messages_deletion = learning_unit_deletion.check_learning_unit_deletion(learning_unit)
-
-    if not messages_deletion and request.method == 'POST':
-        try:
-            result = learning_unit_deletion.delete_learning_unit(learning_unit)
-            messages.add_message(request, messages.SUCCESS,
-                                 _("The learning unit %(acronym)s has been successfully deleted for all years.")
-                                 % {'acronym': learning_unit.acronym})
-            for message_deletion in result:
-                messages.add_message(request, messages.SUCCESS, message_deletion)
-
-            send_mail_after_the_learning_unit_year_deletion([], learning_unit.acronym, None, result)
-
-        except ProtectedError as e:
-            messages.add_message(request, messages.ERROR, str(e))
-
-        return redirect('learning_units')
-
-    else:
-        if messages_deletion:
-            context = {'title': _('cannot_delete_learning_unit') % {'learning_unit': learning_unit.acronym},
-                       'messages_deletion': messages_deletion.values()}
-        else:
-            context = {'title': _('msg_warning_delete_learning_unit') % learning_unit}
-
-        return layout.render(request, "learning_unit/deletion.html", context)
 
 
 @login_required

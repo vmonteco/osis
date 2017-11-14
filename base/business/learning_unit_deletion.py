@@ -169,25 +169,3 @@ def delete_learning_component_year(learning_component_year):
 def _str_partim_or_full(learning_unit_year):
     return _('The partim') if learning_unit_year.subtype == learning_unit_year_subtypes.PARTIM else _(
         'The learning unit')
-
-
-def delete_from_given_year(learning_unit_year):
-    error_messages = check_learning_unit_year_deletion(learning_unit_year)
-    success_messages = {}
-    if not error_messages:
-        success_messages = delete_learning_unit_year(learning_unit_year)
-    return {
-        'errors': error_messages,
-        'success': success_messages
-    }
-
-
-def delete_all(learning_unit):
-    error_messages = check_learning_unit_deletion(learning_unit)
-    success_messages = {}
-    if not error_messages:
-        success_messages = delete_learning_unit(learning_unit)
-    return {
-        'errors': error_messages,
-        'success': success_messages
-    }
