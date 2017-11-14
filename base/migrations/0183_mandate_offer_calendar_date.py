@@ -9,7 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('base', '0181_removed_nullable_uuid'),
+        ('base', '0182_programmanager_education_group'),
     ]
 
     operations = [
