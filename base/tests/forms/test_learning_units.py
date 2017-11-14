@@ -26,7 +26,7 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils import timezone
-from mock import patch
+from unittest.mock import patch
 
 from base.business.learning_unit_year_with_context import is_service_course
 from base.forms.common import TooManyResultsException

@@ -2256,3 +2256,12 @@ msgstr "Vacant à ne pas publier"
 
 msgid "DO_NOT_ASSIGN"
 msgstr "A ne pas attribuer"
+
+msgid "PRESIDENT"
+msgstr "Président"
+
+msgid "SECRETARY"
+msgstr "Secrétaire"
+
+msgid "SIGNATORY"
+msgstr "Signataire"

@@ -30,9 +30,9 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 class ProgramManagerAdmin(admin.ModelAdmin):
-    list_display = ('person', 'offer_year', 'changed')
-    raw_id_fields = ('person', 'offer_year')
-    fieldsets = ((None, {'fields': ('person', 'offer_year')}),)
+    list_display = ('person', 'offer_year', 'changed', 'education_group')
+    raw_id_fields = ('person', 'offer_year', 'education_group')
+    fieldsets = ((None, {'fields': ('person', 'offer_year','education_group')}),)
     search_fields = ['person__first_name', 'person__last_name', 'person__global_id', 'offer_year__acronym']
     list_filter = ('offer_year__academic_year',)
 
@@ -42,6 +42,7 @@ class ProgramManager(models.Model):
     changed = models.DateTimeField(null=True, auto_now=True)
     person = models.ForeignKey('Person')
     offer_year = models.ForeignKey('OfferYear')
+    education_group = models.ForeignKey('EducationGroup', blank=True, null=True)
 
     @property
     def name(self):

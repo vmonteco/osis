@@ -23,14 +23,31 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import template
-from datetime import date
+from decimal import *
 
-register = template.Library()
+from django.db import models
+from django.contrib import admin
 
-@register.filter
-def offer_year_calendar_display(value_start, value_end):
-    if value_start.date() and value_end.date():
-        if value_start.date() <= date.today() <= value_end.date():
-            return "font-weight:bold;"
-    return ""
+from base.models.enums import mandate_type as mandate_types
+from django.db import models
+from django.contrib import admin
+
+
+class MandateAdmin(admin.ModelAdmin):
+    list_display = ('education_group', 'function')
+    fieldsets = ((None, {'fields': ('education_group',
+                                    'function')}),)
+
+    raw_id_fields = ('education_group',)
+    search_fields = ['education_group', 'function', 'external_id']
+
+
+class Mandate(models.Model):
+    external_id = models.CharField(max_length=100, blank=True, null=True)
+    changed = models.DateTimeField(null=True, auto_now=True)
+    education_group = models.ForeignKey('EducationGroup', blank=True, null=True)
+    function = models.CharField(max_length=20, choices=mandate_types.MANDATE_TYPES)
+    qualification = models.CharField(max_length=50,blank=True, null=True )
+
+    def __str__(self):
+        return "{} {}".format(self.education_group, self.function)

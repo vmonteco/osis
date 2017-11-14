@@ -36,6 +36,7 @@ class LearningContainerYearAdmin(SerializableModelAdmin):
                                     'title_english', 'language', 'is_vacant', 'type_declaration_vacant',
                                     'team', 'in_charge')}),)
     search_fields = ['acronym']
+    raw_id_fields = ('learning_container',)
     list_filter = ('academic_year', 'in_charge', 'is_vacant',)
 
 
