@@ -140,7 +140,7 @@ class LearningUnitYearDeletion(TestCase):
             academic_year = AcademicYearFactory(year=year)
             dict_learning_units[year] = LearningUnitYearFactory(academic_year=academic_year, learning_unit=l_unit)
 
-        msg = learning_unit_deletion.delete_learning_unit_year(dict_learning_units[2007])
+        msg = learning_unit_deletion.delete_from_given_learning_unit_year(dict_learning_units[2007])
         self.assertEqual(LearningUnitYear.objects.filter(academic_year__year__gte=2007, learning_unit=l_unit).count(), 0)
         self.assertEqual(len(msg), 10)
 

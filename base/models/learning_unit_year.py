@@ -109,7 +109,7 @@ class LearningUnitYear(SerializableModel):
         if self.subtype == learning_unit_year_subtypes.FULL and self.learning_container_year:
             return self.learning_container_year.get_partims_related()
 
-    def get_list_group_element_year(self):
+    def find_list_group_element_year(self):
         return GroupElementYear.objects.filter(child_leaf=self).select_related('parent')
 
     def get_learning_unit_next_year(self):
@@ -192,7 +192,3 @@ def find_lt_year_acronym(academic_yr, acronym):
 def check_if_acronym_regex_is_valid(acronym):
     if isinstance(acronym, str):
         return re.fullmatch(REGEX_ACRONYM_CHARSET, acronym.upper())
-
-
-def find_by_learning_unit(learning_unit):
-    return search(learning_unit=learning_unit).order_by('academic_year__year')

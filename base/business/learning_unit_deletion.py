@@ -30,7 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 
 def check_learning_unit_deletion(learning_unit):
     msg = {}
-    for learning_unit_year in learn_unit_year_model.find_by_learning_unit(learning_unit):
+    for learning_unit_year in learn_unit_year_model.search(learning_unit).order_by('academic_year__year'):
         msg.update(check_learning_unit_year_deletion(learning_unit_year))
     return msg
 
@@ -52,7 +52,7 @@ def check_learning_unit_year_deletion(learning_unit_year):
     for component in learning_unit_component.find_by_learning_unit_year(learning_unit_year):
         msg.update(_check_learning_unit_component_deletion(component))
 
-    for group_element_year in learning_unit_year.get_list_group_element_year():
+    for group_element_year in learning_unit_year.find_list_group_element_year():
         msg.update(_check_group_element_year_deletion(group_element_year))
 
     next_year = learning_unit_year.get_learning_unit_next_year()
@@ -100,21 +100,22 @@ def _check_container_year_deletion(learning_container_year):
 def delete_learning_unit(learning_unit):
     msg = []
 
-    first_learning_unit_year = learn_unit_year_model.find_by_learning_unit(learning_unit).first()
-    if first_learning_unit_year:
-        msg.extend(delete_learning_unit_year(first_learning_unit_year))
+    first_learning_unit_year_to_delete = learn_unit_year_model.search(learning_unit=learning_unit)\
+                                                              .order_by('academic_year__year').first()
+    if first_learning_unit_year_to_delete:
+        msg.extend(delete_from_given_learning_unit_year(first_learning_unit_year_to_delete))
 
     learning_unit.delete()
 
     return msg
 
 
-def delete_learning_unit_year(learning_unit_year):
+def delete_from_given_learning_unit_year(learning_unit_year):
     msg = []
 
     next_year = learning_unit_year.get_learning_unit_next_year()
     if next_year:
-        msg.extend(delete_learning_unit_year(next_year))
+        msg.extend(delete_from_given_learning_unit_year(next_year))
 
     if learning_unit_year.learning_container_year and learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
         msg.extend(_delete_learning_container_year(learning_unit_year.learning_container_year))
@@ -138,7 +139,7 @@ def _delete_learning_container_year(learning_unit_container):
     msg = []
 
     for partim in learning_unit_container.get_partims_related():
-            msg.extend(delete_learning_unit_year(partim.delete(msg)))
+            msg.extend(delete_from_given_learning_unit_year(partim.delete()))
     learning_unit_container.delete()
 
     return msg
@@ -147,7 +148,7 @@ def _delete_learning_container_year(learning_unit_container):
 def _delete_learning_unit_component(l_unit_component):
     msg = []
 
-    msg.extend(l_unit_component.learning_component_year.delete(msg))
+    msg.extend(l_unit_component.learning_component_year.delete())
     l_unit_component.delete()
 
     return msg

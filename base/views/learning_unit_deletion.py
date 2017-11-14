@@ -41,7 +41,7 @@ def delete_from_given_learning_unit_year(request, learning_unit_year_id):
     messages_deletion = learning_unit_deletion.check_learning_unit_year_deletion(learning_unit_year)
     if not messages_deletion and request.method == 'POST':
         try:
-            result = learning_unit_deletion.delete_learning_unit_year(learning_unit_year)
+            result = learning_unit_deletion.delete_from_given_learning_unit_year(learning_unit_year)
             success_msg = _("You asked the deletion of the learning unit %(acronym)s from the year %(year)s") \
                           % {'acronym': learning_unit_year.acronym,
                              'year': learning_unit_year.academic_year}
