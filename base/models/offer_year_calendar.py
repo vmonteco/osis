@@ -25,7 +25,7 @@
 ##############################################################################
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.utils import timezone
+import datetime
 from django.contrib import admin
 from base.models import offer_year
 from base.models.enums import academic_calendar_type
@@ -33,7 +33,8 @@ from django.utils.translation import ugettext as _
 
 
 class OfferYearCalendarAdmin(admin.ModelAdmin):
-    list_display = ('academic_calendar', 'offer_year', 'start_date', 'end_date', 'changed', 'customized', 'education_group_year')
+    list_display = ('academic_calendar', 'offer_year', 'start_date', 'end_date', 'changed', 'customized',
+                    'education_group_year')
     fieldsets = ((None, {'fields': ('offer_year', 'academic_calendar', 'start_date', 'end_date', 'customized',
                                     'education_group_year')}),)
     raw_id_fields = ('offer_year', 'education_group_year')
@@ -50,7 +51,6 @@ class OfferYearCalendar(models.Model):
     end_date = models.DateTimeField(blank=True, null=True, db_index=True)
     customized = models.BooleanField(default=False)
     education_group_year = models.ForeignKey('EducationGroupYear', blank=True, null=True)
-
 
     def update_dates(self, start_date, end_date):
         if self.customized:
@@ -86,9 +86,9 @@ class OfferYearCalendar(models.Model):
         date_ac = getattr(self.academic_calendar, date_field)
         date_oyc = getattr(self.offer_year.academic_year, date_field)
         if date_ac:
-            return  datetime.datetime.combine(date_ac, datetime.datetime.min.time())
+            return datetime(year=date_ac.year, month=date_ac.month, day=date_ac.day)
         elif date_oyc:
-            return datetime.datetime.combine(date_oyc, datetime.datetime.min.time())
+            return datetime(year=date_oyc.year, month=date_oyc.month, day=date_oyc.day)
         else:
             None
 

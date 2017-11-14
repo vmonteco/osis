@@ -37,11 +37,12 @@ from base.models.enums import offer_year_entity_type
 from base.models.exceptions import MaximumOneParentAllowedException
 from base.models.group_element_year import GroupElementYear
 
+
 class EducationGroupYearAdmin(admin.ModelAdmin):
     list_display = ('acronym', 'title', 'academic_year', 'education_group_type', 'changed')
-    fieldsets = ((None, {'fields': ('academic_year', 'acronym', 'title', 'education_group_type', 'education_group',
-                                    'active', 'partial_deliberation', 'admission_exam', 'category',
-                                    'funding', 'funding_direction', 'funding_cud', 'funding_direction_cud',
+    fieldsets = ((None, {'fields': ('academic_year', 'acronym', 'partial_acronym', 'title', 'education_group_type',
+                                    'education_group', 'active', 'partial_deliberation', 'admission_exam', 'category',
+                                    'credits', 'funding', 'funding_direction', 'funding_cud', 'funding_direction_cud',
                                     'academic_type', 'university_certificate', 'fee_type', 'enrollment_campus',
                                     'main_teaching_campus', 'dissertation', 'internship',
                                     'schedule_type', 'english_activities', 'other_language_activities',
@@ -49,10 +50,11 @@ class EducationGroupYearAdmin(admin.ModelAdmin):
                                     'diploma_printing_orientation', 'diploma_printing_title',
                                     'inter_organization_information', 'inter_university_french_community',
                                     'inter_university_belgium', 'inter_university_abroad', 'primary_language',
-                                    'language_association','keywords', 'duration', 'duration_unit', 'title_english',
-                                    'enrollment_enabled')}),)
+                                    'language_association', 'keywords', 'duration', 'duration_unit', 'title_english',
+                                    'enrollment_enabled', 'remark', 'remark_english')}),)
     list_filter = ('academic_year', 'education_group_type')
-    raw_id_fields = ('education_group_type', 'academic_year', 'education_group','enrollment_campus', 'main_teaching_campus', 'primary_language')
+    raw_id_fields = ('education_group_type', 'academic_year', 'education_group', 'enrollment_campus',
+                     'main_teaching_campus', 'primary_language')
     search_fields = ['acronym']
 
 
@@ -81,19 +83,25 @@ class EducationGroupYear(models.Model):
     dissertation = models.BooleanField(default=False)
     internship = models.CharField(max_length=20, choices=internship_presence.INTERNSHIP_PRESENCE, blank=True, null=True)
     schedule_type = models.CharField(max_length=20, choices=schedule_type.SCHEDULE_TYPES, default=schedule_type.DAILY)
-    english_activities = models.CharField(max_length=20, choices=activity_presence.ACTIVITY_PRESENCES, blank=True, null=True)
-    other_language_activities = models.CharField(max_length=20, choices=activity_presence.ACTIVITY_PRESENCES, blank=True, null=True)
-    other_campus_activities = models.CharField(max_length=20, choices=activity_presence.ACTIVITY_PRESENCES, blank=True, null=True)
+    english_activities = models.CharField(max_length=20, choices=activity_presence.ACTIVITY_PRESENCES, blank=True,
+                                          null=True)
+    other_language_activities = models.CharField(max_length=20, choices=activity_presence.ACTIVITY_PRESENCES,
+                                                 blank=True, null=True)
+    other_campus_activities = models.CharField(max_length=20, choices=activity_presence.ACTIVITY_PRESENCES, blank=True,
+                                               null=True)
     professional_title = models.CharField(max_length=320, blank=True, null=True)
     joint_diploma = models.BooleanField(default=False)
-    diploma_printing_orientation = models.CharField(max_length=30, choices=diploma_printing_orientation.DIPLOMA_FOCUS, blank=True, null=True)
+    diploma_printing_orientation = models.CharField(max_length=30, choices=diploma_printing_orientation.DIPLOMA_FOCUS,
+                                                    blank=True, null=True)
     diploma_printing_title = models.CharField(max_length=140, blank=True, null=True)
     inter_organization_information = models.CharField(max_length=320, blank=True, null=True)
     inter_university_french_community = models.BooleanField(default=False)
     inter_university_belgium = models.BooleanField(default=False)
     inter_university_abroad = models.BooleanField(default=False)
     primary_language = models.ForeignKey('reference.Language', blank=True, null=True)
-    language_association = models.CharField(max_length=5, choices=education_group_association.EducationGroupAssociations.choices(), blank=True, null=True)
+    language_association = models.CharField(max_length=5,
+                                            choices=education_group_association.EducationGroupAssociations.choices(),
+                                            blank=True, null=True)
     keywords = models.CharField(max_length=320, blank=True, null=True)
     duration = models.IntegerField(blank=True, null=True)
     duration_unit = models.CharField(max_length=40,
@@ -101,6 +109,10 @@ class EducationGroupYear(models.Model):
                                      default=duration_unit.DurationUnits.QUADRIMESTER,
                                      blank=True, null=True)
     enrollment_enabled = models.BooleanField(default=False)
+    partial_acronym = models.CharField(max_length=15, db_index=True, null=True)
+    credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    remark = models.TextField(blank=True, null=True)
+    remark_english = models.TextField(blank=True, null=True)
 
     _coorganizations = None
 
@@ -117,7 +129,8 @@ class EducationGroupYear(models.Model):
 
     @property
     def administration_entity(self):
-        result = mdl_offer_year_entity.find_by_education_group_year_first(self, offer_year_entity_type.ENTITY_ADMINISTRATION)
+        result = mdl_offer_year_entity.find_by_education_group_year_first(self,
+                                                                          offer_year_entity_type.ENTITY_ADMINISTRATION)
         if result:
             ev = mdl_entity_version.get_last_version(result.entity)
             return ev
@@ -125,7 +138,8 @@ class EducationGroupYear(models.Model):
 
     @property
     def management_entity(self):
-        result = mdl_offer_year_entity.find_by_education_group_year_first(self, offer_year_entity_type.ENTITY_MANAGEMENT)
+        result = mdl_offer_year_entity.find_by_education_group_year_first(self,
+                                                                          offer_year_entity_type.ENTITY_MANAGEMENT)
         if result:
             ev = mdl_entity_version.get_last_version(result.entity)
             return ev

@@ -23,21 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from decimal import *
-
-from django.db import models
-from django.db.models import When, Case, Q, Sum, Count, IntegerField, F
-from django.contrib import admin
-from django.utils.translation import ugettext as _
-
-from django.core.validators import MaxValueValidator, MinValueValidator
-
-from base.models import person, session_exam_deadline, \
-    academic_year as academic_yr, offer_year, program_manager, tutor
-from attribution.models import attribution
-from base.models.enums import exam_enrollment_state as enrollment_states, exam_enrollment_justification_type as justification_types, mandate_type as mandate_types
-from base.models.exceptions import JustificationValueException
-from base.models.utils.admin_extentions import remove_delete_action
+from base.models.enums import mandate_type as mandate_types
 from django.db import models
 from django.contrib import admin
 
@@ -48,7 +34,7 @@ class MandateAdmin(admin.ModelAdmin):
                                     'function')}),)
 
     raw_id_fields = ('education_group',)
-    search_fields = ['education_group']
+    search_fields = ['education_group', 'function', 'external_id']
 
 
 class Mandate(models.Model):
@@ -56,7 +42,7 @@ class Mandate(models.Model):
     changed = models.DateTimeField(null=True, auto_now=True)
     education_group = models.ForeignKey('EducationGroup', blank=True, null=True)
     function = models.CharField(max_length=20, choices=mandate_types.MANDATE_TYPES)
-    qualification = models.CharField(max_length=50,blank=True, null=True )
+    qualification = models.CharField(max_length=50,blank=True, null=True)
 
     def __str__(self):
         return "{} {}".format(self.education_group, self.function)

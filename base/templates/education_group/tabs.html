@@ -36,7 +36,7 @@
 <ul class="nav nav-tabs" role="tablist">
     {% if education_group_year.parent_by_training %}
     <li role="presentation" {% if request.path == url_parent_tab %} class="active" {% endif %}>
-        <a href="{% url 'education_group_parent_read' education_group_year_id=education_group_year.id %}" role="tab">
+        <a href="{% url 'education_group_parent_read' education_group_year_id=education_group_year.parent_by_training.id %}?root={{ education_group_year.parent_by_training.id }}" role="tab">
             {{ education_group_year.parent_by_training.acronym }}
         </a>
     </li>
