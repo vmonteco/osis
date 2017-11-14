@@ -18,7 +18,7 @@ def update_program_managers_with_education_group(apps, schema_editor):
 def _get_program_manager_education_group_list():
     with connection.cursor() as cursor:
         sql = """
-            SELECT base_programmanager.id as program_manager_id, base_educationgroup.id as education_group_id
+            SELECT distinct base_programmanager.id as program_manager_id, base_educationgroup.id as education_group_id
             FROM base_programmanager
             JOIN base_offeryear on (base_offeryear.id = base_programmanager.offer_year_id)
             JOIN base_academicyear on (base_academicyear.id = base_offeryear.academic_year_id)
