@@ -186,3 +186,29 @@ class EducationGroupViewTestCase(TestCase):
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'education_group/tab_administrative_data.html')
         self.assertEqual(context['education_group_year'], education_group_year)
+
+    def test_get_sessions_dates(self):
+        from base.views.education_group import get_sessions_dates
+        from base.tests.factories.session_exam_calendar import SessionExamCalendarFactory
+        from base.tests.factories.academic_calendar import AcademicCalendarFactory
+        from base.tests.factories.education_group_year import EducationGroupYearFactory
+        from base.tests.factories.offer_year_calendar import OfferYearCalendarFactory
+
+        sessions_quantity = 3
+        an_academic_year = AcademicYearFactory()
+        academic_calendar = AcademicCalendarFactory.build(academic_year=an_academic_year)
+        academic_calendar.save(functions=[])
+        education_group_year = EducationGroupYearFactory(academic_year=an_academic_year)
+        session_exam_calendars = [SessionExamCalendarFactory(number_session=session,
+                                                             academic_calendar=academic_calendar)
+                                  for session in range(1, sessions_quantity + 1)]
+        offer_year_calendar = OfferYearCalendarFactory(
+            academic_calendar=academic_calendar,
+            education_group_year=education_group_year
+        )
+        self.assertEquals(
+            get_sessions_dates(academic_calendar.reference, education_group_year),
+            {
+                'session{}'.format(s): offer_year_calendar for s in range(1, sessions_quantity + 1)
+            }
+        )
