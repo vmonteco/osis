@@ -2210,3 +2210,12 @@ msgstr "The"
 
 msgid "proposal_management"
 msgstr "Proposal management"
+
+msgid "PRESIDENT"
+msgstr "President"
+
+msgid "SECRETARY"
+msgstr "Secretary"
+
+msgid "SIGNATORY"
+msgstr "Signatory"

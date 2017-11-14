@@ -2216,3 +2216,12 @@ msgstr "Le"
 
 msgid "proposal_management"
 msgstr "Gestion de la proposition"
+
+msgid "PRESIDENT"
+msgstr "Président"
+
+msgid "SECRETARY"
+msgstr "Secrétaire"
+
+msgid "SIGNATORY"
+msgstr "Signataire"

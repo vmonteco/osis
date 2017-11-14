@@ -23,14 +23,31 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import template
-from datetime import date
+from decimal import *
 
-register = template.Library()
+from django.db import models
+from django.contrib import admin
 
-@register.filter
-def offer_year_calendar_display(value_start, value_end):
-    if value_start.date() and value_end.date():
-        if value_start.date() <= date.today() <= value_end.date():
-            return "font-weight:bold;"
-    return ""
+from django.db import models
+from django.contrib import admin
+
+
+class MandataryAdmin(admin.ModelAdmin):
+    list_display = ('mandate', 'person')
+    fieldsets = ((None, {'fields': ('mandate',
+                                    'person',
+                                    'start_date',
+                                    'end_date')}),)
+    
+    raw_id_fields = ('mandate', 'person')
+    search_fields = ['person__first_name', 'person__last_name']
+
+
+class Mandatary(models.Model):
+    external_id = models.CharField(max_length=100, blank=True, null=True)
+    changed = models.DateTimeField(null=True, auto_now=True)
+    mandate = models.ForeignKey('Mandate')
+    person = models.ForeignKey('Person')
+    start_date = models.DateField(auto_now=False, auto_now_add=False)
+    end_date = models.DateField(auto_now=False, auto_now_add=False)
+
