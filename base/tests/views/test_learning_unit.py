@@ -960,14 +960,14 @@ class LearningUnitDelete(TestCase):
         LearningUnitComponentFactory(learning_unit_year=learning_unit_years[1],
                                      learning_component_year=lcomponent)
 
-        from base.views.learning_unit import learning_unit_delete
+        from base.views.learning_unit import delete_from_given_learning_unit_year
 
         request_factory = RequestFactory()
 
-        request = request_factory.get(reverse(learning_unit_delete, args=[learning_unit_years[1].id]))
+        request = request_factory.get(reverse(delete_from_given_learning_unit_year, args=[learning_unit_years[1].id]))
         request.user = mock.Mock()
 
-        learning_unit_delete(request, learning_unit_years[1].id)
+        delete_from_given_learning_unit_year(request, learning_unit_years[1].id)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -975,12 +975,12 @@ class LearningUnitDelete(TestCase):
         self.assertEqual(_('msg_warning_delete_learning_unit') % learning_unit_years[1], context['title'])
 
         # click on accept button
-        request = request_factory.post(reverse(learning_unit_delete, args=[learning_unit_years[1].id]))
+        request = request_factory.post(reverse(delete_from_given_learning_unit_year, args=[learning_unit_years[1].id]))
         request.user = mock.Mock()
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
-        learning_unit_delete(request, learning_unit_years[1].id)
+        delete_from_given_learning_unit_year(request, learning_unit_years[1].id)
 
         msg_level = [m.level for m in get_messages(request)]
         msg = [m.message for m in get_messages(request)]
@@ -1022,14 +1022,14 @@ class LearningUnitDelete(TestCase):
         LearningClassYearFactory(learning_component_year=lcomponent)
         LearningUnitComponentFactory(learning_unit_year=learning_unit_years[1], learning_component_year=lcomponent)
 
-        from base.views.learning_unit import learning_unit_delete_all
+        from base.views.learning_unit import delete_all_learning_units_year
 
         request_factory = RequestFactory()
 
-        request = request_factory.get(reverse(learning_unit_delete_all, args=[learning_unit_years[1].id]))
+        request = request_factory.get(reverse(delete_all_learning_units_year, args=[learning_unit_years[1].id]))
         request.user = mock.Mock()
 
-        learning_unit_delete_all(request, learning_unit_years[1].id)
+        delete_all_learning_units_year(request, learning_unit_years[1].id)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -1037,12 +1037,12 @@ class LearningUnitDelete(TestCase):
         self.assertEqual(_('msg_warning_delete_learning_unit') % l1, context['title'])
 
         # click on accept button
-        request = request_factory.post(reverse(learning_unit_delete_all, args=[learning_unit_years[1].id]))
+        request = request_factory.post(reverse(delete_all_learning_units_year, args=[learning_unit_years[1].id]))
         request.user = mock.Mock()
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
-        learning_unit_delete_all(request, learning_unit_years[1].id)
+        delete_all_learning_units_year(request, learning_unit_years[1].id)
 
         msg_level = [m.level for m in get_messages(request)]
         msg = [m.message for m in get_messages(request)]
@@ -1064,16 +1064,16 @@ class LearningUnitDelete(TestCase):
         ly1 = LearningUnitYearFactory()
         LearningUnitEnrollmentFactory(learning_unit_year=ly1)
 
-        from base.views.learning_unit import learning_unit_delete
+        from base.views.learning_unit import delete_from_given_learning_unit_year
 
         request_factory = RequestFactory()
 
-        request = request_factory.get(reverse(learning_unit_delete, args=[ly1.id]))
+        request = request_factory.get(reverse(delete_from_given_learning_unit_year, args=[ly1.id]))
         request.user = mock.Mock()
 
         setattr(request, 'session', 'session')
 
-        learning_unit_delete(request, ly1.id)
+        delete_from_given_learning_unit_year(request, ly1.id)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -1106,16 +1106,16 @@ class LearningUnitDelete(TestCase):
         ly1 = LearningUnitYearFactory(learning_unit=l1)
         LearningUnitEnrollmentFactory(learning_unit_year=ly1)
 
-        from base.views.learning_unit import learning_unit_delete_all
+        from base.views.learning_unit import delete_all_learning_units_year
 
         request_factory = RequestFactory()
 
-        request = request_factory.get(reverse(learning_unit_delete_all, args=[ly1.id]))
+        request = request_factory.get(reverse(delete_all_learning_units_year, args=[ly1.id]))
         request.user = mock.Mock()
 
         setattr(request, 'session', 'session')
 
-        learning_unit_delete_all(request, ly1.id)
+        delete_all_learning_units_year(request, ly1.id)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
