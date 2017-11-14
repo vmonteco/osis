@@ -37,7 +37,7 @@ from base.views import layout
 @login_required
 @permission_required('base.can_delete_learningunit', raise_exception=True)
 def delete_from_given_learning_unit_year(request, learning_unit_year_id):
-    learning_unit_year = mdl.learning_unit_year.find_by_id(learning_unit_year_id)
+    learning_unit_year = mdl.learning_unit_year.get_by_id(learning_unit_year_id)
     messages_deletion = learning_unit_deletion.check_learning_unit_year_deletion(learning_unit_year)
     if not messages_deletion and request.method == 'POST':
         try:
@@ -73,7 +73,7 @@ def delete_from_given_learning_unit_year(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_delete_learningunit', raise_exception=True)
 def delete_all_learning_units_year(request, learning_unit_year_id):
-    learning_unit_year = mdl.learning_unit_year.find_by_id(learning_unit_year_id)
+    learning_unit_year = mdl.learning_unit_year.get_by_id(learning_unit_year_id)
     learning_unit = learning_unit_year.learning_unit
 
     messages_deletion = learning_unit_deletion.check_learning_unit_deletion(learning_unit)

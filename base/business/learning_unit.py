@@ -81,7 +81,7 @@ def get_last_academic_years(last_years=10):
 
 
 def get_common_context_learning_unit_year(learning_unit_year_id):
-    learning_unit_year = mdl.learning_unit_year.find_by_id(learning_unit_year_id)
+    learning_unit_year = mdl.learning_unit_year.get_by_id(learning_unit_year_id)
     return {
         'learning_unit_year': learning_unit_year,
         'current_academic_year': mdl.academic_year.current_academic_year()

@@ -116,7 +116,7 @@ class LearningUnitYear(SerializableModel):
         try:
             return LearningUnitYear.objects.get(learning_unit=self.learning_unit,
                                                 academic_year__year=(self.academic_year.year+1))
-        except (LearningUnitYear.DoesNotExist, LearningUnitYear.MultipleObjectsReturned):
+        except LearningUnitYear.DoesNotExist:
             return None
 
     @property
@@ -124,9 +124,9 @@ class LearningUnitYear(SerializableModel):
         return self.learning_container_year and self.learning_container_year.in_charge
 
 
-def find_by_id(learning_unit_year_id):
-    return LearningUnitYear.objects.select_related('learning_container_year__learning_container') \
-        .get(pk=learning_unit_year_id)
+def get_by_id(learning_unit_year_id):
+    return LearningUnitYear.objects.select_related('learning_container_year__learning_container')\
+                                   .get(pk=learning_unit_year_id)
 
 
 def find_by_acronym(acronym):

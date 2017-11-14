@@ -30,7 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 
 def check_learning_unit_deletion(learning_unit):
     msg = {}
-    for learning_unit_year in learn_unit_year_model.search(learning_unit).order_by('academic_year__year'):
+    for learning_unit_year in learn_unit_year_model.search(learning_unit=learning_unit).order_by('academic_year__year'):
         msg.update(check_learning_unit_year_deletion(learning_unit_year))
     return msg
 

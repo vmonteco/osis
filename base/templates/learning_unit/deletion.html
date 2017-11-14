@@ -37,7 +37,6 @@
         </h2>
     </div>
     <div class="panel-body">
-        <!-- Display errors when deleting a learning unit -->
         {% if messages_deletion %}
             <ul class="messages">
                 {% for message in messages_deletion %}
@@ -46,7 +45,6 @@
             </ul>
         {% else %}
             {% trans 'are_you_sure' %}
-            </div>
             <div class="panel-footer">
                 <form method="post" style="display: inline;">
                     {% csrf_token %}
@@ -54,6 +52,7 @@
                     <button type="button" onclick="javascript:history.back()" class="btn btn-default">{% trans 'cancel' %}</button>
                     <button type="submit" class="btn btn-danger">{% trans 'i_confirm_and_am_aware' %}</button>
                 </form>
+            </div>
         {% endif %}
     </div>
 </div>

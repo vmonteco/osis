@@ -104,7 +104,7 @@ def scores_responsible_management(request):
     entities = [entity_manager.entity for entity_manager in entities_manager]
     entities_with_descendants = mdl_base.entity.find_descendants(entities)
     learning_unit_year_id = request.GET.get('learning_unit_year').strip('learning_unit_year_')
-    a_learning_unit_year = mdl_base.learning_unit_year.find_by_id(learning_unit_year_id)
+    a_learning_unit_year = mdl_base.learning_unit_year.get_by_id(learning_unit_year_id)
     if a_learning_unit_year.allocation_entity in entities_with_descendants:
         attributions = mdl_attr.attribution.find_all_responsible_by_learning_unit_year(a_learning_unit_year)
         academic_year = mdl_base.academic_year.current_academic_year()
@@ -124,7 +124,7 @@ def scores_responsible_management(request):
 @user_passes_test(is_entity_manager)
 def scores_responsible_add(request, pk):
     if request.POST.get('action') == "add":
-        a_learning_unit_year = mdl_base.learning_unit_year.find_by_id(pk)
+        a_learning_unit_year = mdl_base.learning_unit_year.get_by_id(pk)
         mdl_attr.attribution.clear_responsible_by_learning_unit_year(a_learning_unit_year)
         if request.POST.get('attribution'):
             attribution_id = request.POST.get('attribution').strip('attribution_')
