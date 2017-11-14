@@ -32,6 +32,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
 from base.models.enums import learning_unit_year_subtypes
+from base.models.learning_container import LearningContainer
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
@@ -118,6 +119,7 @@ class LearningUnitDelete(TestCase):
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
 
         learning_unit_years = self.create_learning_unit_years_and_dependencies()
+        learning_unit = learning_unit_years[0].learning_unit
 
         from base.views.learning_unit_deletion import delete_all_learning_units_year
 
@@ -149,6 +151,8 @@ class LearningUnitDelete(TestCase):
         for y in range(4):
             with self.assertRaises(ObjectDoesNotExist):
                 LearningUnitYear.objects.get(id=learning_unit_years[y].id)
+        with self.assertRaises(ObjectDoesNotExist):
+            LearningContainer.objects.get(pk=learning_unit.learning_container_id)
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
