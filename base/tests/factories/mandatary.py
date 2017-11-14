@@ -23,45 +23,42 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
 import datetime
 import string
-from base.tests.factories.academic_calendar import AcademicCalendarFactory
-from base.tests.factories.education_group_year import EducationGroupYearFactory
-from base.tests.factories.offer_year import OfferYearFactory
+
+import factory
+import factory.fuzzy
+from factory.django import DjangoModelFactory
+from faker import Faker
+
 from osis_common.utils.datetime import get_tzinfo
+from base.tests.factories.mandate import MandateFactory
+from base.tests.factories.person import PersonFactory
+fake = Faker()
 
 
-def generate_start_date(offer_year_calendar):
-    if offer_year_calendar.academic_calendar:
-        return datetime.datetime(offer_year_calendar.academic_calendar.start_date.year,
-                                 offer_year_calendar.academic_calendar.start_date.month,
-                                 offer_year_calendar.academic_calendar.start_date.day, tzinfo=get_tzinfo())
+def generate_start_date(academic_calendar):
+    if academic_calendar.academic_year:
+        return academic_calendar.academic_year.start_date
     else:
-        return datetime.datetime(2000, 1, 1, tzinfo=get_tzinfo())
+        return datetime.date(datetime.timezone.now().year, 9, 30)
 
 
-def generate_end_date(offer_year_calendar):
-    if offer_year_calendar.academic_calendar:
-        return datetime.datetime(offer_year_calendar.academic_calendar.end_date.year,
-                                 offer_year_calendar.academic_calendar.end_date.month,
-                                 offer_year_calendar.academic_calendar.end_date.day,
-                                 tzinfo=get_tzinfo())
+def generate_end_date(academic_calendar):
+    if academic_calendar.academic_year:
+        return academic_calendar.academic_year.end_date
     else:
-        return datetime.datetime(2099, 1, 1, tzinfo=get_tzinfo())
+        return datetime.date(datetime.timezone.now().year + 1, 9, 30)
 
 
-class OfferYearCalendarFactory(factory.django.DjangoModelFactory):
+class MandataryFactory(DjangoModelFactory):
     class Meta:
-        model = "base.OfferYearCalendar"
+        model = "base.Mandatary"
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
     changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    academic_calendar = factory.SubFactory(AcademicCalendarFactory)
-    offer_year = factory.SubFactory(OfferYearFactory)
+    mandate = factory.SubFactory(MandateFactory)
+    person = factory.SubFactory(PersonFactory)
     start_date = factory.LazyAttribute(generate_start_date)
     end_date = factory.LazyAttribute(generate_end_date)
-    customized = False
-    education_group_year = factory.SubFactory(EducationGroupYearFactory)
