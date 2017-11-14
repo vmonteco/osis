@@ -162,7 +162,7 @@ class EducationGroupViewTestCase(TestCase):
 
         request, template, context = mock_render.call_args[0]
 
-        self.assertEqual(template, 'education_group/tab_parent_training.html')
+        self.assertEqual(template, 'education_group/tab_identification.html')
 
         self.assertEqual(context['education_group_year'].parent_by_training, education_group_year_parent)
 
