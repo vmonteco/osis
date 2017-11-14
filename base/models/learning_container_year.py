@@ -70,9 +70,6 @@ class LearningContainerYear(SerializableModel):
         return learning_unit_year.search(learning_container_year_id=self,
                                          subtype=learning_unit_year_subtypes.PARTIM).order_by('acronym')
 
-    def get_learning_components_year(self):
-        return learning_component_year.find_by_learning_container_year(self, with_classes=True)
-
 
 def find_by_id(learning_container_year_id):
     return LearningContainerYear.objects.get(pk=learning_container_year_id)

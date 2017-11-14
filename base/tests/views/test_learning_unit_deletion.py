@@ -67,11 +67,9 @@ class LearningUnitDelete(TestCase):
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
-    @mock.patch('base.models.program_manager.is_program_manager')
-    def test_learning_unit_delete_success(self, mock_program_manager, mock_render, mock_decorators):
+    def test_delete_from_given_learning_unit_year_case_success(self, mock_render, mock_decorators):
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
-        mock_program_manager.return_value = True
 
         learning_unit_years = self.create_learning_unit_years_and_dependencies()
 
@@ -115,11 +113,9 @@ class LearningUnitDelete(TestCase):
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
-    @mock.patch('base.models.program_manager.is_program_manager')
-    def test_learning_unit_delete_all_success(self, mock_program_manager, mock_render, mock_decorators):
+    def test_delete_all_learning_units_year_case_success(self, mock_render, mock_decorators):
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
-        mock_program_manager.return_value = True
 
         learning_unit_years = self.create_learning_unit_years_and_dependencies()
 
@@ -156,11 +152,9 @@ class LearningUnitDelete(TestCase):
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
-    @mock.patch('base.models.program_manager.is_program_manager')
-    def test_learning_unit_delete_error(self, mock_program_manager, mock_render, mock_decorators):
+    def test_delete_from_given_learning_unit_year_case_error(self, mock_render, mock_decorators):
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
-        mock_program_manager.return_value = True
 
         ly1 = LearningUnitYearFactory()
         LearningUnitEnrollmentFactory(learning_unit_year=ly1)
@@ -197,11 +191,9 @@ class LearningUnitDelete(TestCase):
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
-    @mock.patch('base.models.program_manager.is_program_manager')
-    def test_learning_unit_delete_all_error(self, mock_program_manager, mock_render, mock_decorators):
+    def test_delete_all_learning_units_year_case_error(self, mock_render, mock_decorators):
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
-        mock_program_manager.return_value = True
 
         l1 = LearningUnitFactory()
         ly1 = LearningUnitYearFactory(learning_unit=l1)

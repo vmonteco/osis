@@ -49,7 +49,7 @@ class LearningUnitYearDeletion(TestCase):
     def setUp(self):
         self.academic_year = AcademicYearFactory(year=timezone.now().year)
 
-    def test_dict_deletion_learning_container_year(self):
+    def test_check_container_year_deletion(self):
         l_container_year = LearningContainerYearFactory()
         l_unit_1 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
                                            academic_year=self.academic_year, subtype=learning_unit_year_subtypes.FULL)
@@ -110,7 +110,7 @@ class LearningUnitYearDeletion(TestCase):
                          'year': l_unit_2.academic_year},
                       msg)
 
-    def test_dict_deletion_learning_unit_year(self):
+    def test_check_learning_unit_year_deletion(self):
         l_container_year = LearningContainerYearFactory(acronym="LBIR1212", academic_year=self.academic_year)
         l_unit_1 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
                                            academic_year=self.academic_year, subtype=learning_unit_year_subtypes.FULL)
