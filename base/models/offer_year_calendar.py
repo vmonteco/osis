@@ -25,7 +25,7 @@
 ##############################################################################
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.utils import timezone
+import datetime
 from django.contrib import admin
 from base.models import offer_year
 from base.models.enums import academic_calendar_type
@@ -33,7 +33,8 @@ from django.utils.translation import ugettext as _
 
 
 class OfferYearCalendarAdmin(admin.ModelAdmin):
-    list_display = ('academic_calendar', 'offer_year', 'start_date', 'end_date', 'changed', 'customized')
+    list_display = ('academic_calendar', 'offer_year', 'start_date', 'end_date', 'changed', 'customized',
+                    'education_group_year')
     fieldsets = ((None, {'fields': ('offer_year', 'academic_calendar', 'start_date', 'end_date', 'customized',
                                     'education_group_year')}),)
     raw_id_fields = ('offer_year', 'education_group_year')
@@ -51,6 +52,8 @@ class OfferYearCalendar(models.Model):
     customized = models.BooleanField(default=False)
     education_group_year = models.ForeignKey('EducationGroupYear', blank=True, null=True)
 
+    class Meta:
+        unique_together = ('academic_calendar', 'education_group_year')
 
     def update_dates(self, start_date, end_date):
         if self.customized:
@@ -172,3 +175,9 @@ def find_latest_end_date_by_academic_calendar(academic_calendar_id):
         return None
 
 
+def get_by_education_group_year_and_academic_calendar(an_academic_calendar, an_education_group_year):
+    try:
+        return OfferYearCalendar.objects.get(academic_calendar=an_academic_calendar,
+                                             education_group_year=an_education_group_year)
+    except ObjectDoesNotExist:
+        return None

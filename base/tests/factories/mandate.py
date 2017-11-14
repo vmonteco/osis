@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,28 +23,31 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-DELIBERATION = "DELIBERATION"
-DISSERTATION_SUBMISSION = "DISSERTATION_SUBMISSION"
-EXAM_ENROLLMENTS = "EXAM_ENROLLMENTS"
-SCORES_EXAM_DIFFUSION = "SCORES_EXAM_DIFFUSION"
-SCORES_EXAM_SUBMISSION = "SCORES_EXAM_SUBMISSION"
-TEACHING_CHARGE_APPLICATION = "TEACHING_CHARGE_APPLICATION"
-COURSE_ENROLLMENT = "COURSE_ENROLLMENT"
+import datetime
+import operator
+import string
 
-ACADEMIC_CALENDAR_TYPES = (
-    (DELIBERATION, DELIBERATION),
-    (DISSERTATION_SUBMISSION, DISSERTATION_SUBMISSION),
-    (EXAM_ENROLLMENTS, EXAM_ENROLLMENTS),
-    (SCORES_EXAM_DIFFUSION, SCORES_EXAM_DIFFUSION),
-    (SCORES_EXAM_SUBMISSION, SCORES_EXAM_SUBMISSION),
-    (TEACHING_CHARGE_APPLICATION, TEACHING_CHARGE_APPLICATION),
-    (COURSE_ENROLLMENT, COURSE_ENROLLMENT))
+import factory
+import factory.fuzzy
+from factory.django import DjangoModelFactory
+from faker import Faker
 
-ACADEMIC_CALENDAR_TYPES_COLORS = {
-    DELIBERATION: '#d9534f',
-    DISSERTATION_SUBMISSION: '#5bc0de',
-    EXAM_ENROLLMENTS: '#5bc0de',
-    SCORES_EXAM_DIFFUSION: '#5cb85c',
-    SCORES_EXAM_SUBMISSION: '#f0ad4e',
-    TEACHING_CHARGE_APPLICATION: '#337ab7'
-}
+from osis_common.utils.datetime import get_tzinfo
+from base.tests.factories.education_group import EducationGroupFactory
+from base.models.enums import mandate_type as mandate_types
+fake = Faker()
+
+
+class MandateFactory(DjangoModelFactory):
+    class Meta:
+        model = "base.Mandate"
+
+    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
+    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
+                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    education_group = factory.SubFactory(EducationGroupFactory)
+
+
+    function = factory.Iterator(mandate_types.MANDATE_TYPES,
+                            getter=operator.itemgetter(0))
+    qualification = factory.Sequence(lambda n: 'qualification - %d' % n)

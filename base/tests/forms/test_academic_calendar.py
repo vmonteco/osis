@@ -77,9 +77,9 @@ class TestAcademicCalendarForm(TestCase):
         date_format = str(_('date_format'))
         self.assertEqual(form.errors['end_date'], "%s." % (_('academic_calendar_offer_year_calendar_end_date_error')
                                                            % (an_academic_calendar.title,
-                                                           an_offer_year_calendar.end_date.strftime(date_format),
-                                                           an_academic_calendar.title,
-                                                           an_offer_year_calendar.offer_year.acronym)))
+                                                              an_offer_year_calendar.end_date.strftime(date_format),
+                                                              an_academic_calendar.title,
+                                                              an_offer_year_calendar.offer_year.acronym)))
 
     def test_with_correct_form(self):
         form = AcademicCalendarForm(data={
