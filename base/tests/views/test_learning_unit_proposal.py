@@ -28,7 +28,6 @@ import datetime
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
-from base.models.entity_version import find_main_entities_version
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
@@ -141,8 +140,6 @@ class TestLearningUnitModificationProposal(TestCase):
             "language": self.learning_unit_year.learning_container_year.language.id,
             "quadrimester": self.learning_unit_year.quadrimester,
             "campus": self.learning_unit_year.learning_container_year.campus.id,
-            "person": self.person.pk,
-            "date": datetime.date.today(),
             "requirement_entity": self.entity_version.id,
             "type_proposal": proposal_type.ProposalType.MODIFICATION.name,
             "state_proposal": proposal_state.ProposalState.FACULTY.name,

@@ -26,7 +26,7 @@
 from django import forms
 
 from base.models.person import Person
-from base.forms.learning_units import CreateLearningUnitYearForm, EntitiesVersionChoiceField
+from base.forms.learning_units import CreateLearningUnitYearForm
 from base.models.entity_version import find_main_entities_version
 from base.models.enums import proposal_type, proposal_state
 
@@ -45,3 +45,4 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
 
     def is_valid(self):
         return super().is_valid()
+
