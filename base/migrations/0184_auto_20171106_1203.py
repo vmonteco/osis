@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('base', '0182_programmanager_education_group'),
+        ('base', '0183_mandate_offer_calendar_date'),
     ]
 
     operations = [
