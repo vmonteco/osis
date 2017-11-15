@@ -81,7 +81,7 @@ def _check_learning_unit_component_deletion(l_unit_component):
     for attribution_charge in l_unit_component.learning_component_year.get_attributions_charge():
         attribution = attribution_charge.attribution
 
-        msg[attribution_charge] = _("%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s") % {
+        msg[attribution] = _("%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s") % {
             'subtype': _str_partim_or_full(l_unit_component.learning_unit_year),
             'acronym': l_unit_component.learning_unit_year.acronym,
             'tutor': attribution.tutor,
