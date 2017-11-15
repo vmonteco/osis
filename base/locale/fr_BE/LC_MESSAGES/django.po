@@ -2187,8 +2187,8 @@ msgstr "Non concerné"
 msgid "organization_address_save_error"
 msgstr "Impossible d'enregistrer l'adresse de l'organisation"
 
-msgid "i_confirm_and_am_aware"
-msgstr "Oui, je confirme et je suis conscient des conséquences."
+msgid "i_confirm"
+msgstr "Oui, je confirme."
 
 msgid "msg_warning_delete_learning_unit"
 msgstr "Cette opération est <strong>permanente</strong> et ne peut pas être défaite. Vous perdrez à jamais"
