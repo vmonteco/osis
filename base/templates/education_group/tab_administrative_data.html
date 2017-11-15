@@ -76,9 +76,21 @@
                                 </tr>
                                 <tr>
                                     <td><label>{% trans 'marks_presentation' %}</label></td>
-                                    <td>{{scores_exam_submission.session1.start_date| default_if_none:'-'|date:"d/m/Y"}}</td>
-                                    <td>{{scores_exam_submission.session2.start_date| default_if_none:'-'|date:"d/m/Y"}}</td>
-                                    <td>{{scores_exam_submission.session3.start_date| default_if_none:'-'|date:"d/m/Y"}}</td>
+                                    <td>
+                                        {% if scores_exam_submission.session1 and scores_exam_submission.session1.start_date %}
+                                            {{ scores_exam_submission.session1.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ scores_exam_submission.session1.start_date | default_if_none:'-'|date:"H:i"}}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if scores_exam_submission.session2 and scores_exam_submission.session2.start_date %}
+                                            {{ scores_exam_submission.session2.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ scores_exam_submission.session2.start_date | default_if_none:'-'|date:"H:i"}}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if scores_exam_submission.session3 and scores_exam_submission.session3.start_date %}
+                                            {{ scores_exam_submission.session3.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ scores_exam_submission.session3.start_date | default_if_none:'-'|date:"H:i"}}
+                                        {% endif %}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td><label>{% trans 'dissertation_presentation' %}</label></td>
@@ -90,17 +102,17 @@
                                     <td><label>{% trans 'DELIBERATION' %}</label></td>
                                     <td>
                                         {% if deliberation.session1 and deliberation.session1.start_date %}
-                                            {{ deliberation.session1.start_date| default_if_none:''|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ deliberation.session1.start_date | default_if_none:'-'|date:"H:i"}}
+                                            {{ deliberation.session1.start_date| default_if_none:''|date:"d/m/Y"}}
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if deliberation.session2 and deliberation.session2.start_date %}
-                                            {{ deliberation.session2.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ deliberation.session2.start_date | default_if_none:'-'|date:"H:i"}}
+                                            {{ deliberation.session2.start_date| default_if_none:'-'|date:"d/m/Y"}}
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if deliberation.session3 and deliberation.session3.start_date %}
-                                            {{ deliberation.session3.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ deliberation.session3.start_date | default_if_none:'-'|date:"H:i"}}
+                                            {{ deliberation.session3.start_date| default_if_none:'-'|date:"d/m/Y"}}
                                         {% endif %}
                                     </td>
                                 </tr>
