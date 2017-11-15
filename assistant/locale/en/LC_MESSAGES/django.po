@@ -103,6 +103,9 @@ msgstr "Number of students per series"
 msgid "awards"
 msgstr "Prize(s) and/or distinction(s)"
 
+msgid "bad_filename"
+msgstr "Filename can not contains : ( ) % $ , ; : / = +"
+
 msgid "beginning"
 msgstr "Beginning"
 
@@ -392,6 +395,9 @@ msgstr "List of mandates"
 msgid "matricule_number"
 msgstr "Registration number"
 
+msgid "maxlength_filename"
+msgstr "The length of filename may not exceed 100 characters."
+
 msgid "must_enter_supervisor_if_registered_or_in_progress"
 msgstr "The promoter must be identified"
 
@@ -421,6 +427,9 @@ msgstr "No promoter"
 
 msgid "NORMAL"
 msgstr "Normal"
+
+msgid "only_pdf_file"
+msgstr "You must select a PDF file"
 
 msgid "other_status"
 msgstr "Other status"

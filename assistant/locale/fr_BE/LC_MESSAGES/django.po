@@ -103,6 +103,9 @@ msgstr "Nombre d'étudiants par série"
 msgid "awards"
 msgstr "Prix et/ou distinction(s)"
 
+msgid "bad_filename"
+msgstr "Le nom du fichier ne peut pas contenir : ( ) % $ , ; : / = +"
+
 msgid "beginning"
 msgstr "Début"
 
@@ -392,6 +395,9 @@ msgstr "Liste des mandats"
 msgid "matricule_number"
 msgstr "Numéro de matricule"
 
+msgid "maxlength_filename"
+msgstr "Le nom du fichier ne doit pas excéder 100 caractères."
+
 msgid "must_enter_supervisor_if_registered_or_in_progress"
 msgstr "Le promoteur doit être identifé"
 
@@ -421,6 +427,9 @@ msgstr "Pas de promoteur"
 
 msgid "NORMAL"
 msgstr "Normal"
+
+msgid "only_pdf_file"
+msgstr "Vous devez sélectionner un fichier PDF"
 
 msgid "other_status"
 msgstr "Autre status"

@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required
+from django.db import DataError
 from django.http import *
 from assistant import models as mdl
 from osis_common.models import document_file as document_file
@@ -74,4 +75,4 @@ def save_uploaded_file(request):
         assistant_mandate_document_file.assistant_mandate = assistant_mandate
         assistant_mandate_document_file.document_file = new_document
         assistant_mandate_document_file.save()
-    return
+    return HttpResponse('')

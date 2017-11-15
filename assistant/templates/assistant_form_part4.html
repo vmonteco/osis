@@ -126,6 +126,30 @@
        var file = this.files[0];
        fileName = file.name;
        $("#hdn_filename").val(fileName);
+       if(fileName.length > 100){
+            document.getElementById("error_modal_upload").innerHTML = "{% trans 'maxlength_filename'%}";
+            $("#txt_file").val('')
+            $('#pnl_upload_error').remove();
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            return false;
+        }
+        else {
+            document.getElementById("error_modal_upload").innerHTML = "";
+        }
+        res = /.*[()%$,;:/=+].*/i.test(fileName);
+        if(res)
+            {
+            document.getElementById("error_modal_upload").innerHTML = "{% trans 'bad_filename'%}";
+            $("#txt_file").val('')
+            $('#pnl_upload_error').remove();
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            return false;
+        }
+        else {
+            document.getElementById("error_modal_upload").innerHTML = "";
+        }
     });
     $('[id^="bt_load_doc_"]').click(function(event) {
         var target = $(event.target);
