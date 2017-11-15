@@ -59,17 +59,17 @@
                                 <tr>
                                     <td><label>{% trans 'exams_enrollments' %}</label></td>
                                     <td>
-                                        {% if exam_enrollments.session1 %}
+                                        {% if exam_enrollments.session1 and exam_enrollments.session1.start_date %}
                                             <label>{% trans 'from' %}</label> {{exam_enrollments.session1.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'to' %}</label> {{ exam_enrollments.session1.end_date| default_if_none:'-'|date:"d/m/Y" }}
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% if exam_enrollments.session2 %}
+                                        {% if exam_enrollments.session2 and exam_enrollments.session2.start_date %}
                                             <label>{% trans 'from' %}</label> {{exam_enrollments.session2.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'to' %}</label> {{ exam_enrollments.session2.end_date| default_if_none:'-'|date:"d/m/Y" }}
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% if exam_enrollments.session3 %}
+                                        {% if exam_enrollments.session3 and exam_enrollments.session3.start_date %}
                                             <label>{% trans 'from' %}</label> {{exam_enrollments.session3.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'to' %}</label> {{ exam_enrollments.session3.end_date | default_if_none:'-'|date:"d/m/Y"}}
                                         {% endif %}
                                     </td>
@@ -89,32 +89,34 @@
                                 <tr>
                                     <td><label>{% trans 'DELIBERATION' %}</label></td>
                                     <td>
-                                        {% if deliberation.session1 %}
-                                            {{ deliberation.session1.start_date| default_if_none:'-'|date:"d/m/Y"}}
+                                        {% if deliberation.session1 and deliberation.session1.start_date %}
+                                            {{ deliberation.session1.start_date| default_if_none:''|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ deliberation.session1.start_date | default_if_none:'-'|date:"H:i"}}
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% if deliberation.session2 %}
-                                            {{ deliberation.session2.start_date| default_if_none:'-'|date:"d/m/Y"}} </td>
+                                        {% if deliberation.session2 and deliberation.session2.start_date %}
+                                            {{ deliberation.session2.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ deliberation.session2.start_date | default_if_none:'-'|date:"H:i"}}
                                         {% endif %}
+                                    </td>
                                     <td>
-                                        {% if deliberation.session3 %}
-                                            {{ deliberation.session3.start_date| default_if_none:'-'|date:"d/m/Y"}} </td>
+                                        {% if deliberation.session3 and deliberation.session3.start_date %}
+                                            {{ deliberation.session3.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ deliberation.session3.start_date | default_if_none:'-'|date:"H:i"}}
                                         {% endif %}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td><label>{% trans 'scores_diffusion' %}</label></td>
                                     <td>
-                                        {% if scores_exam_diffusion.session1 %}
+                                        {% if scores_exam_diffusion.session1 and scores_exam_diffusion.session1.start_date %}
                                             {{ scores_exam_diffusion.session1.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ scores_exam_diffusion.session1.start_date | default_if_none:'-'|date:"H:i"}}
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% if scores_exam_diffusion.session2 %}
+                                        {% if scores_exam_diffusion.session2 and scores_exam_diffusion.session2.start_date %}
                                             {{ scores_exam_diffusion.session2.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ scores_exam_diffusion.session2.start_date | default_if_none:'-'|date:"H:i"}}</td>
                                         {% endif %}
                                     <td>
-                                        {% if scores_exam_diffusion.session3 %}
+                                        {% if scores_exam_diffusion.session3 and scores_exam_diffusion.session3.start_date %}
                                             {{ scores_exam_diffusion.session3.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ scores_exam_diffusion.session3.start_date | default_if_none:'-'|date:"H:i"}}</td>
                                         {% endif %}
                                 </tr>
