@@ -90,17 +90,19 @@
                                     <td><label>{% trans 'DELIBERATION' %}</label></td>
                                     <td>
                                         {% if deliberation.session1 %}
-                                            {{ deliberation.session1.start_date| default_if_none:'-'|date:"d/m/Y"}}
+                                            {{ deliberation.session1.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ deliberation.session1.start_date | default_if_none:'-'|date:"H:i"}}
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if deliberation.session2 %}
-                                            {{ deliberation.session2.start_date| default_if_none:'-'|date:"d/m/Y"}} </td>
+                                            {{ deliberation.session2.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ deliberation.session2.start_date | default_if_none:'-'|date:"H:i"}}
                                         {% endif %}
+                                    </td>
                                     <td>
                                         {% if deliberation.session3 %}
-                                            {{ deliberation.session3.start_date| default_if_none:'-'|date:"d/m/Y"}} </td>
+                                            {{ deliberation.session3.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ deliberation.session3.start_date | default_if_none:'-'|date:"H:i"}}
                                         {% endif %}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td><label>{% trans 'scores_diffusion' %}</label></td>
