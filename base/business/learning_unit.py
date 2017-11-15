@@ -81,7 +81,7 @@ def get_last_academic_years(last_years=10):
 
 
 def get_common_context_learning_unit_year(learning_unit_year_id):
-    learning_unit_year = mdl.learning_unit_year.find_by_id(learning_unit_year_id)
+    learning_unit_year = mdl.learning_unit_year.get_by_id(learning_unit_year_id)
     return {
         'learning_unit_year': learning_unit_year,
         'current_academic_year': mdl.academic_year.current_academic_year()
@@ -111,14 +111,6 @@ def get_same_container_year_components(learning_unit_year, with_classes=False):
                            'used_by_learning_unit': used_by_learning_unit
                            })
     return components
-
-
-def get_partims_related(learning_unit_year):
-    learning_container_year = learning_unit_year.learning_container_year
-    if learning_container_year:
-        return mdl.learning_unit_year.search(learning_container_year_id=learning_container_year,
-                                             subtype=learning_unit_year_subtypes.PARTIM) \
-            .exclude(learning_container_year__isnull=True).order_by('acronym')
 
 
 def show_subtype(learning_unit_year):
@@ -309,6 +301,5 @@ def create_learning_unit_year(academic_year, data, learning_container_year, lear
                                            status=status,
                                            session=data['session'],
                                            quadrimester=data['quadrimester'])
-
 
 

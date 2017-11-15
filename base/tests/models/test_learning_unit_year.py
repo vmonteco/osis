@@ -27,6 +27,9 @@ from django.test import TestCase
 from django.utils import timezone
 from attribution.models import attribution
 from base.models import learning_unit_year
+from base.models.enums import learning_unit_year_subtypes
+from base.models.learning_unit_year import LearningUnitYear
+from base.tests.factories.learning_unit_enrollment import LearningUnitEnrollmentFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory

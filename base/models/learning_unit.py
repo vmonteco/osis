@@ -24,6 +24,8 @@
 #
 ##############################################################################
 from django.db import models
+
+from base.models.learning_unit_year import LearningUnitYear
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 
@@ -65,6 +67,7 @@ class LearningUnit(SerializableModel):
             ("can_access_learningunit", "Can access learning unit"),
             ("can_edit_learningunit_pedagogy", "Can edit learning unit pedagogy"),
             ("can_edit_learningunit_specification", "Can edit learning unit specification"),
+            ("can_delete_learningunit", "Can delete learning unit"),
         )
 
 

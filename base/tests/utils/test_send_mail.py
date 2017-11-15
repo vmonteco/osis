@@ -38,11 +38,11 @@ class TestSendMessage(TestCase):
         self.person_2 = test_person.create_person("person_2", last_name="test", email="person2@test.com")
         self.persons = [self.person_1, self.person_2]
 
-        academic_year = test_academic_year.create_academic_year()
+        self.academic_year = test_academic_year.create_academic_year()
         self.learning_unit_year = test_learning_unit_year.create_learning_unit_year("TEST", "Cours de test",
-                                                                                    academic_year)
+                                                                                    self.academic_year)
         self.offer_year = test_offer_year.create_offer_year("SINF2MA", "Master en Sciences Informatique",
-                                                            academic_year)
+                                                            self.academic_year)
 
         self.exam_enrollment_1 = test_exam_enrollment.create_exam_enrollment_with_student(1, "64641200",
                                                                                           self.offer_year,
@@ -50,8 +50,38 @@ class TestSendMessage(TestCase):
         self.exam_enrollment_2 = test_exam_enrollment.create_exam_enrollment_with_student(2, "60601200",
                                                                                           self.offer_year,
                                                                                           self.learning_unit_year)
+
+        self.msg_list = [
+            'The partim TEST_A has been deleted for the year '+str(self.academic_year.year),
+            'The partim TEST_B has been deleted for the year '+str(self.academic_year.year),
+            'The class TEST_C has been deleted for the year '+str(self.academic_year.year),
+            'The class TEST_A_C1 has been deleted for the year '+str(self.academic_year.year),
+            'The class TEST_A_C2 has been deleted for the year '+str(self.academic_year.year),
+            'The class TEST_B_C1 has been deleted for the year '+str(self.academic_year.year),
+            'The class TEST_B_C2 has been deleted for the year '+str(self.academic_year.year),
+            'The learning unit TEST has been successfully deleted for all years'
+        ]
+
         add_message_template_html()
         add_message_template_txt()
+
+
+    @patch("osis_common.messaging.send_message.EmailMultiAlternatives", autospec=True)
+    def test_send_mail_after_the_learning_unit_year_deletion(self, mock_class):
+        mock_class.send.return_value = None
+        self.assertIsInstance(mock_class, EmailMultiAlternatives)
+        send_mail.send_mail_after_the_learning_unit_year_deletion(self.persons,
+                                                                  self.learning_unit_year.acronym,
+                                                                  self.academic_year,
+                                                                  self.msg_list)
+        call_args = mock_class.call_args
+        subject = call_args[0][0]
+        recipients = call_args[0][3]
+        attachments = call_args[1]
+        self.assertIn(self.learning_unit_year.acronym, subject)
+        self.assertEqual(len(recipients), 2)
+        self.assertIsNone(attachments['attachments'])
+
 
     @patch("osis_common.messaging.send_message.EmailMultiAlternatives", autospec=True)
     def test_with_one_enrollment(self, mock_class):
@@ -70,7 +100,6 @@ class TestSendMessage(TestCase):
     def assert_subject_mail(self, subject, learning_unit_acronym, offer_year_acronym):
         self.assertIn(learning_unit_acronym, subject)
         self.assertIn(offer_year_acronym, subject)
-
 
 
 def add_message_template_txt():
@@ -128,3 +157,4 @@ def add_message_template_html():
         language="en"
     )
     msg_template.save()
+

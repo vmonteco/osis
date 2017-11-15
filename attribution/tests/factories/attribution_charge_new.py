@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,22 +23,18 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-from django.contrib import admin
-from django.utils.translation import ugettext_lazy as _
+import string
+import factory
+import factory.fuzzy
 
-from base.models.enums import learning_unit_year_subtypes
-
-
-class GroupElementYearAdmin(admin.ModelAdmin):
-    list_display = ('parent', 'child_branch', 'child_leaf',)
-    fieldsets = ((None, {'fields': ('parent', 'child_branch', 'child_leaf',)}),)
-    raw_id_fields = ('parent', 'child_branch', 'child_leaf',)
+from attribution.tests.factories.attribution_new import AttributionNewFactory
+from base.tests.factories.learning_component_year import LearningComponentYearFactory
 
 
-class GroupElementYear(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    parent = models.ForeignKey('EducationGroupYear', related_name='parent', blank=True, null=True)
-    child_branch = models.ForeignKey('EducationGroupYear', related_name='child_branch', blank=True, null=True)
-    child_leaf = models.ForeignKey('LearningUnitYear', related_name='child_leaf', blank=True, null=True)
+class AttributionChargeNewFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "attribution.AttributionChargeNew"
+
+    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
+    attribution = factory.SubFactory(AttributionNewFactory)
+    learning_component_year = factory.SubFactory(LearningComponentYearFactory)
