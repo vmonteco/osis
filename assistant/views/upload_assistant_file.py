@@ -24,7 +24,6 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required
-from django.db import DataError
 from django.http import *
 from assistant import models as mdl
 from osis_common.models import document_file as document_file
