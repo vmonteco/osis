@@ -123,11 +123,11 @@ def delete_from_given_learning_unit_year(learning_unit_year):
         msg.extend(_delete_learning_container_year(learning_unit_year.learning_container_year))
 
     for component in learning_unit_component.find_by_learning_unit_year(learning_unit_year):
-        _delete_learning_unit_component(component)
+        msg.extend(_delete_learning_unit_component(component))
 
     learning_unit_year.delete()
 
-    msg.append(_("%(subtype)s %(acronym)s has been deleted for the year %(year)s") \
+    msg.append(_("%(subtype)s %(acronym)s has been deleted for the year %(year)s")
                % {'subtype': _str_partim_or_full(learning_unit_year),
                   'acronym':  learning_unit_year.acronym,
                   'year': learning_unit_year.academic_year})
@@ -150,13 +150,12 @@ def _delete_learning_container_year(learning_unit_container):
 def _delete_learning_unit_component(l_unit_component):
     msg = []
 
-    msg.extend(l_unit_component.learning_component_year.delete())
+    msg.extend(_delete_learning_component_year(l_unit_component.learning_component_year))
     l_unit_component.delete()
-
     return msg
 
 
-def delete_learning_component_year(learning_component_year):
+def _delete_learning_component_year(learning_component_year):
     msg = []
 
     for l_class_year in learning_class_year.find_by_learning_component_year(learning_component_year):
