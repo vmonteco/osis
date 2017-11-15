@@ -50,7 +50,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="learning_unit_id" value="{{ learning_unit.id }}" />
                     <button type="button" onclick="javascript:history.back()" class="btn btn-default">{% trans 'cancel' %}</button>
-                    <button type="submit" class="btn btn-danger">{% trans 'i_confirm_and_am_aware' %}</button>
+                    <button type="submit" class="btn btn-danger">{% trans 'i_confirm' %}</button>
                 </form>
             </div>
         {% endif %}

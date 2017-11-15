@@ -151,7 +151,8 @@ class LearningUnitYearDeletion(TestCase):
             dict_learning_units[year] = LearningUnitYearFactory(academic_year=academic_year, learning_unit=l_unit)
 
         msg = learning_unit_deletion.delete_from_given_learning_unit_year(dict_learning_units[2007])
-        self.assertEqual(LearningUnitYear.objects.filter(academic_year__year__gte=2007, learning_unit=l_unit).count(), 0)
+        self.assertEqual(LearningUnitYear.objects.filter(academic_year__year__gte=2007, learning_unit=l_unit).count(),
+                         0)
         self.assertEqual(len(msg), 10)
 
     def test_delete_learning_unit_component_class(self):
@@ -161,14 +162,21 @@ class LearningUnitYearDeletion(TestCase):
                                                                comment="TEST")
 
         number_classes = 10
-        for _ in range(number_classes):
+        for x in range(number_classes):
             LearningClassYearFactory(learning_component_year=learning_component_year)
 
         # Association du conteneur et de son composant dont les années académiques diffèrent l'une de l'autre
         learning_unit_component = LearningUnitComponentFactory(learning_component_year=learning_component_year)
-        msg = learning_unit_deletion.delete_learning_component_year(learning_component_year)
+        msg = learning_unit_deletion.delete_from_given_learning_unit_year(learning_unit_component.learning_unit_year)
+
+        msg_success = _("%(subtype)s %(acronym)s has been deleted for the year %(year)s")
+        self.assertEqual(msg_success % {'subtype': _('The learning unit'),
+                                        'acronym': learning_unit_component.learning_unit_year.acronym,
+                                        'year': learning_unit_component.learning_unit_year.academic_year},
+                         msg.pop())
 
         self.assertEqual(LearningClassYear.objects.all().count(), 0)
+
         self.assertEqual(len(msg), number_classes)
         with self.assertRaises(ObjectDoesNotExist):
             LearningUnitComponent.objects.get(id=learning_component_year.id)
