@@ -59,17 +59,17 @@
                                 <tr>
                                     <td><label>{% trans 'exams_enrollments' %}</label></td>
                                     <td>
-                                        {% if exam_enrollments.session1 %}
+                                        {% if exam_enrollments.session1.start_date %}
                                             <label>{% trans 'from' %}</label> {{exam_enrollments.session1.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'to' %}</label> {{ exam_enrollments.session1.end_date| default_if_none:'-'|date:"d/m/Y" }}
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% if exam_enrollments.session2 %}
+                                        {% if exam_enrollments.session2.start_date %}
                                             <label>{% trans 'from' %}</label> {{exam_enrollments.session2.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'to' %}</label> {{ exam_enrollments.session2.end_date| default_if_none:'-'|date:"d/m/Y" }}
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% if exam_enrollments.session3 %}
+                                        {% if exam_enrollments.session3.start_date %}
                                             <label>{% trans 'from' %}</label> {{exam_enrollments.session3.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'to' %}</label> {{ exam_enrollments.session3.end_date | default_if_none:'-'|date:"d/m/Y"}}
                                         {% endif %}
                                     </td>
