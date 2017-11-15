@@ -26,6 +26,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 
+from attribution.tests.factories.attribution import AttributionNewFactory
 from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
 from base.business import learning_unit_deletion
 from base.models.enums import learning_unit_year_subtypes
@@ -67,12 +68,21 @@ class LearningUnitYearDeletion(TestCase):
         group_2 = GroupElementYearFactory(child_leaf=l_unit_2)
 
         component = LearningUnitComponentFactory(learning_unit_year=l_unit_2)
-        attribution_charge_1 = AttributionChargeNewFactory(learning_component_year=component.learning_component_year)
-        attribution_charge_2 = AttributionChargeNewFactory(learning_component_year=component.learning_component_year)
+
+        attribution_1 = AttributionNewFactory()
+        attribution_2 = AttributionNewFactory()
+
+        AttributionChargeNewFactory(learning_component_year=component.learning_component_year,
+                                    attribution=attribution_1)
+        AttributionChargeNewFactory(learning_component_year=component.learning_component_year,
+                                    attribution=attribution_1)
+        AttributionChargeNewFactory(learning_component_year=component.learning_component_year,
+                                    attribution=attribution_2)
 
         msg = learning_unit_deletion._check_related_partims_deletion(l_container_year)
         msg = list(msg.values())
 
+        self.assertEqual(len(msg), 5)
         self.assertIn(_("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s")
                       % {'subtype': _('The partim'),
                          'acronym': l_unit_2.acronym,
@@ -84,12 +94,12 @@ class LearningUnitYearDeletion(TestCase):
         self.assertIn(msg_delete_tutor % {'subtype': _('The partim'),
                                           'acronym': l_unit_2.acronym,
                                           'year': l_unit_2.academic_year,
-                                          'tutor': attribution_charge_1.attribution.tutor},
+                                          'tutor': attribution_1.tutor},
                       msg)
         self.assertIn(msg_delete_tutor % {'subtype': _('The partim'),
                                           'acronym': l_unit_2.acronym,
                                           'year': l_unit_2.academic_year,
-                                          'tutor': attribution_charge_2.attribution.tutor},
+                                          'tutor': attribution_2.tutor},
                       msg)
 
         msg_delete_offer_type = _(
