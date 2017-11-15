@@ -47,7 +47,7 @@ def delete_from_given_learning_unit_year(request, learning_unit_year_id):
                              'year': learning_unit_year.academic_year}
             messages.add_message(request, messages.SUCCESS, success_msg)
 
-            for msg in result:
+            for msg in sorted(result):
                 messages.add_message(request, messages.SUCCESS, msg)
 
             send_mail_after_the_learning_unit_year_deletion([], learning_unit_year.acronym,
@@ -63,7 +63,7 @@ def delete_from_given_learning_unit_year(request, learning_unit_year_id):
             context = {'title': _("cannot_delete_learning_unit_year")
                                 % {'learning_unit': learning_unit_year.acronym,
                                    'year': learning_unit_year.academic_year},
-                       'messages_deletion': messages_deletion.values()}
+                       'messages_deletion': sorted(messages_deletion.values())}
         else:
             context = {'title': _("msg_warning_delete_learning_unit") % learning_unit_year}
 
@@ -84,7 +84,7 @@ def delete_all_learning_units_year(request, learning_unit_year_id):
             messages.add_message(request, messages.SUCCESS,
                                  _("The learning unit %(acronym)s has been successfully deleted for all years.")
                                  % {'acronym': learning_unit.acronym})
-            for message_deletion in result:
+            for message_deletion in sorted(result):
                 messages.add_message(request, messages.SUCCESS, message_deletion)
 
             send_mail_after_the_learning_unit_year_deletion([], learning_unit.acronym, None, result)
@@ -97,7 +97,7 @@ def delete_all_learning_units_year(request, learning_unit_year_id):
     else:
         if messages_deletion:
             context = {'title': _('cannot_delete_learning_unit') % {'learning_unit': learning_unit.acronym},
-                       'messages_deletion': messages_deletion.values()}
+                       'messages_deletion': sorted(messages_deletion.values())}
         else:
             context = {'title': _('msg_warning_delete_learning_unit') % learning_unit}
 
