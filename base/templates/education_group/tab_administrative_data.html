@@ -43,8 +43,9 @@
                 <div class="panel panel-default">
                     <div class="panel-body">
                         <label>{% trans 'course_enrollment' %}</label><br>
-
-                        {% trans 'from' %} {{course_enrollment.dates.start_date| default_if_none:'-'|date:"d/m/Y"}} {% trans 'to' %} {{course_enrollment.dates.end_date| default_if_none:'-'|date:"d/m/Y"}}
+                        {% if course_enrollment.dates and course_enrollment.dates.start_date %}
+                            {% trans 'from' %} {{course_enrollment.dates.start_date| default_if_none:'-'|date:"d/m/Y"}} {% trans 'to' %} {{course_enrollment.dates.end_date| default_if_none:'-'|date:"d/m/Y"}}
+                        {% endif %}
                         <br>
                         <table class="table">
                             <thead>
