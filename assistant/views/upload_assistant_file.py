@@ -27,7 +27,6 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.http import *
 from django.core.urlresolvers import reverse
-from django.shortcuts import render
 from django.utils.translation import ugettext as _
 
 from osis_common.models import document_file as document_file
