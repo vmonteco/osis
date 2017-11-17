@@ -23,7 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models import learning_unit_enrollment, learning_unit_component, learning_class_year, learning_unit_year as learn_unit_year_model
+from base.models import learning_unit_enrollment, learning_unit_component, learning_class_year, \
+    learning_unit_year as learn_unit_year_model
 from base.models.enums import learning_unit_year_subtypes
 from django.utils.translation import ugettext_lazy as _
 
@@ -141,7 +142,7 @@ def _delete_learning_container_year(learning_unit_container):
     msg = []
 
     for partim in learning_unit_container.get_partims_related():
-            msg.extend(delete_from_given_learning_unit_year(partim.delete()))
+        msg.extend(delete_from_given_learning_unit_year(partim))
     learning_unit_container.delete()
 
     return msg
@@ -161,8 +162,8 @@ def _delete_learning_component_year(learning_component_year):
     for l_class_year in learning_class_year.find_by_learning_component_year(learning_component_year):
         l_class_year.delete()
         msg.append(_("The class %(acronym)s has been deleted for the year %(year)s")
-               % {'acronym': l_class_year,
-                  'year': learning_component_year.learning_container_year.academic_year})
+                   % {'acronym': l_class_year,
+                      'year': learning_component_year.learning_container_year.academic_year})
     learning_component_year.delete()
 
     return msg
