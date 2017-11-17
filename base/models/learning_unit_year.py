@@ -122,6 +122,11 @@ class LearningUnitYear(SerializableModel):
     def in_charge(self):
         return self.learning_container_year and self.learning_container_year.in_charge
 
+    def find_gte_learning_units_year(self):
+        return LearningUnitYear.objects.filter(learning_unit=self.learning_unit,
+                                               academic_year__year__gte=self.academic_year.year) \
+            .order_by('academic_year__year')
+
 
 def get_by_id(learning_unit_year_id):
     return LearningUnitYear.objects.select_related('learning_container_year__learning_container')\
@@ -191,3 +196,4 @@ def find_lt_year_acronym(academic_yr, acronym):
 def check_if_acronym_regex_is_valid(acronym):
     if isinstance(acronym, str):
         return re.fullmatch(REGEX_ACRONYM_CHARSET, acronym.upper())
+
