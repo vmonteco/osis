@@ -106,9 +106,7 @@ def delete_learning_unit(learning_unit):
     if first_learning_unit_year_to_delete:
         msg.extend(delete_from_given_learning_unit_year(first_learning_unit_year_to_delete))
 
-    container = learning_unit.learning_container
     learning_unit.delete()
-    container.delete()
 
     return msg
 

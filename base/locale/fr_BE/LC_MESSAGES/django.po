@@ -2234,7 +2234,7 @@ msgid "Delete from this academic year"
 msgstr "Supprimer à partir de cette année académique"
 
 msgid "Delete all the learning unit"
-msgstr "Supprimer toute l'unité d'enseignement"
+msgstr "Supprimer toute l'unité d'enseignement (sur toutes les années académiques)"
 
 msgid "You asked the deletion of the learning unit %(acronym)s from the year %(year)s"
 msgstr "Vous avez demandé la suppression de l'unité d'enseignement %(acronym)s à partir de l'année %(year)s"
@@ -2292,3 +2292,6 @@ msgstr "Session"
 
 msgid "at"
 msgstr "à"
+
+msgid "learning_unit_years_to_delete"
+msgstr "Vous êtes sur le point de supprimer définitiviement les UE suivantes"

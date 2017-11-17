@@ -151,8 +151,6 @@ class LearningUnitDelete(TestCase):
         for y in range(4):
             with self.assertRaises(ObjectDoesNotExist):
                 LearningUnitYear.objects.get(id=learning_unit_years[y].id)
-        with self.assertRaises(ObjectDoesNotExist):
-            LearningContainer.objects.get(pk=learning_unit.learning_container_id)
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')

@@ -32,6 +32,7 @@ from base.utils.send_mail import send_mail_after_the_learning_unit_year_deletion
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from base.views import layout
+from base.models import learning_unit_year as learning_unit_year_mdl
 
 
 @login_required
@@ -65,7 +66,10 @@ def delete_from_given_learning_unit_year(request, learning_unit_year_id):
                                    'year': learning_unit_year.academic_year},
                        'messages_deletion': sorted(messages_deletion.values())}
         else:
-            context = {'title': _("msg_warning_delete_learning_unit") % learning_unit_year}
+            learning_units_to_delete = learning_unit_year_mdl.search(learning_unit=learning_unit_year.learning_unit)\
+                                                             .order_by('academic_year__year')
+            context = {'title': _("msg_warning_delete_learning_unit") % learning_unit_year,
+                       'learning_units_to_delete': learning_units_to_delete}
 
         return layout.render(request, "learning_unit/deletion.html", context)
 
@@ -99,6 +103,7 @@ def delete_all_learning_units_year(request, learning_unit_year_id):
             context = {'title': _('cannot_delete_learning_unit') % {'learning_unit': learning_unit.acronym},
                        'messages_deletion': sorted(messages_deletion.values())}
         else:
-            context = {'title': _('msg_warning_delete_learning_unit') % learning_unit}
+            context = {'title': _('msg_warning_delete_learning_unit') % learning_unit,
+                       'learning_units_to_delete': learning_unit_year_mdl.search(learning_unit=learning_unit).order_by('academic_year__year')}
 
         return layout.render(request, "learning_unit/deletion.html", context)

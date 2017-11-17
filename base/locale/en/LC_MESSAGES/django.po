@@ -2286,3 +2286,6 @@ msgstr "Session"
 
 msgid "at"
 msgstr "at"
+
+msgid "learning_unit_years_to_delete"
+msgstr "You will definitely delete the following learning units"

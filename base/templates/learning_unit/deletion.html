@@ -44,6 +44,12 @@
                 {% endfor %}
             </ul>
         {% else %}
+            <p>{% trans 'learning_unit_years_to_delete' %} : </p>
+            <ul>
+                {% for luy in learning_units_to_delete %}
+                    <li> {{ luy }}</li>
+                {% endfor %}
+            </ul>
             {% trans 'are_you_sure' %}
             <div class="panel-footer">
                 <form method="post" style="display: inline;">
