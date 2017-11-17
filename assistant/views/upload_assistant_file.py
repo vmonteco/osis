@@ -23,11 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import json
 from django.contrib.auth.decorators import login_required
 from django.http import *
-from assistant import models as mdl
-from osis_common.models import document_file as document_file
 from django.core.urlresolvers import reverse
+from django.shortcuts import render
+from django.utils.translation import ugettext as _
+
+from osis_common.models import document_file as document_file
+from assistant import models as mdl
 
 
 @login_required
@@ -59,7 +63,15 @@ def save_uploaded_file(request):
         file_selected = request.FILES['file']
         file = file_selected
         file_name = file_selected.name
+        if len(file_name) > 100:
+            return HttpResponse(
+                json.dumps({"error":True, "message": _('maxlength_filename')}),
+                content_type="application/json")
         content_type = file_selected.content_type
+        if content_type != "application/pdf":
+            return HttpResponse(
+                json.dumps({"error": True, "message": _('only_pdf_file')}),
+                content_type="application/json")
         description = data['description']
         storage_duration = 0
         new_document = document_file.DocumentFile(file_name=file_name,
@@ -69,9 +81,18 @@ def save_uploaded_file(request):
                                                   application_name='assistant',
                                                   content_type=content_type,
                                                   update_by=request.user)
-        new_document.save()
-        assistant_mandate_document_file = mdl.assistant_document_file.AssistantDocumentFile()
-        assistant_mandate_document_file.assistant_mandate = assistant_mandate
-        assistant_mandate_document_file.document_file = new_document
-        assistant_mandate_document_file.save()
-    return HttpResponse('')
+        try:
+            new_document.save()
+            assistant_mandate_document_file = mdl.assistant_document_file.AssistantDocumentFile()
+            assistant_mandate_document_file.assistant_mandate = assistant_mandate
+            assistant_mandate_document_file.document_file = new_document
+            assistant_mandate_document_file.save()
+            return HttpResponse(
+                json.dumps({"success": True}),
+                content_type="application/json")
+        except:
+            return HttpResponse(
+                json.dumps({"error": True, "message": _('object_not_saved')}),
+                content_type="application/json")
+
+

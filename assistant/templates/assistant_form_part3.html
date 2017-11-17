@@ -292,19 +292,19 @@ $("#bt_upload_document").click(function(event) {
                 processData: false,
                 contentType: false,
                 complete: function(xhr, statusText) {
-                    if (xhr.status == '0') {
-                        //problem occured
-                        $('#pnl_assistant_error').remove();
-                        var msg_error = jQuery('<div class="alert alert-danger" id="pnl_assistant_error">' +
-                            gettext('error_occured') + '</span>');
-                        $('#pnl_assistant_errors').append(msg_error);
-                        return false;
+                    var data_response=xhr.responseText;
+                    var jsonResponse = JSON.parse(data_response);
+                    if (jsonResponse["error"]) {
+                        alert(jsonResponse["message"]);
                     }
-                    window.location.reload(true);
+                    else {
+                        window.location.reload(true);
+                    }
                 }
             });
             return true;
-        } else {
+        }
+        else {
             document.getElementById("error_modal_upload").innerHTML = "{% trans 'only_pdf_file'%}";
             $("#txt_file").val('')
             $('#pnl_upload_error').remove();

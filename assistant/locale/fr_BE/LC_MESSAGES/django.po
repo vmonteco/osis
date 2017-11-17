@@ -428,6 +428,9 @@ msgstr "Pas de promoteur"
 msgid "NORMAL"
 msgstr "Normal"
 
+msgid "object_not_saved"
+msgstr "Erreur durant la sauvegarde du fichier, veuillez réessayer"
+
 msgid "only_pdf_file"
 msgstr "Vous devez sélectionner un fichier PDF"
 
