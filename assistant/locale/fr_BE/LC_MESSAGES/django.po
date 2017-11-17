@@ -617,6 +617,9 @@ msgstr "Procédure de démarrage"
 msgid "students_service"
 msgstr "Informations aux futurs étudiants (CIO, salons, Campus Days, Midi Masters...)"
 
+msgid "substitute_supervisor"
+msgstr "Promoteur de remplacement"
+
 msgid "summary"
 msgstr "Récapitulatif"
 
