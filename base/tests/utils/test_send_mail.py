@@ -24,6 +24,8 @@
 #
 ##############################################################################
 from django.test import TestCase
+
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from osis_common.models import message_template
 from base.utils import send_mail
 from unittest.mock import patch
@@ -39,8 +41,10 @@ class TestSendMessage(TestCase):
         self.persons = [self.person_1, self.person_2]
 
         self.academic_year = test_academic_year.create_academic_year()
-        self.learning_unit_year = test_learning_unit_year.create_learning_unit_year("TEST", "Cours de test",
-                                                                                    self.academic_year)
+        self.learning_unit_year = LearningUnitYearFactory(acronym="TEST",
+                                                          title="Cours de test",
+                                                          academic_year=self.academic_year)
+
         self.offer_year = test_offer_year.create_offer_year("SINF2MA", "Master en Sciences Informatique",
                                                             self.academic_year)
 
