@@ -52,6 +52,9 @@ msgstr "Dates de la procédure de renouvellement des mandats"
 msgid "apply"
 msgstr "Appliquer"
 
+msgid "assistants_contract_end_dates"
+msgstr "Dates de fin de contrat des assistants"
+
 msgid "assistant_form"
 msgstr "Dossier assistant"
 

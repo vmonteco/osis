@@ -81,6 +81,25 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel-default">
+		            <div class="panel-heading">
+                        <h4>{% trans 'assistants_contract_end_dates' %}</h4>
+		            </div>
+                    <div class="form-group" style="padding-top: 5px;">
+                        <label for="txt_assistants_starting_date">{% trans 'beginning' %}</label>
+                        {{ form.assistants_contract_end_starting_date }}
+                        <span class="error">{{ form.assistants_contract_end_starting_date.errors }}</span>
+                    </div>
+                    <div class="form-group" style="padding-top: 5px;">
+                        <label for="txt_assistants_ending_date">{% trans 'end' %}</label>
+                        {{ form.assistants_contract_end_ending_date }}
+                        <span class="error">{{ form.assistants_contract_end_ending_date.errors }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
         <button type="submit" class="btn btn-primary" title="{% trans 'save'%}" id="bt_settings_save">
             <span class="glyphicon glyphicon-save" aria-hidden="true"></span> {% trans 'save'%}</button>
             <a class="btn btn-default" id="lnk_cancel" href="{% url 'manager_home' %}">
