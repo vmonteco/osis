@@ -103,9 +103,6 @@ def delete_all_learning_units_year(request, learning_unit_year_id):
             context = {'title': _('cannot_delete_learning_unit') % {'learning_unit': learning_unit.acronym},
                        'messages_deletion': sorted(messages_deletion.values())}
         else:
-            # test = list(learning_unit_year_mdl.LearningUnitYear.objects.filter(learning_unit__learning_container=learning_unit.learning_container))
-            # if learning_unit_year.learning_container_year:
-            #     test2 = learning_unit_year_mdl.search(learning_container=learning_unit_year.learning_container_year.learning_container)
             context = {'title': _('msg_warning_delete_learning_unit') % learning_unit,
                        'learning_units_to_delete': learning_unit_year_mdl.search(learning_unit=learning_unit).order_by('academic_year__year')}
 
