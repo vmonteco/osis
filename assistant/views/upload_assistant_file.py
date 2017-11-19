@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import json
+from django.db import DataError
 from django.contrib.auth.decorators import login_required
 from django.http import *
 from django.core.urlresolvers import reverse
@@ -89,7 +90,7 @@ def save_uploaded_file(request):
             return HttpResponse(
                 json.dumps({"success": True}),
                 content_type="application/json")
-        except:
+        except DataError:
             return HttpResponse(
                 json.dumps({"error": True, "message": _('object_not_saved')}),
                 content_type="application/json")
