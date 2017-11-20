@@ -27,6 +27,7 @@ from django import forms
 from django.db import models
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.forms import ModelChoiceField
+from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.bootstrap import BootstrapForm
@@ -63,7 +64,7 @@ class ModelChoiceFieldWithData(forms.ModelChoiceField):
 
     def __init__(self, queryset, **kwargs):
         super(ModelChoiceFieldWithData, self).__init__(queryset, **kwargs)
-        self.widget.data_attrs = queryset.in_bulk()
+        self.widget.data_attrs = lazy(queryset.in_bulk, dict)
 
 
 class EducationGroupFilter(BootstrapForm):

@@ -27,6 +27,7 @@
 {% url 'education_group_read' education_group_year_id=education_group_year.id as url_identification_tab %}
 {% url 'education_group_diplomas' education_group_year_id=education_group_year.id as url_diplomas_tab %}
 {% url 'education_group_general_informations' education_group_year_id=education_group_year.id as url_general_informations_tab %}
+{% url 'education_group_administrative' education_group_year_id=education_group_year.id as url_administrative_tab %}
 
 {% if education_group_year.parent_by_training %}
 {% url 'education_group_parent_read' education_group_year_id=education_group_year.id as url_parent_tab %}
@@ -35,7 +36,7 @@
 <ul class="nav nav-tabs" role="tablist">
     {% if education_group_year.parent_by_training %}
     <li role="presentation" {% if request.path == url_parent_tab %} class="active" {% endif %}>
-        <a href="{% url 'education_group_parent_read' education_group_year_id=education_group_year.id %}" role="tab">
+        <a href="{% url 'education_group_parent_read' education_group_year_id=education_group_year.parent_by_training.id %}?root={{ education_group_year.parent_by_training.id }}" role="tab">
             {{ education_group_year.parent_by_training.acronym }}
         </a>
     </li>
@@ -54,6 +55,11 @@
     <li role="presentation" {% if request.path == url_general_informations_tab %} class="active" {% endif %}>
         <a href="{{url_general_informations_tab}}" role="tab">
             {% trans 'general_informations' %}
+        </a>
+    </li>
+    <li role="presentation" {% if request.path == url_administrative_tab %} class="active" {% endif %}>
+        <a href="{{url_administrative_tab}}" role="tab">
+            {% trans 'administrative_data' %}
         </a>
     </li>
 </ul>

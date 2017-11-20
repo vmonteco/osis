@@ -23,15 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
-
 from django.test import TestCase
 
 from base.models import learning_container_year
-from base.models.enums import learning_unit_year_subtypes
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from django.utils import timezone
 
 
 class LearningContainerYearTest(TestCase):
@@ -42,4 +39,3 @@ class LearningContainerYearTest(TestCase):
     def test_find_by_id_with_wrong_value(self):
         with self.assertRaises(ValueError):
             learning_container_year.find_by_id("BAD VALUE")
-

@@ -67,7 +67,7 @@ def upload_scores_file(request, learning_unit_year_id=None):
     if form.is_valid():
         file_name = request.FILES['file']
         if file_name is not None:
-            learning_unit_year = mdl.learning_unit_year.find_by_id(learning_unit_year_id)
+            learning_unit_year = mdl.learning_unit_year.get_by_id(learning_unit_year_id)
             try:
                 __save_xls_scores(request, file_name, learning_unit_year.id)
             except IndexError:
@@ -137,7 +137,7 @@ def __save_xls_scores(request, file_name, learning_unit_year_id):
         return False
     worksheet = workbook.active
     new_scores_number = 0
-    learning_unit_year = mdl.learning_unit_year.find_by_id(learning_unit_year_id)
+    learning_unit_year = mdl.learning_unit_year.get_by_id(learning_unit_year_id)
     is_program_manager = mdl.program_manager.is_program_manager(request.user)
 
     data_xls = _get_all_data(worksheet)

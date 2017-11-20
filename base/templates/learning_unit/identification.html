@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% load format %}
 {% load staticfiles %}
 {% load i18n %}
 {% load learning_unit %}
@@ -181,5 +182,6 @@
             </div>
         </div>
     </div>
+    {% include "learning_unit/footer.html" %}
 </div>
 {% endblock %}
