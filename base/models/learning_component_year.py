@@ -28,11 +28,9 @@ from django.db import models
 from attribution.models.attribution_charge_new import AttributionChargeNew
 from base.models.enums import learning_component_year_type, learning_container_year_types
 from base.models import learning_class_year
-from django.utils.translation import ugettext_lazy as _
-from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
+from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 
-
-class LearningComponentYearAdmin(SerializableModelAdmin):
+class LearningComponentYearAdmin(AuditableSerializableModelAdmin):
     list_display = ('learning_container_year', 'title', 'acronym', 'type', 'comment')
     fieldsets = ((None, {'fields': ('learning_container_year', 'title', 'acronym', 'volume_declared_vacant',
                                     'type', 'comment', 'planned_classes', 'hourly_volume_partial')}),)
@@ -41,7 +39,7 @@ class LearningComponentYearAdmin(SerializableModelAdmin):
     list_filter = ('learning_container_year__academic_year',)
 
 
-class LearningComponentYear(SerializableModel):
+class LearningComponentYear(AuditableSerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     learning_container_year = models.ForeignKey('LearningContainerYear')
     title = models.CharField(max_length=255, blank=True, null=True)

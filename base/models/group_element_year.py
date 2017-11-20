@@ -25,18 +25,16 @@
 ##############################################################################
 from django.db import models
 from django.contrib import admin
-from django.utils.translation import ugettext_lazy as _
-
-from base.models.enums import learning_unit_year_subtypes
+from osis_common.models.auditable_model import AuditableModel, AuditableModelAdmin
 
 
-class GroupElementYearAdmin(admin.ModelAdmin):
+class GroupElementYearAdmin(AuditableModelAdmin):
     list_display = ('parent', 'child_branch', 'child_leaf',)
     fieldsets = ((None, {'fields': ('parent', 'child_branch', 'child_leaf',)}),)
     raw_id_fields = ('parent', 'child_branch', 'child_leaf',)
 
 
-class GroupElementYear(models.Model):
+class GroupElementYear(AuditableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     parent = models.ForeignKey('EducationGroupYear', related_name='parent', blank=True, null=True)
