@@ -26,6 +26,7 @@
 import re
 from django.db import models
 
+from base.models.group_element_year import GroupElementYear
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 from base.models import entity_container_year
@@ -103,19 +104,38 @@ class LearningUnitYear(SerializableModel):
         ).first()
         return entity_container_yr.entity if entity_container_yr else None
 
+    def get_partims_related(self):
+        if self.subtype == learning_unit_year_subtypes.FULL and self.learning_container_year:
+            return self.learning_container_year.get_partims_related()
+
+    def find_list_group_element_year(self):
+        return GroupElementYear.objects.filter(child_leaf=self).select_related('parent')
+
+    def get_learning_unit_next_year(self):
+        try:
+            return LearningUnitYear.objects.get(learning_unit=self.learning_unit,
+                                                academic_year__year=(self.academic_year.year+1))
+        except LearningUnitYear.DoesNotExist:
+            return None
+
     @property
     def in_charge(self):
         return self.learning_container_year and self.learning_container_year.in_charge
 
+    def find_gte_learning_units_year(self):
+        return LearningUnitYear.objects.filter(learning_unit=self.learning_unit,
+                                               academic_year__year__gte=self.academic_year.year) \
+            .order_by('academic_year__year')
 
-def find_by_id(learning_unit_year_id):
+
+def get_by_id(learning_unit_year_id):
     return LearningUnitYear.objects.select_related('learning_container_year__learning_container')\
                                    .get(pk=learning_unit_year_id)
 
 
 def find_by_acronym(acronym):
-    return LearningUnitYear.objects.filter(acronym=acronym)\
-                                   .select_related('learning_container_year')
+    return LearningUnitYear.objects.filter(acronym=acronym) \
+        .select_related('learning_container_year')
 
 
 def _is_regex(acronym):
@@ -176,3 +196,4 @@ def find_lt_year_acronym(academic_yr, acronym):
 def check_if_acronym_regex_is_valid(acronym):
     if isinstance(acronym, str):
         return re.fullmatch(REGEX_ACRONYM_CHARSET, acronym.upper())
+

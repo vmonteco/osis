@@ -30,6 +30,7 @@ from django.conf.urls import url, include
 from attribution.views import attribution
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group, learning_unit_proposal
+import base.views.learning_unit_deletion
 
 
 urlpatterns = [
@@ -106,6 +107,8 @@ urlpatterns = [
             url(r'^volumes/', include([
                 url(u'^$', learning_unit.learning_unit_volumes_management, name="learning_unit_volumes_management"),
                 url(u'^validation/$', learning_unit.volumes_validation, name="volumes_validation")])),
+            url(r'^delete/$', base.views.learning_unit_deletion.delete_from_given_learning_unit_year, name="learning_unit_delete"),
+            url(r'^delete_full/$', base.views.learning_unit_deletion.delete_all_learning_units_year, name="learning_unit_delete_all"),
         ])),
         url(r'^check/$', learning_unit.check_acronym, name="check_acronym"),
         url(r'^check_code/$', learning_unit.check_code, name="check_code"),
@@ -150,6 +153,7 @@ urlpatterns = [
             url(r'^informations/$', education_group.education_group_general_informations,
                 name='education_group_general_informations'),
 
+            url(r'^administrative/$', education_group.education_group_administrative_data, name='education_group_administrative'),
         ]))
     ])),
 

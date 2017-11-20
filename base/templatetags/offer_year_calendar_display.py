@@ -28,6 +28,7 @@ from datetime import date
 
 register = template.Library()
 
+
 @register.filter
 def offer_year_calendar_display(value_start, value_end):
     if value_start.date() and value_end.date():

@@ -53,7 +53,8 @@ class EducationGroupYearAdmin(admin.ModelAdmin):
                                     'language_association', 'keywords', 'duration', 'duration_unit', 'title_english',
                                     'enrollment_enabled', 'remark', 'remark_english')}),)
     list_filter = ('academic_year', 'education_group_type')
-    raw_id_fields = ('education_group_type', 'academic_year', 'education_group')
+    raw_id_fields = ('education_group_type', 'academic_year', 'education_group', 'enrollment_campus',
+                     'main_teaching_campus', 'primary_language')
     search_fields = ['acronym']
 
 
@@ -82,19 +83,25 @@ class EducationGroupYear(models.Model):
     dissertation = models.BooleanField(default=False)
     internship = models.CharField(max_length=20, choices=internship_presence.INTERNSHIP_PRESENCE, blank=True, null=True)
     schedule_type = models.CharField(max_length=20, choices=schedule_type.SCHEDULE_TYPES, default=schedule_type.DAILY)
-    english_activities = models.CharField(max_length=20, choices=activity_presence.ACTIVITY_PRESENCES, blank=True, null=True)
-    other_language_activities = models.CharField(max_length=20, choices=activity_presence.ACTIVITY_PRESENCES, blank=True, null=True)
-    other_campus_activities = models.CharField(max_length=20, choices=activity_presence.ACTIVITY_PRESENCES, blank=True, null=True)
+    english_activities = models.CharField(max_length=20, choices=activity_presence.ACTIVITY_PRESENCES, blank=True,
+                                          null=True)
+    other_language_activities = models.CharField(max_length=20, choices=activity_presence.ACTIVITY_PRESENCES,
+                                                 blank=True, null=True)
+    other_campus_activities = models.CharField(max_length=20, choices=activity_presence.ACTIVITY_PRESENCES, blank=True,
+                                               null=True)
     professional_title = models.CharField(max_length=320, blank=True, null=True)
     joint_diploma = models.BooleanField(default=False)
-    diploma_printing_orientation = models.CharField(max_length=30, choices=diploma_printing_orientation.DIPLOMA_FOCUS, blank=True, null=True)
+    diploma_printing_orientation = models.CharField(max_length=30, choices=diploma_printing_orientation.DIPLOMA_FOCUS,
+                                                    blank=True, null=True)
     diploma_printing_title = models.CharField(max_length=140, blank=True, null=True)
     inter_organization_information = models.CharField(max_length=320, blank=True, null=True)
     inter_university_french_community = models.BooleanField(default=False)
     inter_university_belgium = models.BooleanField(default=False)
     inter_university_abroad = models.BooleanField(default=False)
     primary_language = models.ForeignKey('reference.Language', blank=True, null=True)
-    language_association = models.CharField(max_length=5, choices=education_group_association.EducationGroupAssociations.choices(), blank=True, null=True)
+    language_association = models.CharField(max_length=5,
+                                            choices=education_group_association.EducationGroupAssociations.choices(),
+                                            blank=True, null=True)
     keywords = models.CharField(max_length=320, blank=True, null=True)
     duration = models.IntegerField(blank=True, null=True)
     duration_unit = models.CharField(max_length=40,
@@ -122,18 +129,18 @@ class EducationGroupYear(models.Model):
 
     @property
     def administration_entity(self):
-        result = mdl_offer_year_entity.find_by_education_group_year_first(self, offer_year_entity_type.ENTITY_ADMINISTRATION)
+        result = mdl_offer_year_entity.find_by_education_group_year_first(self,
+                                                                          offer_year_entity_type.ENTITY_ADMINISTRATION)
         if result:
-            ev = mdl_entity_version.get_last_version(result.entity)
-            return ev
+            return mdl_entity_version.get_last_version(result.entity)
         return None
 
     @property
     def management_entity(self):
-        result = mdl_offer_year_entity.find_by_education_group_year_first(self, offer_year_entity_type.ENTITY_MANAGEMENT)
+        result = mdl_offer_year_entity.find_by_education_group_year_first(self,
+                                                                          offer_year_entity_type.ENTITY_MANAGEMENT)
         if result:
-            ev = mdl_entity_version.get_last_version(result.entity)
-            return ev
+            return mdl_entity_version.get_last_version(result.entity)
         return None
 
     @property

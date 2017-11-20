@@ -160,7 +160,7 @@ def tutoring_learning_unit_save(request):
                 msg = _("must_enter_learning_unit_year")
                 form.add_error(None, msg)
             else:
-                this_learning_unit_year = learning_unit_year.find_by_id(learning_unit_year_id)
+                this_learning_unit_year = learning_unit_year.get_by_id(learning_unit_year_id)
                 current_tutoring_learning_unit.learning_unit_year = this_learning_unit_year
                 current_tutoring_learning_unit.mandate = this_mandate
                 current_tutoring_learning_unit.save()

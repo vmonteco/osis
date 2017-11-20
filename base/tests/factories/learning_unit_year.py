@@ -41,6 +41,11 @@ from osis_common.utils.datetime import get_tzinfo
 fake = Faker()
 
 
+def create_learning_units_year(start_year, end_year, learning_unit):
+    return {year: LearningUnitYearFactory(academic_year=AcademicYearFactory(year=year), learning_unit=learning_unit)
+            for year in range(start_year, end_year+1)}
+
+
 class LearningUnitYearFactory(DjangoModelFactory):
     class Meta:
         model = "base.LearningUnitYear"
