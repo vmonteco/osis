@@ -24,7 +24,6 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
 from osis_common.models.auditable_model import AuditableModel, AuditableModelAdmin
 
 
