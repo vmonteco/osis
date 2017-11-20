@@ -123,6 +123,7 @@ def education_group_diplomas(request, education_group_year_id):
 
 def _education_group_diplomas_tab(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+    parent = get_root(education_group_year_id, request)
     return layout.render(request, "education_group/tab_diplomas.html", locals())
 
 
@@ -140,7 +141,10 @@ def _education_group_general_informations_tab(request, education_group_year_id):
     fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
     en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
 
-    context = {'education_group_year': education_group_year,
+    parent = get_root(education_group_year_id, request)
+
+    context = {'parent': parent,
+               'education_group_year': education_group_year,
                'cms_labels_translated': _get_cms_label_data(CMS_LABEL,
                                                             mdl.person.get_user_interface_language(request.user)),
                'form_french': EducationGroupGeneralInformationsForm(education_group_year=education_group_year,
@@ -169,7 +173,11 @@ def education_group_administrative_data(request, education_group_year_id):
 
 def _education_group_administrative_data_tab(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
-    context = {'education_group_year': education_group_year,
+
+    parent = get_root(education_group_year_id, request)
+
+    context = {'parent': parent,
+               'education_group_year': education_group_year,
                'course_enrollment':get_dates(academic_calendar_type.COURSE_ENROLLMENT, education_group_year),
                'mandataries': mdl.mandatary.find_by_education_group_year(education_group_year),
                'pgm_mgrs': mdl.program_manager.find_by_education_group(education_group_year.education_group)}
@@ -184,6 +192,15 @@ def _education_group_administrative_data_tab(request, education_group_year_id):
     context.update({'scores_exam_diffusion': get_sessions_dates(academic_calendar_type.SCORES_EXAM_DIFFUSION,
                                                                 education_group_year)})
     return layout.render(request, "education_group/tab_administrative_data.html", context)
+
+
+def get_root(education_group_year_id, request):
+    root = request.GET.get('root')
+    if root:
+        parent = mdl.education_group_year.find_by_id(root)
+    else:
+        parent = education_group_year_id
+    return parent
 
 
 def get_sessions_dates(an_academic_calendar_type, an_education_group_year):
