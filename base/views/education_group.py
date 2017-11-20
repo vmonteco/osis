@@ -37,7 +37,6 @@ from cms import models as mdl_cms
 from collections import OrderedDict
 from django.conf import settings
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
-from django.utils import timezone
 from base.models.enums import academic_calendar_type
 
 
@@ -81,6 +80,7 @@ def education_group_read(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
     education_group_languages = [education_group_language.language.name for education_group_language in
                                  mdl.education_group_language.find_by_education_group_year(education_group_year)]
+    enums = mdl.enums.education_group_categories
     if root:
         parent = mdl.education_group_year.find_by_id(root)
     else:
@@ -95,6 +95,7 @@ def education_group_parent_read(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
     education_group_languages = [education_group_language.language.name for education_group_language in
                                  mdl.education_group_language.find_by_education_group_year(education_group_year)]
+    enums = mdl.enums.education_group_categories
     if root:
         parent = mdl.education_group_year.find_by_id(root)
     else:

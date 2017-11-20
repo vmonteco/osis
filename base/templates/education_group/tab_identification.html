@@ -44,11 +44,11 @@
                         </div>
                         <div class="col-md-9">
                             <br>
-                            {% if education_group_year.category == 'TRAINING' %}
+                            {% if education_group_year.category == enums.TRAINING %}
                                 {% include "education_group/identification_training_details.html" %}
-                            {% elif education_group_year.category == 'MINI_TRAINING' %}
+                            {% elif education_group_year.category == enums.MINI_TRAINING %}
                                 {% include "education_group/identification_mini_training_details.html" %}
-                            {% elif education_group_year.category == 'GROUP' %}
+                            {% elif education_group_year.category == enums.GROUP %}
                                 {% include "education_group/identification_group_details.html" %}
                             {% endif %}
                         </div>
