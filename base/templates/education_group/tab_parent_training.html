@@ -49,21 +49,15 @@
                         {% endfor %}
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <br>
-                            {% include "education_group/training_tree.html" %}
-                        </div>
-                        <div class="col-md-9">
-                            <br>
-                            {% if education_group_year.category == 'TRAINING' %}
-                                {% include "education_group/identification_training_details.html" %}
-                            {% elif education_group_year.category == 'MINI_TRAINING' %}
-                                {% include "education_group/identification_mini_training_details.html" %}
-                            {% elif education_group_year.category == 'GROUP' %}
-                                {% include "education_group/identification_group_details.html" %}
-                            {% endif %}
-                        </div>
+                    <div>
+                        <br>
+                        {% if education_group_year.category == 'TRAINING' %}
+                            {% include "education_group/identification_training_details.html" %}
+                        {% elif education_group_year.category == 'MINI_TRAINING' %}
+                            {% include "education_group/identification_mini_training_details.html" %}
+                        {% elif education_group_year.category == 'GROUP' %}
+                            {% include "education_group/identification_group_details.html" %}
+                        {% endif %}
                     </div>
                 </div>
             </div>
