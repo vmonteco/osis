@@ -35,7 +35,9 @@ from base.tests.factories.offer_year import  OfferYearFactory
 from base.models import session_exam_calendar
 from base.models.enums import number_session, academic_calendar_type
 from base.models import academic_year
-
+from osis_common.utils.datetime import get_tzinfo
+from django.conf import settings
+from django.test.utils import override_settings
 
 
 class SessionExamCalendarTest(TestCase):
@@ -132,18 +134,18 @@ class SessionExamCalendarTest(TestCase):
         self.assertEqual(second, session_exam_calendar.get_latest_session_exam(date=datetime.date(self.current_academic_yr.year+1, 8, 15)))
         self.assertEqual(third, session_exam_calendar.get_latest_session_exam(date=datetime.date(self.current_academic_yr.year+2, 2, 2)))
 
+    @override_settings(USE_TZ=False)
     def test_find_deliberation_date(self):
         SessionExamCalendarFactory(academic_calendar=self.academic_calendar_4,
                                    number_session=number_session.ONE)
         offer_yr = OfferYearFactory(academic_year=self.current_academic_yr)
-
         offer_year_cal = OfferYearCalendarFactory(academic_calendar=self.academic_calendar_4,
                                                   offer_year=offer_yr)
-
         self.assertEqual(session_exam_calendar.find_deliberation_date(number_session.ONE,offer_year_cal.offer_year),
-                         datetime.date(self.current_academic_yr.year+1, 1, 1))
+                         datetime.datetime(self.current_academic_yr.year+1, 1, 1))
         self.assertIsNone(session_exam_calendar.find_deliberation_date(number_session.TWO, offer_year_cal.offer_year))
 
+    @override_settings(USE_TZ=False)
     def test_find_deliberation_date_offer_year_cals(self):
         SessionExamCalendarFactory(academic_calendar=self.academic_calendar_4,
                                    number_session=number_session.ONE)
@@ -155,7 +157,7 @@ class SessionExamCalendarTest(TestCase):
                                                   offer_year=offer_yr,
                                                   start_date=delibe_date,
                                                   end_date=delibe_date)
-        self.assertEqual(session_exam_calendar.find_deliberation_date(number_session.ONE, offer_yr), delibe_date)
+        self.assertEqual(session_exam_calendar.find_deliberation_date(number_session.ONE, offer_yr).date(), delibe_date)
 
         offer_year_cal.start_date = offer_year_cal.end_date = None
         offer_year_cal.save()

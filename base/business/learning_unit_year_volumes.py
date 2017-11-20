@@ -82,7 +82,7 @@ def _save_requirement_entities(entity_components_year, data):
 
 
 def _get_volumes_from_db(learning_unit_year_id):
-    luy = learning_unit_year.find_by_id(learning_unit_year_id)
+    luy = learning_unit_year.get_by_id(learning_unit_year_id)
     return learning_unit_year_with_context.get_with_context(
         learning_container_year_id=luy.learning_container_year
     )

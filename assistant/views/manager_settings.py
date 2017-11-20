@@ -36,11 +36,14 @@ def settings_edit(request):
     """Use to edit app settings."""
     global_settings = settings.get_settings()
     if global_settings:
-        form = SettingsForm(initial={'starting_date': global_settings.starting_date,
-                                     'ending_date': global_settings.ending_date,
-                                     'assistants_starting_date': global_settings.assistants_starting_date,
-                                     'assistants_ending_date': global_settings.assistants_ending_date
-                                     }, prefix="set", instance=global_settings)
+        form = SettingsForm(
+            initial={'starting_date': global_settings.starting_date,
+                     'ending_date': global_settings.ending_date,
+                     'assistants_starting_date': global_settings.assistants_starting_date,
+                     'assistants_ending_date': global_settings.assistants_ending_date,
+                     'assistants_contract_end_starting_date': global_settings.assistants_contract_end_starting_date,
+                     'assistants_contract_end_ending_date': global_settings.assistants_contract_end_ending_date
+                     }, prefix="set", instance=global_settings)
     else:
         form = SettingsForm(prefix="set", instance=global_settings)
     year = academic_year.current_academic_year().year

@@ -113,6 +113,7 @@ def _split_attribution_by_learning_unit_year(attribution):
                     'acronym': lunit_year.acronym,
                     'title': lunit_year.title,
                     'start_year': attribution.start_year,
+                    'end_year': attribution.end_year,
                     'function': attribution.function,
                     'year': lunit_year.academic_year.year,
                     'weight': str(lunit_year.credits)

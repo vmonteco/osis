@@ -32,6 +32,7 @@ from base.tests.factories.user import UserFactory
 from base.tests.factories.offer_year import OfferYearFactory
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.structure import StructureFactory
+from base.tests.factories.education_group import EducationGroupFactory
 from django.test import TestCase
 
 
@@ -106,4 +107,10 @@ class FindByOfferYearTest(TestCase):
                               person=a_person)
         self.assertEquals(len(program_manager.find_by_person_exclude_offer_list(a_person,
                                                                                 [offer_yr1],
-                                                                                self.academic_year)),1)
+                                                                                self.academic_year)), 1)
+
+    def test_find_by_education_group(self):
+        self.assertIsNone(program_manager.find_by_education_group(None))
+        an_education_group = EducationGroupFactory()
+        a_program_manager = ProgramManagerFactory(education_group=an_education_group)
+        self.assertEquals(list(program_manager.find_by_education_group(an_education_group)), [a_program_manager])

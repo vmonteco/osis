@@ -24,7 +24,8 @@
 #
 ##############################################################################
 from django.db import models
-from base.models.enums import learning_container_year_types
+from base.models import learning_unit_year, learning_component_year
+from base.models.enums import learning_unit_year_subtypes, learning_container_year_types
 from base.models.enums import vacant_declaration_type
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
@@ -64,6 +65,10 @@ class LearningContainerYear(SerializableModel):
         permissions = (
             ("can_access_learningcontaineryear", "Can access learning container year"),
         )
+
+    def get_partims_related(self):
+        return learning_unit_year.search(learning_container_year_id=self,
+                                         subtype=learning_unit_year_subtypes.PARTIM).order_by('acronym')
 
 
 def find_by_id(learning_container_year_id):

@@ -30,6 +30,7 @@ import datetime
 
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.offer_year import OfferYearFactory
+from base.tests.factories.education_group import EducationGroupFactory
 from osis_common.utils.datetime import get_tzinfo
 
 
@@ -43,3 +44,4 @@ class ProgramManagerFactory(factory.django.DjangoModelFactory):
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
     person = factory.SubFactory(PersonFactory)
     offer_year = factory.SubFactory(OfferYearFactory)
+    education_group = factory.SubFactory(EducationGroupFactory)

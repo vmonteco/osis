@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 from base.models.enums import component_type
@@ -58,7 +59,7 @@ def find_by_learning_year_type(a_learning_unit_year=None, a_type=None):
         try:
             return LearningUnitComponent.objects.get(learning_unit_year=a_learning_unit_year,
                                                      type=a_type)
-        except LearningUnitComponent.ObjectDoesNotExist:
+        except ObjectDoesNotExist:
             return None
     return None
 

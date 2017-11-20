@@ -25,6 +25,9 @@
 ##############################################################################
 from django.db import models
 from django.contrib import admin
+from django.utils.translation import ugettext_lazy as _
+
+from base.models.enums import learning_unit_year_subtypes
 
 
 class GroupElementYearAdmin(admin.ModelAdmin):

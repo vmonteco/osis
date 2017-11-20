@@ -363,10 +363,13 @@ class SettingsForm(ModelForm):
     ending_date = forms.DateField(required=True)
     assistants_starting_date = forms.DateField(required=True)
     assistants_ending_date = forms.DateField(required=True)
+    assistants_contract_end_starting_date = forms.DateField(required=True)
+    assistants_contract_end_ending_date = forms.DateField(required=True)
 
     class Meta:
         model = mdl.settings.Settings
-        fields = ('starting_date', 'ending_date', 'assistants_starting_date', 'assistants_ending_date')
+        fields = ('starting_date', 'ending_date', 'assistants_starting_date', 'assistants_ending_date',
+                  'assistants_contract_end_starting_date', 'assistants_contract_end_ending_date')
 
     def __init__(self, *args, **kwargs):
         super(SettingsForm, self).__init__(*args, **kwargs)

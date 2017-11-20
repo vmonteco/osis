@@ -52,14 +52,11 @@ class EducationGroupViewTestCase(TestCase):
     def test_education_groups_search(self, mock_render, mock_decorators):
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
-
         request_factory = RequestFactory()
-
         # Create educations group year
         EducationGroupYearFactory(acronym='EDPH2', academic_year=self.academic_year)
         EducationGroupYearFactory(acronym='ARKE2A', academic_year=self.academic_year)
         EducationGroupYearFactory(acronym='HIST2A', academic_year=self.academic_year)
-
         request = request_factory.get(reverse('education_groups'), data={
             'acronym': 'EDPH2',
             'academic_year': self.academic_year.id,
@@ -68,12 +65,10 @@ class EducationGroupViewTestCase(TestCase):
         request.user = mock.Mock()
 
         from base.views.education_group import education_groups
+
         education_groups(request)
-
         self.assertTrue(mock_render.called)
-
         request, template, context = mock_render.call_args[0]
-
         self.assertEqual(template, 'education_groups.html')
         self.assertEqual(len(context['object_list']), 1)
 
@@ -84,7 +79,6 @@ class EducationGroupViewTestCase(TestCase):
 
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
-
         request_factory = RequestFactory()
         request = request_factory.get(reverse('education_groups'), data={
             'acronym': '',
@@ -92,18 +86,15 @@ class EducationGroupViewTestCase(TestCase):
             'type': ''  # Simulate all type
         })
         request.user = mock.Mock()
-
         # Need session in order to store messages
         setattr(request, 'session', {})
         setattr(request, '_messages', FallbackStorage(request))
 
         from base.views.education_group import education_groups
+
         education_groups(request)
-
         self.assertTrue(mock_render.called)
-
         request, template, context = mock_render.call_args[0]
-
         self.assertEqual(template, 'education_groups.html')
         self.assertFalse(context['object_list'])
         # It should have one message ['no_result']
@@ -112,25 +103,24 @@ class EducationGroupViewTestCase(TestCase):
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager', return_value=True)
+    @mock.patch('base.models.education_group_year.find_by_id')
     def test_education_group_read(self,
+                                  mock_find_by_id,
                                   mock_program_manager,
                                   mock_render,
                                   mock_decorators):
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
-
         education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
         organization = EducationGroupOrganizationFactory(education_group_year=education_group_year)
         request = mock.Mock(method='GET')
 
         from base.views.education_group import education_group_read
 
+        mock_find_by_id.return_value = education_group_year
         education_group_read(request, education_group_year.id)
-
         self.assertTrue(mock_render.called)
-
         request, template, context = mock_render.call_args[0]
-
         self.assertEqual(template, 'education_group/tab_identification.html')
         self.assertEqual(context['education_group_year'].coorganizations.first(), organization)
         self.assertEqual(context['education_group_year'].coorganizations.first().address, organization.address)
@@ -138,29 +128,26 @@ class EducationGroupViewTestCase(TestCase):
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager', return_value=True)
+    @mock.patch('base.models.education_group_year.find_by_id')
     def test_education_group_parent_read(self,
+                                         mock_find_by_id,
                                          mock_program_manager,
                                          mock_render,
                                          mock_decorators):
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
-
         education_group_year_child = EducationGroupYearFactory(academic_year=self.academic_year)
         education_group_year_parent = EducationGroupYearFactory(academic_year=self.academic_year)
         GroupElementYearFactory(parent=education_group_year_parent, child_branch=education_group_year_child)
-
         request = mock.Mock(method='GET')
 
         from base.views.education_group import education_group_parent_read
 
+        mock_find_by_id.return_value = education_group_year_child
         education_group_parent_read(request, education_group_year_child.id)
-
         self.assertTrue(mock_render.called)
-
         request, template, context = mock_render.call_args[0]
-
-        self.assertEqual(template, 'education_group/tab_parent_training.html')
-
+        self.assertEqual(template, 'education_group/tab_identification.html')
         self.assertEqual(context['education_group_year'].parent_by_training, education_group_year_parent)
 
     @mock.patch('django.contrib.auth.decorators')
@@ -172,17 +159,56 @@ class EducationGroupViewTestCase(TestCase):
                                                   mock_decorators):
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
-
         education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
-
         request = mock.Mock(method='GET')
 
         from base.views.education_group import education_group_general_informations
 
         education_group_general_informations(request, education_group_year.id)
-
         self.assertTrue(mock_render.called)
-
         request, template, context = mock_render.call_args[0]
-
         self.assertEqual(template, 'education_group/tab_general_informations.html')
+
+    @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.views.layout.render')
+    def test_education_administrative_data(self,
+                                           mock_render,
+                                           mock_decorators):
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+        education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
+        request = mock.Mock(method='GET')
+
+        from base.views.education_group import education_group_administrative_data
+
+        education_group_administrative_data(request, education_group_year.id)
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        self.assertEqual(template, 'education_group/tab_administrative_data.html')
+        self.assertEqual(context['education_group_year'], education_group_year)
+
+    def test_get_sessions_dates(self):
+        from base.views.education_group import get_sessions_dates
+        from base.tests.factories.session_exam_calendar import SessionExamCalendarFactory
+        from base.tests.factories.academic_calendar import AcademicCalendarFactory
+        from base.tests.factories.education_group_year import EducationGroupYearFactory
+        from base.tests.factories.offer_year_calendar import OfferYearCalendarFactory
+
+        sessions_quantity = 3
+        an_academic_year = AcademicYearFactory()
+        academic_calendar = AcademicCalendarFactory.build(academic_year=an_academic_year)
+        academic_calendar.save(functions=[])
+        education_group_year = EducationGroupYearFactory(academic_year=an_academic_year)
+        session_exam_calendars = [SessionExamCalendarFactory(number_session=session,
+                                                             academic_calendar=academic_calendar)
+                                  for session in range(1, sessions_quantity + 1)]
+        offer_year_calendar = OfferYearCalendarFactory(
+            academic_calendar=academic_calendar,
+            education_group_year=education_group_year
+        )
+        self.assertEquals(
+            get_sessions_dates(academic_calendar.reference, education_group_year),
+            {
+                'session{}'.format(s): offer_year_calendar for s in range(1, sessions_quantity + 1)
+            }
+        )

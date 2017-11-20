@@ -33,6 +33,7 @@ from openpyxl.writer.excel import save_virtual_workbook
 from base.models.enums import entity_type
 from base.models import academic_year, entity, person
 from base.views import layout
+from assistant.utils.send_email import send_message
 from assistant.forms import MandateForm, entity_inline_formset
 from assistant import models as assistant_mdl
 from assistant.models import assistant_mandate, review
@@ -51,6 +52,7 @@ def user_is_manager(user):
 def mandate_edit(request):
     mandate_id = request.POST.get("mandate_id")
     mandate = assistant_mdl.assistant_mandate.find_mandate_by_id(mandate_id)
+    supervisor = mandate.assistant.supervisor
     form = MandateForm(initial={'comment': mandate.comment,
                                 'renewal_type': mandate.renewal_type,
                                 'absences': mandate.absences,
@@ -60,13 +62,30 @@ def mandate_edit(request):
                                 }, prefix="mand", instance=mandate)
     formset = entity_inline_formset(instance=mandate, prefix="entity")
     
-    return layout.render(request, 'mandate_form.html', {'mandate': mandate, 'form': form, 'formset': formset})
+    return layout.render(request, 'mandate_form.html', {'mandate': mandate, 'form': form, 'formset': formset,
+                                                        'assistant_mandate_state': assistant_mandate_state,
+                                                        'supervisor': supervisor})
 
 
 @user_passes_test(user_is_manager, login_url='access_denied')
 def mandate_save(request):
     mandate_id = request.POST.get("mandate_id")
     mandate = assistant_mdl.assistant_mandate.find_mandate_by_id(mandate_id)
+    if request.POST.get('del_rev'):
+        mandate.assistant.supervisor = None
+        mandate.assistant.save()
+    elif request.POST.get('person_id'):
+        try:
+            substitute_supervisor = person.find_by_id(request.POST.get('person_id'))
+            if substitute_supervisor:
+                mandate.assistant.supervisor = substitute_supervisor
+                mandate.assistant.save()
+                html_template_ref = 'assistant_phd_supervisor_html'
+                txt_template_ref = 'assistant_phd_supervisor_txt'
+                send_message(person=substitute_supervisor, html_template_ref=html_template_ref,
+                             txt_template_ref=txt_template_ref, assistant=mandate.assistant)
+        except ObjectDoesNotExist:
+            pass
     form = MandateForm(data=request.POST, instance=mandate, prefix='mand')
     formset = entity_inline_formset(request.POST, request.FILES, instance=mandate, prefix='entity')
     if form.is_valid():
@@ -98,9 +117,10 @@ def generate_xls():
     workbook = Workbook(encoding='utf-8')
     worksheet = workbook.active
     worksheet.title = "mandates"
-    worksheet.append([_("sector"),
-                      _("faculty"),
-                      _("institute"),
+    worksheet.append([_(entity_type.SECTOR),
+                      _(entity_type.FACULTY),
+                      _(entity_type.LOGISTICS_ENTITY),
+                      _(entity_type.INSTITUTE),
                       _("matricule"),
                       _("name"),
                       _("firstname"),
@@ -157,20 +177,20 @@ def construct_line(mandate):
 
 
 def get_entities_for_mandate(mandate):
+    ent_type = {entity_type.SECTOR, entity_type.FACULTY, entity_type.LOGISTICS_ENTITY, entity_type.INSTITUTE}
     entities_id = mandate.mandateentity_set.all().order_by('id').values_list('entity', flat=True)
-    entities = entity.find_versions_from_entites(entities_id, mandate.academic_year.start_date)
-    i = 0
-    mandate_entities = []
+    entities = (ent for ent in entity.find_versions_from_entites(entities_id, mandate.academic_year.start_date)
+                if ent.entity_type in ent_type)
+    mandate_entities = [''] * 4
     for ent in entities:
         if ent.entity_type == entity_type.SECTOR:
-            mandate_entities = [ent.acronym]
+            mandate_entities[0] = ent.acronym
         elif ent.entity_type == entity_type.FACULTY:
-            mandate_entities += [ent.acronym]
-        elif ent.entity_type == entity_type.INSTITUTE:
-            for j in range(i, 2):
-                mandate_entities += ['']
-            mandate_entities += [ent.acronym]
-        i += 1
+            mandate_entities[1] = ent.acronym
+        elif ent.entity_type == entity_type.LOGISTICS_ENTITY:
+            mandate_entities[2] = ent.acronym
+        else:
+            mandate_entities[3] = ent.acronym
     return mandate_entities
 
 
@@ -183,6 +203,3 @@ def get_reviews(mandate):
         reviews_details += [vrs_review.remark] if vrs_review.remark is not None else ['']
         reviews_details += [vrs_review.confidential] if vrs_review.confidential is not None else ['']
     return reviews_details
-
-
-
