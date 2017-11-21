@@ -247,7 +247,7 @@ def _get_group_elements_data(group_elements):
                                         'credits_min': None,
                                         'credits_max': None,
                                         'mandatory_link': group_element.child_leaf.is_mandatory,
-                                        'block': False,
+                                        'block': 1,
                                         'current_order': group_element.child_leaf.current_order,
                                         'contextual_comment': group_element.child_leaf.contextual_comment,
                                         'sessions_derogation': group_element.child_leaf.sessions_derogation
@@ -256,12 +256,12 @@ def _get_group_elements_data(group_elements):
             group_elements_data.append({'id': group_element.id,
                                         'code_scs': group_element.child_branch.partial_acronym,
                                         'title': group_element.child_branch.title,
-                                        'credits_abs': None,
+                                        'credits_abs': group_element.child_branch.credits,
                                         'credits_relative': group_element.relative_credits,
                                         'credits_min': group_element.min_credits,
                                         'credits_max': group_element.max_credits,
                                         'mandatory_link': group_element.is_mandatory,
-                                        'block': None,
+                                        'block': 2,
                                         'current_order': group_element.current_order,
                                         'contextual_comment': group_element.contextual_comment,
                                         'sessions_derogation': None

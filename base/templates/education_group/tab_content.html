@@ -65,7 +65,7 @@
                                 <td>{{ group_element.credits_min | default_if_none:'-' }}</td>
                                 <td>{{ group_element.credits_max | default_if_none:'-' }}</td>
                                 <td><input type="checkbox" disabled {% if group_element.mandatory_link %}checked {% else %} N {% endif %}></td>
-                                <td>{{ group_element.credits_abs | default_if_none:'-' }}</td>
+                                <td>{{ group_element.block | default_if_none:'-' }}</td>
                                 <td>{{ group_element.current_order | default_if_none:'-' }}</td>
                                 <td>{% if group_element.sessions_derogation %}{% trans group_element.sessions_derogation %}{% endif %}</td>
                             </tr>
