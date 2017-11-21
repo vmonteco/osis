@@ -2295,3 +2295,12 @@ msgstr "at"
 
 msgid "learning_unit_years_to_delete"
 msgstr "You will definitely delete the following learning units"
+
+msgid "Put in proposal"
+msgstr ""
+
+msgid "Proposal for modification"
+msgstr ""
+
+msgid "End of teaching"
+msgstr ""
