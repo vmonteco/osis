@@ -66,8 +66,8 @@ def delete_from_given_learning_unit_year(request, learning_unit_year_id):
                                    'year': learning_unit_year.academic_year},
                        'messages_deletion': sorted(messages_deletion.values())}
         else:
-            learning_units_to_delete = learning_unit_year_mdl.search(learning_unit=learning_unit_year.learning_unit)\
-                                                             .order_by('academic_year__year')
+            learning_units_to_delete = learning_unit_year.find_gte_learning_units_year()
+
             context = {'title': _("msg_warning_delete_learning_unit") % learning_unit_year,
                        'learning_units_to_delete': learning_units_to_delete}
 
@@ -104,6 +104,7 @@ def delete_all_learning_units_year(request, learning_unit_year_id):
                        'messages_deletion': sorted(messages_deletion.values())}
         else:
             context = {'title': _('msg_warning_delete_learning_unit') % learning_unit,
-                       'learning_units_to_delete': learning_unit_year_mdl.search(learning_unit=learning_unit).order_by('academic_year__year')}
+                       'learning_units_to_delete': learning_unit_year_mdl.search(learning_unit=learning_unit)
+                           .order_by('academic_year__year')}
 
         return layout.render(request, "learning_unit/deletion.html", context)

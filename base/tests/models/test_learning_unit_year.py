@@ -27,22 +27,11 @@ from django.test import TestCase
 from django.utils import timezone
 from attribution.models import attribution
 from base.models import learning_unit_year
-from base.models.enums import learning_unit_year_subtypes
-from base.models.learning_unit_year import LearningUnitYear
-from base.tests.factories.learning_unit_enrollment import LearningUnitEnrollmentFactory
+from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.learning_unit import LearningUnitFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory, create_learning_units_year
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
-
-
-def create_learning_unit_year(acronym, title, academic_year):
-    learning_unit = LearningUnitFactory(acronym=acronym, title=title, start_year=2010)
-    return LearningUnitYearFactory(acronym=acronym,
-                                   title=title,
-                                   academic_year=academic_year,
-                                   learning_unit=learning_unit)
 
 
 class LearningUnitYearTest(TestCase):
@@ -86,3 +75,23 @@ class LearningUnitYearTest(TestCase):
         a_container_year.in_charge = True
 
         self.assertTrue(self.learning_unit_year.in_charge)
+
+    def test_find_gte_learning_units_year(self):
+        learning_unit = LearningUnitFactory()
+        dict_learning_unit_year = create_learning_units_year(2000, 2017, learning_unit)
+
+        selected_learning_unit_year = dict_learning_unit_year[2007]
+
+        result = list(selected_learning_unit_year.find_gte_learning_units_year().values_list('academic_year__year',
+                                                                                             flat=True))
+        self.assertListEqual(result, list(range(2007,2018)))
+
+    def test_find_gte_learning_units_year_case_no_future(self):
+        learning_unit = LearningUnitFactory()
+        dict_learning_unit_year = create_learning_units_year(2000, 2017, learning_unit)
+
+        selected_learning_unit_year = dict_learning_unit_year[2017]
+
+        result = list(selected_learning_unit_year.find_gte_learning_units_year().values_list('academic_year__year',
+                                                                                             flat=True))
+        self.assertEqual(result, [2017])

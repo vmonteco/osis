@@ -33,6 +33,7 @@ from openpyxl.writer.excel import save_virtual_workbook
 from base.models.enums import entity_type
 from base.models import academic_year, entity, person
 from base.views import layout
+from assistant.utils.send_email import send_message
 from assistant.forms import MandateForm, entity_inline_formset
 from assistant import models as assistant_mdl
 from assistant.models import assistant_mandate, review
@@ -51,6 +52,7 @@ def user_is_manager(user):
 def mandate_edit(request):
     mandate_id = request.POST.get("mandate_id")
     mandate = assistant_mdl.assistant_mandate.find_mandate_by_id(mandate_id)
+    supervisor = mandate.assistant.supervisor
     form = MandateForm(initial={'comment': mandate.comment,
                                 'renewal_type': mandate.renewal_type,
                                 'absences': mandate.absences,
@@ -60,13 +62,30 @@ def mandate_edit(request):
                                 }, prefix="mand", instance=mandate)
     formset = entity_inline_formset(instance=mandate, prefix="entity")
     
-    return layout.render(request, 'mandate_form.html', {'mandate': mandate, 'form': form, 'formset': formset})
+    return layout.render(request, 'mandate_form.html', {'mandate': mandate, 'form': form, 'formset': formset,
+                                                        'assistant_mandate_state': assistant_mandate_state,
+                                                        'supervisor': supervisor})
 
 
 @user_passes_test(user_is_manager, login_url='access_denied')
 def mandate_save(request):
     mandate_id = request.POST.get("mandate_id")
     mandate = assistant_mdl.assistant_mandate.find_mandate_by_id(mandate_id)
+    if request.POST.get('del_rev'):
+        mandate.assistant.supervisor = None
+        mandate.assistant.save()
+    elif request.POST.get('person_id'):
+        try:
+            substitute_supervisor = person.find_by_id(request.POST.get('person_id'))
+            if substitute_supervisor:
+                mandate.assistant.supervisor = substitute_supervisor
+                mandate.assistant.save()
+                html_template_ref = 'assistant_phd_supervisor_html'
+                txt_template_ref = 'assistant_phd_supervisor_txt'
+                send_message(person=substitute_supervisor, html_template_ref=html_template_ref,
+                             txt_template_ref=txt_template_ref, assistant=mandate.assistant)
+        except ObjectDoesNotExist:
+            pass
     form = MandateForm(data=request.POST, instance=mandate, prefix='mand')
     formset = entity_inline_formset(request.POST, request.FILES, instance=mandate, prefix='entity')
     if form.is_valid():

@@ -37,6 +37,8 @@ class Settings(models.Model):
     ending_date = models.DateField()
     assistants_starting_date = models.DateField()
     assistants_ending_date = models.DateField()
+    assistants_contract_end_starting_date = models.DateField()
+    assistants_contract_end_ending_date = models.DateField()
 
     def __str__(self):
         return u"%s - %s" % (self.starting_date, self.ending_date)
