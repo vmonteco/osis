@@ -2318,7 +2318,7 @@ msgid "SESSION_1_2_3"
 msgstr "123"
 
 msgid "SESSION_UNDEFINED"
-msgstr "Session indéfinie"
+msgstr "Undefined session"
 
 msgid "SESSION_PARTIAL_2_3"
 msgstr "p23"
