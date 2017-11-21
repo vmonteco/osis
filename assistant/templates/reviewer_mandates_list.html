@@ -38,7 +38,14 @@
     <h3>{% trans 'assistant_mandates_renewals' %} {{ year|add:1 }}</h3>
 
     <ul class="nav nav-tabs">
-            <li class="active"><a href="#">{% trans 'reviewer_mandates_list' %}</a></li>
+            {% if filter %}
+                <li><a href="{% url 'reviewer_mandates_list' %}">{% trans 'reviewer_mandates_list' %}</a></li>
+                <li class="active"><a href="#">{% trans 'reviewer_todo' %} ({{ todo }})</a></li>
+            {% else %}
+                <li class="active"><a href="#">{% trans 'reviewer_mandates_list' %} ({{ todo }})</a></li>
+                <li><a href="{% url 'reviewer_mandates_list_todo' %}">{% trans 'reviewer_todo' %}</a></li>
+            {% endif %}
+
             {% if is_supervisor %}
                 <li><a href="{% url 'phd_supervisor_assistants_list' %}">{% trans 'phd_supervisor_assistants_list' %}</a></li>
             {% endif %}

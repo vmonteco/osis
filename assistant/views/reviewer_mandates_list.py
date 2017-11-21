@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import re
 from django.views.generic import ListView
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import FormMixin
@@ -38,6 +39,7 @@ from assistant.forms import MandatesArchivesForm
 class MandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMixin):
     context_object_name = 'reviewer_mandates_list'
     template_name = 'reviewer_mandates_list.html'
+
     form_class = MandatesArchivesForm
     is_supervisor = False
 
@@ -63,19 +65,20 @@ class MandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMi
         if form.is_valid():
             self.request.session['selected_academic_year'] = form.cleaned_data[
                 'academic_year'].id
-            queryset = assistant_mandate.AssistantMandate.objects.filter(
-                academic_year=form.cleaned_data['academic_year']).filter(id__in=mandates_id)
+            selected_academic_year = academic_year.AcademicYear.objects.get(
+                id=self.request.session.get('selected_academic_year'))
         elif self.request.session.get('selected_academic_year'):
             selected_academic_year = academic_year.AcademicYear.objects.get(
                 id=self.request.session.get('selected_academic_year'))
-            queryset = assistant_mandate.AssistantMandate.objects\
-                .filter(academic_year=selected_academic_year).filter(id__in=mandates_id)
         else:
             selected_academic_year = academic_year.current_academic_year()
             self.request.session[
                 'selected_academic_year'] = selected_academic_year.id
-            queryset = assistant_mandate.find_by_academic_year(
-                selected_academic_year).filter(id__in=mandates_id)
+        if self.kwargs.get("filter", None):
+            queryset = assistant_mandate.find_by_academic_year(selected_academic_year).filter(id__in=mandates_id).\
+                filter(state=re.sub('_ASSISTANT', '', current_reviewer.role))
+        else:
+            queryset = assistant_mandate.find_by_academic_year(selected_academic_year).filter(id__in=mandates_id)
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -95,10 +98,12 @@ class MandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMi
         context['supervision_list'] = supervision_list
         context['vice_rector_list'] = vice_rector_list
         context['is_supervisor'] = self.is_supervisor
+        context['filter'] = self.kwargs.get("filter", None)
         context['year'] = academic_year.find_academic_year_by_id(
             self.request.session.get('selected_academic_year')).year
         start_date = academic_year.find_academic_year_by_id(int(self.request.session.get(
             'selected_academic_year'))).start_date
+        context['todo'] = len(context['object_list'])
         for mandate in context['object_list']:
             entities = []
             entities_id = mandate.mandateentity_set.all().order_by('id')
