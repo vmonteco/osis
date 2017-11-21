@@ -62,13 +62,14 @@ class LearningUnitYear(AuditableSerializableModel):
     credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     decimal_scores = models.BooleanField(default=False)
     structure = models.ForeignKey('Structure', blank=True, null=True)
-    internship_subtype = models.CharField(max_length=50, blank=True, null=True,
+    internship_subtype = models.CharField(max_length=250, blank=True, null=True,
                                           choices=internship_subtypes.INTERNSHIP_SUBTYPES)
     status = models.BooleanField(default=False)
     session = models.CharField(max_length=50, blank=True, null=True,
                                choices=learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION)
     quadrimester = models.CharField(max_length=4, blank=True, null=True,
                                     choices=learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
+
 
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)

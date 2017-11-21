@@ -2296,6 +2296,33 @@ msgstr "at"
 msgid "learning_unit_years_to_delete"
 msgstr "You will definitely delete the following learning units"
 
+msgid "SESSION_1"
+msgstr "1"
+
+msgid "SESSION_2"
+msgstr "2"
+
+msgid "SESSION_3"
+msgstr "3"
+
+msgid "SESSION_1_2"
+msgstr "12"
+
+msgid "SESSION_1_3"
+msgstr "13"
+
+msgid "SESSION_2_3"
+msgstr "23"
+
+msgid "SESSION_1_2_3"
+msgstr "123"
+
+msgid "SESSION_UNDEFINED"
+msgstr "Undefined session"
+
+msgid "SESSION_PARTIAL_2_3"
+msgstr "p23"
+
 msgid "Put in proposal"
 msgstr ""
 
