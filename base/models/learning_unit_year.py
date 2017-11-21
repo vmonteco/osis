@@ -32,7 +32,6 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 from base.models import entity_container_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters
-from base.models.enums import sessions_derogation
 
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
@@ -43,9 +42,7 @@ class LearningUnitYearAdmin(SerializableModelAdmin):
     list_display = ('external_id', 'acronym', 'title', 'academic_year', 'credits', 'changed', 'structure', 'status')
     fieldsets = ((None, {'fields': ('academic_year', 'learning_unit', 'acronym', 'title', 'title_english', 'credits',
                                     'decimal_scores', 'structure', 'learning_container_year',
-                                    'subtype', 'status', 'internship_subtype', 'session', 'quadrimester',
-                                    'relative_credits', 'is_mandatory', 'current_order', 'contextual_comment',
-                                    'sessions_derogation')}),)
+                                    'subtype', 'status', 'internship_subtype', 'session', 'quadrimester')}),)
     list_filter = ('academic_year', 'decimal_scores')
     raw_id_fields = ('learning_unit', 'learning_container_year', 'structure')
     search_fields = ['acronym', 'structure__acronym', 'external_id']
@@ -65,21 +62,13 @@ class LearningUnitYear(SerializableModel):
     credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     decimal_scores = models.BooleanField(default=False)
     structure = models.ForeignKey('Structure', blank=True, null=True)
-    internship_subtype = models.CharField(max_length=50, blank=True, null=True,
+    internship_subtype = models.CharField(max_length=250, blank=True, null=True,
                                           choices=internship_subtypes.INTERNSHIP_SUBTYPES)
     status = models.BooleanField(default=False)
     session = models.CharField(max_length=50, blank=True, null=True,
                                choices=learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION)
     quadrimester = models.CharField(max_length=4, blank=True, null=True,
                                     choices=learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
-    relative_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
-    is_mandatory = models.BooleanField(default=False)
-    # block =
-    current_order = models.IntegerField(blank=True, null=True)
-    contextual_comment = models.CharField(max_length=500, blank=True, null=True)
-    sessions_derogation = models.CharField(max_length=65,
-                                           choices=sessions_derogation.SessionsDerogationTypes.choices(),
-                                           default=sessions_derogation.SessionsDerogationTypes.SESSION_UNDEFINED)
 
 
     def __str__(self):
