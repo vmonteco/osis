@@ -2207,10 +2207,16 @@ msgid "There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(
 msgstr "%(subtype)s %(acronym)s fait l’objet de %(count)d inscription(s) l’année %(year)s"
 
 msgid "%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s"
-msgstr "%(subtype)s %(acronym)s est attribué à %(tutor)s l’année %(year)s"
+msgstr "%(subtype)s %(acronym)s est attribué(e) à %(tutor)s l’année %(year)s"
+
+msgid "%(subtype)s %(acronym)s is assigned to the assistant %(assistant)s for the year %(year)s"
+msgstr "%(subtype)s %(acronym)s est attribué(e) à l'assistant %(assistant)s l'année %(year)s"
 
 msgid "%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s"
 msgstr "%(subtype)s %(acronym)s est repris dans le groupement %(group)s du programme %(program)s l’année %(year)s"
+
+msgid "The learning unit %(acronym)s has a speciality %(speciality)s"
+msgstr "L'unité d'enseignement %(acronym)s possède une spécialité %(speciality)s"
 
 msgid "%(subtype)s %(acronym)s has been deleted for the year %(year)s"
 msgstr "%(subtype)s %(acronym)s a été supprimé(e) pour l'année %(year)s"

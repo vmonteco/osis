@@ -25,10 +25,10 @@
 ##############################################################################
 from django.db import models
 
-from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
+from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 
 
-class LearningUnitEnrollmentAdmin(SerializableModelAdmin):
+class LearningUnitEnrollmentAdmin(AuditableSerializableModelAdmin):
     list_display = ('student', 'learning_unit_year', 'offer', 'date_enrollment', 'changed')
     fieldsets = ((None, {'fields': ('offer_enrollment', 'learning_unit_year', 'date_enrollment')}),)
     list_filter = ('learning_unit_year__academic_year',)
@@ -40,7 +40,7 @@ class LearningUnitEnrollmentAdmin(SerializableModelAdmin):
                      'offer_enrollment__student__person__last_name']
 
 
-class LearningUnitEnrollment(SerializableModel):
+class LearningUnitEnrollment(AuditableSerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     date_enrollment = models.DateField()
