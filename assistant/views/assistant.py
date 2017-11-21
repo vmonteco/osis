@@ -26,12 +26,12 @@
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ObjectDoesNotExist
 from django.forms import forms
 
 import base.models.entity
-from base.models import person, academic_year, entity_version
+from base.models import person, academic_year
 from base.models.enums import entity_type
-from django.core.exceptions import ObjectDoesNotExist
 from assistant.models import academic_assistant, assistant_mandate, assistant_document_file
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormMixin
@@ -43,15 +43,13 @@ from assistant.utils.send_email import send_message
 
 
 class AssistantMandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMixin):
+
     context_object_name = 'assistant_mandates_list'
     template_name = 'assistant_mandates.html'
     form_class = forms.Form
 
     def test_func(self):
-        try:
-            return user_is_assistant_and_procedure_is_open
-        except ObjectDoesNotExist:
-            return False
+        return user_is_assistant_and_procedure_is_open(self.request.user)
 
     def get_login_url(self):
         return reverse('access_denied')
@@ -66,24 +64,25 @@ class AssistantMandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListVie
         context['can_see_file'] = settings.assistants_can_see_file()
         for mandate in context['object_list']:
             entities_id = mandate.mandateentity_set.all().order_by('id').values_list('entity', flat=True)
-            mandate.entities = base.models.entity.find_versions_from_entites(entities_id, mandate.academic_year.start_date)
+            mandate.entities = base.models.entity.find_versions_from_entites(entities_id,
+                                                                             mandate.academic_year.start_date)
         return context
 
 
 def user_is_assistant_and_procedure_is_open(user):
-    try:
-        if user.is_authenticated() and settings.access_to_procedure_is_open():
-            return academic_assistant.find_by_person(user.person)
-        else:
-            return False
-    except ObjectDoesNotExist:
+    if user.is_authenticated() and settings.access_to_procedure_is_open() and \
+            academic_assistant.find_by_person(user.person):
+        return True
+    else:
         return False
 
 
 @user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
 def mandate_change_state(request):
-    mandate_id = request.POST.get("mandate_id")
-    mandate = assistant_mandate.find_mandate_by_id(mandate_id)
+    try:
+        mandate = assistant_mandate.find_mandate_by_id(request.POST.get("mandate_id"))
+    except ObjectDoesNotExist:
+        return HttpResponseRedirect(reverse('assistant_mandates'))
     if 'bt_mandate_accept' in request.POST:
         mandate.state = assistant_mandate_state.TRTS
     elif 'bt_mandate_decline' in request.POST:
@@ -107,7 +106,7 @@ class AssistantLearningUnitsListView(LoginRequiredMixin, UserPassesTestMixin, Li
     form_class = forms.Form
 
     def test_func(self):
-        return user_is_assistant_and_procedure_is_open
+        return user_is_assistant_and_procedure_is_open(self.request.user)
 
     def get_login_url(self):
         return reverse('access_denied')

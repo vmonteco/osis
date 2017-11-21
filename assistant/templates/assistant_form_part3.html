@@ -132,9 +132,7 @@
                 {% trans 'upload' %}</a>
 		</div>
         <hr>
-	    <input type="hidden" value="{{mandate.id | default_if_none:''}}" id="hdn_current_mandate_id"
-		   name="mandate_id" title="mandate_id" >
-        <input type="hidden" value="{{ document_type }}" id="hdn_description" name="description"
+	    <input type="hidden" value="{{ document_type }}" id="hdn_description" name="description"
                title="description">
 		<div class="form-group">
      			<button type="submit" class="btn btn-primary" title="{% trans 'save'%}"

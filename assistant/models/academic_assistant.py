@@ -56,7 +56,7 @@ def find_by_id(assistant_id):
 
 
 def find_by_person(person):
-    return AcademicAssistant.objects.get(person=person)
+    return AcademicAssistant.objects.filter(person=person).first()
 
 
 def is_supervisor(person):

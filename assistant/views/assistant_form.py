@@ -24,11 +24,11 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import JsonResponse
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
-from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext as _
 from base.models import person_address, person, learning_unit_year
 from base.models.learning_unit_year import search
@@ -40,12 +40,10 @@ from assistant.models.enums import assistant_mandate_state, assistant_phd_inscri
 
 
 def user_is_assistant_and_procedure_is_open(user):
-    try:
-        if user.is_authenticated() and settings.access_to_procedure_is_open():
-            return academic_assistant.find_by_person(user.person)
-        else:
-            return False
-    except ObjectDoesNotExist:
+    if user.is_authenticated() and settings.access_to_procedure_is_open() and \
+            academic_assistant.find_by_person(user.person):
+        return True
+    else:
         return False
 
 
@@ -83,9 +81,11 @@ def form_part1_edit(request):
 
 @user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
 def form_part1_save(request):
-    mandate_id = request.POST.get("mandate_id")
-    mandate = assistant_mandate.find_mandate_by_id(mandate_id)
-    assistant = mandate.assistant
+    try:
+        mandate = assistant_mandate.find_mandate_by_id(request.POST.get("mandate_id"))
+        assistant = mandate.assistant
+    except ObjectDoesNotExist:
+        return HttpResponseRedirect(reverse('assistant_mandates'))
     addresses = person_address.find_by_person(person.find_by_id(assistant.person.id))
     form = AssistantFormPart1(data=request.POST, instance=mandate)
     if form.is_valid():
@@ -166,6 +166,8 @@ def tutoring_learning_unit_save(request):
                 current_tutoring_learning_unit.save()
                 return HttpResponseRedirect(reverse('mandate_learning_units'))
         return render(request, "tutoring_learning_unit_year.html", {'form': form, 'mandate_id': mandate_id})
+    else :
+        return HttpResponseRedirect(reverse('mandate_learning_units'))
 
 
 @user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
@@ -199,11 +201,13 @@ def form_part3_edit(request):
 
 @user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
 def form_part3_save(request):
-    mandate_id = request.POST.get("mandate_id")
-    mandate = assistant_mandate.find_mandate_by_id(mandate_id)
-    assistant = mandate.assistant
-    files = assistant_document_file.find_by_assistant_mandate_and_description(mandate, document_type.PHD_DOCUMENT)
+    try:
+        mandate = assistant_mandate.find_mandate_by_id(request.POST.get("mandate_id"))
+        assistant = mandate.assistant
+    except ObjectDoesNotExist:
+        return HttpResponseRedirect(reverse('assistant_mandates'))
     if request.method == 'POST':
+        files = assistant_document_file.find_by_assistant_mandate_and_description(mandate, document_type.PHD_DOCUMENT)
         form = AssistantFormPart3(data=request.POST, instance=assistant, prefix='mand')
         if form.is_valid():
             current_assistant = form.save(commit=False)
@@ -287,9 +291,11 @@ def form_part6_edit(request):
 
 @user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
 def form_part6_save(request):
-    mandate_id = request.POST.get("mandate_id")
-    mandate = assistant_mandate.find_mandate_by_id(mandate_id)
-    assistant = mandate.assistant
+    try:
+        mandate = assistant_mandate.find_mandate_by_id(request.POST.get("mandate_id"))
+        assistant = mandate.assistant
+    except ObjectDoesNotExist:
+        return HttpResponseRedirect(reverse('assistant_mandates'))
     if mandate.state != assistant_mandate_state.TRTS:
         return HttpResponseRedirect(reverse('access_denied'))
     elif request.method == 'POST':
@@ -359,9 +365,11 @@ def form_part5_edit(request):
 
 @user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
 def form_part5_save(request):
-    mandate_id = request.POST.get("mandate_id")
-    mandate = assistant_mandate.find_mandate_by_id(mandate_id)
-    assistant = mandate.assistant
+    try:
+        mandate = assistant_mandate.find_mandate_by_id(request.POST.get("mandate_id"))
+        assistant = mandate.assistant
+    except ObjectDoesNotExist:
+        return HttpResponseRedirect(reverse('assistant_mandates'))
     if mandate.state != assistant_mandate_state.TRTS:
         return HttpResponseRedirect(reverse('access_denied'))
     elif request.method == 'POST':
