@@ -147,13 +147,16 @@ class EducationGroupViewTestCase(TestCase):
         education_group_parent_read(request, education_group_year_child.id)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'education_group/tab_identification.html')
+        self.assertEqual(template, 'education_group/tab_parent_training'
+                                   '.html')
         self.assertEqual(context['education_group_year'].parent_by_training, education_group_year_parent)
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.person.get_user_interface_language', return_value=True)
+    @mock.patch('base.models.education_group_year.find_by_id')
     def test_education_group_general_informations(self,
+                                                  mock_find_by_id,
                                                   mock_get_user_interface_language,
                                                   mock_render,
                                                   mock_decorators):
@@ -164,6 +167,7 @@ class EducationGroupViewTestCase(TestCase):
 
         from base.views.education_group import education_group_general_informations
 
+        mock_find_by_id.return_value = education_group_year
         education_group_general_informations(request, education_group_year.id)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -171,7 +175,9 @@ class EducationGroupViewTestCase(TestCase):
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
+    @mock.patch('base.models.education_group_year.find_by_id')
     def test_education_administrative_data(self,
+                                           mock_find_by_id,
                                            mock_render,
                                            mock_decorators):
         mock_decorators.login_required = lambda x: x
@@ -181,6 +187,7 @@ class EducationGroupViewTestCase(TestCase):
 
         from base.views.education_group import education_group_administrative_data
 
+        mock_find_by_id.return_value = education_group_year
         education_group_administrative_data(request, education_group_year.id)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
