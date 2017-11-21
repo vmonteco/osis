@@ -2332,9 +2332,6 @@ msgstr "Sessions en dérogation"
 msgid "own_comment"
 msgstr "Commentaire propre"
 
-msgid "contextual_comment"
-msgstr "Commentaire contextuel"
-
 msgid "SESSION_1"
 msgstr "1"
 

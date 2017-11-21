@@ -37,9 +37,14 @@ from cms import models as mdl_cms
 from collections import OrderedDict
 from django.conf import settings
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
-from django.utils import timezone
 from base.models.enums import academic_calendar_type
-from operator import itemgetter
+
+CODE_SCS = 'code_scs'
+TITLE = 'title'
+CREDITS_MIN = "credits_min"
+CREDITS_MAX = "credits_max"
+BLOCK = "block"
+SESSIONS_DEROGATION = "sessions_derogation"
 
 
 @login_required
@@ -238,37 +243,38 @@ def _group_elements(education_group_yr):
 def _get_group_elements_data(group_elements):
     group_elements_data = []
     for group_element in group_elements:
+        dict={'group_element': group_element}
         if group_element.child_leaf:
-            group_elements_data.append({'id': group_element.id,
-                                        'code_scs': group_element.child_leaf.acronym,
-                                        'title': group_element.child_leaf.title,
-                                        'credits_abs': group_element.child_leaf.credits,
-                                        'credits_relative': group_element.child_leaf.relative_credits,
-                                        'credits_min': None,
-                                        'credits_max': None,
-                                        'mandatory_link': group_element.child_leaf.is_mandatory,
-                                        'block': 1,
-                                        'current_order': group_element.child_leaf.current_order,
-                                        'contextual_comment': group_element.child_leaf.contextual_comment,
-                                        'sessions_derogation': group_element.child_leaf.sessions_derogation
-                                        })
+            _get_learning_unit_detail(dict, group_element)
         elif group_element.child_branch:
-            group_elements_data.append({'id': group_element.id,
-                                        'code_scs': group_element.child_branch.partial_acronym,
-                                        'title': group_element.child_branch.title,
-                                        'credits_abs': group_element.child_branch.credits,
-                                        'credits_relative': group_element.relative_credits,
-                                        'credits_min': group_element.min_credits,
-                                        'credits_max': group_element.max_credits,
-                                        'mandatory_link': group_element.is_mandatory,
-                                        'block': 2,
-                                        'current_order': group_element.current_order,
-                                        'contextual_comment': group_element.contextual_comment,
-                                        'sessions_derogation': None
-                                        })
+            _get_education_group_detail(dict, group_element)
+        group_elements_data.append(dict)
     return _sorting(group_elements_data)
 
 
 def _sorting(group_elements_data):
-    return sorted(group_elements_data, key=lambda k: (k['current_order'] is None, k['current_order'] == 0, k['current_order']))
+    return sorted(group_elements_data,
+                  key= lambda k: (k.get('group_element').current_order is None,
+                                  k.get('group_element').current_order == -1,
+                                  k.get('group_element').current_order))
 
+
+def _get_education_group_detail(dict_param, group_element):
+    dict = dict_param
+    dict.update({CODE_SCS: group_element.child_branch.partial_acronym,
+                 TITLE: group_element.child_branch.title,
+                 CREDITS_MIN: group_element.min_credits,
+                 CREDITS_MAX: group_element.max_credits,
+                 BLOCK: None})
+    return dict
+
+
+def _get_learning_unit_detail(dict_param, group_element):
+    dict = dict_param
+    dict.update({CODE_SCS: group_element.child_leaf.acronym,
+                 TITLE: group_element.child_leaf.title,
+                 CREDITS_MIN: None,
+                 CREDITS_MAX: None,
+                 BLOCK: group_element.block,
+                 SESSIONS_DEROGATION: group_element.sessions_derogation})
+    return dict

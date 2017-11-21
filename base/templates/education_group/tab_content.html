@@ -56,31 +56,24 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for group_element in group_elements %}
+                        {% for element in group_elements %}
                             <tr>
-                                <td>{{ group_element.code_scs }}</td>
-                                <td>{{ group_element.title }}</td>
-                                <td>{{ group_element.credits_abs | default_if_none:'-' }}</td>
-                                <td>{{ group_element.credits_relative | default_if_none:'-' }}</td>
-                                <td>{{ group_element.credits_min | default_if_none:'-' }}</td>
-                                <td>{{ group_element.credits_max | default_if_none:'-' }}</td>
-                                <td><input type="checkbox" disabled {% if group_element.mandatory_link %}checked {% else %} N {% endif %}></td>
-                                <td>{{ group_element.block | default_if_none:'-' }}</td>
-                                <td>{{ group_element.current_order | default_if_none:'-' }}</td>
-                                <td>{% if group_element.sessions_derogation %}{% trans group_element.sessions_derogation %}{% endif %}</td>
+                                <td>{{ element.code_scs }}</td>
+                                <td>{{ element.title }}</td>
+                                <td>{{ element.group_element.absolute_credits | default_if_none:'-' }}</td>
+                                <td>{{ element.group_element.relative_credits | default_if_none:'-' }}</td>
+                                <td>{{ element.credits_min | default_if_none:'-' }}</td>
+                                <td>{{ element.credits_max | default_if_none:'-' }}</td>
+                                <td>{% if element.group_element.is_mandatory %}{% trans 'yes'%} {% else %}{% trans 'no' %}{% endif %}</td>
+                                <td>{{ element.block | default_if_none:'-' }}</td>
+                                <td>{{ element.group_element.current_order | default_if_none:'-' }}</td>
+                                <td>{% if element.sessions_derogation %}{% trans element.sessions_derogation %}{% else %}-{% endif %}</td>
                             </tr>
                             <tr>
                                 <td colspan="10" style="border-top: none;">
-                                    {% if group_element.own_comment %}
+                                    {% if element.group_element.own_comment %}
                                         <label>{% trans 'own_comment' %}</label><br>
-                                        {{ group_element.own_comment }}
-                                    {% endif %}
-                                    {% if group_element.contextual_comment %}
-                                        {% if group_element.own_comment %}
-                                            <br><br>
-                                        {% endif %}
-                                        <label>{% trans 'contextual_comment' %}</label><br>
-                                        {{ group_element.contextual_comment }}
+                                        {{ element.group_element.own_comment }}
                                     {% endif %}
                                 </td>
                             </tr>

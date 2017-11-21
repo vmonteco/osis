@@ -2326,9 +2326,6 @@ msgstr "Sessions in derogation"
 msgid "own_comment"
 msgstr "Own comment"
 
-msgid "contextual_comment"
-msgstr "Contextual comment"
-
 msgid "SESSION_1"
 msgstr "1"
 

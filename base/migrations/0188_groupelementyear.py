@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='groupelementyear',
-            name='contextual_comment',
+            name='own_comment',
             field=models.CharField(blank=True, max_length=500, null=True),
         ),
         migrations.AddField(
@@ -44,28 +44,18 @@ class Migration(migrations.Migration):
             field=models.DecimalField(blank=True, decimal_places=2, max_digits=5, null=True),
         ),
         migrations.AddField(
-            model_name='learningunityear',
-            name='contextual_comment',
-            field=models.CharField(blank=True, max_length=500, null=True),
+            model_name='groupelementyear',
+            name='sessions_derogation',
+            field=models.CharField(choices=[('SESSION_1', 'SESSION_1'), ('SESSION_2', 'SESSION_2'), ('SESSION_3', 'SESSION_3'), ('SESSION_1_2', 'SESSION_1_2'), ('SESSION_1_3', 'SESSION_1_3'), ('SESSION_2_3', 'SESSION_2_3'), ('SESSION_1_2_3', 'SESSION_1_2_3'), ('SESSION_UNDEFINED', 'SESSION_UNDEFINED'), ('SESSION_PARTIAL_2_3', 'SESSION_PARTIAL_2_3')], default=base.models.enums.sessions_derogation.SessionsDerogationTypes('SESSION_UNDEFINED'), max_length=65),
         ),
         migrations.AddField(
-            model_name='learningunityear',
-            name='current_order',
-            field=models.IntegerField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='learningunityear',
-            name='is_mandatory',
-            field=models.BooleanField(default=False),
-        ),
-        migrations.AddField(
-            model_name='learningunityear',
-            name='relative_credits',
+            model_name='groupelementyear',
+            name='absolute_credits',
             field=models.DecimalField(blank=True, decimal_places=2, max_digits=5, null=True),
         ),
         migrations.AddField(
-            model_name='learningunityear',
-            name='sessions_derogation',
-            field=models.CharField(choices=[('SESSION_1', 'SESSION_1'), ('SESSION_2', 'SESSION_2'), ('SESSION_3', 'SESSION_3'), ('SESSION_1_2', 'SESSION_1_2'), ('SESSION_1_3', 'SESSION_1_3'), ('SESSION_2_3', 'SESSION_2_3'), ('SESSION_1_2_3', 'SESSION_1_2_3'), ('SESSION_UNDEFINED', 'SESSION_UNDEFINED'), ('SESSION_PARTIAL_2_3','SESSION_PARTIAL_2_3')], default=base.models.enums.sessions_derogation.SessionsDerogationTypes('SESSION_UNDEFINED'), max_length=65),
+            model_name='groupelementyear',
+            name='block',
+            field=models.CharField(blank=True, max_length=7, null=True),
         ),
     ]

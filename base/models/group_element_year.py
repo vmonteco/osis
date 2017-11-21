@@ -28,12 +28,14 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
 from base.models.enums import learning_unit_year_subtypes
+from base.models.enums import sessions_derogation
 
 
 class GroupElementYearAdmin(admin.ModelAdmin):
     list_display = ('parent', 'child_branch', 'child_leaf',)
-    fieldsets = ((None, {'fields': ('parent', 'child_branch', 'child_leaf', 'relative_credits', 'min_credits',
-                                    'max_credits', 'is_mandatory', 'current_order', 'contextual_comment')}),)
+    fieldsets = ((None, {'fields': ('parent', 'child_branch', 'child_leaf', 'absolute_credits','relative_credits',
+                                    'min_credits', 'max_credits', 'is_mandatory', 'block', 'current_order',
+                                    'own_comment', 'sessions_derogation')}),)
     raw_id_fields = ('parent', 'child_branch', 'child_leaf',)
 
 
@@ -43,13 +45,17 @@ class GroupElementYear(models.Model):
     parent = models.ForeignKey('EducationGroupYear', related_name='parent', blank=True, null=True)
     child_branch = models.ForeignKey('EducationGroupYear', related_name='child_branch', blank=True, null=True)
     child_leaf = models.ForeignKey('LearningUnitYear', related_name='child_leaf', blank=True, null=True)
+    absolute_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     relative_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     min_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     max_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     is_mandatory = models.BooleanField(default=False)
-    current_order = models.IntegerField(blank=True, null=True)
-
-    contextual_comment = models.CharField(max_length=500, blank=True, null=True)
+    block = models.CharField(max_length=7, blank=True, null=True)
+    current_order = models.IntegerField(blank=True, null=True, default=0)
+    own_comment = models.CharField(max_length=500, blank=True, null=True)
+    sessions_derogation = models.CharField(max_length=65,
+                                           choices=sessions_derogation.SessionsDerogationTypes.choices(),
+                                           default=sessions_derogation.SessionsDerogationTypes.SESSION_UNDEFINED)
 
 def find_by_parent(an_education_group_year):
     return GroupElementYear.objects.filter(parent=an_education_group_year)
