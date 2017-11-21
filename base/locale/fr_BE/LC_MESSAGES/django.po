@@ -2295,3 +2295,12 @@ msgstr "à"
 
 msgid "learning_unit_years_to_delete"
 msgstr "Vous êtes sur le point de supprimer définitiviement les UE suivantes"
+
+msgid "Put in proposal"
+msgstr "Mettre en proposition"
+
+msgid "Proposal for modification"
+msgstr "Proposition de modification"
+
+msgid "End of teaching"
+msgstr "Fin d'enseignement"
