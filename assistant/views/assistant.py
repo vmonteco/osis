@@ -40,6 +40,7 @@ from assistant.models import tutoring_learning_unit_year
 from assistant.models import settings, reviewer, mandate_entity
 from assistant.models.enums import document_type, assistant_mandate_state, reviewer_role
 from assistant.utils.send_email import send_message
+from assistant.utils import assistant_access
 
 
 class AssistantMandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMixin):
@@ -49,7 +50,7 @@ class AssistantMandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListVie
     form_class = forms.Form
 
     def test_func(self):
-        return user_is_assistant_and_procedure_is_open(self.request.user)
+        return assistant_access.user_is_assistant_and_procedure_is_open(self.request.user)
 
     def get_login_url(self):
         return reverse('access_denied')
@@ -69,34 +70,24 @@ class AssistantMandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListVie
         return context
 
 
-def user_is_assistant_and_procedure_is_open(user):
-    if user.is_authenticated() and settings.access_to_procedure_is_open() and \
-            academic_assistant.find_by_person(user.person):
-        return True
-    else:
-        return False
-
-
-@user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
+@user_passes_test(assistant_access.user_is_assistant_and_procedure_is_open, login_url='access_denied')
 def mandate_change_state(request):
-    try:
-        mandate = assistant_mandate.find_mandate_by_id(request.POST.get("mandate_id"))
-    except ObjectDoesNotExist:
-        return HttpResponseRedirect(reverse('assistant_mandates'))
-    if 'bt_mandate_accept' in request.POST:
-        mandate.state = assistant_mandate_state.TRTS
-    elif 'bt_mandate_decline' in request.POST:
-        mandate.state = assistant_mandate_state.DECLINED
-        faculty = mandate_entity.find_by_mandate_and_type(mandate, entity_type.FACULTY)
-        if faculty:
-            faculty_dean = reviewer.find_by_entity_and_role(
-                faculty.first().entity, reviewer_role.SUPERVISION).first()
-            assistant = academic_assistant.find_by_person(person.find_by_user(request.user))
-            html_template_ref = 'assistant_dean_assistant_decline_html'
-            txt_template_ref = 'assistant_dean_assistant_decline_txt'
-            send_message(person=faculty_dean.person, html_template_ref=html_template_ref,
-                         txt_template_ref=txt_template_ref, assistant=assistant)
-    mandate.save()
+    mandate = assistant_mandate.find_mandate_by_id(request.POST.get("mandate_id"))
+    if mandate and request.method == 'POST':
+        if 'bt_mandate_accept' in request.POST:
+            mandate.state = assistant_mandate_state.TRTS
+        elif 'bt_mandate_decline' in request.POST:
+            mandate.state = assistant_mandate_state.DECLINED
+            faculty = mandate_entity.find_by_mandate_and_type(mandate, entity_type.FACULTY)
+            if faculty:
+                faculty_dean = reviewer.find_by_entity_and_role(
+                    faculty.first().entity, reviewer_role.SUPERVISION).first()
+                assistant = academic_assistant.find_by_person(person.find_by_user(request.user))
+                html_template_ref = 'assistant_dean_assistant_decline_html'
+                txt_template_ref = 'assistant_dean_assistant_decline_txt'
+                send_message(person=faculty_dean.person, html_template_ref=html_template_ref,
+                             txt_template_ref=txt_template_ref, assistant=assistant)
+        mandate.save()
     return HttpResponseRedirect(reverse('assistant_mandates'))
 
 
@@ -106,7 +97,7 @@ class AssistantLearningUnitsListView(LoginRequiredMixin, UserPassesTestMixin, Li
     form_class = forms.Form
 
     def test_func(self):
-        return user_is_assistant_and_procedure_is_open(self.request.user)
+        return assistant_access.user_is_assistant_and_procedure_is_open_and_workflow_is_assistant(self.request.user)
 
     def get_login_url(self):
         return reverse('access_denied')

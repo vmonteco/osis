@@ -24,7 +24,6 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import JsonResponse
 from django.http.response import HttpResponseRedirect
@@ -37,14 +36,7 @@ from assistant.utils.send_email import send_message
 from assistant.forms import *
 from assistant.models.enums import document_type
 from assistant.models.enums import assistant_mandate_state, assistant_phd_inscription
-
-
-def user_is_assistant_and_procedure_is_open(user):
-    if user.is_authenticated() and settings.access_to_procedure_is_open() and \
-            academic_assistant.find_by_person(user.person):
-        return True
-    else:
-        return False
+from assistant.utils.assistant_access import user_is_assistant_and_procedure_is_open_and_workflow_is_assistant
 
 
 @login_required
@@ -64,8 +56,8 @@ def get_learning_units_year(request):
     return JsonResponse(response_data, safe=False)
 
 
-@user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
-def form_part1_edit(request):
+@user_passes_test(user_is_assistant_and_procedure_is_open_and_workflow_is_assistant, login_url='access_denied')
+def form_part1_edit(request, msg=None):
     mandate = assistant_mandate.find_mandate_by_assistant_for_academic_year(
         academic_assistant.find_by_person(request.user.person), academic_year.current_academic_year())
     assistant = mandate.assistant
@@ -76,27 +68,28 @@ def form_part1_edit(request):
     return render(request, "assistant_form_part1.html", {'assistant': assistant,
                                                          'mandate': mandate,
                                                          'form': form,
+                                                         'msg': msg,
                                                          'supervisor': assistant.supervisor})
 
 
-@user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
+@user_passes_test(user_is_assistant_and_procedure_is_open_and_workflow_is_assistant, login_url='access_denied')
 def form_part1_save(request):
-    try:
-        mandate = assistant_mandate.find_mandate_by_id(request.POST.get("mandate_id"))
+    mandate = assistant_mandate.find_mandate_by_id(request.POST.get("mandate_id"))
+    if mandate and request.method == 'POST':
         assistant = mandate.assistant
-    except ObjectDoesNotExist:
-        return HttpResponseRedirect(reverse('assistant_mandates'))
-    addresses = person_address.find_by_person(person.find_by_id(assistant.person.id))
-    form = AssistantFormPart1(data=request.POST, instance=mandate)
-    if form.is_valid():
-        form.save()
-        return form_part1_edit(request)
+        addresses = person_address.find_by_person(person.find_by_id(assistant.person.id))
+        form = AssistantFormPart1(data=request.POST, instance=mandate)
+        if form.is_valid():
+            form.save()
+            return form_part1_edit(request)
+        else:
+            return render(request, "assistant_form_part1.html", {'assistant': assistant, 'mandate': mandate,
+                                                                 'addresses': addresses, 'form': form})
     else:
-        return render(request, "assistant_form_part1.html", {'assistant': assistant, 'mandate': mandate,
-                                                             'addresses': addresses, 'form': form})
+        return form_part1_edit(request, msg=_("data_not_saved"))
 
 
-@user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
+@user_passes_test(user_is_assistant_and_procedure_is_open_and_workflow_is_assistant, login_url='access_denied')
 def tutoring_learning_unit_add(request):
     mandate = assistant_mandate.find_mandate_by_assistant_for_academic_year(
         academic_assistant.find_by_person(request.user.person), academic_year.current_academic_year())
@@ -108,7 +101,7 @@ def tutoring_learning_unit_add(request):
                                                                 })
 
 
-@user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
+@user_passes_test(user_is_assistant_and_procedure_is_open_and_workflow_is_assistant, login_url='access_denied')
 def tutoring_learning_unit_edit(request, tutoring_learning_unit_id=None):
     edited_tutoring_learning_unit_year = mdl.tutoring_learning_unit_year.find_by_id(tutoring_learning_unit_id)
     mandate_id = edited_tutoring_learning_unit_year.mandate_id
@@ -142,7 +135,7 @@ def tutoring_learning_unit_edit(request, tutoring_learning_unit_id=None):
                   })
 
 
-@user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
+@user_passes_test(user_is_assistant_and_procedure_is_open_and_workflow_is_assistant, login_url='access_denied')
 def tutoring_learning_unit_save(request):
     if request.method == 'POST':
         tutoring_learning_unit_year_id = request.POST.get('tutoring_learning_unit_year_id')
@@ -166,18 +159,18 @@ def tutoring_learning_unit_save(request):
                 current_tutoring_learning_unit.save()
                 return HttpResponseRedirect(reverse('mandate_learning_units'))
         return render(request, "tutoring_learning_unit_year.html", {'form': form, 'mandate_id': mandate_id})
-    else :
+    else:
         return HttpResponseRedirect(reverse('mandate_learning_units'))
 
 
-@user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
+@user_passes_test(user_is_assistant_and_procedure_is_open_and_workflow_is_assistant, login_url='access_denied')
 def tutoring_learning_unit_delete(request, tutoring_learning_unit_id):
     mdl.tutoring_learning_unit_year.find_by_id(tutoring_learning_unit_id).delete()
     return HttpResponseRedirect(reverse('mandate_learning_units'))
 
 
-@user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
-def form_part3_edit(request):
+@user_passes_test(user_is_assistant_and_procedure_is_open_and_workflow_is_assistant, login_url='access_denied')
+def form_part3_edit(request, msg=None):
     mandate = assistant_mandate.find_mandate_by_assistant_for_academic_year(
         academic_assistant.find_by_person(request.user.person), academic_year.current_academic_year())
     assistant = mandate.assistant
@@ -196,17 +189,15 @@ def form_part3_edit(request):
                                                          'document_type': document_type.PHD_DOCUMENT,
                                                          'supervisor': assistant.supervisor,
                                                          'files': files,
+                                                         'msg': msg,
                                                          'form': form})
 
 
-@user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
+@user_passes_test(user_is_assistant_and_procedure_is_open_and_workflow_is_assistant, login_url='access_denied')
 def form_part3_save(request):
-    try:
-        mandate = assistant_mandate.find_mandate_by_id(request.POST.get("mandate_id"))
+    mandate = assistant_mandate.find_mandate_by_id(request.POST.get("mandate_id"))
+    if mandate and request.method == 'POST':
         assistant = mandate.assistant
-    except ObjectDoesNotExist:
-        return HttpResponseRedirect(reverse('assistant_mandates'))
-    if request.method == 'POST':
         files = assistant_document_file.find_by_assistant_mandate_and_description(mandate, document_type.PHD_DOCUMENT)
         form = AssistantFormPart3(data=request.POST, instance=assistant, prefix='mand')
         if form.is_valid():
@@ -231,9 +222,11 @@ def form_part3_save(request):
         else:
             return render(request, "assistant_form_part3.html", {'assistant': assistant, 'mandate': mandate,
                                                                  'files': files, 'form': form})
+    else:
+        return form_part3_edit(request, msg=_("data_not_saved"))
 
 
-@user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
+@user_passes_test(user_is_assistant_and_procedure_is_open_and_workflow_is_assistant, login_url='access_denied')
 def form_part4_edit(request):
     mandate = assistant_mandate.find_mandate_by_assistant_for_academic_year(
         academic_assistant.find_by_person(request.user.person), academic_year.current_academic_year())
@@ -253,7 +246,7 @@ def form_part4_edit(request):
                                                          'form': form})
 
 
-@user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
+@user_passes_test(user_is_assistant_and_procedure_is_open_and_workflow_is_assistant, login_url='access_denied')
 def form_part4_save(request):
     mandate = assistant_mandate.find_mandate_by_assistant_for_academic_year(
         academic_assistant.find_by_person(request.user.person), academic_year.current_academic_year())
@@ -271,13 +264,11 @@ def form_part4_save(request):
                                                                  'form': form})
 
 
-@user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
-def form_part6_edit(request):
+@user_passes_test(user_is_assistant_and_procedure_is_open_and_workflow_is_assistant, login_url='access_denied')
+def form_part6_edit(request, msg=None):
     mandate = assistant_mandate.find_mandate_by_assistant_for_academic_year(
         academic_assistant.find_by_person(request.user.person), academic_year.current_academic_year())
     assistant = mandate.assistant
-    if mandate.state != assistant_mandate_state.TRTS:
-        return HttpResponseRedirect(reverse('assistant_mandates'))
     form = AssistantFormPart6(initial={'tutoring_percent': mandate.tutoring_percent,
                                        'service_activities_percent': mandate.service_activities_percent,
                                        'formation_activities_percent': mandate.formation_activities_percent,
@@ -286,19 +277,15 @@ def form_part6_edit(request):
                                        }, prefix='mand')
     return render(request, "assistant_form_part6.html", {'assistant': assistant,
                                                          'mandate': mandate,
+                                                         'msg': msg,
                                                          'form': form})
 
 
-@user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
+@user_passes_test(user_is_assistant_and_procedure_is_open_and_workflow_is_assistant, login_url='access_denied')
 def form_part6_save(request):
-    try:
-        mandate = assistant_mandate.find_mandate_by_id(request.POST.get("mandate_id"))
+    mandate = assistant_mandate.find_mandate_by_id(request.POST.get("mandate_id"))
+    if mandate and request.method == 'POST':
         assistant = mandate.assistant
-    except ObjectDoesNotExist:
-        return HttpResponseRedirect(reverse('assistant_mandates'))
-    if mandate.state != assistant_mandate_state.TRTS:
-        return HttpResponseRedirect(reverse('access_denied'))
-    elif request.method == 'POST':
         form = AssistantFormPart6(data=request.POST, instance=mandate, prefix='mand')
         if form.is_valid():
             errors_in_form = False
@@ -337,15 +324,14 @@ def form_part6_save(request):
         else:
             return render(request, "assistant_form_part6.html", {'assistant': assistant, 'mandate': mandate,
                                                                  'form': form})
+    return form_part6_edit(request, msg=_("data_not_saved"))
 
 
-@user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
-def form_part5_edit(request):
+@user_passes_test(user_is_assistant_and_procedure_is_open_and_workflow_is_assistant, login_url='access_denied')
+def form_part5_edit(request, msg=None):
     mandate = assistant_mandate.find_mandate_by_assistant_for_academic_year(
         academic_assistant.find_by_person(request.user.person), academic_year.current_academic_year())
     assistant = mandate.assistant
-    if mandate.state != assistant_mandate_state.TRTS:
-        return HttpResponseRedirect(reverse('access_denied'))
     form = AssistantFormPart5(initial={'faculty_representation': mandate.faculty_representation,
                                        'institute_representation': mandate.institute_representation,
                                        'sector_representation': mandate.sector_representation,
@@ -360,19 +346,15 @@ def form_part5_edit(request):
                                        }, prefix='mand')
     return render(request, "assistant_form_part5.html", {'assistant': assistant,
                                                          'mandate': mandate,
+                                                         'msg': msg,
                                                          'form': form}) 
 
 
-@user_passes_test(user_is_assistant_and_procedure_is_open, login_url='access_denied')
+@user_passes_test(user_is_assistant_and_procedure_is_open_and_workflow_is_assistant, login_url='access_denied')
 def form_part5_save(request):
-    try:
-        mandate = assistant_mandate.find_mandate_by_id(request.POST.get("mandate_id"))
+    mandate = assistant_mandate.find_mandate_by_id(request.POST.get("mandate_id"))
+    if mandate and request.method == 'POST':
         assistant = mandate.assistant
-    except ObjectDoesNotExist:
-        return HttpResponseRedirect(reverse('assistant_mandates'))
-    if mandate.state != assistant_mandate_state.TRTS:
-        return HttpResponseRedirect(reverse('access_denied'))
-    elif request.method == 'POST':
         form = AssistantFormPart5(data=request.POST, instance=mandate, prefix='mand')
         if form.is_valid():
             form.save()
@@ -380,3 +362,5 @@ def form_part5_save(request):
         else:
             return render(request, "assistant_form_part5.html", {'assistant': assistant, 'mandate': mandate,
                                                                  'form': form})
+    else:
+        return form_part5_edit(request, msg=_("data_not_saved"))

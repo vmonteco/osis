@@ -190,6 +190,9 @@ msgstr "Course code"
 msgid "dashboard"
 msgstr "Dashboard"
 
+msgid "data_not_saved"
+msgstr "A problem occured, data have not been saved"
+
 msgid "date_of_first_nomination"
 msgstr "Date of first nomination"
 

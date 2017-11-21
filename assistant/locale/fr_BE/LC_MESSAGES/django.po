@@ -190,6 +190,9 @@ msgstr "Code cours"
 msgid "dashboard"
 msgstr "Tableau de bord"
 
+msgid "data_not_saved"
+msgstr "Un problème est survenu, les données n'ont pas pu être sauvegardées"
+
 msgid "date_of_first_nomination"
 msgstr "Date de la première nomination"
 
