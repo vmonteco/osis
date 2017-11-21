@@ -2323,3 +2323,11 @@ msgstr "Undefined session"
 msgid "SESSION_PARTIAL_2_3"
 msgstr "p23"
 
+msgid "Put in proposal"
+msgstr ""
+
+msgid "Proposal for modification"
+msgstr ""
+
+msgid "End of teaching"
+msgstr ""
