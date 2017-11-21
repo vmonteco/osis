@@ -225,7 +225,7 @@ class EducationGroupViewTestCase(TestCase):
 
         from base.views.education_group import education_group_content
 
-        education_content(request, education_group_year.id)
+        education_group_content(request, education_group_year.id)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'education_group/tab_content.html')

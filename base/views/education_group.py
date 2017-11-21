@@ -39,6 +39,7 @@ from django.conf import settings
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
 from django.utils import timezone
 from base.models.enums import academic_calendar_type
+from operator import itemgetter
 
 
 @login_required
@@ -221,26 +222,53 @@ def education_group_content(request, education_group_year_id):
 def _education_group_content_tab(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
     context = {'education_group_year': education_group_year,
-               'group_elements' :[{'code_scs':'LGERM2719',
-                                   'title': 'Contrastive linguistics',
-                                   'credits': '2',
-                                   'credits_abs': '5',
-                                   'credits_min': '4',
-                                   'credits_max': '6',
-                                   'mandatory_link': True,
-                                   'current_order': None,
-                                   'own_comment': 'Ce cours comprend une excuseion',
-                                   'contextual_comment': 'Ce cours comprend une excuseion'},
-                                  {'code_scs':'LGERM2700',
-                                   'title': 'Contrastive linguistics',
-                                   'credits': None,
-                                   'credits_abs': '15',
-                                   'credits_min': '4',
-                                   'credits_max': None,
-                                   'mandatory_link': False,
-                                   'current_order': '1',
-                                   'own_comment': 'Ce cours comprend une excuseion. Et ce cours comprend encore une excursion',
-                                   'contextual_comment': 'Ce cours comprend une excuseion'}],
+               'group_elements': _group_elements(education_group_year),
                }
     return layout.render(request, "education_group/tab_content.html", context)
+
+
+def _group_elements(education_group_yr):
+    group_elements = mdl.group_element_year.find_by_parent(education_group_yr)
+    if group_elements:
+        return _get_group_elements_data(group_elements)
+
+    return None
+
+
+def _get_group_elements_data(group_elements):
+    group_elements_data = []
+    for group_element in group_elements:
+        if group_element.child_leaf:
+            group_elements_data.append({'id': group_element.id,
+                                        'code_scs': group_element.child_leaf.acronym,
+                                        'title': group_element.child_leaf.title,
+                                        'credits_abs': group_element.child_leaf.credits,
+                                        'credits_relative': group_element.child_leaf.relative_credits,
+                                        'credits_min': None,
+                                        'credits_max': None,
+                                        'mandatory_link': group_element.child_leaf.is_mandatory,
+                                        'block': False,
+                                        'current_order': group_element.child_leaf.current_order,
+                                        'contextual_comment': group_element.child_leaf.contextual_comment,
+                                        'sessions_derogation': group_element.child_leaf.sessions_derogation
+                                        })
+        elif group_element.child_branch:
+            group_elements_data.append({'id': group_element.id,
+                                        'code_scs': group_element.child_branch.partial_acronym,
+                                        'title': group_element.child_branch.title,
+                                        'credits_abs': None,
+                                        'credits_relative': group_element.relative_credits,
+                                        'credits_min': group_element.min_credits,
+                                        'credits_max': group_element.max_credits,
+                                        'mandatory_link': group_element.is_mandatory,
+                                        'block': None,
+                                        'current_order': group_element.current_order,
+                                        'contextual_comment': group_element.contextual_comment,
+                                        'sessions_derogation': None
+                                        })
+    return _sorting(group_elements_data)
+
+
+def _sorting(group_elements_data):
+    return sorted(group_elements_data, key=lambda k: (k['current_order'] is None, k['current_order'] == 0, k['current_order']))
 
