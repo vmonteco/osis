@@ -210,3 +210,37 @@ def get_dates(an_academic_calendar_type, an_education_group_year):
         return {'dates': dates}
     else:
         return {}
+
+
+@login_required
+@permission_required('base.can_access_offer', raise_exception=True)
+def education_group_content(request, education_group_year_id):
+    return _education_group_content_tab(request, education_group_year_id)
+
+
+def _education_group_content_tab(request, education_group_year_id):
+    education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+    context = {'education_group_year': education_group_year,
+               'group_elements' :[{'code_scs':'LGERM2719',
+                                   'title': 'Contrastive linguistics',
+                                   'credits': '2',
+                                   'credits_abs': '5',
+                                   'credits_min': '4',
+                                   'credits_max': '6',
+                                   'mandatory_link': True,
+                                   'current_order': None,
+                                   'own_comment': 'Ce cours comprend une excuseion',
+                                   'contextual_comment': 'Ce cours comprend une excuseion'},
+                                  {'code_scs':'LGERM2700',
+                                   'title': 'Contrastive linguistics',
+                                   'credits': None,
+                                   'credits_abs': '15',
+                                   'credits_min': '4',
+                                   'credits_max': None,
+                                   'mandatory_link': False,
+                                   'current_order': '1',
+                                   'own_comment': 'Ce cours comprend une excuseion. Et ce cours comprend encore une excursion',
+                                   'contextual_comment': 'Ce cours comprend une excuseion'}],
+               }
+    return layout.render(request, "education_group/tab_content.html", context)
+
