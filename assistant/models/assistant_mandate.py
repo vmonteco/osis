@@ -24,7 +24,6 @@
 #
 ##############################################################################
 from django.db import models
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib import admin
 from assistant.models.enums import assistant_mandate_state, assistant_type, assistant_mandate_renewal
@@ -99,7 +98,7 @@ def find_mandate_by_assistant_for_academic_year(assistant, this_academic_year):
 def find_mandate_by_id(mandate_id):
     try:
         return AssistantMandate.objects.get(id=mandate_id)
-    except ObjectDoesNotExist:
+    except AssistantMandate.DoesNotExist:
         return None
 
 def find_mandate_by_academic_assistant(assistant):

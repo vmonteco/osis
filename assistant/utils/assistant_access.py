@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.core.exceptions import ObjectDoesNotExist
 from base.models import academic_year
 from assistant.models.enums import assistant_mandate_state
 from assistant.models import assistant_mandate, academic_assistant, settings
@@ -40,7 +39,7 @@ def user_is_assistant_and_procedure_is_open_and_workflow_is_assistant(user):
             academic_assistant.find_by_person(user.person), academic_year.current_academic_year())
         if mandate.state != assistant_mandate_state.TRTS:
             return False
-    except ObjectDoesNotExist:
+    except assistant_mandate.AssistantMandate.DoesNotExist:
         return False
     else:
         return user.is_authenticated() and settings.access_to_procedure_is_open() and \

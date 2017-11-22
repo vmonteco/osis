@@ -26,7 +26,7 @@
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.urlresolvers import reverse
-from django.core.exceptions import ObjectDoesNotExist
+from django.views.decorators.http import require_http_methods
 from django.forms import forms
 
 import base.models.entity
@@ -71,9 +71,10 @@ class AssistantMandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListVie
 
 
 @user_passes_test(assistant_access.user_is_assistant_and_procedure_is_open, login_url='access_denied')
+@require_http_methods(["POST"])
 def mandate_change_state(request):
     mandate = assistant_mandate.find_mandate_by_id(request.POST.get("mandate_id"))
-    if mandate and request.method == 'POST':
+    if mandate:
         if 'bt_mandate_accept' in request.POST:
             mandate.state = assistant_mandate_state.TRTS
         elif 'bt_mandate_decline' in request.POST:
@@ -82,7 +83,8 @@ def mandate_change_state(request):
             if faculty:
                 faculty_dean = reviewer.find_by_entity_and_role(
                     faculty.first().entity, reviewer_role.SUPERVISION).first()
-                assistant = academic_assistant.find_by_person(person.find_by_user(request.user))
+                pers = person.find_by_user(request.user)
+                assistant = academic_assistant.find_by_person(pers)
                 html_template_ref = 'assistant_dean_assistant_decline_html'
                 txt_template_ref = 'assistant_dean_assistant_decline_txt'
                 send_message(person=faculty_dean.person, html_template_ref=html_template_ref,
