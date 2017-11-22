@@ -92,7 +92,7 @@ def save_uploaded_file(request):
         assistant_mandate_document_file.document_file = new_document
         assistant_mandate_document_file.save()
         return HttpResponse(
-            json.dumps({"success": True}),
+            json.dumps({"success": True, "message": file_selected.name + ' ' + _('file_uploaded')}),
             content_type="application/json")
     except DataError:
         return HttpResponse(

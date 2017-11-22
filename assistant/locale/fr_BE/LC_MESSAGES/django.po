@@ -292,6 +292,9 @@ msgstr "Favorable"
 msgid "field"
 msgstr "Type de mandat"
 
+msgid "file_uploaded"
+msgstr "a été correctement téléchargé"
+
 msgid "formation_activities"
 msgstr "Activités de formation"
 
