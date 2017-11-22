@@ -1,4 +1,4 @@
-#############################################################################
+##############################################################################
 #
 #    OSIS stands for Open Student Information System. It's an application
 #    designed to manage the core business of higher education institutions,
@@ -23,26 +23,22 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-
-from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
-
-
-class LearningContainerAdmin(AuditableSerializableModelAdmin):
-    list_display = ('external_id',)
-    fieldsets = ((None, {'fields': ('external_id',)}),)
-    search_fields = ['external_id']
+from enum import Enum
+from base.models.utils.utils import ChoiceEnum
 
 
-class LearningContainer(AuditableSerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    auto_renewal_until = models.IntegerField(null=True)
-    start_year = models.IntegerField(null=True)
+class SessionsDerogationTypes(ChoiceEnum):
+    SESSION_1 = "SESSION_1"
+    SESSION_2 = "SESSION_2"
+    SESSION_3 = "SESSION_3"
 
-    def __str__(self):
-        return u"%s" % (self.external_id)
+    SESSION_1_2 = "SESSION_1_2"
+    SESSION_1_3 = "SESSION_1_3"
+    SESSION_2_3 = "SESSION_2_3"
 
+    SESSION_1_2_3 = "SESSION_1_2_3"
 
-def find_by_id(learning_container_id):
-    return LearningContainer.objects.get(pk=learning_container_id)
+    SESSION_UNDEFINED = "SESSION_UNDEFINED"
+
+    SESSION_PARTIAL_2_3 = "SESSION_PARTIAL_2_3"
+
