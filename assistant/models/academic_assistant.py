@@ -24,7 +24,6 @@
 #
 ##############################################################################
 from django.db import models
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import admin
 from assistant.models.enums import assistant_phd_inscription
 
@@ -58,7 +57,7 @@ def find_by_id(assistant_id):
 def find_by_person(person):
     try:
         return AcademicAssistant.objects.get(person=person)
-    except ObjectDoesNotExist:
+    except AcademicAssistant.DoesNotExist:
         return None
 
 
