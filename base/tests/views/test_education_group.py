@@ -250,8 +250,7 @@ class EducationGroupViewTestCase(TestCase):
         education_group_parent_read(request, education_group_year_child.id)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'education_group/tab_parent_training'
-                                   '.html')
+        self.assertEqual(template, 'education_group/tab_identification.html')
         self.assertEqual(context['education_group_year'].parent_by_training, education_group_year_parent)
 
     @mock.patch('django.contrib.auth.decorators')
