@@ -24,7 +24,6 @@
 #
 ##############################################################################
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
 from django.contrib import admin
 from assistant.models.enums import assistant_phd_inscription
 
@@ -56,7 +55,10 @@ def find_by_id(assistant_id):
 
 
 def find_by_person(person):
-    return AcademicAssistant.objects.get(person=person)
+    try:
+        return AcademicAssistant.objects.get(person=person)
+    except AcademicAssistant.DoesNotExist:
+        return None
 
 
 def is_supervisor(person):

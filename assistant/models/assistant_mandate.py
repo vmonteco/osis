@@ -24,7 +24,6 @@
 #
 ##############################################################################
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib import admin
 from assistant.models.enums import assistant_mandate_state, assistant_type, assistant_mandate_renewal
@@ -97,8 +96,10 @@ def find_mandate_by_assistant_for_academic_year(assistant, this_academic_year):
 
 
 def find_mandate_by_id(mandate_id):
-    return AssistantMandate.objects.get(id=mandate_id)
-
+    try:
+        return AssistantMandate.objects.get(id=mandate_id)
+    except AssistantMandate.DoesNotExist:
+        return None
 
 def find_mandate_by_academic_assistant(assistant):
     return AssistantMandate.objects.filter(assistant=assistant).order_by('academic_year')

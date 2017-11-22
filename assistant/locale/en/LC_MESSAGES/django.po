@@ -190,6 +190,9 @@ msgstr "Course code"
 msgid "dashboard"
 msgstr "Dashboard"
 
+msgid "data_not_saved"
+msgstr "A problem occured, data have not been saved"
+
 msgid "date_of_first_nomination"
 msgstr "Date of first nomination"
 
@@ -400,6 +403,9 @@ msgstr "Registration number"
 
 msgid "maxlength_filename"
 msgstr "The length of filename may not exceed 100 characters."
+
+msgid "must_enter_learning_unit_year"
+msgstr "You must add one learning unit"
 
 msgid "must_enter_supervisor_if_registered_or_in_progress"
 msgstr "The promoter must be identified"
