@@ -50,17 +50,5 @@
         192
       ]
     }
-  },
-  {
-    "model": "auth.group",
-    "pk": 6,
-    "fields": {
-      "name": "internship_manager",
-      "permissions": [
-        159,
-        303,
-        302
-      ]
-    }
   }
 ]
