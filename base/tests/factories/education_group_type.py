@@ -24,24 +24,16 @@
 #
 ##############################################################################
 import factory
-import factory.fuzzy
 
-from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.education_group import EducationGroupFactory
-from base.tests.factories.education_group_type import EducationGroupTypeFactory
+from factory.django import DjangoModelFactory
 
+from base.models.enums import education_group_categories
 
-def generate_title(education_group_year):
-    return '{obj.academic_year} {obj.acronym}'.format(obj=education_group_year).lower()
-
-
-class EducationGroupYearFactory(factory.django.DjangoModelFactory):
+class EducationGroupTypeFactory(DjangoModelFactory):
     class Meta:
-        model = "base.EducationGroupYear"
+        model = "base.EducationGroupType"
 
-    education_group = factory.SubFactory(EducationGroupFactory)
-    academic_year = factory.SubFactory(AcademicYearFactory)
-    acronym = factory.Sequence(lambda n: 'Education %d' % n)
-    partial_acronym = factory.Sequence(lambda n: 'SCS %d' % n)
-    title = factory.LazyAttribute(generate_title)
-    education_group_type = factory.SubFactory(EducationGroupTypeFactory)
+    external_id = factory.Sequence(lambda n: '10000000%02d' % n)
+    category = education_group_categories.TRAINING
+    name = factory.Sequence(lambda n: 'Type of category - %d' % n)
+

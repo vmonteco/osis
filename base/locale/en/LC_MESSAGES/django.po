@@ -2257,6 +2257,9 @@ msgstr "Vacant but do not publish"
 msgid "DO_NOT_ASSIGN"
 msgstr "Do not assign"
 
+msgid "category"
+msgstr "Category"
+
 msgid "PRESIDENT"
 msgstr "President"
 

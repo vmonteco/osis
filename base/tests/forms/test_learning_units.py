@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils import timezone
 from unittest.mock import patch

@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,25 +23,33 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
+from django.db import models
+from django.contrib import admin
 
-from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.education_group import EducationGroupFactory
-from base.tests.factories.education_group_type import EducationGroupTypeFactory
+from base.models.enums import education_group_categories
 
 
-def generate_title(education_group_year):
-    return '{obj.academic_year} {obj.acronym}'.format(obj=education_group_year).lower()
+class EducationGroupTypeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'category', )
+    fieldsets = ((None, {'fields': ('name', 'category', )}),)
+    list_filter = ('name', 'category', )
+    search_fields = ['name', 'category']
 
 
-class EducationGroupYearFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "base.EducationGroupYear"
+class EducationGroupType(models.Model):
+    external_id = models.CharField(max_length=100, blank=True, null=True)
+    category = models.CharField(max_length=25, choices=education_group_categories.CATEGORIES, default=education_group_categories.TRAINING)
+    name = models.CharField(max_length=255)
 
-    education_group = factory.SubFactory(EducationGroupFactory)
-    academic_year = factory.SubFactory(AcademicYearFactory)
-    acronym = factory.Sequence(lambda n: 'Education %d' % n)
-    partial_acronym = factory.Sequence(lambda n: 'SCS %d' % n)
-    title = factory.LazyAttribute(generate_title)
-    education_group_type = factory.SubFactory(EducationGroupTypeFactory)
+    def __str__(self):
+        return u"%s" % self.name
+
+
+def find_all():
+    return EducationGroupType.objects.order_by('name')
+
+def find_by_category(category=None):
+    return EducationGroupType.objects.filter(category=category).order_by('name')
+
+def find_by_name(name=None):
+    return EducationGroupType.objects.filter(name=name)

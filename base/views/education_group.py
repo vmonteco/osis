@@ -110,19 +110,6 @@ def education_group_parent_read(request, education_group_year_id):
     return layout.render(request, "education_group/tab_identification.html", locals())
 
 
-def get_education_group_years(academic_yr, acronym, entity):
-    if entity:
-        education_group_year_entities = []
-        education_group_years = mdl.education_group_year.search(academic_yr=academic_yr, acronym=acronym)
-        for education_group_yr in education_group_years:
-            if education_group_yr.management_entity and \
-                            education_group_yr.management_entity.acronym.upper() == entity.upper():
-                education_group_year_entities.append(education_group_yr)
-        return education_group_year_entities
-    else:
-        return mdl.education_group_year.search(academic_yr=academic_yr, acronym=acronym)
-
-
 @login_required
 @permission_required('base.can_access_offer', raise_exception=True)
 def education_group_diplomas(request, education_group_year_id):

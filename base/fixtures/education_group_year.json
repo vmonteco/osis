@@ -37,13 +37,12 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   },
   {
     "model": "base.educationgroupyear",
-    "pk": 1,
+    "pk": 2,
     "fields": {
       "acronym": "DRT ST",
       "title": "Stagiaire",
@@ -79,8 +78,7 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   },
   {
@@ -121,8 +119,7 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   },
   {
@@ -163,8 +160,7 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   },
   {
@@ -205,8 +201,7 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   },
   {
@@ -247,8 +242,7 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   },
   {
@@ -289,8 +283,7 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   },
   {
@@ -331,8 +324,7 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "MONTH",
-      "category": "TRAINING"
+      "duration_unit": "MONTH"
     }
   },
   {
@@ -373,8 +365,7 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "TRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "TRIMESTER"
     }
   },
   {
@@ -415,8 +406,7 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   },
   {
@@ -457,8 +447,7 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   },
   {
@@ -499,8 +488,7 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   },
   {
@@ -541,8 +529,7 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   },
   {
@@ -583,8 +570,7 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   },
   {
@@ -625,8 +611,7 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   },
   {
@@ -667,8 +652,7 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   },
   {
@@ -709,8 +693,7 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   },
   {
@@ -751,8 +734,7 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   },
   {
@@ -793,8 +775,7 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   },
   {
@@ -835,8 +816,7 @@
       "primary_language": null,
       "keywords": null,
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   },
   {
@@ -877,8 +857,7 @@
       "primary_language": null,
       "keywords": "Activité",
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   },
   {
@@ -919,8 +898,7 @@
       "primary_language": null,
       "keywords": "Droit",
       "duration":1,
-      "duration_unit": "QUADRIMESTER",
-      "category": "TRAINING"
+      "duration_unit": "QUADRIMESTER"
     }
   }
 ]
