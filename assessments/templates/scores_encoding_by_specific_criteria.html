@@ -253,7 +253,7 @@
         }
     }
 
-    var target_score = '#form_justification tbody tr td input';
+    var target_score = '#form_justification tbody tr td input[id^="num_score_"]';
     $(target_score).on('keydown',
                        { "target": target_score,
                          "table_size": $('#form_justification tbody tr').length,
