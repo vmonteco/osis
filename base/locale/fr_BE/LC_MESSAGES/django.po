@@ -2302,7 +2302,6 @@ msgstr "à"
 msgid "learning_unit_years_to_delete"
 msgstr "Vous êtes sur le point de supprimer définitiviement les UE suivantes"
 
-<<<<<<< HEAD
 msgid "content"
 msgstr "Contenu"
 
