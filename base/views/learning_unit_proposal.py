@@ -30,6 +30,8 @@ from django.contrib.auth.decorators import login_required
 
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
+from base.models.entity_container_year import find_last_entity_version_grouped_by_linktypes
+from base.models.enums import entity_container_year_link_type
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 
 
@@ -44,6 +46,7 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
             return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
     else:
+        entities_version = find_last_entity_version_grouped_by_linktypes(learning_unit_year.learning_container_year)
         initial_data = {
             "academic_year": learning_unit_year.academic_year.pk,
             "first_letter": learning_unit_year.acronym[0],
@@ -60,7 +63,11 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
             "quadrimester": learning_unit_year.quadrimester,
             "campus": learning_unit_year.learning_container_year.campus,
             "person": user_person.pk,
-            "date": datetime.date.today()
+            "date": datetime.date.today(),
+            "requirement_entity": entities_version.get(entity_container_year_link_type.REQUIREMENT_ENTITY),
+            "allocation_entity": entities_version.get(entity_container_year_link_type.ALLOCATION_ENTITY),
+            "additional_entity_1": entities_version.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1),
+            "additional_entity_2": entities_version.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
         }
         form = LearningUnitProposalModificationForm(initial=initial_data)
     return render(request, 'proposal/learning_unit_modification.html', {'learning_unit_year': learning_unit_year,

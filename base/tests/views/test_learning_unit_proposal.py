@@ -46,21 +46,42 @@ ACCEPTED_STATUS_CODE = 202
 
 class TestLearningUnitModificationProposal(TestCase):
     def setUp(self):
+        today = datetime.date.today()
+
         self.person = PersonFactory()
         an_organization = OrganizationFactory(type=organization_type.MAIN)
         self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212")
+        self.learning_unit_year.academic_year.start_date = today - datetime.timedelta(days=15)
+        self.learning_unit_year.academic_year.end_date = today + datetime.timedelta(days=15)
+        self.learning_unit_year.academic_year.year = today.year
+        self.learning_unit_year.academic_year.save()
         self.learning_unit_year.learning_container_year.campus.organization = an_organization
         self.learning_unit_year.learning_container_year.campus.is_administration = True
         self.learning_unit_year.learning_container_year.campus.save()
 
-        today = datetime.date.today()
         an_entity = EntityFactory(organization=an_organization)
-        self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL, start_date=today,
+        self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
+                                                   start_date=today - datetime.timedelta(days=25),
                                                    end_date=today.replace(year=today.year + 1))
-        EntityContainerYearFactory(
+        self.requirement_entity = EntityContainerYearFactory(
             learning_container_year=self.learning_unit_year.learning_container_year,
             entity=self.entity_version.entity,
             type=entity_container_year_link_type.REQUIREMENT_ENTITY
+        )
+        self.allocation_entity = EntityContainerYearFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year,
+            entity=self.entity_version.entity,
+            type=entity_container_year_link_type.ALLOCATION_ENTITY
+        )
+        self.additional_entity_1= EntityContainerYearFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year,
+            entity=self.entity_version.entity,
+            type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1
+        )
+        self.additional_entity_2 = EntityContainerYearFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year,
+            entity=self.entity_version.entity,
+            type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2
         )
 
         self.client.force_login(self.person.user)
@@ -111,10 +132,10 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(form_initial['status'], self.learning_unit_year.status)
         self.assertEqual(form_initial['language'], self.learning_unit_year.learning_container_year.language)
         self.assertEqual(form_initial['quadrimester'], self.learning_unit_year.quadrimester)
-        # self.assertEqual(form_initial['requirement_entity'], None)
-        # self.assertEqual(form_initial['allocation_entity'], None)
-        # self.assertEqual(form_initial['additional_entity_1'], None)
-        # self.assertEqual(form_initial['additional_entity_2'], None)
+        self.assertEqual(form_initial['requirement_entity'], self.entity_version)
+        self.assertEqual(form_initial['allocation_entity'], self.entity_version)
+        self.assertEqual(form_initial['additional_entity_1'], self.entity_version)
+        self.assertEqual(form_initial['additional_entity_2'], self.entity_version)
         self.assertEqual(form_initial['campus'], self.learning_unit_year.learning_container_year.campus)
         self.assertEqual(form_initial['person'], self.person.pk)
         self.assertEqual(form_initial['date'], datetime.date.today())
