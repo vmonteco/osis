@@ -25,21 +25,30 @@
 ##############################################################################
 from django.db import models
 
+from base.models import entity_version
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
 class PersonEntityAdmin(SerializableModelAdmin):
-    list_display = ('person', 'entity', 'with_child')
+    list_display = ('person', 'entity', 'latest_entity_version_name', 'with_child')
     fieldsets = ((None, {'fields': ('person', 'entity', 'with_child')}),)
     search_fields = ['person__first_name', 'person__last_name']
     raw_id_fields = ('person', 'entity',)
 
+    def latest_entity_version_name(self, obj):
+        entity_v = entity_version.get_last_version(obj.entity)
+        if entity_v:
+            entity_v_str = "{}".format(entity_v.acronym)
+        else:
+            entity_v_str = "Not found"
+        return entity_v_str
+    latest_entity_version_name.short_description = 'Latest entity version'
+
 
 class PersonEntity(SerializableModel):
-    person = models.ForeignKey('Person', unique=True)
+    person = models.ForeignKey('Person')
     entity = models.ForeignKey('Entity')
     with_child = models.BooleanField(default=False)
 
     def __str__(self):
         return u"%s" % self.person
-
