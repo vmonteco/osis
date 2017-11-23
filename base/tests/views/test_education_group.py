@@ -386,6 +386,24 @@ class EducationGroupViewTestCase(TestCase):
             }
         )
 
+    @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.views.layout.render')
+    def test_education_content(self,
+                                           mock_render,
+                                           mock_decorators):
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+        education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
+        request = mock.Mock(method='GET')
+
+        from base.views.education_group import education_group_content
+
+        education_group_content(request, education_group_year.id)
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        self.assertEqual(template, 'education_group/tab_content.html')
+        self.assertEqual(context['education_group_year'], education_group_year)
+
     def _prepare_context_education_groups_search(self):
         # Create a structure [Entity / Entity version]
         country = CountryFactory()
@@ -457,3 +475,4 @@ class EducationGroupViewTestCase(TestCase):
                                entity=ages_entity,
                                education_group_year=ages_education_group_year,
                                type=offer_year_entity_type.ENTITY_MANAGEMENT)
+

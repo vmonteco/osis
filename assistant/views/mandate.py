@@ -124,8 +124,9 @@ def generate_xls():
                       _("matricule"),
                       _("name"),
                       _("firstname"),
+                      _("email"),
                       _("age"),
-                      _("choice"),
+                      _("status"),
                       _("renewal_type"),
                       _("assistant_type"),
                       _("fulltime_equivalent"),
@@ -152,16 +153,12 @@ def construct_line(mandate):
         mandate.sap_id,
         str(mandate.assistant.person.last_name),
         str(mandate.assistant.person.first_name),
+        str(mandate.assistant.person.email),
         person.calculate_age(mandate.assistant.person),
     ]
-    if mandate.state != assistant_mandate_state.DECLINED:
-        line += [
-            _("accepted"),
-        ]
-    else:
-        line += [
-            _(assistant_mandate_state.DECLINED),
-                 ]
+    line += [
+        _(mandate.state),
+    ]
     line += [
         _(mandate.renewal_type),
         _(str(mandate.assistant_type)),

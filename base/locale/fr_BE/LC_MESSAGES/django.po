@@ -2305,6 +2305,42 @@ msgstr "à"
 msgid "learning_unit_years_to_delete"
 msgstr "Vous êtes sur le point de supprimer définitiviement les UE suivantes"
 
+msgid "content"
+msgstr "Contenu"
+
+msgid "code_scs"
+msgstr "Code SCS"
+
+msgid "title_code_formation"
+msgstr "Intitulé / Code OF"
+
+msgid "absolute_credits"
+msgstr "Crédits abs."
+
+msgid "relative_target_credits"
+msgstr "Créd. cible rel."
+
+msgid "min_credits"
+msgstr "Créd. min."
+
+msgid "max_credits"
+msgstr "Créd. max."
+
+msgid "mandatory"
+msgstr "Oblig."
+
+msgid "block"
+msgstr "Bloc"
+
+msgid "current_order"
+msgstr "Ordre présent"
+
+msgid "sessions_derogation"
+msgstr "Sessions en dérogation"
+
+msgid "own_comment"
+msgstr "Commentaire propre"
+
 msgid "SESSION_1"
 msgstr "1"
 
