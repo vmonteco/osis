@@ -38,8 +38,7 @@ from base.models.enums import organization_type, proposal_type, proposal_state, 
     learning_container_year_types, learning_unit_year_quadrimesters, entity_container_year_link_type
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from reference.tests.factories.language import LanguageFactory
-from base.models import entity_container_year
-
+from base.models import proposal_folder
 
 class TestSave(TestCase):
     def setUp(self):
@@ -130,6 +129,19 @@ class TestSave(TestCase):
 
         self.entity_container_year.refresh_from_db()
         self.assertEqual(self.entity_container_year.entity, self.entity_version.entity)
+
+    def test_folder_creation(self):
+        form = LearningUnitProposalModificationForm(self.form_data)
+        form.save(self.learning_unit_year)
+
+        proposal_folder_created = proposal_folder.find_by_entity_and_folder_id(self.entity_version.entity, 1)
+
+        self.assertTrue(proposal_folder_created)
+        
+
+
+
+
 
 
 
