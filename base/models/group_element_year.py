@@ -53,7 +53,7 @@ class GroupElementYear(AuditableModel):
     own_comment = models.CharField(max_length=500, blank=True, null=True)
     sessions_derogation = models.CharField(max_length=65,
                                            choices=sessions_derogation.SessionsDerogationTypes.choices(),
-                                           default=sessions_derogation.SessionsDerogationTypes.SESSION_UNDEFINED)
+                                           default=sessions_derogation.SessionsDerogationTypes.SESSION_UNDEFINED.value)
 
 def find_by_parent(an_education_group_year):
     return GroupElementYear.objects.filter(parent=an_education_group_year)
