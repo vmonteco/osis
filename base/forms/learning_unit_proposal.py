@@ -53,10 +53,10 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         if not self.is_valid():
             raise ValueError("Form is invalid.")
 
-        requirement_entity = entity_container_year.search(
+        requirement_entity = list(entity_container_year.search(
             learning_container_year=learning_unit_year.learning_container_year,
             link_type=entity_container_year_link_type.REQUIREMENT_ENTITY
-        ).first()
+        ))[0]
 
         initial_data = {
             "learning_container_year": {
@@ -76,7 +76,7 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
                 "title_english": learning_unit_year.title_english,
                 "subtype": learning_unit_year.subtype,
                 "internship_subtype": learning_unit_year.internship_subtype,
-                "credits": learning_unit_year.credits,
+                "credits": float(learning_unit_year.credits) if learning_unit_year.credits else None,
                 "quadrimester": learning_unit_year.quadrimester,
             },
             "learning_unit": {

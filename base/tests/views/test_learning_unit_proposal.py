@@ -28,13 +28,16 @@ import datetime
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
+from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.organization import OrganizationFactory
-from base.models.enums import organization_type, proposal_type, proposal_state, entity_type
+from base.models.enums import organization_type, proposal_type, proposal_state, entity_type, \
+    entity_container_year_link_type
+from base.models import proposal_folder, proposal_learning_unit
 
 
 PAGE_NOT_FOUND_STATUS_CODE = 404
@@ -54,6 +57,11 @@ class TestLearningUnitModificationProposal(TestCase):
         an_entity = EntityFactory(organization=an_organization)
         self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL, start_date=today,
                                                    end_date=today.replace(year=today.year + 1))
+        EntityContainerYearFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year,
+            entity=self.entity_version.entity,
+            type=entity_container_year_link_type.REQUIREMENT_ENTITY
+        )
 
         self.client.force_login(self.person.user)
         self.url = reverse('learning_unit_modification_proposal', args=[self.learning_unit_year.id])
@@ -64,7 +72,7 @@ class TestLearningUnitModificationProposal(TestCase):
 
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
 
-    def test_with_inexistent_learning_unnit_year(self):
+    def test_with_non_existent_learning_unit_year(self):
         self.learning_unit_year.delete()
         response = self.client.get(self.url)
 
@@ -152,3 +160,8 @@ class TestLearningUnitModificationProposal(TestCase):
 
         redirected_url = reverse('learning_unit', args=[self.learning_unit_year.id])
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
+
+        folder = proposal_folder.find_by_entity_and_folder_id(self.entity_version.entity, 1)
+        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
+        self.assertTrue(folder)
+        self.assertTrue(a_proposal_learning_unit)
