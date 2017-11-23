@@ -53,6 +53,10 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         if not self.is_valid():
             raise ValueError("Form is invalid.")
 
+        # Update learning_unit
+        learning_unit_year.learning_unit.periodicity = self.cleaned_data['periodicity']
+        learning_unit_year.learning_unit.save()
+
         # Update learning unit year
         learning_unit_year.acronym = self.cleaned_data['acronym']
         learning_unit_year.title = self.cleaned_data['title']

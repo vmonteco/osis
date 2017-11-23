@@ -35,7 +35,8 @@ from base.tests.factories.entity import EntityFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.models.enums import organization_type, proposal_type, proposal_state, entity_type, \
-    learning_container_year_types, learning_unit_year_quadrimesters, entity_container_year_link_type
+    learning_container_year_types, learning_unit_year_quadrimesters, entity_container_year_link_type, \
+    learning_unit_periodicity
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from reference.tests.factories.language import LanguageFactory
 from base.models import proposal_folder, proposal_learning_unit
@@ -76,7 +77,7 @@ class TestSave(TestCase):
             "subtype": self.learning_unit_year.subtype,
             "internship_subtype": self.learning_unit_year.internship_subtype,
             "credits": "4",
-            "periodicity": self.learning_unit_year.learning_unit.periodicity,
+            "periodicity": learning_unit_periodicity.BIENNIAL_ODD,
             "status": False,
             "language": self.language.id,
             "quadrimester": learning_unit_year_quadrimesters.Q1,
@@ -96,6 +97,14 @@ class TestSave(TestCase):
         form = LearningUnitProposalModificationForm(self.form_data)
         with self.assertRaises(ValueError):
             form.save(self.learning_unit_year)
+
+    def test_learning_unit_update(self):
+        form = LearningUnitProposalModificationForm(self.form_data)
+        form.save(self.learning_unit_year)
+
+        self.learning_unit_year.refresh_from_db()
+
+        self.assertEqual(self.learning_unit_year.learning_unit.periodicity, self.form_data['periodicity'])
 
     def test_learning_unit_year_update(self):
         form = LearningUnitProposalModificationForm(self.form_data)
@@ -147,6 +156,9 @@ class TestSave(TestCase):
 
         self.assertEqual(a_proposal_learning_unt.type, self.form_data['type_proposal'])
         self.assertEqual(a_proposal_learning_unt.state, self.form_data['state_proposal'])
+
+        
+
 
 
 
