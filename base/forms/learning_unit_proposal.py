@@ -28,7 +28,8 @@ from django import forms
 from base.models.person import Person
 from base.forms.learning_units import CreateLearningUnitYearForm
 from base.models.entity_version import find_main_entities_version
-from base.models.enums import proposal_type, proposal_state
+from base.models import entity_container_year
+from base.models.enums import proposal_type, proposal_state, entity_container_year_link_type
 
 
 def add_none_choice(choices):
@@ -67,4 +68,14 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         learning_container_year.title_english = self.cleaned_data['title_english']
         learning_container_year.language = self.cleaned_data['language']
         learning_container_year.campus = self.cleaned_data['campus']
+
+        # Update requirement entity
+        entity_version = self.cleaned_data['requirement_entity']
+        entity = entity_version.entity
+        requirement_entity_container_year = entity_container_year.search(
+            learning_container_year=learning_container_year,
+            link_type=entity_container_year_link_type.REQUIREMENT_ENTITY
+        )
+        requirement_entity_container_year.update(entity=entity)
+
 

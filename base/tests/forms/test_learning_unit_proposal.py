@@ -33,10 +33,12 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.organization import OrganizationFactory
+from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.models.enums import organization_type, proposal_type, proposal_state, entity_type, \
-    learning_container_year_types, learning_unit_year_quadrimesters
+    learning_container_year_types, learning_unit_year_quadrimesters, entity_container_year_link_type
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from reference.tests.factories.language import LanguageFactory
+from base.models import entity_container_year
 
 
 class TestSave(TestCase):
@@ -49,6 +51,11 @@ class TestSave(TestCase):
         self.learning_unit_year.learning_container_year.campus.organization = an_organization
         self.learning_unit_year.learning_container_year.campus.is_administration = True
         self.learning_unit_year.learning_container_year.campus.save()
+
+        self.entity_container_year = EntityContainerYearFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year,
+            type=entity_container_year_link_type.REQUIREMENT_ENTITY
+        )
 
         today = datetime.date.today()
         an_entity = EntityFactory(organization=an_organization)
@@ -116,7 +123,15 @@ class TestSave(TestCase):
         self.assertEqual(learning_container_year.title_english, self.form_data['title_english'])
         self.assertEqual(learning_container_year.language, self.language)
         self.assertEqual(learning_container_year.campus, self.campus)
-    
+
+    def test_requirement_entity(self):
+        form = LearningUnitProposalModificationForm(self.form_data)
+        form.save(self.learning_unit_year)
+
+        self.entity_container_year.refresh_from_db()
+        self.assertEqual(self.entity_container_year.entity, self.entity_version.entity)
+
+
 
 
 
