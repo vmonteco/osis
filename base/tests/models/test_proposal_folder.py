@@ -25,16 +25,16 @@
 ##############################################################################
 from django.test import TestCase
 
-from base.tests.factories.proposal_folder import ProposalFolderFaker
+from base.tests.factories.proposal_folder import ProposalFolderFactory
 from base.models import proposal_folder
 
 
 class TestSearch(TestCase):
     def setUp(self):
-        self.proposal_folder = ProposalFolderFaker()
+        self.proposal_folder = ProposalFolderFactory()
 
     def test_find_by_entiy_and_folder_id(self):
-        ProposalFolderFaker()
+        ProposalFolderFactory()
         a_proposal_folder = proposal_folder.find_by_entity_and_folder_id(self.proposal_folder.entity,
                                                                          self.proposal_folder.folder_id)
 

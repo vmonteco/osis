@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,22 +23,18 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
-import string
-import datetime
+from django.test import TestCase
 
-from base.tests.factories.entity import EntityFactory
-from osis_common.utils.datetime import get_tzinfo
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
+from base.models import proposal_learning_unit
 
 
-class ProposalFolderFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "base.ProposalFolder"
-        django_get_or_create = ('entity', )
+class TestSearch(TestCase):
+    def setUp(self):
+        self.proposal_learning_unit = ProposalLearningUnitFactory()
 
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    entity = factory.SubFactory(EntityFactory)
-    folder_id = factory.fuzzy.FuzzyInteger(100)
+    def test_find_by_learning_unit_year(self):
+        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(
+            self.proposal_learning_unit.learning_unit_year
+        )
+        self.assertEqual(a_proposal_learning_unit, self.proposal_learning_unit)

@@ -27,18 +27,25 @@ import factory
 import factory.fuzzy
 import string
 import datetime
+import operator
 
-from base.tests.factories.entity import EntityFactory
+from base.tests.factories.proposal_folder import ProposalFolderFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
+from base.models.enums import proposal_state, proposal_type
 from osis_common.utils.datetime import get_tzinfo
 
 
-class ProposalFolderFactory(factory.django.DjangoModelFactory):
+class ProposalLearningUnitFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = "base.ProposalFolder"
-        django_get_or_create = ('entity', )
+        model = "base.ProposalLearningUnit"
+        django_get_or_create = ('folder', 'learning_unit_year')
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
     changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    entity = factory.SubFactory(EntityFactory)
-    folder_id = factory.fuzzy.FuzzyInteger(100)
+    folder = factory.SubFactory(ProposalFolderFactory)
+    learning_unit_year = factory.SubFactory(LearningUnitYearFakerFactory)
+    type = factory.Iterator(proposal_type.CHOICES, getter=operator.itemgetter(0))
+    state = factory.Iterator(proposal_state.CHOICES, getter=operator.itemgetter(0))
+    initial_data = {}
+

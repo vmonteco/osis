@@ -26,24 +26,32 @@
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.contrib import admin
+from django.core.exceptions import ObjectDoesNotExist
 
 from base.models.enums import proposal_type, proposal_state
 
 
 class ProposalLearningUnitAdmin(admin.ModelAdmin):
-    list_display = ('folder', 'type', 'state', )
+    list_display = ('learning_unit_year', 'folder', 'type', 'state', )
     fieldsets = ((None, {'fields': ('folder', 'type', 'state', 'initial_data')}),)
 
-    search_fields = ['folder__id', 'folder_entity']
+    search_fields = ['folder__folder_id', 'folder_entity', 'learning_unit_year__acronym']
     list_filter = ('type', 'state')
-    raw_id_fields = ('folder', )
+    raw_id_fields = ('learning_unit_year', 'folder', )
 
 
 class ProposalLearningUnit(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     folder = models.ForeignKey('ProposalFolder')
+    learning_unit_year = models.ForeignKey('LearningUnitYear')
     type = models.CharField(max_length=50, choices=proposal_type.CHOICES)
     state = models.CharField(max_length=50, choices=proposal_state.CHOICES)
-    initial_data = JSONField()
+    initial_data = JSONField(default={})
 
+
+def find_by_learning_unit_year(a_learning_unit_year):
+    try:
+        return ProposalLearningUnit.objects.get(learning_unit_year=a_learning_unit_year)
+    except ObjectDoesNotExist:
+        return None
