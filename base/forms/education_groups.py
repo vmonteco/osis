@@ -48,12 +48,10 @@ class EntityManagementModelChoiceField(ModelChoiceField):
 
 
 class SelectWithData(forms.Select):
-    data_attrs = {}
-
     def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
         option_dict = super(forms.Select, self).create_option(name, value, label, selected, index,
                                                               subindex=subindex, attrs=attrs)
-        group_type = self.data_attrs.get(value)
+        group_type = self.data_attrs().get(value)
         if group_type:
             option_dict['attrs']['category'] = group_type.category
         return option_dict
