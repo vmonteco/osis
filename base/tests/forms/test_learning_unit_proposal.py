@@ -149,6 +149,39 @@ class TestSave(TestCase):
         self.assertTrue(proposal_folder_created)
 
     def test_creation_proposal_learning_unit(self):
+        initial_data_expected = {
+            "learning_container_year": {
+                "id": self.learning_unit_year.learning_container_year.id,
+                "acronym": self.learning_unit_year.acronym,
+                "title": self.learning_unit_year.title,
+                "title_english": self.learning_unit_year.title_english,
+                "container_type": self.learning_unit_year.learning_container_year.container_type,
+                "campus": self.learning_unit_year.learning_container_year.campus.id,
+                "language": self.learning_unit_year.learning_container_year.language.id,
+                "in_charge": self.learning_unit_year.learning_container_year.in_charge
+            },
+            "learning_unit_year": {
+                "id": self.learning_unit_year.id,
+                "acronym": self.learning_unit_year.acronym,
+                "title": self.learning_unit_year.title,
+                "title_english": self.learning_unit_year.title_english,
+                "subtype": self.learning_unit_year.subtype,
+                "internship_subtype": self.learning_unit_year.internship_subtype,
+                "credits": self.learning_unit_year.credits,
+                "quadrimester": self.learning_unit_year.quadrimester,
+            },
+            "learning_unit": {
+                "id": self.learning_unit_year.learning_unit.id,
+                "periodicity": self.learning_unit_year.learning_unit.periodicity
+            },
+            "entities": {
+                "requirement_entity": self.entity_container_year.entity.id,
+                "allocation_entity": None,
+                "additional_entity_1": None,
+                "additional_entity_2": None
+            }
+        }
+
         form = LearningUnitProposalModificationForm(self.form_data)
         form.save(self.learning_unit_year)
 
@@ -157,7 +190,8 @@ class TestSave(TestCase):
         self.assertEqual(a_proposal_learning_unt.type, self.form_data['type_proposal'])
         self.assertEqual(a_proposal_learning_unt.state, self.form_data['state_proposal'])
 
-        
+        self.assertDictEqual(a_proposal_learning_unt.initial_data, initial_data_expected)
+
 
 
 

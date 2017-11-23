@@ -53,6 +53,44 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         if not self.is_valid():
             raise ValueError("Form is invalid.")
 
+        requirement_entity = entity_container_year.search(
+            learning_container_year=learning_unit_year.learning_container_year,
+            link_type=entity_container_year_link_type.REQUIREMENT_ENTITY
+        ).first()
+
+        initial_data = {
+            "learning_container_year": {
+                "id": learning_unit_year.learning_container_year.id,
+                "acronym": learning_unit_year.acronym,
+                "title": learning_unit_year.title,
+                "title_english": learning_unit_year.title_english,
+                "container_type": learning_unit_year.learning_container_year.container_type,
+                "campus": learning_unit_year.learning_container_year.campus.id,
+                "language": learning_unit_year.learning_container_year.language.id,
+                "in_charge": learning_unit_year.learning_container_year.in_charge
+            },
+            "learning_unit_year": {
+                "id": learning_unit_year.id,
+                "acronym": learning_unit_year.acronym,
+                "title": learning_unit_year.title,
+                "title_english": learning_unit_year.title_english,
+                "subtype": learning_unit_year.subtype,
+                "internship_subtype": learning_unit_year.internship_subtype,
+                "credits": learning_unit_year.credits,
+                "quadrimester": learning_unit_year.quadrimester,
+            },
+            "learning_unit": {
+                "id": learning_unit_year.learning_unit.id,
+                "periodicity": learning_unit_year.learning_unit.periodicity
+            },
+            "entities": {
+                "requirement_entity":requirement_entity.entity.id,
+                "allocation_entity": None,
+                "additional_entity_1": None,
+                "additional_entity_2": None
+            }
+        }
+
         # Update learning_unit
         learning_unit_year.learning_unit.periodicity = self.cleaned_data['periodicity']
         learning_unit_year.learning_unit.save()
@@ -74,13 +112,15 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         learning_container_year.campus = self.cleaned_data['campus']
 
         # Update requirement entity
-        entity_version = self.cleaned_data['requirement_entity']
-        entity = entity_version.entity
+        requirement_entity = self.cleaned_data['requirement_entity'].entity
+        allocation_entity = self.cleaned_data['allocation_entity']
+        additional_entity_1 = self.cleaned_data['additional_entity_1']
+        additional_entity_2 = self.cleaned_data['additional_entity_2']
         requirement_entity_container_year = entity_container_year.search(
             learning_container_year=learning_container_year,
             link_type=entity_container_year_link_type.REQUIREMENT_ENTITY
         )
-        requirement_entity_container_year.update(entity=entity)
+        requirement_entity_container_year.update(entity=requirement_entity)
 
         # Create proposal folder
         folder_entity = self.cleaned_data['folder_entity'].entity
@@ -93,7 +133,8 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
             folder=folder,
             learning_unit_year=learning_unit_year,
             type=self.cleaned_data['type_proposal'],
-            state=self.cleaned_data['state_proposal']
+            state=self.cleaned_data['state_proposal'],
+            initial_data=initial_data
         )
 
 
