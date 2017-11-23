@@ -30,8 +30,8 @@ from django.forms import ModelChoiceField
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
+from base.business.entity import get_entities_ids
 from base.forms.bootstrap import BootstrapForm
-from base.forms.learning_units import _get_entities_ids
 from base.models import academic_year, education_group_year, offer_year_entity
 from base.models.education_group_type import EducationGroupType
 from base.models.enums import offer_year_entity_type
@@ -99,7 +99,7 @@ class EducationGroupFilter(BootstrapForm):
 
 
 def _get_filter_entity_management(requirement_entity_acronym, with_entity_subordinated):
-    entity_ids = _get_entities_ids(requirement_entity_acronym, with_entity_subordinated)
+    entity_ids = get_entities_ids(requirement_entity_acronym, with_entity_subordinated)
     return list(offer_year_entity.search(type=offer_year_entity_type.ENTITY_MANAGEMENT, entity=entity_ids)
                 .values_list('education_group_year', flat=True).distinct())
 
