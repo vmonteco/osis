@@ -292,6 +292,9 @@ msgstr "Favourable"
 msgid "field"
 msgstr "Mandate type"
 
+msgid "file_uploaded"
+msgstr "has been correctly uploaded"
+
 msgid "formation_activities"
 msgstr "Training activities"
 
