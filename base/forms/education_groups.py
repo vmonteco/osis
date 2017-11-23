@@ -74,7 +74,7 @@ class EducationGroupFilter(BootstrapForm):
 
     education_group_type = ModelChoiceFieldWithData(queryset=EducationGroupType.objects.all(), required=False)
 
-    acronym = title = requirement_entity_acronym = code_scs = forms.CharField(max_length=20, required=False)
+    acronym = title = requirement_entity_acronym = partial_acronym = forms.CharField(max_length=20, required=False)
 
     with_entity_subordinated = forms.BooleanField(required=False)
 

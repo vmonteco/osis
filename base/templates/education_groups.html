@@ -64,24 +64,24 @@
             </div>
             <div class="row" style="margin-top:10px;">
                 <div class="col-md-2">
+                    <label for="id_partial_acronym">{% trans 'code' %}</label>
+                    {{ form.partial_acronym }}
+                </div>
+                <div class="col-md-2">
                     <label for="id_requirement_entity_acronym">{% trans 'requirement_entity_small' %}</label>
                     {{ form.requirement_entity_acronym }}
                 </div>
-                <div class="col-md-7">
+                <div class="col-md-2">
                     <div style="display:inline-block;">
                         <input type="checkbox" id="id_with_entity_subordinated"
                                name="with_entity_subordinated" style="margin-top:37px;"
                                {% if request.GET.with_entity_subordinated and 'on' == request.GET.with_entity_subordinated %}
-                        checked
-                        {% endif %} >
+                               checked
+                               {% endif %} >
                         <label>{% trans 'with_entity_subordinated_small' %}</label>
                     </div>
                 </div>
-                <div class="col-md-2">
-                    <label for="id_code_scs">{% trans 'code' %}</label>
-                    {{ form.code_scs }}
-                </div>
-                <div class="col-md-8 text-right" style="line-height:55px;">
+                <div class="col-md-6 text-right" style="line-height:55px;">
                     <button type="submit" id="bt_submit_education_groups_search"
                             class="btn btn-primary" role="button" style="vertical-align:bottom;">
                             <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
@@ -116,7 +116,7 @@
                         <td>{{ education_group_year.title }}</td>
                         <td>{{ education_group_year.education_group_type.name }}</td>
                         <td>{{ education_group_year.entity_management.acronym }}</td>
-                        <td>{{ education_group_year.code_scs }}</td>
+                        <td>{{ education_group_year.partial_acronym | default_if_none:""  }}</td>
                     </tr>
                 {% endfor %}
             </table>
