@@ -58,8 +58,8 @@
                     <tbody>
                         {% for element in group_elements %}
                             <tr>
-                                <td>{{ element.code_scs }}</td>
-                                <td>{{ element.title }}</td>
+                                <td>{{ element.code_scs | default_if_none:''  }}</td>
+                                <td>{{ element.title | default_if_none:'' }}</td>
                                 <td>{{ element.group_element.absolute_credits | default_if_none:'-' }}</td>
                                 <td>{{ element.group_element.relative_credits | default_if_none:'-' }}</td>
                                 <td>{{ element.credits_min | default_if_none:'-' }}</td>
@@ -72,7 +72,7 @@
                             <tr>
                                 <td colspan="10" style="border-top: none;">
                                     {% if element.group_element.own_comment %}
-                                        <label>{% trans 'own_comment' %}</label><br>
+                                        <label>{% trans 'own_comment' %}</label> :&nbsp;
                                         {{ element.group_element.own_comment }}
                                     {% endif %}
                                 </td>
