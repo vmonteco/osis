@@ -91,6 +91,28 @@ class EducationGroupViewTestCase(TestCase):
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
+    def test_education_groups_search_by_code_scs(self, mock_render, mock_decorators):
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+        request_factory = RequestFactory()
+
+        EducationGroupYearFactory(acronym='EDPH2', partial_acronym='EDPH2_SCS', academic_year=self.academic_year)
+        EducationGroupYearFactory(acronym='ARKE2A', partial_acronym='ARKE2A_SCS', academic_year=self.academic_year)
+        EducationGroupYearFactory(acronym='HIST2A', partial_acronym='HIST2A_SCS', academic_year=self.academic_year)
+
+        request = request_factory.get(reverse(education_groups), data={
+            'partial_acronym': 'EDPH2_SCS',
+            'academic_year': self.academic_year.id,
+        })
+        request.user = mock.Mock()
+        education_groups(request)
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        self.assertEqual(template, 'education_groups.html')
+        self.assertEqual(len(context['object_list']), 1)
+
+    @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.views.layout.render')
     def test_education_groups_search_by_requirement_entity(self, mock_render, mock_decorators):
         mock_decorators.login_required = lambda  x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
@@ -99,7 +121,6 @@ class EducationGroupViewTestCase(TestCase):
         self._prepare_context_education_groups_search()
 
         request = request_factory.get(reverse('education_groups'), data={
-                'acronym': 'EDPH2',
                 'academic_year': self.academic_year.id,
                 'requirement_entity_acronym': 'AGRO'
             })
