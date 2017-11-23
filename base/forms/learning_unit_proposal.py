@@ -44,5 +44,27 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
     date = forms.DateField()
 
     def is_valid(self):
+        # TODO ne peut être que full subtype
+        # TODO ne peut pas switch de learning_container_type
         return super().is_valid()
+
+    def save(self, learning_unit_year):
+        if not self.is_valid():
+            raise ValueError
+
+        # Update learning unit year
+        learning_unit_year.acronym = self.cleaned_data['acronym']
+        learning_unit_year.title = self.cleaned_data['title']
+        learning_unit_year.title_english = self.cleaned_data['title_english']
+        learning_unit_year.status = self.cleaned_data['status']
+        learning_unit_year.quadrimester = self.cleaned_data['quadrimester']
+        learning_unit_year.save()
+
+        # Update learning unit container year
+        learning_container_year = learning_unit_year.learning_container_year
+        learning_container_year.acronym = self.cleaned_data['acronym']
+        learning_container_year.title = self.cleaned_data['title']
+        learning_container_year.title_english = self.cleaned_data['title_english']
+        learning_container_year.language = self.cleaned_data['language']
+        learning_container_year.campus = self.cleaned_data['campus']
 

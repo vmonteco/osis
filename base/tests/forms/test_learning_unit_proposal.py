@@ -27,20 +27,25 @@ import datetime
 
 from django.test import TestCase
 
+from base.tests.factories.campus import CampusFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.organization import OrganizationFactory
-from base.models.enums import organization_type, proposal_type, proposal_state, entity_type
-from base
+from base.models.enums import organization_type, proposal_type, proposal_state, entity_type, \
+    learning_container_year_types, learning_unit_year_quadrimesters
+from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
+from reference.tests.factories.language import LanguageFactory
 
 
-class TestSaveFromFormData(TestCase):
+class TestSave(TestCase):
     def setUp(self):
         self.person = PersonFactory()
         an_organization = OrganizationFactory(type=organization_type.MAIN)
-        self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212")
+        self.learning_unit_year = LearningUnitYearFakerFactory(credits=5)
+        self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.COURSE
+        self.learning_unit_year.learning_container_year.save()
         self.learning_unit_year.learning_container_year.campus.organization = an_organization
         self.learning_unit_year.learning_container_year.campus.is_administration = True
         self.learning_unit_year.learning_container_year.campus.save()
@@ -50,21 +55,25 @@ class TestSaveFromFormData(TestCase):
         self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL, start_date=today,
                                                    end_date=today.replace(year=today.year + 1))
 
+        self.language = LanguageFactory(code="EN")
+        self.campus = CampusFactory(name="OSIS Campus", organization=OrganizationFactory(type=organization_type.MAIN),
+                                    is_administration=True)
+
         self.form_data = {
             "academic_year": self.learning_unit_year.academic_year.id,
-            "first_letter": self.learning_unit_year.acronym[0],
-            "acronym": self.learning_unit_year.acronym[1:],
-            "title": self.learning_unit_year.title,
-            "title_english": self.learning_unit_year.title_english,
+            "first_letter": "L",
+            "acronym": "OSIS1245",
+            "title": "New title",
+            "title_english": "New title english",
             "learning_container_year_type": self.learning_unit_year.learning_container_year.container_type,
             "subtype": self.learning_unit_year.subtype,
             "internship_subtype": self.learning_unit_year.internship_subtype,
-            "credits": self.learning_unit_year.credits,
+            "credits": "4",
             "periodicity": self.learning_unit_year.learning_unit.periodicity,
-            "status": self.learning_unit_year.status,
-            "language": self.learning_unit_year.learning_container_year.language.id,
-            "quadrimester": self.learning_unit_year.quadrimester,
-            "campus": self.learning_unit_year.learning_container_year.campus.id,
+            "status": False,
+            "language": self.language.id,
+            "quadrimester": learning_unit_year_quadrimesters.Q1,
+            "campus": self.campus.id,
             "requirement_entity": self.entity_version.id,
             "type_proposal": proposal_type.ProposalType.MODIFICATION.name,
             "state_proposal": proposal_state.ProposalState.FACULTY.name,
@@ -74,5 +83,43 @@ class TestSaveFromFormData(TestCase):
             "date": datetime.date.today()
         }
 
-    def test_models_update(self):
+    def test_invalid_form(self):
+        del self.form_data['academic_year']
+
+        form = LearningUnitProposalModificationForm(self.form_data)
+        with self.assertRaises(ValueError):
+            form.save(self.learning_unit_year)
+
+    def test_learning_unit_year_update(self):
+        form = LearningUnitProposalModificationForm(self.form_data)
+        form.save(self.learning_unit_year)
+
+        self.learning_unit_year.refresh_from_db()
+
+        self.assertEqual(self.learning_unit_year.acronym,
+                         "{}{}".format(self.form_data['first_letter'], self.form_data['acronym']))
+        self.assertEqual(self.learning_unit_year.title, self.form_data['title'])
+        self.assertEqual(self.learning_unit_year.title_english, self.form_data['title_english'])
+        self.assertFalse(self.learning_unit_year.status)
+        self.assertEqual(self.learning_unit_year.quadrimester, self.form_data['quadrimester'])
+
+    def test_learning_container_update(self):
+        form = LearningUnitProposalModificationForm(self.form_data)
+        form.save(self.learning_unit_year)
+
+        self.learning_unit_year.refresh_from_db()
+        learning_container_year = self.learning_unit_year.learning_container_year
+
+        self.assertEqual(learning_container_year.acronym,
+                         "{}{}".format(self.form_data['first_letter'], self.form_data['acronym']))
+        self.assertEqual(learning_container_year.title, self.form_data['title'])
+        self.assertEqual(learning_container_year.title_english, self.form_data['title_english'])
+        self.assertEqual(learning_container_year.language, self.language)
+        self.assertEqual(learning_container_year.campus, self.campus)
+    
+
+
+
+
+
 
