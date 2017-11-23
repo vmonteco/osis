@@ -32,7 +32,7 @@ from django.test import TestCase, RequestFactory
 
 from base.forms.education_groups import EducationGroupFilter
 from base.models.academic_calendar import AcademicCalendar
-from base.models.enums import education_group_categories
+from base.models.enums import education_group_categories, offer_year_entity_type
 from base.models.enums.education_group_categories import TRAINING, MINI_TRAINING
 
 from base.tests.factories.academic_year import AcademicYearFactory
@@ -124,7 +124,6 @@ class EducationGroupViewTestCase(TestCase):
         self._prepare_context_education_groups_search()
 
         request = request_factory.get(reverse(education_groups), data={
-                'acronym': 'EDPH2',
                 'academic_year': self.academic_year.id,
                 'requirement_entity_acronym': 'AGRO',
                 'with_entity_subordinated': True
@@ -137,7 +136,7 @@ class EducationGroupViewTestCase(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'education_groups.html')
-        self.assertEqual(len(context['object_list']), 4)
+        self.assertEqual(len(context['object_list']), 3)
 
 
     @mock.patch('django.contrib.auth.decorators')
@@ -387,9 +386,10 @@ class EducationGroupViewTestCase(TestCase):
         agro_education_group = EducationGroupFactory()
         agro_education_group_type = EducationGroupTypeFactory(category=TRAINING)
 
-        agro_education_group_year = EducationGroupYearFactory(academic_year=self.academic_year,
-                                                         education_group=agro_education_group,
-                                                         education_group_type=agro_education_group_type)
+        agro_education_group_year = EducationGroupYearFactory(acronym='EDPH2',
+                                                              academic_year=self.academic_year,
+                                                              education_group=agro_education_group,
+                                                              education_group_type=agro_education_group_type)
 
         agro_offer = OfferFactory()
         agro_offer_year=OfferYearFactory(offer=agro_offer,
@@ -398,7 +398,8 @@ class EducationGroupViewTestCase(TestCase):
 
         OfferYearEntityFactory(offer_year=agro_offer_year,
                                entity=agro_entity,
-                               education_group_year=agro_education_group_year)
+                               education_group_year=agro_education_group_year,
+                               type=offer_year_entity_type.ENTITY_MANAGEMENT)
 
         # Create EG and put entity charge [ENVI]
         envi_education_group = EducationGroupFactory()
@@ -415,7 +416,8 @@ class EducationGroupViewTestCase(TestCase):
 
         OfferYearEntityFactory(offer_year=envi_offer_year,
                                entity=envi_entity,
-                               education_group_year=envi_education_group_year)
+                               education_group_year=envi_education_group_year,
+                               type=offer_year_entity_type.ENTITY_MANAGEMENT)
 
         # Create EG and put entity charge [AGES]
         ages_education_group = EducationGroupFactory()
@@ -432,4 +434,5 @@ class EducationGroupViewTestCase(TestCase):
 
         OfferYearEntityFactory(offer_year=ages_offer_year,
                                entity=ages_entity,
-                               education_group_year=ages_education_group_year)
+                               education_group_year=ages_education_group_year,
+                               type=offer_year_entity_type.ENTITY_MANAGEMENT)

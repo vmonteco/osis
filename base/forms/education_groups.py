@@ -31,12 +31,10 @@ from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.bootstrap import BootstrapForm
-from base.models import academic_year, education_group_year, entity_version, offer_year_entity
-from base.models import entity
+from base.forms.learning_units import _get_entities_ids
+from base.models import academic_year, education_group_year, offer_year_entity
 from base.models.education_group_type import EducationGroupType
-from base.models.entity_version import find_last_faculty_entities_version
 from base.models.enums import offer_year_entity_type
-from base.models.enums import entity_type
 from base.models.enums import education_group_categories
 
 MAX_RECORDS = 1000
@@ -48,6 +46,8 @@ class EntityManagementModelChoiceField(ModelChoiceField):
 
 
 class SelectWithData(forms.Select):
+    data_attrs = None
+
     def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
         option_dict = super(forms.Select, self).create_option(name, value, label, selected, index,
                                                               subindex=subindex, attrs=attrs)
@@ -74,9 +74,9 @@ class EducationGroupFilter(BootstrapForm):
 
     education_group_type = ModelChoiceFieldWithData(queryset=EducationGroupType.objects.all(), required=False)
 
-    acronym = title = forms.CharField(widget=forms.TextInput(attrs={'size': '10'}), max_length=20, required=False)
+    acronym = title = requirement_entity_acronym = code_scs = forms.CharField(max_length=20, required=False)
 
-    entity_management = EntityManagementModelChoiceField(queryset=find_last_faculty_entities_version(), required=False)
+    with_entity_subordinated = forms.BooleanField(required=False)
 
     def clean_category(self):
         data_cleaned = self.cleaned_data.get('category')
@@ -91,25 +91,17 @@ class EducationGroupFilter(BootstrapForm):
             queryset=offer_year_entity.search(type=offer_year_entity_type.ENTITY_MANAGEMENT)\
                                                      .prefetch_related(entity_versions_prefetch),
                                                      to_attr='offer_year_entities')
-        if clean_data.get('entity_management'):
-            clean_data['id'] = _get_filter_entity_management(clean_data['entity_management'])
-
-        education_groups = education_group_year.search(**clean_data)[:MAX_RECORDS + 1]\
-                                               .prefetch_related(offer_year_entity_prefetch)
+        if clean_data.get('requirement_entity_acronym'):
+            clean_data['id'] = _get_filter_entity_management(clean_data['requirement_entity_acronym'],
+                                                             clean_data.get('with_entity_subordinated',False))
+        education_groups = education_group_year.search(**clean_data).prefetch_related(offer_year_entity_prefetch)
         return [_append_entity_management(education_group) for education_group in education_groups]
 
 
-def _get_filter_entity_management(entity_management):
-    entity_ids = _get_entities_ids(entity_management)
-    return list(offer_year_entity.search(link_type=offer_year_entity_type.ENTITY_MANAGEMENT, entity=entity_ids)
+def _get_filter_entity_management(requirement_entity_acronym, with_entity_subordinated):
+    entity_ids = _get_entities_ids(requirement_entity_acronym, with_entity_subordinated)
+    return list(offer_year_entity.search(type=offer_year_entity_type.ENTITY_MANAGEMENT, entity=entity_ids)
                 .values_list('education_group_year', flat=True).distinct())
-
-
-def _get_entities_ids(entity_management):
-    entity_versions = entity_version.search(acronym=entity_management.acronym, entity_type=entity_type.FACULTY)\
-                                    .select_related('entity').distinct('entity')
-    entities = entity.find_descendants([ent_v.entity for ent_v in entity_versions])
-    return [ent.id for ent in entities] if entities else []
 
 
 def _append_entity_management(education_group):
@@ -122,8 +114,7 @@ def _append_entity_management(education_group):
 
 
 def _find_entity_version_according_academic_year(an_entity, an_academic_year):
-    if an_entity.entity_versions:
+    if getattr(an_entity, 'entity_versions'):
         return next((entity_vers for entity_vers in an_entity.entity_versions
                      if entity_vers.start_date <= an_academic_year.start_date and
                      (entity_vers.end_date is None or entity_vers.end_date > an_academic_year.end_date)), None)
-    return None

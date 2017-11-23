@@ -41,7 +41,7 @@ from base.models.group_element_year import GroupElementYear
 class EducationGroupYearAdmin(admin.ModelAdmin):
     list_display = ('acronym', 'title', 'academic_year', 'education_group_type', 'changed')
     fieldsets = ((None, {'fields': ('academic_year', 'acronym', 'partial_acronym', 'title', 'education_group_type',
-                                    'education_group', 'active', 'partial_deliberation', 'admission_exam', 'category',
+                                    'education_group', 'active', 'partial_deliberation', 'admission_exam',
                                     'credits', 'funding', 'funding_direction', 'funding_cud', 'funding_direction_cud',
                                     'academic_type', 'university_certificate', 'fee_type', 'enrollment_campus',
                                     'main_teaching_campus', 'dissertation', 'internship',
@@ -190,16 +190,17 @@ def search(**kwargs):
             qs = qs.filter(id=kwargs['id'])
     if "academic_year" in kwargs:
         qs = qs.filter(academic_year=kwargs['academic_year'])
-    if "acronym" in kwargs:
+    if kwargs.get("acronym"):
         qs = qs.filter(acronym__icontains=kwargs['acronym'])
-    if "title" in kwargs:
+    if kwargs.get("title"):
         qs = qs.filter(title__icontains=kwargs['title'])
     if "education_group_type" in kwargs:
         if isinstance(kwargs['education_group_type'], list):
             qs = qs.filter(education_group_type__in=kwargs['education_group_type'])
         else:
             qs = qs.filter(education_group_type=kwargs['education_group_type'])
-    elif "category" in kwargs:
+    elif kwargs.get('category'):
         qs = qs.filter(education_group_type__category=kwargs['category'])
+
 
     return qs.select_related('education_group_type', 'academic_year')
