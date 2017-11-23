@@ -2203,6 +2203,12 @@ msgstr ""
 msgid "%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s"
 msgstr ""
 
+msgid "%(subtype)s %(acronym)s is assigned to the assistant %(assistant)s for the year %(year)s"
+msgstr ""
+
+msgid "The learning unit %(acronym)s has a speciality %(speciality)s"
+msgstr ""
+
 msgid "%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s"
 msgstr ""
 
@@ -2290,6 +2296,7 @@ msgstr "at"
 msgid "learning_unit_years_to_delete"
 msgstr "You will definitely delete the following learning units"
 
+<<<<<<< HEAD
 msgid "content"
 msgstr "Content"
 
@@ -2348,8 +2355,17 @@ msgid "SESSION_1_2_3"
 msgstr "123"
 
 msgid "SESSION_UNDEFINED"
-msgstr "Session indéfinie"
+msgstr "Undefined session"
 
 msgid "SESSION_PARTIAL_2_3"
 msgstr "p23"
+
+msgid "Put in proposal"
+msgstr ""
+
+msgid "Proposal for modification"
+msgstr ""
+
+msgid "End of teaching"
+msgstr ""
 

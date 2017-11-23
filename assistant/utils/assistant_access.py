@@ -1,4 +1,4 @@
-#############################################################################
+##############################################################################
 #
 #    OSIS stands for Open Student Information System. It's an application
 #    designed to manage the core business of higher education institutions,
@@ -23,26 +23,24 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-
-from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
-
-
-class LearningContainerAdmin(AuditableSerializableModelAdmin):
-    list_display = ('external_id',)
-    fieldsets = ((None, {'fields': ('external_id',)}),)
-    search_fields = ['external_id']
+from base.models import academic_year
+from assistant.models.enums import assistant_mandate_state
+from assistant.models import assistant_mandate, academic_assistant, settings
 
 
-class LearningContainer(AuditableSerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    auto_renewal_until = models.IntegerField(null=True)
-    start_year = models.IntegerField(null=True)
-
-    def __str__(self):
-        return u"%s" % (self.external_id)
+def user_is_assistant_and_procedure_is_open(user):
+    return user.is_authenticated() and settings.access_to_procedure_is_open() and \
+           academic_assistant.find_by_person(user.person)
 
 
-def find_by_id(learning_container_id):
-    return LearningContainer.objects.get(pk=learning_container_id)
+def user_is_assistant_and_procedure_is_open_and_workflow_is_assistant(user):
+    try:
+        mandate = assistant_mandate.find_mandate_by_assistant_for_academic_year(
+            academic_assistant.find_by_person(user.person), academic_year.current_academic_year())
+        if mandate.state != assistant_mandate_state.TRTS:
+            return False
+    except assistant_mandate.AssistantMandate.DoesNotExist:
+        return False
+    else:
+        return user.is_authenticated() and settings.access_to_procedure_is_open() and \
+               academic_assistant.find_by_person(user.person)

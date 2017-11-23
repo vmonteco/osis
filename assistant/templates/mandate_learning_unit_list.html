@@ -209,12 +209,8 @@
                 complete: function(xhr, statusText) {
                     var data_response=xhr.responseText;
                     var jsonResponse = JSON.parse(data_response);
-                    if (jsonResponse["error"]) {
-                        alert(jsonResponse["message"]);
-                    }
-                    else {
-                        window.location.reload(true);
-                    }
+                    window.location.reload(true);
+                    alert(jsonResponse["message"]);
                 }
             });
             return true;
