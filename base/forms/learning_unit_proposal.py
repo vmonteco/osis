@@ -28,7 +28,7 @@ from django import forms
 from base.models.person import Person
 from base.forms.learning_units import CreateLearningUnitYearForm
 from base.models.entity_version import find_main_entities_version
-from base.models import entity_container_year, proposal_folder
+from base.models import entity_container_year, proposal_folder, proposal_learning_unit
 from base.models.enums import proposal_type, proposal_state, entity_container_year_link_type
 
 
@@ -82,7 +82,15 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         folder_entity = self.cleaned_data['folder_entity'].entity
         folder_id = self.cleaned_data['folder_id']
 
-        proposal_folder.ProposalFolder.objects.create(entity=folder_entity, folder_id=folder_id)
+        folder = proposal_folder.ProposalFolder.objects.create(entity=folder_entity, folder_id=folder_id)
+
+        # Create proposal learning unit
+        proposal_learning_unit.ProposalLearningUnit.objects.create(
+            folder=folder,
+            learning_unit_year=learning_unit_year,
+            type=self.cleaned_data['type_proposal'],
+            state=self.cleaned_data['state_proposal']
+        )
 
 
 
