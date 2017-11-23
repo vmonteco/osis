@@ -53,7 +53,7 @@ class SelectWithData(forms.Select):
                                                               subindex=subindex, attrs=attrs)
         group_type = self.data_attrs().get(value)
         if group_type:
-            option_dict['attrs']['category'] = group_type.category
+            option_dict['attrs']['data-category'] = group_type.category
         return option_dict
 
 

@@ -136,7 +136,7 @@
             $(select).find('option').each(function () {
                 options.push({
                     value: $(this).val(),
-                    category: $(this).attr('category'),
+                    category: $(this).data('category'),
                     text: $(this).text()
                 });
             });
@@ -151,7 +151,7 @@
                     var option = options[i];
                     if (option.category === newCategory || option.value === "" || newCategory === "") {
                         $(select).append(
-                            $('<option>').text(option.text).val(option.value).attr('category', option.category)
+                            $('<option>').text(option.text).val(option.value).data('category', option.category)
                         );
                         // Try to keep the old value
                         if (current === option.value) {
