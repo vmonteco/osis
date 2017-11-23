@@ -75,6 +75,9 @@ class MandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMi
             self.request.session[
                 'selected_academic_year'] = selected_academic_year.id
         if self.kwargs.get("filter", None):
+            selected_academic_year = academic_year.current_academic_year()
+            self.request.session[
+                'selected_academic_year'] = selected_academic_year.id
             queryset = assistant_mandate.find_by_academic_year(selected_academic_year).filter(id__in=mandates_id).\
                 filter(state=re.sub('_ASSISTANT', '', current_reviewer.role))
         else:
@@ -103,7 +106,6 @@ class MandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMi
             self.request.session.get('selected_academic_year')).year
         start_date = academic_year.find_academic_year_by_id(int(self.request.session.get(
             'selected_academic_year'))).start_date
-        context['todo'] = len(context['object_list'])
         for mandate in context['object_list']:
             entities = []
             entities_id = mandate.mandateentity_set.all().order_by('id')

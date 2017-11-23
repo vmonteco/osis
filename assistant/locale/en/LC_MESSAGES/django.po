@@ -554,6 +554,9 @@ msgstr "Opinions"
 msgid "reviewer"
 msgstr "Reviewer"
 
+msgid "reviewer_todo"
+msgstr "Files that can be treated"
+
 msgid "reviewers"
 msgstr "Reviewers"
 
