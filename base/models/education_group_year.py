@@ -204,6 +204,6 @@ def search(**kwargs):
         qs = qs.filter(education_group_type__category=kwargs['category'])
 
     if kwargs.get("partial_acronym"):
-        qs = qs.filter(partial_acronym=kwargs['partial_acronym'])
+        qs = qs.filter(partial_acronym__icontains=kwargs['partial_acronym'])
 
     return qs.select_related('education_group_type', 'academic_year')
