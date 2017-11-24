@@ -46,17 +46,14 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
 
     def is_valid(self):
         # TODO ne peut être que full subtype
-        # TODO ne peut pas switch de learning_container_type
         return super().is_valid()
 
     def save(self, learning_unit_year):
         if not self.is_valid():
             raise ValueError("Form is invalid.")
 
-        requirement_entity = list(entity_container_year.search(
-            learning_container_year=learning_unit_year.learning_container_year,
-            link_type=entity_container_year_link_type.REQUIREMENT_ENTITY
-        ))[0]
+        entities_by_type = \
+            entity_container_year.find_entities_grouped_by_linktype(learning_unit_year.learning_container_year)
 
         initial_data = {
             "learning_container_year": {
@@ -84,10 +81,10 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
                 "periodicity": learning_unit_year.learning_unit.periodicity
             },
             "entities": {
-                "requirement_entity":requirement_entity.entity.id,
-                "allocation_entity": None,
-                "additional_entity_1": None,
-                "additional_entity_2": None
+                entity_container_year_link_type.REQUIREMENT_ENTITY: entities_by_type[entity_container_year_link_type.REQUIREMENT_ENTITY].id if entities_by_type.get(entity_container_year_link_type.REQUIREMENT_ENTITY) else None,
+                entity_container_year_link_type.ALLOCATION_ENTITY: entities_by_type[entity_container_year_link_type.ALLOCATION_ENTITY].id if entities_by_type.get(entity_container_year_link_type.ALLOCATION_ENTITY) else None,
+                entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1: entities_by_type[entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1].id if entities_by_type.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1) else None,
+                entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: entities_by_type[entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2].id if entities_by_type.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2) else None
             }
         }
 
@@ -112,16 +109,48 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         learning_container_year.campus = self.cleaned_data['campus']
 
         # Update requirement entity
-        requirement_entity = self.cleaned_data['requirement_entity'].entity
-        allocation_entity = self.cleaned_data['allocation_entity']
-        additional_entity_1 = self.cleaned_data['additional_entity_1']
-        additional_entity_2 = self.cleaned_data['additional_entity_2']
-        requirement_entity_container_year = entity_container_year.search(
-            learning_container_year=learning_container_year,
-            link_type=entity_container_year_link_type.REQUIREMENT_ENTITY
-        )
-        requirement_entity_container_year.update(entity=requirement_entity)
+        entity_container = entity_container_year.find_by_learning_container_year_and_linktype(learning_container_year,
+                                                                                              entity_container_year_link_type.REQUIREMENT_ENTITY)
+        if entity_container:
+            entity_container.entity = self.cleaned_data["requirement_entity"].entity
+            entity_container.save()
+        else:
+            entity_container_year.EntityContainerYear.objects.create(learning_container_year=learning_container_year,
+                                                                     entity=self.cleaned_data["requirement_entity"].entity,
+                                                                     type=entity_container_year_link_type.REQUIREMENT_ENTITY)
 
+        if self.cleaned_data["allocation_entity"]:
+            entity_container = entity_container_year.find_by_learning_container_year_and_linktype(learning_container_year,
+                                                                                                  entity_container_year_link_type.ALLOCATION_ENTITY)
+            if entity_container:
+                entity_container.entity = self.cleaned_data["allocation_entity"].entity
+                entity_container.save()
+            else:
+                entity_container_year.EntityContainerYear.objects.create(learning_container_year=learning_container_year,
+                                                                         entity=self.cleaned_data["allocation_entity"].entity,
+                                                                         type=entity_container_year_link_type.ALLOCATION_ENTITY)
+
+        if self.cleaned_data["additional_entity_1"]:
+            entity_container = entity_container_year.find_by_learning_container_year_and_linktype(learning_container_year,
+                                                                                                  entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
+            if entity_container:
+                entity_container.entity = self.cleaned_data["additional_entity_1"].entity
+                entity_container.save()
+            else:
+                entity_container_year.EntityContainerYear.objects.create(learning_container_year=learning_container_year,
+                                                                         entity=self.cleaned_data["additional_entity_1"].entity,
+                                                                         type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
+
+        if self.cleaned_data["additional_entity_2"]:
+            entity_container = entity_container_year.find_by_learning_container_year_and_linktype(learning_container_year,
+                                                                                                  entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
+            if entity_container:
+                entity_container.entity = self.cleaned_data["additional_entity_2"].entity
+                entity_container.save()
+            else:
+                entity_container_year.EntityContainerYear.objects.create(learning_container_year=learning_container_year,
+                                                                         entity=self.cleaned_data["additional_entity_2"].entity,
+                                                                         type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
         # Create proposal folder
         folder_entity = self.cleaned_data['folder_entity'].entity
         folder_id = self.cleaned_data['folder_id']

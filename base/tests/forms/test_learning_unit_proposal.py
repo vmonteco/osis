@@ -39,7 +39,7 @@ from base.models.enums import organization_type, proposal_type, proposal_state, 
     learning_unit_periodicity
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from reference.tests.factories.language import LanguageFactory
-from base.models import proposal_folder, proposal_learning_unit
+from base.models import proposal_folder, proposal_learning_unit, entity_container_year
 
 
 class TestSave(TestCase):
@@ -140,6 +140,34 @@ class TestSave(TestCase):
         self.entity_container_year.refresh_from_db()
         self.assertEqual(self.entity_container_year.entity, self.entity_version.entity)
 
+    def test_with_all_entities_set(self):
+        today = datetime.date.today()
+        entity_1 = EntityFactory(organization=OrganizationFactory(type=organization_type.MAIN))
+        additional_entity_version_1 = EntityVersionFactory(entity_type=entity_type.SCHOOL, start_date=today,
+                                                           end_date=today.replace(year=today.year + 1),
+                                                           entity=entity_1)
+        entity_2 = EntityFactory(organization=OrganizationFactory(type=organization_type.MAIN))
+        additional_entity_version_2 = EntityVersionFactory(entity_type=entity_type.SCHOOL, start_date=today,
+                                                           end_date=today.replace(year=today.year + 1),
+                                                           entity=entity_2)
+        self.form_data["allocation_entity"] = self.entity_version.id
+        self.form_data["additional_entity_1"] = additional_entity_version_1.id
+        self.form_data["additional_entity_2"] = additional_entity_version_2.id
+
+        form = LearningUnitProposalModificationForm(self.form_data)
+        form.save(self.learning_unit_year)
+
+        entities_by_type = \
+            entity_container_year.find_entities_grouped_by_linktype(self.learning_unit_year.learning_container_year)
+
+        expected_entities = {
+            entity_container_year_link_type.REQUIREMENT_ENTITY: self.entity_version.entity,
+            entity_container_year_link_type.ALLOCATION_ENTITY: self.entity_version.entity,
+            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1: additional_entity_version_1.entity,
+            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: additional_entity_version_2.entity
+        }
+        self.assertDictEqual(entities_by_type, expected_entities)
+
     def test_folder_creation(self):
         form = LearningUnitProposalModificationForm(self.form_data)
         form.save(self.learning_unit_year)
@@ -175,10 +203,10 @@ class TestSave(TestCase):
                 "periodicity": self.learning_unit_year.learning_unit.periodicity
             },
             "entities": {
-                "requirement_entity": self.entity_container_year.entity.id,
-                "allocation_entity": None,
-                "additional_entity_1": None,
-                "additional_entity_2": None
+                entity_container_year_link_type.REQUIREMENT_ENTITY: self.entity_container_year.entity.id,
+                entity_container_year_link_type.ALLOCATION_ENTITY: None,
+                entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1: None,
+                entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: None
             }
         }
 
