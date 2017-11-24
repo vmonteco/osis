@@ -39,32 +39,40 @@
 
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active" id="general_informations">
-                <div class="row" style="margin-top:10px;">
-                    <div class="col-md-2">
-                        <label> {% trans 'language'%} </label>
+                <div class="row">
+                    <div class="col-md-3">
+                        <br>
+                        {% include "education_group/training_tree.html" %}
                     </div>
-                    <div class="col-md-5">
-                        <label> {{ form_french.language.1 }} </label>
-                    </div>
-                    <div class="col-md-5">
-                        <label> {{ form_english.language.1 }} </label>
+                    <div class="col-md-9">
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-md-2">
+                                <label> {% trans 'language'%} </label>
+                            </div>
+                            <div class="col-md-5">
+                                <label> {{ form_french.language.1 }} </label>
+                            </div>
+                            <div class="col-md-5">
+                                <label> {{ form_english.language.1 }} </label>
+                            </div>
+                        </div>
+                        <hr/>
+                        {% for label_key, label_translated in cms_labels_translated.items %}
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-md-2">
+                                <label> {{ label_translated }} </label>
+                            </div>
+                            <div class="col-md-5">
+                                {{ form_french|getattr:label_key }}
+                            </div>
+                            <div class="col-md-5">
+                                {{ form_english|getattr:label_key}}
+                            </div>
+                        </div>
+                        <hr/>
+                        {% endfor %}
                     </div>
                 </div>
-                <hr/>
-                {% for label_key, label_translated in cms_labels_translated.items %}
-                <div class="row" style="margin-top:10px;">
-                    <div class="col-md-2">
-                        <label> {{ label_translated }} </label>
-                    </div>
-                    <div class="col-md-5">
-                        {{ form_french|getattr:label_key }}
-                    </div>
-                    <div class="col-md-5">
-                        {{ form_english|getattr:label_key}}
-                    </div>
-                </div>
-                <hr/>
-                {% endfor %}
             </div>
         </div>
     </div>
