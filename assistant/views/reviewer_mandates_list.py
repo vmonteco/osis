@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import re
 from django.views.generic import ListView
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import FormMixin
@@ -79,7 +78,7 @@ class MandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMi
             self.request.session[
                 'selected_academic_year'] = selected_academic_year.id
             queryset = assistant_mandate.find_by_academic_year(selected_academic_year).filter(id__in=mandates_id).\
-                filter(state=re.sub('_ASSISTANT', '', current_reviewer.role))
+                filter(state=current_reviewer.role.replace('_ASSISTANT', ''))
         else:
             queryset = assistant_mandate.find_by_academic_year(selected_academic_year).filter(id__in=mandates_id)
         return queryset
