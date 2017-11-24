@@ -24,12 +24,14 @@
 #
 ##############################################################################
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 
 from base.models.person import Person
 from base.forms.learning_units import CreateLearningUnitYearForm
 from base.models.entity_version import find_main_entities_version
 from base.models import entity_container_year, proposal_folder, proposal_learning_unit
-from base.models.enums import proposal_type, proposal_state, entity_container_year_link_type
+from base.models.enums import proposal_type, proposal_state, entity_container_year_link_type, \
+    learning_unit_year_subtypes
 
 
 def add_none_choice(choices):
@@ -45,8 +47,11 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
     date = forms.DateField()
 
     def is_valid(self):
-        # TODO ne peut être que full subtype
-        return super().is_valid()
+        if not super().is_valid():
+            return False
+        if self.data["subtype"] != learning_unit_year_subtypes.FULL:
+            self.add_error("subtype", _("type_must_be_full"))
+        return len(self.errors.keys()) == 0
 
     def save(self, learning_unit_year):
         if not self.is_valid():
@@ -98,6 +103,7 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         learning_unit_year.title_english = self.cleaned_data['title_english']
         learning_unit_year.status = self.cleaned_data['status']
         learning_unit_year.quadrimester = self.cleaned_data['quadrimester']
+        learning_unit_year.internship_subtype = self.cleaned_data['internship_subtype']
         learning_unit_year.save()
 
         # Update learning unit container year
@@ -107,6 +113,8 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         learning_container_year.title_english = self.cleaned_data['title_english']
         learning_container_year.language = self.cleaned_data['language']
         learning_container_year.campus = self.cleaned_data['campus']
+        learning_container_year.container_type = self.cleaned_data['learning_container_year_type']
+        learning_container_year.save()
 
         # Update requirement entity
         entity_container = entity_container_year.find_by_learning_container_year_and_linktype(learning_container_year,

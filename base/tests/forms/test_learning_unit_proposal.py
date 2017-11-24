@@ -26,6 +26,7 @@
 import datetime
 
 from django.test import TestCase
+from django.utils.translation import ugettext_lazy as _
 
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.person import PersonFactory
@@ -36,7 +37,7 @@ from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.models.enums import organization_type, proposal_type, proposal_state, entity_type, \
     learning_container_year_types, learning_unit_year_quadrimesters, entity_container_year_link_type, \
-    learning_unit_periodicity
+    learning_unit_periodicity, internship_subtypes, learning_unit_year_subtypes
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from reference.tests.factories.language import LanguageFactory
 from base.models import proposal_folder, proposal_learning_unit, entity_container_year
@@ -46,7 +47,7 @@ class TestSave(TestCase):
     def setUp(self):
         self.person = PersonFactory()
         an_organization = OrganizationFactory(type=organization_type.MAIN)
-        self.learning_unit_year = LearningUnitYearFakerFactory(credits=5)
+        self.learning_unit_year = LearningUnitYearFakerFactory(credits=5, subtype=learning_unit_year_subtypes.FULL)
         self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.COURSE
         self.learning_unit_year.learning_container_year.save()
         self.learning_unit_year.learning_container_year.campus.organization = an_organization
@@ -168,6 +169,19 @@ class TestSave(TestCase):
         }
         self.assertDictEqual(entities_by_type, expected_entities)
 
+    def test_modify_learning_container_subtype(self):
+        self.form_data["learning_container_year_type"] = learning_container_year_types.INTERNSHIP
+        self.form_data["internship_subtype"] = internship_subtypes.TEACHING_INTERNSHIP
+
+        form = LearningUnitProposalModificationForm(self.form_data)
+        form.save(self.learning_unit_year)
+
+        self.learning_unit_year.refresh_from_db()
+
+        self.assertEqual(self.learning_unit_year.learning_container_year.container_type,
+                         learning_container_year_types.INTERNSHIP)
+        self.assertEqual(self.learning_unit_year.internship_subtype, internship_subtypes.TEACHING_INTERNSHIP)
+
     def test_folder_creation(self):
         form = LearningUnitProposalModificationForm(self.form_data)
         form.save(self.learning_unit_year)
@@ -221,7 +235,61 @@ class TestSave(TestCase):
         self.assertDictEqual(a_proposal_learning_unt.initial_data, initial_data_expected)
 
 
+class TestIsValid(TestCase):
+    def setUp(self):
+        self.person = PersonFactory()
+        an_organization = OrganizationFactory(type=organization_type.MAIN)
+        self.learning_unit_year = LearningUnitYearFakerFactory(credits=5, subtype=learning_unit_year_subtypes.FULL)
+        self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.COURSE
+        self.learning_unit_year.learning_container_year.save()
+        self.learning_unit_year.learning_container_year.campus.organization = an_organization
+        self.learning_unit_year.learning_container_year.campus.is_administration = True
+        self.learning_unit_year.learning_container_year.campus.save()
 
+        self.entity_container_year = EntityContainerYearFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year,
+            type=entity_container_year_link_type.REQUIREMENT_ENTITY
+        )
+
+        today = datetime.date.today()
+        an_entity = EntityFactory(organization=an_organization)
+        self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL, start_date=today,
+                                                   end_date=today.replace(year=today.year + 1))
+
+        self.language = LanguageFactory(code="EN")
+        self.campus = CampusFactory(name="OSIS Campus", organization=OrganizationFactory(type=organization_type.MAIN),
+                                    is_administration=True)
+
+        self.form_data = {
+            "academic_year": self.learning_unit_year.academic_year.id,
+            "first_letter": "L",
+            "acronym": "OSIS1245",
+            "title": "New title",
+            "title_english": "New title english",
+            "learning_container_year_type": self.learning_unit_year.learning_container_year.container_type,
+            "subtype": self.learning_unit_year.subtype,
+            "internship_subtype": self.learning_unit_year.internship_subtype,
+            "credits": "4",
+            "periodicity": learning_unit_periodicity.BIENNIAL_ODD,
+            "status": False,
+            "language": self.language.id,
+            "quadrimester": learning_unit_year_quadrimesters.Q1,
+            "campus": self.campus.id,
+            "requirement_entity": self.entity_version.id,
+            "type_proposal": proposal_type.ProposalType.MODIFICATION.name,
+            "state_proposal": proposal_state.ProposalState.FACULTY.name,
+            "person": self.person.pk,
+            "folder_entity": self.entity_version.id,
+            "folder_id": "1",
+            "date": datetime.date.today()
+        }
+
+    def test_full_subtype(self):
+        self.form_data["subtype"] = learning_unit_year_subtypes.PARTIM
+        form = LearningUnitProposalModificationForm(self.form_data)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn(_("type_must_be_full"), form.errors['subtype'])
 
 
 

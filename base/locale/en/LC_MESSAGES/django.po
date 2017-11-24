@@ -2301,3 +2301,6 @@ msgstr "at"
 
 msgid "learning_unit_years_to_delete"
 msgstr "You will definitely delete the following learning units"
+
+msgid "type_must_be_full"
+msgstr "Type of learning unit must be full"

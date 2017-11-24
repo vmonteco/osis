@@ -2307,3 +2307,6 @@ msgstr "à"
 
 msgid "learning_unit_years_to_delete"
 msgstr "Vous êtes sur le point de supprimer définitiviement les UE suivantes"
+
+msgid "type_must_be_full"
+msgstr "Le type de l'unité d'enseignement doit être complet."
