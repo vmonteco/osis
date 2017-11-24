@@ -87,10 +87,8 @@ class TestSave(TestCase):
             "requirement_entity": self.entity_version.id,
             "type_proposal": proposal_type.ProposalType.MODIFICATION.name,
             "state_proposal": proposal_state.ProposalState.FACULTY.name,
-            "person": self.person.pk,
             "folder_entity": self.entity_version.id,
             "folder_id": "1",
-            "date": datetime.date.today()
         }
 
     def test_invalid_form(self):
@@ -288,10 +286,8 @@ class TestIsValid(TestCase):
             "requirement_entity": self.entity_version.id,
             "type_proposal": proposal_type.ProposalType.MODIFICATION.name,
             "state_proposal": proposal_state.ProposalState.FACULTY.name,
-            "person": self.person.pk,
             "folder_entity": self.entity_version.id,
             "folder_id": "1",
-            "date": datetime.date.today()
         }
 
     def test_full_subtype(self):

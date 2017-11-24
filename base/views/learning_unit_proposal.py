@@ -75,8 +75,6 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
             "language": learning_unit_year.learning_container_year.language,
             "quadrimester": learning_unit_year.quadrimester,
             "campus": learning_unit_year.learning_container_year.campus,
-            "person": user_person.pk,
-            "date": datetime.date.today(),
             "requirement_entity": entities_version.get(entity_container_year_link_type.REQUIREMENT_ENTITY),
             "allocation_entity": entities_version.get(entity_container_year_link_type.ALLOCATION_ENTITY),
             "additional_entity_1": entities_version.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1),

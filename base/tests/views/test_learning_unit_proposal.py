@@ -141,8 +141,6 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(form_initial['additional_entity_1'], self.entity_version)
         self.assertEqual(form_initial['additional_entity_2'], self.entity_version)
         self.assertEqual(form_initial['campus'], self.learning_unit_year.learning_container_year.campus)
-        self.assertEqual(form_initial['person'], self.person.pk)
-        self.assertEqual(form_initial['date'], datetime.date.today())
 
     def test_post_request_with_invalid_form(self):
         response = self.client.post(self.url, data={})
@@ -176,10 +174,8 @@ class TestLearningUnitModificationProposal(TestCase):
             "requirement_entity": self.entity_version.id,
             "type_proposal": proposal_type.ProposalType.MODIFICATION.name,
             "state_proposal": proposal_state.ProposalState.FACULTY.name,
-            "person": self.person.pk,
             "folder_entity": self.entity_version.id,
             "folder_id": "1",
-            "date": datetime.date.today()
         }
         response = self.client.post(self.url, data=form_data)
 

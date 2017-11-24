@@ -41,10 +41,8 @@ def add_none_choice(choices):
 class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
     type_proposal = forms.ChoiceField(choices=add_none_choice(proposal_type.CHOICES))
     state_proposal = forms.ChoiceField(choices=add_none_choice(proposal_state.CHOICES))
-    person = forms.ModelChoiceField(queryset=Person.objects.all(), widget=forms.HiddenInput())
     folder_entity = forms.ModelChoiceField(queryset=find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
-    date = forms.DateField()
 
     def is_valid(self):
         if not super().is_valid():
