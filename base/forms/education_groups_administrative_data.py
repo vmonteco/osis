@@ -24,20 +24,24 @@
 #
 ##############################################################################
 from django import forms
-from django.forms import ModelForm
 
-from base.forms.bootstrap import BootstrapModelForm
-from base.models import offer_year_calendar
+from base.forms.bootstrap import BootstrapForm
+from base.forms.offer_year_calendar import OfferYearCalendarForm
+from base.models.offer_year_calendar import OfferYearCalendar
 
 
-class OfferYearCalendarForm(BootstrapModelForm):
-    start_date = forms.DateField(widget=forms.DateInput(format='%d/%m/%Y'),
-                                 input_formats=('%d/%m/%Y', ),
-                                 required=True)
-    end_date = forms.DateField(widget=forms.DateInput(format='%d/%m/%Y'),
-                               input_formats=('%d/%m/%Y', ),
-                               required=True)
-
+class EducationGroupExamenEnrollementsForm(OfferYearCalendarForm):
     class Meta:
-        model = offer_year_calendar.OfferYearCalendar
-        fields = ['offer_year', 'start_date', 'end_date', 'customized']
+        models = OfferYearCalendar
+        fields = ['start_date', 'end_date']
+
+class EducationGroupAdministrativeDataForm(BootstrapForm):
+    exam_enrollments_2 = forms.DateTimeField()
+    exam_enrollments_3 = forms.DateTimeField()
+
+    scores_exam_submission = forms.DateField(widget=forms.DateInput(format='%d/%m/%Y'),
+                                             input_formats=('%d/%m/%Y', ), required=True)
+
+    dissertation_submission = forms.DateTimeField()
+    deliberation = forms.DateTimeField()
+    scores_exam_diffusion = forms.DateTimeField()

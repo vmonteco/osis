@@ -50,76 +50,57 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <td></td>
-                                    <td><label>{% trans 'session_title' %} 1</label></td>
-                                    <td><label>{% trans 'session_title' %} 2</label></td>
-                                    <td><label>{% trans 'session_title' %} 3</label></td>
+                                    <th></th>
+                                    <th><label>{% trans 'session_title' %} 1</label></th>
+                                    <th><label>{% trans 'session_title' %} 2</label></th>
+                                    <th><label>{% trans 'session_title' %} 3</label></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td><label>{% trans 'exams_enrollments' %}</label></td>
-                                    <td>
-                                        {% if exam_enrollments.session1 and exam_enrollments.session1.start_date %}
-                                            <label>{% trans 'from' %}</label> {{exam_enrollments.session1.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'to' %}</label> {{ exam_enrollments.session1.end_date| default_if_none:'-'|date:"d/m/Y" }}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if exam_enrollments.session2 and exam_enrollments.session2.start_date %}
-                                            <label>{% trans 'from' %}</label> {{exam_enrollments.session2.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'to' %}</label> {{ exam_enrollments.session2.end_date| default_if_none:'-'|date:"d/m/Y" }}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if exam_enrollments.session3 and exam_enrollments.session3.start_date %}
-                                            <label>{% trans 'from' %}</label> {{exam_enrollments.session3.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'to' %}</label> {{ exam_enrollments.session3.end_date | default_if_none:'-'|date:"d/m/Y"}}
-                                        {% endif %}
-                                    </td>
+                                    {%  for session_form in exam_enrollments %}
+                                        <td>
+                                            <label>{% trans 'from' %}</label> {{session_form.start_date }} <label>{% trans 'to' %}</label> {{ session_form.end_date }}
+                                        </td>
+                                    {% endfor %}
                                 </tr>
                                 <tr>
                                     <td><label>{% trans 'marks_presentation' %}</label></td>
-                                    <td>{{scores_exam_submission.session1.start_date| default_if_none:'-'|date:"d/m/Y"}}</td>
-                                    <td>{{scores_exam_submission.session2.start_date| default_if_none:'-'|date:"d/m/Y"}}</td>
-                                    <td>{{scores_exam_submission.session3.start_date| default_if_none:'-'|date:"d/m/Y"}}</td>
+                                    {%  for session_form in scores_exam_submission %}
+                                        <td>
+                                            {{session_form.start_date }}
+                                        </td>
+                                    {% endfor %}
                                 </tr>
                                 <tr>
                                     <td><label>{% trans 'dissertation_presentation' %}</label></td>
-                                    <td>{{dissertation_submission.session1.start_date| default_if_none:'-'|date:"d/m/Y"}}</td>
-                                    <td>{{dissertation_submission.session2.start_date| default_if_none:'-'|date:"d/m/Y"}}</td>
-                                    <td>{{dissertation_submission.session3.start_date| default_if_none:'-'|date:"d/m/Y"}}</td>
+                                    {%  for session_form in dissertation_submission %}
+                                        <td>
+                                            {{session_form.start_date }}
+                                        </td>
+                                    {% endfor %}
                                 </tr>
                                 <tr>
                                     <td><label>{% trans 'DELIBERATION' %}</label></td>
+                                    {%  for session_form in deliberation %}
+                                        <td>
+                                            {{session_form.start_date }} <label>{% trans 'at' %}</label> {{ session_form.end_date }}
+                                        </td>
+                                    {% endfor %}
                                     <td>
                                         {% if deliberation.session1 and deliberation.session1.start_date %}
                                             {{ deliberation.session1.start_date| default_if_none:''|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ deliberation.session1.start_date | default_if_none:'-'|date:"H:i"}}
                                         {% endif %}
                                     </td>
-                                    <td>
-                                        {% if deliberation.session2 and deliberation.session2.start_date %}
-                                            {{ deliberation.session2.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ deliberation.session2.start_date | default_if_none:'-'|date:"H:i"}}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if deliberation.session3 and deliberation.session3.start_date %}
-                                            {{ deliberation.session3.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ deliberation.session3.start_date | default_if_none:'-'|date:"H:i"}}
-                                        {% endif %}
-                                    </td>
                                 </tr>
                                 <tr>
                                     <td><label>{% trans 'scores_diffusion' %}</label></td>
-                                    <td>
-                                        {% if scores_exam_diffusion.session1 and scores_exam_diffusion.session1.start_date %}
-                                            {{ scores_exam_diffusion.session1.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ scores_exam_diffusion.session1.start_date | default_if_none:'-'|date:"H:i"}}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if scores_exam_diffusion.session2 and scores_exam_diffusion.session2.start_date %}
-                                            {{ scores_exam_diffusion.session2.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ scores_exam_diffusion.session2.start_date | default_if_none:'-'|date:"H:i"}}</td>
-                                        {% endif %}
-                                    <td>
-                                        {% if scores_exam_diffusion.session3 and scores_exam_diffusion.session3.start_date %}
-                                            {{ scores_exam_diffusion.session3.start_date| default_if_none:'-'|date:"d/m/Y"}} <label>{% trans 'at' %}</label> {{ scores_exam_diffusion.session3.start_date | default_if_none:'-'|date:"H:i"}}</td>
-                                        {% endif %}
+                                    {%  for session_form in scores_exam_diffusion %}
+                                        <td>
+                                            {{session_form.start_date }} <label>{% trans 'at' %}</label> {{ session_form.end_date }}
+                                        </td>
+                                    {% endfor %}
                                 </tr>
                             </tbody>
                         </table>
