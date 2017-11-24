@@ -55,7 +55,7 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
 
         return len(self.errors.keys()) == 0
 
-    def save(self, learning_unit_year):
+    def save(self, learning_unit_year, a_person):
         if not self.is_valid():
             raise ValueError("Form is invalid.")
 
@@ -175,7 +175,8 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
             learning_unit_year=learning_unit_year,
             type=self.cleaned_data['type_proposal'],
             state=self.cleaned_data['state_proposal'],
-            initial_data=initial_data
+            initial_data=initial_data,
+            author=a_person
         )
 
 

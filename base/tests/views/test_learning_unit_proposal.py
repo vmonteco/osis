@@ -186,6 +186,7 @@ class TestLearningUnitModificationProposal(TestCase):
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
         self.assertTrue(folder)
         self.assertTrue(a_proposal_learning_unit)
+        self.assertEqual(a_proposal_learning_unit.author, self.person)
 
     def test_learning_unit_must_be_full(self):
         self.learning_unit_year.subtype = learning_unit_year_subtypes.PARTIM

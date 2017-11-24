@@ -55,7 +55,7 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
     if request.method == 'POST':
         form = LearningUnitProposalModificationForm(request.POST)
         if form.is_valid():
-            form.save(learning_unit_year)
+            form.save(learning_unit_year, user_person)
             return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
     else:
