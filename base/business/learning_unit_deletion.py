@@ -89,7 +89,7 @@ def _check_tutoring_learning_unit_year(tutoring):
 
 
 def _check_internship_speciality(speciality):
-    msg = _("The learning unit %(acronym)s has a speciality %(speciality)s") % {
+    msg = _("The learning unit %(acronym)s is related to the internship speciality %(speciality)s") % {
         "acronym": speciality.learning_unit,
         "speciality": speciality
     }
