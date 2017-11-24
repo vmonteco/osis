@@ -170,8 +170,9 @@ class EducationGroupYear(models.Model):
         return self._coorganizations
 
     def is_training(self):
-        return getattr(self.education_group_type,'category') == education_group_categories.TRAINING
-
+        if self.education_group_type:
+            return self.education_group_type.category == education_group_categories.TRAINING
+        return False
 
 def find_by_id(an_id):
     try:
