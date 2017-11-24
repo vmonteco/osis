@@ -30,18 +30,11 @@ import factory.fuzzy
 from factory import DjangoModelFactory
 
 
-def generate_code():
-    start = 0
-    while start < 9999:
-        start += 1
-        yield str(start)
-
-
 class LanguageFactory(DjangoModelFactory):
     class Meta:
         model = 'reference.Language'
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
     code = factory.Sequence(lambda n: str(n))
-    name = factory.Faker('country')
+    name = factory.Sequence(lambda n: str(n))
     recognized = factory.Faker('boolean', chance_of_getting_true=50)
