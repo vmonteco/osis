@@ -35,8 +35,9 @@ from base.forms.learning_unit_proposal import LearningUnitProposalModificationFo
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.organization import OrganizationFactory
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.models.enums import organization_type, proposal_type, proposal_state, entity_type, \
-    entity_container_year_link_type
+    entity_container_year_link_type, learning_unit_year_subtypes
 from base.models import proposal_folder, proposal_learning_unit
 
 
@@ -50,7 +51,8 @@ class TestLearningUnitModificationProposal(TestCase):
 
         self.person = PersonFactory()
         an_organization = OrganizationFactory(type=organization_type.MAIN)
-        self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212")
+        self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212",
+                                                               subtype=learning_unit_year_subtypes.FULL)
         self.learning_unit_year.academic_year.start_date = today - datetime.timedelta(days=15)
         self.learning_unit_year.academic_year.end_date = today + datetime.timedelta(days=15)
         self.learning_unit_year.academic_year.year = today.year
@@ -186,3 +188,10 @@ class TestLearningUnitModificationProposal(TestCase):
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
         self.assertTrue(folder)
         self.assertTrue(a_proposal_learning_unit)
+
+    def test_proposal_already_exists(self):
+        ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year)
+        response = self.client.get(self.url)
+
+        redirect_url = reverse("learning_unit", args=[self.learning_unit_year.id])
+        self.assertRedirects(response, redirect_url, fetch_redirect_response=False)

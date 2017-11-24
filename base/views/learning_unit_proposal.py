@@ -33,12 +33,18 @@ from base.models.person import Person
 from base.models.entity_container_year import find_last_entity_version_grouped_by_linktypes
 from base.models.enums import entity_container_year_link_type
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
+from base.models import proposal_learning_unit
 
 
 @login_required
 def propose_modification_of_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
     user_person = get_object_or_404(Person, user=request.user)
+    proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
+
+    if proposal:
+        return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
+
     if request.method == 'POST':
         form = LearningUnitProposalModificationForm(request.POST)
         if form.is_valid():

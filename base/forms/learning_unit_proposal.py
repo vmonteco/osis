@@ -51,8 +51,7 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
             return False
         if self.data["subtype"] != learning_unit_year_subtypes.FULL:
             self.add_error("subtype", _("type_must_be_full"))
-
-        if self.data["internship_subtype"] and \
+        if self.data["internship_subtype"] and self.data["internship_subtype"] != 'None' and \
            self.data["learning_container_year_type"] != learning_container_year_types.INTERNSHIP:
             self.add_error("internship_subtype", _("learning_unit_type_is_not_internship"))
 
