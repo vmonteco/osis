@@ -189,6 +189,15 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertTrue(folder)
         self.assertTrue(a_proposal_learning_unit)
 
+    def test_learning_unit_must_be_full(self):
+        self.learning_unit_year.subtype = learning_unit_year_subtypes.PARTIM
+        self.learning_unit_year.save()
+
+        response = self.client.get(self.url)
+
+        redirect_url = reverse("learning_unit", args=[self.learning_unit_year.id])
+        self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+
     def test_proposal_already_exists(self):
         ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year)
         response = self.client.get(self.url)
