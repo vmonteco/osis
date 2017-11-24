@@ -31,7 +31,7 @@ from base.forms.learning_units import CreateLearningUnitYearForm
 from base.models.entity_version import find_main_entities_version
 from base.models import entity_container_year, proposal_folder, proposal_learning_unit
 from base.models.enums import proposal_type, proposal_state, entity_container_year_link_type, \
-    learning_unit_year_subtypes
+    learning_unit_year_subtypes, learning_container_year_types
 
 
 def add_none_choice(choices):
@@ -51,6 +51,11 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
             return False
         if self.data["subtype"] != learning_unit_year_subtypes.FULL:
             self.add_error("subtype", _("type_must_be_full"))
+
+        if self.data["internship_subtype"] and \
+           self.data["learning_container_year_type"] != learning_container_year_types.INTERNSHIP:
+            self.add_error("internship_subtype", _("learning_unit_type_is_not_internship"))
+
         return len(self.errors.keys()) == 0
 
     def save(self, learning_unit_year):

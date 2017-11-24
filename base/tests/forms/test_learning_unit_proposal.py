@@ -291,6 +291,12 @@ class TestIsValid(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn(_("type_must_be_full"), form.errors['subtype'])
 
+    def test_internship_subtype(self):
+        self.form_data["internship_subtype"] = internship_subtypes.TEACHING_INTERNSHIP
+        form = LearningUnitProposalModificationForm(self.form_data)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn(_("learning_unit_type_is_not_internship"), form.errors["internship_subtype"])
 
 
 
