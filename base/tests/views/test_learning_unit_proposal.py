@@ -27,6 +27,8 @@ import datetime
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.contrib.messages import get_messages
+from django.utils.translation import ugettext_lazy as _
 
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.person import PersonFactory
@@ -198,9 +200,15 @@ class TestLearningUnitModificationProposal(TestCase):
         redirect_url = reverse("learning_unit", args=[self.learning_unit_year.id])
         self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
 
+        messages = [str(message) for message in get_messages(response.wsgi_request)]
+        self.assertIn(_("learning_unit_is_not_of_type_full"), list(messages))
+
     def test_proposal_already_exists(self):
         ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year)
         response = self.client.get(self.url)
 
         redirect_url = reverse("learning_unit", args=[self.learning_unit_year.id])
         self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+
+        messages = [str(message) for message in get_messages(response.wsgi_request)]
+        self.assertIn(_("proposal_already_exists"), messages)

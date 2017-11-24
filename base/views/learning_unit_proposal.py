@@ -26,7 +26,9 @@
 import datetime
 
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.utils.translation import ugettext_lazy as _
 
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
@@ -43,9 +45,11 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
     proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
 
     if learning_unit_year.subtype != learning_unit_year_subtypes.FULL:
+        messages.add_message(request, messages.ERROR, _("learning_unit_is_not_of_type_full"))
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
     if proposal:
+        messages.add_message(request, messages.ERROR, _("proposal_already_exists"))
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
     if request.method == 'POST':
