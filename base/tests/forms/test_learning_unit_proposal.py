@@ -35,6 +35,7 @@ from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
+from base.tests.factories.proposal_folder import ProposalFolderFactory
 from base.models.enums import organization_type, proposal_type, proposal_state, entity_type, \
     learning_container_year_types, learning_unit_year_quadrimesters, entity_container_year_link_type, \
     learning_unit_periodicity, internship_subtypes, learning_unit_year_subtypes
@@ -189,6 +190,15 @@ class TestSave(TestCase):
         proposal_folder_created = proposal_folder.find_by_entity_and_folder_id(self.entity_version.entity, 1)
 
         self.assertTrue(proposal_folder_created)
+
+    def test_folder_reuse(self):
+        folder = ProposalFolderFactory(entity=self.entity_version.entity, folder_id=1)
+
+        form = LearningUnitProposalModificationForm(self.form_data)
+        form.save(self.learning_unit_year)
+
+        a_proposal_learning_unt = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
+        self.assertEqual(a_proposal_learning_unt.folder, folder)
 
     def test_creation_proposal_learning_unit(self):
         initial_data_expected = {

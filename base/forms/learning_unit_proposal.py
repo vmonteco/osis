@@ -168,7 +168,9 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         folder_entity = self.cleaned_data['folder_entity'].entity
         folder_id = self.cleaned_data['folder_id']
 
-        folder = proposal_folder.ProposalFolder.objects.create(entity=folder_entity, folder_id=folder_id)
+        folder = proposal_folder.find_by_entity_and_folder_id(folder_entity, folder_id)
+        if not folder:
+            folder = proposal_folder.ProposalFolder.objects.create(entity=folder_entity, folder_id=folder_id)
 
         # Create proposal learning unit
         proposal_learning_unit.ProposalLearningUnit.objects.create(
