@@ -388,9 +388,11 @@ class EducationGroupViewTestCase(TestCase):
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
+    @mock.patch('base.models.education_group_year.find_by_id')
     def test_education_content(self,
-                                           mock_render,
-                                           mock_decorators):
+                               mock_find_by_id,
+                               mock_render,
+                               mock_decorators):
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
         education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
@@ -398,6 +400,7 @@ class EducationGroupViewTestCase(TestCase):
 
         from base.views.education_group import education_group_content
 
+        mock_find_by_id.return_value = education_group_year
         education_group_content(request, education_group_year.id)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
