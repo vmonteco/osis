@@ -59,24 +59,16 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         initial_data = _copy_learning_unit_data(learning_unit_year)
 
         # Update learning_unit
-        learning_unit_new_values = _create_sub_dictionary(self.cleaned_data, ["periodicity"])
-        _set_attributes_from_dict(learning_unit_year.learning_unit, learning_unit_new_values)
-        learning_unit_year.learning_unit.save()
+        _update_model_object(learning_unit_year.learning_unit, self.cleaned_data, ["periodicity"])
 
         # Update learning unit year
-        learning_unit_year_new_values = _create_sub_dictionary(self.cleaned_data, ["acronym", "title", "title_english",
-                                                                                   "status", "quadrimester",
-                                                                                   "internship_subtype"])
-        _set_attributes_from_dict(learning_unit_year, learning_unit_year_new_values)
-        learning_unit_year.save()
+        _update_model_object(learning_unit_year, self.cleaned_data, ["acronym", "title", "title_english", "status",
+                                                                     "quadrimester", "internship_subtype"])
 
         # Update learning unit container year
         learning_container_year = learning_unit_year.learning_container_year
-        learning_container_year_new_values = _create_sub_dictionary(self.cleaned_data, ["acronym", "title", "language",
-                                                                                        "title_english", "campus",
-                                                                                        "container_type"])
-        _set_attributes_from_dict(learning_container_year, learning_container_year_new_values)
-        learning_container_year.save()
+        _update_model_object(learning_container_year, self.cleaned_data, ["acronym", "title", "language",
+                                                                          "title_english", "campus", "container_type"])
 
         # Update entities
         _update_entity(self.cleaned_data["requirement_entity"], learning_container_year, REQUIREMENT_ENTITY)
@@ -90,6 +82,12 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
 
         _create_learning_unit_proposal(a_person, folder_entity, folder_id, initial_data, learning_unit_year,
                                        state_proposal, type_proposal)
+
+
+def _update_model_object(obj, data_values, fields_to_update):
+    obj_new_values = _create_sub_dictionary(data_values, fields_to_update)
+    _set_attributes_from_dict(obj, obj_new_values)
+    obj.save()
 
 
 def _create_learning_unit_proposal(a_person, folder_entity, folder_id, initial_data, learning_unit_year,
