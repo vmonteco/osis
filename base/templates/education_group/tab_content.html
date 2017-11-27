@@ -39,50 +39,77 @@
 
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active" id="content">
-                <br>
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>{% trans 'code_scs'%}</th>
-                            <th>{% trans 'title_code_formation' %}</th>
-                            <th>{% trans 'absolute_credits' %}</th>
-                            <th>{% trans 'relative_target_credits' %}</th>
-                            <th>{% trans 'min_credits' %}</th>
-                            <th>{% trans 'max_credits' %}</th>
-                            <th>{% trans 'mandatory' %}</th>
-                            <th>{% trans 'block' %}</th>
-                            <th>{% trans 'current_order' %}</th>
-                            <th>{% trans 'sessions_derogation' %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for element in group_elements %}
-                            <tr>
-                                <td>{{ element.code_scs | default_if_none:''  }}</td>
-                                <td>{{ element.title | default_if_none:'' }}</td>
-                                <td>{{ element.group_element.absolute_credits | default_if_none:'-' }}</td>
-                                <td>{{ element.group_element.relative_credits | default_if_none:'-' }}</td>
-                                <td>{{ element.credits_min | default_if_none:'-' }}</td>
-                                <td>{{ element.credits_max | default_if_none:'-' }}</td>
-                                <td>{% if element.group_element.is_mandatory %}{% trans 'yes'%} {% else %}{% trans 'no' %}{% endif %}</td>
-                                <td>{{ element.block | default_if_none:'-' }}</td>
-                                <td>{{ element.group_element.current_order | default_if_none:'-' }}</td>
-                                <td>{% if element.sessions_derogation %}{% trans element.sessions_derogation %}{% else %}-{% endif %}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="10" style="border-top: none;">
-                                    {% if element.group_element.own_comment %}
-                                        <label>{% trans 'own_comment' %}</label> :&nbsp;
-                                        {{ element.group_element.own_comment }}
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div class="row">
+                    <div class="col-md-3">
+                        <br>
+                        {% include "education_group/training_tree.html" %}
+                    </div>
+                    <div class="col-md-9">
+                        <br>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>{% trans 'code_scs'%}</th>
+                                    <th>{% trans 'title_code_formation' %}</th>
+                                    <th>{% trans 'absolute_credits' %}</th>
+                                    <th>{% trans 'relative_target_credits' %}</th>
+                                    <th>{% trans 'min_credits' %}</th>
+                                    <th>{% trans 'max_credits' %}</th>
+                                    <th>{% trans 'mandatory' %}</th>
+                                    <th>{% trans 'block' %}</th>
+                                    <th>{% trans 'current_order' %}</th>
+                                    <th>{% trans 'sessions_derogation' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for element in group_elements %}
+                                    <tr>
+                                        <td>{{ element.code_scs | default_if_none:''  }}</td>
+                                        <td>{{ element.title | default_if_none:'' }}</td>
+                                        <td>{{ element.group_element.absolute_credits | default_if_none:'-' }}</td>
+                                        <td>{{ element.group_element.relative_credits | default_if_none:'-' }}</td>
+                                        <td>{{ element.credits_min | default_if_none:'-' }}</td>
+                                        <td>{{ element.credits_max | default_if_none:'-' }}</td>
+                                        <td>{% if element.group_element.is_mandatory %}{% trans 'yes'%} {% else %}{% trans 'no' %}{% endif %}</td>
+                                        <td>{{ element.block | default_if_none:'-' }}</td>
+                                        <td>{{ element.group_element.current_order | default_if_none:'-' }}</td>
+                                        <td>{% if element.sessions_derogation %}{% trans element.sessions_derogation %}{% else %}-{% endif %}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="10" style="border-top: none;">
+                                            {% if element.group_element.own_comment %}
+                                                <label>{% trans 'own_comment' %}</label> :&nbsp;
+                                                {{ element.group_element.own_comment }}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+{% block script %}
+<script>
+    $(document).ready(function(){
+		$("#browser").treeview({
+			toggle: function() {
+				console.log("%s was toggled.", $(this).find(">span").text());
+			}
+		});
 
+		$("#add").click(function() {
+			var branches = $("<li><span class='folder'>New Sublist</span><ul>" +
+				"<li><span class='file'>Item1</span></li>" +
+				"<li><span class='file'>Item2</span></li></ul></li>").appendTo("#browser");
+			$("#browser").treeview({
+				add: branches
+			});
+		});
+	});
+</script>
 {% endblock %}
