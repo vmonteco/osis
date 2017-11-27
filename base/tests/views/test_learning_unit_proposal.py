@@ -190,7 +190,6 @@ class TestLearningUnitModificationProposal(TestCase):
         self.form_data["acronym"] = "OSIS1452"
         self.client.post(self.url, data=self.form_data)
 
-
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
         self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.TRANSFORMATION.name)
 

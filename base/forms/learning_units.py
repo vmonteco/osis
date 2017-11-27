@@ -191,7 +191,7 @@ class CreateLearningUnitYearForm(BootstrapForm):
     internship_subtype = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
                                            mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES,
                                            required=False)
-    credits = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
+    credits = forms.DecimalField(decimal_places=2)
     title = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
     title_english = forms.CharField(required=False, widget=forms.TextInput())
     session = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
@@ -257,8 +257,5 @@ class CreateLearningUnitYearForm(BootstrapForm):
         elif self.cleaned_data["container_type"] == INTERNSHIP \
                 and not (self.cleaned_data['internship_subtype']):
             self._errors['internship_subtype'] = _('field_is_required')
-        elif not self.cleaned_data['credits']:
-            self._errors['credits'] = _('field_is_required')
-            return False
         else:
             return True
