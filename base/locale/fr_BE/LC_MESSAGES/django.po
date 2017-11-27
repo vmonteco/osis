@@ -2334,3 +2334,6 @@ msgstr "Transformation et modification"
 
 msgid "SUPPRESSION"
 msgstr "Suppression"
+
+msgid "cannot_do_modification_proposal_for_past_learning_unit"
+msgstr "Vous ne pouvez pas faire de proposition de modification pour une unité d'enseignement passée."

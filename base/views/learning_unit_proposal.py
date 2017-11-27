@@ -23,8 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -32,6 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
+from base.models.academic_year import current_academic_year
 from base.models.entity_container_year import find_last_entity_version_grouped_by_linktypes
 from base.models.enums import entity_container_year_link_type, learning_unit_year_subtypes
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
@@ -43,6 +42,11 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
     user_person = get_object_or_404(Person, user=request.user)
     proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
+    current_year = current_academic_year().year
+
+    if learning_unit_year.academic_year.year < current_year:
+        messages.add_message(request, messages.ERROR, _("cannot_do_modification_proposal_for_past_learning_unit"))
+        return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
     if learning_unit_year.subtype != learning_unit_year_subtypes.FULL:
         messages.add_message(request, messages.ERROR, _("learning_unit_is_not_of_type_full"))

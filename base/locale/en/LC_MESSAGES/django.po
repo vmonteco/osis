@@ -2328,3 +2328,6 @@ msgstr "Transformation and modification"
 
 msgid "SUPPRESSION"
 msgstr "Suppression"
+
+msgid "cannot_do_modification_proposal_for_past_learning_unit"
+msgstr "Cannot make modification proposal for past learning unit."

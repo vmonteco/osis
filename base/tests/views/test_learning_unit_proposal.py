@@ -30,6 +30,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.messages import get_messages
 from django.utils.translation import ugettext_lazy as _
 
+from base.models.academic_year import current_academic_year
+from base.tests.factories.academic_year import AcademicYearFakerFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
@@ -208,3 +210,17 @@ class TestLearningUnitModificationProposal(TestCase):
 
         messages = [str(message) for message in get_messages(response.wsgi_request)]
         self.assertIn(_("proposal_already_exists"), messages)
+
+    def test_academic_year_inferior_to_current(self):
+        today = datetime.date.today()
+        self.learning_unit_year.academic_year = \
+            AcademicYearFakerFactory(year=today.year-1, start_date=today.replace(day=1, year=today.year-1),
+                                     end_date=today.replace(day=20, year=today.year-1))
+        self.learning_unit_year.save()
+
+        response = self.client.get(self.url)
+        redirect_url = reverse("learning_unit", args=[self.learning_unit_year.id])
+        self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+
+        messages = [str(message) for message in get_messages(response.wsgi_request)]
+        self.assertIn(_("cannot_do_modification_proposal_for_past_learning_unit"), list(messages))
