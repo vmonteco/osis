@@ -94,6 +94,28 @@ class TestLearningUnitModificationProposal(TestCase):
         self.client.force_login(self.person.user)
         self.url = reverse('learning_unit_modification_proposal', args=[self.learning_unit_year.id])
 
+        self.form_data = {
+            "academic_year": self.learning_unit_year.academic_year.id,
+            "first_letter": self.learning_unit_year.acronym[0],
+            "acronym": self.learning_unit_year.acronym[1:],
+            "title": self.learning_unit_year.title,
+            "title_english": self.learning_unit_year.title_english,
+            "container_type": self.learning_unit_year.learning_container_year.container_type,
+            "internship_subtype": "",
+            "credits": self.learning_unit_year.credits,
+            "periodicity": self.learning_unit_year.learning_unit.periodicity,
+            "status": self.learning_unit_year.status,
+            "language": self.learning_unit_year.learning_container_year.language.id,
+            "quadrimester": "",
+            "campus": self.learning_unit_year.learning_container_year.campus.id,
+            "requirement_entity": self.entity_version.id,
+            "allocation_entity": self.entity_version.id,
+            "additional_entity_1": self.entity_version.id,
+            "additional_entity_2": self.entity_version.id,
+            "folder_entity": self.entity_version.id,
+            "folder_id": "1",
+        }
+
     def test_user_not_logged(self):
         self.client.logout()
         response = self.client.get(self.url)
@@ -153,25 +175,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertIsInstance(response.context['form'], LearningUnitProposalModificationForm)
 
     def test_post_request(self):
-        form_data = {
-            "academic_year": self.learning_unit_year.academic_year.id,
-            "first_letter": self.learning_unit_year.acronym[0],
-            "acronym": self.learning_unit_year.acronym[1:],
-            "title": self.learning_unit_year.title,
-            "title_english": self.learning_unit_year.title_english,
-            "container_type": self.learning_unit_year.learning_container_year.container_type,
-            "internship_subtype": "",
-            "credits": self.learning_unit_year.credits,
-            "periodicity": self.learning_unit_year.learning_unit.periodicity,
-            "status": self.learning_unit_year.status,
-            "language": self.learning_unit_year.learning_container_year.language.id,
-            "quadrimester": "",
-            "campus": self.learning_unit_year.learning_container_year.campus.id,
-            "requirement_entity": self.entity_version.id,
-            "folder_entity": self.entity_version.id,
-            "folder_id": "1",
-        }
-        response = self.client.post(self.url, data=form_data)
+        response = self.client.post(self.url, data=self.form_data)
 
         redirected_url = reverse('learning_unit', args=[self.learning_unit_year.id])
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
@@ -183,82 +187,26 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(a_proposal_learning_unit.author, self.person)
 
     def test_transformation_proposal_request(self):
-        form_data = {
-            "academic_year": self.learning_unit_year.academic_year.id,
-            "first_letter": self.learning_unit_year.acronym[0],
-            "acronym": "OSIS1452",
-            "title": self.learning_unit_year.title,
-            "title_english": self.learning_unit_year.title_english,
-            "container_type": self.learning_unit_year.learning_container_year.container_type,
-            "internship_subtype": "",
-            "credits": self.learning_unit_year.credits,
-            "periodicity": self.learning_unit_year.learning_unit.periodicity,
-            "status": self.learning_unit_year.status,
-            "language": self.learning_unit_year.learning_container_year.language.id,
-            "quadrimester": "",
-            "campus": self.learning_unit_year.learning_container_year.campus.id,
-            "requirement_entity": self.entity_version.id,
-            "allocation_entity": self.entity_version.id,
-            "additional_entity_1": self.entity_version.id,
-            "additional_entity_2": self.entity_version.id,
-            "folder_entity": self.entity_version.id,
-            "folder_id": "1",
-        }
-        self.client.post(self.url, data=form_data)
+        self.form_data["acronym"] = "OSIS1452"
+        self.client.post(self.url, data=self.form_data)
+
 
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
         self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.TRANSFORMATION.name)
 
     def test_modification_proposal_request(self):
-        form_data = {
-            "academic_year": self.learning_unit_year.academic_year.id,
-            "first_letter": self.learning_unit_year.acronym[0],
-            "acronym": self.learning_unit_year.acronym[1:],
-            "title": "New title",
-            "title_english": "New english title",
-            "container_type": self.learning_unit_year.learning_container_year.container_type,
-            "internship_subtype": "",
-            "credits": self.learning_unit_year.credits,
-            "periodicity": self.learning_unit_year.learning_unit.periodicity,
-            "status": self.learning_unit_year.status,
-            "language": self.learning_unit_year.learning_container_year.language.id,
-            "quadrimester": "",
-            "campus": self.learning_unit_year.learning_container_year.campus.id,
-            "requirement_entity": self.entity_version.id,
-            "allocation_entity": self.entity_version.id,
-            "additional_entity_1": self.entity_version.id,
-            "additional_entity_2": self.entity_version.id,
-            "folder_entity": self.entity_version.id,
-            "folder_id": "1",
-        }
-        self.client.post(self.url, data=form_data)
+        self.form_data["title"] = "New title"
+        self.form_data["title_english"] = "New english title"
+        self.client.post(self.url, data=self.form_data)
 
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
         self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.MODIFICATION.name)
 
     def test_transformation_and_modification_proposal_request(self):
-        form_data = {
-            "academic_year": self.learning_unit_year.academic_year.id,
-            "first_letter": self.learning_unit_year.acronym[0],
-            "acronym": "OSIS1452",
-            "title": "New title",
-            "title_english": "New english title",
-            "container_type": self.learning_unit_year.learning_container_year.container_type,
-            "internship_subtype": "",
-            "credits": self.learning_unit_year.credits,
-            "periodicity": self.learning_unit_year.learning_unit.periodicity,
-            "status": self.learning_unit_year.status,
-            "language": self.learning_unit_year.learning_container_year.language.id,
-            "quadrimester": "",
-            "campus": self.learning_unit_year.learning_container_year.campus.id,
-            "requirement_entity": self.entity_version.id,
-            "allocation_entity": self.entity_version.id,
-            "additional_entity_1": self.entity_version.id,
-            "additional_entity_2": self.entity_version.id,
-            "folder_entity": self.entity_version.id,
-            "folder_id": "1",
-        }
-        self.client.post(self.url, data=form_data)
+        self.form_data["acronym"] = "OSIS1452"
+        self.form_data["title"] = "New title"
+        self.form_data["title_english"] = "New english title"
+        self.client.post(self.url, data=self.form_data)
 
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
         self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name)
