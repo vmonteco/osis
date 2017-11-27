@@ -67,7 +67,7 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
         "learning_container_year_type": learning_unit_year.learning_container_year.container_type,
         "subtype": learning_unit_year.subtype,
         "internship_subtype": learning_unit_year.internship_subtype,
-        "credits": learning_unit_year.credits,
+        "credits": float(learning_unit_year.credits),
         "periodicity": learning_unit_year.learning_unit.periodicity,
         "status": learning_unit_year.status,
         "language": learning_unit_year.learning_container_year.language,

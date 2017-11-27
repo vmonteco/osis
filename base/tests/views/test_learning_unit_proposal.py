@@ -218,7 +218,7 @@ class TestLearningUnitModificationProposal(TestCase):
             "title": "New title",
             "title_english": "New english title",
             "learning_container_year_type": self.learning_unit_year.learning_container_year.container_type,
-            "internship_subtype": self.learning_unit_year.internship_subtype,
+            "internship_subtype": str(self.learning_unit_year.internship_subtype),
             "credits": self.learning_unit_year.credits,
             "periodicity": self.learning_unit_year.learning_unit.periodicity,
             "status": self.learning_unit_year.status,

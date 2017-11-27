@@ -30,6 +30,7 @@ from base.forms.learning_units import CreateLearningUnitYearForm
 from base.models.entity_version import find_main_entities_version
 from base.models import entity_container_year, proposal_folder, proposal_learning_unit
 from base.models.enums import entity_container_year_link_type, learning_container_year_types
+from base.models import academic_year
 
 
 def add_none_choice(choices):
@@ -40,6 +41,8 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
     folder_entity = forms.ModelChoiceField(queryset=find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
     subtype = forms.CharField(required=False)
+    academic_year = forms.ModelChoiceField(queryset=academic_year.find_academic_years(), required=True,
+                                           empty_label=_('all_label'), disabled=True)
 
     def is_valid(self):
         if not super().is_valid():

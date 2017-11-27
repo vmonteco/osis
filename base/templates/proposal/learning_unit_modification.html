@@ -56,13 +56,15 @@
 
                                       <div class="col-md-3" style="padding-left:0;">
                                         <div class="col-md-12">
-                                          <label for"{{ form.acronym.id_for_label }}">{% trans 'acronym'%}*</label>
+                                          <label for="{{ form.acronym.id_for_label }}">{% trans 'acronym'%}</label>
                                         </div>
                                         <div class="col-md-4" style="padding-right:0;">
                                           {{ form.first_letter }}
+                                            <span class="error">{{ form.first_letter.errors }}</span>
                                         </div>
                                         <div class="col-md-8" style="padding-left:0;">
                                           {{ form.acronym }}
+                                            <span class="error">{{ form.acronym.errors }}</span>
                                         </div>
                                       </div>
 
@@ -81,11 +83,13 @@
                                       <div class="form_group col-md-3">
                                           <label for="{{ form.learning_container_year_type.id_for_label }}">{% trans 'type' %}</label>
                                           {{ form.learning_container_year_type }}
+                                          <span class="error">{{ form.learning_container_year_type.errors }}</span>
                                       </div>
 
                                       <div class="col-md-3">
                                           <label for="{{ form.internship_subtype.id_for_label }}">{% trans 'internship_subtype' %}</label>
                                           {{ form.internship_subtype }}
+                                          <span class="error">{{ form.internship_subtype.errors }}</span>
                                       </div>
 
                                   </div>
@@ -95,15 +99,18 @@
                                       <div class="from-group col-md-3">
                                           <label for="{{ form.credits.id_for_label }}">{% trans 'nominal_credits' %}</label>
                                           {{ form.credits }}
+                                          <span class="error">{{ form.credits.errors }}</span>
                                       </div>
 
                                       <div class="form-group col-md-3">
                                           <label for="{{ form.periodicity.id_for_label }}">{% trans 'periodicity' %}</label>
                                           {{ form.periodicity }}
+                                          <span class="error">{{ form.periodicity.errors }}</span>
                                       </div>
 
                                       <div class="form-group col-md-3">
                                           {{ form.status }}
+                                          <span class="error">{{ form.status.errors }}</span>
                                           <label for="{{ form.status.id_for_label }}">{% trans 'active_title' %}</label>
                                       </div>
 
@@ -114,11 +121,13 @@
                                   <div class="form-group">
                                     <label for="{{ form.title.id_for_label }}">{% trans 'title_official' %}</label>
                                     {{ form.title }}
+                                      <span class="error">{{ form.title.errors }}</span>
                                   </div>
 
                                   <div class="form-group">
                                     <label for="{{ form.title_english.id_for_label }}">{% trans 'title_in_english' %}</label>
                                     {{ form.title_english }}
+                                      <span class="error">{{ form.title_english.errors }}</span>
                                   </div>
 
                                   <div class="row">
@@ -126,11 +135,13 @@
                                     <div class="form-group col-md-3">
                                         <label for="{{ form.language.id_for_label }}">{% trans 'language' %}</label>
                                         {{ form.language }}
+                                        <span class="error">{{ form.language.errors }}</span>
                                     </div>
 
                                     <div class="col-md-9">
                                         <label for="{{ form.quadrimester.id_for_label }}">{% trans 'quadrimester' %}</label>
                                         {{ form.quadrimester }}
+                                        <span class="error">{{ form.quadrimester.errors }}</span>
                                     </div>
 
                                   </div>
@@ -157,31 +168,37 @@
                                   <div class="form-group">
                                       <label for="{{ form.campus.id_for_label }}">{% trans 'localization' %}</label>
                                       {{ form.campus }}
+                                      <span class="error">{{ form.campus.errors }}</span>
                                   </div>
 
                                   <div class="form-group">
                                       <label for="{{ form.requirement_entity.id_for_label }}">{% trans 'requirement_entity'%}</label>
                                       {{ form.requirement_entity }}
+                                      <span class="error">{{ form.requirement_entity.errors }}</span>
                                   </div>
 
                                   <div class="form-group">
                                       <label for="{{ form.allocation_entity.id_for_label }}">{% trans 'allocation_entity'%}</label>
                                       {{ form.allocation_entity }}
+                                      <span class="error">{{ form.allocation_entity.errors }}</span>
                                   </div>
 
                                   <div class="form-group">
                                       <label for="{{ form.additional_entity_1.id_for_label }}">{% trans 'additional_requirement_entity' %} 1</label>
                                       {{ form.additional_entity_1 }}
+                                      <span class="error">{{ form.additional_entity_1.errors }}</span>
                                   </div>
 
                                   <div class="form-group">
                                       <label for="{{ form.additional_entity_2.id_for_label }}">{% trans 'additional_requirement_entity' %} 2</label>
                                       {{ form.additional_entity_2 }}
+                                      <span class="error">{{ form.additional_entity_2.errors }}</span>
                                   </div>
 
                                   <div class="form-group">
                                     <label for="{{ form.academic_year.id_for_label }}">{% trans 'academic_years'%}</label>
                                     {{ form.academic_year }}
+                                      <span class="error">{{ form.academic_year.errors }}</span>
                                   </div>
 
                               </div>
@@ -197,9 +214,11 @@
                                   </div>
                                   <div class="col-md-4">
                                     {{ form.folder_entity }}
+                                      <span class="error">{{ form.folder_entity.errors }}</span>
                                   </div>
                                   <div class="col-md-4">
                                     {{ form.folder_id }}
+                                      <span class="error">{{ form.folder_id.errors }}</span>
                                   </div>
 
                                   <br><br>
