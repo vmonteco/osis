@@ -2331,3 +2331,15 @@ msgstr "Suppression"
 
 msgid "cannot_do_modification_proposal_for_past_learning_unit"
 msgstr "Cannot make modification proposal for past learning unit."
+
+msgid "CENTRAL"
+msgstr "Central"
+
+msgid "SUSPENDED"
+msgstr "Suspended"
+
+msgid "ACCEPTED"
+msgstr "Accepted"
+
+msgid "REFUSED"
+msgstr "Refused"
