@@ -79,7 +79,7 @@ class TestSave(TestCase):
             "acronym": "OSIS1245",
             "title": "New title",
             "title_english": "New title english",
-            "learning_container_year_type": self.learning_unit_year.learning_container_year.container_type,
+            "container_type": self.learning_unit_year.learning_container_year.container_type,
             "internship_subtype": self.learning_unit_year.internship_subtype,
             "credits": "4",
             "periodicity": learning_unit_periodicity.BIENNIAL_ODD,
@@ -170,7 +170,7 @@ class TestSave(TestCase):
         self.assertDictEqual(entities_by_type, expected_entities)
 
     def test_modify_learning_container_subtype(self):
-        self.form_data["learning_container_year_type"] = learning_container_year_types.INTERNSHIP
+        self.form_data["container_type"] = learning_container_year_types.INTERNSHIP
         self.form_data["internship_subtype"] = internship_subtypes.TEACHING_INTERNSHIP
 
         form = LearningUnitProposalModificationForm(self.form_data)
@@ -275,7 +275,7 @@ class TestIsValid(TestCase):
             "acronym": "OSIS1245",
             "title": "New title",
             "title_english": "New title english",
-            "learning_container_year_type": self.learning_unit_year.learning_container_year.container_type,
+            "container_type": self.learning_unit_year.learning_container_year.container_type,
             "subtype": self.learning_unit_year.subtype,
             "internship_subtype": self.learning_unit_year.internship_subtype,
             "credits": "4",

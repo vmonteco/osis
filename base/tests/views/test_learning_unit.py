@@ -606,7 +606,7 @@ class LearningUnitViewTestCase(TestCase):
     def get_base_form_data(self):
         return {"first_letter": "L",
                 "acronym": "TAU2000",
-                "learning_container_year_type": COURSE,
+                "container_type": COURSE,
                 "academic_year": self.current_academic_year.id,
                 "status": True,
                 "periodicity": ANNUAL,
@@ -904,7 +904,7 @@ class LearningUnitYearAdd(TestCase):
         form_data = {
             "first_letter": "L",
             "acronym": "TAU2000",
-            "learning_container_year_type": COURSE,
+            "container_type": COURSE,
             "academic_year": current_academic_year.id,
             "status": True,
             "periodicity": ANNUAL,

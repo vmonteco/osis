@@ -47,7 +47,7 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         if not super().is_valid():
             return False
         if self.data["internship_subtype"] and self.data["internship_subtype"] != 'None' and \
-           self.data["learning_container_year_type"] != learning_container_year_types.INTERNSHIP:
+           self.data["container_type"] != learning_container_year_types.INTERNSHIP:
             self.add_error("internship_subtype", _("learning_unit_type_is_not_internship"))
 
         return len(self.errors.keys()) == 0
@@ -72,7 +72,6 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
 
         # Update learning unit container year
         learning_container_year = learning_unit_year.learning_container_year
-        self.cleaned_data['container_type'] = self.cleaned_data["learning_container_year_type"]
         learning_container_year_new_values = _create_sub_dictionary(self.cleaned_data, ["acronym", "title", "language",
                                                                                         "title_english", "campus",
                                                                                         "container_type"])
@@ -127,21 +126,27 @@ def _create_sub_dictionary(original_dict, list_keys):
     return {key: value for key, value in original_dict.items() if key in list_keys}
 
 
+def get_attributes_values(obj, attributes_name):
+    attributes_values = {}
+    for attribute_name in attributes_name:
+        attributes_hierarchy = attribute_name.split("__")
+        value = getattr(obj, attributes_hierarchy[0], None)
+        if len(attributes_hierarchy) > 1:
+            value = getattr(value, attributes_hierarchy[1], None)
+        attributes_values[attributes_hierarchy[0]] = value
+    return attributes_values
+
+
 def _copy_learning_unit_data(learning_unit_year):
     entities_by_type = \
         entity_container_year.find_entities_grouped_by_linktype(learning_unit_year.learning_container_year)
 
+    learning_container_year_values = get_attributes_values(learning_unit_year.learning_container_year,
+                                                           ["id", "acronym", "title", "title_english", "container_type",
+                                                            "campus__id", "language__id", "in_charge"])
+    learning_unit_values = get_attributes_values(learning_unit_year.learning_unit, ["id", "periodicity"])
     initial_data = {
-        "learning_container_year": {
-            "id": learning_unit_year.learning_container_year.id,
-            "acronym": learning_unit_year.acronym,
-            "title": learning_unit_year.title,
-            "title_english": learning_unit_year.title_english,
-            "container_type": learning_unit_year.learning_container_year.container_type,
-            "campus": learning_unit_year.learning_container_year.campus.id,
-            "language": learning_unit_year.learning_container_year.language.id,
-            "in_charge": learning_unit_year.learning_container_year.in_charge
-        },
+        "learning_container_year": learning_container_year_values,
         "learning_unit_year": {
             "id": learning_unit_year.id,
             "acronym": learning_unit_year.acronym,
@@ -151,10 +156,7 @@ def _copy_learning_unit_data(learning_unit_year):
             "credits": float(learning_unit_year.credits) if learning_unit_year.credits else None,
             "quadrimester": learning_unit_year.quadrimester,
         },
-        "learning_unit": {
-            "id": learning_unit_year.learning_unit.id,
-            "periodicity": learning_unit_year.learning_unit.periodicity
-        },
+        "learning_unit": learning_unit_values,
         "entities": {
             REQUIREMENT_ENTITY: entities_by_type[REQUIREMENT_ENTITY].id
             if entities_by_type.get(REQUIREMENT_ENTITY) else None,

@@ -201,7 +201,7 @@ class CreateLearningUnitYearForm(BootstrapForm):
     first_letter = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'text-center',
                                                                                  'maxlength': "1",
                                                                                  'readonly': 'readonly'}))
-    learning_container_year_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
+    container_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
                                                      widget=forms.Select(
                                                      attrs={'onchange': 'showInternshipSubtype(this.value)'}))
     faculty_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
@@ -254,7 +254,7 @@ class CreateLearningUnitYearForm(BootstrapForm):
             self.add_error('acronym', _('existing_acronym'))
         elif not re.match(self.acronym_regex, self.cleaned_data['acronym']):
             self.add_error('acronym', _('invalid_acronym'))
-        elif self.cleaned_data['learning_container_year_type'] == INTERNSHIP \
+        elif self.cleaned_data["container_type"] == INTERNSHIP \
                 and not (self.cleaned_data['internship_subtype']):
             self._errors['internship_subtype'] = _('field_is_required')
         elif not self.cleaned_data['credits']:

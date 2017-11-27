@@ -128,7 +128,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(form_initial['acronym'], self.learning_unit_year.acronym[1:])
         self.assertEqual(form_initial['title'], self.learning_unit_year.title)
         self.assertEqual(form_initial['title_english'], self.learning_unit_year.title_english)
-        self.assertEqual(form_initial['learning_container_year_type'], self.learning_unit_year.
+        self.assertEqual(form_initial['container_type'], self.learning_unit_year.
                          learning_container_year.container_type)
         self.assertEqual(form_initial['subtype'], self.learning_unit_year.subtype)
         self.assertEqual(form_initial['internship_subtype'], self.learning_unit_year.internship_subtype)
@@ -160,7 +160,7 @@ class TestLearningUnitModificationProposal(TestCase):
             "acronym": self.learning_unit_year.acronym[1:],
             "title": self.learning_unit_year.title,
             "title_english": self.learning_unit_year.title_english,
-            "learning_container_year_type": self.learning_unit_year.learning_container_year.container_type,
+            "container_type": self.learning_unit_year.learning_container_year.container_type,
             "internship_subtype": self.learning_unit_year.internship_subtype,
             "credits": self.learning_unit_year.credits,
             "periodicity": self.learning_unit_year.learning_unit.periodicity,
@@ -190,7 +190,7 @@ class TestLearningUnitModificationProposal(TestCase):
             "acronym": "OSIS1452",
             "title": self.learning_unit_year.title,
             "title_english": self.learning_unit_year.title_english,
-            "learning_container_year_type": self.learning_unit_year.learning_container_year.container_type,
+            "container_type": self.learning_unit_year.learning_container_year.container_type,
             "internship_subtype": self.learning_unit_year.internship_subtype,
             "credits": self.learning_unit_year.credits,
             "periodicity": self.learning_unit_year.learning_unit.periodicity,
@@ -217,7 +217,7 @@ class TestLearningUnitModificationProposal(TestCase):
             "acronym": self.learning_unit_year.acronym[1:],
             "title": "New title",
             "title_english": "New english title",
-            "learning_container_year_type": self.learning_unit_year.learning_container_year.container_type,
+            "container_type": self.learning_unit_year.learning_container_year.container_type,
             "internship_subtype": str(self.learning_unit_year.internship_subtype),
             "credits": self.learning_unit_year.credits,
             "periodicity": self.learning_unit_year.learning_unit.periodicity,
@@ -244,7 +244,7 @@ class TestLearningUnitModificationProposal(TestCase):
             "acronym": "OSIS1452",
             "title": "New title",
             "title_english": "New english title",
-            "learning_container_year_type": self.learning_unit_year.learning_container_year.container_type,
+            "container_type": self.learning_unit_year.learning_container_year.container_type,
             "internship_subtype": self.learning_unit_year.internship_subtype,
             "credits": self.learning_unit_year.credits,
             "periodicity": self.learning_unit_year.learning_unit.periodicity,
