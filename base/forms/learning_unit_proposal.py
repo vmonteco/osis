@@ -28,7 +28,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_units import CreateLearningUnitYearForm
 from base.models.entity_version import find_main_entities_version
-from base.models import entity_container_year, proposal_folder, proposal_learning_unit
+from base.models import proposal_folder, proposal_learning_unit, entity_container_year
 from base.models.enums import learning_container_year_types
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
     ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2
@@ -58,25 +58,21 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
 
         initial_data = _copy_learning_unit_data(learning_unit_year)
 
-        # Update learning_unit
-        _update_model_object(learning_unit_year.learning_unit, self.cleaned_data, ["periodicity"])
+        learning_container_year = learning_unit_year.learning_container_year
 
-        # Update learning unit year
+        _update_model_object(learning_unit_year.learning_unit, self.cleaned_data, ["periodicity"])
         _update_model_object(learning_unit_year, self.cleaned_data, ["acronym", "title", "title_english", "status",
                                                                      "quadrimester", "internship_subtype"])
-
-        # Update learning unit container year
-        learning_container_year = learning_unit_year.learning_container_year
         _update_model_object(learning_container_year, self.cleaned_data, ["acronym", "title", "language",
                                                                           "title_english", "campus", "container_type"])
 
-        # Update entities
         _update_entity(self.cleaned_data["requirement_entity"], learning_container_year, REQUIREMENT_ENTITY)
         _update_entity(self.cleaned_data["allocation_entity"], learning_container_year, ALLOCATION_ENTITY)
-        _update_entity(self.cleaned_data["additional_entity_1"], learning_container_year, ADDITIONAL_REQUIREMENT_ENTITY_1)
-        _update_entity(self.cleaned_data["additional_entity_2"], learning_container_year, ADDITIONAL_REQUIREMENT_ENTITY_2)
+        _update_entity(self.cleaned_data["additional_entity_1"], learning_container_year,
+                       ADDITIONAL_REQUIREMENT_ENTITY_1)
+        _update_entity(self.cleaned_data["additional_entity_2"], learning_container_year,
+                       ADDITIONAL_REQUIREMENT_ENTITY_2)
 
-        # Create proposal folder
         folder_entity = self.cleaned_data['folder_entity'].entity
         folder_id = self.cleaned_data['folder_id']
 
@@ -84,22 +80,39 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
                                        state_proposal, type_proposal)
 
 
+def _copy_learning_unit_data(learning_unit_year):
+    learning_container_year = learning_unit_year.learning_container_year
+    entities_by_type = entity_container_year.find_entities_grouped_by_linktype(learning_container_year)
+
+    learning_container_year_values = _get_attributes_values(learning_container_year,
+                                                            ["id", "acronym", "title", "title_english", "container_type",
+                                                            "campus__id", "language__id", "in_charge"])
+    learning_unit_values = _get_attributes_values(learning_unit_year.learning_unit, ["id", "periodicity"])
+    learning_unit_year_values = _get_attributes_values(learning_unit_year, ["id", "acronym", "title", "title_english",
+                                                                           "internship_subtype", "quadrimester"])
+    learning_unit_year_values["credits"] = float(learning_unit_year.credits) if learning_unit_year.credits else None
+    initial_data = {
+        "learning_container_year": learning_container_year_values,
+        "learning_unit_year": learning_unit_year_values,
+        "learning_unit": learning_unit_values,
+        "entities": {
+            REQUIREMENT_ENTITY: entities_by_type[REQUIREMENT_ENTITY].id
+            if entities_by_type.get(REQUIREMENT_ENTITY) else None,
+            ALLOCATION_ENTITY: entities_by_type[ALLOCATION_ENTITY].id
+            if entities_by_type.get(ALLOCATION_ENTITY) else None,
+            ADDITIONAL_REQUIREMENT_ENTITY_1: entities_by_type[ADDITIONAL_REQUIREMENT_ENTITY_1].id
+            if entities_by_type.get(ADDITIONAL_REQUIREMENT_ENTITY_1) else None,
+            ADDITIONAL_REQUIREMENT_ENTITY_2: entities_by_type[ADDITIONAL_REQUIREMENT_ENTITY_2].id
+            if entities_by_type.get(ADDITIONAL_REQUIREMENT_ENTITY_2) else None
+        }
+    }
+    return initial_data
+
+
 def _update_model_object(obj, data_values, fields_to_update):
     obj_new_values = _create_sub_dictionary(data_values, fields_to_update)
     _set_attributes_from_dict(obj, obj_new_values)
     obj.save()
-
-
-def _create_learning_unit_proposal(a_person, folder_entity, folder_id, initial_data, learning_unit_year,
-                                   state_proposal, type_proposal):
-    folder = proposal_folder.find_by_entity_and_folder_id(folder_entity, folder_id)
-    if not folder:
-        folder = proposal_folder.ProposalFolder.objects.create(entity=folder_entity, folder_id=folder_id)
-
-    # Create proposal learning unit
-    proposal_learning_unit.ProposalLearningUnit.objects.create(folder=folder, learning_unit_year=learning_unit_year,
-                                                               type=type_proposal, state=state_proposal,
-                                                               initial_data=initial_data, author=a_person)
 
 
 def _update_entity(entity_version, learning_container_year, type_entity):
@@ -115,6 +128,17 @@ def _update_entity(entity_version, learning_container_year, type_entity):
                                                                  entity=entity_version.entity, type=type_entity)
 
 
+def _create_learning_unit_proposal(a_person, folder_entity, folder_id, initial_data, learning_unit_year,
+                                   state_proposal, type_proposal):
+    folder = proposal_folder.find_by_entity_and_folder_id(folder_entity, folder_id)
+    if not folder:
+        folder = proposal_folder.ProposalFolder.objects.create(entity=folder_entity, folder_id=folder_id)
+
+    proposal_learning_unit.ProposalLearningUnit.objects.create(folder=folder, learning_unit_year=learning_unit_year,
+                                                               type=type_proposal, state=state_proposal,
+                                                               initial_data=initial_data, author=a_person)
+
+
 def _set_attributes_from_dict(obj, attributes_values):
     for key, value in attributes_values.items():
         setattr(obj, key, value)
@@ -124,7 +148,7 @@ def _create_sub_dictionary(original_dict, list_keys):
     return {key: value for key, value in original_dict.items() if key in list_keys}
 
 
-def get_attributes_values(obj, attributes_name):
+def _get_attributes_values(obj, attributes_name):
     attributes_values = {}
     for attribute_name in attributes_name:
         attributes_hierarchy = attribute_name.split("__")
@@ -133,40 +157,6 @@ def get_attributes_values(obj, attributes_name):
             value = getattr(value, attributes_hierarchy[1], None)
         attributes_values[attributes_hierarchy[0]] = value
     return attributes_values
-
-
-def _copy_learning_unit_data(learning_unit_year):
-    entities_by_type = \
-        entity_container_year.find_entities_grouped_by_linktype(learning_unit_year.learning_container_year)
-
-    learning_container_year_values = get_attributes_values(learning_unit_year.learning_container_year,
-                                                           ["id", "acronym", "title", "title_english", "container_type",
-                                                            "campus__id", "language__id", "in_charge"])
-    learning_unit_values = get_attributes_values(learning_unit_year.learning_unit, ["id", "periodicity"])
-    initial_data = {
-        "learning_container_year": learning_container_year_values,
-        "learning_unit_year": {
-            "id": learning_unit_year.id,
-            "acronym": learning_unit_year.acronym,
-            "title": learning_unit_year.title,
-            "title_english": learning_unit_year.title_english,
-            "internship_subtype": learning_unit_year.internship_subtype,
-            "credits": float(learning_unit_year.credits) if learning_unit_year.credits else None,
-            "quadrimester": learning_unit_year.quadrimester,
-        },
-        "learning_unit": learning_unit_values,
-        "entities": {
-            REQUIREMENT_ENTITY: entities_by_type[REQUIREMENT_ENTITY].id
-            if entities_by_type.get(REQUIREMENT_ENTITY) else None,
-            ALLOCATION_ENTITY: entities_by_type[ALLOCATION_ENTITY].id
-            if entities_by_type.get(ALLOCATION_ENTITY) else None,
-            ADDITIONAL_REQUIREMENT_ENTITY_1: entities_by_type[ADDITIONAL_REQUIREMENT_ENTITY_1].id
-            if entities_by_type.get(ADDITIONAL_REQUIREMENT_ENTITY_1) else None,
-            ADDITIONAL_REQUIREMENT_ENTITY_2: entities_by_type[ADDITIONAL_REQUIREMENT_ENTITY_2].id
-            if entities_by_type.get(ADDITIONAL_REQUIREMENT_ENTITY_2) else None
-        }
-    }
-    return initial_data
 
 
 
