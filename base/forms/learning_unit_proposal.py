@@ -29,7 +29,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.forms.learning_units import CreateLearningUnitYearForm
 from base.models.entity_version import find_main_entities_version
 from base.models import entity_container_year, proposal_folder, proposal_learning_unit
-from base.models.enums import entity_container_year_link_type, learning_container_year_types
+from base.models.enums import learning_container_year_types
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
     ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2
 
@@ -59,26 +59,25 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         initial_data = copy_learning_unit_data(learning_unit_year)
 
         # Update learning_unit
-        learning_unit_year.learning_unit.periodicity = self.cleaned_data['periodicity']
+        learning_unit_new_values = _create_sub_dictionary(self.cleaned_data, ["periodicity"])
+        _set_attributes_from_dict(learning_unit_year.learning_unit, learning_unit_new_values)
         learning_unit_year.learning_unit.save()
 
         # Update learning unit year
-        learning_unit_year.acronym = self.cleaned_data['acronym']
-        learning_unit_year.title = self.cleaned_data['title']
-        learning_unit_year.title_english = self.cleaned_data['title_english']
-        learning_unit_year.status = self.cleaned_data['status']
-        learning_unit_year.quadrimester = self.cleaned_data['quadrimester']
-        learning_unit_year.internship_subtype = self.cleaned_data['internship_subtype']
+        learning_unit_year_new_values = _create_sub_dictionary(self.cleaned_data, ["acronym", "title", "title_english",
+                                                                                   "status", "quadrimester",
+                                                                                   "internship_subtype"])
+        _set_attributes_from_dict(learning_unit_year, learning_unit_year_new_values)
         learning_unit_year.save()
 
         # Update learning unit container year
         learning_container_year = learning_unit_year.learning_container_year
-        learning_container_year.acronym = self.cleaned_data['acronym']
-        learning_container_year.title = self.cleaned_data['title']
-        learning_container_year.title_english = self.cleaned_data['title_english']
-        learning_container_year.language = self.cleaned_data['language']
-        learning_container_year.campus = self.cleaned_data['campus']
-        learning_container_year.container_type = self.cleaned_data['learning_container_year_type']
+        self.cleaned_data['container_type'] = self.cleaned_data["learning_container_year_type"]
+        learning_container_year_new_values = _create_sub_dictionary(self.cleaned_data, ["acronym", "title",
+                                                                                        "title_english",
+                                                                                        "language", "campus",
+                                                                                        "container_type"])
+        _set_attributes_from_dict(learning_container_year, learning_container_year_new_values)
         learning_container_year.save()
 
         # Update requirement entity
@@ -141,6 +140,15 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
             initial_data=initial_data,
             author=a_person
         )
+
+
+def _set_attributes_from_dict(obj, attributes_values):
+    for key, value in attributes_values.items():
+        setattr(obj, key, value)
+
+
+def _create_sub_dictionary(original_dict, list_keys):
+    return {key: value for key, value in original_dict.items() if key in list_keys}
 
 
 def copy_learning_unit_data(learning_unit_year):
