@@ -30,7 +30,8 @@ from base.forms.learning_units import CreateLearningUnitYearForm
 from base.models.entity_version import find_main_entities_version
 from base.models import entity_container_year, proposal_folder, proposal_learning_unit
 from base.models.enums import entity_container_year_link_type, learning_container_year_types
-from base.models import academic_year
+from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
+    ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2
 
 
 def add_none_choice(choices):
@@ -41,8 +42,6 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
     folder_entity = forms.ModelChoiceField(queryset=find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
     subtype = forms.CharField(required=False)
-    academic_year = forms.ModelChoiceField(queryset=academic_year.find_academic_years(), required=True,
-                                           empty_label=_('all_label'), disabled=True)
 
     def is_valid(self):
         if not super().is_valid():
@@ -57,40 +56,7 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         if not self.is_valid():
             raise ValueError("Form is invalid.")
 
-        entities_by_type = \
-            entity_container_year.find_entities_grouped_by_linktype(learning_unit_year.learning_container_year)
-
-        initial_data = {
-            "learning_container_year": {
-                "id": learning_unit_year.learning_container_year.id,
-                "acronym": learning_unit_year.acronym,
-                "title": learning_unit_year.title,
-                "title_english": learning_unit_year.title_english,
-                "container_type": learning_unit_year.learning_container_year.container_type,
-                "campus": learning_unit_year.learning_container_year.campus.id,
-                "language": learning_unit_year.learning_container_year.language.id,
-                "in_charge": learning_unit_year.learning_container_year.in_charge
-            },
-            "learning_unit_year": {
-                "id": learning_unit_year.id,
-                "acronym": learning_unit_year.acronym,
-                "title": learning_unit_year.title,
-                "title_english": learning_unit_year.title_english,
-                "internship_subtype": learning_unit_year.internship_subtype,
-                "credits": float(learning_unit_year.credits) if learning_unit_year.credits else None,
-                "quadrimester": learning_unit_year.quadrimester,
-            },
-            "learning_unit": {
-                "id": learning_unit_year.learning_unit.id,
-                "periodicity": learning_unit_year.learning_unit.periodicity
-            },
-            "entities": {
-                entity_container_year_link_type.REQUIREMENT_ENTITY: entities_by_type[entity_container_year_link_type.REQUIREMENT_ENTITY].id if entities_by_type.get(entity_container_year_link_type.REQUIREMENT_ENTITY) else None,
-                entity_container_year_link_type.ALLOCATION_ENTITY: entities_by_type[entity_container_year_link_type.ALLOCATION_ENTITY].id if entities_by_type.get(entity_container_year_link_type.ALLOCATION_ENTITY) else None,
-                entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1: entities_by_type[entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1].id if entities_by_type.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1) else None,
-                entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: entities_by_type[entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2].id if entities_by_type.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2) else None
-            }
-        }
+        initial_data = copy_learning_unit_data(learning_unit_year)
 
         # Update learning_unit
         learning_unit_year.learning_unit.periodicity = self.cleaned_data['periodicity']
@@ -117,47 +83,47 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
 
         # Update requirement entity
         entity_container = entity_container_year.find_by_learning_container_year_and_linktype(learning_container_year,
-                                                                                              entity_container_year_link_type.REQUIREMENT_ENTITY)
+                                                                                              REQUIREMENT_ENTITY)
         if entity_container:
             entity_container.entity = self.cleaned_data["requirement_entity"].entity
             entity_container.save()
         else:
             entity_container_year.EntityContainerYear.objects.create(learning_container_year=learning_container_year,
                                                                      entity=self.cleaned_data["requirement_entity"].entity,
-                                                                     type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+                                                                     type=REQUIREMENT_ENTITY)
 
         if self.cleaned_data["allocation_entity"]:
             entity_container = entity_container_year.find_by_learning_container_year_and_linktype(learning_container_year,
-                                                                                                  entity_container_year_link_type.ALLOCATION_ENTITY)
+                                                                                                  ALLOCATION_ENTITY)
             if entity_container:
                 entity_container.entity = self.cleaned_data["allocation_entity"].entity
                 entity_container.save()
             else:
                 entity_container_year.EntityContainerYear.objects.create(learning_container_year=learning_container_year,
                                                                          entity=self.cleaned_data["allocation_entity"].entity,
-                                                                         type=entity_container_year_link_type.ALLOCATION_ENTITY)
+                                                                         type=ALLOCATION_ENTITY)
 
         if self.cleaned_data["additional_entity_1"]:
             entity_container = entity_container_year.find_by_learning_container_year_and_linktype(learning_container_year,
-                                                                                                  entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
+                                                                                                  ADDITIONAL_REQUIREMENT_ENTITY_1)
             if entity_container:
                 entity_container.entity = self.cleaned_data["additional_entity_1"].entity
                 entity_container.save()
             else:
                 entity_container_year.EntityContainerYear.objects.create(learning_container_year=learning_container_year,
                                                                          entity=self.cleaned_data["additional_entity_1"].entity,
-                                                                         type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
+                                                                         type=ADDITIONAL_REQUIREMENT_ENTITY_1)
 
         if self.cleaned_data["additional_entity_2"]:
             entity_container = entity_container_year.find_by_learning_container_year_and_linktype(learning_container_year,
-                                                                                                  entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
+                                                                                                  ADDITIONAL_REQUIREMENT_ENTITY_2)
             if entity_container:
                 entity_container.entity = self.cleaned_data["additional_entity_2"].entity
                 entity_container.save()
             else:
                 entity_container_year.EntityContainerYear.objects.create(learning_container_year=learning_container_year,
                                                                          entity=self.cleaned_data["additional_entity_2"].entity,
-                                                                         type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
+                                                                         type=ADDITIONAL_REQUIREMENT_ENTITY_2)
         # Create proposal folder
         folder_entity = self.cleaned_data['folder_entity'].entity
         folder_id = self.cleaned_data['folder_id']
@@ -175,6 +141,51 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
             initial_data=initial_data,
             author=a_person
         )
+
+
+def copy_learning_unit_data(learning_unit_year):
+    entities_by_type = \
+        entity_container_year.find_entities_grouped_by_linktype(learning_unit_year.learning_container_year)
+
+    initial_data = {
+        "learning_container_year": {
+            "id": learning_unit_year.learning_container_year.id,
+            "acronym": learning_unit_year.acronym,
+            "title": learning_unit_year.title,
+            "title_english": learning_unit_year.title_english,
+            "container_type": learning_unit_year.learning_container_year.container_type,
+            "campus": learning_unit_year.learning_container_year.campus.id,
+            "language": learning_unit_year.learning_container_year.language.id,
+            "in_charge": learning_unit_year.learning_container_year.in_charge
+        },
+        "learning_unit_year": {
+            "id": learning_unit_year.id,
+            "acronym": learning_unit_year.acronym,
+            "title": learning_unit_year.title,
+            "title_english": learning_unit_year.title_english,
+            "internship_subtype": learning_unit_year.internship_subtype,
+            "credits": float(learning_unit_year.credits) if learning_unit_year.credits else None,
+            "quadrimester": learning_unit_year.quadrimester,
+        },
+        "learning_unit": {
+            "id": learning_unit_year.learning_unit.id,
+            "periodicity": learning_unit_year.learning_unit.periodicity
+        },
+        "entities": {
+            REQUIREMENT_ENTITY: entities_by_type[REQUIREMENT_ENTITY].id
+            if entities_by_type.get(REQUIREMENT_ENTITY) else None,
+            ALLOCATION_ENTITY: entities_by_type[ALLOCATION_ENTITY].id
+            if entities_by_type.get(ALLOCATION_ENTITY) else None,
+            ADDITIONAL_REQUIREMENT_ENTITY_1: entities_by_type[ADDITIONAL_REQUIREMENT_ENTITY_1].id
+            if entities_by_type.get(ADDITIONAL_REQUIREMENT_ENTITY_1) else None,
+            ADDITIONAL_REQUIREMENT_ENTITY_2: entities_by_type[ADDITIONAL_REQUIREMENT_ENTITY_2].id
+            if entities_by_type.get(ADDITIONAL_REQUIREMENT_ENTITY_2) else None
+        }
+    }
+    return initial_data
+
+
+
 
 
 
