@@ -57,37 +57,60 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
         messages.add_message(request, messages.ERROR, _("proposal_already_exists"))
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
-    if request.method == 'POST':
-        form = LearningUnitProposalModificationForm(request.POST)
-        if form.is_valid():
-            form.save(learning_unit_year, user_person, proposal_type.ProposalType.MODIFICATION.name,
-                      proposal_state.ProposalState.FACULTY.name)
-            return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
+    entities_version = find_last_entity_version_grouped_by_linktypes(learning_unit_year.learning_container_year)
+    initial_data = {
+        "academic_year": learning_unit_year.academic_year.id,
+        "first_letter": learning_unit_year.acronym[0],
+        "acronym": learning_unit_year.acronym[1:],
+        "title": learning_unit_year.title,
+        "title_english": learning_unit_year.title_english,
+        "learning_container_year_type": learning_unit_year.learning_container_year.container_type,
+        "subtype": learning_unit_year.subtype,
+        "internship_subtype": learning_unit_year.internship_subtype,
+        "credits": learning_unit_year.credits,
+        "periodicity": learning_unit_year.learning_unit.periodicity,
+        "status": learning_unit_year.status,
+        "language": learning_unit_year.learning_container_year.language,
+        "quadrimester": learning_unit_year.quadrimester,
+        "campus": learning_unit_year.learning_container_year.campus,
+        "requirement_entity": entities_version.get(entity_container_year_link_type.REQUIREMENT_ENTITY),
+        "allocation_entity": entities_version.get(entity_container_year_link_type.ALLOCATION_ENTITY),
+        "additional_entity_1": entities_version.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1),
+        "additional_entity_2": entities_version.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
+    }
 
+    if request.method == 'POST':
+        form = LearningUnitProposalModificationForm(request.POST, initial=initial_data)
+        if form.is_valid():
+            type_proposal = compute_proposal_type(form.initial, form.cleaned_data)
+            form.save(learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name)
+            return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
     else:
-        entities_version = find_last_entity_version_grouped_by_linktypes(learning_unit_year.learning_container_year)
-        initial_data = {
-            "academic_year": learning_unit_year.academic_year.pk,
-            "first_letter": learning_unit_year.acronym[0],
-            "acronym": learning_unit_year.acronym[1:],
-            "title": learning_unit_year.title,
-            "title_english": learning_unit_year.title_english,
-            "learning_container_year_type": learning_unit_year.learning_container_year.container_type,
-            "subtype": learning_unit_year.subtype,
-            "internship_subtype": learning_unit_year.internship_subtype,
-            "credits": learning_unit_year.credits,
-            "periodicity": learning_unit_year.learning_unit.periodicity,
-            "status": learning_unit_year.status,
-            "language": learning_unit_year.learning_container_year.language,
-            "quadrimester": learning_unit_year.quadrimester,
-            "campus": learning_unit_year.learning_container_year.campus,
-            "requirement_entity": entities_version.get(entity_container_year_link_type.REQUIREMENT_ENTITY),
-            "allocation_entity": entities_version.get(entity_container_year_link_type.ALLOCATION_ENTITY),
-            "additional_entity_1": entities_version.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1),
-            "additional_entity_2": entities_version.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
-        }
         form = LearningUnitProposalModificationForm(initial=initial_data)
+
     return render(request, 'proposal/learning_unit_modification.html', {'learning_unit_year': learning_unit_year,
                                                                         'person': user_person,
                                                                         'form': form,
                                                                         'experimental_phase': True})
+
+
+def compute_proposal_type(initial_data, current_data):
+    data_changed = compute_data_changed(initial_data, current_data)
+    filtered_data_changed = filter(lambda key: key not in ["academic_year", "subtype", "acronym"], data_changed)
+    transformation = current_data["acronym"] != "{}{}".format(initial_data["first_letter"], initial_data["acronym"])
+    modification = any(map(lambda x: x != "acronym", filtered_data_changed))
+    if transformation and modification:
+        return proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name
+    elif transformation:
+        return proposal_type.ProposalType.TRANSFORMATION.name
+    return proposal_type.ProposalType.MODIFICATION.name
+
+
+def compute_data_changed(initial_data, current_data):
+    data_changed = []
+    for key, value in initial_data.items():
+        current_value = current_data.get(key)
+        if str(value) != str(current_value):
+            data_changed.append(key)
+    return data_changed
+

@@ -39,8 +39,8 @@ from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
-from base.models.enums import organization_type, entity_type, entity_container_year_link_type,\
-    learning_unit_year_subtypes
+from base.models.enums import organization_type, entity_type, entity_container_year_link_type, \
+    learning_unit_year_subtypes, proposal_type
 from base.models import proposal_folder, proposal_learning_unit
 
 
@@ -151,10 +151,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
         self.assertEqual(response.context['experimental_phase'], True)
         self.assertEqual(response.context['person'], self.person)
-
         self.assertIsInstance(response.context['form'], LearningUnitProposalModificationForm)
-        form_initial = response.context['form'].initial
-        self.assertEqual(form_initial, {})
 
     def test_post_request(self):
         form_data = {
@@ -185,6 +182,87 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertTrue(folder)
         self.assertTrue(a_proposal_learning_unit)
         self.assertEqual(a_proposal_learning_unit.author, self.person)
+
+    def test_transformation_proposal_request(self):
+        form_data = {
+            "academic_year": self.learning_unit_year.academic_year.id,
+            "first_letter": self.learning_unit_year.acronym[0],
+            "acronym": "OSIS1452",
+            "title": self.learning_unit_year.title,
+            "title_english": self.learning_unit_year.title_english,
+            "learning_container_year_type": self.learning_unit_year.learning_container_year.container_type,
+            "internship_subtype": self.learning_unit_year.internship_subtype,
+            "credits": self.learning_unit_year.credits,
+            "periodicity": self.learning_unit_year.learning_unit.periodicity,
+            "status": self.learning_unit_year.status,
+            "language": self.learning_unit_year.learning_container_year.language.id,
+            "quadrimester": self.learning_unit_year.quadrimester,
+            "campus": self.learning_unit_year.learning_container_year.campus.id,
+            "requirement_entity": self.entity_version.id,
+            "allocation_entity": self.entity_version.id,
+            "additional_entity_1": self.entity_version.id,
+            "additional_entity_2": self.entity_version.id,
+            "folder_entity": self.entity_version.id,
+            "folder_id": "1",
+        }
+        self.client.post(self.url, data=form_data)
+
+        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
+        self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.TRANSFORMATION.name)
+
+    def test_modification_proposal_request(self):
+        form_data = {
+            "academic_year": self.learning_unit_year.academic_year.id,
+            "first_letter": self.learning_unit_year.acronym[0],
+            "acronym": self.learning_unit_year.acronym[1:],
+            "title": "New title",
+            "title_english": "New english title",
+            "learning_container_year_type": self.learning_unit_year.learning_container_year.container_type,
+            "internship_subtype": self.learning_unit_year.internship_subtype,
+            "credits": self.learning_unit_year.credits,
+            "periodicity": self.learning_unit_year.learning_unit.periodicity,
+            "status": self.learning_unit_year.status,
+            "language": self.learning_unit_year.learning_container_year.language.id,
+            "quadrimester": self.learning_unit_year.quadrimester,
+            "campus": self.learning_unit_year.learning_container_year.campus.id,
+            "requirement_entity": self.entity_version.id,
+            "allocation_entity": self.entity_version.id,
+            "additional_entity_1": self.entity_version.id,
+            "additional_entity_2": self.entity_version.id,
+            "folder_entity": self.entity_version.id,
+            "folder_id": "1",
+        }
+        self.client.post(self.url, data=form_data)
+
+        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
+        self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.MODIFICATION.name)
+
+    def test_transformation_and_modification_proposal_request(self):
+        form_data = {
+            "academic_year": self.learning_unit_year.academic_year.id,
+            "first_letter": self.learning_unit_year.acronym[0],
+            "acronym": "OSIS1452",
+            "title": "New title",
+            "title_english": "New english title",
+            "learning_container_year_type": self.learning_unit_year.learning_container_year.container_type,
+            "internship_subtype": self.learning_unit_year.internship_subtype,
+            "credits": self.learning_unit_year.credits,
+            "periodicity": self.learning_unit_year.learning_unit.periodicity,
+            "status": self.learning_unit_year.status,
+            "language": self.learning_unit_year.learning_container_year.language.id,
+            "quadrimester": self.learning_unit_year.quadrimester,
+            "campus": self.learning_unit_year.learning_container_year.campus.id,
+            "requirement_entity": self.entity_version.id,
+            "allocation_entity": self.entity_version.id,
+            "additional_entity_1": self.entity_version.id,
+            "additional_entity_2": self.entity_version.id,
+            "folder_entity": self.entity_version.id,
+            "folder_id": "1",
+        }
+        self.client.post(self.url, data=form_data)
+
+        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
+        self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name)
 
     def test_learning_unit_must_be_full(self):
         self.learning_unit_year.subtype = learning_unit_year_subtypes.PARTIM
