@@ -2371,3 +2371,9 @@ msgstr ""
 msgid "End of teaching"
 msgstr ""
 
+msgid "academic_entity_small"
+msgstr "Academic ent."
+
+msgid "academic_entity"
+msgstr "Academic entity"
+

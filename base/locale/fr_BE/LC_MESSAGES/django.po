@@ -2125,7 +2125,7 @@ msgid "MINI_TRAINING"
 msgstr "Mini formation"
 
 msgid "GROUP"
-msgstr "Groupe"
+msgstr "Groupement"
 
 msgid "PRIMARY_LANGUAGE"
 msgstr "Langue principale"
@@ -2376,3 +2376,9 @@ msgstr "Proposition de modification"
 
 msgid "End of teaching"
 msgstr "Fin d'enseignement"
+
+msgid "academic_entity_small"
+msgstr "Ent. académique"
+
+msgid "academic_entity"
+msgstr "Entité académique"
