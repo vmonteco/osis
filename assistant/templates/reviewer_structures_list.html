@@ -40,6 +40,7 @@
     <h3>{% trans 'assistant_mandates_renewals' %} {{ year|add:1 }}</h3>
     <ul class="nav nav-tabs">
         <li><a href="{% url 'reviewer_mandates_list' %}">{% trans 'reviewer_mandates_list' %}</a></li>
+        <li><a href="{% url 'reviewer_mandates_list_todo' %}">{% trans 'reviewer_todo' %}</a></li>
         {% if is_supervisor %}
             <li><a href="{% url 'phd_supervisor_assistants_list' %}">{% trans 'phd_supervisor_assistants_list' %}</a></li>
         {% endif %}

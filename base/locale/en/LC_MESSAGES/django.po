@@ -2206,7 +2206,7 @@ msgstr ""
 msgid "%(subtype)s %(acronym)s is assigned to the assistant %(assistant)s for the year %(year)s"
 msgstr ""
 
-msgid "The learning unit %(acronym)s has a speciality %(speciality)s"
+msgid "The learning unit %(acronym)s is related to the internship speciality %(speciality)s"
 msgstr ""
 
 msgid "%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s"
@@ -2370,4 +2370,10 @@ msgstr ""
 
 msgid "End of teaching"
 msgstr ""
+
+msgid "academic_entity_small"
+msgstr "Academic ent."
+
+msgid "academic_entity"
+msgstr "Academic entity"
 

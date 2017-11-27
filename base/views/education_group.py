@@ -54,8 +54,7 @@ def education_groups(request):
         form = EducationGroupFilter(request.GET)
     else:
         current_academic_year = mdl.academic_year.current_academic_year()
-        form = EducationGroupFilter(initial={'academic_year': current_academic_year,
-                                             'category': education_group_categories.TRAINING})
+        form = EducationGroupFilter(initial={'academic_year': current_academic_year})
 
     object_list = None
     if form.is_valid():

@@ -2125,7 +2125,7 @@ msgid "MINI_TRAINING"
 msgstr "Mini formation"
 
 msgid "GROUP"
-msgstr "Groupe"
+msgstr "Groupement"
 
 msgid "PRIMARY_LANGUAGE"
 msgstr "Langue principale"
@@ -2215,8 +2215,8 @@ msgstr "%(subtype)s %(acronym)s est attribué(e) à l'assistant %(assistant)s l'
 msgid "%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s"
 msgstr "%(subtype)s %(acronym)s est repris dans le groupement %(group)s du programme %(program)s l’année %(year)s"
 
-msgid "The learning unit %(acronym)s has a speciality %(speciality)s"
-msgstr "L'unité d'enseignement %(acronym)s possède une spécialité %(speciality)s"
+msgid "The learning unit %(acronym)s is related to the internship speciality %(speciality)s"
+msgstr "L'unité d'enseignement %(acronym)s est liée à la spécialité de stage %(speciality)s"
 
 msgid "%(subtype)s %(acronym)s has been deleted for the year %(year)s"
 msgstr "%(subtype)s %(acronym)s a été supprimé(e) pour l'année %(year)s"
@@ -2376,3 +2376,9 @@ msgstr "Proposition de modification"
 
 msgid "End of teaching"
 msgstr "Fin d'enseignement"
+
+msgid "academic_entity_small"
+msgstr "Ent. académique"
+
+msgid "academic_entity"
+msgstr "Entité académique"
