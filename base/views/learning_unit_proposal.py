@@ -57,6 +57,24 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
         messages.add_message(request, messages.ERROR, _("proposal_already_exists"))
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
+    initial_data = compute_form_initial_data(learning_unit_year)
+
+    if request.method == 'POST':
+        form = LearningUnitProposalModificationForm(request.POST, initial=initial_data)
+        if form.is_valid():
+            type_proposal = compute_proposal_type(form.initial, form.cleaned_data)
+            form.save(learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name)
+            return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
+    else:
+        form = LearningUnitProposalModificationForm(initial=initial_data)
+
+    return render(request, 'proposal/learning_unit_modification.html', {'learning_unit_year': learning_unit_year,
+                                                                        'person': user_person,
+                                                                        'form': form,
+                                                                        'experimental_phase': True})
+
+
+def compute_form_initial_data(learning_unit_year):
     entities_version = find_last_entity_version_grouped_by_linktypes(learning_unit_year.learning_container_year)
     initial_data = {
         "academic_year": learning_unit_year.academic_year.id,
@@ -78,20 +96,7 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
         "additional_entity_1": entities_version.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1),
         "additional_entity_2": entities_version.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
     }
-
-    if request.method == 'POST':
-        form = LearningUnitProposalModificationForm(request.POST, initial=initial_data)
-        if form.is_valid():
-            type_proposal = compute_proposal_type(form.initial, form.cleaned_data)
-            form.save(learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name)
-            return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
-    else:
-        form = LearningUnitProposalModificationForm(initial=initial_data)
-
-    return render(request, 'proposal/learning_unit_modification.html', {'learning_unit_year': learning_unit_year,
-                                                                        'person': user_person,
-                                                                        'form': form,
-                                                                        'experimental_phase': True})
+    return {key: value for key, value in initial_data.items() if value is not None}
 
 
 def compute_proposal_type(initial_data, current_data):

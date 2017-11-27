@@ -40,7 +40,7 @@ from base.tests.factories.entity import EntityFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.models.enums import organization_type, entity_type, entity_container_year_link_type, \
-    learning_unit_year_subtypes, proposal_type
+    learning_unit_year_subtypes, proposal_type, learning_container_year_types
 from base.models import proposal_folder, proposal_learning_unit
 
 
@@ -60,6 +60,8 @@ class TestLearningUnitModificationProposal(TestCase):
         self.learning_unit_year.academic_year.end_date = today + datetime.timedelta(days=15)
         self.learning_unit_year.academic_year.year = today.year
         self.learning_unit_year.academic_year.save()
+        self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.COURSE
+        self.learning_unit_year.learning_container_year.save()
         self.learning_unit_year.learning_container_year.campus.organization = an_organization
         self.learning_unit_year.learning_container_year.campus.is_administration = True
         self.learning_unit_year.learning_container_year.campus.save()
@@ -127,16 +129,13 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(form_initial['first_letter'], self.learning_unit_year.acronym[0])
         self.assertEqual(form_initial['acronym'], self.learning_unit_year.acronym[1:])
         self.assertEqual(form_initial['title'], self.learning_unit_year.title)
-        self.assertEqual(form_initial['title_english'], self.learning_unit_year.title_english)
         self.assertEqual(form_initial['container_type'], self.learning_unit_year.
                          learning_container_year.container_type)
         self.assertEqual(form_initial['subtype'], self.learning_unit_year.subtype)
-        self.assertEqual(form_initial['internship_subtype'], self.learning_unit_year.internship_subtype)
         self.assertEqual(form_initial['credits'], self.learning_unit_year.credits)
         self.assertEqual(form_initial['periodicity'], self.learning_unit_year.learning_unit.periodicity)
         self.assertEqual(form_initial['status'], self.learning_unit_year.status)
         self.assertEqual(form_initial['language'], self.learning_unit_year.learning_container_year.language)
-        self.assertEqual(form_initial['quadrimester'], self.learning_unit_year.quadrimester)
         self.assertEqual(form_initial['requirement_entity'], self.entity_version)
         self.assertEqual(form_initial['allocation_entity'], self.entity_version)
         self.assertEqual(form_initial['additional_entity_1'], self.entity_version)
@@ -161,12 +160,12 @@ class TestLearningUnitModificationProposal(TestCase):
             "title": self.learning_unit_year.title,
             "title_english": self.learning_unit_year.title_english,
             "container_type": self.learning_unit_year.learning_container_year.container_type,
-            "internship_subtype": self.learning_unit_year.internship_subtype,
+            "internship_subtype": "",
             "credits": self.learning_unit_year.credits,
             "periodicity": self.learning_unit_year.learning_unit.periodicity,
             "status": self.learning_unit_year.status,
             "language": self.learning_unit_year.learning_container_year.language.id,
-            "quadrimester": self.learning_unit_year.quadrimester,
+            "quadrimester": "",
             "campus": self.learning_unit_year.learning_container_year.campus.id,
             "requirement_entity": self.entity_version.id,
             "folder_entity": self.entity_version.id,
@@ -191,12 +190,12 @@ class TestLearningUnitModificationProposal(TestCase):
             "title": self.learning_unit_year.title,
             "title_english": self.learning_unit_year.title_english,
             "container_type": self.learning_unit_year.learning_container_year.container_type,
-            "internship_subtype": self.learning_unit_year.internship_subtype,
+            "internship_subtype": "",
             "credits": self.learning_unit_year.credits,
             "periodicity": self.learning_unit_year.learning_unit.periodicity,
             "status": self.learning_unit_year.status,
             "language": self.learning_unit_year.learning_container_year.language.id,
-            "quadrimester": self.learning_unit_year.quadrimester,
+            "quadrimester": "",
             "campus": self.learning_unit_year.learning_container_year.campus.id,
             "requirement_entity": self.entity_version.id,
             "allocation_entity": self.entity_version.id,
@@ -218,12 +217,12 @@ class TestLearningUnitModificationProposal(TestCase):
             "title": "New title",
             "title_english": "New english title",
             "container_type": self.learning_unit_year.learning_container_year.container_type,
-            "internship_subtype": str(self.learning_unit_year.internship_subtype),
+            "internship_subtype": "",
             "credits": self.learning_unit_year.credits,
             "periodicity": self.learning_unit_year.learning_unit.periodicity,
             "status": self.learning_unit_year.status,
             "language": self.learning_unit_year.learning_container_year.language.id,
-            "quadrimester": self.learning_unit_year.quadrimester,
+            "quadrimester": "",
             "campus": self.learning_unit_year.learning_container_year.campus.id,
             "requirement_entity": self.entity_version.id,
             "allocation_entity": self.entity_version.id,
@@ -245,12 +244,12 @@ class TestLearningUnitModificationProposal(TestCase):
             "title": "New title",
             "title_english": "New english title",
             "container_type": self.learning_unit_year.learning_container_year.container_type,
-            "internship_subtype": self.learning_unit_year.internship_subtype,
+            "internship_subtype": "",
             "credits": self.learning_unit_year.credits,
             "periodicity": self.learning_unit_year.learning_unit.periodicity,
             "status": self.learning_unit_year.status,
             "language": self.learning_unit_year.learning_container_year.language.id,
-            "quadrimester": self.learning_unit_year.quadrimester,
+            "quadrimester": "",
             "campus": self.learning_unit_year.learning_container_year.campus.id,
             "requirement_entity": self.entity_version.id,
             "allocation_entity": self.entity_version.id,
