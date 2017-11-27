@@ -39,8 +39,6 @@ def add_none_choice(choices):
 
 
 class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
-    type_proposal = forms.ChoiceField(choices=add_none_choice(proposal_type.CHOICES), required=False)
-    state_proposal = forms.ChoiceField(choices=add_none_choice(proposal_state.CHOICES), required=False)
     folder_entity = forms.ModelChoiceField(queryset=find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
     subtype = forms.CharField(required=False)
@@ -171,8 +169,8 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         proposal_learning_unit.ProposalLearningUnit.objects.create(
             folder=folder,
             learning_unit_year=learning_unit_year,
-            type=self.cleaned_data['type_proposal'],
-            state=self.cleaned_data['state_proposal'],
+            type=proposal_type.ProposalType.MODIFICATION.name,
+            state=proposal_state.ProposalState.FACULTY.name,
             initial_data=initial_data,
             author=a_person
         )

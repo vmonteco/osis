@@ -84,8 +84,6 @@ class TestSave(TestCase):
             "quadrimester": learning_unit_year_quadrimesters.Q1,
             "campus": self.campus.id,
             "requirement_entity": self.entity_version.id,
-            "type_proposal": proposal_type.ProposalType.MODIFICATION.name,
-            "state_proposal": proposal_state.ProposalState.FACULTY.name,
             "folder_entity": self.entity_version.id,
             "folder_id": "1",
         }
@@ -235,8 +233,8 @@ class TestSave(TestCase):
 
         a_proposal_learning_unt = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
 
-        self.assertEqual(a_proposal_learning_unt.type, self.form_data['type_proposal'])
-        self.assertEqual(a_proposal_learning_unt.state, self.form_data['state_proposal'])
+        self.assertEqual(a_proposal_learning_unt.type, proposal_type.ProposalType.MODIFICATION.name)
+        self.assertEqual(a_proposal_learning_unt.state, proposal_state.ProposalState.FACULTY.name)
         self.assertEqual(a_proposal_learning_unt.author, self.person)
 
         self.assertDictEqual(a_proposal_learning_unt.initial_data, initial_data_expected)
@@ -283,8 +281,6 @@ class TestIsValid(TestCase):
             "quadrimester": learning_unit_year_quadrimesters.Q1,
             "campus": self.campus.id,
             "requirement_entity": self.entity_version.id,
-            "type_proposal": proposal_type.ProposalType.MODIFICATION.name,
-            "state_proposal": proposal_state.ProposalState.FACULTY.name,
             "folder_entity": self.entity_version.id,
             "folder_id": "1",
         }

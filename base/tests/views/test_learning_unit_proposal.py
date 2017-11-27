@@ -30,7 +30,6 @@ from django.core.urlresolvers import reverse
 from django.contrib.messages import get_messages
 from django.utils.translation import ugettext_lazy as _
 
-from base.models.academic_year import current_academic_year
 from base.tests.factories.academic_year import AcademicYearFakerFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.person import PersonFactory
@@ -40,8 +39,8 @@ from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
-from base.models.enums import organization_type, proposal_type, proposal_state, entity_type, \
-    entity_container_year_link_type, learning_unit_year_subtypes
+from base.models.enums import organization_type, entity_type, entity_container_year_link_type,\
+    learning_unit_year_subtypes
 from base.models import proposal_folder, proposal_learning_unit
 
 
@@ -173,8 +172,6 @@ class TestLearningUnitModificationProposal(TestCase):
             "quadrimester": self.learning_unit_year.quadrimester,
             "campus": self.learning_unit_year.learning_container_year.campus.id,
             "requirement_entity": self.entity_version.id,
-            "type_proposal": proposal_type.ProposalType.MODIFICATION.name,
-            "state_proposal": proposal_state.ProposalState.FACULTY.name,
             "folder_entity": self.entity_version.id,
             "folder_id": "1",
         }
