@@ -56,7 +56,7 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         if not self.is_valid():
             raise ValueError("Form is invalid.")
 
-        initial_data = copy_learning_unit_data(learning_unit_year)
+        initial_data = _copy_learning_unit_data(learning_unit_year)
 
         # Update learning_unit
         learning_unit_new_values = _create_sub_dictionary(self.cleaned_data, ["periodicity"])
@@ -73,56 +73,18 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         # Update learning unit container year
         learning_container_year = learning_unit_year.learning_container_year
         self.cleaned_data['container_type'] = self.cleaned_data["learning_container_year_type"]
-        learning_container_year_new_values = _create_sub_dictionary(self.cleaned_data, ["acronym", "title",
-                                                                                        "title_english",
-                                                                                        "language", "campus",
+        learning_container_year_new_values = _create_sub_dictionary(self.cleaned_data, ["acronym", "title", "language",
+                                                                                        "title_english", "campus",
                                                                                         "container_type"])
         _set_attributes_from_dict(learning_container_year, learning_container_year_new_values)
         learning_container_year.save()
 
-        # Update requirement entity
-        entity_container = entity_container_year.find_by_learning_container_year_and_linktype(learning_container_year,
-                                                                                              REQUIREMENT_ENTITY)
-        if entity_container:
-            entity_container.entity = self.cleaned_data["requirement_entity"].entity
-            entity_container.save()
-        else:
-            entity_container_year.EntityContainerYear.objects.create(learning_container_year=learning_container_year,
-                                                                     entity=self.cleaned_data["requirement_entity"].entity,
-                                                                     type=REQUIREMENT_ENTITY)
+        # Update entities
+        _update_entity(self.cleaned_data["requirement_entity"], learning_container_year, REQUIREMENT_ENTITY)
+        _update_entity(self.cleaned_data["allocation_entity"], learning_container_year, ALLOCATION_ENTITY)
+        _update_entity(self.cleaned_data["additional_entity_1"], learning_container_year, ADDITIONAL_REQUIREMENT_ENTITY_1)
+        _update_entity(self.cleaned_data["additional_entity_2"], learning_container_year, ADDITIONAL_REQUIREMENT_ENTITY_2)
 
-        if self.cleaned_data["allocation_entity"]:
-            entity_container = entity_container_year.find_by_learning_container_year_and_linktype(learning_container_year,
-                                                                                                  ALLOCATION_ENTITY)
-            if entity_container:
-                entity_container.entity = self.cleaned_data["allocation_entity"].entity
-                entity_container.save()
-            else:
-                entity_container_year.EntityContainerYear.objects.create(learning_container_year=learning_container_year,
-                                                                         entity=self.cleaned_data["allocation_entity"].entity,
-                                                                         type=ALLOCATION_ENTITY)
-
-        if self.cleaned_data["additional_entity_1"]:
-            entity_container = entity_container_year.find_by_learning_container_year_and_linktype(learning_container_year,
-                                                                                                  ADDITIONAL_REQUIREMENT_ENTITY_1)
-            if entity_container:
-                entity_container.entity = self.cleaned_data["additional_entity_1"].entity
-                entity_container.save()
-            else:
-                entity_container_year.EntityContainerYear.objects.create(learning_container_year=learning_container_year,
-                                                                         entity=self.cleaned_data["additional_entity_1"].entity,
-                                                                         type=ADDITIONAL_REQUIREMENT_ENTITY_1)
-
-        if self.cleaned_data["additional_entity_2"]:
-            entity_container = entity_container_year.find_by_learning_container_year_and_linktype(learning_container_year,
-                                                                                                  ADDITIONAL_REQUIREMENT_ENTITY_2)
-            if entity_container:
-                entity_container.entity = self.cleaned_data["additional_entity_2"].entity
-                entity_container.save()
-            else:
-                entity_container_year.EntityContainerYear.objects.create(learning_container_year=learning_container_year,
-                                                                         entity=self.cleaned_data["additional_entity_2"].entity,
-                                                                         type=ADDITIONAL_REQUIREMENT_ENTITY_2)
         # Create proposal folder
         folder_entity = self.cleaned_data['folder_entity'].entity
         folder_id = self.cleaned_data['folder_id']
@@ -132,14 +94,22 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
             folder = proposal_folder.ProposalFolder.objects.create(entity=folder_entity, folder_id=folder_id)
 
         # Create proposal learning unit
-        proposal_learning_unit.ProposalLearningUnit.objects.create(
-            folder=folder,
-            learning_unit_year=learning_unit_year,
-            type=type_proposal,
-            state=state_proposal,
-            initial_data=initial_data,
-            author=a_person
-        )
+        proposal_learning_unit.ProposalLearningUnit.objects.create(folder=folder, learning_unit_year=learning_unit_year,
+                                                                   type=type_proposal, state=state_proposal,
+                                                                   initial_data=initial_data, author=a_person)
+
+
+def _update_entity(entity_version, learning_container_year, type_entity):
+    if not entity_version:
+        return
+    entity_container = entity_container_year.find_by_learning_container_year_and_linktype(learning_container_year,
+                                                                                          type_entity)
+    if entity_container:
+        entity_container.entity = entity_version.entity
+        entity_container.save()
+    else:
+        entity_container_year.EntityContainerYear.objects.create(learning_container_year=learning_container_year,
+                                                                 entity=entity_version.entity, type=type_entity)
 
 
 def _set_attributes_from_dict(obj, attributes_values):
@@ -151,7 +121,7 @@ def _create_sub_dictionary(original_dict, list_keys):
     return {key: value for key, value in original_dict.items() if key in list_keys}
 
 
-def copy_learning_unit_data(learning_unit_year):
+def _copy_learning_unit_data(learning_unit_year):
     entities_by_type = \
         entity_container_year.find_entities_grouped_by_linktype(learning_unit_year.learning_container_year)
 
