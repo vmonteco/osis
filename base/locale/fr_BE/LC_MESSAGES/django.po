@@ -458,7 +458,7 @@ msgid "gender"
 msgstr "Genre"
 
 msgid "general_informations"
-msgstr "Informations générales"
+msgstr "Infos générales"
 
 msgid "get_excel_file"
 msgstr "Produire le fichier Excel"
