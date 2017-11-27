@@ -186,28 +186,16 @@ def pst_form_view(request):
                                                   'year': mandate.academic_year.year + 1})
 
 
-def generate_phd_supervisor_menu_tabs(mandate, active_item: None):
-    menu = []
+def generate_phd_supervisor_menu_tabs(mandate, active_item=None):
     try:
         latest_review_done = review.find_done_by_supervisor_for_mandate(mandate)
-        if latest_review_done.status == review_status.DONE:
-            review_is_done = True
-        else:
-            review_is_done = False
+        review_is_done = latest_review_done.status == review_status.DONE
     except ObjectDoesNotExist:
-            review_is_done = False
-    if review_is_done is False:
-        if active_item == assistant_mandate_state.PHD_SUPERVISOR:
-            menu.append({'item': assistant_mandate_state.PHD_SUPERVISOR, 'class': 'active',
-                         'action': 'edit'})
-        else:
-            menu.append({'item': assistant_mandate_state.PHD_SUPERVISOR, 'class': '',
-                         'action': 'edit'})
-    else:
-        if active_item == assistant_mandate_state.PHD_SUPERVISOR:
-            menu.append({'item': assistant_mandate_state.PHD_SUPERVISOR, 'class': 'active',
-                         'action': 'view'})
-        else:
-            menu.append({'item': assistant_mandate_state.PHD_SUPERVISOR, 'class': '',
-                         'action': 'view'})
-    return menu
+        review_is_done = False
+
+    is_active = active_item == assistant_mandate_state.PHD_SUPERVISOR
+    return [{
+        'item': assistant_mandate_state.PHD_SUPERVISOR,
+        'class': 'active' if is_active else '',
+        'action': 'view' if review_is_done else 'edit'
+    }]
