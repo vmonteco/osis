@@ -70,10 +70,10 @@
                 <div class="row">
                     <div class="col-md-6">
                         <label>{% trans 'type' %}</label><br>
-                        {% if education_group_year.category %}
-                            {% trans education_group_year.category %}
+                        {% if education_group_year.education_group_type.category %}
+                            {% trans education_group_year.education_group_type.category %}
                         {% else %}
-                            <strong class="text-primary">{% trans parent.category %}</strong>
+                            <strong class="text-primary">{% trans parent.education_group_type.category %}</strong>
                         {% endif %}
                         <br><br>
                         <label>{% trans 'duration' %}</label><br>
