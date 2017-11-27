@@ -23,29 +23,46 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
-
-<div class="panel panel-default">
-    <div class="panel-body">
-        <ul id="browser" class="filetree treeview-default">
-            <li>
-                <span class="folder">
-                    <a href="{% url 'education_group_read' education_group_year_id=parent.id %}?root={{ parent.id}}">
-                        {{ parent.acronym }}
-                    </a>
-                </span>
-                {% for elem in parent.children_by_group_element_year %}
-                    <ul>
-                        <li>
-                            <span {% if elem.children_by_group_element_year %} class="folder" {% else %} class="file" {% endif %}>
-                                <a href="{% url 'education_group_read' education_group_year_id=elem.id %}?root={{ parent.id}}">
-                                    {{ elem.acronym }}
-                                </a>
-                            </span>
-                            {% include "education_group/branch.html" %}
-                        </li>
-                    </ul>
-                {% endfor %}
-		    </li>
-	    </ul>
+<div id="panel-collapse" class="col-md-3">
+    <div id="collapse" class="panel panel-default" style="display:block;">
+        <div class="panel-body">
+            <ul id="browser" class="filetree treeview-default">
+                <li>
+                    <span class="folder">
+                        <a href="{% url 'education_group_read' education_group_year_id=parent.id %}?root={{ parent.id}}">
+                            {{ parent.acronym }}
+                        </a>
+                    </span>
+                    {% for elem in parent.children_by_group_element_year %}
+                        <ul>
+                            <li>
+                                <span {% if elem.children_by_group_element_year %} class="folder" {% else %} class="file" {% endif %}>
+                                    <a href="{% url 'education_group_read' education_group_year_id=elem.id %}?root={{ parent.id}}">
+                                        {{ elem.acronym }}
+                                    </a>
+                                </span>
+                                {% include "education_group/branch.html" %}
+                            </li>
+                        </ul>
+                    {% endfor %}
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
+{% block script %}
+<script>
+    function showDiv(){
+        if(document.getElementById('collapse').style.display == "block"){
+            document.getElementById('collapse').style.display = "none";
+            document.getElementById('panel-collapse').className = "col-md-0";
+            document.getElementById('panel-data').className = "col-md-12";
+        }
+        else{
+            document.getElementById('collapse').style.display = "block";
+            document.getElementById('panel-collapse').className = "col-md-3";
+            document.getElementById('panel-data').className = "col-md-9";
+        }
+    }
+</script>
+{% endblock %}
