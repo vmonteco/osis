@@ -163,7 +163,6 @@ class TestLearningUnitModificationProposal(TestCase):
             "title": self.learning_unit_year.title,
             "title_english": self.learning_unit_year.title_english,
             "learning_container_year_type": self.learning_unit_year.learning_container_year.container_type,
-            "subtype": self.learning_unit_year.subtype,
             "internship_subtype": self.learning_unit_year.internship_subtype,
             "credits": self.learning_unit_year.credits,
             "periodicity": self.learning_unit_year.learning_unit.periodicity,

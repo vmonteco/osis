@@ -76,7 +76,6 @@ class TestSave(TestCase):
             "title": "New title",
             "title_english": "New title english",
             "learning_container_year_type": self.learning_unit_year.learning_container_year.container_type,
-            "subtype": self.learning_unit_year.subtype,
             "internship_subtype": self.learning_unit_year.internship_subtype,
             "credits": "4",
             "periodicity": learning_unit_periodicity.BIENNIAL_ODD,
@@ -215,7 +214,6 @@ class TestSave(TestCase):
                 "acronym": self.learning_unit_year.acronym,
                 "title": self.learning_unit_year.title,
                 "title_english": self.learning_unit_year.title_english,
-                "subtype": self.learning_unit_year.subtype,
                 "internship_subtype": self.learning_unit_year.internship_subtype,
                 "credits": self.learning_unit_year.credits,
                 "quadrimester": self.learning_unit_year.quadrimester,
@@ -290,13 +288,6 @@ class TestIsValid(TestCase):
             "folder_entity": self.entity_version.id,
             "folder_id": "1",
         }
-
-    def test_full_subtype(self):
-        self.form_data["subtype"] = learning_unit_year_subtypes.PARTIM
-        form = LearningUnitProposalModificationForm(self.form_data)
-
-        self.assertFalse(form.is_valid())
-        self.assertIn(_("type_must_be_full"), form.errors['subtype'])
 
     def test_internship_subtype(self):
         self.form_data["internship_subtype"] = internship_subtypes.TEACHING_INTERNSHIP

@@ -39,16 +39,15 @@ def add_none_choice(choices):
 
 
 class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
-    type_proposal = forms.ChoiceField(choices=add_none_choice(proposal_type.CHOICES))
-    state_proposal = forms.ChoiceField(choices=add_none_choice(proposal_state.CHOICES))
+    type_proposal = forms.ChoiceField(choices=add_none_choice(proposal_type.CHOICES), required=False)
+    state_proposal = forms.ChoiceField(choices=add_none_choice(proposal_state.CHOICES), required=False)
     folder_entity = forms.ModelChoiceField(queryset=find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
+    subtype = forms.CharField(required=False)
 
     def is_valid(self):
         if not super().is_valid():
             return False
-        if self.data["subtype"] != learning_unit_year_subtypes.FULL:
-            self.add_error("subtype", _("type_must_be_full"))
         if self.data["internship_subtype"] and self.data["internship_subtype"] != 'None' and \
            self.data["learning_container_year_type"] != learning_container_year_types.INTERNSHIP:
             self.add_error("internship_subtype", _("learning_unit_type_is_not_internship"))
@@ -78,7 +77,6 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
                 "acronym": learning_unit_year.acronym,
                 "title": learning_unit_year.title,
                 "title_english": learning_unit_year.title_english,
-                "subtype": learning_unit_year.subtype,
                 "internship_subtype": learning_unit_year.internship_subtype,
                 "credits": float(learning_unit_year.credits) if learning_unit_year.credits else None,
                 "quadrimester": learning_unit_year.quadrimester,
