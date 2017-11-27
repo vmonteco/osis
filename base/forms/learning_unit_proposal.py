@@ -26,12 +26,10 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from base.models.person import Person
 from base.forms.learning_units import CreateLearningUnitYearForm
 from base.models.entity_version import find_main_entities_version
 from base.models import entity_container_year, proposal_folder, proposal_learning_unit
-from base.models.enums import proposal_type, proposal_state, entity_container_year_link_type, \
-    learning_unit_year_subtypes, learning_container_year_types
+from base.models.enums import entity_container_year_link_type, learning_container_year_types
 
 
 def add_none_choice(choices):
@@ -52,7 +50,7 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
 
         return len(self.errors.keys()) == 0
 
-    def save(self, learning_unit_year, a_person):
+    def save(self, learning_unit_year, a_person, type_proposal, state_proposal):
         if not self.is_valid():
             raise ValueError("Form is invalid.")
 
@@ -169,8 +167,8 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         proposal_learning_unit.ProposalLearningUnit.objects.create(
             folder=folder,
             learning_unit_year=learning_unit_year,
-            type=proposal_type.ProposalType.MODIFICATION.name,
-            state=proposal_state.ProposalState.FACULTY.name,
+            type=type_proposal,
+            state=state_proposal,
             initial_data=initial_data,
             author=a_person
         )

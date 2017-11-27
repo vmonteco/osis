@@ -32,7 +32,8 @@ from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.models.academic_year import current_academic_year
 from base.models.entity_container_year import find_last_entity_version_grouped_by_linktypes
-from base.models.enums import entity_container_year_link_type, learning_unit_year_subtypes
+from base.models.enums import entity_container_year_link_type, learning_unit_year_subtypes, proposal_type, \
+    proposal_state
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.models import proposal_learning_unit
 
@@ -59,7 +60,8 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
     if request.method == 'POST':
         form = LearningUnitProposalModificationForm(request.POST)
         if form.is_valid():
-            form.save(learning_unit_year, user_person)
+            form.save(learning_unit_year, user_person, proposal_type.ProposalType.MODIFICATION.name,
+                      proposal_state.ProposalState.FACULTY.name)
             return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
     else:

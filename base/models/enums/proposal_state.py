@@ -35,4 +35,5 @@ class ProposalState(Enum):
     ACCEPTED = "ACCEPTED"
     REFUSED = "REFUSED"
 
+
 CHOICES = tuple((name, _(name)) for name, member in ProposalState.__members__.items())

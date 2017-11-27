@@ -44,6 +44,10 @@ from reference.tests.factories.language import LanguageFactory
 from base.models import proposal_folder, proposal_learning_unit, entity_container_year
 
 
+PROPOSAL_TYPE = proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name
+PROPOSAL_STATE = proposal_state.ProposalState.FACULTY.name
+
+
 class TestSave(TestCase):
     def setUp(self):
         self.person = PersonFactory()
@@ -93,11 +97,11 @@ class TestSave(TestCase):
 
         form = LearningUnitProposalModificationForm(self.form_data)
         with self.assertRaises(ValueError):
-            form.save(self.learning_unit_year, self.person)
+            form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
 
     def test_learning_unit_update(self):
         form = LearningUnitProposalModificationForm(self.form_data)
-        form.save(self.learning_unit_year, self.person)
+        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
 
         self.learning_unit_year.refresh_from_db()
 
@@ -105,7 +109,7 @@ class TestSave(TestCase):
 
     def test_learning_unit_year_update(self):
         form = LearningUnitProposalModificationForm(self.form_data)
-        form.save(self.learning_unit_year, self.person)
+        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
 
         self.learning_unit_year.refresh_from_db()
 
@@ -118,7 +122,7 @@ class TestSave(TestCase):
 
     def test_learning_container_update(self):
         form = LearningUnitProposalModificationForm(self.form_data)
-        form.save(self.learning_unit_year, self.person)
+        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
 
         self.learning_unit_year.refresh_from_db()
         learning_container_year = self.learning_unit_year.learning_container_year
@@ -132,7 +136,7 @@ class TestSave(TestCase):
 
     def test_requirement_entity(self):
         form = LearningUnitProposalModificationForm(self.form_data)
-        form.save(self.learning_unit_year, self.person)
+        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
 
         self.entity_container_year.refresh_from_db()
         self.assertEqual(self.entity_container_year.entity, self.entity_version.entity)
@@ -152,7 +156,7 @@ class TestSave(TestCase):
         self.form_data["additional_entity_2"] = additional_entity_version_2.id
 
         form = LearningUnitProposalModificationForm(self.form_data)
-        form.save(self.learning_unit_year, self.person)
+        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
 
         entities_by_type = \
             entity_container_year.find_entities_grouped_by_linktype(self.learning_unit_year.learning_container_year)
@@ -170,7 +174,7 @@ class TestSave(TestCase):
         self.form_data["internship_subtype"] = internship_subtypes.TEACHING_INTERNSHIP
 
         form = LearningUnitProposalModificationForm(self.form_data)
-        form.save(self.learning_unit_year, self.person)
+        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
 
         self.learning_unit_year.refresh_from_db()
 
@@ -180,7 +184,7 @@ class TestSave(TestCase):
 
     def test_folder_creation(self):
         form = LearningUnitProposalModificationForm(self.form_data)
-        form.save(self.learning_unit_year, self.person)
+        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
 
         proposal_folder_created = proposal_folder.find_by_entity_and_folder_id(self.entity_version.entity, 1)
 
@@ -190,7 +194,7 @@ class TestSave(TestCase):
         folder = ProposalFolderFactory(entity=self.entity_version.entity, folder_id=1)
 
         form = LearningUnitProposalModificationForm(self.form_data)
-        form.save(self.learning_unit_year, self.person)
+        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
 
         a_proposal_learning_unt = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
         self.assertEqual(a_proposal_learning_unt.folder, folder)
@@ -229,12 +233,12 @@ class TestSave(TestCase):
         }
 
         form = LearningUnitProposalModificationForm(self.form_data)
-        form.save(self.learning_unit_year, self.person)
+        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
 
         a_proposal_learning_unt = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
 
-        self.assertEqual(a_proposal_learning_unt.type, proposal_type.ProposalType.MODIFICATION.name)
-        self.assertEqual(a_proposal_learning_unt.state, proposal_state.ProposalState.FACULTY.name)
+        self.assertEqual(a_proposal_learning_unt.type, PROPOSAL_TYPE)
+        self.assertEqual(a_proposal_learning_unt.state, PROPOSAL_STATE)
         self.assertEqual(a_proposal_learning_unt.author, self.person)
 
         self.assertDictEqual(a_proposal_learning_unt.initial_data, initial_data_expected)
