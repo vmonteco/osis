@@ -26,6 +26,7 @@
 from base.models import *
 from django.contrib import admin
 
+
 admin.site.register(academic_calendar.AcademicCalendar,
                     academic_calendar.AcademicCalendarAdmin)
 
@@ -142,6 +143,9 @@ admin.site.register(person.Person,
 
 admin.site.register(person_address.PersonAddress,
                     person_address.PersonAddressAdmin)
+
+admin.site.register(person_entity.PersonEntity,
+                    person_entity.PersonEntityAdmin)
 
 admin.site.register(program_manager.ProgramManager,
                     program_manager.ProgramManagerAdmin)
