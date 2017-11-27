@@ -232,7 +232,9 @@ def education_group_content(request, education_group_year_id):
 
 def _education_group_content_tab(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
-    context = {'education_group_year': education_group_year,
+    parent = get_root(education_group_year_id, request)
+    context = {'parent': parent,
+               'education_group_year': education_group_year,
                'group_elements': _group_elements(education_group_year),
                }
     return layout.render(request, "education_group/tab_content.html", context)

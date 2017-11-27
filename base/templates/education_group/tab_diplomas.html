@@ -39,19 +39,27 @@
 
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active" id="diplomas">
-                <br>
-                <label>{% trans 'university_certificate_desc' %}</label><br>
-                {% if education_group_year.university_certificate %}
-                    {% trans 'yes'%}
-                {% else %}
-                    {% trans 'no'%}
-                {% endif %}
-                <br><br>
-                <label>{% trans 'diploma_title'%}</label><br>
-                {{education_group_year.diploma_printing_title | default_if_none:'-'}}
-                <br><br>
-                <label>{% trans 'professionnal_title'%}</label><br>
-                {{education_group_year.professional_title | default_if_none:'-'}}
+                <div class="row">
+                    <div class="col-md-3">
+                        <br>
+                        {% include "education_group/training_tree.html" %}
+                    </div>
+                    <div class="col-md-9">
+                        <br>
+                        <label>{% trans 'university_certificate_desc' %}</label><br>
+                        {% if education_group_year.university_certificate %}
+                            {% trans 'yes'%}
+                        {% else %}
+                            {% trans 'no'%}
+                        {% endif %}
+                        <br><br>
+                        <label>{% trans 'diploma_title'%}</label><br>
+                        {{education_group_year.diploma_printing_title | default_if_none:'-'}}
+                        <br><br>
+                        <label>{% trans 'professionnal_title'%}</label><br>
+                        {{education_group_year.professional_title | default_if_none:'-'}}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
