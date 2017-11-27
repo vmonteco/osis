@@ -2313,3 +2313,18 @@ msgstr "Learning unit is not of type full."
 
 msgid "proposal_already_exists"
 msgstr "A proposal has already been made for the learning unit."
+
+msgid "CREATION"
+msgstr "Creation"
+
+msgid "MODIFICATION"
+msgstr "Modification"
+
+msgid "TRANSFORMATION"
+msgstr "Transformation"
+
+msgid "TRANSFORMATION_AND_MODIFICATION"
+msgstr "Transformation and modification"
+
+msgid "SUPPRESSION"
+msgstr "Suppression"

@@ -2319,3 +2319,18 @@ msgstr "L'unité d'enseignement n'est pas de type complet."
 
 msgid "proposal_already_exists"
 msgstr "Une proposition existe déjà pour l'unité d'enseignement."
+
+msgid "CREATION"
+msgstr "Création"
+
+msgid "MODIFICATION"
+msgstr "Modification"
+
+msgid "TRANSFORMATION"
+msgstr "Transformation"
+
+msgid "TRANSFORMATION_AND_MODIFICATION"
+msgstr "Transformation et modification"
+
+msgid "SUPPRESSION"
+msgstr "Suppression"

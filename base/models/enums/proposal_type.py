@@ -34,4 +34,5 @@ class ProposalType(Enum):
     TRANSFORMATION_AND_MODIFICATION = "TRANSFORMATION_AND_MODIFICATION"
     SUPPRESSION = "SUPPRESSION"
 
+
 CHOICES = tuple((name, _(name)) for name, member in ProposalType.__members__.items())
