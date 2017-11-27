@@ -27,6 +27,8 @@ from django.db import IntegrityError
 from django.test import TestCase
 
 from base.models import person_entity
+from base.models.person_entity import PersonEntity
+from base.models.utils import person_entity_filter
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.organization import OrganizationFactory
@@ -80,6 +82,18 @@ class PersonEntityTest(TestCase):
         entities = person_entity.find_entities_by_person(person)
         self.assertIsInstance(entities, list)
         self.assertEqual(len(entities), 3)
+
+    def test_filter_by_attached_entities(self):
+        person = PersonFactory()
+        PersonEntityFactory(person=person, entity=self.sst_entity, with_child=True)
+        PersonEntityFactory(person=person, entity=self.agro_entity, with_child=False)
+        person_2 = PersonFactory()
+        PersonEntityFactory(person=person_2, entity=self.ssh_entity, with_child=True)
+        queryset = PersonEntity.objects.all()
+        list_filtered = list(person_entity_filter.filter_by_attached_entities(person, queryset))
+        self.assertEqual(len(list_filtered), 2)
+        list_filtered = list(person_entity_filter.filter_by_attached_entities(person_2, queryset))
+        self.assertEqual(len(list_filtered), 1)
 
     def _create_entity_structure(self):
         self.organization = OrganizationFactory(name="Université catholique de Louvain", acronym="UCL")
