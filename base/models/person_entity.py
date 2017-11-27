@@ -24,12 +24,13 @@
 #
 ##############################################################################
 from django.db import models
+from django.contrib import admin
 
+from base.models import entity
 from base.models import entity_version
-from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
-class PersonEntityAdmin(SerializableModelAdmin):
+class PersonEntityAdmin(admin.ModelAdmin):
     list_display = ('person', 'entity', 'latest_entity_version_name', 'with_child')
     fieldsets = ((None, {'fields': ('person', 'entity', 'with_child')}),)
     search_fields = ['person__first_name', 'person__last_name']
@@ -45,10 +46,25 @@ class PersonEntityAdmin(SerializableModelAdmin):
     latest_entity_version_name.short_description = 'Latest entity version'
 
 
-class PersonEntity(SerializableModel):
+class PersonEntity(models.Model):
     person = models.ForeignKey('Person')
     entity = models.ForeignKey('Entity')
     with_child = models.BooleanField(default=False)
 
+    class Meta:
+        unique_together = ('person', 'entity',)
+
     def __str__(self):
         return u"%s" % self.person
+
+
+def find_entities_by_person(person):
+    person_entities = PersonEntity.objects.filter(person=person).select_related('entity')
+
+    entities = set()
+    entities |= {pers_ent.entity for pers_ent in person_entities if not pers_ent.with_child }
+    entity_with_child = [pers_ent.entity for pers_ent in person_entities if pers_ent.with_child]
+    if entity_with_child:
+        entity_with_find_descendants = entity.find_descendants(entity_with_child, with_entities=True)
+        entities |= set(entity_with_find_descendants) if entity_with_find_descendants else {}
+    return list(entities)

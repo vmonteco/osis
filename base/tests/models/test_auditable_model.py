@@ -26,7 +26,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import DatabaseError
 from django.test import TestCase
-from mock import patch
+from unittest.mock import patch
 
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory

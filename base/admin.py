@@ -26,7 +26,6 @@
 from base.models import *
 from django.contrib import admin
 
-from base.models import person_entity
 
 admin.site.register(academic_calendar.AcademicCalendar,
                     academic_calendar.AcademicCalendarAdmin)
@@ -45,6 +44,9 @@ admin.site.register(education_group_language.EducationGroupLanguage,
 
 admin.site.register(education_group_organization.EducationGroupOrganization,
                     education_group_organization.EducationGroupOrganizationAdmin)
+
+admin.site.register(education_group_type.EducationGroupType,
+                    education_group_type.EducationGroupTypeAdmin)
 
 admin.site.register(education_group_year.EducationGroupYear,
                     education_group_year.EducationGroupYearAdmin)

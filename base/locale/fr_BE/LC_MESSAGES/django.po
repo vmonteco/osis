@@ -2263,6 +2263,9 @@ msgstr "Vacant à ne pas publier"
 msgid "DO_NOT_ASSIGN"
 msgstr "A ne pas attribuer"
 
+msgid "category"
+msgstr "Catégorie"
+
 msgid "PRESIDENT"
 msgstr "Président"
 
