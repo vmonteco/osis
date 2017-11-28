@@ -31,9 +31,9 @@ from base.models.enums import academic_type, fee, internship_presence, schedule_
 from base.models import offer_year_domain as mdl_offer_year_domain, education_group_organization
 from base.models import offer_year_entity as mdl_offer_year_entity
 from base.models import entity_version as mdl_entity_version
-from base.models.enums import education_group_categories
 from base.models.enums import education_group_association
 from base.models.enums import offer_year_entity_type
+from base.models.enums import education_group_categories
 from base.models.exceptions import MaximumOneParentAllowedException
 from base.models.group_element_year import GroupElementYear
 
@@ -41,7 +41,7 @@ from base.models.group_element_year import GroupElementYear
 class EducationGroupYearAdmin(admin.ModelAdmin):
     list_display = ('acronym', 'title', 'academic_year', 'education_group_type', 'changed')
     fieldsets = ((None, {'fields': ('academic_year', 'acronym', 'partial_acronym', 'title', 'education_group_type',
-                                    'education_group', 'active', 'partial_deliberation', 'admission_exam', 'category',
+                                    'education_group', 'active', 'partial_deliberation', 'admission_exam',
                                     'credits', 'funding', 'funding_direction', 'funding_cud', 'funding_direction_cud',
                                     'academic_type', 'university_certificate', 'fee_type', 'enrollment_campus',
                                     'main_teaching_campus', 'dissertation', 'internship',
@@ -66,8 +66,7 @@ class EducationGroupYear(models.Model):
     title_english = models.CharField(max_length=240, blank=True, null=True)
     academic_year = models.ForeignKey('AcademicYear')
     education_group = models.ForeignKey('EducationGroup')
-    category = models.CharField(max_length=20, choices=education_group_categories.CATEGORIES, blank=True, null=True)
-    education_group_type = models.ForeignKey('OfferType', blank=True, null=True)
+    education_group_type = models.ForeignKey('EducationGroupType', blank=True, null=True)
     active = models.CharField(max_length=20, choices=active_status.ACTIVE_STATUS_LIST, default=active_status.ACTIVE)
     partial_deliberation = models.BooleanField(default=False)
     admission_exam = models.BooleanField(default=False)
@@ -146,10 +145,9 @@ class EducationGroupYear(models.Model):
     @property
     def parent_by_training(self):
         parents = [parent for parent in self.parents_by_group_element_year
-                   if parent.category == education_group_categories.TRAINING]
+                   if parent.is_training()]
         if len(parents) > 1:
             raise MaximumOneParentAllowedException('Only one training parent is allowed')
-
         elif len(parents) == 1:
             return parents[0]
 
@@ -171,6 +169,10 @@ class EducationGroupYear(models.Model):
             self._coorganizations = education_group_organization.search(education_group_year=self)
         return self._coorganizations
 
+    def is_training(self):
+        if self.education_group_type:
+            return self.education_group_type.category == education_group_categories.TRAINING
+        return False
 
 def find_by_id(an_id):
     try:
@@ -189,19 +191,19 @@ def search(**kwargs):
             qs = qs.filter(id=kwargs['id'])
     if "academic_year" in kwargs:
         qs = qs.filter(academic_year=kwargs['academic_year'])
-    if "acronym" in kwargs:
+    if kwargs.get("acronym"):
         qs = qs.filter(acronym__icontains=kwargs['acronym'])
-    if "title" in kwargs:
+    if kwargs.get("title"):
         qs = qs.filter(title__icontains=kwargs['title'])
-    if "category" in kwargs:
-        if isinstance(kwargs['category'], list):
-            qs = qs.filter(category__in=kwargs['category'])
-        else:
-            qs = qs.filter(category=kwargs['category'])
     if "education_group_type" in kwargs:
         if isinstance(kwargs['education_group_type'], list):
             qs = qs.filter(education_group_type__in=kwargs['education_group_type'])
         else:
             qs = qs.filter(education_group_type=kwargs['education_group_type'])
+    elif kwargs.get('category'):
+        qs = qs.filter(education_group_type__category=kwargs['category'])
+
+    if kwargs.get("partial_acronym"):
+        qs = qs.filter(partial_acronym__icontains=kwargs['partial_acronym'])
 
     return qs.select_related('education_group_type', 'academic_year')

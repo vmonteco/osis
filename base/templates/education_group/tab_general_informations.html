@@ -34,40 +34,66 @@
 
 <div class="panel panel-default">
     <div class="panel-body" id="tabs">
-
-        {% include "education_group/tabs.html" %}
-
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active" id="general_informations">
-                <div class="row" style="margin-top:10px;">
-                    <div class="col-md-2">
-                        <label> {% trans 'language'%} </label>
-                    </div>
-                    <div class="col-md-5">
-                        <label> {{ form_french.language.1 }} </label>
-                    </div>
-                    <div class="col-md-5">
-                        <label> {{ form_english.language.1 }} </label>
+                <a class="button" onclick="showDiv()">
+                    <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
+                </a>
+                <div class="row">
+                    {% include "education_group/training_tree.html" %}
+                    <div id="panel-data" class="col-md-9">
+                        {% include "education_group/tabs.html" %}
+                        <br>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-md-2">
+                                <label> {% trans 'language'%} </label>
+                            </div>
+                            <div class="col-md-5">
+                                <label> {{ form_french.language.1 }} </label>
+                            </div>
+                            <div class="col-md-5">
+                                <label> {{ form_english.language.1 }} </label>
+                            </div>
+                        </div>
+                        <hr/>
+                        {% for label_key, label_translated in cms_labels_translated.items %}
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-md-2">
+                                <label> {{ label_translated }} </label>
+                            </div>
+                            <div class="col-md-5">
+                                {{ form_french|getattr:label_key }}
+                            </div>
+                            <div class="col-md-5">
+                                {{ form_english|getattr:label_key}}
+                            </div>
+                        </div>
+                        <hr/>
+                        {% endfor %}
                     </div>
                 </div>
-                <hr/>
-                {% for label_key, label_translated in cms_labels_translated.items %}
-                <div class="row" style="margin-top:10px;">
-                    <div class="col-md-2">
-                        <label> {{ label_translated }} </label>
-                    </div>
-                    <div class="col-md-5">
-                        {{ form_french|getattr:label_key }}
-                    </div>
-                    <div class="col-md-5">
-                        {{ form_english|getattr:label_key}}
-                    </div>
-                </div>
-                <hr/>
-                {% endfor %}
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+{% block script %}
+<script>
+    $(document).ready(function(){
+		$("#browser").treeview({
+			toggle: function() {
+				console.log("%s was toggled.", $(this).find(">span").text());
+			}
+		});
 
+		$("#add").click(function() {
+			var branches = $("<li><span class='folder'>New Sublist</span><ul>" +
+				"<li><span class='file'>Item1</span></li>" +
+				"<li><span class='file'>Item2</span></li></ul></li>").appendTo("#browser");
+			$("#browser").treeview({
+				add: branches
+			});
+		});
+	});
+</script>
 {% endblock %}

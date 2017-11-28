@@ -190,6 +190,9 @@ msgstr "Code cours"
 msgid "dashboard"
 msgstr "Tableau de bord"
 
+msgid "data_not_saved"
+msgstr "Un problème est survenu, les données n'ont pas pu être sauvegardées"
+
 msgid "date_of_first_nomination"
 msgstr "Date de la première nomination"
 
@@ -288,6 +291,9 @@ msgstr "Favorable"
 
 msgid "field"
 msgstr "Type de mandat"
+
+msgid "file_uploaded"
+msgstr "a été correctement téléchargé"
 
 msgid "formation_activities"
 msgstr "Activités de formation"
@@ -400,6 +406,9 @@ msgstr "Numéro de matricule"
 
 msgid "maxlength_filename"
 msgstr "Le nom du fichier ne doit pas excéder 100 caractères."
+
+msgid "must_enter_learning_unit_year"
+msgstr "Vous devez ajouter une unité d'enseignement"
 
 msgid "must_enter_supervisor_if_registered_or_in_progress"
 msgstr "Le promoteur doit être identifé"
@@ -553,6 +562,9 @@ msgstr "Avis"
 
 msgid "reviewer"
 msgstr "Évaluateur"
+
+msgid "reviewer_todo"
+msgstr "Dossiers pouvant être traités"
 
 msgid "reviewers"
 msgstr "Évaluateurs"

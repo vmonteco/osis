@@ -23,16 +23,24 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from assistant.models import tutoring_learning_unit_year
 from base.models import learning_unit_enrollment, learning_unit_component, learning_class_year, \
     learning_unit_year as learn_unit_year_model
 from base.models.enums import learning_unit_year_subtypes
 from django.utils.translation import ugettext_lazy as _
 
+from internship.models import internship_speciality
+
 
 def check_learning_unit_deletion(learning_unit):
     msg = {}
+
     for learning_unit_year in learn_unit_year_model.search(learning_unit=learning_unit).order_by('academic_year__year'):
         msg.update(check_learning_unit_year_deletion(learning_unit_year))
+
+    for speciality in internship_speciality.search(learning_unit=learning_unit):
+        msg.update(_check_internship_speciality(speciality))
+
     return msg
 
 
@@ -56,6 +64,9 @@ def check_learning_unit_year_deletion(learning_unit_year):
     for group_element_year in learning_unit_year.find_list_group_element_year():
         msg.update(_check_group_element_year_deletion(group_element_year))
 
+    for tutoring in tutoring_learning_unit_year.find_learning_unit_year(learning_unit_year=learning_unit_year):
+        msg.update(_check_tutoring_learning_unit_year(tutoring))
+
     next_year = learning_unit_year.get_learning_unit_next_year()
     if next_year:
         msg.update(check_learning_unit_year_deletion(next_year))
@@ -63,11 +74,34 @@ def check_learning_unit_year_deletion(learning_unit_year):
     return msg
 
 
+def _check_tutoring_learning_unit_year(tutoring):
+    msg = {}
+
+    if tutoring.mandate:
+        msg[tutoring] = _(
+            "%(subtype)s %(acronym)s is assigned to the assistant %(assistant)s for the year %(year)s") % {
+                            'subtype': _str_partim_or_full(tutoring.learning_unit_year),
+                            'acronym': tutoring.learning_unit_year.acronym,
+                            'assistant': tutoring.mandate.assistant,
+                            'year': tutoring.learning_unit_year.academic_year}
+
+    return msg
+
+
+def _check_internship_speciality(speciality):
+    msg = _("The learning unit %(acronym)s is related to the internship speciality %(speciality)s") % {
+        "acronym": speciality.learning_unit,
+        "speciality": speciality
+    }
+    return {speciality: msg}
+
+
 def _check_group_element_year_deletion(group_element_year):
     msg = {}
 
     if group_element_year.parent:
-        msg[group_element_year] = _('%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s') \
+        msg[group_element_year] = _(
+            '%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s') \
                                   % {'subtype': _str_partim_or_full(group_element_year.child_leaf),
                                      'acronym': group_element_year.child_leaf.acronym,
                                      'group': group_element_year.parent.acronym,
@@ -79,6 +113,7 @@ def _check_group_element_year_deletion(group_element_year):
 
 def _check_learning_unit_component_deletion(l_unit_component):
     msg = {}
+
     for attribution_charge in l_unit_component.learning_component_year.get_attributions_charge():
         attribution = attribution_charge.attribution
 
@@ -87,11 +122,13 @@ def _check_learning_unit_component_deletion(l_unit_component):
             'acronym': l_unit_component.learning_unit_year.acronym,
             'tutor': attribution.tutor,
             'year': l_unit_component.learning_unit_year.academic_year}
+
     return msg
 
 
 def _check_related_partims_deletion(learning_container_year):
     msg = {}
+
     for partim in learning_container_year.get_partims_related():
         msg.update(check_learning_unit_year_deletion(partim))
 
@@ -101,8 +138,8 @@ def _check_related_partims_deletion(learning_container_year):
 def delete_learning_unit(learning_unit):
     msg = []
 
-    first_learning_unit_year_to_delete = learn_unit_year_model.search(learning_unit=learning_unit)\
-                                                              .order_by('academic_year__year').first()
+    first_learning_unit_year_to_delete = learn_unit_year_model.search(learning_unit=learning_unit) \
+        .order_by('academic_year__year').first()
     if first_learning_unit_year_to_delete:
         msg.extend(delete_from_given_learning_unit_year(first_learning_unit_year_to_delete))
 
@@ -128,7 +165,7 @@ def delete_from_given_learning_unit_year(learning_unit_year):
 
     msg.append(_("%(subtype)s %(acronym)s has been deleted for the year %(year)s")
                % {'subtype': _str_partim_or_full(learning_unit_year),
-                  'acronym':  learning_unit_year.acronym,
+                  'acronym': learning_unit_year.acronym,
                   'year': learning_unit_year.academic_year})
 
     learning_unit_year.learning_unit.end_year = learning_unit_year.academic_year.year - 1

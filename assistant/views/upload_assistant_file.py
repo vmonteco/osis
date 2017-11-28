@@ -29,6 +29,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import *
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
+from django.views.decorators.http import require_http_methods
 
 from osis_common.models import document_file as document_file
 from assistant import models as mdl
@@ -54,45 +55,48 @@ def delete(request, document_file_id, url):
 
 
 @login_required
+@require_http_methods(["POST"])
 def save_uploaded_file(request):
-    if request.method == 'POST':
-        data = request.POST
-        assistant_mandate = None
-        if request.POST.get('mandate_id'):
-            assistant_mandate = mdl.assistant_mandate.find_mandate_by_id(request.POST['mandate_id'])
-        file_selected = request.FILES['file']
-        file = file_selected
-        file_name = file_selected.name
-        if len(file_name) > 100:
-            return HttpResponse(
-                json.dumps({"error":True, "message": _('maxlength_filename')}),
-                content_type="application/json")
-        content_type = file_selected.content_type
-        if content_type != "application/pdf":
-            return HttpResponse(
-                json.dumps({"error": True, "message": _('only_pdf_file')}),
-                content_type="application/json")
-        description = data['description']
-        storage_duration = 0
-        new_document = document_file.DocumentFile(file_name=file_name,
-                                                  file=file,
-                                                  description=description,
-                                                  storage_duration=storage_duration,
-                                                  application_name='assistant',
-                                                  content_type=content_type,
-                                                  update_by=request.user)
-        try:
-            new_document.save()
-            assistant_mandate_document_file = mdl.assistant_document_file.AssistantDocumentFile()
-            assistant_mandate_document_file.assistant_mandate = assistant_mandate
-            assistant_mandate_document_file.document_file = new_document
-            assistant_mandate_document_file.save()
-            return HttpResponse(
-                json.dumps({"success": True}),
-                content_type="application/json")
-        except DataError:
-            return HttpResponse(
-                json.dumps({"error": True, "message": _('object_not_saved')}),
-                content_type="application/json")
+    data = request.POST
+    try:
+        assistant_mandate = mdl.assistant_mandate.find_mandate_by_id(request.POST['mandate_id'])
+    except:
+        return HttpResponse(
+            json.dumps({"error": True, "message": _('object_not_saved')}),
+            content_type="application/json")
+    file_selected = request.FILES['file']
+    file = file_selected
+    file_name = file_selected.name
+    if len(file_name) > 100:
+        return HttpResponse(
+            json.dumps({"error":True, "message": _('maxlength_filename')}),
+            content_type="application/json")
+    content_type = file_selected.content_type
+    if content_type != "application/pdf":
+        return HttpResponse(
+            json.dumps({"error": True, "message": _('only_pdf_file')}),
+            content_type="application/json")
+    description = data['description']
+    storage_duration = 0
+    new_document = document_file.DocumentFile(file_name=file_name,
+                                              file=file,
+                                              description=description,
+                                              storage_duration=storage_duration,
+                                              application_name='assistant',
+                                              content_type=content_type,
+                                              update_by=request.user)
+    try:
+        new_document.save()
+        assistant_mandate_document_file = mdl.assistant_document_file.AssistantDocumentFile()
+        assistant_mandate_document_file.assistant_mandate = assistant_mandate
+        assistant_mandate_document_file.document_file = new_document
+        assistant_mandate_document_file.save()
+        return HttpResponse(
+            json.dumps({"success": True, "message": file_selected.name + ' ' + _('file_uploaded')}),
+            content_type="application/json")
+    except DataError:
+        return HttpResponse(
+            json.dumps({"error": True, "message": _('object_not_saved')}),
+            content_type="application/json")
 
 

@@ -44,6 +44,9 @@
 </ul>
 <div class="panel panel-default">
     <div class="panel-body">
+        {% if msg %}
+            <h5><p style="color:red">{{ msg }}</p></h5>
+        {% endif %}
         <form id="pst-form-part6" method="POST" action="{% url 'form_part6_save' %}">
         <span class="error">{{ form.non_field_errors }}</span>
  		{% csrf_token %}

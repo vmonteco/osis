@@ -27,7 +27,7 @@ import re
 from django.db import models
 
 from base.models.group_element_year import GroupElementYear
-from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
+from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 
 from base.models import entity_container_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, internship_subtypes, \
@@ -38,7 +38,7 @@ AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
 
 
-class LearningUnitYearAdmin(SerializableModelAdmin):
+class LearningUnitYearAdmin(AuditableSerializableModelAdmin):
     list_display = ('external_id', 'acronym', 'title', 'academic_year', 'credits', 'changed', 'structure', 'status')
     fieldsets = ((None, {'fields': ('academic_year', 'learning_unit', 'acronym', 'title', 'title_english', 'credits',
                                     'decimal_scores', 'structure', 'learning_container_year',
@@ -48,7 +48,7 @@ class LearningUnitYearAdmin(SerializableModelAdmin):
     search_fields = ['acronym', 'structure__acronym', 'external_id']
 
 
-class LearningUnitYear(SerializableModel):
+class LearningUnitYear(AuditableSerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     academic_year = models.ForeignKey('AcademicYear')
     learning_unit = models.ForeignKey('LearningUnit')
@@ -62,13 +62,14 @@ class LearningUnitYear(SerializableModel):
     credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     decimal_scores = models.BooleanField(default=False)
     structure = models.ForeignKey('Structure', blank=True, null=True)
-    internship_subtype = models.CharField(max_length=50, blank=True, null=True,
+    internship_subtype = models.CharField(max_length=250, blank=True, null=True,
                                           choices=internship_subtypes.INTERNSHIP_SUBTYPES)
     status = models.BooleanField(default=False)
     session = models.CharField(max_length=50, blank=True, null=True,
                                choices=learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION)
     quadrimester = models.CharField(max_length=4, blank=True, null=True,
                                     choices=learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
+
 
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)

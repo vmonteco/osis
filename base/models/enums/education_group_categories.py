@@ -23,12 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+
+from django.utils.translation import ugettext_lazy as _
+
 TRAINING = "TRAINING"
 MINI_TRAINING = "MINI_TRAINING"
 GROUP = "GROUP"
 
 CATEGORIES = (
-    (TRAINING, TRAINING),
-    (MINI_TRAINING, MINI_TRAINING),
-    (GROUP, GROUP),
+    (TRAINING, _(TRAINING)),
+    (MINI_TRAINING, _(MINI_TRAINING)),
+    (GROUP, _(GROUP)),
 )
+

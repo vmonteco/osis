@@ -45,6 +45,9 @@ admin.site.register(education_group_language.EducationGroupLanguage,
 admin.site.register(education_group_organization.EducationGroupOrganization,
                     education_group_organization.EducationGroupOrganizationAdmin)
 
+admin.site.register(education_group_type.EducationGroupType,
+                    education_group_type.EducationGroupTypeAdmin)
+
 admin.site.register(education_group_year.EducationGroupYear,
                     education_group_year.EducationGroupYearAdmin)
 
@@ -140,6 +143,9 @@ admin.site.register(person.Person,
 
 admin.site.register(person_address.PersonAddress,
                     person_address.PersonAddressAdmin)
+
+admin.site.register(person_entity.PersonEntity,
+                    person_entity.PersonEntityAdmin)
 
 admin.site.register(program_manager.ProgramManager,
                     program_manager.ProgramManagerAdmin)

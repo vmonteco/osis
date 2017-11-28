@@ -2203,6 +2203,12 @@ msgstr ""
 msgid "%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s"
 msgstr ""
 
+msgid "%(subtype)s %(acronym)s is assigned to the assistant %(assistant)s for the year %(year)s"
+msgstr ""
+
+msgid "The learning unit %(acronym)s is related to the internship speciality %(speciality)s"
+msgstr ""
+
 msgid "%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s"
 msgstr ""
 
@@ -2251,6 +2257,7 @@ msgstr "Vacant but do not publish"
 msgid "DO_NOT_ASSIGN"
 msgstr "Do not assign"
 
+<<<<<<< HEAD
 msgid "folder"
 msgstr "Folder"
 
@@ -2262,6 +2269,10 @@ msgstr "The"
 
 msgid "proposal_management"
 msgstr "Proposal management"
+=======
+msgid "category"
+msgstr "Category"
+>>>>>>> dd78477ef622d58010d2374a2379efee256302ec
 
 msgid "PRESIDENT"
 msgstr "President"
@@ -2346,3 +2357,82 @@ msgstr "Refused"
 
 msgid "success_modification_proposal"
 msgstr "You proposed a modification of type {} for the learning unit {}."
+
+msgid "content"
+msgstr "Content"
+
+msgid "code_scs"
+msgstr "Code SCS"
+
+msgid "title_code_formation"
+msgstr "Title / Formation's code"
+
+msgid "absolute_credits"
+msgstr "Abs. credits"
+
+msgid "relative_target_credits"
+msgstr "Relative target's credits"
+
+msgid "min_credits"
+msgstr "Min. credits"
+
+msgid "max_credits"
+msgstr "Max. credits"
+
+msgid "mandatory"
+msgstr "Mandatory"
+
+msgid "block"
+msgstr "Block"
+
+msgid "current_order"
+msgstr "Current order"
+
+msgid "sessions_derogation"
+msgstr "Sessions in derogation"
+
+msgid "own_comment"
+msgstr "Own comment"
+
+msgid "SESSION_1"
+msgstr "1"
+
+msgid "SESSION_2"
+msgstr "2"
+
+msgid "SESSION_3"
+msgstr "3"
+
+msgid "SESSION_1_2"
+msgstr "12"
+
+msgid "SESSION_1_3"
+msgstr "13"
+
+msgid "SESSION_2_3"
+msgstr "23"
+
+msgid "SESSION_1_2_3"
+msgstr "123"
+
+msgid "SESSION_UNDEFINED"
+msgstr "Undefined session"
+
+msgid "SESSION_PARTIAL_2_3"
+msgstr "p23"
+
+msgid "Put in proposal"
+msgstr ""
+
+msgid "Proposal for modification"
+msgstr ""
+
+msgid "End of teaching"
+msgstr ""
+
+msgid "academic_entity_small"
+msgstr "Academic ent."
+
+msgid "academic_entity"
+msgstr "Academic entity"
+

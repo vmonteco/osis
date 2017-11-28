@@ -51,7 +51,7 @@ class EducationGroupOrganization(models.Model):
     enrollment_place = models.BooleanField(default=False)
     diploma = models.CharField(max_length=40,
                                choices=diploma_coorganization.DiplomaCoorganizationTypes.choices(),
-                               default=diploma_coorganization.DiplomaCoorganizationTypes.NOT_CONCERNED)
+                               default=diploma_coorganization.DiplomaCoorganizationTypes.NOT_CONCERNED.value)
 
     _address = None
 

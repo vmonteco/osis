@@ -25,14 +25,14 @@
 ##############################################################################
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.contrib import admin
 from django.db.models import Prefetch
 
 from base.models import entity_version
 from base.models.enums import entity_container_year_link_type
+from osis_common.models.auditable_model import AuditableModel, AuditableModelAdmin
 
 
-class EntityContainerYearAdmin(admin.ModelAdmin):
+class EntityContainerYearAdmin(AuditableModelAdmin):
     list_display = ('external_id', 'learning_container_year', 'entity', 'type')
     fieldsets = ((None, {'fields': ('entity', 'learning_container_year', 'type')}),)
     search_fields = ['learning_container_year__acronym', 'type']
@@ -40,7 +40,7 @@ class EntityContainerYearAdmin(admin.ModelAdmin):
     raw_id_fields = ('entity', 'learning_container_year')
 
 
-class EntityContainerYear(models.Model):
+class EntityContainerYear(AuditableModel):
     external_id = models.CharField(max_length=255, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     entity = models.ForeignKey('Entity')

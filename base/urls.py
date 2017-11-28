@@ -154,6 +154,7 @@ urlpatterns = [
                 name='education_group_general_informations'),
 
             url(r'^administrative/$', education_group.education_group_administrative_data, name='education_group_administrative'),
+            url(r'^content/$', education_group.education_group_content, name='education_group_content'),
         ]))
     ])),
 

@@ -26,6 +26,8 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 
+from assistant.models.tutoring_learning_unit_year import TutoringLearningUnitYear
+from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 from attribution.tests.factories.attribution import AttributionNewFactory
 from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
 from base.business import learning_unit_deletion
@@ -45,6 +47,8 @@ from base.tests.factories.learning_unit_enrollment import LearningUnitEnrollment
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
+
+from internship.tests.factories.speciality import SpecialityFactory
 
 
 class LearningUnitYearDeletion(TestCase):
@@ -244,3 +248,20 @@ class LearningUnitYearDeletion(TestCase):
 
         with self.assertRaises(ObjectDoesNotExist):
             LearningContainerYear.objects.get(id=learning_container_year.id)
+
+    def test_check_delete_learning_unit_year_with_assistants(self):
+
+        learning_unit_year = LearningUnitYearFactory()
+        assistant_mandate = AssistantMandateFactory()
+        tutoring = TutoringLearningUnitYear.objects.create(mandate=assistant_mandate, learning_unit_year=learning_unit_year)
+
+        msg = learning_unit_deletion.check_learning_unit_year_deletion(learning_unit_year)
+        self.assertIn(tutoring, msg.keys())
+
+    def test_check_delete_learning_unit_with_internship(self):
+        learning_unit = LearningUnitFactory()
+        speciality = SpecialityFactory(learning_unit=learning_unit)
+
+        msg = learning_unit_deletion.check_learning_unit_deletion(learning_unit)
+        self.assertIn(speciality, msg.keys())
+

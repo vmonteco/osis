@@ -112,7 +112,7 @@ msgid "application_management"
 msgstr "Gestion de l'application"
 
 msgid "are_you_sure"
-msgstr "Êtes-vous sûr?"
+msgstr "Êtes-vous sûr·e?"
 
 msgid "assistants"
 msgstr "Assistants"
@@ -458,7 +458,7 @@ msgid "gender"
 msgstr "Genre"
 
 msgid "general_informations"
-msgstr "Informations générales"
+msgstr "Infos générales"
 
 msgid "get_excel_file"
 msgstr "Produire le fichier Excel"
@@ -2125,7 +2125,7 @@ msgid "MINI_TRAINING"
 msgstr "Mini formation"
 
 msgid "GROUP"
-msgstr "Groupe"
+msgstr "Groupement"
 
 msgid "PRIMARY_LANGUAGE"
 msgstr "Langue principale"
@@ -2207,16 +2207,22 @@ msgid "There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(
 msgstr "%(subtype)s %(acronym)s fait l’objet de %(count)d inscription(s) l’année %(year)s"
 
 msgid "%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s"
-msgstr "%(subtype)s %(acronym)s est attribué à %(tutor)s l’année %(year)s"
+msgstr "%(subtype)s %(acronym)s est attribué(e) à %(tutor)s l’année %(year)s"
+
+msgid "%(subtype)s %(acronym)s is assigned to the assistant %(assistant)s for the year %(year)s"
+msgstr "%(subtype)s %(acronym)s est attribué(e) à l'assistant %(assistant)s l'année %(year)s"
 
 msgid "%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s"
 msgstr "%(subtype)s %(acronym)s est repris dans le groupement %(group)s du programme %(program)s l’année %(year)s"
+
+msgid "The learning unit %(acronym)s is related to the internship speciality %(speciality)s"
+msgstr "L'unité d'enseignement %(acronym)s est liée à la spécialité de stage %(speciality)s"
 
 msgid "%(subtype)s %(acronym)s has been deleted for the year %(year)s"
 msgstr "%(subtype)s %(acronym)s a été supprimé(e) pour l'année %(year)s"
 
 msgid "The class %(acronym)s has been deleted for the year %(year)s"
-msgstr "La classe %(acronym)s a été suprrimée pour l'année %(year)s"
+msgstr "La classe %(acronym)s a été supprimé(e) pour l'année %(year)s"
 
 msgid "the partim"
 msgstr "le partim"
@@ -2257,6 +2263,7 @@ msgstr "Vacant à ne pas publier"
 msgid "DO_NOT_ASSIGN"
 msgstr "A ne pas attribuer"
 
+<<<<<<< HEAD
 msgid "folder"
 msgstr "Dossier"
 
@@ -2268,6 +2275,10 @@ msgstr "Le"
 
 msgid "proposal_management"
 msgstr "Gestion de la proposition"
+=======
+msgid "category"
+msgstr "Catégorie"
+>>>>>>> dd78477ef622d58010d2374a2379efee256302ec
 
 msgid "PRESIDENT"
 msgstr "Président"
@@ -2352,3 +2363,82 @@ msgstr "Refusé"
 
 msgid "success_modification_proposal"
 msgstr "Une proposition de modification de type {} a été faite pour l'unité d'enseignement {}."
+
+
+msgid "content"
+msgstr "Contenu"
+
+msgid "code_scs"
+msgstr "Code SCS"
+
+msgid "title_code_formation"
+msgstr "Intitulé / Code OF"
+
+msgid "absolute_credits"
+msgstr "Crédits abs."
+
+msgid "relative_target_credits"
+msgstr "Créd. cible rel."
+
+msgid "min_credits"
+msgstr "Créd. min."
+
+msgid "max_credits"
+msgstr "Créd. max."
+
+msgid "mandatory"
+msgstr "Oblig."
+
+msgid "block"
+msgstr "Bloc"
+
+msgid "current_order"
+msgstr "Ordre présent"
+
+msgid "sessions_derogation"
+msgstr "Sessions en dérogation"
+
+msgid "own_comment"
+msgstr "Commentaire propre"
+
+msgid "SESSION_1"
+msgstr "1"
+
+msgid "SESSION_2"
+msgstr "2"
+
+msgid "SESSION_3"
+msgstr "3"
+
+msgid "SESSION_1_2"
+msgstr "12"
+
+msgid "SESSION_1_3"
+msgstr "13"
+
+msgid "SESSION_2_3"
+msgstr "23"
+
+msgid "SESSION_1_2_3"
+msgstr "123"
+
+msgid "SESSION_UNDEFINED"
+msgstr "Session indéfinie"
+
+msgid "SESSION_PARTIAL_2_3"
+msgstr "p23"
+
+msgid "Put in proposal"
+msgstr "Mettre en proposition"
+
+msgid "Proposal for modification"
+msgstr "Proposition de modification"
+
+msgid "End of teaching"
+msgstr "Fin d'enseignement"
+
+msgid "academic_entity_small"
+msgstr "Ent. académique"
+
+msgid "academic_entity"
+msgstr "Entité académique"
