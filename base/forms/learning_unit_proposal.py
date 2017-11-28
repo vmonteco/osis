@@ -45,6 +45,7 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
     def __init__(self, *args, **kwargs):
         super(LearningUnitProposalModificationForm, self).__init__(*args, **kwargs)
         self.fields["academic_year"].disabled = True
+        self.fields["academic_year"].required = False
         self.fields["subtype"].required = False
 
     def is_valid(self):
