@@ -14,7 +14,12 @@ const internship = "INTERNSHIP";
         if($('#id_first_letter').val()!=""){
             window.valid_acronym = false;
             window.acronym_already_used = false;
-            if(/{{ form.acronym_regex }}/.test($('#id_first_letter').val().toUpperCase()+$('#id_acronym').val().toUpperCase())) {
+            var newAcronym = $('#id_first_letter').val().toUpperCase()+$('#id_acronym').val().toUpperCase();
+            if(currentAcronym && newAcronym === currentAcronym){
+                return;
+            }
+
+            if(form_acronym_regex.test(newAcronym)) {
                 var url = "?acronym=" + $('#id_first_letter').val() + $('#id_acronym').val() + "&year_id=" + $('#id_academic_year').val()
                 $.ajax({
                     url: form.attr("data-validate-url")+url

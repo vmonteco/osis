@@ -65,7 +65,12 @@
                                         </div>
                                         <div class="col-md-8" style="padding-left:0;">
                                           {{ form.acronym }}
-                                            <span class="error">{{ form.acronym.errors }}</span>
+                                            <span class='error' id="{{ form.acronym.name }}_message" for='{{ form.acronym.name }}' generated="true">
+                                            {{ form.acronym.errors }}
+                                            </span>
+                                            {% if form.acronym.errors %}
+                                                <label class='error' for='{{ form.acronym.name }}' generated="true">{{ form.acronym.errors|join:". " }}</label>
+                                            {% endif %}
                                         </div>
                                       </div>
 
@@ -270,6 +275,8 @@
         const trans_existed_acronym = "{% trans 'existed_acronym' %}";
         const trans_invalid_acronym = "{% trans 'invalid_acronym' %}";
         const trans_field_required = "{% trans 'field_is_required' %}";
+        const form_acronym_regex = /{{ form.acronym_regex }}/;
+        const currentAcronym = "{{ learning_unit_year.acronym }}"
     </script>
     <script type="text/javascript" src="{% static 'js/learning_unit_creation.js' %}"></script>
 {% endblock %}
