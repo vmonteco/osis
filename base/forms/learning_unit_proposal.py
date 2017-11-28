@@ -41,7 +41,11 @@ def add_none_choice(choices):
 class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
     folder_entity = forms.ModelChoiceField(queryset=find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
-    subtype = forms.CharField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(LearningUnitProposalModificationForm, self).__init__(*args, **kwargs)
+        self.fields["academic_year"].disabled = True
+        self.fields["subtype"].required = False
 
     def is_valid(self):
         if not super().is_valid():
