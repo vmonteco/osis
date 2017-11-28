@@ -26,7 +26,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.learning_units import CreateLearningUnitYearForm
+from base.forms.learning_units import CreateLearningUnitYearForm, EntitiesVersionChoiceField
 from base.models.entity_version import find_main_entities_version
 from base.models import proposal_folder, proposal_learning_unit, entity_container_year
 from base.models.enums import learning_container_year_types
@@ -39,7 +39,7 @@ def add_none_choice(choices):
 
 
 class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
-    folder_entity = forms.ModelChoiceField(queryset=find_main_entities_version())
+    folder_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
 
     def __init__(self, *args, **kwargs):
