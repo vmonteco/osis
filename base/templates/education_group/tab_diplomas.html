@@ -34,17 +34,15 @@
 
 <div class="panel panel-default">
     <div class="panel-body" id="tabs">
-
-        {% include "education_group/tabs.html" %}
-
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active" id="diplomas">
+                <a class="button" onclick="showDiv()">
+                    <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
+                </a>
                 <div class="row">
-                    <div class="col-md-3">
-                        <br>
-                        {% include "education_group/training_tree.html" %}
-                    </div>
-                    <div class="col-md-9">
+                    {% include "education_group/training_tree.html" %}
+                    <div id="panel-data" class="col-md-9">
+                        {% include "education_group/tabs.html" %}
                         <br>
                         <label>{% trans 'university_certificate_desc' %}</label><br>
                         {% if education_group_year.university_certificate %}
