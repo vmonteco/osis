@@ -23,32 +23,22 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
-import operator
 import factory
 import factory.fuzzy
+import string
+import datetime
 
-from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.learning_container import LearningContainerFactory
-from base.tests.factories.campus import CampusFactory
-from base.models.enums import learning_container_year_types
-from reference.tests.factories.language import LanguageFactory
+from base.tests.factories.entity import EntityFactory
 from osis_common.utils.datetime import get_tzinfo
 
 
-class LearningContainerYearFactory(factory.django.DjangoModelFactory):
+class ProposalFolderFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = "base.LearningContainerYear"
+        model = "base.ProposalFolder"
+        django_get_or_create = ('entity', )
 
-    external_id = factory.Sequence(lambda n: '10000000%02d' % n)
-    academic_year = factory.SubFactory(AcademicYearFactory)
-    learning_container = factory.SubFactory(LearningContainerFactory)
-    container_type = factory.Iterator(learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
-                                      getter=operator.itemgetter(0))
-    title = factory.Sequence(lambda n: 'Learning container year - %d' % n)
-    acronym = factory.Sequence(lambda n: 'LCY-%d' % n)
-    campus = factory.SubFactory(CampusFactory)
-    language = factory.SubFactory(LanguageFactory)
+    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
     changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    in_charge = False
+    entity = factory.SubFactory(EntityFactory)
+    folder_id = factory.fuzzy.FuzzyInteger(100)

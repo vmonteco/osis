@@ -333,10 +333,8 @@ class LearningUnitViewTestCase(TestCase):
 
     def test_get_components_with_classes(self):
         l_container = LearningContainerFactory()
-        l_container_year = LearningContainerYearFactory.build(academic_year=self.current_academic_year,
-                                                              title="LC-98998",
-                                                              learning_container=l_container)
-        l_container_year.save()
+        l_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year,
+                                                        title="LC-98998", learning_container=l_container)
         l_component_year = LearningComponentYearFactory(learning_container_year=l_container_year)
         LearningClassYearFactory(learning_component_year=l_component_year)
         LearningClassYearFactory(learning_component_year=l_component_year)
@@ -608,7 +606,7 @@ class LearningUnitViewTestCase(TestCase):
     def get_base_form_data(self):
         return {"first_letter": "L",
                 "acronym": "TAU2000",
-                "learning_container_year_type": COURSE,
+                "container_type": COURSE,
                 "academic_year": self.current_academic_year.id,
                 "status": True,
                 "periodicity": ANNUAL,
@@ -906,7 +904,7 @@ class LearningUnitYearAdd(TestCase):
         form_data = {
             "first_letter": "L",
             "acronym": "TAU2000",
-            "learning_container_year_type": COURSE,
+            "container_type": COURSE,
             "academic_year": current_academic_year.id,
             "status": True,
             "periodicity": ANNUAL,

@@ -200,13 +200,6 @@ def learning_unit_attributions(request, learning_unit_year_id):
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
-def learning_unit_proposals(request, learning_unit_year_id):
-    context = get_common_context_learning_unit_year(learning_unit_year_id)
-    return layout.render(request, "learning_unit/proposals.html", context)
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_specifications(request, learning_unit_year_id):
     context = get_common_context_learning_unit_year(learning_unit_year_id)
     learning_unit_year = context['learning_unit_year']
@@ -316,7 +309,7 @@ def learning_class_year_edit(request, learning_unit_year_id):
 def learning_unit_create(request, academic_year):
     form = CreateLearningUnitYearForm(initial={'academic_year': academic_year,
                                                'subtype': FULL,
-                                               'learning_container_year_type': EMPTY_FIELD,
+                                               "container_type": EMPTY_FIELD,
                                                'language': language.find_by_code('FR')})
     return layout.render(request, "learning_unit/learning_unit_form.html", {'form': form})
 

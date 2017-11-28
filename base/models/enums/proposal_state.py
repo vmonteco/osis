@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# OSIS stands for Open Student Information System. It's an application
+#    OSIS stands for Open Student Information System. It's an application
 #    designed to manage the core business of higher education institutions,
 #    such as universities, faculties, institutes and professional schools.
 #    The core business involves the administration of students, teachers,
@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,22 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
-import string
-
-import factory.fuzzy
-
-from base.tests.factories.organization import OrganizationFactory
-from osis_common.utils.datetime import get_tzinfo
+from enum import Enum
+from django.utils.translation import ugettext_lazy as _
 
 
-class CampusFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = 'base.Campus'
+class ProposalState(Enum):
+    FACULTY = "FACULTY"
+    CENTRAL = "CENTRAL"
+    SUSPENDED = "SUSPENDED"
+    ACCEPTED = "ACCEPTED"
+    REFUSED = "REFUSED"
 
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    name = factory.Faker('first_name')
-    organization = factory.SubFactory(OrganizationFactory)
-    is_administration = False
+
+CHOICES = tuple((name, _(name)) for name, member in ProposalState.__members__.items())

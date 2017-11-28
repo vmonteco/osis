@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# OSIS stands for Open Student Information System. It's an application
+#    OSIS stands for Open Student Information System. It's an application
 #    designed to manage the core business of higher education institutions,
 #    such as universities, faculties, institutes and professional schools.
 #    The core business involves the administration of students, teachers,
@@ -23,22 +23,24 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
-import string
-
-import factory.fuzzy
-
-from base.tests.factories.organization import OrganizationFactory
-from osis_common.utils.datetime import get_tzinfo
+from django.test import TestCase
+from django.db.utils import IntegrityError
+from base.tests.factories.proposal_folder import ProposalFolderFactory
+from base.models import proposal_folder
 
 
-class CampusFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = 'base.Campus'
+class TestSearch(TestCase):
+    def setUp(self):
+        self.proposal_folder = ProposalFolderFactory()
 
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    name = factory.Faker('first_name')
-    organization = factory.SubFactory(OrganizationFactory)
-    is_administration = False
+    def test_unique_together(self):
+        with self.assertRaises(IntegrityError):
+            proposal_folder.ProposalFolder.objects.create(entity=self.proposal_folder.entity,
+                                                          folder_id=self.proposal_folder.folder_id)
+
+    def test_find_by_entiy_and_folder_id(self):
+        ProposalFolderFactory()
+        a_proposal_folder = proposal_folder.find_by_entity_and_folder_id(self.proposal_folder.entity,
+                                                                         self.proposal_folder.folder_id)
+
+        self.assertEqual(a_proposal_folder, self.proposal_folder)

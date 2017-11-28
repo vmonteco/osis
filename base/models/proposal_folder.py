@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# OSIS stands for Open Student Information System. It's an application
+#    OSIS stands for Open Student Information System. It's an application
 #    designed to manage the core business of higher education institutions,
 #    such as universities, faculties, institutes and professional schools.
 #    The core business involves the administration of students, teachers,
@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,22 +23,40 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
-import string
-
-import factory.fuzzy
-
-from base.tests.factories.organization import OrganizationFactory
-from osis_common.utils.datetime import get_tzinfo
+from django.db import models
+from django.contrib import admin
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import ugettext_lazy as _
 
 
-class CampusFactory(factory.DjangoModelFactory):
+class ProposalFolderAdmin(admin.ModelAdmin):
+    list_display = ('entity', 'folder_id', )
+    fieldsets = ((None, {'fields': ('entity', 'folder_id', )}), )
+
+    search_fields = ['folder_id']
+    raw_id_fields = ('entity', )
+
+
+class ProposalFolder(models.Model):
+    external_id = models.CharField(max_length=100, blank=True, null=True)
+    changed = models.DateTimeField(null=True, auto_now=True)
+    entity = models.ForeignKey('Entity')
+    folder_id = models.IntegerField()
+
     class Meta:
-        model = 'base.Campus'
+        unique_together = ('entity', 'folder_id', )
 
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    name = factory.Faker('first_name')
-    organization = factory.SubFactory(OrganizationFactory)
-    is_administration = False
+    def __str__(self):
+        return _("folder_number").format(self.folder_id)
+
+
+def find_by_entity_and_folder_id(an_entity, a_folder_id):
+    try:
+        return ProposalFolder.objects.get(entity=an_entity, folder_id=a_folder_id)
+    except ObjectDoesNotExist:
+        return None
+
+
+
+
+

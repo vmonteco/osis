@@ -23,32 +23,29 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
-import operator
 import factory
 import factory.fuzzy
+import string
+import datetime
+import operator
 
-from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.learning_container import LearningContainerFactory
-from base.tests.factories.campus import CampusFactory
-from base.models.enums import learning_container_year_types
-from reference.tests.factories.language import LanguageFactory
+from base.tests.factories.proposal_folder import ProposalFolderFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
+from base.models.enums import proposal_state, proposal_type
 from osis_common.utils.datetime import get_tzinfo
 
 
-class LearningContainerYearFactory(factory.django.DjangoModelFactory):
+class ProposalLearningUnitFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = "base.LearningContainerYear"
+        model = "base.ProposalLearningUnit"
+        django_get_or_create = ('folder', 'learning_unit_year')
 
-    external_id = factory.Sequence(lambda n: '10000000%02d' % n)
-    academic_year = factory.SubFactory(AcademicYearFactory)
-    learning_container = factory.SubFactory(LearningContainerFactory)
-    container_type = factory.Iterator(learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
-                                      getter=operator.itemgetter(0))
-    title = factory.Sequence(lambda n: 'Learning container year - %d' % n)
-    acronym = factory.Sequence(lambda n: 'LCY-%d' % n)
-    campus = factory.SubFactory(CampusFactory)
-    language = factory.SubFactory(LanguageFactory)
+    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
     changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    in_charge = False
+    folder = factory.SubFactory(ProposalFolderFactory)
+    learning_unit_year = factory.SubFactory(LearningUnitYearFakerFactory)
+    type = factory.Iterator(proposal_type.CHOICES, getter=operator.itemgetter(0))
+    state = factory.Iterator(proposal_state.CHOICES, getter=operator.itemgetter(0))
+    initial_data = {}
+
