@@ -30,8 +30,7 @@ from base.views import learning_unit, offer, common, institution, organization, 
     my_osis, entity, student, education_group
 from django.conf import settings
 from django.conf.urls.static import static
-
-
+import base.views.learning_unit_deletion
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -102,6 +101,8 @@ urlpatterns = [
             url(r'^volumes/', include([
                 url(u'^$', learning_unit.learning_unit_volumes_management, name="learning_unit_volumes_management"),
                 url(u'^validation/$', learning_unit.volumes_validation, name="volumes_validation")])),
+            url(r'^delete/$', base.views.learning_unit_deletion.delete_from_given_learning_unit_year, name="learning_unit_delete"),
+            url(r'^delete_full/$', base.views.learning_unit_deletion.delete_all_learning_units_year, name="learning_unit_delete_all"),
         ])),
         url(r'^check/$', learning_unit.check_acronym, name="check_acronym"),
         url(r'^check_code/$', learning_unit.check_code, name="check_code"),
@@ -144,7 +145,8 @@ urlpatterns = [
             url(r'^parent/$', education_group.education_group_parent_read, name='education_group_parent_read'),
             url(r'^diplomas/$', education_group.education_group_diplomas, name='education_group_diplomas'),
             url(r'^informations/$', education_group.education_group_general_informations, name='education_group_general_informations'),
-
+            url(r'^administrative/$', education_group.education_group_administrative_data, name='education_group_administrative'),
+            url(r'^content/$', education_group.education_group_content, name='education_group_content'),
         ]))
     ])),
 
@@ -191,5 +193,3 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns +=  static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-

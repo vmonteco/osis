@@ -130,7 +130,6 @@
         </div>
     </form>
     <div style="margin-top:10px;">
-        {% include "template_messages.html" %}
         {% if form.non_field_errors %}
         <div id="pnl_error_messages" class="alert alert-warning" role="alert">
             {% for error in form.non_field_errors %}
@@ -145,7 +144,7 @@
             <thead>
             <th>{% trans 'academic_year_small'%}</th>
             <th>{% trans 'code'%}</th>
-            <th  id="lu_title_sort" ">{% trans 'title'%}</th>
+            <th  id="lu_title_sort">{% trans 'title'%}</th>
             <th>{% trans 'type'%}</th>
             <th>{% trans 'subtype'%}</th>
             <th>{% trans 'requirement_entity_small'%}</th>

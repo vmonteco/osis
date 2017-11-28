@@ -33,6 +33,7 @@ from base.models import academic_year, entity_version
 from assistant.forms import MandatesArchivesForm
 from assistant.models import assistant_mandate
 from assistant.utils import manager_access
+from assistant.models.enums import assistant_mandate_state, review_advice_choices, review_status
 
 
 class MandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMixin):
@@ -71,6 +72,9 @@ class MandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMi
         context = super(MandatesListView, self).get_context_data(**kwargs)
         context['year'] = academic_year.find_academic_year_by_id(
                 self.request.session.get('selected_academic_year')).year
+        context['assistant_mandate_state'] = assistant_mandate_state
+        context['review_advice_choices'] = review_advice_choices
+        context['review_status'] = review_status
         start_date = academic_year.find_academic_year_by_id(int(self.request.session.get(
             'selected_academic_year'))).start_date
         for mandate in context['object_list']:

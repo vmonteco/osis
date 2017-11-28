@@ -34,27 +34,52 @@
 
 <div class="panel panel-default">
     <div class="panel-body" id="tabs">
-
-        {% include "education_group/tabs.html" %}
-
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active" id="diplomas">
-                <br>
-                <label>{% trans 'university_certificate_desc' %}</label><br>
-                {% if education_group_year.university_certificate %}
-                    {% trans 'yes'%}
-                {% else %}
-                    {% trans 'no'%}
-                {% endif %}
-                <br><br>
-                <label>{% trans 'diploma_title'%}</label><br>
-                {{education_group_year.diploma_printing_title | default_if_none:'-'}}
-                <br><br>
-                <label>{% trans 'professionnal_title'%}</label><br>
-                {{education_group_year.professional_title | default_if_none:'-'}}
+                <a class="button" onclick="showDiv()">
+                    <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
+                </a>
+                <div class="row">
+                    {% include "education_group/training_tree.html" %}
+                    <div id="panel-data" class="col-md-9">
+                        {% include "education_group/tabs.html" %}
+                        <br>
+                        <label>{% trans 'university_certificate_desc' %}</label><br>
+                        {% if education_group_year.university_certificate %}
+                            {% trans 'yes'%}
+                        {% else %}
+                            {% trans 'no'%}
+                        {% endif %}
+                        <br><br>
+                        <label>{% trans 'diploma_title'%}</label><br>
+                        {{education_group_year.diploma_printing_title | default_if_none:'-'}}
+                        <br><br>
+                        <label>{% trans 'professionnal_title'%}</label><br>
+                        {{education_group_year.professional_title | default_if_none:'-'}}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+{% block script %}
+<script>
+    $(document).ready(function(){
+		$("#browser").treeview({
+			toggle: function() {
+				console.log("%s was toggled.", $(this).find(">span").text());
+			}
+		});
 
+		$("#add").click(function() {
+			var branches = $("<li><span class='folder'>New Sublist</span><ul>" +
+				"<li><span class='file'>Item1</span></li>" +
+				"<li><span class='file'>Item2</span></li></ul></li>").appendTo("#browser");
+			$("#browser").treeview({
+				add: branches
+			});
+		});
+	});
+</script>
 {% endblock %}

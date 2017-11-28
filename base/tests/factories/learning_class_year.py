@@ -34,4 +34,4 @@ class LearningClassYearFactory(factory.django.DjangoModelFactory):
         model = "base.LearningClassYear"
 
     learning_component_year = factory.SubFactory(LearningComponentYearFactory)
-    acronym = factory.Sequence(lambda n: 'C-%d' % n)
+    acronym = factory.fuzzy.FuzzyInteger(99)

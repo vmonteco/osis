@@ -25,6 +25,7 @@
 ##############################################################################
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
+
 from base.models.enums import offer_year_entity_type
 from django.db import models
 
@@ -66,6 +67,9 @@ def search(**kwargs):
 
     if 'type' in kwargs:
         queryset = queryset.filter(type__exact=kwargs['type'])
+
+    if 'education_group_year' in kwargs:
+        queryset = queryset.filter(education_group_year=kwargs['education_group_year'])
 
     return queryset
 

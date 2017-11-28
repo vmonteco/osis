@@ -23,13 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 from base.models.enums import component_type
-from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
+from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 
 
-class LearningUnitComponentAdmin(SerializableModelAdmin):
+class LearningUnitComponentAdmin(AuditableSerializableModelAdmin):
     list_display = ('learning_unit_year', 'learning_component_year', 'type', 'duration')
     fieldsets = ((None, {'fields': ('learning_unit_year', 'learning_component_year', 'type', 'duration')}),)
     raw_id_fields = ('learning_unit_year', 'learning_component_year')
@@ -37,7 +38,7 @@ class LearningUnitComponentAdmin(SerializableModelAdmin):
     list_filter = ('learning_unit_year__academic_year',)
 
 
-class LearningUnitComponent(SerializableModel):
+class LearningUnitComponent(AuditableSerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     learning_unit_year = models.ForeignKey('LearningUnitYear')
     learning_component_year = models.ForeignKey('LearningComponentYear')
@@ -47,18 +48,13 @@ class LearningUnitComponent(SerializableModel):
     def __str__(self):
         return u"%s - %s" % (self.type, self.learning_unit_year)
 
-    class Meta:
-        permissions = (
-            ("can_access_learningunit", "Can access learning unit"),
-        )
-
 
 def find_by_learning_year_type(a_learning_unit_year=None, a_type=None):
     if a_learning_unit_year and a_type:
         try:
             return LearningUnitComponent.objects.get(learning_unit_year=a_learning_unit_year,
                                                      type=a_type)
-        except LearningUnitComponent.ObjectDoesNotExist:
+        except ObjectDoesNotExist:
             return None
     return None
 
