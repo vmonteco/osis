@@ -51,6 +51,9 @@ class ProposalLearningUnit(models.Model):
     state = models.CharField(max_length=50, choices=proposal_state.CHOICES)
     initial_data = JSONField(default={})
 
+    def __str__(self):
+        return "{} - {}".format(self.folder, self.learning_unit_year)
+
 
 def find_by_learning_unit_year(a_learning_unit_year):
     try:

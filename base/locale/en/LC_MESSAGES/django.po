@@ -2434,3 +2434,5 @@ msgstr "Academic ent."
 msgid "academic_entity"
 msgstr "Academic entity"
 
+msgid "folder_number"
+msgstr "Folder n°{}"

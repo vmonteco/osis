@@ -2440,3 +2440,6 @@ msgstr "Ent. académique"
 
 msgid "academic_entity"
 msgstr "Entité académique"
+
+msgid "folder_number"
+msgstr "Dossier n°{}"

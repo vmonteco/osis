@@ -53,7 +53,7 @@ const internship = "INTERNSHIP";
         $.ajax({
             url: form.attr("code-validate-url")+url
         }).done(function(data){
-            document.getElementById('id_first_letter').value = data['code'] = data['code'];
+            document.getElementById('id_first_letter').value = data['code'];
             validate_acronym();
         });
     }

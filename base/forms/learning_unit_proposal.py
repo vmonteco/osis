@@ -48,14 +48,12 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         self.fields["academic_year"].required = False
         self.fields["subtype"].required = False
 
-    def is_valid(self):
-        if not super().is_valid():
-            return False
-        if self.data.get("internship_subtype") and self.data.get("internship_subtype") != 'None' and \
-           self.data["container_type"] != learning_container_year_types.INTERNSHIP:
-            self.add_error("internship_subtype", _("learning_unit_type_is_not_internship"))
+    def clean(self):
+        cleaned_data = super(CreateLearningUnitYearForm, self).clean()
 
-        return len(self.errors.keys()) == 0
+        if cleaned_data.get("internship_subtype") and cleaned_data.get("internship_subtype") != 'None' and \
+           cleaned_data["container_type"] != learning_container_year_types.INTERNSHIP:
+            self.add_error("internship_subtype", _("learning_unit_type_is_not_internship"))
 
     def save(self, learning_unit_year, a_person, type_proposal, state_proposal):
         if not self.is_valid():
@@ -123,21 +121,14 @@ def _update_model_object(obj, data_values, fields_to_update):
 def _update_entity(entity_version, learning_container_year, type_entity):
     if not entity_version:
         return
-    entity_container = entity_container_year.find_by_learning_container_year_and_linktype(learning_container_year,
-                                                                                          type_entity)
-    if entity_container:
-        entity_container.entity = entity_version.entity
-        entity_container.save()
-    else:
-        entity_container_year.EntityContainerYear.objects.create(learning_container_year=learning_container_year,
-                                                                 entity=entity_version.entity, type=type_entity)
+    entity_container_year.EntityContainerYear.objects.update_or_create(type=type_entity,
+                                                                       learning_container_year=learning_container_year,
+                                                                       defaults={"entity": entity_version.entity})
 
 
 def _create_learning_unit_proposal(a_person, folder_entity, folder_id, initial_data, learning_unit_year,
                                    state_proposal, type_proposal):
-    folder = proposal_folder.find_by_entity_and_folder_id(folder_entity, folder_id)
-    if not folder:
-        folder = proposal_folder.ProposalFolder.objects.create(entity=folder_entity, folder_id=folder_id)
+    folder, created = proposal_folder.ProposalFolder.objects.get_or_create(entity=folder_entity, folder_id=folder_id)
 
     proposal_learning_unit.ProposalLearningUnit.objects.create(folder=folder, learning_unit_year=learning_unit_year,
                                                                type=type_proposal, state=state_proposal,

@@ -57,7 +57,7 @@ def compute_form_initial_data(learning_unit_year):
 
 
 def compute_proposal_type(initial_data, current_data):
-    data_changed = compute_data_changed(initial_data, current_data)
+    data_changed = _compute_data_changed(initial_data, current_data)
     filtered_data_changed = filter(lambda key: key not in ["academic_year", "subtype", "acronym"], data_changed)
     transformation = current_data["acronym"] != "{}{}".format(initial_data["first_letter"], initial_data["acronym"])
     modification = any(map(lambda x: x != "acronym", filtered_data_changed))
@@ -68,7 +68,7 @@ def compute_proposal_type(initial_data, current_data):
     return proposal_type.ProposalType.MODIFICATION.name
 
 
-def compute_data_changed(initial_data, current_data):
+def _compute_data_changed(initial_data, current_data):
     data_changed = []
     for key, value in initial_data.items():
         current_value = current_data.get(key)

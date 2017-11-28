@@ -26,6 +26,7 @@
 from django.db import models
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import ugettext_lazy as _
 
 
 class ProposalFolderAdmin(admin.ModelAdmin):
@@ -42,8 +43,11 @@ class ProposalFolder(models.Model):
     entity = models.ForeignKey('Entity')
     folder_id = models.IntegerField()
 
+    class Meta:
+        unique_together = ('entity', 'folder_id', )
+
     def __str__(self):
-        return "Folder n°{}".format(self.folder_id)
+        return _("folder_number").format(self.folder_id)
 
 
 def find_by_entity_and_folder_id(an_entity, a_folder_id):

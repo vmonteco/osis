@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from django.test import TestCase
-
+from django.db.utils import IntegrityError
 from base.tests.factories.proposal_folder import ProposalFolderFactory
 from base.models import proposal_folder
 
@@ -32,6 +32,11 @@ from base.models import proposal_folder
 class TestSearch(TestCase):
     def setUp(self):
         self.proposal_folder = ProposalFolderFactory()
+
+    def test_unique_together(self):
+        with self.assertRaises(IntegrityError):
+            proposal_folder.ProposalFolder.objects.create(entity=self.proposal_folder.entity,
+                                                          folder_id=self.proposal_folder.folder_id)
 
     def test_find_by_entiy_and_folder_id(self):
         ProposalFolderFactory()
