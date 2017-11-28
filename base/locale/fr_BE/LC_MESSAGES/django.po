@@ -112,7 +112,7 @@ msgid "application_management"
 msgstr "Gestion de l'application"
 
 msgid "are_you_sure"
-msgstr "Êtes-vous sûr?"
+msgstr "Êtes-vous sûr·e?"
 
 msgid "assistants"
 msgstr "Assistants"
@@ -2222,7 +2222,7 @@ msgid "%(subtype)s %(acronym)s has been deleted for the year %(year)s"
 msgstr "%(subtype)s %(acronym)s a été supprimé(e) pour l'année %(year)s"
 
 msgid "The class %(acronym)s has been deleted for the year %(year)s"
-msgstr "La classe %(acronym)s a été suprrimée pour l'année %(year)s"
+msgstr "La classe %(acronym)s a été supprimé(e) pour l'année %(year)s"
 
 msgid "the partim"
 msgstr "le partim"
@@ -2303,7 +2303,7 @@ msgid "at"
 msgstr "à"
 
 msgid "learning_unit_years_to_delete"
-msgstr "Vous êtes sur le point de supprimer définitiviement les UE suivantes"
+msgstr "Vous êtes sur le point de supprimer définitivement les UE suivantes"
 
 msgid "content"
 msgstr "Contenu"
