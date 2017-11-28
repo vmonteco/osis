@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from copy import copy
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
@@ -49,7 +50,9 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
     initial_data = compute_form_initial_data(learning_unit_year)
 
     if request.method == 'POST':
-        form = LearningUnitProposalModificationForm(request.POST, initial=initial_data)
+        modified_post_data = request.POST.copy()
+        modified_post_data["academic_year"] = str(learning_unit_year.academic_year.id)
+        form = LearningUnitProposalModificationForm(modified_post_data, initial=initial_data)
         if form.is_valid():
             type_proposal = compute_proposal_type(form.initial, form.cleaned_data)
             form.save(learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name)

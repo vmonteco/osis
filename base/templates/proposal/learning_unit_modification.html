@@ -46,8 +46,7 @@
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active">
                 <br/>
-                <form method="post" id="LearningUnitYearForm"
-        data-validate-url="{% url 'check_acronym'%}" code-validate-url="{% url 'check_code'%}">
+                <form method="post" id="LearningUnitYearForm" data-validate-url="{% url 'check_acronym'%}" code-validate-url="{% url 'check_code'%}">
                   {% csrf_token %}
                   <div class="row">
                       <div class="col-md-8">

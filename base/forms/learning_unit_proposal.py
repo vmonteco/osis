@@ -50,7 +50,7 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
     def is_valid(self):
         if not super().is_valid():
             return False
-        if self.data["internship_subtype"] and self.data["internship_subtype"] != 'None' and \
+        if self.data.get("internship_subtype") and self.data.get("internship_subtype") != 'None' and \
            self.data["container_type"] != learning_container_year_types.INTERNSHIP:
             self.add_error("internship_subtype", _("learning_unit_type_is_not_internship"))
 
