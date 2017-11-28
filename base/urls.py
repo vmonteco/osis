@@ -145,8 +145,12 @@ urlpatterns = [
             url(r'^parent/$', education_group.education_group_parent_read, name='education_group_parent_read'),
             url(r'^diplomas/$', education_group.education_group_diplomas, name='education_group_diplomas'),
             url(r'^informations/$', education_group.education_group_general_informations, name='education_group_general_informations'),
-            url(r'^administrative/$', education_group.education_group_administrative_data, name='education_group_administrative'),
+            url(r'^administrative/', include([
+                url(u'^$', education_group.education_group_administrative_data, name='education_group_administrative'),
+                url(u'^edit/$', education_group.education_group_edit_administrative_data, name='education_group_edit_administrative')])),
             url(r'^content/$', education_group.education_group_content, name='education_group_content'),
+
+
         ]))
     ])),
 

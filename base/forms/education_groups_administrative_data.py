@@ -23,25 +23,43 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from functools import partial
+
 from django import forms
 
-from base.forms.bootstrap import BootstrapForm
-from base.forms.offer_year_calendar import OfferYearCalendarForm
+from base.forms.bootstrap import BootstrapModelForm
 from base.models.offer_year_calendar import OfferYearCalendar
 
+DATE_FORMAT = '%d/%m/%Y'
+TIME_FORMAT = '%H:%M'
+DATETIME_FORMAT = DATE_FORMAT + ' ' + TIME_FORMAT
 
-class EducationGroupExamenEnrollementsForm(OfferYearCalendarForm):
+DatePickerInput = partial(forms.DateInput, {'class': 'datepicker',
+                                            'data-date-format': 'dd/mm/yyyy'})
+
+DateTimePickerInput = partial(forms.DateTimeInput, {'class': 'datetimepicker',
+                                                    'data-date-format': 'dd/mm/yyyy hh:ii'})
+
+
+class SessionDateForm(BootstrapModelForm):
+    start_date = forms.DateField(widget=DatePickerInput(format=DATE_FORMAT),
+                                 input_formats=(DATE_FORMAT),
+                                 required=True)
+
+    end_date = forms.DateField(widget=DatePickerInput(format=DATE_FORMAT),
+                               input_formats=(DATE_FORMAT),
+                               required=True)
+
     class Meta:
-        models = OfferYearCalendar
+        model = OfferYearCalendar
         fields = ['start_date', 'end_date']
 
-class EducationGroupAdministrativeDataForm(BootstrapForm):
-    exam_enrollments_2 = forms.DateTimeField()
-    exam_enrollments_3 = forms.DateTimeField()
 
-    scores_exam_submission = forms.DateField(widget=forms.DateInput(format='%d/%m/%Y'),
-                                             input_formats=('%d/%m/%Y', ), required=True)
+class SessionDateTimeForm(SessionDateForm):
+    start_date = forms.DateTimeField(widget=DateTimePickerInput(format=DATETIME_FORMAT),
+                                     input_formats=DATETIME_FORMAT,
+                                     required=True)
 
-    dissertation_submission = forms.DateTimeField()
-    deliberation = forms.DateTimeField()
-    scores_exam_diffusion = forms.DateTimeField()
+    end_date = forms.DateTimeField(widget=DateTimePickerInput(format=DATETIME_FORMAT),
+                                   input_formats=DATETIME_FORMAT,
+                                   required=True)

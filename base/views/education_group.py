@@ -29,9 +29,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from base import models as mdl
 
 from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
-from base.forms.education_groups_administrative_data import EducationGroupAdministrativeDataForm, \
-    EducationGroupExamenEnrollementsForm
-from base.forms.offer_year_calendar import OfferYearCalendarForm
+from base.forms.education_groups_administrative_data import SessionDateTimeForm, SessionDateForm
 from base.models.enums import education_group_categories
 
 from . import layout
@@ -166,6 +164,10 @@ def _get_cms_label_data(cms_label, user_language):
 @login_required
 @permission_required('base.can_access_offer', raise_exception=True)
 def education_group_administrative_data(request, education_group_year_id):
+    return _education_group_administrative_data_tab(request, education_group_year_id)
+
+
+def _education_group_administrative_data_tab(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
 
     parent = get_root(education_group_year_id, request)
@@ -175,19 +177,39 @@ def education_group_administrative_data(request, education_group_year_id):
                'course_enrollment':get_dates(academic_calendar_type.COURSE_ENROLLMENT, education_group_year),
                'mandataries': mdl.mandatary.find_by_education_group_year(education_group_year),
                'pgm_mgrs': mdl.program_manager.find_by_education_group(education_group_year.education_group)}
-
-    context.update({'exam_enrollments': list(get_sessions_dates(academic_calendar_type.EXAM_ENROLLMENTS,
-                                                           education_group_year).values())})
-    context.update({'scores_exam_submission': list(get_sessions_dates(academic_calendar_type.SCORES_EXAM_SUBMISSION,
-                                                                 education_group_year).values())})
+    context.update({'exam_enrollments': get_sessions_dates(academic_calendar_type.EXAM_ENROLLMENTS,
+                                                           education_group_year)})
+    context.update({'scores_exam_submission': get_sessions_dates(academic_calendar_type.SCORES_EXAM_SUBMISSION,
+                                                                 education_group_year)})
     context.update({'dissertation_submission': get_sessions_dates(academic_calendar_type.DISSERTATION_SUBMISSION,
-                                                                  education_group_year).values()})
+                                                                  education_group_year)})
     context.update({'deliberation': get_sessions_dates(academic_calendar_type.DELIBERATION,
-                                                       education_group_year).values()})
+                                                       education_group_year)})
     context.update({'scores_exam_diffusion': get_sessions_dates(academic_calendar_type.SCORES_EXAM_DIFFUSION,
-                                                                education_group_year).values()})
-
+                                                                education_group_year)})
     return layout.render(request, "education_group/tab_administrative_data.html", context)
+
+
+@login_required
+@permission_required('base.can_access_offer', raise_exception=True)
+def education_group_edit_administrative_data(request, education_group_year_id):
+    education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+    context = {
+        'education_group_year': education_group_year,}
+
+    context.update({'exam_enrollments': get_form_sessions_dates(academic_calendar_type.EXAM_ENROLLMENTS,
+                                                                education_group_year)})
+
+    context.update({'scores_exam_submission': get_form_sessions_dates(academic_calendar_type.SCORES_EXAM_SUBMISSION,
+                                                                 education_group_year)})
+    context.update({'dissertation_submission': get_form_sessions_dates(academic_calendar_type.DISSERTATION_SUBMISSION,
+                                                                  education_group_year)})
+    context.update({'deliberation': get_form_sessions_dates(academic_calendar_type.DELIBERATION,
+                                                       education_group_year)})
+    context.update({'scores_exam_diffusion': get_form_sessions_dates(academic_calendar_type.SCORES_EXAM_DIFFUSION,
+                                                                education_group_year)})
+    return layout.render(request, "education_group/tab_edit_administrative_data.html", context)
+
 
 
 def get_root(education_group_year_id, request):
@@ -209,12 +231,9 @@ def get_sessions_dates(an_academic_calendar_type, an_education_group_year):
         if session1:
             dates = mdl.offer_year_calendar.get_by_education_group_year_and_academic_calendar(session1.academic_calendar,
                                                                                               an_education_group_year)
-        else:
-            print(mdl.offer_year_calendar.find_by_id(1))
-            dates = mdl.offer_year_calendar.find_by_id(1)
-
-        date_dict.update({'session{}'.format(cpt): OfferYearCalendarForm(instance=dates)})
-        cpt += 1
+            key = 'session{}'.format(cpt)
+            date_dict.update({key: dates})
+        cpt = cpt + 1
     return date_dict
 
 
@@ -227,6 +246,37 @@ def get_dates(an_academic_calendar_type, an_education_group_year):
     else:
         return {}
 
+def get_form_sessions_dates(an_academic_calendar_type, an_education_group_year, is_datetime=False):
+    list_date = []
+    for cpt in range(1, 4):
+        session = mdl.session_exam_calendar.get_by_session_reference_and_academic_year(cpt,
+                                                                                       an_academic_calendar_type,
+                                                                                       an_education_group_year.academic_year)
+        if session:
+            dates = mdl.offer_year_calendar.get_by_education_group_year_and_academic_calendar(session.academic_calendar,
+                                                                                              an_education_group_year)
+        else:
+            #TODO
+            dates = mdl.offer_year_calendar.find_by_id(1)
+
+        if is_datetime:
+            list_date.append(SessionDateTimeForm(instance=dates))
+        else:
+            list_date.append(SessionDateForm(instance=dates))
+
+    return list_date
+
+
+def get_form_dates(an_academic_calendar_type, an_education_group_year):
+    ac = mdl.academic_calendar.get_by_reference_and_academic_year(an_academic_calendar_type,
+                                                                  an_education_group_year.academic_year)
+    if ac:
+        dates = mdl.offer_year_calendar.get_by_education_group_year_and_academic_calendar(ac, an_education_group_year)
+    #TODO
+    else:
+        dates = mdl.offer_year_calendar.find_by_id(1)
+
+    return SessionDateForm(instance=dates)
 
 @login_required
 @permission_required('base.can_access_offer', raise_exception=True)
