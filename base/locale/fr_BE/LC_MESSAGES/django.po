@@ -2263,7 +2263,6 @@ msgstr "Vacant à ne pas publier"
 msgid "DO_NOT_ASSIGN"
 msgstr "A ne pas attribuer"
 
-<<<<<<< HEAD
 msgid "folder"
 msgstr "Dossier"
 
@@ -2275,10 +2274,9 @@ msgstr "Le"
 
 msgid "proposal_management"
 msgstr "Gestion de la proposition"
-=======
+
 msgid "category"
 msgstr "Catégorie"
->>>>>>> dd78477ef622d58010d2374a2379efee256302ec
 
 msgid "PRESIDENT"
 msgstr "Président"
