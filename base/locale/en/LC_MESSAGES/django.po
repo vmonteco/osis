@@ -2343,3 +2343,6 @@ msgstr "Accepted"
 
 msgid "REFUSED"
 msgstr "Refused"
+
+msgid "success_modification_proposal"
+msgstr "You proposed a modification of type {} for the learning unit {}."

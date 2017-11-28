@@ -186,6 +186,11 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertTrue(a_proposal_learning_unit)
         self.assertEqual(a_proposal_learning_unit.author, self.person)
 
+        messages = [str(message) for message in get_messages(response.wsgi_request)]
+        self.assertIn(_("success_modification_proposal").format(proposal_type.ProposalType.MODIFICATION.name,
+                                                                self.learning_unit_year.acronym),
+                      list(messages))
+
     def test_transformation_proposal_request(self):
         self.form_data["acronym"] = "OSIS1452"
         self.client.post(self.url, data=self.form_data)

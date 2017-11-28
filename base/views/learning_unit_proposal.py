@@ -26,6 +26,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_proposal import compute_form_initial_data, compute_proposal_type, \
     is_not_eligible_for_modification_proposal
@@ -52,6 +53,8 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
         if form.is_valid():
             type_proposal = compute_proposal_type(form.initial, form.cleaned_data)
             form.save(learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name)
+            messages.add_message(request, messages.SUCCESS,
+                                 _("success_modification_proposal").format(type_proposal, learning_unit_year.acronym))
             return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
     else:
         form = LearningUnitProposalModificationForm(initial=initial_data)
