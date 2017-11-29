@@ -69,10 +69,11 @@ class EducationGroupFilter(BootstrapForm):
     academic_year = forms.ModelChoiceField(queryset=academic_year.find_academic_years(), required=False,
                                            empty_label=_('all_label'))
 
-    category = forms.ChoiceField(choices=BLANK_CHOICE_DASH + list(education_group_categories.CATEGORIES),
+    category = forms.ChoiceField(choices=[("", _('all_label'))] + list(education_group_categories.CATEGORIES),
                                  required=False)
 
-    education_group_type = ModelChoiceFieldWithData(queryset=EducationGroupType.objects.all(), required=False)
+    education_group_type = ModelChoiceFieldWithData(queryset=EducationGroupType.objects.all(), required=False,
+                                                    empty_label=_('all_label'))
 
     acronym = title = requirement_entity_acronym = partial_acronym = forms.CharField(max_length=20, required=False)
 
