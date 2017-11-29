@@ -96,7 +96,7 @@
                                             {% trans learning_unit_year.learning_unit.periodicity %}
                                         {% endif %}
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-3">
                                         <label>{% trans 'status' %}</label><br>
                                         {% if learning_unit_year.status %}
                                             {% trans 'active'|title %}
@@ -143,6 +143,7 @@
                     </div>
 
                     <div class="col-md-4">
+
                         <div class="panel panel-default">
                             <div class="panel-body">
                                 <label>{% trans 'institution'%}</label><br>
@@ -178,7 +179,33 @@
                                 {% endif %}
                             </div>
                         </div>
-                    </div>
+
+                        {% if proposal %}
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                {% trans 'proposal' %}
+                            </div>
+                              <div class="panel-body">
+                                  <label style="margin-top:10px;">{% trans 'folder' %}</label><br>
+                                  {{ proposal_folder_entity_version.0.acronym}} - {{ proposal.folder.folder_id }}
+                                  <br>
+                                  <label style="margin-top:10px;">{% trans 'type' %}</label><br>
+                                  {% trans proposal.type %}
+                                  <br>
+                                  <label style="margin-top:10px;">{% trans 'state' %}</label><br>
+                                  {% trans proposal.state %}
+                                  <br>
+                                  <label style="margin-top:10px;">{% trans 'introduced_by' %}</label><br>
+                                  {{ proposal.author }}
+                                  <br>
+                                   <label style="margin-top:10px;">{% trans 'the' %}</label><br>
+                                  {{ proposal.date }}
+
+                              </div>
+                          </div>
+                        </div>
+                        {% endif %}
+
                 </div>
             </div>
         </div>
