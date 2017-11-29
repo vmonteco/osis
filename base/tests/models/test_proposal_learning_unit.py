@@ -38,3 +38,10 @@ class TestSearch(TestCase):
             self.proposal_learning_unit.learning_unit_year
         )
         self.assertEqual(a_proposal_learning_unit, self.proposal_learning_unit)
+
+    def test_have_a_proposal(self):
+        a_learning_unit_year = self.proposal_learning_unit.learning_unit_year
+        self.assertTrue(proposal_learning_unit.have_a_proposal(a_learning_unit_year))
+
+        self.proposal_learning_unit.delete()
+        self.assertFalse(proposal_learning_unit.have_a_proposal(a_learning_unit_year))

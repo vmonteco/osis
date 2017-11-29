@@ -25,6 +25,7 @@
 ##############################################################################
 import datetime
 
+from decimal import Decimal
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
@@ -118,6 +119,7 @@ class TestSave(TestCase):
         self.assertEqual(self.learning_unit_year.title, self.form_data['title'])
         self.assertEqual(self.learning_unit_year.title_english, self.form_data['title_english'])
         self.assertFalse(self.learning_unit_year.status)
+        self.assertEqual(self.learning_unit_year.credits, Decimal(self.form_data['credits']))
         self.assertEqual(self.learning_unit_year.quadrimester, self.form_data['quadrimester'])
 
     def test_learning_container_update(self):

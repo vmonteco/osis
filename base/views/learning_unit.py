@@ -44,6 +44,7 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, get_last_academic_years
 from base.forms.common import TooManyResultsException
+from base.models import proposal_learning_unit
 from base.models.enums import learning_container_year_types
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
@@ -91,6 +92,10 @@ def learning_unit_identification(request, learning_unit_year_id):
     context['show_subtype'] = show_subtype(learning_unit_year)
     context.update(get_all_attributions(learning_unit_year))
     context['components'] = get_components_identification(learning_unit_year)
+    context['have_a_proposal'] = proposal_learning_unit.have_a_proposal(learning_unit_year)
+
+    if context['have_a_proposal']:
+        messages.add_message(request,messages.WARNING, _("proposal_already_exists"))
 
     return layout.render(request, "learning_unit/identification.html", context)
 
