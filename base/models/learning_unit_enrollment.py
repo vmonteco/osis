@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.db import models
+from base.models.enums import learning_unit_enrollment_state
 
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 
@@ -46,6 +47,7 @@ class LearningUnitEnrollment(AuditableSerializableModel):
     date_enrollment = models.DateField()
     learning_unit_year = models.ForeignKey('LearningUnitYear')
     offer_enrollment = models.ForeignKey('OfferEnrollment')
+    enrollment_state = models.CharField(max_length=20, choices=learning_unit_enrollment_state.STATES, blank=True, null=True)
 
     @property
     def student(self):
