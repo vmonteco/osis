@@ -23,16 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from dateutil.relativedelta import relativedelta
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import redirect
 from django.utils import timezone
+from base.models import academic_year,entity_version
+from osis_common.messaging import message_config, send_message as message_service
 from assistant.models import assistant_mandate, settings, manager, reviewer
 from assistant.models.enums import message_type, assistant_mandate_renewal
 from assistant.models.message import Message
+from assistant.models.enums import reviewer_role
 from assistant.utils import manager_access
-from base.models import academic_year,entity_version
-from osis_common.messaging import message_config, send_message as message_service
 
 
 @user_passes_test(manager_access.user_is_manager, login_url='assistants_home')
@@ -87,11 +87,10 @@ def send_message(person, html_template_ref, txt_template_ref, assistant=None, ro
     procedure_dates = settings.get_settings()
     receivers = [message_config.create_receiver(person.id, person.email,
                                                 person.language)]
-    last_ending_year = procedure_dates.assistants_contract_end_ending_date + relativedelta(years=1)
     template_base_data = {'start_date': procedure_dates.assistants_contract_end_starting_date,
                           'end_date': procedure_dates.assistants_contract_end_ending_date,
                           'first_name': person.first_name, 'last_name': person.last_name,
-                          'date_not_included': last_ending_year,
+                          'roles': reviewer_role,
                           'gender': person.gender}
     if assistant:
         template_base_data['assistant'] = assistant.person
