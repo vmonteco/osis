@@ -96,7 +96,7 @@
                                             {% trans learning_unit_year.learning_unit.periodicity %}
                                         {% endif %}
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-3">
                                         <label>{% trans 'status' %}</label><br>
                                         {% if learning_unit_year.status %}
                                             {% trans 'active'|title %}
@@ -104,6 +104,12 @@
                                             {% trans 'inactive'|title %}
                                         {% endif %}
                                     </div>
+                                    {% if proposal %}
+                                    <div class="col-md-3">
+                                        <label>{% trans 'proposal' %}</label><br>
+                                        {% trans proposal.type %}
+                                    </div>
+                                    {% endif %}
                                 </div>
 
                                 <br>

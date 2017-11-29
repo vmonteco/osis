@@ -92,10 +92,7 @@ def learning_unit_identification(request, learning_unit_year_id):
     context['show_subtype'] = show_subtype(learning_unit_year)
     context.update(get_all_attributions(learning_unit_year))
     context['components'] = get_components_identification(learning_unit_year)
-    context['have_a_proposal'] = proposal_learning_unit.have_a_proposal(learning_unit_year)
-
-    if context['have_a_proposal']:
-        messages.add_message(request,messages.WARNING, _("proposal_already_exists"))
+    context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
 
     return layout.render(request, "learning_unit/identification.html", context)
 
