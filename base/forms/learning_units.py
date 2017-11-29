@@ -225,8 +225,8 @@ class CreateLearningUnitYearForm(BootstrapForm):
     acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}$"
 
     def __init__(self, person, *args, **kwargs):
-        self.person = person
         super(CreateLearningUnitYearForm, self).__init__(*args, **kwargs)
+        # When we create a learning unit, we can only select requirement entity which are attached to the person
         self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
 
     def clean_acronym(self):
