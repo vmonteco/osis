@@ -60,3 +60,7 @@ def find_by_learning_unit_year(a_learning_unit_year):
         return ProposalLearningUnit.objects.get(learning_unit_year=a_learning_unit_year)
     except ObjectDoesNotExist:
         return None
+
+
+def have_a_proposal(a_learning_unit_year):
+    return ProposalLearningUnit.objects.filter(learning_unit_year=a_learning_unit_year).count() > 0

@@ -34,7 +34,11 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
              {% if "base.can_propose_learningunit" in perms %}
-            <li><a href="{% url "learning_unit_modification_proposal" learning_unit_year_id=learning_unit_year.id %}">{% trans 'Put in proposal' %}</a></li>
+            <li {% if have_a_proposal %}class="disabled"{% endif %}>
+                <a {% if not have_a_proposal %} href="{% url "learning_unit_modification_proposal" learning_unit_year_id=learning_unit_year.id %}" {% endif %}>
+                    {% trans 'Put in proposal' %}
+                </a>
+            </li>
             {% endif %}
             <li class="divider"></li>
             {% if "base.can_delete_learningunit" in perms %}
