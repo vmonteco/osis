@@ -34,7 +34,6 @@ from django.utils import timezone
 from base.models.academic_year import AcademicYear
 from base.models.enums import entity_type
 from base.models.enums.organization_type import MAIN
-from base.models.utils import person_entity_filter
 from osis_common.utils.datetime import get_tzinfo
 
 
@@ -334,6 +333,8 @@ def find_main_entities_version():
 
 
 def find_main_entities_version_filtered_by_person(person):
+    from base.models.utils import person_entity_filter
+
     qs = find_main_entities_version()
     return person_entity_filter.filter_by_attached_entities(person, qs)
 
