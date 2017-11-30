@@ -34,6 +34,8 @@ class EducationGroupLanguageAdmin(admin.ModelAdmin):
 
 
 class EducationGroupLanguage(models.Model):
+    external_id = models.CharField(max_length=100, blank=True, null=True)
+    changed = models.DateTimeField(null=True, auto_now=True)
     type = models.CharField(max_length=255, choices=education_group_language.EducationGroupLanguages.choices())
     order = models.IntegerField()
     education_group_year = models.ForeignKey('base.EducationGroupYear')
