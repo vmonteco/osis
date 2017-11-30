@@ -114,6 +114,7 @@ class Dissertation(SerializableModel):
         elif self.status == 'COM_SUBMIT' or self.status == 'COM_KO':
             next_status = get_next_status(self, "accept")
             emails_dissert.send_email(self, 'dissertation_accepted_by_com', self.author)
+            emails_dissert.send_email(self, 'dissertation_to_commission_list', self.author)
             self.set_status(next_status)
         elif self.status == 'EVA_SUBMIT' or self.status == 'EVA_KO' or self.status == 'DEFENDED':
             next_status = get_next_status(self, "accept")

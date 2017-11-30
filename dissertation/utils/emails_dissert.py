@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from osis_common.messaging import message_config, send_message as message_service
-from dissertation.models.dissertation_role import get_promoteur_by_dissertation
+from dissertation.models.dissertation_role import get_promoteur_by_dissertation, search_by_dissertation
 
 
 def get_base_template(dissert):
@@ -36,12 +36,31 @@ def get_base_template(dissert):
     return template_base_data
 
 
+def get_commission_template(dissert):
+    commission_to_read = search_by_dissertation(dissert)
+    list_commission_string = ''
+    for member in commission_to_read:
+        list_commission_string = list_commission_string + member.adviser.person.first_name +  ' ' + \
+                                member.adviser.person.last_name + ' : '+ member.status + ' - '
+
+    template_commission_data = {'author' : dissert.author,
+                          'title': dissert.title,
+                          'promoteur' : get_promoteur_by_dissertation(dissert).person,
+                          'description' : dissert.description,
+                          'commission_string' : list_commission_string,
+                          'dissertation_proposition_titre': dissert.proposition_dissertation.title}
+    return template_commission_data
+
+
 def send_email(dissert, template_ref, receivers):
     receivers = generate_receivers(receivers)
     html_template_ref = template_ref + '_html'
     txt_template_ref = template_ref + '_txt'
     suject_data = None
-    template_base_data = get_base_template(dissert)
+    if template_ref is not 'dissertation_to_commission_list':
+        template_base_data = get_base_template(dissert)
+    else:
+        template_base_data = get_commission_template(dissert)
     tables = None
     message_content = message_config.create_message_content(html_template_ref, txt_template_ref, tables, receivers,
                                                             template_base_data, suject_data)
