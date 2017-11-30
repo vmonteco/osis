@@ -23,27 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-from django.contrib import admin
-from base.models.enums import education_group_language
+from enum import Enum
+from django.utils.translation import ugettext_lazy as _
 
 
-class EducationGroupLanguageAdmin(admin.ModelAdmin):
-    list_display = ('type', 'order', 'education_group_year', 'language')
-    raw_id_fields = ('education_group_year', 'language')
+class ProposalState(Enum):
+    FACULTY = "FACULTY"
+    CENTRAL = "CENTRAL"
+    SUSPENDED = "SUSPENDED"
+    ACCEPTED = "ACCEPTED"
+    REFUSED = "REFUSED"
 
 
-class EducationGroupLanguage(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    type = models.CharField(max_length=255, choices=education_group_language.EducationGroupLanguages.choices())
-    order = models.IntegerField()
-    education_group_year = models.ForeignKey('base.EducationGroupYear')
-    language = models.ForeignKey('reference.Language')
-
-    def __str__(self):
-        return "{}".format(self.id)
-
-
-def find_by_education_group_year(education_group_year):
-    return EducationGroupLanguage.objects.filter(education_group_year=education_group_year).order_by('order')
+CHOICES = tuple((name, _(name)) for name, member in ProposalState.__members__.items())

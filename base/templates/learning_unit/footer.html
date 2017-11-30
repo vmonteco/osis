@@ -34,7 +34,11 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
              {% if "base.can_propose_learningunit" in perms %}
-            <li><a href="#" data-toggle="modal" data-target="#proposalModal">{% trans 'Put in proposal' %}</a></li>
+            <li {% if proposal %}class="disabled"{% endif %}>
+                <a {% if not proposal %} href="{% url "learning_unit_modification_proposal" learning_unit_year_id=learning_unit_year.id %}" {% endif %}>
+                    {% trans 'Put in proposal' %}
+                </a>
+            </li>
             {% endif %}
             <li class="divider"></li>
             {% if "base.can_delete_learningunit" in perms %}
@@ -43,25 +47,5 @@
             {% endif %}
         </ul>
     </div>
-</div>
-
-<!-- Modal -->
-<div class="modal fade" id="proposalModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-body">
-          <div class="radio">
-              <label><input type="radio" name="optradio">{% trans 'Proposal for modification' %}</label>
-          </div>
-          <div class="radio">
-              <label><input type="radio" name="optradio">{% trans 'End of teaching' %}</label>
-          </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'cancel' %}</button>
-        <button type="button" class="btn btn-primary">{%  trans 'accept' %}</button>
-      </div>
-    </div>
-  </div>
 </div>
 {% endif %}

@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,27 +23,22 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-from django.contrib import admin
-from base.models.enums import education_group_language
+import factory
+import factory.fuzzy
+import string
+import datetime
+
+from base.tests.factories.entity import EntityFactory
+from osis_common.utils.datetime import get_tzinfo
 
 
-class EducationGroupLanguageAdmin(admin.ModelAdmin):
-    list_display = ('type', 'order', 'education_group_year', 'language')
-    raw_id_fields = ('education_group_year', 'language')
+class ProposalFolderFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "base.ProposalFolder"
+        django_get_or_create = ('entity', )
 
-
-class EducationGroupLanguage(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    type = models.CharField(max_length=255, choices=education_group_language.EducationGroupLanguages.choices())
-    order = models.IntegerField()
-    education_group_year = models.ForeignKey('base.EducationGroupYear')
-    language = models.ForeignKey('reference.Language')
-
-    def __str__(self):
-        return "{}".format(self.id)
-
-
-def find_by_education_group_year(education_group_year):
-    return EducationGroupLanguage.objects.filter(education_group_year=education_group_year).order_by('order')
+    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
+    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
+                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    entity = factory.SubFactory(EntityFactory)
+    folder_id = factory.fuzzy.FuzzyInteger(100)

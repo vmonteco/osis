@@ -24,26 +24,43 @@
 #
 ##############################################################################
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 from django.contrib import admin
-from base.models.enums import education_group_language
+from django.core.exceptions import ObjectDoesNotExist
+
+from base.models.enums import proposal_type, proposal_state
 
 
-class EducationGroupLanguageAdmin(admin.ModelAdmin):
-    list_display = ('type', 'order', 'education_group_year', 'language')
-    raw_id_fields = ('education_group_year', 'language')
+class ProposalLearningUnitAdmin(admin.ModelAdmin):
+    list_display = ('learning_unit_year', 'folder', 'type', 'state', )
+    fieldsets = ((None, {'fields': ('folder', 'type', 'state', 'initial_data')}),)
+
+    search_fields = ['folder__folder_id', 'folder_entity', 'learning_unit_year__acronym']
+    list_filter = ('type', 'state')
+    raw_id_fields = ('learning_unit_year', 'folder', )
 
 
-class EducationGroupLanguage(models.Model):
+class ProposalLearningUnit(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
-    type = models.CharField(max_length=255, choices=education_group_language.EducationGroupLanguages.choices())
-    order = models.IntegerField()
-    education_group_year = models.ForeignKey('base.EducationGroupYear')
-    language = models.ForeignKey('reference.Language')
+    folder = models.ForeignKey('ProposalFolder')
+    author = models.ForeignKey('Person', null=True)
+    date = models.DateTimeField(auto_now=True)
+    learning_unit_year = models.ForeignKey('LearningUnitYear')
+    type = models.CharField(max_length=50, choices=proposal_type.CHOICES)
+    state = models.CharField(max_length=50, choices=proposal_state.CHOICES)
+    initial_data = JSONField(default={})
 
     def __str__(self):
-        return "{}".format(self.id)
+        return "{} - {}".format(self.folder, self.learning_unit_year)
 
 
-def find_by_education_group_year(education_group_year):
-    return EducationGroupLanguage.objects.filter(education_group_year=education_group_year).order_by('order')
+def find_by_learning_unit_year(a_learning_unit_year):
+    try:
+        return ProposalLearningUnit.objects.get(learning_unit_year=a_learning_unit_year)
+    except ObjectDoesNotExist:
+        return None
+
+
+def have_a_proposal(a_learning_unit_year):
+    return ProposalLearningUnit.objects.filter(learning_unit_year=a_learning_unit_year).count() > 0

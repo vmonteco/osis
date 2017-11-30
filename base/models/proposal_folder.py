@@ -25,25 +25,38 @@
 ##############################################################################
 from django.db import models
 from django.contrib import admin
-from base.models.enums import education_group_language
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import ugettext_lazy as _
 
 
-class EducationGroupLanguageAdmin(admin.ModelAdmin):
-    list_display = ('type', 'order', 'education_group_year', 'language')
-    raw_id_fields = ('education_group_year', 'language')
+class ProposalFolderAdmin(admin.ModelAdmin):
+    list_display = ('entity', 'folder_id', )
+    fieldsets = ((None, {'fields': ('entity', 'folder_id', )}), )
+
+    search_fields = ['folder_id']
+    raw_id_fields = ('entity', )
 
 
-class EducationGroupLanguage(models.Model):
+class ProposalFolder(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
-    type = models.CharField(max_length=255, choices=education_group_language.EducationGroupLanguages.choices())
-    order = models.IntegerField()
-    education_group_year = models.ForeignKey('base.EducationGroupYear')
-    language = models.ForeignKey('reference.Language')
+    entity = models.ForeignKey('Entity')
+    folder_id = models.IntegerField()
+
+    class Meta:
+        unique_together = ('entity', 'folder_id', )
 
     def __str__(self):
-        return "{}".format(self.id)
+        return _("folder_number").format(self.folder_id)
 
 
-def find_by_education_group_year(education_group_year):
-    return EducationGroupLanguage.objects.filter(education_group_year=education_group_year).order_by('order')
+def find_by_entity_and_folder_id(an_entity, a_folder_id):
+    try:
+        return ProposalFolder.objects.get(entity=an_entity, folder_id=a_folder_id)
+    except ObjectDoesNotExist:
+        return None
+
+
+
+
+

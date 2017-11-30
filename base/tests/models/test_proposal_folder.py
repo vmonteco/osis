@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,27 +23,24 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-from django.contrib import admin
-from base.models.enums import education_group_language
+from django.test import TestCase
+from django.db.utils import IntegrityError
+from base.tests.factories.proposal_folder import ProposalFolderFactory
+from base.models import proposal_folder
 
 
-class EducationGroupLanguageAdmin(admin.ModelAdmin):
-    list_display = ('type', 'order', 'education_group_year', 'language')
-    raw_id_fields = ('education_group_year', 'language')
+class TestSearch(TestCase):
+    def setUp(self):
+        self.proposal_folder = ProposalFolderFactory()
 
+    def test_unique_together(self):
+        with self.assertRaises(IntegrityError):
+            proposal_folder.ProposalFolder.objects.create(entity=self.proposal_folder.entity,
+                                                          folder_id=self.proposal_folder.folder_id)
 
-class EducationGroupLanguage(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    type = models.CharField(max_length=255, choices=education_group_language.EducationGroupLanguages.choices())
-    order = models.IntegerField()
-    education_group_year = models.ForeignKey('base.EducationGroupYear')
-    language = models.ForeignKey('reference.Language')
+    def test_find_by_entiy_and_folder_id(self):
+        ProposalFolderFactory()
+        a_proposal_folder = proposal_folder.find_by_entity_and_folder_id(self.proposal_folder.entity,
+                                                                         self.proposal_folder.folder_id)
 
-    def __str__(self):
-        return "{}".format(self.id)
-
-
-def find_by_education_group_year(education_group_year):
-    return EducationGroupLanguage.objects.filter(education_group_year=education_group_year).order_by('order')
+        self.assertEqual(a_proposal_folder, self.proposal_folder)

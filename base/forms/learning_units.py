@@ -27,7 +27,7 @@ import re
 
 from django import forms
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.db.models import Prefetch
+from django.db.models import Prefetch, QuerySet
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
@@ -180,7 +180,7 @@ class CreateLearningUnitYearForm(BootstrapForm):
     internship_subtype = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
                                            mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES,
                                            required=False)
-    credits = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
+    credits = forms.DecimalField(decimal_places=2)
     title = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
     title_english = forms.CharField(required=False, widget=forms.TextInput())
     session = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
@@ -190,7 +190,7 @@ class CreateLearningUnitYearForm(BootstrapForm):
     first_letter = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'text-center',
                                                                                  'maxlength': "1",
                                                                                  'readonly': 'readonly'}))
-    learning_container_year_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
+    container_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
                                                      widget=forms.Select(
                                                      attrs={'onchange': 'showInternshipSubtype(this.value)'}))
     faculty_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
@@ -243,11 +243,8 @@ class CreateLearningUnitYearForm(BootstrapForm):
             self.add_error('acronym', _('existing_acronym'))
         elif not re.match(self.acronym_regex, self.cleaned_data['acronym']):
             self.add_error('acronym', _('invalid_acronym'))
-        elif self.cleaned_data['learning_container_year_type'] == INTERNSHIP \
+        elif self.cleaned_data["container_type"] == INTERNSHIP \
                 and not (self.cleaned_data['internship_subtype']):
             self._errors['internship_subtype'] = _('field_is_required')
-        elif not self.cleaned_data['credits']:
-            self._errors['credits'] = _('field_is_required')
-            return False
         else:
             return True

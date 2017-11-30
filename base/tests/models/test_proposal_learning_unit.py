@@ -23,27 +23,25 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-from django.contrib import admin
-from base.models.enums import education_group_language
+from django.test import TestCase
+
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
+from base.models import proposal_learning_unit
 
 
-class EducationGroupLanguageAdmin(admin.ModelAdmin):
-    list_display = ('type', 'order', 'education_group_year', 'language')
-    raw_id_fields = ('education_group_year', 'language')
+class TestSearch(TestCase):
+    def setUp(self):
+        self.proposal_learning_unit = ProposalLearningUnitFactory()
 
+    def test_find_by_learning_unit_year(self):
+        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(
+            self.proposal_learning_unit.learning_unit_year
+        )
+        self.assertEqual(a_proposal_learning_unit, self.proposal_learning_unit)
 
-class EducationGroupLanguage(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    type = models.CharField(max_length=255, choices=education_group_language.EducationGroupLanguages.choices())
-    order = models.IntegerField()
-    education_group_year = models.ForeignKey('base.EducationGroupYear')
-    language = models.ForeignKey('reference.Language')
+    def test_have_a_proposal(self):
+        a_learning_unit_year = self.proposal_learning_unit.learning_unit_year
+        self.assertTrue(proposal_learning_unit.have_a_proposal(a_learning_unit_year))
 
-    def __str__(self):
-        return "{}".format(self.id)
-
-
-def find_by_education_group_year(education_group_year):
-    return EducationGroupLanguage.objects.filter(education_group_year=education_group_year).order_by('order')
+        self.proposal_learning_unit.delete()
+        self.assertFalse(proposal_learning_unit.have_a_proposal(a_learning_unit_year))
