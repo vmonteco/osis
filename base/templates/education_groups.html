@@ -49,26 +49,27 @@
                     <label for="id_acronym">{% trans 'acronym'%}</label>
                      {{form.acronym}}
                 </div>
-                <div class="col-md-3">
-                    <label for="id_title">{% trans 'title'%}</label>
-                     {{form.title}}
-                </div>
-                 <div class="col-md-3">
-                    <label for="id_category">{% trans 'category'%}</label>
-                     {{form.category}}
-                </div>
-                <div class="col-md-2">
-                    <label for="id_education_group_type">{% trans 'type'%}</label>
-                     {{form.education_group_type}}
-                </div>
-            </div>
-            <div class="row" style="margin-top:10px;">
                 <div class="col-md-2">
                     <label for="id_partial_acronym">{% trans 'code' %}</label>
                     {{ form.partial_acronym }}
                 </div>
+
+                <div class="col-md-6">
+                    <label for="id_title">{% trans 'title'%}</label>
+                     {{form.title}}
+                </div>
+            </div>
+            <div class="row" style="margin-top:10px;">
                 <div class="col-md-2">
-                    <label for="id_requirement_entity_acronym">{% trans 'requirement_entity_small' %}</label>
+                    <label for="id_category">{% trans 'category'%}</label>
+                     {{form.category}}
+                </div>
+                <div class="col-md-4">
+                    <label for="id_education_group_type">{% trans 'type'%}</label>
+                     {{form.education_group_type}}
+                </div>
+                <div class="col-md-2">
+                    <label for="id_requirement_entity_acronym">{% trans 'academic_entity_small' %}</label>
                     {{ form.requirement_entity_acronym }}
                 </div>
                 <div class="col-md-2">
@@ -81,7 +82,7 @@
                         <label>{% trans 'with_entity_subordinated_small' %}</label>
                     </div>
                 </div>
-                <div class="col-md-6 text-right" style="line-height:55px;">
+                <div class="col-md-2 text-right" style="line-height:55px;">
                     <button type="submit" id="bt_submit_education_groups_search"
                             class="btn btn-primary" role="button" style="vertical-align:bottom;">
                             <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
@@ -102,7 +103,7 @@
                         <th>{% trans 'acronym'%}</th>
                         <th>{% trans 'title'%}</th>
                         <th>{% trans 'type'%}</th>
-                        <th>{% trans 'entity_management'%}</th>
+                        <th>{% trans 'entity'%}</th>
                         <th>{% trans 'code'%}</th>
                     </tr>
                 </thead>

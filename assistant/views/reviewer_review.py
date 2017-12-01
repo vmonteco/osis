@@ -26,6 +26,7 @@
 import re
 from django.contrib.auth.decorators import user_passes_test
 from django.core.exceptions import ObjectDoesNotExist
+from django.views.decorators.http import require_http_methods
 from django.core.urlresolvers import reverse
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
@@ -49,6 +50,7 @@ def user_is_reviewer_and_procedure_is_open(user):
         return False
 
 
+@require_http_methods(["POST"])
 @user_passes_test(user_is_reviewer_and_procedure_is_open, login_url='access_denied')
 def review_view(request):
     mandate_id = request.POST.get("mandate_id")
@@ -79,6 +81,7 @@ def review_view(request):
                                                 })
 
 
+@require_http_methods(["POST"])
 @user_passes_test(user_is_reviewer_and_procedure_is_open, login_url='access_denied')
 def review_edit(request):
     mandate_id = request.POST.get("mandate_id")
@@ -122,6 +125,7 @@ def review_edit(request):
                                                 'form': form})
 
 
+@require_http_methods(["POST"])
 @user_passes_test(user_is_reviewer_and_procedure_is_open, login_url='access_denied')
 def review_save(request):
     mandate_id = request.POST.get("mandate_id")
@@ -147,7 +151,7 @@ def review_save(request):
             elif mandate.state == assistant_mandate_state.VICE_RECTOR:
                 mandate.state = assistant_mandate_state.DONE
             mandate.save()
-            return HttpResponseRedirect(reverse("reviewer_mandates_list"))
+            return HttpResponseRedirect(reverse("reviewer_mandates_list_todo"))
         elif 'save' in request.POST:
             current_review.status = review_status.IN_PROGRESS
             current_review.save()
@@ -167,6 +171,7 @@ def review_save(request):
                                                     'form': form})
 
 
+@require_http_methods(["POST"])
 @user_passes_test(user_is_reviewer_and_procedure_is_open, login_url='access_denied')
 def pst_form_view(request):
     mandate_id = request.POST.get("mandate_id")

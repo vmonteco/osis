@@ -34,21 +34,21 @@
 
     <div class="panel panel-default">
         <div class="panel-body" id="tabs">
-            {% include "education_group/tabs.html" %}
             <div class="tab-content" id="tab_content">
                 <div role="tabpanel" class="tab-pane active" id="identification">
+                    <a class="button" onclick="showDiv()">
+                        <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
+                    </a>
                     <div class="row">
-                        <div class="col-md-3">
+                        {% include "education_group/training_tree.html" %}
+                        <div id="panel-data" class="col-md-9">
+                            {% include "education_group/tabs.html" %}
                             <br>
-                            {% include "education_group/training_tree.html" %}
-                        </div>
-                        <div class="col-md-9">
-                            <br>
-                            {% if education_group_year.category == enums.TRAINING %}
+                            {% if education_group_year.education_group_type.category == enums.TRAINING %}
                                 {% include "education_group/identification_training_details.html" %}
-                            {% elif education_group_year.category == enums.MINI_TRAINING %}
+                            {% elif education_group_year.education_group_type.category == enums.MINI_TRAINING %}
                                 {% include "education_group/identification_mini_training_details.html" %}
-                            {% elif education_group_year.category == enums.GROUP %}
+                            {% elif education_group_year.education_group_type.category == enums.GROUP %}
                                 {% include "education_group/identification_group_details.html" %}
                             {% endif %}
                         </div>

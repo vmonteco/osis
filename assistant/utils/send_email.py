@@ -26,12 +26,13 @@
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import redirect
 from django.utils import timezone
+from base.models import academic_year,entity_version
+from osis_common.messaging import message_config, send_message as message_service
 from assistant.models import assistant_mandate, settings, manager, reviewer
 from assistant.models.enums import message_type, assistant_mandate_renewal
 from assistant.models.message import Message
+from assistant.models.enums import reviewer_role
 from assistant.utils import manager_access
-from base.models import academic_year
-from osis_common.messaging import message_config, send_message as message_service
 
 
 @user_passes_test(manager_access.user_is_manager, login_url='assistants_home')
@@ -67,7 +68,8 @@ def send_message_to_reviewers(request):
     txt_template_ref = 'assistant_reviewers_startup_txt'
     reviewers = reviewer.find_reviewers()
     for rev in reviewers:
-        send_message(rev.person, html_template_ref, txt_template_ref)
+        send_message(rev.person, html_template_ref, txt_template_ref, role=rev.role,
+                     entity=entity_version.get_last_version(rev.entity).acronym)
     save_message_history(request, message_type.TO_ALL_REVIEWERS)
     return redirect('messages_history')
 
@@ -81,18 +83,21 @@ def save_message_history(request, type):
     message.save()
 
 
-def send_message(person, html_template_ref, txt_template_ref, assistant=None):
+def send_message(person, html_template_ref, txt_template_ref, assistant=None, role=None, entity=None):
     procedure_dates = settings.get_settings()
     receivers = [message_config.create_receiver(person.id, person.email,
                                                 person.language)]
-    first_ending_year = academic_year.current_academic_year().year + 1
-    last_ending_year = first_ending_year + 1
-    template_base_data = {'start_date': procedure_dates.starting_date, 'end_date': procedure_dates.ending_date,
+    template_base_data = {'start_date': procedure_dates.assistants_contract_end_starting_date,
+                          'end_date': procedure_dates.assistants_contract_end_ending_date,
                           'first_name': person.first_name, 'last_name': person.last_name,
-                          'first_ending_year': first_ending_year,
-                          'last_ending_year': last_ending_year}
-    if assistant is not None:
+                          'roles': reviewer_role,
+                          'gender': person.gender}
+    if assistant:
         template_base_data['assistant'] = assistant.person
+    if role:
+        template_base_data['role'] = role
+    if entity:
+        template_base_data['entity'] = entity
     subject_data = None
     table = None
     message_content = message_config.create_message_content(html_template_ref, txt_template_ref, table,

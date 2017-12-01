@@ -33,7 +33,6 @@ from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import entity_container_year_link_type
 from base.models.enums import learning_component_year_type
 from base.models.enums import learning_container_year_types
-from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LearningUnit
@@ -41,7 +40,6 @@ from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from cms import models as mdl_cms
 from cms.enums import entity_name
-from reference.models import language
 
 
 # List of key that a user can modify
@@ -210,7 +208,7 @@ def create_learning_unit_structure(additional_entity_version_1, additional_entit
                learning_container=new_learning_container,
                title=data['title'],
                acronym=data['acronym'].upper(),
-               container_type=data['learning_container_year_type'],
+               container_type=data['container_type'],
                language=data['language'])
     new_requirement_entity = create_entity_container_year(requirement_entity_version,
                                                           new_learning_container_year,
@@ -224,7 +222,7 @@ def create_learning_unit_structure(additional_entity_version_1, additional_entit
     if additional_entity_version_2:
         create_entity_container_year(additional_entity_version_2, new_learning_container_year,
                                      entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
-    if data['learning_container_year_type'] == learning_container_year_types.COURSE:
+    if data['container_type'] == learning_container_year_types.COURSE:
         create_course(academic_year, data, new_learning_container_year, new_learning_unit,
                       new_requirement_entity, status)
     else:
