@@ -100,6 +100,10 @@ urlpatterns = [
         name='manager_dissertations_wait_eval_list'),
     url(r'^manager_dissertations_wait_recep_list$', dissertation.manager_dissertations_wait_recep_list,
         name='manager_dissertations_wait_recep_list'),
+    url(r'^manager_dissertations_wait_comm_json_list$', dissertation.manager_dissertations_wait_comm_json_list,
+        name='manager_dissertations_wait_comm_json_list'),
+    url(r'^manager_dissertation_role_list_json/(?P<pk>[0-9]+)$', dissertation.manager_dissertation_role_list_json,
+        name='manager_dissertation_role_list_json'),
 
     url(r'^manager_informations/$', information.manager_informations, name='manager_informations'),
     url(r'^manager_informations_add/$', information.manager_informations_add, name='manager_informations_add'),

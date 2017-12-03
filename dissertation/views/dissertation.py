@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from dissertation.models.dissertation_role import search_by_dissertation
 from django.shortcuts import redirect
 from base.models.academic_year import find_academic_years, find_academic_year_by_id
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -39,6 +40,7 @@ from openpyxl.utils.exceptions import IllegalCharacterError
 from django.http import HttpResponse
 import time
 from django.utils import timezone
+import json
 
 
 def role_can_be_deleted(dissert, dissert_role):
@@ -654,6 +656,52 @@ def manager_dissertations_wait_comm_list(request):
                          {'dissertations': disserts,
                           'show_validation_commission': show_validation_commission,
                           'show_evaluation_first_year': show_evaluation_first_year})
+
+
+@login_required
+@user_passes_test(adviser.is_manager)
+def manager_dissertations_wait_comm_json_list(request):
+    person = mdl.person.find_by_user(request.user)
+    adv = adviser.search_by_person(person)
+    offers = faculty_adviser.search_by_adviser(adv)
+    disserts = dissertation.search_by_offer_and_status(offers, "COM_SUBMIT")
+    dissert_waiting_list_json=[]
+    for dissert in disserts:
+        dissert_waiting_list_json.append({
+            'pk' : dissert.pk,
+            'title' : dissert.title,
+            'author' : dissert.author.person.last_name + ' ' + dissert.author.person.first_name,
+            'status' : dissert.status,
+            'offer_year' : str(dissert.offer_year_start.academic_year),
+            'offer' : dissert.offer_year_start.acronym,
+            'proposition_dissertation' : str(dissert.proposition_dissertation),
+            'description': dissert.description,
+
+        })
+    json_list = json.dumps(dissert_waiting_list_json)
+    return HttpResponse(json_list,content_type='application/json')
+
+
+@login_required
+@user_passes_test(adviser.is_manager)
+def manager_dissertation_role_list_json(request,pk):
+    dissert = dissertation.find_by_id(pk)
+    if dissert is None:
+        return redirect('manager_dissertations_list')
+    dissert_roles = search_by_dissertation(dissert)
+    dissert_commission_sous_list = []
+    for dissert_role in dissert_roles:
+        dissert_commission_sous_list.append({
+            'pk' : dissert_role.pk,
+            'first_name' : str(dissert_role.adviser.person.first_name),
+            'middle_name' : str(dissert_role.adviser.person.middle_name),
+            'last_name' : str(dissert_role.adviser.person.last_name),
+            'status': str(dissert_role.status),
+            'dissert_pk' : dissert_role.dissertation.pk,
+
+        })
+    json_list = json.dumps(dissert_commission_sous_list)
+    return HttpResponse(json_list, content_type='application/json')
 
 
 @login_required

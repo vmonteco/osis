@@ -54,65 +54,20 @@
           <br>
           <label class="alert alert-info" style="margin-left:10%;width:80%;text-align:center;">{% trans 'no_result' %}</label>
         {% else %}
-          <table class="table table-hover" id="tb_memoire">
+          <table class="table table-hover" id="tb_memoire" cellpadding="10" cellspacing="5">
             <thead>
-              <th>{% trans 'title'%}</th>
-              <th>{% trans 'author'%}</th>
-              <th>{% trans 'status'%}</th>
-              <th>{% trans 'offer_year_start'%}</th>
-              <th>{% trans 'proposition_dissertation'%}</th>
-              <th>{% trans 'action'%}</th>
+                <tr>
+                  <th></th>
+                  <th>{% trans 'title'%}</th>
+                  <th>{% trans 'author'%}</th>
+                  <th>{% trans 'status'%}</th>
+                  <th>{% trans 'offer_year_start'%}</th>
+                  <th>{% trans 'offer'%}</th>
+                  <th>{% trans 'proposition_dissertation'%}</th>
+                  <th>{% trans 'action'%}</th>
+                </tr>
             </thead>
-            {% for dissertation in dissertations %}
-              <tr>
-                <td><a href="{% url 'manager_dissertations_detail' pk=dissertation.pk %}">{{ dissertation.title }}</a></td>
-                <td>{{ dissertation.author }}</td>
-                <td>
-                    {% if dissertation.status == 'DRAFT' %}
-                    <span class="label label-default">
-                    {% elif dissertation.status == 'DIR_SUBMIT' %}
-                    <span class="label label-primary">
-                    {% elif dissertation.status == 'DIR_OK' %}
-                    <span class="label label-success">
-                    {% elif dissertation.status == 'DIR_KO' %}
-                    <span class="label label-danger">
-                    {% elif dissertation.status == 'COM_SUBMIT' %}
-                    <span class="label label-primary">
-                    {% elif dissertation.status == 'COM_OK' %}
-                    <span class="label label-default">
-                    {% elif dissertation.status == 'COM_KO' %}
-                    <span class="label label-default">
-                    {% elif dissertation.status == 'EVA_SUBMIT' %}
-                    <span class="label label-primary">
-                    {% elif dissertation.status == 'EVA_OK' %}
-                    <span class="label label-default">
-                    {% elif dissertation.status == 'EVA_KO' %}
-                    <span class="label label-default">
-                    {% elif dissertation.status == 'TO_RECEIVE' %}
-                    <span class="label label-default">
-                    {% elif dissertation.status == 'TO_DEFEND' %}
-                    <span class="label label-default">
-                    {% elif dissertation.status == 'DEFENDED' %}
-                    <span class="label label-default">
-                    {% elif dissertation.status == 'ENDED' %}
-                    <span class="label label-default">
-                    {% elif dissertation.status == 'ENDED_WIN' %}
-                    <span class="label label-default">
-                    {% elif dissertation.status == 'ENDED_LOS' %}
-                    <span class="label label-default">
-                    {% endif %}
-                        {{ dissertation.get_status_display }}
-                    </span>
-                </td>
-                <td>{{ dissertation.offer_year_start }}</td>
-                <td>{{ dissertation.proposition_dissertation }}</td>
-                <td><a href="{% url 'manager_dissertations_accept_comm_list' pk=dissertation.pk %}"
-                   id="manager_dissertations_accept_comm_list" class="btn btn-default"
-                   role="button" title="{% trans 'manager_dissertations_accept_comm_list'%}"><span
-                        class="glyphicon glyphicon-ok-circle"
-                        aria-hidden="true"></span> {% trans 'manager_commission_accept'%}</a></td>
-              </tr>
-            {% endfor %}
+
           </table>
         {% endif %}
   </div>
@@ -121,17 +76,95 @@
 <script type="text/javascript" src="{% static 'js/jquery.dataTables.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/dataTables.bootstrap.min.js' %}"></script>
 <script>
+    function format(list_dissert_roles,dissert_description)
+    {
+        console.log(pk);
+        var pk ='';
+        var tab_dissert_roles ='<tr>';
+        tab_dissert_roles +='<td>&nbsp;&nbsp; {% trans 'dissertation_jury'%}: &nbsp; </td>';
+        for(var i =0;i < list_dissert_roles.length;i++)
+        {
+
+            var item = list_dissert_roles[i];
+            var pk=item.dissert_pk;
+            tab_dissert_roles +='<tr>';
+            tab_dissert_roles +='<td>  &nbsp; </td>';
+            tab_dissert_roles +='<td>  &nbsp; </td>';
+            tab_dissert_roles +='<td> '+item.status+' &nbsp; </td>';
+            tab_dissert_roles +='<td> '+item.first_name+' &nbsp; </td>';
+            tab_dissert_roles +='<td> '+item.last_name+' &nbsp; </td>';
+            tab_dissert_roles +='<td>  &nbsp; </td>';
+            tab_dissert_roles +='<td> &nbsp;'+
+                    '<a class="btn btn-warning" href="/dissertation/manager_dissertations_role_delete/'+item.pk+'"'+
+                    'onclick="return confirm(\'{% trans 'delete_adviser_role_confirmation_message' %}\')">'+
+                    '<span class="glyphicon glyphicon-remove span2"></span></a> </td>';
+            tab_dissert_roles =tab_dissert_roles+'<tr>';
+        };
+
+
+        return '<table cellpadding="10" cellspacing="5" border="0" style="padding-left:50px;"  >'+
+        '<tr>'+
+            '<td> &nbsp;&nbsp;{% trans 'Description'%}:</td>'+'<td> </td>'+
+            '<td> </td>'+
+            '<td colspan=6>'+dissert_description.description+'</td>'+
+            '<td align="right"><a href="/dissertation/manager_dissertations_jury_new/'+pk+
+            '"lnk_add_dissertation_jury_member" class="btn btn-default btn-sm"'+
+            'role="button" title="{% trans 'add_dissertation_jury_member'%}" target="_blank">'+
+            '<span class="glyphicon glyphicon-plus" aria-hidden="true" >'+
+            '</span>'+
+            '{% trans 'add_dissertation_jury_member'%}</a>'+
+            '</td>'+
+        '</tr>'+
+        tab_dissert_roles+
+        '</table>';
+    }
+
     $(document).ready(function()
     {
-        $('#tb_memoire').DataTable(
+        $.ajax(
+        {
+            url:"/dissertation/manager_dissertations_wait_comm_json_list"
+
+        }).done(function(res)
+        {
+
+            var table_dissertations=$('#tb_memoire').DataTable(
             {
-                "paging" : true,
-                "ordering" : true,
-                "info"  : false,
-                "searching" : false,
-                "language":
+                data:res,
+                "columns":
+                [{
+                    "className":'details-control',
+                    "orderable":false,
+                    "data":null,
+                    "defaultContent":'<button>+</button>'
+                },
+                {
+                    "data":"title",
+                    render: function ( data, type, full, meta ){
+                        htmlRendered  = '<a href="/dissertation/manager_dissertations_detail/'+full.pk+' ">'+full.title+'</a>';
+                        return htmlRendered;
+                    }
+                },
+                {"data":"author"},
+                {"data":"status"},
+                {"data":"offer_year"},
+                {"data":"offer"},
+                {"data":"proposition_dissertation"},
                 {
 
+                    "orderable":false,
+                    "data":'pk',
+                    render: function ( data, type, full, meta ) {
+                        htmlRendered  = '<b><a href="/dissertation/manager_dissertations_accept_comm_list/' +
+                        full.pk + '" class="btn btn-default" title="{% trans 'manager_dissertations_accept_comm_list'%}">{% trans 'manager_commission_accept'%}</a></b>';
+                        return htmlRendered;
+                    }
+                }],
+                "order" : [[1,'asc']],
+                "info"  : false,
+                "searching" : true,
+                "language":
+                {
                 "sProcessing":     "{% trans 'datatable_processing'%}",
                 "sSearch":         "{% trans 'datatable_search'%}",
                 "sLengthMenu":     "{% trans 'datatable_lengthmenu'%}",
@@ -142,18 +175,41 @@
                 "sLoadingRecords": "{% trans 'datatable_loadingrecords'%}",
                 "sZeroRecords":    "{% trans 'datatable_zerorecords'%}",
                 "sEmptyTable":     "{% trans 'datatable_emptytable'%}",
-                "oPaginate": {
-                    "sFirst":      "{% trans 'datatable_first'%}",
-                    "sPrevious":   "{% trans 'datatable_previous'%}",
-                    "sNext":       "{% trans 'datatable_next'%}",
-                    "sLast":       "{% trans 'datatable_last'%}"
-                            },
-            "oAria": {
-                "sSortAscending":  "{% trans 'datatable_sortascending'%}",
-                "sSortDescending": "{% trans 'datatable_sortdescending'%}",
-                    }
+                "oPaginate":
+                    {
+                        "sFirst":      "{% trans 'datatable_first'%}",
+                        "sPrevious":   "{% trans 'datatable_previous'%}",
+                        "sNext":       "{% trans 'datatable_next'%}",
+                        "sLast":       "{% trans 'datatable_last'%}"
+                    },
+                "oAria": {
+                        "sSortAscending":  "{% trans 'datatable_sortascending'%}",
+                        "sSortDescending": "{% trans 'datatable_sortdescending'%}",
+                        }
+                },
+            });
+
+            $('#tb_memoire tbody').on('click', 'td.details-control', function()
+            {
+                var tr = $(this).closest('tr');
+                var row = table_dissertations.row(tr);
+                if(row.child.isShown())
+                {
+                    row.child.hide();
+                    tr.removeClass('shown');
                 }
-            })
-    ;});
+                else
+                {
+                 $.ajax({
+                    url:"/dissertation/manager_dissertation_role_list_json/"+row.data().pk
+                    }).done(function(res2){
+                    row.child(format(res2,row.data())).show();
+                    tr.addClass('shown');
+                    });
+
+                }
+            });
+        });
+    });
 </script>
 {% endblock %}
