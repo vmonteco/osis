@@ -23,21 +23,26 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
+
+from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.utils import timezone
-from django.contrib import admin
+from django.utils.translation import ugettext as _
+
 from base.models import offer_year
 from base.models.enums import academic_calendar_type
-from django.utils.translation import ugettext as _
+from osis_common.utils.datetime import strictly_ordered_dates
 
 
 class OfferYearCalendarAdmin(admin.ModelAdmin):
-    list_display = ('academic_calendar', 'offer_year', 'start_date', 'end_date', 'changed', 'customized')
-    fieldsets = ((None, {'fields': ('offer_year', 'academic_calendar', 'start_date', 'end_date', 'customized')}),)
-    raw_id_fields = ('offer_year',)
+    list_display = ('academic_calendar', 'offer_year', 'start_date', 'end_date', 'changed', 'customized',
+                    'education_group_year')
+    fieldsets = ((None, {'fields': ('offer_year', 'academic_calendar', 'start_date', 'end_date', 'customized',
+                                    'education_group_year')}),)
+    raw_id_fields = ('offer_year', 'education_group_year')
     search_fields = ['offer_year__acronym']
-    list_filter = ('academic_calendar__academic_year', 'academic_calendar__reference', 'customized')
+    list_filter = ('academic_calendar__academic_year', 'academic_calendar__reference', 'customized',)
 
 
 class OfferYearCalendar(models.Model):
@@ -45,18 +50,22 @@ class OfferYearCalendar(models.Model):
     changed = models.DateTimeField(null=True, auto_now=True)
     academic_calendar = models.ForeignKey('AcademicCalendar')
     offer_year = models.ForeignKey('OfferYear')
-    start_date = models.DateField(blank=True, null=True, db_index=True)
-    end_date = models.DateField(blank=True, null=True, db_index=True)
+    start_date = models.DateTimeField(blank=True, null=True, db_index=True)
+    end_date = models.DateTimeField(blank=True, null=True, db_index=True)
     customized = models.BooleanField(default=False)
+    education_group_year = models.ForeignKey('EducationGroupYear', blank=True, null=True)
+
+    class Meta:
+        unique_together = ('academic_calendar', 'education_group_year')
 
     def update_dates(self, start_date, end_date):
         if self.customized:
-            if start_date < self.end_date:
+            if strictly_ordered_dates(start_date, self.end_date):
                 #  Test needed to prevent error when erroneous data are detected
                 self.start_date = start_date
                 self.save()
         else:
-            if start_date < end_date:
+            if strictly_ordered_dates(start_date, end_date):
                 #  Test needed to prevent error when erroneous data are detected
                 self.start_date = start_date
                 self.end_date = end_date
@@ -67,16 +76,8 @@ class OfferYearCalendar(models.Model):
         super(OfferYearCalendar, self).save(*args, **kwargs)
 
     def end_start_dates_validation(self):
-        if self.start_end_dates_set() and self.end_date < self.start_date:
+        if self.start_end_dates_set() and strictly_ordered_dates(self.end_date, self.start_date):
             raise AttributeError(_('end_start_date_error'))
-
-    def end_date_validation(self, academic_end_date):
-        if self.end_dates_set(academic_end_date) and self.end_date > academic_end_date:
-            raise AttributeError(_('academic_end_date_error'))
-
-    def start_date_validation(self, academic_start_date):
-        if self.start_dates_set(academic_start_date) and self.start_date < academic_start_date:
-            raise AttributeError(_('academic_start_date_error'))
 
     def start_end_dates_set(self):
         return self.start_date and self.end_date
@@ -91,9 +92,9 @@ class OfferYearCalendar(models.Model):
         date_ac = getattr(self.academic_calendar, date_field)
         date_oyc = getattr(self.offer_year.academic_year, date_field)
         if date_ac:
-            return date_ac
+            return datetime(year=date_ac.year, month=date_ac.month, day=date_ac.day)
         elif date_oyc:
-            return date_oyc
+            return datetime(year=date_oyc.year, month=date_oyc.month, day=date_oyc.day)
         else:
             None
 
@@ -177,3 +178,9 @@ def find_latest_end_date_by_academic_calendar(academic_calendar_id):
         return None
 
 
+def get_by_education_group_year_and_academic_calendar(an_academic_calendar, an_education_group_year):
+    try:
+        return OfferYearCalendar.objects.get(academic_calendar=an_academic_calendar,
+                                             education_group_year=an_education_group_year)
+    except ObjectDoesNotExist:
+        return None

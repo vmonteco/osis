@@ -45,6 +45,9 @@ admin.site.register(education_group_language.EducationGroupLanguage,
 admin.site.register(education_group_organization.EducationGroupOrganization,
                     education_group_organization.EducationGroupOrganizationAdmin)
 
+admin.site.register(education_group_type.EducationGroupType,
+                    education_group_type.EducationGroupTypeAdmin)
+
 admin.site.register(education_group_year.EducationGroupYear,
                     education_group_year.EducationGroupYearAdmin)
 
@@ -102,6 +105,12 @@ admin.site.register(learning_unit_enrollment.LearningUnitEnrollment,
 admin.site.register(learning_unit_year.LearningUnitYear,
                     learning_unit_year.LearningUnitYearAdmin)
 
+admin.site.register(mandatary.Mandatary,
+                    mandatary.MandataryAdmin)
+
+admin.site.register(mandate.Mandate,
+                    mandate.MandateAdmin)
+
 admin.site.register(offer_enrollment.OfferEnrollment,
                     offer_enrollment.OfferEnrollmentAdmin)
 
@@ -135,8 +144,17 @@ admin.site.register(person.Person,
 admin.site.register(person_address.PersonAddress,
                     person_address.PersonAddressAdmin)
 
+admin.site.register(person_entity.PersonEntity,
+                    person_entity.PersonEntityAdmin)
+
 admin.site.register(program_manager.ProgramManager,
                     program_manager.ProgramManagerAdmin)
+
+admin.site.register(proposal_folder.ProposalFolder,
+                    proposal_folder.ProposalFolderAdmin)
+
+admin.site.register(proposal_learning_unit.ProposalLearningUnit,
+                    proposal_learning_unit.ProposalLearningUnitAdmin)
 
 admin.site.register(session_exam.SessionExam,
                     session_exam.SessionExamAdmin)

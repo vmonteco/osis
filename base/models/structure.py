@@ -35,7 +35,7 @@ from base.models.enums import structure_type
 class StructureAdmin(admin.ModelAdmin):
     list_display = ('acronym', 'title', 'part_of', 'organization', 'type')
     fieldsets = ((None, {'fields': ('acronym', 'title', 'part_of', 'organization', 'type')}),)
-    raw_id_fields = ('part_of', )
+    raw_id_fields = ('part_of',)
     search_fields = ['acronym']
 
 
@@ -50,8 +50,8 @@ class Structure(models.Model):
 
     @property
     def children(self):
-        return Structure.objects.filter(part_of=self.pk)\
-                                .order_by('acronym')
+        return Structure.objects.filter(part_of=self.pk) \
+            .order_by('acronym')
 
     def serializable_object(self):
         return {
@@ -61,12 +61,11 @@ class Structure(models.Model):
         }
 
     def serializable_acronym(self):
-        l = []
-        l.append(self.acronym)
+        acronyms = [self.acronym]
         for child in self.children:
-            l.append(child.acronym)
+            acronyms.append(child.acronym)
             child.serializable_acronym()
-        return l
+        return acronyms
 
     def __str__(self):
         return u"%s - %s" % (self.acronym, self.title)
@@ -154,5 +153,3 @@ def find_all_structure_children(structure):
             children_list = list(chain(structures, find_all_structure_children(structure)))
             structures_list = list(chain(structures_list, children_list))
     return structures_list
-
-

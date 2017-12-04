@@ -24,13 +24,15 @@
 #
 ##############################################################################
 from django.db import models
-from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
+from base.models.enums import learning_unit_enrollment_state
+
+from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 
 
-class LearningUnitEnrollmentAdmin(SerializableModelAdmin):
-    list_display = ('student', 'learning_unit_year', 'offer', 'date_enrollment', 'changed')
-    fieldsets = ((None, {'fields': ('offer_enrollment', 'learning_unit_year', 'date_enrollment')}),)
-    list_filter = ('learning_unit_year__academic_year',)
+class LearningUnitEnrollmentAdmin(AuditableSerializableModelAdmin):
+    list_display = ('student', 'learning_unit_year', 'offer', 'date_enrollment', 'enrollment_state', 'changed')
+    fieldsets = ((None, {'fields': ('offer_enrollment', 'learning_unit_year', 'date_enrollment', 'enrollment_state',)}),)
+    list_filter = ('learning_unit_year__academic_year', 'enrollment_state',)
     raw_id_fields = ('offer_enrollment', 'learning_unit_year')
     search_fields = ['learning_unit_year__acronym',
                      'offer_enrollment__offer_year__acronym',
@@ -39,12 +41,13 @@ class LearningUnitEnrollmentAdmin(SerializableModelAdmin):
                      'offer_enrollment__student__person__last_name']
 
 
-class LearningUnitEnrollment(SerializableModel):
+class LearningUnitEnrollment(AuditableSerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     date_enrollment = models.DateField()
     learning_unit_year = models.ForeignKey('LearningUnitYear')
     offer_enrollment = models.ForeignKey('OfferEnrollment')
+    enrollment_state = models.CharField(max_length=20, choices=learning_unit_enrollment_state.STATES, blank=True, null=True)
 
     @property
     def student(self):
@@ -71,3 +74,8 @@ def find_by_student(a_student):
 
 def find_by_offer_enrollment(an_offer_enrollment):
     return LearningUnitEnrollment.objects.filter(offer_enrollment=an_offer_enrollment)
+
+
+def find_by_learning_unit_year(a_learning_unit_year):
+    return LearningUnitEnrollment.objects.filter(learning_unit_year=a_learning_unit_year)
+

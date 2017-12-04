@@ -72,7 +72,7 @@
                     {{ form.non_field_errors }}
  		            {% csrf_token %}
                     <input type="hidden" name="mandate_id" value="{{ mandate.id }}">
-                    {{ mandate.assistant.person }}
+                    <a href="mailto:{{ mandate.assistant.person.email }}">{{ mandate.assistant.person }}</a>
                     <button type="submit" class="btn btn-link" title="{% trans 'edit'%}">
                         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans 'edit'%}
                     </button></form>
@@ -85,7 +85,15 @@
                 {% endfor %}
                 </ul></td>
                 <td>{% trans mandate.assistant_type %}</td>
-                <td>{% trans mandate.state %}</td>
+                <td>
+                    {% trans mandate.state %}
+                    {% if mandate.state == assistant_mandate_state.PHD_SUPERVISOR %}
+                        <h6>
+                            <a href="mailto:{{ mandate.assistant.supervisor.email }}">{{ mandate.assistant.supervisor }}
+                            </a>
+                        </h6>
+                    {% endif %}
+                </td>
                 <td>{% if mandate.assistant.inscription %}
                         {% trans mandate.assistant.inscription|lower %}
                     {% endif %}
@@ -95,7 +103,7 @@
                 <td>{{ mandate.fulltime_equivalent }}</td>
                 <td>
                 {% for review in mandate.review_set.all|dictsort:"changed" %}
-                    {% if review.status == "DONE" %}
+                    {% if review.status == review_status.DONE %}
                         {% if not review.reviewer %}
                             <i id="rev" class="fa fa-battery-1" style="font-size: 100%;
                         {% elif "RESEARCH" in review.reviewer.role %}
@@ -107,7 +115,7 @@
                         {% endif %}
                         {% if review.advice == "FAVORABLE" %}
                              color: #79C84F;"
-                        {% elif review.advice == "UNFAVOURABLE" %}
+                        {% elif review.advice == review_advice_choices.UNFAVOURABLE %}
                              color: #E06D5A;"
                         {% else %}
                              color: #EFC345;"

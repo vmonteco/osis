@@ -34,6 +34,7 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from assistant.views.assistant_form import form_part4_edit
 from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 from assistant.tests.factories.settings import SettingsFactory
+from assistant.models.enums import assistant_mandate_state
 
 
 class AssistantFormViewTestCase(TestCase):
@@ -46,6 +47,8 @@ class AssistantFormViewTestCase(TestCase):
                                                          end_date=today.replace(year=today.year + 1),
                                                          year=today.year)
         self.assistant_mandate = AssistantMandateFactory(academic_year=self.current_academic_year)
+        self.assistant_mandate.state = assistant_mandate_state.TRTS
+        self.assistant_mandate.save()
         LearningUnitYearFactory(academic_year=self.current_academic_year, acronym="LBIR1210")
         LearningUnitYearFactory(academic_year=self.current_academic_year, acronym="LBIR1211")
 

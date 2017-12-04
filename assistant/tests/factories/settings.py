@@ -38,5 +38,9 @@ class SettingsFactory(factory.DjangoModelFactory):
                                                        (timezone.now() - timezone.timedelta(days=5)).date())
     assistants_ending_date = factory.fuzzy.FuzzyDate((timezone.now() + timezone.timedelta(days=90)).date(),
                                           (timezone.now() + timezone.timedelta(days=100)).date())
+    assistants_contract_end_starting_date = factory.fuzzy.FuzzyDate((timezone.now() - timezone.timedelta(days=10)).date(),
+                                                       (timezone.now() - timezone.timedelta(days=5)).date())
+    assistants_contract_end_ending_date = factory.fuzzy.FuzzyDate((timezone.now() + timezone.timedelta(days=90)).date(),
+                                                     (timezone.now() + timezone.timedelta(days=100)).date())
 
 

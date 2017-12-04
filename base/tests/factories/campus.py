@@ -41,3 +41,4 @@ class CampusFactory(factory.DjangoModelFactory):
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
     name = factory.Faker('first_name')
     organization = factory.SubFactory(OrganizationFactory)
+    is_administration = False

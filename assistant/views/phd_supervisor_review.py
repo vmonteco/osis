@@ -25,6 +25,7 @@
 ##############################################################################
 from django.contrib.auth.decorators import user_passes_test
 from django.core.exceptions import ObjectDoesNotExist
+from django.views.decorators.http import require_http_methods
 from django.core.urlresolvers import reverse
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
@@ -48,6 +49,7 @@ def user_is_phd_supervisor_and_procedure_is_open(user):
         return False
 
 
+@require_http_methods(["POST"])
 @user_passes_test(user_is_phd_supervisor_and_procedure_is_open, login_url='access_denied')
 def review_view(request):
     mandate_id = request.POST.get("mandate_id")
@@ -72,6 +74,7 @@ def review_view(request):
                                                 })
 
 
+@require_http_methods(["POST"])
 @user_passes_test(user_is_phd_supervisor_and_procedure_is_open, login_url='access_denied')
 def review_edit(request):
     mandate_id = request.POST.get("mandate_id")
@@ -111,6 +114,7 @@ def review_edit(request):
                                                 'form': form})
 
 
+@require_http_methods(["POST"])
 @user_passes_test(user_is_phd_supervisor_and_procedure_is_open, login_url='access_denied')
 def review_save(request):
     mandate_id = request.POST.get("mandate_id")
@@ -153,6 +157,7 @@ def review_save(request):
                                                     'form': form})
 
 
+@require_http_methods(["POST"])
 @user_passes_test(user_is_phd_supervisor_and_procedure_is_open, login_url='access_denied')
 def pst_form_view(request):
     mandate_id = request.POST.get("mandate_id")
@@ -181,28 +186,16 @@ def pst_form_view(request):
                                                   'year': mandate.academic_year.year + 1})
 
 
-def generate_phd_supervisor_menu_tabs(mandate, active_item: None):
-    menu = []
+def generate_phd_supervisor_menu_tabs(mandate, active_item=None):
     try:
         latest_review_done = review.find_done_by_supervisor_for_mandate(mandate)
-        if latest_review_done.status == review_status.DONE:
-            review_is_done = True
-        else:
-            review_is_done = False
+        review_is_done = latest_review_done.status == review_status.DONE
     except ObjectDoesNotExist:
-            review_is_done = False
-    if review_is_done is False:
-        if active_item == assistant_mandate_state.PHD_SUPERVISOR:
-            menu.append({'item': assistant_mandate_state.PHD_SUPERVISOR, 'class': 'active',
-                         'action': 'edit'})
-        else:
-            menu.append({'item': assistant_mandate_state.PHD_SUPERVISOR, 'class': '',
-                         'action': 'edit'})
-    else:
-        if active_item == assistant_mandate_state.PHD_SUPERVISOR:
-            menu.append({'item': assistant_mandate_state.PHD_SUPERVISOR, 'class': 'active',
-                         'action': 'view'})
-        else:
-            menu.append({'item': assistant_mandate_state.PHD_SUPERVISOR, 'class': '',
-                         'action': 'view'})
-    return menu
+        review_is_done = False
+
+    is_active = active_item == assistant_mandate_state.PHD_SUPERVISOR
+    return [{
+        'item': assistant_mandate_state.PHD_SUPERVISOR,
+        'class': 'active' if is_active else '',
+        'action': 'view' if review_is_done else 'edit'
+    }]

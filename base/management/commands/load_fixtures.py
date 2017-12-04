@@ -24,6 +24,7 @@ class Command(BaseCommand):
             'campus',
             'education_group',
             'offer_type',
+            'education_group_type',
             'education_group_year',
             'entity',
             'entity_version',

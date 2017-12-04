@@ -23,14 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.conf import settings
+from django.conf.urls.static import static
 from django.conf.urls import url, include
 
 from attribution.views import attribution
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
-    my_osis, entity, student, education_group
-from django.conf import settings
-from django.conf.urls.static import static
-
+    my_osis, entity, student, education_group, learning_unit_proposal
+import base.views.learning_unit_deletion
 
 
 urlpatterns = [
@@ -41,7 +41,8 @@ urlpatterns = [
     url(r'^academic_calendars/', include([
         url(r'^$', academic_calendar.academic_calendars, name='academic_calendars'),
         url(r'^search$', academic_calendar.academic_calendars_search, name='academic_calendars_search'),
-        url(r'^(?P<academic_calendar_id>[0-9]+)/$', academic_calendar.academic_calendar_read, name='academic_calendar_read'),
+        url(r'^(?P<academic_calendar_id>[0-9]+)/$', academic_calendar.academic_calendar_read,
+            name='academic_calendar_read'),
         url(r'^form(?:/(?P<academic_calendar_id>[0-9]+))?/$', academic_calendar.academic_calendar_form,
             name='academic_calendar_form'),
     ])),
@@ -94,14 +95,20 @@ urlpatterns = [
             url(r'^pedagogy/edit/$', learning_unit.learning_unit_pedagogy_edit, name="learning_unit_pedagogy_edit"),
             url(r'^attributions/$', learning_unit.learning_unit_attributions,
                 name="learning_unit_attributions"),
-            url(r'^proposals/$', learning_unit.learning_unit_proposals, name="learning_unit_proposals"),
+            url(r'^proposal/', include([
+                url(r'^modification/$', learning_unit_proposal.propose_modification_of_learning_unit,
+                    name="learning_unit_modification_proposal")
+            ])),
             url(r'^specifications/$', learning_unit.learning_unit_specifications, name="learning_unit_specifications"),
-            url(r'^specifications/edit/$', learning_unit.learning_unit_specifications_edit, name="learning_unit_specifications_edit"),
+            url(r'^specifications/edit/$', learning_unit.learning_unit_specifications_edit,
+                name="learning_unit_specifications_edit"),
             url(r'^component/edit/$', learning_unit.learning_unit_component_edit, name="learning_unit_component_edit"),
             url(r'^class/edit/$', learning_unit.learning_class_year_edit, name="learning_class_year_edit"),
             url(r'^volumes/', include([
                 url(u'^$', learning_unit.learning_unit_volumes_management, name="learning_unit_volumes_management"),
                 url(u'^validation/$', learning_unit.volumes_validation, name="volumes_validation")])),
+            url(r'^delete/$', base.views.learning_unit_deletion.delete_from_given_learning_unit_year, name="learning_unit_delete"),
+            url(r'^delete_full/$', base.views.learning_unit_deletion.delete_all_learning_units_year, name="learning_unit_delete_all"),
         ])),
         url(r'^check/$', learning_unit.check_acronym, name="check_acronym"),
         url(r'^check_code/$', learning_unit.check_code, name="check_code"),
@@ -143,8 +150,11 @@ urlpatterns = [
             url(r'^$', education_group.education_group_read, name='education_group_read'),
             url(r'^parent/$', education_group.education_group_parent_read, name='education_group_parent_read'),
             url(r'^diplomas/$', education_group.education_group_diplomas, name='education_group_diplomas'),
-            url(r'^informations/$', education_group.education_group_general_informations, name='education_group_general_informations'),
+            url(r'^informations/$', education_group.education_group_general_informations,
+                name='education_group_general_informations'),
 
+            url(r'^administrative/$', education_group.education_group_administrative_data, name='education_group_administrative'),
+            url(r'^content/$', education_group.education_group_content, name='education_group_content'),
         ]))
     ])),
 
@@ -191,5 +201,3 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns +=  static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-

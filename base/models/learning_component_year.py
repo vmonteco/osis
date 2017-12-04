@@ -25,12 +25,12 @@
 ##############################################################################
 from django.db import models
 
+from attribution.models.attribution_charge_new import AttributionChargeNew
 from base.models.enums import learning_component_year_type, learning_container_year_types
 from base.models import learning_class_year
-from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
+from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 
-
-class LearningComponentYearAdmin(SerializableModelAdmin):
+class LearningComponentYearAdmin(AuditableSerializableModelAdmin):
     list_display = ('learning_container_year', 'title', 'acronym', 'type', 'comment')
     fieldsets = ((None, {'fields': ('learning_container_year', 'title', 'acronym', 'volume_declared_vacant',
                                     'type', 'comment', 'planned_classes', 'hourly_volume_partial')}),)
@@ -39,7 +39,7 @@ class LearningComponentYearAdmin(SerializableModelAdmin):
     list_filter = ('learning_container_year__academic_year',)
 
 
-class LearningComponentYear(SerializableModel):
+class LearningComponentYear(AuditableSerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     learning_container_year = models.ForeignKey('LearningContainerYear')
     title = models.CharField(max_length=255, blank=True, null=True)
@@ -63,7 +63,7 @@ class LearningComponentYear(SerializableModel):
     @property
     def type_letter_acronym(self):
         if self.learning_container_year.container_type == learning_container_year_types.COURSE:
-            if self.type == learning_component_year_type.LECTURING or self.type == learning_component_year_type.PRACTICAL_EXERCISES:
+            if self.type in (learning_component_year_type.LECTURING, learning_component_year_type.PRACTICAL_EXERCISES):
                 return self.acronym
             return None
         else:
@@ -76,14 +76,17 @@ class LearningComponentYear(SerializableModel):
     def real_classes(self):
         return len(learning_class_year.find_by_learning_component_year(self))
 
+    def get_attributions_charge(self):
+        return AttributionChargeNew.objects.filter(learning_component_year=self).select_related('attribution__tutor')
+
 
 def find_by_id(learning_component_year_id):
     return LearningComponentYear.objects.get(pk=learning_component_year_id)
 
 
 def find_by_learning_container_year(learning_container_year, with_classes=False):
-    queryset = LearningComponentYear.objects.filter(learning_container_year=learning_container_year)\
-                                        .order_by('type', 'acronym')
+    queryset = LearningComponentYear.objects.filter(learning_container_year=learning_container_year) \
+        .order_by('type', 'acronym')
     if with_classes:
         queryset = queryset.prefetch_related(
              models.Prefetch('learningclassyear_set', to_attr="classes")

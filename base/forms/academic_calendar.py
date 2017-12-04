@@ -37,8 +37,8 @@ from base.models.enums import academic_calendar_type
 
 class AcademicCalendarForm(bootstrap.BootstrapModelForm):
     REFERENCE_CHOICE_FIELD = BLANK_CHOICE_DASH + \
-        sorted([(a, _(b)) for (a, b) in academic_calendar_type.ACADEMIC_CALENDAR_TYPES],
-               key=itemgetter(1))
+                             sorted([(a, _(b)) for (a, b) in academic_calendar_type.ACADEMIC_CALENDAR_TYPES],
+                                    key=itemgetter(1))
 
     academic_year = forms.ModelChoiceField(queryset=academic_year.AcademicYear.objects.all().order_by('year'),
                                            widget=forms.Select(), empty_label=None)
@@ -57,15 +57,13 @@ class AcademicCalendarForm(bootstrap.BootstrapModelForm):
     def end_date_gt_last_offer_year_calendar_end_date(self):
         off_year_calendar_max = offer_year_calendar.find_latest_end_date_by_academic_calendar(self.instance.id)
         date_format = str(_('date_format'))
-
-        if off_year_calendar_max and self.cleaned_data['end_date'] \
-                and self.cleaned_data['end_date'] < off_year_calendar_max.end_date:
-            error_msg = "%s." % (_('academic_calendar_offer_year_calendar_end_date_error')
-                                 % (self.instance.title,
-                                    off_year_calendar_max.end_date.strftime(date_format),
-                                    self.instance.title,
-                                    off_year_calendar_max.offer_year.acronym))
-            self._errors['end_date'] = error_msg
+        if off_year_calendar_max and self.cleaned_data['end_date'] and off_year_calendar_max.end_date \
+                and self.cleaned_data['end_date'] < off_year_calendar_max.end_date.date():
+            self._errors['end_date'] = "{}.".format((_('academic_calendar_offer_year_calendar_end_date_error')
+                                                     % (self.instance.title,
+                                                        off_year_calendar_max.end_date.date().strftime(date_format),
+                                                        self.instance.title,
+                                                        off_year_calendar_max.offer_year.acronym)))
             return False
         return True
 
@@ -77,9 +75,9 @@ class AcademicCalendarForm(bootstrap.BootstrapModelForm):
 
     def is_valid(self):
         return super(AcademicCalendarForm, self).is_valid() \
-            and self.start_date_and_end_date_are_set() \
-            and self.end_date_gt_last_offer_year_calendar_end_date() \
-            and self.end_date_gt_start_date()
+               and self.start_date_and_end_date_are_set() \
+               and self.end_date_gt_last_offer_year_calendar_end_date() \
+               and self.end_date_gt_start_date()
 
     def start_date_and_end_date_are_set(self):
         if not self.cleaned_data.get('end_date') or not self.cleaned_data.get('start_date'):
