@@ -37,15 +37,17 @@
 <div class="panel panel-default">
     <div class="panel-body" id="tabs">
 
-        {% include "education_group/tabs.html" %}
-
 
         <div class="tab-content" id="tab_content">
             <form method="post">
                 {% csrf_token %}
                 <div role="tabpanel" class="tab-pane active" id="administrative_data">
                     <div class="panel panel-default">
-                        {{ course_enrollment }}
+                    <div class="panel-body">
+                        <div class="form-inline">
+                            {{ course_enrollment }}
+                        </div>
+                    </div>
                         <table class="table">
                             <thead>
                                 <tr>
@@ -57,12 +59,12 @@
                             </thead>
                             <tbody>
 
-                               {% for field in formset_session.forms.0.fields %}
+                               {% for field in formset_session.forms.0 %}
                                <tr>
-                                   <td><label>{{ field }}</label></td>
+                                   <td><label>{{ field.label }}</label></td>
                                    {% for form in formset_session %}
                                         <td>
-                                            {{ form|select_field:field }}
+                                            {{ form|select_field:field.name }}
                                         </td>
                                    {%  endfor %}
                                </tr>
@@ -72,44 +74,9 @@
                         <br>
                     </div>
                 </div>
-                <input type="submit" class="btn btn-primary" value="Save">
+                <input type="submit" class="btn btn-primary  pull-right" value="Save">
             </form>
             <br>
-            <div class="panel panel-default">
-                <div class="panel-heading"> <label>{% trans 'jury'%}</label></div>
-                    <div class="panel-body">
-                        {% if mandataries %}
-                            {% for mandatary in mandataries %}
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <label>{% trans mandatary.mandate.function %}</label><br>
-                                        {{ mandatary.person }}
-
-                                    </div>
-                                {% if mandatary.mandate.qualification %}
-                                    <div class="col-md-8">
-                                        <label>{% trans 'signatory_qualification' %}</label><br>
-                                        {{ mandatary.mandate.qualification }}<br>
-                                    </div>
-                                {% endif %}
-                                </div>
-                                <br>
-                            {% endfor%}
-                        {%endif%}
-                    </div>
-                </div>
-                <br>
-                <div class="panel panel-default">
-                    <div class="panel-heading"> <label>{% trans 'pgm_mgr_administration'%}</label></div>
-                    <div class="panel-body">
-                        {% if pgm_mgrs %}
-                            {% for pgm_mgr in pgm_mgrs %}
-                                {{ pgm_mgr.person }}<br>
-                            {% endfor%}
-                        {%endif%}
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
