@@ -28,13 +28,14 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods, require_POST
 from django.http import JsonResponse
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
+from base.business import learning_unit_deletion
 from base.business import learning_unit_year_volumes
 from base.business import learning_unit_year_with_context
 from attribution import models as mdl_attr
@@ -54,6 +55,7 @@ from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, Learning
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_class import LearningClassEditForm
 from base.models.enums import learning_unit_year_subtypes
+from base.models.person import Person
 from cms.models import text_label
 from reference.models import language
 from . import layout
@@ -83,6 +85,7 @@ def learning_units_service_course(request):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_identification(request, learning_unit_year_id):
+    person = get_object_or_404(Person, user=request.user)
     context = get_common_context_learning_unit_year(learning_unit_year_id)
     learning_unit_year = context['learning_unit_year']
     context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
@@ -95,6 +98,7 @@ def learning_unit_identification(request, learning_unit_year_id):
     context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
     context['proposal_folder_entity_version'] = \
         entity_version.get_by_entity_and_date(context['proposal'].folder.entity, None) if context['proposal'] else None
+    context['can_delete'] = learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year)
 
     return layout.render(request, "learning_unit/identification.html", context)
 

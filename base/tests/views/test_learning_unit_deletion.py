@@ -25,16 +25,27 @@
 ##############################################################################
 from unittest import mock
 
+import datetime
+from django.contrib.auth.models import Permission, Group
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.api import get_messages
 from django.contrib import messages
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
+
+from base.business import learning_unit_deletion
+from base.models.enums import entity_container_year_link_type
+from base.models.enums import entity_type
+from base.models.enums import learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes
-from base.models.learning_container import LearningContainer
+from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
+from base.models.person_entity import PersonEntity
 from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.entity_container_year import EntityContainerYearFactory
+from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_enrollment import LearningUnitEnrollmentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
@@ -44,42 +55,58 @@ from base.tests.factories.learning_container_year import LearningContainerYearFa
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from django.utils.translation import ugettext_lazy as _
 
+from base.tests.factories.person import PersonFactory
+from base.tests.factories.person_entity import PersonEntityFactory
+from base.tests.factories.user import UserFactory
+
 
 class LearningUnitDelete(TestCase):
+    def setUp(self):
+        self.user = UserFactory(username="jeandp")
+        content_type = ContentType.objects.get_for_model(LearningUnit)
+        permission = Permission.objects.get(codename="can_delete_learningunit",
+                                            content_type=content_type)
+        self.user.user_permissions.add(permission)
+        person = PersonFactory(user=self.user)
+        self.entity_version = EntityVersionFactory(entity_type=entity_type.FACULTY, acronym="SST",
+                                                   start_date=datetime.date(year=1990, month=1, day=1),
+                                                   end_date=None)
+        PersonEntityFactory(person=person, entity=self.entity_version.entity, with_child=True)
+
+        self.learning_unit_year_list = self.create_learning_unit_years_and_dependencies()
 
     def create_learning_unit_years_and_dependencies(self):
         l1 = LearningUnitFactory()
-        academic_years = [AcademicYearFactory(year=2000 + y) for y in range(4)]
 
-        lcy2 = LearningContainerYearFactory()
-        learning_unit_years = [LearningUnitYearFactory(learning_unit=l1, academic_year=academic_years[y]) for y in
-                               range(4)]
-        learning_unit_years[1].learning_container_year = lcy2
+        learning_unit_years=[]
+        for year in range(4):
+            ac_year = AcademicYearFactory(year=2000 + year)
+            l_containeryear = LearningContainerYearFactory(academic_year=ac_year)
+            EntityContainerYearFactory(learning_container_year=l_containeryear, entity=self.entity_version.entity,
+                                       type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+            learning_unit_year = LearningUnitYearFactory(learning_unit=l1,academic_year=ac_year,
+                                                         learning_container_year=l_containeryear)
+            learning_unit_years.append(learning_unit_year)
+
         learning_unit_years[1].subtype = learning_unit_year_subtypes.FULL
         learning_unit_years[1].save()
-
         lcomponent = LearningComponentYearFactory()
-
         LearningClassYearFactory(learning_component_year=lcomponent)
         LearningClassYearFactory(learning_component_year=lcomponent)
         LearningUnitComponentFactory(learning_unit_year=learning_unit_years[1],
                                      learning_component_year=lcomponent)
         return learning_unit_years
 
-    @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
-    def test_delete_from_given_learning_unit_year_case_success(self, mock_render, mock_decorators):
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
-
-        learning_unit_years = self.create_learning_unit_years_and_dependencies()
+    def test_delete_from_given_learning_unit_year_case_success(self, mock_render):
+        learning_unit_years = self.learning_unit_year_list
 
         from base.views.learning_unit_deletion import delete_from_given_learning_unit_year
 
         request_factory = RequestFactory()
 
         request = request_factory.get(reverse(delete_from_given_learning_unit_year, args=[learning_unit_years[1].id]))
-        request.user = mock.Mock()
+        request.user = self.user
 
         delete_from_given_learning_unit_year(request, learning_unit_years[1].id)
 
@@ -90,7 +117,7 @@ class LearningUnitDelete(TestCase):
 
         # click on accept button
         request = request_factory.post(reverse(delete_from_given_learning_unit_year, args=[learning_unit_years[1].id]))
-        request.user = mock.Mock()
+        request.user = self.user
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
@@ -112,21 +139,16 @@ class LearningUnitDelete(TestCase):
 
         self.assertIsNotNone(LearningUnitYear.objects.get(id=learning_unit_years[0].id))
 
-    @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
-    def test_delete_all_learning_units_year_case_success(self, mock_render, mock_decorators):
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
-
-        learning_unit_years = self.create_learning_unit_years_and_dependencies()
-        learning_unit = learning_unit_years[0].learning_unit
+    def test_delete_all_learning_units_year_case_success(self, mock_render):
+        learning_unit_years = self.learning_unit_year_list
 
         from base.views.learning_unit_deletion import delete_all_learning_units_year
 
         request_factory = RequestFactory()
 
         request = request_factory.get(reverse(delete_all_learning_units_year, args=[learning_unit_years[1].id]))
-        request.user = mock.Mock()
+        request.user = self.user
 
         delete_all_learning_units_year(request, learning_unit_years[1].id)
 
@@ -137,7 +159,7 @@ class LearningUnitDelete(TestCase):
 
         # click on accept button
         request = request_factory.post(reverse(delete_all_learning_units_year, args=[learning_unit_years[1].id]))
-        request.user = mock.Mock()
+        request.user = self.user
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
@@ -152,13 +174,10 @@ class LearningUnitDelete(TestCase):
             with self.assertRaises(ObjectDoesNotExist):
                 LearningUnitYear.objects.get(id=learning_unit_years[y].id)
 
-    @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
-    def test_delete_from_given_learning_unit_year_case_error(self, mock_render, mock_decorators):
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
-
-        ly1 = LearningUnitYearFactory()
+    def test_delete_from_given_learning_unit_year_case_error(self, mock_render):
+        learning_unit_years = self.learning_unit_year_list
+        ly1 = learning_unit_years[1]
         LearningUnitEnrollmentFactory(learning_unit_year=ly1)
 
         from base.views.learning_unit_deletion import delete_from_given_learning_unit_year
@@ -166,7 +185,7 @@ class LearningUnitDelete(TestCase):
         request_factory = RequestFactory()
 
         request = request_factory.get(reverse(delete_from_given_learning_unit_year, args=[ly1.id]))
-        request.user = mock.Mock()
+        request.user = self.user
 
         setattr(request, 'session', 'session')
 
@@ -191,14 +210,10 @@ class LearningUnitDelete(TestCase):
 
         self.assertIsNotNone(LearningUnitYear.objects.get(id=ly1.id))
 
-    @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
-    def test_delete_all_learning_units_year_case_error(self, mock_render, mock_decorators):
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
-
-        l1 = LearningUnitFactory()
-        ly1 = LearningUnitYearFactory(learning_unit=l1)
+    def test_delete_all_learning_units_year_case_error_have_enrollment(self, mock_render):
+        learning_unit_years = self.learning_unit_year_list
+        ly1 = learning_unit_years[1]
         LearningUnitEnrollmentFactory(learning_unit_year=ly1)
 
         from base.views.learning_unit_deletion import delete_all_learning_units_year
@@ -206,7 +221,7 @@ class LearningUnitDelete(TestCase):
         request_factory = RequestFactory()
 
         request = request_factory.get(reverse(delete_all_learning_units_year, args=[ly1.id]))
-        request.user = mock.Mock()
+        request.user = self.user
 
         setattr(request, 'session', 'session')
 
@@ -217,7 +232,7 @@ class LearningUnitDelete(TestCase):
 
         msg = context.get('messages_deletion', [])
         self.assertEqual(_('cannot_delete_learning_unit')
-                         % {'learning_unit': l1.acronym},
+                         % {'learning_unit': ly1.learning_unit.acronym},
                          context['title'])
 
         subtype = _('The partim') if ly1.subtype == learning_unit_year_subtypes.PARTIM else _('The learning unit')
@@ -229,3 +244,113 @@ class LearningUnitDelete(TestCase):
                       msg)
 
         self.assertIsNotNone(LearningUnitYear.objects.get(id=ly1.id))
+
+    @mock.patch('base.views.layout.render')
+    def test_delete_from_given_learning_unit_year_case_error_have_enrollment(self, mock_render):
+        learning_unit_years = self.learning_unit_year_list
+        ly1 = learning_unit_years[1]
+        LearningUnitEnrollmentFactory(learning_unit_year=ly1)
+
+        from base.views.learning_unit_deletion import delete_from_given_learning_unit_year
+
+        request_factory = RequestFactory()
+
+        request = request_factory.get(reverse(delete_from_given_learning_unit_year, args=[ly1.id]))
+        request.user = self.user
+
+        setattr(request, 'session', 'session')
+
+        delete_from_given_learning_unit_year(request, ly1.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        msg = context.get('messages_deletion', [])
+        self.assertEqual(_('cannot_delete_learning_unit_year')
+                         % {'learning_unit': ly1.acronym,
+                            'year': ly1.academic_year},
+                         context['title'])
+
+        subtype = _('The partim') if ly1.subtype == learning_unit_year_subtypes.PARTIM else _('The learning unit')
+        self.assertIn(_("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s")
+                      % {'subtype': subtype,
+                         'acronym': ly1.acronym,
+                         'year': ly1.academic_year,
+                         'count': 1},
+                      msg)
+
+        self.assertIsNotNone(LearningUnitYear.objects.get(id=ly1.id))
+
+    def test_delete_from_given_learning_unit_year_case_error_not_attached_to_entity(self):
+        from base.views.learning_unit_deletion import delete_from_given_learning_unit_year
+
+        l_unit_year_to_delete = self.learning_unit_year_list[0]
+        PersonEntity.objects.all().delete() # Remove all link person entity
+
+        request_factory = RequestFactory()
+        request = request_factory.get(reverse(delete_from_given_learning_unit_year, args=[l_unit_year_to_delete.id]))
+        request.user = self.user
+
+        response = delete_from_given_learning_unit_year(request, l_unit_year_to_delete.id)
+        self.assertEqual(response.status_code, 403) # Forbidden
+
+    def test_delete_from_given_learning_unit_year_faculty_manager_role(self):
+        """A Faculty manager can only remove container_type other than COURSE/INTERNSHIP/DISSERTATION"""
+        from base.views.learning_unit_deletion import delete_from_given_learning_unit_year
+
+        add_to_group(self.user, learning_unit_deletion.FACULTY_MANAGER_GROUP)
+        l_unit_year_to_delete = self.learning_unit_year_list[0]
+        l_unit_year_to_delete.subtype = learning_unit_year_subtypes.PARTIM
+        l_unit_year_to_delete.save()
+        l_container_year = l_unit_year_to_delete.learning_container_year
+        l_container_year.container_type = learning_container_year_types.COURSE
+        l_container_year.save()
+
+        request_factory = RequestFactory()
+        request = request_factory.get(reverse(delete_from_given_learning_unit_year, args=[l_unit_year_to_delete.id]))
+        request.user = self.user
+        setattr(request, 'session', 'session')
+
+        response = delete_from_given_learning_unit_year(request, l_unit_year_to_delete.id)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_delete_from_given_learning_unit_year_case_error_faculty_manager(self):
+        """A Faculty manager can only remove container_type other than COURSE/INTERNSHIP/DISSERTATION"""
+        from base.views.learning_unit_deletion import delete_from_given_learning_unit_year
+
+        add_to_group(self.user, learning_unit_deletion.FACULTY_MANAGER_GROUP)
+        l_unit_year_to_delete = self.learning_unit_year_list[0]
+        l_container_year = l_unit_year_to_delete.learning_container_year
+        request_factory = RequestFactory()
+
+        # Full Course
+        l_container_year.container_type = learning_container_year_types.COURSE
+        l_container_year.save()
+        l_unit_year_to_delete.subtype = learning_unit_year_subtypes.FULL
+        l_unit_year_to_delete.save()
+        request = request_factory.get(reverse(delete_from_given_learning_unit_year, args=[l_unit_year_to_delete.id]))
+        request.user = self.user
+        response = delete_from_given_learning_unit_year(request, l_unit_year_to_delete.id)
+        self.assertEqual(response.status_code, 403) # Forbidden
+
+        # Internship
+        l_container_year.container_type = learning_container_year_types.INTERNSHIP
+        l_container_year.save()
+        request = request_factory.get(reverse(delete_from_given_learning_unit_year, args=[l_unit_year_to_delete.id]))
+        request.user = self.user
+        response = delete_from_given_learning_unit_year(request, l_unit_year_to_delete.id)
+        self.assertEqual(response.status_code, 403) # Forbidden
+
+        # Dissertation
+        l_container_year.container_type = learning_container_year_types.DISSERTATION
+        l_container_year.save()
+        request = request_factory.get(reverse(delete_from_given_learning_unit_year, args=[l_unit_year_to_delete.id]))
+        request.user = self.user
+        response = delete_from_given_learning_unit_year(request, l_unit_year_to_delete.id)
+        self.assertEqual(response.status_code, 403) # Forbidden
+
+
+def add_to_group(user, group_name):
+    group, created = Group.objects.get_or_create(name=group_name)
+    group.user_set.add(user)
