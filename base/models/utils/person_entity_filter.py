@@ -23,11 +23,23 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import ObjectDoesNotExist
+
 from base.models import person_entity
+from base.models.entity_version import EntityVersion
+from base.models.person_entity import PersonEntity
+
+MAP_ENTITY_FIELD = {
+   EntityVersion: 'entity',
+   PersonEntity: 'entity'
+}
 
 
-def filter_by_attached_entities(person, queryset, default_field='entity'):
+def filter_by_attached_entities(person, queryset):
     entities_attached = person_entity.find_entities_by_person(person)
-    field_filter = "{}__in".format(default_field)
+    field_path = MAP_ENTITY_FIELD.get(queryset.model)
+    if not field_path:
+       raise ObjectDoesNotExist
+    field_filter = "{}__in".format(field_path)
     return queryset.filter(**{field_filter: entities_attached})
 
