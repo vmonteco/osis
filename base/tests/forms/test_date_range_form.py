@@ -25,7 +25,7 @@
 ##############################################################################
 from base.tests.factories.offer_year_calendar import OfferYearCalendarFactory
 from django.test import TestCase
-from base.forms.education_groups_administrative_data import DateRangeForm
+from base.forms.education_groups_administrative_data import CourseEnrollmentForm
 
 class TestDateRangeForm(TestCase):
     def setUp(self):
@@ -33,5 +33,5 @@ class TestDateRangeForm(TestCase):
 
     def test_clean(self):
 
-        DateRangeForm(instance=self.offer_year)
+        CourseEnrollmentForm(instance=self.offer_year)
 

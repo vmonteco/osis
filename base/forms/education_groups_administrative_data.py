@@ -27,6 +27,7 @@ from django import forms
 
 from base.forms.bootstrap import BootstrapModelForm
 from base.models.offer_year_calendar import OfferYearCalendar
+from django.utils.translation import ugettext_lazy as _
 
 DATE_FORMAT = '%d/%m/%Y'
 TIME_FORMAT = '%H:%M'
@@ -38,7 +39,7 @@ DATE_RANGE_FORMAT = DATE_FORMAT + DATE_RANGE_SPLITTER + DATE_FORMAT
 class DatePickerInput(forms.DateInput):
     def __init__(self, attrs=None, format=DATE_FORMAT):
         if not attrs:
-            attrs={'class': 'datepicker',
+            attrs={'class': 'datepicker form-control',
                    'data-date-format': 'dd/mm/yyyy'}
 
         super().__init__(attrs)
@@ -48,7 +49,7 @@ class DatePickerInput(forms.DateInput):
 class DateTimePickerInput(forms.DateTimeInput):
     def __init__(self, attrs=None, format=DATETIME_FORMAT):
         if not attrs:
-            attrs={'class': 'datetimepicker',
+            attrs={'class': 'datetimepicker form-control',
                    'data-date-format': 'dd/mm/yyyy hh:ii'}
 
         super().__init__(attrs)
@@ -58,7 +59,7 @@ class DateTimePickerInput(forms.DateTimeInput):
 class DateRangePickerInput(forms.DateInput):
     def __init__(self, attrs=None, format=DATE_RANGE_FORMAT):
         if not attrs:
-            attrs={'class': 'daterange',
+            attrs={'class': 'daterange form-control',
                    'data-date-format': 'dd/mm/yyyy - dd/mm/yyyy'}
 
         super().__init__(attrs)
@@ -77,24 +78,8 @@ class DateRangeField(forms.DateField):
         return start_date, end_date
 
 
-class SessionDateForm(BootstrapModelForm):
-    start_date = forms.DateField(widget=DatePickerInput(format=DATE_FORMAT),
-                                 input_formats=DATE_FORMAT,
-                                 required=True)
-
-    class Meta:
-        model = OfferYearCalendar
-        fields = ['start_date']
-
-
-class SessionDateTimeForm(SessionDateForm):
-    start_date = forms.DateTimeField(widget=DateTimePickerInput(format=DATETIME_FORMAT),
-                                     input_formats=DATETIME_FORMAT,
-                                     required=True)
-
-
-class DateRangeForm(BootstrapModelForm):
-    range_date = DateRangeField(required=True)
+class CourseEnrollmentForm(BootstrapModelForm):
+    range_date = DateRangeField(required=True, label=_("course_enrollment"))
 
     def clean(self):
         range_date = self.cleaned_data["range_date"]
@@ -110,23 +95,23 @@ class DateRangeForm(BootstrapModelForm):
 
 
 class AdministrativeDataSession(forms.Form):
-    exam_enrollment_range = DateRangeField(required=True)
+    exam_enrollment_range = DateRangeField(required=True, label=_('EXAM_ENROLLMENTS'))
 
     scores_exam_submission = forms.DateField(widget=DatePickerInput(format=DATE_FORMAT),
                                              input_formats=DATE_FORMAT,
-                                             required=True)
+                                             required=True, label=_('marks_presentation'))
 
     dissertation_submission = forms.DateField(widget=DatePickerInput(format=DATE_FORMAT),
                                               input_formats=DATE_FORMAT,
-                                              required=True)
+                                              required=True, label=_('dissertation_presentation'))
 
     deliberation = forms.DateTimeField(widget=DateTimePickerInput(format=DATETIME_FORMAT),
                                        input_formats=DATETIME_FORMAT,
-                                       required=True)
+                                       required=True, label=_('DELIBERATION'))
 
     scores_exam_diffusion = forms.DateTimeField(widget=DateTimePickerInput(format=DATETIME_FORMAT),
                                                 input_formats=DATETIME_FORMAT,
-                                                required=True)
+                                                required=True, label=_("scores_diffusion"))
 
     def clean_exam_enrollment_range(self):
         value = self.cleaned_data.get('exam_enrollment_range')

@@ -30,8 +30,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from base import models as mdl
 
 from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
-from base.forms.education_groups_administrative_data import SessionDateTimeForm, SessionDateForm, \
-    DateRangeForm, AdministrativeDataSession
+from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataSession
 from base.models.enums import education_group_categories
 
 from . import layout
@@ -198,13 +197,7 @@ def _education_group_administrative_data_tab(request, education_group_year_id):
 def education_group_edit_administrative_data(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
     formset_session = formset_factory(AdministrativeDataSession, extra=NUMBER_SESSIONS)
-
-    course_enrollment = DateRangeForm(request.POST or None, instance=mdl.offer_year_calendar.find_by_id(2))
-    exam_enrollments = formset_factory(DateRangeForm, extra=NUMBER_SESSIONS)
-    scores_exam_submission = formset_factory(SessionDateForm, extra=NUMBER_SESSIONS)
-    dissertation_submission = formset_factory(SessionDateForm, extra=NUMBER_SESSIONS)
-    deliberation = formset_factory(SessionDateTimeForm, extra=NUMBER_SESSIONS)
-    scores_exam_diffusion = formset_factory(SessionDateTimeForm, extra=NUMBER_SESSIONS)
+    course_enrollment = CourseEnrollmentForm(request.POST or None, instance=mdl.offer_year_calendar.find_by_id(2))
     return layout.render(request, "education_group/tab_edit_administrative_data.html", locals())
 
 
@@ -242,37 +235,6 @@ def get_dates(an_academic_calendar_type, an_education_group_year):
     else:
         return {}
 
-def get_form_sessions_dates(an_academic_calendar_type, an_education_group_year, is_datetime=False):
-    list_date = []
-    for cpt in range(1, 4):
-        session = mdl.session_exam_calendar.get_by_session_reference_and_academic_year(cpt,
-                                                                                       an_academic_calendar_type,
-                                                                                       an_education_group_year.academic_year)
-        if session:
-            dates = mdl.offer_year_calendar.get_by_education_group_year_and_academic_calendar(session.academic_calendar,
-                                                                                              an_education_group_year)
-        else:
-            #TODO
-            dates = mdl.offer_year_calendar.find_by_id(1)
-
-        if is_datetime:
-            list_date.append(SessionDateTimeForm(instance=dates))
-        else:
-            list_date.append(SessionDateForm(instance=dates))
-
-    return list_date
-
-
-def get_form_dates(an_academic_calendar_type, an_education_group_year):
-    ac = mdl.academic_calendar.get_by_reference_and_academic_year(an_academic_calendar_type,
-                                                                  an_education_group_year.academic_year)
-    if ac:
-        dates = mdl.offer_year_calendar.get_by_education_group_year_and_academic_calendar(ac, an_education_group_year)
-    #TODO
-    else:
-        dates = mdl.offer_year_calendar.find_by_id(1)
-
-    return SessionDateForm(instance=dates)
 
 @login_required
 @permission_required('base.can_access_offer', raise_exception=True)
