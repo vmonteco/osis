@@ -31,6 +31,8 @@ import datetime
 from base.models import entity_version
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.person import PersonFactory
+from base.tests.factories.person_entity import PersonEntityFactory
 from reference.tests.factories.country import CountryFactory
 from base.tests.factories.academic_year import AcademicYearFactory
 
@@ -320,3 +322,15 @@ class EntityVersionTest(TestCase):
             end_date=end_date
         )
         self.assertIsNone(entity_school_version_level1.find_parent_faculty_version(ac_yr))
+
+    def test_find_main_entities_version_filtered_by_person(self):
+        person = PersonFactory()
+        entity_attached = EntityFactory()
+        entity_version_attached = EntityVersionFactory(entity=entity_attached, entity_type="SECTOR", parent=None, end_date=None)
+        entity_not_attached = EntityFactory()
+        EntityVersionFactory(entity=entity_not_attached, entity_type="SECTOR", parent=None, end_date=None)
+        PersonEntityFactory(person=person, entity=entity_attached)
+        entity_list = list(entity_version.find_main_entities_version_filtered_by_person(person))
+        self.assertTrue(entity_list)
+        self.assertEqual(len(entity_list), 1)
+        self.assertEqual(entity_list[0], entity_version_attached)
