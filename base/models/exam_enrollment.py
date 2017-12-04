@@ -38,6 +38,7 @@ from attribution.models import attribution
 from base.models.enums import exam_enrollment_state as enrollment_states, exam_enrollment_justification_type as justification_types
 from base.models.exceptions import JustificationValueException
 from base.models.utils.admin_extentions import remove_delete_action
+from osis_common.models.auditable_model import AuditableModel
 
 JUSTIFICATION_ABSENT_FOR_TUTOR = _('absent')
 
@@ -57,7 +58,7 @@ class ExamEnrollmentAdmin(admin.ModelAdmin):
                      'learning_unit_enrollment__offer_enrollment__offer_year__acronym']
 
 
-class ExamEnrollment(models.Model):
+class ExamEnrollment(AuditableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     score_draft = models.DecimalField(max_digits=4, decimal_places=2, blank=True, null=True,
