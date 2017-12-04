@@ -262,7 +262,7 @@ def online_encoding_submission(request, learning_unit_year_id):
 
     # Send mail to all the teachers of the submitted learning unit on any submission
     all_encoded = len(not_submitted_enrollments) == 0
-    learning_unit_year = mdl.learning_unit_year.find_by_id(learning_unit_year_id)
+    learning_unit_year = mdl.learning_unit_year.get_by_id(learning_unit_year_id)
     attributions = mdl_attr.attribution.Attribution.objects.filter(learning_unit_year=learning_unit_year)
     persons = list(set([attribution.tutor.person for attribution in attributions]))
     send_mail.send_mail_after_scores_submission(persons, learning_unit_year.acronym, submitted_enrollments, all_encoded)

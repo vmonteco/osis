@@ -44,10 +44,13 @@
 </ul>
 <div class="panel panel-default">
 	<div class="panel-body">
- 		<form id="pst-form-part1" method="POST" action="{% url 'form_part1_save' %}">
+ 		{% if msg %}
+            <h5><p style="color:red">{{ msg }}</p></h5>
+        {% endif %}
+        <form id="pst-form-part1" method="POST" action="{% url 'form_part1_save' %}">
  		{% csrf_token %}
  		{{ form.non_field_errors }}
- 		<div class="panel-default">
+		<div class="panel-default">
   			<div class="panel-heading">
 				<h4>{% trans 'contact_details' %}</h4>
   			</div>

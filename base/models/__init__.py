@@ -30,6 +30,7 @@ from base.models import campus
 from base.models import education_group
 from base.models import education_group_language
 from base.models import education_group_organization
+from base.models import education_group_type
 from base.models import education_group_year
 from base.models import entity
 from base.models import entity_container_year
@@ -48,6 +49,8 @@ from base.models import learning_unit_component
 from base.models import learning_unit_component_class
 from base.models import learning_unit_enrollment
 from base.models import learning_unit_year
+from base.models import mandatary
+from base.models import mandate
 from base.models import offer
 from base.models import offer_enrollment
 from base.models import offer_type
@@ -59,7 +62,10 @@ from base.models import organization
 from base.models import organization_address
 from base.models import person
 from base.models import person_address
+from base.models import person_entity
 from base.models import program_manager
+from base.models import proposal_folder
+from base.models import proposal_learning_unit
 from base.models import session_exam
 from base.models import session_exam_calendar
 from base.models import session_exam_deadline

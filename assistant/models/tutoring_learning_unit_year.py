@@ -54,3 +54,7 @@ def find_by_mandate(mandate):
 def find_by_mandate_and_learning_unit(mandate, learning_unit):
     return TutoringLearningUnitYear.objects.filter(mandate=mandate).\
         filter(learning_unit_year=learning_unit)
+
+
+def find_learning_unit_year(learning_unit_year):
+    return TutoringLearningUnitYear.objects.filter(learning_unit_year=learning_unit_year)

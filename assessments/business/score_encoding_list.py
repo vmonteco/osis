@@ -75,7 +75,7 @@ def get_scores_encoding_list(user, **kwargs):
     return ScoresEncodingList(**{
         'academic_year': current_academic_year,
         'number_session': current_number_session,
-        'learning_unit_year': learning_unit_year.find_by_id(learning_unit_year_id) if learning_unit_year_id else None,
+        'learning_unit_year': learning_unit_year.get_by_id(learning_unit_year_id) if learning_unit_year_id else None,
         'enrollments': enrollments
     })
 

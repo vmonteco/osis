@@ -38,7 +38,13 @@
     <h3>{% trans 'assistant_mandates_renewals' %} {{ year|add:1 }}</h3>
 
     <ul class="nav nav-tabs">
-            <li class="active"><a href="#">{% trans 'reviewer_mandates_list' %}</a></li>
+            {% if filter %}
+                <li><a href="{% url 'reviewer_mandates_list' %}">{% trans 'reviewer_mandates_list' %}</a></li>
+                <li class="active"><a href="#">{% trans 'reviewer_todo' %}</a></li>
+            {% else %}
+                <li class="active"><a href="#">{% trans 'reviewer_mandates_list' %}</a></li>
+                <li><a href="{% url 'reviewer_mandates_list_todo' %}">{% trans 'reviewer_todo' %}</a></li>
+            {% endif %}
             {% if is_supervisor %}
                 <li><a href="{% url 'phd_supervisor_assistants_list' %}">{% trans 'phd_supervisor_assistants_list' %}</a></li>
             {% endif %}
@@ -49,15 +55,17 @@
 </div>
 <div class="panel panel-default">
     <div class="panel-body">
-        <div class="row" style="padding-bottom: 5px;">
-	        <div class="col-md-12 text-right">
-                <form action=" {% url 'reviewer_mandates_list' %} " method="GET">
-                {{ form.academic_year }}
-                <button type="submit" class="btn btn-default btn-xs" title="{% trans 'apply'%}" id="bt_filter">
-                    <span class="glyphicon glyphicon-apply" aria-hidden="true"></span> {% trans 'apply'%}</button>
-                </form>
+        {% if filter is False %}
+            <div class="row" style="padding-bottom: 5px;">
+	            <div class="col-md-12 text-right">
+                    <form action=" {% url 'reviewer_mandates_list' %} " method="GET">
+                    {{ form.academic_year }}
+                    <button type="submit" class="btn btn-default btn-xs" title="{% trans 'apply'%}" id="bt_filter">
+                        <span class="glyphicon glyphicon-apply" aria-hidden="true"></span> {% trans 'apply'%}</button>
+                    </form>
+                </div>
             </div>
-        </div>
+        {% endif %}
         <div class="table-responsive">
         <table id="myTable" class="table table-hover table-condensed table-bordered" cellspacing="0" width="100%">
         <thead>

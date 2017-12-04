@@ -35,20 +35,16 @@ from assistant.utils import manager_access
 
 @login_required
 def assistant_home(request):
-    try:
-        academic_assistant.find_by_person(person=request.user.person)
-        if settings.access_to_procedure_is_open():
-            return HttpResponseRedirect(reverse('assistant_mandates'))
-        else:
-            return HttpResponseRedirect(reverse('access_denied'))
-    except academic_assistant.AcademicAssistant.DoesNotExist:
+    if settings.access_to_procedure_is_open() and academic_assistant.find_by_person(person=request.user.person):
+        return HttpResponseRedirect(reverse('assistant_mandates'))
+    else:
         try:
             manager.find_by_person(person=request.user.person)
             return HttpResponseRedirect(reverse('manager_home'))
         except manager.Manager.DoesNotExist:
             try:
                 reviewer.find_by_person(person=request.user.person)
-                return HttpResponseRedirect(reverse('reviewer_mandates_list'))
+                return HttpResponseRedirect(reverse('reviewer_mandates_list_todo'))
             except reviewer.Reviewer.DoesNotExist:
                 return HttpResponseRedirect(reverse('access_denied'))
 

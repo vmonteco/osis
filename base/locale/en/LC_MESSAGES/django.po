@@ -2181,6 +2181,64 @@ msgstr "Not concerned"
 msgid "organization_address_save_error"
 msgstr "Impossible to save the organization address"
 
+msgid "i_confirm"
+msgstr "Yes, I confirm."
+
+msgid "msg_warning_delete_learning_unit"
+msgstr "This operation is <strong>permanent</strong> and cannot be undone. You will lose for ever"
+       " the data linked to the learning unit <strong>%s</strong>."
+
+msgid "The learning unit %(acronym)s has been successfully deleted for all years."
+msgstr ""
+
+msgid "cannot_delete_learning_unit_year"
+msgstr "Could not delete the LU <strong>%(learning_unit)s</strong> from the year %(year)s for the following reasons :"
+
+msgid "cannot_delete_learning_unit"
+msgstr "Could not delete the LU <strong>%(learning_unit)s</strong> for the following reasons :"
+
+msgid "There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s"
+msgstr ""
+
+msgid "%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s"
+msgstr ""
+
+msgid "%(subtype)s %(acronym)s is assigned to the assistant %(assistant)s for the year %(year)s"
+msgstr ""
+
+msgid "The learning unit %(acronym)s is related to the internship speciality %(speciality)s"
+msgstr ""
+
+msgid "%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s"
+msgstr ""
+
+msgid "%(subtype)s %(acronym)s has been deleted for the year %(year)s"
+msgstr ""
+
+msgid "The class %(acronym)s has been deleted for the year %(year)s"
+msgstr ""
+
+msgid "the partim"
+msgstr ""
+
+msgid "The partim"
+msgstr ""
+
+msgid "The learning unit"
+msgstr ""
+
+msgid "the learning unit"
+msgstr ""
+
+msgid "You asked the deletion of the learning unit %(acronym)s from the year %(year)s"
+msgstr ""
+
+msgid "Delete from this academic year"
+msgstr ""
+
+msgid "Delete all the learning unit"
+msgstr ""
+
 msgid "publish_attribution_to_portal"
 msgstr "Publish attribution to portal"
 
@@ -2198,3 +2256,183 @@ msgstr "Vacant but do not publish"
 
 msgid "DO_NOT_ASSIGN"
 msgstr "Do not assign"
+
+msgid "folder"
+msgstr "Folder"
+
+msgid "introduced_by"
+msgstr "Introduced by"
+
+msgid "the"
+msgstr "The"
+
+msgid "proposal_management"
+msgstr "Proposal management"
+
+msgid "category"
+msgstr "Category"
+
+msgid "PRESIDENT"
+msgstr "President"
+
+msgid "SECRETARY"
+msgstr "Secretary"
+
+msgid "SIGNATORY"
+msgstr "Signatory"
+
+msgid "administrative_data"
+msgstr "Administrative data"
+
+msgid "jury"
+msgstr "Jury"
+
+msgid "signatory_qualification"
+msgstr "Signatory's qualification"
+
+msgid "course_enrollment"
+msgstr "Course enrollment"
+
+msgid "marks_presentation"
+msgstr "Marks presentation"
+
+msgid "dissertation_presentation"
+msgstr "Dissertation présentation"
+
+msgid "scores_diffusion"
+msgstr "Scores diffusion"
+
+msgid "session"
+msgstr "Session"
+
+msgid "at"
+msgstr "at"
+
+msgid "learning_unit_years_to_delete"
+msgstr "You will definitely delete the following learning units"
+
+msgid "type_must_be_full"
+msgstr "Type of learning unit must be full"
+
+msgid "learning_unit_type_is_not_internship"
+msgstr "Learning unit is not of type internship."
+
+msgid "learning_unit_is_not_of_type_full"
+msgstr "Learning unit is not of type full."
+
+msgid "proposal_already_exists"
+msgstr "A proposal has already been made for the learning unit."
+
+msgid "CREATION"
+msgstr "Creation"
+
+msgid "MODIFICATION"
+msgstr "Modification"
+
+msgid "TRANSFORMATION"
+msgstr "Transformation"
+
+msgid "TRANSFORMATION_AND_MODIFICATION"
+msgstr "Transformation and modification"
+
+msgid "SUPPRESSION"
+msgstr "Suppression"
+
+msgid "cannot_do_modification_proposal_for_past_learning_unit"
+msgstr "Cannot make modification proposal for past learning unit."
+
+msgid "CENTRAL"
+msgstr "Central"
+
+msgid "SUSPENDED"
+msgstr "Suspended"
+
+msgid "ACCEPTED"
+msgstr "Accepted"
+
+msgid "REFUSED"
+msgstr "Refused"
+
+msgid "success_modification_proposal"
+msgstr "You proposed a modification of type {} for the learning unit {}."
+
+msgid "content"
+msgstr "Content"
+
+msgid "code_scs"
+msgstr "Code SCS"
+
+msgid "title_code_formation"
+msgstr "Title / Formation's code"
+
+msgid "absolute_credits"
+msgstr "Abs. credits"
+
+msgid "relative_target_credits"
+msgstr "Relative target's credits"
+
+msgid "min_credits"
+msgstr "Min. credits"
+
+msgid "max_credits"
+msgstr "Max. credits"
+
+msgid "mandatory"
+msgstr "Mandatory"
+
+msgid "block"
+msgstr "Block"
+
+msgid "current_order"
+msgstr "Current order"
+
+msgid "sessions_derogation"
+msgstr "Sessions in derogation"
+
+msgid "own_comment"
+msgstr "Own comment"
+
+msgid "SESSION_1"
+msgstr "1"
+
+msgid "SESSION_2"
+msgstr "2"
+
+msgid "SESSION_3"
+msgstr "3"
+
+msgid "SESSION_1_2"
+msgstr "12"
+
+msgid "SESSION_1_3"
+msgstr "13"
+
+msgid "SESSION_2_3"
+msgstr "23"
+
+msgid "SESSION_1_2_3"
+msgstr "123"
+
+msgid "SESSION_UNDEFINED"
+msgstr "Undefined session"
+
+msgid "SESSION_PARTIAL_2_3"
+msgstr "p23"
+
+msgid "Put in proposal"
+msgstr ""
+
+msgid "Proposal for modification"
+msgstr ""
+
+msgid "End of teaching"
+msgstr ""
+
+msgid "academic_entity_small"
+msgstr "Academic ent."
+
+msgid "academic_entity"
+msgstr "Academic entity"
+
+msgid "folder_number"
+msgstr "Folder n°{}"

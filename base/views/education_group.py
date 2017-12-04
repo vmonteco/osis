@@ -37,6 +37,14 @@ from cms import models as mdl_cms
 from collections import OrderedDict
 from django.conf import settings
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
+from base.models.enums import academic_calendar_type
+
+CODE_SCS = 'code_scs'
+TITLE = 'title'
+CREDITS_MIN = "credits_min"
+CREDITS_MAX = "credits_max"
+BLOCK = "block"
+SESSIONS_DEROGATION = "sessions_derogation"
 
 
 @login_required
@@ -75,30 +83,31 @@ def _check_if_display_message(request, an_education_groups):
 @login_required
 @permission_required('base.can_access_offer', raise_exception=True)
 def education_group_read(request, education_group_year_id):
+    root = request.GET.get('root')
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
     education_group_languages = [education_group_language.language.name for education_group_language in
                                  mdl.education_group_language.find_by_education_group_year(education_group_year)]
+    enums = mdl.enums.education_group_categories
+    if root:
+        parent = mdl.education_group_year.find_by_id(root)
+    else:
+        parent = education_group_year
     return layout.render(request, "education_group/tab_identification.html", locals())
 
 
 @login_required
 @permission_required('base.can_access_offer', raise_exception=True)
 def education_group_parent_read(request, education_group_year_id):
+    root = request.GET.get('root')
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
-    return layout.render(request, "education_group/tab_parent_training.html", locals())
-
-
-def get_education_group_years(academic_yr, acronym, entity):
-    if entity:
-        education_group_year_entities = []
-        education_group_years = mdl.education_group_year.search(academic_yr=academic_yr, acronym=acronym)
-        for education_group_yr in education_group_years:
-            if education_group_yr.management_entity and \
-                            education_group_yr.management_entity.acronym.upper() == entity.upper():
-                education_group_year_entities.append(education_group_yr)
-        return education_group_year_entities
+    education_group_languages = [education_group_language.language.name for education_group_language in
+                                 mdl.education_group_language.find_by_education_group_year(education_group_year)]
+    enums = mdl.enums.education_group_categories
+    if root:
+        parent = mdl.education_group_year.find_by_id(root)
     else:
-        return mdl.education_group_year.search(academic_yr=academic_yr, acronym=acronym)
+        parent = education_group_year
+    return layout.render(request, "education_group/tab_identification.html", locals())
 
 
 @login_required
@@ -109,6 +118,7 @@ def education_group_diplomas(request, education_group_year_id):
 
 def _education_group_diplomas_tab(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+    parent = get_root(education_group_year_id, request)
     return layout.render(request, "education_group/tab_diplomas.html", locals())
 
 
@@ -126,7 +136,10 @@ def _education_group_general_informations_tab(request, education_group_year_id):
     fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
     en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
 
-    context = {'education_group_year': education_group_year,
+    parent = get_root(education_group_year_id, request)
+
+    context = {'parent': parent,
+               'education_group_year': education_group_year,
                'cms_labels_translated': _get_cms_label_data(CMS_LABEL,
                                                             mdl.person.get_user_interface_language(request.user)),
                'form_french': EducationGroupGeneralInformationsForm(education_group_year=education_group_year,
@@ -138,13 +151,136 @@ def _education_group_general_informations_tab(request, education_group_year_id):
 
 def _get_cms_label_data(cms_label, user_language):
     cms_label_data = OrderedDict()
-
     translated_labels = mdl_cms.translated_text_label.search(text_entity=entity_name.OFFER_YEAR,
                                                              labels=cms_label,
                                                              language=user_language)
-
     for label in cms_label:
         translated_text = next((trans.label for trans in translated_labels if trans.text_label.label == label), None)
         cms_label_data[label] = translated_text
-
     return cms_label_data
+
+
+@login_required
+@permission_required('base.can_access_offer', raise_exception=True)
+def education_group_administrative_data(request, education_group_year_id):
+    return _education_group_administrative_data_tab(request, education_group_year_id)
+
+
+def _education_group_administrative_data_tab(request, education_group_year_id):
+    education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+
+    parent = get_root(education_group_year_id, request)
+
+    context = {'parent': parent,
+               'education_group_year': education_group_year,
+               'course_enrollment':get_dates(academic_calendar_type.COURSE_ENROLLMENT, education_group_year),
+               'mandataries': mdl.mandatary.find_by_education_group_year(education_group_year),
+               'pgm_mgrs': mdl.program_manager.find_by_education_group(education_group_year.education_group)}
+    context.update({'exam_enrollments': get_sessions_dates(academic_calendar_type.EXAM_ENROLLMENTS,
+                                                           education_group_year)})
+    context.update({'scores_exam_submission': get_sessions_dates(academic_calendar_type.SCORES_EXAM_SUBMISSION,
+                                                                 education_group_year)})
+    context.update({'dissertation_submission': get_sessions_dates(academic_calendar_type.DISSERTATION_SUBMISSION,
+                                                                  education_group_year)})
+    context.update({'deliberation': get_sessions_dates(academic_calendar_type.DELIBERATION,
+                                                       education_group_year)})
+    context.update({'scores_exam_diffusion': get_sessions_dates(academic_calendar_type.SCORES_EXAM_DIFFUSION,
+                                                                education_group_year)})
+    return layout.render(request, "education_group/tab_administrative_data.html", context)
+
+
+def get_root(education_group_year_id, request):
+    root = request.GET.get('root')
+    if root:
+        parent = mdl.education_group_year.find_by_id(root)
+    else:
+        parent = education_group_year_id
+    return parent
+
+
+def get_sessions_dates(an_academic_calendar_type, an_education_group_year):
+    date_dict = {}
+    cpt = 1
+    while cpt <= 3:
+        session1 = mdl.session_exam_calendar.get_by_session_reference_and_academic_year(cpt,
+                                                                                        an_academic_calendar_type,
+                                                                                        an_education_group_year.academic_year)
+        if session1:
+            dates = mdl.offer_year_calendar.get_by_education_group_year_and_academic_calendar(session1.academic_calendar,
+                                                                                              an_education_group_year)
+            key = 'session{}'.format(cpt)
+            date_dict.update({key: dates})
+        cpt = cpt + 1
+    return date_dict
+
+
+def get_dates(an_academic_calendar_type, an_education_group_year):
+    ac = mdl.academic_calendar.get_by_reference_and_academic_year(an_academic_calendar_type,
+                                                                  an_education_group_year.academic_year)
+    if ac:
+        dates = mdl.offer_year_calendar.get_by_education_group_year_and_academic_calendar(ac, an_education_group_year)
+        return {'dates': dates}
+    else:
+        return {}
+
+
+@login_required
+@permission_required('base.can_access_offer', raise_exception=True)
+def education_group_content(request, education_group_year_id):
+    return _education_group_content_tab(request, education_group_year_id)
+
+
+def _education_group_content_tab(request, education_group_year_id):
+    education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+    parent = get_root(education_group_year_id, request)
+    context = {'parent': parent,
+               'education_group_year': education_group_year,
+               'group_elements': _group_elements(education_group_year),
+               }
+    return layout.render(request, "education_group/tab_content.html", context)
+
+
+def _group_elements(education_group_yr):
+    group_elements = mdl.group_element_year.find_by_parent(education_group_yr)
+    if group_elements:
+        return _get_group_elements_data(group_elements)
+
+    return None
+
+
+def _get_group_elements_data(group_elements):
+    group_elements_data = []
+    for group_element in group_elements:
+        group_element_values={'group_element': group_element}
+        if group_element.child_leaf:
+            _get_learning_unit_detail(group_element_values, group_element)
+        elif group_element.child_branch:
+            _get_education_group_detail(group_element_values, group_element)
+        group_elements_data.append(group_element_values)
+    return _sorting(group_elements_data)
+
+
+def _sorting(group_elements_data):
+    return sorted(group_elements_data,
+                  key= lambda k: (k.get('group_element').current_order is None,
+                                  k.get('group_element').current_order == -1,
+                                  k.get('group_element').current_order))
+
+
+def _get_education_group_detail(dict_param, group_element):
+    dict_param.update({CODE_SCS: group_element.child_branch.partial_acronym,
+                 TITLE: group_element.child_branch.title,
+                 CREDITS_MIN: group_element.min_credits,
+                 CREDITS_MAX: group_element.max_credits,
+                 BLOCK: None})
+    return dict_param
+
+
+def _get_learning_unit_detail(dict_param, group_element):
+    dict_param.update({CODE_SCS: group_element.child_leaf.acronym,
+                 TITLE: group_element.child_leaf.title,
+                 CREDITS_MIN: None,
+                 CREDITS_MAX: None,
+                 BLOCK: group_element.block,
+                 SESSIONS_DEROGATION: group_element.sessions_derogation})
+    return dict_param

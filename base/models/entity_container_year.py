@@ -23,15 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.contrib import admin
 from django.db.models import Prefetch
 
 from base.models import entity_version
 from base.models.enums import entity_container_year_link_type
+from osis_common.models.auditable_model import AuditableModel, AuditableModelAdmin
 
 
-class EntityContainerYearAdmin(admin.ModelAdmin):
+class EntityContainerYearAdmin(AuditableModelAdmin):
     list_display = ('external_id', 'learning_container_year', 'entity', 'type')
     fieldsets = ((None, {'fields': ('entity', 'learning_container_year', 'type')}),)
     search_fields = ['learning_container_year__acronym', 'type']
@@ -39,7 +40,7 @@ class EntityContainerYearAdmin(admin.ModelAdmin):
     raw_id_fields = ('entity', 'learning_container_year')
 
 
-class EntityContainerYear(models.Model):
+class EntityContainerYear(AuditableModel):
     external_id = models.CharField(max_length=255, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     entity = models.ForeignKey('Entity')
@@ -118,3 +119,15 @@ def find_all_additional_requirement_entities(learning_container_year):
 def find_by_learning_container_year(a_learning_container_year, a_entity_container_year_link_type):
     return EntityContainerYear.objects.filter(learning_container_year=a_learning_container_year,
                                               type=a_entity_container_year_link_type)
+
+
+def find_entities_grouped_by_linktype(a_learning_container_year):
+    entity_containers_year = search(learning_container_year=a_learning_container_year)
+    return {ecy.type: ecy.entity for ecy in entity_containers_year}
+
+
+def find_by_learning_container_year_and_linktype(a_learning_container_year, linktype):
+    try:
+        return EntityContainerYear.objects.get(learning_container_year=a_learning_container_year, type=linktype)
+    except ObjectDoesNotExist:
+        return None

@@ -24,17 +24,17 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
+from osis_common.models.auditable_model import AuditableModel, AuditableModelAdmin
 
 
-class LearningClassYearAdmin(admin.ModelAdmin):
+class LearningClassYearAdmin(AuditableModelAdmin):
     list_display = ('learning_component_year', 'acronym')
     fieldsets = ((None, {'fields': ('learning_component_year', 'acronym', 'description')}),)
     search_fields = ['acronym']
     raw_id_fields = ('learning_component_year',)
 
 
-class LearningClassYear(models.Model):
+class LearningClassYear(AuditableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     learning_component_year = models.ForeignKey('LearningComponentYear')
     acronym = models.CharField(max_length=3)
@@ -45,9 +45,13 @@ class LearningClassYear(models.Model):
             ("can_access_learningclassyear", "Can access learning class year"),
         )
 
+    def __str__(self):
+        return u'{}-{}'.format(self.learning_component_year.acronym, self.acronym)
+
 
 def find_by_id(learning_class_year_id):
     return LearningClassYear.objects.get(pk=learning_class_year_id)
+
 
 def find_by_learning_component_year(a_learning_component_year):
     return LearningClassYear.objects.filter(learning_component_year=a_learning_component_year).order_by("acronym")

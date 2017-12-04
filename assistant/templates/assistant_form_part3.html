@@ -45,6 +45,9 @@
 </ul>
 <div class="panel panel-default">
 	<div class="panel-body">
+        {% if msg %}
+            <h5><p style="color:red">{{ msg }}</p></h5>
+        {% endif %}
  		<form id="pst-form-part3" method="POST" enctype="multipart/form-data" action="{% url 'form_part3_save' %}">
  		{{ form.non_field_errors }}
  		{% csrf_token %}
@@ -132,16 +135,15 @@
                 {% trans 'upload' %}</a>
 		</div>
         <hr>
-	    <input type="hidden" value="{{mandate.id | default_if_none:''}}" id="hdn_current_mandate_id"
+        <input type="hidden" value="{{mandate.id | default_if_none:''}}" id="hdn_current_mandate_id"
 		   name="mandate_id" title="mandate_id" >
-        <input type="hidden" value="{{ document_type }}" id="hdn_description" name="description"
+	    <input type="hidden" value="{{ document_type }}" id="hdn_description" name="description"
                title="description">
 		<div class="form-group">
      			<button type="submit" class="btn btn-primary" title="{% trans 'save'%}"
                         id="bt_pstform_part3_save">
      			<span class="glyphicon glyphicon-save" aria-hidden="true"></span> {% trans 'save'%}</button>
 		</div>
-		<input type="hidden" name="mandate_id" value="{{ mandate.id }}">
     	</form>
 	</div>
 </div>
@@ -230,7 +232,32 @@ $("#txt_file").on("change", function() {
     var file = this.files[0];
     fileName = file.name;
     $("#hdn_filename").val(fileName);
+    if(fileName.length > 100){
+        document.getElementById("error_modal_upload").innerHTML = "{% trans 'maxlength_filename'%}";
+        $("#txt_file").val('')
+        $('#pnl_upload_error').remove();
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return false;
+    }
+    else {
+        document.getElementById("error_modal_upload").innerHTML = "";
+    }
+    res = /.*[()%$,;:/=+].*/i.test(fileName);
+    if(res)
+        {
+        document.getElementById("error_modal_upload").innerHTML = "{% trans 'bad_filename'%}";
+        $("#txt_file").val('')
+        $('#pnl_upload_error').remove();
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return false;
+    }
+    else {
+        document.getElementById("error_modal_upload").innerHTML = "";
+    }
 });
+
 $('[id^="bt_load_doc_"]').click(function(event) {
     var target = $(event.target);
     var id = target.attr("id");
@@ -267,19 +294,15 @@ $("#bt_upload_document").click(function(event) {
                 processData: false,
                 contentType: false,
                 complete: function(xhr, statusText) {
-                    if (xhr.status == '0') {
-                        //problem occured
-                        $('#pnl_assistant_error').remove();
-                        var msg_error = jQuery('<div class="alert alert-danger" id="pnl_assistant_error">' +
-                            gettext('error_occured') + '</span>');
-                        $('#pnl_assistant_errors').append(msg_error);
-                        return false;
-                    }
+                    var data_response=xhr.responseText;
+                    var jsonResponse = JSON.parse(data_response);
                     window.location.reload(true);
+                    alert(jsonResponse["message"]);
                 }
             });
             return true;
-        } else {
+        }
+        else {
             document.getElementById("error_modal_upload").innerHTML = "{% trans 'only_pdf_file'%}";
             $("#txt_file").val('')
             $('#pnl_upload_error').remove();
