@@ -23,26 +23,18 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import forms
+from django import template
+from django.forms import forms
+
+register = template.Library()
 
 
-class BootstrapModelForm(forms.ModelForm):
+@register.filter
+def select_field(form, key):
+    key = str(key)
+    if key not in form.fields.keys():
+        print('Key %s not found in dict' % key)
+        return None
 
-    def __init__(self, *args, **kwargs):
-        super(BootstrapModelForm, self).__init__(*args, **kwargs)
-        set_form_control(self)
+    return forms.BoundField(form, form.fields[key], key)
 
-
-class BootstrapForm(forms.Form):
-
-    def __init__(self, *args, **kwargs):
-        super(BootstrapForm, self).__init__(*args, **kwargs)
-        set_form_control(self)
-
-
-def set_form_control(self):
-    for field in self.fields.values():
-        attrs = getattr(field.widget, 'attrs', None)
-        # Exception because we don't apply form-control on widget checkbox
-        if attrs and field.widget.template_name != 'django/forms/widgets/checkbox.html':
-            attrs['class'] = attrs.get('class', '') + ' form-control'

@@ -24,12 +24,14 @@
 #
 ##############################################################################
 from django.contrib import messages
+from django.forms import formset_factory
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required, permission_required
 from base import models as mdl
 
 from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
-from base.forms.education_groups_administrative_data import SessionDateTimeForm, SessionDateForm
+from base.forms.education_groups_administrative_data import SessionDateTimeForm, SessionDateForm, \
+    DateRangeForm, AdministrativeDataSession
 from base.models.enums import education_group_categories
 
 from . import layout
@@ -46,6 +48,7 @@ CREDITS_MIN = "credits_min"
 CREDITS_MAX = "credits_max"
 BLOCK = "block"
 SESSIONS_DEROGATION = "sessions_derogation"
+NUMBER_SESSIONS = 3
 
 
 @login_required
@@ -194,22 +197,15 @@ def _education_group_administrative_data_tab(request, education_group_year_id):
 @permission_required('base.can_access_offer', raise_exception=True)
 def education_group_edit_administrative_data(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
-    context = {
-        'education_group_year': education_group_year,}
+    formset_session = formset_factory(AdministrativeDataSession, extra=NUMBER_SESSIONS)
 
-    context.update({'exam_enrollments': get_form_sessions_dates(academic_calendar_type.EXAM_ENROLLMENTS,
-                                                                education_group_year)})
-
-    context.update({'scores_exam_submission': get_form_sessions_dates(academic_calendar_type.SCORES_EXAM_SUBMISSION,
-                                                                 education_group_year)})
-    context.update({'dissertation_submission': get_form_sessions_dates(academic_calendar_type.DISSERTATION_SUBMISSION,
-                                                                  education_group_year)})
-    context.update({'deliberation': get_form_sessions_dates(academic_calendar_type.DELIBERATION,
-                                                       education_group_year)})
-    context.update({'scores_exam_diffusion': get_form_sessions_dates(academic_calendar_type.SCORES_EXAM_DIFFUSION,
-                                                                education_group_year)})
-    return layout.render(request, "education_group/tab_edit_administrative_data.html", context)
-
+    course_enrollment = DateRangeForm(request.POST or None, instance=mdl.offer_year_calendar.find_by_id(2))
+    exam_enrollments = formset_factory(DateRangeForm, extra=NUMBER_SESSIONS)
+    scores_exam_submission = formset_factory(SessionDateForm, extra=NUMBER_SESSIONS)
+    dissertation_submission = formset_factory(SessionDateForm, extra=NUMBER_SESSIONS)
+    deliberation = formset_factory(SessionDateTimeForm, extra=NUMBER_SESSIONS)
+    scores_exam_diffusion = formset_factory(SessionDateTimeForm, extra=NUMBER_SESSIONS)
+    return layout.render(request, "education_group/tab_edit_administrative_data.html", locals())
 
 
 def get_root(education_group_year_id, request):

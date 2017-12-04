@@ -1,5 +1,6 @@
 {% extends "utils/boostrap_datepicker.html" %}
 {% load i18n %}
+{% load form_field %}
 
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
@@ -38,21 +39,14 @@
 
         {% include "education_group/tabs.html" %}
 
+
         <div class="tab-content" id="tab_content">
-            <div role="tabpanel" class="tab-pane active" id="administrative_data">
-                <br>
-                <div class="panel panel-default">
-                    {% if course_enrollment %}
-                    <div class="form-inline">
-                        <label>{% trans 'course_enrollment' %}</label><br>
-                        <label>{% trans 'from' %}</label>
-                            {{ course_enrollment.start_date }}
-                        <label>{% trans 'to' %}</label>
-                            {{ course_enrollment.end_date }}
-                    </div>
-                    {% endif %}
-                    <br>
-                    <table class="table">
+            <form method="post">
+                {% csrf_token %}
+                <div role="tabpanel" class="tab-pane active" id="administrative_data">
+                    <div class="panel panel-default">
+                        {{ course_enrollment }}
+                        <table class="table">
                             <thead>
                                 <tr>
                                     <th></th>
@@ -62,57 +56,27 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td><label>{% trans 'exams_enrollments' %}</label></td>
-                                    {%  for session_form in exam_enrollments %}
+
+                               {% for field in formset_session.forms.0.fields %}
+                               <tr>
+                                   <td><label>{{ field }}</label></td>
+                                   {% for form in formset_session %}
                                         <td>
-                                            <label>{% trans 'from' %}</label>
-                                            {{session_form.start_date }}
-                                            <label>{% trans 'to' %}</label>
-                                            {{ session_form.end_date }}
+                                            {{ form|select_field:field }}
                                         </td>
-                                    {% endfor %}
-                                </tr>
-                                <tr>
-                                    <td><label>{% trans 'marks_presentation' %}</label></td>
-                                    {%  for session_form in scores_exam_submission %}
-                                        <td>
-                                            {{session_form.start_date }}
-                                        </td>
-                                    {% endfor %}
-                                </tr>
-                                <tr>
-                                    <td><label>{% trans 'dissertation_presentation' %}</label></td>
-                                    {%  for session_form in dissertation_submission %}
-                                        <td>
-                                            {{session_form.start_date }}
-                                        </td>
-                                    {% endfor %}
-                                </tr>
-                                <tr>
-                                    <td><label>{% trans 'DELIBERATION' %}</label></td>
-                                    {%  for session_form in deliberation %}
-                                        <td>
-                                            {{session_form.start_date }}
-                                        </td>
-                                    {% endfor %}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><label>{% trans 'scores_diffusion' %}</label></td>
-                                    {%  for session_form in scores_exam_diffusion %}
-                                        <td>
-                                            {{session_form.start_date }}
-                                        </td>
-                                    {% endfor %}
-                                </tr>
+                                   {%  endfor %}
+                               </tr>
+                               {%  endfor %}
                             </tbody>
                         </table>
+                        <br>
                     </div>
                 </div>
-                <br>
-                <div class="panel panel-default">
-                    <div class="panel-heading"> <label>{% trans 'jury'%}</label></div>
+                <input type="submit" class="btn btn-primary" value="Save">
+            </form>
+            <br>
+            <div class="panel panel-default">
+                <div class="panel-heading"> <label>{% trans 'jury'%}</label></div>
                     <div class="panel-body">
                         {% if mandataries %}
                             {% for mandatary in mandataries %}

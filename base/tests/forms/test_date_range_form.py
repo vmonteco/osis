@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,26 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import forms
+from base.tests.factories.offer_year_calendar import OfferYearCalendarFactory
+from django.test import TestCase
+from base.forms.education_groups_administrative_data import DateRangeForm
 
+class TestDateRangeForm(TestCase):
+    def setUp(self):
+        self.offer_year = OfferYearCalendarFactory()
 
-class BootstrapModelForm(forms.ModelForm):
+    def test_clean(self):
 
-    def __init__(self, *args, **kwargs):
-        super(BootstrapModelForm, self).__init__(*args, **kwargs)
-        set_form_control(self)
+        DateRangeForm(instance=self.offer_year)
 
-
-class BootstrapForm(forms.Form):
-
-    def __init__(self, *args, **kwargs):
-        super(BootstrapForm, self).__init__(*args, **kwargs)
-        set_form_control(self)
-
-
-def set_form_control(self):
-    for field in self.fields.values():
-        attrs = getattr(field.widget, 'attrs', None)
-        # Exception because we don't apply form-control on widget checkbox
-        if attrs and field.widget.template_name != 'django/forms/widgets/checkbox.html':
-            attrs['class'] = attrs.get('class', '') + ' form-control'
