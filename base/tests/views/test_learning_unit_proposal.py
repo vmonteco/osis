@@ -39,12 +39,14 @@ from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
+from base.tests.factories.person_entity import PersonEntityFactory
 from base.models.enums import organization_type, entity_type, entity_container_year_link_type, \
     learning_unit_year_subtypes, proposal_type, learning_container_year_types
 from base.models import proposal_folder, proposal_learning_unit
 
 
 PAGE_NOT_FOUND_STATUS_CODE = 404
+ACCESS_DENIED_STATUS_CODE = 401
 ACCEPTED_STATUS_CODE = 202
 
 
@@ -90,6 +92,8 @@ class TestLearningUnitModificationProposal(TestCase):
             entity=self.entity_version.entity,
             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2
         )
+
+        self.person_entity = PersonEntityFactory(person=self.person, entity=an_entity)
 
         self.client.force_login(self.person.user)
         self.url = reverse('learning_unit_modification_proposal', args=[self.learning_unit_year.id])
@@ -221,21 +225,15 @@ class TestLearningUnitModificationProposal(TestCase):
 
         response = self.client.get(self.url)
 
-        redirect_url = reverse("learning_unit", args=[self.learning_unit_year.id])
-        self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
-
-        messages = [str(message) for message in get_messages(response.wsgi_request)]
-        self.assertIn(_("learning_unit_is_not_of_type_full"), list(messages))
+        self.assertEqual(response.status_code, ACCESS_DENIED_STATUS_CODE)
+        self.assertTemplateUsed(response, "access_denied.html")
 
     def test_proposal_already_exists(self):
         ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year)
         response = self.client.get(self.url)
 
-        redirect_url = reverse("learning_unit", args=[self.learning_unit_year.id])
-        self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
-
-        messages = [str(message) for message in get_messages(response.wsgi_request)]
-        self.assertIn(_("proposal_already_exists"), messages)
+        self.assertEqual(response.status_code, ACCESS_DENIED_STATUS_CODE)
+        self.assertTemplateUsed(response, "access_denied.html")
 
     def test_academic_year_inferior_to_current(self):
         today = datetime.date.today()
@@ -245,8 +243,8 @@ class TestLearningUnitModificationProposal(TestCase):
         self.learning_unit_year.save()
 
         response = self.client.get(self.url)
-        redirect_url = reverse("learning_unit", args=[self.learning_unit_year.id])
-        self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
 
-        messages = [str(message) for message in get_messages(response.wsgi_request)]
-        self.assertIn(_("cannot_do_modification_proposal_for_past_learning_unit"), list(messages))
+        self.assertEqual(response.status_code, ACCESS_DENIED_STATUS_CODE)
+        self.assertTemplateUsed(response, "access_denied.html")
+
+

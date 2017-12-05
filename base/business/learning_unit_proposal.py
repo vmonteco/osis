@@ -77,16 +77,17 @@ def _compute_data_changed(initial_data, current_data):
     return data_changed
 
 
-def is_not_eligible_for_modification_proposal(learning_unit_year):
+def is_eligible_for_modification_proposal(learning_unit_year):
     proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
     current_year = current_academic_year().year
 
     if learning_unit_year.academic_year.year < current_year:
-        return _("cannot_do_modification_proposal_for_past_learning_unit")
+        return False
 
     if learning_unit_year.subtype != learning_unit_year_subtypes.FULL:
-        return _("learning_unit_is_not_of_type_full")
+        return False
 
     if proposal:
-        return _("proposal_already_exists")
-    return None
+        return False
+
+    return True
