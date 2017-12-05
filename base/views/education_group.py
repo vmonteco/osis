@@ -32,6 +32,7 @@ from base import models as mdl
 from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
 from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataSession
 from base.models.enums import education_group_categories
+from base.models.offer_year_calendar import OfferYearCalendar
 
 from . import layout
 from cms.enums import entity_name
@@ -192,12 +193,18 @@ def _education_group_administrative_data_tab(request, education_group_year_id):
     return layout.render(request, "education_group/tab_administrative_data.html", context)
 
 
+def _get_offer_year_calendar(education_group_year, academic_calendar_ref):
+    return OfferYearCalendar.objects.filter(education_group_year=education_group_year,academic_calendar__reference=academic_calendar_ref).first()
+
+
 @login_required
 @permission_required('base.can_access_offer', raise_exception=True)
 def education_group_edit_administrative_data(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
     formset_session = formset_factory(AdministrativeDataSession, extra=NUMBER_SESSIONS)
-    course_enrollment = CourseEnrollmentForm(request.POST or None, instance=mdl.offer_year_calendar.find_by_id(2))
+
+    #course_enrollment = CourseEnrollmentForm(request.POST or None, instance=_get_offer_year_calendar(education_group_year, academic_calendar_type.COURSE_ENROLLMENT))
+    course_enrollment = CourseEnrollmentForm(request.POST or None, instance=mdl.offer_year_calendar.find_by_id(2)) #FIX MEEEEEEEEĘ
     return layout.render(request, "education_group/tab_edit_administrative_data.html", locals())
 
 

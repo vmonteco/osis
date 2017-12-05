@@ -23,15 +23,17 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+
+from base.forms.education_groups_administrative_data import CourseEnrollmentForm, DateRangePickerInput, \
+    DATE_RANGE_SPLITTER
 from base.tests.factories.offer_year_calendar import OfferYearCalendarFactory
+
 from django.test import TestCase
-from base.forms.education_groups_administrative_data import CourseEnrollmentForm
+
 
 class TestDateRangeForm(TestCase):
     def setUp(self):
         self.offer_year = OfferYearCalendarFactory()
 
     def test_clean(self):
-
         CourseEnrollmentForm(instance=self.offer_year)
-

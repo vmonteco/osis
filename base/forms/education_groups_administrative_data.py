@@ -24,10 +24,16 @@
 #
 ##############################################################################
 from django import forms
+from django.core.exceptions import ValidationError
+from django.utils import formats
+from django.utils.encoding import force_text
 
 from base.forms.bootstrap import BootstrapModelForm
 from base.models.offer_year_calendar import OfferYearCalendar
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, string_concat
+
+from django.utils import six
+
 
 DATE_FORMAT = '%d/%m/%Y'
 TIME_FORMAT = '%H:%M'
@@ -56,7 +62,7 @@ class DateTimePickerInput(forms.DateTimeInput):
         self.format = format
 
 
-class DateRangePickerInput(forms.DateInput):
+class DateRangePickerInput(forms.TextInput):
     def __init__(self, attrs=None, format=DATE_RANGE_FORMAT):
         if not attrs:
             attrs={'class': 'daterange form-control',
@@ -65,21 +71,44 @@ class DateRangePickerInput(forms.DateInput):
         super().__init__(attrs)
         self.format = format
 
+    def format_value(self, value):
+        if isinstance(value, tuple):
+            return self.__format_date(value[0]) + DATE_RANGE_SPLITTER + self.__format_date(value[1])
+        else:
+            return value
 
-class DateRangeField(forms.DateField):
+    def __format_date(self, value):
+        return formats.localize_input(value, DATE_FORMAT)
 
+
+class DateRangeField(forms.Field):
     input_formats = DATE_RANGE_FORMAT
     widget = DateRangePickerInput
 
+    def __init__(self, base=forms.DateField(), input_formats=None, **kwargs):
+        """
+        :param base: can be either DateField or DateTimeField, which will be used to do conversions for beginning and end of interval.
+        :param input_formats: is passed into base if present
+        """
+        super(DateRangeField, self).__init__(**kwargs)
+        self.base = base
+        if input_formats is not None:
+            self.base.input_formats = input_formats
+
     def to_python(self, value):
         values = value.split(DATE_RANGE_SPLITTER)
-        start_date = super().to_python(values[0])
-        end_date = super().to_python(values[1])
+        start_date = self.base.to_python(values[0])
+        end_date = self.base.to_python(values[1])
         return start_date, end_date
 
 
 class CourseEnrollmentForm(BootstrapModelForm):
     range_date = DateRangeField(required=True, label=_("course_enrollment"))
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance=kwargs.get('instance')
+        if instance:
+            self.fields['range_date'].initial = (instance.start_date, instance.end_date)
 
     def clean(self):
         range_date = self.cleaned_data["range_date"]
@@ -87,7 +116,9 @@ class CourseEnrollmentForm(BootstrapModelForm):
             print("be nice with me")
             self.cleaned_data['start_date'] = range_date[0]
             self.cleaned_data['end_date'] = range_date[1]
+            return self.cleaned_data
         super().clean()
+
 
     class Meta:
         model = OfferYearCalendar
