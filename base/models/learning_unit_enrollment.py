@@ -24,14 +24,15 @@
 #
 ##############################################################################
 from django.db import models
+from base.models.enums import learning_unit_enrollment_state
 
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 
 
 class LearningUnitEnrollmentAdmin(AuditableSerializableModelAdmin):
-    list_display = ('student', 'learning_unit_year', 'offer', 'date_enrollment', 'changed')
-    fieldsets = ((None, {'fields': ('offer_enrollment', 'learning_unit_year', 'date_enrollment')}),)
-    list_filter = ('learning_unit_year__academic_year',)
+    list_display = ('student', 'learning_unit_year', 'offer', 'date_enrollment', 'enrollment_state', 'changed')
+    fieldsets = ((None, {'fields': ('offer_enrollment', 'learning_unit_year', 'date_enrollment', 'enrollment_state',)}),)
+    list_filter = ('learning_unit_year__academic_year', 'enrollment_state',)
     raw_id_fields = ('offer_enrollment', 'learning_unit_year')
     search_fields = ['learning_unit_year__acronym',
                      'offer_enrollment__offer_year__acronym',
@@ -46,6 +47,7 @@ class LearningUnitEnrollment(AuditableSerializableModel):
     date_enrollment = models.DateField()
     learning_unit_year = models.ForeignKey('LearningUnitYear')
     offer_enrollment = models.ForeignKey('OfferEnrollment')
+    enrollment_state = models.CharField(max_length=20, choices=learning_unit_enrollment_state.STATES, blank=True, null=True)
 
     @property
     def student(self):

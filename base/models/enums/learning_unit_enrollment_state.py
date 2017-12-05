@@ -23,16 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-SUBSCRIBED = 'SUBSCRIBED'
-PROVISORY = 'PROVISORY'
-PENDING = 'PENDING'
-TERMINATION = 'TERMINATION'
-END_OF_CYCLE = 'END_OF_CYCLE'
+ENROLLED = 'ENROLLED'
 
-STATES = (
-    (SUBSCRIBED, SUBSCRIBED),
-    (PROVISORY, PROVISORY),
-    (PENDING, PENDING),
-    (TERMINATION, TERMINATION),
-    (END_OF_CYCLE, END_OF_CYCLE))
-
+STATES = ((ENROLLED, ENROLLED),)
