@@ -247,4 +247,10 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(response.status_code, ACCESS_DENIED_STATUS_CODE)
         self.assertTemplateUsed(response, "access_denied.html")
 
+    def test_not_linked_to_entity(self):
+        self.person_entity.delete()
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, ACCESS_DENIED_STATUS_CODE)
+        self.assertTemplateUsed(response, "access_denied.html")
 

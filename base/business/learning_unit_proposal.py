@@ -23,11 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.utils.translation import ugettext_lazy as _
-
 from base.models import proposal_learning_unit
 from base.models.academic_year import current_academic_year
-from base.models.entity_container_year import find_last_entity_version_grouped_by_linktypes
+from base.models.entity_container_year import find_last_entity_version_grouped_by_linktypes, search
+from base.models.utils.person_entity_filter import filter_by_attached_entities
 from base.models.enums import entity_container_year_link_type, proposal_type, learning_unit_year_subtypes
 
 
@@ -77,9 +76,13 @@ def _compute_data_changed(initial_data, current_data):
     return data_changed
 
 
-def is_eligible_for_modification_proposal(learning_unit_year):
+def is_eligible_for_modification_proposal(learning_unit_year, a_person):
     proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
     current_year = current_academic_year().year
+    entity_containers_year = search(learning_container_year=learning_unit_year.learning_container_year)
+
+    if filter_by_attached_entities(a_person, entity_containers_year).count() == 0:
+        return False
 
     if learning_unit_year.academic_year.year < current_year:
         return False
