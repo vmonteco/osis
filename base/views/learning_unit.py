@@ -315,10 +315,11 @@ def learning_class_year_edit(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_create_learningunit', raise_exception=True)
 def learning_unit_create(request, academic_year):
-    form = CreateLearningUnitYearForm(initial={'academic_year': academic_year,
-                                               'subtype': FULL,
-                                               "container_type": EMPTY_FIELD,
-                                               'language': language.find_by_code('FR')})
+    person = get_object_or_404(Person, user=request.user)
+    form = CreateLearningUnitYearForm(person, initial={'academic_year': academic_year,
+                                                       'subtype': FULL,
+                                                       "container_type": EMPTY_FIELD,
+                                                       'language': language.find_by_code('FR')})
     return layout.render(request, "learning_unit/learning_unit_form.html", {'form': form})
 
 
@@ -326,7 +327,8 @@ def learning_unit_create(request, academic_year):
 @permission_required('base.can_create_learningunit', raise_exception=True)
 @require_POST
 def learning_unit_year_add(request):
-    form = CreateLearningUnitYearForm(request.POST)
+    person = get_object_or_404(Person, user=request.user)
+    form = CreateLearningUnitYearForm(person, request.POST)
     if form.is_valid():
         data = form.cleaned_data
         starting_academic_year = mdl.academic_year.starting_academic_year()
