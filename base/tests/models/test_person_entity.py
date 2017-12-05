@@ -23,6 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from unittest import mock
+
+from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.test import TestCase
 
@@ -94,6 +98,12 @@ class PersonEntityTest(TestCase):
         self.assertEqual(len(list_filtered), 2)
         list_filtered = list(person_entity_filter.filter_by_attached_entities(person_2, queryset))
         self.assertEqual(len(list_filtered), 1)
+
+    def test_filter_by_attached_entities_not_defined_model(self):
+        person_2 = PersonFactory()
+        queryset = User.objects.all()
+        with self.assertRaises(ObjectDoesNotExist):
+            person_entity_filter.filter_by_attached_entities(person_2, queryset)
 
     def _create_entity_structure(self):
         self.organization = OrganizationFactory(name="Université catholique de Louvain", acronym="UCL")
