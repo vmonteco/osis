@@ -28,10 +28,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from base.models import person_entity
 from base.models.entity_version import EntityVersion
 from base.models.person_entity import PersonEntity
+from base.models.entity_container_year import EntityContainerYear
 
 MAP_ENTITY_FIELD = {
-   EntityVersion: 'entity',
-   PersonEntity: 'entity'
+    EntityVersion: 'entity',
+    PersonEntity: 'entity',
+    EntityContainerYear: 'entity'
 }
 
 

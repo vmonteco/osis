@@ -31,7 +31,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.test import TestCase, RequestFactory
+
+
 from base.forms import learning_units
 from base.forms.learning_units import CreateLearningUnitYearForm
 from base.models import learning_unit_component
@@ -66,9 +69,6 @@ from base.business import learning_unit as learning_unit_business
 from django.utils.translation import ugettext_lazy as _
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
-
-OK = 200
-ACCESS_DENIED = 401
 
 
 class LearningUnitViewTestCase(TestCase):
@@ -798,7 +798,7 @@ class LearningUnitCreate(TestCase):
     def test_when_user_has_not_permission(self):
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, ACCESS_DENIED)
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, 'access_denied.html')
 
     def test_when_user_has_permission(self):
@@ -808,7 +808,7 @@ class LearningUnitCreate(TestCase):
         self.person.user.user_permissions.add(permission)
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, OK)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, 'learning_unit/learning_unit_form.html')
 
         self.assertIsInstance(response.context['form'], CreateLearningUnitYearForm)
@@ -837,7 +837,7 @@ class LearningUnitYearAdd(TestCase):
 
         response = self.client.post(self.url)
 
-        self.assertEqual(response.status_code, ACCESS_DENIED)
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, 'access_denied.html')
 
     def test_when_get_request(self):
@@ -849,7 +849,7 @@ class LearningUnitYearAdd(TestCase):
     def test_when_empty_form_data(self):
         response = self.client.post(self.url)
 
-        self.assertEqual(response.status_code, OK)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, 'learning_unit/learning_unit_form.html')
 
         self.assertIsInstance(response.context['form'], CreateLearningUnitYearForm)
