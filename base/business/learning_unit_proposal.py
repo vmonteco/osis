@@ -81,7 +81,7 @@ def is_eligible_for_modification_proposal(learning_unit_year, a_person):
     current_year = current_academic_year().year
     entity_containers_year = search(learning_container_year=learning_unit_year.learning_container_year)
 
-    if filter_by_attached_entities(a_person, entity_containers_year).count() == 0:
+    if not filter_by_attached_entities(a_person, entity_containers_year).count():
         return False
 
     if learning_unit_year.academic_year.year < current_year:
