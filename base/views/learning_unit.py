@@ -35,9 +35,8 @@ from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
-from base.business import learning_unit_deletion
-from base.business import learning_unit_year_volumes
-from base.business import learning_unit_year_with_context
+from base.business import learning_unit_deletion, learning_unit_year_volumes, learning_unit_year_with_context, \
+    learning_unit_proposal
 from attribution import models as mdl_attr
 from base.business.learning_unit import create_learning_unit, create_learning_unit_structure, \
     get_common_context_learning_unit_year, get_cms_label_data, \
@@ -46,7 +45,7 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     get_all_attributions, get_last_academic_years
 from base.forms.common import TooManyResultsException
 from base.models import proposal_learning_unit, entity_version
-from base.models.enums import learning_container_year_types
+from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
 from base.forms.learning_units import LearningUnitYearForm, CreateLearningUnitYearForm, EMPTY_FIELD
@@ -54,7 +53,6 @@ from base.forms.learning_unit_specifications import LearningUnitSpecificationsFo
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_class import LearningClassEditForm
-from base.models.enums import learning_unit_year_subtypes
 from base.models.person import Person
 from cms.models import text_label
 from reference.models import language
@@ -95,6 +93,7 @@ def learning_unit_identification(request, learning_unit_year_id):
     context['show_subtype'] = show_subtype(learning_unit_year)
     context.update(get_all_attributions(learning_unit_year))
     context['components'] = get_components_identification(learning_unit_year)
+    context['can_propose'] = learning_unit_proposal.is_eligible_for_modification_proposal(learning_unit_year, person)
     context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
     context['proposal_folder_entity_version'] = \
         entity_version.get_by_entity_and_date(context['proposal'].folder.entity, None) if context['proposal'] else None
