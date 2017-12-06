@@ -29,7 +29,7 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.contrib.messages import get_messages
 from django.utils.translation import ugettext_lazy as _
-from django.http import HttpResponseNotFound, HttpResponse
+from django.http import HttpResponseNotFound, HttpResponse, HttpResponseForbidden
 
 from base.tests.factories.academic_year import AcademicYearFakerFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -46,7 +46,6 @@ from base.models.enums import organization_type, entity_type, entity_container_y
 from base.models import proposal_folder, proposal_learning_unit
 
 
-ACCESS_DENIED_STATUS_CODE = 401
 
 
 class TestLearningUnitModificationProposal(TestCase):
@@ -224,14 +223,14 @@ class TestLearningUnitModificationProposal(TestCase):
 
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, ACCESS_DENIED_STATUS_CODE)
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
 
     def test_proposal_already_exists(self):
         ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year)
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, ACCESS_DENIED_STATUS_CODE)
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
 
     def test_academic_year_inferior_to_current(self):
@@ -243,13 +242,13 @@ class TestLearningUnitModificationProposal(TestCase):
 
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, ACCESS_DENIED_STATUS_CODE)
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
 
     def test_not_linked_to_entity(self):
         self.person_entity.delete()
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, ACCESS_DENIED_STATUS_CODE)
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
 
