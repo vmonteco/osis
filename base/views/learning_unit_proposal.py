@@ -44,7 +44,7 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
     user_person = get_object_or_404(Person, user=request.user)
 
     if not is_eligible_for_modification_proposal(learning_unit_year, user_person):
-        raise PermissionDenied
+        raise PermissionDenied("Learning unit year not eligible for proposal or user has not sufficient rights.")
 
     initial_data = compute_form_initial_data(learning_unit_year)
 
