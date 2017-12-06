@@ -30,7 +30,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 from base import models as mdl
 
 from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
-from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataSession
+from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataSession, \
+    AdministrativeData
 from base.models.enums import education_group_categories
 from base.models.offer_year_calendar import OfferYearCalendar
 
@@ -201,7 +202,11 @@ def _get_offer_year_calendar(education_group_year, academic_calendar_ref):
 @permission_required('base.can_access_offer', raise_exception=True)
 def education_group_edit_administrative_data(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
-    formset_session = formset_factory(AdministrativeDataSession, extra=NUMBER_SESSIONS)
+
+    SessionFormSet = formset_factory(form=AdministrativeDataSession, formset=AdministrativeData, extra=NUMBER_SESSIONS)
+    formset_session = SessionFormSet(request.POST or None, form_kwargs={'education_group_year': education_group_year})
+    if formset_session.is_valid():
+        formset_session.save()
 
     #course_enrollment = CourseEnrollmentForm(request.POST or None, instance=_get_offer_year_calendar(education_group_year, academic_calendar_type.COURSE_ENROLLMENT))
     course_enrollment = CourseEnrollmentForm(request.POST or None, instance=mdl.offer_year_calendar.find_by_id(2)) #FIX MEEEEEEEEĘ
@@ -221,15 +226,15 @@ def get_sessions_dates(an_academic_calendar_type, an_education_group_year):
     date_dict = {}
     cpt = 1
     while cpt <= 3:
-        session1 = mdl.session_exam_calendar.get_by_session_reference_and_academic_year(cpt,
-                                                                                        an_academic_calendar_type,
-                                                                                        an_education_group_year.academic_year)
-        if session1:
-            dates = mdl.offer_year_calendar.get_by_education_group_year_and_academic_calendar(session1.academic_calendar,
+        session = mdl.session_exam_calendar.get_by_session_reference_and_academic_year(cpt,
+                                                                                       an_academic_calendar_type,
+                                                                                       an_education_group_year.academic_year)
+        if session:
+            dates = mdl.offer_year_calendar.get_by_education_group_year_and_academic_calendar(session.academic_calendar,
                                                                                               an_education_group_year)
             key = 'session{}'.format(cpt)
             date_dict.update({key: dates})
-        cpt = cpt + 1
+        cpt += 1
     return date_dict
 
 

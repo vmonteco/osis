@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
+from datetime import datetime
 
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
@@ -95,8 +95,6 @@ class OfferYearCalendar(models.Model):
             return datetime(year=date_ac.year, month=date_ac.month, day=date_ac.day)
         elif date_oyc:
             return datetime(year=date_oyc.year, month=date_oyc.month, day=date_oyc.day)
-        else:
-            None
 
     def get_start_date(self):
         return self._get_date('start_date')
@@ -143,6 +141,10 @@ def _create_from_academic_calendar(academic_calendar):
 
 def find_by_academic_calendar(academic_cal):
     return OfferYearCalendar.objects.filter(academic_calendar=academic_cal.id)
+
+
+def find_by_education_group_year(education_group_year):
+    return OfferYearCalendar.objects.filter(education_group_year=education_group_year)
 
 
 def find_offer_year_events(offer_yr):

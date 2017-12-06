@@ -58,17 +58,18 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                {{ formset_session.management_form }}
 
-                               {% for field in formset_session.forms.0 %}
-                               <tr>
-                                   <td><label>{{ field.label }}</label></td>
-                                   {% for form in formset_session %}
-                                        <td>
-                                            {{ form|select_field:field.name }}
-                                        </td>
-                                   {%  endfor %}
-                               </tr>
-                               {%  endfor %}
+                                {% for field in formset_session.forms.0 %}
+                                   <tr>
+                                       <td><label>{{ field.label }}</label></td>
+                                       {% for form in formset_session %}
+                                            <td>
+                                                {{ form|select_field:field.name }}
+                                            </td>
+                                       {%  endfor %}
+                                   </tr>
+                                {%  endfor %}
                             </tbody>
                         </table>
                         <br>
