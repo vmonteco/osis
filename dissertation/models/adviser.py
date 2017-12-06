@@ -156,6 +156,10 @@ def list_teachers():
                           .order_by('person__last_name', 'person__first_name')
 
 
+def get_all_advisers():
+    return Adviser.objects.all()
+
+
 def add(person, type_arg, available_by_email, available_by_phone, available_at_office, comment):
     adv = Adviser(person=person,
                   type=type_arg,

@@ -24,12 +24,13 @@
 #
 ##############################################################################
 from dissertation.models.dissertation_role import search_by_dissertation
+from dissertation.models.enums.status_types import STATUS_CHOICES
 from django.shortcuts import redirect
 from base.models.academic_year import find_academic_years, find_academic_year_by_id
 from django.contrib.auth.decorators import login_required, user_passes_test
 from base import models as mdl
 from base.views import layout
-from dissertation.models.adviser import Adviser
+from dissertation.models.adviser import Adviser, get_all_advisers
 from dissertation.models import adviser, dissertation, dissertation_document_file, dissertation_role,\
     dissertation_update, faculty_adviser, offer_proposition, proposition_dissertation, proposition_role
 from dissertation.forms import ManagerDissertationForm, ManagerDissertationEditForm, ManagerDissertationRoleForm, \
@@ -480,6 +481,25 @@ def manager_dissertations_role_delete(request, pk):
     else:
         return redirect('manager_dissertations_list')
 
+
+@login_required
+@user_passes_test(adviser.is_manager)
+def manager_dissertations_role_delete_by_ajax(request, pk):
+    dissert_role = dissertation_role.find_by_id(pk)
+    if dissert_role is None:
+        return HttpResponse(status=404)
+    dissert = dissert_role.dissertation
+    person = mdl.person.find_by_user(request.user)
+    adv = adviser.search_by_person(person)
+    if (adviser_can_manage(dissert, adv)):
+        if dissert.status != 'DRAFT' and role_can_be_deleted(dissert, dissert_role):
+            justification = "%s %s" % ("manager_delete_jury", str(dissert_role))
+            dissertation_update.add(request, dissert, dissert.status, justification=justification)
+            dissert_role.delete()
+        return HttpResponse(status=200)
+    else:
+        return HttpResponse(status=404)
+
 @login_required
 @user_passes_test(adviser.is_manager)
 def manager_dissertations_to_dir_submit(request, pk):
@@ -650,11 +670,13 @@ def manager_dissertations_wait_comm_list(request):
     offer_props = offer_proposition.search_by_offer(offers)
     show_validation_commission = offer_proposition.show_validation_commission(offer_props)
     show_evaluation_first_year = offer_proposition.show_evaluation_first_year(offer_props)
-    disserts = dissertation.search_by_offer_and_status(offers, "COM_SUBMIT")
+    all_advisers = get_all_advisers
+    for i in STATUS_CHOICES:
+        print(i)
 
     return layout.render(request, 'manager_dissertations_wait_commission_list.html',
-                         {'dissertations': disserts,
-                          'show_validation_commission': show_validation_commission,
+                         {'show_validation_commission': show_validation_commission,
+                          'all_advisers': all_advisers, 'STATUS_CHOICES' : STATUS_CHOICES,
                           'show_evaluation_first_year': show_evaluation_first_year})
 
 
