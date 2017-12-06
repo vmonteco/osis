@@ -250,3 +250,19 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
 
+    def test_not_liked_to_requirement_entity(self):
+        today = datetime.date.today()
+        an_entity = EntityFactory(organization=OrganizationFactory(type=organization_type.MAIN))
+        an_entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
+                                                 start_date=today - datetime.timedelta(days=25),
+                                                 end_date=today.replace(year=today.year + 1))
+
+        self.requirement_entity.entity = an_entity_version.entity
+        self.requirement_entity.save()
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
+
+
