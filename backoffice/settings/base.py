@@ -205,6 +205,7 @@ if not TESTING or not SKIP_QUEUES_TESTS:
             'MIGRATIONS_TO_CONSUME': 'osis',
             'SCORE_ENCODING_PDF_REQUEST': 'score_encoding_pdf_request',
             'SCORE_ENCODING_PDF_RESPONSE': 'score_encoding_pdf_response',
+            'APPLICATION_OSIS_PORTAL': 'application_osis_portal',
             'ATTRIBUTION_RESPONSE': 'attribution_response',
         }
     }

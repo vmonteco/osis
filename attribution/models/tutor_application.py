@@ -54,9 +54,28 @@ class TutorApplication(AuditableModel):
     function = models.CharField(max_length=35, blank=True, null=True, choices=function.FUNCTIONS, db_index=True)
     volume_lecturing = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
     volume_pratical_exercice = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
+    remark = models.TextField(blank=True, null=True)
+    course_summary = models.TextField(blank=True, null=True)
 
     class Meta:
         unique_together = ('learning_container_year', 'tutor', 'function')
 
     def __str__(self):
         return u"%s - %s" % (self.tutor, self.function)
+
+
+def search(*args, **kwargs):
+    qs = TutorApplication.objects.all()
+    if "tutor" in kwargs:
+        qs = qs.filter(tutor=kwargs['tutor'])
+    if "learning_container_year" in kwargs:
+        if isinstance(kwargs['learning_container_year'], list):
+            qs = qs.filter(learning_container_year__in=kwargs['learning_container_year'])
+        else:
+            qs = qs.filter(learning_container_year=kwargs['learning_container_year'])
+    if "global_id" in kwargs:
+        if isinstance(kwargs['global_id'], list):
+            qs = qs.filter(tutor__person__global_id__in=kwargs['global_id'])
+        else:
+            qs = qs.filter(tutor__person__global_id=kwargs['global_id'])
+    return qs.select_related('tutor__person', 'learning_container_year')
