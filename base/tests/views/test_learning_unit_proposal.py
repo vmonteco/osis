@@ -46,8 +46,6 @@ from base.models.enums import organization_type, entity_type, entity_container_y
 from base.models import proposal_folder, proposal_learning_unit
 
 
-
-
 class TestLearningUnitModificationProposal(TestCase):
     def setUp(self):
         today = datetime.date.today()
@@ -141,7 +139,7 @@ class TestLearningUnitModificationProposal(TestCase):
     def test_get_request(self):
         response = self.client.get(self.url)
 
-        self.assertTrue(response.status_code, HttpResponse.status_code)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
         self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
         self.assertEqual(response.context['experimental_phase'], True)
@@ -169,7 +167,7 @@ class TestLearningUnitModificationProposal(TestCase):
     def test_post_request_with_invalid_form(self):
         response = self.client.post(self.url, data={})
 
-        self.assertTrue(response.status_code, HttpResponse.status_code)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
         self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
         self.assertEqual(response.context['experimental_phase'], True)
