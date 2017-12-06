@@ -29,6 +29,7 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.contrib.messages import get_messages
 from django.utils.translation import ugettext_lazy as _
+from django.http import HttpResponseNotFound, HttpResponse
 
 from base.tests.factories.academic_year import AcademicYearFakerFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -45,9 +46,7 @@ from base.models.enums import organization_type, entity_type, entity_container_y
 from base.models import proposal_folder, proposal_learning_unit
 
 
-PAGE_NOT_FOUND_STATUS_CODE = 404
 ACCESS_DENIED_STATUS_CODE = 401
-ACCEPTED_STATUS_CODE = 202
 
 
 class TestLearningUnitModificationProposal(TestCase):
@@ -130,20 +129,20 @@ class TestLearningUnitModificationProposal(TestCase):
         self.learning_unit_year.delete()
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, PAGE_NOT_FOUND_STATUS_CODE)
+        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
         self.assertTemplateUsed(response, "page_not_found.html")
 
     def test_with_none_person(self):
         self.person.delete()
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, PAGE_NOT_FOUND_STATUS_CODE)
+        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
         self.assertTemplateUsed(response, "page_not_found.html")
 
     def test_get_request(self):
         response = self.client.get(self.url)
 
-        self.assertTrue(response.status_code, ACCEPTED_STATUS_CODE)
+        self.assertTrue(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
         self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
         self.assertEqual(response.context['experimental_phase'], True)
@@ -171,7 +170,7 @@ class TestLearningUnitModificationProposal(TestCase):
     def test_post_request_with_invalid_form(self):
         response = self.client.post(self.url, data={})
 
-        self.assertTrue(response.status_code, ACCEPTED_STATUS_CODE)
+        self.assertTrue(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
         self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
         self.assertEqual(response.context['experimental_phase'], True)
