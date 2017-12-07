@@ -31,7 +31,7 @@ from base import models as mdl
 
 from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
 from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataSession, \
-    AdministrativeData
+    AdministrativeData, AdministrativeDataFormset
 from base.models.enums import education_group_categories
 
 from . import layout
@@ -199,8 +199,8 @@ def education_group_edit_administrative_data(request, education_group_year_id):
 
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
 
-    SessionFormSet = formset_factory(form=AdministrativeDataSession, formset=AdministrativeData, extra=NUMBER_SESSIONS)
-    formset_session = SessionFormSet(request.POST or None, form_kwargs={'education_group_year': education_group_year})
+    formset_session = AdministrativeDataFormset(request.POST or None,
+                                                form_kwargs={'education_group_year': education_group_year})
 
     offer_year_calendar = mdl.offer_year_calendar.search(education_group_year_id=education_group_year_id,
                                                          academic_calendar_reference=academic_calendar_type.COURSE_ENROLLMENT).first()

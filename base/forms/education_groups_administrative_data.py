@@ -25,6 +25,7 @@
 ##############################################################################
 from django import forms
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.forms import formset_factory
 
 from base.forms.bootstrap import BootstrapModelForm, BootstrapForm
 from base.forms.utils.datefield import DateRangeField, DatePickerInput, DATE_FORMAT, DateTimePickerInput, \
@@ -33,6 +34,9 @@ from base.models import offer_year_calendar, session_exam_calendar
 from base.models.enums import academic_calendar_type
 from base.models.offer_year_calendar import OfferYearCalendar
 from django.utils.translation import ugettext_lazy as _
+
+
+NUMBER_SESSIONS = 3
 
 
 class CourseEnrollmentForm(BootstrapModelForm):
@@ -160,3 +164,8 @@ class AdministrativeData(forms.BaseFormSet):
     def save(self):
         for form in self.forms:
             form.save()
+
+
+AdministrativeDataFormset = formset_factory(form=AdministrativeDataSession,
+                                            formset=AdministrativeData,
+                                            extra=NUMBER_SESSIONS)
