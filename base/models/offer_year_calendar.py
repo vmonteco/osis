@@ -23,16 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from datetime import datetime
+from datetime import datetime, time
 
 from django.contrib import admin
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.utils.translation import ugettext as _
 
-from base.models import offer_year
+from base.models import offer_year, academic_calendar
 from base.models.enums import academic_calendar_type
-from osis_common.utils.datetime import strictly_ordered_dates
+from osis_common.utils.datetime import strictly_ordered_dates, get_tzinfo
 
 
 class OfferYearCalendarAdmin(admin.ModelAdmin):
@@ -70,6 +70,19 @@ class OfferYearCalendar(models.Model):
                 self.start_date = start_date
                 self.end_date = end_date
                 self.save()
+
+    def clean(self):
+        academic_calendar_instance = academic_calendar.find_by_id(self.academic_calendar_id)
+
+        start_date = academic_calendar_instance.start_date
+        end_date = academic_calendar_instance.end_date
+
+        start_date = datetime.combine(start_date, time(0,0,0, tzinfo=get_tzinfo()))
+        end_date = datetime.combine(end_date, time(0,0,0, tzinfo=get_tzinfo()))
+
+        if (self.start_date < start_date) or\
+                (self.end_date > end_date):
+            raise ValidationError(_('Range date must be set within the authorized range.'))
 
     def save(self, *args, **kwargs):
         self.end_start_dates_validation()
@@ -140,7 +153,7 @@ def _create_from_academic_calendar(academic_calendar):
 
 
 def find_by_academic_calendar(academic_cal):
-    return OfferYearCalendar.objects.filter(academic_calendar=academic_cal.id)
+    return OfferYearCalendar.objects.filter(academic_calendar=academic_cal)
 
 
 def find_by_education_group_year(education_group_year):
@@ -180,9 +193,26 @@ def find_latest_end_date_by_academic_calendar(academic_calendar_id):
         return None
 
 
+def find_by_education_group_year(education_group_year):
+    return OfferYearCalendar.objects.filter(education_group_year=education_group_year)
+
+
 def get_by_education_group_year_and_academic_calendar(an_academic_calendar, an_education_group_year):
     try:
         return OfferYearCalendar.objects.get(academic_calendar=an_academic_calendar,
                                              education_group_year=an_education_group_year)
     except ObjectDoesNotExist:
         return None
+
+
+def search(education_group_year_id=None, academic_calendar_reference=None):
+
+    queryset = OfferYearCalendar.objects
+
+    if education_group_year_id:
+        queryset = queryset.filter(education_group_year=education_group_year_id)
+
+    if academic_calendar_reference:
+        queryset = queryset.filter(academic_calendar__reference=academic_calendar_reference)
+
+    return queryset

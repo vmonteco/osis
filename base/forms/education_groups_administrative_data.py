@@ -44,6 +44,17 @@ class CourseEnrollmentForm(BootstrapModelForm):
         if instance:
             self.fields['range_date'].initial = (instance.start_date, instance.end_date)
 
+    def clean_range_date(self):
+        range_date = self.cleaned_data["range_date"]
+        if len(range_date)==2:
+            self.cleaned_data['start_date'] = range_date[0]
+            self.cleaned_data['end_date'] = range_date[1]
+        else:
+            raise forms.ValidationError('The range date is not respected.')
+
+        return range_date
+
+
     class Meta:
         model = OfferYearCalendar
         fields = []
