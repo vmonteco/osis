@@ -89,7 +89,7 @@ class TestLearningUnitModificationProposal(TestCase):
             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2
         )
 
-        self.person_entity = PersonEntityFactory(person=self.person, entity=an_entity)
+        self.person_entity = PersonEntityFactory(person=self.person, entity=an_entity, with_child=True)
 
         self.client.force_login(self.person.user)
         self.url = reverse('learning_unit_modification_proposal', args=[self.learning_unit_year.id])
@@ -245,6 +245,55 @@ class TestLearningUnitModificationProposal(TestCase):
 
     def test_not_linked_to_entity(self):
         self.person_entity.delete()
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
+
+    def test_not_linked_to_requirement_entity(self):
+        today = datetime.date.today()
+        an_entity = EntityFactory(organization=OrganizationFactory(type=organization_type.MAIN))
+        an_entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
+                                                 start_date=today - datetime.timedelta(days=25),
+                                                 end_date=today.replace(year=today.year + 1))
+
+        self.requirement_entity.entity = an_entity_version.entity
+        self.requirement_entity.save()
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
+
+    def test_linked_to_parent_entity(self):
+        today = datetime.date.today()
+        parent_entity = EntityFactory(organization=OrganizationFactory(type=organization_type.MAIN))
+        EntityVersionFactory(entity=parent_entity, entity_type=entity_type.SCHOOL,
+                             start_date=today - datetime.timedelta(days=25),
+                             end_date=today.replace(year=today.year + 1))
+
+        self.entity_version.parent = parent_entity
+        self.entity_version.save()
+
+        self.person_entity.entity = parent_entity
+        self.person_entity.save()
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
+
+    def test_linked_to_child_entity(self):
+        today = datetime.date.today()
+        child_entity = EntityFactory(organization=OrganizationFactory(type=organization_type.MAIN))
+        EntityVersionFactory(entity=child_entity, entity_type=entity_type.SCHOOL,
+                             start_date=today - datetime.timedelta(days=25),
+                             end_date=today.replace(year=today.year + 1),
+                             parent=self.entity_version.entity)
+
+        self.person_entity.entity = child_entity
+        self.person_entity.save()
+
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
