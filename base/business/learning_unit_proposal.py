@@ -79,7 +79,8 @@ def _compute_data_changed(initial_data, current_data):
 def is_eligible_for_modification_proposal(learning_unit_year, a_person):
     proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
     current_year = current_academic_year().year
-    entity_containers_year = search(learning_container_year=learning_unit_year.learning_container_year)
+    entity_containers_year = search(learning_container_year=learning_unit_year.learning_container_year,
+                                    link_type=entity_container_year_link_type.REQUIREMENT_ENTITY)
 
     if not filter_by_attached_entities(a_person, entity_containers_year).count():
         return False
