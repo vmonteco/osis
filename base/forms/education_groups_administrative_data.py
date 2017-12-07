@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from django import forms
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
 from base.forms.bootstrap import BootstrapModelForm, BootstrapForm
 from base.forms.utils.datefield import DateRangeField, DatePickerInput, DATE_FORMAT, DateTimePickerInput, \
@@ -36,7 +36,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class CourseEnrollmentForm(BootstrapModelForm):
-    range_date = DateRangeField(required=True, label=_("course_enrollment"))
+    range_date = DateRangeField(required=False, label=_("course_enrollment"))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -46,14 +46,12 @@ class CourseEnrollmentForm(BootstrapModelForm):
 
     def clean_range_date(self):
         range_date = self.cleaned_data["range_date"]
-        if len(range_date)==2:
+
+        if isinstance(range_date, (list, tuple)) and len(range_date)==2:
             self.cleaned_data['start_date'] = range_date[0]
             self.cleaned_data['end_date'] = range_date[1]
-        else:
-            raise forms.ValidationError('The range date is not respected.')
 
         return range_date
-
 
     class Meta:
         model = OfferYearCalendar
@@ -90,6 +88,9 @@ class AdministrativeDataSession(BootstrapForm):
 
         if self.list_offer_year_calendar:
             self._init_fields()
+        else:
+            raise ObjectDoesNotExist('There is no OfferYearCalendar for the education_group_year {}'
+                                     .format(self.education_group_year))
 
     def _get_academic_calendar_type(self, name):
         if name == 'exam_enrollment_range':
@@ -109,9 +110,10 @@ class AdministrativeDataSession(BootstrapForm):
 
     def _get_offer_year_calendar(self, field_name):
         ac_type = self._get_academic_calendar_type(field_name)
-        # TODO check if field has an oyc
-        if self.list_offer_year_calendar:
-            return self.list_offer_year_calendar.filter(academic_calendar__reference=ac_type).first()
+        oyc = self.list_offer_year_calendar.filter(academic_calendar__reference=ac_type).first()
+        if not oyc:
+            raise ObjectDoesNotExist('There is no OfferYearCalendar for the reference {}'
+                                     .format(ac_type))
 
     def _init_fields(self):
         for name, field in self.fields.items():
@@ -125,9 +127,6 @@ class AdministrativeDataSession(BootstrapForm):
     def save(self):
         for name, value in self.cleaned_data.items():
             oyc = self._get_offer_year_calendar(name)
-            # TODO check if we need to create a new offer_year_calendar if it does not exist
-            if not oyc:
-                continue
 
             if isinstance(value, tuple) and len(value) == 2:
                 oyc.start_date = _convert_date_to_datetime(value[0])

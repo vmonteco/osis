@@ -101,6 +101,9 @@ class DateRangeField(forms.Field):
             self.base.input_formats = input_formats
 
     def to_python(self, value):
+        if self.required is False and not value:
+           return None
+
         values = value.split(DATE_RANGE_SPLITTER)
         if len(values) != 2:
             raise ValidationError(_('The format of the range date is not valid'))

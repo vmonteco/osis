@@ -72,10 +72,11 @@ class OfferYearCalendar(models.Model):
                 self.save()
 
     def clean(self):
-        academic_calendar_instance = academic_calendar.find_by_id(self.academic_calendar_id)
+        if not hasattr(self, 'academic_calendar'):
+            return
 
-        start_date = academic_calendar_instance.start_date
-        end_date = academic_calendar_instance.end_date
+        start_date = self.academic_calendar.start_date
+        end_date = self.academic_calendar.end_date
 
         start_date = datetime.combine(start_date, time(0,0,0, tzinfo=get_tzinfo()))
         end_date = datetime.combine(end_date, time(0,0,0, tzinfo=get_tzinfo()))

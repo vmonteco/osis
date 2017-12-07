@@ -71,7 +71,7 @@ SERVICE_COURSES_SEARCH = 2
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units(request):
-    return (request, SIMPLE_SEARCH)
+    return _learning_units_search(request, SIMPLE_SEARCH)
 
 
 @login_required
@@ -396,7 +396,7 @@ def learning_units_service_course(request):
     return _learning_units_search(request, SERVICE_COURSES_SEARCH)
 
 
-def _learning_units_search_learning_units_search(request, search_type):
+def _learning_units_search(request, search_type):
     if request.GET.get('academic_year_id'):
         form = LearningUnitYearForm(request.GET)
     else:

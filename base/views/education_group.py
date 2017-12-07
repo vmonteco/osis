@@ -198,22 +198,25 @@ def _education_group_administrative_data_tab(request, education_group_year_id):
 def education_group_edit_administrative_data(request, education_group_year_id):
 
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
-    formset_session = formset_factory(AdministrativeDataSession, extra=NUMBER_SESSIONS)
+
+    SessionFormSet = formset_factory(form=AdministrativeDataSession, formset=AdministrativeData, extra=NUMBER_SESSIONS)
+    formset_session = SessionFormSet(request.POST or None, form_kwargs={'education_group_year': education_group_year})
 
     offer_year_calendar = mdl.offer_year_calendar.search(education_group_year_id=education_group_year_id,
-                                          academic_calendar_reference=academic_calendar_type.COURSE_ENROLLMENT).first()
+                                                         academic_calendar_reference=academic_calendar_type.COURSE_ENROLLMENT).first()
     #For Test
     #course_enrollment = CourseEnrollmentForm(request.POST or None, instance=mdl.offer_year_calendar.find_by_id(2))
 
     course_enrollment = CourseEnrollmentForm(request.POST or None,instance=offer_year_calendar)
-    if course_enrollment.is_valid():
+    if course_enrollment.is_valid() and formset_session.is_valid():
+        formset_session.save()
+
         if offer_year_calendar:
             course_enrollment.save()
         else:
             # To show that the 'range_date' attribute was not saved !!!
             # Otherwise, the user sees the previous encoded value that he entered BUT WASNT SAVED !!!
             course_enrollment = CourseEnrollmentForm(None)
-
 
     return layout.render(request, "education_group/tab_edit_administrative_data.html", locals())
 
