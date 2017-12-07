@@ -24,15 +24,13 @@
 #
 ##############################################################################
 from django import forms
-from django.core.exceptions import ValidationError
 from django.utils import formats
-from django.utils.encoding import force_text
 
 from base.forms.bootstrap import BootstrapModelForm
+from base.models import offer_year_calendar, session_exam_calendar
+from base.models.enums import academic_calendar_type
 from base.models.offer_year_calendar import OfferYearCalendar
-from django.utils.translation import ugettext_lazy as _, string_concat
-
-from django.utils import six
+from django.utils.translation import ugettext_lazy as _
 
 
 DATE_FORMAT = '%d/%m/%Y'
@@ -145,11 +143,65 @@ class AdministrativeDataSession(forms.Form):
                                                 input_formats=DATETIME_FORMAT,
                                                 required=True, label=_("scores_diffusion"))
 
-    def clean_exam_enrollment_range(self):
-        value = self.cleaned_data.get('exam_enrollment_range')
-        if value:
-            if value[0] > value[1]:
-                raise forms.ValidationError('{} must greater than {}'.format(value[1], value[0]))
-            self.cleaned_data['start_date'] = value[0]
-            self.cleaned_data['end_date'] = value[1]
-        return value
+    def __init__(self, *args, **kwargs):
+        self.education_group_year = kwargs.pop('education_group_year')
+        self.session = kwargs.pop('session')
+        self.list_offer_year_calendar = kwargs.pop('list_offer_year_calendar')
+        super().__init__(*args, **kwargs)
+
+        if self.list_offer_year_calendar:
+            self._init_fields()
+
+    def _init_fields(self):
+        for name, field in self.fields.items():
+            if name == 'exam_enrollment_range':
+                ac_type = academic_calendar_type.EXAM_ENROLLMENTS
+            elif name == 'scores_exam_submission':
+                ac_type = academic_calendar_type.SCORES_EXAM_SUBMISSION
+            elif name == 'dissertation_submission':
+                ac_type = academic_calendar_type.DISSERTATION_SUBMISSION
+            elif name == 'deliberation':
+                ac_type = academic_calendar_type.DELIBERATION
+            elif name == 'scores_exam_diffusion':
+                ac_type = academic_calendar_type.SCORES_EXAM_DIFFUSION
+            else:
+                ac_type = None
+
+            self._init_field(field, ac_type)
+
+    def _init_field(self, field, ac_type):
+        oyc = self.list_offer_year_calendar.filter(academic_calendar__reference=ac_type).first()
+        if oyc:
+            if isinstance(field, DateRangeField):
+                field.initial = (oyc.start_date, oyc.end_date)
+            else:
+                field.initial = oyc.start_date
+
+    def save(self):
+        print(self.cleaned_data)
+
+
+
+
+
+class AdministrativeData(forms.BaseFormSet):
+
+    def get_form_kwargs(self, index):
+        kwargs = super().get_form_kwargs(index)
+        kwargs['session'] = index + 1
+
+        education_group_year = kwargs.get('education_group_year')
+        if not education_group_year:
+            return kwargs
+
+        q = offer_year_calendar.find_by_education_group_year(education_group_year)
+        sessions = session_exam_calendar.find_by_session_and_academic_year(index+1, education_group_year.academic_year)
+        academic_calendar_list = [s.academic_calendar for s in sessions]
+        kwargs['list_offer_year_calendar'] = q.filter(academic_calendar__in=academic_calendar_list)\
+            if academic_calendar_list else None
+
+        return kwargs
+
+    def save(self):
+        for form in self.forms:
+            form.save()
