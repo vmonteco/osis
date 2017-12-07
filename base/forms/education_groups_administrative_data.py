@@ -47,7 +47,7 @@ class CourseEnrollmentForm(BootstrapModelForm):
     def clean_range_date(self):
         range_date = self.cleaned_data["range_date"]
 
-        if isinstance(range_date, (list, tuple)) and len(range_date)==2:
+        if isinstance(range_date, (list, tuple)) and len(range_date) == 2:
             self.cleaned_data['start_date'] = range_date[0]
             self.cleaned_data['end_date'] = range_date[1]
 
@@ -114,6 +114,7 @@ class AdministrativeDataSession(BootstrapForm):
         if not oyc:
             raise ObjectDoesNotExist('There is no OfferYearCalendar for the reference {}'
                                      .format(ac_type))
+        return oyc
 
     def _init_fields(self):
         for name, field in self.fields.items():
