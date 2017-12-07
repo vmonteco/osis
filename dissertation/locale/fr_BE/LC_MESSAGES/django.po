@@ -70,6 +70,9 @@ msgstr "Ajouter un sujet"
 msgid "add_proposition_dissertation_jury_member"
 msgstr "Ajouter un membre au jury"
 
+msgid "add_success"
+msgstr "Ajout réussi"
+
 msgid "advanced_search"
 msgstr "Recherche avancée"
 
@@ -573,6 +576,9 @@ msgstr "Nombre maximum d'étudiants"
 
 msgid "max_students_number"
 msgstr "Nombre indicatif de places pour ce sujet"
+
+msgid "maximum_jury"
+msgstr "Nombre maximum de membre du jury atteints"
 
 msgid "mgr_com_accept_confirmation_message"
 msgstr "Vous allez indiquer l'acceptation de ce mémoire par la commission. Êtes-vous certain de vouloir continuer ?"

@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from dissertation.utils.request import get_adviser_list_json
 from django.conf.urls import url
 from dissertation.views import dissertation, proposition_dissertation, information, offer_proposition, \
     upload_dissertation_file, upload_proposition_file
@@ -106,6 +107,8 @@ urlpatterns = [
         name='manager_dissertation_role_list_json'),
     url(r'^manager_dissertations_role_delete_by_ajax/(?P<pk>[0-9]+)$', dissertation.manager_dissertations_role_delete_by_ajax,
         name='manager_dissertations_role_delete_by_ajax'),
+    url(r'^manager_dissertations_jury_new_by_ajax/', dissertation.manager_dissertations_jury_new_by_ajax,
+        name='manager_dissertations_jury_new_by_ajax'),
 
     url(r'^manager_informations/$', information.manager_informations, name='manager_informations'),
     url(r'^manager_informations_add/$', information.manager_informations_add, name='manager_informations_add'),
@@ -152,6 +155,7 @@ urlpatterns = [
         name='manager_proposition_dissertation_new'),
     url(r'^manager_proposition_dissertation_search$', proposition_dissertation.manager_proposition_dissertations_search,
         name='manager_proposition_dissertations_search'),
+    url (r'^get_adviser_list/',get_adviser_list_json,name='get_adviser_list_json'),
 
     url(r'^my_dissertation_propositions$', proposition_dissertation.my_dissertation_propositions,
         name='my_dissertation_propositions'),

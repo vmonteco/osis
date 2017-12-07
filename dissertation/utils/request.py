@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
+from dissertation.models.adviser import find_by_last_name_or_email
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from base.models.student import find_by_offer_year
@@ -50,3 +50,22 @@ def get_students_list_in_offer_year(request, offer_year_start_id):
         data = False
 
     return JsonResponse({'res': data})
+
+
+@login_required
+@user_passes_test(is_manager)
+def get_adviser_list_json(request):
+    if 'term' in request.GET:
+        q = request.GET.get('term')
+        advisers = find_by_last_name_or_email(q)[:50]
+        response_data = []
+        for adviser in advisers:
+            response_data.append({'value': adviser.person.email,
+                                  'first_name': adviser.person.first_name,
+                                  'last_name': adviser.person.last_name,
+                                  'id': adviser.person.id
+                                  })
+    else:
+        response_data = []
+    return JsonResponse(response_data, safe=False)
+

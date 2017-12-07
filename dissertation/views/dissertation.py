@@ -286,6 +286,43 @@ def manager_dissertations_jury_new(request, pk):
     else:
         return redirect('manager_dissertations_list')
 
+
+@login_required
+@user_passes_test(adviser.is_manager)
+def manager_dissertations_jury_new_by_ajax(request):
+    pk_dissert=request.POST.get("pk_dissertation", None)
+    status_choice=request.POST.get("status_choice", None)
+    id_adviser=request.POST.get("adviser_id", None)
+    print (str(pk_dissert)+':pk_dissert,'+str(status_choice)+':status_choice,'+ str(id_adviser)+':id_adviser')
+    if (pk_dissert or status_choice or id_adviser) is None:
+        return HttpResponse(status=400)
+    dissert = dissertation.find_by_id(pk_dissert)
+    print(dissert.title)
+    if dissert is None:
+        return redirect('manager_dissertations_list')
+    count_dissertation_role = dissertation_role.count_by_dissertation(dissert)
+    print('count_dissertation_role:'+str(count_dissertation_role))
+    person = mdl.person.find_by_user(request.user)
+    adv = adviser.search_by_person(person)
+    if adviser_can_manage(dissert, adv):
+        print('coucou adviser')
+        if count_dissertation_role < 4 and dissert.status != 'DRAFT':
+            print('count_dissertation_role<' + str(count_dissertation_role))
+            if request.method == "POST":
+                adv=adviser.get_by_id(id_adviser)
+                print ('coucou 2')
+                if adv is None:
+                    print('coucou 3')
+                    return HttpResponse(status=400)
+
+                justification = "%s %s %s" % ("manager_add_jury", str(status_choice), str(adv))
+                dissertation_update.add(request, dissert, dissert.status, justification=justification)
+                dissertation_role.add(status_choice, adv, dissert)
+                print('coucou 4')
+                return HttpResponse(status=200)
+        else:
+            return HttpResponse(status=400)
+
 @login_required
 @user_passes_test(adviser.is_manager)
 def manager_dissertations_list(request):

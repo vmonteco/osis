@@ -27,6 +27,7 @@
 {% endcomment %}
 {% block style %}
 <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/jquery-ui.css' %}">
 {% endblock %}
 
 {% block breadcrumb %}
@@ -72,30 +73,32 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h2 class="modal-title" id="myModalLabel"> <h2>{% trans 'new_jury_dissertation' %}</h2>
+        <h2 class="modal-title" id="myModalLabel"> {% trans 'new_jury_dissertation' %}</h2>
       </div>
       <div class="modal-body">
-        <form method="post">
+        <form method="post" >
+            {% csrf_token %}
+            <input type="hidden" id="pk_dissertation" name="pk_dissertation" value="">
             <label for="txt_status">Statut</label>
-            <select id="txt_status" class="form-control">
+            <select id="txt_status" name="status_choice" class="form-control" required>
+                <option value=""></option>
                 {% for i in STATUS_CHOICES %}
                 <option value="{{i.0}}"> {% trans i.0 %}</option>
                 {% endfor %}
             </select>
-            <label for="txt_adviser">{% trans 'adviser' %}</label>
-            <select id="txt_adviser" class="form-control">
+            <label for="search_advisers">{% trans 'adviser' %}</label>
+            <input id="search_advisers" name="search_advisers" class="form-control">
+            <input type="hidden" name="adviser_id" id="adviser_id">
 
-                {% for adviser in all_advisers %}
-                <option value="{{adviser.pk}}"> {{ adviser.person.last_name }}  {{ adviser.person.first_name }}</option>
-                {% endfor %}
-            </select>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'close'%}</button>
+                <button type="button" class="btn btn-primary submit_form">{% trans 'save'%}</button>
 
+            </div>
         </form>
+
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
+
     </div>
   </div>
 </div>
@@ -103,16 +106,17 @@
 {% block script %}
 <script type="text/javascript" src="{% static 'js/jquery.dataTables.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/dataTables.bootstrap.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jquery-ui.js' %}"></script>
 <script>
     function format(list_dissert_roles,dissert_description)
     {
         var pk ='';
+        var bt_add = '';
         var tab_dissert_roles ='<tr>';
         tab_dissert_roles +='<td>&nbsp;&nbsp; {% trans 'dissertation_jury'%}: &nbsp; </td>';
         for(var i =0;i < list_dissert_roles.length;i++)
         {
             var item = list_dissert_roles[i];
-
             tab_dissert_roles +='<tr>';
             tab_dissert_roles +='<td>  &nbsp; </td>';
             tab_dissert_roles +='<td>  &nbsp; </td>';
@@ -127,21 +131,24 @@
             tab_dissert_roles =tab_dissert_roles+'<tr>';
         };
 
+        if (list_dissert_roles.length < 4){
+            bt_add='<a href="#"lnk_add_dissertation_jury_member" class="add_jury btn btn-default btn-sm"'+
+            'role="button" title="{% trans 'add_dissertation_jury_member'%}" data-toggle="modal" data-target="#myModal"'+
+            'data-id="'+dissert_description.pk+'">'+
+            '<span class="glyphicon glyphicon-plus" aria-hidden="true" >'+
+            '</span>'+
+            '{% trans 'add_dissertation_jury_member'%}</a>';
 
+        }else
+        {
+            bt_add='';
+        };
         return '<table cellpadding="10" cellspacing="5" border="0" style="padding-left:50px;"  >'+
         '<tr>'+
             '<td> &nbsp;&nbsp;{% trans 'Description'%}:</td>'+'<td> </td>'+
             '<td> </td>'+
             '<td colspan=6>'+dissert_description.description+'</td>'+
-            '<td align="right"><a href="/dissertation/manager_dissertations_jury_new/'+dissert_description.pk+
-            '"lnk_add_dissertation_jury_member" class="btn btn-default btn-sm"'+
-            'role="button" title="{% trans 'add_dissertation_jury_member'%}" target="_blank">'+
-            '<span class="glyphicon glyphicon-plus" aria-hidden="true" >'+
-            '</span>'+
-            '{% trans 'add_dissertation_jury_member'%}</a>'+
-            '<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">'+
-            'Launch demo modal </button>'+
-            '</td>'+
+            '<td>'+bt_add+'</td>'+
         '</tr>'+
         tab_dissert_roles+
         '<tr> <td><a  id="reset_bt_'+dissert_description.pk+'" role="button" class="glyphicon glyphicon-refresh" ></a> </td></tr>'+
@@ -233,6 +240,7 @@
                 },
             });
 
+
             $('#tb_memoire tbody').on('click', 'td.details-control', function()
             {
                 var tr = $(this).closest('tr');
@@ -242,7 +250,6 @@
                     row.child.hide();
                     tr.removeClass('shown');
                     $('#glyf_'+row.data().pk).find('i').toggleClass('glyphicon-arrow-right').toggleClass('glyphicon-arrow-left');
-
                 }
                 else
                 {
@@ -266,6 +273,33 @@
     });
 
 
+    $(document).on('click', '.add_jury', function (event){
+        var id_dissertation = $(this).data("id");
+        $('#pk_dissertation').attr('value',id_dissertation);
+    });
+
+    $(document).on('click', '.submit_form', function (event){
+        var status_choice = $(this).closest("form").find("select[name='status_choice']").val();
+        var adviser = $(this).closest("form").find("select[name='pk_adviser']").val();
+        var dissertation = $(this).closest("form").find("input[name='pk_dissertation']").val();
+        $.ajax({
+            url: '{% url 'manager_dissertations_jury_new_by_ajax' %}',
+            type: 'POST',
+            data: jQuery.param({ status_choice: status_choice , pk_adviser : adviser, pk_dissertation : dissertation}) ,
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            success: function (response) {
+                alert("{% trans 'add_success' %}");
+                var table_dissertations=$('#tb_memoire').DataTable();
+                var row_parent = table_dissertations.row('#'+dissertation);
+                get_dissertation_roles(row_parent,row_parent.data());
+            },
+            error: function () {
+                alert("{% trans 'maximum_jury' %}");
+            }
+        });
+    });
+
+
     $(document).on('click', '.btn-warning', function (event) {
         var confirmation=confirm('{% trans 'delete_adviser_role_confirmation_message'%}');
         if (confirmation==true)
@@ -284,5 +318,25 @@
 
     });
 
+
+    window.onload = function() {
+        $('#adviser_id').empty();
+    };
+
+
+    $(function() {
+        $("#search_advisers").autocomplete({
+        source: "/dissertation/get_adviser_list/",
+        minLength: 3,
+        delay: 100,
+        select: function(event, ui) {
+            alert ('coucou petite peruche');
+            var adviser_id = ui.item.id;
+            $( "#adviser_id" ).val(adviser_id);
+            $( "#search_advisers" ).val( ui.item.first_name + ', ' + ui.item.last_name + ' (' + ui.item.value + ')' );
+            return False;
+            }
+      });
+    });
 </script>
 {% endblock %}

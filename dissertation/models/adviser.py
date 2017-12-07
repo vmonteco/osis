@@ -190,3 +190,7 @@ def get_by_id(adviser_id):
         return Adviser.objects.get(pk=adviser_id)
     except ObjectDoesNotExist:
         return None
+
+
+def find_by_last_name_or_email(query):
+    return Adviser.objects.filter(Q(person__email__icontains=query) | Q(person__last_name__icontains=query))
