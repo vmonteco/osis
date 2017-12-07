@@ -1,4 +1,4 @@
-{% extends "utils/boostrap_datepicker.html" %}
+{% extends "layout.html" %}
 {% load i18n %}
 {% load form_field %}
 
@@ -29,6 +29,14 @@
 {% block breadcrumb %}
 {% include "education_group/breadcrumb.html" %}
 {% endblock %}
+
+{% block script %}
+    {% include "utils/boostrap_datepicker_js.html" %}
+{% endblock script %}
+
+{% block style %}
+    {% include "utils/boostrap_datepicker_css.html" %}
+{% endblock style %}
 
 {% block content %}
 
@@ -65,7 +73,17 @@
                                        <td><label>{{ field.label }}</label></td>
                                        {% for form in formset_session %}
                                             <td>
-                                                {{ form|select_field:field.name }}
+                                                {% with form|select_field:field.name as current_field %}
+                                                <div class="form-group {% if current_field.errors %}has-error{% endif %}">
+                                                        {% if current_field.help_text %}
+                                                            <span class="help-block">{{ current_field.help_text }}</span>
+                                                        {% endif %}
+                                                        {% if current_field.errors %}
+                                                            <span class="help-block">{{ current_field.errors|join:"<br \>" }}</span>
+                                                        {% endif %}
+                                                        {{ current_field }}
+                                                </div>
+                                                {% endwith %}
                                             </td>
                                        {%  endfor %}
                                    </tr>

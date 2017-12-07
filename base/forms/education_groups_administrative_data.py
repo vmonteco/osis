@@ -24,87 +24,23 @@
 #
 ##############################################################################
 from django import forms
-from django.utils import formats
+from django.core.exceptions import ValidationError
 
-from base.forms.bootstrap import BootstrapModelForm
+from base.forms.bootstrap import BootstrapModelForm, BootstrapForm
+from base.forms.utils.datefield import DateRangeField, DatePickerInput, DATE_FORMAT, DateTimePickerInput, \
+    DATETIME_FORMAT, _convert_date_to_datetime
 from base.models import offer_year_calendar, session_exam_calendar
 from base.models.enums import academic_calendar_type
 from base.models.offer_year_calendar import OfferYearCalendar
 from django.utils.translation import ugettext_lazy as _
 
 
-DATE_FORMAT = '%d/%m/%Y'
-TIME_FORMAT = '%H:%M'
-DATETIME_FORMAT = DATE_FORMAT + ' ' + TIME_FORMAT
-DATE_RANGE_SPLITTER = ' - '
-DATE_RANGE_FORMAT = DATE_FORMAT + DATE_RANGE_SPLITTER + DATE_FORMAT
-
-
-class DatePickerInput(forms.DateInput):
-    def __init__(self, attrs=None, format=DATE_FORMAT):
-        if not attrs:
-            attrs={'class': 'datepicker form-control',
-                   'data-date-format': 'dd/mm/yyyy'}
-
-        super().__init__(attrs)
-        self.format = format
-
-
-class DateTimePickerInput(forms.DateTimeInput):
-    def __init__(self, attrs=None, format=DATETIME_FORMAT):
-        if not attrs:
-            attrs={'class': 'datetimepicker form-control',
-                   'data-date-format': 'dd/mm/yyyy hh:ii'}
-
-        super().__init__(attrs)
-        self.format = format
-
-
-class DateRangePickerInput(forms.TextInput):
-    def __init__(self, attrs=None, format=DATE_RANGE_FORMAT):
-        if not attrs:
-            attrs={'class': 'daterange form-control',
-                   'data-date-format': 'dd/mm/yyyy - dd/mm/yyyy'}
-
-        super().__init__(attrs)
-        self.format = format
-
-    def format_value(self, value):
-        if isinstance(value, tuple):
-            return self.__format_date(value[0]) + DATE_RANGE_SPLITTER + self.__format_date(value[1])
-        else:
-            return value
-
-    def __format_date(self, value):
-        return formats.localize_input(value, DATE_FORMAT)
-
-
-class DateRangeField(forms.Field):
-    input_formats = DATE_RANGE_FORMAT
-    widget = DateRangePickerInput
-
-    def __init__(self, base=forms.DateField(), input_formats=None, **kwargs):
-        """
-        :param base: can be either DateField or DateTimeField, which will be used to do conversions for beginning and end of interval.
-        :param input_formats: is passed into base if present
-        """
-        super(DateRangeField, self).__init__(**kwargs)
-        self.base = base
-        if input_formats is not None:
-            self.base.input_formats = input_formats
-
-    def to_python(self, value):
-        values = value.split(DATE_RANGE_SPLITTER)
-        start_date = self.base.to_python(values[0])
-        end_date = self.base.to_python(values[1])
-        return start_date, end_date
-
-
 class CourseEnrollmentForm(BootstrapModelForm):
     range_date = DateRangeField(required=True, label=_("course_enrollment"))
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        instance=kwargs.get('instance')
+        instance = kwargs.get('instance')
         if instance:
             self.fields['range_date'].initial = (instance.start_date, instance.end_date)
 
@@ -113,24 +49,27 @@ class CourseEnrollmentForm(BootstrapModelForm):
         fields = []
 
 
-class AdministrativeDataSession(forms.Form):
-    exam_enrollment_range = DateRangeField(required=True, label=_('EXAM_ENROLLMENTS'))
+class AdministrativeDataSession(BootstrapForm):
+    exam_enrollment_range = DateRangeField(label=_('EXAM_ENROLLMENTS'), required=False)
 
     scores_exam_submission = forms.DateField(widget=DatePickerInput(format=DATE_FORMAT),
-                                             input_formats=DATE_FORMAT,
-                                             required=True, label=_('marks_presentation'))
+                                             input_formats=[DATE_FORMAT, ],
+                                             label=_('marks_presentation'),
+                                             required=False)
 
     dissertation_submission = forms.DateField(widget=DatePickerInput(format=DATE_FORMAT),
-                                              input_formats=DATE_FORMAT,
-                                              required=True, label=_('dissertation_presentation'))
+                                              input_formats=[DATE_FORMAT, ],
+                                              label=_('dissertation_presentation'),
+                                              required=False)
 
     deliberation = forms.DateTimeField(widget=DateTimePickerInput(format=DATETIME_FORMAT),
-                                       input_formats=DATETIME_FORMAT,
-                                       required=True, label=_('DELIBERATION'))
+                                       input_formats=[DATETIME_FORMAT, ],
+                                       label=_('DELIBERATION'), required=False)
 
     scores_exam_diffusion = forms.DateTimeField(widget=DateTimePickerInput(format=DATETIME_FORMAT),
-                                                input_formats=DATETIME_FORMAT,
-                                                required=True, label=_("scores_diffusion"))
+                                                input_formats=[DATETIME_FORMAT, ],
+                                                label=_("scores_diffusion"),
+                                                required=False)
 
     def __init__(self, *args, **kwargs):
         self.education_group_year = kwargs.pop('education_group_year')
@@ -141,36 +80,51 @@ class AdministrativeDataSession(forms.Form):
         if self.list_offer_year_calendar:
             self._init_fields()
 
+    def _get_academic_calendar_type(self, name):
+        if name == 'exam_enrollment_range':
+            ac_type = academic_calendar_type.EXAM_ENROLLMENTS
+        elif name == 'scores_exam_submission':
+            ac_type = academic_calendar_type.SCORES_EXAM_SUBMISSION
+        elif name == 'dissertation_submission':
+            ac_type = academic_calendar_type.DISSERTATION_SUBMISSION
+        elif name == 'deliberation':
+            ac_type = academic_calendar_type.DELIBERATION
+        elif name == 'scores_exam_diffusion':
+            ac_type = academic_calendar_type.SCORES_EXAM_DIFFUSION
+        else:
+            ac_type = None
+
+        return ac_type
+
+    def _get_offer_year_calendar(self, field_name):
+        ac_type = self._get_academic_calendar_type(field_name)
+        # TODO check if field has an oyc
+        if self.list_offer_year_calendar:
+            return self.list_offer_year_calendar.filter(academic_calendar__reference=ac_type).first()
+
     def _init_fields(self):
         for name, field in self.fields.items():
-            if name == 'exam_enrollment_range':
-                ac_type = academic_calendar_type.EXAM_ENROLLMENTS
-            elif name == 'scores_exam_submission':
-                ac_type = academic_calendar_type.SCORES_EXAM_SUBMISSION
-            elif name == 'dissertation_submission':
-                ac_type = academic_calendar_type.DISSERTATION_SUBMISSION
-            elif name == 'deliberation':
-                ac_type = academic_calendar_type.DELIBERATION
-            elif name == 'scores_exam_diffusion':
-                ac_type = academic_calendar_type.SCORES_EXAM_DIFFUSION
-            else:
-                ac_type = None
-
-            self._init_field(field, ac_type)
-
-    def _init_field(self, field, ac_type):
-        oyc = self.list_offer_year_calendar.filter(academic_calendar__reference=ac_type).first()
-        if oyc:
-            if isinstance(field, DateRangeField):
-                field.initial = (oyc.start_date, oyc.end_date)
-            else:
-                field.initial = oyc.start_date
+            oyc = self._get_offer_year_calendar(name)
+            if oyc:
+                if isinstance(field, DateRangeField):
+                    field.initial = (oyc.start_date, oyc.end_date)
+                else:
+                    field.initial = oyc.start_date
 
     def save(self):
-        print(self.cleaned_data)
+        for name, value in self.cleaned_data.items():
+            oyc = self._get_offer_year_calendar(name)
+            # TODO check if we need to create a new offer_year_calendar if it does not exist
+            if not oyc:
+                continue
 
+            if isinstance(value, tuple) and len(value) == 2:
+                oyc.start_date = _convert_date_to_datetime(value[0])
+                oyc.end_date = _convert_date_to_datetime(value[1])
+            else:
+                oyc.start_date = _convert_date_to_datetime(value)
 
-
+            oyc.save()
 
 
 class AdministrativeData(forms.BaseFormSet):
@@ -184,9 +138,10 @@ class AdministrativeData(forms.BaseFormSet):
             return kwargs
 
         q = offer_year_calendar.find_by_education_group_year(education_group_year)
-        sessions = session_exam_calendar.find_by_session_and_academic_year(index+1, education_group_year.academic_year)
+        sessions = session_exam_calendar.find_by_session_and_academic_year(index + 1,
+                                                                           education_group_year.academic_year)
         academic_calendar_list = [s.academic_calendar for s in sessions]
-        kwargs['list_offer_year_calendar'] = q.filter(academic_calendar__in=academic_calendar_list)\
+        kwargs['list_offer_year_calendar'] = q.filter(academic_calendar__in=academic_calendar_list) \
             if academic_calendar_list else None
 
         return kwargs

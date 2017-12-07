@@ -23,13 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.utils import timezone
+
 from django.forms import formset_factory
 
-from base.forms.education_groups_administrative_data import AdministrativeDataSession, AdministrativeData
+from base.forms.education_groups_administrative_data import AdministrativeDataSession, AdministrativeData, \
+    DATETIME_FORMAT, DATE_FORMAT
 from base.models.academic_calendar import AcademicCalendar
 from base.models.enums import academic_calendar_type
 from base.models.offer_year_calendar import OfferYearCalendar
-from base.models.session_exam_calendar import find_by_session_and_academic_year
+from base.models.session_exam_calendar import SessionExamCalendar
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
@@ -54,7 +57,7 @@ class TestAdministrativeDataForm(TestCase):
         self.session_exam_calendars = []
         for ac in self.academic_calendars:
             self.session_exam_calendars.extend([SessionExamCalendarFactory(number_session=i, academic_calendar=ac)
-                                                for i in range(1,4)])
+                                                for i in range(1, 4)])
 
     def test_initial(self):
         SessionFormSet = formset_factory(form=AdministrativeDataSession, formset=AdministrativeData, extra=3)
@@ -65,24 +68,36 @@ class TestAdministrativeDataForm(TestCase):
                 self.assertIsNotNone(field.initial)
 
     def test_save(self):
+        deliberation_date = '08/12/1900 10:50'
+        exam_enrollment_start = '20/12/2015'
+        exam_enrollment_end = '15/01/2018'
         form_data = {
-            'form-0-deliberation': '',
+            'form-0-deliberation': deliberation_date,
             'form-0-dissertation_submission': '',
-            'form-0-exam_enrollment_range': '20/12/2017 - 15/01/2018',
+            'form-0-exam_enrollment_range': exam_enrollment_start + ' - ' + exam_enrollment_end,
             'form-0-scores_exam_diffusion': '',
-            'form-0-scores_exam_submission': '14/12/2017',
+            'form-0-scores_exam_submission': '14/12/1900',
             'form-INITIAL_FORMS': 0,
             'form-MAX_NUM_FORMS': '1000',
             'form-MIN_NUM_FORMS': '0',
             'form-TOTAL_FORMS': '1'
         }
+
         SessionFormSet = formset_factory(form=AdministrativeDataSession, formset=AdministrativeData, extra=1)
 
-        formset_session = SessionFormSet(data=form_data, form_kwargs={'education_group_year': self.education_group_year})
+        formset_session = SessionFormSet(data=form_data,
+                                         form_kwargs={'education_group_year': self.education_group_year})
 
-        formset_session.is_valid()
+        self.assertEqual(formset_session.errors, [{}])
+        self.assertTrue(formset_session.is_valid())
         formset_session.save()
 
+        oyc = formset_session.forms[0]._get_offer_year_calendar('exam_enrollment_range')
+        self.assertEqual(exam_enrollment_start, timezone.localtime(oyc.start_date).strftime(DATE_FORMAT))
+        self.assertEqual(exam_enrollment_end, timezone.localtime(oyc.end_date).strftime(DATE_FORMAT))
+
+        oyc = formset_session.forms[0]._get_offer_year_calendar('deliberation')
+        self.assertEqual(deliberation_date, timezone.localtime(oyc.start_date).strftime(DATETIME_FORMAT))
 
     def test_get_form_kwargs(self):
         formset = AdministrativeData(form_kwargs={'education_group_year': self.education_group_year})
@@ -97,4 +112,3 @@ class TestAdministrativeDataForm(TestCase):
         self.assertEqual(list(result.get('list_offer_year_calendar')),
                          list(OfferYearCalendar.objects.filter(education_group_year=self.education_group_year,
                                                                academic_calendar__in=acs)))
-
