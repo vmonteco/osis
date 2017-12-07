@@ -14,6 +14,11 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='tutorapplication',
+            name='last_changed',
+            field=models.DateTimeField(null=True),
+        ),
+        migrations.AddField(
+            model_name='tutorapplication',
             name='course_summary',
             field=models.TextField(blank=True, null=True),
         ),
