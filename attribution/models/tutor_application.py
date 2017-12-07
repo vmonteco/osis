@@ -33,7 +33,7 @@ from attribution.models.enums import function
 class TutorApplicationAdmin(AuditableModelAdmin):
     list_display = ('tutor', 'function', 'learning_container_year', 'volume_lecturing', 'volume_pratical_exercice', 'changed')
     list_filter = ('learning_container_year__academic_year', )
-    fieldsets = ((None, {'fields': ('learning_container_year', 'tutor', 'function', 'volume_lecturing', 'volume_pratical_exercice')}),)
+    fieldsets = ((None, {'fields': ('last_changed', 'learning_container_year', 'tutor', 'function', 'volume_lecturing', 'volume_pratical_exercice')}),)
     raw_id_fields = ('learning_container_year', 'tutor')
     search_fields = ['tutor__person__first_name', 'tutor__person__last_name', 'learning_container_year__acronym',
                      'tutor__person__global_id', 'function']
@@ -56,6 +56,7 @@ class TutorApplication(AuditableModel):
     volume_pratical_exercice = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
     remark = models.TextField(blank=True, null=True)
     course_summary = models.TextField(blank=True, null=True)
+    last_changed = models.DateTimeField(null=True)
 
     class Meta:
         unique_together = ('learning_container_year', 'tutor', 'function')

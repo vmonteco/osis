@@ -26,7 +26,6 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls import url, include
-from attribution.business import application_json
 from attribution.views import attribution, tutor_application
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group, learning_unit_proposal
@@ -57,7 +56,7 @@ urlpatterns = [
 
     url(r'^api/v1/', include([
         url(r'^entities/$', entity.post_entities, name='post_entities'),
-        url(r'^tutor_application/recompute_portal$', application_json.publish_to_portal,
+        url(r'^tutor_application/recompute_portal$', tutor_application.recompute_portal,
             name='recompute_tutor_application_portal'),
         url(r'^attribution/recompute_portal$', attribution.recompute_portal, name='recompute_attribution_portal'),
     ])),

@@ -37,7 +37,6 @@ logger = logging.getLogger(settings.DEFAULT_LOGGER)
 
 
 def publish_to_portal(global_ids=None):
-    global_ids = ["00260920"]
     tutor_application_list = _compute_list(global_ids)
     queue_name = settings.QUEUES.get('QUEUES_NAME', {}).get('APPLICATION_OSIS_PORTAL')
 
@@ -76,9 +75,9 @@ def _group_tutor_application_by_global_id(tutor_application_list):
         key = tutor_application.tutor.person.global_id
         tutor_applications_grouped.setdefault(key, {'global_id': key,
                                                     'computation_datetime': computation_datetime,
-                                                    'operation': 'update',
                                                     'tutor_applications': []})
-        tutor_applications_grouped[key]['tutor_applications'].append({'year': tutor_application.learning_container_year.academic_year.year,
+        tutor_applications_grouped[key]['tutor_applications'].append({'last_changed': str(tutor_application.last_changed),
+                                                                      'year': tutor_application.learning_container_year.academic_year.year,
                                                                       'acronym': tutor_application.learning_container_year.acronym,
                                                                       'remark': tutor_application.remark,
                                                                       'course_summary': tutor_application.course_summary,
