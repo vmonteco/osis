@@ -292,7 +292,8 @@ def manager_dissertations_jury_new(request, pk):
 def manager_dissertations_jury_new_by_ajax(request):
     pk_dissert=request.POST.get("pk_dissertation", None)
     status_choice=request.POST.get("status_choice", None)
-    id_adviser=request.POST.get("adviser_id", None)
+    id_adviser=request.POST.get("adviser_pk", None)
+
     print (str(pk_dissert)+':pk_dissert,'+str(status_choice)+':status_choice,'+ str(id_adviser)+':id_adviser')
     if (pk_dissert or status_choice or id_adviser) is None:
         return HttpResponse(status=400)
@@ -707,13 +708,9 @@ def manager_dissertations_wait_comm_list(request):
     offer_props = offer_proposition.search_by_offer(offers)
     show_validation_commission = offer_proposition.show_validation_commission(offer_props)
     show_evaluation_first_year = offer_proposition.show_evaluation_first_year(offer_props)
-    all_advisers = get_all_advisers
-    for i in STATUS_CHOICES:
-        print(i)
-
     return layout.render(request, 'manager_dissertations_wait_commission_list.html',
                          {'show_validation_commission': show_validation_commission,
-                          'all_advisers': all_advisers, 'STATUS_CHOICES' : STATUS_CHOICES,
+                          'STATUS_CHOICES' : STATUS_CHOICES,
                           'show_evaluation_first_year': show_evaluation_first_year})
 
 

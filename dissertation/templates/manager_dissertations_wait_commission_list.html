@@ -28,6 +28,7 @@
 {% block style %}
 <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap.min.css' %}">
 <link rel="stylesheet" href="{% static 'css/jquery-ui.css' %}">
+<link rel="stylesheet" href="{% static 'css/dissertation_style.css' %}">
 {% endblock %}
 
 {% block breadcrumb %}
@@ -79,7 +80,7 @@
         <form method="post" >
             {% csrf_token %}
             <input type="hidden" id="pk_dissertation" name="pk_dissertation" value="">
-            <label for="txt_status">Statut</label>
+            <label for="txt_status">{% trans 'status' %}</label>
             <select id="txt_status" name="status_choice" class="form-control" required>
                 <option value=""></option>
                 {% for i in STATUS_CHOICES %}
@@ -87,8 +88,8 @@
                 {% endfor %}
             </select>
             <label for="search_advisers">{% trans 'adviser' %}</label>
-            <input id="search_advisers" name="search_advisers" class="form-control">
-            <input type="hidden" name="adviser_id" id="adviser_id">
+            <input id="search_advisers" name="search_advisers" class="form-control" value="">
+            <input type="hidden" name="adviser_pk" id="adviser_pk" value="">
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'close'%}</button>
@@ -258,8 +259,6 @@
 
                 }
             });
-
-
         });
     });
 
@@ -276,27 +275,31 @@
     $(document).on('click', '.add_jury', function (event){
         var id_dissertation = $(this).data("id");
         $('#pk_dissertation').attr('value',id_dissertation);
+        $( "#adviser_pk" ).val("");
+        $( "#search_advisers" ).val("");
     });
 
     $(document).on('click', '.submit_form', function (event){
         var status_choice = $(this).closest("form").find("select[name='status_choice']").val();
-        var adviser = $(this).closest("form").find("select[name='pk_adviser']").val();
+        var adviser = $(this).closest("form").find("input[name='adviser_pk']").val();
         var dissertation = $(this).closest("form").find("input[name='pk_dissertation']").val();
         $.ajax({
             url: '{% url 'manager_dissertations_jury_new_by_ajax' %}',
             type: 'POST',
-            data: jQuery.param({ status_choice: status_choice , pk_adviser : adviser, pk_dissertation : dissertation}) ,
+            data: jQuery.param({ status_choice: status_choice , adviser_pk : adviser, pk_dissertation : dissertation}) ,
             contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
             success: function (response) {
                 alert("{% trans 'add_success' %}");
                 var table_dissertations=$('#tb_memoire').DataTable();
                 var row_parent = table_dissertations.row('#'+dissertation);
                 get_dissertation_roles(row_parent,row_parent.data());
-            },
+                },
             error: function () {
                 alert("{% trans 'maximum_jury' %}");
             }
         });
+        $('#adviser_id').empty();
+        $( "#search_adviser" ).empty();
     });
 
 
@@ -315,28 +318,26 @@
             var row_parent = table_dissertations.row('#'+id_dissert_to_refresh);
             setTimeout(function() { get_dissertation_roles(row_parent,row_parent.data()) }, 1000);
         }
-
     });
 
 
-    window.onload = function() {
-        $('#adviser_id').empty();
-    };
-
-
-    $(function() {
+    $(function(){
         $("#search_advisers").autocomplete({
         source: "/dissertation/get_adviser_list/",
         minLength: 3,
         delay: 100,
+        focus: function( event, ui ) {
+            $( "#adviser_pk" ).val( ui.item.last_name + ' (' + ui.item.value + ')' );
+            return false;
+            },
         select: function(event, ui) {
-            alert ('coucou petite peruche');
             var adviser_id = ui.item.id;
-            $( "#adviser_id" ).val(adviser_id);
-            $( "#search_advisers" ).val( ui.item.first_name + ', ' + ui.item.last_name + ' (' + ui.item.value + ')' );
-            return False;
+            $( "#adviser_pk" ).val(adviser_id);
+            $( "#search_advisers" ).val( ui.item.first_name + ', ' + ui.item.last_name + ' ' + ui.item.value + ' ' );
+            return false;
             }
-      });
-    });
+        }
+
+    )});
 </script>
 {% endblock %}
