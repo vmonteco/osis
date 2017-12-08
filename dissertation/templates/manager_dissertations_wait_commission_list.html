@@ -90,7 +90,14 @@
             <label for="search_advisers">{% trans 'adviser' %}</label>
             <input id="search_advisers" name="search_advisers" class="form-control" value="">
             <input type="hidden" name="adviser_pk" id="adviser_pk" value="">
+            <div class="row">
 
+                    {% trans 'if_unavailable_adviser' %}
+                    <a href="{% url 'manager_informations_add' %}" id="lnk_informations_add" class=""
+                       title="{% trans 'informations_add'%}" target="_blank" >{% trans 'add_advisers' %}</a>
+
+            </div>
+            <br>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'close'%}</button>
                 <button type="button" class="btn btn-primary submit_form">{% trans 'save'%}</button>
