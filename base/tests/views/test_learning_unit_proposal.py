@@ -215,9 +215,45 @@ class TestLearningUnitModificationProposal(TestCase):
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
         self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name)
 
-    def test_learning_unit_must_be_full(self):
+    def test_learning_unit_of_type_undefined(self):
+        self.learning_unit_year.subtype = None
+        self.learning_unit_year.save()
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
+
+    def test_learning_unit_must_not_be_partim(self):
         self.learning_unit_year.subtype = learning_unit_year_subtypes.PARTIM
         self.learning_unit_year.save()
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
+
+    def test_learning_unit_of_type_internship(self):
+        self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.INTERNSHIP
+        self.learning_unit_year.learning_container_year.save()
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
+
+    def test_learning_unit_of_type_dissertation(self):
+        self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.DISSERTATION
+        self.learning_unit_year.learning_container_year.save()
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
+
+    def test_learning_unit_of_other_types(self):
+        self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.OTHER_COLLECTIVE
+        self.learning_unit_year.learning_container_year.save()
 
         response = self.client.get(self.url)
 
