@@ -72,7 +72,7 @@ class OfferYearCalendar(models.Model):
                 self.save()
 
     def clean(self):
-        if not hasattr(self, 'academic_calendar'):
+        if not getattr(self, 'academic_calendar'):
             return
 
         start_date = self.academic_calendar.start_date
@@ -155,10 +155,6 @@ def _create_from_academic_calendar(academic_calendar):
 
 def find_by_academic_calendar(academic_cal):
     return OfferYearCalendar.objects.filter(academic_calendar=academic_cal)
-
-
-def find_by_education_group_year(education_group_year):
-    return OfferYearCalendar.objects.filter(education_group_year=education_group_year)
 
 
 def find_offer_year_events(offer_yr):

@@ -24,14 +24,16 @@
 #
 ##############################################################################
 from django.contrib import messages
-from django.forms import formset_factory
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required, permission_required
 from base import models as mdl
 
 from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
-from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataSession, \
-    AdministrativeData, AdministrativeDataFormset
+from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataFormset
+from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 
 from . import layout
@@ -196,8 +198,7 @@ def _education_group_administrative_data_tab(request, education_group_year_id):
 @login_required
 @permission_required('base.can_access_offer', raise_exception=True)
 def education_group_edit_administrative_data(request, education_group_year_id):
-
-    education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
 
     formset_session = AdministrativeDataFormset(request.POST or None,
                                                 form_kwargs={'education_group_year': education_group_year})
@@ -210,13 +211,9 @@ def education_group_edit_administrative_data(request, education_group_year_id):
     course_enrollment = CourseEnrollmentForm(request.POST or None,instance=offer_year_calendar)
     if course_enrollment.is_valid() and formset_session.is_valid():
         formset_session.save()
-
-        if offer_year_calendar:
-            course_enrollment.save()
-        else:
-            # To show that the 'range_date' attribute was not saved !!!
-            # Otherwise, the user sees the previous encoded value that he entered BUT WASNT SAVED !!!
-            course_enrollment = CourseEnrollmentForm(None)
+        course_enrollment.save()
+        messages.add_message(request, messages.SUCCESS, _('The administrative data has been successfully modified'))
+        return HttpResponseRedirect(reverse('education_group_administrative', education_group_year_id))
 
     return layout.render(request, "education_group/tab_edit_administrative_data.html", locals())
 
@@ -232,8 +229,8 @@ def get_root(education_group_year_id, request):
 
 def get_sessions_dates(an_academic_calendar_type, an_education_group_year):
     date_dict = {}
-    cpt = 1
-    while cpt <= 3:
+
+    for cpt in range(1,NUMBER_SESSIONS+1):
         session = mdl.session_exam_calendar.get_by_session_reference_and_academic_year(cpt,
                                                                                        an_academic_calendar_type,
                                                                                        an_education_group_year.academic_year)
@@ -242,7 +239,7 @@ def get_sessions_dates(an_academic_calendar_type, an_education_group_year):
                                                                                               an_education_group_year)
             key = 'session{}'.format(cpt)
             date_dict.update({key: dates})
-        cpt += 1
+
     return date_dict
 
 

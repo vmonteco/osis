@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from django import forms
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist
 from django.forms import formset_factory
 
 from base.forms.bootstrap import BootstrapModelForm, BootstrapForm
@@ -92,9 +92,9 @@ class AdministrativeDataSession(BootstrapForm):
 
         if self.list_offer_year_calendar:
             self._init_fields()
-        else:
-            raise ObjectDoesNotExist('There is no OfferYearCalendar for the education_group_year {}'
-                                     .format(self.education_group_year))
+        #else:
+        #    raise ObjectDoesNotExist('There is no OfferYearCalendar for the education_group_year {}'
+        #                             .format(self.education_group_year))
 
     def _get_academic_calendar_type(self, name):
         if name == 'exam_enrollment_range':
@@ -129,6 +129,8 @@ class AdministrativeDataSession(BootstrapForm):
                 else:
                     field.initial = oyc.start_date
 
+                field.widget.add_min_max_value(oyc.academic_calendar.start_date, oyc.academic_calendar.end_date)
+
     def save(self):
         for name, value in self.cleaned_data.items():
             oyc = self._get_offer_year_calendar(name)
@@ -140,6 +142,9 @@ class AdministrativeDataSession(BootstrapForm):
                 oyc.start_date = _convert_date_to_datetime(value)
 
             oyc.save()
+
+    def clean_exam_enrollment_range(self):
+        pass
 
 
 class AdministrativeData(forms.BaseFormSet):

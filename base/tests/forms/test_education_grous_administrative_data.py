@@ -65,6 +65,12 @@ class TestAdministrativeDataForm(TestCase):
             for field in form.fields.values():
                 self.assertIsNotNone(field.initial)
 
+                print(field.widget.attrs)
+                self.assertIsNotNone(field.widget.attrs.get("maxDate"))
+                self.assertIsNotNone(field.widget.attrs.get("minDate"))
+
+        print(formset_session)
+
     def test_save(self):
         deliberation_date = '08/12/1900 10:50'
         exam_enrollment_start = '20/12/2015'

@@ -53,7 +53,19 @@
                     <div class="panel panel-default">
                     <div class="panel-body">
                         <div class="form-inline">
-                            {{ course_enrollment }}
+
+                            {% for field in course_enrollment %}
+                            <label for="{{ field.id }}">{{ field.label_tag }}</label>
+                            <div class="form-group {% if field.errors %}has-error{% endif %}">
+                                {% if field.help_text %}
+                                    <span class="help-block">{{ field.help_text }}</span>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <span class="help-block">{{ field.errors|join:"<br\>" }}</span>
+                                {% endif %}
+                                {{ field }}
+                            </div>
+                            {% endfor %}
                         </div>
                     </div>
                         <table class="table">

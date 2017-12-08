@@ -35,12 +35,19 @@
 
 <script>
 $(document).ready(function() {
-    $('.datepicker').datepicker({
-        language: '{{ LANGUAGE_CODE }}'
-    });
+
+$('.datepicker').each(function () {
+    var config = { format: "dd/mm/yyyy", language: '{{ LANGUAGE_CODE }}'};
+    config.startDate = $(this).data("mindate");
+    config.endDate = $(this).data("maxdate");
+    $(this).datepicker(config);
+});
 
     $('.datetimepicker').datetimepicker({
-        language: '{{ LANGUAGE_CODE }}'
+        language: '{{ LANGUAGE_CODE }}',
+        format:"dd/mm/yyyy hh:ii",
+        minDate: "2017/09/19 15:15",
+        maxDate: "2018/09/19 15:15",
     });
 
     $('.daterange').daterangepicker({
@@ -49,7 +56,10 @@ $(document).ready(function() {
             format: 'DD/MM/YYYY',
             language: '{{ LANGUAGE_CODE }}',
             cancelLabel: 'Clear'
-        }
+        },
+        minDate: $(this).data('mindate'),
+        maxDate: $(this).data('maxdate')
+
     }).on('apply.daterangepicker', function(ev, picker) {
         $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
     }).on('cancel.daterangepicker', function(ev, picker) {

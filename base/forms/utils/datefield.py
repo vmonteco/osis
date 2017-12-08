@@ -46,6 +46,16 @@ def _convert_date_to_datetime(value):
         return datetime.datetime(value.year, value.month, value.day, tzinfo=get_tzinfo())
 
 
+def _add_min_max_value(widget, min_date, max_date):
+    if isinstance(min_date, datetime.date):
+        min_date = formats.localize_input(min_date, widget.format)
+    widget.attrs['data-minDate'] = min_date
+
+    if isinstance(max_date, datetime.date):
+        max_date = formats.localize_input(max_date, widget.format)
+    widget.attrs['data-maxDate'] = max_date
+
+
 class DatePickerInput(forms.DateInput):
 
     def __init__(self, attrs=None, format=DATE_FORMAT):
@@ -55,6 +65,9 @@ class DatePickerInput(forms.DateInput):
 
         super().__init__(attrs)
         self.format = format
+
+    def add_min_max_value(self, min_date, max_date):
+        _add_min_max_value(self, min_date, max_date)
 
 
 class DateTimePickerInput(forms.DateTimeInput):
@@ -66,9 +79,12 @@ class DateTimePickerInput(forms.DateTimeInput):
         super().__init__(attrs)
         self.format = format
 
+    def add_min_max_value(self, min_date, max_date):
+        _add_min_max_value(self, min_date, max_date)
+
 
 class DateRangePickerInput(forms.TextInput):
-    def __init__(self, attrs=None, format=DATE_RANGE_FORMAT):
+    def __init__(self, attrs=None, format=DATE_FORMAT):
         if not attrs:
             attrs={'class': 'daterange',
                    'data-date-format': 'dd/mm/yyyy - dd/mm/yyyy'}
@@ -83,7 +99,10 @@ class DateRangePickerInput(forms.TextInput):
             return value
 
     def __format_date(self, value):
-        return formats.localize_input(value, DATE_FORMAT)
+        return formats.localize_input(value, self.format)
+
+    def add_min_max_value(self, min_date, max_date):
+        _add_min_max_value(self, min_date, max_date)
 
 
 class DateRangeField(forms.Field):
