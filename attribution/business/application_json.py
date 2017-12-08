@@ -71,7 +71,6 @@ def _get_all_tutor_application(global_ids):
 
 def _group_tutor_application_by_global_id(tutor_application_list):
     tutor_applications_grouped = {}
-    computation_datetime = time.mktime(timezone.now().timetuple())
     for tutor_application in tutor_application_list:
         key = tutor_application.tutor.person.global_id
         tutor_applications_grouped.setdefault(key, {'global_id': key,
