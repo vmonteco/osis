@@ -2257,6 +2257,18 @@ msgstr "Vacant but do not publish"
 msgid "DO_NOT_ASSIGN"
 msgstr "Do not assign"
 
+msgid "folder"
+msgstr "Folder"
+
+msgid "introduced_by"
+msgstr "Introduced by"
+
+msgid "the"
+msgstr "The"
+
+msgid "proposal_management"
+msgstr "Proposal management"
+
 msgid "category"
 msgstr "Category"
 
@@ -2298,6 +2310,42 @@ msgstr "at"
 
 msgid "learning_unit_years_to_delete"
 msgstr "You will definitely delete the following learning units"
+
+msgid "type_must_be_full"
+msgstr "Type of learning unit must be full"
+
+msgid "learning_unit_type_is_not_internship"
+msgstr "Learning unit is not of type internship."
+
+msgid "CREATION"
+msgstr "Creation"
+
+msgid "MODIFICATION"
+msgstr "Modification"
+
+msgid "TRANSFORMATION"
+msgstr "Transformation"
+
+msgid "TRANSFORMATION_AND_MODIFICATION"
+msgstr "Transformation and modification"
+
+msgid "SUPPRESSION"
+msgstr "Suppression"
+
+msgid "CENTRAL"
+msgstr "Central"
+
+msgid "SUSPENDED"
+msgstr "Suspended"
+
+msgid "ACCEPTED"
+msgstr "Accepted"
+
+msgid "REFUSED"
+msgstr "Refused"
+
+msgid "success_modification_proposal"
+msgstr "You proposed a modification of type {} for the learning unit {}."
 
 msgid "content"
 msgstr "Content"
@@ -2371,3 +2419,11 @@ msgstr ""
 msgid "End of teaching"
 msgstr ""
 
+msgid "academic_entity_small"
+msgstr "Academic ent."
+
+msgid "academic_entity"
+msgstr "Academic entity"
+
+msgid "folder_number"
+msgstr "Folder n°{}"

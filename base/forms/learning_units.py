@@ -39,7 +39,7 @@ from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, T
 from base.models import entity_version as mdl_entity_version, learning_unit_year
 from base.forms.bootstrap import BootstrapForm
 from base.models.campus import find_administration_campuses
-from base.models.entity_version import find_main_entities_version
+from base.models.entity_version import find_main_entities_version, find_main_entities_version_filtered_by_person
 from base.models.enums import entity_container_year_link_type
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
@@ -180,7 +180,7 @@ class CreateLearningUnitYearForm(BootstrapForm):
     internship_subtype = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
                                            mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES,
                                            required=False)
-    credits = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
+    credits = forms.DecimalField(decimal_places=2)
     title = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
     title_english = forms.CharField(required=False, widget=forms.TextInput())
     session = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
@@ -190,7 +190,7 @@ class CreateLearningUnitYearForm(BootstrapForm):
     first_letter = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'text-center',
                                                                                  'maxlength': "1",
                                                                                  'readonly': 'readonly'}))
-    learning_container_year_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
+    container_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
                                                      widget=forms.Select(
                                                      attrs={'onchange': 'showInternshipSubtype(this.value)'}))
     faculty_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
@@ -203,8 +203,7 @@ class CreateLearningUnitYearForm(BootstrapForm):
     campus = forms.ModelChoiceField(queryset=find_administration_campuses(),
                                     widget=forms.Select(attrs={'onchange': 'setFirstLetter()'}))
 
-    requirement_entity = EntitiesVersionChoiceField(find_main_entities_version(),
-                                                    widget=forms.Select(attrs={
+    requirement_entity = EntitiesVersionChoiceField(find_main_entities_version().none(),widget=forms.Select(attrs={
                                                     'onchange': 'showAdditionalEntity(this.value, "id_additional_entity_1")'}))
 
     allocation_entity = EntitiesVersionChoiceField(find_main_entities_version(),
@@ -225,6 +224,11 @@ class CreateLearningUnitYearForm(BootstrapForm):
 
     acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}$"
 
+    def __init__(self, person, *args, **kwargs):
+        super(CreateLearningUnitYearForm, self).__init__(*args, **kwargs)
+        # When we create a learning unit, we can only select requirement entity which are attached to the person
+        self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
+
     def clean_acronym(self):
         data_cleaned = self.data.get('first_letter')+self.cleaned_data.get('acronym')
         if data_cleaned:
@@ -243,11 +247,9 @@ class CreateLearningUnitYearForm(BootstrapForm):
             self.add_error('acronym', _('existing_acronym'))
         elif not re.match(self.acronym_regex, self.cleaned_data['acronym']):
             self.add_error('acronym', _('invalid_acronym'))
-        elif self.cleaned_data['learning_container_year_type'] == INTERNSHIP \
+        elif self.cleaned_data["container_type"] == INTERNSHIP \
                 and not (self.cleaned_data['internship_subtype']):
             self._errors['internship_subtype'] = _('field_is_required')
-        elif not self.cleaned_data['credits']:
-            self._errors['credits'] = _('field_is_required')
-            return False
         else:
             return True
+

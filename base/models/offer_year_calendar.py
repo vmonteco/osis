@@ -23,13 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
+
+from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-import datetime
-from django.contrib import admin
+from django.utils.translation import ugettext as _
+
 from base.models import offer_year
 from base.models.enums import academic_calendar_type
-from django.utils.translation import ugettext as _
+from osis_common.utils.datetime import strictly_ordered_dates
 
 
 class OfferYearCalendarAdmin(admin.ModelAdmin):
@@ -57,12 +60,12 @@ class OfferYearCalendar(models.Model):
 
     def update_dates(self, start_date, end_date):
         if self.customized:
-            if start_date < self.end_date:
+            if strictly_ordered_dates(start_date, self.end_date):
                 #  Test needed to prevent error when erroneous data are detected
                 self.start_date = start_date
                 self.save()
         else:
-            if start_date < end_date:
+            if strictly_ordered_dates(start_date, end_date):
                 #  Test needed to prevent error when erroneous data are detected
                 self.start_date = start_date
                 self.end_date = end_date
@@ -73,7 +76,7 @@ class OfferYearCalendar(models.Model):
         super(OfferYearCalendar, self).save(*args, **kwargs)
 
     def end_start_dates_validation(self):
-        if self.start_end_dates_set() and self.end_date < self.start_date:
+        if self.start_end_dates_set() and strictly_ordered_dates(self.end_date, self.start_date):
             raise AttributeError(_('end_start_date_error'))
 
     def start_end_dates_set(self):

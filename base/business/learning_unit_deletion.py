@@ -24,13 +24,19 @@
 #
 ##############################################################################
 from assistant.models import tutoring_learning_unit_year
+from base.models import entity_container_year
 from base.models import learning_unit_enrollment, learning_unit_component, learning_class_year, \
     learning_unit_year as learn_unit_year_model
+from base.models import person
+from base.models import person_entity
+from base.models.enums import learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes
 from django.utils.translation import ugettext_lazy as _
 
 from internship.models import internship_speciality
 
+FACULTY_MANAGER_GROUP="faculty_managers"
+CENTRAL_MANAGER_GROUP="central_managers"
 
 def check_learning_unit_deletion(learning_unit):
     msg = {}
@@ -133,6 +139,27 @@ def _check_related_partims_deletion(learning_container_year):
         msg.update(check_learning_unit_year_deletion(partim))
 
     return msg
+
+
+def can_delete_learning_unit_year(person, learning_unit_year):
+    # Check person_entity linked
+    requirement_entity_version = entity_container_year.find_requirement_entity(learning_unit_year.learning_container_year)
+    entities_linked = person_entity.find_entities_by_person(person)
+    if not requirement_entity_version or requirement_entity_version.entity not in entities_linked:
+        return False
+    return _can_delete_learning_unit_year_according_type(person.user, learning_unit_year)
+
+
+def _can_delete_learning_unit_year_according_type(user, learning_unit_year):
+    # Faculty manager can only delete other type than COURSE/INTERNSHIP/DISSERTATION
+    if not user.groups.filter(name=CENTRAL_MANAGER_GROUP).exists() and \
+            user.groups.filter(name=FACULTY_MANAGER_GROUP).exists():
+        container_type = learning_unit_year.learning_container_year.container_type
+        subtype = learning_unit_year.subtype
+
+        return not(container_type == learning_container_year_types.COURSE and subtype == learning_unit_year_subtypes.FULL) \
+               and container_type not in [learning_container_year_types.DISSERTATION, learning_container_year_types.INTERNSHIP]
+    return True
 
 
 def delete_learning_unit(learning_unit):

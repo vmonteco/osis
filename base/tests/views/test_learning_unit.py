@@ -31,7 +31,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.test import TestCase, RequestFactory
+
+
 from base.forms import learning_units
 from base.forms.learning_units import CreateLearningUnitYearForm
 from base.models import learning_unit_component
@@ -60,14 +63,12 @@ from base.tests.factories.entity_container_year import EntityContainerYearFactor
 from base.models.enums import entity_container_year_link_type
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
+from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory
 from base.business import learning_unit as learning_unit_business
 from django.utils.translation import ugettext_lazy as _
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
-
-OK = 200
-ACCESS_DENIED = 401
 
 
 class LearningUnitViewTestCase(TestCase):
@@ -122,18 +123,18 @@ class LearningUnitViewTestCase(TestCase):
         self.campus = CampusFactory(organization=self.organization, is_administration=True, code="L")
         self.language = LanguageFactory(code='FR')
         self.a_superuser = SuperUserFactory()
+        self.person = PersonFactory(user=self.a_superuser)
+        PersonEntityFactory(person=self.person, entity=self.entity)
+        PersonEntityFactory(person=self.person, entity=self.entity_2)
+        PersonEntityFactory(person=self.person, entity=self.entity_3)
         self.client.force_login(self.a_superuser)
 
-    @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
-    def test_learning_units(self, mock_render, mock_decorators):
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
-
+    def test_learning_units(self, mock_render):
         request_factory = RequestFactory()
 
         request = request_factory.get(reverse('learning_units'))
-        request.user = mock.Mock()
+        request.user = self.a_superuser
 
         from base.views.learning_unit import learning_units
 
@@ -146,15 +147,11 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(context['current_academic_year'], self.current_academic_year)
         self.assertEqual(len(context['academic_years']), 7)
 
-    @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
-    def test_learning_units_search(self, mock_render, mock_decorators):
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
-
+    def test_learning_units_search(self, mock_render):
         request_factory = RequestFactory()
         request = request_factory.get(reverse('learning_units'))
-        request.user = mock.Mock()
+        request.user = self.a_superuser
 
         from base.views.learning_unit import learning_units
 
@@ -174,11 +171,8 @@ class LearningUnitViewTestCase(TestCase):
         self.assertTrue(context['experimental_phase'])
         self.assertIsNone(context['learning_units'])
 
-    @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
-    def test_learning_units_search_with_acronym_filtering(self, mock_render, mock_decorators):
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+    def test_learning_units_search_with_acronym_filtering(self, mock_render):
         self._prepare_context_learning_units_search()
         request_factory = RequestFactory()
         filter_data = {
@@ -187,7 +181,8 @@ class LearningUnitViewTestCase(TestCase):
             'acronym': 'LBIR'
         }
         request = request_factory.get(reverse('learning_units'), data=filter_data)
-        request.user = mock.Mock()
+        request.user = self.a_superuser
+
         from base.views.learning_unit import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
@@ -195,11 +190,8 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_units.html')
         self.assertEqual(len(context['learning_units']), 3)
 
-    @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
-    def test_learning_units_search_by_acronym_with_valid_regex(self, mock_render, mock_decorators):
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+    def test_learning_units_search_by_acronym_with_valid_regex(self, mock_render):
         self._prepare_context_learning_units_search()
         request_factory = RequestFactory()
         filter_data = {
@@ -208,7 +200,8 @@ class LearningUnitViewTestCase(TestCase):
             'acronym': '^DRT.+A'
         }
         request = request_factory.get(reverse('learning_units'), data=filter_data)
-        request.user = mock.Mock()
+        request.user = self.a_superuser
+
         from base.views.learning_unit import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
@@ -216,11 +209,8 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_units.html')
         self.assertEqual(len(context['learning_units']), 1)
 
-    @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
-    def test_learning_units_search_by_acronym_with_invalid_regex(self, mock_render, mock_decorators):
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+    def test_learning_units_search_by_acronym_with_invalid_regex(self, mock_render):
         self._prepare_context_learning_units_search()
         request_factory = RequestFactory()
         filter_data = {
@@ -229,7 +219,8 @@ class LearningUnitViewTestCase(TestCase):
             'acronym': '^LB(+)2+'
         }
         request = request_factory.get(reverse('learning_units'), data=filter_data)
-        request.user = mock.Mock()
+        request.user = self.a_superuser
+
         from base.views.learning_unit import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
@@ -237,11 +228,8 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_units.html')
         self.assertEqual(context['form'].errors['acronym'], [_('LU_ERRORS_INVALID_REGEX_SYNTAX')])
 
-    @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
-    def test_learning_units_search_with_requirement_entity(self, mock_render, mock_decorators):
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+    def test_learning_units_search_with_requirement_entity(self, mock_render):
         self._prepare_context_learning_units_search()
         request_factory = RequestFactory()
         filter_data = {
@@ -249,7 +237,8 @@ class LearningUnitViewTestCase(TestCase):
             'requirement_entity_acronym': 'ENVI'
         }
         request = request_factory.get(reverse('learning_units'), data=filter_data)
-        request.user = mock.Mock()
+        request.user = self.a_superuser
+
         from base.views.learning_unit import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
@@ -257,11 +246,8 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_units.html')
         self.assertEqual(len(context['learning_units']), 1)
 
-    @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
-    def test_learning_units_search_with_requirement_entity_and_subord(self, mock_render, mock_decorators):
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+    def test_learning_units_search_with_requirement_entity_and_subord(self, mock_render):
         self._prepare_context_learning_units_search()
         request_factory = RequestFactory()
         filter_data = {
@@ -270,7 +256,8 @@ class LearningUnitViewTestCase(TestCase):
             'with_entity_subordinated': True
         }
         request = request_factory.get(reverse('learning_units'), data=filter_data)
-        request.user = mock.Mock()
+        request.user = self.a_superuser
+
         from base.views.learning_unit import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
@@ -278,11 +265,8 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_units.html')
         self.assertEqual(len(context['learning_units']), 6)
 
-    @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
-    def test_learning_units_search_with_service_course(self, mock_render, mock_decorators):
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+    def test_learning_units_search_with_service_course(self, mock_render):
         self._prepare_context_learning_units_search()
         request_factory = RequestFactory()
         filter_data = {
@@ -293,7 +277,8 @@ class LearningUnitViewTestCase(TestCase):
         from base.views.learning_unit import learning_units_service_course
 
         request = request_factory.get(reverse(learning_units_service_course), data=filter_data)
-        request.user = mock.Mock()
+        request.user = self.a_superuser
+
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
         learning_units_service_course(request)
@@ -302,19 +287,18 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_units.html')
         self.assertEqual(len(context['learning_units']), 0)
 
-    @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager')
-    def test_learning_unit_read(self, mock_program_manager, mock_render, mock_decorators):
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+    def test_learning_unit_read(self, mock_program_manager, mock_render):
         mock_program_manager.return_value = True
 
-        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year)
+        learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=learning_container_year)
 
         request_factory = RequestFactory()
         request = request_factory.get(reverse('learning_unit', args=[learning_unit_year.id]))
-        request.user = mock.Mock()
+        request.user = self.a_superuser
 
         from base.views.learning_unit import learning_unit_identification
 
@@ -333,10 +317,8 @@ class LearningUnitViewTestCase(TestCase):
 
     def test_get_components_with_classes(self):
         l_container = LearningContainerFactory()
-        l_container_year = LearningContainerYearFactory.build(academic_year=self.current_academic_year,
-                                                              title="LC-98998",
-                                                              learning_container=l_container)
-        l_container_year.save()
+        l_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year,
+                                                        title="LC-98998", learning_container=l_container)
         l_component_year = LearningComponentYearFactory(learning_container_year=l_container_year)
         LearningClassYearFactory(learning_component_year=l_component_year)
         LearningClassYearFactory(learning_component_year=l_component_year)
@@ -347,12 +329,9 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(len(components), 1)
         self.assertEqual(len(components[0]['learning_component_year'].classes), 2)
 
-    @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager')
-    def test_get_partims_identification_tabs(self, mock_program_manager, mock_render, mock_decorators):
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+    def test_get_partims_identification_tabs(self, mock_program_manager, mock_render):
         mock_program_manager.return_value = True
 
         learning_unit_container_year = LearningContainerYearFactory(
@@ -385,7 +364,7 @@ class LearningUnitViewTestCase(TestCase):
 
         request_factory = RequestFactory()
         request = request_factory.get(reverse('learning_unit', args=[learning_unit_year.id]))
-        request.user = mock.Mock()
+        request.user = self.a_superuser
 
         from base.views.learning_unit import learning_unit_identification
 
@@ -608,7 +587,7 @@ class LearningUnitViewTestCase(TestCase):
     def get_base_form_data(self):
         return {"first_letter": "L",
                 "acronym": "TAU2000",
-                "learning_container_year_type": COURSE,
+                "container_type": COURSE,
                 "academic_year": self.current_academic_year.id,
                 "status": True,
                 "periodicity": ANNUAL,
@@ -640,8 +619,17 @@ class LearningUnitViewTestCase(TestCase):
         faultyDict["acronym"] = ""
         return faultyDict
 
+    def get_faulty_requirement_entity(self):
+        """We will create an entity + entity version that user cannot create on it"""
+        entity = EntityFactory(country=self.country, organization=self.organization)
+        entity_version = EntityVersionFactory(entity=entity, entity_type=entity_type.SCHOOL, end_date=None,
+                                              start_date=datetime.date.today())
+        faultydict = dict(self.get_valid_data())
+        faultydict['requirement_entity'] = entity_version.id
+        return faultydict
+
     def test_learning_unit_year_form(self):
-        form = CreateLearningUnitYearForm(data=self.get_valid_data())
+        form = CreateLearningUnitYearForm(person=self.person, data=self.get_valid_data())
         self.assertTrue(form.is_valid(), form.errors)
         url = reverse('learning_unit_year_add')
         response = self.client.post(url, data=self.get_base_form_data())
@@ -649,15 +637,21 @@ class LearningUnitViewTestCase(TestCase):
         count_learning_unit_year = LearningUnitYear.objects.all().count()
         self.assertEqual(count_learning_unit_year, 6)
 
+    def test_create_learning_unit_year_requirement_entity_not_allowed(self):
+        form = CreateLearningUnitYearForm(person=self.person, data=self.get_faulty_requirement_entity())
+        self.assertFalse(form.is_valid())
+        self.assertEqual(len(form.errors), 1)
+        self.assertTrue('requirement_entity' in form.errors)
+
     def test_learning_unit_acronym_form(self):
-        form = CreateLearningUnitYearForm(data=self.get_valid_data())
+        form = CreateLearningUnitYearForm(person=self.person, data=self.get_valid_data())
         self.assertTrue(form.is_valid(), form.errors)
 
-        form = CreateLearningUnitYearForm(data=self.get_empty_acronym())
+        form = CreateLearningUnitYearForm(person=self.person, data=self.get_empty_acronym())
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['acronym'], [_('This field is required.')])
 
-        form = CreateLearningUnitYearForm(data=self.get_faulty_acronym())
+        form = CreateLearningUnitYearForm(person=self.person, data=self.get_faulty_acronym())
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['acronym'], [_('invalid_acronym')])
 
@@ -733,12 +727,9 @@ class LearningUnitViewTestCase(TestCase):
             data['PLANNED_CLASSES_{}_{}'.format(learning_unit_year.id, self.learning_component_yr.id)] = [2]
         return data
 
-    @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager')
-    def test_get_learning_unit_volumes_management(self, mock_program_manager, mock_render, mock_decorators):
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+    def test_get_learning_unit_volumes_management(self, mock_program_manager, mock_render):
         mock_program_manager.return_value = True
 
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
@@ -749,7 +740,7 @@ class LearningUnitViewTestCase(TestCase):
         url = reverse("learning_unit_volumes_management", args=[learning_unit_year.id])
         # GET request
         request = request_factory.get(url)
-        request.user = mock.Mock()
+        request.user = self.a_superuser
         from base.views.learning_unit import learning_unit_volumes_management
         learning_unit_volumes_management(request, learning_unit_year.id)
         self.assertTrue(mock_render.called)
@@ -781,12 +772,9 @@ class LearningUnitViewTestCase(TestCase):
              }
         )
 
-    @mock.patch('django.contrib.auth.decorators')
     @mock.patch("base.models.learning_unit_year.count_search_results")
-    def test_error_message_case_too_many_results_to_show(self, mock_count, mock_decorators):
+    def test_error_message_case_too_many_results_to_show(self, mock_count):
         mock_count.return_value = learning_units.MAX_RECORDS + 1
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
         response = self.client.get(reverse('learning_units'), {'academic_year_id': self.academic_year_1.id})
         messages = list(response.context['messages'])
         self.assertEqual(messages[0].message, _('too_many_results'))
@@ -810,7 +798,7 @@ class LearningUnitCreate(TestCase):
     def test_when_user_has_not_permission(self):
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, ACCESS_DENIED)
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, 'access_denied.html')
 
     def test_when_user_has_permission(self):
@@ -820,7 +808,7 @@ class LearningUnitCreate(TestCase):
         self.person.user.user_permissions.add(permission)
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, OK)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, 'learning_unit/learning_unit_form.html')
 
         self.assertIsInstance(response.context['form'], CreateLearningUnitYearForm)
@@ -849,7 +837,7 @@ class LearningUnitYearAdd(TestCase):
 
         response = self.client.post(self.url)
 
-        self.assertEqual(response.status_code, ACCESS_DENIED)
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, 'access_denied.html')
 
     def test_when_get_request(self):
@@ -861,7 +849,7 @@ class LearningUnitYearAdd(TestCase):
     def test_when_empty_form_data(self):
         response = self.client.post(self.url)
 
-        self.assertEqual(response.status_code, OK)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, 'learning_unit/learning_unit_form.html')
 
         self.assertIsInstance(response.context['form'], CreateLearningUnitYearForm)
@@ -906,7 +894,7 @@ class LearningUnitYearAdd(TestCase):
         form_data = {
             "first_letter": "L",
             "acronym": "TAU2000",
-            "learning_container_year_type": COURSE,
+            "container_type": COURSE,
             "academic_year": current_academic_year.id,
             "status": True,
             "periodicity": ANNUAL,

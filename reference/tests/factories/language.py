@@ -35,6 +35,6 @@ class LanguageFactory(DjangoModelFactory):
         model = 'reference.Language'
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    code = factory.Faker('random_element', elements=('ABC', 'DEF', 'GHI'))
-    name = factory.Faker('country')
+    code = factory.Sequence(lambda n: str(n))
+    name = factory.Sequence(lambda n: str(n))
     recognized = factory.Faker('boolean', chance_of_getting_true=50)

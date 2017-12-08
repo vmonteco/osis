@@ -28,15 +28,15 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods, require_POST
 from django.http import JsonResponse
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
-from base.business import learning_unit_year_volumes
-from base.business import learning_unit_year_with_context
+from base.business import learning_unit_deletion, learning_unit_year_volumes, learning_unit_year_with_context, \
+    learning_unit_proposal
 from attribution import models as mdl_attr
 from base.business.learning_unit import create_learning_unit, create_learning_unit_structure, \
     get_common_context_learning_unit_year, get_cms_label_data, \
@@ -44,7 +44,8 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, get_last_academic_years
 from base.forms.common import TooManyResultsException
-from base.models.enums import learning_container_year_types
+from base.models import proposal_learning_unit, entity_version
+from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
 from base.forms.learning_units import LearningUnitYearForm, CreateLearningUnitYearForm, EMPTY_FIELD
@@ -52,7 +53,7 @@ from base.forms.learning_unit_specifications import LearningUnitSpecificationsFo
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_class import LearningClassEditForm
-from base.models.enums import learning_unit_year_subtypes
+from base.models.person import Person
 from cms.models import text_label
 from reference.models import language
 from . import layout
@@ -82,6 +83,7 @@ def learning_units_service_course(request):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_identification(request, learning_unit_year_id):
+    person = get_object_or_404(Person, user=request.user)
     context = get_common_context_learning_unit_year(learning_unit_year_id)
     learning_unit_year = context['learning_unit_year']
     context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
@@ -91,6 +93,11 @@ def learning_unit_identification(request, learning_unit_year_id):
     context['show_subtype'] = show_subtype(learning_unit_year)
     context.update(get_all_attributions(learning_unit_year))
     context['components'] = get_components_identification(learning_unit_year)
+    context['can_propose'] = learning_unit_proposal.is_eligible_for_modification_proposal(learning_unit_year, person)
+    context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
+    context['proposal_folder_entity_version'] = \
+        entity_version.get_by_entity_and_date(context['proposal'].folder.entity, None) if context['proposal'] else None
+    context['can_delete'] = learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year)
 
     return layout.render(request, "learning_unit/identification.html", context)
 
@@ -196,13 +203,6 @@ def learning_unit_attributions(request, learning_unit_year_id):
     context['attributions'] = mdl_attr.attribution.find_by_learning_unit_year(learning_unit_year=learning_unit_year_id)
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/attributions.html", context)
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def learning_unit_proposals(request, learning_unit_year_id):
-    context = get_common_context_learning_unit_year(learning_unit_year_id)
-    return layout.render(request, "learning_unit/proposals.html", context)
 
 
 @login_required
@@ -314,10 +314,11 @@ def learning_class_year_edit(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_create_learningunit', raise_exception=True)
 def learning_unit_create(request, academic_year):
-    form = CreateLearningUnitYearForm(initial={'academic_year': academic_year,
-                                               'subtype': FULL,
-                                               'learning_container_year_type': EMPTY_FIELD,
-                                               'language': language.find_by_code('FR')})
+    person = get_object_or_404(Person, user=request.user)
+    form = CreateLearningUnitYearForm(person, initial={'academic_year': academic_year,
+                                                       'subtype': FULL,
+                                                       "container_type": EMPTY_FIELD,
+                                                       'language': language.find_by_code('FR')})
     return layout.render(request, "learning_unit/learning_unit_form.html", {'form': form})
 
 
@@ -325,7 +326,8 @@ def learning_unit_create(request, academic_year):
 @permission_required('base.can_create_learningunit', raise_exception=True)
 @require_POST
 def learning_unit_year_add(request):
-    form = CreateLearningUnitYearForm(request.POST)
+    person = get_object_or_404(Person, user=request.user)
+    form = CreateLearningUnitYearForm(person, request.POST)
     if form.is_valid():
         data = form.cleaned_data
         starting_academic_year = mdl.academic_year.starting_academic_year()
