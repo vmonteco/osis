@@ -37,7 +37,6 @@ logger = logging.getLogger(settings.DEFAULT_LOGGER)
 
 
 def publish_to_portal(global_ids=None):
-    global_ids = ["00221414"]
     tutor_application_list = _compute_list(global_ids)
     queue_name = settings.QUEUES.get('QUEUES_NAME', {}).get('APPLICATION_OSIS_PORTAL')
 
