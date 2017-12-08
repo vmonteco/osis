@@ -17,15 +17,13 @@ def set_uuids_model(apps, model):
 
 
 def set_uuid_field(apps, schema_editor):
-    set_uuids_model(apps, "entity")
-    set_uuids_model(apps, "entitycontaineryear")
-    set_uuids_model(apps, "entitycomponentyear")
+    set_uuids_model(apps, "entityversion")
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('base', '0195_auto_20171127_1302'),
+        ('base', '0204_auto_20171127_1423'),
     ]
 
     operations = [
