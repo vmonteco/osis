@@ -25,11 +25,14 @@
 ##############################################################################
 from datetime import datetime, time
 
+from django.conf.global_settings import DATE_FORMAT
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
+from django.utils import formats
 from django.utils.translation import ugettext as _
 
+from backoffice.settings import base
 from base.models import offer_year, academic_calendar
 from base.models.enums import academic_calendar_type
 from osis_common.utils.datetime import strictly_ordered_dates, get_tzinfo
@@ -72,18 +75,26 @@ class OfferYearCalendar(models.Model):
                 self.save()
 
     def clean(self):
+        try:
+            self.end_start_dates_validation()
+        except AttributeError as e:
+            raise ValidationError(e)
+
         if not getattr(self, 'academic_calendar'):
             return
 
-        start_date = self.academic_calendar.start_date
-        end_date = self.academic_calendar.end_date
+        self._check_is_in_calendar_range(self.start_date)
+        self._check_is_in_calendar_range(self.end_date)
 
-        start_date = datetime.combine(start_date, time(0,0,0, tzinfo=get_tzinfo()))
-        end_date = datetime.combine(end_date, time(0,0,0, tzinfo=get_tzinfo()))
-
-        if (self.start_date < start_date) or\
-                (self.end_date > end_date):
-            raise ValidationError(_('Range date must be set within the authorized range.'))
+    def _check_is_in_calendar_range(self, date):
+        if date and not self.academic_calendar.start_date <= date.date() <= self.academic_calendar.end_date:
+            raise ValidationError(
+                _('%(date)s must be set within %(start_date)s and %(end_date)s'
+                % {"date": formats.localize_input(date.date()),
+                   "start_date": formats.localize_input(self.academic_calendar.start_date),
+                   "end_date": formats.localize_input(self.academic_calendar.end_date),
+                   })
+            )
 
     def save(self, *args, **kwargs):
         self.end_start_dates_validation()

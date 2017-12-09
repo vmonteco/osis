@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from django import forms
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.forms import formset_factory
 
 from base.forms.bootstrap import BootstrapModelForm, BootstrapForm
@@ -143,8 +143,20 @@ class AdministrativeDataSession(BootstrapForm):
 
             oyc.save()
 
-    def clean_exam_enrollment_range(self):
-        pass
+    def clean(self):
+        for name, value in list(self.cleaned_data.items()):
+            oyc = self._get_offer_year_calendar(name)
+
+            if isinstance(value, tuple) and len(value) == 2:
+                oyc.start_date = _convert_date_to_datetime(value[0])
+                oyc.end_date = _convert_date_to_datetime(value[1])
+            else:
+                oyc.start_date = _convert_date_to_datetime(value)
+
+            try:
+                oyc.clean()
+            except ValidationError as e:
+                self.add_error(name, e)
 
 
 class AdministrativeData(forms.BaseFormSet):

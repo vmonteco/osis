@@ -28,7 +28,7 @@ from django.utils import timezone
 from django.forms import formset_factory
 
 from base.forms.education_groups_administrative_data import AdministrativeDataSession, AdministrativeData, \
-    DATETIME_FORMAT, DATE_FORMAT
+    DATETIME_FORMAT, DATE_FORMAT, AdministrativeDataFormset
 from base.models.enums import academic_calendar_type
 from base.models.offer_year_calendar import OfferYearCalendar
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
@@ -42,8 +42,10 @@ from django.test import TestCase
 
 class TestAdministrativeDataForm(TestCase):
     def setUp(self):
-        self.academic_year = AcademicYearFactory()
-        self.academic_calendars = [AcademicCalendarFactory.build(reference=i[0], academic_year=self.academic_year)
+        self.academic_year = AcademicYearFactory(year=2007)
+
+        self.academic_calendars = [AcademicCalendarFactory.build(reference=i[0],
+                                                                 academic_year=self.academic_year)
                                    for i in academic_calendar_type.ACADEMIC_CALENDAR_TYPES]
         for ac in self.academic_calendars:
             ac.save(functions=[])
@@ -58,20 +60,47 @@ class TestAdministrativeDataForm(TestCase):
                                                 for i in range(1, 4)])
 
     def test_initial(self):
-        SessionFormSet = formset_factory(form=AdministrativeDataSession, formset=AdministrativeData, extra=3)
-        formset_session = SessionFormSet(form_kwargs={'education_group_year': self.education_group_year})
+        formset_session = AdministrativeDataFormset(form_kwargs={'education_group_year': self.education_group_year})
 
         for form in formset_session:
             for field in form.fields.values():
                 self.assertIsNotNone(field.initial)
-
-                print(field.widget.attrs)
                 self.assertIsNotNone(field.widget.attrs.get("maxDate"))
                 self.assertIsNotNone(field.widget.attrs.get("minDate"))
 
-        print(formset_session)
-
     def test_save(self):
+        deliberation_date = '08/12/{} 10:50'.format(self.academic_year.year)
+        exam_enrollment_start = '20/12/{}'.format(self.academic_year.year)
+        exam_enrollment_end = '15/01/{}'.format(self.academic_year.year+1)
+        exam_submission = '14/12/{}'.format(self.academic_year.year)
+        form_data = {
+            'form-0-deliberation': deliberation_date,
+            'form-0-dissertation_submission': '',
+            'form-0-exam_enrollment_range': exam_enrollment_start + ' - ' + exam_enrollment_end,
+            'form-0-scores_exam_diffusion': '',
+            'form-0-scores_exam_submission': exam_submission,
+            'form-INITIAL_FORMS': 0,
+            'form-MAX_NUM_FORMS': '1000',
+            'form-MIN_NUM_FORMS': '0',
+            'form-TOTAL_FORMS': '1'
+        }
+
+        SessionFormSet = formset_factory(form=AdministrativeDataSession, formset=AdministrativeData, extra=1)
+        formset_session = SessionFormSet(data=form_data,
+                                         form_kwargs={'education_group_year': self.education_group_year})
+
+        self.assertEqual(formset_session.errors, [{}])
+        self.assertTrue(formset_session.is_valid())
+        formset_session.save()
+
+        oyc = formset_session.forms[0]._get_offer_year_calendar('exam_enrollment_range')
+        self.assertEqual(exam_enrollment_start, timezone.localtime(oyc.start_date).strftime(DATE_FORMAT))
+        self.assertEqual(exam_enrollment_end, timezone.localtime(oyc.end_date).strftime(DATE_FORMAT))
+
+        oyc = formset_session.forms[0]._get_offer_year_calendar('deliberation')
+        self.assertEqual(deliberation_date, timezone.localtime(oyc.start_date).strftime(DATETIME_FORMAT))
+
+    def test_save_errors(self):
         deliberation_date = '08/12/1900 10:50'
         exam_enrollment_start = '20/12/2015'
         exam_enrollment_end = '15/01/2018'
@@ -88,20 +117,11 @@ class TestAdministrativeDataForm(TestCase):
         }
 
         SessionFormSet = formset_factory(form=AdministrativeDataSession, formset=AdministrativeData, extra=1)
-
         formset_session = SessionFormSet(data=form_data,
                                          form_kwargs={'education_group_year': self.education_group_year})
 
-        self.assertEqual(formset_session.errors, [{}])
-        self.assertTrue(formset_session.is_valid())
-        formset_session.save()
-
-        oyc = formset_session.forms[0]._get_offer_year_calendar('exam_enrollment_range')
-        self.assertEqual(exam_enrollment_start, timezone.localtime(oyc.start_date).strftime(DATE_FORMAT))
-        self.assertEqual(exam_enrollment_end, timezone.localtime(oyc.end_date).strftime(DATE_FORMAT))
-
-        oyc = formset_session.forms[0]._get_offer_year_calendar('deliberation')
-        self.assertEqual(deliberation_date, timezone.localtime(oyc.start_date).strftime(DATETIME_FORMAT))
+        self.assertFalse(formset_session.is_valid())
+        self.assertEqual(len(formset_session.errors[0]), 3)
 
     def test_get_form_kwargs(self):
         formset = AdministrativeData(form_kwargs={'education_group_year': self.education_group_year})

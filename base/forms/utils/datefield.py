@@ -60,8 +60,7 @@ class DatePickerInput(forms.DateInput):
 
     def __init__(self, attrs=None, format=DATE_FORMAT):
         if not attrs:
-            attrs={'class': 'datepicker',
-                   'data-date-format': 'dd/mm/yyyy'}
+            attrs={'class': 'datepicker'}
 
         super().__init__(attrs)
         self.format = format
@@ -73,8 +72,7 @@ class DatePickerInput(forms.DateInput):
 class DateTimePickerInput(forms.DateTimeInput):
     def __init__(self, attrs=None, format=DATETIME_FORMAT):
         if not attrs:
-            attrs={'class': 'datetimepicker',
-                   'data-date-format': 'dd/mm/yyyy hh:ii'}
+            attrs={'class': 'datetimepicker' }
 
         super().__init__(attrs)
         self.format = format
