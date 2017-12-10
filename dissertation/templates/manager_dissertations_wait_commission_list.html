@@ -116,7 +116,7 @@
 <script type="text/javascript" src="{% static 'js/dataTables.bootstrap.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/jquery-ui.js' %}"></script>
 <script>
-    function format(list_dissert_roles,dissert_description)
+    function format_row_child(list_dissert_roles,dissert)
     {
         var pk ='';
         var bt_add = '';
@@ -133,7 +133,7 @@
             tab_dissert_roles +='<td> '+item.last_name+' &nbsp; </td>';
             tab_dissert_roles +='<td>  &nbsp; </td>';
             tab_dissert_roles +='<td> &nbsp;'+
-                    '<a href="#" class="btn btn-warning bt_warning_'+dissert_description.pk+'"'+
+                    '<a href="#" class="btn btn-warning bt_warning_'+dissert.pk+'"'+
                     'id="dissert_roles_'+item.pk+'" role="button">'+
                     '<span class="glyphicon glyphicon-remove span2"></span></a> </td>';
             tab_dissert_roles =tab_dissert_roles+'<tr>';
@@ -142,7 +142,7 @@
         if (list_dissert_roles.length < 4){
             bt_add='<a href="#"lnk_add_dissertation_jury_member" class="add_jury btn btn-default btn-sm"'+
             'role="button" title="{% trans 'add_dissertation_jury_member'%}" data-toggle="modal" data-target="#myModal"'+
-            'data-id="'+dissert_description.pk+'">'+
+            'data-id="'+dissert.pk+'">'+
             '<span class="glyphicon glyphicon-plus" aria-hidden="true" >'+
             '</span>'+
             '{% trans 'add_dissertation_jury_member'%}</a>';
@@ -155,11 +155,12 @@
         '<tr>'+
             '<td> &nbsp;&nbsp;{% trans 'Description'%}:</td>'+'<td> </td>'+
             '<td> </td>'+
-            '<td colspan=6>'+dissert_description.description+'</td>'+
+            '<td colspan=6>'+dissert.description+'</td>'+
             '<td>'+bt_add+'</td>'+
         '</tr>'+
         tab_dissert_roles+
-        '<tr> <td><a  id="reset_bt_'+dissert_description.pk+'" role="button" class="glyphicon glyphicon-refresh" ></a> </td></tr>'+
+        '<tr> <td><a  id="reset_bt_'+dissert.pk+'" role="button" class="glyphicon glyphicon-refresh" ></a>'+
+        '</td></tr>'+
         '</table>';
     };
 
@@ -168,7 +169,7 @@
         $.ajax({
         url:"/dissertation/manager_dissertation_role_list_json/"+rowdata.pk
         }).done(function(dissertation_roles_json){
-        row.child(format(dissertation_roles_json,rowdata)).show();
+        row.child(format_row_child(dissertation_roles_json,rowdata)).show();
       });
     };
 
@@ -181,7 +182,6 @@
 
         }).done(function(dissertations_json)
         {
-
             var table_dissertations=$('#tb_memoire').DataTable(
             {
                 data:dissertations_json,
@@ -209,7 +209,6 @@
                 {"data":"offer"},
                 {"data":"proposition_dissertation"},
                 {
-
                     "orderable":false,
                     "data":'pk',
                     render: function ( data, type, full, meta ) {
@@ -286,6 +285,7 @@
         $( "#search_advisers" ).val("");
     });
 
+
     $(document).on('click', '.submit_form', function (event){
         var status_choice = $(this).closest("form").find("select[name='status_choice']").val();
         var adviser = $(this).closest("form").find("input[name='adviser_pk']").val();
@@ -305,8 +305,8 @@
                 alert("{% trans 'maximum_jury' %}");
             }
         });
-        $('#adviser_id').empty();
-        $( "#search_adviser" ).empty();
+       $( "#adviser_pk" ).val("");
+       $( "#search_advisers" ).val("");
     });
 
 
