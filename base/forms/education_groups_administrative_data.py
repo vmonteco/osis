@@ -46,6 +46,8 @@ class CourseEnrollmentForm(BootstrapForm):
         super().__init__(*args, **kwargs)
         if self.instance:
             self.fields['range_date'].initial = (self.instance.start_date, self.instance.end_date)
+            self.fields['range_date'].widget.add_min_max_value(self.instance.academic_calendar.start_date,
+                                                               self.instance.academic_calendar.end_date)
 
     def clean_range_date(self):
         range_date = self.cleaned_data["range_date"]
@@ -94,9 +96,9 @@ class AdministrativeDataSession(BootstrapForm):
 
         if self.list_offer_year_calendar:
             self._init_fields()
-        #else:
-        #    raise ObjectDoesNotExist('There is no OfferYearCalendar for the education_group_year {}'
-        #                             .format(self.education_group_year))
+        else:
+            raise ObjectDoesNotExist('There is no OfferYearCalendar for the education_group_year {}'
+                                     .format(self.education_group_year))
 
     def _get_academic_calendar_type(self, name):
         if name == 'exam_enrollment_range':
