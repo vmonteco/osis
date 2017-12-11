@@ -28,6 +28,7 @@ import datetime
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.contrib.messages import get_messages
+from django.contrib.auth.models import Permission
 from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseNotFound, HttpResponse, HttpResponseForbidden
 
@@ -51,6 +52,9 @@ class TestLearningUnitModificationProposal(TestCase):
         today = datetime.date.today()
 
         self.person = PersonFactory()
+        self.permission = Permission.objects.get(codename="can_propose_learningunit")
+        self.person.user.user_permissions.add(self.permission)
+
         an_organization = OrganizationFactory(type=organization_type.MAIN)
         self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212",
                                                                subtype=learning_unit_year_subtypes.FULL)
@@ -121,6 +125,13 @@ class TestLearningUnitModificationProposal(TestCase):
         response = self.client.get(self.url)
 
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
+
+    def test_user_has_not_permission(self):
+        self.person.user.user_permissions.remove(self.permission)
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
 
     def test_with_non_existent_learning_unit_year(self):
         self.learning_unit_year.delete()
