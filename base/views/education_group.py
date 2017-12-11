@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -35,6 +36,7 @@ from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
 from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataFormset
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
+from base.models.program_manager import is_program_manager
 
 from . import layout
 from cms.enums import entity_name
@@ -199,6 +201,8 @@ def _education_group_administrative_data_tab(request, education_group_year_id):
 @permission_required('base.can_access_offer', raise_exception=True)
 def education_group_edit_administrative_data(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+    if not is_program_manager(request.user, education_group=education_group_year.education_group):
+        raise PermissionDenied("Only program managers of the education group can edit.")
 
     formset_session = AdministrativeDataFormset(request.POST or None,
                                                 form_kwargs={'education_group_year': education_group_year})
