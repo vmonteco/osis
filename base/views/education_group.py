@@ -206,7 +206,7 @@ def education_group_edit_administrative_data(request, education_group_year_id):
     offer_year_calendar = mdl.offer_year_calendar.search(education_group_year_id=education_group_year_id,
                                                          academic_calendar_reference=academic_calendar_type.COURSE_ENROLLMENT).first()
 
-    course_enrollment = CourseEnrollmentForm(request.POST or None,instance=offer_year_calendar)
+    course_enrollment = CourseEnrollmentForm(request.POST or None, instance=offer_year_calendar)
 
     f1 = course_enrollment.is_valid()
     f2 = formset_session.is_valid()

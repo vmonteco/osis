@@ -479,3 +479,22 @@ class EducationGroupViewTestCase(TestCase):
                                education_group_year=ages_education_group_year,
                                type=offer_year_entity_type.ENTITY_MANAGEMENT)
 
+
+class EducationGroupEditAdministrativeData(TestCase):
+    def setUp(self):
+        self.education_group_year = EducationGroupYearFactory()
+        self.url = reverse('education_group_edit_administrative', args=[self.education_group_year.id])
+
+    def test_when_not_logged(self):
+        self.client.logout()
+        response = self.client.get(self.url)
+
+        self.assertRedirects(response, '/login/?next={}'.format(self.url))
+
+    def test_user_has_not_permission(self):
+
+
+
+
+
+
