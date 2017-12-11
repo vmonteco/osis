@@ -5,19 +5,11 @@ from __future__ import unicode_literals
 import uuid
 
 from django.db import migrations
-
-
-def set_uuids_model(apps, model):
-    base = apps.get_app_config('base')
-    model_class = base.get_model(model)
-    ids = model_class.objects.values_list('id', flat=True)
-    if ids:
-        for pk in ids:
-            model_class.objects.filter(pk=pk).update(uuid=uuid.uuid4())
+from base.migrations.utils import utils
 
 
 def set_uuid_field(apps, schema_editor):
-    set_uuids_model(apps, "entityversion")
+    utils.set_uuids_model(apps, "entityversion")
 
 
 class Migration(migrations.Migration):
