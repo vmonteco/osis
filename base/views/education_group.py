@@ -194,6 +194,8 @@ def _education_group_administrative_data_tab(request, education_group_year_id):
                                                        education_group_year)})
     context.update({'scores_exam_diffusion': get_sessions_dates(academic_calendar_type.SCORES_EXAM_DIFFUSION,
                                                                 education_group_year)})
+    context.update({"can_edit_administrative_data":
+                        is_program_manager(request.user, education_group=education_group_year.education_group)})
     return layout.render(request, "education_group/tab_administrative_data.html", context)
 
 
