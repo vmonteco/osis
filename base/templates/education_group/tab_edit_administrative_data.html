@@ -27,20 +27,18 @@
 {% endcomment %}
 
 {% block breadcrumb %}
-{% include "education_group/breadcrumb.html" %}
+    {% include "education_group/breadcrumb.html" %}
 {% endblock %}
 
-{% block script %}
-    {% include "utils/boostrap_datepicker_js.html" %}
-{% endblock script %}
 
 {% block style %}
-    {% include "utils/boostrap_datepicker_css.html" %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datetimepicker.min.css' %}" type='text/css'>
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker3.min.css' %}" type='text/css'>
+    <link rel="stylesheet" href="{% static 'css/daterangepicker.css' %}" type='text/css'>
 {% endblock style %}
 
 {% block content %}
-
-{% include "education_group/header.html" %}
+    {% include "education_group/header.html" %}
 
 <div class="panel panel-default">
     <div class="panel-body" id="tabs">
@@ -112,5 +110,67 @@
         </div>
     </div>
 </div>
-
 {% endblock %}
+
+{% block script %}
+    <script src="{% static 'js/moment.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
+    <script src="{% static 'js/daterangepicker.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+
+
+            $('.datepicker').each(function () {
+                var config = {
+                    format: "DD/MM/YYYY",
+                    pickTime: false,
+                    language: '{{ LANGUAGE_CODE }}'
+                };
+
+                config.minDate = $(this).data("mindate");
+                config.maxDate = $(this).data("maxdate");
+
+                $(this).datetimepicker(config);
+
+            });
+
+            $('.datetimepicker').each(function () {
+                var config = {
+                    format: "DD/MM/YYYY HH:mm",
+                    language: '{{ LANGUAGE_CODE }}'
+                };
+
+                config.minDate = $(this).data("mindate");
+                config.maxDate = $(this).data("maxdate");
+
+                $(this).datetimepicker(config);
+
+            });
+
+            $('.daterange').each(function () {
+                var config = {
+                    autoUpdateInput: false,
+                    locale: {
+                        format: 'DD/MM/YYYY',
+                        language: '{{ LANGUAGE_CODE }}',
+                        cancelLabel: 'Clear'
+                    }
+                };
+
+                config.minDate = $(this).data("mindate");
+                config.maxDate = $(this).data("maxdate");
+                $(this).daterangepicker(config);
+
+                $(this).on('apply.daterangepicker', function(ev, picker) {
+                    $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
+                });
+                $(this).on('cancel.daterangepicker', function(ev, picker) {
+                    $(this).val('');
+                });
+            });
+
+
+        });
+    </script>
+{% endblock script %}
