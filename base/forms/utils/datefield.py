@@ -27,7 +27,7 @@ import datetime
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.utils import formats
+from django.utils import formats, timezone
 from django.utils.translation import ugettext_lazy as _
 
 from osis_common.utils.datetime import get_tzinfo
@@ -48,6 +48,7 @@ def _convert_date_to_datetime(value):
 
 def _convert_datetime_to_date(value):
     if isinstance(value, datetime.datetime):
+        value = timezone.localtime(value, get_tzinfo())
         return datetime.date(value.year, value.month, value.day)
 
 def _add_min_max_value(widget, min_date, max_date):

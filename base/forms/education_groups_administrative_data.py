@@ -45,7 +45,10 @@ class CourseEnrollmentForm(BootstrapForm):
         self.instance = kwargs.pop('instance')
         super().__init__(*args, **kwargs)
         if self.instance:
-            self.fields['range_date'].initial = (self.instance.start_date, self.instance.end_date)
+            self.fields['range_date'].initial = (
+                _convert_datetime_to_date(self.instance.start_date),
+                _convert_datetime_to_date(self.instance.end_date))
+            print(self.fields['range_date'].initial)
             self.fields['range_date'].widget.add_min_max_value(self.instance.academic_calendar.start_date,
                                                                self.instance.academic_calendar.end_date)
 
