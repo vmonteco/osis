@@ -66,6 +66,7 @@ class CourseEnrollmentForm(BootstrapForm):
     def save(self):
         self.instance.save()
 
+
 class AdministrativeDataSession(BootstrapForm):
     exam_enrollment_range = DateRangeField(label=_('EXAM_ENROLLMENTS'), required=False)
 
