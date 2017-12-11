@@ -46,6 +46,10 @@ def _convert_date_to_datetime(value):
         return datetime.datetime(value.year, value.month, value.day, tzinfo=get_tzinfo())
 
 
+def _convert_datetime_to_date(value):
+    if isinstance(value, datetime.datetime):
+        return datetime.date(value.year, value.month, value.day)
+
 def _add_min_max_value(widget, min_date, max_date):
     if isinstance(min_date, datetime.date):
         min_date = formats.localize_input(min_date, widget.format)
@@ -60,7 +64,7 @@ class DatePickerInput(forms.DateInput):
 
     def __init__(self, attrs=None, format=DATE_FORMAT):
         if not attrs:
-            attrs={'class': 'datepicker'}
+            attrs = {'class': 'datepicker'}
 
         super().__init__(attrs)
         self.format = format
@@ -72,7 +76,7 @@ class DatePickerInput(forms.DateInput):
 class DateTimePickerInput(forms.DateTimeInput):
     def __init__(self, attrs=None, format=DATETIME_FORMAT):
         if not attrs:
-            attrs={'class': 'datetimepicker' }
+            attrs = {'class': 'datetimepicker'}
 
         super().__init__(attrs)
         self.format = format
@@ -84,8 +88,8 @@ class DateTimePickerInput(forms.DateTimeInput):
 class DateRangePickerInput(forms.TextInput):
     def __init__(self, attrs=None, format=DATE_FORMAT):
         if not attrs:
-            attrs={'class': 'daterange',
-                   'data-date-format': 'dd/mm/yyyy - dd/mm/yyyy'}
+            attrs = {'class': 'daterange',
+                     'data-date-format': 'dd/mm/yyyy - dd/mm/yyyy'}
 
         super().__init__(attrs)
         self.format = format
@@ -103,7 +107,7 @@ class DateRangePickerInput(forms.TextInput):
         _add_min_max_value(self, min_date, max_date)
 
 
-class DateRangeField(forms.Field):
+class DateRangeField(forms.DateField):
     input_formats = DATE_RANGE_FORMAT
     widget = DateRangePickerInput
 
@@ -119,7 +123,7 @@ class DateRangeField(forms.Field):
 
     def to_python(self, value):
         if self.required is False and not value:
-           return None
+            return None
 
         values = value.split(DATE_RANGE_SPLITTER)
         if len(values) != 2:

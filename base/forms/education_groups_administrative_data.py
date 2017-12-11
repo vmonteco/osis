@@ -27,40 +27,42 @@ from django import forms
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.forms import formset_factory
 
-from base.forms.bootstrap import BootstrapModelForm, BootstrapForm
+from base.forms.bootstrap import BootstrapForm
 from base.forms.utils.datefield import DateRangeField, DatePickerInput, DATE_FORMAT, DateTimePickerInput, \
-    DATETIME_FORMAT, _convert_date_to_datetime
+    DATETIME_FORMAT, _convert_date_to_datetime, _convert_datetime_to_date
 from base.models import offer_year_calendar, session_exam_calendar
 from base.models.enums import academic_calendar_type
-from base.models.offer_year_calendar import OfferYearCalendar
 from django.utils.translation import ugettext_lazy as _
 
 
 NUMBER_SESSIONS = 3
 
 
-class CourseEnrollmentForm(BootstrapModelForm):
+class CourseEnrollmentForm(BootstrapForm):
     range_date = DateRangeField(required=False, label=_("course_enrollment"))
 
     def __init__(self, *args, **kwargs):
+        self.instance = kwargs.pop('instance')
         super().__init__(*args, **kwargs)
-        instance = kwargs.get('instance')
-        if instance:
-            self.fields['range_date'].initial = (instance.start_date, instance.end_date)
+        if self.instance:
+            self.fields['range_date'].initial = (self.instance.start_date, self.instance.end_date)
 
     def clean_range_date(self):
         range_date = self.cleaned_data["range_date"]
-
         if isinstance(range_date, (list, tuple)) and len(range_date) == 2:
-            self.cleaned_data['start_date'] = range_date[0]
-            self.cleaned_data['end_date'] = range_date[1]
+            self.instance.start_date = _convert_date_to_datetime(range_date[0])
+            self.instance.end_date = _convert_date_to_datetime(range_date[1])
 
         return range_date
 
-    class Meta:
-        model = OfferYearCalendar
-        fields = []
+    def clean(self):
+        try:
+            self.instance.clean()
+        except ValidationError as e:
+            self.add_error('range_date', e)
 
+    def save(self):
+        self.instance.save()
 
 class AdministrativeDataSession(BootstrapForm):
     exam_enrollment_range = DateRangeField(label=_('EXAM_ENROLLMENTS'), required=False)
@@ -125,7 +127,10 @@ class AdministrativeDataSession(BootstrapForm):
             oyc = self._get_offer_year_calendar(name)
             if oyc:
                 if isinstance(field, DateRangeField):
-                    field.initial = (oyc.start_date, oyc.end_date)
+                    field.initial = (_convert_datetime_to_date(oyc.start_date),
+                                     _convert_datetime_to_date(oyc.end_date))
+                elif isinstance(field, forms.DateField):
+                    field.initial = _convert_datetime_to_date(oyc.start_date)
                 else:
                     field.initial = oyc.start_date
 

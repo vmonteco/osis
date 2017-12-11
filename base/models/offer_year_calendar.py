@@ -23,19 +23,17 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from datetime import datetime, time
+from datetime import datetime
 
-from django.conf.global_settings import DATE_FORMAT
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.utils import formats
 from django.utils.translation import ugettext as _
 
-from backoffice.settings import base
-from base.models import offer_year, academic_calendar
+from base.models import offer_year
 from base.models.enums import academic_calendar_type
-from osis_common.utils.datetime import strictly_ordered_dates, get_tzinfo
+from osis_common.utils.datetime import strictly_ordered_dates
 
 
 class OfferYearCalendarAdmin(admin.ModelAdmin):

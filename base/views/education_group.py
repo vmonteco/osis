@@ -205,15 +205,17 @@ def education_group_edit_administrative_data(request, education_group_year_id):
 
     offer_year_calendar = mdl.offer_year_calendar.search(education_group_year_id=education_group_year_id,
                                                          academic_calendar_reference=academic_calendar_type.COURSE_ENROLLMENT).first()
-    #For Test
-    #course_enrollment = CourseEnrollmentForm(request.POST or None, instance=mdl.offer_year_calendar.find_by_id(2))
 
     course_enrollment = CourseEnrollmentForm(request.POST or None,instance=offer_year_calendar)
-    if course_enrollment.is_valid() and formset_session.is_valid():
+
+    f1 = course_enrollment.is_valid()
+    f2 = formset_session.is_valid()
+
+    if f1 and f2:
         formset_session.save()
         course_enrollment.save()
         messages.add_message(request, messages.SUCCESS, _('The administrative data has been successfully modified'))
-        return HttpResponseRedirect(reverse('education_group_administrative', education_group_year_id))
+        return HttpResponseRedirect(reverse('education_group_administrative', args=(education_group_year_id,)))
 
     return layout.render(request, "education_group/tab_edit_administrative_data.html", locals())
 
