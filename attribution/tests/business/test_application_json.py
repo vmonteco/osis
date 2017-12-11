@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from datetime import date
+from unittest import mock
 from django.test import TestCase
 from attribution.business import application_json
 from attribution.tests.factories.tutor_application import TutorApplicationFactory
@@ -42,9 +43,12 @@ class AttributionJsonTest(TestCase):
         self.tutor_1 = TutorFactory(person=PersonFactory(first_name="Tom", last_name="Dupont", global_id='00012345'))
         self.tutor_application = TutorApplicationFactory(tutor=self.tutor_1, learning_container_year=self.l_container)
 
-    def test_build_attributions_json(self):
+    @mock.patch('osis_common.queue.queue_sender.send_message')
+    def test_build_attributions_json(self,
+                                     mock_send_message):
         application_list = application_json._compute_list()
         self.assertIsInstance(application_list, list)
         self.assertEqual(len(application_list), 1)
 
-
+        application_json.publish_to_portal()
+        self.assertTrue(mock_send_message.called)
