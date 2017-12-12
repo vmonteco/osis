@@ -13,10 +13,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='entitycomponentyear',
-            name='deleted',
-        ),
         migrations.AddField(
             model_name='entity',
             name='uuid',
