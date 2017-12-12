@@ -38,10 +38,16 @@ class AttributionJsonTest(TestCase):
     def setUp(self):
         today = date.today()
         self.academic_year = AcademicYearFactory(year=today.year, start_date=today)
-        self.l_container = LearningContainerYearFactory(academic_year=self.academic_year, acronym="LBIR1210",
-                                                        in_charge=True)
-        self.tutor_1 = TutorFactory(person=PersonFactory(first_name="Tom", last_name="Dupont", global_id='00012345'))
-        self.tutor_application = TutorApplicationFactory(tutor=self.tutor_1, learning_container_year=self.l_container)
+        self.l_container_1 = LearningContainerYearFactory(in_charge=True)
+        self.tutor_1 = TutorFactory(person=PersonFactory(global_id='00012345'))
+        self.tutor_2 = TutorFactory(person=PersonFactory(global_id=''))
+        self.tutor_3 = TutorFactory(person=PersonFactory(global_id=None))
+        self.tutor_application_1 = TutorApplicationFactory(tutor=self.tutor_1,
+                                                           learning_container_year=self.l_container_1)
+        self.tutor_application_2 = TutorApplicationFactory(tutor=self.tutor_2,
+                                                           learning_container_year=self.l_container_1)
+        self.tutor_application_3 = TutorApplicationFactory(tutor=self.tutor_3,
+                                                           learning_container_year=self.l_container_1)
 
     @mock.patch('osis_common.queue.queue_sender.send_message')
     def test_build_attributions_json(self,
@@ -49,6 +55,19 @@ class AttributionJsonTest(TestCase):
         application_list = application_json._compute_list()
         self.assertIsInstance(application_list, list)
         self.assertEqual(len(application_list), 1)
-
         application_json.publish_to_portal()
         self.assertTrue(mock_send_message.called)
+
+    def test_get_all_tutor_application_without_global_ids_empty(self):
+        all_tutor_applications = application_json._get_all_tutor_application(global_ids=None)
+        self.assertEqual(len(all_tutor_applications), 1)
+
+    def test_get_all_tutor_application_with_global_ids_list(self):
+        tutor_applications = application_json._get_all_tutor_application(global_ids=['00012345'])
+        self.assertEqual(len(tutor_applications), 1)
+
+    def test_group_tutor_application_by_global_id(self):
+        all_tutor_applications = application_json._get_all_tutor_application(global_ids=None)
+        self.assertEqual(len(all_tutor_applications), 1)
+        tutor_applications_grouped = application_json._group_tutor_application_by_global_id(all_tutor_applications)
+        self.assertEqual(len(tutor_applications_grouped["00012345"]["tutor_applications"]), 1)

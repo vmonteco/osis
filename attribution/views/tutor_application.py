@@ -40,7 +40,6 @@ def recompute_portal(request):
     serializer = RecomputePortalSerializer(data=request.POST)
     if serializer.is_valid():
         global_ids = serializer.data['global_ids'] if serializer.data['global_ids'] else None
-        result = application_json.publish_to_portal(global_ids)
-        if result:
+        if application_json.publish_to_portal(global_ids):
             return Response(status=status.HTTP_202_ACCEPTED)
     return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

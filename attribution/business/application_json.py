@@ -26,10 +26,8 @@
 import logging
 import pika
 import pika.exceptions
-import time
 from attribution import models as mdl_attribution
 from django.conf import settings
-from django.utils import timezone
 from osis_common.queue import queue_sender
 
 
@@ -39,7 +37,6 @@ logger = logging.getLogger(settings.DEFAULT_LOGGER)
 def publish_to_portal(global_ids=None):
     tutor_application_list = _compute_list(global_ids)
     queue_name = settings.QUEUES.get('QUEUES_NAME', {}).get('APPLICATION_OSIS_PORTAL')
-
     if queue_name:
         try:
             queue_sender.send_message(queue_name, tutor_application_list)
