@@ -390,6 +390,9 @@ msgid "encoding_status_notended"
 msgstr "It remains notes to encode."
 
 msgid "end_date"
+msgstr "End date"
+
+msgid "end_date_teacher"
 msgstr "Teacher Deadline"
 
 msgid "enrollment_activity_not_exist"
