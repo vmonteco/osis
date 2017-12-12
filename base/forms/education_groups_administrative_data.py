@@ -48,16 +48,12 @@ class CourseEnrollmentForm(BootstrapForm):
             self.fields['range_date'].initial = (
                 _convert_datetime_to_date(self.instance.start_date),
                 _convert_datetime_to_date(self.instance.end_date))
-            print(self.fields['range_date'].initial)
             self.fields['range_date'].widget.add_min_max_value(self.instance.academic_calendar.start_date,
                                                                self.instance.academic_calendar.end_date)
 
     def clean_range_date(self):
         range_date = self.cleaned_data["range_date"]
-        if isinstance(range_date, (list, tuple)) and len(range_date) == 2:
-            self.instance.start_date = _convert_date_to_datetime(range_date[0])
-            self.instance.end_date = _convert_date_to_datetime(range_date[1])
-
+        _set_values_in_offer_year_calendar(self.instance, range_date)
         return range_date
 
     def clean(self):
@@ -145,29 +141,28 @@ class AdministrativeDataSession(BootstrapForm):
     def save(self):
         for name, value in self.cleaned_data.items():
             oyc = self._get_offer_year_calendar(name)
-
-            if isinstance(value, tuple) and len(value) == 2:
-                oyc.start_date = _convert_date_to_datetime(value[0])
-                oyc.end_date = _convert_date_to_datetime(value[1])
-            else:
-                oyc.start_date = _convert_date_to_datetime(value)
+            _set_values_in_offer_year_calendar(oyc, value)
 
             oyc.save()
 
     def clean(self):
         for name, value in list(self.cleaned_data.items()):
             oyc = self._get_offer_year_calendar(name)
-
-            if isinstance(value, tuple) and len(value) == 2:
-                oyc.start_date = _convert_date_to_datetime(value[0])
-                oyc.end_date = _convert_date_to_datetime(value[1])
-            else:
-                oyc.start_date = _convert_date_to_datetime(value)
+            _set_values_in_offer_year_calendar(oyc, value)
 
             try:
                 oyc.clean()
             except ValidationError as e:
                 self.add_error(name, e)
+
+
+def _set_values_in_offer_year_calendar(oyc, value):
+    if isinstance(value, tuple) and len(value) == 2:
+        oyc.start_date = _convert_date_to_datetime(value[0])
+        oyc.end_date = _convert_date_to_datetime(value[1])
+    else:
+        oyc.start_date = _convert_date_to_datetime(value)
+        oyc.end_date = _convert_date_to_datetime(value)
 
 
 class AdministrativeData(forms.BaseFormSet):
