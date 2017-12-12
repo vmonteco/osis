@@ -11,6 +11,7 @@ def set_uuid_field(apps, schema_editor):
     utils.set_uuids_model(apps, "entity")
     utils.set_uuids_model(apps, "entitycontaineryear")
     utils.set_uuids_model(apps, "entitycomponentyear")
+    utils.set_uuids_model(apps, "entityversion")
 
 
 class Migration(migrations.Migration):
