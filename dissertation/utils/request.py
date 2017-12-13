@@ -60,10 +60,11 @@ def get_adviser_list_json(request):
         advisers = find_by_last_name_or_email(q)[:50]
         response_data = []
         for adviser in advisers:
-            response_data.append({'value': adviser.person.email,
+            response_data.append({'value': adviser.person.last_name + ', ' +adviser.person.first_name + ' ('
+                                           + adviser.person.email+ ') ',
                                   'first_name': adviser.person.first_name,
                                   'last_name': adviser.person.last_name,
-                                  'id': adviser.person.id
+                                  'id': adviser.id
                                   })
     else:
         response_data = []
