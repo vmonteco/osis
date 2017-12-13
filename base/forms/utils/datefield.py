@@ -101,7 +101,10 @@ class DateRangePickerInput(forms.TextInput):
 
     def format_value(self, value):
         if isinstance(value, tuple) and len(value) == 2:
-            return self.__format_date(value[0]) + DATE_RANGE_SPLITTER + self.__format_date(value[1])
+            if all(isinstance(i, str) for i in value):
+                return self.__format_date(value[0]) + DATE_RANGE_SPLITTER + self.__format_date(value[1])
+            else:
+                return ''
         else:
             return value
 
