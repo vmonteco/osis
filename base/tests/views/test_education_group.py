@@ -548,11 +548,3 @@ class EducationGroupEditAdministrativeData(TestCase):
 
         self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
         self.assertTemplateUsed(response, "page_not_found.html")
-
-
-
-
-
-
-
-

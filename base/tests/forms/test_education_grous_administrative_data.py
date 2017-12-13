@@ -44,20 +44,31 @@ class TestAdministrativeDataForm(TestCase):
     def setUp(self):
         self.academic_year = AcademicYearFactory(year=2007)
 
-        self.academic_calendars = [AcademicCalendarFactory.build(reference=i[0],
-                                                                 academic_year=self.academic_year)
-                                   for i in academic_calendar_type.ACADEMIC_CALENDAR_TYPES]
+        self.academic_calendars = [
+            AcademicCalendarFactory.build(reference=i[0],
+                                          academic_year=self.academic_year)
+            for i in academic_calendar_type.ACADEMIC_CALENDAR_TYPES
+        ]
+
         for ac in self.academic_calendars:
             ac.save(functions=[])
 
         self.education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
-        self.offer_year = [OfferYearCalendarFactory(education_group_year=self.education_group_year,
-                                                    academic_calendar=i) for i in self.academic_calendars]
+
+        self.offer_year = [
+            OfferYearCalendarFactory(education_group_year=self.education_group_year,
+                                     academic_calendar=i)
+            for i in self.academic_calendars
+        ]
 
         self.session_exam_calendars = []
         for ac in self.academic_calendars:
-            self.session_exam_calendars.extend([SessionExamCalendarFactory(number_session=i, academic_calendar=ac)
-                                                for i in range(1, 4)])
+            self.session_exam_calendars.extend(
+                [
+                    SessionExamCalendarFactory(number_session=i, academic_calendar=ac)
+                    for i in range(1, 4)
+                ]
+            )
 
     def test_initial(self):
         formset_session = AdministrativeDataFormset(form_kwargs={'education_group_year': self.education_group_year})

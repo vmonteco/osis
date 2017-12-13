@@ -50,6 +50,9 @@ def _convert_datetime_to_date(value):
     if isinstance(value, datetime.datetime):
         value = timezone.localtime(value, get_tzinfo())
         return datetime.date(value.year, value.month, value.day)
+    else:
+        raise TypeError('Value must be a datetime type')
+
 
 def _add_min_max_value(widget, min_date, max_date):
     if isinstance(min_date, datetime.date):
@@ -96,7 +99,7 @@ class DateRangePickerInput(forms.TextInput):
         self.format = format
 
     def format_value(self, value):
-        if isinstance(value, tuple):
+        if isinstance(value, tuple) and len(value) == 2:
             return self.__format_date(value[0]) + DATE_RANGE_SPLITTER + self.__format_date(value[1])
         else:
             return value

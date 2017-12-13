@@ -78,7 +78,7 @@ class OfferYearCalendar(models.Model):
         except AttributeError as e:
             raise ValidationError(e)
 
-        if not getattr(self, 'academic_calendar'):
+        if not hasattr(self, 'academic_calendar'):
             return
 
         self._check_is_in_calendar_range(self.start_date)
@@ -86,13 +86,12 @@ class OfferYearCalendar(models.Model):
 
     def _check_is_in_calendar_range(self, date):
         if date and not self.academic_calendar.start_date <= date.date() <= self.academic_calendar.end_date:
-            raise ValidationError(
-                _('%(date)s must be set within %(start_date)s and %(end_date)s'
-                % {"date": formats.localize_input(date.date()),
-                   "start_date": formats.localize_input(self.academic_calendar.start_date),
-                   "end_date": formats.localize_input(self.academic_calendar.end_date),
-                   })
-            )
+            info = {
+                "date": formats.localize_input(date.date()),
+                "start_date": formats.localize_input(self.academic_calendar.start_date),
+                "end_date": formats.localize_input(self.academic_calendar.end_date),
+            }
+            raise ValidationError(_('%(date)s must be set within %(start_date)s and %(end_date)s'), params=info)
 
     def save(self, *args, **kwargs):
         self.end_start_dates_validation()
@@ -215,10 +214,10 @@ def search(education_group_year_id=None, academic_calendar_reference=None):
 
     queryset = OfferYearCalendar.objects
 
-    if education_group_year_id:
+    if education_group_year_id is not None:
         queryset = queryset.filter(education_group_year=education_group_year_id)
 
-    if academic_calendar_reference:
+    if academic_calendar_reference is not None:
         queryset = queryset.filter(academic_calendar__reference=academic_calendar_reference)
 
     return queryset

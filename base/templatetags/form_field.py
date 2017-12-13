@@ -32,8 +32,7 @@ register = template.Library()
 @register.filter
 def select_field(form, key):
     key = str(key)
-    if key not in form.fields.keys():
-        print('Key %s not found in dict' % key)
+    if key not in form.fields:
         return None
 
     return forms.BoundField(form, form.fields[key], key)

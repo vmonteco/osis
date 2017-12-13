@@ -119,31 +119,35 @@
     <script src="{% static 'js/daterangepicker.js' %}"></script>
 
     <script>
-        $(document).ready(function() {
+        var format_date = "DD/MM/YYYY";
+        var format_time = "HH:mm";
+        var format_datetime = format_date + ' ' + format_time;
 
+        function set_min_max(config, input) {
+            config.minDate = input.data("mindate");
+            config.maxDate = input.data("maxdate");
+        }
+
+        $(document).ready(function() {
 
             $('.datepicker').each(function () {
                 var config = {
-                    format: "DD/MM/YYYY",
+                    format: format_date,
                     pickTime: false,
                     language: '{{ LANGUAGE_CODE }}'
                 };
 
-                config.minDate = $(this).data("mindate");
-                config.maxDate = $(this).data("maxdate");
+                set_min_max(config, $(this))
 
                 $(this).datetimepicker(config);
-
             });
 
             $('.datetimepicker').each(function () {
                 var config = {
-                    format: "DD/MM/YYYY HH:mm",
+                    format: format_datetime,
                     language: '{{ LANGUAGE_CODE }}'
                 };
-
-                config.minDate = $(this).data("mindate");
-                config.maxDate = $(this).data("maxdate");
+                set_min_max(config, $(this))
 
                 $(this).datetimepicker(config);
 
@@ -153,18 +157,17 @@
                 var config = {
                     autoUpdateInput: false,
                     locale: {
-                        format: 'DD/MM/YYYY',
+                        format: format_date,
                         language: '{{ LANGUAGE_CODE }}',
                         cancelLabel: 'Clear'
                     }
                 };
+                set_min_max(config, $(this))
 
-                config.minDate = $(this).data("mindate");
-                config.maxDate = $(this).data("maxdate");
                 $(this).daterangepicker(config);
 
                 $(this).on('apply.daterangepicker', function(ev, picker) {
-                    $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
+                    $(this).val(picker.startDate.format(format_date) + ' - ' + picker.endDate.format(format_date));
                 });
                 $(this).on('cancel.daterangepicker', function(ev, picker) {
                     $(this).val('');
