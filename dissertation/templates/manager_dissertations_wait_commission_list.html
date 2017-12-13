@@ -303,6 +303,7 @@
                 },
             error: function () {
                 alert("{% trans 'maximum_jury' %}");
+                get_dissertation_roles(row_parent,row_parent.data());
             }
         });
        $( "#adviser_pk" ).val("");
@@ -340,7 +341,7 @@
         select: function(event, ui) {
             var adviser_id = ui.item.id;
             $( "#adviser_pk" ).val(adviser_id);
-            $( "#search_advisers" ).val( ui.item.first_name + ', ' + ui.item.last_name + ' ' + ui.item.value + ' ' );
+            $( "#search_advisers" ).val( ui.item.value);
             return false;
             }
         }
