@@ -23,25 +23,23 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.core.exceptions import ObjectDoesNotExist
+from rest_framework import serializers
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
-from base.models import person_entity
-from base.models.entity_version import EntityVersion
-from base.models.person_entity import PersonEntity
-from base.models.entity_container_year import EntityContainerYear
-
-MAP_ENTITY_FIELD = {
-    EntityVersion: 'entity',
-    PersonEntity: 'entity',
-    EntityContainerYear: 'entity'
-}
+from attribution.business import application_json
 
 
-def filter_by_attached_entities(person, queryset):
-    entities_attached = person_entity.find_entities_by_person(person)
-    field_path = MAP_ENTITY_FIELD.get(queryset.model)
-    if not field_path:
-       raise ObjectDoesNotExist
-    field_filter = "{}__in".format(field_path)
-    return queryset.filter(**{field_filter: entities_attached})
+class RecomputePortalSerializer(serializers.Serializer):
+    global_ids = serializers.ListField(child=serializers.CharField(), required=False)
 
+
+@api_view(['POST'])
+def recompute_portal(request):
+    serializer = RecomputePortalSerializer(data=request.POST)
+    if serializer.is_valid():
+        global_ids = serializer.data['global_ids'] if serializer.data['global_ids'] else None
+        if application_json.publish_to_portal(global_ids):
+            return Response(status=status.HTTP_202_ACCEPTED)
+    return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

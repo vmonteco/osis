@@ -28,7 +28,9 @@ import datetime
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.contrib.messages import get_messages
+from django.contrib.auth.models import Permission
 from django.utils.translation import ugettext_lazy as _
+from django.http import HttpResponseNotFound, HttpResponse, HttpResponseForbidden
 
 from base.tests.factories.academic_year import AcademicYearFakerFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -39,13 +41,10 @@ from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
+from base.tests.factories.person_entity import PersonEntityFactory
 from base.models.enums import organization_type, entity_type, entity_container_year_link_type, \
     learning_unit_year_subtypes, proposal_type, learning_container_year_types
 from base.models import proposal_folder, proposal_learning_unit
-
-
-PAGE_NOT_FOUND_STATUS_CODE = 404
-ACCEPTED_STATUS_CODE = 202
 
 
 class TestLearningUnitModificationProposal(TestCase):
@@ -53,6 +52,9 @@ class TestLearningUnitModificationProposal(TestCase):
         today = datetime.date.today()
 
         self.person = PersonFactory()
+        self.permission = Permission.objects.get(codename="can_propose_learningunit")
+        self.person.user.user_permissions.add(self.permission)
+
         an_organization = OrganizationFactory(type=organization_type.MAIN)
         self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212",
                                                                subtype=learning_unit_year_subtypes.FULL)
@@ -91,6 +93,8 @@ class TestLearningUnitModificationProposal(TestCase):
             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2
         )
 
+        self.person_entity = PersonEntityFactory(person=self.person, entity=an_entity, with_child=True)
+
         self.client.force_login(self.person.user)
         self.url = reverse('learning_unit_modification_proposal', args=[self.learning_unit_year.id])
 
@@ -122,24 +126,31 @@ class TestLearningUnitModificationProposal(TestCase):
 
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
 
+    def test_user_has_not_permission(self):
+        self.person.user.user_permissions.remove(self.permission)
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
+
     def test_with_non_existent_learning_unit_year(self):
         self.learning_unit_year.delete()
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, PAGE_NOT_FOUND_STATUS_CODE)
+        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
         self.assertTemplateUsed(response, "page_not_found.html")
 
     def test_with_none_person(self):
         self.person.delete()
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, PAGE_NOT_FOUND_STATUS_CODE)
+        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
         self.assertTemplateUsed(response, "page_not_found.html")
 
     def test_get_request(self):
         response = self.client.get(self.url)
 
-        self.assertTrue(response.status_code, ACCEPTED_STATUS_CODE)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
         self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
         self.assertEqual(response.context['experimental_phase'], True)
@@ -167,7 +178,7 @@ class TestLearningUnitModificationProposal(TestCase):
     def test_post_request_with_invalid_form(self):
         response = self.client.post(self.url, data={})
 
-        self.assertTrue(response.status_code, ACCEPTED_STATUS_CODE)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
         self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
         self.assertEqual(response.context['experimental_phase'], True)
@@ -215,27 +226,57 @@ class TestLearningUnitModificationProposal(TestCase):
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
         self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name)
 
-    def test_learning_unit_must_be_full(self):
+    def test_learning_unit_of_type_undefined(self):
+        self.learning_unit_year.subtype = None
+        self.learning_unit_year.save()
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
+
+    def test_learning_unit_must_not_be_partim(self):
         self.learning_unit_year.subtype = learning_unit_year_subtypes.PARTIM
         self.learning_unit_year.save()
 
         response = self.client.get(self.url)
 
-        redirect_url = reverse("learning_unit", args=[self.learning_unit_year.id])
-        self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
 
-        messages = [str(message) for message in get_messages(response.wsgi_request)]
-        self.assertIn(_("learning_unit_is_not_of_type_full"), list(messages))
+    def test_learning_unit_of_type_internship(self):
+        self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.INTERNSHIP
+        self.learning_unit_year.learning_container_year.save()
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
+
+    def test_learning_unit_of_type_dissertation(self):
+        self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.DISSERTATION
+        self.learning_unit_year.learning_container_year.save()
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
+
+    def test_learning_unit_of_other_types(self):
+        self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.OTHER_COLLECTIVE
+        self.learning_unit_year.learning_container_year.save()
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
 
     def test_proposal_already_exists(self):
         ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year)
         response = self.client.get(self.url)
 
-        redirect_url = reverse("learning_unit", args=[self.learning_unit_year.id])
-        self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
-
-        messages = [str(message) for message in get_messages(response.wsgi_request)]
-        self.assertIn(_("proposal_already_exists"), messages)
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
 
     def test_academic_year_inferior_to_current(self):
         today = datetime.date.today()
@@ -245,8 +286,63 @@ class TestLearningUnitModificationProposal(TestCase):
         self.learning_unit_year.save()
 
         response = self.client.get(self.url)
-        redirect_url = reverse("learning_unit", args=[self.learning_unit_year.id])
-        self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
 
-        messages = [str(message) for message in get_messages(response.wsgi_request)]
-        self.assertIn(_("cannot_do_modification_proposal_for_past_learning_unit"), list(messages))
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
+
+    def test_not_linked_to_entity(self):
+        self.person_entity.delete()
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
+
+    def test_not_linked_to_requirement_entity(self):
+        today = datetime.date.today()
+        an_entity = EntityFactory(organization=OrganizationFactory(type=organization_type.MAIN))
+        an_entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
+                                                 start_date=today - datetime.timedelta(days=25),
+                                                 end_date=today.replace(year=today.year + 1))
+
+        self.requirement_entity.entity = an_entity_version.entity
+        self.requirement_entity.save()
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
+
+    def test_linked_to_parent_entity(self):
+        today = datetime.date.today()
+        parent_entity = EntityFactory(organization=OrganizationFactory(type=organization_type.MAIN))
+        EntityVersionFactory(entity=parent_entity, entity_type=entity_type.SCHOOL,
+                             start_date=today - datetime.timedelta(days=25),
+                             end_date=today.replace(year=today.year + 1))
+
+        self.entity_version.parent = parent_entity
+        self.entity_version.save()
+
+        self.person_entity.entity = parent_entity
+        self.person_entity.save()
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
+
+    def test_linked_to_child_entity(self):
+        today = datetime.date.today()
+        child_entity = EntityFactory(organization=OrganizationFactory(type=organization_type.MAIN))
+        EntityVersionFactory(entity=child_entity, entity_type=entity_type.SCHOOL,
+                             start_date=today - datetime.timedelta(days=25),
+                             end_date=today.replace(year=today.year + 1),
+                             parent=self.entity_version.entity)
+
+        self.person_entity.entity = child_entity
+        self.person_entity.save()
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
+
