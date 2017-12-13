@@ -44,6 +44,8 @@ def _convert_date_to_datetime(value):
         return value
     elif isinstance(value, datetime.date):
         return datetime.datetime(value.year, value.month, value.day, tzinfo=get_tzinfo())
+    else:
+        return value
 
 
 def _convert_datetime_to_date(value):
@@ -51,7 +53,7 @@ def _convert_datetime_to_date(value):
         value = timezone.localtime(value, get_tzinfo())
         return datetime.date(value.year, value.month, value.day)
     else:
-        raise TypeError('Value must be a datetime type')
+        return value
 
 
 def _add_min_max_value(widget, min_date, max_date):
@@ -92,8 +94,7 @@ class DateTimePickerInput(forms.DateTimeInput):
 class DateRangePickerInput(forms.TextInput):
     def __init__(self, attrs=None, format=DATE_FORMAT):
         if not attrs:
-            attrs = {'class': 'daterange',
-                     'data-date-format': 'dd/mm/yyyy - dd/mm/yyyy'}
+            attrs = {'class': 'daterange'}
 
         super().__init__(attrs)
         self.format = format
