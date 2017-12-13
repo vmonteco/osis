@@ -23,6 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
+
+from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 
@@ -31,12 +34,17 @@ from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 from attribution.tests.factories.attribution import AttributionNewFactory
 from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
 from base.business import learning_unit_deletion
+from base.models.enums import entity_container_year_link_type
+from base.models.enums import entity_type
+from base.models.enums import learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_class_year import LearningClassYear
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.entity_container_year import EntityContainerYearFactory
+from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.learning_class_year import LearningClassYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
@@ -48,6 +56,8 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 
+from base.tests.factories.person import PersonFactory
+from base.tests.factories.person_entity import PersonEntityFactory
 from internship.tests.factories.speciality import SpecialityFactory
 
 
@@ -250,7 +260,6 @@ class LearningUnitYearDeletion(TestCase):
             LearningContainerYear.objects.get(id=learning_container_year.id)
 
     def test_check_delete_learning_unit_year_with_assistants(self):
-
         learning_unit_year = LearningUnitYearFactory()
         assistant_mandate = AssistantMandateFactory()
         tutoring = TutoringLearningUnitYear.objects.create(mandate=assistant_mandate, learning_unit_year=learning_unit_year)
@@ -265,3 +274,40 @@ class LearningUnitYearDeletion(TestCase):
         msg = learning_unit_deletion.check_learning_unit_deletion(learning_unit)
         self.assertIn(speciality, msg.keys())
 
+    def test_can_delete_learning_unit_year_with_faculty_manager_role(self):
+        # Faculty manager can only delete other type than COURSE/INTERNSHIP/DISSERTATION
+        person = PersonFactory()
+        add_to_group(person.user, learning_unit_deletion.FACULTY_MANAGER_GROUP)
+        entity_version = EntityVersionFactory(entity_type=entity_type.FACULTY, acronym="SST",
+                                               start_date=datetime.date(year=1990, month=1, day=1),
+                                               end_date=None)
+        PersonEntityFactory(person=person, entity=entity_version.entity, with_child=True)
+
+        # Creation UE
+        learning_unit = LearningUnitFactory()
+        l_containeryear = LearningContainerYearFactory(academic_year=self.academic_year,
+                                                       container_type=learning_container_year_types.COURSE)
+        EntityContainerYearFactory(learning_container_year=l_containeryear, entity=entity_version.entity,
+                                   type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+        learning_unit_year = LearningUnitYearFactory(learning_unit=learning_unit,
+                                                     academic_year=self.academic_year,
+                                                     learning_container_year=l_containeryear,
+                                                     subtype=learning_unit_year_subtypes.FULL)
+        # Can remove FULL COURSE
+        self.assertFalse(learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year))
+
+        # Can remove PARTIM COURSE
+        learning_unit_year.subtype = learning_unit_year_subtypes.PARTIM
+        learning_unit_year.save()
+        self.assertTrue(learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year))
+
+        #With both role, greatest is taken
+        add_to_group(person.user, learning_unit_deletion.CENTRAL_MANAGER_GROUP)
+        learning_unit_year.subtype = learning_unit_year_subtypes.FULL
+        learning_unit_year.save()
+        self.assertTrue(learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year))
+
+
+def add_to_group(user, group_name):
+    group, created = Group.objects.get_or_create(name=group_name)
+    group.user_set.add(user)

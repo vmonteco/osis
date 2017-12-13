@@ -332,6 +332,13 @@ def find_main_entities_version():
     return entities_version
 
 
+def find_main_entities_version_filtered_by_person(person):
+    from base.models.utils import person_entity_filter
+
+    qs = find_main_entities_version()
+    return person_entity_filter.filter_by_attached_entities(person, qs)
+
+
 def find_last_faculty_entities_version():
     return EntityVersion.objects.filter(entity_type=entity_type.FACULTY,
                                         entity__organization__type=MAIN).order_by('entity', '-start_date')\
