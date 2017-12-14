@@ -392,6 +392,9 @@ msgstr "It remains notes to encode."
 msgid "end_date"
 msgstr "Teacher Deadline"
 
+msgid "end_date_teacher"
+msgstr "Teacher Deadline"
+
 msgid "enrollment_activity_not_exist"
 msgstr "The enrollment to the activity %s doesn't exist"
 

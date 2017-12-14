@@ -388,6 +388,9 @@ msgstr "Il reste encore des notes à encoder."
 msgid "end_date"
 msgstr "Échéance Prof"
 
+msgid "end_date_teacher"
+msgstr "Échéance Prof"
+
 msgid "enrollment_activity_not_exist"
 msgstr "L'inscription à l'activité %s n'existe pas"
 
