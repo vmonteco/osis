@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from base.tests.factories.academic_year import AcademicYearFactory
+from dissertation.models import adviser
 from dissertation.tests.models.test_faculty_adviser import create_faculty_adviser
 from dissertation.views.dissertation import adviser_can_manage
 from django.test import TestCase
@@ -178,3 +179,15 @@ class DissertationViewTestCase(TestCase):
         self.assertEqual(adviser_can_manage(dissertation, manager), True)
         self.assertEqual(adviser_can_manage(dissertation, manager2), False)
         self.assertEqual(adviser_can_manage(dissertation, teacher), False)
+
+    def test_get_all_advisers(self):
+        res = adviser.get_all_advisers()
+        self.assertEqual(res.count(),2)
+
+    def test_find_by_last_name_or_email(self):
+        res=adviser.find_by_last_name_or_email('Dupont')
+        self.assertEqual(res.count(), 1)
+        for i in res:
+            self.assertEqual(i.person.last_name, 'Dupont')
+            self.assertEqual(i.person.first_name, 'Pierre')
+
