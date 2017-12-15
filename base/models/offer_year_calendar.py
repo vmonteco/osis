@@ -59,6 +59,10 @@ class OfferYearCalendar(models.Model):
     class Meta:
         unique_together = ('academic_calendar', 'education_group_year')
 
+        permissions = (
+            ("can_edit_offer_year_calendar", "Can edit offer year calendar"),
+        )
+
     def update_dates(self, start_date, end_date):
         if self.customized:
             if strictly_ordered_dates(start_date, self.end_date):
