@@ -38,9 +38,9 @@ def compute_deadline_by_offer_year_calendar(oyc):
         return
 
     end_date_offer_year = _one_day_before(oyc.end_date.date())
-    end_date_academic = _one_day_before(oyc.academic_calendar.end_date())
+    end_date_academic = _one_day_before(oyc.academic_calendar.end_date)
 
-    nb_session = SessionExamCalendar.objects.get(oyc.academic_calendar).number_session
+    nb_session = SessionExamCalendar.objects.get(academic_calendar=oyc.academic_calendar).number_session
     sessions_exam_deadlines = SessionExamDeadline.objects.filter(offer_enrollment__offer_year=oyc.offer_year,
                                                                  number_session=nb_session)
 
@@ -49,10 +49,11 @@ def compute_deadline_by_offer_year_calendar(oyc):
             deadline = session.deadline
             end_date_student = _one_day_before(session.deliberation_date)
 
-            new_deadline = min(filter(None,(end_date_academic, end_date_offer_year, end_date_student)))
+            new_deadline = min(filter(None, (end_date_academic, end_date_offer_year, end_date_student)))
             if new_deadline == deadline:
                 continue
 
+            print("NICE")
             session.deadline = new_deadline
             session.save()
 
