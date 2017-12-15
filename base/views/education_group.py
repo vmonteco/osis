@@ -200,7 +200,7 @@ def _education_group_administrative_data_tab(request, education_group_year_id):
 
 
 @login_required
-@permission_required('base.can_edit_offer_year_calendar', raise_exception=True)
+@permission_required('base.can_edit_administrative_data', raise_exception=True)
 def education_group_edit_administrative_data(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
     if not is_program_manager(request.user, education_group=education_group_year.education_group):

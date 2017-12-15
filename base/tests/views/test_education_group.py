@@ -513,7 +513,7 @@ class EducationGroupEditAdministrativeData(TestCase):
     def setUp(self):
         self.person = PersonFactory()
 
-        self.permission = Permission.objects.get(codename='can_edit_offer_year_calendar')
+        self.permission = Permission.objects.get(codename='can_edit_administrative_data')
         self.person.user.user_permissions.add(self.permission)
 
         self.education_group_year = EducationGroupYearFactory()
