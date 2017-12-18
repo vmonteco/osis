@@ -29,7 +29,7 @@ from unittest import mock
 from django.contrib.auth.models import Permission, Group
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseForbidden, HttpResponseNotFound
+from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpResponse
 from django.test import TestCase, RequestFactory
 
 from base.forms.education_groups import EducationGroupFilter
@@ -509,10 +509,69 @@ class EducationGroupViewTestCase(TestCase):
                                type=offer_year_entity_type.ENTITY_MANAGEMENT)
 
 
+class EducationGroupAdministrativedata(TestCase):
+    def setUp(self):
+        self.person = PersonFactory()
+
+        self.permission_access = Permission.objects.get(codename='can_access_offer')
+        self.person.user.user_permissions.add(self.permission_access)
+
+        self.permission_edit = Permission.objects.get(codename='can_edit_education_group_administrative_data')
+        self.person.user.user_permissions.add(self.permission_edit)
+
+        self.education_group_year = EducationGroupYearFactory()
+        self.program_manager = ProgramManagerFactory(person=self.person,
+                                                     education_group=self.education_group_year.education_group)
+
+        self.url = reverse('education_group_administrative', args=[self.education_group_year.id])
+        self.client.force_login(self.person.user)
+
+    def test_when_not_logged(self):
+        self.client.logout()
+        response = self.client.get(self.url)
+
+        self.assertRedirects(response, '/login/?next={}'.format(self.url))
+
+    def test_user_has_not_permission(self):
+        Group.objects.get(name="program_managers").permissions.remove(self.permission_access)
+        self.person.user.user_permissions.remove(self.permission_access)
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
+
+    def test_user_is_not_program_manager_of_education_group(self):
+        self.program_manager.delete()
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, "education_group/tab_administrative_data.html")
+
+        self.assertFalse(response.context["can_edit_administrative_data"])
+
+    def test_user_has_no_permission_to_edit_administrative_data(self):
+        self.person.user.user_permissions.remove(self.permission_edit)
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, "education_group/tab_administrative_data.html")
+
+        self.assertFalse(response.context["can_edit_administrative_data"])
+
+    def test_user_can_edit_administrative_data(self):
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, "education_group/tab_administrative_data.html")
+
+        self.assertTrue(response.context["can_edit_administrative_data"])
+
+
 class EducationGroupEditAdministrativeData(TestCase):
     def setUp(self):
         self.person = PersonFactory()
-        self.permission = Permission.objects.get(codename='can_access_offer')
+
+        self.permission = Permission.objects.get(codename='can_edit_education_group_administrative_data')
         self.person.user.user_permissions.add(self.permission)
 
         self.education_group_year = EducationGroupYearFactory()
@@ -528,7 +587,6 @@ class EducationGroupEditAdministrativeData(TestCase):
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
 
     def test_user_has_not_permission(self):
-        Group.objects.get(name="program_managers").permissions.remove(self.permission)
         self.person.user.user_permissions.remove(self.permission)
         response = self.client.get(self.url)
 
