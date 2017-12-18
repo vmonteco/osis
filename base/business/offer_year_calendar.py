@@ -37,7 +37,7 @@ def compute_deadline_by_offer_year_calendar(oyc):
         return
 
     end_date_offer_year = _one_day_before(oyc.end_date.date())
-    end_date_academic = _one_day_before(oyc.academic_calendar.end_date)
+    end_date_academic = oyc.academic_calendar.end_date
 
     list_sessions = SessionExamCalendar.objects.filter(academic_calendar=oyc.academic_calendar).values('number_session')
     sessions_exam_deadlines = SessionExamDeadline.objects.filter(offer_enrollment__offer_year=oyc.offer_year,
