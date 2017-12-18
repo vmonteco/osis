@@ -67,6 +67,9 @@ class TestOfferYearCalendar(TestCase):
         ]
 
     def test_compute_deadline_by_offer_year_calendar(self):
+        self.session_exam_deadlines[0].deliberation_date = None
+        self.session_exam_deadlines[0].save()
+
         correct_deadlines = [self.academic_calendar.end_date - timedelta(days=1)
                              for _ in SessionExamDeadline.objects.all()]
 

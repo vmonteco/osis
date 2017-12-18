@@ -46,7 +46,7 @@ def compute_deadline_by_offer_year_calendar(oyc):
     with transaction.atomic():
         for session in sessions_exam_deadlines:
             deadline = session.deadline
-            end_date_student = _one_day_before(session.deliberation_date)
+            end_date_student = _one_day_before(session.deliberation_date) if session.deliberation_date else None
 
             new_deadline = min(filter(None, (end_date_academic, end_date_offer_year, end_date_student)))
             if new_deadline == deadline:
