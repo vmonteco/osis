@@ -238,14 +238,14 @@ def get_root(education_group_year_id, request):
 def get_sessions_dates(an_academic_calendar_type, an_education_group_year):
     date_dict = {}
 
-    for cpt in range(NUMBER_SESSIONS):
-        session = mdl.session_exam_calendar.get_by_session_reference_and_academic_year(cpt+1,
+    for session_number in range(NUMBER_SESSIONS):
+        session = mdl.session_exam_calendar.get_by_session_reference_and_academic_year(session_number+1,
                                                                                        an_academic_calendar_type,
                                                                                        an_education_group_year.academic_year)
         if session:
             dates = mdl.offer_year_calendar.get_by_education_group_year_and_academic_calendar(session.academic_calendar,
                                                                                               an_education_group_year)
-            key = 'session{}'.format(cpt+1)
+            key = 'session{}'.format(session_number+1)
             date_dict.update({key: dates})
 
     return date_dict
