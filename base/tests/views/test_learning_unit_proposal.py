@@ -346,3 +346,41 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
 
+
+class TestLearningUnitProposalCancellation(TestCase):
+    def setUp(self):
+        self.person = PersonFactory()
+        self.permission = Permission.objects.get(codename="can_propose_learningunit")
+        self.person.user.user_permissions.add(self.permission)
+        self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212",
+                                                               subtype=learning_unit_year_subtypes.FULL)
+        self.client.force_login(self.person.user)
+        self.url = reverse('learning_unit_cancel_proposal', args=[self.learning_unit_year.id])
+
+    def test_user_not_logged(self):
+        self.client.logout()
+        response = self.client.get(self.url)
+
+        self.assertRedirects(response, '/login/?next={}'.format(self.url))
+
+    def test_user_has_not_permission(self):
+        self.person.user.user_permissions.remove(self.permission)
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
+
+    def test_with_non_existent_learning_unit_year(self):
+        self.learning_unit_year.delete()
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
+        self.assertTemplateUsed(response, "page_not_found.html")
+
+    def test_with_none_person(self):
+        self.person.delete()
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
+        self.assertTemplateUsed(response, "page_not_found.html")
+

@@ -25,6 +25,7 @@
 ##############################################################################
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import PermissionDenied
@@ -66,3 +67,10 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
                                                                         'person': user_person,
                                                                         'form': form,
                                                                         'experimental_phase': True})
+
+@login_required
+@permission_required('base.can_propose_learningunit', raise_exception=True)
+def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
+    learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
+    user_person = get_object_or_404(Person, user=request.user)
+    return HttpResponse("TO DO")
