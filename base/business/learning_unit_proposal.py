@@ -106,6 +106,10 @@ def is_eligible_for_modification_proposal(learning_unit_year, a_person):
 def is_eligible_for_cancel_of_proposal(learning_unit_proposal):
     if learning_unit_proposal.state != proposal_state.ProposalState.FACULTY.name:
         return False
-    if learning_unit_proposal.type != proposal_type.ProposalType.MODIFICATION.name:
+
+    valid_type = [proposal_type.ProposalType.MODIFICATION.name, proposal_type.ProposalType.TRANSFORMATION.name,
+                  proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name]
+    if learning_unit_proposal.type not in valid_type:
         return False
+
     return True
