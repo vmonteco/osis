@@ -38,22 +38,10 @@ DATETIME_FORMAT = DATE_FORMAT + ' ' + TIME_FORMAT
 DATE_RANGE_SPLITTER = ' - '
 DATE_RANGE_FORMAT = DATE_FORMAT + DATE_RANGE_SPLITTER + DATE_FORMAT
 
-
-def _convert_date_to_datetime(value):
-    if isinstance(value, datetime.datetime):
-        return value
-    elif isinstance(value, datetime.date):
-        return datetime.datetime(value.year, value.month, value.day, tzinfo=get_tzinfo())
-    else:
-        return value
-
-
-def _convert_datetime_to_date(value):
-    if isinstance(value, datetime.datetime):
-        value = timezone.localtime(value, get_tzinfo())
-        return datetime.date(value.year, value.month, value.day)
-    else:
-        return value
+# Format for the widgets in javascript
+DATE_FORMAT_JS = 'DD/MM/YYYY'
+TIME_FORMAT_JS = 'HH:mm'
+DATETIME_FORMAT_JS = DATE_FORMAT_JS + ' ' + TIME_FORMAT_JS
 
 
 def _add_min_max_value(widget, min_date, max_date):
@@ -70,7 +58,10 @@ class DatePickerInput(forms.DateInput):
 
     def __init__(self, attrs=None, format=DATE_FORMAT):
         if not attrs:
-            attrs = {'class': 'datepicker'}
+            attrs = {
+                'class': 'datepicker',
+                'data-format': DATE_FORMAT_JS
+            }
 
         super().__init__(attrs)
         self.format = format
@@ -82,7 +73,10 @@ class DatePickerInput(forms.DateInput):
 class DateTimePickerInput(forms.DateTimeInput):
     def __init__(self, attrs=None, format=DATETIME_FORMAT):
         if not attrs:
-            attrs = {'class': 'datetimepicker'}
+            attrs = {
+                'class': 'datetimepicker',
+                'data-format': DATETIME_FORMAT_JS
+            }
 
         super().__init__(attrs)
         self.format = format
@@ -94,14 +88,17 @@ class DateTimePickerInput(forms.DateTimeInput):
 class DateRangePickerInput(forms.TextInput):
     def __init__(self, attrs=None, format=DATE_FORMAT):
         if not attrs:
-            attrs = {'class': 'daterange'}
+            attrs = {
+                'class': 'daterange',
+                'data-format': DATE_FORMAT_JS
+            }
 
         super().__init__(attrs)
         self.format = format
 
     def format_value(self, value):
         if isinstance(value, tuple) and len(value) == 2:
-            if all(isinstance(i, str) for i in value):
+            if all(isinstance(i, datetime.date) for i in value):
                 return self.__format_date(value[0]) + DATE_RANGE_SPLITTER + self.__format_date(value[1])
             else:
                 return ''

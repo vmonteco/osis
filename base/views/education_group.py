@@ -215,10 +215,10 @@ def education_group_edit_administrative_data(request, education_group_year_id):
 
     course_enrollment = CourseEnrollmentForm(request.POST or None, instance=offer_year_calendar)
 
-    f1 = course_enrollment.is_valid()
-    f2 = formset_session.is_valid()
+    course_enrollment_validity = course_enrollment.is_valid()
+    formset_session_validity = formset_session.is_valid()
 
-    if f1 and f2:
+    if course_enrollment_validity and formset_session_validity:
         formset_session.save()
         course_enrollment.save()
         messages.add_message(request, messages.SUCCESS, _('The administrative data has been successfully modified'))
@@ -239,14 +239,14 @@ def get_root(education_group_year_id, request):
 def get_sessions_dates(an_academic_calendar_type, an_education_group_year):
     date_dict = {}
 
-    for cpt in range(NUMBER_SESSIONS):
-        session = mdl.session_exam_calendar.get_by_session_reference_and_academic_year(cpt+1,
+    for session_number in range(NUMBER_SESSIONS):
+        session = mdl.session_exam_calendar.get_by_session_reference_and_academic_year(session_number+1,
                                                                                        an_academic_calendar_type,
                                                                                        an_education_group_year.academic_year)
         if session:
             dates = mdl.offer_year_calendar.get_by_education_group_year_and_academic_calendar(session.academic_calendar,
                                                                                               an_education_group_year)
-            key = 'session{}'.format(cpt+1)
+            key = 'session{}'.format(session_number+1)
             date_dict.update({key: dates})
 
     return date_dict

@@ -29,11 +29,12 @@ from django.forms import formset_factory
 
 from base.forms.bootstrap import BootstrapForm
 from base.forms.utils.datefield import DateRangeField, DatePickerInput, DATE_FORMAT, DateTimePickerInput, \
-    DATETIME_FORMAT, _convert_date_to_datetime, _convert_datetime_to_date
+    DATETIME_FORMAT
 from base.models import offer_year_calendar, session_exam_calendar
 from base.models.enums import academic_calendar_type
 from django.utils.translation import ugettext_lazy as _
 
+from osis_common.utils.datetime import convert_datetime_to_date, convert_date_to_datetime
 
 NUMBER_SESSIONS = 3
 
@@ -46,8 +47,8 @@ class CourseEnrollmentForm(BootstrapForm):
         super().__init__(*args, **kwargs)
         if self.instance:
             self.fields['range_date'].initial = (
-                _convert_datetime_to_date(self.instance.start_date),
-                _convert_datetime_to_date(self.instance.end_date))
+                convert_datetime_to_date(self.instance.start_date),
+                convert_datetime_to_date(self.instance.end_date))
             self.fields['range_date'].widget.add_min_max_value(self.instance.academic_calendar.start_date,
                                                                self.instance.academic_calendar.end_date)
 
@@ -66,7 +67,7 @@ class CourseEnrollmentForm(BootstrapForm):
         self.instance.save()
 
 
-class AdministrativeDataSession(BootstrapForm):
+class AdministrativeDataSessionForm(BootstrapForm):
     exam_enrollment_range = DateRangeField(label=_('EXAM_ENROLLMENTS'), required=False)
 
     scores_exam_submission = forms.DateField(widget=DatePickerInput(format=DATE_FORMAT),
@@ -100,29 +101,9 @@ class AdministrativeDataSession(BootstrapForm):
             raise ObjectDoesNotExist('There is no OfferYearCalendar for the education_group_year {}'
                                      .format(self.education_group_year))
 
-    def _get_academic_calendar_type(self, name):
-        if name == 'exam_enrollment_range':
-            ac_type = academic_calendar_type.EXAM_ENROLLMENTS
-        elif name == 'scores_exam_submission':
-            ac_type = academic_calendar_type.SCORES_EXAM_SUBMISSION
-        elif name == 'dissertation_submission':
-            ac_type = academic_calendar_type.DISSERTATION_SUBMISSION
-        elif name == 'deliberation':
-            ac_type = academic_calendar_type.DELIBERATION
-        elif name == 'scores_exam_diffusion':
-            ac_type = academic_calendar_type.SCORES_EXAM_DIFFUSION
-        else:
-            ac_type = None
-
-        return ac_type
-
     def _get_offer_year_calendar(self, field_name):
-        ac_type = self._get_academic_calendar_type(field_name)
-        oyc = self.list_offer_year_calendar.filter(academic_calendar__reference=ac_type).first()
-        if not oyc:
-            raise ObjectDoesNotExist('There is no OfferYearCalendar for the reference {}'
-                                     .format(ac_type))
-        return oyc
+        ac_type = _get_academic_calendar_type(field_name)
+        return self.list_offer_year_calendar.get(academic_calendar__reference=ac_type)
 
     def _init_fields(self):
         for name, field in self.fields.items():
@@ -131,10 +112,10 @@ class AdministrativeDataSession(BootstrapForm):
                 continue
 
             if isinstance(field, DateRangeField):
-                field.initial = (_convert_datetime_to_date(oyc.start_date),
-                                 _convert_datetime_to_date(oyc.end_date))
+                field.initial = (convert_datetime_to_date(oyc.start_date),
+                                 convert_datetime_to_date(oyc.end_date))
             elif isinstance(field, forms.DateField):
-                field.initial = _convert_datetime_to_date(oyc.start_date)
+                field.initial = convert_datetime_to_date(oyc.start_date)
             else:
                 field.initial = oyc.start_date
 
@@ -160,14 +141,31 @@ class AdministrativeDataSession(BootstrapForm):
 
 def _set_values_in_offer_year_calendar(oyc, value):
     if isinstance(value, tuple) and len(value) == 2:
-        oyc.start_date = _convert_date_to_datetime(value[0])
-        oyc.end_date = _convert_date_to_datetime(value[1])
+        oyc.start_date = convert_date_to_datetime(value[0])
+        oyc.end_date = convert_date_to_datetime(value[1])
     else:
-        oyc.start_date = _convert_date_to_datetime(value)
-        oyc.end_date = _convert_date_to_datetime(value)
+        oyc.start_date = convert_date_to_datetime(value)
+        oyc.end_date = convert_date_to_datetime(value)
 
 
-class AdministrativeData(forms.BaseFormSet):
+def _get_academic_calendar_type(name):
+    if name == 'exam_enrollment_range':
+        ac_type = academic_calendar_type.EXAM_ENROLLMENTS
+    elif name == 'scores_exam_submission':
+        ac_type = academic_calendar_type.SCORES_EXAM_SUBMISSION
+    elif name == 'dissertation_submission':
+        ac_type = academic_calendar_type.DISSERTATION_SUBMISSION
+    elif name == 'deliberation':
+        ac_type = academic_calendar_type.DELIBERATION
+    elif name == 'scores_exam_diffusion':
+        ac_type = academic_calendar_type.SCORES_EXAM_DIFFUSION
+    else:
+        ac_type = None
+
+    return ac_type
+
+
+class AdministrativeDataFormSet(forms.BaseFormSet):
 
     def get_form_kwargs(self, index):
         kwargs = super().get_form_kwargs(index)
@@ -181,8 +179,8 @@ class AdministrativeData(forms.BaseFormSet):
         sessions = session_exam_calendar.find_by_session_and_academic_year(index + 1,
                                                                            education_group_year.academic_year)
         academic_calendar_list = [s.academic_calendar for s in sessions]
-        kwargs['list_offer_year_calendar'] = q.filter(academic_calendar__in=academic_calendar_list) \
-            if academic_calendar_list else None
+        kwargs['list_offer_year_calendar'] = q.filter(academic_calendar__in=academic_calendar_list)\
+            .select_related('academic_calendar') if academic_calendar_list else None
 
         return kwargs
 
@@ -191,6 +189,6 @@ class AdministrativeData(forms.BaseFormSet):
             form.save()
 
 
-AdministrativeDataFormset = formset_factory(form=AdministrativeDataSession,
-                                            formset=AdministrativeData,
+AdministrativeDataFormset = formset_factory(form=AdministrativeDataSessionForm,
+                                            formset=AdministrativeDataFormSet,
                                             extra=NUMBER_SESSIONS)
