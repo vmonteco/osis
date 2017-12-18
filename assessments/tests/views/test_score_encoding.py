@@ -33,6 +33,7 @@ from django.test import TestCase, RequestFactory
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from assessments.business.score_encoding_list import ScoresEncodingList
+from base.models.enums import exam_enrollment_justification_type
 
 from base.tests.models import test_exam_enrollment, test_offer_enrollment, \
     test_learning_unit_enrollment, test_session_exam, test_offer_year
@@ -136,7 +137,7 @@ class OnlineEncodingTest(TestCase):
     def test_pgm_encoding_with_justification_for_a_student(self):
         self.client.force_login(self.program_manager_2.person.user)
         url = reverse('online_encoding_form', args=[self.learning_unit_year.id])
-        self.client.post(url, data=self.get_form_with_all_students_filled_and_one_with_justification())
+        self.client.post(url, data=self.get_form_with_all_students_filled_and_one_with_justification_justified())
 
         self.refresh_exam_enrollments_from_db()
         self.assert_exam_enrollments(self.enrollments[0], None, None, None, None)
@@ -165,11 +166,25 @@ class OnlineEncodingTest(TestCase):
     def test_tutor_encoding_with_all_students_and_a_justification(self):
         self.client.force_login(self.tutor.person.user)
         url = reverse('online_encoding_form', args=[self.learning_unit_year.id])
-        self.client.post(url, data=self.get_form_with_all_students_filled_and_one_with_justification())
+        self.client.post(url, data=self.get_form_with_all_students_filled_and_one_with_justification_unjustified())
 
         self.refresh_exam_enrollments_from_db()
         self.assert_exam_enrollments(self.enrollments[0], 15, None, None, None)
-        self.assert_exam_enrollments(self.enrollments[1], None, None, "ABSENCE_JUSTIFIED", None)
+        self.assert_exam_enrollments(self.enrollments[1], None, None, "ABSENCE_UNJUSTIFIED", None)
+
+    def test_tutor_encoding_with_absence_justified(self):
+        """A tutor cannot use value 'absence justified'. It is reserved to program manager """
+        self.enrollments[1].justification_draft = exam_enrollment_justification_type.CHEATING
+        self.enrollments[1].save()
+
+        # Try to pass 'absence_justified'
+        self.client.force_login(self.tutor.person.user)
+        url = reverse('online_encoding_form', args=[self.learning_unit_year.id])
+        self.client.post(url, data=self.get_form_with_all_students_filled_and_one_with_justification_justified())
+
+        self.refresh_exam_enrollments_from_db()
+        self.assert_exam_enrollments(self.enrollments[0], 15, None, None, None)
+        self.assert_exam_enrollments(self.enrollments[1], None, None, exam_enrollment_justification_type.CHEATING, None)
 
     def test_pgm_double_encoding_for_a_student(self):
         self.client.force_login(self.program_manager_1.person.user)
@@ -220,7 +235,7 @@ class OnlineEncodingTest(TestCase):
         self.client.force_login(self.program_manager_2.person.user)
         mock_send_email.return_value = None
         url = reverse('online_encoding_form', args=[self.learning_unit_year.id])
-        self.client.post(url, data=self.get_form_with_all_students_filled_and_one_with_justification())
+        self.client.post(url, data=self.get_form_with_all_students_filled_and_one_with_justification_unjustified())
 
         self.assertTrue(mock_send_email.called)
         (persons, enrollments, learning_unit_acronym, offer_acronym), kwargs = mock_send_email.call_args
@@ -261,7 +276,19 @@ class OnlineEncodingTest(TestCase):
                 "score_changed_" + str(exam_enrollment_2.id): "true"
                 }
 
-    def get_form_with_all_students_filled_and_one_with_justification(self):
+    def get_form_with_all_students_filled_and_one_with_justification_unjustified(self):
+        exam_enrollment_1 = self.enrollments[0]
+        exam_enrollment_2 = self.enrollments[1]
+
+        return {"score_" + str(exam_enrollment_1.id): "15",
+                "justification_" + str(exam_enrollment_1.id): "",
+                "score_changed_" + str(exam_enrollment_1.id): "true",
+                "score_" + str(exam_enrollment_2.id): "",
+                "justification_" + str(exam_enrollment_2.id): "ABSENCE_UNJUSTIFIED",
+                "score_changed_" + str(exam_enrollment_2.id): "true"
+                }
+
+    def get_form_with_all_students_filled_and_one_with_justification_justified(self):
         exam_enrollment_1 = self.enrollments[0]
         exam_enrollment_2 = self.enrollments[1]
 
