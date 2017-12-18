@@ -33,16 +33,15 @@ from base.models.session_exam_deadline import SessionExamDeadline
 
 
 def compute_deadline_by_offer_year_calendar(oyc):
-
     if oyc.academic_calendar.reference != academic_calendar_type.DELIBERATION:
         return
 
     end_date_offer_year = _one_day_before(oyc.end_date.date())
     end_date_academic = _one_day_before(oyc.academic_calendar.end_date)
 
-    nb_session = SessionExamCalendar.objects.get(academic_calendar=oyc.academic_calendar).number_session
+    list_sessions = SessionExamCalendar.objects.filter(academic_calendar=oyc.academic_calendar).values('number_session')
     sessions_exam_deadlines = SessionExamDeadline.objects.filter(offer_enrollment__offer_year=oyc.offer_year,
-                                                                 number_session=nb_session)
+                                                                 number_session__in=list_sessions)
 
     with transaction.atomic():
         for session in sessions_exam_deadlines:
@@ -53,10 +52,9 @@ def compute_deadline_by_offer_year_calendar(oyc):
             if new_deadline == deadline:
                 continue
 
-            print("NICE")
             session.deadline = new_deadline
             session.save()
 
 
 def _one_day_before(current_date):
-    return datetime.date(current_date.year, current_date.month, current_date.day-1)
+    return current_date - datetime.timedelta(days=1)
