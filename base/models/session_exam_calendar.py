@@ -110,8 +110,7 @@ def find_deliberation_date(nb_session, offer_year):
         offer_year_cal = offer_year_calendar.find_by_offer_year(offer_yr=offer_year)\
                        .filter(academic_calendar__in=academic_cals_id)\
                        .first()
-        return offer_year_cal.start_date if offer_year_cal.start_date else \
-                                            offer_year_cal.academic_calendar.start_date
+        return offer_year_cal.start_date
 
     return None
 

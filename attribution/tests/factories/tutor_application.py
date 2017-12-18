@@ -23,46 +23,29 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
 import string
 import datetime
-from django.utils import timezone
-from factory.django import DjangoModelFactory
+import factory
+import factory.fuzzy
 from faker import Faker
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.tutor import TutorFactory
 from osis_common.utils.datetime import get_tzinfo
+from attribution.models.enums import function
+
 fake = Faker()
 
 
-class AcademicYearFactory(DjangoModelFactory):
+class TutorApplicationFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = "base.AcademicYear"
-        django_get_or_create = ('year',)
+        model = "attribution.TutorApplication"
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    year = factory.fuzzy.FuzzyInteger(1950, timezone.now().year)
-    start_date = factory.LazyAttribute(lambda obj: datetime.date(obj.year, 9, 15))
-    end_date = factory.LazyAttribute(lambda obj: datetime.date(obj.year+1, 9, 30))
-
-    @staticmethod
-    def produce_in_past(from_year=None, quantity=3):
-        if not from_year:
-            from_year = datetime.date.today().year
-        i = 0
-        while i < quantity:
-            AcademicYearFactory(year=from_year-i)
-            i += 1
-
-
-class AcademicYearFakerFactory(DjangoModelFactory):
-    class Meta:
-        model = "base.AcademicYear"
-        django_get_or_create = ('year',)
-
-    external_id = factory.Sequence(lambda n: '10000000%02d' % n)
     changed = fake.date_time_this_decade(before_now=True, after_now=True, tzinfo=get_tzinfo())
-    start_date = fake.date_time_this_decade(before_now=True, after_now=False, tzinfo=get_tzinfo())
-    end_date = fake.date_time_this_decade(before_now=False, after_now=True, tzinfo=get_tzinfo())
-    year = factory.SelfAttribute('start_date.year')
+    function = factory.Iterator(function.FUNCTIONS, getter=lambda c: c[0])
+    tutor = factory.SubFactory(TutorFactory)
+    learning_container_year = factory.SubFactory(LearningContainerYearFactory)
+    volume_lecturing = factory.fuzzy.FuzzyDecimal(99)
+    volume_pratical_exercice = factory.fuzzy.FuzzyDecimal(99)
+    last_changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
+                                               datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
