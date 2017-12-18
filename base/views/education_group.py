@@ -214,10 +214,10 @@ def education_group_edit_administrative_data(request, education_group_year_id):
 
     course_enrollment = CourseEnrollmentForm(request.POST or None, instance=offer_year_calendar)
 
-    f1 = course_enrollment.is_valid()
-    f2 = formset_session.is_valid()
+    course_enrollment_validity = course_enrollment.is_valid()
+    formset_session_validity = formset_session.is_valid()
 
-    if f1 and f2:
+    if course_enrollment_validity and formset_session_validity:
         formset_session.save()
         course_enrollment.save()
         messages.add_message(request, messages.SUCCESS, _('The administrative data has been successfully modified'))
