@@ -43,7 +43,7 @@ from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.models.enums import organization_type, entity_type, entity_container_year_link_type, \
-    learning_unit_year_subtypes, proposal_type, learning_container_year_types
+    learning_unit_year_subtypes, proposal_type, learning_container_year_types, proposal_state
 from base.models import proposal_folder, proposal_learning_unit
 
 
@@ -354,6 +354,9 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.person.user.user_permissions.add(self.permission)
         self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212",
                                                                subtype=learning_unit_year_subtypes.FULL)
+        self.learning_unit_proposal = ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year,
+                                                                  type=proposal_type.ProposalType.MODIFICATION.name,
+                                                                  state=proposal_state.ProposalState.FACULTY.name)
         self.client.force_login(self.person.user)
         self.url = reverse('learning_unit_cancel_proposal', args=[self.learning_unit_year.id])
 
@@ -385,9 +388,19 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.assertTemplateUsed(response, "page_not_found.html")
 
     def test_with_no_proposal(self):
+        self.learning_unit_proposal.delete()
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
         self.assertTemplateUsed(response, "page_not_found.html")
+
+    def test_with_proposal_of_state_different_than_faculty(self):
+        self.learning_unit_proposal.state = proposal_state.ProposalState.CENTRAL.name
+        self.learning_unit_proposal.save()
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
 
 

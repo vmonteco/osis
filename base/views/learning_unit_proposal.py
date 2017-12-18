@@ -69,10 +69,13 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
                                                                         'form': form,
                                                                         'experimental_phase': True})
 
+
 @login_required
 @permission_required('base.can_propose_learningunit', raise_exception=True)
 def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
     user_person = get_object_or_404(Person, user=request.user)
     learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learning_unit_year)
+    if learning_unit_proposal.state != proposal_state.ProposalState.FACULTY.name:
+        raise PermissionDenied("You don't have sufficient rights to cancel the proposal")
     return HttpResponse("TO DO")
