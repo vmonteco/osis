@@ -28,7 +28,7 @@ from base.models.academic_year import current_academic_year
 from base.models.entity_container_year import find_last_entity_version_grouped_by_linktypes, search
 from base.models.utils.person_entity_filter import filter_by_attached_entities
 from base.models.enums import entity_container_year_link_type, proposal_type, learning_unit_year_subtypes, \
-    learning_container_year_types
+    learning_container_year_types, proposal_state
 
 
 def compute_form_initial_data(learning_unit_year):
@@ -100,4 +100,12 @@ def is_eligible_for_modification_proposal(learning_unit_year, a_person):
     if proposal:
         return False
 
+    return True
+
+
+def is_eligible_for_cancel_of_proposal(learning_unit_proposal):
+    if learning_unit_proposal.state != proposal_state.ProposalState.FACULTY.name:
+        return False
+    if learning_unit_proposal.type != proposal_type.ProposalType.MODIFICATION.name:
+        return False
     return True
