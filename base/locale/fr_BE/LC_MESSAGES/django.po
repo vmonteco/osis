@@ -386,7 +386,7 @@ msgid "encoding_status_notended"
 msgstr "Il reste encore des notes à encoder."
 
 msgid "end_date"
-msgstr "Date de fin"
+msgstr "Échéance Prof"
 
 msgid "end_date_teacher"
 msgstr "Échéance Prof"
@@ -2437,3 +2437,6 @@ msgstr "Entité académique"
 
 msgid "folder_number"
 msgstr "Dossier n°{}"
+
+msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
+msgstr "%(date)s doit être comprise entre %(start_date)s et %(end_date)s"

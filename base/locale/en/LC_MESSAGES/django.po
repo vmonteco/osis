@@ -390,7 +390,7 @@ msgid "encoding_status_notended"
 msgstr "It remains notes to encode."
 
 msgid "end_date"
-msgstr "End date"
+msgstr "Teacher Deadline"
 
 msgid "end_date_teacher"
 msgstr "Teacher Deadline"
@@ -2430,3 +2430,6 @@ msgstr "Academic entity"
 
 msgid "folder_number"
 msgstr "Folder n°{}"
+
+msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
+msgstr ""
