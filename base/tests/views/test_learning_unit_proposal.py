@@ -403,4 +403,11 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
 
+    def test_with_proposal_of_type_different_than_modification(self):
+        self.learning_unit_proposal.type = proposal_type.ProposalType.CREATION.name
+        self.learning_unit_proposal.save()
 
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")

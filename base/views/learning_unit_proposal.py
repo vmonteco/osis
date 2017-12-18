@@ -34,7 +34,7 @@ from django.core.exceptions import PermissionDenied
 from base.business.learning_unit_proposal import compute_form_initial_data, compute_proposal_type, \
     is_eligible_for_modification_proposal
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
-from base.models.enums import proposal_state
+from base.models.enums import proposal_state, proposal_type
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
@@ -76,6 +76,16 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
     user_person = get_object_or_404(Person, user=request.user)
     learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learning_unit_year)
-    if learning_unit_proposal.state != proposal_state.ProposalState.FACULTY.name:
-        raise PermissionDenied("You don't have sufficient rights to cancel the proposal")
+
+    if not is_elligible_for_cancel_of_proposal(learning_unit_proposal):
+        raise PermissionDenied("Learning unit proposal cannot be cancelled.")
+
     return HttpResponse("TO DO")
+
+
+def is_elligible_for_cancel_of_proposal(learning_unit_proposal):
+    if learning_unit_proposal.state != proposal_state.ProposalState.FACULTY.name:
+        return False
+    if learning_unit_proposal.type != proposal_type.ProposalType.MODIFICATION.name:
+        return False
+    return True
