@@ -110,7 +110,7 @@ class Person(SerializableModel):
         permissions = (
             ("is_administrator", "Is administrator"),
             ("is_institution_administrator", "Is institution administrator "),
-            ("can_edit_administrative_data", "Can edit administrative data"),
+            ("can_edit_education_group_administrative_data", "Can edit education group administrative data"),
         )
 
 

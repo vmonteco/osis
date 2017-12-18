@@ -28,4 +28,4 @@ from base.models.program_manager import is_program_manager
 
 def can_user_edit_administrative_data(a_user, an_education_group):
     return is_program_manager(a_user, education_group=an_education_group) and \
-           a_user.has_perm("base.can_edit_administrative_data")
+           a_user.has_perm("base.can_edit_education_group_administrative_data")

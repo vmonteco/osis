@@ -516,7 +516,7 @@ class EducationGroupAdministrativedata(TestCase):
         self.permission_access = Permission.objects.get(codename='can_access_offer')
         self.person.user.user_permissions.add(self.permission_access)
 
-        self.permission_edit = Permission.objects.get(codename='can_edit_administrative_data')
+        self.permission_edit = Permission.objects.get(codename='can_edit_education_group_administrative_data')
         self.person.user.user_permissions.add(self.permission_edit)
 
         self.education_group_year = EducationGroupYearFactory()
@@ -571,7 +571,7 @@ class EducationGroupEditAdministrativeData(TestCase):
     def setUp(self):
         self.person = PersonFactory()
 
-        self.permission = Permission.objects.get(codename='can_edit_administrative_data')
+        self.permission = Permission.objects.get(codename='can_edit_education_group_administrative_data')
         self.person.user.user_permissions.add(self.permission)
 
         self.education_group_year = EducationGroupYearFactory()
