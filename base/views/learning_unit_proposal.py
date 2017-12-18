@@ -87,5 +87,12 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
         setattr(learning_unit_year, key, value)
     learning_unit_year.save()
 
+    learning_unit = learning_unit_year.learning_unit
+    for key, value in initial_data["learning_unit"].items():
+        if key == "id":
+            continue
+        setattr(learning_unit_year, key, value)
+    learning_unit.save()
+
     return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 

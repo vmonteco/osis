@@ -418,6 +418,7 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.learning_unit_year.refresh_from_db()
         initial_data = self.learning_unit_proposal.initial_data
         self.assertTrue(_test_attributes_equal(self.learning_unit_year, initial_data["learning_unit_year"]))
+        self.assertTrue(_test_attributes_equal(self.learning_unit_year.learning_unit, initial_data["learning_unit"]))
 
         redirected_url = reverse('learning_unit', args=[self.learning_unit_year.id])
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
