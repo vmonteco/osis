@@ -79,7 +79,7 @@ class OfferYearCalendar(models.Model):
             raise ValidationError(e)
 
         if not hasattr(self, 'academic_calendar'):
-            return
+            return None
 
         self._check_is_in_calendar_range(self.start_date)
         self._check_is_in_calendar_range(self.end_date)
@@ -117,6 +117,8 @@ class OfferYearCalendar(models.Model):
             return datetime(year=date_ac.year, month=date_ac.month, day=date_ac.day)
         elif date_oyc:
             return datetime(year=date_oyc.year, month=date_oyc.month, day=date_oyc.day)
+        else:
+            return None
 
     def get_start_date(self):
         return self._get_date('start_date')
