@@ -25,7 +25,6 @@
 ##############################################################################
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import PermissionDenied
@@ -38,6 +37,8 @@ from base.models.enums import proposal_state
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
+from base.models import campus
+from reference.models import language
 
 
 @login_required
@@ -88,14 +89,20 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
 def reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year):
     initial_data = learning_unit_proposal.initial_data
     _reinitialize_model_from_model_initial_values(learning_unit_year, initial_data["learning_unit_year"])
-    learning_unit = learning_unit_year.learning_unit
-    _reinitialize_model_from_model_initial_values(learning_unit, initial_data["learning_unit"])
+    _reinitialize_model_from_model_initial_values(learning_unit_year.learning_unit, initial_data["learning_unit"])
+    _reinitialize_model_from_model_initial_values(learning_unit_year.learning_container_year,
+                                                  initial_data["learning_container_year"])
 
 
 def _reinitialize_model_from_model_initial_values(obj_model, attribute_initial_values):
     for key, value in attribute_initial_values.items():
         if key == "id":
             continue
-        setattr(obj_model, key, value)
+        elif key == "campus":
+            setattr(obj_model, key, campus.find_by_id(value))
+        elif key == "language":
+            setattr(obj_model, key, language.find_by_id(value))
+        else:
+            setattr(obj_model, key, value)
     obj_model.save()
 

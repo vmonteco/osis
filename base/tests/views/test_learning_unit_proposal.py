@@ -416,9 +416,12 @@ class TestLearningUnitProposalCancellation(TestCase):
         response = self.client.get(self.url)
 
         self.learning_unit_year.refresh_from_db()
+        self.learning_unit_year.learning_container_year.refresh_from_db()
         initial_data = self.learning_unit_proposal.initial_data
         self.assertTrue(_test_attributes_equal(self.learning_unit_year, initial_data["learning_unit_year"]))
         self.assertTrue(_test_attributes_equal(self.learning_unit_year.learning_unit, initial_data["learning_unit"]))
+        self.assertTrue(_test_attributes_equal(self.learning_unit_year.learning_container_year,
+                                               initial_data["learning_container_year"]))
 
         redirected_url = reverse('learning_unit', args=[self.learning_unit_year.id])
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
@@ -427,9 +430,17 @@ class TestLearningUnitProposalCancellation(TestCase):
 def _test_attributes_equal(obj, attribute_values_dict):
     for key, value in attribute_values_dict.items():
         # TODO modify encoder to treat Decimal objects
-        if key == "credits" and float(getattr(obj, key)) != float(value):
-            return False
-        elif key != "credits" and getattr(obj, key) != value:
+        if key == "credits":
+            if float(getattr(obj, key)) != float(value):
+                return False
+            else:
+                continue
+        elif key in ["campus", "language"]:
+            if getattr(obj, key).id != value:
+                return False
+            else:
+                continue
+        elif getattr(obj, key) != value:
             return False
     return True
 
