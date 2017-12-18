@@ -352,11 +352,10 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.person = PersonFactory()
         self.permission = Permission.objects.get(codename="can_propose_learningunit")
         self.person.user.user_permissions.add(self.permission)
-        self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212",
-                                                               subtype=learning_unit_year_subtypes.FULL)
-        self.learning_unit_proposal = ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year,
-                                                                  type=proposal_type.ProposalType.MODIFICATION.name,
-                                                                  state=proposal_state.ProposalState.FACULTY.name)
+
+        self.learning_unit_proposal = _create_proposal_learning_unit()
+        self.learning_unit_year = self.learning_unit_proposal.learning_unit_year
+
         self.client.force_login(self.person.user)
         self.url = reverse('learning_unit_cancel_proposal', args=[self.learning_unit_year.id])
 
@@ -411,6 +410,49 @@ class TestLearningUnitProposalCancellation(TestCase):
 
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
+
+
+def _create_proposal_learning_unit():
+    a_learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212", subtype=learning_unit_year_subtypes.FULL)
+    an_entity_container_year = EntityContainerYearFactory(
+        learning_container_year=a_learning_unit_year.learning_container_year,
+        type=entity_container_year_link_type.REQUIREMENT_ENTITY
+    )
+    initial_data = {
+        "learning_container_year": {
+            "id": a_learning_unit_year.learning_container_year.id,
+            "acronym": a_learning_unit_year.acronym,
+            "title": a_learning_unit_year.title,
+            "title_english": a_learning_unit_year.title_english,
+            "container_type": a_learning_unit_year.learning_container_year.container_type,
+            "campus": a_learning_unit_year.learning_container_year.campus.id,
+            "language": a_learning_unit_year.learning_container_year.language.id,
+            "in_charge": a_learning_unit_year.learning_container_year.in_charge
+        },
+        "learning_unit_year": {
+            "id": a_learning_unit_year.id,
+            "acronym": a_learning_unit_year.acronym,
+            "title": a_learning_unit_year.title,
+            "title_english": a_learning_unit_year.title_english,
+            "internship_subtype": a_learning_unit_year.internship_subtype,
+            "credits": str(a_learning_unit_year.credits),
+            "quadrimester": a_learning_unit_year.quadrimester,
+        },
+        "learning_unit": {
+            "id": a_learning_unit_year.learning_unit.id,
+            "periodicity": a_learning_unit_year.learning_unit.periodicity
+        },
+        "entities": {
+            entity_container_year_link_type.REQUIREMENT_ENTITY: an_entity_container_year.entity.id,
+            entity_container_year_link_type.ALLOCATION_ENTITY: None,
+            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1: None,
+            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: None
+        }
+    }
+    return ProposalLearningUnitFactory(learning_unit_year=a_learning_unit_year,
+                                       type=proposal_type.ProposalType.MODIFICATION.name,
+                                       state=proposal_state.ProposalState.FACULTY.name,
+                                       initial_data=initial_data)
 
 
 
