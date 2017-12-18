@@ -398,7 +398,6 @@ class TestLearningUnitProposalCancellation(TestCase):
     def test_with_proposal_of_state_different_than_faculty(self):
         self.learning_unit_proposal.state = proposal_state.ProposalState.CENTRAL.name
         self.learning_unit_proposal.save()
-
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
@@ -407,18 +406,31 @@ class TestLearningUnitProposalCancellation(TestCase):
     def test_with_proposal_of_type_different_than_modification_or_transformation(self):
         self.learning_unit_proposal.type = proposal_type.ProposalType.CREATION.name
         self.learning_unit_proposal.save()
-
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
 
     def test_with_valid_get_request(self):
-
+        _modify_learning_unit_year_data(self.learning_unit_year)
         response = self.client.get(self.url)
+
+        self.learning_unit_year.refresh_from_db()
+        initial_data = self.learning_unit_proposal.initial_data
+        self.assertTrue(_test_attributes_equal(self.learning_unit_year, initial_data["learning_unit_year"]))
 
         redirected_url = reverse('learning_unit', args=[self.learning_unit_year.id])
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
+
+
+def _test_attributes_equal(obj, attribute_values_dict):
+    for key, value in attribute_values_dict.items():
+        # TODO modify encoder to treat Decimal objects
+        if key == "credits" and float(getattr(obj, key)) != float(value):
+            return False
+        elif key != "credits" and getattr(obj, key) != value:
+            return False
+    return True
 
 
 def _create_proposal_learning_unit():
@@ -444,7 +456,7 @@ def _create_proposal_learning_unit():
             "title": a_learning_unit_year.title,
             "title_english": a_learning_unit_year.title_english,
             "internship_subtype": a_learning_unit_year.internship_subtype,
-            "credits": str(a_learning_unit_year.credits),
+            "credits": float(a_learning_unit_year.credits),
             "quadrimester": a_learning_unit_year.quadrimester,
         },
         "learning_unit": {
@@ -464,7 +476,17 @@ def _create_proposal_learning_unit():
                                        initial_data=initial_data)
 
 
+def _modify_learning_unit_year_data(a_learning_unit_year):
+    a_learning_unit_year.title = "New title"
+    a_learning_unit_year.title_english = "New english title"
+    a_learning_unit_year.acronym = "LNEW456"
+    a_learning_unit_year.credits = 123
+    a_learning_unit_year.save()
 
+    a_learning_container = a_learning_unit_year.learning_container_year
+    a_learning_container.campus = CampusFactory()
+    a_learning_container.language = LanguageFactory()
+    a_learning_container.save()
 
 
 
