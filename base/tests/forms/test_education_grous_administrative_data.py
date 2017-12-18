@@ -27,7 +27,7 @@ from django.utils import timezone
 
 from django.forms import formset_factory
 
-from base.forms.education_groups_administrative_data import AdministrativeDataSession, AdministrativeData, \
+from base.forms.education_groups_administrative_data import AdministrativeDataSessionForm, AdministrativeDataFormSet, \
     DATETIME_FORMAT, DATE_FORMAT, AdministrativeDataFormset
 from base.models.enums import academic_calendar_type
 from base.models.offer_year_calendar import OfferYearCalendar
@@ -96,7 +96,7 @@ class TestAdministrativeDataForm(TestCase):
             'form-TOTAL_FORMS': '1'
         }
 
-        SessionFormSet = formset_factory(form=AdministrativeDataSession, formset=AdministrativeData, extra=1)
+        SessionFormSet = formset_factory(form=AdministrativeDataSessionForm, formset=AdministrativeDataFormSet, extra=1)
         formset_session = SessionFormSet(data=form_data,
                                          form_kwargs={'education_group_year': self.education_group_year})
 
@@ -127,7 +127,7 @@ class TestAdministrativeDataForm(TestCase):
             'form-TOTAL_FORMS': '1'
         }
 
-        SessionFormSet = formset_factory(form=AdministrativeDataSession, formset=AdministrativeData, extra=1)
+        SessionFormSet = formset_factory(form=AdministrativeDataSessionForm, formset=AdministrativeDataFormSet, extra=1)
         formset_session = SessionFormSet(data=form_data,
                                          form_kwargs={'education_group_year': self.education_group_year})
 
@@ -135,7 +135,7 @@ class TestAdministrativeDataForm(TestCase):
         self.assertEqual(len(formset_session.errors[0]), 3)
 
     def test_get_form_kwargs(self):
-        formset = AdministrativeData(form_kwargs={'education_group_year': self.education_group_year})
+        formset = AdministrativeDataFormSet(form_kwargs={'education_group_year': self.education_group_year})
 
         result = formset.get_form_kwargs(0)
         self.assertEqual(result.get('session'), 1)

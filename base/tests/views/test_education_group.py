@@ -411,8 +411,8 @@ class EducationGroupViewTestCase(TestCase):
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'education_group/tab_edit_administrative_data.html')
         self.assertEqual(context['education_group_year'], education_group_year)
-        self.assertEqual(context['f1'], False)
-        self.assertEqual(context['f2'], False)
+        self.assertEqual(context['course_enrollment_validity'], False)
+        self.assertEqual(context['formset_session_validity'], False)
 
 
     @mock.patch('django.contrib.auth.decorators')
