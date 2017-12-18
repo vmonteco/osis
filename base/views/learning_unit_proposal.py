@@ -80,19 +80,22 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
     if not is_eligible_for_cancel_of_proposal(learning_unit_proposal):
         raise PermissionDenied("Learning unit proposal cannot be cancelled.")
 
-    initial_data = learning_unit_proposal.initial_data
-    for key, value in initial_data["learning_unit_year"].items():
-        if key == "id":
-            continue
-        setattr(learning_unit_year, key, value)
-    learning_unit_year.save()
-
-    learning_unit = learning_unit_year.learning_unit
-    for key, value in initial_data["learning_unit"].items():
-        if key == "id":
-            continue
-        setattr(learning_unit_year, key, value)
-    learning_unit.save()
+    reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year)
 
     return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
+
+
+def reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year):
+    initial_data = learning_unit_proposal.initial_data
+    _reinitialize_model_from_model_initial_values(learning_unit_year, initial_data["learning_unit_year"])
+    learning_unit = learning_unit_year.learning_unit
+    _reinitialize_model_from_model_initial_values(learning_unit, initial_data["learning_unit"])
+
+
+def _reinitialize_model_from_model_initial_values(obj_model, attribute_initial_values):
+    for key, value in attribute_initial_values.items():
+        if key == "id":
+            continue
+        setattr(obj_model, key, value)
+    obj_model.save()
 
