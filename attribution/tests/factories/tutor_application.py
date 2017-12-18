@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,21 +23,29 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import forms
-from django.forms import ModelForm
+import string
+import datetime
+import factory
+import factory.fuzzy
+from faker import Faker
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.tutor import TutorFactory
+from osis_common.utils.datetime import get_tzinfo
+from attribution.models.enums import function
 
-from base.forms.bootstrap import BootstrapModelForm
-from base.models import offer_year_calendar
+fake = Faker()
 
 
-class OfferYearCalendarForm(BootstrapModelForm):
-    start_date = forms.DateField(widget=forms.DateInput(format='%d/%m/%Y'),
-                                 input_formats=('%d/%m/%Y', ),
-                                 required=True)
-    end_date = forms.DateField(widget=forms.DateInput(format='%d/%m/%Y'),
-                               input_formats=('%d/%m/%Y', ),
-                               required=True)
-
+class TutorApplicationFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = offer_year_calendar.OfferYearCalendar
-        fields = ['offer_year', 'start_date', 'end_date', 'customized']
+        model = "attribution.TutorApplication"
+
+    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
+    changed = fake.date_time_this_decade(before_now=True, after_now=True, tzinfo=get_tzinfo())
+    function = factory.Iterator(function.FUNCTIONS, getter=lambda c: c[0])
+    tutor = factory.SubFactory(TutorFactory)
+    learning_container_year = factory.SubFactory(LearningContainerYearFactory)
+    volume_lecturing = factory.fuzzy.FuzzyDecimal(99)
+    volume_pratical_exercice = factory.fuzzy.FuzzyDecimal(99)
+    last_changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
+                                               datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))

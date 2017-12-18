@@ -23,21 +23,23 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import forms
-from django.forms import ModelForm
+from rest_framework import serializers
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
-from base.forms.bootstrap import BootstrapModelForm
-from base.models import offer_year_calendar
+from attribution.business import application_json
 
 
-class OfferYearCalendarForm(BootstrapModelForm):
-    start_date = forms.DateField(widget=forms.DateInput(format='%d/%m/%Y'),
-                                 input_formats=('%d/%m/%Y', ),
-                                 required=True)
-    end_date = forms.DateField(widget=forms.DateInput(format='%d/%m/%Y'),
-                               input_formats=('%d/%m/%Y', ),
-                               required=True)
+class RecomputePortalSerializer(serializers.Serializer):
+    global_ids = serializers.ListField(child=serializers.CharField(), required=False)
 
-    class Meta:
-        model = offer_year_calendar.OfferYearCalendar
-        fields = ['offer_year', 'start_date', 'end_date', 'customized']
+
+@api_view(['POST'])
+def recompute_portal(request):
+    serializer = RecomputePortalSerializer(data=request.POST)
+    if serializer.is_valid():
+        global_ids = serializer.data['global_ids'] if serializer.data['global_ids'] else None
+        if application_json.publish_to_portal(global_ids):
+            return Response(status=status.HTTP_202_ACCEPTED)
+    return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
