@@ -28,7 +28,7 @@ import datetime
 from django.db import models
 from django.contrib import admin
 from base.models.enums import number_session, academic_calendar_type
-from base.models import offer_year_calendar, academic_year, academic_calendar
+from base.models import offer_year_calendar, academic_year
 
 
 class SessionExamCalendarAdmin(admin.ModelAdmin):
