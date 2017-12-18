@@ -44,23 +44,6 @@ TIME_FORMAT_JS = 'HH:mm'
 DATETIME_FORMAT_JS = DATE_FORMAT_JS + ' ' + TIME_FORMAT_JS
 
 
-def _convert_date_to_datetime(value):
-    if isinstance(value, datetime.datetime):
-        return value
-    elif isinstance(value, datetime.date):
-        return datetime.datetime(value.year, value.month, value.day, tzinfo=get_tzinfo())
-    else:
-        return value
-
-
-def _convert_datetime_to_date(value):
-    if isinstance(value, datetime.datetime):
-        value = timezone.localtime(value, get_tzinfo())
-        return datetime.date(value.year, value.month, value.day)
-    else:
-        return value
-
-
 def _add_min_max_value(widget, min_date, max_date):
     if isinstance(min_date, datetime.date):
         min_date = formats.localize_input(min_date, widget.format)

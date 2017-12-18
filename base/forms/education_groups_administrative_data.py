@@ -29,11 +29,12 @@ from django.forms import formset_factory
 
 from base.forms.bootstrap import BootstrapForm
 from base.forms.utils.datefield import DateRangeField, DatePickerInput, DATE_FORMAT, DateTimePickerInput, \
-    DATETIME_FORMAT, _convert_date_to_datetime, _convert_datetime_to_date
+    DATETIME_FORMAT
 from base.models import offer_year_calendar, session_exam_calendar
 from base.models.enums import academic_calendar_type
 from django.utils.translation import ugettext_lazy as _
 
+from osis_common.utils.datetime import convert_datetime_to_date, convert_date_to_datetime
 
 NUMBER_SESSIONS = 3
 
@@ -111,10 +112,10 @@ class AdministrativeDataSessionForm(BootstrapForm):
                 continue
 
             if isinstance(field, DateRangeField):
-                field.initial = (_convert_datetime_to_date(oyc.start_date),
-                                 _convert_datetime_to_date(oyc.end_date))
+                field.initial = (convert_datetime_to_date(oyc.start_date),
+                                 convert_datetime_to_date(oyc.end_date))
             elif isinstance(field, forms.DateField):
-                field.initial = _convert_datetime_to_date(oyc.start_date)
+                field.initial = convert_datetime_to_date(oyc.start_date)
             else:
                 field.initial = oyc.start_date
 
@@ -140,11 +141,11 @@ class AdministrativeDataSessionForm(BootstrapForm):
 
 def _set_values_in_offer_year_calendar(oyc, value):
     if isinstance(value, tuple) and len(value) == 2:
-        oyc.start_date = _convert_date_to_datetime(value[0])
-        oyc.end_date = _convert_date_to_datetime(value[1])
+        oyc.start_date = convert_date_to_datetime(value[0])
+        oyc.end_date = convert_date_to_datetime(value[1])
     else:
-        oyc.start_date = _convert_date_to_datetime(value)
-        oyc.end_date = _convert_date_to_datetime(value)
+        oyc.start_date = convert_date_to_datetime(value)
+        oyc.end_date = convert_date_to_datetime(value)
 
 
 def _get_academic_calendar_type(name):
