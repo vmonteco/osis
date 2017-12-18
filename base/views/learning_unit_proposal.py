@@ -37,6 +37,7 @@ from base.forms.learning_unit_proposal import LearningUnitProposalModificationFo
 from base.models.enums import proposal_state
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
+from base.models.proposal_learning_unit import ProposalLearningUnit
 
 
 @login_required
@@ -73,4 +74,5 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
 def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
     user_person = get_object_or_404(Person, user=request.user)
+    learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learning_unit_year)
     return HttpResponse("TO DO")
