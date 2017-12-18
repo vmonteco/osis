@@ -80,6 +80,6 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
     if not is_eligible_for_cancel_of_proposal(learning_unit_proposal):
         raise PermissionDenied("Learning unit proposal cannot be cancelled.")
 
-    return HttpResponse("TO DO")
+    return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
 

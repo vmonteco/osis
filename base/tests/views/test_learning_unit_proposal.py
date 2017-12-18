@@ -42,9 +42,11 @@ from base.tests.factories.entity import EntityFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.person_entity import PersonEntityFactory
+from base.tests.factories.campus import CampusFactory
 from base.models.enums import organization_type, entity_type, entity_container_year_link_type, \
     learning_unit_year_subtypes, proposal_type, learning_container_year_types, proposal_state
 from base.models import proposal_folder, proposal_learning_unit
+from reference.tests.factories.language import LanguageFactory
 
 
 class TestLearningUnitModificationProposal(TestCase):
@@ -411,6 +413,13 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
 
+    def test_with_valid_get_request(self):
+
+        response = self.client.get(self.url)
+
+        redirected_url = reverse('learning_unit', args=[self.learning_unit_year.id])
+        self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
+
 
 def _create_proposal_learning_unit():
     a_learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212", subtype=learning_unit_year_subtypes.FULL)
@@ -453,6 +462,11 @@ def _create_proposal_learning_unit():
                                        type=proposal_type.ProposalType.MODIFICATION.name,
                                        state=proposal_state.ProposalState.FACULTY.name,
                                        initial_data=initial_data)
+
+
+
+
+
 
 
 
