@@ -125,6 +125,8 @@ class DateRangeField(forms.DateField):
         self.base = base
         if input_formats is not None:
             self.base.input_formats = input_formats
+        else:
+            self.base.input_formats = [DATE_FORMAT,]
 
     def to_python(self, value):
         if self.required is False and not value:

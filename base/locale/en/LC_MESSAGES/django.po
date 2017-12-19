@@ -2433,3 +2433,6 @@ msgstr "Folder n°{}"
 
 msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
 msgstr ""
+
+msgid "The administrative data has been successfully modified"
+msgstr ""
