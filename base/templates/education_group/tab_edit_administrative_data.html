@@ -29,6 +29,7 @@
 
 {% block breadcrumb %}
     {% include "education_group/breadcrumb.html" %}
+    <li><a href="{% url 'education_group_edit_administrative' education_group_year_id %}">{% trans "MODIFICATION" %}</a></li>
 {% endblock %}
 
 
@@ -40,7 +41,6 @@
 
 {% block content %}
     {% include "education_group/header.html" %}
-
 <div class="panel panel-default">
     <div class="panel-body" id="tabs">
 
