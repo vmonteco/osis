@@ -23,21 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import forms
-from django.forms import ModelForm
-
-from base.forms.bootstrap import BootstrapModelForm
-from base.models import offer_year_calendar
+from base.models.program_manager import is_program_manager
 
 
-class OfferYearCalendarForm(BootstrapModelForm):
-    start_date = forms.DateField(widget=forms.DateInput(format='%d/%m/%Y'),
-                                 input_formats=('%d/%m/%Y', ),
-                                 required=True)
-    end_date = forms.DateField(widget=forms.DateInput(format='%d/%m/%Y'),
-                               input_formats=('%d/%m/%Y', ),
-                               required=True)
-
-    class Meta:
-        model = offer_year_calendar.OfferYearCalendar
-        fields = ['offer_year', 'start_date', 'end_date', 'customized']
+def can_user_edit_administrative_data(a_user, an_education_group):
+    return is_program_manager(a_user, education_group=an_education_group) and \
+           a_user.has_perm("base.can_edit_education_group_administrative_data")
