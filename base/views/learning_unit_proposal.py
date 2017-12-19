@@ -112,17 +112,13 @@ def _reinitialize_model_before_proposal(obj_model, attribute_initial_values):
 
 def _reinitialize_entities_before_proposal(learning_container_year, initial_entities_by_type):
     for type_entity, id_entity in initial_entities_by_type.items():
-        current_entity_container_year = find_by_learning_container_year_and_linktype(learning_container_year,
-                                                                                     type_entity)
-        if id_entity is None:
+        if id_entity:
+            initial_entity = entity.get_by_internal_id(id_entity)
+            if initial_entity:
+                EntityContainerYear.objects.update_or_create(learning_container_year=learning_container_year,
+                                                             type=type_entity, defaults={"entity": initial_entity})
+        else:
+            current_entity_container_year = find_by_learning_container_year_and_linktype(learning_container_year,
+                                                                                         type_entity)
             if current_entity_container_year is not None:
                 current_entity_container_year.delete()
-        else:
-            initial_entity = entity.get_by_internal_id(id_entity)
-            if initial_entity and current_entity_container_year:
-                current_entity_container_year.entity = initial_entity
-                current_entity_container_year.save()
-            elif initial_entity and current_entity_container_year is None:
-                EntityContainerYear(entity=initial_entity, learning_container_year=learning_container_year,
-                                    type=type_entity).save()
-
