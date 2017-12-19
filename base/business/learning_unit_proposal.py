@@ -27,6 +27,7 @@ from base.models import proposal_learning_unit, campus, entity
 from base.models.academic_year import current_academic_year
 from base.models.entity_container_year import find_last_entity_version_grouped_by_linktypes, search, \
     EntityContainerYear, find_by_learning_container_year_and_linktype
+from base.models.proposal_learning_unit import find_by_folder
 from base.models.utils.person_entity_filter import filter_by_attached_entities
 from base.models.enums import entity_container_year_link_type, proposal_type, learning_unit_year_subtypes, \
     learning_container_year_types, proposal_state
@@ -152,3 +153,10 @@ def _reinitialize_entities_before_proposal(learning_container_year, initial_enti
                                                                                          type_entity)
             if current_entity_container_year is not None:
                 current_entity_container_year.delete()
+
+
+def delete_learning_unit_proposal(learning_unit_proposal):
+    proposal_folder = learning_unit_proposal.folder
+    learning_unit_proposal.delete()
+    if not find_by_folder(proposal_folder).exists():
+        proposal_folder.delete()
