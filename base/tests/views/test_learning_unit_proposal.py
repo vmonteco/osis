@@ -437,7 +437,7 @@ class TestLearningUnitProposalCancellation(TestCase):
                                                initial_data["learning_container_year"]))
         self.assertTrue(_test_entities_equal(self.learning_unit_year.learning_container_year, initial_data["entities"]))
 
-    def test_removal_of_proposal_folder(self):
+    def test_removal_of_proposal_and_folder(self):
         self.client.get(self.url)
 
         with self.assertRaises(ObjectDoesNotExist):
@@ -445,6 +445,15 @@ class TestLearningUnitProposalCancellation(TestCase):
 
         with self.assertRaises(ObjectDoesNotExist):
             self.learning_unit_proposal.folder.refresh_from_db()
+
+    def test_when_multiple_proposal_linked_to_folder(self):
+        folder = self.learning_unit_proposal.folder
+        ProposalLearningUnitFactory(folder=folder)
+
+        self.client.get(self.url)
+
+        folder.refresh_from_db()
+        self.assertTrue(folder)
 
 
 def _test_attributes_equal(obj, attribute_values_dict):

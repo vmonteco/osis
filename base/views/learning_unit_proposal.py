@@ -36,7 +36,7 @@ from base.forms.learning_unit_proposal import LearningUnitProposalModificationFo
 from base.models.enums import proposal_state
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
-from base.models.proposal_learning_unit import ProposalLearningUnit
+from base.models.proposal_learning_unit import ProposalLearningUnit, find_by_folder
 
 
 @login_required
@@ -83,9 +83,8 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
 
     proposal_folder = learning_unit_proposal.folder
     learning_unit_proposal.delete()
-    proposal_folder.delete()
-
-
+    if not find_by_folder(proposal_folder).exists():
+        proposal_folder.delete()
 
     messages.add_message(request, messages.SUCCESS,
                          _("success_cancel_proposal").format(learning_unit_year.acronym))
