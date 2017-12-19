@@ -27,6 +27,7 @@ from django import forms
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.forms import formset_factory
 
+from base.business.offer_year_calendar import compute_deadline_by_offer_year_calendar
 from base.forms.bootstrap import BootstrapForm
 from base.forms.utils.datefield import DateRangeField, DatePickerInput, DATE_FORMAT, DateTimePickerInput, \
     DATETIME_FORMAT
@@ -127,6 +128,7 @@ class AdministrativeDataSessionForm(BootstrapForm):
             _set_values_in_offer_year_calendar(oyc, value)
 
             oyc.save()
+            compute_deadline_by_offer_year_calendar(oyc)
 
     def clean(self):
         for name, value in list(self.cleaned_data.items()):
