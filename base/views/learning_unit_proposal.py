@@ -33,11 +33,12 @@ from django.core.exceptions import PermissionDenied
 from base.business.learning_unit_proposal import compute_form_initial_data, compute_proposal_type, \
     is_eligible_for_modification_proposal, is_eligible_for_cancel_of_proposal
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
+from base.models.entity_container_year import find_by_learning_container_year_and_linktype, EntityContainerYear
 from base.models.enums import proposal_state
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
-from base.models import campus
+from base.models import campus, entity
 from reference.models import language
 
 
@@ -88,13 +89,15 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
 
 def reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year):
     initial_data = learning_unit_proposal.initial_data
-    _reinitialize_model_from_model_initial_values(learning_unit_year, initial_data["learning_unit_year"])
-    _reinitialize_model_from_model_initial_values(learning_unit_year.learning_unit, initial_data["learning_unit"])
-    _reinitialize_model_from_model_initial_values(learning_unit_year.learning_container_year,
-                                                  initial_data["learning_container_year"])
+    _reinitialize_model_before_proposal(learning_unit_year, initial_data["learning_unit_year"])
+    _reinitialize_model_before_proposal(learning_unit_year.learning_unit, initial_data["learning_unit"])
+    _reinitialize_model_before_proposal(learning_unit_year.learning_container_year,
+                                        initial_data["learning_container_year"])
+    _reinitialize_entities_before_proposal(learning_unit_year.learning_container_year,
+                                           initial_data["entities"])
 
 
-def _reinitialize_model_from_model_initial_values(obj_model, attribute_initial_values):
+def _reinitialize_model_before_proposal(obj_model, attribute_initial_values):
     for key, value in attribute_initial_values.items():
         if key == "id":
             continue
@@ -105,4 +108,21 @@ def _reinitialize_model_from_model_initial_values(obj_model, attribute_initial_v
         else:
             setattr(obj_model, key, value)
     obj_model.save()
+
+
+def _reinitialize_entities_before_proposal(learning_container_year, initial_entities_by_type):
+    for type_entity, id_entity in initial_entities_by_type.items():
+        current_entity_container_year = find_by_learning_container_year_and_linktype(learning_container_year,
+                                                                                     type_entity)
+        if id_entity is None:
+            if current_entity_container_year is not None:
+                current_entity_container_year.delete()
+        else:
+            initial_entity = entity.get_by_internal_id(id_entity)
+            if initial_entity and current_entity_container_year:
+                current_entity_container_year.entity = initial_entity
+                current_entity_container_year.save()
+            elif initial_entity and current_entity_container_year is None:
+                EntityContainerYear(entity=initial_entity, learning_container_year=learning_container_year,
+                                    type=type_entity).save()
 

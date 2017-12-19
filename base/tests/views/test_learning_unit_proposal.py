@@ -43,6 +43,8 @@ from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.campus import CampusFactory
+from base.models.entity_container_year import search as search_entity_container_year, \
+    find_by_learning_container_year_and_linktype
 from base.models.enums import organization_type, entity_type, entity_container_year_link_type, \
     learning_unit_year_subtypes, proposal_type, learning_container_year_types, proposal_state
 from base.models import proposal_folder, proposal_learning_unit
@@ -413,6 +415,7 @@ class TestLearningUnitProposalCancellation(TestCase):
 
     def test_with_valid_get_request(self):
         _modify_learning_unit_year_data(self.learning_unit_year)
+        _modify_entities_linked_to_learning_container_year(self.learning_unit_year.learning_container_year)
         response = self.client.get(self.url)
 
         self.learning_unit_year.refresh_from_db()
@@ -422,6 +425,17 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.assertTrue(_test_attributes_equal(self.learning_unit_year.learning_unit, initial_data["learning_unit"]))
         self.assertTrue(_test_attributes_equal(self.learning_unit_year.learning_container_year,
                                                initial_data["learning_container_year"]))
+
+        entities = initial_data["entities"]
+        for type_entity in [entity_container_year_link_type.REQUIREMENT_ENTITY,
+                            entity_container_year_link_type.ALLOCATION_ENTITY,
+                            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
+                            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2]:
+            linked_entity_container = find_by_learning_container_year_and_linktype(
+                self.learning_unit_year.learning_container_year, type_entity)
+
+            self.assertIsNone(linked_entity_container) if entities[type_entity] is None \
+                else self.assertEqual(linked_entity_container.entity.id, entities[type_entity])
 
         redirected_url = reverse('learning_unit', args=[self.learning_unit_year.id])
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
@@ -501,6 +515,6 @@ def _modify_learning_unit_year_data(a_learning_unit_year):
     a_learning_container.save()
 
 
-
-
-
+def _modify_entities_linked_to_learning_container_year(a_learning_container_year):
+    a_new_entity = EntityFactory()
+    search_entity_container_year(learning_container_year=a_learning_container_year).update(entity=a_new_entity)
