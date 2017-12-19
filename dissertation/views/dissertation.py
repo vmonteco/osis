@@ -30,7 +30,7 @@ from base.models.academic_year import find_academic_years, find_academic_year_by
 from django.contrib.auth.decorators import login_required, user_passes_test
 from base import models as mdl
 from base.views import layout
-from dissertation.models.adviser import Adviser, get_all_advisers
+from dissertation.models.adviser import Adviser
 from dissertation.models import adviser, dissertation, dissertation_document_file, dissertation_role,\
     dissertation_update, faculty_adviser, offer_proposition, proposition_dissertation, proposition_role
 from dissertation.forms import ManagerDissertationForm, ManagerDissertationEditForm, ManagerDissertationRoleForm, \
@@ -296,7 +296,6 @@ def manager_dissertations_jury_new_by_ajax(request):
     if (pk_dissert or status_choice or id_adviser_of_dissert_role) is None:
         return HttpResponse(status = 400)
     dissert = dissertation.find_by_id(pk_dissert)
-    print(dissert.title)
     if dissert is None:
         return redirect('manager_dissertations_list')
     count_dissertation_role = dissertation_role.count_by_dissertation(dissert)

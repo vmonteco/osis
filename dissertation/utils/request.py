@@ -68,5 +68,5 @@ def get_adviser_list_json(request):
                                   })
     else:
         response_data = []
-    return JsonResponse(response_data, safe=False)
+    return JsonResponse(response_data,safe=False)
 

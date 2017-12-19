@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+
 from base.tests.factories.academic_year import AcademicYearFactory
 from dissertation.models import adviser
 from dissertation.tests.models.test_faculty_adviser import create_faculty_adviser
@@ -59,6 +60,7 @@ class DissertationViewTestCase(TestCase):
         self.offer_proposition1 = OfferPropositionFactory(offer=self.offer1)
         self.offer_proposition2 = OfferPropositionFactory(offer=self.offer2)
         FacultyAdviserFactory(adviser=self.manager, offer=self.offer1)
+
 
         roles = ['PROMOTEUR', 'CO_PROMOTEUR', 'READER', 'PROMOTEUR', 'ACCOMPANIST', 'PRESIDENT']
         status = ['DRAFT', 'COM_SUBMIT', 'EVA_SUBMIT', 'TO_RECEIVE', 'DIR_SUBMIT', 'DIR_SUBMIT']
@@ -180,6 +182,7 @@ class DissertationViewTestCase(TestCase):
         self.assertEqual(adviser_can_manage(dissertation, manager2), False)
         self.assertEqual(adviser_can_manage(dissertation, teacher), False)
 
+
     def test_get_all_advisers(self):
         res = adviser.get_all_advisers()
         self.assertEqual(res.count(),2)
@@ -190,4 +193,24 @@ class DissertationViewTestCase(TestCase):
         for i in res:
             self.assertEqual(i.person.last_name, 'Dupont')
             self.assertEqual(i.person.first_name, 'Pierre')
+
+
+    def test_get_adviser_list_json(self):
+        self.client.force_login(self.manager.person.user)
+        response = self.client.get('/dissertation/get_adviser_list/',{'term':'Dupont'})
+        self.assertEqual(response.status_code, 200)
+        print(str(response))
+        data_json = response.json()
+        print(str(data_json))
+        self.assertEqual(len(data_json), 1)
+        for i in data_json:
+            self.assertEqual(i['last_name'], 'Dupont')
+
+
+    def manager_dissertations_jury_new_by_ajax(self):
+        self.client.force_login(self.manager.person.user)
+        response = self.client.post('/dissertation/manager_dissertations_jury_new_by_ajax/', {'pk_dissertation': 'Dupont'})
+        
+
+
 
