@@ -23,12 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models import proposal_learning_unit
+from base.models import proposal_learning_unit, campus, entity
 from base.models.academic_year import current_academic_year
-from base.models.entity_container_year import find_last_entity_version_grouped_by_linktypes, search
+from base.models.entity_container_year import find_last_entity_version_grouped_by_linktypes, search, \
+    EntityContainerYear, find_by_learning_container_year_and_linktype
 from base.models.utils.person_entity_filter import filter_by_attached_entities
 from base.models.enums import entity_container_year_link_type, proposal_type, learning_unit_year_subtypes, \
     learning_container_year_types, proposal_state
+from reference.models import language
 
 
 def compute_form_initial_data(learning_unit_year):
@@ -113,3 +115,40 @@ def is_eligible_for_cancel_of_proposal(learning_unit_proposal):
         return False
 
     return True
+
+
+def reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year):
+    initial_data = learning_unit_proposal.initial_data
+    _reinitialize_model_before_proposal(learning_unit_year, initial_data["learning_unit_year"])
+    _reinitialize_model_before_proposal(learning_unit_year.learning_unit, initial_data["learning_unit"])
+    _reinitialize_model_before_proposal(learning_unit_year.learning_container_year,
+                                        initial_data["learning_container_year"])
+    _reinitialize_entities_before_proposal(learning_unit_year.learning_container_year,
+                                           initial_data["entities"])
+
+
+def _reinitialize_model_before_proposal(obj_model, attribute_initial_values):
+    for key, value in attribute_initial_values.items():
+        if key == "id":
+            continue
+        elif key == "campus":
+            setattr(obj_model, key, campus.find_by_id(value))
+        elif key == "language":
+            setattr(obj_model, key, language.find_by_id(value))
+        else:
+            setattr(obj_model, key, value)
+    obj_model.save()
+
+
+def _reinitialize_entities_before_proposal(learning_container_year, initial_entities_by_type):
+    for type_entity, id_entity in initial_entities_by_type.items():
+        if id_entity:
+            initial_entity = entity.get_by_internal_id(id_entity)
+            if initial_entity:
+                EntityContainerYear.objects.update_or_create(learning_container_year=learning_container_year,
+                                                             type=type_entity, defaults={"entity": initial_entity})
+        else:
+            current_entity_container_year = find_by_learning_container_year_and_linktype(learning_container_year,
+                                                                                         type_entity)
+            if current_entity_container_year is not None:
+                current_entity_container_year.delete()
