@@ -413,10 +413,19 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
 
-    def test_with_valid_get_request(self):
+    def test_context_after_valid_get_request(self):
+        response = self.client.get(self.url)
+
+        redirected_url = reverse('learning_unit', args=[self.learning_unit_year.id])
+        self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
+
+        messages = [str(message) for message in get_messages(response.wsgi_request)]
+        self.assertIn(_("success_cancel_proposal").format(self.learning_unit_year.acronym), list(messages))
+
+    def test_models_after_cancellation_of_proposal(self):
         _modify_learning_unit_year_data(self.learning_unit_year)
         _modify_entities_linked_to_learning_container_year(self.learning_unit_year.learning_container_year)
-        response = self.client.get(self.url)
+        self.client.get(self.url)
 
         self.learning_unit_year.refresh_from_db()
         self.learning_unit_year.learning_container_year.refresh_from_db()
@@ -426,9 +435,6 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.assertTrue(_test_attributes_equal(self.learning_unit_year.learning_container_year,
                                                initial_data["learning_container_year"]))
         self.assertTrue(_test_entities_equal(self.learning_unit_year.learning_container_year, initial_data["entities"]))
-
-        redirected_url = reverse('learning_unit', args=[self.learning_unit_year.id])
-        self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
 
 
 def _test_attributes_equal(obj, attribute_values_dict):

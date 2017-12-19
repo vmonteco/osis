@@ -80,6 +80,8 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
         raise PermissionDenied("Learning unit proposal cannot be cancelled.")
 
     reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year)
+    messages.add_message(request, messages.SUCCESS,
+                         _("success_cancel_proposal").format(learning_unit_year.acronym))
 
     return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 

@@ -2433,3 +2433,6 @@ msgstr "Folder n°{}"
 
 msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
 msgstr ""
+
+msgid "success_cancel_proposal"
+msgstr "The proposal for {} was cancelled."
