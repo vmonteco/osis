@@ -425,17 +425,7 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.assertTrue(_test_attributes_equal(self.learning_unit_year.learning_unit, initial_data["learning_unit"]))
         self.assertTrue(_test_attributes_equal(self.learning_unit_year.learning_container_year,
                                                initial_data["learning_container_year"]))
-
-        entities = initial_data["entities"]
-        for type_entity in [entity_container_year_link_type.REQUIREMENT_ENTITY,
-                            entity_container_year_link_type.ALLOCATION_ENTITY,
-                            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
-                            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2]:
-            linked_entity_container = find_by_learning_container_year_and_linktype(
-                self.learning_unit_year.learning_container_year, type_entity)
-
-            self.assertIsNone(linked_entity_container) if entities[type_entity] is None \
-                else self.assertEqual(linked_entity_container.entity.id, entities[type_entity])
+        self.assertTrue(_test_entities_equal(self.learning_unit_year.learning_container_year, initial_data["entities"]))
 
         redirected_url = reverse('learning_unit', args=[self.learning_unit_year.id])
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
@@ -455,6 +445,21 @@ def _test_attributes_equal(obj, attribute_values_dict):
             else:
                 continue
         elif getattr(obj, key) != value:
+            return False
+    return True
+
+
+def _test_entities_equal(learning_container_year, entities_values_dict):
+    for type_entity in [entity_container_year_link_type.REQUIREMENT_ENTITY,
+                        entity_container_year_link_type.ALLOCATION_ENTITY,
+                        entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
+                        entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2]:
+
+        linked_entity_container = find_by_learning_container_year_and_linktype(learning_container_year, type_entity)
+        if entities_values_dict[type_entity] is None and linked_entity_container is not None:
+            return False
+        if entities_values_dict[type_entity] is not None and \
+                linked_entity_container.entity.id != entities_values_dict[type_entity]:
             return False
     return True
 
