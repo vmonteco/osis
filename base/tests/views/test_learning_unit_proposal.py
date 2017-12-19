@@ -27,6 +27,7 @@ import datetime
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.messages import get_messages
 from django.contrib.auth.models import Permission
 from django.utils.translation import ugettext_lazy as _
@@ -439,7 +440,11 @@ class TestLearningUnitProposalCancellation(TestCase):
     def test_removal_of_proposal_folder(self):
         self.client.get(self.url)
 
-        self.assertIsNone(proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year))
+        with self.assertRaises(ObjectDoesNotExist):
+            self.learning_unit_proposal.refresh_from_db()
+
+        with self.assertRaises(ObjectDoesNotExist):
+            self.learning_unit_proposal.folder.refresh_from_db()
 
 
 def _test_attributes_equal(obj, attribute_values_dict):

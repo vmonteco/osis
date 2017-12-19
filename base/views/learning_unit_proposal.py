@@ -81,7 +81,10 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
 
     reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year)
 
+    proposal_folder = learning_unit_proposal.folder
     learning_unit_proposal.delete()
+    proposal_folder.delete()
+
 
 
     messages.add_message(request, messages.SUCCESS,
