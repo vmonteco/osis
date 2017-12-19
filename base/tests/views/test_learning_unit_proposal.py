@@ -436,6 +436,11 @@ class TestLearningUnitProposalCancellation(TestCase):
                                                initial_data["learning_container_year"]))
         self.assertTrue(_test_entities_equal(self.learning_unit_year.learning_container_year, initial_data["entities"]))
 
+    def test_removal_of_proposal_folder(self):
+        self.client.get(self.url)
+
+        self.assertIsNone(proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year))
+
 
 def _test_attributes_equal(obj, attribute_values_dict):
     for key, value in attribute_values_dict.items():
