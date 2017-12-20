@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models import proposal_learning_unit, campus, entity
+from base.models import proposal_learning_unit, campus, entity, person_entity
 from base.models.academic_year import current_academic_year
 from base.models import entity_container_year
 from base.models.proposal_learning_unit import find_by_folder
@@ -84,13 +84,12 @@ def is_eligible_for_modification_proposal(learning_unit_year, a_person):
     proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
     current_year = current_academic_year().year
 
-    if learning_unit_year.academic_year.year < current_year:
+    if learning_unit_year.academic_year.year < current_year or \
+            learning_unit_year.subtype == learning_unit_year_subtypes.PARTIM:
         return False
     if learning_unit_year.learning_container_year.container_type not in (learning_container_year_types.COURSE,
                                                                          learning_container_year_types.DISSERTATION,
                                                                          learning_container_year_types.INTERNSHIP):
-        return False
-    if learning_unit_year.subtype == learning_unit_year_subtypes.PARTIM:
         return False
     if proposal:
         return False
@@ -106,9 +105,10 @@ def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
         return False
     initial_entity_requirement_id = \
         learning_unit_proposal.initial_data["entities"][entity_container_year_link_type.REQUIREMENT_ENTITY]
-    if not filter_by_attached_entities(a_person, entity.Entity.objects.filter(id=initial_entity_requirement_id)):
-        return False
-    return  _is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_proposal.learning_unit_year, a_person)
+    an_entity = None if not initial_entity_requirement_id else entity.Entity.objects.get(id=initial_entity_requirement_id)
+    if an_entity in person_entity.find_entities_by_person(a_person):
+        return True
+    return _is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_proposal.learning_unit_year, a_person)
 
 
 def _is_person_linked_to_entity_in_charge_of_learning_unit(a_learning_unit_year, a_person):
