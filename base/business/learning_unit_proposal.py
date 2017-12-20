@@ -86,37 +86,25 @@ def is_eligible_for_modification_proposal(learning_unit_year, a_person):
 
     if not _is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person):
         return False
-
     if learning_unit_year.academic_year.year < current_year:
         return False
-
     if learning_unit_year.learning_container_year.container_type not in (learning_container_year_types.COURSE,
                                                                          learning_container_year_types.DISSERTATION,
                                                                          learning_container_year_types.INTERNSHIP):
         return False
-
     if learning_unit_year.subtype == learning_unit_year_subtypes.PARTIM:
         return False
-
-    if proposal:
-        return False
-
-    return True
+    return not proposal
 
 
 def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
     if learning_unit_proposal.state != proposal_state.ProposalState.FACULTY.name:
         return False
-
     valid_type = [proposal_type.ProposalType.MODIFICATION.name, proposal_type.ProposalType.TRANSFORMATION.name,
                   proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name]
     if learning_unit_proposal.type not in valid_type:
         return False
-
-    if not _is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_proposal.learning_unit_year, a_person):
-        return False
-
-    return True
+    return  _is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_proposal.learning_unit_year, a_person)
 
 
 def _is_person_linked_to_entity_in_charge_of_learning_unit(a_learning_unit_year, a_person):
@@ -125,7 +113,6 @@ def _is_person_linked_to_entity_in_charge_of_learning_unit(a_learning_unit_year,
         link_type=entity_container_year_link_type.REQUIREMENT_ENTITY)
 
     return filter_by_attached_entities(a_person, entity_containers_year).exists()
-
 
 
 def reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year):
