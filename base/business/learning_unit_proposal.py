@@ -148,12 +148,11 @@ def _clean_attribute_initial_value(attribute_name, attribute_value):
 
 def _reinitialize_entities_before_proposal(learning_container_year, initial_entities_by_type):
     for type_entity, id_entity in initial_entities_by_type.items():
-        if id_entity:
-            initial_entity = entity.get_by_internal_id(id_entity)
-            if initial_entity:
-                entity_container_year.EntityContainerYear.objects.update_or_create(
-                    learning_container_year=learning_container_year,
-                    type=type_entity, defaults={"entity": initial_entity})
+        initial_entity = entity.get_by_internal_id(id_entity)
+        if initial_entity:
+            entity_container_year.EntityContainerYear.objects.update_or_create(
+                learning_container_year=learning_container_year,
+                type=type_entity, defaults={"entity": initial_entity})
         else:
             current_entity_container_year = entity_container_year.find_by_learning_container_year_and_linktype(
                 learning_container_year, type_entity)
