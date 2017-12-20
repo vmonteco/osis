@@ -98,7 +98,9 @@ urlpatterns = [
                 name="learning_unit_attributions"),
             url(r'^proposal/', include([
                 url(r'^modification/$', learning_unit_proposal.propose_modification_of_learning_unit,
-                    name="learning_unit_modification_proposal")
+                    name="learning_unit_modification_proposal"),
+                url(r'^cancel/$', learning_unit_proposal.cancel_proposal_of_learning_unit,
+                    name="learning_unit_cancel_proposal")
             ])),
             url(r'^specifications/$', learning_unit.learning_unit_specifications, name="learning_unit_specifications"),
             url(r'^specifications/edit/$', learning_unit.learning_unit_specifications_edit,
