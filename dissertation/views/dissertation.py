@@ -293,26 +293,27 @@ def manager_dissertations_jury_new_by_ajax(request):
     pk_dissert=request.POST.get("pk_dissertation", None)
     status_choice=request.POST.get("status_choice", None)
     id_adviser_of_dissert_role=request.POST.get("adviser_pk", None)
-    if (pk_dissert or status_choice or id_adviser_of_dissert_role) is None:
-        return HttpResponse(status = 400)
-    dissert = dissertation.find_by_id(pk_dissert)
-    if dissert is None:
-        return redirect('manager_dissertations_list')
-    count_dissertation_role = dissertation_role.count_by_dissertation(dissert)
-    person = mdl.person.find_by_user(request.user)
-    adv_manager = adviser.search_by_person(person)
-    if adviser_can_manage(dissert, adv_manager):
-        if count_dissertation_role < 4 and dissert.status != 'DRAFT':
-            if request.method == "POST":
-                adviser_of_dissert_role = adviser.get_by_id(int(id_adviser_of_dissert_role))
-                if adviser_of_dissert_role is None:
-                    return HttpResponse(status=400)
-                justification = "%s %s %s" % ("manager_add_jury", str(status_choice), str(adviser_of_dissert_role))
-                dissertation_update.add(request, dissert, dissert.status, justification=justification)
-                dissertation_role.add(status_choice, adviser_of_dissert_role, dissert)
-                return HttpResponse(status=200)
-        else:
-            return HttpResponse(status=400)
+    if (id_adviser_of_dissert_role is None) or (status_choice is None) or (pk_dissert is None) :
+        return HttpResponse(status=400)
+    else:
+        dissert = dissertation.find_by_id(pk_dissert)
+        if dissert is None:
+            return redirect('manager_dissertations_list')
+        count_dissertation_role = dissertation_role.count_by_dissertation(dissert)
+        person = mdl.person.find_by_user(request.user)
+        adv_manager = adviser.search_by_person(person)
+        if adviser_can_manage(dissert, adv_manager):
+            if count_dissertation_role < 4 and dissert.status != 'DRAFT':
+                if request.method == "POST":
+                    adviser_of_dissert_role = adviser.get_by_id(int(id_adviser_of_dissert_role))
+                    if adviser_of_dissert_role is None:
+                        return HttpResponse(status=400)
+                    justification = "%s %s %s" % ("manager_add_jury", str(status_choice), str(adviser_of_dissert_role))
+                    dissertation_update.add(request, dissert, dissert.status, justification=justification)
+                    dissertation_role.add(status_choice, adviser_of_dissert_role, dissert)
+                    return HttpResponse(status=200)
+            else:
+                return HttpResponse(status=400)
 
 @login_required
 @user_passes_test(adviser.is_manager)
