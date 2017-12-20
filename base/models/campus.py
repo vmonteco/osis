@@ -62,4 +62,3 @@ def find_by_id(campus_id):
         return Campus.objects.get(id=campus_id)
     except ObjectDoesNotExist:
         return None
-
