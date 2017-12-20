@@ -130,16 +130,20 @@ def reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year
 
 
 def _reinitialize_model_before_proposal(obj_model, attribute_initial_values):
-    for key, value in attribute_initial_values.items():
-        if key == "id":
-            continue
-        elif key == "campus":
-            setattr(obj_model, key, campus.find_by_id(value))
-        elif key == "language":
-            setattr(obj_model, key, language.find_by_id(value))
-        else:
-            setattr(obj_model, key, value)
+    for attribute_name, attribute_value in attribute_initial_values.items():
+        if attribute_name != "id":
+            cleaned_initial_value = _clean_attribute_initial_value(attribute_name, attribute_value)
+            setattr(obj_model, attribute_name, cleaned_initial_value)
     obj_model.save()
+
+
+def _clean_attribute_initial_value(attribute_name, attribute_value):
+    clean_attribute_value = attribute_value
+    if attribute_name == "campus":
+        clean_attribute_value = campus.find_by_id(attribute_value)
+    elif attribute_name == "language":
+        clean_attribute_value = language.find_by_id(attribute_value)
+    return clean_attribute_value
 
 
 def _reinitialize_entities_before_proposal(learning_container_year, initial_entities_by_type):
