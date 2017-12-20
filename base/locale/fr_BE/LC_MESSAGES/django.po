@@ -2449,3 +2449,6 @@ msgstr "Annuler proposition"
 
 msgid "msg_confirm_cancel_proposal"
 msgstr "Etes-vous certain de vouloir annuler la proposition ?"
+
+msgid "The administrative data has been successfully modified"
+msgstr "Les données administratives ont été sauvées avec succès"
