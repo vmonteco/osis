@@ -25,8 +25,7 @@
 ##############################################################################
 from base.models import proposal_learning_unit, campus, entity
 from base.models.academic_year import current_academic_year
-from base.models.entity_container_year import find_last_entity_version_grouped_by_linktypes, search, \
-    EntityContainerYear, find_by_learning_container_year_and_linktype
+from base.models import entity_container_year
 from base.models.proposal_learning_unit import find_by_folder
 from base.models.utils.person_entity_filter import filter_by_attached_entities
 from base.models.enums import entity_container_year_link_type, proposal_type, learning_unit_year_subtypes, \
@@ -35,7 +34,8 @@ from reference.models import language
 
 
 def compute_form_initial_data(learning_unit_year):
-    entities_version = find_last_entity_version_grouped_by_linktypes(learning_unit_year.learning_container_year)
+    entities_version = entity_container_year.find_last_entity_version_grouped_by_linktypes(
+        learning_unit_year.learning_container_year)
     initial_data = {
         "academic_year": learning_unit_year.academic_year.id,
         "first_letter": learning_unit_year.acronym[0],
@@ -83,8 +83,9 @@ def _compute_data_changed(initial_data, current_data):
 def is_eligible_for_modification_proposal(learning_unit_year, a_person):
     proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
     current_year = current_academic_year().year
-    entity_containers_year = search(learning_container_year=learning_unit_year.learning_container_year,
-                                    link_type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+    entity_containers_year = entity_container_year.search(
+        learning_container_year=learning_unit_year.learning_container_year,
+        link_type=entity_container_year_link_type.REQUIREMENT_ENTITY)
 
     if not filter_by_attached_entities(a_person, entity_containers_year).count():
         return False
@@ -146,11 +147,12 @@ def _reinitialize_entities_before_proposal(learning_container_year, initial_enti
         if id_entity:
             initial_entity = entity.get_by_internal_id(id_entity)
             if initial_entity:
-                EntityContainerYear.objects.update_or_create(learning_container_year=learning_container_year,
-                                                             type=type_entity, defaults={"entity": initial_entity})
+                entity_container_year.EntityContainerYear.objects.update_or_create(
+                    learning_container_year=learning_container_year,
+                    type=type_entity, defaults={"entity": initial_entity})
         else:
-            current_entity_container_year = find_by_learning_container_year_and_linktype(learning_container_year,
-                                                                                         type_entity)
+            current_entity_container_year = entity_container_year.find_by_learning_container_year_and_linktype(
+                learning_container_year, type_entity)
             if current_entity_container_year is not None:
                 current_entity_container_year.delete()
 
