@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from base.models.enums.organization_type import MAIN
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
@@ -60,5 +59,5 @@ def find_administration_campuses():
 def find_by_id(campus_id):
     try:
         return Campus.objects.get(id=campus_id)
-    except ObjectDoesNotExist:
+    except Campus.DoesNotExist:
         return None
