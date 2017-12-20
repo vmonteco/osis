@@ -202,7 +202,6 @@ class DissertationViewTestCase(TestCase):
         res = adviser.get_all_advisers()
         self.assertEqual(res.count(),3)
 
-git
     def test_find_by_last_name_or_email(self):
         res=adviser.find_by_last_name_or_email('Dupont')
         self.assertEqual(res.count(), 1)
