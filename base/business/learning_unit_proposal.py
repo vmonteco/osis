@@ -107,13 +107,20 @@ def is_eligible_for_modification_proposal(learning_unit_year, a_person):
     return True
 
 
-def is_eligible_for_cancel_of_proposal(learning_unit_proposal):
+def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
     if learning_unit_proposal.state != proposal_state.ProposalState.FACULTY.name:
         return False
 
     valid_type = [proposal_type.ProposalType.MODIFICATION.name, proposal_type.ProposalType.TRANSFORMATION.name,
                   proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name]
     if learning_unit_proposal.type not in valid_type:
+        return False
+
+    entity_containers_year = entity_container_year.search(
+        learning_container_year=learning_unit_proposal.learning_unit_year.learning_container_year,
+        link_type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+
+    if not filter_by_attached_entities(a_person, entity_containers_year).count():
         return False
 
     return True

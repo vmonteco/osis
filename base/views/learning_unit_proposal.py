@@ -78,7 +78,7 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
     user_person = get_object_or_404(Person, user=request.user)
     learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learning_unit_year)
 
-    if not is_eligible_for_cancel_of_proposal(learning_unit_proposal):
+    if not is_eligible_for_cancel_of_proposal(learning_unit_proposal, user_person):
         raise PermissionDenied("Learning unit proposal cannot be cancelled.")
 
     reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year)
