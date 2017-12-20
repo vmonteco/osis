@@ -59,7 +59,8 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
             type_proposal = compute_proposal_type(form.initial, form.cleaned_data)
             form.save(learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name)
             messages.add_message(request, messages.SUCCESS,
-                                 _("success_modification_proposal").format(type_proposal, learning_unit_year.acronym))
+                                 _("success_modification_proposal")
+                                 .format(_(type_proposal), learning_unit_year.acronym))
             return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
     else:
         form = LearningUnitProposalModificationForm(initial=initial_data)
