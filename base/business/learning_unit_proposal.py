@@ -84,8 +84,6 @@ def is_eligible_for_modification_proposal(learning_unit_year, a_person):
     proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
     current_year = current_academic_year().year
 
-    if not _is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person):
-        return False
     if learning_unit_year.academic_year.year < current_year:
         return False
     if learning_unit_year.learning_container_year.container_type not in (learning_container_year_types.COURSE,
@@ -94,7 +92,9 @@ def is_eligible_for_modification_proposal(learning_unit_year, a_person):
         return False
     if learning_unit_year.subtype == learning_unit_year_subtypes.PARTIM:
         return False
-    return not proposal
+    if proposal:
+        return False
+    return _is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person)
 
 
 def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
@@ -104,6 +104,7 @@ def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
                   proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name]
     if learning_unit_proposal.type not in valid_type:
         return False
+
     return  _is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_proposal.learning_unit_year, a_person)
 
 
