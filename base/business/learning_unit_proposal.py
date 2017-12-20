@@ -104,7 +104,8 @@ def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
                   proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name]
     if learning_unit_proposal.type not in valid_type:
         return False
-    initial_entity_requirement_id = learning_unit_proposal.initial_data["entities"][entity_container_year_link_type.REQUIREMENT_ENTITY]
+    initial_entity_requirement_id = \
+        learning_unit_proposal.initial_data["entities"][entity_container_year_link_type.REQUIREMENT_ENTITY]
     if not filter_by_attached_entities(a_person, entity.Entity.objects.filter(id=initial_entity_requirement_id)):
         return False
     return  _is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_proposal.learning_unit_year, a_person)
