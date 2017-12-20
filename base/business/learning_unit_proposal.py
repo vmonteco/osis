@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models import proposal_learning_unit, campus, entity
+from base.models import proposal_learning_unit, campus, entity, person_entity
 from base.models.academic_year import current_academic_year
 from base.models import entity_container_year
 from base.models.proposal_learning_unit import find_by_folder
@@ -83,40 +83,41 @@ def _compute_data_changed(initial_data, current_data):
 def is_eligible_for_modification_proposal(learning_unit_year, a_person):
     proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
     current_year = current_academic_year().year
-    entity_containers_year = entity_container_year.search(
-        learning_container_year=learning_unit_year.learning_container_year,
-        link_type=entity_container_year_link_type.REQUIREMENT_ENTITY)
 
-    if not filter_by_attached_entities(a_person, entity_containers_year).count():
+    if learning_unit_year.academic_year.year < current_year or \
+            learning_unit_year.subtype == learning_unit_year_subtypes.PARTIM:
         return False
-
-    if learning_unit_year.academic_year.year < current_year:
-        return False
-
     if learning_unit_year.learning_container_year.container_type not in (learning_container_year_types.COURSE,
                                                                          learning_container_year_types.DISSERTATION,
                                                                          learning_container_year_types.INTERNSHIP):
         return False
-
-    if learning_unit_year.subtype == learning_unit_year_subtypes.PARTIM:
-        return False
-
     if proposal:
         return False
+    return _is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person)
 
-    return True
 
-
-def is_eligible_for_cancel_of_proposal(learning_unit_proposal):
+def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
     if learning_unit_proposal.state != proposal_state.ProposalState.FACULTY.name:
         return False
-
     valid_type = [proposal_type.ProposalType.MODIFICATION.name, proposal_type.ProposalType.TRANSFORMATION.name,
                   proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name]
     if learning_unit_proposal.type not in valid_type:
         return False
 
-    return True
+    initial_entity_requirement_id = \
+        learning_unit_proposal.initial_data["entities"][entity_container_year_link_type.REQUIREMENT_ENTITY]
+    an_entity = entity.get_by_internal_id(initial_entity_requirement_id)
+    if an_entity in person_entity.find_entities_by_person(a_person):
+        return True
+    return _is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_proposal.learning_unit_year, a_person)
+
+
+def _is_person_linked_to_entity_in_charge_of_learning_unit(a_learning_unit_year, a_person):
+    entity_containers_year = entity_container_year.search(
+        learning_container_year=a_learning_unit_year.learning_container_year,
+        link_type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+
+    return filter_by_attached_entities(a_person, entity_containers_year).exists()
 
 
 def reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year):

@@ -96,8 +96,8 @@ def learning_unit_identification(request, learning_unit_year_id):
     context['components'] = get_components_identification(learning_unit_year)
     context['can_propose'] = learning_unit_proposal.is_eligible_for_modification_proposal(learning_unit_year, person)
     context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
-    context['can_cancel_proposal'] = learning_unit_proposal.is_eligible_for_cancel_of_proposal(context['proposal']) \
-        if context['proposal'] else False
+    context['can_cancel_proposal'] = learning_unit_proposal.\
+        is_eligible_for_cancel_of_proposal(context['proposal'], person) if context['proposal'] else False
     context['proposal_folder_entity_version'] = \
         entity_version.get_by_entity_and_date(context['proposal'].folder.entity, None) if context['proposal'] else None
     context['can_delete'] = learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year)

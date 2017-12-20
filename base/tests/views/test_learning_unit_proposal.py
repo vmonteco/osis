@@ -360,6 +360,12 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.learning_unit_proposal = _create_proposal_learning_unit()
         self.learning_unit_year = self.learning_unit_proposal.learning_unit_year
 
+        requirement_entity_container = entity_container_year.\
+            find_by_learning_container_year_and_linktype(self.learning_unit_year.learning_container_year,
+                                                         entity_container_year_link_type.REQUIREMENT_ENTITY)
+        self.person_entity = PersonEntityFactory(person=self.person,
+                                                 entity=requirement_entity_container.entity)
+
         self.client.force_login(self.person.user)
         self.url = reverse('learning_unit_cancel_proposal', args=[self.learning_unit_year.id])
 
@@ -408,6 +414,13 @@ class TestLearningUnitProposalCancellation(TestCase):
     def test_with_proposal_of_type_different_than_modification_or_transformation(self):
         self.learning_unit_proposal.type = proposal_type.ProposalType.CREATION.name
         self.learning_unit_proposal.save()
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
+
+    def test_user_not_linked_to_current_requirement_entity(self):
+        self.person_entity.delete()
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
