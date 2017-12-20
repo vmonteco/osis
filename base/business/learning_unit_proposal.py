@@ -83,11 +83,8 @@ def _compute_data_changed(initial_data, current_data):
 def is_eligible_for_modification_proposal(learning_unit_year, a_person):
     proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
     current_year = current_academic_year().year
-    entity_containers_year = entity_container_year.search(
-        learning_container_year=learning_unit_year.learning_container_year,
-        link_type=entity_container_year_link_type.REQUIREMENT_ENTITY)
 
-    if not filter_by_attached_entities(a_person, entity_containers_year).count():
+    if not _is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person):
         return False
 
     if learning_unit_year.academic_year.year < current_year:
@@ -116,14 +113,19 @@ def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
     if learning_unit_proposal.type not in valid_type:
         return False
 
-    entity_containers_year = entity_container_year.search(
-        learning_container_year=learning_unit_proposal.learning_unit_year.learning_container_year,
-        link_type=entity_container_year_link_type.REQUIREMENT_ENTITY)
-
-    if not filter_by_attached_entities(a_person, entity_containers_year).count():
+    if not _is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_proposal.learning_unit_year, a_person):
         return False
 
     return True
+
+
+def _is_person_linked_to_entity_in_charge_of_learning_unit(a_learning_unit_year, a_person):
+    entity_containers_year = entity_container_year.search(
+        learning_container_year=a_learning_unit_year.learning_container_year,
+        link_type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+
+    return filter_by_attached_entities(a_person, entity_containers_year).exists()
+
 
 
 def reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year):
