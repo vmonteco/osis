@@ -45,6 +45,7 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     get_all_attributions, get_last_academic_years
 from base.forms.common import TooManyResultsException
 from base.models import proposal_learning_unit, entity_version
+from base.models.campus import Campus
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
@@ -387,7 +388,7 @@ def check_acronym(request):
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def check_code(request):
     campus_id = request.GET['campus']
-    campus = mdl.campus.find_by_id(campus_id)
+    campus = get_object_or_404(Campus, id=campus_id)
     return JsonResponse({'code': campus.code}, safe=False)
 
 
