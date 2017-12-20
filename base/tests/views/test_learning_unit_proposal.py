@@ -44,8 +44,7 @@ from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.campus import CampusFactory
-from base.models.entity_container_year import search as search_entity_container_year, \
-    find_by_learning_container_year_and_linktype
+from base.models import entity_container_year
 from base.models.enums import organization_type, entity_type, entity_container_year_link_type, \
     learning_unit_year_subtypes, proposal_type, learning_container_year_types, proposal_state
 from base.models import proposal_folder, proposal_learning_unit
@@ -458,7 +457,6 @@ class TestLearningUnitProposalCancellation(TestCase):
 
 def _test_attributes_equal(obj, attribute_values_dict):
     for key, value in attribute_values_dict.items():
-        # TODO modify encoder to treat Decimal objects
         if key == "credits":
             if float(getattr(obj, key)) != float(value):
                 return False
@@ -480,7 +478,8 @@ def _test_entities_equal(learning_container_year, entities_values_dict):
                         entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
                         entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2]:
 
-        linked_entity_container = find_by_learning_container_year_and_linktype(learning_container_year, type_entity)
+        linked_entity_container = entity_container_year.find_by_learning_container_year_and_linktype(
+            learning_container_year, type_entity)
         if entities_values_dict[type_entity] is None and linked_entity_container is not None:
             return False
         if entities_values_dict[type_entity] is not None and \
@@ -547,4 +546,5 @@ def _modify_learning_unit_year_data(a_learning_unit_year):
 
 def _modify_entities_linked_to_learning_container_year(a_learning_container_year):
     a_new_entity = EntityFactory()
-    search_entity_container_year(learning_container_year=a_learning_container_year).update(entity=a_new_entity)
+    entity_container_year.search_entity_container_year(learning_container_year=a_learning_container_year).\
+        update(entity=a_new_entity)
