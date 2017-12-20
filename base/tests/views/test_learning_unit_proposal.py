@@ -202,7 +202,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(a_proposal_learning_unit.author, self.person)
 
         messages = [str(message) for message in get_messages(response.wsgi_request)]
-        self.assertIn(_("success_modification_proposal").format(proposal_type.ProposalType.MODIFICATION.name,
+        self.assertIn(_("success_modification_proposal").format(_(proposal_type.ProposalType.MODIFICATION.name),
                                                                 self.learning_unit_year.acronym),
                       list(messages))
 
