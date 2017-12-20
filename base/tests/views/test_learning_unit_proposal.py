@@ -546,5 +546,5 @@ def _modify_learning_unit_year_data(a_learning_unit_year):
 
 def _modify_entities_linked_to_learning_container_year(a_learning_container_year):
     a_new_entity = EntityFactory()
-    entity_container_year.search_entity_container_year(learning_container_year=a_learning_container_year).\
+    entity_container_year.search(learning_container_year=a_learning_container_year).\
         update(entity=a_new_entity)
