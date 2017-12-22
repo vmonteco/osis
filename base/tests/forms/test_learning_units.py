@@ -149,7 +149,7 @@ class TestLearningUnitForm(TestCase):
     def get_valid_data(self):
         return {
             "academic_year_id": self.academic_yr.pk,
-            "acronym": ACRONYM_LU
+            "acronym": ACRONYM_LU1
         }
 
     def build_allocation_entity_in_fac_tree(self):
@@ -176,7 +176,7 @@ class TestLearningUnitForm(TestCase):
         self._setup_service_courses()
 
         form = learning_units.LearningUnitYearForm()
-        form.get_service_course_learning_units()
+        form.is_valid()
 
     def _setup_service_courses(self):
         self.academic_yr = AcademicYearFactory(year=timezone.now().year)
