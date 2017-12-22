@@ -817,6 +817,9 @@ msgstr "Save"
 msgid "search"
 msgstr "Search"
 
+msgid "status_or_adviser_error"
+msgstr "The status or the teacher are missing"
+
 msgid "search_person_explanation"
 msgstr "This screen allows you to add, in the dissertation application, as a teacher, a person who did not logged into the application. Please search the person with her/his e-mail address"
 

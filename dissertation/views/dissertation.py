@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from dissertation.models.dissertation_role import search_by_dissertation
 from dissertation.models.enums.status_types import STATUS_CHOICES
 from django.shortcuts import redirect
 from base.models.academic_year import find_academic_years, find_academic_year_by_id
@@ -289,29 +288,25 @@ def manager_dissertations_jury_new(request, pk):
 
 @login_required
 @user_passes_test(adviser.is_manager)
-def manager_dissertations_jury_new_by_ajax(request):
-    pk_dissert=request.POST.get("pk_dissertation", None)
-    status_choice=request.POST.get("status_choice", None)
-    id_adviser_of_dissert_role=request.POST.get("adviser_pk", None)
-    if (id_adviser_of_dissert_role is None) or (status_choice is None) or (pk_dissert is None) :
-        return HttpResponse(status=400)
+def manager_dissertations_jury_new_ajax(request):
+    pk_dissert=request.POST.get("pk_dissertation", '')
+    status_choice=request.POST.get("status_choice", '')
+    id_adviser_of_dissert_role=request.POST.get("adviser_pk", '')
+    dissert = dissertation.find_by_id(pk_dissert)
+    adviser_of_dissert_role = adviser.get_by_id(int(id_adviser_of_dissert_role))
+    if adviser_of_dissert_role is None or id_adviser_of_dissert_role is '' or \
+            status_choice is '' or dissert is None or request.method != "POST" :
+        return HttpResponse(status=406)
     else:
-        dissert = dissertation.find_by_id(pk_dissert)
-        if dissert is None:
-            return redirect('manager_dissertations_list')
         count_dissertation_role = dissertation_role.count_by_dissertation(dissert)
         person = mdl.person.find_by_user(request.user)
         adv_manager = adviser.search_by_person(person)
         if adviser_can_manage(dissert, adv_manager):
             if count_dissertation_role < 4 and dissert.status != 'DRAFT':
-                if request.method == "POST":
-                    adviser_of_dissert_role = adviser.get_by_id(int(id_adviser_of_dissert_role))
-                    if adviser_of_dissert_role is None:
-                        return HttpResponse(status=400)
-                    justification = "%s %s %s" % ("manager_add_jury", str(status_choice), str(adviser_of_dissert_role))
-                    dissertation_update.add(request, dissert, dissert.status, justification=justification)
-                    dissertation_role.add(status_choice, adviser_of_dissert_role, dissert)
-                    return HttpResponse(status=200)
+                justification = "%s %s %s" % ("manager_add_jury", str(status_choice), str(adviser_of_dissert_role))
+                dissertation_update.add(request, dissert, dissert.status, justification=justification)
+                dissertation_role.add(status_choice, adviser_of_dissert_role, dissert)
+                return HttpResponse(status=200)
             else:
                 return HttpResponse(status=400)
 
@@ -527,7 +522,7 @@ def manager_dissertations_role_delete_by_ajax(request, pk):
             dissert_role.delete()
         return HttpResponse(status=200)
     else:
-        return HttpResponse(status=404)
+        return redirect('manager_dissertations_list')
 
 @login_required
 @user_passes_test(adviser.is_manager)
@@ -713,8 +708,7 @@ def manager_dissertations_wait_comm_json_list(request):
     offers = faculty_adviser.search_by_adviser(adv)
     disserts = dissertation.search_by_offer_and_status(offers, "COM_SUBMIT")
     dissert_waiting_list_json=[]
-    for dissert in disserts:
-        dissert_waiting_list_json.append({
+    [dissert_waiting_list_json.append({
             'pk' : dissert.pk,
             'title' : dissert.title,
             'author' : dissert.author.person.last_name + ' ' + dissert.author.person.first_name,
@@ -722,9 +716,8 @@ def manager_dissertations_wait_comm_json_list(request):
             'offer_year' : str(dissert.offer_year_start.academic_year),
             'offer' : dissert.offer_year_start.acronym,
             'proposition_dissertation' : str(dissert.proposition_dissertation),
-            'description': dissert.description,
-
-        })
+            'description': dissert.description
+        }) for dissert in disserts]
     json_list = json.dumps(dissert_waiting_list_json)
     return HttpResponse(json_list,content_type='application/json')
 
@@ -735,18 +728,16 @@ def manager_dissertation_role_list_json(request,pk):
     dissert = dissertation.find_by_id(pk)
     if dissert is None:
         return redirect('manager_dissertations_list')
-    dissert_roles = search_by_dissertation(dissert)
+    dissert_roles = dissertation_role.search_by_dissertation(dissert)
     dissert_commission_sous_list = []
-    for dissert_role in dissert_roles:
-        dissert_commission_sous_list.append({
+    [dissert_commission_sous_list.append({
             'pk' : dissert_role.pk,
             'first_name' : str(dissert_role.adviser.person.first_name),
             'middle_name' : str(dissert_role.adviser.person.middle_name),
             'last_name' : str(dissert_role.adviser.person.last_name),
             'status': str(dissert_role.status),
-            'dissert_pk' : dissert_role.dissertation.pk,
-
-        })
+            'dissert_pk' : dissert_role.dissertation.pk
+        }) for dissert_role in dissert_roles]
     json_list = json.dumps(dissert_commission_sous_list)
     return HttpResponse(json_list, content_type='application/json')
 

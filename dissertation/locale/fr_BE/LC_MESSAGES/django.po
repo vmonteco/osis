@@ -853,6 +853,9 @@ msgstr "Statistiques"
 msgid "status"
 msgstr "État"
 
+msgid "status_or_adviser_error"
+msgstr "Le statut ou l'enseignant est manquant"
+
 msgid "student_can_manage_readers"
 msgstr "Les étudiants peuvent gérer les lecteurs"
 

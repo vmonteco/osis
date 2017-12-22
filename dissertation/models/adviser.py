@@ -156,7 +156,7 @@ def list_teachers():
                           .order_by('person__last_name', 'person__first_name')
 
 
-def get_all_advisers():
+def find_all_advisers():
     return Adviser.objects.all()
 
 
@@ -192,5 +192,8 @@ def get_by_id(adviser_id):
         return None
 
 
-def find_by_last_name_or_email(query):
-    return Adviser.objects.filter(Q(person__email__icontains=query) | Q(person__last_name__icontains=query))
+def find_advisers_last_name_email(query):
+    if query is None:
+        return []
+    else:
+        return Adviser.objects.filter(Q(person__email__icontains=query) | Q(person__last_name__icontains=query))

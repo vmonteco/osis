@@ -83,14 +83,14 @@
             <label for="txt_status">{% trans 'status' %}</label>
             <select id="txt_status" name="status_choice" class="form-control" required>
                 <option value=""></option>
-                {% for i in STATUS_CHOICES %}
-                <option value="{{i.0}}"> {% trans i.0 %}</option>
-                {% endfor %}
+                    {% for choice in STATUS_CHOICES %}
+                        <option value="{{choice.0}}"> {% trans choice.0 %}</option>
+                    {% endfor %}
             </select>
             <label for="search_advisers">{% trans 'adviser' %}</label>
             <input id="search_advisers" name="search_advisers" class="form-control" value="">
             <input type="hidden" name="adviser_pk" id="adviser_pk" value="">
-            <div class="row">
+            <div>
 
                     {% trans 'if_unavailable_adviser' %}
                     <a href="{% url 'manager_informations_add' %}" id="lnk_informations_add" class=""
@@ -167,10 +167,16 @@
     function get_dissertation_roles(row,rowdata)
     {
         $.ajax({
-        url:"/dissertation/manager_dissertation_role_list_json/"+rowdata.pk
-        }).done(function(dissertation_roles_json){
-        row.child(format_row_child(dissertation_roles_json,rowdata)).show();
-      });
+        url:"/dissertation/manager_dissertation_role_list_json/"+rowdata.pk,
+        type: 'get',
+        success: function (dissertation_roles_json) {
+                row.child(format_row_child(dissertation_roles_json,rowdata)).show();
+            },
+        error: function (response) {
+            alert("Error :"+ response.error +" with response dissertation_role_list...' %}");
+
+            }
+        })
     };
 
 
@@ -186,6 +192,9 @@
             {
                 data:dissertations_json,
                 rowId: 'pk',
+                error: function (response){
+                    alert("Error :"+ response.error +" with manager_dissertations_wait_comm_json_list' %}");
+                },
                 "columns":
                 [{
                     "className":'details-control',
@@ -291,7 +300,7 @@
         var adviser = $(this).closest("form").find("input[name='adviser_pk']").val();
         var dissertation = $(this).closest("form").find("input[name='pk_dissertation']").val();
         $.ajax({
-            url: '{% url 'manager_dissertations_jury_new_by_ajax' %}',
+            url: '{% url 'manager_dissertations_jury_new_ajax' %}',
             type: 'POST',
             data: jQuery.param({ status_choice: status_choice , adviser_pk : adviser, pk_dissertation : dissertation}) ,
             contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -301,9 +310,14 @@
                 var row_parent = table_dissertations.row('#'+dissertation);
                 get_dissertation_roles(row_parent,row_parent.data());
                 },
-            error: function () {
-                alert("{% trans 'maximum_jury' %}");
-                get_dissertation_roles(row_parent,row_parent.data());
+            error: function (response) {
+                if (response.status == 406 || 500){
+                    alert("{% trans 'error' %} "+response.status +" {% trans 'status_or_adviser_error' %}");
+                    }else
+                    {
+                    alert("{% trans 'error' %} "+response.status +" {% trans 'maximum_jury' %}");
+                    get_dissertation_roles(row_parent,row_parent.data());
+                    }
             }
         });
        $( "#adviser_pk" ).val("");
@@ -318,7 +332,10 @@
             var bt_delete_dissert_role_id=$(this).attr('id');
             bt_delete_dissert_role_id=bt_delete_dissert_role_id.replace(/dissert_roles_/,"");
             $.ajax({
-                url:"/dissertation/manager_dissertations_role_delete_by_ajax/"+bt_delete_dissert_role_id
+                url:"/dissertation/manager_dissertations_role_delete_by_ajax/"+bt_delete_dissert_role_id,
+                error: function (response) {
+                    alert("Error :"+ response.status +"response dissertation role delete {% trans 'no_result' %}");
+                }
             });
             var id_dissert_to_refresh=$(this).attr('class').split(' ');
             id_dissert_to_refresh= id_dissert_to_refresh[2].replace(/bt_warning_/,"");
@@ -331,9 +348,12 @@
 
     $(function(){
         $("#search_advisers").autocomplete({
-        source: "/dissertation/get_adviser_list/",
+        source: "/dissertation/find_adviser_list/",
         minLength: 3,
         delay: 100,
+        error: function (response) {
+                alert("Error :"+ response.status +" find_adviser_list {% trans 'no_result' %}");
+                },
         focus: function( event, ui ) {
             $( "#adviser_pk" ).val( ui.item.last_name + ' (' + ui.item.value + ')' );
             return false;

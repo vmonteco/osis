@@ -23,18 +23,17 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from dissertation.models.adviser import find_by_last_name_or_email
-from django.shortcuts import get_object_or_404, redirect
+from dissertation.models import adviser
+from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from base.models.student import find_by_offer_year
 from base.models.offer_year import OfferYear
 from django.contrib.auth.decorators import user_passes_test
-from dissertation.models.adviser import is_manager
 from django.http import JsonResponse
-
+MAX_RETURN = 50
 
 @login_required
-@user_passes_test(is_manager)
+@user_passes_test(adviser.is_manager)
 def get_students_list_in_offer_year(request, offer_year_start_id):
     offer_year_start = get_object_or_404(OfferYear, pk=offer_year_start_id)
     students_list = find_by_offer_year(offer_year_start)
@@ -53,20 +52,18 @@ def get_students_list_in_offer_year(request, offer_year_start_id):
 
 
 @login_required
-@user_passes_test(is_manager)
-def get_adviser_list_json(request):
-    if 'term' in request.GET:
-        q = request.GET.get('term')
-        advisers = find_by_last_name_or_email(q)[:50]
-        response_data = []
-        for adviser in advisers:
-            response_data.append({'value': adviser.person.last_name + ', ' +adviser.person.first_name + ' ('
-                                           + adviser.person.email+ ') ',
-                                  'first_name': adviser.person.first_name,
-                                  'last_name': adviser.person.last_name,
-                                  'id': adviser.id
-                                  })
-    else:
-        response_data = []
+@user_passes_test(adviser.is_manager)
+def find_adviser_list_json(request):
+    term_search = request.GET.get('term')
+    advisers = adviser.find_advisers_last_name_email(term_search)[:MAX_RETURN]
+    response_data = []
+    [response_data.append({'value' : adviser.person.last_name + ', '
+                                     + adviser.person.first_name + ' ('
+                                     + adviser.person.email + ') ',
+                           'first_name': adviser.person.first_name,
+                           'last_name': adviser.person.last_name,
+                           'id': adviser.id
+                           })for adviser in advisers]
+
     return JsonResponse(response_data,safe=False)
 

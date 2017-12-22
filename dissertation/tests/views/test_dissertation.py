@@ -195,11 +195,10 @@ class DissertationViewTestCase(TestCase):
         self.assertEqual(adviser_can_manage(dissertation, manager), True)
         self.assertEqual(adviser_can_manage(dissertation, manager2), False)
         self.assertEqual(adviser_can_manage(dissertation, teacher), False)
-        self.client.force_login(self.manager.person.user)
 
 
     def test_get_all_advisers(self):
-        res = adviser.get_all_advisers()
+        res = adviser.find_all_advisers()
         self.assertEqual(res.count(),3)
 
     def test_find_by_last_name_or_email(self):
@@ -233,7 +232,6 @@ class DissertationViewTestCase(TestCase):
                                      'adviser_pk' : str(self.teacher.id)})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(dissert_role_count + 1 , count_by_dissertation(self.dissertation_1))
-
         response2 = self.client.get('/dissertation/manager_dissertations_role_delete_by_ajax/999999')
         self.assertEqual(response2.status_code, 404)
         liste_dissert_roles=search_by_dissertation_and_role(self.dissertation_1, 'READER')
