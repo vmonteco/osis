@@ -463,17 +463,18 @@ def create_xls(request, found_learning_units):
 
 def _prepare_xls_content(found_learning_units):
     workingsheets_data = []
-    for learning_unit in found_learning_units:
-        workingsheets_data.append([learning_unit.academic_year.name,
-                                   learning_unit.acronym,
-                                   learning_unit.title,
-                                   xls_build.translate(learning_unit.learning_container_year.container_type),
-                                   xls_build.translate(learning_unit.subtype),
-                                   _get_entity_acronym(learning_unit.entities.get('REQUIREMENT_ENTITY')),
-                                   _get_entity_acronym(learning_unit.entities.get('ALLOCATION_ENTITY')),
-                                   learning_unit.credits,
-                                   xls_build.translate(learning_unit.status)
-                                   ])
+    if found_learning_units:
+        for learning_unit in found_learning_units:
+            workingsheets_data.append([learning_unit.academic_year.name,
+                                       learning_unit.acronym,
+                                       learning_unit.title,
+                                       xls_build.translate(learning_unit.learning_container_year.container_type),
+                                       xls_build.translate(learning_unit.subtype),
+                                       _get_entity_acronym(learning_unit.entities.get('REQUIREMENT_ENTITY')),
+                                       _get_entity_acronym(learning_unit.entities.get('ALLOCATION_ENTITY')),
+                                       learning_unit.credits,
+                                       xls_build.translate(learning_unit.status)
+                                       ])
     return workingsheets_data
 
 
