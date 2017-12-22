@@ -477,12 +477,8 @@ def _prepare_xls_content(found_learning_units):
                                    learning_unit.title,
                                    xls_build.translate(learning_unit.learning_container_year.container_type),
                                    xls_build.translate(learning_unit.subtype),
-                                   learning_unit.entities.get(
-                                       'REQUIREMENT_ENTITY').acronym if learning_unit.entities.get(
-                                       'REQUIREMENT_ENTITY') else None,
-                                   learning_unit.entities.get(
-                                       'ALLOCATION_ENTITY').acronym if learning_unit.entities.get(
-                                       'ALLOCATION_ENTITY') else None,
+                                   _get_entity_acronym(learning_unit.entities.get('REQUIREMENT_ENTITY')),
+                                   _get_entity_acronym(learning_unit.entities.get('ALLOCATION_ENTITY')),
                                    learning_unit.credits,
                                    xls_build.translate(learning_unit.status)
                                    ])
@@ -516,3 +512,6 @@ def _get_username(a_user):
     else:
         return a_user.username
 
+
+def _get_entity_acronym(an_entity):
+    return an_entity.acronym if an_entity else None
