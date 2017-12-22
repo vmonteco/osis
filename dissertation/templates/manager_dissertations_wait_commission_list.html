@@ -311,12 +311,12 @@
                 get_dissertation_roles(row_parent,row_parent.data());
                 },
             error: function (response) {
-                if (response.status == 406 || 500){
-                    alert("{% trans 'error' %} "+response.status +" {% trans 'status_or_adviser_error' %}");
+                if (response.status == 400){
+                        alert("{% trans 'error' %} "+response.status +" {% trans 'maximum_jury' %}");
+                        get_dissertation_roles(row_parent,row_parent.data());
                     }else
                     {
-                    alert("{% trans 'error' %} "+response.status +" {% trans 'maximum_jury' %}");
-                    get_dissertation_roles(row_parent,row_parent.data());
+                        alert("{% trans 'error' %} "+response.status +" {% trans 'status_or_adviser_error' %}");
                     }
             }
         });
