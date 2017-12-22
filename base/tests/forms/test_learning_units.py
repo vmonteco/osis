@@ -37,11 +37,13 @@ from base.tests.factories.learning_container import LearningContainerFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
-from base.models.enums import entity_container_year_link_type
+from base.models.enums import entity_container_year_link_type, entity_type
 from reference.tests.factories.country import CountryFactory
 from base.forms import learning_units
 
-ACRONYM_LU = "LDROI1001"
+ACRONYM_LU1 = "LDROI1001"
+ACRONYM_LU2 = "LDROI1002"
+ACRONYM_LU3 = "LDROI1003"
 
 
 class TestLearningUnitForm(TestCase):
@@ -52,10 +54,10 @@ class TestLearningUnitForm(TestCase):
         self.end_date = self.academic_yr.end_date
 
         l_container = LearningContainerFactory()
-        self.l_container_year = LearningContainerYearFactory(acronym=ACRONYM_LU,
+        self.l_container_year = LearningContainerYearFactory(acronym=ACRONYM_LU1,
                                                              learning_container=l_container,
                                                              academic_year=self.academic_yr)
-        LearningUnitYearFactory(acronym=ACRONYM_LU,
+        LearningUnitYearFactory(acronym=ACRONYM_LU1,
                                 learning_container_year= self.l_container_year,
                                 academic_year=self.academic_yr,
                                 learning_unit=LearningUnitFactory())
@@ -170,3 +172,37 @@ class TestLearningUnitForm(TestCase):
         form = learning_units.LearningUnitYearForm(data=self.get_valid_data())
         self.assertRaises(TooManyResultsException, form.is_valid)
 
+    def test_get_service_course_learning_units_by_requirement_acronym(self):
+        self._setup_service_courses()
+
+        form = learning_units.LearningUnitYearForm()
+        form.get_service_course_learning_units()
+
+    def _setup_service_courses(self):
+        self.academic_yr = AcademicYearFactory(year=timezone.now().year)
+        self.start_date = self.academic_yr.start_date
+        self.end_date = self.academic_yr.end_date
+
+        self.lu2_container = LearningContainerFactory()
+        self.lu2_container_year = LearningContainerYearFactory(acronym=ACRONYM_LU2,
+                                                             learning_container=self.lu2_container,
+                                                             academic_year=self.academic_yr)
+
+        self.lu2_year = LearningUnitYearFactory(acronym=ACRONYM_LU2,
+                                learning_container_year= self.lu2_container_year,
+                                academic_year=self.academic_yr,
+                                learning_unit=LearningUnitFactory())
+
+        self.lu2_entity_version = EntityVersionFactory(entity_type=entity_type.FACULTY)
+
+        self.lu2_entity_container_year = EntityContainerYearFactory(
+                                    entity = self.lu2_entity_version.entity,
+                                    learning_container_year = self.lu2_container_year,
+                                    type = entity_container_year_link_type.REQUIREMENT_ENTITY)
+
+        self.lu3_entity_version = EntityVersionFactory(entity_type=entity_type.FACULTY)
+
+        self.lu3_entity_container_year = EntityContainerYearFactory(
+                                    entity = self.lu3_entity_version.entity,
+                                    learning_container_year = self.lu2_container_year,
+                                    type = entity_container_year_link_type.ALLOCATION_ENTITY)

@@ -100,8 +100,6 @@ def append_latest_entities(learning_unit, service_course_search=False):
         entity_parent = requirement_entity_version.find_parent_faculty_version(learning_container_year.academic_year)
         if entity_parent:
             learning_unit.entities[business_entity_version.PARENT_FACULTY] = entity_parent
-        else:
-            learning_unit.entities[business_entity_version.PARENT_FACULTY] = requirement_entity_version
 
         if learning_unit_alloc_entity and requirement_entity_version != learning_unit_alloc_entity:
             learning_unit.entities[business_entity_version.SERVICE_COURSE] = is_service_course(learning_unit.academic_year,

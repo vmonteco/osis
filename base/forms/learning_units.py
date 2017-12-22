@@ -36,11 +36,12 @@ from base.business.entity import get_entities_ids
 from base.business.entity_version import SERVICE_COURSE
 from base.business.learning_unit_year_with_context import append_latest_entities
 from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, TooManyResultsException
-from base.models import entity_version as mdl_entity_version, learning_unit_year
+from base.models import entity_version as mdl_entity_version, learning_unit_year, entity_container_year
 from base.forms.bootstrap import BootstrapForm
 from base.models.campus import find_administration_campuses
-from base.models.entity_version import find_main_entities_version, find_main_entities_version_filtered_by_person
-from base.models.enums import entity_container_year_link_type
+from base.models.entity_version import find_main_entities_version, find_main_entities_version_filtered_by_person, \
+    EntityVersion
+from base.models.enums import entity_container_year_link_type, entity_type
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
@@ -85,9 +86,10 @@ class LearningUnitYearForm(forms.Form):
         return data_cleaned
 
     def clean(self):
-        if self.cleaned_data and learning_unit_year.count_search_results(**self.cleaned_data) > MAX_RECORDS:
-            raise TooManyResultsException
-        return get_clean_data(self.cleaned_data)
+        #if self.cleaned_data and learning_unit_year.count_search_results(**self.cleaned_data) > MAX_RECORDS:
+        #    raise TooManyResultsException
+        #return get_clean_data(self.cleaned_data)
+        pass
 
     def get_activity_learning_units(self):
         return self.get_learning_units(False)
@@ -117,27 +119,89 @@ class LearningUnitYearForm(forms.Form):
                 learning_units]
 
     def get_service_course_learning_units(self):
-        learning_units_service_course = self.get_learning_units(True)
+        """
+        1. Find all entities by entity_type in entity_version;
+            also check dates (start-end) with academic_year (start-end)
+            --> into : entities_service_courses
+        2. Find corresponding entity_container_year by entity_container_year_link_type
+            --> into : entities_container_year
+        3. Find all corresponding learning_unit_year
+        """
+
         service_courses = []
+        entities_service_courses = []
+
         allocation_entity_acronym = self.cleaned_data['allocation_entity_acronym']
         requirement_entity_acronym = self.cleaned_data['requirement_entity_acronym']
 
-        for learning_unit_service_course in learning_units_service_course:
-            allocation_entity_service_course = learning_unit_service_course.entities. \
-                get(entity_container_year_link_type.ALLOCATION_ENTITY)
-            requirement_entity_service_course = learning_unit_service_course.entities. \
-                get(entity_container_year_link_type.REQUIREMENT_ENTITY)
+        if is_faculty(allocation_entity_acronym) or is_faculty(requirement_entity_acronym):
+            search(True)
 
-            if SERVICE_COURSE in learning_unit_service_course.entities and allocation_entity_service_course:
+
+            ####################
+            ####################
+            ####################
+            ####################
+            ####################
+            #SEARCH METHOD
+
+            for lu in self.get_learning_units(True):
+
+                if not lu.entities.get('SERVICE_COURSE', False):
+                    continue
+
+                requirement_entity_service_course = lu.entities. \
+                    get(entity_container_year_link_type.REQUIREMENT_ENTITY)
+
+                allocation_entity_service_course = lu.entities. \
+                    get(entity_container_year_link_type.ALLOCATION_ENTITY)
+
+                #REQUIREMENT_ENTITY est connu et match le record :
+                if requirement_entity_service_course.acronym == requirement_entity_acronym:
+                    #Soit l'uitilisateur entre : REQUIREMENT_ENTITY + NONE
+                    if not allocation_entity_acronym and lu.entities.get('PARENT_FACULTY'):
+                        service_courses.append(lu)
+                    #Soit l'uitilisateur entre : REQUIREMENT_ENTITY + ALLOCATION_ENTITY
+                    elif allocation_entity_service_course.acronym == allocation_entity_acronym:
+                        service_courses.append(lu)
+
+                #allocation_entity_service_course = lu.entities. \
+                #    get(entity_container_year_link_type.ALLOCATION_ENTITY)
+
+                parent_faculty = lu.entities.get('PARENT_FACULTY')
+
+                """
+                if not allocation_entity_service_course:
+                    continue
+
+
+                requirement_entity_service_course = lu.entities. \
+                    get(entity_container_year_link_type.REQUIREMENT_ENTITY)
+
                 if not requirement_entity_acronym:
                     if allocation_entity_acronym:
                         if allocation_entity_service_course.acronym == allocation_entity_acronym:
-                            service_courses.append(learning_unit_service_course)
+                            service_courses.append(lu)
+
+                #REQUIREMENT_ENTITY est connu et match le record :
                 elif requirement_entity_service_course.acronym == requirement_entity_acronym:
+                    #Soit l'uitilisateur entre : REQUIREMENT_ENTITY + NONE
                     if not allocation_entity_acronym:
-                        service_courses.append(learning_unit_service_course)
+                        service_courses.append(lu)
+                    #Soit l'uitilisateur entre : REQUIREMENT_ENTITY + ALLOCATION_ENTITY
                     elif allocation_entity_service_course.acronym == allocation_entity_acronym:
-                        service_courses.append(learning_unit_service_course)
+                        service_courses.append(lu)
+                """
+
+            ####################
+            ####################
+            ####################
+            ####################
+            ####################
+
+        else:
+            pass
+
 
         return service_courses
 
@@ -161,6 +225,16 @@ def _get_filter_learning_container_ids(filter_data):
                 .values_list('learning_container_year', flat=True).distinct())
 
     return entities_id_list if entities_id_list else None
+
+
+def is_faculty(entity_acronym):
+    return EntityVersion.objects.filter(acronym=entity_acronym,
+                                     entity_type=entity_type.FACULTY).exists()
+
+
+def search(param):
+
+    pass
 
 
 def create_learning_container_year_type_list():
