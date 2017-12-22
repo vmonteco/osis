@@ -418,7 +418,7 @@ def _learning_units_search(request, search_type):
         messages.add_message(request, messages.ERROR, _('too_many_results'))
 
     if request.GET.get('xls_status') == "xls":
-        return create_xls(request, found_learning_units, form)
+        return create_xls(request, found_learning_units)
     else:
         context = {
             'form': form,
@@ -456,7 +456,7 @@ def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
-def create_xls(request, found_learning_units, form):
+def create_xls(request, found_learning_units):
     workingsheets_data = _prepare_xls_content(found_learning_units)
     return xls_build.generate_xls(_prepare_xls_parameters_list(request, workingsheets_data))
 
