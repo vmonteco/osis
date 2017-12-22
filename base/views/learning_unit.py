@@ -523,5 +523,3 @@ def _get_learning_units(form, found_learning_units, search_type):
     elif search_type == SERVICE_COURSES_SEARCH:
         found_learning_units = form.get_service_course_learning_units()
     return found_learning_units
-
-
