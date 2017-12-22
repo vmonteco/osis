@@ -64,11 +64,12 @@ from base.models.enums import entity_container_year_link_type
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
-from base.tests.factories.user import SuperUserFactory
+from base.tests.factories.user import SuperUserFactory, UserFactory
 from base.business import learning_unit as learning_unit_business
 from django.utils.translation import ugettext_lazy as _
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
+from base.views import learning_unit
 
 
 class LearningUnitViewTestCase(TestCase):
@@ -913,3 +914,15 @@ class LearningUnitYearAdd(TestCase):
 
         response = self.client.post(self.url, data=form_data)
         self.assertEqual(response.status_code, 200)
+
+    def test_get_username_with_no_person(self):
+        a_username = 'dupontm'
+        a_user = UserFactory(username=a_username)
+        self.assertEqual(learning_unit._get_username(a_user), a_username)
+
+    def test_get_username_with_no_person(self):
+        a_user = UserFactory(username='dupontm')
+        last_name='dupont'
+        first_name='marcel'
+        self.person = PersonFactory(user=a_user, last_name=last_name, first_name=first_name)
+        self.assertEqual(learning_unit._get_username(a_user),'{}, {}'.format(last_name, first_name))
