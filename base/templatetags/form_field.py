@@ -23,34 +23,17 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.test import TestCase
+from django import template
+from django.forms import forms
 
-from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
-from base.models import proposal_learning_unit
+register = template.Library()
 
 
-class TestSearch(TestCase):
-    def setUp(self):
-        self.proposal_learning_unit = ProposalLearningUnitFactory()
+@register.filter
+def select_field(form, key):
+    key = str(key)
+    if key not in form.fields:
+        return None
 
-    def test_find_by_learning_unit_year(self):
-        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(
-            self.proposal_learning_unit.learning_unit_year
-        )
-        self.assertEqual(a_proposal_learning_unit, self.proposal_learning_unit)
-
-    def test_have_a_proposal(self):
-        a_learning_unit_year = self.proposal_learning_unit.learning_unit_year
-        self.assertTrue(proposal_learning_unit.have_a_proposal(a_learning_unit_year))
-
-        self.proposal_learning_unit.delete()
-        self.assertFalse(proposal_learning_unit.have_a_proposal(a_learning_unit_year))
-
-    def test_find_by_folder(self):
-        folder = self.proposal_learning_unit.folder
-        self.assertTrue(proposal_learning_unit.find_by_folder(folder))
-
-        self.proposal_learning_unit.delete()
-
-        self.assertFalse(proposal_learning_unit.find_by_folder(folder))
+    return forms.BoundField(form, form.fields[key], key)
 

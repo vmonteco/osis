@@ -98,7 +98,9 @@ urlpatterns = [
                 name="learning_unit_attributions"),
             url(r'^proposal/', include([
                 url(r'^modification/$', learning_unit_proposal.propose_modification_of_learning_unit,
-                    name="learning_unit_modification_proposal")
+                    name="learning_unit_modification_proposal"),
+                url(r'^cancel/$', learning_unit_proposal.cancel_proposal_of_learning_unit,
+                    name="learning_unit_cancel_proposal")
             ])),
             url(r'^specifications/$', learning_unit.learning_unit_specifications, name="learning_unit_specifications"),
             url(r'^specifications/edit/$', learning_unit.learning_unit_specifications_edit,
@@ -153,8 +155,10 @@ urlpatterns = [
             url(r'^diplomas/$', education_group.education_group_diplomas, name='education_group_diplomas'),
             url(r'^informations/$', education_group.education_group_general_informations,
                 name='education_group_general_informations'),
-
-            url(r'^administrative/$', education_group.education_group_administrative_data, name='education_group_administrative'),
+            url(r'^administrative/', include([
+                url(u'^$', education_group.education_group_administrative_data, name='education_group_administrative'),
+                url(u'^edit/$', education_group.education_group_edit_administrative_data,
+                    name='education_group_edit_administrative')])),
             url(r'^content/$', education_group.education_group_content, name='education_group_content'),
         ]))
     ])),

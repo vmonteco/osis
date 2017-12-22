@@ -23,34 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.test import TestCase
-
-from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
-from base.models import proposal_learning_unit
+from base.models.program_manager import is_program_manager
 
 
-class TestSearch(TestCase):
-    def setUp(self):
-        self.proposal_learning_unit = ProposalLearningUnitFactory()
-
-    def test_find_by_learning_unit_year(self):
-        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(
-            self.proposal_learning_unit.learning_unit_year
-        )
-        self.assertEqual(a_proposal_learning_unit, self.proposal_learning_unit)
-
-    def test_have_a_proposal(self):
-        a_learning_unit_year = self.proposal_learning_unit.learning_unit_year
-        self.assertTrue(proposal_learning_unit.have_a_proposal(a_learning_unit_year))
-
-        self.proposal_learning_unit.delete()
-        self.assertFalse(proposal_learning_unit.have_a_proposal(a_learning_unit_year))
-
-    def test_find_by_folder(self):
-        folder = self.proposal_learning_unit.folder
-        self.assertTrue(proposal_learning_unit.find_by_folder(folder))
-
-        self.proposal_learning_unit.delete()
-
-        self.assertFalse(proposal_learning_unit.find_by_folder(folder))
-
+def can_user_edit_administrative_data(a_user, an_education_group):
+    return is_program_manager(a_user, education_group=an_education_group) and \
+           a_user.has_perm("base.can_edit_education_group_administrative_data")

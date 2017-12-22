@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -25,32 +25,17 @@
 ##############################################################################
 from django.test import TestCase
 
-from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
-from base.models import proposal_learning_unit
+from base.models import campus
+from base.tests.factories.campus import CampusFactory
 
 
-class TestSearch(TestCase):
+class TestCampus(TestCase):
     def setUp(self):
-        self.proposal_learning_unit = ProposalLearningUnitFactory()
+        self.campus = CampusFactory()
 
-    def test_find_by_learning_unit_year(self):
-        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(
-            self.proposal_learning_unit.learning_unit_year
-        )
-        self.assertEqual(a_proposal_learning_unit, self.proposal_learning_unit)
+    def test_find_by_id(self):
+        campus_id = self.campus.id
+        self.assertEqual(self.campus, campus.find_by_id(campus_id))
 
-    def test_have_a_proposal(self):
-        a_learning_unit_year = self.proposal_learning_unit.learning_unit_year
-        self.assertTrue(proposal_learning_unit.have_a_proposal(a_learning_unit_year))
-
-        self.proposal_learning_unit.delete()
-        self.assertFalse(proposal_learning_unit.have_a_proposal(a_learning_unit_year))
-
-    def test_find_by_folder(self):
-        folder = self.proposal_learning_unit.folder
-        self.assertTrue(proposal_learning_unit.find_by_folder(folder))
-
-        self.proposal_learning_unit.delete()
-
-        self.assertFalse(proposal_learning_unit.find_by_folder(folder))
-
+        self.campus.delete()
+        self.assertIsNone(campus.find_by_id(campus_id))

@@ -45,6 +45,7 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     get_all_attributions, get_last_academic_years
 from base.forms.common import TooManyResultsException
 from base.models import proposal_learning_unit, entity_version
+from base.models.campus import Campus
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
@@ -97,6 +98,8 @@ def learning_unit_identification(request, learning_unit_year_id):
     context['components'] = get_components_identification(learning_unit_year)
     context['can_propose'] = learning_unit_proposal.is_eligible_for_modification_proposal(learning_unit_year, person)
     context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
+    context['can_cancel_proposal'] = learning_unit_proposal.\
+        is_eligible_for_cancel_of_proposal(context['proposal'], person) if context['proposal'] else False
     context['proposal_folder_entity_version'] = \
         entity_version.get_by_entity_and_date(context['proposal'].folder.entity, None) if context['proposal'] else None
     context['can_delete'] = learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year)
@@ -387,7 +390,7 @@ def check_acronym(request):
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def check_code(request):
     campus_id = request.GET['campus']
-    campus = mdl.campus.find_by_id(campus_id)
+    campus = get_object_or_404(Campus, id=campus_id)
     return JsonResponse({'code': campus.code}, safe=False)
 
 
