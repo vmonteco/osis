@@ -57,6 +57,8 @@ from base.models.person import Person
 from cms.models import text_label
 from reference.models import language
 from . import layout
+from osis_common.document import xls_build
+
 
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
@@ -420,17 +422,20 @@ def _learning_units_search(request, search_type):
     except TooManyResultsException:
         messages.add_message(request, messages.ERROR, _('too_many_results'))
 
-    context = {
-        'form': form,
-        'academic_years': get_last_academic_years(),
-        'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
-        'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
-        'learning_units': found_learning_units,
-        'current_academic_year': mdl.academic_year.current_academic_year(),
-        'experimental_phase': True,
-        'search_type': search_type
-    }
-    return layout.render(request, "learning_units.html", context)
+    if request.GET.get('xls_status') == "xls":
+        return create_xls(request, found_learning_units, form)
+    else:
+        context = {
+            'form': form,
+            'academic_years': get_last_academic_years(),
+            'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
+            'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
+            'learning_units': found_learning_units,
+            'current_academic_year': mdl.academic_year.current_academic_year(),
+            'experimental_phase': True,
+            'search_type': search_type
+        }
+        return layout.render(request, "learning_units.html", context)
 
 
 def _check_if_display_message(request, found_learning_units):
@@ -452,3 +457,59 @@ def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
     if errors:
         for error_msg in errors:
             messages.add_message(request, messages.ERROR, error_msg)
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+def create_xls(request, found_learning_units, form):
+    workingsheets_data = _prepare_xls_content(found_learning_units)
+    return xls_build.generate_xls(_prepare_xls_parameters_list(request, workingsheets_data))
+
+
+def _prepare_xls_content(found_learning_units):
+    workingsheets_data = []
+    for learning_unit in found_learning_units:
+        workingsheets_data.append([learning_unit.academic_year.name,
+                                   learning_unit.acronym,
+                                   learning_unit.title,
+                                   xls_build.translate(learning_unit.learning_container_year.container_type),
+                                   xls_build.translate(learning_unit.subtype),
+                                   learning_unit.entities.get(
+                                       'REQUIREMENT_ENTITY').acronym if learning_unit.entities.get(
+                                       'REQUIREMENT_ENTITY') else None,
+                                   learning_unit.entities.get(
+                                       'ALLOCATION_ENTITY').acronym if learning_unit.entities.get(
+                                       'ALLOCATION_ENTITY') else None,
+                                   learning_unit.credits,
+                                   xls_build.translate(learning_unit.status)
+                                   ])
+    return workingsheets_data
+
+
+def _prepare_xls_parameters_list(request, workingsheets_data):
+    return {xls_build.LIST_DESCRIPTION_KEY: "Liste d'activités",
+            xls_build.FILENAME_KEY: 'Learning_units',
+            xls_build.USER_KEY:  _get_username(request.user),
+            xls_build.WORKSHEETS_DATA:
+                [{xls_build.CONTENT_KEY: workingsheets_data,
+                  xls_build.HEADER_TITLES_KEY: [str(_('academic_year_small')),
+                                                str(_('code')),
+                                                str(_('title')),
+                                                str(_('type')),
+                                                str(_('subtype')),
+                                                str(_('requirement_entity_small')),
+                                                str(_('allocation_entity_small')),
+                                                str(_('credits')),
+                                                str(_('active_title'))],
+                  xls_build.WORKSHEET_TITLE_KEY: 'Learning_units',
+                  }
+                 ]}
+
+
+def _get_username(a_user):
+    person = mdl.person.find_by_user(a_user)
+    if person:
+        return "{}, {}".format(person.last_name, person.first_name)
+    else:
+        return a_user.username
+

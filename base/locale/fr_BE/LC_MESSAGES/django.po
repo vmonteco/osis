@@ -2437,3 +2437,9 @@ msgstr "Entité académique"
 
 msgid "folder_number"
 msgstr "Dossier n°{}"
+
+msgid "produce_xls"
+msgstr "Produire un excel avec la liste des résultats"
+
+msgid "produce_xls_lu"
+msgstr "Xls avec les activités"

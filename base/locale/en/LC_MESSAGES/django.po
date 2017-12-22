@@ -2430,3 +2430,9 @@ msgstr "Academic entity"
 
 msgid "folder_number"
 msgstr "Folder n°{}"
+
+msgid "produce_xls"
+msgstr "Produce an Excel file with the list of results"
+
+msgid "produce_xls_lu"
+msgstr "Xls with learning units"
