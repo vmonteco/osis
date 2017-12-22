@@ -48,7 +48,8 @@ from base.models import proposal_learning_unit, entity_version
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
-from base.forms.learning_units import LearningUnitYearForm, CreateLearningUnitYearForm, EMPTY_FIELD
+from base.forms.learning_units import LearningUnitYearForm
+from base.forms.learning_unit_create import CreateLearningUnitYearForm, EMPTY_FIELD
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm

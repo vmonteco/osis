@@ -30,7 +30,9 @@ from django.db import models
 
 from base import models as mdl
 from base.business import entity_version as business_entity_version
+from base.business.entity_version import find_entity_version_descendants
 from base.models import entity_container_year, entity_version
+from base.models.entity_version import EntityVersion
 from base.models.enums import entity_container_year_link_type as entity_types
 from django.utils.translation import ugettext_lazy as _
 
@@ -215,7 +217,11 @@ def is_service_course(academic_year, requirement_entity_version, learning_contai
 
         allocation_entity = entity_version.get_last_version(entity_container_yr_allocation.entity)
         requirement_entity = entity_version.get_last_version(entity_parent)
-        if allocation_entity in requirement_entity.find_descendants(academic_year.start_date):
+
+        if allocation_entity == requirement_entity:
+            return False
+
+        if allocation_entity.id in find_entity_version_descendants(requirement_entity, academic_year.start_date):
             return False
 
     return True

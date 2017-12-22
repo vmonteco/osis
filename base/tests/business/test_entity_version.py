@@ -25,11 +25,13 @@
 ##############################################################################
 from django.test import TestCase
 from base.business import learning_unit_year_with_context
-from base.models.enums import entity_container_year_link_type as entity_types , organization_type, \
+from base.business.entity_version import find_entity_version_descendants
+from base.models.enums import entity_container_year_link_type as entity_types, organization_type, \
     entity_container_year_link_type
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_component_year import EntityComponentYearFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
+from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.academic_year import AcademicYearFactory
@@ -40,104 +42,26 @@ from base.tests.factories.organization import OrganizationFactory
 from reference.tests.factories.country import CountryFactory
 
 
-class LearningUnitYearWithContextTestCase(TestCase):
+class EntityVersionTestCase(TestCase):
     def setUp(self):
         today = datetime.date.today()
         self.current_academic_year = AcademicYearFactory(start_date=today,
                                                          end_date=today.replace(year=today.year + 1),
                                                          year=today.year)
-        self.learning_container_yr = LearningContainerYearFactory(academic_year=self.current_academic_year)
-        self.organization = OrganizationFactory(type=organization_type.MAIN)
-        self.country = CountryFactory()
-        self.entity = EntityFactory(country=self.country, organization=self.organization)
-        self.entity_container_yr = EntityContainerYearFactory(learning_container_year=self.learning_container_yr,
-                                                              type=entity_container_year_link_type.REQUIREMENT_ENTITY,
-                                                              entity=self.entity)
-        self.learning_component_yr = LearningComponentYearFactory(learning_container_year=self.learning_container_yr,
-                                                                  hourly_volume_partial=-1, planned_classes=1)
-        self.entity_component_yr = EntityComponentYearFactory(learning_component_year=self.learning_component_yr,
-                                                              entity_container_year=self.entity_container_yr,
-                                                              hourly_volume_total=None)
 
-        self.entity_components_yr = [self.entity_component_yr,]
+        self.entity_parent = EntityFactory()
 
-    def test_get_floated_only_element_of_list(self):
-        a_list = []
-        self.assertIsNone(learning_unit_year_with_context._get_floated_only_element_of_list(a_list))
-        self.assertEquals(learning_unit_year_with_context._get_floated_only_element_of_list(a_list, 0), 0)
+        self.entity_versions = []
+        for _ in range(20):
+            child_entity_version = EntityVersionFactory(
+                parent=self.entity_parent,
+                start_date=self.current_academic_year.start_date,
+                end_date=self.current_academic_year.end_date
+            )
 
-        a_list = [17]
-        self.assertEquals(learning_unit_year_with_context._get_floated_only_element_of_list(a_list), 17.0)
-        self.assertEquals(type(learning_unit_year_with_context._get_floated_only_element_of_list(a_list)), float)
+            self.entity_parent = child_entity_version.entity
+            self.entity_versions.append(child_entity_version)
 
-        a_list = [1, 2]
-        with self.assertRaisesMessage(ValueError, "The provided list should contain 0 or 1 elements"):
-            learning_unit_year_with_context._get_floated_only_element_of_list(a_list)
-
-    def test_get_requirement_entities_volumes(self):
-        academic_year = AcademicYearFactory(year=2016)
-        learning_container_year = LearningContainerYearFactory(academic_year=academic_year)
-        learning_component_year = LearningComponentYearFactory(learning_container_year=learning_container_year)
-        entity_types_list = [
-            entity_types.REQUIREMENT_ENTITY,
-            entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1,
-            entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2
-        ]
-        entity_containers_year = [EntityContainerYearFactory(type=entity_types_list[x],
-                                                             learning_container_year=learning_container_year
-                                                             ) for x in range(3)]
-        components = [EntityComponentYearFactory(entity_container_year=entity_containers_year[x],
-                                                 learning_component_year=learning_component_year,
-                                                 hourly_volume_total=x+5
-                                                 ) for x in range(3)]
-        wanted_response = {
-            "REQUIREMENT_ENTITY": 5,
-            "ADDITIONAL_REQUIREMENT_ENTITY_1": 6,
-            "ADDITIONAL_REQUIREMENT_ENTITY_2": 7,
-        }
-
-        self.assertDictEqual(learning_unit_year_with_context._get_requirement_entities_volumes(components),
-                             wanted_response)
-
-    def test_volume_learning_component_year(self):
-        self.entity_component_yr.hourly_volume_total = 15
-
-        self.learning_component_yr.hourly_volume_partial = 0
-        data = learning_unit_year_with_context.volume_learning_component_year(self.learning_component_yr,
-                                                                              self.entity_components_yr)
-        self.assertEqual(data.get('VOLUME_TOTAL'), 15)
-        self.assertEqual(data.get('VOLUME_QUARTER'), _('remaining'))
-        self.assertEqual(data.get('VOLUME_Q1'), 0)
-        self.assertEqual(data.get('VOLUME_Q2'), 15)
-
-        self.learning_component_yr.hourly_volume_partial = 15
-        data = learning_unit_year_with_context.volume_learning_component_year(self.learning_component_yr,
-                                                                              self.entity_components_yr)
-        self.assertEqual(data.get('VOLUME_TOTAL'), 15)
-        self.assertEqual(data.get('VOLUME_QUARTER'), _('partial'))
-        self.assertEqual(data.get('VOLUME_Q1'), 15)
-        self.assertEqual(data.get('VOLUME_Q2'), 0)
-
-        self.learning_component_yr.hourly_volume_partial = 12
-        data = learning_unit_year_with_context.volume_learning_component_year(self.learning_component_yr,
-                                                                              self.entity_components_yr)
-        self.assertEqual(data.get('VOLUME_TOTAL'), 15)
-        self.assertEqual(data.get('VOLUME_QUARTER'), _('partial_remaining'))
-        self.assertEqual(data.get('VOLUME_Q1'), 12)
-        self.assertEqual(data.get('VOLUME_Q2'), 3)
-
-        self.learning_component_yr.hourly_volume_partial = None
-        data = learning_unit_year_with_context.volume_learning_component_year(self.learning_component_yr,
-                                                                              self.entity_components_yr)
-        self.assertEqual(data.get('VOLUME_TOTAL'), 15)
-        self.assertEqual(data.get('VOLUME_QUARTER'), None)
-        self.assertEqual(data.get('VOLUME_Q1'), None)
-        self.assertEqual(data.get('VOLUME_Q2'), None)
-
-    def test_volume_distribution(self):
-        self.assertEqual(learning_unit_year_with_context.component_volume_distribution(30, 30), _('partial'))
-        self.assertEqual(learning_unit_year_with_context.component_volume_distribution(30, 0), _('remaining'))
-        self.assertEqual(learning_unit_year_with_context.component_volume_distribution(30, 15), _('partial_remaining'))
-        self.assertEqual(learning_unit_year_with_context.component_volume_distribution(30, None), None)
-        self.assertEqual(learning_unit_year_with_context.component_volume_distribution(None, 15), None)
-        self.assertEqual(learning_unit_year_with_context.component_volume_distribution(None, None), None)
+    def test_find_entity_version_descendants(self):
+        descendants_id = find_entity_version_descendants(self.entity_versions[0], self.current_academic_year.start_date)
+        self.assertEqual(len(descendants_id), 19)
