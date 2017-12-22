@@ -407,19 +407,11 @@ def learning_units_service_course(request):
 
 
 def _learning_units_search(request, search_type):
-    if request.GET.get('academic_year_id'):
-        form = LearningUnitYearForm(request.GET)
-    else:
-        form = LearningUnitYearForm()
-
+    form = _get_search_form(request)
     found_learning_units = None
     try:
         if form.is_valid():
-
-            if search_type == SIMPLE_SEARCH:
-                found_learning_units = form.get_activity_learning_units()
-            elif search_type == SERVICE_COURSES_SEARCH:
-                found_learning_units = form.get_service_course_learning_units()
+            found_learning_units = _get_learning_units(form, found_learning_units, search_type)
 
             _check_if_display_message(request, found_learning_units)
     except TooManyResultsException:
@@ -515,3 +507,21 @@ def _get_username(a_user):
 
 def _get_entity_acronym(an_entity):
     return an_entity.acronym if an_entity else None
+
+
+def _get_search_form(request):
+    if request.GET.get('academic_year_id'):
+        form = LearningUnitYearForm(request.GET)
+    else:
+        form = LearningUnitYearForm()
+    return form
+
+
+def _get_learning_units(form, found_learning_units, search_type):
+    if search_type == SIMPLE_SEARCH:
+        found_learning_units = form.get_activity_learning_units()
+    elif search_type == SERVICE_COURSES_SEARCH:
+        found_learning_units = form.get_service_course_learning_units()
+    return found_learning_units
+
+
