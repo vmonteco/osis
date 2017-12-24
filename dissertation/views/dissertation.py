@@ -291,25 +291,26 @@ def manager_dissertations_jury_new(request, pk):
 @login_required
 @user_passes_test(adviser.is_manager)
 def manager_dissertations_jury_new_ajax(request):
-    pk_dissert=request.POST.get("pk_dissertation", '')
-    status_choice=request.POST.get("status_choice", '')
+    pk_dissert  =request.POST.get("pk_dissertation", '')
+    status_choice = request.POST.get("status_choice", '')
     id_adviser_of_dissert_role=request.POST.get("adviser_pk", '')
-    dissert = dissertation.find_by_id(pk_dissert)
-    adviser_of_dissert_role = adviser.get_by_id(int(id_adviser_of_dissert_role))
-    if adviser_of_dissert_role is None or id_adviser_of_dissert_role is '' or \
-            status_choice is '' or dissert is None or request.method != "POST" :
+    if id_adviser_of_dissert_role == '' or status_choice == '' or request.method != "POST" or pk_dissert == '':
         return HttpResponse(status=406)
     else:
+        dissert = dissertation.find_by_id(pk_dissert)
+        adviser_of_dissert_role = adviser.get_by_id(int(id_adviser_of_dissert_role))
         count_dissertation_role = dissertation_role.count_by_dissertation(dissert)
         person = mdl.person.find_by_user(request.user)
         adv_manager = adviser.search_by_person(person)
-        if adviser_can_manage(dissert, adv_manager) and count_dissertation_role < 4 and dissert.status != 'DRAFT':
+        if adviser_can_manage(dissert, adv_manager) and count_dissertation_role < 4 and dissert.status != 'DRAFT' \
+                and adviser_of_dissert_role is not None and dissert is not None:
             justification = "%s %s %s" % ("manager_add_jury", str(status_choice), str(adviser_of_dissert_role))
             dissertation_update.add(request, dissert, dissert.status, justification=justification)
             dissertation_role.add(status_choice, adviser_of_dissert_role, dissert)
             return HttpResponse(status=200)
         else:
             return HttpResponse(status=400)
+
 
 @login_required
 @user_passes_test(adviser.is_manager)

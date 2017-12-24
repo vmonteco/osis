@@ -60,7 +60,7 @@
                   <th>{% trans 'title'%}</th>
                   <th>{% trans 'author'%}</th>
                   <th>{% trans 'status'%}</th>
-                  <th>{% trans 'offer_year_start'%}</th>
+                  <th>{% trans 'year_start'%}</th>
                   <th>{% trans 'offer'%}</th>
                   <th>{% trans 'proposition_dissertation'%}</th>
                   <th>{% trans 'action'%}</th>
@@ -184,7 +184,10 @@
     {
         $.ajax(
         {
-            url:"/dissertation/manager_dissertations_wait_comm_json_list"
+            url:"/dissertation/manager_dissertations_wait_comm_json_list",
+            error: function (response){
+                alert("Error :"+ response.error +" with manager_dissertations_wait_comm_json_list' %}");
+            },
 
         }).done(function(dissertations_json)
         {
@@ -192,9 +195,6 @@
             {
                 data:dissertations_json,
                 rowId: 'pk',
-                error: function (response){
-                    alert("Error :"+ response.error +" with manager_dissertations_wait_comm_json_list' %}");
-                },
                 "columns":
                 [{
                     "className":'details-control',

@@ -202,7 +202,7 @@ class DissertationViewTestCase(TestCase):
         self.assertEqual(res.count(),3)
 
     def test_find_by_last_name_or_email(self):
-        res=adviser.find_by_last_name_or_email('Dupont')
+        res=adviser.find_advisers_last_name_email('Dupont')
         self.assertEqual(res.count(), 1)
         for i in res:
             self.assertEqual(i.person.last_name, 'Dupont')
@@ -210,10 +210,10 @@ class DissertationViewTestCase(TestCase):
 
     def test_get_adviser_list_json(self):
         self.client.force_login(self.manager.person.user)
-        response = self.client.get('/dissertation/get_adviser_list/',{'term':'Dupont'})
+        response = self.client.get('/dissertation/find_adviser_list/',{'term':'Dupont'})
         self.assertEqual(response.status_code, 200)
         data_json = response.json()
-        self.assertEqual(len(data_json), 1)
+        self.assertNotEqual(len(data_json), 0)
         for i in data_json:
             self.assertEqual(i['last_name'], 'Dupont')
 
@@ -221,12 +221,12 @@ class DissertationViewTestCase(TestCase):
     def test_manager_dissertations_jury_by_ajax(self):
         self.client.force_login(self.manager.person.user)
         dissert_role_count = count_by_dissertation(self.dissertation_1)
-        response = self.client.post('/dissertation/manager_dissertations_jury_new_by_ajax/', {'pk_dissertation': str(self.dissertation_1.id)})
-        self.assertEqual(response.status_code, 400)
-        response = self.client.post('/dissertation/manager_dissertations_jury_new_by_ajax/',
+        response = self.client.post('/dissertation/manager_dissertations_jury_new_ajax/', {'pk_dissertation': str(self.dissertation_1.id)})
+        self.assertEqual(response.status_code, 406)
+        response = self.client.post('/dissertation/manager_dissertations_jury_new_ajax/',
                                     {'pk_dissertation': str(self.dissertation_1.id), 'status_choice' : 'READER'})
-        self.assertEqual(response.status_code, 400)
-        response = self.client.post('/dissertation/manager_dissertations_jury_new_by_ajax/',
+        self.assertEqual(response.status_code, 406)
+        response = self.client.post('/dissertation/manager_dissertations_jury_new_ajax/',
                                     {'pk_dissertation' : str(self.dissertation_1.id),
                                      'status_choice' : 'READER' ,
                                      'adviser_pk' : str(self.teacher.id)})
