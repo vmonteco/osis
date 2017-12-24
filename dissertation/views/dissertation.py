@@ -496,15 +496,22 @@ def manager_dissertations_role_delete(request, pk):
     dissert = dissert_role.dissertation
     person = mdl.person.find_by_user(request.user)
     adv = adviser.search_by_person(person)
-    if (adviser_can_manage(dissert, adv)):
-        if dissert.status != 'DRAFT' and role_can_be_deleted(dissert, dissert_role):
-            justification = "%s %s" % ("manager_delete_jury", str(dissert_role))
-            dissertation_update.add(request, dissert, dissert.status, justification=justification)
-            dissert_role.delete()
+    if (adviser_can_manage(dissert, adv)) and \
+            justification_dissert_role_delete_change(request, dissert, dissert_role, "manager_delete_jury"):
         return redirect('manager_dissertations_detail', pk=dissert.pk)
     else:
         return redirect('manager_dissertations_list')
 
+@login_required
+@user_passes_test(adviser.is_manager)
+def justification_dissert_role_delete_change(request, dissert, dissert_role, intitule):
+    if dissert.status != 'DRAFT' and role_can_be_deleted(dissert, dissert_role):
+        justification = "%s %s" % (intitule, str(dissert_role))
+        dissertation_update.add(request, dissert, dissert.status, justification=justification)
+        dissert_role.delete()
+        return True
+    else:
+        return False
 
 @login_required
 @user_passes_test(adviser.is_manager)
@@ -515,11 +522,8 @@ def manager_dissertations_role_delete_by_ajax(request, pk):
     dissert = dissert_role.dissertation
     person = mdl.person.find_by_user(request.user)
     adv = adviser.search_by_person(person)
-    if (adviser_can_manage(dissert, adv)):
-        if dissert.status != 'DRAFT' and role_can_be_deleted(dissert, dissert_role):
-            justification = "%s %s" % ("manager_delete_jury", str(dissert_role))
-            dissertation_update.add(request, dissert, dissert.status, justification=justification)
-            dissert_role.delete()
+    if (adviser_can_manage(dissert, adv)) and \
+            justification_dissert_role_delete_change(request,dissert,dissert_role,"manager_delete_jury"):
         return HttpResponse(status=200)
     else:
         return redirect('manager_dissertations_list')
@@ -570,6 +574,7 @@ def manager_dissertations_to_dir_submit_list(request, pk):
 
     else:
         return redirect('manager_dissertations_list')
+
 
 @login_required
 @user_passes_test(adviser.is_manager)
@@ -702,7 +707,7 @@ def manager_dissertations_wait_comm_list(request):
 
 @login_required
 @user_passes_test(adviser.is_manager)
-def manager_dissertations_wait_comm_json_list(request):
+def manager_dissertations_wait_comm_jsonlist(request):
     person = mdl.person.find_by_user(request.user)
     adv = adviser.search_by_person(person)
     offers = faculty_adviser.search_by_adviser(adv)
