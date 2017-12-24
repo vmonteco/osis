@@ -232,6 +232,7 @@ def manager_dissertations_edit(request, pk):
     else:
         return redirect('manager_dissertations_list')
 
+
 @login_required
 @user_passes_test(adviser.is_manager)
 def manager_dissertations_jury_edit(request, pk):
@@ -251,6 +252,7 @@ def manager_dissertations_jury_edit(request, pk):
         return layout.render(request, 'manager_dissertations_jury_edit.html', {'form': form})
     else:
         return redirect('manager_dissertations_list')
+
 
 @login_required
 @user_passes_test(adviser.is_manager)
@@ -301,14 +303,13 @@ def manager_dissertations_jury_new_ajax(request):
         count_dissertation_role = dissertation_role.count_by_dissertation(dissert)
         person = mdl.person.find_by_user(request.user)
         adv_manager = adviser.search_by_person(person)
-        if adviser_can_manage(dissert, adv_manager):
-            if count_dissertation_role < 4 and dissert.status != 'DRAFT':
-                justification = "%s %s %s" % ("manager_add_jury", str(status_choice), str(adviser_of_dissert_role))
-                dissertation_update.add(request, dissert, dissert.status, justification=justification)
-                dissertation_role.add(status_choice, adviser_of_dissert_role, dissert)
-                return HttpResponse(status=200)
-            else:
-                return HttpResponse(status=400)
+        if adviser_can_manage(dissert, adv_manager) and count_dissertation_role < 4 and dissert.status != 'DRAFT':
+            justification = "%s %s %s" % ("manager_add_jury", str(status_choice), str(adviser_of_dissert_role))
+            dissertation_update.add(request, dissert, dissert.status, justification=justification)
+            dissertation_role.add(status_choice, adviser_of_dissert_role, dissert)
+            return HttpResponse(status=200)
+        else:
+            return HttpResponse(status=400)
 
 @login_required
 @user_passes_test(adviser.is_manager)
