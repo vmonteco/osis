@@ -993,3 +993,6 @@ msgstr "oui,non"
 
 msgid "you_have"
 msgstr "Vous avez"
+
+msgid "year_start"
+msgstr "année de début"

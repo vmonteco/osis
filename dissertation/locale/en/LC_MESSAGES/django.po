@@ -990,3 +990,6 @@ msgstr "yes,no"
 
 msgid "you_have"
 msgstr "You have"
+
+msgid "year_start"
+msgstr "year beginning"
