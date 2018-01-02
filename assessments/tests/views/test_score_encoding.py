@@ -323,8 +323,6 @@ class OutsideEncodingPeriodTest(TestCase):
 
         # Create context out of range
         self.academic_year = _get_academic_year(2017)
-        print(self.academic_year.start_date)
-        print(self.academic_year.end_date)
         self.academic_calendar = AcademicCalendarFactory.build(title="Submission of score encoding - 1",
                                                                academic_year=self.academic_year,
                                                                reference=academic_calendar_type.SCORES_EXAM_SUBMISSION)
@@ -379,7 +377,6 @@ class OutsideEncodingPeriodTest(TestCase):
         self.assertEqual(messages[0].message, _('outside_scores_encodings_period_latest_session') % (1, end_date_str))
         self.assertEqual(messages[1].tags, 'warning')
         start_date_str = ac.start_date.strftime(date_format)
-        print(start_date_str)
         self.assertEqual(messages[1].message, _('outside_scores_encodings_period_closest_session') % (2, start_date_str))
 
 
@@ -391,7 +388,7 @@ class GetScoreEncodingViewProgramManagerTest(TestCase):
         self.client.force_login(self.user)
 
         # Set user as program manager of two offer
-        academic_year = _get_academic_year()
+        academic_year = _get_academic_year(2017)
         self.offer_year_bio2ma = OfferYearFactory(acronym="BIO2MA", title="Master en Biologie",
                                                   academic_year=academic_year)
         self.offer_year_bio2bac = OfferYearFactory(acronym="BIO2BAC", title="Bachelier en Biologie",
