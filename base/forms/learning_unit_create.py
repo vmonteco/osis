@@ -73,8 +73,7 @@ class CreateLearningUnitYearForm(BootstrapForm):
                                                                                  'maxlength': "1",
                                                                                  'readonly': 'readonly'}))
     container_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
-                                                     widget=forms.Select(
-                                                     attrs={'onchange': 'showInternshipSubtype(this.value)'}))
+                                       widget=forms.Select(attrs={'onchange': 'showInternshipSubtype(this.value)'}))
     faculty_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
     other_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
     periodicity = forms.CharField(widget=forms.Select(choices=PERIODICITY_TYPES))
@@ -85,18 +84,24 @@ class CreateLearningUnitYearForm(BootstrapForm):
     campus = forms.ModelChoiceField(queryset=find_administration_campuses(),
                                     widget=forms.Select(attrs={'onchange': 'setFirstLetter()'}))
 
-    requirement_entity = EntitiesVersionChoiceField(find_main_entities_version().none(),widget=forms.Select(attrs={
-                                                    'onchange': 'showAdditionalEntity(this.value, "id_additional_entity_1")'}))
+    requirement_entity = EntitiesVersionChoiceField(
+        find_main_entities_version().none(),
+        widget=forms.Select(
+            attrs={'onchange': 'showAdditionalEntity(this.value, "id_additional_entity_1")'}
+        )
+    )
 
     allocation_entity = EntitiesVersionChoiceField(find_main_entities_version(),
                                                    required=False,
-                                                   widget=forms.Select(attrs={'class': 'form-control',
-                                                                              'id': 'allocation_entity'}))
-    additional_entity_1 = EntitiesVersionChoiceField(find_main_entities_version(),
-                                                     required=False,
-                                                     widget=forms.Select(attrs={
-                                                        'onchange': 'showAdditionalEntity(this.value, "id_additional_entity_2")',
-                                                        'disable': 'disable'}))
+                                                   widget=forms.Select(attrs={'id': 'allocation_entity'}))
+
+    additional_entity_1 = EntitiesVersionChoiceField(
+        find_main_entities_version(),
+        required=False,
+        widget=forms.Select(
+            attrs={'onchange': 'showAdditionalEntity(this.value, "id_additional_entity_2")', 'disable': 'disable'}
+        )
+    )
 
     additional_entity_2 = EntitiesVersionChoiceField(find_main_entities_version(),
                                                      required=False,
