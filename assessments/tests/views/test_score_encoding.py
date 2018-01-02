@@ -488,7 +488,7 @@ def prepare_exam_enrollment_for_double_encoding_validation(exam_enrollment):
 
 
 def _get_academic_year():
-    start_date = timezone.now() - timedelta(days=5)
+    start_date = timezone.now()
     end_date = timezone.now() + timedelta(days=220)
     return AcademicYearFactory(year=timezone.now().year, start_date=start_date, end_date=end_date)
 
