@@ -42,8 +42,6 @@ from reference.tests.factories.country import CountryFactory
 from base.forms import learning_units
 
 ACRONYM_LU1 = "LDROI1001"
-ACRONYM_LU2 = "LDROI1002"
-ACRONYM_LU3 = "LDROI1003"
 
 
 class TestLearningUnitForm(TestCase):
@@ -174,62 +172,93 @@ class TestLearningUnitForm(TestCase):
         form = learning_units.LearningUnitYearForm(data=self.get_valid_data())
         self.assertRaises(TooManyResultsException, form.is_valid)
 
-    def test_get_service_course_learning_units_by_empty_requirement_and_allocation_entity(self):
+    def test_get_service_courses_by_empty_requirement_and_allocation_entity(self):
+        self._setup_service_courses()
+
+        form_data = {}
+
+        form = learning_units.LearningUnitYearForm(form_data)
+        form.is_valid()
+        self.assertEqual(form.get_service_course_learning_units(), self.list_lu_year)
+
+    def test_get_service_courses_by_requirement_acronym(self):
         self._setup_service_courses()
 
         form_data = {
+            "requirement_entity_acronym": self.list_entity_version[0].acronym
         }
 
         form = learning_units.LearningUnitYearForm(form_data)
         form.is_valid()
-        self.assertEqual(form.get_service_course_learning_units(), [self.lu2_year])
+        self.assertEqual(form.get_service_course_learning_units(), [self.list_lu_year[0]])
 
-    def test_get_service_course_learning_units_by_requirement_acronym(self):
+    def test_get_service_courses_by_allocation_acronym(self):
         self._setup_service_courses()
 
         form_data = {
-            "requirement_entity_acronym": self.lu2_entity_version.acronym
+            "allocation_entity_acronym": self.list_entity_version[1].acronym
         }
 
         form = learning_units.LearningUnitYearForm(form_data)
         form.is_valid()
-        self.assertEqual(form.get_service_course_learning_units(), [self.lu2_year])
+        self.assertEqual(form.get_service_course_learning_units(), [self.list_lu_year[0]])
 
-    def test_get_service_course_learning_units_by_allocation_acronym(self):
+    def test_get_service_courses_by_requirement_and_allocation_acronym(self):
         self._setup_service_courses()
 
         form_data = {
-            "allocation_entity_acronym": self.lu3_entity_version.acronym
+            "requirement_entity_acronym": self.list_entity_version[0].acronym,
+            "allocation_entity_acronym": self.list_entity_version[1].acronym
         }
 
         form = learning_units.LearningUnitYearForm(form_data)
         form.is_valid()
-        self.assertEqual(form.get_service_course_learning_units(), [self.lu2_year])
+        self.assertEqual(len(form.get_service_course_learning_units()), 1)
 
     def _setup_service_courses(self):
         self.academic_yr = AcademicYearFactory(year=timezone.now().year)
         self.start_date = self.academic_yr.start_date
         self.end_date = self.academic_yr.end_date
 
-        self.lu2_container_year = LearningContainerYearFactory(acronym=ACRONYM_LU2,
-                                                               academic_year=self.academic_yr)
+        self.list_lu_container_year = [
+            LearningContainerYearFactory(acronym="LC%d" % container,
+                                         academic_year=self.academic_yr)
+            for container in range(2)
+        ]
 
-        self.lu2_year = LearningUnitYearFactory(acronym=ACRONYM_LU2,
-                                                learning_container_year=self.lu2_container_year,
-                                                academic_year=self.academic_yr)
+        self.list_lu_year = [
+             LearningUnitYearFactory(acronym="LUY%d" % i,
+                                     learning_container_year=container,
+                                     academic_year=self.academic_yr)
+            for i, container in enumerate(self.list_lu_container_year)
+        ]
 
-        self.lu2_entity_version = EntityVersionFactory(entity_type=entity_type.FACULTY,
-                                                       acronym="AGRO")
+        self.list_entity_version = [
+            EntityVersionFactory(entity_type=entity_type.SCHOOL,
+                                                       acronym="MECA"),
+            EntityVersionFactory(entity_type=entity_type.SCHOOL,
+                                                       acronym="EFIL"),
+            EntityVersionFactory(entity_type=entity_type.FACULTY,
+                                                       acronym="AGRO"),
+            EntityVersionFactory(entity_type=entity_type.FACULTY,
+                                                       acronym="SC"),
+            ]
 
-        self.lu2_entity_container_year = EntityContainerYearFactory(
-            entity=self.lu2_entity_version.entity,
-            learning_container_year=self.lu2_container_year,
-            type=entity_container_year_link_type.REQUIREMENT_ENTITY)
-
-        self.lu3_entity_version = EntityVersionFactory(entity_type=entity_type.SCHOOL,
-                                                       acronym="MECA")
-
-        self.lu3_entity_container_year = EntityContainerYearFactory(
-            entity=self.lu3_entity_version.entity,
-            learning_container_year=self.lu2_container_year,
-            type=entity_container_year_link_type.ALLOCATION_ENTITY)
+        self.list_entity_container_year = [
+            EntityContainerYearFactory(
+                entity=self.list_entity_version[0].entity,
+                learning_container_year=self.list_lu_container_year[0],
+                type=entity_container_year_link_type.REQUIREMENT_ENTITY),
+            EntityContainerYearFactory(
+                entity=self.list_entity_version[1].entity,
+                learning_container_year=self.list_lu_container_year[0],
+                type=entity_container_year_link_type.ALLOCATION_ENTITY),
+            EntityContainerYearFactory(
+                entity=self.list_entity_version[2].entity,
+                learning_container_year=self.list_lu_container_year[1],
+                type=entity_container_year_link_type.REQUIREMENT_ENTITY),
+            EntityContainerYearFactory(
+                entity=self.list_entity_version[3].entity,
+                learning_container_year=self.list_lu_container_year[1],
+                type=entity_container_year_link_type.ALLOCATION_ENTITY)
+        ]
