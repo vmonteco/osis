@@ -33,20 +33,21 @@ from base import models as mdl
 from base.business.entity import get_entities_ids
 from base.business.entity_version import SERVICE_COURSE
 from base.business.learning_unit_year_with_context import append_latest_entities
+from base.forms.bootstrap import BootstrapForm
 from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, TooManyResultsException
 from base.models import entity_version as mdl_entity_version, learning_unit_year
 from base.models.enums import entity_container_year_link_type
 
-
 MAX_RECORDS = 1000
 
 
-class LearningUnitYearForm(forms.Form):
+class LearningUnitYearForm(BootstrapForm):
     academic_year_id = forms.CharField(max_length=10, required=False)
     container_type = subtype = status = forms.CharField(required=False)
     acronym = title = requirement_entity_acronym = allocation_entity_acronym = forms.CharField(
-        widget=forms.TextInput(attrs={'size': '10', 'class': 'form-control', 'autofocus': True}),
-        max_length=20, required=False)
+        widget=forms.TextInput(attrs={'autofocus': True}),
+        max_length=20,
+        required=False)
     with_entity_subordinated = forms.BooleanField(required=False)
 
     def clean_acronym(self):
@@ -98,10 +99,10 @@ class LearningUnitYearForm(forms.Form):
 
         clean_data['learning_container_year_id'] = _get_filter_learning_container_ids(clean_data)
         learning_units = mdl.learning_unit_year.search(**clean_data) \
-                             .select_related('academic_year', 'learning_container_year',
-                                             'learning_container_year__academic_year') \
-                             .prefetch_related(entity_container_prefetch) \
-                             .order_by('academic_year__year', 'acronym')
+            .select_related('academic_year', 'learning_container_year',
+                            'learning_container_year__academic_year') \
+            .prefetch_related(entity_container_prefetch) \
+            .order_by('academic_year__year', 'acronym')
 
         return [append_latest_entities(learning_unit, service_course_search) for learning_unit in
                 learning_units]
@@ -124,19 +125,9 @@ class LearningUnitYearForm(forms.Form):
             requirement_entity_service_course = learning_unit.entities. \
                 get(entity_container_year_link_type.REQUIREMENT_ENTITY)
 
-            # FIXME Normally  the search must be done between Faculties or between Schools
-            # if allocation_entity_service_course.entity_type != requirement_entity_service_course.entity_type:
-            #    continue
-
-            if not requirement_entity_acronym:
-                if allocation_entity_acronym:
-                    if allocation_entity_service_course.acronym == allocation_entity_acronym:
-                        service_courses.append(learning_unit)
-            elif requirement_entity_service_course.acronym == requirement_entity_acronym:
-                if not allocation_entity_acronym:
-                    service_courses.append(learning_unit)
-                elif allocation_entity_service_course.acronym == allocation_entity_acronym:
-                    service_courses.append(learning_unit)
+            if allocation_entity_acronym in (allocation_entity_service_course.acronym, None) \
+                    and requirement_entity_acronym in (requirement_entity_service_course.acronym, None):
+                service_courses.append(learning_unit)
 
         return service_courses
 
