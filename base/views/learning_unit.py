@@ -412,25 +412,24 @@ def _learning_units_search(request, search_type):
     try:
         if form.is_valid():
             found_learning_units = _get_learning_units(form, found_learning_units, search_type)
-
             _check_if_display_message(request, found_learning_units)
     except TooManyResultsException:
         messages.add_message(request, messages.ERROR, _('too_many_results'))
 
     if request.GET.get('xls_status') == "xls":
         return create_xls(request, found_learning_units)
-    else:
-        context = {
-            'form': form,
-            'academic_years': get_last_academic_years(),
-            'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
-            'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
-            'learning_units': found_learning_units,
-            'current_academic_year': mdl.academic_year.current_academic_year(),
-            'experimental_phase': True,
-            'search_type': search_type
-        }
-        return layout.render(request, "learning_units.html", context)
+
+    context = {
+        'form': form,
+        'academic_years': get_last_academic_years(),
+        'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
+        'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
+        'learning_units': found_learning_units,
+        'current_academic_year': mdl.academic_year.current_academic_year(),
+        'experimental_phase': True,
+        'search_type': search_type
+    }
+    return layout.render(request, "learning_units.html", context)
 
 
 def _check_if_display_message(request, found_learning_units):
@@ -462,20 +461,18 @@ def create_xls(request, found_learning_units):
 
 
 def _prepare_xls_content(found_learning_units):
-    workingsheets_data = []
-    if found_learning_units:
-        for learning_unit in found_learning_units:
-            workingsheets_data.append([learning_unit.academic_year.name,
-                                       learning_unit.acronym,
-                                       learning_unit.title,
-                                       xls_build.translate(learning_unit.learning_container_year.container_type),
-                                       xls_build.translate(learning_unit.subtype),
-                                       _get_entity_acronym(learning_unit.entities.get('REQUIREMENT_ENTITY')),
-                                       _get_entity_acronym(learning_unit.entities.get('ALLOCATION_ENTITY')),
-                                       learning_unit.credits,
-                                       xls_build.translate(learning_unit.status)
-                                       ])
-    return workingsheets_data
+    if not found_learning_units:
+        return []
+    return [_extract_xls_data_from_learning_unit(lu) for lu in found_learning_units]
+
+
+def _extract_xls_data_from_learning_unit(learning_unit):
+    return [learning_unit.academic_year.name, learning_unit.acronym, learning_unit.title,
+            xls_build.translate(learning_unit.learning_container_year.container_type),
+            xls_build.translate(learning_unit.subtype),
+            _get_entity_acronym(learning_unit.entities.get('REQUIREMENT_ENTITY')),
+            _get_entity_acronym(learning_unit.entities.get('ALLOCATION_ENTITY')),
+            learning_unit.credits, xls_build.translate(learning_unit.status)]
 
 
 def _prepare_xls_parameters_list(request, workingsheets_data):
