@@ -90,7 +90,6 @@ def get_with_context(**learning_unit_year_data):
 def append_latest_entities(learning_unit, service_course_search=False):
     learning_unit.entities = {}
     learning_container_year = learning_unit.learning_container_year
-
     for entity_container_yr in getattr(learning_container_year, "entity_containers_year", []):
         link_type = entity_container_yr.type
         learning_unit.entities[link_type] = entity_container_yr.get_latest_entity_version()
@@ -114,13 +113,10 @@ def append_latest_entities(learning_unit, service_course_search=False):
                 and requirement_entity_version.acronym != allocation_entity_parent_acronym:
             learning_unit.entities[
                 business_entity_version.SERVICE_COURSE
-            ] = is_service_course(learning_unit.academic_year,
-                                  requirement_entity_version,
-                                  learning_container_year,
+            ] = is_service_course(learning_unit.academic_year,requirement_entity_version,learning_container_year,
                                   requirement_entity_parent)
         else:
             learning_unit.entities[business_entity_version.SERVICE_COURSE] = False
-
     return learning_unit
 
 
