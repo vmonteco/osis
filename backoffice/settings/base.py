@@ -67,6 +67,10 @@ INSTALLED_APPS = (
     'statici18n',
     'rest_framework',
     'rest_framework.authtoken',
+    'behave_django',
+    'django_extensions',
+    'test_without_migrations',
+    'django_pdb',
 )
 
 MIDDLEWARE = (
@@ -79,7 +83,8 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'base.middlewares.extra_http_responses_midleware.ExtraHttpResponsesMiddleware'
+    'base.middlewares.extra_http_responses_midleware.ExtraHttpResponsesMiddleware',
+    'django_pdb.middleware.PdbMiddleware',
 )
 
 # check if we are testing right now

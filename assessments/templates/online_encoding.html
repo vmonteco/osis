@@ -99,12 +99,8 @@
             <label>{% trans 'progress' %}</label><br>
             <div class="progress">
                 <div class="progress-bar {% if progress == '100' %} progress-bar-success {% else %} progress-bar-warning {% endif %}" role="progressbar" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ progress }}%;">
-                    <span> 
-			<b> 
-			  {{ exam_enrollments_encoded }} / {{ total_exam_enrollments }}
-			</b>
-		    </span>                
-		</div>
+                    <strong><span id="luy_progression">{{ exam_enrollments_encoded }} / {{ total_exam_enrollments }}</span></strong>
+        		</div>
             </div>
         </div>
         <div class="btn-group" role="group" aria-label="Encode">
@@ -210,7 +206,7 @@
                         <td>{{ enrollment.learning_unit_enrollment.offer_enrollment.student.registration_id }}</td>
                         <td>{{ enrollment.learning_unit_enrollment.offer_enrollment.student.person.last_name|default_if_none:"" }}</td>
                         <td>{{ enrollment.learning_unit_enrollment.offer_enrollment.student.person.first_name|default_if_none:"" }}</td>
-                        <td>
+                        <td id="enrollment_note_{{ enrollment.id }}">
                             {% if is_program_manager %}
                                 {% if enrollment.score_final != None %}
                                     {{ enrollment.score_final | score_display:enrollment.learning_unit_enrollment.learning_unit_year.decimal_scores }}
@@ -227,7 +223,7 @@
                                 {% endif %}
                             {% endif%}
                         </td>
-                        <td>
+                        <td id="enrollment_justification_{{ enrollment.id }}">
                             {% if is_program_manager %}
                                 {% if enrollment.justification_final %}
                                     {% trans enrollment.justification_final %}
