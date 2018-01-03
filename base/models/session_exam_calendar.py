@@ -28,7 +28,7 @@ import datetime
 from django.db import models
 from django.contrib import admin
 from base.models.enums import number_session, academic_calendar_type
-from base.models import offer_year_calendar, academic_year, academic_calendar
+from base.models import offer_year_calendar, academic_year
 
 
 class SessionExamCalendarAdmin(admin.ModelAdmin):
@@ -110,10 +110,13 @@ def find_deliberation_date(nb_session, offer_year):
         offer_year_cal = offer_year_calendar.find_by_offer_year(offer_yr=offer_year)\
                        .filter(academic_calendar__in=academic_cals_id)\
                        .first()
-        return offer_year_cal.start_date if offer_year_cal.start_date else \
-                                            offer_year_cal.academic_calendar.start_date
+        return offer_year_cal.start_date
 
     return None
+
+
+def find_by_session_and_academic_year(nb_session, an_academic_year):
+    return SessionExamCalendar.objects.filter(number_session=nb_session, academic_calendar__academic_year=an_academic_year)
 
 
 def get_by_session_reference_and_academic_year(nb_session, a_reference, an_academic_year):

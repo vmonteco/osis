@@ -390,7 +390,10 @@ msgid "encoding_status_notended"
 msgstr "It remains notes to encode."
 
 msgid "end_date"
-msgstr "End date"
+msgstr "Teacher Deadline"
+
+msgid "end_date_teacher"
+msgstr "Teacher Deadline"
 
 msgid "enrollment_activity_not_exist"
 msgstr "The enrollment to the activity %s doesn't exist"
@@ -2427,3 +2430,18 @@ msgstr "Academic entity"
 
 msgid "folder_number"
 msgstr "Folder n°{}"
+
+msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
+msgstr ""
+
+msgid "success_cancel_proposal"
+msgstr "The proposal for {} was cancelled."
+
+msgid "cancel_proposal"
+msgstr "Cancel proposal"
+
+msgid "msg_confirm_cancel_proposal"
+msgstr "Are you certain that you want to cancel the learning unit proposal ?"
+
+msgid "The administrative data has been successfully modified"
+msgstr ""
