@@ -411,7 +411,7 @@ def _learning_units_search(request, search_type):
     found_learning_units = None
     try:
         if form.is_valid():
-            found_learning_units = _get_learning_units(form, found_learning_units, search_type)
+            found_learning_units = _get_learning_units(form, search_type)
             _check_if_display_message(request, found_learning_units)
     except TooManyResultsException:
         messages.add_message(request, messages.ERROR, _('too_many_results'))
@@ -478,7 +478,7 @@ def _extract_xls_data_from_learning_unit(learning_unit):
 def _prepare_xls_parameters_list(request, workingsheets_data):
     return {xls_build.LIST_DESCRIPTION_KEY: "Liste d'activités",
             xls_build.FILENAME_KEY: 'Learning_units',
-            xls_build.USER_KEY:  _get_username(request.user),
+            xls_build.USER_KEY:  _get_name_or_username(request.user),
             xls_build.WORKSHEETS_DATA:
                 [{xls_build.CONTENT_KEY: workingsheets_data,
                   xls_build.HEADER_TITLES_KEY: [str(_('academic_year_small')),
@@ -495,12 +495,11 @@ def _prepare_xls_parameters_list(request, workingsheets_data):
                  ]}
 
 
-def _get_username(a_user):
+def _get_name_or_username(a_user):
     person = mdl.person.find_by_user(a_user)
     if person:
         return "{}, {}".format(person.last_name, person.first_name)
-    else:
-        return a_user.username
+    return a_user.username
 
 
 def _get_entity_acronym(an_entity):
@@ -508,16 +507,13 @@ def _get_entity_acronym(an_entity):
 
 
 def _get_search_form(request):
-    if request.GET.get('academic_year_id'):
-        form = LearningUnitYearForm(request.GET)
-    else:
-        form = LearningUnitYearForm()
-    return form
+    academic_year_id = request.GET.get('academic_year_id')
+    return LearningUnitYearForm(request.GET) if academic_year_id else LearningUnitYearForm()
 
 
-def _get_learning_units(form, found_learning_units, search_type):
+def _get_learning_units(form, search_type):
     if search_type == SIMPLE_SEARCH:
-        found_learning_units = form.get_activity_learning_units()
+        return  form.get_activity_learning_units()
     elif search_type == SERVICE_COURSES_SEARCH:
-        found_learning_units = form.get_service_course_learning_units()
-    return found_learning_units
+        return form.get_service_course_learning_units()
+    return None
