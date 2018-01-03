@@ -114,7 +114,7 @@ def academic_calendar_read(request, academic_calendar_id):
 
 @login_required
 @permission_required('base.can_access_academic_calendar', raise_exception=True)
-@require_http_methods(['GET']) # Temporary prevent sumbit modification
+@require_http_methods(['GET'])  # Temporary prevent sumbit modification
 def academic_calendar_form(request, academic_calendar_id):
     academic_calendar = mdl.academic_calendar.find_by_id(academic_calendar_id)
     if request.method == 'GET':
