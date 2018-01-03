@@ -42,8 +42,8 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     get_common_context_learning_unit_year, get_cms_label_data, \
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
-    get_all_attributions, get_last_academic_years, _prepare_xls_content, _prepare_xls_parameters_list, _get_search_form, \
-    _get_learning_units
+    get_all_attributions, get_last_academic_years, prepare_xls_content, prepare_xls_parameters_list, get_search_form, \
+    get_learning_units
 from base.forms.common import TooManyResultsException
 from base.models import proposal_learning_unit, entity_version
 from base.models.campus import Campus
@@ -408,11 +408,11 @@ def learning_units_service_course(request):
 
 
 def _learning_units_search(request, search_type):
-    form = _get_search_form(request)
+    form = get_search_form(request)
     found_learning_units = None
     try:
         if form.is_valid():
-            found_learning_units = _get_learning_units(form, search_type)
+            found_learning_units = get_learning_units(form, search_type)
             _check_if_display_message(request, found_learning_units)
     except TooManyResultsException:
         messages.add_message(request, messages.ERROR, _('too_many_results'))
@@ -457,7 +457,7 @@ def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def create_xls(request, found_learning_units):
-    workingsheets_data = _prepare_xls_content(found_learning_units)
-    return xls_build.generate_xls(_prepare_xls_parameters_list(request, workingsheets_data))
+    workingsheets_data = prepare_xls_content(found_learning_units)
+    return xls_build.generate_xls(prepare_xls_parameters_list(request, workingsheets_data))
 
 

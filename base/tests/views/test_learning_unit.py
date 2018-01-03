@@ -793,7 +793,7 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(base.business.learning_unit._get_name_or_username(a_user), '{}, {}'.format(last_name, first_name))
 
     def test_prepare_xls_content_no_data(self):
-        self.assertEqual(base.business.learning_unit._prepare_xls_content(None), [])
+        self.assertEqual(base.business.learning_unit.prepare_xls_content(None), [])
 
 class LearningUnitCreate(TestCase):
     def setUp(self):

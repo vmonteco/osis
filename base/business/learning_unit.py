@@ -308,7 +308,7 @@ def create_learning_unit_year(academic_year, data, learning_container_year, lear
                                            quadrimester=data['quadrimester'])
 
 
-def _prepare_xls_content(found_learning_units):
+def prepare_xls_content(found_learning_units):
     if not found_learning_units:
         return []
     return [_extract_xls_data_from_learning_unit(lu) for lu in found_learning_units]
@@ -323,7 +323,7 @@ def _extract_xls_data_from_learning_unit(learning_unit):
             learning_unit.credits, xls_build.translate(learning_unit.status)]
 
 
-def _prepare_xls_parameters_list(request, workingsheets_data):
+def prepare_xls_parameters_list(request, workingsheets_data):
     return {xls_build.LIST_DESCRIPTION_KEY: "Liste d'activités",
             xls_build.FILENAME_KEY: 'Learning_units',
             xls_build.USER_KEY:  _get_name_or_username(request.user),
@@ -354,12 +354,12 @@ def _get_entity_acronym(an_entity):
     return an_entity.acronym if an_entity else None
 
 
-def _get_search_form(request):
+def get_search_form(request):
     academic_year_id = request.GET.get('academic_year_id')
     return LearningUnitYearForm(request.GET) if academic_year_id else LearningUnitYearForm()
 
 
-def _get_learning_units(form, search_type):
+def get_learning_units(form, search_type):
     if search_type == SIMPLE_SEARCH:
         return  form.get_activity_learning_units()
     elif search_type == SERVICE_COURSES_SEARCH:
