@@ -406,7 +406,7 @@ def learning_units_service_course(request):
 
 def _learning_units_search(request, search_type):
     form = get_search_form(request)
-    found_learning_units = None
+    found_learning_units = []
     try:
         if form.is_valid():
             found_learning_units = get_learning_units(form, search_type)

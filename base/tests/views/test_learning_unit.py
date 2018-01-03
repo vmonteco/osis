@@ -170,7 +170,7 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(len(context['container_types']),
                          len(learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES))
         self.assertTrue(context['experimental_phase'])
-        self.assertIsNone(context['learning_units'])
+        self.assertEqual(context['learning_units'], [])
 
     @mock.patch('base.views.layout.render')
     def test_learning_units_search_with_acronym_filtering(self, mock_render):
@@ -793,7 +793,7 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(base.business.learning_unit._get_name_or_username(a_user), '{}, {}'.format(last_name, first_name))
 
     def test_prepare_xls_content_no_data(self):
-        self.assertEqual(base.business.learning_unit.prepare_xls_content(None), [])
+        self.assertEqual(base.business.learning_unit.prepare_xls_content([]), [])
 
 class LearningUnitCreate(TestCase):
     def setUp(self):

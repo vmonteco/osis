@@ -311,8 +311,6 @@ def create_learning_unit_year(academic_year, data, learning_container_year, lear
 
 
 def prepare_xls_content(found_learning_units):
-    if not found_learning_units:
-        return []
     return [_extract_xls_data_from_learning_unit(lu) for lu in found_learning_units]
 
 
@@ -347,9 +345,7 @@ def prepare_xls_parameters_list(request, workingsheets_data):
 
 def _get_name_or_username(a_user):
     person = mdl.person.find_by_user(a_user)
-    if person:
-        return "{}, {}".format(person.last_name, person.first_name)
-    return a_user.username
+    return "{}, {}".format(person.last_name, person.first_name) if person else a_user.username
 
 
 def _get_entity_acronym(an_entity):
@@ -364,6 +360,5 @@ def get_search_form(request):
 def get_learning_units(form, search_type):
     if search_type == SIMPLE_SEARCH:
         return form.get_activity_learning_units()
-    elif search_type == SERVICE_COURSES_SEARCH:
-        return form.get_service_course_learning_units()
-    return None
+    # else it should be SERVICE_COURSES_SEARCH:
+    return form.get_service_course_learning_units()
