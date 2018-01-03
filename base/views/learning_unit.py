@@ -456,5 +456,3 @@ def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
 def create_xls(request, found_learning_units):
     workingsheets_data = prepare_xls_content(found_learning_units)
     return xls_build.generate_xls(prepare_xls_parameters_list(request, workingsheets_data))
-
-

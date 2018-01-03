@@ -363,7 +363,7 @@ def get_search_form(request):
 
 def get_learning_units(form, search_type):
     if search_type == SIMPLE_SEARCH:
-        return  form.get_activity_learning_units()
+        return form.get_activity_learning_units()
     elif search_type == SERVICE_COURSES_SEARCH:
         return form.get_service_course_learning_units()
     return None
