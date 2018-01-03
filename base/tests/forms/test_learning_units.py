@@ -179,7 +179,7 @@ class TestLearningUnitForm(TestCase):
 
         form = learning_units.LearningUnitYearForm(form_data)
         form.is_valid()
-        self.assertEqual(form.get_service_course_learning_units(), self.list_lu_year)
+        self.assertEqual(form.get_service_course_learning_units(), [self.list_lu_year[0], self.list_lu_year[1]])
 
     def test_get_service_courses_by_requirement_acronym(self):
         self._setup_service_courses()
