@@ -43,7 +43,7 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, get_last_academic_years, prepare_xls_content, prepare_xls_parameters_list, get_search_form, \
-    get_learning_units
+    get_learning_units, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH
 from base.forms.common import TooManyResultsException
 from base.models import proposal_learning_unit, entity_version
 from base.models.campus import Campus
@@ -67,9 +67,6 @@ CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_
                       'other_informations', 'online_resources']
 
 LEARNING_UNIT_CREATION_SPAN_YEARS = 6
-
-SIMPLE_SEARCH = 1
-SERVICE_COURSES_SEARCH = 2
 
 
 @login_required

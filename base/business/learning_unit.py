@@ -42,13 +42,15 @@ from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
-from base.views.learning_unit import SIMPLE_SEARCH, SERVICE_COURSES_SEARCH
 from cms import models as mdl_cms
 from cms.enums import entity_name
 
 
 # List of key that a user can modify
 from osis_common.document import xls_build
+
+SIMPLE_SEARCH = 1
+SERVICE_COURSES_SEARCH = 2
 
 VALID_VOLUMES_KEYS = [
     'VOLUME_TOTAL',
