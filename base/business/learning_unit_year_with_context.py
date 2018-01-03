@@ -99,7 +99,8 @@ def append_latest_entities(learning_unit, service_course_search=False):
     allocation_entity_version = learning_unit.entities.get(entity_types.ALLOCATION_ENTITY)
 
     if service_course_search and requirement_entity_version:
-        requirement_entity_parent = requirement_entity_version.find_parent_faculty_version(learning_container_year.academic_year)
+        requirement_entity_parent = requirement_entity_version.find_parent_faculty_version(
+            learning_container_year.academic_year)
         allocation_entity_parent_acronym = None
         if allocation_entity_version:
             allocation_entity_parent = entity_version.search(entity=allocation_entity_version.parent).first()
@@ -111,9 +112,12 @@ def append_latest_entities(learning_unit, service_course_search=False):
 
         if allocation_entity_version and requirement_entity_version != allocation_entity_version\
                 and requirement_entity_version.acronym != allocation_entity_parent_acronym:
-            learning_unit.entities[business_entity_version.SERVICE_COURSE] = is_service_course(learning_unit.academic_year,
-                                                                        requirement_entity_version,
-                                                                        learning_container_year, requirement_entity_parent)
+            learning_unit.entities[
+                business_entity_version.SERVICE_COURSE
+            ] = is_service_course(learning_unit.academic_year,
+                                  requirement_entity_version,
+                                  learning_container_year,
+                                  requirement_entity_parent)
         else:
             learning_unit.entities[business_entity_version.SERVICE_COURSE] = False
 
