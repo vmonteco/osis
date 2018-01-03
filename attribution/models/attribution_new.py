@@ -51,7 +51,7 @@ class AttributionNew(AuditableModel):
     changed = models.DateTimeField(null=True, auto_now=True)
     learning_container_year = models.ForeignKey('base.LearningContainerYear')
     tutor = models.ForeignKey('base.Tutor')
-    function = models.CharField(max_length=35, blank=True, null=True, choices=function.FUNCTIONS, db_index=True)
+    function = models.CharField(max_length=35, choices=function.FUNCTIONS, db_index=True)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
     start_year = models.IntegerField(blank=True, null=True)
