@@ -144,7 +144,7 @@
                             title="{% trans 'produce_xls' %}" >
                     <i class="fa fa-table" aria-hidden="true" style="padding-left:10px;"></i>&nbsp;{% trans 'produce_xls_lu' %}
                 </button>
-                {% include 'xls/xls_button.html' %}
+                <input type="hidden" id="xls_status" name="xls_status">
                 <table id="table_learning_units" class="table table-striped table-hover">
                     <thead>
                     <th>{% trans 'academic_year_small'%}</th>
