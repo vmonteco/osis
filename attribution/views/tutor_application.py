@@ -23,16 +23,23 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-SUBSCRIBED = 'SUBSCRIBED'
-PROVISORY = 'PROVISORY'
-PENDING = 'PENDING'
-TERMINATION = 'TERMINATION'
-END_OF_CYCLE = 'END_OF_CYCLE'
+from rest_framework import serializers
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
-STATES = (
-    (SUBSCRIBED, SUBSCRIBED),
-    (PROVISORY, PROVISORY),
-    (PENDING, PENDING),
-    (TERMINATION, TERMINATION),
-    (END_OF_CYCLE, END_OF_CYCLE))
+from attribution.business import application_json
 
+
+class RecomputePortalSerializer(serializers.Serializer):
+    global_ids = serializers.ListField(child=serializers.CharField(), required=False)
+
+
+@api_view(['POST'])
+def recompute_portal(request):
+    serializer = RecomputePortalSerializer(data=request.POST)
+    if serializer.is_valid():
+        global_ids = serializer.data['global_ids'] if serializer.data['global_ids'] else None
+        if application_json.publish_to_portal(global_ids):
+            return Response(status=status.HTTP_202_ACCEPTED)
+    return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -35,9 +35,10 @@ from base.models.academic_year import AcademicYear
 from base.models.enums import entity_type
 from base.models.enums.organization_type import MAIN
 from osis_common.utils.datetime import get_tzinfo
+from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
-class EntityVersionAdmin(admin.ModelAdmin):
+class EntityVersionAdmin(SerializableModelAdmin):
     list_display = ('id', 'entity', 'acronym', 'parent', 'title', 'entity_type', 'start_date', 'end_date',)
     search_fields = ['entity__id', 'entity__external_id', 'title', 'acronym', 'entity_type', 'start_date', 'end_date']
     raw_id_fields = ('entity', 'parent')
@@ -55,7 +56,7 @@ class EntityVersionQuerySet(models.QuerySet):
         return self.filter(entity=entity)
 
 
-class EntityVersion(models.Model):
+class EntityVersion(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     entity = models.ForeignKey('Entity')
@@ -330,6 +331,13 @@ def find_main_entities_version():
                                  entity_type.INSTITUTE, entity_type.DOCTORAL_COMMISSION],
                 entity__organization__type=MAIN).order_by('acronym')
     return entities_version
+
+
+def find_main_entities_version_filtered_by_person(person):
+    from base.models.utils import person_entity_filter
+
+    qs = find_main_entities_version()
+    return person_entity_filter.filter_by_attached_entities(person, qs)
 
 
 def find_last_faculty_entities_version():
