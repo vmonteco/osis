@@ -323,10 +323,10 @@ def _extract_xls_data_from_learning_unit(learning_unit):
             learning_unit.credits, xls_build.translate(learning_unit.status)]
 
 
-def prepare_xls_parameters_list(request, workingsheets_data):
+def prepare_xls_parameters_list(user, workingsheets_data):
     return {xls_build.LIST_DESCRIPTION_KEY: "Liste d'activités",
             xls_build.FILENAME_KEY: 'Learning_units',
-            xls_build.USER_KEY:  _get_name_or_username(request.user),
+            xls_build.USER_KEY:  _get_name_or_username(user),
             xls_build.WORKSHEETS_DATA:
                 [{xls_build.CONTENT_KEY: workingsheets_data,
                   xls_build.HEADER_TITLES_KEY: [str(_('academic_year_small')),
@@ -362,3 +362,8 @@ def get_learning_units(form, search_type):
         return form.get_activity_learning_units()
     # else it should be SERVICE_COURSES_SEARCH:
     return form.get_service_course_learning_units()
+
+
+def create_xls(user, found_learning_units):
+    workingsheets_data = prepare_xls_content(found_learning_units)
+    return xls_build.generate_xls(prepare_xls_parameters_list(user, workingsheets_data))

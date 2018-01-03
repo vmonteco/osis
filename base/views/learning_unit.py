@@ -42,8 +42,8 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     get_common_context_learning_unit_year, get_cms_label_data, \
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
-    get_all_attributions, get_last_academic_years, prepare_xls_content, prepare_xls_parameters_list, get_search_form, \
-    get_learning_units, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH
+    get_all_attributions, get_last_academic_years, get_search_form, \
+    get_learning_units, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls
 from base.forms.common import TooManyResultsException
 from base.models import proposal_learning_unit, entity_version
 from base.models.campus import Campus
@@ -59,8 +59,6 @@ from base.models.person import Person
 from cms.models import text_label
 from reference.models import language
 from . import layout
-from osis_common.document import xls_build
-
 
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
@@ -415,7 +413,7 @@ def _learning_units_search(request, search_type):
         messages.add_message(request, messages.ERROR, _('too_many_results'))
 
     if request.GET.get('xls_status') == "xls":
-        return create_xls(request, found_learning_units)
+        return create_xls(request.user, found_learning_units)
 
     context = {
         'form': form,
@@ -449,10 +447,3 @@ def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
     if errors:
         for error_msg in errors:
             messages.add_message(request, messages.ERROR, error_msg)
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def create_xls(request, found_learning_units):
-    workingsheets_data = prepare_xls_content(found_learning_units)
-    return xls_build.generate_xls(prepare_xls_parameters_list(request, workingsheets_data))
