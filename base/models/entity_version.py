@@ -238,7 +238,10 @@ def get_last_version(entity, date=None):
 def get_by_entity_parent(entity_parent):
     if entity_parent is None:
         return None
-    return EntityVersion.objects.entity(entity_parent).first()
+    try:
+        return EntityVersion.objects.entity(entity_parent).get()
+    except ObjectDoesNotExist:
+        return None
 
 
 def get_by_entity_and_date(entity, date):
