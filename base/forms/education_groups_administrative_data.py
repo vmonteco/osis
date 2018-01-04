@@ -25,7 +25,7 @@
 ##############################################################################
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.forms import formset_factory
+from django.forms import formset_factory, SplitDateTimeWidget, SelectDateWidget
 
 from base.business.offer_year_calendar import compute_deadline_by_offer_year_calendar
 from base.forms.bootstrap import BootstrapForm
@@ -81,12 +81,10 @@ class AdministrativeDataSessionForm(BootstrapForm):
                                               label=_('dissertation_presentation'),
                                               required=False)
 
-    deliberation = forms.DateTimeField(widget=DateTimePickerInput(format=DATETIME_FORMAT),
-                                       input_formats=[DATETIME_FORMAT, ],
+    deliberation = forms.SplitDateTimeField(widget=DateTimePickerInput(),
                                        label=_('DELIBERATION'), required=False)
 
-    scores_exam_diffusion = forms.DateTimeField(widget=DateTimePickerInput(format=DATETIME_FORMAT),
-                                                input_formats=[DATETIME_FORMAT, ],
+    scores_exam_diffusion = forms.SplitDateTimeField(widget=DateTimePickerInput(),
                                                 label=_("scores_diffusion"),
                                                 required=False)
 
@@ -115,8 +113,10 @@ class AdministrativeDataSessionForm(BootstrapForm):
             if isinstance(field, DateRangeField):
                 field.initial = (convert_datetime_to_date(oyc.start_date),
                                  convert_datetime_to_date(oyc.end_date))
+
             elif isinstance(field, forms.DateField):
                 field.initial = convert_datetime_to_date(oyc.start_date)
+
             else:
                 field.initial = oyc.start_date
 

@@ -145,6 +145,16 @@
 
                 $(this).datetimepicker(config);
             });
+            $('.timepicker').each(function () {
+                var config = {
+                    pickDate: false,
+                    language: '{{ LANGUAGE_CODE }}'
+                };
+
+                set_config(config, $(this));
+
+                $(this).datetimepicker(config);
+            });
 
             $('.datetimepicker').each(function () {
                 var config = {

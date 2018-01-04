@@ -27,6 +27,7 @@ import datetime
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.forms.utils import to_current_timezone
 from django.utils import formats, timezone
 from django.utils.translation import ugettext_lazy as _
 
@@ -70,19 +71,31 @@ class DatePickerInput(forms.DateInput):
         _add_min_max_value(self, min_date, max_date)
 
 
-class DateTimePickerInput(forms.DateTimeInput):
-    def __init__(self, attrs=None, format=DATETIME_FORMAT):
-        if not attrs:
-            attrs = {
-                'class': 'datetimepicker',
-                'data-format': DATETIME_FORMAT_JS
-            }
+class DateTimePickerInput(forms.MultiWidget):
+    def __init__(self):
+        widgets = (
+            DatePickerInput(
+                format=DATE_FORMAT,
+            ),
+            forms.TimeInput(
+                attrs={
+                    'class': 'timepicker',
+                    'data-format': TIME_FORMAT_JS
+                },
+                format=TIME_FORMAT,
+            ),
+        )
 
-        super().__init__(attrs)
-        self.format = format
+        super().__init__(widgets)
 
     def add_min_max_value(self, min_date, max_date):
-        _add_min_max_value(self, min_date, max_date)
+        self.widgets[0].add_min_max_value(min_date, max_date)
+
+    def decompress(self, value):
+        if value:
+            value = to_current_timezone(value)
+            return [value.date(), value.time().replace(microsecond=0)]
+        return [None, None]
 
 
 class DateRangePickerInput(forms.TextInput):
