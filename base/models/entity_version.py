@@ -235,6 +235,12 @@ def get_last_version(entity, date=None):
     # find_latest_version(academic_year.current_academic_year().start_date).get(entity=entity)
 
 
+def get_by_entity_parent(entity_parent):
+    if entity_parent is None:
+        return None
+    return EntityVersion.objects.entity(entity_parent).first()
+
+
 def get_by_entity_and_date(entity, date):
     if date is None:
         date = timezone.now()

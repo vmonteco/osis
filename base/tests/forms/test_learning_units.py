@@ -179,6 +179,7 @@ class TestLearningUnitForm(TestCase):
 
         form = learning_units.LearningUnitYearForm(form_data)
         form.is_valid()
+        self.assertTrue(form.is_valid())
         self.assertEqual(form.get_service_course_learning_units(), [self.list_lu_year[0], self.list_lu_year[1]])
 
     def test_get_service_courses_by_requirement_acronym(self):
@@ -190,6 +191,7 @@ class TestLearningUnitForm(TestCase):
 
         form = learning_units.LearningUnitYearForm(form_data)
         form.is_valid()
+        self.assertTrue(form.is_valid())
         self.assertEqual(form.get_service_course_learning_units(), [self.list_lu_year[0]])
 
     def test_get_service_courses_by_allocation_acronym(self):
@@ -201,6 +203,7 @@ class TestLearningUnitForm(TestCase):
 
         form = learning_units.LearningUnitYearForm(form_data)
         form.is_valid()
+        self.assertTrue(form.is_valid())
         self.assertEqual(form.get_service_course_learning_units(), [self.list_lu_year[0]])
 
     def test_get_service_courses_by_requirement_and_allocation_acronym(self):
@@ -213,6 +216,7 @@ class TestLearningUnitForm(TestCase):
 
         form = learning_units.LearningUnitYearForm(form_data)
         form.is_valid()
+        self.assertTrue(form.is_valid())
         self.assertEqual(len(form.get_service_course_learning_units()), 1)
 
     def test_get_service_courses_by_requirement_and_allocation_acronym_within_same_faculty(self):
@@ -225,6 +229,7 @@ class TestLearningUnitForm(TestCase):
 
         form = learning_units.LearningUnitYearForm(form_data)
         form.is_valid()
+        self.assertTrue(form.is_valid())
         self.assertEqual(form.get_service_course_learning_units(), [])
 
     def _setup_service_courses(self):
