@@ -98,8 +98,8 @@ def append_latest_entities(learning_unit, service_course_search=False):
     allocation_entity_version = learning_unit.entities.get(entity_types.ALLOCATION_ENTITY)
 
     if service_course_search and requirement_entity_version and allocation_entity_version:
-        requirement_entity_parent = requirement_entity_version.find_parent_faculty_version(
-        learning_container_year.academic_year)
+        requirement_entity_parent = requirement_entity_version.\
+            find_parent_faculty_version(learning_container_year.academic_year)
         allocation_entity_parent_acronym = None
         allocation_entity_parent = entity_version.get_by_entity_parent(allocation_entity_version.parent)
         if allocation_entity_parent:
