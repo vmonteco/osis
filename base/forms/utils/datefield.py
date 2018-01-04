@@ -57,12 +57,14 @@ def _add_min_max_value(widget, min_date, max_date):
 
 class DatePickerInput(forms.DateInput):
 
-    def __init__(self, attrs=None, format=DATE_FORMAT):
-        if not attrs:
-            attrs = {
+    defaut_attrs = {
                 'class': 'datepicker',
                 'data-format': DATE_FORMAT_JS
             }
+
+    def __init__(self, attrs=None, format=DATE_FORMAT):
+        if not attrs:
+            attrs = self.defaut_attrs
 
         super().__init__(attrs)
         self.format = format
@@ -99,12 +101,15 @@ class DateTimePickerInput(forms.MultiWidget):
 
 
 class DateRangePickerInput(forms.TextInput):
-    def __init__(self, attrs=None, format=DATE_FORMAT):
-        if not attrs:
-            attrs = {
+
+    default_attrs = {
                 'class': 'daterange',
                 'data-format': DATE_FORMAT_JS
             }
+
+    def __init__(self, attrs=None, format=DATE_FORMAT):
+        if not attrs:
+            attrs = self.default_attrs
 
         super().__init__(attrs)
         self.format = format

@@ -82,11 +82,11 @@ class AdministrativeDataSessionForm(BootstrapForm):
                                               required=False)
 
     deliberation = forms.SplitDateTimeField(widget=DateTimePickerInput(),
-                                       label=_('DELIBERATION'), required=False)
+                                            label=_('DELIBERATION'), required=False)
 
     scores_exam_diffusion = forms.SplitDateTimeField(widget=DateTimePickerInput(),
-                                                label=_("scores_diffusion"),
-                                                required=False)
+                                                     label=_("scores_diffusion"),
+                                                     required=False)
 
     def __init__(self, *args, **kwargs):
         self.education_group_year = kwargs.pop('education_group_year')
