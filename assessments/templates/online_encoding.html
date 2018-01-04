@@ -192,7 +192,7 @@
                                         {{ rowcolors }}
                                     {% endifchanged %}
                                {% endif %}">
-                        <td style="text-align:center;">
+                        <td style="text-align:center;" id="enrollment_status_{{ enrollment.id }}">
                             {% if enrollment.deadline_reached %}
                                 <span class="glyphicon glyphicon-lock" aria-hidden="true" style="color: #8B008B;" title="{% trans 'deadline_reached' %}"></span>
                             {% elif enrollment.deadline_tutor_reached  and not is_program_manager %}
