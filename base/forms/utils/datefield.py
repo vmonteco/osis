@@ -63,10 +63,7 @@ class DatePickerInput(forms.DateInput):
             }
 
     def __init__(self, attrs=None, format=DATE_FORMAT):
-        if not attrs:
-            attrs = self.defaut_attrs
-
-        super().__init__(attrs)
+        super().__init__(attrs=attrs or self.defaut_attrs)
         self.format = format
 
     def add_min_max_value(self, min_date, max_date):
@@ -108,10 +105,7 @@ class DateRangePickerInput(forms.TextInput):
             }
 
     def __init__(self, attrs=None, format=DATE_FORMAT):
-        if not attrs:
-            attrs = self.default_attrs
-
-        super().__init__(attrs)
+        super().__init__(attrs=attrs or self.default_attrs)
         self.format = format
 
     def format_value(self, value):
