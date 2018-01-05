@@ -27,14 +27,11 @@ from collections import OrderedDict
 from decimal import Decimal
 
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
 from base.business import entity_version as business_entity_version
-from base.business.entity_version import find_entity_version_descendants
-from base.models import entity_container_year, entity_version
-from base.models.entity_version import EntityVersion
-from base.models.enums import entity_container_year_link_type as entity_types, entity_container_year_link_type
-from django.utils.translation import ugettext_lazy as _
+from base.models.enums import entity_container_year_link_type as entity_types
 
 
 class LearningUnitYearWithContext:
