@@ -77,10 +77,11 @@ class SeleniumTestCase(StaticLiveServerTestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.display = pyvirtualdisplay.Display(size=SIZE)
-        cls.display.start()
+        # cls.display.start()
         options = webdriver.ChromeOptions()
         cls.full_path_temp_dir = tempfile.mkdtemp('osis-selenium')
-        print(cls.full_path_temp_dir)
+        # cls.full_path_temp_dir = '/tmp/test'
+        # print(cls.full_path_temp_dir)
         options.add_experimental_option('prefs', {
             'download.default_directory': cls.full_path_temp_dir,
             'download.prompt_for_download': False,
@@ -95,7 +96,7 @@ class SeleniumTestCase(StaticLiveServerTestCase):
     def tearDownClass(cls):
         shutil.rmtree(cls.full_path_temp_dir)
         cls.driver.quit()
-        cls.display.stop()
+        # cls.display.stop()
 
         super().tearDownClass()
 
@@ -141,23 +142,17 @@ class SeleniumTestCase(StaticLiveServerTestCase):
 
 
 class Scenario1FunctionalTest(SeleniumTestCase, BusinessMixin):
-    def setUp(self):
-        super().setUp()
-        self.user = self.create_super_user()
-        # FIXME: Le super user n'a pas besoin de permission, est-ce que c'est un probleme ?
-        # self.add_permission(self.user, 'can_access_academic_calendar')
-
-        academic_year = AcademicYearFactory(year=pendulum.today().year-1)
-        self.academic_calendar = AcademicCalendarFactory.build(academic_year=academic_year)
-        self.academic_calendar.save(functions=[])
-
     def test_01_scenario_modifier_periode_encoding(self):
-        self.login(self.user.username)
+        user = self.create_super_user()
+        academic_year = AcademicYearFactory(year=pendulum.today().year-1)
+        academic_calendar = AcademicCalendarFactory.build(academic_year=academic_year)
+        academic_calendar.save(functions=[])
+        self.login(user.username)
 
-        self.goto('academic_calendar_read', academic_calendar_id=self.academic_calendar.id)
+        self.goto('academic_calendar_read', academic_calendar_id=academic_calendar.id)
         self.click_on('bt_academic_calendar_edit')
 
-        new_date = self.academic_calendar.start_date - datetime.timedelta(days=5)
+        new_date = academic_calendar.start_date - datetime.timedelta(days=5)
         new_date_str = new_date.strftime('%m/%d/%Y')
 
         self.fill_by_id('txt_start_date', new_date_str)
@@ -165,30 +160,35 @@ class Scenario1FunctionalTest(SeleniumTestCase, BusinessMixin):
         self.driver.execute_script("scroll(0, 250)")
         self.click_on('bt_academic_calendar_save')
 
-        self.assertCurrentUrl('academic_calendar_form',academic_calendar_id=self.academic_calendar.id)
+        self.assertCurrentUrl('academic_calendar_form',academic_calendar_id=academic_calendar.id)
 
         self.assertElementTextEqual('ac_start_date', new_date_str)
 
     def test_01_scenario_modifier_period_encoding_date_fin(self):
-        self.login(self.user.username)
+        user = self.create_super_user()
+        academic_year = AcademicYearFactory(year=pendulum.today().year-1)
+        academic_calendar = AcademicCalendarFactory.build(academic_year=academic_year)
+        academic_calendar.save(functions=[])
 
-        self.goto('academic_calendar_read', academic_calendar_id=self.academic_calendar.id)
+        self.login(user.username)
+
+        self.goto('academic_calendar_read', academic_calendar_id=academic_calendar.id)
         self.click_on('bt_academic_calendar_edit')
 
-        new_date = self.academic_calendar.end_date + datetime.timedelta(days=5)
+        new_date = academic_calendar.end_date + datetime.timedelta(days=5)
         new_date_str = new_date.strftime('%m/%d/%Y')
         self.fill_by_id('txt_end_date', new_date_str)
 
         self.driver.execute_script("scroll(0, 250)")
         self.click_on('bt_academic_calendar_save')
 
-        self.assertCurrentUrl('academic_calendar_form', academic_calendar_id=self.academic_calendar.id)
+        self.assertCurrentUrl('academic_calendar_form', academic_calendar_id=academic_calendar.id)
 
         self.assertElementTextEqual('ac_end_date', new_date_str)
 
 
-class Scenario3FunctionalTest(SeleniumTestCase, BusinessMixin):
-    def test(self):
+# class Scenario3FunctionalTest(SeleniumTestCase, BusinessMixin):
+    def test_03(self):
         user = self.create_user()
         self.add_group(user, 'program_managers')
         self.add_permission(user, 'assessments.can_access_scoreencoding')
@@ -227,8 +227,8 @@ class Scenario3FunctionalTest(SeleniumTestCase, BusinessMixin):
         self.assertEqual(result['date'], academic_calendar.start_date.strftime('%d/%m/%Y'))
 
 
-class Scenario4FunctionalTest(SeleniumTestCase, BusinessMixin):
-    def test(self):
+# class Scenario4FunctionalTest(SeleniumTestCase, BusinessMixin):
+    def test_04(self):
         user = self.create_user()
         self.add_group(user, 'program_managers')
         self.add_permission(user, 'can_access_academic_calendar', 'assessments.can_access_scoreencoding')
@@ -420,8 +420,8 @@ class Scenario4FunctionalTest(SeleniumTestCase, BusinessMixin):
             self.assertElementTextEqual('enrollment_note_{}'.format(enrollment_id), '-')
 
 
-class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
-    def test(self):
+# class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
+    def test_05(self):
         user = self.create_user()
         self.add_group(user, 'program_managers', 'tutors')
         self.add_permission(user, 'can_access_academic_calendar', 'assessments.can_access_scoreencoding')
@@ -635,8 +635,8 @@ class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
         return enrollments
 
 
-class Scenario6FunctionalTest(SeleniumTestCase, BusinessMixin):
-    def test(self):
+# class Scenario6FunctionalTest(SeleniumTestCase, BusinessMixin):
+    def test_06(self):
         user = self.create_user()
         self.add_group(user, 'program_managers', 'tutors')
         self.add_permission(user, 'can_access_academic_calendar', 'assessments.can_access_scoreencoding')
@@ -802,7 +802,7 @@ class Scenario6FunctionalTest(SeleniumTestCase, BusinessMixin):
         for enrollment_id, value in note_enrollments.items():
             self.fill_by_id('num_double_score_{}'.format(enrollment_id), str(value + 2))
 
-        self.click_on('bt_compare_down')
+        self.click_on('bt_compare_up')
 
         self.driver.execute_script("scroll(0, document.body.scrollHeight)")
 
@@ -816,9 +816,8 @@ class Scenario6FunctionalTest(SeleniumTestCase, BusinessMixin):
         for enrollment_id, value in note_enrollments.items():
             self.assertElementTextEqualInt('enrollment_note_{}'.format(enrollment_id), value + 2)
 
-
-class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
-    def test(self):
+# class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
+    def test_07(self):
         user = self.create_user()
         self.add_group(user, 'program_managers', 'tutors')
         self.add_permission(user, 'can_access_academic_calendar', 'assessments.can_access_scoreencoding')
