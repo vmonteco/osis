@@ -1,6 +1,8 @@
 import datetime
 import os
 import random
+import shutil
+import tempfile
 import time
 import unittest
 import pdb
@@ -66,23 +68,30 @@ class BusinessMixin:
 
 
 class SeleniumTestCase(StaticLiveServerTestCase):
-    def setUp(self):
-        self.display = pyvirtualdisplay.Display(visible=0, size=SIZE)
-        # self.display.start()
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.display = pyvirtualdisplay.Display(visible=0, size=SIZE)
+        cls.display.start()
         options = webdriver.ChromeOptions()
+        cls.full_path_temp_dir = tempfile.mkdtemp('osis-selenium')
         options.add_experimental_option('prefs', {
-            'download.default_directory': '/tmp',
+            'download.default_directory': cls.full_path_temp_dir,
             'download.prompt_for_download': False,
             'download.directory_upgrade': True,
             'safebrowsing.enabled': True
         })
-        self.driver = webdriver.Chrome(chrome_options=options)
-        self.driver.implicitly_wait(10)
-        self.driver.set_window_size(*SIZE)
+        cls.driver = webdriver.Chrome(chrome_options=options)
+        cls.driver.implicitly_wait(10)
+        cls.driver.set_window_size(*SIZE)
 
-    def tearDown(self):
-        self.driver.quit()
-        # self.display.stop()
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.full_path_temp_dir)
+        cls.driver.quit()
+        cls.display.stop()
+
+        super().tearDownClass()
 
     def get_url_by_name(self, url_name, *args, **kwargs):
         url = '{}{}'.format(self.live_server_url, reverse(url_name, args=args, kwargs=kwargs))
@@ -533,7 +542,7 @@ class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
         self.click_on('lnk_scores_encoding_download_{}'.format(learning_unit_year_1.id))
         time.sleep(1)
         filename = 'session_{}_{}_{}.xlsx'.format(academic_year.year, number_session, learning_unit_year_1.acronym)
-        full_path = os.path.join('/', 'tmp', filename)
+        full_path = os.path.join(self.full_path_temp_dir, filename)
 
         self.assertTrue(os.path.exists(full_path))
 
@@ -952,7 +961,7 @@ class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
         self.click_on('lnk_notes_printing_{}'.format(learning_unit_year.id))
         time.sleep(2)
         filename = 'Feuille de notes.pdf'
-        full_path = os.path.join('/', 'tmp', filename)
+        full_path = os.path.join(self.full_path_temp_dir, filename)
 
         self.assertTrue(os.path.exists(full_path))
 
