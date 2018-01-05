@@ -21,7 +21,11 @@ from openpyxl import load_workbook
 from prettyprinter import cpprint
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 
+from attribution.tests.factories.attribution import AttributionFactory
 from base.models import session_exam_calendar
 from base.tests.factories.academic_calendar import (AcademicCalendarExamSubmissionFactory,
                                                     AcademicCalendarFactory)
@@ -40,6 +44,7 @@ from base.tests.factories.session_exam_calendar import \
     SessionExamCalendarFactory
 from base.tests.factories.session_examen import SessionExamFactory
 from base.tests.factories.student import StudentFactory
+from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
 
 SIZE = (1280, 1280)
@@ -72,9 +77,10 @@ class SeleniumTestCase(StaticLiveServerTestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.display = pyvirtualdisplay.Display(visible=0, size=SIZE)
-        cls.display.start()
+        # cls.display.start()
         options = webdriver.ChromeOptions()
         cls.full_path_temp_dir = tempfile.mkdtemp('osis-selenium')
+        print(cls.full_path_temp_dir)
         options.add_experimental_option('prefs', {
             'download.default_directory': cls.full_path_temp_dir,
             'download.prompt_for_download': False,
@@ -87,9 +93,9 @@ class SeleniumTestCase(StaticLiveServerTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        shutil.rmtree(cls.full_path_temp_dir)
+        # shutil.rmtree(cls.full_path_temp_dir)
         cls.driver.quit()
-        cls.display.stop()
+        # cls.display.stop()
 
         super().tearDownClass()
 
@@ -418,14 +424,19 @@ class Scenario4FunctionalTest(SeleniumTestCase, BusinessMixin):
 class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
     def test(self):
         user = self.create_user()
-        self.add_group(user, 'program_managers')
+        self.add_group(user, 'program_managers', 'tutors')
         self.add_permission(user, 'can_access_academic_calendar', 'assessments.can_access_scoreencoding')
 
         academic_year = AcademicYearFactory(year=pendulum.today().year-1)
         academic_calendar = AcademicCalendarExamSubmissionFactory.build(academic_year=academic_year)
         academic_calendar.save(functions=[])
 
-        person = PersonFactory(user=user)
+        person = PersonFactory(
+            user=user,
+            first_name=user.first_name,
+            last_name=user.last_name,
+        )
+
         offer_year_factory = functools.partial(OfferYearFactory, academic_year=academic_year)
 
         acronyms = ['PHYS11BA', 'ECON2M1', 'PHYS1BA', 'PHYS2M1', 'PHYS2MA']
@@ -471,6 +482,12 @@ class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
         # unité d'enseignement = learning_unit_year
         learning_unit = LearningUnitFactory()
         learning_unit_year_1 = LearningUnitYearFactory(academic_year=academic_year, learning_unit=learning_unit)
+        tutor = TutorFactory(person=person)
+
+        attribution = AttributionFactory(
+            tutor=tutor, learning_unit_year=learning_unit_year_1,
+            score_responsible=True
+        )
 
         learning_unit2 = LearningUnitFactory()
         learning_unit_year_2 = LearningUnitYearFactory(academic_year=academic_year, learning_unit=learning_unit2)
@@ -507,9 +524,9 @@ class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
         offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offers['PHYS11BA'])
         offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offers['ECON2M1'])
 
-        ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment1, session_exam=session_exam_phys11ba)
-        ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment2, session_exam=session_exam_phys11ba)
-        ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment3, session_exam=session_exam_phys11ba)
+        exam_enrollment_1 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment1, session_exam=session_exam_phys11ba)
+        exam_enrollment_2 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment2, session_exam=session_exam_phys11ba)
+        exam_enrollment_3 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment3, session_exam=session_exam_phys11ba)
 
         exam_enrollment_10 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment10, session_exam=session_exam_phys11ba)
         exam_enrollment_11 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment11, session_exam=session_exam_phys11ba)
@@ -532,6 +549,8 @@ class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         self.goto('scores_encoding')
 
+        # import pdb; pdb.set_trace()
+
         select = Select(self.driver.find_element_by_id('slt_offer_list_selection'))
         # pdb.set_trace()
         select.select_by_visible_text('PHYS11BA')
@@ -546,34 +565,67 @@ class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         self.assertTrue(os.path.exists(full_path))
 
+        exam_enrollments = [
+            exam_enrollment_1, exam_enrollment_2, exam_enrollment_3,
+            exam_enrollment_10, exam_enrollment_11, exam_enrollment_12,
+            exam_enrollment_13, exam_enrollment_14, exam_enrollment_15,
+            exam_enrollment_16
+        ]
+
+        updated_values = self.update_xslx(full_path, exam_enrollments)
+        cpprint(updated_values)
+
+        # import pdb; pdb.set_trace()
+
         self.goto('online_encoding', learning_unit_year_id=learning_unit_year_1.id)
+        self.driver.save_screenshot(os.path.join(self.full_path_temp_dir, 'scenario5-before_xls.png'))
+
+
         self.click_on('bt_upload_score_modal')
         time.sleep(1)
         self.driver.execute_script("document.getElementById('fle_scores_input_file').style.display = 'block'")
         self.fill_by_id('fle_scores_input_file', full_path)
         time.sleep(1)
+
         self.click_on('bt_submit_upload_score_modal')
-        # import pdb; pdb.set_trace()
-        progression = self.driver.find_element_by_id('luy_progression').text
-        self.assertEqual(progression, '0 / 10')
+
+        self.assertElementTextEqual('luy_progression', '10 / 10')
+        self.driver.save_screenshot(os.path.join(self.full_path_temp_dir, 'scenario5-final.png'))
+
+        for enrollment_id, (key, value) in updated_values.items():
+            element_id = 'enrollment_{}_{}'.format(key, enrollment_id)
+            print(enrollment_id, key, value, self.get_element_text(element_id))
+            value = {'T': 'Tricherie', 'A': 'Absence injustifiée'}.get(value, value)
+
+            self.assertElementTextEqual(element_id, str(value))
 
 
-        # select.select_by_value('PHYS11BA')
 
-
-
-@unittest.skip('WIP')
-class Scenario5OldFunctionalTest(SeleniumTestCase, BusinessMixin):
-    def update_xslx(self, filename, enrollments):
+    def update_xslx(self, filename, exam_enrollments):
         fake = faker.Faker()
 
         wb = load_workbook(filename)
+
+        enrollments = {}
 
         sheet = wb.active
 
         if sheet.max_row > 11:
             start_row = 12
-            for row_number, enrollment in enumerate(enrollments):  # range(12, sheet.max_row + 1):
+
+            nomas = {
+                enrollment.learning_unit_enrollment.offer_enrollment.student.registration_id: {
+                    'enrollment': enrollment,
+                    'position': None
+                }
+                for enrollment in exam_enrollments
+            }
+
+            for counter in range(len(exam_enrollments)):
+                noma = sheet['E{}'.format(counter + start_row)].value
+                nomas[noma]['position'] = counter
+
+            for noma, info in nomas.items():
                 left_or_right = bool(random.getrandbits(1))
                 selected_column = 'H' if left_or_right else 'I'
 
@@ -581,150 +633,33 @@ class Scenario5OldFunctionalTest(SeleniumTestCase, BusinessMixin):
                     value = random.randint(0, 20)
                     key = 'note'
                 else:
-                    value = fake.random_element(elements=('A', 'T', 'S', 'M'))
+                    value = fake.random_element(elements=('A', 'T'))
                     key = 'justification'
 
-                sheet['{}{}'.format(selected_column, row_number + start_row)] = value
-                enrollment[key] = value
+                sheet['{}{}'.format(selected_column, info['position'] + start_row)] = value
+
+                enrollments[info['enrollment'].id] = key, value
 
         wb.save(filename=filename)
-
-    def test_05_score_encoding(self):
-        user = self.create_user() # create_super_user()
-        group, created = Group.objects.get_or_create(name='program_managers')
-        group.user_set.add(user)
-
-        group, created = Group.objects.get_or_create(name='tutors')
-        group.user_set.add(user)
-
-        permission = Permission.objects.get(codename='can_access_academic_calendar')
-        user.user_permissions.add(permission)
-        permission = Permission.objects.filter(codename='can_access_scoreencoding', content_type__app_label='assessments').first()
-
-        user.user_permissions.add(permission)
-
-        self.login(user.username)
-
-        academic_year = AcademicYearFactory(year=pendulum.today().year-1)
-        academic_calendar = AcademicCalendarExamSubmissionFactory.build(academic_year=academic_year)
-        academic_calendar.save(functions=[])
-        # cpprint({k: getattr(academic_calendar, k) for k in ('start_date', 'end_date', 'reference')})
-
-        person = PersonFactory(user=user)
-        offer_year_phys11ba = OfferYearFactory(academic_year=academic_year, acronym='PHYS11BA')
-        offer_year_econ2m1 = OfferYearFactory(academic_year=academic_year, acronym='ECON2M1')
-        offer_year_phys1ba = OfferYearFactory(academic_year=academic_year, acronym='PHYS1BA')
-        offer_year_phys2m1 = OfferYearFactory(academic_year=academic_year, acronym='PHYS2M1')
-        offer_year_phys2ma = OfferYearFactory(academic_year=academic_year, acronym='PHYS2MA')
-
-        ProgramManagerFactory(offer_year=offer_year_phys11ba, person=person)
-        ProgramManagerFactory(offer_year=offer_year_econ2m1, person=person)
-        ProgramManagerFactory(offer_year=offer_year_phys1ba, person=person)
-        ProgramManagerFactory(offer_year=offer_year_phys2m1, person=person)
-        ProgramManagerFactory(offer_year=offer_year_phys2ma, person=person)
-
-        student1 = StudentFactory()
-        student2 = StudentFactory()
-        student3 = StudentFactory()
-        student4 = StudentFactory()
-        student5 = StudentFactory()
-
-        learning_unit = LearningUnitFactory()
-        learning_unit_year = LearningUnitYearFactory(academic_year=academic_year, learning_unit=learning_unit)
-
-        offer_enrollment1 = OfferEnrollmentFactory(offer_year=offer_year_phys11ba, student=student1)
-        offer_enrollment2 = OfferEnrollmentFactory(offer_year=offer_year_phys11ba, student=student2)
-        offer_enrollment3 = OfferEnrollmentFactory(offer_year=offer_year_phys11ba, student=student3)
-        offer_enrollment4 = OfferEnrollmentFactory(offer_year=offer_year_phys11ba, student=student4)
-        offer_enrollment5 = OfferEnrollmentFactory(offer_year=offer_year_phys11ba, student=student5)
-
-        learning_unit_enrollment1 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment1, learning_unit_year=learning_unit_year)
-        learning_unit_enrollment2 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment2, learning_unit_year=learning_unit_year)
-        learning_unit_enrollment3 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment3, learning_unit_year=learning_unit_year)
-        learning_unit_enrollment4 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment4, learning_unit_year=learning_unit_year)
-        learning_unit_enrollment5 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment5, learning_unit_year=learning_unit_year)
-
-        number_session = 1
-        session_exam = SessionExamFactory(learning_unit_year=learning_unit_year, number_session=number_session, offer_year=offer_year_phys11ba)
-        offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offer_year_phys11ba)
-
-        enrollments = []
-        for counter in range(1, 6):
-            enrollments.append({
-                'enrollment': ExamEnrollmentFactory(
-                    learning_unit_enrollment=locals()['learning_unit_enrollment{}'.format(counter)],
-                    session_exam=session_exam
-                ),
-                'note': None,
-                'justification': None
-            })
-
-        sec = SessionExamCalendarFactory(academic_calendar=academic_calendar)
-
-        diff_date = academic_calendar.end_date - academic_calendar.start_date
-
-        days = diff_date.days / 2
-        date = academic_calendar.start_date + datetime.timedelta(days=days)
-        # cpprint({'diff_date': diff_date, 'days': days, 'date': date})
-
-        self.assertIsNotNone(session_exam_calendar.current_session_exam(date))
-
-        # Il faut une periode ouverte, sinon, on est retourne vers
-        # assessments.views.score_encoding.outside_period
-
-        self.goto('scores_encoding')
-        # pdb.set_trace()
-        self.driver.find_element_by_id('lnk_via_excel').click()
-        time.sleep(1)
-        self.driver.find_element_by_id('lnk_scores_encoding_download_{}'.format(learning_unit_year.id)).click()
-        time.sleep(2)
-        filename = 'session_{}_{}_{}.xlsx'.format(academic_year.year, number_session, learning_unit_year.acronym)
-        full_path = os.path.join('/', 'tmp', filename)
-
-        print(full_path)
-        self.assertTrue(os.path.exists(full_path))
-
-        self.update_xslx(full_path, enrollments)
-        # pdb.set_trace()
-
-        self.goto('online_encoding', learning_unit_year_id=learning_unit_year.id)
-        self.driver.find_element_by_id('bt_upload_score_modal').click()
-        time.sleep(1)
-        self.driver.execute_script("document.getElementById('fle_scores_input_file').style.display = 'block'")
-        self.fill_by_id('fle_scores_input_file', full_path)
-        # time.sleep(1)
-        self.driver.find_element_by_id('bt_submit_upload_score_modal').click()
-
-        progression = self.driver.find_element_by_id('luy_progression').text
-        self.assertEqual(progression, '0 / 5')
-
-        for enrollment_idx, value in enumerate(enrollments):
-            enrollment = value['enrollment']
-            note = self.driver.find_element_by_id('enrollment_note_{}'.format(enrollment.id)).text
-            if note != '-' and value['note'] is not None:
-                self.assertEqual(value['note'], int(note))
-            justification = self.driver.find_element_by_id('enrollment_justification_{}'.format(enrollment.id)).text
-            if note != '-' and value['justification'] is not None:
-                self.assertEqual(value['justification'], justification)
-
-        # pdb.set_trace()
-        # from openpyxl import load_workbook
-
-        # Scenario 5, il y a un probleme, car je n'ai pas les memes registration_id dans les etudiants, et donc, l'algo ne les retrouve pas
-        # ce qui fait que sans ce petit correctif, le test est erroné.
+        return enrollments
 
 
 class Scenario6FunctionalTest(SeleniumTestCase, BusinessMixin):
     def test(self):
         user = self.create_user()
-        self.add_group(user, 'program_managers')
+        self.add_group(user, 'program_managers', 'tutors')
         self.add_permission(user, 'can_access_academic_calendar', 'assessments.can_access_scoreencoding')
 
         academic_year = AcademicYearFactory(year=pendulum.today().year-1)
         academic_calendar = AcademicCalendarExamSubmissionFactory.build(academic_year=academic_year)
         academic_calendar.save(functions=[])
 
-        person = PersonFactory(user=user)
+        person = PersonFactory(
+            user=user,
+            first_name=user.first_name,
+            last_name=user.last_name,
+        )
+
         offer_year_factory = functools.partial(OfferYearFactory, academic_year=academic_year)
 
         acronyms = ['PHYS11BA', 'ECON2M1', 'PHYS1BA', 'PHYS2M1', 'PHYS2MA']
@@ -770,6 +705,13 @@ class Scenario6FunctionalTest(SeleniumTestCase, BusinessMixin):
         # unité d'enseignement = learning_unit_year
         learning_unit = LearningUnitFactory()
         learning_unit_year_1 = LearningUnitYearFactory(academic_year=academic_year, learning_unit=learning_unit)
+
+        tutor = TutorFactory(person=person)
+
+        attribution = AttributionFactory(
+            tutor=tutor, learning_unit_year=learning_unit_year_1,
+            score_responsible=True
+        )
 
         learning_unit2 = LearningUnitFactory()
         learning_unit_year_2 = LearningUnitYearFactory(academic_year=academic_year, learning_unit=learning_unit2)
@@ -886,78 +828,157 @@ class Scenario6FunctionalTest(SeleniumTestCase, BusinessMixin):
 
 class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
     def test(self):
-        user = self.create_user() # create_super_user()
+        user = self.create_user()
         self.add_group(user, 'program_managers', 'tutors')
         self.add_permission(user, 'can_access_academic_calendar', 'assessments.can_access_scoreencoding')
 
         academic_year = AcademicYearFactory(year=pendulum.today().year-1)
         academic_calendar = AcademicCalendarExamSubmissionFactory.build(academic_year=academic_year)
         academic_calendar.save(functions=[])
-        # cpprint({k: getattr(academic_calendar, k) for k in ('start_date', 'end_date', 'reference')})
 
-        person = PersonFactory(user=user)
-        offer_year_phys11ba = OfferYearFactory(academic_year=academic_year, acronym='PHYS11BA')
-        offer_year_econ2m1 = OfferYearFactory(academic_year=academic_year, acronym='ECON2M1')
-        offer_year_phys1ba = OfferYearFactory(academic_year=academic_year, acronym='PHYS1BA')
-        offer_year_phys2m1 = OfferYearFactory(academic_year=academic_year, acronym='PHYS2M1')
-        offer_year_phys2ma = OfferYearFactory(academic_year=academic_year, acronym='PHYS2MA')
+        person = PersonFactory(
+            user=user,
+            first_name=user.first_name,
+            last_name=user.last_name,
+        )
 
-        ProgramManagerFactory(offer_year=offer_year_phys11ba, person=person)
-        ProgramManagerFactory(offer_year=offer_year_econ2m1, person=person)
-        ProgramManagerFactory(offer_year=offer_year_phys1ba, person=person)
-        ProgramManagerFactory(offer_year=offer_year_phys2m1, person=person)
-        ProgramManagerFactory(offer_year=offer_year_phys2ma, person=person)
+        offer_year_factory = functools.partial(OfferYearFactory, academic_year=academic_year)
+
+        acronyms = ['PHYS11BA', 'ECON2M1', 'PHYS1BA', 'PHYS2M1', 'PHYS2MA']
+        offers = {
+            acronym: offer_year_factory(acronym=acronym)
+            for acronym in acronyms
+        }
+
+        program_manager_factory = functools.partial(
+            ProgramManagerFactory, person=person
+        )
+
+        for acronym, offer_year in offers.items():
+            program_manager_factory(offer_year=offer_year)
 
         student1 = StudentFactory()
         student2 = StudentFactory()
         student3 = StudentFactory()
-        student4 = StudentFactory()
-        student5 = StudentFactory()
 
+        student10 = StudentFactory()
+        student11 = StudentFactory()
+        student12 = StudentFactory()
+        student13 = StudentFactory()
+        student14 = StudentFactory()
+        student15 = StudentFactory()
+        student16 = StudentFactory()
+
+        offer_enrollment1 = OfferEnrollmentFactory(offer_year=offers['PHYS11BA'], student=student1)
+        offer_enrollment2 = OfferEnrollmentFactory(offer_year=offers['PHYS11BA'], student=student2)
+        offer_enrollment3 = OfferEnrollmentFactory(offer_year=offers['PHYS11BA'], student=student3)
+
+        offer_enrollment10 = OfferEnrollmentFactory(offer_year=offers['PHYS11BA'], student=student10)
+        offer_enrollment11 = OfferEnrollmentFactory(offer_year=offers['PHYS11BA'], student=student11)
+        offer_enrollment12 = OfferEnrollmentFactory(offer_year=offers['PHYS11BA'], student=student12)
+        offer_enrollment13 = OfferEnrollmentFactory(offer_year=offers['PHYS11BA'], student=student13)
+        offer_enrollment14 = OfferEnrollmentFactory(offer_year=offers['PHYS11BA'], student=student14)
+        offer_enrollment15 = OfferEnrollmentFactory(offer_year=offers['PHYS11BA'], student=student15)
+        offer_enrollment16 = OfferEnrollmentFactory(offer_year=offers['PHYS11BA'], student=student16)
+
+        offer_enrollment4 = OfferEnrollmentFactory(offer_year=offers['ECON2M1'], student=student1)
+        offer_enrollment5 = OfferEnrollmentFactory(offer_year=offers['ECON2M1'], student=student2)
+
+        # unité d'enseignement = learning_unit_year
         learning_unit = LearningUnitFactory()
-        learning_unit_year = LearningUnitYearFactory(academic_year=academic_year, learning_unit=learning_unit)
+        learning_unit_year_1 = LearningUnitYearFactory(academic_year=academic_year, learning_unit=learning_unit)
 
-        offer_enrollment1 = OfferEnrollmentFactory(offer_year=offer_year_phys11ba, student=student1)
-        offer_enrollment2 = OfferEnrollmentFactory(offer_year=offer_year_phys11ba, student=student2)
-        offer_enrollment3 = OfferEnrollmentFactory(offer_year=offer_year_phys11ba, student=student3)
-        offer_enrollment4 = OfferEnrollmentFactory(offer_year=offer_year_phys11ba, student=student4)
-        offer_enrollment5 = OfferEnrollmentFactory(offer_year=offer_year_phys11ba, student=student5)
+        tutor = TutorFactory(person=person)
 
-        learning_unit_enrollment1 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment1, learning_unit_year=learning_unit_year)
-        learning_unit_enrollment2 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment2, learning_unit_year=learning_unit_year)
-        learning_unit_enrollment3 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment3, learning_unit_year=learning_unit_year)
-        learning_unit_enrollment4 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment4, learning_unit_year=learning_unit_year)
-        learning_unit_enrollment5 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment5, learning_unit_year=learning_unit_year)
+        attribution = AttributionFactory(
+            tutor=tutor, learning_unit_year=learning_unit_year_1,
+            score_responsible=True
+        )
+
+        learning_unit2 = LearningUnitFactory()
+        learning_unit_year_2 = LearningUnitYearFactory(academic_year=academic_year, learning_unit=learning_unit2)
+
+        learning_unit3 = LearningUnitFactory()
+        learning_unit_year_3 = LearningUnitYearFactory(academic_year=academic_year, learning_unit=learning_unit3)
+
+        learning_unit_enrollment1 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment1, learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment2 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment2, learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment3 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment3, learning_unit_year=learning_unit_year_1)
+
+        learning_unit_enrollment10 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment10, learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment11 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment11, learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment12 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment12, learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment13 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment13, learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment14 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment14, learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment15 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment15, learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment16 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment16, learning_unit_year=learning_unit_year_1)
+
+        learning_unit_enrollment4 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment4, learning_unit_year=learning_unit_year_2)
+        learning_unit_enrollment5 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment5, learning_unit_year=learning_unit_year_2)
+
+        learning_unit_enrollment6 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment1, learning_unit_year=learning_unit_year_3)
+        learning_unit_enrollment7 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment5, learning_unit_year=learning_unit_year_3)
 
         number_session = 1
+        session_exam_phys11ba = SessionExamFactory(learning_unit_year=learning_unit_year_1, number_session=number_session, offer_year=offers['PHYS11BA'])
 
-        session_exam = SessionExamFactory(learning_unit_year=learning_unit_year, number_session=number_session, offer_year=offer_year_phys11ba)
-        offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offer_year_phys11ba)
+        session_exam_econ2m1 = SessionExamFactory(learning_unit_year=learning_unit_year_2, number_session=number_session, offer_year=offers['ECON2M1'])
 
-        enrollments = []
-        for counter in range(1, 6):
-            enrollments.append({
-                'enrollment': ExamEnrollmentFactory(
-                    learning_unit_enrollment=locals()['learning_unit_enrollment{}'.format(counter)],
-                    session_exam=session_exam
-                ),
-                'note': None,
-                'justification': None
-            })
+        session_exam_3 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=number_session, offer_year=offers['ECON2M1'])
+        session_exam_4 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=number_session, offer_year=offers['PHYS11BA'])
 
-        sec = SessionExamCalendarFactory(academic_calendar=academic_calendar)
+        offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offers['PHYS11BA'])
+        offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offers['ECON2M1'])
+
+        ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment1, session_exam=session_exam_phys11ba)
+        ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment2, session_exam=session_exam_phys11ba)
+        ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment3, session_exam=session_exam_phys11ba)
+
+        exam_enrollment_10 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment10, session_exam=session_exam_phys11ba)
+        exam_enrollment_11 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment11, session_exam=session_exam_phys11ba)
+        exam_enrollment_12 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment12, session_exam=session_exam_phys11ba)
+        exam_enrollment_13 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment13, session_exam=session_exam_phys11ba)
+        exam_enrollment_14 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment14, session_exam=session_exam_phys11ba)
+        exam_enrollment_15 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment15, session_exam=session_exam_phys11ba)
+        exam_enrollment_16 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment16, session_exam=session_exam_phys11ba)
+
+
+        ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment4, session_exam=session_exam_econ2m1)
+        ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment5, session_exam=session_exam_econ2m1)
+
+        ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment6, session_exam=session_exam_3)
+        ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment7, session_exam=session_exam_4)
+
+        session_exam_calendar = SessionExamCalendarFactory(academic_calendar=academic_calendar)
 
         self.login(user.username)
 
         self.goto('scores_encoding')
-        self.fill_by_id('txt_acronym', learning_unit_year.acronym)
+
+        self.click_on('lnk_encode_{}'.format(learning_unit_year_1.id))
+        self.assertElementTextEqualInt('number_of_enrollments', 10)
+
+        note_enrollments = {}
+
+        for counter in range(1, 11):
+            element = self.driver.find_element_by_css_selector("[tabindex='%d']" % counter)
+            element_id = element.get_attribute('id')
+            enrollment_id = int(element_id.split('_')[-1])
+            self.fill_by_id(element_id, counter)
+            note_enrollments[enrollment_id] = counter
+
+        self.click_on('bt_save_online_encoding_up')
+
+        self.goto('scores_encoding')
+
+        self.fill_by_id('txt_acronym', learning_unit_year_1.acronym)
         self.click_on('bt_submit_offer_search')
         time.sleep(1)
 
         self.click_on('lnk_via_paper')
         time.sleep(1)
 
-        self.click_on('lnk_notes_printing_{}'.format(learning_unit_year.id))
+        self.click_on('lnk_notes_printing_{}'.format(learning_unit_year_1.id))
         time.sleep(1)
         filename = 'Feuille de notes.pdf'
         full_path = os.path.join(self.full_path_temp_dir, filename)
