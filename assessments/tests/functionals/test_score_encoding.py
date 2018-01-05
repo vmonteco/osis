@@ -952,14 +952,14 @@ class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
         self.goto('scores_encoding')
         self.fill_by_id('txt_acronym', learning_unit_year.acronym)
         self.click_on('bt_submit_offer_search')
-        time.sleep(2)
+        time.sleep(1)
 
         self.click_on('lnk_via_paper')
         # import pdb; pdb.set_trace()
         time.sleep(1)
 
         self.click_on('lnk_notes_printing_{}'.format(learning_unit_year.id))
-        time.sleep(2)
+        time.sleep(1)
         filename = 'Feuille de notes.pdf'
         full_path = os.path.join(self.full_path_temp_dir, filename)
 
