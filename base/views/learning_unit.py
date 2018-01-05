@@ -43,8 +43,9 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, get_last_academic_years, get_search_form, \
-    get_learning_units, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls
+    SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls
 from base.forms.common import TooManyResultsException
+from base.forms.learning_units import LearningUnitYearForm
 from base.models import proposal_learning_unit, entity_version
 from base.models.campus import Campus
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
@@ -404,11 +405,16 @@ def learning_units_service_course(request):
 
 
 def _learning_units_search(request, search_type):
-    form = get_search_form(request)
+    service_course_search = search_type == SERVICE_COURSES_SEARCH
+    request_get = request.GET if request.GET.get('academic_year_id') else None
+
+    form = LearningUnitYearForm(request_get, service_course_search=service_course_search)
+
     found_learning_units = []
     try:
         if form.is_valid():
-            found_learning_units = get_learning_units(form, search_type)
+            found_learning_units = form.get_activity_learning_units()
+
             _check_if_display_message(request, found_learning_units)
     except TooManyResultsException:
         messages.add_message(request, messages.ERROR, _('too_many_results'))
