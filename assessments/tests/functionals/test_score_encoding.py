@@ -308,13 +308,14 @@ class Scenario4FunctionalTest(SeleniumTestCase, BusinessMixin):
         learning_unit_enrollment6 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment1, learning_unit_year=learning_unit_year_3)
         learning_unit_enrollment7 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment5, learning_unit_year=learning_unit_year_3)
 
-        number_session = 1
-        session_exam_phys11ba = SessionExamFactory(learning_unit_year=learning_unit_year_1, number_session=number_session, offer_year=offers['PHYS11BA'])
+        session_exam_calendar = SessionExamCalendarFactory(academic_calendar=academic_calendar)
 
-        session_exam_econ2m1 = SessionExamFactory(learning_unit_year=learning_unit_year_2, number_session=number_session, offer_year=offers['ECON2M1'])
+        session_exam_phys11ba = SessionExamFactory(learning_unit_year=learning_unit_year_1, number_session=session_exam_calendar.number_session, offer_year=offers['PHYS11BA'])
 
-        session_exam_3 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=number_session, offer_year=offers['ECON2M1'])
-        session_exam_4 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=number_session, offer_year=offers['PHYS11BA'])
+        session_exam_econ2m1 = SessionExamFactory(learning_unit_year=learning_unit_year_2, number_session=session_exam_calendar.number_session, offer_year=offers['ECON2M1'])
+
+        session_exam_3 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=session_exam_calendar.number_session, offer_year=offers['ECON2M1'])
+        session_exam_4 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=session_exam_calendar.number_session, offer_year=offers['PHYS11BA'])
 
         offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offers['PHYS11BA'])
         offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offers['ECON2M1'])
@@ -337,8 +338,6 @@ class Scenario4FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment6, session_exam=session_exam_3)
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment7, session_exam=session_exam_4)
-
-        session_exam_calendar = SessionExamCalendarFactory(academic_calendar=academic_calendar)
 
         self.login(user.username)
 
@@ -514,13 +513,13 @@ class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
         learning_unit_enrollment6 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment1, learning_unit_year=learning_unit_year_3)
         learning_unit_enrollment7 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment5, learning_unit_year=learning_unit_year_3)
 
-        number_session = 1
-        session_exam_phys11ba = SessionExamFactory(learning_unit_year=learning_unit_year_1, number_session=number_session, offer_year=offers['PHYS11BA'])
+        session_exam_calendar = SessionExamCalendarFactory(academic_calendar=academic_calendar)
 
-        session_exam_econ2m1 = SessionExamFactory(learning_unit_year=learning_unit_year_2, number_session=number_session, offer_year=offers['ECON2M1'])
+        session_exam_phys11ba = SessionExamFactory(learning_unit_year=learning_unit_year_1, number_session=session_exam_calendar.number_session, offer_year=offers['PHYS11BA'])
+        session_exam_econ2m1 = SessionExamFactory(learning_unit_year=learning_unit_year_2, number_session=session_exam_calendar.number_session, offer_year=offers['ECON2M1'])
 
-        session_exam_3 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=number_session, offer_year=offers['ECON2M1'])
-        session_exam_4 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=number_session, offer_year=offers['PHYS11BA'])
+        session_exam_3 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=session_exam_calendar.number_session, offer_year=offers['ECON2M1'])
+        session_exam_4 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=session_exam_calendar.number_session, offer_year=offers['PHYS11BA'])
 
         offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offers['PHYS11BA'])
         offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offers['ECON2M1'])
@@ -544,8 +543,6 @@ class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment6, session_exam=session_exam_3)
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment7, session_exam=session_exam_4)
 
-        session_exam_calendar = SessionExamCalendarFactory(academic_calendar=academic_calendar)
-
         self.login(user.username)
 
         self.goto('scores_encoding')
@@ -558,7 +555,9 @@ class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
         time.sleep(1)
         self.click_on('lnk_scores_encoding_download_{}'.format(learning_unit_year_1.id))
         time.sleep(1)
-        filename = 'session_{}_{}_{}.xlsx'.format(academic_year.year, number_session, learning_unit_year_1.acronym)
+        filename = 'session_{}_{}_{}.xlsx'.format(academic_year.year,
+                                                  session_exam_calendar.number_session,
+                                                  learning_unit_year_1.acronym)
         full_path = os.path.join(self.full_path_temp_dir, filename)
 
         self.assertTrue(os.path.exists(full_path))
@@ -730,13 +729,13 @@ class Scenario6FunctionalTest(SeleniumTestCase, BusinessMixin):
         learning_unit_enrollment6 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment1, learning_unit_year=learning_unit_year_3)
         learning_unit_enrollment7 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment5, learning_unit_year=learning_unit_year_3)
 
-        number_session = 1
-        session_exam_phys11ba = SessionExamFactory(learning_unit_year=learning_unit_year_1, number_session=number_session, offer_year=offers['PHYS11BA'])
+        session_exam_calendar = SessionExamCalendarFactory(academic_calendar=academic_calendar)
 
-        session_exam_econ2m1 = SessionExamFactory(learning_unit_year=learning_unit_year_2, number_session=number_session, offer_year=offers['ECON2M1'])
+        session_exam_phys11ba = SessionExamFactory(learning_unit_year=learning_unit_year_1, number_session=session_exam_calendar.number_session, offer_year=offers['PHYS11BA'])
+        session_exam_econ2m1 = SessionExamFactory(learning_unit_year=learning_unit_year_2, number_session=session_exam_calendar.number_session, offer_year=offers['ECON2M1'])
 
-        session_exam_3 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=number_session, offer_year=offers['ECON2M1'])
-        session_exam_4 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=number_session, offer_year=offers['PHYS11BA'])
+        session_exam_3 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=session_exam_calendar.number_session, offer_year=offers['ECON2M1'])
+        session_exam_4 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=session_exam_calendar.number_session, offer_year=offers['PHYS11BA'])
 
         offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offers['PHYS11BA'])
         offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offers['ECON2M1'])
@@ -760,7 +759,6 @@ class Scenario6FunctionalTest(SeleniumTestCase, BusinessMixin):
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment6, session_exam=session_exam_3)
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment7, session_exam=session_exam_4)
 
-        session_exam_calendar = SessionExamCalendarFactory(academic_calendar=academic_calendar)
 
         self.login(user.username)
 
@@ -913,13 +911,13 @@ class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
         learning_unit_enrollment6 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment1, learning_unit_year=learning_unit_year_3)
         learning_unit_enrollment7 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment5, learning_unit_year=learning_unit_year_3)
 
-        number_session = 1
-        session_exam_phys11ba = SessionExamFactory(learning_unit_year=learning_unit_year_1, number_session=number_session, offer_year=offers['PHYS11BA'])
+        session_exam_calendar = SessionExamCalendarFactory(academic_calendar=academic_calendar)
 
-        session_exam_econ2m1 = SessionExamFactory(learning_unit_year=learning_unit_year_2, number_session=number_session, offer_year=offers['ECON2M1'])
+        session_exam_phys11ba = SessionExamFactory(learning_unit_year=learning_unit_year_1, number_session=session_exam_calendar.number_session, offer_year=offers['PHYS11BA'])
+        session_exam_econ2m1 = SessionExamFactory(learning_unit_year=learning_unit_year_2, number_session=session_exam_calendar.number_session, offer_year=offers['ECON2M1'])
 
-        session_exam_3 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=number_session, offer_year=offers['ECON2M1'])
-        session_exam_4 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=number_session, offer_year=offers['PHYS11BA'])
+        session_exam_3 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=session_exam_calendar.number_session, offer_year=offers['ECON2M1'])
+        session_exam_4 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=session_exam_calendar.number_session, offer_year=offers['PHYS11BA'])
 
         offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offers['PHYS11BA'])
         offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offers['ECON2M1'])
@@ -942,8 +940,6 @@ class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment6, session_exam=session_exam_3)
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment7, session_exam=session_exam_4)
-
-        session_exam_calendar = SessionExamCalendarFactory(academic_calendar=academic_calendar)
 
         self.login(user.username)
 
