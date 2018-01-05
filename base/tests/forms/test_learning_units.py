@@ -213,6 +213,4 @@ class TestLearningUnitForm(TestCase):
         start_date = kwargs.pop('start_date', self.start_date)
         end_date = kwargs.pop('end_date', self.end_date)
 
-        return EntityVersionFactory(**kwargs,
-                                    start_date=start_date,
-                                    end_date=end_date)
+        return EntityVersionFactory(start_date=start_date, end_date=end_date, **kwargs)
