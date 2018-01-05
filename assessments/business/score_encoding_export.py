@@ -34,7 +34,7 @@ from base import models as mdl
 from base.models.enums import exam_enrollment_justification_type
 
 HEADER = [str(_('academic_year')),
-          str(_('sessionn')),
+          str(_('session')),
           str(_('learning_unit')),
           str(_('program')),
           str(_('registration_number')),

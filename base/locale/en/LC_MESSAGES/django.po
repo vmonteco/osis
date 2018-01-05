@@ -1053,7 +1053,7 @@ msgstr "A server error occured."
 msgid "server_error_message"
 msgstr "We will fix this as soon as possible"
 
-msgid "sessionn"
+msgid "session"
 msgstr "Session"
 
 msgid "short_title"

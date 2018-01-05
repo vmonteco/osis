@@ -129,9 +129,13 @@
                                         <label>{% trans 'language' %}</label><br>
                                         {{learning_unit_year.learning_container_year.language | default_if_none:'' }}
                                     </div>
-                                    <div class="col-md-9">
+                                    <div class="col-md-3">
                                         <label>{% trans 'quadrimester' %}</label><br>
                                         {{ learning_unit_year.quadrimester | default_if_none:'' }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>{% trans 'session' %}</label><br>
+                                        {{ learning_unit_year.session | default_if_none:'' }}
                                     </div>
                                 </div>
                             </div>

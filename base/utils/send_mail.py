@@ -55,7 +55,7 @@ def send_mail_after_scores_submission(persons, learning_unit_name, submitted_enr
                           'encoding_status':    _('encoding_status_ended') if all_encoded
                           else _('encoding_status_notended')
                           }
-    header_txt = ['acronym', 'sessionn', 'registration_number', 'lastname', 'firstname', 'score', 'documentation']
+    header_txt = ['acronym', 'session', 'registration_number', 'lastname', 'firstname', 'score', 'documentation']
     submitted_enrollments_data = [
         (
             enrollment.learning_unit_enrollment.offer_enrollment.offer_year.acronym,
@@ -160,7 +160,7 @@ def send_message_after_all_encoded_by_manager(persons, enrollments, learning_uni
         ) for enrollment in enrollments]
     enrollments_headers = (
         'acronym',
-        'sessionn',
+        'session',
         'registration_number',
         'lastname',
         'firstname',

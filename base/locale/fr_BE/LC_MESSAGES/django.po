@@ -1071,7 +1071,7 @@ msgstr "Une erreur innatendue s'est produite"
 msgid "server_error_message"
 msgstr "Nous mettons tout en oeuvre pour résoudre ce problème."
 
-msgid "sessionn"
+msgid "session"
 msgstr "Session"
 
 msgid "short_title"
