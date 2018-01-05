@@ -204,7 +204,7 @@ class Scenario3FunctionalTest(SeleniumTestCase, BusinessMixin):
         )
         academic_calendar.save(functions=[])
 
-        person = PersonFactory(user=user)
+        person = PersonFactory(user=user, language='fr-be')
         offer_year = OfferYearFactory(academic_year=academic_year)
 
         ProgramManagerFactory(offer_year=offer_year, person=person)
@@ -237,7 +237,7 @@ class Scenario4FunctionalTest(SeleniumTestCase, BusinessMixin):
         academic_calendar = AcademicCalendarExamSubmissionFactory.build(academic_year=academic_year)
         academic_calendar.save(functions=[])
 
-        person = PersonFactory(user=user)
+        person = PersonFactory(user=user, language='fr-be')
         offer_year_factory = functools.partial(OfferYearFactory, academic_year=academic_year)
 
         acronyms = ['PHYS11BA', 'ECON2M1', 'PHYS1BA', 'PHYS2M1', 'PHYS2MA']
@@ -435,6 +435,7 @@ class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
             user=user,
             first_name=user.first_name,
             last_name=user.last_name,
+            language='fr-be'
         )
 
         offer_year_factory = functools.partial(OfferYearFactory, academic_year=academic_year)
@@ -650,6 +651,7 @@ class Scenario6FunctionalTest(SeleniumTestCase, BusinessMixin):
             user=user,
             first_name=user.first_name,
             last_name=user.last_name,
+            language='fr-be'
         )
 
         offer_year_factory = functools.partial(OfferYearFactory, academic_year=academic_year)
@@ -832,6 +834,7 @@ class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
             user=user,
             first_name=user.first_name,
             last_name=user.last_name,
+            language='fr-be'
         )
 
         offer_year_factory = functools.partial(OfferYearFactory, academic_year=academic_year)
