@@ -549,10 +549,7 @@ class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         self.goto('scores_encoding')
 
-        # import pdb; pdb.set_trace()
-
         select = Select(self.driver.find_element_by_id('slt_offer_list_selection'))
-        # pdb.set_trace()
         select.select_by_visible_text('PHYS11BA')
         self.click_on('bt_submit_offer_search')
         time.sleep(1)
@@ -573,13 +570,9 @@ class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
         ]
 
         updated_values = self.update_xslx(full_path, exam_enrollments)
-        cpprint(updated_values)
-
-        # import pdb; pdb.set_trace()
 
         self.goto('online_encoding', learning_unit_year_id=learning_unit_year_1.id)
         self.driver.save_screenshot(os.path.join(self.full_path_temp_dir, 'scenario5-before_xls.png'))
-
 
         self.click_on('bt_upload_score_modal')
         time.sleep(1)
@@ -598,7 +591,6 @@ class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
             value = {'T': 'Tricherie', 'A': 'Absence injustifiée'}.get(value, value)
 
             self.assertElementTextEqual(element_id, str(value))
-
 
 
     def update_xslx(self, filename, exam_enrollments):
