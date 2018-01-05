@@ -147,7 +147,7 @@ class Scenario1FunctionalTest(SeleniumTestCase, BusinessMixin):
         # FIXME: Le super user n'a pas besoin de permission, est-ce que c'est un probleme ?
         # self.add_permission(self.user, 'can_access_academic_calendar')
 
-        academic_year = AcademicYearFactory()
+        academic_year = AcademicYearFactory(year=pendulum.today().year-1)
         self.academic_calendar = AcademicCalendarFactory.build(academic_year=academic_year)
         self.academic_calendar.save(functions=[])
 
