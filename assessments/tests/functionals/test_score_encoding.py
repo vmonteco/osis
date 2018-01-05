@@ -76,8 +76,8 @@ class SeleniumTestCase(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.display = pyvirtualdisplay.Display(visible=0, size=SIZE)
-        # cls.display.start()
+        cls.display = pyvirtualdisplay.Display(size=SIZE)
+        cls.display.start()
         options = webdriver.ChromeOptions()
         cls.full_path_temp_dir = tempfile.mkdtemp('osis-selenium')
         print(cls.full_path_temp_dir)
@@ -93,9 +93,9 @@ class SeleniumTestCase(StaticLiveServerTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # shutil.rmtree(cls.full_path_temp_dir)
+        shutil.rmtree(cls.full_path_temp_dir)
         cls.driver.quit()
-        # cls.display.stop()
+        cls.display.stop()
 
         super().tearDownClass()
 
