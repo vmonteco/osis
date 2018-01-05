@@ -45,16 +45,14 @@ class LearningUnitYearWithContext:
 def get_with_context(**learning_unit_year_data):
     entity_container_prefetch = models.Prefetch(
         'learning_container_year__entitycontaineryear_set',
-        queryset=mdl.entity_container_year
-            .search(
+        queryset=mdl.entity_container_year.search(
             link_type=[
                 entity_types.REQUIREMENT_ENTITY,
                 entity_types.ALLOCATION_ENTITY,
                 entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1,
                 entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2
             ]
-        )
-            .prefetch_related(
+        ).prefetch_related(
             models.Prefetch('entity__entityversion_set', to_attr='entity_versions')
         ),
         to_attr='entity_containers_year'
@@ -62,10 +60,11 @@ def get_with_context(**learning_unit_year_data):
 
     learning_component_prefetch = models.Prefetch(
         'learningunitcomponent_set',
-        queryset=mdl.learning_unit_component.LearningUnitComponent.objects.all()
-            .order_by('learning_component_year__type', 'learning_component_year__acronym')
-            .select_related('learning_component_year')
-            .prefetch_related(
+        queryset=mdl.learning_unit_component.LearningUnitComponent.objects.all().order_by(
+            'learning_component_year__type', 'learning_component_year__acronym'
+        ).select_related(
+            'learning_component_year'
+        ).prefetch_related(
             models.Prefetch('learning_component_year__entitycomponentyear_set',
                             queryset=mdl.entity_component_year.EntityComponentYear.objects.all()
                             .select_related('entity_container_year'),
@@ -113,12 +112,10 @@ def _append_components(learning_unit):
         for learning_unit_component in learning_unit.learning_unit_components:
             component = learning_unit_component.learning_component_year
             entity_components_year = component.entity_components_year
-            requirement_entities_volumes = _get_requirement_entities_volumes(entity_components_year)
-            vol_req_entity = requirement_entities_volumes.get(entity_types.REQUIREMENT_ENTITY, 0) or 0
-            vol_add_req_entity_1 = requirement_entities_volumes.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1,
-                                                                    0) or 0
-            vol_add_req_entity_2 = requirement_entities_volumes.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2,
-                                                                    0) or 0
+            req_entities_volumes = _get_requirement_entities_volumes(entity_components_year)
+            vol_req_entity = req_entities_volumes.get(entity_types.REQUIREMENT_ENTITY, 0) or 0
+            vol_add_req_entity_1 = req_entities_volumes.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1, 0) or 0
+            vol_add_req_entity_2 = req_entities_volumes.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2, 0) or 0
             volume_total_charge = vol_req_entity + vol_add_req_entity_1 + vol_add_req_entity_2
             volume_partial_component = float(component.hourly_volume_partial) if component.hourly_volume_partial else 0
             planned_classes = component.planned_classes or 1
