@@ -588,7 +588,6 @@ class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         for enrollment_id, (key, value) in updated_values.items():
             element_id = 'enrollment_{}_{}'.format(key, enrollment_id)
-            print(enrollment_id, key, value, self.get_element_text(element_id))
             value = {'T': 'Tricherie', 'A': 'Absence injustifiée'}.get(value, value)
 
             self.assertElementTextEqual(element_id, str(value))
