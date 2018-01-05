@@ -118,27 +118,31 @@ class LearningUnitYearForm(BootstrapForm):
 
     def _get_service_course_learning_units(self):
         service_courses = []
-        allocation_entity_acronym = self.cleaned_data['allocation_entity_acronym']
-        requirement_entity_acronym = self.cleaned_data['requirement_entity_acronym']
 
         for learning_unit in self._get_learning_units(True):
             if not learning_unit.entities.get(SERVICE_COURSE):
                 continue
 
-            allocation_entity_service_course = learning_unit.entities. \
-                get(entity_container_year_link_type.ALLOCATION_ENTITY)
-
-            if not allocation_entity_service_course:
-                continue
-
-            requirement_entity_service_course = learning_unit.entities. \
-                get(entity_container_year_link_type.REQUIREMENT_ENTITY)
-
-            if allocation_entity_acronym in (allocation_entity_service_course.acronym, None) \
-                    and requirement_entity_acronym in (requirement_entity_service_course.acronym, None):
+            if self._is_matching_learning_unit(learning_unit):
                 service_courses.append(learning_unit)
 
         return service_courses
+
+    def _is_matching_learning_unit(self, learning_unit):
+        allocation_entity_acronym = self.cleaned_data['allocation_entity_acronym']
+        requirement_entity_acronym = self.cleaned_data['requirement_entity_acronym']
+
+        allocation_entity_service_course = learning_unit.entities. \
+            get(entity_container_year_link_type.ALLOCATION_ENTITY)
+
+        requirement_entity_service_course = learning_unit.entities. \
+            get(entity_container_year_link_type.REQUIREMENT_ENTITY)
+
+        return allocation_entity_acronym in (
+            allocation_entity_service_course.acronym, None
+        ) and requirement_entity_acronym in (
+            requirement_entity_service_course.acronym, None
+        )
 
 
 def _get_filter_learning_container_ids(filter_data):
@@ -151,15 +155,22 @@ def _get_filter_learning_container_ids(filter_data):
         entity_ids = get_entities_ids(requirement_entity_acronym, with_entity_subordinated)
 
         entities_id_list += list(
-            mdl.entity_container_year.search(link_type=entity_container_year_link_type.REQUIREMENT_ENTITY,
-                                             entity_id=entity_ids)
-                .values_list('learning_container_year', flat=True).distinct())
+            mdl.entity_container_year.search(
+                link_type=entity_container_year_link_type.REQUIREMENT_ENTITY,
+                entity_id=entity_ids
+            ).values_list(
+                'learning_container_year', flat=True).distinct()
+        )
 
     if allocation_entity_acronym:
         entity_ids = get_entities_ids(allocation_entity_acronym, False)
         entities_id_list += list(
-            mdl.entity_container_year.search(link_type=entity_container_year_link_type.ALLOCATION_ENTITY,
-                                             entity_id=entity_ids)
-                .values_list('learning_container_year', flat=True).distinct())
+            mdl.entity_container_year.search(
+                link_type=entity_container_year_link_type.ALLOCATION_ENTITY,
+                entity_id=entity_ids
+            ).values_list(
+                'learning_container_year', flat=True
+            ).distinct()
+        )
 
     return entities_id_list if entities_id_list else None
