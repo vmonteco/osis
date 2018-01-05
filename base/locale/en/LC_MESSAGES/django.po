@@ -1053,9 +1053,6 @@ msgstr "A server error occured."
 msgid "server_error_message"
 msgstr "We will fix this as soon as possible"
 
-msgid "session"
-msgstr "Session"
-
 msgid "short_title"
 msgstr "Short title"
 
@@ -2306,7 +2303,7 @@ msgid "scores_diffusion"
 msgstr "Scores diffusion"
 
 msgid "session"
-msgstr "Session"
+msgstr "session"
 
 msgid "at"
 msgstr "at"
