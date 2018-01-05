@@ -27,7 +27,7 @@ from django.conf.urls import url, include
 from assessments.views import score_encoding, upload_xls_utils, pgm_manager_administration, score_sheet
 from django.views.i18n import javascript_catalog
 
-from assessments.views import scores_responsible
+from assessments.views import scores_responsible, summary_responsible
 
 js_info_dict = {
     'packages': ('assessments', )
@@ -94,6 +94,11 @@ urlpatterns = [
             name='scores_responsible_management'),
         url(r'^scores_responsible_add/(?P<pk>[0-9]+)/$', scores_responsible.scores_responsible_add,
             name='scores_responsible_add'),
+    ])),
+
+    url(r'^summary_responsible_manager/', include([
+        url(r'^$', summary_responsible.summary_responsible,
+            name='summary_responsible'),
     ])),
 
     url(r'^update_managers_list/$', pgm_manager_administration.update_managers_list),
