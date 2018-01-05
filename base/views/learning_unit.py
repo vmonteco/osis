@@ -42,7 +42,7 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     get_common_context_learning_unit_year, get_cms_label_data, \
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
-    get_all_attributions, get_last_academic_years, get_search_form, \
+    get_all_attributions, get_last_academic_years, \
     SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls
 from base.forms.common import TooManyResultsException
 from base.forms.learning_units import LearningUnitYearForm
