@@ -58,6 +58,7 @@ class AttributionNew(AuditableModel):
     start_year = models.IntegerField(blank=True, null=True)
     end_year = models.IntegerField(blank=True, null=True)
     score_responsible = models.BooleanField(default=False)
+    summary_responsible = models.BooleanField(default=False)
 
     def __str__(self):
         return u"%s - %s" % (self.tutor.person, self.function)
