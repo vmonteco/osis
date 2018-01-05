@@ -277,7 +277,7 @@ def manager_proposition_dissertations_search(request):
                                offers,
                                proposition.description
                                ])
-        response = HttpResponse(save_virtual_workbook(workbook), content_type='application/vnd.ms-excel')
+        response = HttpResponse(save_virtual_workbook(workbook), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=binary')
         response['Content-Disposition'] = "%s%s" % ("attachment; filename=", filename)
         return response
 
