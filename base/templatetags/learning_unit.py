@@ -30,17 +30,17 @@ register = template.Library()
 
 
 @register.filter
-def academic_years(start_year, auto_renewal_until):
-    if start_year and auto_renewal_until:
+def academic_years(start_year, end_year):
+    if start_year and end_year:
         start_yr = ''
         end_year = ''
         if start_year:
             start_yr = "{} {}-{}".format(_('from').title(), start_year, str(start_year+1)[-2:])
-        if auto_renewal_until:
-            end_year = "{} {}-{}".format(_('to'), auto_renewal_until, str(auto_renewal_until+1)[-2:])
+        if end_year:
+            end_year = "{} {}-{}".format(_('to'), end_year, str(end_year+1)[-2:])
         return "{} {}".format(start_yr, end_year)
     else:
-        if start_year and not auto_renewal_until:
+        if start_year and not end_year:
             return "{} {}-{}".format(_('since'), start_year, str(start_year+1)[-2:])
         else:
             return "-"
