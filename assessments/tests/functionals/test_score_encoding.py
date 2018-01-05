@@ -955,7 +955,6 @@ class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
         time.sleep(1)
 
         self.click_on('lnk_via_paper')
-        # import pdb; pdb.set_trace()
         time.sleep(1)
 
         self.click_on('lnk_notes_printing_{}'.format(learning_unit_year.id))
@@ -966,5 +965,4 @@ class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
         self.assertTrue(os.path.exists(full_path))
 
         mimetype = magic.from_file(full_path, mime=True)
-        # import pdb; pdb.set_trace()
         self.assertEqual(mimetype, 'application/pdf')
