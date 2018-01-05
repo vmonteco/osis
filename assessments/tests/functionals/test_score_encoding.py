@@ -112,6 +112,9 @@ class SeleniumTestCase(StaticLiveServerTestCase):
     def get_element_text(self, id_):
         return self.get_element(id_).text
 
+    def assertElementTextEqualInt(self, id_, value):
+        self.assertEqual(int(self.get_element_text(id_)), value)
+
     def assertElementTextEqual(self, id_, text):
         self.assertEqual(self.get_element_text(id_), text)
 
@@ -205,7 +208,7 @@ class Scenario3FunctionalTest(SeleniumTestCase, BusinessMixin):
         )
 
         self.assertIsNotNone(result)
-        # self.assertEqual(result['session'], 1)
+
         self.assertEqual(result['date'], academic_calendar.start_date.strftime('%d/%m/%Y'))
 
 
@@ -326,7 +329,7 @@ class Scenario4FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         self.goto('scores_encoding')
 
-        select = Select(self.driver.find_element_by_id('slt_offer_list_selection'))
+        select = Select(self.get_element('slt_offer_list_selection'))
 
         all_options = set(option.text for option in select.options)
 
@@ -334,8 +337,7 @@ class Scenario4FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         self.assertSetEqual({'Tout'}, all_options - all_offers)
 
-        item = self.driver.find_element_by_id('scores_encoding_learning_units')
-        self.assertEqual(int(item.text), 3)
+        self.assertElementTextEqualInt('scores_encoding_learning_units', 3)
         self.assertEqual(len(all_options - {'Tout'}), 5)
 
         self.click_on('lnk_encode_{}'.format(learning_unit_year_1.id))
@@ -344,15 +346,12 @@ class Scenario4FunctionalTest(SeleniumTestCase, BusinessMixin):
         # self.assertEqual(progression, '0 / 10')
 
         self.assertFalse(learning_unit_year_1.decimal_scores)
-        self.assertEqual(
-            self.driver.find_element_by_id('message_decimal_accepted').text,
-             "Les notes de ce cours ne peuvent PAS recevoir de valeurs décimales."
+        self.assertElementTextEqual(
+            'message_decimal_accepted',
+            "Les notes de ce cours ne peuvent PAS recevoir de valeurs décimales."
         )
 
-        self.assertEqual(
-            int(self.driver.find_element_by_id('number_of_enrollments').text),
-            10
-        )
+        self.assertElementTextEqualInt('number_of_enrollments', 10)
 
         the_first = 1
         element = self.driver.find_element_by_css_selector("[tabindex='%d']" % the_first)
@@ -364,13 +363,9 @@ class Scenario4FunctionalTest(SeleniumTestCase, BusinessMixin):
         enrollment_id = int(element_id.split('_')[-1])
 
         self.click_on('bt_save_online_encoding_up')
-        progression = self.driver.find_element_by_id('luy_progression').text
-        self.assertEqual(progression, '1 / 10')
+        self.assertElementTextEqual('luy_progression', '1 / 10')
 
-        self.assertEqual(
-            int(self.driver.find_element_by_id('enrollment_note_{}'.format(enrollment_id)).text),
-            12
-        )
+        self.assertElementTextEqualInt('enrollment_note_{}'.format(enrollment_id), 12)
 
         element = self.driver.find_element_by_css_selector('td#enrollment_status_{} span'.format(enrollment_id))
         self.assertIn('glyphicon-send', element.get_attribute('class').split())
@@ -388,14 +383,10 @@ class Scenario4FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         self.click_on('bt_save_online_encoding_up')
 
-        progression = self.driver.find_element_by_id('luy_progression').text
-        self.assertEqual(progression, '10 / 10')
+        self.assertElementTextEqual('luy_progression', '10 / 10')
 
         for enrollment_id, value in note_enrollments.items():
-            self.assertEqual(
-                int(self.driver.find_element_by_id('enrollment_note_{}'.format(enrollment_id)).text),
-                value
-            )
+            self.assertElementTextEqualInt('enrollment_note_{}'.format(enrollment_id), value)
 
         self.click_on('lnk_encode')
         note_enrollments = set()
@@ -409,17 +400,10 @@ class Scenario4FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         self.click_on('bt_save_online_encoding_up')
 
-        progression = self.driver.find_element_by_id('luy_progression').text
-        self.assertEqual(progression, '0 / 10')
+        self.assertElementTextEqual('luy_progression', '0 / 10')
 
         for enrollment_id in note_enrollments:
-            self.assertEqual(
-                self.driver.find_element_by_id('enrollment_note_{}'.format(enrollment_id)).text,
-                '-'
-            )
-
-        progression = self.driver.find_element_by_id('luy_progression').text
-        self.assertEqual(progression, '0 / 10')
+            self.assertElementTextEqual('enrollment_note_{}'.format(enrollment_id), '-')
 
 
 class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
@@ -551,7 +535,6 @@ class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
         filename = 'session_{}_{}_{}.xlsx'.format(academic_year.year, number_session, learning_unit_year_1.acronym)
         full_path = os.path.join('/', 'tmp', filename)
 
-        print(full_path)
         self.assertTrue(os.path.exists(full_path))
 
         self.goto('online_encoding', learning_unit_year_id=learning_unit_year_1.id)
@@ -839,10 +822,10 @@ class Scenario6FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         self.goto('scores_encoding')
 
-        self.assertEqual(int(self.driver.find_element_by_id('scores_encoding_learning_units').text), 3)
-        self.assertEqual(int(self.driver.find_element_by_id('scores_encoding_programs').text), 5)
+        self.assertElementTextEqualInt('scores_encoding_learning_units', 3)
+        self.assertElementTextEqualInt('scores_encoding_programs', 5)
 
-        select = Select(self.driver.find_element_by_id('slt_offer_list_selection'))
+        select = Select(self.get_element('slt_offer_list_selection'))
 
         all_options = set(option.text for option in select.options)
 
@@ -850,15 +833,11 @@ class Scenario6FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         self.assertSetEqual({'Tout'}, all_options - all_offers)
 
-        item = self.driver.find_element_by_id('scores_encoding_learning_units')
-        self.assertEqual(int(item.text), 3)
+        self.assertElementTextEqualInt('scores_encoding_learning_units', 3)
         self.assertEqual(len(all_options - {'Tout'}), 5)
 
         self.click_on('lnk_encode_{}'.format(learning_unit_year_1.id))
-        self.assertEqual(
-            int(self.driver.find_element_by_id('number_of_enrollments').text),
-            10
-        )
+        self.assertElementTextEqualInt('number_of_enrollments', 10)
 
         note_enrollments = {}
 
@@ -871,14 +850,10 @@ class Scenario6FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         self.click_on('bt_save_online_encoding_up')
 
-        progression = self.driver.find_element_by_id('luy_progression').text
-        self.assertEqual(progression, '10 / 10')
+        self.assertElementTextEqual('luy_progression', '10 / 10')
 
         for enrollment_id, value in note_enrollments.items():
-            self.assertEqual(
-                int(self.driver.find_element_by_id('enrollment_note_{}'.format(enrollment_id)).text),
-                value
-            )
+            self.assertElementTextEqualInt('enrollment_note_{}'.format(enrollment_id), value)
 
         self.click_on('lnk_online_double_encoding')
 
@@ -897,10 +872,7 @@ class Scenario6FunctionalTest(SeleniumTestCase, BusinessMixin):
         self.driver.execute_script("scroll(0, document.body.scrollHeight)")
 
         for enrollment_id, value in note_enrollments.items():
-            self.assertEqual(
-                int(self.driver.find_element_by_id('enrollment_note_{}'.format(enrollment_id)).text),
-                value + 2
-            )
+            self.assertElementTextEqualInt('enrollment_note_{}'.format(enrollment_id), value + 2)
 
 
 class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
@@ -987,6 +959,3 @@ class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
         mimetype = magic.from_file(full_path, mime=True)
         # import pdb; pdb.set_trace()
         self.assertEqual(mimetype, 'application/pdf')
-
-
-
