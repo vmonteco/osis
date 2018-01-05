@@ -239,7 +239,7 @@ def manager_proposition_dissertation_new(request):
                           'collaborations_choices': PropositionDissertation.COLLABORATION_CHOICES,
                           'offer_propositions_error': offer_propositions_error,
                           'offer_propositions': offer_propositions,
-                          'offer_proposition_group':offer_propositions_group})
+                          'offer_proposition_group': offer_propositions_group})
 
 
 @login_required
@@ -277,7 +277,9 @@ def manager_proposition_dissertations_search(request):
                                offers,
                                proposition.description
                                ])
-        response = HttpResponse(save_virtual_workbook(workbook), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=binary')
+        response = HttpResponse(
+            save_virtual_workbook(workbook),
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=binary')
         response['Content-Disposition'] = "%s%s" % ("attachment; filename=", filename)
         return response
 
