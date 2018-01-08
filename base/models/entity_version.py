@@ -238,7 +238,7 @@ def get_by_entity_parent(entity_parent):
         return None
     try:
         return EntityVersion.objects.entity(entity_parent).get()
-    except ObjectDoesNotExist:
+    except EntityVersion.DoesNotExist:
         return None
 
 
