@@ -25,8 +25,6 @@
 ##############################################################################
 import datetime
 
-from django.contrib import admin
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
@@ -183,7 +181,7 @@ class EntityVersion(SerializableModel):
             qs = EntityVersion.objects.current(date).entity(self.parent)
             try:
                 return qs.get()
-            except ObjectDoesNotExist:
+            except EntityVersion.DoesNotExist:
                 return None
 
     def _contains_given_date(self, date):
@@ -218,7 +216,7 @@ def find(acronym, date=None):
                                                    start_date__lte=date,
                                                    end_date__gte=date
                                                    )
-    except ObjectDoesNotExist:
+    except EntityVersion.DoesNotExist:
         return None
 
     return entity_version
@@ -246,7 +244,7 @@ def get_by_entity_and_date(entity, date):
         date = timezone.now()
     try:
         entity_version = EntityVersion.objects.current(date).entity(entity)
-    except ObjectDoesNotExist:
+    except EntityVersion.DoesNotExist:
         return None
     return entity_version
 
