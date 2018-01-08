@@ -2462,4 +2462,5 @@ msgstr "Les données administratives ont été sauvées avec succès"
 msgid "educational_information_management"
 msgstr "Gestion des informations pédagogiques"
 
-
+msgid "resume_edit"
+msgstr "Editer le résumé de cours"

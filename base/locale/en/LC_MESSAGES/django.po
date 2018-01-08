@@ -2454,3 +2454,6 @@ msgstr ""
 
 msgid "educational_information_management"
 msgstr "Management of educational information"
+
+msgid "resume_edit"
+msgstr "Edit course summary"
