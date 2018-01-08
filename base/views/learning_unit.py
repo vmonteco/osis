@@ -59,10 +59,13 @@ from base.models.person import Person
 from cms.models import text_label
 from reference.models import language
 from . import layout
+from base.forms.learning_unit_summary import LearningUnitSummaryForm, LearningUnitSummaryEditForm
+
 
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
                       'other_informations', 'online_resources']
+CMS_LABEL_SUMMARY = ['resume']
 
 LEARNING_UNIT_CREATION_SPAN_YEARS = 6
 
@@ -447,3 +450,52 @@ def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
     if errors:
         for error_msg in errors:
             messages.add_message(request, messages.ERROR, error_msg)
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+def learning_unit_summary(request, learning_unit_year_id):
+    context = get_common_context_learning_unit_year(learning_unit_year_id)
+    learning_unit_year = context['learning_unit_year']
+
+    user_language = mdl.person.get_user_interface_language(request.user)
+    context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_SUMMARY, user_language)
+
+    fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
+    en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
+    context.update({
+        'form_french': LearningUnitSummaryForm(learning_unit_year=learning_unit_year,
+                                               language=fr_language),
+        'form_english': LearningUnitSummaryForm(learning_unit_year=learning_unit_year,
+                                                language=en_language)
+    })
+    return layout.render(request, "learning_unit/summary.html", context)
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def summary_edit(request, learning_unit_year_id):
+    if request.method == 'POST':
+        form = LearningUnitSummaryEditForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse("learning_unit_summary",
+                                                kwargs={'learning_unit_year_id': learning_unit_year_id}))
+
+    context = get_common_context_learning_unit_year(learning_unit_year_id)
+    label_name = request.GET.get('label')
+    language = request.GET.get('language')
+    text_lb = text_label.find_root_by_name(label_name)
+    form = LearningUnitSummaryEditForm(**{
+        'learning_unit_year': context['learning_unit_year'],
+        'language': language,
+        'text_label': text_lb
+    })
+    form.load_initial()  # Load data from database
+    context['form'] = form
+
+    user_language = mdl.person.get_user_interface_language(request.user)
+    context['text_label_translated'] = next((txt for txt in text_lb.translated_text_labels
+                                             if txt.language == user_language), None)
+    context['language_translated'] = next((lang for lang in settings.LANGUAGES if lang[0] == language), None)
+    return layout.render(request, "learning_unit/summary_edit.html", context)

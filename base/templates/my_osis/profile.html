@@ -115,13 +115,23 @@
                     <thead>
                         <tr>
                             <th>{% trans 'learning_unit' %}</th>
+                            <th></th>
                         </tr>
                     </thead>
                     {% for attribution in attributions %}
                         <tr>
                             <td><a href="{% url 'learning_unit' learning_unit_year_id=attribution.learning_unit_year.id %}"
                                    id="lnk_organization_read_{{ attribution.learning_unit.id }}">
-                                    {{ attribution.learning_unit_year }} - {{ attribution.learning_unit_year.title }}</a></td>
+                                    {{ attribution.learning_unit_year }} - {{ attribution.learning_unit_year.title }}</a>
+                            </td>
+                            <td>
+                                {% if attribution.summary_responsible %}
+                                    <a href="{% url 'learning_unit_summary' learning_unit_year_id=attribution.learning_unit_year.id  %}"
+                                       title="{% trans 'edit' %}">
+                                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                    </a>
+                                {% endif %}
+                            </td>
                         </tr>
                     {% endfor %}
                 </table>
@@ -166,4 +176,18 @@
     </div>
     <hr>
 </div>
+    <div class="modal fade" id="summary" role="dialog" data-backdrop="static"></div>
+{% endblock %}
+{% block script %}
+    <script>
+        $(".summary-btn").click(function(ev) {
+            ev.preventDefault();
+            var url = $(this).data("form"); // get the contact form url
+            var pedagogy_edit_modal = $("#summary");
+            pedagogy_edit_modal.load(url, function() { // load the url into the modal
+                $(this).modal('show');
+            });
+            return false;
+        });
+    </script>
 {% endblock %}

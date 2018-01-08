@@ -2451,3 +2451,6 @@ msgstr "Are you certain that you want to cancel the learning unit proposal ?"
 
 msgid "The administrative data has been successfully modified"
 msgstr ""
+
+msgid "educational_information_management"
+msgstr "Management of educational information"
