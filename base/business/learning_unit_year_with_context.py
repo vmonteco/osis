@@ -30,8 +30,10 @@ from django.db import models
 
 from base import models as mdl
 from base.business import entity_version as business_entity_version
+from base.business.entity_version import find_entity_version_descendants
 from base.models import entity_container_year, entity_version
-from base.models.enums import entity_container_year_link_type as entity_types
+from base.models.entity_version import EntityVersion
+from base.models.enums import entity_container_year_link_type as entity_types, entity_type
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -88,28 +90,29 @@ def get_with_context(**learning_unit_year_data):
 def append_latest_entities(learning_unit, service_course_search=False):
     learning_unit.entities = {}
     learning_container_year = learning_unit.learning_container_year
-
     for entity_container_yr in getattr(learning_container_year, "entity_containers_year", []):
         link_type = entity_container_yr.type
         learning_unit.entities[link_type] = entity_container_yr.get_latest_entity_version()
 
     requirement_entity_version = learning_unit.entities.get(entity_types.REQUIREMENT_ENTITY)
-    learning_unit_alloc_entity = learning_unit.entities.get(entity_types.ALLOCATION_ENTITY)
+    allocation_entity_version = learning_unit.entities.get(entity_types.ALLOCATION_ENTITY)
 
-    if service_course_search and requirement_entity_version:
-        entity_parent = requirement_entity_version.find_parent_faculty_version(learning_container_year.academic_year)
-        if entity_parent:
-            learning_unit.entities[business_entity_version.PARENT_FACULTY] = entity_parent
-        else:
-            learning_unit.entities[business_entity_version.PARENT_FACULTY] = requirement_entity_version
-
-        if learning_unit_alloc_entity and requirement_entity_version != learning_unit_alloc_entity:
-            learning_unit.entities[business_entity_version.SERVICE_COURSE] = is_service_course(learning_unit.academic_year,
-                                                                        requirement_entity_version,
-                                                                        learning_container_year, entity_parent)
+    if service_course_search and requirement_entity_version and allocation_entity_version:
+        requirement_entity_parent = requirement_entity_version.\
+            find_parent_faculty_version(learning_container_year.academic_year)
+        allocation_entity_parent_acronym = None
+        allocation_entity_parent = entity_version.get_by_entity_parent(allocation_entity_version.parent)
+        if allocation_entity_parent:
+            allocation_entity_parent_acronym = allocation_entity_parent.acronym
+        if requirement_entity_parent:
+            learning_unit.entities[business_entity_version.PARENT_FACULTY] = requirement_entity_parent
+        if requirement_entity_version != allocation_entity_version\
+                and requirement_entity_version.acronym != allocation_entity_parent_acronym:
+            learning_unit.entities[business_entity_version.SERVICE_COURSE] = \
+                is_service_course(learning_unit.academic_year, requirement_entity_version, learning_container_year,
+                                  requirement_entity_parent)
         else:
             learning_unit.entities[business_entity_version.SERVICE_COURSE] = False
-
     return learning_unit
 
 
@@ -204,6 +207,7 @@ def component_volume_distribution(volume_total, volume_partial):
 
 def is_service_course(academic_year, requirement_entity_version, learning_container_year, entity_parent):
     entity_container_yr_allocation = entity_container_year.find_allocation_entity(learning_container_year)
+
     if entity_container_yr_allocation == requirement_entity_version:
         return False
 
@@ -217,7 +221,11 @@ def is_service_course(academic_year, requirement_entity_version, learning_contai
 
         allocation_entity = entity_version.get_last_version(entity_container_yr_allocation.entity)
         requirement_entity = entity_version.get_last_version(entity_parent)
-        if allocation_entity in requirement_entity.find_descendants(academic_year.start_date):
+
+        if allocation_entity == requirement_entity:
+            return False
+
+        if allocation_entity.id in find_entity_version_descendants(requirement_entity, academic_year.start_date):
             return False
 
     return True

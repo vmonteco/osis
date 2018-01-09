@@ -23,16 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base import models as mdl
+
+from django.utils.translation import ugettext_lazy as _
 
 
-def get_entities_ids(requirement_entity_acronym, with_entity_subordinated):
-    entities_ids = set()
-    entity_versions = mdl.entity_version.search(acronym=requirement_entity_acronym)
-    entities_ids |= set(entity_versions.values_list('entity', flat=True).distinct())
+INTERNAL_TEAM = "INTERNAL_TEAM"
+EXTERNAL = "EXTERNAL"
 
-    if with_entity_subordinated:
-        for entity_version in entity_versions:
-            all_descendants = entity_version.find_descendants(entity_version.start_date)
-            entities_ids |= {descendant.entity.id for descendant in all_descendants}
-    return list(entities_ids)
+ATTRIBUTION_PROCEDURES = (
+    (INTERNAL_TEAM, _('INTERNAL_TEAM')),
+    (EXTERNAL, _('EXTERNAL')))

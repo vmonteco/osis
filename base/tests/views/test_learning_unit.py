@@ -36,7 +36,8 @@ from django.test import TestCase, RequestFactory
 
 import base.business.learning_unit
 from base.forms import learning_units
-from base.forms.learning_units import CreateLearningUnitYearForm, LearningUnitYearForm
+from base.forms.learning_unit_create import CreateLearningUnitYearForm
+from base.forms.learning_units import LearningUnitYearForm
 from base.models import learning_unit_component
 from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear

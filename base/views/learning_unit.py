@@ -50,7 +50,8 @@ from base.models.campus import Campus
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
-from base.forms.learning_units import CreateLearningUnitYearForm, EMPTY_FIELD
+
+from base.forms.learning_unit_create import CreateLearningUnitYearForm, EMPTY_FIELD
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
