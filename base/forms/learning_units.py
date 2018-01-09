@@ -95,8 +95,13 @@ class LearningUnitYearForm(BootstrapForm):
         clean_data = self.cleaned_data
         service_course_search = service_course_search or self.service_course_search
 
-        entity_version_prefetch = Prefetch('entity__entityversion_set',
+        parent_version_prefetch = Prefetch('parent__entityversion_set',
                                            queryset=mdl_entity_version.search(),
+                                           to_attr='entity_versions')
+
+        entity_version_prefetch = Prefetch('entity__entityversion_set',
+                                           queryset=mdl_entity_version.search()
+                                           .prefetch_related(parent_version_prefetch),
                                            to_attr='entity_versions')
 
         entity_container_prefetch = Prefetch('learning_container_year__entitycontaineryear_set',

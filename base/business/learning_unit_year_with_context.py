@@ -96,7 +96,7 @@ def append_latest_entities(learning_unit, service_course_search=False):
 
     if service_course_search:
         learning_unit.entities[business_entity_version.SERVICE_COURSE] = is_service_course(
-            learning_container_year.academic_year,
+            learning_unit.academic_year,
             requirement_entity_version,
             allocation_entity_version)
 
@@ -195,7 +195,8 @@ def component_volume_distribution(volume_total, volume_partial):
 def is_service_course(academic_year, requirement_entity_version, allocation_entity_version):
     if not requirement_entity_version or not allocation_entity_version:
         return False
-
+    if requirement_entity_version == allocation_entity_version:
+        return False
     requirement_parent_faculty = requirement_entity_version.find_faculty_version(academic_year)
     allocation_parent_faculty = allocation_entity_version.find_faculty_version(academic_year)
     return requirement_parent_faculty != allocation_parent_faculty
