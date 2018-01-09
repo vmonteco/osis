@@ -2456,3 +2456,14 @@ msgstr "Etes-vous certain de vouloir annuler la proposition ?"
 msgid "The administrative data has been successfully modified"
 msgstr "Les données administratives ont été sauvées avec succès"
 
+msgid "vacant"
+msgstr "Vacant"
+
+msgid "team_management"
+msgstr "Gestion par équipe"
+
+msgid "type_declaration_vacant"
+msgstr "Décision"
+
+msgid "procedure"
+msgstr "Procédure"

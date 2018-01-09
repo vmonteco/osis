@@ -2448,3 +2448,15 @@ msgstr "Are you certain that you want to cancel the learning unit proposal ?"
 
 msgid "The administrative data has been successfully modified"
 msgstr ""
+
+msgid "vacant"
+msgstr "Vacant"
+
+msgid "team_management"
+msgstr "Team management"
+
+msgid "type_declaration_vacant"
+msgstr "Decision"
+
+msgid "procedure"
+msgstr "Procedure"

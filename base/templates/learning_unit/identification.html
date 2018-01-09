@@ -152,6 +152,28 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <label>{% trans 'vacant' %}</label><br>
+                                        {{ learning_unit_year.learning_container_year.is_vacant | yesno:_("yes,no") }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>{% trans 'team_management' %}</label><br>
+                                        {{ learning_unit_year.learning_container_year.team | yesno:_("yes,no") }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>{% trans 'type_declaration_vacant' %}</label><br>
+                                        {% trans learning_unit_year.learning_container_year.type_declaration_vacant %}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label>{% trans 'procedure' %}</label><br>
+                                        {% trans learning_unit_year.attribution_procedure %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         {% if components %}
                             {% include "learning_unit/components_identification.html" %}
                         {% endif %}
