@@ -31,7 +31,8 @@ from attribution.models.enums import function
 
 
 class AttributionNewAdmin(AuditableModelAdmin):
-    list_display = ('tutor', 'score_responsible', 'function', 'learning_container_year', 'start_year', 'end_year', 'changed')
+    list_display = ('tutor', 'score_responsible', 'function', 'learning_container_year', 'start_year', 'end_year',
+                    'changed', 'substitute')
     list_filter = ('learning_container_year__academic_year', 'score_responsible')
     fieldsets = ((None, {'fields': ('learning_container_year', 'tutor', 'function', 'score_responsible', 'start_year',
                                     'end_year', 'substitute')}),)
