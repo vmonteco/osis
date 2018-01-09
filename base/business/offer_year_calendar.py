@@ -36,7 +36,8 @@ from base.models.session_exam_deadline import SessionExamDeadline
 def compute_deadline_by_offer_year_calendar(oyc):
     if oyc.academic_calendar.reference not in (ac_type.DELIBERATION, ac_type.SCORES_EXAM_SUBMISSION):
         return None
-    oyc_deliberation, oyc_scores_exam_submission = _get_oyc_deliberation_and_submission(oyc)
+    oyc_deliberation = _get_oyc_deliberation(oyc)
+    oyc_scores_exam_submission = _get_oyc_scores_exam_submission(oyc)
 
     end_date_offer_year = _one_day_before(oyc_deliberation.end_date.date()) \
         if oyc_deliberation and oyc_deliberation.end_date else None
@@ -51,7 +52,6 @@ def compute_deadline_by_offer_year_calendar(oyc):
             deadline = session.deadline
             deadline_tutor = session.deadline_tutor
             end_date_student = _one_day_before(session.deliberation_date) if session.deliberation_date else None
-
             new_deadline = min(filter(None, (end_date_academic, end_date_offer_year, end_date_student)))
             new_deadline_tutor = _get_delta_deadline_tutor(new_deadline, score_submission_date)
             if new_deadline == deadline and deadline_tutor == new_deadline_tutor:
@@ -62,22 +62,28 @@ def compute_deadline_by_offer_year_calendar(oyc):
             session.save()
 
 
-def _get_oyc_deliberation_and_submission(oyc):
+def _get_oyc_scores_exam_submission(oyc):
     education_group_year = oyc.education_group_year
     if oyc.academic_calendar.reference == ac_type.DELIBERATION:
-        oyc_deliberation = oyc
         oyc_scores_exam_submission = offer_year_calendar.search(
             education_group_year_id=education_group_year,
             academic_calendar_reference=ac_type.SCORES_EXAM_SUBMISSION
         ).first()
     else:
+        oyc_scores_exam_submission = oyc
+    return oyc_scores_exam_submission
+
+
+def _get_oyc_deliberation(oyc):
+    education_group_year = oyc.education_group_year
+    if oyc.academic_calendar.reference == ac_type.DELIBERATION:
+        oyc_deliberation = oyc
+    else:
         oyc_deliberation = offer_year_calendar.search(
             education_group_year_id=education_group_year,
             academic_calendar_reference=ac_type.DELIBERATION
         ).first()
-
-        oyc_scores_exam_submission = oyc
-    return oyc_deliberation, oyc_scores_exam_submission
+    return oyc_deliberation
 
 
 def _get_list_sessions_exam_deadlines(oyc_deliberation):
