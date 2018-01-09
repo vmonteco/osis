@@ -2461,3 +2461,6 @@ msgstr "Les données administratives ont été sauvées avec succès"
 
 msgid "SUMMARY_COURSE_SUBMISSION"
 msgstr "Soumission des résumés de cours"
+
+msgid "INTERNAL_TEAM"
+msgstr "Interne/Equipe"
