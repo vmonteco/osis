@@ -98,17 +98,11 @@ class OfferYearCalendar(models.Model):
         super(OfferYearCalendar, self).save(*args, **kwargs)
 
     def end_start_dates_validation(self):
-        if self.start_end_dates_set() and strictly_ordered_dates(self.end_date, self.start_date):
+        if self.start_end_dates_set() and not strictly_ordered_dates(self.start_date, self.end_date):
             raise AttributeError(_('end_start_date_error'))
 
     def start_end_dates_set(self):
-        return self.start_date and self.end_date
-
-    def end_dates_set(self, academic_end_date):
-        return academic_end_date and self.end_date
-
-    def start_dates_set(self, academic_start_date):
-        return academic_start_date and self.start_date
+        return bool(self.start_date and self.end_date)
 
     def _get_date(self, date_field):
         date_ac = getattr(self.academic_calendar, date_field)
