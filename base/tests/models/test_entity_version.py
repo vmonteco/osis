@@ -275,7 +275,7 @@ class EntityVersionTest(TestCase):
             end_date=end_date
         )
 
-        self.assertEqual(entity_school_version_level2.find_parent_faculty_version(ac_yr),
+        self.assertEqual(entity_school_version_level2.find_faculty_version(ac_yr),
                          entity_faculty_version)
 
     def test_find_parent_faculty_version_no_parent(self):
@@ -296,7 +296,7 @@ class EntityVersionTest(TestCase):
             end_date=end_date
         )
 
-        self.assertIsNone(entity_school_version_no_parent.find_parent_faculty_version(ac_yr))
+        self.assertIsNone(entity_school_version_no_parent.find_faculty_version(ac_yr))
 
     def test_find_parent_faculty_version_no_faculty_parent(self):
 
@@ -325,7 +325,7 @@ class EntityVersionTest(TestCase):
             start_date=start_date,
             end_date=end_date
         )
-        self.assertIsNone(entity_school_version_level1.find_parent_faculty_version(ac_yr))
+        self.assertIsNone(entity_school_version_level1.find_faculty_version(ac_yr))
 
     def test_find_main_entities_version_filtered_by_person(self):
         person = PersonFactory()
@@ -340,3 +340,4 @@ class EntityVersionTest(TestCase):
         self.assertTrue(entity_list)
         self.assertEqual(len(entity_list), 1)
         self.assertEqual(entity_list[0], entity_version_attached)
+        
