@@ -98,27 +98,11 @@ class OfferYearCalendar(models.Model):
         super(OfferYearCalendar, self).save(*args, **kwargs)
 
     def end_start_dates_validation(self):
-        if self.start_end_dates_set() and not strictly_ordered_dates(self.start_date, self.end_date):
+        if self._dates_are_set() and not strictly_ordered_dates(self.start_date, self.end_date):
             raise AttributeError(_('end_start_date_error'))
 
-    def start_end_dates_set(self):
+    def _dates_are_set(self):
         return bool(self.start_date and self.end_date)
-
-    def _get_date(self, date_field):
-        date_ac = getattr(self.academic_calendar, date_field)
-        date_oyc = getattr(self.offer_year.academic_year, date_field)
-        if date_ac:
-            return datetime(year=date_ac.year, month=date_ac.month, day=date_ac.day)
-        elif date_oyc:
-            return datetime(year=date_oyc.year, month=date_oyc.month, day=date_oyc.day)
-        else:
-            return None
-
-    def get_start_date(self):
-        return self._get_date('start_date')
-
-    def get_end_date(self):
-        return self._get_date('end_date')
 
     def __str__(self):
         return u"%s - %s" % (self.academic_calendar, self.offer_year)
@@ -166,11 +150,6 @@ def find_offer_year_events(offer_yr):
                                             start_date__isnull=False,
                                             end_date__isnull=False).order_by('start_date',
                                                                              'academic_calendar__title')
-
-
-def find_offer_year_calendars_by_academic_year(academic_yr):
-    return OfferYearCalendar.objects.filter(academic_calendar__academic_year=academic_yr) \
-        .order_by('academic_calendar', 'offer_year__acronym')
 
 
 def find_by_id(offer_year_calendar_id):
