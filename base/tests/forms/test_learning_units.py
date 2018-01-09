@@ -157,13 +157,14 @@ class TestLearningUnitForm(TestCase):
     def test_case_maximum_results_reached(self, mock_count):
         mock_count.return_value = learning_units.MAX_RECORDS + 1
         form = learning_units.LearningUnitYearForm(data=self.get_valid_data())
-        self.assertRaises(TooManyResultsException, form.is_valid)
+
+        with self.assertRaises(TooManyResultsException):
+            form.is_valid()
 
     def test_get_service_courses_by_empty_requirement_and_allocation_entity(self):
         form_data = {}
 
         form = learning_units.LearningUnitYearForm(form_data, service_course_search=True)
-        form.is_valid()
         self.assertTrue(form.is_valid())
         self.assertEqual(form.get_activity_learning_units(), [self.list_lu_year[0], self.list_lu_year[1]])
 
@@ -173,7 +174,6 @@ class TestLearningUnitForm(TestCase):
         }
 
         form = learning_units.LearningUnitYearForm(form_data, service_course_search=True)
-        form.is_valid()
         self.assertTrue(form.is_valid())
         self.assertEqual(form.get_activity_learning_units(), [self.list_lu_year[0]])
 
@@ -183,7 +183,6 @@ class TestLearningUnitForm(TestCase):
         }
 
         form = learning_units.LearningUnitYearForm(form_data, service_course_search=True)
-        form.is_valid()
         self.assertTrue(form.is_valid())
         self.assertEqual(form.get_activity_learning_units(), [self.list_lu_year[0]])
 
@@ -194,7 +193,6 @@ class TestLearningUnitForm(TestCase):
         }
 
         form = learning_units.LearningUnitYearForm(form_data, service_course_search=True)
-        form.is_valid()
         self.assertTrue(form.is_valid())
         self.assertEqual(len(form.get_activity_learning_units()), 1)
 
@@ -205,7 +203,6 @@ class TestLearningUnitForm(TestCase):
         }
 
         form = learning_units.LearningUnitYearForm(form_data, service_course_search=True)
-        form.is_valid()
         self.assertTrue(form.is_valid())
         self.assertEqual(form.get_activity_learning_units(), [])
 

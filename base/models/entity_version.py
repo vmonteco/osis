@@ -163,11 +163,7 @@ class EntityVersion(SerializableModel):
         if self.entity_type == entity_type.FACULTY:
             return self
         else:
-            parent_entity_version = self._find_latest_version_by_parent(academic_yr.start_date)
-            if not parent_entity_version:
-                return None
-
-            return parent_entity_version.find_faculty_version(academic_yr)
+            return self._find_latest_version_by_parent(academic_yr.start_date)
 
     def _find_latest_version_by_parent(self, start_date):
         parent_entity = getattr(self, "parent")
@@ -176,13 +172,13 @@ class EntityVersion(SerializableModel):
 
         # if a prefetch exist on the parent
         entity_versions = getattr(parent_entity, 'entity_versions', None)
-        if entity_versions:
-            for entity_version in entity_versions:
-                end_date = entity_version.end_date or start_date
-                if entity_version.start_date <= start_date <= end_date:
-                    return entity_version
-        else:
+        if not entity_versions:
             return find_latest_version_by_entity(parent_entity, start_date)
+
+        for entity_version in entity_versions:
+            end_date = entity_version.end_date or start_date
+            if entity_version.start_date <= start_date <= end_date:
+                return entity_version
 
     def get_parent_version(self, date=None):
         if date is None:
