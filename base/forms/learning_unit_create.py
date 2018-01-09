@@ -26,7 +26,6 @@
 import re
 
 from django import forms
-from django.core.exceptions import ObjectDoesNotExist
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
@@ -126,7 +125,7 @@ class CreateLearningUnitYearForm(BootstrapForm):
             return False
         try:
             academic_year = mdl.academic_year.find_academic_year_by_id(self.data.get('academic_year'))
-        except ObjectDoesNotExist:
+        except mdl.academic_year.AcademicYear.DoesNotExist:
             return False
         learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, self.data['acronym'])
         learning_unit_years_list = [learning_unit_year.acronym.lower() for learning_unit_year in learning_unit_years]

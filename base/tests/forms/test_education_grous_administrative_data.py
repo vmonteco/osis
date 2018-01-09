@@ -25,7 +25,7 @@
 ##############################################################################
 from django.utils import timezone
 
-from django.forms import formset_factory
+from django.forms import formset_factory, MultiWidget
 
 from base.forms.education_groups_administrative_data import AdministrativeDataSessionForm, AdministrativeDataFormSet, \
     DATETIME_FORMAT, DATE_FORMAT, AdministrativeDataFormset
@@ -76,16 +76,22 @@ class TestAdministrativeDataForm(TestCase):
         for form in formset_session:
             for field in form.fields.values():
                 self.assertIsNotNone(field.initial)
-                self.assertIsNotNone(field.widget.attrs.get("data-maxDate"))
-                self.assertIsNotNone(field.widget.attrs.get("data-minDate"))
+                if isinstance(field.widget, MultiWidget):
+                    self.assertIsNotNone(field.widget.widgets[0].attrs.get("data-maxDate"))
+                    self.assertIsNotNone(field.widget.widgets[0].attrs.get("data-minDate"))
+                else:
+                    self.assertIsNotNone(field.widget.attrs.get("data-maxDate"))
+                    self.assertIsNotNone(field.widget.attrs.get("data-minDate"))
 
     def test_save(self):
-        deliberation_date = '08/12/{} 10:50'.format(self.academic_year.year)
+        deliberation_date = '08/12/{}'.format(self.academic_year.year)
+        deliberation_time = '10:50'
         exam_enrollment_start = '20/12/{}'.format(self.academic_year.year)
         exam_enrollment_end = '15/01/{}'.format(self.academic_year.year+1)
         exam_submission = '14/12/{}'.format(self.academic_year.year)
         form_data = {
-            'form-0-deliberation': deliberation_date,
+            'form-0-deliberation_0': deliberation_date,
+            'form-0-deliberation_1': deliberation_time,
             'form-0-dissertation_submission': '',
             'form-0-exam_enrollment_range': exam_enrollment_start + ' - ' + exam_enrollment_end,
             'form-0-scores_exam_diffusion': '',
@@ -109,14 +115,16 @@ class TestAdministrativeDataForm(TestCase):
         self.assertEqual(exam_enrollment_end, timezone.localtime(oyc.end_date).strftime(DATE_FORMAT))
 
         oyc = formset_session.forms[0]._get_offer_year_calendar('deliberation')
-        self.assertEqual(deliberation_date, timezone.localtime(oyc.start_date).strftime(DATETIME_FORMAT))
+        self.assertEqual(deliberation_date + ' ' + deliberation_time, timezone.localtime(oyc.start_date).strftime(DATETIME_FORMAT))
 
     def test_save_errors(self):
-        deliberation_date = '08/12/1900 10:50'
+        deliberation_date = '08/12/1900'
+        deliberation_time = '10:50'
         exam_enrollment_start = '20/12/2015'
         exam_enrollment_end = '15/01/2018'
         form_data = {
-            'form-0-deliberation': deliberation_date,
+            'form-0-deliberation_0': deliberation_date,
+            'form-0-deliberation_1': deliberation_time,
             'form-0-dissertation_submission': '',
             'form-0-exam_enrollment_range': exam_enrollment_start + ' - ' + exam_enrollment_end,
             'form-0-scores_exam_diffusion': '',
