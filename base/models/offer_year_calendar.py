@@ -23,17 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from datetime import datetime
-
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.utils import formats
 from django.utils.translation import ugettext as _
-
-from base.models import offer_year
-from base.models.enums import academic_calendar_type
-from osis_common.utils.datetime import strictly_ordered_dates
+from osis_common.utils.datetime import is_in_chronological_order
 
 
 class OfferYearCalendarAdmin(admin.ModelAdmin):
@@ -58,19 +53,6 @@ class OfferYearCalendar(models.Model):
 
     class Meta:
         unique_together = ('academic_calendar', 'education_group_year')
-
-    def update_dates(self, start_date, end_date):
-        if self.customized:
-            if strictly_ordered_dates(start_date, self.end_date):
-                #  Test needed to prevent error when erroneous data are detected
-                self.start_date = start_date
-                self.save()
-        else:
-            if strictly_ordered_dates(start_date, end_date):
-                #  Test needed to prevent error when erroneous data are detected
-                self.start_date = start_date
-                self.end_date = end_date
-                self.save()
 
     def clean(self):
         try:
@@ -98,7 +80,7 @@ class OfferYearCalendar(models.Model):
         super(OfferYearCalendar, self).save(*args, **kwargs)
 
     def end_start_dates_validation(self):
-        if self._dates_are_set() and not strictly_ordered_dates(self.start_date, self.end_date):
+        if self._dates_are_set() and not is_in_chronological_order(self.start_date, self.end_date):
             raise AttributeError(_('end_start_date_error'))
 
     def _dates_are_set(self):
@@ -106,43 +88,6 @@ class OfferYearCalendar(models.Model):
 
     def __str__(self):
         return u"%s - %s" % (self.academic_calendar, self.offer_year)
-
-
-def save_from_academic_calendar(academic_calendar):
-    _raise_if_parameter_not_conform(academic_calendar)
-    if academic_calendar.reference in (academic_calendar_type.DELIBERATION,
-                                       academic_calendar_type.EXAM_ENROLLMENTS,
-                                       academic_calendar_type.SCORES_EXAM_DIFFUSION,
-                                       academic_calendar_type.SCORES_EXAM_SUBMISSION):
-        offer_year_calendars = find_by_academic_calendar(academic_calendar)
-        if offer_year_calendars:
-            for offer_year_calendar in offer_year_calendars:
-                offer_year_calendar.update_dates(academic_calendar.start_date, academic_calendar.end_date)
-        else:
-            _create_from_academic_calendar(academic_calendar)
-
-
-def _raise_if_parameter_not_conform(academic_calendar):
-    if not academic_calendar:
-        raise AttributeError('The parameter "academic_calendar" must be set (not none)')
-    elif not academic_calendar.id:
-        raise ValueError('Please make the academic calendar passed by parameter persitent (save it) '
-                         'before calling this function')
-
-
-def _create_from_academic_calendar(academic_calendar):
-    academic_yr = academic_calendar.academic_year
-    offer_years = offer_year.find_by_academic_year(academic_yr)
-    for offer_yr in offer_years:
-        offer_yr_calendar = OfferYearCalendar(academic_calendar=academic_calendar,
-                                              offer_year=offer_yr,
-                                              start_date=academic_calendar.start_date,
-                                              end_date=academic_calendar.end_date)
-        offer_yr_calendar.save()
-
-
-def find_by_academic_calendar(academic_cal):
-    return OfferYearCalendar.objects.filter(academic_calendar=academic_cal)
 
 
 def find_offer_year_events(offer_yr):
