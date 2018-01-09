@@ -25,8 +25,6 @@
 ##############################################################################
 import datetime
 
-from django.contrib import admin
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
@@ -183,7 +181,7 @@ class EntityVersion(SerializableModel):
             qs = EntityVersion.objects.current(date).entity(self.parent)
             try:
                 return qs.get()
-            except ObjectDoesNotExist:
+            except EntityVersion.DoesNotExist:
                 return None
 
     def _contains_given_date(self, date):
@@ -218,7 +216,7 @@ def find(acronym, date=None):
                                                    start_date__lte=date,
                                                    end_date__gte=date
                                                    )
-    except ObjectDoesNotExist:
+    except EntityVersion.DoesNotExist:
         return None
 
     return entity_version
@@ -235,12 +233,21 @@ def get_last_version(entity, date=None):
     # find_latest_version(academic_year.current_academic_year().start_date).get(entity=entity)
 
 
+def get_by_entity_parent(entity_parent):
+    if entity_parent is None:
+        return None
+    try:
+        return EntityVersion.objects.entity(entity_parent).get()
+    except EntityVersion.DoesNotExist:
+        return None
+
+
 def get_by_entity_and_date(entity, date):
     if date is None:
         date = timezone.now()
     try:
         entity_version = EntityVersion.objects.current(date).entity(entity)
-    except ObjectDoesNotExist:
+    except EntityVersion.DoesNotExist:
         return None
     return entity_version
 
@@ -252,7 +259,7 @@ def search(**kwargs):
         queryset = queryset.filter(entity__exact=kwargs['entity'])
 
     if 'title' in kwargs:
-        queryset = queryset.filter(title__exact=kwargs['title'])
+        queryset = queryset.filter(title__icontains=kwargs['title'])
 
     if 'acronym' in kwargs:
         queryset = queryset.filter(acronym__icontains=kwargs['acronym'])
@@ -338,18 +345,6 @@ def find_main_entities_version_filtered_by_person(person):
 
     qs = find_main_entities_version()
     return person_entity_filter.filter_by_attached_entities(person, qs)
-
-
-def find_last_faculty_entities_version():
-    return EntityVersion.objects.filter(entity_type=entity_type.FACULTY,
-                                        entity__organization__type=MAIN).order_by('entity', '-start_date')\
-        .distinct('entity')
-
-
-def find_first_latest_version_by_period(ent, start_date, end_date):
-    return EntityVersion.objects.entity(ent).filter(Q(end_date__lte=end_date) | Q(end_date__isnull=True),
-                                                    start_date__gte=start_date) \
-        .order_by('-start_date').first()
 
 
 def find_latest_version_by_entity(entity, date):
