@@ -163,7 +163,9 @@ class EntityVersion(SerializableModel):
         if self.entity_type == entity_type.FACULTY:
             return self
         else:
-            return self._find_latest_version_by_parent(academic_yr.start_date)
+            parent_entity_version = self._find_latest_version_by_parent(academic_yr.start_date)
+            if parent_entity_version:
+                return parent_entity_version.find_faculty_version(academic_yr)
 
     def _find_latest_version_by_parent(self, start_date):
         if not self.parent:
