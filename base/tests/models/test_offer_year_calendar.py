@@ -42,10 +42,9 @@ class OfferYearCalendarsAttributesValidation(TestCase):
         self.academic_year = AcademicYearFactory(year=YEAR_CALENDAR,
                                                  start_date=datetime.date(YEAR_CALENDAR, 9, 1),
                                                  end_date=datetime.date(YEAR_CALENDAR+1, 10, 30))
-        self.academic_calendar = AcademicCalendarFactory.build(academic_year=self.academic_year,
-                                                               start_date=datetime.date(YEAR_CALENDAR, 9, 1),
-                                                               end_date=datetime.date(YEAR_CALENDAR+1, 10, 30))
-        self.academic_calendar.save(functions=[])
+        self.academic_calendar = AcademicCalendarFactory(academic_year=self.academic_year,
+                                                         start_date=datetime.date(YEAR_CALENDAR, 9, 1),
+                                                         end_date=datetime.date(YEAR_CALENDAR+1, 10, 30))
         self.offer_year = OfferYearFactory(academic_year=self.academic_year)
 
     def test_end_date_lower_than_start_date(self):

@@ -45,9 +45,8 @@ class TestOfferYearCalendar(TestCase):
         self.nb_session = 1
 
         self.academic_year = AcademicYearFactory(year=1950)
-        self.academic_calendar = AcademicCalendarFactory.build(academic_year=self.academic_year,
-                                                               reference=academic_calendar_type.DELIBERATION)
-        self.academic_calendar.save(functions=[])
+        self.academic_calendar = AcademicCalendarFactory(academic_year=self.academic_year,
+                                                         reference=academic_calendar_type.DELIBERATION)
 
         self.session_exam_calendar = SessionExamCalendarFactory(academic_calendar=self.academic_calendar,
                                                                 number_session=self.nb_session)
