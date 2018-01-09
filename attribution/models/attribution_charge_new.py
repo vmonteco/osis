@@ -25,6 +25,7 @@
 ##############################################################################
 from django.db import models
 
+from base.models.enums import component_type
 from osis_common.models.auditable_model import AuditableModel, AuditableModelAdmin
 
 
@@ -47,6 +48,29 @@ class AttributionChargeNew(AuditableModel):
     def __str__(self):
         return u"%s" % str(self.attribution)
 
+    @property
+    def duration(self):
+        if self.attribution.start_year and self.attribution.end_year:
+            return (self.attribution.end_year - self.attribution.start_year) + 1
+        return None
+
+    @property
+    def volume_lecturing(self):
+        return self.get_attribution(component_type.LECTURING)
+
+    @property
+    def volume_practical(self):
+        return self.get_attribution(component_type.PRACTICAL_EXERCISES)
+
+    def get_attribution(self, a_component_type):
+        attribution_charge_new = AttributionChargeNew.objects.filter(attribution=self.attribution,
+                                                                     learning_component_year__type=a_component_type)\
+            .select_related('learning_component_year').first()
+        if attribution_charge_new:
+            return attribution_charge_new.allocation_charge
+        return "{0:.2f}".format(float(0))
+
+
 
 def search(*args, **kwargs):
     qs = AttributionChargeNew.objects.all()
@@ -60,14 +84,3 @@ def search(*args, **kwargs):
             qs = qs.filter(learning_component_year=kwargs['learning_component_year'])
 
     return qs.select_related('learning_component_year', 'attribution')
-
-
-def get_attribution(self, a_component_type):
-    attribution = find_by_component_type(self, a_component_type)
-    if attribution:
-        return attribution.allocation_charge
-    return "{0:.2f}".format(float(0))
-
-def find_by_component_type(an_attribution=None, a_learning_unit_component_type=None):
-    return AttributionChargeNew.objects.filter(attribution=an_attribution,
-                                               learning_component_year__type=a_learning_unit_component_type).first()

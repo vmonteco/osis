@@ -25,8 +25,6 @@
 ##############################################################################
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from attribution.models import attribution_charge_new
-from base.models.enums import component_type
 from osis_common.models.auditable_model import AuditableModelAdmin, AuditableModel
 from attribution.models.enums import function
 
@@ -65,26 +63,6 @@ class AttributionNew(AuditableModel):
 
     class Meta:
         unique_together = ('learning_container_year', 'tutor', 'function')
-
-    @property
-    def duration(self):
-        if self.start_year and self.end_year:
-            return (self.end_year - self.start_year) + 1
-        return None
-
-    @property
-    def volume_lecturing(self):
-        return self.get_attribution(component_type.LECTURING)
-
-    @property
-    def volume_practical(self):
-        return self.get_attribution(component_type.PRACTICAL_EXERCISES)
-
-    def get_attribution(self, a_component_type):
-        attribution = attribution_charge_new.find_by_component_type(self, a_component_type)
-        if attribution:
-            return attribution.allocation_charge
-        return "{0:.2f}".format(float(0))
 
 def search(*args, **kwargs):
     qs = AttributionNew.objects.all()
