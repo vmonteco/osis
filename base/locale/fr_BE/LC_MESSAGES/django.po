@@ -1891,10 +1891,10 @@ msgid "remarks_title"
 msgstr "Remarques"
 
 msgid "faculty_remark"
-msgstr "Faculté"
+msgstr "Remarque de faculté"
 
 msgid "other_remark"
-msgstr "Autre"
+msgstr "Autre remarque"
 
 msgid "new_learning_unit"
 msgstr "Nouvelle unité d'enseignement"

@@ -1885,10 +1885,10 @@ msgid "remarks_title"
 msgstr "Remarks"
 
 msgid "faculty_remark"
-msgstr "Faculty"
+msgstr "Faculty remark"
 
 msgid "other_remark"
-msgstr "Other"
+msgstr "Other remark"
 
 msgid "new_learning_unit"
 msgstr "New learning unit"

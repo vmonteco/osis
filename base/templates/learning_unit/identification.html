@@ -143,12 +143,12 @@
                             <div class="panel-body">
                                 <div>
                                     <label>{% trans 'faculty_remark' %}</label><br>
-                                    {{ learning_unit_year.learning_unit.faculty_remark }}
+                                    {{ learning_unit_year.learning_unit.faculty_remark | default_if_none:'' }}
                                 </div>
                                 <br>
                                 <div>
                                     <label>{% trans 'other_remark' %}</label><br>
-                                    {{ learning_unit_year.learning_unit.other_remark }}
+                                    {{ learning_unit_year.learning_unit.other_remark | default_if_none:'' }}
                                 </div>
                             </div>
                         </div>

@@ -34,10 +34,10 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
+from attribution.business.attribution_charge_new import find_attribution_charge_new_by_learning_unit_year
 from base import models as mdl
 from base.business import learning_unit_deletion, learning_unit_year_volumes, learning_unit_year_with_context, \
     learning_unit_proposal
-from attribution import models as mdl_attr
 from base.business.learning_unit import create_learning_unit, create_learning_unit_structure, \
     get_common_context_learning_unit_year, get_cms_label_data, \
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
@@ -201,7 +201,7 @@ def learning_unit_pedagogy_edit(request, learning_unit_year_id):
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_attributions(request, learning_unit_year_id):
     context = get_common_context_learning_unit_year(learning_unit_year_id)
-    context['attributions'] = mdl_attr.attribution.find_by_learning_unit_year(learning_unit_year=learning_unit_year_id)
+    context['attribution_charge_news'] = find_attribution_charge_new_by_learning_unit_year(learning_unit_year = learning_unit_year_id)
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/attributions.html", context)
 

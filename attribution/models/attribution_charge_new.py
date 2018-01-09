@@ -60,3 +60,14 @@ def search(*args, **kwargs):
             qs = qs.filter(learning_component_year=kwargs['learning_component_year'])
 
     return qs.select_related('learning_component_year', 'attribution')
+
+
+def get_attribution(self, a_component_type):
+    attribution = find_by_component_type(self, a_component_type)
+    if attribution:
+        return attribution.allocation_charge
+    return "{0:.2f}".format(float(0))
+
+def find_by_component_type(an_attribution=None, a_learning_unit_component_type=None):
+    return AttributionChargeNew.objects.filter(attribution=an_attribution,
+                                               learning_component_year__type=a_learning_unit_component_type).first()
