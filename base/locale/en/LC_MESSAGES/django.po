@@ -2460,3 +2460,9 @@ msgstr "Decision"
 
 msgid "procedure"
 msgstr "Procedure"
+
+msgid "SUMMARY_COURSE_SUBMISSION"
+msgstr "Summary course submission"
+
+msgid "INTERNAL_TEAM"
+msgstr "Internal/team"
