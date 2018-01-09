@@ -23,16 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-Q1 = "Q1"
-Q2 = "Q2"
-Q3 = "Q3"
-Q1and2 = "Q1&2"
-Q1or2 = "Q1|2"
 
-LEARNING_UNIT_YEAR_QUADRIMESTERS = (
-    (Q1, Q1),
-    (Q2, Q2),
-    (Q1and2, Q1and2),
-    (Q1or2, Q1or2),
-    (Q3, Q3)
-)
+from django.utils.translation import ugettext_lazy as _
+
+
+INTERNAL_TEAM = "INTERNAL_TEAM"
+EXTERNAL = "EXTERNAL"
+
+ATTRIBUTION_PROCEDURES = (
+    (INTERNAL_TEAM, _('INTERNAL_TEAM')),
+    (EXTERNAL, _('EXTERNAL')))
