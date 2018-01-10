@@ -32,9 +32,6 @@ from django.utils.translation import ugettext as _
 from base.models.utils.admin_extentions import remove_delete_action
 
 
-FUNCTIONS = 'functions'
-
-
 class AcademicCalendarAdmin(SerializableModelAdmin):
     list_display = ('academic_year', 'title', 'start_date', 'end_date')
     list_display_links = None

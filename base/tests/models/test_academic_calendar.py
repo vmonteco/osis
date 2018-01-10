@@ -31,20 +31,6 @@ from base.models.exceptions import StartDateHigherThanEndDateException
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import AcademicYearFactory, AcademicYearFakerFactory
 
-start_date = timezone.now()
-end_date = start_date.replace(year=start_date.year + 1)
-
-
-def create_academic_calendar(an_academic_year, start_date=datetime.date(2000, 1, 1), end_date=datetime.date(2099, 1, 1),
-                             reference=None):
-    if an_academic_year:
-        start_date = an_academic_year.start_date
-        end_date = an_academic_year.end_date
-
-    an_academic_calendar = AcademicCalendarFactory(academic_year=an_academic_year, start_date=start_date,
-                                                   end_date=end_date, reference=reference)
-    return an_academic_calendar
-
 
 class AcademicCalendarTest(TestCase):
 
