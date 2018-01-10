@@ -26,6 +26,8 @@
 import logging
 import pika
 import pika.exceptions
+from decimal import Decimal
+
 from attribution import models as mdl_attribution
 from django.conf import settings
 from osis_common.queue import queue_sender
@@ -76,6 +78,6 @@ def _group_tutor_application_by_global_id(tutor_application_list):
                                                                       'acronym': tutor_application.learning_container_year.acronym,
                                                                       'remark': tutor_application.remark,
                                                                       'course_summary': tutor_application.course_summary,
-                                                                      'charge_lecturing_asked': str(tutor_application.volume_lecturing),
-                                                                      'charge_practical_asked': str(tutor_application.volume_pratical_exercice)})
+                                                                      'charge_lecturing_asked': str(tutor_application.volume_lecturing or Decimal('0.0')),
+                                                                      'charge_practical_asked': str(tutor_application.volume_pratical_exercice or Decimal('0.0'))})
     return tutor_applications_grouped

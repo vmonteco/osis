@@ -57,7 +57,7 @@ NUMBER_SESSIONS = 3
 
 
 @login_required
-@permission_required('base.can_access_offer', raise_exception=True)
+@permission_required('base.can_access_education_group', raise_exception=True)
 def education_groups(request):
     if request.GET:
         form = EducationGroupFilter(request.GET)
@@ -90,7 +90,7 @@ def _check_if_display_message(request, an_education_groups):
 
 
 @login_required
-@permission_required('base.can_access_offer', raise_exception=True)
+@permission_required('base.can_access_education_group', raise_exception=True)
 def education_group_read(request, education_group_year_id):
     root = request.GET.get('root')
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
@@ -105,7 +105,7 @@ def education_group_read(request, education_group_year_id):
 
 
 @login_required
-@permission_required('base.can_access_offer', raise_exception=True)
+@permission_required('base.can_access_education_group', raise_exception=True)
 def education_group_parent_read(request, education_group_year_id):
     root = request.GET.get('root')
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
@@ -120,7 +120,7 @@ def education_group_parent_read(request, education_group_year_id):
 
 
 @login_required
-@permission_required('base.can_access_offer', raise_exception=True)
+@permission_required('base.can_access_education_group', raise_exception=True)
 def education_group_diplomas(request, education_group_year_id):
     return _education_group_diplomas_tab(request, education_group_year_id)
 
@@ -132,7 +132,7 @@ def _education_group_diplomas_tab(request, education_group_year_id):
 
 
 @login_required
-@permission_required('base.can_access_offer', raise_exception=True)
+@permission_required('base.can_access_education_group', raise_exception=True)
 def education_group_general_informations(request, education_group_year_id):
     return _education_group_general_informations_tab(request, education_group_year_id)
 
@@ -170,7 +170,7 @@ def _get_cms_label_data(cms_label, user_language):
 
 
 @login_required
-@permission_required('base.can_access_offer', raise_exception=True)
+@permission_required('base.can_access_education_group', raise_exception=True)
 def education_group_administrative_data(request, education_group_year_id):
     return _education_group_administrative_data_tab(request, education_group_year_id)
 
@@ -262,7 +262,7 @@ def get_dates(an_academic_calendar_type, an_education_group_year):
 
 
 @login_required
-@permission_required('base.can_access_offer', raise_exception=True)
+@permission_required('base.can_access_education_group', raise_exception=True)
 def education_group_content(request, education_group_year_id):
     return _education_group_content_tab(request, education_group_year_id)
 
