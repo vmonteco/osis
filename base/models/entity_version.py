@@ -162,6 +162,9 @@ class EntityVersion(SerializableModel):
     def find_faculty_version(self, academic_yr):
         if self.entity_type == entity_type.FACULTY:
             return self
+        # There is no faculty above the sector
+        elif self.entity_type == entity_type.SECTOR:
+            return None
         else:
             parent_entity_version = self._find_latest_version_by_parent(academic_yr.start_date)
             if parent_entity_version:
