@@ -43,10 +43,7 @@ class SessionExamCalendar(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     number_session = models.IntegerField(choices=number_session.NUMBERS_SESSION)
-    academic_calendar = models.ForeignKey('AcademicCalendar')
-
-    class Meta:
-        unique_together = (("number_session", "academic_calendar"),)
+    academic_calendar = models.OneToOneField('AcademicCalendar')
 
     def __str__(self):
         return u"%s - %s" % (self.academic_calendar, self.number_session)

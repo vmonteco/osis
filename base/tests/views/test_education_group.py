@@ -34,7 +34,7 @@ from django.test import TestCase, RequestFactory
 
 from base.forms.education_groups import EducationGroupFilter
 from base.models.academic_calendar import AcademicCalendar
-from base.models.enums import education_group_categories, offer_year_entity_type
+from base.models.enums import education_group_categories, offer_year_entity_type, academic_calendar_type
 from base.models.enums.education_group_categories import TRAINING, MINI_TRAINING
 
 from base.tests.factories.academic_year import AcademicYearFactory
@@ -54,10 +54,6 @@ from base.tests.factories.structure import StructureFactory
 from reference.tests.factories.country import CountryFactory
 
 from base.views.education_group import education_groups
-
-
-def save(self, *args, **kwargs):
-    return super(AcademicCalendar, self).save()
 
 
 class EducationGroupViewTestCase(TestCase):
@@ -118,16 +114,16 @@ class EducationGroupViewTestCase(TestCase):
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
     def test_education_groups_search_by_requirement_entity(self, mock_render, mock_decorators):
-        mock_decorators.login_required = lambda  x: x
+        mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
         request_factory = RequestFactory()
 
         self._prepare_context_education_groups_search()
 
         request = request_factory.get(reverse('education_groups'), data={
-                'academic_year': self.academic_year.id,
-                'requirement_entity_acronym': 'AGRO'
-            })
+            'academic_year': self.academic_year.id,
+            'requirement_entity_acronym': 'AGRO'
+        })
         request.user = mock.Mock()
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
@@ -138,21 +134,20 @@ class EducationGroupViewTestCase(TestCase):
         self.assertEqual(template, 'education_groups.html')
         self.assertEqual(len(context['object_list']), 1)
 
-
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
     def test_education_groups_search_by_requirement_entity_and_subord(self, mock_render, mock_decorators):
-        mock_decorators.login_required = lambda  x: x
+        mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
         request_factory = RequestFactory()
 
         self._prepare_context_education_groups_search()
 
         request = request_factory.get(reverse(education_groups), data={
-                'academic_year': self.academic_year.id,
-                'requirement_entity_acronym': 'AGRO',
-                'with_entity_subordinated': True
-            })
+            'academic_year': self.academic_year.id,
+            'requirement_entity_acronym': 'AGRO',
+            'with_entity_subordinated': True
+        })
         request.user = mock.Mock()
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
@@ -162,7 +157,6 @@ class EducationGroupViewTestCase(TestCase):
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'education_groups.html')
         self.assertEqual(len(context['object_list']), 3)
-
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
@@ -175,7 +169,7 @@ class EducationGroupViewTestCase(TestCase):
         EducationGroupYearFactory(acronym='EDPH2', academic_year=self.academic_year)
         EducationGroupYearFactory(acronym='ARKE2A', academic_year=self.academic_year)
         result = EducationGroupYearFactory(acronym='HIST2A', academic_year=self.academic_year,
-                                  education_group_type=self.type_minitraining)
+                                           education_group_type=self.type_minitraining)
 
         request = request_factory.get(reverse(education_groups), data={
             'academic_year': self.academic_year.id,
@@ -267,11 +261,9 @@ class EducationGroupViewTestCase(TestCase):
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
-    @mock.patch('base.models.program_manager.is_program_manager', return_value=True)
     @mock.patch('base.models.education_group_year.find_by_id')
     def test_education_group_read(self,
                                   mock_find_by_id,
-                                  mock_program_manager,
                                   mock_render,
                                   mock_decorators):
         mock_decorators.login_required = lambda x: x
@@ -292,11 +284,9 @@ class EducationGroupViewTestCase(TestCase):
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
-    @mock.patch('base.models.program_manager.is_program_manager', return_value=True)
     @mock.patch('base.models.education_group_year.find_by_id')
     def test_education_group_parent_read(self,
                                          mock_find_by_id,
-                                         mock_program_manager,
                                          mock_render,
                                          mock_decorators):
         mock_decorators.login_required = lambda x: x
@@ -305,7 +295,7 @@ class EducationGroupViewTestCase(TestCase):
         education_group_type = EducationGroupTypeFactory(category=TRAINING)
 
         education_group_year_child = EducationGroupYearFactory(academic_year=self.academic_year,
-                                                                education_group_type=education_group_type)
+                                                               education_group_type=education_group_type)
         education_group_year_parent = EducationGroupYearFactory(academic_year=self.academic_year,
                                                                 education_group_type=education_group_type)
 
@@ -373,20 +363,27 @@ class EducationGroupViewTestCase(TestCase):
 
         sessions_quantity = 3
         an_academic_year = AcademicYearFactory()
-        academic_calendar = AcademicCalendarFactory.build(academic_year=an_academic_year)
-        academic_calendar.save(functions=[])
+        academic_calendars = [AcademicCalendarFactory.build(academic_year=an_academic_year,
+                                                            reference=academic_calendar_type.DELIBERATION)
+                              for _ in range(sessions_quantity)]
+        for academic_calendar in academic_calendars:
+            academic_calendar.save(functions=[])
+
         education_group_year = EducationGroupYearFactory(academic_year=an_academic_year)
-        session_exam_calendars = [SessionExamCalendarFactory(number_session=session,
-                                                             academic_calendar=academic_calendar)
-                                  for session in range(1, sessions_quantity + 1)]
-        offer_year_calendar = OfferYearCalendarFactory(
+
+        for session, academic_calendar in enumerate(academic_calendars):
+            SessionExamCalendarFactory(number_session=session + 1, academic_calendar=academic_calendar)
+
+        offer_year_calendars = [OfferYearCalendarFactory(
             academic_calendar=academic_calendar,
-            education_group_year=education_group_year
-        )
+            education_group_year=education_group_year)
+        for academic_calendar in academic_calendars]
+
         self.assertEquals(
-            get_sessions_dates(academic_calendar.reference, education_group_year),
+            get_sessions_dates(academic_calendars[0].reference, education_group_year),
             {
-                'session{}'.format(s): offer_year_calendar for s in range(1, sessions_quantity + 1)
+                'session{}'.format(s+1): offer_year_calendar
+                for s, offer_year_calendar in enumerate(offer_year_calendars)
             }
         )
 
@@ -413,7 +410,6 @@ class EducationGroupViewTestCase(TestCase):
         self.assertEqual(context['education_group_year'], education_group_year)
         self.assertEqual(context['course_enrollment_validity'], False)
         self.assertEqual(context['formset_session_validity'], False)
-
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
@@ -448,9 +444,9 @@ class EducationGroupViewTestCase(TestCase):
         ages_entity = EntityFactory(country=country)
         agro_entity_v = EntityVersionFactory(entity=agro_entity, parent=ssh_entity_v.entity, acronym="AGRO",
                                              end_date=None)
-        envi_entity_v = EntityVersionFactory(entity=envi_entity, parent=agro_entity_v.entity, acronym="ENVI",
+        EntityVersionFactory(entity=envi_entity, parent=agro_entity_v.entity, acronym="ENVI",
                                              end_date=None)
-        ages_entity_v = EntityVersionFactory(entity=ages_entity, parent=agro_entity_v.entity, acronym="AGES",
+        EntityVersionFactory(entity=ages_entity, parent=agro_entity_v.entity, acronym="AGES",
                                              end_date=None)
 
         # Create EG and put entity charge [AGRO]
@@ -463,9 +459,9 @@ class EducationGroupViewTestCase(TestCase):
                                                               education_group_type=agro_education_group_type)
 
         agro_offer = OfferFactory()
-        agro_offer_year=OfferYearFactory(offer=agro_offer,
-                                    entity_management=structure,
-                                    entity_administration_fac=structure)
+        agro_offer_year = OfferYearFactory(offer=agro_offer,
+                                           entity_management=structure,
+                                           entity_administration_fac=structure)
 
         OfferYearEntityFactory(offer_year=agro_offer_year,
                                entity=agro_entity,
@@ -477,13 +473,13 @@ class EducationGroupViewTestCase(TestCase):
         envi_education_group_type = EducationGroupTypeFactory(category=TRAINING)
 
         envi_education_group_year = EducationGroupYearFactory(academic_year=self.academic_year,
-                                                         education_group=envi_education_group,
-                                                         education_group_type=envi_education_group_type)
+                                                              education_group=envi_education_group,
+                                                              education_group_type=envi_education_group_type)
 
         envi_offer = OfferFactory()
-        envi_offer_year=OfferYearFactory(offer=envi_offer,
-                                         entity_management=structure,
-                                         entity_administration_fac=structure)
+        envi_offer_year = OfferYearFactory(offer=envi_offer,
+                                           entity_management=structure,
+                                           entity_administration_fac=structure)
 
         OfferYearEntityFactory(offer_year=envi_offer_year,
                                entity=envi_entity,
@@ -495,13 +491,13 @@ class EducationGroupViewTestCase(TestCase):
         ages_education_group_type = EducationGroupTypeFactory(category=TRAINING)
 
         ages_education_group_year = EducationGroupYearFactory(academic_year=self.academic_year,
-                                                         education_group=ages_education_group,
-                                                         education_group_type=ages_education_group_type)
+                                                              education_group=ages_education_group,
+                                                              education_group_type=ages_education_group_type)
 
         ages_offer = OfferFactory()
-        ages_offer_year=OfferYearFactory(offer=ages_offer,
-                                    entity_management=structure,
-                                    entity_administration_fac=structure)
+        ages_offer_year = OfferYearFactory(offer=ages_offer,
+                                           entity_management=structure,
+                                           entity_administration_fac=structure)
 
         OfferYearEntityFactory(offer_year=ages_offer_year,
                                entity=ages_entity,

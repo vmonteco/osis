@@ -36,6 +36,7 @@ from base.models.session_exam_deadline import SessionExamDeadline
 def compute_deadline_by_offer_year_calendar(oyc):
     if oyc.academic_calendar.reference not in (ac_type.DELIBERATION, ac_type.SCORES_EXAM_SUBMISSION):
         return None
+
     oyc_deliberation = _get_oyc_deliberation(oyc)
     oyc_scores_exam_submission = _get_oyc_scores_exam_submission(oyc)
 
@@ -48,18 +49,23 @@ def compute_deadline_by_offer_year_calendar(oyc):
     sessions_exam_deadlines = _get_list_sessions_exam_deadlines(oyc_deliberation)
 
     with transaction.atomic():
-        for session in sessions_exam_deadlines:
-            deadline = session.deadline
-            deadline_tutor = session.deadline_tutor
-            end_date_student = _one_day_before(session.deliberation_date) if session.deliberation_date else None
-            new_deadline = min(filter(None, (end_date_academic, end_date_offer_year, end_date_student)))
-            new_deadline_tutor = _get_delta_deadline_tutor(new_deadline, score_submission_date)
-            if new_deadline == deadline and deadline_tutor == new_deadline_tutor:
-                continue
+        _save_new_deadlines(sessions_exam_deadlines, end_date_academic, end_date_offer_year, score_submission_date)
 
-            session.deadline = new_deadline
-            session.deadline_tutor = new_deadline_tutor
-            session.save()
+
+def _save_new_deadlines(sessions_exam_deadlines, end_date_academic, end_date_offer_year, score_submission_date):
+    for session in sessions_exam_deadlines:
+        deadline = session.deadline
+        deadline_tutor = session.deadline_tutor
+        end_date_student = _one_day_before(session.deliberation_date) if session.deliberation_date else None
+
+        new_deadline = min(filter(None, (end_date_academic, end_date_offer_year, end_date_student)))
+        new_deadline_tutor = _compute_delta_deadline_tutor(new_deadline, score_submission_date)
+        if new_deadline == deadline and deadline_tutor == new_deadline_tutor:
+            continue
+
+        session.deadline = new_deadline
+        session.deadline_tutor = new_deadline_tutor
+        session.save()
 
 
 def _get_oyc_scores_exam_submission(oyc):
@@ -87,18 +93,15 @@ def _get_oyc_deliberation(oyc):
 
 
 def _get_list_sessions_exam_deadlines(oyc_deliberation):
-    list_sessions = SessionExamCalendar.objects.filter(
-        academic_calendar=oyc_deliberation.academic_calendar
-    ).values('number_session')
-
+    session = SessionExamCalendar.objects.get(academic_calendar=oyc_deliberation.academic_calendar)
     return SessionExamDeadline.objects.filter(
-        offer_enrollment__offer_year=oyc_deliberation.offer_year, number_session__in=list_sessions)
+        offer_enrollment__offer_year=oyc_deliberation.offer_year, number_session=session.number_session)
 
 
 def _one_day_before(current_date):
     return current_date - datetime.timedelta(days=1)
 
 
-def _get_delta_deadline_tutor(deadline, score_submission_date):
+def _compute_delta_deadline_tutor(deadline, score_submission_date):
     if deadline and score_submission_date and deadline >= score_submission_date:
         return (deadline - score_submission_date).days

@@ -27,7 +27,8 @@ from datetime import timedelta, datetime
 
 from django.test import TestCase
 
-from base.business.offer_year_calendar import compute_deadline_by_offer_year_calendar, _get_delta_deadline_tutor
+from base.business.scores_encodings_deadline import compute_deadline_by_offer_year_calendar, \
+    _compute_delta_deadline_tutor
 from base.models.enums import academic_calendar_type
 from base.models.session_exam_deadline import SessionExamDeadline
 
@@ -125,10 +126,10 @@ class TestOfferYearCalendar(TestCase):
     def test_get_delta_deadline_tutor(self):
         today = datetime.today()
         fourty_day_before = today - timedelta(days=40)
-        self.assertEqual(40, _get_delta_deadline_tutor(today, fourty_day_before))
+        self.assertEqual(40, _compute_delta_deadline_tutor(today, fourty_day_before))
 
     def test_get_delta_deadline_tutor_none_value(self):
         today = datetime.today()
-        self.assertFalse(_get_delta_deadline_tutor(None, None))
-        self.assertFalse(_get_delta_deadline_tutor(None, today))
-        self.assertFalse(_get_delta_deadline_tutor(today, None))
+        self.assertFalse(_compute_delta_deadline_tutor(None, None))
+        self.assertFalse(_compute_delta_deadline_tutor(None, today))
+        self.assertFalse(_compute_delta_deadline_tutor(today, None))
