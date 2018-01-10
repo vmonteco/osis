@@ -46,20 +46,20 @@ class TestLearningUnitForm(TestCase):
         self.start_date = self.academic_yr.start_date
         self.end_date = self.academic_yr.end_date
         """
-        Create three containers:
-        LC0, LC1 and LC2.
+        Create four containers:
+        LC0, LC1, LC2 and LC3.
         """
         self.list_lu_container_year = [
             LearningContainerYearFactory(acronym="LC%d" % container,
                                          academic_year=self.academic_yr)
-            for container in range(3)
+            for container in range(4)
         ]
 
         """
         Create the most simple Learning Units list:
         which is one Learning Unit per Container.
-        So in this case, three Learning Units are instanciated:
-        LUY0, LUY1 and LUY2.
+        So in this case, four Learning Units are instanciated:
+        LUY0, LUY1, LUY2 and LUY3.
         """
         self.list_lu_year = [
             LearningUnitYearFactory(acronym="LUY%d" % i,
@@ -70,8 +70,10 @@ class TestLearningUnitForm(TestCase):
 
         """
         Create a list of entities.
-        One of them must have a reference to another entity :
-        the School entity 'MATH' has the Faculty entity 'SC' as parent.
+            1.  One of them must have a reference to another entity :
+                the School entity 'MATH' has the Faculty entity 'SC' as parent (evf_parent_1).
+            2.  One of them must have a Sector as direct parent instead of a Faculty :
+                the Entity 'BAXR' has the Sector 'SST' as direct parent (evf_parent_2).
         """
         meca_faculty = self._create_entity_version(entity_type=entity_type.FACULTY,
                                                    acronym="MECA_FACULTY")
@@ -89,15 +91,24 @@ class TestLearningUnitForm(TestCase):
                                  parent=elme_faculty.entity)
         ]
 
-        evf_parent = self._create_entity_version(entity_type=entity_type.FACULTY,
+        evf_parent_1 = self._create_entity_version(entity_type=entity_type.FACULTY,
                                           acronym="SC")
 
-        evf_child = self._create_entity_version(entity_type=entity_type.SCHOOL,
+        evf_child_1 = self._create_entity_version(entity_type=entity_type.SCHOOL,
                                          acronym="MATH",
-                                         parent=evf_parent.entity)
+                                         parent=evf_parent_1.entity)
 
-        self.list_entity_version.append(evf_parent)
-        self.list_entity_version.append(evf_child)
+        evf_parent_2 = self._create_entity_version(entity_type=entity_type.SECTOR,
+                                          acronym="SST")
+
+        evf_child_2 = self._create_entity_version(entity_type=entity_type.INSTITUTE,
+                                         acronym="BAXR",
+                                         parent=evf_parent_2.entity)
+
+        self.list_entity_version.append(evf_parent_1)
+        self.list_entity_version.append(evf_child_1)
+        self.list_entity_version.append(evf_parent_2)
+        self.list_entity_version.append(evf_child_2)
 
         """
         Associate the entities to the Learning Units.
@@ -109,6 +120,8 @@ class TestLearningUnitForm(TestCase):
             4. LUY1 -associated to LC1- has 'MECA' for ALLOCATION Entity
             5. LUY2 -associated to LC2- has 'SC' for REQUIREMENT Entity
             6. LUY2 -associated to LC2- has 'MATH' for ALLOCATION Entity
+            7. LUY3 -associated to LC3- has 'BUDR' for REQUIREMENT Entity
+            8. LUY3 -associated to LC3- has 'BAXR' for ALLOCATION Entity
         """
         self.list_entity_container_year = [
             EntityContainerYearFactory(
@@ -134,6 +147,14 @@ class TestLearningUnitForm(TestCase):
             EntityContainerYearFactory(
                 entity=self.list_entity_version[3].entity,
                 learning_container_year=self.list_lu_container_year[2],
+                type=entity_container_year_link_type.ALLOCATION_ENTITY),
+            EntityContainerYearFactory(
+                entity=self.list_entity_version[3].entity,
+                learning_container_year=self.list_lu_container_year[3],
+                type=entity_container_year_link_type.REQUIREMENT_ENTITY),
+            EntityContainerYearFactory(
+                entity=self.list_entity_version[5].entity,
+                learning_container_year=self.list_lu_container_year[3],
                 type=entity_container_year_link_type.ALLOCATION_ENTITY)
         ]
 
@@ -168,18 +189,28 @@ class TestLearningUnitForm(TestCase):
         self.assertTrue(form.is_valid())
         self.assertEqual(form.get_activity_learning_units(), [self.list_lu_year[0], self.list_lu_year[1]])
 
-    def test_get_service_courses_by_requirement_acronym(self):
+    def test_get_service_courses_by_allocation_acronym(self):
         form_data = {
-            "requirement_entity_acronym": self.list_entity_version[0].acronym
+            "allocation_entity_acronym": self.list_entity_version[1].acronym
         }
 
         form = learning_units.LearningUnitYearForm(form_data, service_course_search=True)
         self.assertTrue(form.is_valid())
         self.assertEqual(form.get_activity_learning_units(), [self.list_lu_year[0]])
 
-    def test_get_service_courses_by_allocation_acronym(self):
+    def test_get_service_courses_by_allocation_acronym_with_no_faculty_as_parent(self):
         form_data = {
-            "allocation_entity_acronym": self.list_entity_version[1].acronym
+            "requirement_entity_acronym": self.list_entity_version[3].acronym,
+            "allocation_entity_acronym": self.list_entity_version[5].acronym
+        }
+
+        form = learning_units.LearningUnitYearForm(form_data, service_course_search=True)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.get_activity_learning_units(), [])
+
+    def test_get_service_courses_by_requirement_acronym(self):
+        form_data = {
+            "requirement_entity_acronym": self.list_entity_version[0].acronym
         }
 
         form = learning_units.LearningUnitYearForm(form_data, service_course_search=True)
