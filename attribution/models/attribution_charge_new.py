@@ -71,7 +71,6 @@ class AttributionChargeNew(AuditableModel):
         return "{0:.2f}".format(float(0))
 
 
-
 def search(*args, **kwargs):
     qs = AttributionChargeNew.objects.all()
 
