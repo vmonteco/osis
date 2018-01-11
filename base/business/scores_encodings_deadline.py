@@ -56,18 +56,19 @@ def _is_valid_offer_year_calendar(oyc):
 
 def _save_new_deadlines(sessions_exam_deadlines, end_date_academic, end_date_offer_year, score_submission_date):
     for session in sessions_exam_deadlines:
-        deadline = session.deadline
-        deadline_tutor = session.deadline_tutor
-        end_date_student = _one_day_before(session.deliberation_date) if session.deliberation_date else None
+        end_date_student = _one_day_before(session.deliberation_date)
 
         new_deadline = min(filter(None, (end_date_academic, end_date_offer_year, end_date_student)))
         new_deadline_tutor = _compute_delta_deadline_tutor(new_deadline, score_submission_date)
-        if new_deadline == deadline and deadline_tutor == new_deadline_tutor:
-            continue
 
-        session.deadline = new_deadline
-        session.deadline_tutor = new_deadline_tutor
-        session.save()
+        if _is_deadline_changed(session, new_deadline, new_deadline_tutor):
+            session.deadline = new_deadline
+            session.deadline_tutor = new_deadline_tutor
+            session.save()
+
+
+def _is_deadline_changed(session, new_deadline, new_deadline_tutor):
+    return new_deadline == session.deadline and new_deadline_tutor == session.deadline_tutor
 
 
 def _get_oyc_scores_exam_submission(oyc):
@@ -101,11 +102,14 @@ def _get_list_sessions_exam_deadlines(oyc_deliberation):
 
 
 def _one_day_before_end_date(oyc):
-    return _one_day_before(oyc.end_date.date()) if oyc and oyc.end_date else None
+    return _one_day_before(oyc.end_date.date()) if oyc else None
 
 
 def _one_day_before(current_date):
-    return current_date - datetime.timedelta(days=1)
+    result = None
+    if isinstance(current_date, datetime.date):
+        result = current_date - datetime.timedelta(days=1)
+    return result
 
 
 def _compute_delta_deadline_tutor(deadline, score_submission_date):
