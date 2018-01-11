@@ -352,18 +352,6 @@ def _get_entity_acronym(an_entity):
     return an_entity.acronym if an_entity else None
 
 
-def get_search_form(request):
-    academic_year_id = request.GET.get('academic_year_id')
-    return LearningUnitYearForm(request.GET) if academic_year_id else LearningUnitYearForm()
-
-
-def get_learning_units(form, search_type):
-    if search_type == SIMPLE_SEARCH:
-        return form.get_activity_learning_units()
-    # else it should be SERVICE_COURSES_SEARCH:
-    return form.get_service_course_learning_units()
-
-
 def create_xls(user, found_learning_units):
     workingsheets_data = prepare_xls_content(found_learning_units)
     return xls_build.generate_xls(prepare_xls_parameters_list(user, workingsheets_data))
