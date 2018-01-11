@@ -65,6 +65,12 @@ class AttributionNew(AuditableModel):
     def __str__(self):
         return u"%s - %s" % (self.tutor.person, self.function)
 
+    @property
+    def duration(self):
+        if self.start_year and self.end_year:
+            return (self.end_year - self.start_year) + 1
+        return None
+
     class Meta:
         unique_together = ('learning_container_year', 'tutor', 'function')
 

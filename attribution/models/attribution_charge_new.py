@@ -49,12 +49,6 @@ class AttributionChargeNew(AuditableModel):
         return u"%s" % str(self.attribution)
 
     @property
-    def duration(self):
-        if self.attribution.start_year and self.attribution.end_year:
-            return (self.attribution.end_year - self.attribution.start_year) + 1
-        return None
-
-    @property
     def volume_lecturing(self):
         return self.get_attribution(component_type.LECTURING)
 
