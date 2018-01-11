@@ -392,6 +392,9 @@ msgstr "It remains notes to encode."
 msgid "end_date"
 msgstr "End date"
 
+msgid "end_date_teacher"
+msgstr "Teacher Deadline"
+
 msgid "enrollment_activity_not_exist"
 msgstr "The enrollment to the activity %s doesn't exist"
 
@@ -2317,12 +2320,6 @@ msgstr "Type of learning unit must be full"
 msgid "learning_unit_type_is_not_internship"
 msgstr "Learning unit is not of type internship."
 
-msgid "learning_unit_is_not_of_type_full"
-msgstr "Learning unit is not of type full."
-
-msgid "proposal_already_exists"
-msgstr "A proposal has already been made for the learning unit."
-
 msgid "CREATION"
 msgstr "Creation"
 
@@ -2337,9 +2334,6 @@ msgstr "Transformation and modification"
 
 msgid "SUPPRESSION"
 msgstr "Suppression"
-
-msgid "cannot_do_modification_proposal_for_past_learning_unit"
-msgstr "Cannot make modification proposal for past learning unit."
 
 msgid "CENTRAL"
 msgstr "Central"

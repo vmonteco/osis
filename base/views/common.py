@@ -54,7 +54,7 @@ def method_not_allowed(request):
 
 def access_denied(request):
     response = layout.render(request, 'access_denied.html', {})
-    response.status_code = 401
+    response.status_code = 403
     return response
 
 

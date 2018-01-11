@@ -388,6 +388,9 @@ msgstr "Il reste encore des notes à encoder."
 msgid "end_date"
 msgstr "Date de fin"
 
+msgid "end_date_teacher"
+msgstr "Échéance Prof"
+
 msgid "enrollment_activity_not_exist"
 msgstr "L'inscription à l'activité %s n'existe pas"
 
@@ -2323,12 +2326,6 @@ msgstr "Le type de l'unité d'enseignement doit être complet."
 msgid "learning_unit_type_is_not_internship"
 msgstr "L'unité d'enseignement n'est pas de type stage."
 
-msgid "learning_unit_is_not_of_type_full"
-msgstr "L'unité d'enseignement n'est pas de type complet."
-
-msgid "proposal_already_exists"
-msgstr "Une proposition existe déjà pour l'unité d'enseignement."
-
 msgid "CREATION"
 msgstr "Création"
 
@@ -2343,9 +2340,6 @@ msgstr "Transformation et modification"
 
 msgid "SUPPRESSION"
 msgstr "Suppression"
-
-msgid "cannot_do_modification_proposal_for_past_learning_unit"
-msgstr "Vous ne pouvez pas faire de proposition de modification pour une unité d'enseignement passée."
 
 msgid "CENTRAL"
 msgstr "Central"
