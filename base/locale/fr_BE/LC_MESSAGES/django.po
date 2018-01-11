@@ -2473,3 +2473,6 @@ msgstr "Soumission des résumés de cours"
 
 msgid "INTERNAL_TEAM"
 msgstr "Interne/Equipe"
+
+msgid "substitute"
+msgstr "Suppléant"

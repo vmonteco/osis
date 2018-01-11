@@ -45,15 +45,13 @@
                         <th>{% trans 'duration' %}</th>
                         <th>Volume 1</th>
                         <th>Volume 2</th>
+                        <th>{% trans 'substitute' %}</th>
                     </thead>
                     <tbody>
                         {% for attribution_charge_new in attribution_charge_news %}
                             <tr>
-                                {% if attribution_charge_new.attribution.substitute %}
-                                    <td>{{ attribution_charge_new.attribution.substitute.tutor.person.last_name }}, {{ attribution_charge_new.attribution.substitute.tutor.person.first_name }}</td>
-                                {% else %}
-                                    <td>{{ attribution_charge_new.attribution.tutor.person.last_name }}, {{ attribution_charge_new.attribution.tutor.person.first_name }}</td>
-                                {% endif %}
+                                <td>{{ attribution_charge_new.attribution.tutor.person.last_name }},
+                                    {{ attribution_charge_new.attribution.tutor.person.first_name }}</td>
                                 <td>
                                     {% if attribution_charge_new.attribution.function %}
                                         {% trans attribution_charge_new.attribution.function %}
@@ -63,6 +61,11 @@
                                 <td>{{ attribution_charge_new.duration | default_if_none:'' }}</td>
                                 <td>{{ attribution_charge_new.volume_lecturing  | default_if_none:'' }}</td>
                                 <td>{{ attribution_charge_new.volume_practical  | default_if_none:'' }}</td>
+                                <td>{% if attribution_charge_new.attribution.substitute %}
+                                        {{ attribution_charge_new.attribution.substitute.tutor.person.last_name }},
+                                        {{ attribution_charge_new.attribution.substitute.tutor.person.first_name }}
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
