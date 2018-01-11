@@ -34,7 +34,7 @@ from base.models.session_exam_deadline import SessionExamDeadline
 
 
 def compute_deadline_by_offer_year_calendar(oyc):
-    if not _is_valid_offer_year_calendar(oyc):
+    if _is_valid_offer_year_calendar(oyc):
         return
 
     oyc_deliberation = _get_oyc_deliberation(oyc)
@@ -68,7 +68,7 @@ def _save_new_deadlines(sessions_exam_deadlines, end_date_academic, end_date_off
 
 
 def _is_deadline_changed(session, new_deadline, new_deadline_tutor):
-    return new_deadline == session.deadline and new_deadline_tutor == session.deadline_tutor
+    return new_deadline != session.deadline or new_deadline_tutor != session.deadline_tutor
 
 
 def _get_oyc_scores_exam_submission(oyc):
@@ -102,7 +102,7 @@ def _get_list_sessions_exam_deadlines(oyc_deliberation):
 
 
 def _one_day_before_end_date(oyc):
-    return _one_day_before(oyc.end_date.date()) if oyc else None
+    return _one_day_before(oyc.end_date.date()) if oyc.end_date else None
 
 
 def _one_day_before(current_date):
