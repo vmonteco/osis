@@ -135,7 +135,8 @@ urlpatterns = [
         url(r'^profile/', include([
             url(r'^$', my_osis.profile, name='profile'),
             url(r'^lang/$', my_osis.profile_lang, name='profile_lang'),
-            url(r'^lang/edit/([A-Za-z-]+)/$', my_osis.profile_lang_edit, name='lang_edit')
+            url(r'^lang/edit/([A-Za-z-]+)/$', my_osis.profile_lang_edit, name='lang_edit'),
+            url(r'^attributions/$', my_osis.profile_attributions, name='profile_attributions'),
         ]))
     ])),
 

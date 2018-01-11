@@ -101,18 +101,7 @@ def read_message(request, message_id):
 
 @login_required
 def profile(request):
-    person = mdl.person.find_by_user(request.user)
-    addresses = mdl.person_address.find_by_person(person)
-    tutor = mdl.tutor.find_by_person(person)
-    attributions = mdl_attr.attribution.search(tutor=tutor)
-    programs_managers = mdl.program_manager.find_by_person(person)
-    return layout.render(request, "my_osis/profile.html", {'person':              person,
-                                                           'addresses':           addresses,
-                                                           'tutor':               tutor,
-                                                           'attributions':        attributions,
-                                                           'programs_managers':   programs_managers,
-                                                           'supported_languages': settings.LANGUAGES,
-                                                           'default_language':    settings.LANGUAGE_CODE})
+    return layout.render(request, "my_osis/profile.html", _get_data(request))
 
 
 @login_required
@@ -150,5 +139,21 @@ def send_message_again(request, message_id):
     return HttpResponseRedirect(reverse('admin:base_messagehistory_changelist'))
 
 
+@login_required
+def profile_attributions(request):
+    data = _get_data(request)
+    data.update({'tab_attribution_on': True})
+    return layout.render(request, "my_osis/profile.html", data)
 
 
+@login_required
+def _get_data(request):
+    person = mdl.person.find_by_user(request.user)
+    tutor = mdl.tutor.find_by_person(person)
+    return {'person': person,
+            'addresses': mdl.person_address.find_by_person(person),
+            'tutor': tutor,
+            'attributions': mdl_attr.attribution.search(tutor=tutor),
+            'programs_managers': mdl.program_manager.find_by_person(person),
+            'supported_languages': settings.LANGUAGES,
+            'default_language': settings.LANGUAGE_CODE}
