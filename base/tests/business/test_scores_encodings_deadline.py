@@ -63,11 +63,10 @@ class TestOfferYearCalendar(TestCase):
         )
 
         # Create Academic calendar type SCORES_EXAM_SUBMISSION
-        self.ac_score_exam_submission = AcademicCalendarFactory.build(
+        self.ac_score_exam_submission = AcademicCalendarFactory(
             academic_year=self.academic_year,
             reference=academic_calendar_type.SCORES_EXAM_SUBMISSION
         )
-        self.ac_score_exam_submission.save(functions=[])
 
         self.offer_year_calendar_submission = OfferYearCalendarFactory(
             academic_calendar=self.ac_score_exam_submission,
