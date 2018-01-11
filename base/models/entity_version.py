@@ -70,7 +70,6 @@ class EntityVersion(SerializableModel):
 
     _descendants = None
     _children = []
-    _faculty_version = {}
 
     def __str__(self):
         return "{} ({} - {} - {} to {})".format(
