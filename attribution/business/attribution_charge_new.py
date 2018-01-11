@@ -23,13 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from attribution.models.attribution_charge_new import AttributionChargeNew
+from attribution.models import attribution_charge_new
 from base.models import learning_unit_component
 
 
 def find_attribution_charge_new_by_learning_unit_year(learning_unit_year):
     learning_unit_components = learning_unit_component.find_by_learning_unit_year(learning_unit_year).select_related('learning_component_year')
-    return AttributionChargeNew.objects\
+    return attribution_charge_new.AttributionChargeNew.objects\
         .filter(learning_component_year__in=[component.learning_component_year
                                              for component in learning_unit_components])\
         .distinct('attribution__tutor')\

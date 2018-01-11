@@ -115,7 +115,7 @@
                                         <label>{% trans 'quadrimester' %}</label><br>
                                         {{ learning_unit_year.quadrimester | default_if_none:'' }}
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-9">
                                         <label>{% trans 'session_title' %}</label><br>
                                         {{ learning_unit_year.session | default_if_none:'' }}
                                     </div>
@@ -157,11 +157,11 @@
                                 <div class="row">
                                     <div class="col-md-2">
                                         <label>{% trans 'vacant' %}</label><br>
-                                        {{ learning_unit_year.learning_container_year.is_vacant | yesno:_("yes,no") }}
+                                        {{ learning_unit_year.learning_container_year.is_vacant | yesno:_("yes,no") |title }}
                                     </div>
                                     <div class="col-md-3">
                                         <label>{% trans 'team_management' %}</label><br>
-                                        {{ learning_unit_year.learning_container_year.team | yesno:_("yes,no") }}
+                                        {{ learning_unit_year.learning_container_year.team | yesno:_("yes,no") |title }}
                                     </div>
                                     <div class="col-md-4">
                                         <label>{% trans 'type_declaration_vacant' %}</label><br>
