@@ -363,12 +363,11 @@ class EducationGroupViewTestCase(TestCase):
 
         sessions_quantity = 3
         an_academic_year = AcademicYearFactory()
-        academic_calendars = [AcademicCalendarFactory.build(academic_year=an_academic_year,
-                                                            reference=academic_calendar_type.DELIBERATION)
-                              for _ in range(sessions_quantity)]
-        for academic_calendar in academic_calendars:
-            academic_calendar.save(functions=[])
-
+        academic_calendars = [
+            AcademicCalendarFactory(academic_year=an_academic_year,
+                                    reference=academic_calendar_type.DELIBERATION)
+            for _ in range(sessions_quantity)
+        ]
         education_group_year = EducationGroupYearFactory(academic_year=an_academic_year)
 
         for session, academic_calendar in enumerate(academic_calendars):

@@ -51,7 +51,7 @@ class AcademicCalendarForm(bootstrap.BootstrapModelForm):
     def save(self, commit=True):
         instance = super(AcademicCalendarForm, self).save(commit=False)
         if commit:
-            instance.save(functions=[offer_year_calendar.save_from_academic_calendar])
+            instance.save()
         return instance
 
     def end_date_gt_last_offer_year_calendar_end_date(self):

@@ -45,13 +45,9 @@ class TestAdministrativeDataForm(TestCase):
         self.academic_year = AcademicYearFactory(year=2007)
 
         self.academic_calendars = [
-            AcademicCalendarFactory.build(reference=i[0],
-                                          academic_year=self.academic_year)
+            AcademicCalendarFactory(reference=i[0], academic_year=self.academic_year)
             for i in academic_calendar_type.ACADEMIC_CALENDAR_TYPES
         ]
-
-        for ac in self.academic_calendars:
-            ac.save(functions=[])
 
         self.education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
 

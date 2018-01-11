@@ -47,12 +47,12 @@ class TestOfferYearCalendar(TestCase):
         self.nb_session = 1
 
         self.academic_year = AcademicYearFactory(year=1950)
+
         # Create Academic calendar type DELIBERATION
-        self.academic_calendar_deliberation = AcademicCalendarFactory.build(
+        self.academic_calendar_deliberation = AcademicCalendarFactory(
             academic_year=self.academic_year,
             reference=academic_calendar_type.DELIBERATION
         )
-        self.academic_calendar_deliberation.save(functions=[])
 
         self.session_exam_calendar = SessionExamCalendarFactory(
             academic_calendar=self.academic_calendar_deliberation,
