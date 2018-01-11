@@ -32,13 +32,12 @@ from osis_common.utils.datetime import is_in_chronological_order
 
 
 class OfferYearCalendarAdmin(admin.ModelAdmin):
-    list_display = ('academic_calendar', 'offer_year', 'start_date', 'end_date', 'changed', 'customized',
-                    'education_group_year')
-    fieldsets = ((None, {'fields': ('offer_year', 'academic_calendar', 'start_date', 'end_date', 'customized',
+    list_display = ('academic_calendar', 'offer_year', 'start_date', 'end_date', 'changed', 'education_group_year')
+    fieldsets = ((None, {'fields': ('offer_year', 'academic_calendar', 'start_date', 'end_date',
                                     'education_group_year')}),)
     raw_id_fields = ('offer_year', 'education_group_year')
     search_fields = ['offer_year__acronym']
-    list_filter = ('academic_calendar__academic_year', 'academic_calendar__reference', 'customized',)
+    list_filter = ('academic_calendar__academic_year', 'academic_calendar__reference',)
 
 
 class OfferYearCalendar(models.Model):
@@ -48,7 +47,6 @@ class OfferYearCalendar(models.Model):
     offer_year = models.ForeignKey('OfferYear')
     start_date = models.DateTimeField(blank=True, null=True, db_index=True)
     end_date = models.DateTimeField(blank=True, null=True, db_index=True)
-    customized = models.BooleanField(default=False)
     education_group_year = models.ForeignKey('EducationGroupYear', blank=True, null=True)
 
     class Meta:
@@ -111,7 +109,6 @@ def find_by_offer_year(offer_yr, academic_calendar_type=None):
 def find_latest_end_date_by_academic_calendar(academic_calendar_id):
     try:
         return OfferYearCalendar.objects.filter(academic_calendar_id=academic_calendar_id) \
-            .filter(customized=True) \
             .filter(end_date__isnull=False) \
             .latest('end_date')
     except ObjectDoesNotExist:

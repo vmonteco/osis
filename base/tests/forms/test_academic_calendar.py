@@ -65,7 +65,7 @@ class TestAcademicCalendarForm(TestCase):
         an_academic_calendar = AcademicCalendarFactory(academic_year=self.an_academic_year)
         an_offer_year = OfferYearFactory(academic_year=self.an_academic_year)
         an_offer_year_calendar = OfferYearCalendarFactory(academic_calendar=an_academic_calendar,
-                                                          offer_year=an_offer_year, customized=True)
+                                                          offer_year=an_offer_year)
 
         form = AcademicCalendarForm(data={
             "academic_year": self.an_academic_year.pk,
