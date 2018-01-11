@@ -48,4 +48,4 @@ class TestAttributionChargeNew(TestCase):
 
     def test_find_attribution_charge_new_by_learning_unit_year(self):
         result = find_attribution_charge_new_by_learning_unit_year(self.l_unit_1)
-        self.assertEqual(len(result), len(AttributionChargeNew.objects.all()))
+        self.assertCountEqual(result, list(AttributionChargeNew.objects.all()))
