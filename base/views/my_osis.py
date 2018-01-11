@@ -159,3 +159,4 @@ def _get_data(request):
             'supported_languages': settings.LANGUAGES,
             'default_language': settings.LANGUAGE_CODE,
             'summary_submission_opened': permission.is_summary_submission_opened(request.user)}
+

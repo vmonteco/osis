@@ -35,6 +35,3 @@ def is_summary_submission_opened(user):
             academic_calendar_type.SUMMARY_COURSE_SUBMISSION
         )
     return False
-
-
-
