@@ -34,20 +34,24 @@ from base.models.session_exam_deadline import SessionExamDeadline
 
 
 def compute_deadline_by_offer_year_calendar(oyc):
-    if oyc.academic_calendar.reference in (ac_type.DELIBERATION, ac_type.SCORES_EXAM_SUBMISSION):
-        oyc_deliberation = _get_oyc_deliberation(oyc)
-        oyc_scores_exam_submission = _get_oyc_scores_exam_submission(oyc)
+    if not _is_valid_offer_year_calendar(oyc):
+        return
 
-        end_date_offer_year = _one_day_before(oyc_deliberation.end_date.date()) \
-            if oyc_deliberation and oyc_deliberation.end_date else None
-        score_submission_date = oyc_scores_exam_submission.end_date.date() \
-            if oyc_scores_exam_submission and oyc_scores_exam_submission.end_date else None
+    oyc_deliberation = _get_oyc_deliberation(oyc)
+    oyc_scores_exam_submission = _get_oyc_scores_exam_submission(oyc)
 
-        end_date_academic = oyc_deliberation.academic_calendar.end_date
-        sessions_exam_deadlines = _get_list_sessions_exam_deadlines(oyc_deliberation)
+    end_date_offer_year = _one_day_before_end_date(oyc_deliberation)
+    score_submission_date = _one_day_before_end_date(oyc_scores_exam_submission)
 
-        with transaction.atomic():
-            _save_new_deadlines(sessions_exam_deadlines, end_date_academic, end_date_offer_year, score_submission_date)
+    end_date_academic = oyc_deliberation.academic_calendar.end_date
+    sessions_exam_deadlines = _get_list_sessions_exam_deadlines(oyc_deliberation)
+
+    with transaction.atomic():
+        _save_new_deadlines(sessions_exam_deadlines, end_date_academic, end_date_offer_year, score_submission_date)
+
+
+def _is_valid_offer_year_calendar(oyc):
+    return oyc.academic_calendar.reference not in (ac_type.DELIBERATION, ac_type.SCORES_EXAM_SUBMISSION)
 
 
 def _save_new_deadlines(sessions_exam_deadlines, end_date_academic, end_date_offer_year, score_submission_date):
@@ -58,11 +62,12 @@ def _save_new_deadlines(sessions_exam_deadlines, end_date_academic, end_date_off
 
         new_deadline = min(filter(None, (end_date_academic, end_date_offer_year, end_date_student)))
         new_deadline_tutor = _compute_delta_deadline_tutor(new_deadline, score_submission_date)
+        if new_deadline == deadline and deadline_tutor == new_deadline_tutor:
+            continue
 
-        if new_deadline != deadline or deadline_tutor != new_deadline_tutor:
-            session.deadline = new_deadline
-            session.deadline_tutor = new_deadline_tutor
-            session.save()
+        session.deadline = new_deadline
+        session.deadline_tutor = new_deadline_tutor
+        session.save()
 
 
 def _get_oyc_scores_exam_submission(oyc):
@@ -93,6 +98,10 @@ def _get_list_sessions_exam_deadlines(oyc_deliberation):
     session = SessionExamCalendar.objects.get(academic_calendar=oyc_deliberation.academic_calendar)
     return SessionExamDeadline.objects.filter(
         offer_enrollment__offer_year=oyc_deliberation.offer_year, number_session=session.number_session)
+
+
+def _one_day_before_end_date(oyc):
+    return _one_day_before(oyc.end_date.date()) if oyc and oyc.end_date else None
 
 
 def _one_day_before(current_date):
