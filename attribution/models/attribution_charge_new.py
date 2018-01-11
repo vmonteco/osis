@@ -50,13 +50,13 @@ class AttributionChargeNew(AuditableModel):
 
     @property
     def volume_lecturing(self):
-        return self.get_attribution(component_type.LECTURING)
+        return self.get_allocation_charge(component_type.LECTURING)
 
     @property
     def volume_practical(self):
-        return self.get_attribution(component_type.PRACTICAL_EXERCISES)
+        return self.get_allocation_charge(component_type.PRACTICAL_EXERCISES)
 
-    def get_attribution(self, a_component_type):
+    def get_allocation_charge(self, a_component_type):
         attribution_charge_new = AttributionChargeNew.objects.filter(attribution=self.attribution,
                                                                      learning_component_year__type=a_component_type)\
             .select_related('learning_component_year').first()
