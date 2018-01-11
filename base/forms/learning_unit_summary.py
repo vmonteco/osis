@@ -29,6 +29,7 @@ from ckeditor.widgets import CKEditorWidget
 from cms.enums import entity_name
 from cms.models import translated_text
 
+
 class LearningUnitSummaryForm(forms.Form):
     learning_unit_year = language = None
     text_labels_name = ['resume']
@@ -54,6 +55,7 @@ class LearningUnitSummaryForm(forms.Form):
                                       reference=self.learning_unit_year.id,
                                       language=language_iso,
                                       text_labels_name=self.text_labels_name)
+
 
 class LearningUnitSummaryEditForm(forms.Form):
     trans_text = forms.CharField(widget=CKEditorWidget(config_name='minimal'), required=False)
