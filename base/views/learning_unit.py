@@ -26,7 +26,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods, require_POST
@@ -62,6 +62,9 @@ from cms.models import text_label
 from reference.models import language
 from . import layout
 from base.forms.learning_unit_summary import LearningUnitSummaryForm, LearningUnitSummaryEditForm
+from base.utils import permission
+from django.core.urlresolvers import reverse_lazy
+from django.shortcuts import render
 
 
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
@@ -471,6 +474,7 @@ def learning_unit_summary(request, learning_unit_year_id):
     fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
     en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
     context.update({
+        'summary_submission_opened': permission.is_summary_submission_opened(request.user),
         'form_french': LearningUnitSummaryForm(learning_unit_year=learning_unit_year,
                                                language=fr_language),
         'form_english': LearningUnitSummaryForm(learning_unit_year=learning_unit_year,
@@ -481,6 +485,7 @@ def learning_unit_summary(request, learning_unit_year_id):
 
 @login_required
 @require_http_methods(["GET", "POST"])
+@user_passes_test(permission.is_summary_submission_opened, login_url=reverse_lazy('outside_summary_submission_period'))
 def summary_edit(request, learning_unit_year_id):
     if request.method == 'POST':
         form = LearningUnitSummaryEditForm(request.POST)
@@ -506,3 +511,10 @@ def summary_edit(request, learning_unit_year_id):
                                              if txt.language == user_language), None)
     context['language_translated'] = next((lang for lang in settings.LANGUAGES if lang[0] == language), None)
     return layout.render(request, "learning_unit/summary_edit.html", context)
+
+
+@login_required
+def outside_period(request):
+    text = _('summary_responsible_denied')
+    messages.add_message(request, messages.WARNING, "%s" % text)
+    return render(request, "access_denied.html")

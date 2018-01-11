@@ -118,6 +118,7 @@ urlpatterns = [
         ])),
         url(r'^check/$', learning_unit.check_acronym, name="check_acronym"),
         url(r'^check_code/$', learning_unit.check_code, name="check_code"),
+        url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
     ])),
 
     url(r'^my_osis/', include([

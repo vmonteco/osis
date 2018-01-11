@@ -51,20 +51,25 @@
                         <label> {{ label_translated }} </label>
                     </div>
                     <div class="col-md-5">
-                        <a class="summary-edit-btn pull-right" href="#"
-                           data-form="{% url 'learning_unit_summary_edit' learning_unit_year_id=learning_unit_year.id %}?language={{ form_french.language.0 }}&label={{ label_key }}"
-                           title="{% trans 'edit' %}">
-                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                        </a>
+                        {% if summary_submission_opened %}
+                            <a class="summary-edit-btn pull-right" href="#"
+                               data-form="{% url 'learning_unit_summary_edit' learning_unit_year_id=learning_unit_year.id %}?language={{ form_french.language.0 }}&label={{ label_key }}"
+                               title="{% trans 'edit' %}">
+                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                            </a>
+                        {% endif %}
                         {{ form_french|getattr:label_key }}
                     </div>
                     <div class="col-md-5">
-                        <a class="summary-edit-btn pull-right" href="#"
-                           data-form="{% url 'learning_unit_summary_edit' learning_unit_year_id=learning_unit_year.id %}?language={{ form_english.language.0 }}&label={{ label_key }}"
-                           title="{% trans 'edit' %}">
-                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                        </a>
+                        {% if summary_submission_opened %}
+                            <a class="summary-edit-btn pull-right" href="#"
+                               data-form="{% url 'learning_unit_summary_edit' learning_unit_year_id=learning_unit_year.id %}?language={{ form_english.language.0 }}&label={{ label_key }}"
+                               title="{% trans 'edit' %}">
+                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                            </a>
+                        {% endif %}
                         {{ form_english|getattr:label_key}}
+
                     </div>
                 </div>
                 <hr/>

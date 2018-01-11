@@ -39,6 +39,7 @@ from base.utils import send_mail
 from base.views import layout
 from osis_common.models import message_history as message_history_mdl
 from django.shortcuts import redirect
+from base.utils import permission
 
 
 @login_required
@@ -156,4 +157,5 @@ def _get_data(request):
             'attributions': mdl_attr.attribution.search(tutor=tutor),
             'programs_managers': mdl.program_manager.find_by_person(person),
             'supported_languages': settings.LANGUAGES,
-            'default_language': settings.LANGUAGE_CODE}
+            'default_language': settings.LANGUAGE_CODE,
+            'summary_submission_opened': permission.is_summary_submission_opened(request.user)}
