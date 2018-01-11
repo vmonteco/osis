@@ -31,12 +31,6 @@ class StartDateHigherThanEndDateException(Exception):
         self.errors = errors
 
 
-class FunctionArgumentMissingException(Exception):
-    def __init__(self, message=None, errors=None):
-        super(FunctionArgumentMissingException, self).__init__(message)
-        self.errors = errors
-
-
 class TxtLabelOrderExitsException(Exception):
     def __init__(self, message=None, errors=None):
         super(TxtLabelOrderExitsException, self).__init__(message)
