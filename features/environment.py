@@ -1,12 +1,46 @@
 import logging
+import tempfile
 
 import pyvirtualdisplay
 from selenium import webdriver
 
-from base.tests.factories.academic_calendar import AcademicCalendarFactory
-
 BEHAVE_DEBUG_ON_ERROR = False
 SIZE = (1280, 1024)
+
+class Browser:
+    def __init__(self, context, driver):
+        self.context = context
+        self.driver = driver
+
+    def login(self, username, password='password123'):
+        self.goto('login')
+        self.fill_by_id('id_username', username)
+        self.fill_by_id('id_password', password)
+        self.click_on('post_login_btn')
+
+    def goto(self, url_name, *args, **kwargs):
+        # print('goto: {url_name}'.format(url_name=url_name))
+        self.driver.get(self.context.get_url(url_name, *args, **kwargs))
+
+    def fill_by_id(self, element_id, value):
+        field = self.driver.find_element_by_id(element_id)
+        field.clear()
+        field.send_keys(value)
+
+    def click_on(self, element_id):
+        self.get_element(element_id).click()
+
+    def get_element(self, element_id):
+        return self.driver.find_element_by_id(element_id)
+
+    def get_element_text(self, element_id):
+        return self.get_element(element_id).text
+
+    def get_element_int(self, element_id):
+        return int(self.get_element_text(element_id))
+
+    def quit(self):
+        self.driver.quit()
 
 
 def setup_debug_on_error(userdata):
@@ -14,25 +48,23 @@ def setup_debug_on_error(userdata):
     BEHAVE_DEBUG_ON_ERROR = userdata.getbool('behave_debug_on_error')
 
 
-
 def before_all(context):
     if not context.config.log_capture:
         logging.basicConfig(level=logging.DEBUG)
 
-    display = pyvirtualdisplay.Display(visible=0, size=SIZE)
-    context.display = display
+    display = pyvirtualdisplay.Display(size=SIZE)
     # display.start()
+    context.display = display
 
     setup_debug_on_error(context.config.userdata)
 
-    driver = webdriver.Chrome()
-    driver.set_window_size(*SIZE)
-    context.driver = driver
 
 
 def after_all(context):
-    context.driver.quit()
+    # import pdb; pdb.set_trace()
+    # context.browser.driver.close()
     # context.display.stop()
+    pass
 
 
 def after_step(context, step):
@@ -42,23 +74,29 @@ def after_step(context, step):
 
 
 def before_scenario(context, scenario):
-    pass
+    print("Hello {s.name}".format(s=scenario))
 
 
 def after_scenario(context, scenario):
-    pass
+    print("Bye bye {s.name}".format(s=scenario))
 
 
 def before_feature(context, feature):
-    from base.tests.factories.user import UserFactory
+    options = webdriver.ChromeOptions()
+    context.full_path_temp_dir = tempfile.mkdtemp('osis-selenium')
 
-    user = UserFactory()
+    options.add_experimental_option('prefs', {
+        'download.default_directory': context.full_path_temp_dir,
+        'download.prompt_for_download': False,
+        'download.directory_upgrade': True,
+        'safebrowsing.enabled': True,
+    })
 
-    from base.tests.factories.academic_year import AcademicYearFactory
+    driver = webdriver.Chrome(chrome_options=options)
+    driver.implicitly_wait(5)
+    driver.set_window_size(*SIZE)
+    context.browser = Browser(context, driver)
 
-    academic_year = AcademicYearFactory()
-
-    academic_calendar = AcademicCalendarFactory.build(academic_year=academic_year)
-    academic_calendar.save(functions=[])
-
-    print(feature.name)
+def after_feature(context, feature):
+    print('after feature')
+    context.browser.quit()

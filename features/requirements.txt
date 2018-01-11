@@ -1,3 +1,7 @@
 behave
 selenium
 behave_django
+pyvirtualdisplay
+magic
+Faker
+parse
