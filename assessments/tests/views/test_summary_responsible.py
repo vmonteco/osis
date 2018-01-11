@@ -26,12 +26,25 @@
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
+from base.models.entity_manager import EntityManager
+from base.tests.factories.person import PersonFactory
+
 
 class SummaryResponsibleViewTestCase(TestCase):
     def setUp(self):
         self.url = reverse("summary_responsible")
 
+        self.person = PersonFactory()
+        self.user = self.person.user
+
     def test_user_not_logged(self):
         self.client.logout()
         response = self.client.get(self.url)
+        self.assertRedirects(response, '/login/?next={}'.format(self.url))
+
+    def test_user_is_not_entity_manager(self):
+        entity_managers = EntityManager.objects.filter(person__user=self.user)
+        entity_managers.delete()
+
+        response = self.client.get(self.url, follow=True)
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
