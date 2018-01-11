@@ -6,6 +6,7 @@ import tempfile
 import time
 import unittest
 import pdb
+from urllib import request
 
 import functools
 import pyvirtualdisplay
@@ -13,6 +14,7 @@ import faker
 import magic
 import parse
 import pendulum
+
 from django.contrib.auth.models import Group, Permission
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.urls import reverse
@@ -47,7 +49,7 @@ from base.tests.factories.student import StudentFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
 
-SIZE = (1280, 1280)
+SIZE = (1920, 1080)
 
 class BusinessMixin:
     def create_user(self):
@@ -77,7 +79,8 @@ class SeleniumTestCase(StaticLiveServerTestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.display = pyvirtualdisplay.Display(size=SIZE)
-        # cls.display.start()
+        #cls.display = Xvfb()
+        cls.display.start()
         options = webdriver.ChromeOptions()
         cls.full_path_temp_dir = tempfile.mkdtemp('osis-selenium')
         # cls.full_path_temp_dir = '/tmp/test'
@@ -96,13 +99,12 @@ class SeleniumTestCase(StaticLiveServerTestCase):
     def tearDownClass(cls):
         shutil.rmtree(cls.full_path_temp_dir)
         cls.driver.quit()
-        # cls.display.stop()
+        #cls.display.stop()
 
         super().tearDownClass()
 
     def get_url_by_name(self, url_name, *args, **kwargs):
-        url = '{}{}'.format(self.live_server_url, reverse(url_name, args=args, kwargs=kwargs))
-        return url
+        return request.urljoin(self.live_server_url, reverse(url_name, args=args, kwargs=kwargs))
 
     def goto(self, url_name, *args, **kwargs):
         url = self.get_url_by_name(url_name, *args, **kwargs)
@@ -569,7 +571,7 @@ class Scenario1FunctionalTest(SeleniumTestCase, BusinessMixin):
             exam_enrollment_16
         ]
 
-        updated_values = self.update_xslx(full_path, exam_enrollments)
+        updated_values = self.update_xlsx(full_path, exam_enrollments)
 
         self.goto('online_encoding', learning_unit_year_id=learning_unit_year_1.id)
         self.driver.save_screenshot(os.path.join(self.full_path_temp_dir, 'scenario5-before_xls.png'))
@@ -592,7 +594,7 @@ class Scenario1FunctionalTest(SeleniumTestCase, BusinessMixin):
             self.assertElementTextEqual(element_id, str(value))
 
 
-    def update_xslx(self, filename, exam_enrollments):
+    def update_xlsx(self, filename, exam_enrollments):
         fake = faker.Faker()
 
         wb = load_workbook(filename)
