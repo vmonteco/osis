@@ -69,15 +69,13 @@ class AcademicCalendarViewTestCase(TestCase):
         super(AcademicYear, self.academic_year_5).save()
         super(AcademicYear, self.academic_year_6).save()
 
-        self.current_academic_calendar = AcademicCalendarFactory.build(academic_year=self.current_academic_year)
-        self.current_academic_calendar.save(functions=[])
-        self.academic_calendar_1 = AcademicCalendarFactory.build(academic_year=self.academic_year_1)
-        self.academic_calendar_1.save(functions=[])
-        AcademicCalendarFactory.build(academic_year=self.academic_year_2).save(functions=[])
-        AcademicCalendarFactory.build(academic_year=self.academic_year_3).save(functions=[])
-        AcademicCalendarFactory.build(academic_year=self.academic_year_4).save(functions=[])
-        AcademicCalendarFactory.build(academic_year=self.academic_year_5).save(functions=[])
-        AcademicCalendarFactory.build(academic_year=self.academic_year_6).save(functions=[])
+        self.current_academic_calendar = AcademicCalendarFactory(academic_year=self.current_academic_year)
+        self.academic_calendar_1 = AcademicCalendarFactory(academic_year=self.academic_year_1)
+        AcademicCalendarFactory(academic_year=self.academic_year_2)
+        AcademicCalendarFactory(academic_year=self.academic_year_3)
+        AcademicCalendarFactory(academic_year=self.academic_year_4)
+        AcademicCalendarFactory(academic_year=self.academic_year_5)
+        AcademicCalendarFactory(academic_year=self.academic_year_6)
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
@@ -168,5 +166,5 @@ class AcademicCalendarViewTestCase(TestCase):
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'academic_calendar_form.html')
+        self.assertEqual(template, 'academic_calendar.html')
 

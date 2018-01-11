@@ -122,7 +122,7 @@ class EntityVersion(SerializableModel):
         if date is None:
             date = timezone.now().date()
 
-        if self._contains_given_date(date):
+        if self.__contains_given_date(date):
             return EntityVersion.objects.current(date).filter(parent=self.entity).select_related('entity')
 
     def find_direct_children(self, date=None):
@@ -162,6 +162,9 @@ class EntityVersion(SerializableModel):
     def find_faculty_version(self, academic_yr):
         if self.entity_type == entity_type.FACULTY:
             return self
+        # There is no faculty above the sector
+        elif self.entity_type == entity_type.SECTOR:
+            return None
         else:
             parent_entity_version = self._find_latest_version_by_parent(academic_yr.start_date)
             if parent_entity_version:
@@ -177,21 +180,21 @@ class EntityVersion(SerializableModel):
             return find_latest_version_by_entity(self.parent, start_date)
 
         for entity_version in entity_versions:
-            if self._contains_given_date(start_date):
+            if entity_version.__contains_given_date(start_date):
                 return entity_version
 
     def get_parent_version(self, date=None):
         if date is None:
             date = timezone.now().date()
 
-        if self._contains_given_date(date):
+        if self.__contains_given_date(date):
             qs = EntityVersion.objects.current(date).entity(self.parent)
             try:
                 return qs.get()
             except EntityVersion.DoesNotExist:
                 return None
 
-    def _contains_given_date(self, date):
+    def __contains_given_date(self, date):
         if self.start_date and self.end_date:
             return self.start_date <= date <= self.end_date
         elif self.start_date and not self.end_date:

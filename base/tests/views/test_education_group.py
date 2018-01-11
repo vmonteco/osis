@@ -373,8 +373,7 @@ class EducationGroupViewTestCase(TestCase):
 
         sessions_quantity = 3
         an_academic_year = AcademicYearFactory()
-        academic_calendar = AcademicCalendarFactory.build(academic_year=an_academic_year)
-        academic_calendar.save(functions=[])
+        academic_calendar = AcademicCalendarFactory(academic_year=an_academic_year)
         education_group_year = EducationGroupYearFactory(academic_year=an_academic_year)
         session_exam_calendars = [SessionExamCalendarFactory(number_session=session,
                                                              academic_calendar=academic_calendar)

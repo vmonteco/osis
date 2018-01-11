@@ -73,33 +73,6 @@ def send_mail_after_scores_submission(persons, learning_unit_name, submitted_enr
     return message_service.send_messages(message_content)
 
 
-def send_mail_after_academic_calendar_changes(academic_calendar, offer_year_calendar, programm_managers):
-    """
-    Send an email to all the programme manager after changes has been made on a offer_year_calendar with customized
-    = True
-    :param academic_calendar:
-    :param offer_year_calendar:
-    :param programm_managers:
-    :return un error message if the template does not exists.
-    """
-
-    html_template_ref = 'academic_calendar_changes_html'
-    txt_template_ref = 'academic_calendar_changes_txt'
-    receivers = [message_config.create_receiver(manager.person.id, manager.person.email, manager.person.language)
-                 for manager in programm_managers]
-    suject_data = {'offer_year':            str(offer_year_calendar.offer_year.acronym),
-                   'academic_calendar':     str(academic_calendar)}
-    template_base_data = {
-        'offer_year_title': offer_year_calendar.offer_year.title,
-        'offer_year_acronym': offer_year_calendar.offer_year.acronym,
-        'academic_calendar': str(academic_calendar),
-    }
-    message_content = message_config.create_message_content(html_template_ref, txt_template_ref,
-                                                            None, receivers, template_base_data, suject_data)
-
-    return message_service.send_messages(message_content)
-
-
 def send_mail_after_the_learning_unit_year_deletion(managers, acronym, academic_year, msg_list):
     """
     Send email to the program managers after deletions made on a learning_unit_year or partials or classes
