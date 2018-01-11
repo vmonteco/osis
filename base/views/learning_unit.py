@@ -34,7 +34,7 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
-from attribution.business.attribution_charge_new import find_attribution_charge_new_by_learning_unit_year
+from attribution.business import attribution_charge_new
 from base import models as mdl
 from base.business import learning_unit_deletion, learning_unit_year_volumes, learning_unit_year_with_context, \
     learning_unit_proposal
@@ -204,7 +204,8 @@ def learning_unit_pedagogy_edit(request, learning_unit_year_id):
 def learning_unit_attributions(request, learning_unit_year_id):
     context = get_common_context_learning_unit_year(learning_unit_year_id)
     context['attribution_charge_news'] = \
-        find_attribution_charge_new_by_learning_unit_year(learning_unit_year=learning_unit_year_id)
+        attribution_charge_new.find_attribution_charge_new_by_learning_unit_year(
+            learning_unit_year=learning_unit_year_id)
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/attributions.html", context)
 
