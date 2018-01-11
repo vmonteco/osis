@@ -62,8 +62,6 @@ class AttributionChargeNew(AuditableModel):
             .select_related('learning_component_year').first()
         return attribution_charge_new.allocation_charge
 
-
-
 def search(*args, **kwargs):
     qs = AttributionChargeNew.objects.all()
 
