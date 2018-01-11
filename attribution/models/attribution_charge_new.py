@@ -66,9 +66,8 @@ class AttributionChargeNew(AuditableModel):
         attribution_charge_new = AttributionChargeNew.objects.filter(attribution=self.attribution,
                                                                      learning_component_year__type=a_component_type)\
             .select_related('learning_component_year').first()
-        if attribution_charge_new:
-            return attribution_charge_new.allocation_charge
-        return "{0:.2f}".format(float(0))
+        return attribution_charge_new.allocation_charge
+
 
 
 def search(*args, **kwargs):

@@ -59,8 +59,8 @@
                                 </td>
                                 <td>{{ attribution_charge_new.attribution.start_year | default_if_none:'' }}</td>
                                 <td>{{ attribution_charge_new.duration | default_if_none:'' }}</td>
-                                <td>{{ attribution_charge_new.volume_lecturing  | default_if_none:'' }}</td>
-                                <td>{{ attribution_charge_new.volume_practical  | default_if_none:'' }}</td>
+                                <td>{{ attribution_charge_new.volume_lecturing  | default_if_none:0 | floatformat:2 }}</td>
+                                <td>{{ attribution_charge_new.volume_practical  | default_if_none:0 | floatformat:2}}</td>
                                 <td>{% if attribution_charge_new.attribution.substitute %}
                                         {{ attribution_charge_new.attribution.substitute.tutor.person.last_name }},
                                         {{ attribution_charge_new.attribution.substitute.tutor.person.first_name }}
