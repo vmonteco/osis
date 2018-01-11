@@ -246,8 +246,7 @@ def get_sessions_dates(an_academic_calendar_type, an_education_group_year):
         if session:
             dates = mdl.offer_year_calendar.get_by_education_group_year_and_academic_calendar(session.academic_calendar,
                                                                                               an_education_group_year)
-            key = 'session{}'.format(session_number+1)
-            date_dict.update({key: dates})
+            date_dict['session{}'.format(session_number+1)] = dates
 
     return date_dict
 
