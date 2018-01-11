@@ -2464,3 +2464,10 @@ msgstr "Gestion des informations pédagogiques"
 
 msgid "resume_edit"
 msgstr "Editer le résumé de cours"
+
+msgid "SUMMARY_COURSE_SUBMISSION"
+msgstr "Soumission des résumés de cours"
+
+msgid "INTERNAL_TEAM"
+msgstr "Interne/Equipe"
+

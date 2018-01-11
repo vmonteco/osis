@@ -2457,3 +2457,10 @@ msgstr "Management of educational information"
 
 msgid "resume_edit"
 msgstr "Edit course summary"
+
+msgid "SUMMARY_COURSE_SUBMISSION"
+msgstr "Summary course submission"
+
+msgid "INTERNAL_TEAM"
+msgstr "Internal/team"
+
