@@ -23,28 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.decorators import login_required, user_passes_test
-from base import models as mdl_base
-from base.business.entity_version import find_entity_version_according_academic_year
-from base.models.entity_manager import is_entity_manager
-from base.views import layout
+from django.conf.urls import url, include
 
+from attribution.views import summary_responsible
 
-@login_required
-@user_passes_test(is_entity_manager)
-def summary_responsible(request):
-    entities_manager = mdl_base.entity_manager.find_by_user(request.user)
-    academic_year = mdl_base.academic_year.current_academic_year()
-    _append_entity_version(entities_manager, academic_year)
-    return layout.render(request, 'summary_responsible.html', {"entities_manager": entities_manager,
-                                                              "academic_year": academic_year,
-                                                              "init": "0"})
+urlpatterns = [
 
+    url(r'^summary_responsible_manager/', include([
+        url(r'^$', summary_responsible.search_attributed_learning_units,
+            name='summary_responsible'),
+    ])),
 
-def _append_entity_version(entities_manager, academic_year):
-    for entity_manager in entities_manager:
-        if hasattr(entity_manager.entity, 'entity_versions') and entity_manager.entity.entity_versions:
-            entity_manager.entity_version = find_entity_version_according_academic_year(
-                entity_manager.entity.entity_versions, academic_year)
-        else:
-            entity_manager.entity_version = None
+]
