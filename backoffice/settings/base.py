@@ -242,7 +242,16 @@ CKEDITOR_CONFIGS = {
             ['NumberedList', 'BulletedList'],
             ['Link', 'Unlink']
         ]
-    }
+    },
+    'minimal_plus_headers': {
+        'toolbar': 'Custom',
+        'toolbar_Custom': [
+            ['Format', 'Styles'],
+            ['Bold', 'Italic', 'Underline'],
+            ['Link', 'Unlink'],
+            ['NumberedList', 'BulletedList']
+        ]
+    },
 }
 
 LOGGING = {
