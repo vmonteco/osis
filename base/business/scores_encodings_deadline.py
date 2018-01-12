@@ -86,16 +86,15 @@ def _get_oyc_deliberation(oyc):
 
 def _get_oyc_by_reference(reference, oyc):
     session = getattr(oyc.academic_calendar, 'sessionexamcalendar', None)
-    if not session:
-        return None
-    try:
-        return OfferYearCalendar.objects.filter(
-            education_group_year=oyc.education_group_year,
-            academic_calendar__reference=reference,
-            academic_calendar__sessionexamcalendar__number_session=session.number_session
-        ).get()
-    except OfferYearCalendar.DoesNotExist:
-        return None
+    if session:
+        try:
+            return OfferYearCalendar.objects.filter(
+                education_group_year=oyc.education_group_year,
+                academic_calendar__reference=reference,
+                academic_calendar__sessionexamcalendar__number_session=session.number_session
+            ).get()
+        except OfferYearCalendar.DoesNotExist:
+            return None
 
 
 def _get_list_sessions_exam_deadlines(oyc_deliberation):

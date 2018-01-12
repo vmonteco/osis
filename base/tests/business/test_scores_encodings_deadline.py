@@ -28,7 +28,7 @@ from datetime import timedelta, datetime
 from django.test import TestCase
 
 from base.business.scores_encodings_deadline import compute_deadline_by_offer_year_calendar, \
-    _compute_delta_deadline_tutor
+    _compute_delta_deadline_tutor, _get_list_sessions_exam_deadlines
 from base.models.enums import academic_calendar_type
 from base.models.session_exam_deadline import SessionExamDeadline
 
@@ -137,3 +137,11 @@ class TestOfferYearCalendar(TestCase):
         self.assertFalse(_compute_delta_deadline_tutor(None, None))
         self.assertFalse(_compute_delta_deadline_tutor(None, today))
         self.assertFalse(_compute_delta_deadline_tutor(today, None))
+
+    def test__get_list_sessions_exam_deadlines_empty(self):
+        self.assertEqual(_get_list_sessions_exam_deadlines(None), [])
+
+
+
+
+
