@@ -28,7 +28,7 @@ from datetime import timedelta, datetime
 from django.test import TestCase
 
 from base.business.scores_encodings_deadline import compute_deadline_by_offer_year_calendar, \
-    _compute_delta_deadline_tutor
+    _compute_delta_deadline_tutor, _get_list_sessions_exam_deadlines
 from base.models.enums import academic_calendar_type
 from base.models.session_exam_deadline import SessionExamDeadline
 
@@ -58,6 +58,7 @@ class TestOfferYearCalendar(TestCase):
             academic_calendar=self.academic_calendar_deliberation,
             number_session=self.nb_session
         )
+
         self.offer_year_calendar_deliberation = OfferYearCalendarFactory(
             academic_calendar=self.academic_calendar_deliberation
         )
@@ -66,6 +67,10 @@ class TestOfferYearCalendar(TestCase):
         self.ac_score_exam_submission = AcademicCalendarFactory(
             academic_year=self.academic_year,
             reference=academic_calendar_type.SCORES_EXAM_SUBMISSION
+        )
+        SessionExamCalendarFactory(
+            academic_calendar=self.ac_score_exam_submission,
+            number_session=self.nb_session
         )
 
         self.offer_year_calendar_submission = OfferYearCalendarFactory(
