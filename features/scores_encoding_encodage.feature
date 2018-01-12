@@ -13,7 +13,7 @@ Feature: Encodage des notes
       | PHYS2MA  |
     And There are 10 students for "PHYS11BA" and the Learning Unit Year 1
     And There is a Session Exam for "PHYS11BA" and the Learning Unit Year 1
-    And I am logging in
+    And Login
 
   Scenario: Scenario 4
     When I am on the Scores Encoding page
@@ -60,13 +60,13 @@ Feature: Encodage des notes
     Then The progression must be 10 on 10
 
   Scenario: Scenario 6 - Check the double encoding
-    When I am on the Scores Encoding page
-    And I want to encode the Learning Unit Year 1
-    And I change the notes of the enrollments
-    And I save the online encoding
-    And I use the double encoding
-    And I force the notes of the enrollments
-    Then The enrollments have the computed values
+#    When I am on the Scores Encoding page
+#    And I want to encode the Learning Unit Year 1
+#    And I change the notes of the enrollments
+#    And I save the online encoding
+#    And I use the double encoding
+#    And I force the notes of the enrollments
+#    Then The enrollments have the computed values
 
   Scenario: Implementation of the Scenario 7
     When I am on the Scores Encoding page

@@ -75,9 +75,13 @@ def step_impl(context):
     context.program_manager = ProgramManagerFactory(offer_year=context.offer_year, person=context.person)
 
 
-@given('I am logging in')
+@given('Login')
 def step_impl(context):
     context.browser.login(context.user.username)
+
+@given('Logout')
+def step_impl(context):
+    context.browser.goto('logout')
 
 
 @given('There is an Academic Calendar')
@@ -362,7 +366,7 @@ def step_impl(context, learning_unit_year_number):
 
     filename = 'session_{}_{}_{}.xlsx'.format(context.academic_year.year,
                                               context.session_exam_calendar.number_session,
-                                              context.learning_unit_years[learning_unit_year].acronym)
+                                              learning_unit_year.acronym)
     full_path = os.path.join(context.full_path_temp_dir, filename)
     assert os.path.exists(full_path)
 

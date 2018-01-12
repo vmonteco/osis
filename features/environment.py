@@ -19,7 +19,6 @@ class Browser:
         self.click_on('post_login_btn')
 
     def goto(self, url_name, *args, **kwargs):
-        # print('goto: {url_name}'.format(url_name=url_name))
         self.driver.get(self.context.get_url(url_name, *args, **kwargs))
 
     def fill_by_id(self, element_id, value):
@@ -53,35 +52,11 @@ def before_all(context):
         logging.basicConfig(level=logging.DEBUG)
 
     display = pyvirtualdisplay.Display(size=SIZE)
-    # display.start()
+    display.start()
     context.display = display
 
     setup_debug_on_error(context.config.userdata)
 
-
-
-def after_all(context):
-    # import pdb; pdb.set_trace()
-    # context.browser.driver.close()
-    # context.display.stop()
-    pass
-
-
-def after_step(context, step):
-    if BEHAVE_DEBUG_ON_ERROR and step.status == 'failed':
-        import pdb
-        pdb.post_mortem(step.exc_traceback)
-
-
-def before_scenario(context, scenario):
-    print("Hello {s.name}".format(s=scenario))
-
-
-def after_scenario(context, scenario):
-    print("Bye bye {s.name}".format(s=scenario))
-
-
-def before_feature(context, feature):
     options = webdriver.ChromeOptions()
     context.full_path_temp_dir = tempfile.mkdtemp('osis-selenium')
 
@@ -97,6 +72,21 @@ def before_feature(context, feature):
     driver.set_window_size(*SIZE)
     context.browser = Browser(context, driver)
 
-def after_feature(context, feature):
-    print('after feature')
+
+def after_all(context):
     context.browser.quit()
+    context.display.stop()
+
+
+def after_step(context, step):
+    if BEHAVE_DEBUG_ON_ERROR and step.status == 'failed':
+        import pdb
+        pdb.post_mortem(step.exc_traceback)
+
+
+# def before_scenario(context, scenario):
+#     print("Hello {s.name}".format(s=scenario))
+#
+#
+# def after_scenario(context, scenario):
+#     print("Bye bye {s.name}".format(s=scenario))

@@ -6,7 +6,7 @@ Feature: Encodage de notes
 
     Given I am a Super User
     And There is an Academic Calendar
-    And I am logging in
+    And Login
     And I am on the Academic Calendar page
     When I change the start date in the form
     Then the start date on the detail view should be equal
@@ -16,7 +16,7 @@ Feature: Encodage de notes
 
     Given I am a Super User
     And There is an Academic Calendar
-    And I am logging in
+    And Login
     And I am on the Academic Calendar page
     When I change the end date in the form
     Then the end date on the detail view should be equal
@@ -27,7 +27,7 @@ Feature: Encodage de notes
     And There is an Academic Calendar in the future
     And I am the Program Manager of this Academic Calendar
     And There is a Session Exam
-    And I am logging in
+    And Login
     When I am on the Scores Encoding page
     Then The scores encoding period will be open in the future
 

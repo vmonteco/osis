@@ -2,6 +2,6 @@ behave
 selenium
 behave_django
 pyvirtualdisplay
-magic
+python-magic
 Faker
 parse
