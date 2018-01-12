@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('base', '0212_remove_offeryearcalendar_customized'),
+        ('base', '0213_auto_20180111_1452'),
     ]
 
     operations = [
