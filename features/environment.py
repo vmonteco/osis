@@ -4,6 +4,10 @@ import tempfile
 import pyvirtualdisplay
 from selenium import webdriver
 
+from django.test.testcases import LiveServerTestCase
+
+LiveServerTestCase._tearDownClassInternal = classmethod(lambda cls: None)
+
 BEHAVE_DEBUG_ON_ERROR = False
 SIZE = (1280, 1024)
 
