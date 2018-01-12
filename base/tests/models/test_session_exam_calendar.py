@@ -27,6 +27,8 @@ import datetime
 from django.test import TestCase
 from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError
+
+from base.models.session_exam_calendar import get_number_session_by_academic_calendar
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.session_exam_calendar import SessionExamCalendarFactory
@@ -136,6 +138,16 @@ class SessionExamCalendarTest(TestCase):
         self.assertEqual(third, session_exam_calendar.get_closest_new_session_exam(date=datetime.date(self.current_academic_yr.year+1, 3, 16)))
         self.assertIsNone(session_exam_calendar.get_closest_new_session_exam(date=datetime.date(self.current_academic_yr.year+1, 10, 16)))
 
+    def test_get_number_session_by_academic_calendar_empty(self):
+        number = get_number_session_by_academic_calendar(self.academic_calendar_1)
+        self.assertEqual(number, None)
+
+    def test_get_number_session_by_academic_calendar(self):
+        SessionExamCalendarFactory(academic_calendar=self.academic_calendar_1,
+                                           number_session=number_session.ONE)
+        number = get_number_session_by_academic_calendar(self.academic_calendar_1)
+        self.assertEqual(number, number_session.ONE)
+
 
 class DeliberationDateTest(TestCase):
     def setUp(self):
@@ -179,3 +191,5 @@ class DeliberationDateTest(TestCase):
         result_delibe_date = session_exam_calendar.find_deliberation_date(number_session.ONE, self.offer_yr)
         self.assertNotEqual(result_delibe_date, global_date)
         self.assertIsNone(result_delibe_date)
+
+
