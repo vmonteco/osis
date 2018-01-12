@@ -40,9 +40,9 @@ from base.models.enums import component_type
 
 class AttributionAdmin(AuditableSerializableModelAdmin):
     list_display = ('tutor', 'function', 'score_responsible', 'learning_unit_year', 'start_year', 'end_year', 'changed')
-    list_filter = ('function', 'learning_unit_year__academic_year', 'score_responsible')
-    fieldsets = ((None, {'fields': ('learning_unit_year', 'tutor', 'function', 'score_responsible', 'start_year',
-                                    'end_year')}),)
+    list_filter = ('learning_unit_year__academic_year', 'function', 'score_responsible', 'summary_responsible')
+    fieldsets = ((None, {'fields': ('learning_unit_year', 'tutor', 'function', 'score_responsible',
+                                    'summary_responsible', 'start_year', 'end_year')}),)
     raw_id_fields = ('learning_unit_year', 'tutor')
     search_fields = ['tutor__person__first_name', 'tutor__person__last_name', 'learning_unit_year__acronym',
                      'tutor__person__global_id']

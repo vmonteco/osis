@@ -45,34 +45,24 @@ class TestAdministrativeDataForm(TestCase):
         self.academic_year = AcademicYearFactory(year=2007)
 
         self.academic_calendars = [
-            AcademicCalendarFactory.build(reference=i[0],
-                                          academic_year=self.academic_year)
+            AcademicCalendarFactory(reference=i[0], academic_year=self.academic_year)
             for i in academic_calendar_type.ACADEMIC_CALENDAR_TYPES
         ]
-
-        for ac in self.academic_calendars:
-            ac.save(functions=[])
 
         self.education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
 
         self.offer_year = [
-            OfferYearCalendarFactory(education_group_year=self.education_group_year,
-                                     academic_calendar=i)
-            for i in self.academic_calendars
+            OfferYearCalendarFactory(education_group_year=self.education_group_year, academic_calendar=ac)
+            for ac in self.academic_calendars
         ]
 
-        self.session_exam_calendars = []
-        for ac in self.academic_calendars:
-            self.session_exam_calendars.extend(
-                [
-                    SessionExamCalendarFactory(number_session=i, academic_calendar=ac)
-                    for i in range(1, 4)
-                ]
-            )
+        self.session_exam_calendars = [
+            SessionExamCalendarFactory(number_session=1, academic_calendar=ac) for ac in self.academic_calendars
+        ]
 
     def test_initial(self):
-        formset_session = AdministrativeDataFormset(form_kwargs={'education_group_year': self.education_group_year})
-
+        SessionFormSet = formset_factory(form=AdministrativeDataSessionForm, formset=AdministrativeDataFormSet, extra=1)
+        formset_session = SessionFormSet(form_kwargs={'education_group_year': self.education_group_year})
         for form in formset_session:
             for field in form.fields.values():
                 self.assertIsNotNone(field.initial)

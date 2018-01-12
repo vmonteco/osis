@@ -25,8 +25,6 @@
 ##############################################################################
 import datetime
 
-from django.contrib import admin
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
@@ -72,7 +70,6 @@ class EntityVersion(SerializableModel):
 
     _descendants = None
     _children = []
-    _parent_faculty_version = {}
 
     def __str__(self):
         return "{} ({} - {} - {} to {})".format(
@@ -124,7 +121,7 @@ class EntityVersion(SerializableModel):
         if date is None:
             date = timezone.now().date()
 
-        if self._contains_given_date(date):
+        if self.__contains_given_date(date):
             return EntityVersion.objects.current(date).filter(parent=self.entity).select_related('entity')
 
     def find_direct_children(self, date=None):
@@ -161,32 +158,42 @@ class EntityVersion(SerializableModel):
 
         return sorted(descendants, key=lambda an_entity: an_entity.acronym)
 
-    def find_parent_faculty_version(self, academic_yr):
-        if not isinstance(academic_yr, AcademicYear):
+    def find_faculty_version(self, academic_yr):
+        if self.entity_type == entity_type.FACULTY:
+            return self
+        # There is no faculty above the sector
+        elif self.entity_type == entity_type.SECTOR:
             return None
-        if not self._parent_faculty_version.get(academic_yr.id):
-            parent_entity = getattr(self, "parent")
-            if parent_entity:
-                parent_entity_version = find_latest_version_by_entity(parent_entity, academic_yr.start_date)
-                if parent_entity_version:
-                    if parent_entity_version.entity_type == entity_type.FACULTY:
-                        self._parent_faculty_version[academic_yr.id] = parent_entity_version
-                    else:
-                        self._parent_faculty_version[academic_yr.id] = parent_entity_version.find_parent_faculty_version(academic_yr)
-        return self._parent_faculty_version.get(academic_yr.id)
+        else:
+            parent_entity_version = self._find_latest_version_by_parent(academic_yr.start_date)
+            if parent_entity_version:
+                return parent_entity_version.find_faculty_version(academic_yr)
+
+    def _find_latest_version_by_parent(self, start_date):
+        if not self.parent:
+            return None
+
+        # if a prefetch exist on the parent
+        entity_versions = getattr(self.parent, 'entity_versions', None)
+        if not entity_versions:
+            return find_latest_version_by_entity(self.parent, start_date)
+
+        for entity_version in entity_versions:
+            if entity_version.__contains_given_date(start_date):
+                return entity_version
 
     def get_parent_version(self, date=None):
         if date is None:
             date = timezone.now().date()
 
-        if self._contains_given_date(date):
+        if self.__contains_given_date(date):
             qs = EntityVersion.objects.current(date).entity(self.parent)
             try:
                 return qs.get()
-            except ObjectDoesNotExist:
+            except EntityVersion.DoesNotExist:
                 return None
 
-    def _contains_given_date(self, date):
+    def __contains_given_date(self, date):
         if self.start_date and self.end_date:
             return self.start_date <= date <= self.end_date
         elif self.start_date and not self.end_date:
@@ -218,7 +225,7 @@ def find(acronym, date=None):
                                                    start_date__lte=date,
                                                    end_date__gte=date
                                                    )
-    except ObjectDoesNotExist:
+    except EntityVersion.DoesNotExist:
         return None
 
     return entity_version
@@ -235,12 +242,21 @@ def get_last_version(entity, date=None):
     # find_latest_version(academic_year.current_academic_year().start_date).get(entity=entity)
 
 
+def get_by_entity_parent(entity_parent):
+    if entity_parent is None:
+        return None
+    try:
+        return EntityVersion.objects.entity(entity_parent).get()
+    except EntityVersion.DoesNotExist:
+        return None
+
+
 def get_by_entity_and_date(entity, date):
     if date is None:
         date = timezone.now()
     try:
         entity_version = EntityVersion.objects.current(date).entity(entity)
-    except ObjectDoesNotExist:
+    except EntityVersion.DoesNotExist:
         return None
     return entity_version
 
@@ -252,7 +268,7 @@ def search(**kwargs):
         queryset = queryset.filter(entity__exact=kwargs['entity'])
 
     if 'title' in kwargs:
-        queryset = queryset.filter(title__exact=kwargs['title'])
+        queryset = queryset.filter(title__icontains=kwargs['title'])
 
     if 'acronym' in kwargs:
         queryset = queryset.filter(acronym__icontains=kwargs['acronym'])
@@ -338,18 +354,6 @@ def find_main_entities_version_filtered_by_person(person):
 
     qs = find_main_entities_version()
     return person_entity_filter.filter_by_attached_entities(person, qs)
-
-
-def find_last_faculty_entities_version():
-    return EntityVersion.objects.filter(entity_type=entity_type.FACULTY,
-                                        entity__organization__type=MAIN).order_by('entity', '-start_date')\
-        .distinct('entity')
-
-
-def find_first_latest_version_by_period(ent, start_date, end_date):
-    return EntityVersion.objects.entity(ent).filter(Q(end_date__lte=end_date) | Q(end_date__isnull=True),
-                                                    start_date__gte=start_date) \
-        .order_by('-start_date').first()
 
 
 def find_latest_version_by_entity(entity, date):

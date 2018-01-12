@@ -36,7 +36,8 @@ from django.test import TestCase, RequestFactory
 
 import base.business.learning_unit
 from base.forms import learning_units
-from base.forms.learning_units import CreateLearningUnitYearForm, LearningUnitYearForm
+from base.forms.learning_unit_create import CreateLearningUnitYearForm
+from base.forms.learning_units import LearningUnitYearForm
 from base.models import learning_unit_component
 from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear
@@ -953,9 +954,9 @@ class TestCreateXls(TestCase):
 
     @mock.patch("osis_common.document.xls_build.generate_xls")
     def test_generate_xls_data_with_a_learning_unit(self, mock_generate_xls):
-        a_form = LearningUnitYearForm({"acronym": self.learning_unit_year.acronym})
+        a_form = LearningUnitYearForm({"acronym": self.learning_unit_year.acronym}, service_course_search=False)
         self.assertTrue(a_form.is_valid())
-        found_learning_units = learning_unit_business.get_learning_units(a_form, learning_unit_business.SIMPLE_SEARCH)
+        found_learning_units = a_form.get_activity_learning_units()
         learning_unit_business.create_xls(self.user, found_learning_units)
         xls_data = [[self.learning_unit_year.academic_year.name, self.learning_unit_year.acronym,
                     self.learning_unit_year.title,
