@@ -35,15 +35,13 @@ from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import entity_container_year_link_type
 from base.tests.factories import structure, user
 from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.entity import EntityFactory
+from base.tests.factories.business.entities import create_entities_hierarchy
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_manager import EntityManagerFactory
-from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.models.test_person import create_person_with_user
-from reference.tests.factories.country import CountryFactory
 
 
 class ScoresResponsibleViewTestCase(TestCase):
@@ -59,7 +57,7 @@ class ScoresResponsibleViewTestCase(TestCase):
         self.structure_children = structure.StructureFactory(part_of=self.structure)
 
         # New structure model
-        self.create_new_entity()
+        create_entities_hierarchy(self)
         self.entity_manager = EntityManagerFactory(person=self.person, structure=self.structure,
                                                    entity=self.root_entity)
         self.create_learning_units()
@@ -147,23 +145,6 @@ class ScoresResponsibleViewTestCase(TestCase):
         response = self.client.post(url, {"action": "cancel",
                                           "attribution_id": attribution_id})
         self.assertEqual(response.status_code, 302)
-
-    def create_new_entity(self):
-        country = CountryFactory()
-        # Root entity
-        self.root_entity = EntityFactory(country=country)
-        self.root_entity_version = EntityVersionFactory(entity=self.root_entity, acronym="ROOT_V", parent=None,
-                                                        end_date=None)
-
-        # Child 1 entity to root
-        self.child_one_entity = EntityFactory(country=country)
-        self.child_one_entity_version = EntityVersionFactory(acronym="CHILD_1_V", parent=self.root_entity,
-                                                             end_date=None, entity=self.child_one_entity)
-
-        # Child 2 entity to root
-        self.child_two_entity = EntityFactory(country=country)
-        self.child_two_entity_version = EntityVersionFactory(acronym="CHILD_2_V", parent=self.root_entity,
-                                                             end_date=None, entity=self.child_two_entity)
 
     def create_learning_units(self):
         # Create two learning units
