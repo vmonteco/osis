@@ -25,7 +25,6 @@
 ##############################################################################
 from django.db import models
 
-from base.models.enums import component_type
 from osis_common.models.auditable_model import AuditableModel, AuditableModelAdmin
 
 
@@ -46,21 +45,14 @@ class AttributionChargeNew(AuditableModel):
     allocation_charge = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
 
     def __str__(self):
-        return u"%s" % str(self.attribution)
+        return u"%s" % self.attribution
 
-    @property
-    def volume_lecturing(self):
-        return self.get_allocation_charge(component_type.LECTURING)
 
-    @property
-    def volume_practical(self):
-        return self.get_allocation_charge(component_type.PRACTICAL_EXERCISES)
-
-    def get_allocation_charge(self, a_component_type):
-        attribution_charge_new = AttributionChargeNew.objects.filter(attribution=self.attribution,
-                                                                     learning_component_year__type=a_component_type)\
-            .select_related('learning_component_year').first()
-        return attribution_charge_new.allocation_charge
+def get_allocation_charge(attribution, a_component_type):
+    attribution_charge_new = AttributionChargeNew.objects.filter(attribution=attribution,
+                                                                 learning_component_year__type=a_component_type)\
+        .select_related('learning_component_year').first()
+    return attribution_charge_new.allocation_charge
 
 
 def search(*args, **kwargs):

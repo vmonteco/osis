@@ -25,8 +25,11 @@
 ##############################################################################
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from osis_common.models.auditable_model import AuditableModelAdmin, AuditableModel
+
+from attribution.models import attribution_charge_new
 from attribution.models.enums import function
+from base.models.enums import component_type
+from osis_common.models.auditable_model import AuditableModelAdmin, AuditableModel
 
 
 class AttributionNewAdmin(AuditableModelAdmin):
@@ -70,6 +73,14 @@ class AttributionNew(AuditableModel):
         if self.start_year and self.end_year:
             return (self.end_year - self.start_year) + 1
         return None
+
+    @property
+    def volume_lecturing(self):
+        return attribution_charge_new.get_allocation_charge(self, component_type.LECTURING)
+
+    @property
+    def volume_practical(self):
+        return attribution_charge_new.get_allocation_charge(self, component_type.PRACTICAL_EXERCISES)
 
     class Meta:
         unique_together = ('learning_container_year', 'tutor', 'function')
