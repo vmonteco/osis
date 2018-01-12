@@ -1,4 +1,4 @@
-#############################################################################
+##############################################################################
 #
 #    OSIS stands for Open Student Information System. It's an application
 #    designed to manage the core business of higher education institutions,
@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,24 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-
-from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
-
-
-class LearningContainerAdmin(AuditableSerializableModelAdmin):
-    list_display = ('external_id',)
-    fieldsets = ((None, {'fields': ('external_id',)}),)
-    search_fields = ['external_id']
+from attribution.models import attribution_charge_new
+from base.models import learning_unit_component
 
 
-class LearningContainer(AuditableSerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-
-    def __str__(self):
-        return u"%s" % self.external_id
-
-
-def find_by_id(learning_container_id):
-    return LearningContainer.objects.get(pk=learning_container_id)
+def find_attribution_charge_new_by_learning_unit_year(learning_unit_year):
+    learning_unit_components = learning_unit_component.find_by_learning_unit_year(learning_unit_year)\
+        .select_related('learning_component_year')
+    return attribution_charge_new.AttributionChargeNew.objects\
+        .filter(learning_component_year__in=[component.learning_component_year
+                                             for component in learning_unit_components])\
+        .distinct('attribution__tutor')\
+        .select_related('attribution__tutor__person')
