@@ -57,7 +57,11 @@ class ScoresResponsibleViewTestCase(TestCase):
         self.structure_children = structure.StructureFactory(part_of=self.structure)
 
         # New structure model
-        create_entities_hierarchy(self)
+        entities_hierarchy = create_entities_hierarchy()
+        self.root_entity = entities_hierarchy.get('root_entity')
+        self.child_one_entity = entities_hierarchy.get('child_one_entity')
+        self.child_two_entity = entities_hierarchy.get('child_two_entity')
+
         self.entity_manager = EntityManagerFactory(person=self.person, structure=self.structure,
                                                    entity=self.root_entity)
         self.create_learning_units()
