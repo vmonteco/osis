@@ -456,18 +456,32 @@ def step_impl(context, learning_unit_year):
     time.sleep(1)
 
     link_id = 'lnk_notes_printing_{}'.format(context.learning_unit_years[learning_unit_year].id)
-    context.browser.click_on(link_id)
+    element = context.browser.get_element(link_id)
 
-    time.sleep(1)
+    # import pdb; pdb.set_trace()
+    url = element.get_attribute('href')
 
-    filename = 'Feuille de notes.pdf'
+    import requests
+    session = requests.Session()
+    for cookie in context.browser.driver.get_cookies():
+        session.cookies.update({cookie['name']: cookie['value']})
+
+    response = session.get(url, stream=True)
+    assert response.status_code == 200
+    assert response.headers['content-type'] == 'application/pdf'
+    import re
+    filename = re.findall('filename="(.+)"', response.headers['content-disposition'])[0]
+
+    assert filename == 'Feuille de notes.pdf'
+
     full_path = os.path.join(context.full_path_temp_dir, filename)
 
-    assert os.path.exists(full_path)
+    with open(full_path, 'wb') as fp:
+        for chunk in response.iter_content(1024):
+            fp.write(chunk)
 
     mimetype = magic.from_file(full_path, mime=True)
-    assert mimetype == 'application/pdf'
-
+    assert mimetype == response.headers['content-type']
 
 @when('I use the double encoding')
 def step_impl(context):

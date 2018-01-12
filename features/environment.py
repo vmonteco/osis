@@ -6,7 +6,7 @@ from selenium import webdriver
 
 from django.test.testcases import LiveServerTestCase
 
-LiveServerTestCase._tearDownClassInternal = classmethod(lambda cls: None)
+# LiveServerTestCase._tearDownClassInternal = classmethod(lambda cls: None)
 
 BEHAVE_DEBUG_ON_ERROR = False
 SIZE = (1280, 1024)
@@ -56,7 +56,7 @@ def before_all(context):
         logging.basicConfig(level=logging.DEBUG)
 
     display = pyvirtualdisplay.Display(size=SIZE)
-    display.start()
+    # display.start()
     context.display = display
 
     setup_debug_on_error(context.config.userdata)
@@ -64,14 +64,31 @@ def before_all(context):
     options = webdriver.ChromeOptions()
     context.full_path_temp_dir = tempfile.mkdtemp('osis-selenium')
 
-    options.add_experimental_option('prefs', {
-        'download.default_directory': context.full_path_temp_dir,
-        'download.prompt_for_download': False,
-        'download.directory_upgrade': True,
-        'safebrowsing.enabled': True,
-    })
+    # options.add_experimental_option('prefs', {
+    #     'download.default_directory': context.full_path_temp_dir,
+    #     'download.prompt_for_download': False,
+    #     'download.directory_upgrade': True,
+    #     'safebrowsing.enabled': True,
+    # })
 
-    driver = webdriver.Chrome(chrome_options=options)
+    profile = webdriver.FirefoxProfile()
+    profile.set_preference('browser.download.folderList', 2)
+    profile.set_preference('browser.download.manager.showWhenStarting', False)
+    profile.set_preference('browser.download.dir', context.full_path_temp_dir)
+    profile.set_preference('browser.download.downloadDir', context.full_path_temp_dir)
+    profile.set_preference('browser.download.defaultFolder', context.full_path_temp_dir)
+    profile.set_preference('browser.helperApps.neverAsk.saveToDisk',
+                           ','.join([
+                               'application/octet-stream',
+                               'application/pdf',
+                               'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                               'application/vnd.ms-excel',
+                           ])
+                           )
+    profile.set_preference('browser.helperApps.alwaysAsk.force', False)
+
+    driver = webdriver.Firefox(firefox_profile=profile)
+    # driver = webdriver.Chrome(chrome_options=options)
     driver.implicitly_wait(5)
     driver.set_window_size(*SIZE)
     context.browser = Browser(context, driver)
@@ -79,7 +96,7 @@ def before_all(context):
 
 def after_all(context):
     context.browser.quit()
-    context.display.stop()
+    # context.display.stop()
 
 
 def after_step(context, step):
