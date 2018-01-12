@@ -32,14 +32,12 @@ from attribution.models import attribution
 from attribution.tests.models import test_attribution
 from base import models as mdl_base
 from base.models.entity_container_year import EntityContainerYear
-from base.models.enums import entity_container_year_link_type
+
 from base.tests.factories import structure, user
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.business.entities import create_entities_hierarchy
-from base.tests.factories.entity_container_year import EntityContainerYearFactory
+from base.tests.factories.business.learning_units import create_learning_unit_with_container
 from base.tests.factories.entity_manager import EntityManagerFactory
-from base.tests.factories.learning_container_year import LearningContainerYearFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.models.test_person import create_person_with_user
 
@@ -62,9 +60,30 @@ class ScoresResponsibleViewTestCase(TestCase):
         self.child_one_entity = entities_hierarchy.get('child_one_entity')
         self.child_two_entity = entities_hierarchy.get('child_two_entity')
 
-        self.entity_manager = EntityManagerFactory(person=self.person, structure=self.structure,
-                                                   entity=self.root_entity)
-        self.create_learning_units()
+        self.entity_manager = EntityManagerFactory(
+            person=self.person,
+            structure=self.structure,
+            entity=self.root_entity)
+
+        self.learning_unit_year = create_learning_unit_with_container(
+            academic_year=self.academic_year,
+            structure=self.structure,
+            entity=self.child_one_entity,
+            acronym="LBIR1210")
+        self.learning_unit_year_children = create_learning_unit_with_container(
+            academic_year=self.academic_year,
+            structure=self.structure_children,
+            entity=self.child_two_entity,
+            acronym="LBIR1211")
+
+        self.attribution = test_attribution.create_attribution(
+            tutor=self.tutor,
+            learning_unit_year=self.learning_unit_year,
+            score_responsible=True)
+        self.attribution_children = test_attribution.create_attribution(
+            tutor=self.tutor,
+            learning_unit_year=self.learning_unit_year_children,
+            score_responsible=True)
 
     def test_is_faculty_admin(self):
         entities_manager = mdl_base.entity_manager.is_entity_manager(self.user)
@@ -149,31 +168,3 @@ class ScoresResponsibleViewTestCase(TestCase):
         response = self.client.post(url, {"action": "cancel",
                                           "attribution_id": attribution_id})
         self.assertEqual(response.status_code, 302)
-
-    def create_learning_units(self):
-        # Create two learning units
-        learning_container_year = LearningContainerYearFactory(academic_year=self.academic_year, acronym="LBIR1210")
-        self.learning_unit_year = LearningUnitYearFactory(structure=self.structure,
-                                                          acronym=learning_container_year.acronym,
-                                                          learning_container_year=learning_container_year,
-                                                          academic_year=self.academic_year)
-        learning_container_year_children = LearningContainerYearFactory(academic_year=self.academic_year,
-                                                                        acronym="LBIR1211")
-        self.learning_unit_year_children = LearningUnitYearFactory(structure=self.structure_children,
-                                                                   acronym=learning_container_year_children.acronym,
-                                                                   learning_container_year=learning_container_year_children,
-                                                                   academic_year=self.academic_year)
-        # Create entity attribution
-        EntityContainerYearFactory(type=entity_container_year_link_type.ALLOCATION_ENTITY,
-                                   learning_container_year=self.learning_unit_year.learning_container_year,
-                                   entity=self.child_one_entity)
-        EntityContainerYearFactory(type=entity_container_year_link_type.ALLOCATION_ENTITY,
-                                   learning_container_year=self.learning_unit_year_children.learning_container_year,
-                                   entity=self.child_two_entity)
-        # Create attributions
-        self.attribution = test_attribution.create_attribution(tutor=self.tutor,
-                                                               learning_unit_year=self.learning_unit_year,
-                                                               score_responsible=True)
-        self.attribution_children = test_attribution.create_attribution(tutor=self.tutor,
-                                                                        learning_unit_year=self.learning_unit_year_children,
-                                                                        score_responsible=True)
