@@ -30,19 +30,23 @@ from base.tests.factories.entity_version import EntityVersionFactory
 
 def create_entities_hierarchy():
     country = CountryFactory()
-    # Root entity
+
     root_entity = EntityFactory(country=country)
-    root_entity_version = EntityVersionFactory(entity=root_entity, acronym="ROOT_V", parent=None,
-                                                    end_date=None)
+    root_entity_version = EntityVersionFactory(entity=root_entity,
+                                               acronym="ROOT_V",
+                                               parent=None,
+                                               end_date=None)
 
-    # Child 1 entity to root
     child_one_entity = EntityFactory(country=country)
-    child_one_entity_version = EntityVersionFactory(acronym="CHILD_1_V", parent=root_entity,
-                                                         end_date=None, entity=child_one_entity)
+    child_one_entity_version = EntityVersionFactory(acronym="CHILD_1_V",
+                                                    parent=root_entity,
+                                                    end_date=None,
+                                                    entity=child_one_entity)
 
-    # Child 2 entity to root
     child_two_entity = EntityFactory(country=country)
-    child_two_entity_version = EntityVersionFactory(acronym="CHILD_2_V", parent=root_entity,
-                                                         end_date=None, entity=child_two_entity)
+    child_two_entity_version = EntityVersionFactory(acronym="CHILD_2_V",
+                                                    parent=root_entity,
+                                                    end_date=None,
+                                                    entity=child_two_entity)
 
     return locals()
