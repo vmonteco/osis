@@ -1053,9 +1053,6 @@ msgstr "A server error occured."
 msgid "server_error_message"
 msgstr "We will fix this as soon as possible"
 
-msgid "sessionn"
-msgstr "Session"
-
 msgid "short_title"
 msgstr "Short title"
 
@@ -1888,10 +1885,10 @@ msgid "remarks_title"
 msgstr "Remarks"
 
 msgid "faculty_remark"
-msgstr "Faculty"
+msgstr "Faculty remark"
 
 msgid "other_remark"
-msgstr "Other"
+msgstr "Other remark"
 
 msgid "new_learning_unit"
 msgstr "New learning unit"
@@ -2306,7 +2303,7 @@ msgid "scores_diffusion"
 msgstr "Scores diffusion"
 
 msgid "session"
-msgstr "Session"
+msgstr "session"
 
 msgid "at"
 msgstr "at"
@@ -2452,6 +2449,18 @@ msgstr "Are you certain that you want to cancel the learning unit proposal ?"
 msgid "The administrative data has been successfully modified"
 msgstr ""
 
+msgid "vacant"
+msgstr "Vacant"
+
+msgid "team_management"
+msgstr "Team management"
+
+msgid "type_declaration_vacant"
+msgstr "Decision"
+
+msgid "procedure"
+msgstr "Procedure"
+
 msgid "educational_information_management"
 msgstr "Management of educational information"
 
@@ -2464,3 +2473,5 @@ msgstr "Summary course submission"
 msgid "INTERNAL_TEAM"
 msgstr "Internal/team"
 
+msgid "substitute"
+msgstr "Substitute"

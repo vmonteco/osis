@@ -31,7 +31,8 @@ from django.contrib.auth.models import User
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from django.utils import timezone
-# now = datetime.datetime.now()
+
+
 now = timezone.now()
 
 CURRENT_YEAR = now.year
@@ -57,18 +58,15 @@ class TestPermission(TestCase):
         self.assertEqual(permission.is_summary_submission_opened(self.a_user), False)
 
     def test_summary_submission_period_opened(self):
-
         current_academic_year = AcademicYearFactory(year=timezone.now().year,
-                                                    start_date=start_date,
-                                                    end_date=end_date)
+                                                    start_date=timezone.now(),
+                                                    end_date=timezone.now() + datetime.timedelta(days=1))
+        self.academic_calendar_1 = AcademicCalendarFactory(start_date=current_academic_year.start_date,
+                                                           end_date=current_academic_year.end_date,
+                                                           academic_year=current_academic_year,
+                                                           reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
 
-        an_academic_calendar = AcademicCalendarFactory.build(academic_year=current_academic_year,
-                                                             reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION,
-                                                             start_date=start_date,
-                                                             end_date=end_date)
-
-        an_academic_calendar.save(functions=[])
-        self.assertEqual(permission.is_summary_submission_opened(self.a_user), True)
+        self.assertTrue(permission.is_summary_submission_opened(self.a_user))
 
     def test_summary_submission_period_closed(self):
 
@@ -82,4 +80,4 @@ class TestPermission(TestCase):
                                       reference="A calendar event",
                                       start_date=today_plus_3_days,
                                       end_date=today_plus_3_days)
-        self.assertEqual(permission.is_summary_submission_opened(self.a_user), False)
+        self.assertFalse(permission.is_summary_submission_opened(self.a_user))

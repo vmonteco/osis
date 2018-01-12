@@ -44,31 +44,26 @@ class SessionExamCalendarTest(TestCase):
 
         self.current_academic_yr = academic_year.current_academic_year()
 
-
-        self.academic_calendar_1 = AcademicCalendarFactory.build(title="Submission of score encoding - 1",
-                                                                 start_date=datetime.date(self.current_academic_yr.year, 10, 15),
-                                                                 end_date=datetime.date(self.current_academic_yr.year+1, 1, 1),
-                                                                 academic_year=self.current_academic_yr,
-                                                                 reference=academic_calendar_type.SCORES_EXAM_SUBMISSION)
-        self.academic_calendar_2 = AcademicCalendarFactory.build(title="Submission of score encoding - 2",
-                                                                 start_date=datetime.date(self.current_academic_yr.year+1, 3, 15),
-                                                                 end_date=datetime.date(self.current_academic_yr.year+1, 6, 28),
-                                                                 academic_year=self.current_academic_yr,
-                                                                 reference=academic_calendar_type.SCORES_EXAM_SUBMISSION)
-        self.academic_calendar_3 = AcademicCalendarFactory.build(title="Submission of score encoding - 3",
-                                                                 start_date=datetime.date(self.current_academic_yr.year+1, 8, 1),
-                                                                 end_date=datetime.date(self.current_academic_yr.year+1, 9, 29),
-                                                                 academic_year=self.current_academic_yr,
-                                                                 reference=academic_calendar_type.SCORES_EXAM_SUBMISSION)
-        self.academic_calendar_4 = AcademicCalendarFactory.build(title="Deliberation session 1",
-                                                                 start_date=datetime.date(self.current_academic_yr.year+1, 1, 1),
-                                                                 end_date=datetime.date(self.current_academic_yr.year+1, 1, 2),
-                                                                 academic_year=self.current_academic_yr,
-                                                                 reference=academic_calendar_type.DELIBERATION)
-        self.academic_calendar_1.save(functions=[])
-        self.academic_calendar_2.save(functions=[])
-        self.academic_calendar_3.save(functions=[])
-        self.academic_calendar_4.save(functions=[])
+        self.academic_calendar_1 = AcademicCalendarFactory(title="Submission of score encoding - 1",
+                                                           start_date=datetime.date(self.current_academic_yr.year, 10, 15),
+                                                           end_date=datetime.date(self.current_academic_yr.year+1, 1, 1),
+                                                           academic_year=self.current_academic_yr,
+                                                           reference=academic_calendar_type.SCORES_EXAM_SUBMISSION)
+        self.academic_calendar_2 = AcademicCalendarFactory(title="Submission of score encoding - 2",
+                                                           start_date=datetime.date(self.current_academic_yr.year+1, 3, 15),
+                                                           end_date=datetime.date(self.current_academic_yr.year+1, 6, 28),
+                                                           academic_year=self.current_academic_yr,
+                                                           reference=academic_calendar_type.SCORES_EXAM_SUBMISSION)
+        self.academic_calendar_3 = AcademicCalendarFactory(title="Submission of score encoding - 3",
+                                                           start_date=datetime.date(self.current_academic_yr.year+1, 8, 1),
+                                                           end_date=datetime.date(self.current_academic_yr.year+1, 9, 29),
+                                                           academic_year=self.current_academic_yr,
+                                                           reference=academic_calendar_type.SCORES_EXAM_SUBMISSION)
+        self.academic_calendar_4 = AcademicCalendarFactory(title="Deliberation session 1",
+                                                           start_date=datetime.date(self.current_academic_yr.year+1, 1, 1),
+                                                           end_date=datetime.date(self.current_academic_yr.year+1, 1, 2),
+                                                           academic_year=self.current_academic_yr,
+                                                           reference=academic_calendar_type.DELIBERATION)
 
     def test_number_exam_session_out_of_range(self):
         session_exam_calendar = SessionExamCalendarFactory.build(academic_calendar=self.academic_calendar_1,
@@ -147,12 +142,11 @@ class DeliberationDateTest(TestCase):
         AcademicYearFactory.produce_in_past()
 
         self.current_academic_yr = academic_year.current_academic_year()
-        self.academic_calendar = AcademicCalendarFactory.build(title="Deliberation session 1",
-                                                               start_date=datetime.date(self.current_academic_yr.year+1, 1, 1),
-                                                               end_date=datetime.date(self.current_academic_yr.year+1, 1, 2),
-                                                               academic_year=self.current_academic_yr,
-                                                               reference=academic_calendar_type.DELIBERATION)
-        self.academic_calendar.save(functions=[])
+        self.academic_calendar = AcademicCalendarFactory(title="Deliberation session 1",
+                                                         start_date=datetime.date(self.current_academic_yr.year+1, 1, 1),
+                                                         end_date=datetime.date(self.current_academic_yr.year+1, 1, 2),
+                                                         academic_year=self.current_academic_yr,
+                                                         reference=academic_calendar_type.DELIBERATION)
         SessionExamCalendarFactory(academic_calendar=self.academic_calendar,
                                    number_session=number_session.ONE)
         self.offer_yr = OfferYearFactory(academic_year=self.current_academic_yr)
