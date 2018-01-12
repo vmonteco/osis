@@ -25,6 +25,7 @@
 ##############################################################################
 import datetime
 
+from base.models import session_exam_calendar, offer_year_calendar
 from base.models.enums import academic_calendar_type as ac_type
 from base.models.offer_year_calendar import OfferYearCalendar
 from base.models.session_exam_calendar import SessionExamCalendar
@@ -85,22 +86,17 @@ def _get_oyc_deliberation(oyc):
 
 
 def _get_oyc_by_reference(reference, oyc):
-    session = getattr(oyc.academic_calendar, 'sessionexamcalendar', None)
-    if session:
+    number_session = session_exam_calendar.get_number_session_by_academic_calendar(oyc.academic_calendar)
+    if number_session:
         try:
-            return OfferYearCalendar.objects.filter(
-                education_group_year=oyc.education_group_year,
-                academic_calendar__reference=reference,
-                academic_calendar__sessionexamcalendar__number_session=session.number_session
-            ).get()
+            return offer_year_calendar.search(education_group_year_id=oyc.education_group_year,
+                                              academic_calendar_reference=reference,
+                                              number_session=number_session).get()
         except OfferYearCalendar.DoesNotExist:
             return None
 
 
 def _get_list_sessions_exam_deadlines(oyc_deliberation):
-    if not oyc_deliberation:
-        return []
-
     session = SessionExamCalendar.objects.get(academic_calendar=oyc_deliberation.academic_calendar)
     return SessionExamDeadline.objects.filter(
         offer_enrollment__offer_year=oyc_deliberation.offer_year, number_session=session.number_session)

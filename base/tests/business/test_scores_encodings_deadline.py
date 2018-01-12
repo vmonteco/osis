@@ -137,11 +137,3 @@ class TestOfferYearCalendar(TestCase):
         self.assertFalse(_compute_delta_deadline_tutor(None, None))
         self.assertFalse(_compute_delta_deadline_tutor(None, today))
         self.assertFalse(_compute_delta_deadline_tutor(today, None))
-
-    def test__get_list_sessions_exam_deadlines_empty(self):
-        self.assertEqual(_get_list_sessions_exam_deadlines(None), [])
-
-
-
-
-
