@@ -25,9 +25,6 @@
 ##############################################################################
 import datetime
 
-from django.db import transaction
-
-from base.models import offer_year_calendar
 from base.models.enums import academic_calendar_type as ac_type
 from base.models.offer_year_calendar import OfferYearCalendar
 from base.models.session_exam_calendar import SessionExamCalendar
@@ -44,7 +41,7 @@ def compute_deadline_by_offer_year_calendar(oyc):
     end_date_offer_year = _one_day_before_end_date(oyc_deliberation)
     score_submission_date = _one_day_before_end_date(oyc_scores_exam_submission)
 
-    end_date_academic = oyc_deliberation.academic_calendar.end_date
+    end_date_academic = oyc_deliberation.academic_calendar.end_date if oyc_deliberation else None
     sessions_exam_deadlines = _get_list_sessions_exam_deadlines(oyc_deliberation)
 
     _save_new_deadlines(sessions_exam_deadlines, end_date_academic, end_date_offer_year, score_submission_date)
@@ -73,9 +70,7 @@ def _is_deadline_changed(session, new_deadline, new_deadline_tutor):
 
 def _get_oyc_scores_exam_submission(oyc):
     if oyc.academic_calendar.reference == ac_type.DELIBERATION:
-        oyc_scores_exam_submission = _get_oyc_by_reference(ac_type.SCORES_EXAM_SUBMISSION,
-                                                           oyc.academic_calendar.sessionexamcalendar.number_session,
-                                                           oyc.education_group_year)
+        oyc_scores_exam_submission = _get_oyc_by_reference(ac_type.SCORES_EXAM_SUBMISSION, oyc)
     else:
         oyc_scores_exam_submission = oyc
     return oyc_scores_exam_submission
@@ -85,28 +80,35 @@ def _get_oyc_deliberation(oyc):
     if oyc.academic_calendar.reference == ac_type.DELIBERATION:
         oyc_deliberation = oyc
     else:
-        oyc_deliberation = _get_oyc_by_reference(ac_type.DELIBERATION,
-                                                 oyc.academic_calendar.sessionexamcalendar.number_session,
-                                                 oyc.education_group_year)
+        oyc_deliberation = _get_oyc_by_reference(ac_type.DELIBERATION, oyc)
     return oyc_deliberation
 
 
-def _get_oyc_by_reference(reference, number_session, education_group_year):
-    return OfferYearCalendar.objects.filter(
-        education_group_year=education_group_year,
-        academic_calendar__reference=reference,
-        academic_calendar__sessionexamcalendar__number_session=number_session
-    ).get()
+def _get_oyc_by_reference(reference, oyc):
+    session = getattr(oyc.academic_calendar, 'sessionexamcalendar', None)
+    if not session:
+        return None
+    try:
+        return OfferYearCalendar.objects.filter(
+            education_group_year=oyc.education_group_year,
+            academic_calendar__reference=reference,
+            academic_calendar__sessionexamcalendar__number_session=session.number_session
+        ).get()
+    except OfferYearCalendar.DoesNotExist:
+        return None
 
 
 def _get_list_sessions_exam_deadlines(oyc_deliberation):
+    if not oyc_deliberation:
+        return []
+
     session = SessionExamCalendar.objects.get(academic_calendar=oyc_deliberation.academic_calendar)
     return SessionExamDeadline.objects.filter(
         offer_enrollment__offer_year=oyc_deliberation.offer_year, number_session=session.number_session)
 
 
 def _one_day_before_end_date(oyc):
-    return _one_day_before(oyc.end_date.date()) if oyc.end_date else None
+    return _one_day_before(oyc.end_date.date()) if oyc and oyc.end_date else None
 
 
 def _one_day_before(current_date):
