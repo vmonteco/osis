@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -58,7 +58,8 @@ class AttributionChargeNewTest(TestCase):
         self.assertEqual(self.attribution_new.volume_practical, 20)
 
     def test_search_with_attribution(self):
-        self.assertEqual(len(attribution_charge_new.search(attribution=self.attribution_new)), 2)
+        result = attribution_charge_new.search(attribution=self.attribution_new)
+        self.assertCountEqual(result, [self.attribution_charge_new_lecturing, self.attribution_charge_new_practical])
 
     def test_search_with_learning_component_year(self):
         result = attribution_charge_new.search(learning_component_year=self.learning_component_year_practical)
