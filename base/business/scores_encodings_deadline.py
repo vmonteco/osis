@@ -40,7 +40,8 @@ def compute_deadline_by_offer_year_calendar(oyc):
     oyc_scores_exam_submission = _get_oyc_scores_exam_submission(oyc)
 
     end_date_offer_year = _one_day_before_end_date(oyc_deliberation)
-    score_submission_date = _one_day_before_end_date(oyc_scores_exam_submission)
+    score_submission_date = oyc_scores_exam_submission.end_date.date() \
+        if oyc_scores_exam_submission and oyc_scores_exam_submission.end_date else None
 
     end_date_academic = oyc_deliberation.academic_calendar.end_date if oyc_deliberation else None
     sessions_exam_deadlines = _get_list_sessions_exam_deadlines(oyc_deliberation)

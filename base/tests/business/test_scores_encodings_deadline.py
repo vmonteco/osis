@@ -120,7 +120,7 @@ class TestOfferYearCalendar(TestCase):
             days=10)
         self.offer_year_calendar_deliberation.save()
 
-        correct_deadlines = [1 for _ in SessionExamDeadline.objects.all()]
+        correct_deadlines = [0 for _ in SessionExamDeadline.objects.all()]
 
         compute_deadline_by_offer_year_calendar(self.offer_year_calendar_submission)
 
