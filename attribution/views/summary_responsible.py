@@ -24,12 +24,14 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 
 from attribution import models as mdl_attr
 from attribution.business.attribution import get_attributions_list
 from attribution.business.entity_manager import _append_entity_version
 from base import models as mdl_base
-from base.models.entity_manager import is_entity_manager
+from base.models.entity_manager import is_entity_manager, find_entities_with_descendants_from_entity_managers
 from base.views import layout
 
 
@@ -40,8 +42,7 @@ def search(request):
     academic_year = mdl_base.academic_year.current_academic_year()
     _append_entity_version(entities_manager, academic_year)
     if request.GET:
-        entities = [entity_manager.entity for entity_manager in entities_manager]
-        entities_with_descendants = mdl_base.entity.find_descendants(entities)
+        entities_with_descendants = find_entities_with_descendants_from_entity_managers(entities_manager)
         attributions = list(mdl_attr.attribution.search_summary_responsible(
             learning_unit_title=request.GET.get('learning_unit_title'),
             course_code=request.GET.get('course_code'),
@@ -65,3 +66,23 @@ def search(request):
                               "academic_year": academic_year,
                               "init": "0"})
 
+@login_required
+@user_passes_test(is_entity_manager)
+def edit(request):
+    entities_manager = mdl_base.entity_manager.find_by_user(request.user)
+    entities_with_descendants = find_entities_with_descendants_from_entity_managers(entities_manager)
+    learning_unit_year_id = request.GET.get('learning_unit_year').strip('learning_unit_year_')
+    a_learning_unit_year = mdl_base.learning_unit_year.get_by_id(learning_unit_year_id)
+    if a_learning_unit_year.allocation_entity in entities_with_descendants:
+        attributions = mdl_attr.attribution.find_all_responsible_by_learning_unit_year(a_learning_unit_year)
+        academic_year = mdl_base.academic_year.current_academic_year()
+        return layout.render(request, 'summary_responsible_edit.html',
+                             {'learning_unit_year': a_learning_unit_year,
+                              'attributions': attributions,
+                              "academic_year": academic_year,
+                              'course_code': request.GET.get('course_code'),
+                              'learning_unit_title': request.GET.get('learning_unit_title'),
+                              'tutor': request.GET.get('tutor'),
+                              'summary_responsible': request.GET.get('summary_responsible')})
+    else:
+        return HttpResponseRedirect(reverse('access_denied'))
