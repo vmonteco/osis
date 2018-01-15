@@ -32,12 +32,12 @@ from base.models.session_exam_calendar import SessionExamCalendar
 from base.models.session_exam_deadline import SessionExamDeadline
 
 
-def compute_deadline_by_offer_year_calendar(oyc):
-    if _is_valid_offer_year_calendar(oyc):
+def compute_deadline(off_year_calendar):
+    if _is_valid_offer_year_calendar(off_year_calendar):
         return
 
-    oyc_deliberation = _get_oyc_deliberation(oyc)
-    oyc_scores_exam_submission = _get_oyc_scores_exam_submission(oyc)
+    oyc_deliberation = _get_oyc_deliberation(off_year_calendar)
+    oyc_scores_exam_submission = _get_oyc_scores_exam_submission(off_year_calendar)
 
     end_date_offer_year = _one_day_before_end_date(oyc_deliberation)
     score_submission_date = oyc_scores_exam_submission.end_date.date() \
