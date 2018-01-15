@@ -188,3 +188,7 @@ def calculate_age(person):
     today = date.today()
     return today.year - person.birth_date.year - ((today.month, today.day) < (person.birth_date.month,
                                                                               person.birth_date.day))
+
+
+def find_by_firstname_or_lastname(name):
+    return Person.objects.filter(Q(first_name__icontains=name) | Q(last_name__icontains=name))

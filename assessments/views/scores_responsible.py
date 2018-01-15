@@ -27,6 +27,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from attribution import models as mdl_attr
+from attribution.business.attribution import get_attributions_list
 from attribution.business.entity_manager import _append_entity_version
 from base import models as mdl_base
 from base.models.entity_manager import is_entity_manager
@@ -74,27 +75,6 @@ def scores_responsible_search(request):
         return layout.render(request, 'scores_responsible.html', {"entities_manager": entities_manager,
                                                                   "academic_year": academic_year,
                                                                   "init": "0"})
-
-
-def get_attributions_list(attributions):
-    dict_attribution = dict()
-    for attribution in attributions:
-        tutors = mdl_attr.attribution.find_all_tutors_by_learning_unit_year(attribution.learning_unit_year)
-        entity_v = _get_entity_version(attribution.learning_unit_year.learning_container_year)
-        dict_attribution[attribution] = [attribution.learning_unit_year.id,
-                                         entity_v.acronym,
-                                         attribution.learning_unit_year.acronym,
-                                         attribution.learning_unit_year.title,
-                                         tutors]
-    return dict_attribution
-
-
-def _get_entity_version(learning_container_year_prefetched):
-    if learning_container_year_prefetched.entities_containers_year:
-        entity = learning_container_year_prefetched.entities_containers_year[0].entity
-        if entity.entity_versions:
-            return next((entity_v for entity_v in entity.entity_versions), None)
-    return None
 
 
 @login_required

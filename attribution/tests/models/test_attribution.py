@@ -34,9 +34,11 @@ from base.tests.factories import tutor, user, structure, entity_manager, academi
 from base.tests.models.test_person import create_person_with_user
 
 
-def create_attribution(tutor, learning_unit_year, score_responsible=False):
-    an_attribution = attribution.Attribution(tutor=tutor, learning_unit_year=learning_unit_year,
-                                             score_responsible=score_responsible)
+def create_attribution(tutor, learning_unit_year, score_responsible=False, summary_responsible=False):
+    an_attribution = attribution.Attribution(tutor=tutor,
+                                             learning_unit_year=learning_unit_year,
+                                             score_responsible=score_responsible,
+                                             summary_responsible=summary_responsible)
     an_attribution.save()
     return an_attribution
 

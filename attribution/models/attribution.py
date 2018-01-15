@@ -24,15 +24,13 @@
 #
 ##############################################################################
 from django.db import models
-from django.db.models import F
 from django.db.models import Prefetch
-from django.db.models import Q
 from attribution.models.enums import function
 from base.models import entity_container_year
 from base.models.academic_year import current_academic_year
+from base.models import person
 from base.models.enums import entity_container_year_link_type
 from base.models.learning_unit_year import LearningUnitYear
-from base.models.person import Person
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 from attribution.models import attribution_charge
 from base.models.enums import component_type
@@ -135,48 +133,81 @@ def is_score_responsible(user, learning_unit_year):
 
 
 def search_scores_responsible(learning_unit_title, course_code, entities, tutor, responsible):
+    queryset = search_by_course_code_or_learning_unit_title_this_year(course_code, learning_unit_title)
+    if tutor and responsible:
+        queryset = queryset \
+            .filter(learning_unit_year__id__in=LearningUnitYear.objects
+                    .filter(attribution__id__in=Attribution.objects
+                            .filter(score_responsible=True, tutor__person__in=person.find_by_firstname_or_lastname(responsible)))) \
+            .filter(tutor__person__in=person.find_by_firstname_or_lastname(tutor))
+    else:
+        if tutor:
+            queryset = filter_by_tutor(queryset, tutor)
+        if responsible:
+            queryset = queryset \
+                .filter(score_responsible=True, tutor__person__in=person.find_by_firstname_or_lastname(responsible))
+    if entities:
+        queryset = filter_by_entities(queryset, entities)
+
+    queryset = prefetch_entity_version(queryset)
+
+    return queryset.select_related('learning_unit_year')\
+                   .distinct("learning_unit_year")
+
+
+def search_summary_responsible(learning_unit_title, course_code, entities, tutor, responsible):
+    queryset = search_by_course_code_or_learning_unit_title_this_year(course_code, learning_unit_title)
+    if tutor and responsible:
+        queryset = queryset \
+            .filter(learning_unit_year__id__in=LearningUnitYear.objects
+                    .filter(attribution__id__in=Attribution.objects
+                            .filter(summary_responsible=True, tutor__person__in=person.find_by_firstname_or_lastname(responsible)))) \
+            .filter(tutor__person__in=person.find_by_firstname_or_lastname(tutor))
+    else:
+        if tutor:
+            queryset = filter_by_tutor(queryset, tutor)
+        if responsible:
+            queryset = queryset \
+                .filter(summary_responsible=True, tutor__person__in=person.find_by_firstname_or_lastname(responsible))
+    if entities:
+        queryset = filter_by_entities(queryset, entities)
+
+    queryset = prefetch_entity_version(queryset)
+
+    return queryset.select_related('learning_unit_year')\
+                   .distinct("learning_unit_year")
+
+
+def filter_by_tutor(queryset, tutor):
+    return queryset.filter(tutor__person__in=person.find_by_firstname_or_lastname(tutor))
+
+
+def search_by_course_code_or_learning_unit_title_this_year(course_code, learning_unit_title):
     queryset = Attribution.objects.filter(learning_unit_year__academic_year=current_academic_year())
     if learning_unit_title:
         queryset = queryset.filter(learning_unit_year__title__icontains=learning_unit_title)
     if course_code:
         queryset = queryset.filter(learning_unit_year__acronym__icontains=course_code)
-    if tutor and responsible:
-        queryset = queryset \
-            .filter(learning_unit_year__id__in=LearningUnitYear.objects
-                    .filter(attribution__id__in=Attribution.objects
-                            .filter(score_responsible=True, tutor__person__in=Person.objects
-                                    .filter(Q(first_name__icontains=responsible) |
-                                            Q(last_name__icontains=responsible))))) \
-            .filter(tutor__person__in=Person.objects
-                    .filter(Q(first_name__icontains=tutor) |
-                            Q(last_name__icontains=tutor)))
-    else:
-        if tutor:
-            queryset = queryset \
-                .filter(tutor__person__in=Person.objects.filter(Q(first_name__icontains=tutor) |
-                                                                Q(last_name__icontains=tutor)))
-        if responsible:
-            queryset = queryset \
-                .filter(score_responsible=True, tutor__person__in=Person.objects
-                        .filter(Q(first_name__icontains=responsible) |
-                                Q(last_name__icontains=responsible)))
-    if entities:
-        entities_ids = [entity.id for entity in entities]
-        l_container_year_ids = entity_container_year.search(link_type=entity_container_year_link_type.ALLOCATION_ENTITY,
-                                                            entity_id=entities_ids)\
-                                                    .values_list('learning_container_year_id', flat=True)
-        queryset = queryset.filter(learning_unit_year__learning_container_year__id__in=l_container_year_ids)
+    return queryset
 
-    # Prefetch entity version
-    queryset = queryset.prefetch_related(
+
+def filter_by_entities(queryset, entities):
+    entities_ids = [entity.id for entity in entities]
+    l_container_year_ids = entity_container_year.search(link_type=entity_container_year_link_type.ALLOCATION_ENTITY,
+                                                        entity_id=entities_ids) \
+        .values_list('learning_container_year_id', flat=True)
+    queryset = queryset.filter(learning_unit_year__learning_container_year__id__in=l_container_year_ids)
+    return queryset
+
+
+def prefetch_entity_version(queryset):
+    return queryset.prefetch_related(
         Prefetch('learning_unit_year__learning_container_year__entitycontaineryear_set',
                  queryset=entity_container_year.search(link_type=entity_container_year_link_type.ALLOCATION_ENTITY)
                  .prefetch_related(
                      Prefetch('entity__entityversion_set', to_attr='entity_versions')
                  ), to_attr='entities_containers_year')
     )
-    return queryset.select_related('learning_unit_year')\
-                   .distinct("learning_unit_year")
 
 
 def find_all_responsible_by_learning_unit_year(learning_unit_year):

@@ -25,6 +25,8 @@
 ##############################################################################
 from django.contrib.auth.decorators import login_required, user_passes_test
 
+from attribution import models as mdl_attr
+from attribution.business.attribution import get_attributions_list
 from attribution.business.entity_manager import _append_entity_version
 from base import models as mdl_base
 from base.models.entity_manager import is_entity_manager
@@ -37,6 +39,28 @@ def search_attributed_learning_units(request):
     entities_manager = mdl_base.entity_manager.find_by_user(request.user)
     academic_year = mdl_base.academic_year.current_academic_year()
     _append_entity_version(entities_manager, academic_year)
-    return layout.render(request, 'search_attributed_learning_units.html', {"entities_manager": entities_manager,
-                                                              "academic_year": academic_year,
-                                                              "init": "0"})
+    if request.GET:
+        entities = [entity_manager.entity for entity_manager in entities_manager]
+        entities_with_descendants = mdl_base.entity.find_descendants(entities)
+        attributions = list(mdl_attr.attribution.search_summary_responsible(
+            learning_unit_title=request.GET.get('learning_unit_title'),
+            course_code=request.GET.get('course_code'),
+            entities=entities_with_descendants,
+            tutor=request.GET.get('tutor'),
+            responsible=request.GET.get('summary_responsible')
+        ))
+        dict_attribution = get_attributions_list(attributions)
+        return layout.render(request, 'summary_responsible.html',
+                             {"entities_manager": entities_manager,
+                              "academic_year": academic_year,
+                              "dict_attribution": dict_attribution,
+                              "learning_unit_title": request.GET.get('learning_unit_title'),
+                              "course_code": request.GET.get('course_code'),
+                              "tutor": request.GET.get('tutor'),
+                              "summary_responsible": request.GET.get('summary_responsible'),
+                              "init": "1"})
+    else:
+        return layout.render(request, 'summary_responsible.html',
+                             {"entities_manager": entities_manager,
+                              "academic_year": academic_year,
+                              "init": "0"})

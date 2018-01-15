@@ -27,7 +27,7 @@ import datetime
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from assessments.views import scores_responsible
+from attribution.business.attribution import get_attributions_list
 from attribution.models import attribution
 from attribution.tests.models import test_attribution
 from base import models as mdl_base
@@ -131,7 +131,7 @@ class ScoresResponsibleViewTestCase(TestCase):
                                                                       entities=entities_with_descendants,
                                                                       tutor=None,
                                                                       responsible=None)
-        dictionary = scores_responsible.get_attributions_list(attributions_searched)
+        dictionary = get_attributions_list(attributions_searched)
         self.assertIsNotNone(dictionary)
 
     def test_scores_responsible_management(self):
