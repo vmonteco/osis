@@ -30,6 +30,7 @@ from base.models import entity_container_year
 from base.models.academic_year import current_academic_year
 from base.models import person
 from base.models.enums import entity_container_year_link_type
+from base.models import learning_unit_year
 from base.models.learning_unit_year import LearningUnitYear
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 from attribution.models import attribution_charge
@@ -220,11 +221,21 @@ def find_by_tutor(tutor):
         return None
 
 
-def clear_responsible_by_learning_unit_year(learning_unit_year):
-    Attribution.objects.filter(learning_unit_year=learning_unit_year,
-                               score_responsible=True,
-                               learning_unit_year__academic_year=current_academic_year())\
-                       .update(score_responsible=False)
+def clear_scores_responsible_by_learning_unit_year(learning_unit_year_pk):
+    attributions = search_by_learning_unit_year_pk_this_academic_year(learning_unit_year_pk)
+    attributions.update(score_responsible=False)
+
+
+def clear_summary_responsible_by_learning_unit_year(learning_unit_year_pk):
+    attributions = search_by_learning_unit_year_pk_this_academic_year(learning_unit_year_pk)
+    attributions.update(summary_responsible=False)
+
+
+def search_by_learning_unit_year_pk_this_academic_year(learning_unit_year_pk):
+    a_learning_unit_year = learning_unit_year.get_by_id(learning_unit_year_pk)
+    attributions = Attribution.objects.filter(learning_unit_year=a_learning_unit_year,
+                                              learning_unit_year__academic_year=current_academic_year())
+    return attributions
 
 
 def find_by_id(attribution_id):

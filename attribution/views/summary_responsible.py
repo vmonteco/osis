@@ -86,3 +86,24 @@ def edit(request):
                               'summary_responsible': request.GET.get('summary_responsible')})
     else:
         return HttpResponseRedirect(reverse('access_denied'))
+
+
+@login_required
+@user_passes_test(is_entity_manager)
+def update(request, pk):
+    if request.POST.get('action') == "add":
+        mdl_attr.attribution.clear_summary_responsible_by_learning_unit_year(pk)
+        if request.POST.get('attribution'):
+            attribution_id = request.POST.get('attribution').strip('attribution_')
+            attribution = mdl_attr.attribution.find_by_id(attribution_id)
+            attributions = mdl_attr.attribution.search(tutor=attribution.tutor,
+                                                       learning_unit_year=attribution.learning_unit_year)
+            for a_attribution in attributions:
+                a_attribution.summary_responsible = True
+                a_attribution.save()
+    url = reverse('summary_responsible')
+    return HttpResponseRedirect(url + "?course_code=%s&learning_unit_title=%s&tutor=%s&scores_responsible=%s"
+                                % (request.POST.get('course_code'),
+                                   request.POST.get('learning_unit_title'),
+                                   request.POST.get('tutor'),
+                                   request.POST.get('summary_responsible')))

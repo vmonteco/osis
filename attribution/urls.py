@@ -33,7 +33,9 @@ urlpatterns = [
         url(r'^$', summary_responsible.search,
             name='summary_responsible'),
         url(r'^edit/$', summary_responsible.edit,
-            name='summary_responsible_edit')
+            name='summary_responsible_edit'),
+        url(r'^update/(?P<pk>[0-9]+)/$', summary_responsible.update,
+            name='summary_responsible_update')
     ])),
 
 ]

@@ -102,8 +102,7 @@ def scores_responsible_management(request):
 @user_passes_test(is_entity_manager)
 def scores_responsible_add(request, pk):
     if request.POST.get('action') == "add":
-        a_learning_unit_year = mdl_base.learning_unit_year.get_by_id(pk)
-        mdl_attr.attribution.clear_responsible_by_learning_unit_year(a_learning_unit_year)
+        mdl_attr.attribution.clear_scores_responsible_by_learning_unit_year(pk)
         if request.POST.get('attribution'):
             attribution_id = request.POST.get('attribution').strip('attribution_')
             attribution = mdl_attr.attribution.find_by_id(attribution_id)
