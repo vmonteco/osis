@@ -27,8 +27,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from attribution import models as mdl_attr
+from attribution.business.entity_manager import _append_entity_version
 from base import models as mdl_base
-from base.business.entity_version import find_entity_version_according_academic_year
 from base.models.entity_manager import is_entity_manager
 from base.views import layout
 
@@ -141,12 +141,3 @@ def scores_responsible_add(request, pk):
                                    request.POST.get('learning_unit_title'),
                                    request.POST.get('tutor'),
                                    request.POST.get('scores_responsible')))
-
-
-def _append_entity_version(entities_manager, academic_year):
-    for entity_manager in entities_manager:
-        if hasattr(entity_manager.entity, 'entity_versions') and entity_manager.entity.entity_versions:
-            entity_manager.entity_version = find_entity_version_according_academic_year(
-                entity_manager.entity.entity_versions, academic_year)
-        else:
-            entity_manager.entity_version = None
