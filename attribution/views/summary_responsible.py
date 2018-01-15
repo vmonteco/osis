@@ -35,7 +35,7 @@ from base.views import layout
 
 @login_required
 @user_passes_test(is_entity_manager)
-def search_attributed_learning_units(request):
+def search(request):
     entities_manager = mdl_base.entity_manager.find_by_user(request.user)
     academic_year = mdl_base.academic_year.current_academic_year()
     _append_entity_version(entities_manager, academic_year)
@@ -64,3 +64,8 @@ def search_attributed_learning_units(request):
                              {"entities_manager": entities_manager,
                               "academic_year": academic_year,
                               "init": "0"})
+
+@login_required
+@user_passes_test(is_entity_manager)
+def edit(request):
+    pass

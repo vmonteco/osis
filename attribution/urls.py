@@ -30,8 +30,10 @@ from attribution.views import summary_responsible
 urlpatterns = [
 
     url(r'^summary_responsible_manager/', include([
-        url(r'^$', summary_responsible.search_attributed_learning_units,
+        url(r'^$', summary_responsible.search,
             name='summary_responsible'),
+        url(r'^edit/$', summary_responsible.edit,
+            name='summary_responsible_edit')
     ])),
 
 ]
