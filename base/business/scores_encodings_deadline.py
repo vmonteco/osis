@@ -24,12 +24,16 @@
 #
 ##############################################################################
 import datetime
+import logging
+from django.conf import settings
 
 from base.models import session_exam_calendar, offer_year_calendar
 from base.models.enums import academic_calendar_type as ac_type
 from base.models.offer_year_calendar import OfferYearCalendar
-from base.models.session_exam_calendar import SessionExamCalendar
 from base.models.session_exam_deadline import SessionExamDeadline
+
+
+logger = logging.getLogger(settings.DEFAULT_LOGGER)
 
 
 def compute_deadline(off_year_calendar):
@@ -44,7 +48,8 @@ def compute_deadline(off_year_calendar):
         if oyc_scores_exam_submission and oyc_scores_exam_submission.end_date else None
 
     end_date_academic = oyc_deliberation.academic_calendar.end_date if oyc_deliberation else None
-    sessions_exam_deadlines = _get_list_sessions_exam_deadlines(oyc_deliberation)
+    sessions_exam_deadlines = _get_list_sessions_exam_deadlines(off_year_calendar.academic_calendar,
+                                                                off_year_calendar.offer_year)
 
     _save_new_deadlines(sessions_exam_deadlines, end_date_academic, end_date_offer_year, score_submission_date)
 
@@ -97,10 +102,16 @@ def _get_oyc_by_reference(reference, oyc):
             return None
 
 
-def _get_list_sessions_exam_deadlines(oyc_deliberation):
-    session = SessionExamCalendar.objects.get(academic_calendar=oyc_deliberation.academic_calendar)
-    return SessionExamDeadline.objects.filter(
-        offer_enrollment__offer_year=oyc_deliberation.offer_year, number_session=session.number_session)
+def _get_list_sessions_exam_deadlines(academic_calendar, offer_year):
+    session_exam_deadlines = []
+    number_session = session_exam_calendar.get_number_session_by_academic_calendar(academic_calendar)
+    if number_session:
+        session_exam_deadlines = SessionExamDeadline.objects.filter(
+            offer_enrollment__offer_year=offer_year, number_session=number_session)
+    else:
+        msg = "No SessionExamCalendar (number session) found for academic calendar = {}"
+        logger.warning(msg.format(academic_calendar.title))
+    return session_exam_deadlines
 
 
 def _one_day_before_end_date(oyc):
