@@ -41,8 +41,6 @@ from base.tests.factories.tutor import TutorFactory
 
 class SummaryResponsibleViewTestCase(TestCase):
     def setUp(self):
-        self.url = reverse("summary_responsible")
-
         self.person = PersonFactory()
         self.user = self.person.user
         self.tutor = TutorFactory(person=self.person)
@@ -85,18 +83,21 @@ class SummaryResponsibleViewTestCase(TestCase):
             summary_responsible=True)
 
     def test_user_not_logged(self):
+        url = reverse("summary_responsible")
         self.client.logout()
-        response = self.client.get(self.url)
-        self.assertRedirects(response, '/login/?next={}'.format(self.url))
+        response = self.client.get(url)
+        self.assertRedirects(response, '/login/?next={}'.format(url))
 
     def test_user_is_not_entity_manager(self):
+        url = reverse("summary_responsible")
         entity_managers = EntityManager.objects.filter(person__user=self.user)
         entity_managers.delete()
 
-        response = self.client.get(self.url, follow=True)
-        self.assertRedirects(response, '/login/?next={}'.format(self.url))
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(response, '/login/?next={}'.format(url))
 
     def test_summary_responsible_search_with_two_criteria(self):
+        url = reverse("summary_responsible")
         self.client.force_login(self.user)
         data = {
             'course_code': 'LBIR121',
@@ -104,12 +105,13 @@ class SummaryResponsibleViewTestCase(TestCase):
             'tutor': self.person.last_name,
             'summary_responsible': ''
         }
-        response = self.client.get(self.url, data=data)
+        response = self.client.get(url, data=data)
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(response.context[-1]['dict_attribution'],
                               [self.attribution, self.attribution_children])
 
     def test_summary_responsible_search_without_criteria(self):
+        url = reverse("summary_responsible")
         self.client.force_login(self.user)
         data = {
             'course_code': '',
@@ -117,7 +119,7 @@ class SummaryResponsibleViewTestCase(TestCase):
             'tutor': '',
             'summary_responsible': ''
         }
-        response = self.client.get(self.url, data=data)
+        response = self.client.get(url, data=data)
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(response.context[-1]['dict_attribution'],
                          [self.attribution, self.attribution_children])
