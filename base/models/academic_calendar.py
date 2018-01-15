@@ -132,9 +132,7 @@ def find_academic_calendar(academic_year_id, a_reference, a_date):
         results = AcademicCalendar.objects.filter(academic_year=academic_year_id,
                                                   reference=a_reference,
                                                   start_date__lte=a_date,
-                                                  end_date__gte=a_date).order_by('start_date')
-        if results:
-            return results[0]
+                                                  end_date__gte=a_date).order_by('start_date').first()
     return None
 
 
