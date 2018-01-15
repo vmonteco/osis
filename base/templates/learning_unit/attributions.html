@@ -62,8 +62,8 @@
                                 <td>{{ attribution_charge_new.attribution.volume_lecturing  | default_if_none:0 | floatformat:2 }}</td>
                                 <td>{{ attribution_charge_new.attribution.volume_practical  | default_if_none:0 | floatformat:2}}</td>
                                 <td>{% if attribution_charge_new.attribution.substitute %}
-                                        {{ attribution_charge_new.attribution.substitute.tutor.person.last_name }},
-                                        {{ attribution_charge_new.attribution.substitute.tutor.person.first_name }}
+                                        {{ attribution_charge_new.attribution.substitute.last_name }},
+                                        {{ attribution_charge_new.attribution.substitute.first_name }}
                                     {% endif %}
                                 </td>
                             </tr>
