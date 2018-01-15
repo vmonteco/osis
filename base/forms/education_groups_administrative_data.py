@@ -25,13 +25,11 @@
 ##############################################################################
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.forms import formset_factory, SplitDateTimeWidget, SelectDateWidget
+from django.forms import formset_factory
 
-from base.business.scores_encodings_deadline import compute_deadline
 from base.forms.bootstrap import BootstrapForm
-from base.forms.utils.datefield import DateRangeField, DatePickerInput, DATE_FORMAT, DateTimePickerInput, \
-    DATETIME_FORMAT
-from base.models import offer_year_calendar, session_exam_calendar, academic_calendar
+from base.forms.utils.datefield import DateRangeField, DatePickerInput, DATE_FORMAT, DateTimePickerInput
+from base.models import offer_year_calendar
 from base.models.enums import academic_calendar_type
 from django.utils.translation import ugettext_lazy as _
 
@@ -128,7 +126,6 @@ class AdministrativeDataSessionForm(BootstrapForm):
             _set_values_in_offer_year_calendar(oyc, value)
 
             oyc.save()
-            compute_deadline(oyc)
 
     def clean(self):
         for name, value in list(self.cleaned_data.items()):

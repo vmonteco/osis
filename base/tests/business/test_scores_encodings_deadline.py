@@ -27,8 +27,7 @@ from datetime import timedelta, datetime
 
 from django.test import TestCase
 
-from base.business.scores_encodings_deadline import compute_deadline, \
-    _compute_delta_deadline_tutor, _get_list_sessions_exam_deadlines
+from base.business.scores_encodings_deadline import _compute_delta_deadline_tutor
 from base.models.enums import academic_calendar_type
 from base.models.session_exam_deadline import SessionExamDeadline
 
@@ -97,7 +96,7 @@ class TestOfferYearCalendar(TestCase):
         correct_deadlines = [self.academic_calendar_deliberation.end_date - timedelta(days=1)
                              for _ in SessionExamDeadline.objects.all()]
 
-        compute_deadline(self.offer_year_calendar_deliberation)
+        self.offer_year_calendar_deliberation.save()
 
         new_deadlines = [i.deadline for i in SessionExamDeadline.objects.all()]
         self.assertListEqual(new_deadlines, correct_deadlines)
@@ -106,7 +105,7 @@ class TestOfferYearCalendar(TestCase):
         self.offer_year_calendar_deliberation.academic_calendar.reference = academic_calendar_type.COURSE_ENROLLMENT
         old_deadlines = [i.deadline for i in self.session_exam_deadlines]
 
-        compute_deadline(self.offer_year_calendar_deliberation)
+        self.offer_year_calendar_deliberation.save()
 
         new_deadlines = [i.deadline for i in SessionExamDeadline.objects.all()]
 
@@ -120,9 +119,9 @@ class TestOfferYearCalendar(TestCase):
             days=10)
         self.offer_year_calendar_deliberation.save()
 
-        correct_deadlines = [0 for _ in SessionExamDeadline.objects.all()]
+        correct_deadlines = [1 for _ in SessionExamDeadline.objects.all()]
 
-        compute_deadline(self.offer_year_calendar_submission)
+        self.offer_year_calendar_submission.save()
 
         new_deadlines_tutors = [i.deadline_tutor for i in SessionExamDeadline.objects.all()]
         self.assertListEqual(new_deadlines_tutors, correct_deadlines)
