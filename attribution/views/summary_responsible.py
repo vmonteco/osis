@@ -49,7 +49,7 @@ def search(request):
             tutor=request.GET.get('tutor'),
             responsible=request.GET.get('summary_responsible')
         ))
-        dict_attribution = get_attributions_list(attributions)
+        dict_attribution = get_attributions_list(attributions, "-summary_responsible")
         return layout.render(request, 'summary_responsible.html',
                              {"entities_manager": entities_manager,
                               "academic_year": academic_year,
@@ -65,7 +65,3 @@ def search(request):
                               "academic_year": academic_year,
                               "init": "0"})
 
-@login_required
-@user_passes_test(is_entity_manager)
-def edit(request):
-    pass

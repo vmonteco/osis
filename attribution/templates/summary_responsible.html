@@ -100,7 +100,7 @@
                                 {% if value_list.4 %}
                                     {% for value in value_list.4 %}
                                         {% if forloop.first %}
-                                            <p {% if value.1 == True %} style="font-weight:bold;" {% endif %}>
+                                            <p {% if value.2 == True %} style="font-weight:bold;" {% endif %}>
                                                 - {{ value.0 }}
                                                 {% if value_list.4|length > 1 %}
                                                     <a role="button" data-toggle="collapse" data-target="#list_{{ value_list.2 }}"
@@ -113,7 +113,7 @@
                                             </p>
                                             <div id="list_{{ value_list.2 }}" class="panel-collapse collapse">
                                         {% else %}
-                                            <p {% if value.1 == True %} style="font-weight:bold;" {% endif %}>
+                                            <p {% if value.2 == True %} style="font-weight:bold;" {% endif %}>
                                                 - {{ value.0 }}
                                             </p>
                                         {% endif %}

@@ -104,22 +104,18 @@ def find_all_responsibles_by_learning_unit_year(a_learning_unit_year):
     return [attribution.tutor for attribution in attribution_list]
 
 
-def find_all_tutors_by_learning_unit_year(a_learning_unit_year):
+def find_all_tutors_by_learning_unit_year(a_learning_unit_year, responsibles_order=""):
     attribution_list = Attribution.objects.filter(learning_unit_year=a_learning_unit_year) \
         .distinct("tutor").values_list('id', flat=True)
-    result = Attribution.objects.filter(id__in=attribution_list).order_by("-score_responsible", "tutor__person")
-    return [[attribution.tutor, attribution.score_responsible] for attribution in result]
+    result = Attribution.objects.filter(id__in=attribution_list).order_by(responsibles_order, "tutor__person")
+    return [
+        [ attribution.tutor, attribution.score_responsible, attribution.summary_responsible ]
+        for attribution in result
+    ]
 
 
 def find_responsible(a_learning_unit_year):
     tutors_list = find_all_responsibles_by_learning_unit_year(a_learning_unit_year)
-    if tutors_list:
-        return tutors_list[0]
-    return None
-
-
-def find_tutor(a_learning_unit_year):
-    tutors_list = find_all_tutors_by_learning_unit_year(a_learning_unit_year)
     if tutors_list:
         return tutors_list[0]
     return None

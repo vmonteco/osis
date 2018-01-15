@@ -25,10 +25,11 @@
 ##############################################################################
 from attribution import models as mdl_attr
 
-def get_attributions_list(attributions):
+def get_attributions_list(attributions, responsibles_order):
     dict_attribution = dict()
     for attribution in attributions:
-        tutors = mdl_attr.attribution.find_all_tutors_by_learning_unit_year(attribution.learning_unit_year)
+        tutors = mdl_attr.attribution.find_all_tutors_by_learning_unit_year(attribution.learning_unit_year,
+                                                                            responsibles_order)
         entity_v = _get_entity_version(attribution.learning_unit_year.learning_container_year)
         dict_attribution[attribution] = [attribution.learning_unit_year.id,
                                          entity_v.acronym,
