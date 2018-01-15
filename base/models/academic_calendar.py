@@ -129,10 +129,10 @@ def get_by_reference_and_academic_year(a_reference, an_academic_year):
 
 def find_academic_calendar(academic_year_id, a_reference, a_date):
     if academic_year_id and a_reference:
-        results = AcademicCalendar.objects.filter(academic_year=academic_year_id,
-                                                  reference=a_reference,
-                                                  start_date__lte=a_date,
-                                                  end_date__gte=a_date).order_by('start_date').first()
+        return AcademicCalendar.objects.filter(academic_year=academic_year_id,
+                                               reference=a_reference,
+                                               start_date__lte=a_date,
+                                               end_date__gte=a_date).order_by('start_date').first()
     return None
 
 
