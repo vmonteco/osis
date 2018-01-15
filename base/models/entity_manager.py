@@ -26,7 +26,7 @@
 from django.db import models
 from django.db.models import Prefetch
 
-from base import models as mdl_base
+from base.models import entity
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
@@ -67,5 +67,5 @@ def is_entity_manager(user):
 
 def find_entities_with_descendants_from_entity_managers(entities_manager):
     entities = [entity_manager.entity for entity_manager in entities_manager]
-    entities_with_descendants = mdl_base.entity.find_descendants(entities)
+    entities_with_descendants = entity.find_descendants(entities)
     return entities_with_descendants
