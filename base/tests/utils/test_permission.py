@@ -58,9 +58,9 @@ class TestPermission(TestCase):
         self.assertEqual(permission.is_summary_submission_opened(self.a_user), False)
 
     def test_summary_submission_period_opened(self):
-        current_academic_year = AcademicYearFactory(year=timezone.now().year,
-                                                    start_date=timezone.now(),
-                                                    end_date=timezone.now() + datetime.timedelta(days=1))
+        current_academic_year = AcademicYearFactory(year=start_date.year,
+                                                    start_date=start_date,
+                                                    end_date=start_date + datetime.timedelta(days=1))
         self.academic_calendar_1 = AcademicCalendarFactory(start_date=current_academic_year.start_date,
                                                            end_date=current_academic_year.end_date,
                                                            academic_year=current_academic_year,
