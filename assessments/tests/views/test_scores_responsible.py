@@ -36,7 +36,7 @@ from base.models.entity_container_year import EntityContainerYear
 from base.tests.factories import structure, user
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.business.entities import create_entities_hierarchy
-from base.tests.factories.business.learning_units import create_learning_unit_with_container
+from base.tests.factories.business.learning_units import create_learning_unit_with_context
 from base.tests.factories.entity_manager import EntityManagerFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.models.test_person import create_person_with_user
@@ -65,12 +65,13 @@ class ScoresResponsibleViewTestCase(TestCase):
             structure=self.structure,
             entity=self.root_entity)
 
-        self.learning_unit_year = create_learning_unit_with_container(
+        # Create two learning_unit_year with context (Container + EntityContainerYear)
+        self.learning_unit_year = create_learning_unit_with_context(
             academic_year=self.academic_year,
             structure=self.structure,
             entity=self.child_one_entity,
             acronym="LBIR1210")
-        self.learning_unit_year_children = create_learning_unit_with_container(
+        self.learning_unit_year_children = create_learning_unit_with_context(
             academic_year=self.academic_year,
             structure=self.structure_children,
             entity=self.child_two_entity,

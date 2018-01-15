@@ -29,7 +29,7 @@ from base.tests.factories.learning_container_year import LearningContainerYearFa
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 
 
-def create_learning_unit_with_container(academic_year, structure, entity, acronym):
+def create_learning_unit_with_context(academic_year, structure, entity, acronym):
     learning_container_year = LearningContainerYearFactory(academic_year=academic_year, acronym=acronym)
     learning_unit_year = LearningUnitYearFactory(structure=structure,
                                                  acronym=acronym,
