@@ -33,5 +33,5 @@ def find_attribution_charge_new_by_learning_unit_year(learning_unit_year):
     return attribution_charge_new.AttributionChargeNew.objects\
         .filter(learning_component_year__in=[component.learning_component_year
                                              for component in learning_unit_components])\
-        .distinct('attribution__tutor')\
+        .distinct('attribution')\
         .select_related('attribution__tutor__person')
