@@ -49,10 +49,11 @@ class AttributionChargeNew(AuditableModel):
 
 
 def get_allocation_charge(attribution, a_component_type):
-    try:
-        return AttributionChargeNew.objects.get(attribution=attribution,
-                                                learning_component_year__type=a_component_type).allocation_charge
-    except AttributionChargeNew.DoesNotExist:
+    attribution_charge_new = AttributionChargeNew.objects.filter(attribution=attribution,
+                                                                 learning_component_year__type=a_component_type).first()
+    if attribution_charge_new:
+        return attribution_charge_new.allocation_charge
+    else:
         return None
 
 
