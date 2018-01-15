@@ -34,7 +34,8 @@ class GroupElementYearAdmin(AuditableModelAdmin):
     list_display = ('parent', 'child_branch', 'child_leaf',)
     fieldsets = ((None, {'fields': ('parent', 'child_branch', 'child_leaf', 'absolute_credits','relative_credits',
                                     'min_credits', 'max_credits', 'is_mandatory', 'block', 'current_order',
-                                    'own_comment', 'sessions_derogation','minor_access', 'comment', 'comment_english',)}),)
+                                    'own_comment', 'sessions_derogation','minor_access', 'comment',
+                                    'comment_english',)}),)
     raw_id_fields = ('parent', 'child_branch', 'child_leaf',)
 
 
