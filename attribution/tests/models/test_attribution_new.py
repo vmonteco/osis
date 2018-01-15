@@ -50,7 +50,7 @@ class AttributionChargeNewTest(TestCase):
 
     def test_duration_without_end_year(self):
         attribution_new_without_end_year = AttributionNewFactory(start_year=2018, end_year=None)
-        self.assertEqual(attribution_new_without_end_year.duration, None)
+        self.assertIsNone(attribution_new_without_end_year.duration)
 
     def test_search_with_tutor(self):
         result = attribution_new.search(tutor=self.tutor)
