@@ -28,33 +28,10 @@ from django.utils.safestring import mark_safe
 from ckeditor.widgets import CKEditorWidget
 from cms.enums import entity_name
 from cms.models import translated_text
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 
-
-class LearningUnitSummaryForm(forms.Form):
-    learning_unit_year = language = None
+class LearningUnitSummaryForm(LearningUnitPedagogyForm):
     text_labels_name = ['resume']
-
-    def __init__(self, *args, **kwargs):
-        self.learning_unit_year = kwargs.pop('learning_unit_year', None)
-        self.language = kwargs.pop('language', None)
-        self.load_initial()
-        super(LearningUnitSummaryForm, self).__init__(*args, **kwargs)
-
-    def load_initial(self):
-        translated_texts_list = self._get_all_translated_text_related()
-
-        for trans_txt in translated_texts_list:
-            text_label = trans_txt.text_label.label
-            text = trans_txt.text if trans_txt.text else ""
-            setattr(self, text_label, mark_safe(text))
-
-    def _get_all_translated_text_related(self):
-        language_iso = self.language[0]
-
-        return translated_text.search(entity=entity_name.LEARNING_UNIT_YEAR,
-                                      reference=self.learning_unit_year.id,
-                                      language=language_iso,
-                                      text_labels_name=self.text_labels_name)
 
 
 class LearningUnitSummaryEditForm(forms.Form):
