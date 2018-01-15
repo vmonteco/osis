@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,24 +23,22 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import template
-from django.utils.translation import ugettext_lazy as _
+from django.test import TestCase
+from base.models.education_group_year import EducationGroupYear
+from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.education_group import EducationGroupFactory
+from base.tests.factories.education_group_year import EducationGroupYearFactory
 
-register = template.Library()
+
+class EducationGroupTest(TestCase):
+
+    def test_most_recent_acronym(self):
+        education_group = EducationGroupFactory()
+        most_recent_year = 2018
+        for year in range(2016, most_recent_year + 1):
+            EducationGroupYearFactory(education_group=education_group, academic_year=AcademicYearFactory(year=year))
+        most_recent_educ_group_year = EducationGroupYear.objects.get(academic_year__year=most_recent_year,
+                                                                     education_group=education_group)
+        self.assertEqual(education_group.most_recent_acronym, most_recent_educ_group_year.acronym)
 
 
-@register.filter
-def academic_years(start_year, end_year):
-    if start_year and end_year:
-        str_start_year = ''
-        str_end_year = ''
-        if start_year:
-            str_start_year = "{} {}-{}".format(_('from').title(), start_year, str(start_year+1)[-2:])
-        if end_year:
-            str_end_year = "{} {}-{}".format(_('to'), end_year, str(end_year+1)[-2:])
-        return "{} {}".format(str_start_year, str_end_year)
-    else:
-        if start_year and not end_year:
-            return "{} {}-{}".format(_('from'), start_year, str(start_year+1)[-2:])
-        else:
-            return "-"

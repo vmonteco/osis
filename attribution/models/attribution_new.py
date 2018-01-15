@@ -63,7 +63,7 @@ class AttributionNew(AuditableModel):
     end_year = models.IntegerField(blank=True, null=True)
     score_responsible = models.BooleanField(default=False)
     summary_responsible = models.BooleanField(default=False)
-    substitute = models.ForeignKey('AttributionNew', blank=True, null=True)
+    substitute = models.ForeignKey('base.Person', blank=True, null=True)
 
     def __str__(self):
         return u"%s - %s" % (self.tutor.person, self.function)

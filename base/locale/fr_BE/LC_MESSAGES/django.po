@@ -2481,4 +2481,4 @@ msgid "INTERNAL_TEAM"
 msgstr "Interne/Equipe"
 
 msgid "substitute"
-msgstr "Suppléant"
+msgstr "Suppléé"
