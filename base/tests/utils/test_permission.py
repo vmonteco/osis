@@ -28,7 +28,7 @@ from django.test import TestCase
 from base.utils import permission
 from base.models.enums import academic_calendar_type
 from django.contrib.auth.models import User
-from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.academic_year import AcademicYearFactory, AcademicYearFakerFactory
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from django.utils import timezone
 
@@ -58,14 +58,11 @@ class TestPermission(TestCase):
         self.assertEqual(permission.is_summary_submission_opened(self.a_user), False)
 
     def test_summary_submission_period_opened(self):
-        current_academic_year = AcademicYearFactory(year=start_date.year,
-                                                    start_date=start_date,
-                                                    end_date=start_date + datetime.timedelta(days=1))
-        self.academic_calendar_1 = AcademicCalendarFactory(start_date=current_academic_year.start_date,
-                                                           end_date=current_academic_year.end_date,
-                                                           academic_year=current_academic_year,
-                                                           reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+        current_academic_year = AcademicYearFakerFactory(start_date=timezone.now() - datetime.timedelta(days=10),
+                                                    end_date=timezone.now() + datetime.timedelta(days=10))
 
+        AcademicCalendarFactory(academic_year=current_academic_year,
+                                reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
         self.assertTrue(permission.is_summary_submission_opened(self.a_user))
 
     def test_summary_submission_period_closed(self):
