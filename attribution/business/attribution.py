@@ -25,6 +25,7 @@
 ##############################################################################
 from attribution import models as mdl_attr
 
+
 def get_attributions_list(attributions, responsibles_order):
     dict_attribution = dict()
     for attribution in attributions:
@@ -45,3 +46,9 @@ def _get_entity_version(learning_container_year_prefetched):
         if entity.entity_versions:
             return next((entity_v for entity_v in entity.entity_versions), None)
     return None
+
+
+def _set_summary_responsible_to_true(attributions):
+    for a_attribution in attributions:
+        a_attribution.summary_responsible = True
+        a_attribution.save()

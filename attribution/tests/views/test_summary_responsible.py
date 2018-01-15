@@ -123,3 +123,16 @@ class SummaryResponsibleViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(response.context[-1]['dict_attribution'],
                          [self.attribution, self.attribution_children])
+
+    def test_summary_responsible_edit(self):
+        url = reverse('summary_responsible_edit')
+        self.client.force_login(self.user)
+
+        data = {
+            'course_code': 'LBIR1210',
+            'learning_unit_title': '',
+            'tutor': '',
+            'summary_responsible': ''
+        }
+        response = self.client.get(url, data=data)
+        self.assertEqual(response.status_code, 200)

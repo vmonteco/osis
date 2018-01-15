@@ -28,7 +28,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
 from attribution import models as mdl_attr
-from attribution.business.attribution import get_attributions_list
+from attribution.business.attribution import get_attributions_list, _set_summary_responsible_to_true
 from attribution.business.entity_manager import _append_entity_version
 from base import models as mdl_base
 from base.models.entity_manager import is_entity_manager, find_entities_with_descendants_from_entity_managers
@@ -66,6 +66,7 @@ def search(request):
                               "academic_year": academic_year,
                               "init": "0"})
 
+
 @login_required
 @user_passes_test(is_entity_manager)
 def edit(request):
@@ -98,9 +99,7 @@ def update(request, pk):
             attribution = mdl_attr.attribution.find_by_id(attribution_id)
             attributions = mdl_attr.attribution.search(tutor=attribution.tutor,
                                                        learning_unit_year=attribution.learning_unit_year)
-            for a_attribution in attributions:
-                a_attribution.summary_responsible = True
-                a_attribution.save()
+            _set_summary_responsible_to_true(attributions)
     url = reverse('summary_responsible')
     return HttpResponseRedirect(url + "?course_code=%s&learning_unit_title=%s&tutor=%s&scores_responsible=%s"
                                 % (request.POST.get('course_code'),

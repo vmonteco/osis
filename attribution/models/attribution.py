@@ -110,7 +110,7 @@ def find_all_tutors_by_learning_unit_year(a_learning_unit_year, responsibles_ord
         .distinct("tutor").values_list('id', flat=True)
     result = Attribution.objects.filter(id__in=attribution_list).order_by(responsibles_order, "tutor__person")
     return [
-        [ attribution.tutor, attribution.score_responsible, attribution.summary_responsible ]
+        [attribution.tutor, attribution.score_responsible, attribution.summary_responsible]
         for attribution in result
     ]
 
@@ -135,7 +135,8 @@ def search_scores_responsible(learning_unit_title, course_code, entities, tutor,
         queryset = queryset \
             .filter(learning_unit_year__id__in=LearningUnitYear.objects
                     .filter(attribution__id__in=Attribution.objects
-                            .filter(score_responsible=True, tutor__person__in=person.find_by_firstname_or_lastname(responsible)))) \
+                            .filter(score_responsible=True,
+                                    tutor__person__in=person.find_by_firstname_or_lastname(responsible)))) \
             .filter(tutor__person__in=person.find_by_firstname_or_lastname(tutor))
     else:
         if tutor:
@@ -158,7 +159,8 @@ def search_summary_responsible(learning_unit_title, course_code, entities, tutor
         queryset = queryset \
             .filter(learning_unit_year__id__in=LearningUnitYear.objects
                     .filter(attribution__id__in=Attribution.objects
-                            .filter(summary_responsible=True, tutor__person__in=person.find_by_firstname_or_lastname(responsible)))) \
+                            .filter(summary_responsible=True,
+                                    tutor__person__in=person.find_by_firstname_or_lastname(responsible)))) \
             .filter(tutor__person__in=person.find_by_firstname_or_lastname(tutor))
     else:
         if tutor:

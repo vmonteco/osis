@@ -25,6 +25,7 @@
 ##############################################################################
 from base.business.entity_version import find_entity_version_according_academic_year
 
+
 def _append_entity_version(entities_manager, academic_year):
     for entity_manager in entities_manager:
         if hasattr(entity_manager.entity, 'entity_versions') and entity_manager.entity.entity_versions:
