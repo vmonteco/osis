@@ -33,7 +33,7 @@ from base.models.session_exam_deadline import SessionExamDeadline
 
 
 def compute_deadline(off_year_calendar):
-    if _is_valid_offer_year_calendar(off_year_calendar):
+    if not _impact_scores_encodings_deadlines(off_year_calendar):
         return
 
     oyc_deliberation = _get_oyc_deliberation(off_year_calendar)
@@ -49,8 +49,8 @@ def compute_deadline(off_year_calendar):
     _save_new_deadlines(sessions_exam_deadlines, end_date_academic, end_date_offer_year, score_submission_date)
 
 
-def _is_valid_offer_year_calendar(oyc):
-    return oyc.academic_calendar.reference not in (ac_type.DELIBERATION, ac_type.SCORES_EXAM_SUBMISSION)
+def _impact_scores_encodings_deadlines(oyc):
+    return oyc.academic_calendar.reference in (ac_type.DELIBERATION, ac_type.SCORES_EXAM_SUBMISSION)
 
 
 def _save_new_deadlines(sessions_exam_deadlines, end_date_academic, end_date_offer_year, score_submission_date):
