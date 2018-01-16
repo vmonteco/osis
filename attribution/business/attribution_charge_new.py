@@ -30,8 +30,22 @@ from base.models import learning_unit_component
 def find_attribution_charge_new_by_learning_unit_year(learning_unit_year):
     learning_unit_components = learning_unit_component.find_by_learning_unit_year(learning_unit_year)\
         .select_related('learning_component_year')
-    return attribution_charge_new.AttributionChargeNew.objects\
+    attribution_charges = attribution_charge_new.AttributionChargeNew.objects\
         .filter(learning_component_year__in=[component.learning_component_year
                                              for component in learning_unit_components])\
-        .distinct('attribution')\
-        .select_related('attribution__tutor__person')
+        .select_related('learning_component_year', 'attribution__tutor__person')
+    return create_attributions_dictionary(attribution_charges)
+
+
+def create_attributions_dictionary(attribution_charges):
+    attributions = {}
+    for attribution_charge in attribution_charges:
+        key = attribution_charge.attribution.id
+        attribution_dict = {"person": attribution_charge.attribution.tutor.person,
+                           "function": attribution_charge.attribution.function,
+                           "start_year": attribution_charge.attribution.start_year,
+                           "duration": attribution_charge.attribution.duration,
+                           "substitute": attribution_charge.attribution.substitute}
+        attributions.setdefault(key, attribution_dict)\
+            .update({attribution_charge.learning_component_year.type: attribution_charge.allocation_charge})
+    return attributions
