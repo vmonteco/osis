@@ -74,14 +74,6 @@ class AttributionNew(AuditableModel):
             return (self.end_year - self.start_year) + 1
         return None
 
-    @property
-    def volume_lecturing(self):
-        return attribution_charge_new.get_allocation_charge(self, component_type.LECTURING)
-
-    @property
-    def volume_practical(self):
-        return attribution_charge_new.get_allocation_charge(self, component_type.PRACTICAL_EXERCISES)
-
     class Meta:
         unique_together = ('learning_container_year', 'tutor', 'function')
 
