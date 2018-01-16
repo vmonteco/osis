@@ -24,10 +24,12 @@
 #
 ##############################################################################
 import datetime
+from unittest import mock
 from django.test import TestCase
 from django.utils import timezone
 from base.models import academic_calendar
 from base.models.exceptions import StartDateHigherThanEndDateException
+from base.signals.publisher import compute_all_scores_encodings_deadlines
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import AcademicYearFactory, AcademicYearFakerFactory
 
@@ -85,3 +87,8 @@ class AcademicCalendarTest(TestCase):
                                     (tmp_academic_year.id))[0]
         self.assertIsNotNone(db_academic_calendar)
         self.assertEqual(db_academic_calendar, tmp_academic_calendar)
+
+    def test_compute_deadline_is_called_case_academic_calendar_save(self):
+        with mock.patch.object(compute_all_scores_encodings_deadlines, 'send') as mock_method:
+            AcademicCalendarFactory()
+            self.assertTrue(mock_method.called)

@@ -35,6 +35,11 @@ from base.models.session_exam_deadline import SessionExamDeadline
 logger = logging.getLogger(settings.DEFAULT_LOGGER)
 
 
+def recompute_all_deadlines(academic_calendar):
+    for off_year_cal in academic_calendar.offeryearcalendar_set.all():
+        compute_deadline(off_year_cal)
+
+
 def compute_deadline_by_student(session_exam_deadline):
     # TODO :: replace usage of offer_year by education_group_year !
     try:
@@ -83,14 +88,14 @@ def _impact_scores_encodings_deadlines(oyc):
     return oyc.academic_calendar.reference in (ac_type.DELIBERATION, ac_type.SCORES_EXAM_SUBMISSION)
 
 
-def _save_new_deadlines(sessions_exam_deadlines, end_date_academic, end_date_offer_year, score_submission_date):
+def _save_new_deadlines(sessions_exam_deadlines, end_date_academic, end_date_offer_year, tutor_submission_date):
     for session in sessions_exam_deadlines:
         end_date_student = _one_day_before(session.deliberation_date)
 
         new_deadline = min(filter(None, (_get_date_instance(end_date_academic),
                                          _get_date_instance(end_date_offer_year),
                                          _get_date_instance(end_date_student))))
-        new_deadline_tutor = _compute_delta_deadline_tutor(new_deadline, score_submission_date)
+        new_deadline_tutor = _compute_delta_deadline_tutor(new_deadline, tutor_submission_date)
 
         if _is_deadline_changed(session, new_deadline, new_deadline_tutor):
             session.deadline = new_deadline

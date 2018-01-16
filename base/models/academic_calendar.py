@@ -25,6 +25,7 @@
 ##############################################################################
 from django.db import models
 from django.utils import timezone
+from base.signals.publisher import compute_all_scores_encodings_deadlines
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from base.models.exceptions import StartDateHigherThanEndDateException
 from base.models.enums import academic_calendar_type
@@ -68,6 +69,7 @@ class AcademicCalendar(SerializableModel):
         self.validation_mandatory_dates()
         self.validation_start_end_dates()
         super(AcademicCalendar, self).save(*args, **kwargs)
+        compute_all_scores_encodings_deadlines.send(sender=self.__class__, academic_calendar=self)
 
     def validation_start_end_dates(self):
         if self.start_date and self.end_date and self.start_date > self.end_date:

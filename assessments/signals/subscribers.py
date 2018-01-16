@@ -24,8 +24,8 @@
 #
 ##############################################################################
 from django.dispatch import receiver
-from base.business.scores_encodings_deadline import compute_deadline, compute_deadline_by_student
-from base.signals.publisher import compute_scores_encodings_deadlines, compute_student_score_encoding_deadline
+from base.business.scores_encodings_deadline import compute_deadline, compute_deadline_by_student, recompute_all_deadlines
+from base.signals.publisher import compute_scores_encodings_deadlines, compute_student_score_encoding_deadline, compute_all_scores_encodings_deadlines
 
 
 @receiver(compute_scores_encodings_deadlines)
@@ -36,3 +36,8 @@ def compute_scores_encodings_deadlines(sender, **kwargs):
 @receiver(compute_student_score_encoding_deadline)
 def compute_student_score_encoding_deadline(sender, **kwargs):
     compute_deadline_by_student(kwargs['session_exam_deadline'])
+
+
+@receiver(compute_all_scores_encodings_deadlines)
+def compute_all_scores_encodings_deadlines(sender, **kwargs):
+    recompute_all_deadlines(kwargs['academic_calendar'])
