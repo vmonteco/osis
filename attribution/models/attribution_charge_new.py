@@ -47,7 +47,7 @@ class AttributionChargeNew(AuditableModel):
     def __str__(self):
         return u"%s" % self.attribution
 
-    
+
 def search(*args, **kwargs):
     qs = AttributionChargeNew.objects.all()
 
