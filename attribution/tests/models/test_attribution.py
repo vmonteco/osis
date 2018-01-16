@@ -86,9 +86,6 @@ class AttributionTest(TestCase):
     def test_find_responsible_without_responsible(self):
         self.assertIsNone(attribution.find_responsible(self.learning_unit_year_without_attribution))
 
-    def test_get_attribution(self):
-        self.assertEqual(self.attribution.get_attribution(component_type.LECTURING),'')
-
     def test_is_score_responsible(self):
         self.assertTrue(attribution.is_score_responsible(self.user, self.learning_unit_year))
 
