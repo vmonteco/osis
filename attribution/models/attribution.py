@@ -130,7 +130,7 @@ def is_score_responsible(user, learning_unit_year):
 
 
 def search_scores_responsible(learning_unit_title, course_code, entities, tutor, responsible):
-    queryset = search_by_course_code_or_learning_unit_title_this_year(course_code, learning_unit_title)
+    queryset = search_by_learning_unit_this_year(course_code, learning_unit_title)
     if tutor and responsible:
         queryset = queryset \
             .filter(learning_unit_year__id__in=LearningUnitYear.objects
@@ -140,21 +140,21 @@ def search_scores_responsible(learning_unit_title, course_code, entities, tutor,
             .filter(tutor__person__in=person.find_by_firstname_or_lastname(tutor))
     else:
         if tutor:
-            queryset = filter_by_tutor(queryset, tutor)
+            queryset = _filter_by_tutor(queryset, tutor)
         if responsible:
             queryset = queryset \
                 .filter(score_responsible=True, tutor__person__in=person.find_by_firstname_or_lastname(responsible))
     if entities:
         queryset = filter_by_entities(queryset, entities)
 
-    queryset = prefetch_entity_version(queryset)
+    queryset = _prefetch_entity_version(queryset)
 
     return queryset.select_related('learning_unit_year')\
                    .distinct("learning_unit_year")
 
 
 def search_summary_responsible(learning_unit_title, course_code, entities, tutor, responsible):
-    queryset = search_by_course_code_or_learning_unit_title_this_year(course_code, learning_unit_title)
+    queryset = search_by_learning_unit_this_year(course_code, learning_unit_title)
     if tutor and responsible:
         queryset = queryset \
             .filter(learning_unit_year__id__in=LearningUnitYear.objects
@@ -164,29 +164,25 @@ def search_summary_responsible(learning_unit_title, course_code, entities, tutor
             .filter(tutor__person__in=person.find_by_firstname_or_lastname(tutor))
     else:
         if tutor:
-            queryset = filter_by_tutor(queryset, tutor)
+            queryset = _filter_by_tutor(queryset, tutor)
         if responsible:
             queryset = queryset \
                 .filter(summary_responsible=True, tutor__person__in=person.find_by_firstname_or_lastname(responsible))
     if entities:
         queryset = filter_by_entities(queryset, entities)
 
-    queryset = prefetch_entity_version(queryset)
+    queryset = _prefetch_entity_version(queryset)
 
     return queryset.select_related('learning_unit_year')\
                    .distinct("learning_unit_year")
 
 
-def filter_by_tutor(queryset, tutor):
-    return queryset.filter(tutor__person__in=person.find_by_firstname_or_lastname(tutor))
-
-
-def search_by_course_code_or_learning_unit_title_this_year(course_code, learning_unit_title):
+def search_by_learning_unit_this_year(code, title):
     queryset = Attribution.objects.filter(learning_unit_year__academic_year=current_academic_year())
-    if learning_unit_title:
-        queryset = queryset.filter(learning_unit_year__title__icontains=learning_unit_title)
-    if course_code:
-        queryset = queryset.filter(learning_unit_year__acronym__icontains=course_code)
+    if title:
+        queryset = queryset.filter(learning_unit_year__title__icontains=title)
+    if code:
+        queryset = queryset.filter(learning_unit_year__acronym__icontains=code)
     return queryset
 
 
@@ -197,16 +193,6 @@ def filter_by_entities(queryset, entities):
         .values_list('learning_container_year_id', flat=True)
     queryset = queryset.filter(learning_unit_year__learning_container_year__id__in=l_container_year_ids)
     return queryset
-
-
-def prefetch_entity_version(queryset):
-    return queryset.prefetch_related(
-        Prefetch('learning_unit_year__learning_container_year__entitycontaineryear_set',
-                 queryset=entity_container_year.search(link_type=entity_container_year_link_type.ALLOCATION_ENTITY)
-                 .prefetch_related(
-                     Prefetch('entity__entityversion_set', to_attr='entity_versions')
-                 ), to_attr='entities_containers_year')
-    )
 
 
 def find_all_responsible_by_learning_unit_year(learning_unit_year):
@@ -250,3 +236,17 @@ def find_by_learning_unit_year(learning_unit_year=None):
         queryset = queryset.filter(learning_unit_year=learning_unit_year)
     return queryset.select_related('tutor__person', 'learning_unit_year') \
         .order_by('tutor__person__last_name', 'tutor__person__first_name')
+
+
+def _filter_by_tutor(queryset, tutor):
+    return queryset.filter(tutor__person__in=person.find_by_firstname_or_lastname(tutor))
+
+
+def _prefetch_entity_version(queryset):
+    return queryset.prefetch_related(
+        Prefetch('learning_unit_year__learning_container_year__entitycontaineryear_set',
+                 queryset=entity_container_year.search(link_type=entity_container_year_link_type.ALLOCATION_ENTITY)
+                 .prefetch_related(
+                     Prefetch('entity__entityversion_set', to_attr='entity_versions')
+                 ), to_attr='entities_containers_year')
+    )
