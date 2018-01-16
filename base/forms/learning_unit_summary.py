@@ -28,7 +28,6 @@ from ckeditor.widgets import CKEditorWidget
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
 
 
-
 class LearningUnitSummaryForm(LearningUnitPedagogyForm):
     RESUME = 'resume'
 

@@ -33,7 +33,17 @@ from django.test import TestCase
 from base.models.learning_unit import LearningUnit
 from base.tests.factories.person import PersonFactory
 
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+from django.http import HttpResponse, HttpResponseForbidden
+from base.tests.factories.academic_year import AcademicYearFakerFactory
+from django.utils import timezone
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
+from base.forms.learning_unit_summary import LearningUnitSummaryForm
+from cms.enums import entity_name
+from cms.tests.factories.text_label import TextLabelFactory
+from cms.tests.factories.translated_text import TranslatedTextFactory
+from reference.tests.factories.language import LanguageFactory
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse, HttpResponseForbidden
@@ -55,7 +65,6 @@ class TestLearningUnitSummaryPermission(TestCase):
     def test_authorized(self):
         self.set_permission()
         response = self.client.get(self.url)
-
         self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, 'learning_unit/summary.html')
 
@@ -64,3 +73,51 @@ class TestLearningUnitSummaryPermission(TestCase):
         permission = Permission.objects.get(codename="can_access_learningunit",
                                             content_type=content_type)
         self.person.user.user_permissions.add(permission)
+
+
+class TestLearningUnitSummary(TestCase):
+    def setUp(self):
+        self.person = PersonFactory()
+        content_type = ContentType.objects.get_for_model(LearningUnit)
+        permission = Permission.objects.get(codename="can_access_learningunit",
+                                            content_type=content_type)
+        self.person.user.user_permissions.add(permission)
+        self.client.force_login(self.person.user)
+
+        current_academic_year = AcademicYearFakerFactory(start_date=timezone.now() - datetime.timedelta(days=10),
+                                                         end_date=timezone.now() + datetime.timedelta(days=10))
+
+        AcademicCalendarFactory(academic_year=current_academic_year,
+                                reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+
+        self.language = LanguageFactory(code="en")
+        self.learning_unit_year = LearningUnitYearFakerFactory()
+
+        self.text_label_lu = TextLabelFactory(order=1,
+                                              label=LearningUnitSummaryForm.RESUME,
+                                              entity=entity_name.LEARNING_UNIT_YEAR)
+
+        self.translated_text_lu = TranslatedTextFactory(text_label=self.text_label_lu,
+                                                        entity=entity_name.LEARNING_UNIT_YEAR,
+                                                        language=self.language,
+                                                        reference=self.learning_unit_year.id)
+
+
+        self.form_data = {
+            "learning_unit_year": self.learning_unit_year.id,
+            "language": self.language,
+            "text_label": self.text_label_lu
+        }
+        self.url = reverse('learning_unit_summary_edit', args=[self.learning_unit_year.id])
+
+    def test_learning_unit_summary_form(self):
+
+        response = self.client.get(self.url, data={
+                    "learning_unit_year": self.learning_unit_year.id,
+                    "language": self.language,
+                    "text_label": self.text_label_lu
+                })
+
+        print(response.status_code)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'learning_unit/summary_edit.html')
