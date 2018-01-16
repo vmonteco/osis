@@ -27,6 +27,7 @@ import datetime
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from attribution.models import attribution
 from attribution.tests.models import test_attribution
 from base.models.entity_manager import EntityManager
 
@@ -109,6 +110,7 @@ class SummaryResponsibleViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(response.context[-1]['dict_attribution'],
                               [self.attribution, self.attribution_children])
+        self.assertTemplateUsed(response, "summary_responsible.html")
 
     def test_summary_responsible_search_without_criteria(self):
         url = reverse("summary_responsible")
@@ -123,16 +125,21 @@ class SummaryResponsibleViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(response.context[-1]['dict_attribution'],
                          [self.attribution, self.attribution_children])
+        self.assertTemplateUsed(response, "summary_responsible.html")
 
     def test_summary_responsible_edit(self):
         url = reverse('summary_responsible_edit')
         self.client.force_login(self.user)
-
         data = {
             'course_code': 'LBIR1210',
             'learning_unit_title': '',
             'tutor': '',
-            'summary_responsible': ''
+            'summary_responsible': '',
+            'learning_unit_year': 'learning_unit_year_{}'.format(self.learning_unit_year.id)
         }
         response = self.client.get(url, data=data)
         self.assertEqual(response.status_code, 200)
+        attributions = response.context[-1].get('attributions')
+        self.assertCountEqual(list(attributions), [self.attribution])
+        self.assertTrue(attributions.get().summary_responsible)
+        self.assertTemplateUsed(response, "summary_responsible_edit.html")

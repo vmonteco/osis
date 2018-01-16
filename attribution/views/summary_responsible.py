@@ -92,7 +92,7 @@ def edit(request):
 @login_required
 @user_passes_test(is_entity_manager)
 def update(request, pk):
-    if request.POST.get('action') == "add":
+    if request.POST.get('action') == "update":
         mdl_attr.attribution.clear_summary_responsible_by_learning_unit_year(pk)
         if request.POST.get('attribution'):
             attribution_id = request.POST.get('attribution').strip('attribution_')
