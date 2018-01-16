@@ -45,9 +45,9 @@ class AttributionChargeNew(AuditableModel):
     allocation_charge = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
 
     def __str__(self):
-        return u"%s" % str(self.attribution)
+        return u"%s" % self.attribution
 
-
+    
 def search(*args, **kwargs):
     qs = AttributionChargeNew.objects.all()
 

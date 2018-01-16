@@ -43,10 +43,7 @@ class SessionExamCalendar(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     number_session = models.IntegerField(choices=number_session.NUMBERS_SESSION)
-    academic_calendar = models.ForeignKey('AcademicCalendar')
-
-    class Meta:
-        unique_together = (("number_session", "academic_calendar"),)
+    academic_calendar = models.OneToOneField('AcademicCalendar')
 
     def __str__(self):
         return u"%s - %s" % (self.academic_calendar, self.number_session)
@@ -126,3 +123,8 @@ def get_by_session_reference_and_academic_year(nb_session, a_reference, an_acade
                                                academic_calendar__academic_year=an_academic_year)
     except SessionExamCalendar.DoesNotExist:
         return None
+
+
+def get_number_session_by_academic_calendar(academic_calendar):
+    session = getattr(academic_calendar, 'sessionexamcalendar', None)
+    return session.number_session if session else None

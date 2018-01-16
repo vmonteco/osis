@@ -70,20 +70,6 @@ class Attribution(AuditableSerializableModel):
             return (self.end_year - self.start_year) + 1
         return None
 
-    @property
-    def volume_lecturing(self):
-        return self.get_attribution(component_type.LECTURING)
-
-    @property
-    def volume_practical(self):
-        return self.get_attribution(component_type.PRACTICAL_EXERCISES)
-
-    def get_attribution(self, a_component_type):
-        attribution = attribution_charge_new.find_by_component_type(self, a_component_type)
-        if attribution:
-            return attribution.allocation_charge
-        return "{0:.2f}".format(float(0))
-
 
 def search(tutor=None, learning_unit_year=None, score_responsible=None, list_learning_unit_year=None):
     queryset = Attribution.objects

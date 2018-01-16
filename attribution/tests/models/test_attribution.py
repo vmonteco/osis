@@ -24,12 +24,15 @@
 #
 ##############################################################################
 import datetime
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection
 from django.test import TestCase
-from base.tests.factories import tutor, user, structure, entity_manager, academic_year, learning_unit_year
+
 from attribution.models import attribution
+from base.tests.factories import tutor, user, structure, entity_manager, academic_year, learning_unit_year
 from base.tests.models.test_person import create_person_with_user
+from base.models.enums import component_type
 
 
 def create_attribution(tutor, learning_unit_year, score_responsible=False):
@@ -83,6 +86,9 @@ class AttributionTest(TestCase):
     def test_find_responsible_without_responsible(self):
         self.assertIsNone(attribution.find_responsible(self.learning_unit_year_without_attribution))
 
+    def test_get_attribution(self):
+        self.assertEqual(self.attribution.get_attribution(component_type.LECTURING),'')
+
     def test_is_score_responsible(self):
         self.assertTrue(attribution.is_score_responsible(self.user, self.learning_unit_year))
 
@@ -93,7 +99,7 @@ class AttributionTest(TestCase):
         attribution_id = self.attribution.id
 
         with connection.cursor() as cursor:
-            cursor.execute("update attribution_attribution set deleted=True where id=%s", [attribution_id])
+            cursor.execute("update attribution_attribution set deleted='2004-10-19 10:23:54' where id=%s", [attribution_id])
 
         with self.assertRaises(ObjectDoesNotExist):
             attribution.Attribution.objects.get(id=attribution_id)
