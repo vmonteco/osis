@@ -1071,9 +1071,6 @@ msgstr "Une erreur innatendue s'est produite"
 msgid "server_error_message"
 msgstr "Nous mettons tout en oeuvre pour résoudre ce problème."
 
-msgid "sessionn"
-msgstr "Session"
-
 msgid "short_title"
 msgstr "Titre abrégé"
 
@@ -1894,10 +1891,10 @@ msgid "remarks_title"
 msgstr "Remarques"
 
 msgid "faculty_remark"
-msgstr "Faculté"
+msgstr "Remarque de faculté"
 
 msgid "other_remark"
-msgstr "Autre"
+msgstr "Autre remarque"
 
 msgid "new_learning_unit"
 msgstr "Nouvelle unité d'enseignement"
@@ -2312,7 +2309,7 @@ msgid "scores_diffusion"
 msgstr "Diffusion des notes"
 
 msgid "session"
-msgstr "Session"
+msgstr "session"
 
 msgid "at"
 msgstr "à"
@@ -2438,6 +2435,12 @@ msgstr "Entité académique"
 msgid "folder_number"
 msgstr "Dossier n°{}"
 
+msgid "produce_xls"
+msgstr "Produire un excel avec la liste des résultats"
+
+msgid "produce_xls_lu"
+msgstr "Xls avec les activités"
+
 msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
 msgstr "%(date)s doit être comprise entre %(start_date)s et %(end_date)s"
 
@@ -2452,3 +2455,24 @@ msgstr "Etes-vous certain de vouloir annuler la proposition ?"
 
 msgid "The administrative data has been successfully modified"
 msgstr "Les données administratives ont été sauvées avec succès"
+
+msgid "vacant"
+msgstr "Vacant"
+
+msgid "team_management"
+msgstr "Gestion par équipe"
+
+msgid "type_declaration_vacant"
+msgstr "Décision"
+
+msgid "procedure"
+msgstr "Procédure"
+
+msgid "SUMMARY_COURSE_SUBMISSION"
+msgstr "Soumission des résumés de cours"
+
+msgid "INTERNAL_TEAM"
+msgstr "Interne/Equipe"
+
+msgid "substitute"
+msgstr "Suppléé"

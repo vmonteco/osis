@@ -34,22 +34,25 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
+from attribution.business import attribution_charge_new
 from base import models as mdl
 from base.business import learning_unit_deletion, learning_unit_year_volumes, learning_unit_year_with_context, \
     learning_unit_proposal
-from attribution import models as mdl_attr
 from base.business.learning_unit import create_learning_unit, create_learning_unit_structure, \
     get_common_context_learning_unit_year, get_cms_label_data, \
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
-    get_all_attributions, get_last_academic_years
+    get_all_attributions, get_last_academic_years, \
+    SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls
 from base.forms.common import TooManyResultsException
+from base.forms.learning_units import LearningUnitYearForm
 from base.models import proposal_learning_unit, entity_version
 from base.models.campus import Campus
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
-from base.forms.learning_units import LearningUnitYearForm, CreateLearningUnitYearForm, EMPTY_FIELD
+
+from base.forms.learning_unit_create import CreateLearningUnitYearForm, EMPTY_FIELD
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
@@ -64,9 +67,6 @@ CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_
                       'other_informations', 'online_resources']
 
 LEARNING_UNIT_CREATION_SPAN_YEARS = 6
-
-SIMPLE_SEARCH = 1
-SERVICE_COURSES_SEARCH = 2
 
 
 @login_required
@@ -203,7 +203,9 @@ def learning_unit_pedagogy_edit(request, learning_unit_year_id):
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_attributions(request, learning_unit_year_id):
     context = get_common_context_learning_unit_year(learning_unit_year_id)
-    context['attributions'] = mdl_attr.attribution.find_by_learning_unit_year(learning_unit_year=learning_unit_year_id)
+    context['attribution_charge_news'] = \
+        attribution_charge_new.find_attribution_charge_new_by_learning_unit_year(
+            learning_unit_year=learning_unit_year_id)
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/attributions.html", context)
 
@@ -342,7 +344,7 @@ def learning_unit_year_add(request):
         allocation_entity_version = data.get('allocation_entity')
         requirement_entity_version = data.get('requirement_entity')
 
-        new_learning_container = LearningContainer.objects.create(start_year=year)
+        new_learning_container = LearningContainer.objects.create()
         new_learning_unit = create_learning_unit(data, new_learning_container, year)
         while year < starting_academic_year.year + LEARNING_UNIT_CREATION_SPAN_YEARS:
             academic_year = mdl.academic_year.find_academic_year_by_year(year)
@@ -405,23 +407,22 @@ def learning_units_service_course(request):
 
 
 def _learning_units_search(request, search_type):
-    if request.GET.get('academic_year_id'):
-        form = LearningUnitYearForm(request.GET)
-    else:
-        form = LearningUnitYearForm()
+    service_course_search = search_type == SERVICE_COURSES_SEARCH
+    request_get = request.GET if request.GET.get('academic_year_id') else None
 
-    found_learning_units = None
+    form = LearningUnitYearForm(request_get, service_course_search=service_course_search)
+
+    found_learning_units = []
     try:
         if form.is_valid():
-
-            if search_type == SIMPLE_SEARCH:
-                found_learning_units = form.get_activity_learning_units()
-            elif search_type == SERVICE_COURSES_SEARCH:
-                found_learning_units = form.get_service_course_learning_units()
+            found_learning_units = form.get_activity_learning_units()
 
             _check_if_display_message(request, found_learning_units)
     except TooManyResultsException:
         messages.add_message(request, messages.ERROR, _('too_many_results'))
+
+    if request.GET.get('xls_status') == "xls":
+        return create_xls(request.user, found_learning_units)
 
     context = {
         'form': form,

@@ -63,5 +63,4 @@ class OfferYearCalendarFactory(factory.django.DjangoModelFactory):
     offer_year = factory.SubFactory(OfferYearFactory)
     start_date = factory.LazyAttribute(generate_start_date)
     end_date = factory.LazyAttribute(generate_end_date)
-    customized = False
     education_group_year = factory.SubFactory(EducationGroupYearFactory)

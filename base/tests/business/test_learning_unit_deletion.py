@@ -58,7 +58,6 @@ from django.utils import timezone
 
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
-from internship.tests.factories.speciality import SpecialityFactory
 
 
 class LearningUnitYearDeletion(TestCase):
@@ -230,11 +229,11 @@ class LearningUnitYearDeletion(TestCase):
         learning_container_year = LearningContainerYearFactory()
 
         learning_unit_year_full = LearningUnitYearFactory(learning_container_year=learning_container_year,
-                                                           subtype=learning_unit_year_subtypes.FULL)
+                                                          subtype=learning_unit_year_subtypes.FULL)
         learning_unit_year_partim = LearningUnitYearFactory(learning_container_year=learning_container_year,
-                                                             subtype=learning_unit_year_subtypes.PARTIM)
+                                                            subtype=learning_unit_year_subtypes.PARTIM)
         learning_unit_year_none = LearningUnitYearFactory(learning_container_year=learning_container_year,
-                                                           subtype=None)
+                                                          subtype=None)
 
         learning_unit_deletion.delete_from_given_learning_unit_year(learning_unit_year_none)
 
@@ -262,25 +261,19 @@ class LearningUnitYearDeletion(TestCase):
     def test_check_delete_learning_unit_year_with_assistants(self):
         learning_unit_year = LearningUnitYearFactory()
         assistant_mandate = AssistantMandateFactory()
-        tutoring = TutoringLearningUnitYear.objects.create(mandate=assistant_mandate, learning_unit_year=learning_unit_year)
+        tutoring = TutoringLearningUnitYear.objects.create(mandate=assistant_mandate,
+                                                           learning_unit_year=learning_unit_year)
 
         msg = learning_unit_deletion.check_learning_unit_year_deletion(learning_unit_year)
         self.assertIn(tutoring, msg.keys())
-
-    def test_check_delete_learning_unit_with_internship(self):
-        learning_unit = LearningUnitFactory()
-        speciality = SpecialityFactory(learning_unit=learning_unit)
-
-        msg = learning_unit_deletion.check_learning_unit_deletion(learning_unit)
-        self.assertIn(speciality, msg.keys())
 
     def test_can_delete_learning_unit_year_with_faculty_manager_role(self):
         # Faculty manager can only delete other type than COURSE/INTERNSHIP/DISSERTATION
         person = PersonFactory()
         add_to_group(person.user, learning_unit_deletion.FACULTY_MANAGER_GROUP)
         entity_version = EntityVersionFactory(entity_type=entity_type.FACULTY, acronym="SST",
-                                               start_date=datetime.date(year=1990, month=1, day=1),
-                                               end_date=None)
+                                              start_date=datetime.date(year=1990, month=1, day=1),
+                                              end_date=None)
         PersonEntityFactory(person=person, entity=entity_version.entity, with_child=True)
 
         # Creation UE
@@ -301,7 +294,7 @@ class LearningUnitYearDeletion(TestCase):
         learning_unit_year.save()
         self.assertTrue(learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year))
 
-        #With both role, greatest is taken
+        # With both role, greatest is taken
         add_to_group(person.user, learning_unit_deletion.CENTRAL_MANAGER_GROUP)
         learning_unit_year.subtype = learning_unit_year_subtypes.FULL
         learning_unit_year.save()

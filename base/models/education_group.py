@@ -28,7 +28,8 @@ from django.contrib import admin
 
 
 class EducationGroupAdmin(admin.ModelAdmin):
-    list_display = ('id', 'changed', 'start_year', 'end_year')
+    list_display = ('most_recent_acronym', 'start_year', 'end_year', 'changed')
+    search_fields = ('educationgroupyear__acronym',)
 
 
 class EducationGroup(models.Model):
@@ -36,6 +37,12 @@ class EducationGroup(models.Model):
     changed = models.DateTimeField(null=True, auto_now=True)
     start_year = models.IntegerField(blank=True, null=True)
     end_year = models.IntegerField(blank=True, null=True)
+
+    @property
+    def most_recent_acronym(self):
+        most_recent_education_group = self.educationgroupyear_set.filter(education_group_id=self.id)\
+                                                                 .latest('academic_year__year')
+        return most_recent_education_group.acronym
 
     def __str__(self):
         return "{}".format(self.id)

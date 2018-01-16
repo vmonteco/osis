@@ -26,12 +26,13 @@
 import re
 from django.db import models
 
+from base.models.entity_version import EntityVersion
 from base.models.group_element_year import GroupElementYear
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 
-from base.models import entity_container_year
+from base.models import entity_container_year, learning_container
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, internship_subtypes, \
-    learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters
+    learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
@@ -42,7 +43,8 @@ class LearningUnitYearAdmin(AuditableSerializableModelAdmin):
     list_display = ('external_id', 'acronym', 'title', 'academic_year', 'credits', 'changed', 'structure', 'status')
     fieldsets = ((None, {'fields': ('academic_year', 'learning_unit', 'acronym', 'title', 'title_english', 'credits',
                                     'decimal_scores', 'structure', 'learning_container_year',
-                                    'subtype', 'status', 'internship_subtype', 'session', 'quadrimester')}),)
+                                    'subtype', 'status', 'internship_subtype', 'session', 'quadrimester',
+                                    'attribution_procedure')}),)
     list_filter = ('academic_year', 'decimal_scores')
     raw_id_fields = ('learning_unit', 'learning_container_year', 'structure')
     search_fields = ['acronym', 'structure__acronym', 'external_id']
@@ -69,6 +71,8 @@ class LearningUnitYear(AuditableSerializableModel):
                                choices=learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION)
     quadrimester = models.CharField(max_length=4, blank=True, null=True,
                                     choices=learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
+    attribution_procedure = models.CharField(max_length=20, blank=True, null=True,
+                                             choices=attribution_procedure.ATTRIBUTION_PROCEDURES)
 
 
     def __str__(self):
@@ -177,7 +181,7 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
     if container_type:
         queryset = queryset.filter(learning_container_year__container_type=container_type)
 
-    return queryset.select_related('learning_container_year')
+    return queryset.select_related('learning_container_year', 'academic_year')
 
 
 def count_search_results(**kwargs):

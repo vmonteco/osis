@@ -23,13 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from django.test import TestCase
 
-from base.business.offer_year_calendar import compute_deadline_by_offer_year_calendar
+from base.business.scores_encodings_deadline import compute_deadline_by_offer_year_calendar, \
+    _compute_delta_deadline_tutor, _get_list_sessions_exam_deadlines
 from base.models.enums import academic_calendar_type
 from base.models.session_exam_deadline import SessionExamDeadline
+
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.offer_enrollment import OfferEnrollmentFactory
@@ -45,19 +47,41 @@ class TestOfferYearCalendar(TestCase):
         self.nb_session = 1
 
         self.academic_year = AcademicYearFactory(year=1950)
-        self.academic_calendar = AcademicCalendarFactory.build(academic_year=self.academic_year,
-                                                               reference=academic_calendar_type.DELIBERATION)
-        self.academic_calendar.save(functions=[])
 
-        self.session_exam_calendar = SessionExamCalendarFactory(academic_calendar=self.academic_calendar,
-                                                                number_session=self.nb_session)
+        # Create Academic calendar type DELIBERATION
+        self.academic_calendar_deliberation = AcademicCalendarFactory(
+            academic_year=self.academic_year,
+            reference=academic_calendar_type.DELIBERATION
+        )
 
-        self.offer_year_calendar = OfferYearCalendarFactory(academic_calendar=self.academic_calendar)
+        self.session_exam_calendar = SessionExamCalendarFactory(
+            academic_calendar=self.academic_calendar_deliberation,
+            number_session=self.nb_session
+        )
+
+        self.offer_year_calendar_deliberation = OfferYearCalendarFactory(
+            academic_calendar=self.academic_calendar_deliberation
+        )
+
+        # Create Academic calendar type SCORES_EXAM_SUBMISSION
+        self.ac_score_exam_submission = AcademicCalendarFactory(
+            academic_year=self.academic_year,
+            reference=academic_calendar_type.SCORES_EXAM_SUBMISSION
+        )
+        SessionExamCalendarFactory(
+            academic_calendar=self.ac_score_exam_submission,
+            number_session=self.nb_session
+        )
+
+        self.offer_year_calendar_submission = OfferYearCalendarFactory(
+            academic_calendar=self.ac_score_exam_submission,
+            education_group_year=self.offer_year_calendar_deliberation.education_group_year
+        )
 
         self.students = [StudentFactory() for _ in range(10)]
 
         self.offer_enrollments = [
-            OfferEnrollmentFactory(student=student, offer_year=self.offer_year_calendar.offer_year)
+            OfferEnrollmentFactory(student=student, offer_year=self.offer_year_calendar_deliberation.offer_year)
             for student in self.students
         ]
 
@@ -70,21 +94,46 @@ class TestOfferYearCalendar(TestCase):
         self.session_exam_deadlines[0].deliberation_date = None
         self.session_exam_deadlines[0].save()
 
-        correct_deadlines = [self.academic_calendar.end_date - timedelta(days=1)
+        correct_deadlines = [self.academic_calendar_deliberation.end_date - timedelta(days=1)
                              for _ in SessionExamDeadline.objects.all()]
 
-        compute_deadline_by_offer_year_calendar(self.offer_year_calendar)
+        compute_deadline_by_offer_year_calendar(self.offer_year_calendar_deliberation)
 
         new_deadlines = [i.deadline for i in SessionExamDeadline.objects.all()]
         self.assertListEqual(new_deadlines, correct_deadlines)
 
     def test_compute_deadline_wrong_reference(self):
-        self.offer_year_calendar.academic_calendar.reference = academic_calendar_type.SCORES_EXAM_SUBMISSION
+        self.offer_year_calendar_deliberation.academic_calendar.reference = academic_calendar_type.COURSE_ENROLLMENT
         old_deadlines = [i.deadline for i in self.session_exam_deadlines]
 
-        compute_deadline_by_offer_year_calendar(self.offer_year_calendar)
+        compute_deadline_by_offer_year_calendar(self.offer_year_calendar_deliberation)
 
         new_deadlines = [i.deadline for i in SessionExamDeadline.objects.all()]
 
         self.assertListEqual(new_deadlines, old_deadlines)
 
+    def test_compute_deadline_tutor_by_offer_year(self):
+        """
+        In this test, we will check if the tutor day delta [deadline is correctly computed]
+        """
+        self.offer_year_calendar_deliberation.end_date = self.offer_year_calendar_deliberation.end_date + timedelta(
+            days=10)
+        self.offer_year_calendar_deliberation.save()
+
+        correct_deadlines = [1 for _ in SessionExamDeadline.objects.all()]
+
+        compute_deadline_by_offer_year_calendar(self.offer_year_calendar_submission)
+
+        new_deadlines_tutors = [i.deadline_tutor for i in SessionExamDeadline.objects.all()]
+        self.assertListEqual(new_deadlines_tutors, correct_deadlines)
+
+    def test_get_delta_deadline_tutor(self):
+        today = datetime.today()
+        fourty_day_before = today - timedelta(days=40)
+        self.assertEqual(40, _compute_delta_deadline_tutor(today, fourty_day_before))
+
+    def test_get_delta_deadline_tutor_none_value(self):
+        today = datetime.today()
+        self.assertFalse(_compute_delta_deadline_tutor(None, None))
+        self.assertFalse(_compute_delta_deadline_tutor(None, today))
+        self.assertFalse(_compute_delta_deadline_tutor(today, None))
