@@ -43,4 +43,3 @@ class AttributionChargeFactory(factory.django.DjangoModelFactory):
     attribution = factory.SubFactory(AttributionNewFactory)
     learning_component_year = factory.SubFactory(LearningComponentYearFactory)
     allocation_charge = 0
-    deleted = False
