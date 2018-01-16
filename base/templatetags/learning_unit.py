@@ -36,7 +36,7 @@ def academic_years(start_year, end_year):
         str_end_year = ''
         if start_year:
             str_start_year = "{} {}-{}".format(_('from').title(), start_year, str(start_year+1)[-2:])
-        if end_year:
+        if end_year and end_year!= 2099:
             str_end_year = "{} {}-{}".format(_('to'), end_year, str(end_year+1)[-2:])
         return "{} {}".format(str_start_year, str_end_year)
     else:

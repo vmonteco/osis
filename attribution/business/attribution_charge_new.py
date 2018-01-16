@@ -42,10 +42,10 @@ def create_attributions_dictionary(attribution_charges):
     for attribution_charge in attribution_charges:
         key = attribution_charge.attribution.id
         attribution_dict = {"person": attribution_charge.attribution.tutor.person,
-                           "function": attribution_charge.attribution.function,
-                           "start_year": attribution_charge.attribution.start_year,
-                           "duration": attribution_charge.attribution.duration,
-                           "substitute": attribution_charge.attribution.substitute}
+                            "function": attribution_charge.attribution.function,
+                            "start_year": attribution_charge.attribution.start_year,
+                            "duration": attribution_charge.attribution.duration,
+                            "substitute": attribution_charge.attribution.substitute}
         attributions.setdefault(key, attribution_dict)\
             .update({attribution_charge.learning_component_year.type: attribution_charge.allocation_charge})
     return attributions
