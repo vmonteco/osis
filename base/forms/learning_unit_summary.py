@@ -28,8 +28,11 @@ from ckeditor.widgets import CKEditorWidget
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
 
 
+
 class LearningUnitSummaryForm(LearningUnitPedagogyForm):
-    text_labels_name = ['resume']
+    RESUME = 'resume'
+
+    text_labels_name = [RESUME]
 
 
 class LearningUnitSummaryEditForm(LearningUnitPedagogyEditForm):

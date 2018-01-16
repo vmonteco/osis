@@ -30,13 +30,10 @@ from cms.tests.factories.text_label import TextLabelFactory
 from cms.tests.factories.translated_text import TranslatedTextFactory
 from cms.enums import entity_name
 
-REFERENCE = 2502
-
 
 class TestValidation(TestCase):
     def setUp(self):
-        self.language_en = LanguageFactory(code="EN")
-        self.language_fr = LanguageFactory(code="FR")
+        self.language = LanguageFactory(code="EN")
         self.form_data = {
             "trans_text": "Text",
             "cms_id": 1
@@ -53,11 +50,11 @@ class TestValidation(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_save_form(self):
+
         text_label_lu = TextLabelFactory(order=1, label='program 1', entity=entity_name.LEARNING_UNIT_YEAR)
 
         translated_text_lu = TranslatedTextFactory(text_label=text_label_lu,
-                                                   entity=entity_name.LEARNING_UNIT_YEAR,
-                                                   reference=REFERENCE)
+                                                   entity=entity_name.LEARNING_UNIT_YEAR)
 
         new_text = "New text replace {}".format(translated_text_lu.text)
 
