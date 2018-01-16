@@ -72,8 +72,9 @@ class Migration(migrations.Migration):
             old_name='deleted_new',
             new_name='deleted',
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name='learningcomponentyear',
-            name='deleted_new',
+            old_name='deleted_new',
+            new_name='deleted'
         ),
     ]

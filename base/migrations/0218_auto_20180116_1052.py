@@ -60,4 +60,8 @@ class Migration(migrations.Migration):
             model_name='learningunityear',
             name='deleted',
         ),
+        migrations.RemoveField(
+            model_name='learningcomponentyear',
+            name='deleted',
+        ),
     ]
