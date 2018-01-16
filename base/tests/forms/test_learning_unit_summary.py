@@ -35,7 +35,8 @@ REFERENCE = 2502
 
 class TestValidation(TestCase):
     def setUp(self):
-        self.language = LanguageFactory(code="EN")
+        self.language_en = LanguageFactory(code="EN")
+        self.language_fr = LanguageFactory(code="FR")
         self.form_data = {
             "trans_text": "Text",
             "cms_id": 1
@@ -52,21 +53,20 @@ class TestValidation(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_save_form(self):
-
         text_label_lu = TextLabelFactory(order=1, label='program 1', entity=entity_name.LEARNING_UNIT_YEAR)
 
         translated_text_lu = TranslatedTextFactory(text_label=text_label_lu,
                                                    entity=entity_name.LEARNING_UNIT_YEAR,
                                                    reference=REFERENCE)
-        print(translated_text_lu.text)
+
         new_text = "New text replace {}".format(translated_text_lu.text)
+
         form = LearningUnitSummaryEditForm({
             "trans_text": new_text,
             "cms_id": translated_text_lu.id
         })
         form.is_valid()
         form.save()
-
         translated_text_lu.refresh_from_db()
 
         self.assertEqual(translated_text_lu.text, new_text)
