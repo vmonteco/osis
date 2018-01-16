@@ -26,7 +26,9 @@
 import datetime
 
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.test import TestCase
+
 from attribution.models import attribution
 from attribution.tests.models import test_attribution
 from base.models.entity_manager import EntityManager
@@ -38,6 +40,9 @@ from base.tests.factories.business.learning_units import create_learning_unit_wi
 from base.tests.factories.entity_manager import EntityManagerFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.tutor import TutorFactory
+
+
+HTTP_RESPONSE_OK = 200
 
 
 class SummaryResponsibleViewTestCase(TestCase):
@@ -83,13 +88,13 @@ class SummaryResponsibleViewTestCase(TestCase):
             learning_unit_year=self.learning_unit_year_children,
             summary_responsible=True)
 
-    def test_user_not_logged(self):
+    def test_summary_responsible_search_user_not_logged(self):
         url = reverse("summary_responsible")
         self.client.logout()
         response = self.client.get(url)
         self.assertRedirects(response, '/login/?next={}'.format(url))
 
-    def test_user_is_not_entity_manager(self):
+    def test_summary_responsible_search_test_user_is_not_entity_manager(self):
         url = reverse("summary_responsible")
         entity_managers = EntityManager.objects.filter(person__user=self.user)
         entity_managers.delete()
@@ -107,7 +112,7 @@ class SummaryResponsibleViewTestCase(TestCase):
             'summary_responsible': ''
         }
         response = self.client.get(url, data=data)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_RESPONSE_OK)
         self.assertCountEqual(response.context[-1]['dict_attribution'],
                               [self.attribution, self.attribution_children])
         self.assertTemplateUsed(response, "summary_responsible.html")
@@ -122,10 +127,24 @@ class SummaryResponsibleViewTestCase(TestCase):
             'summary_responsible': ''
         }
         response = self.client.get(url, data=data)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_RESPONSE_OK)
         self.assertCountEqual(response.context[-1]['dict_attribution'],
                          [self.attribution, self.attribution_children])
         self.assertTemplateUsed(response, "summary_responsible.html")
+
+    def test_summary_responsible_edit_search_user_not_logged(self):
+        url = reverse("summary_responsible_edit")
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertRedirects(response, '/login/?next={}'.format(url))
+
+    def test_summary_responsible_edit_search_test_user_is_not_entity_manager(self):
+        url = reverse("summary_responsible_edit")
+        entity_managers = EntityManager.objects.filter(person__user=self.user)
+        entity_managers.delete()
+
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(response, '/login/?next={}'.format(url))
 
     def test_summary_responsible_edit(self):
         url = reverse('summary_responsible_edit')
@@ -138,8 +157,44 @@ class SummaryResponsibleViewTestCase(TestCase):
             'learning_unit_year': 'learning_unit_year_{}'.format(self.learning_unit_year.id)
         }
         response = self.client.get(url, data=data)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_RESPONSE_OK)
         attributions = response.context[-1].get('attributions')
         self.assertCountEqual(list(attributions), [self.attribution])
         self.assertTrue(attributions.get().summary_responsible)
         self.assertTemplateUsed(response, "summary_responsible_edit.html")
+
+    def test_summary_responsible_update_search_user_not_logged(self):
+        url = reverse('summary_responsible_update', args=[self.learning_unit_year.id])
+        self.client.logout()
+        response = self.client.post(url)
+        self.assertRedirects(response, '/login/?next={}'.format(url))
+
+    def test_summary_responsible_update_search_test_user_is_not_entity_manager(self):
+        url = reverse('summary_responsible_update', args=[self.learning_unit_year.id])
+        entity_managers = EntityManager.objects.filter(person__user=self.user)
+        entity_managers.delete()
+
+        response = self.client.post(url, follow=True)
+        self.assertRedirects(response, '/login/?next={}'.format(url))
+
+    def test_summary_responsible_update_http_get(self):
+        url = reverse('summary_responsible_update', args=[self.learning_unit_year.id])
+        response = self.client.get(url)
+        self.assertRedirects(response, '/login/?next={}'.format(url))
+
+
+    def test_summary_responsible_update(self):
+        self.client.force_login(self.user)
+
+        attribution.Attribution.objects.update(summary_responsible=False)
+        self.attribution.refresh_from_db()
+        self.assertFalse(self.attribution.summary_responsible)
+
+        url = reverse('summary_responsible_update', args=[self.learning_unit_year.id])
+        attribution_str = 'attribution_{}'.format(self.attribution.id)
+        response = self.client.post(url, {"action": "update",
+                                          "attribution": attribution_str})
+
+        self.assertEqual(response.status_code, HttpResponseRedirect.status_code)
+        self.attribution.refresh_from_db()
+        self.assertTrue(self.attribution.summary_responsible)

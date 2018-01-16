@@ -26,6 +26,7 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.views.decorators.http import require_http_methods
 
 from attribution import models as mdl_attr
 from attribution.business.attribution import get_attributions_list, _set_summary_responsible_to_true
@@ -90,6 +91,7 @@ def edit(request):
 
 
 @login_required
+@require_http_methods(['POST'])
 @user_passes_test(is_entity_manager)
 def update(request, pk):
     if request.POST.get('action') == "update":
