@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
 
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
@@ -33,9 +34,8 @@ from django.test import TestCase
 from base.models.learning_unit import LearningUnit
 from base.tests.factories.person import PersonFactory
 
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponse, HttpResponseForbidden
+from base.models.enums import academic_calendar_type
+from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import AcademicYearFakerFactory
 from django.utils import timezone
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
@@ -102,7 +102,6 @@ class TestLearningUnitSummary(TestCase):
                                                         language=self.language,
                                                         reference=self.learning_unit_year.id)
 
-
         self.form_data = {
             "learning_unit_year": self.learning_unit_year.id,
             "language": self.language,
@@ -111,13 +110,11 @@ class TestLearningUnitSummary(TestCase):
         self.url = reverse('learning_unit_summary_edit', args=[self.learning_unit_year.id])
 
     def test_learning_unit_summary_form(self):
-
         response = self.client.get(self.url, data={
-                    "learning_unit_year": self.learning_unit_year.id,
-                    "language": self.language,
-                    "text_label": self.text_label_lu
-                })
+            "learning_unit_year": self.learning_unit_year.id,
+            "language": self.language,
+            "label": LearningUnitSummaryForm.RESUME
+        })
 
-        print(response.status_code)
         self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, 'learning_unit/summary_edit.html')
