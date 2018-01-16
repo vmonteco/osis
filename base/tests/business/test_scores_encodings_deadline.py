@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from datetime import timedelta, datetime
+from unittest import mock
 
 from django.test import TestCase
 
@@ -46,7 +47,11 @@ class ComputeScoresEncodingsDeadlinesTest(TestCase):
     def setUp(self):
         self.nb_session = number_session.ONE
 
-        academic_year = AcademicYearFactory(year=datetime.now().year)
+        current_year = datetime.now().year
+        current_date = datetime(year=current_year, month=9, day=1, hour=12)
+        academic_year = AcademicYearFactory(year=current_year,
+                                            start_date=current_date,
+                                            end_date=current_date + timedelta(days=365))
 
         self.off_year = OfferYearFactory()
 
@@ -60,8 +65,8 @@ class ComputeScoresEncodingsDeadlinesTest(TestCase):
         self.academic_calendar_deliberation = AcademicCalendarFactory(
             academic_year=academic_year,
             reference=academic_calendar_type.DELIBERATION,
-            start_date=academic_year.start_date + timedelta(days=10),
-            end_date=academic_year.end_date - timedelta(days=10),
+            start_date=academic_year.start_date,
+            end_date=academic_year.end_date,
         )
 
         self.session_exam_calendar = SessionExamCalendarFactory(
@@ -80,8 +85,8 @@ class ComputeScoresEncodingsDeadlinesTest(TestCase):
         self.ac_score_exam_submission = AcademicCalendarFactory(
             academic_year=academic_year,
             reference=academic_calendar_type.SCORES_EXAM_SUBMISSION,
-            start_date=academic_year.start_date + timedelta(days=10),
-            end_date=academic_year.end_date - timedelta(days=10),
+            start_date=academic_year.start_date,
+            end_date=academic_year.end_date,
         )
         SessionExamCalendarFactory(
             academic_calendar=self.ac_score_exam_submission,
@@ -107,15 +112,17 @@ class ComputeScoresEncodingsDeadlinesTest(TestCase):
         self.sess_exam_dealine.deliberation_date = new_end_date
         self.sess_exam_dealine.save()
 
+    def _assert_date_equal(self, date1, date2):
+        self.assertEqual(scores_encodings_deadline._get_date_instance(date1),
+                         scores_encodings_deadline._get_date_instance(date2))
+
     def test_compute_deadline_wrong_reference(self):
         self.offer_year_calendar_deliberation.academic_calendar.reference = academic_calendar_type.COURSE_ENROLLMENT
         old_deadline = self.sess_exam_dealine.deadline
 
         self.offer_year_calendar_deliberation.save()
 
-        new_deadline = SessionExamDeadline.objects.get(pk=self.sess_exam_dealine.id)
-
-        self.assertEqual(new_deadline.deadline, old_deadline)
+        self._assert_date_equal(self._get_session_exam_deadline().deadline, old_deadline)
 
     def test_compute_deadline_tutor_by_offer_year(self):
         """
@@ -149,8 +156,8 @@ class ComputeScoresEncodingsDeadlinesTest(TestCase):
 
     def test_case_only_global_scores_encoding_end_date_is_set(self):
         OfferYearCalendarFactory(academic_calendar=self.ac_score_exam_submission, start_date=None, end_date=None, offer_year=self.off_year)
-        self.assertEqual(self._get_session_exam_deadline().deadline, self.ac_score_exam_submission.end_date)
-        self.assertEqual(self._get_session_exam_deadline().deadline_tutor_computed, self.ac_score_exam_submission.end_date)
+        self._assert_date_equal(self._get_session_exam_deadline().deadline, self.ac_score_exam_submission.end_date)
+        self._assert_date_equal(self._get_session_exam_deadline().deadline_tutor_computed, self.ac_score_exam_submission.end_date)
 
     def test_case_tutor_scores_submission_date_gt_student_deliberation_date(self):
         delibe_date = self.offer_year_calendar_deliberation.end_date - timedelta(days=10)
@@ -162,30 +169,43 @@ class ComputeScoresEncodingsDeadlinesTest(TestCase):
     def test_case_tutor_scores_submission_date_gt_offer_year_deliberation_date(self):
         offer_year_delibe_date = self.offer_year_calendar_deliberation.end_date
         self._create_tutor_scores_submission_end_date(offer_year_delibe_date + timedelta(days=5))
-        self.assertEqual(self._get_session_exam_deadline().deadline_tutor_computed,
-                         self.offer_year_calendar_deliberation.end_date)
+        self._assert_date_equal(self._get_session_exam_deadline().deadline_tutor_computed,
+                                self.offer_year_calendar_deliberation.end_date)
 
     def test_case_tutor_scores_submission_date_gt_scores_encodings_end_date(self):
         scores_encodings_end_date = self.ac_score_exam_submission.end_date
         self._create_tutor_scores_submission_end_date(scores_encodings_end_date + timedelta(days=5))
-        self.assertEqual(self._get_session_exam_deadline().deadline_tutor_computed,
-                         self.ac_score_exam_submission.end_date)
+        self._assert_date_equal(self._get_session_exam_deadline().deadline_tutor_computed,
+                                self.ac_score_exam_submission.end_date)
 
     def test_case_tutor_scores_submission_date_lt_student_deliberation_date(self):
         delibe_date = self.offer_year_calendar_deliberation.end_date - timedelta(days=10)
         self._change_student_deliberation_date(delibe_date)
         off_year_cal = self._create_tutor_scores_submission_end_date(delibe_date - timedelta(days=5))
-        self.assertEqual(self._get_session_exam_deadline().deadline_tutor_computed,
-                         off_year_cal.end_date)
+        self._assert_date_equal(self._get_session_exam_deadline().deadline_tutor_computed,
+                                off_year_cal.end_date)
 
     def test_case_tutor_scores_submission_date_lt_offer_year_deliberation_date(self):
         off_year_delibe_date = self.offer_year_calendar_deliberation.end_date
         off_year_cal = self._create_tutor_scores_submission_end_date(off_year_delibe_date - timedelta(days=5))
-        self.assertEqual(self._get_session_exam_deadline().deadline_tutor_computed,
-                         off_year_cal.end_date)
+        self._assert_date_equal(self._get_session_exam_deadline().deadline_tutor_computed,
+                                off_year_cal.end_date)
 
     def test_case_tutor_scores_submission_date_lt_scores_encodings_end_date(self):
         scores_encodings_end_date = self.ac_score_exam_submission.end_date
         off_year_cal = self._create_tutor_scores_submission_end_date(scores_encodings_end_date - timedelta(days=5))
-        self.assertEqual(self._get_session_exam_deadline().deadline_tutor_computed,
-                         off_year_cal.end_date)
+        self._assert_date_equal(self._get_session_exam_deadline().deadline_tutor_computed,
+                                off_year_cal.end_date)
+
+    def test_case_student_deliberation_date_gt_offer_year_deliberation_date(self):
+        offer_year_delibe_date = self.offer_year_calendar_deliberation.end_date
+        self._change_student_deliberation_date(offer_year_delibe_date + timedelta(days=5))
+        before = scores_encodings_deadline._one_day_before(offer_year_delibe_date)
+        self._assert_date_equal(self._get_session_exam_deadline().deadline,
+                                before)
+
+    def test_case_student_deliberation_date_lt_offer_year_deliberation_date(self):
+        offer_year_delibe_date = self.offer_year_calendar_deliberation.end_date
+        self._change_student_deliberation_date(offer_year_delibe_date - timedelta(days=5))
+        self.assertEqual(self._get_session_exam_deadline().deadline,
+                         scores_encodings_deadline._one_day_before(self.sess_exam_dealine.deliberation_date))

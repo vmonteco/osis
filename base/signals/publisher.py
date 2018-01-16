@@ -27,3 +27,5 @@ from django.dispatch import Signal
 
 
 compute_scores_encodings_deadlines = Signal(providing_args=["offer_year_calendar"])
+
+compute_student_score_encoding_deadline = Signal(providing_args=["session_exam_deadline"])

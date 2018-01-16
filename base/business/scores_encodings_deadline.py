@@ -29,14 +29,27 @@ from django.conf import settings
 
 from base.models import session_exam_calendar, offer_year_calendar
 from base.models.enums import academic_calendar_type as ac_type
-from base.models.offer_year_calendar import OfferYearCalendar
 from base.models.session_exam_deadline import SessionExamDeadline
 
 
 logger = logging.getLogger(settings.DEFAULT_LOGGER)
 
 
-def compute_deadline(off_year_calendar):
+def compute_deadline_by_student(session_exam_deadline):
+    # TODO :: replace usage of offer_year by education_group_year !
+    try:
+        off_year_calendar = offer_year_calendar.search(offer_year=session_exam_deadline.offer_enrollment.offer_year,
+                                                       academic_calendar_reference=ac_type.DELIBERATION,
+                                                       number_session=session_exam_deadline.number_session).first()
+        compute_deadline(off_year_calendar, session_exam_deadlines=[session_exam_deadline])
+    except offer_year_calendar.OfferYearCalendar.DoesNotExist:
+        msg = "No OfferYearCalendar found for OfferYear = {}, type = {} and number_session = {}"
+        logger.warning(msg.format(session_exam_deadline.offer_enrollment.offer_year.acronym,
+                                  ac_type.SCORES_EXAM_SUBMISSION,
+                                  session_exam_deadline.number_session))
+
+
+def compute_deadline(off_year_calendar, session_exam_deadlines=None):
     if not _impact_scores_encodings_deadlines(off_year_calendar):
         return
 
@@ -47,18 +60,23 @@ def compute_deadline(off_year_calendar):
     tutor_submission_date = _get_end_date_value(oyc_scores_exam_submission)
 
     end_date_academic = oyc_scores_exam_submission.academic_calendar.end_date if oyc_scores_exam_submission else None
-    sessions_exam_deadlines = _get_list_sessions_exam_deadlines(off_year_calendar.academic_calendar,
-                                                                off_year_calendar.offer_year)
-    _save_new_deadlines(sessions_exam_deadlines, end_date_academic, end_date_offer_year, tutor_submission_date)
+    if session_exam_deadlines is None:
+        session_exam_deadlines = _get_list_sessions_exam_deadlines(off_year_calendar.academic_calendar,
+                                                                   off_year_calendar.offer_year)
+    _save_new_deadlines(session_exam_deadlines, end_date_academic, end_date_offer_year, tutor_submission_date)
 
 
 def _get_end_date_value(off_year_cal):
     end_date = None
     if off_year_cal and off_year_cal.end_date:
-        end_date = off_year_cal.end_date
-        if isinstance(off_year_cal.end_date, datetime.datetime):
-            end_date = end_date.date()
+        end_date = _get_date_instance(off_year_cal.end_date)
     return end_date
+
+
+def _get_date_instance(date):
+    if date and isinstance(date, datetime.datetime):
+        date = date.date()
+    return date
 
 
 def _impact_scores_encodings_deadlines(oyc):
@@ -69,7 +87,9 @@ def _save_new_deadlines(sessions_exam_deadlines, end_date_academic, end_date_off
     for session in sessions_exam_deadlines:
         end_date_student = _one_day_before(session.deliberation_date)
 
-        new_deadline = min(filter(None, (end_date_academic, end_date_offer_year, end_date_student)))
+        new_deadline = min(filter(None, (_get_date_instance(end_date_academic),
+                                         _get_date_instance(end_date_offer_year),
+                                         _get_date_instance(end_date_student))))
         new_deadline_tutor = _compute_delta_deadline_tutor(new_deadline, score_submission_date)
 
         if _is_deadline_changed(session, new_deadline, new_deadline_tutor):
@@ -105,7 +125,7 @@ def _get_oyc_by_reference(reference, oyc):
             return offer_year_calendar.search(education_group_year_id=oyc.education_group_year,
                                               academic_calendar_reference=reference,
                                               number_session=number_session).get()
-        except OfferYearCalendar.DoesNotExist:
+        except offer_year_calendar.OfferYearCalendar.DoesNotExist:
             return None
 
 
@@ -127,9 +147,8 @@ def _one_day_before_deliberation_date(oyc):
 
 def _one_day_before(current_date):
     result = None
-    if isinstance(current_date, datetime.datetime):
-        current_date = current_date.date()
-    if isinstance(current_date, datetime.date):
+    if current_date:
+        current_date = _get_date_instance(current_date)
         result = current_date - datetime.timedelta(days=1)
     return result
 

@@ -129,7 +129,7 @@ def get_by_education_group_year_and_academic_calendar(an_academic_calendar, an_e
         return None
 
 
-def search(education_group_year_id=None, academic_calendar_reference=None, number_session=None):
+def search(education_group_year_id=None, academic_calendar_reference=None, number_session=None, offer_year=None):
 
     queryset = OfferYearCalendar.objects
 
@@ -137,9 +137,15 @@ def search(education_group_year_id=None, academic_calendar_reference=None, numbe
         queryset = queryset.filter(education_group_year=education_group_year_id)
 
     if academic_calendar_reference is not None:
-        queryset = queryset.filter(academic_calendar__reference=academic_calendar_reference)
+        if isinstance(academic_calendar_reference, list):
+            queryset = queryset.filter(academic_calendar__reference__in=academic_calendar_reference)
+        else:
+            queryset = queryset.filter(academic_calendar__reference=academic_calendar_reference)
 
     if number_session:
         queryset = queryset.filter(academic_calendar__sessionexamcalendar__number_session=number_session)
+
+    if offer_year:
+        queryset = queryset.filter(offer_year=offer_year)
 
     return queryset
