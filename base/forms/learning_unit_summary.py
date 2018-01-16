@@ -34,4 +34,3 @@ class LearningUnitSummaryForm(LearningUnitPedagogyForm):
 
 class LearningUnitSummaryEditForm(LearningUnitPedagogyEditForm):
     trans_text = forms.CharField(widget=CKEditorWidget(config_name='minimal'), required=False)
-
