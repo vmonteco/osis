@@ -35,7 +35,7 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 
 class EntityAdmin(SerializableModelAdmin):
-    list_display = ('id', 'external_id', 'organization', 'location', 'postal_code', 'phone')
+    list_display = ('most_recent_acronym', 'external_id', 'organization', 'location', 'postal_code', 'phone')
     search_fields = ['external_id', 'entityversion__acronym', 'organization__acronym', 'organization__name']
     readonly_fields = ('organization', 'external_id')
 
@@ -52,6 +52,11 @@ class Entity(SerializableModel):
     phone = models.CharField(max_length=30, blank=True, null=True)
     fax = models.CharField(max_length=255, blank=True, null=True)
     website = models.CharField(max_length=255, blank=True, null=True)
+
+    @property
+    def most_recent_acronym(self):
+        most_recent_entity_version = self.entityversion_set.filter(entity_id=self.id).latest('start_date')
+        return most_recent_entity_version.acronym
 
     class Meta:
         verbose_name_plural = "entities"
