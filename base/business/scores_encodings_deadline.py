@@ -43,15 +43,22 @@ def compute_deadline(off_year_calendar):
     oyc_deliberation = _get_oyc_deliberation(off_year_calendar)
     oyc_scores_exam_submission = _get_oyc_scores_exam_submission(off_year_calendar)
 
-    end_date_offer_year = _one_day_before_end_date(oyc_deliberation)
-    score_submission_date = oyc_scores_exam_submission.end_date.date() \
-        if oyc_scores_exam_submission and oyc_scores_exam_submission.end_date else None
+    end_date_offer_year = _one_day_before_deliberation_date(oyc_deliberation)
+    tutor_submission_date = _get_end_date_value(oyc_scores_exam_submission)
 
-    end_date_academic = oyc_deliberation.academic_calendar.end_date if oyc_deliberation else None
+    end_date_academic = oyc_scores_exam_submission.academic_calendar.end_date if oyc_scores_exam_submission else None
     sessions_exam_deadlines = _get_list_sessions_exam_deadlines(off_year_calendar.academic_calendar,
                                                                 off_year_calendar.offer_year)
+    _save_new_deadlines(sessions_exam_deadlines, end_date_academic, end_date_offer_year, tutor_submission_date)
 
-    _save_new_deadlines(sessions_exam_deadlines, end_date_academic, end_date_offer_year, score_submission_date)
+
+def _get_end_date_value(off_year_cal):
+    end_date = None
+    if off_year_cal and off_year_cal.end_date:
+        end_date = off_year_cal.end_date
+        if isinstance(off_year_cal.end_date, datetime.datetime):
+            end_date = end_date.date()
+    return end_date
 
 
 def _impact_scores_encodings_deadlines(oyc):
@@ -114,17 +121,23 @@ def _get_list_sessions_exam_deadlines(academic_calendar, offer_year):
     return session_exam_deadlines
 
 
-def _one_day_before_end_date(oyc):
-    return _one_day_before(oyc.end_date.date()) if oyc and oyc.end_date else None
+def _one_day_before_deliberation_date(oyc):
+    return _one_day_before(oyc.end_date) if oyc and oyc.end_date else None
 
 
 def _one_day_before(current_date):
     result = None
+    if isinstance(current_date, datetime.datetime):
+        current_date = current_date.date()
     if isinstance(current_date, datetime.date):
         result = current_date - datetime.timedelta(days=1)
     return result
 
 
-def _compute_delta_deadline_tutor(deadline, score_submission_date):
-    if deadline and score_submission_date and deadline >= score_submission_date:
-        return (deadline - score_submission_date).days
+def _compute_delta_deadline_tutor(deadline, tutor_submission_date):
+    delta_tutor_deadline = 0
+    if deadline and tutor_submission_date:
+        if deadline > tutor_submission_date:
+            delta_tutor_deadline = (deadline - tutor_submission_date).days
+    return delta_tutor_deadline
+
