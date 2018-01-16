@@ -98,9 +98,11 @@ def update(request, pk):
             attributions = mdl_attr.attribution.search(tutor=attribution.tutor,
                                                        learning_unit_year=attribution.learning_unit_year)
             _set_summary_responsible_to_true(attributions)
-    url = reverse('summary_responsible')
-    return HttpResponseRedirect(url + "?course_code=%s&learning_unit_title=%s&tutor=%s&scores_responsible=%s"
-                                % (request.POST.get('course_code'),
-                                   request.POST.get('learning_unit_title'),
-                                   request.POST.get('tutor'),
-                                   request.POST.get('summary_responsible')))
+
+    return HttpResponseRedirect("{}?course_code={}&learning_unit_title={}&tutor={}&summary_responsible={}"
+                                .format(reverse('summary_responsible'),
+                                        request.POST.get('course_code', ''),
+                                        request.POST.get('learning_unit_title', ''),
+                                        request.POST.get('tutor', ''),
+                                        request.POST.get('summary_responsible', ''))
+                                )

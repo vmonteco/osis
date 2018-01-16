@@ -182,6 +182,17 @@ class SummaryResponsibleViewTestCase(TestCase):
         response = self.client.get(url)
         self.assertRedirects(response, '/login/?next={}'.format(url))
 
+    def test_summary_responsible_update_http_post_without_update(self):
+        self.client.force_login(self.user)
+        url = reverse('summary_responsible_update', args=[self.learning_unit_year.id])
+        response = self.client.post(url)
+        redirect_url = reverse('summary_responsible')
+
+        self.assertRedirects(
+            response,
+            '{}?course_code=&learning_unit_title=&tutor=&summary_responsible='.format(redirect_url)
+        )
+
 
     def test_summary_responsible_update(self):
         self.client.force_login(self.user)
