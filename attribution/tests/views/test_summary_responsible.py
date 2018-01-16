@@ -129,7 +129,7 @@ class SummaryResponsibleViewTestCase(TestCase):
         response = self.client.get(url, data=data)
         self.assertEqual(response.status_code, HTTP_RESPONSE_OK)
         self.assertCountEqual(response.context[-1]['dict_attribution'],
-                         [self.attribution, self.attribution_children])
+                              [self.attribution, self.attribution_children])
         self.assertTemplateUsed(response, "summary_responsible.html")
 
     def test_summary_responsible_edit_search_user_not_logged(self):

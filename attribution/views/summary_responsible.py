@@ -42,6 +42,9 @@ def search(request):
     entities_manager = mdl_base.entity_manager.find_by_user(request.user)
     academic_year = mdl_base.academic_year.current_academic_year()
     _append_entity_version(entities_manager, academic_year)
+    context = {"entities_manager": entities_manager,
+               "academic_year": academic_year,
+               "init": "0"}
     if request.GET:
         entities_with_descendants = find_entities_with_descendants_from_entity_managers(entities_manager)
         attributions = list(mdl_attr.attribution.search_summary_responsible(
@@ -51,21 +54,14 @@ def search(request):
             tutor=request.GET.get('tutor'),
             responsible=request.GET.get('summary_responsible')
         ))
-        dict_attribution = get_attributions_list(attributions, "-summary_responsible")
-        return layout.render(request, 'summary_responsible.html',
-                             {"entities_manager": entities_manager,
-                              "academic_year": academic_year,
-                              "dict_attribution": dict_attribution,
-                              "learning_unit_title": request.GET.get('learning_unit_title'),
-                              "course_code": request.GET.get('course_code'),
-                              "tutor": request.GET.get('tutor'),
-                              "summary_responsible": request.GET.get('summary_responsible'),
-                              "init": "1"})
-    else:
-        return layout.render(request, 'summary_responsible.html',
-                             {"entities_manager": entities_manager,
-                              "academic_year": academic_year,
-                              "init": "0"})
+        context.update({"dict_attribution": get_attributions_list(attributions, "-summary_responsible"),
+                        "learning_unit_title": request.GET.get('learning_unit_title'),
+                        "course_code": request.GET.get('course_code'),
+                        "tutor": request.GET.get('tutor'),
+                        "summary_responsible": request.GET.get('summary_responsible'),
+                        "init": "1"})
+
+    return layout.render(request, 'summary_responsible.html', context)
 
 
 @login_required
