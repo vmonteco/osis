@@ -49,7 +49,6 @@ class LearningComponentYear(AuditableSerializableModel):
     comment = models.CharField(max_length=255, blank=True, null=True)
     planned_classes = models.IntegerField(blank=True, null=True)
     hourly_volume_partial = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
-    deleted = models.BooleanField(default=False)
     volume_declared_vacant = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
 
     def __str__(self):

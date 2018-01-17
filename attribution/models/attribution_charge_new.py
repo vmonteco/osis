@@ -48,14 +48,6 @@ class AttributionChargeNew(AuditableModel):
         return u"%s" % self.attribution
 
 
-def get_allocation_charge(attribution, a_component_type):
-    try:
-        return AttributionChargeNew.objects.get(attribution=attribution,
-                                                learning_component_year__type=a_component_type).allocation_charge
-    except AttributionChargeNew.DoesNotExist:
-        return None
-
-
 def search(*args, **kwargs):
     qs = AttributionChargeNew.objects.all()
 

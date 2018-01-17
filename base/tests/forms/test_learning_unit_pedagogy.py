@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,23 +23,26 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import string
-import factory
-import factory.fuzzy
-from faker import Faker
+from django.test import TestCase
 
-from attribution.tests.factories.attribution import AttributionNewFactory
-from base.tests.factories.learning_component_year import LearningComponentYearFactory
-from osis_common.utils.datetime import get_tzinfo
-
-fake = Faker()
+from reference.tests.factories.language import LanguageFactory
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 
 
-class AttributionChargeFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "attribution.AttributionChargeNew"
+class TestValidation(TestCase):
+    def setUp(self):
+        self.language = LanguageFactory(code="EN")
+        self.form_data = {
+            "trans_text": "Text",
+            "cms_id": 1
+        }
 
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    attribution = factory.SubFactory(AttributionNewFactory)
-    learning_component_year = factory.SubFactory(LearningComponentYearFactory)
-    allocation_charge = 0
+    def test_invalid_form(self):
+        del self.form_data['cms_id']
+        form = LearningUnitPedagogyEditForm(self.form_data)
+        self.assertFalse(form.is_valid())
+
+    def test_valid_form(self):
+        form = LearningUnitPedagogyEditForm(self.form_data)
+        self.assertEqual(form.errors, {})
+        self.assertTrue(form.is_valid())

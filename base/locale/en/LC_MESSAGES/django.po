@@ -2461,6 +2461,12 @@ msgstr "Decision"
 msgid "procedure"
 msgstr "Procedure"
 
+msgid "educational_information_management"
+msgstr "Management of educational information"
+
+msgid "resume_edit"
+msgstr "Edit course summary"
+
 msgid "SUMMARY_COURSE_SUBMISSION"
 msgstr "Summary course submission"
 
@@ -2469,3 +2475,6 @@ msgstr "Internal/team"
 
 msgid "substitute"
 msgstr "Substitute"
+
+msgid "not_end_year"
+msgstr "no planned end"

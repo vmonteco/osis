@@ -125,3 +125,21 @@ def get_by_reference_and_academic_year(a_reference, an_academic_year):
         return AcademicCalendar.objects.get(reference=a_reference, academic_year=an_academic_year)
     except AcademicCalendar.DoesNotExist:
         return None
+
+
+def find_academic_calendar(academic_year_id, a_reference, a_date):
+    if academic_year_id and a_reference:
+        return AcademicCalendar.objects.filter(academic_year=academic_year_id,
+                                               reference=a_reference,
+                                               start_date__lte=a_date,
+                                               end_date__gte=a_date).order_by('start_date').first()
+    return None
+
+
+def is_academic_calendar_opened(an_academic_year_id, a_reference):
+    an_academic_calendar = find_academic_calendar(an_academic_year_id,
+                                                  a_reference,
+                                                  timezone.now())
+    if an_academic_calendar:
+        return True
+    return False

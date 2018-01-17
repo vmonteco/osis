@@ -85,3 +85,11 @@ class AcademicCalendarTest(TestCase):
                                     (tmp_academic_year.id))[0]
         self.assertIsNotNone(db_academic_calendar)
         self.assertEqual(db_academic_calendar, tmp_academic_calendar)
+
+    def test_find_academic_calendar_no_mandatory_args_mentioned(self):
+        self.assertIsNone(academic_calendar.find_academic_calendar(None, None, timezone.now()))
+        an_academic_year = AcademicYearFactory(year=timezone.now().year)
+        self.assertIsNone(academic_calendar.find_academic_calendar(an_academic_year, None, timezone.now()))
+        self.assertIsNone(academic_calendar.find_academic_calendar(None, "EVENT_CALENDAR", timezone.now()))
+
+
