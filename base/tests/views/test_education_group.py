@@ -199,7 +199,7 @@ class EducationGroupViewTestCase(TestCase):
 
         request = request_factory.get(reverse(education_groups), data={
             'academic_year': self.academic_year.id,
-            'category': MINI_TRAINING
+            'category': "MINI_TRAINING"
         })
         request.user = mock.Mock()
 
