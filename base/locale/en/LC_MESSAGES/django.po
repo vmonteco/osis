@@ -2475,3 +2475,6 @@ msgstr "Internal/team"
 
 msgid "substitute"
 msgstr "Substitute"
+
+msgid "not_end_year"
+msgstr "no planned end"
