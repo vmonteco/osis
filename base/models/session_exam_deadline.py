@@ -27,6 +27,7 @@ import datetime
 from django.db import models
 from django.contrib import admin
 from base.models.enums import number_session
+from base.signals.publisher import compute_student_score_encoding_deadline
 
 
 class SessionExamDeadlineAdmin(admin.ModelAdmin):
@@ -46,6 +47,17 @@ class SessionExamDeadline(models.Model):
     deadline_tutor = models.IntegerField(null=True, blank=True)  # Delta day(s)
     number_session = models.IntegerField(choices=number_session.NUMBERS_SESSION)
     offer_enrollment = models.ForeignKey('OfferEnrollment')
+
+    __original_deliberation_date = None
+
+    def __init__(self, *args, **kwargs):
+        super(SessionExamDeadline, self).__init__(*args, **kwargs)
+        self.__original_deliberation_date = self.deliberation_date
+
+    def save(self, *args, **kwargs):
+        super(SessionExamDeadline, self).save(*args, **kwargs)
+        if self.deliberation_date != self.__original_deliberation_date:
+            compute_student_score_encoding_deadline.send(sender=self.__class__, session_exam_deadline=self)
 
     @property
     def deadline_tutor_computed(self):

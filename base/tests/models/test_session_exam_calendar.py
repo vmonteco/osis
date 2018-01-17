@@ -173,12 +173,12 @@ class DeliberationDateTest(TestCase):
 
     @override_settings(USE_TZ=False)
     def test_case_deliberation_date_is_set(self):
-        delibe_date = datetime.date(self.current_academic_yr.year+1, 6, 10)
+        delibe_date = datetime.datetime(self.current_academic_yr.year+1, 6, 10)
         offer_year_cal = OfferYearCalendarFactory(academic_calendar=self.academic_calendar,
                                                   offer_year=self.offer_yr,
                                                   start_date=delibe_date,
                                                   end_date=delibe_date)
-        self.assertEqual(session_exam_calendar.find_deliberation_date(number_session.ONE, offer_year_cal.offer_year).date(), delibe_date)
+        self.assertEqual(session_exam_calendar.find_deliberation_date(number_session.ONE, offer_year_cal.offer_year), delibe_date)
 
     @override_settings(USE_TZ=False)
     def test_case_deliberation_date_is_not_set(self):

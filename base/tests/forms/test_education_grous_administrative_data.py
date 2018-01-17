@@ -26,9 +26,10 @@
 from django.utils import timezone
 
 from django.forms import formset_factory, MultiWidget
+from base.forms.utils.datefield import DATETIME_FORMAT
 
 from base.forms.education_groups_administrative_data import AdministrativeDataSessionForm, AdministrativeDataFormSet, \
-    DATETIME_FORMAT, DATE_FORMAT, AdministrativeDataFormset
+    DATE_FORMAT
 from base.models.enums import academic_calendar_type
 from base.models.offer_year_calendar import OfferYearCalendar
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
