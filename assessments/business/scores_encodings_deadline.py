@@ -160,7 +160,6 @@ def _one_day_before(current_date):
 
 def _compute_delta_deadline_tutor(deadline, tutor_submission_date):
     delta_tutor_deadline = 0
-    if deadline and tutor_submission_date:
-        if deadline > tutor_submission_date:
+    if deadline and tutor_submission_date and deadline > tutor_submission_date:
             delta_tutor_deadline = (deadline - tutor_submission_date).days
     return delta_tutor_deadline
