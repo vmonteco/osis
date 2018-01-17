@@ -129,23 +129,20 @@ def get_by_education_group_year_and_academic_calendar(an_academic_calendar, an_e
         return None
 
 
-def search(education_group_year_id=None, academic_calendar_reference=None, number_session=None, offer_year=None):
+def search(**kwargs):
 
     queryset = OfferYearCalendar.objects
 
-    if education_group_year_id is not None:
-        queryset = queryset.filter(education_group_year=education_group_year_id)
+    if 'education_group_year_id' in kwargs:
+        queryset = queryset.filter(education_group_year=kwargs['education_group_year_id'])
 
-    if academic_calendar_reference is not None:
-        if isinstance(academic_calendar_reference, list):
-            queryset = queryset.filter(academic_calendar__reference__in=academic_calendar_reference)
-        else:
-            queryset = queryset.filter(academic_calendar__reference=academic_calendar_reference)
+    if 'academic_calendar_reference' in kwargs:
+        queryset = queryset.filter(academic_calendar__reference=kwargs['academic_calendar_reference'])
 
-    if number_session:
-        queryset = queryset.filter(academic_calendar__sessionexamcalendar__number_session=number_session)
+    if 'number_session' in kwargs:
+        queryset = queryset.filter(academic_calendar__sessionexamcalendar__number_session=kwargs['number_session'])
 
-    if offer_year:
-        queryset = queryset.filter(offer_year=offer_year)
+    if 'offer_year' in kwargs:
+        queryset = queryset.filter(offer_year=kwargs['offer_year'])
 
     return queryset

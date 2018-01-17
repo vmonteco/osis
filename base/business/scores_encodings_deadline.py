@@ -164,4 +164,3 @@ def _compute_delta_deadline_tutor(deadline, tutor_submission_date):
         if deadline > tutor_submission_date:
             delta_tutor_deadline = (deadline - tutor_submission_date).days
     return delta_tutor_deadline
-
