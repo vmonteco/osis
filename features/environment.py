@@ -56,7 +56,7 @@ def before_all(context):
         logging.basicConfig(level=logging.DEBUG)
 
     display = pyvirtualdisplay.Display(size=SIZE)
-    # display.start()
+    display.start()
     context.display = display
 
     setup_debug_on_error(context.config.userdata)
@@ -96,10 +96,12 @@ def before_all(context):
 
 def after_all(context):
     context.browser.quit()
-    # context.display.stop()
+    context.display.stop()
 
 
 def after_step(context, step):
+    import time
+    time.sleep(0.5)
     if BEHAVE_DEBUG_ON_ERROR and step.status == 'failed':
         import pdb
         pdb.post_mortem(step.exc_traceback)

@@ -7,6 +7,7 @@ import faker
 import magic
 import parse
 import pendulum
+import prettyprinter
 from behave import given, when, then
 from django.contrib.auth.models import Group, Permission
 from django.utils import timezone
@@ -311,21 +312,21 @@ def step_impl(context):
     element = context.browser.driver.find_element_by_css_selector(css_selector)
     assert 'glyphicon-send' in element.get_attribute('class').split()
 
-
 @when('I change the notes of the enrollments')
 def step_impl(context):
-
     computed_values = compute_notes_and_justifications(context.exam_enrollments)
+    # prettyprinter.cpprint(computed_values)
     for enrollment_id, (key, value) in computed_values.items():
         if key == 'note':
             element_id = 'num_score_{}'.format(enrollment_id)
-            context.browser.fill_by_id(element_id, value)
+            context.browser.fill_by_id(element_id, str(value))
         else:
             element_id = 'slt_justification_score_{}'.format(enrollment_id)
             select = Select(context.browser.get_element(element_id))
             value = {'T': 'Tricherie', 'A': 'Absence injustifiée'}.get(value)
             select.select_by_visible_text(value)
 
+    # import pdb; pdb.set_trace()
     context.note_enrollments = computed_values
 
 
@@ -487,10 +488,13 @@ def step_impl(context, learning_unit_year):
 def step_impl(context):
     context.browser.click_on('lnk_online_double_encoding')
     context.double_encoding_points = {}
+    context.browser.driver.execute_script('scroll(0, document.body.scrollHeight)')
 
 
 @when('I force the notes of the enrollments')
 def step_impl(context):
+    # import pdb; pdb.set_trace()
+    context.browser.driver.execute_script('scroll(0, document.body.scrollHeight)')
     for exam_enrollment_id, (key, value) in context.note_enrollments.items():
         if key == 'note':
             element_id = 'num_double_score_{}'.format(exam_enrollment_id)
@@ -501,8 +505,9 @@ def step_impl(context):
             value = {'A': 'Tricherie', 'T': 'Absence injustifiée'}.get(value)
             select.select_by_visible_text(value)
 
+    time.sleep(1)
+
     context.browser.click_on('bt_compare_up')
-    assert context.browser.driver.current_url == context.get_url('')
 
     context.browser.driver.execute_script('scroll(0, document.body.scrollHeight)')
 
@@ -517,6 +522,9 @@ def step_impl(context):
 @then('The enrollments have the forced values')
 def step_impl(context):
     for enrollment_id, (key, expected_value) in context.note_enrollments.items():
-        value = context.browser.get_element_text('enrollment_note_{}'.format(enrollment_id))
         if key == 'note':
-            assert value == expected_value + 2
+            value = context.browser.get_element_text('enrollment_note_{}'.format(enrollment_id))
+            assert value == str(expected_value + 2)
+        else:
+            value = context.browser.get_element_text('enrollment_justification_{}'.format(enrollment_id))
+            print(enrollment_id, value)
