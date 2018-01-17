@@ -32,6 +32,7 @@ from django.test import TestCase
 from attribution.models import attribution
 from base.tests.factories import tutor, user, structure, entity_manager, academic_year, learning_unit_year
 from base.tests.models.test_person import create_person_with_user
+from base.models.enums import component_type
 
 
 def create_attribution(tutor, learning_unit_year, score_responsible=False):
