@@ -58,8 +58,8 @@ def compute_deadline(off_year_calendar, session_exam_deadlines=None):
     if not _impact_scores_encodings_deadlines(off_year_calendar):
         return
 
-    oyc_deliberation = _get_oyc_deliberation(off_year_calendar)
-    oyc_scores_exam_submission = _get_oyc_scores_exam_submission(off_year_calendar)
+    oyc_deliberation = _find_by_reference(off_year_calendar, ac_type.DELIBERATION)
+    oyc_scores_exam_submission = _find_by_reference(off_year_calendar, ac_type.SCORES_EXAM_SUBMISSION)
 
     end_date_offer_year = _one_day_before_deliberation_date(oyc_deliberation)
     tutor_submission_date = _get_end_date_value(oyc_scores_exam_submission)
@@ -89,45 +89,40 @@ def _impact_scores_encodings_deadlines(oyc):
 
 
 def _save_new_deadlines(sessions_exam_deadlines, end_date_academic, end_date_offer_year, tutor_submission_date):
-    for session in sessions_exam_deadlines:
-        end_date_student = _one_day_before(session.deliberation_date)
+    for sess_exam_deadline in sessions_exam_deadlines:
+        end_date_student = _one_day_before(sess_exam_deadline.deliberation_date)
 
         new_deadline = min(filter(None, (_get_date_instance(end_date_academic),
                                          _get_date_instance(end_date_offer_year),
                                          _get_date_instance(end_date_student))))
         new_deadline_tutor = _compute_delta_deadline_tutor(new_deadline, tutor_submission_date)
 
-        if _is_deadline_changed(session, new_deadline, new_deadline_tutor):
-            session.deadline = new_deadline
-            session.deadline_tutor = new_deadline_tutor
-            session.save()
+        if _is_deadline_changed(sess_exam_deadline, new_deadline, new_deadline_tutor):
+            sess_exam_deadline.deadline = new_deadline
+            sess_exam_deadline.deadline_tutor = new_deadline_tutor
+            sess_exam_deadline.save()
 
 
-def _is_deadline_changed(session, new_deadline, new_deadline_tutor):
-    return new_deadline != session.deadline or new_deadline_tutor != session.deadline_tutor
+def _is_deadline_changed(sess_exam_deadline, new_deadline, new_deadline_tutor):
+    return new_deadline != sess_exam_deadline.deadline or new_deadline_tutor != sess_exam_deadline.deadline_tutor
 
 
-def _get_oyc_scores_exam_submission(oyc):
-    if oyc.academic_calendar.reference == ac_type.DELIBERATION:
-        oyc_scores_exam_submission = _get_oyc_by_reference(ac_type.SCORES_EXAM_SUBMISSION, oyc)
+def _find_by_reference(off_year_calendar, reference):
+    if reference == off_year_calendar.academic_calendar.reference:
+        result = off_year_calendar
     else:
-        oyc_scores_exam_submission = oyc
-    return oyc_scores_exam_submission
+        result = _get_oyc_by_reference(off_year_calendar, reference)
+    if not result:
+        msg = "No OfferYearCalendar '{}' found for offerYear = {}"
+        logger.warning(msg.format(ac_type.DELIBERATION, off_year_calendar.offer_year.acronym))
+    return result
 
 
-def _get_oyc_deliberation(oyc):
-    if oyc.academic_calendar.reference == ac_type.DELIBERATION:
-        oyc_deliberation = oyc
-    else:
-        oyc_deliberation = _get_oyc_by_reference(ac_type.DELIBERATION, oyc)
-    return oyc_deliberation
-
-
-def _get_oyc_by_reference(reference, oyc):
-    number_session = session_exam_calendar.get_number_session_by_academic_calendar(oyc.academic_calendar)
+def _get_oyc_by_reference(off_year_calendar, reference):
+    number_session = session_exam_calendar.get_number_session_by_academic_calendar(off_year_calendar.academic_calendar)
     if number_session:
         try:
-            return offer_year_calendar.search(education_group_year_id=oyc.education_group_year,
+            return offer_year_calendar.search(education_group_year_id=off_year_calendar.education_group_year.id,
                                               academic_calendar_reference=reference,
                                               number_session=number_session).get()
         except offer_year_calendar.OfferYearCalendar.DoesNotExist:
