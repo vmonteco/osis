@@ -24,14 +24,12 @@
 #
 ##############################################################################
 from datetime import timedelta, datetime
-from unittest import mock
 
 from django.test import TestCase
 
-from base.business import scores_encodings_deadline
+from assessments.business import scores_encodings_deadline
 from base.models.session_exam_deadline import SessionExamDeadline
 from base.models.enums import academic_calendar_type
-
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.offer_enrollment import OfferEnrollmentFactory
@@ -253,3 +251,7 @@ class ComputeScoresEncodingsDeadlinesTest(TestCase):
         persistent_session_exams = SessionExamDeadline.objects.filter(pk__in=[obj.id for obj in session_exam_deadlines])
         for obj in persistent_session_exams:
             self._assert_date_equal(obj.deadline, new_global_submission_date)
+
+    def test_case_academic_calendar_submission_exists_but_not_academic_calendar_deliberation(self):
+        pass
+    #TODO :: déplacer les ficheirs de base evrs assessments

@@ -24,7 +24,8 @@
 #
 ##############################################################################
 from django.dispatch import receiver
-from base.business import scores_encodings_deadline
+
+from assessments.business import scores_encodings_deadline
 from base.signals import publisher
 
 
