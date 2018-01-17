@@ -40,6 +40,8 @@ class AttributionChargeNewTest(TestCase):
         self.person = PersonFactory(first_name="John", last_name="Doe")
         self.tutor = TutorFactory(person=self.person)
         self.attribution_new = AttributionNewFactory(tutor=self.tutor, function=function.PROFESSOR)
+        self.attribution_new_without_attribution_charge = AttributionNewFactory(tutor=self.tutor,
+                                                                                function=function.PROFESSOR)
         self.learning_component_year_lecturing = LearningComponentYearFactory(type=component_type.LECTURING)
         self.learning_component_year_practical = LearningComponentYearFactory(type=component_type.PRACTICAL_EXERCISES)
         self.attribution_charge_new_lecturing = \
@@ -50,13 +52,6 @@ class AttributionChargeNewTest(TestCase):
             AttributionChargeNewFactory(attribution=self.attribution_new,
                                         learning_component_year=self.learning_component_year_practical,
                                         allocation_charge=20)
-
-    def test_volume_lecturing(self):
-        self.assertEqual(self.attribution_new.volume_lecturing, 10)
-
-    def test_volume_practical(self):
-        self.assertEqual(self.attribution_new.volume_practical, 20)
-
     def test_search_with_attribution(self):
         result = attribution_charge_new.search(attribution=self.attribution_new)
         self.assertCountEqual(result, [self.attribution_charge_new_lecturing, self.attribution_charge_new_practical])

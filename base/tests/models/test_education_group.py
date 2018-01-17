@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,23 +23,22 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import string
-import factory
-import factory.fuzzy
-from faker import Faker
-
-from attribution.tests.factories.attribution import AttributionNewFactory
-from base.tests.factories.learning_component_year import LearningComponentYearFactory
-from osis_common.utils.datetime import get_tzinfo
-
-fake = Faker()
+from django.test import TestCase
+from base.models.education_group_year import EducationGroupYear
+from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.education_group import EducationGroupFactory
+from base.tests.factories.education_group_year import EducationGroupYearFactory
 
 
-class AttributionChargeFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "attribution.AttributionChargeNew"
+class EducationGroupTest(TestCase):
 
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    attribution = factory.SubFactory(AttributionNewFactory)
-    learning_component_year = factory.SubFactory(LearningComponentYearFactory)
-    allocation_charge = 0
+    def test_most_recent_acronym(self):
+        education_group = EducationGroupFactory()
+        most_recent_year = 2018
+        for year in range(2016, most_recent_year + 1):
+            EducationGroupYearFactory(education_group=education_group, academic_year=AcademicYearFactory(year=year))
+        most_recent_educ_group_year = EducationGroupYear.objects.get(academic_year__year=most_recent_year,
+                                                                     education_group=education_group)
+        self.assertEqual(education_group.most_recent_acronym, most_recent_educ_group_year.acronym)
+
+

@@ -33,7 +33,7 @@ class LearningUnitAdmin(AuditableSerializableModelAdmin):
     list_display = ('learning_container', 'acronym', 'title', 'start_year', 'end_year', 'changed')
     fieldsets = ((None, {
                     'fields': ('learning_container', 'acronym', 'title', 'start_year', 'end_year',
-                               'faculty_remark', 'other_remark')
+                               'periodicity', 'faculty_remark', 'other_remark')
                  }),)
     raw_id_fields = ('learning_container',)
     search_fields = ['acronym', 'title', 'learning_container__external_id']

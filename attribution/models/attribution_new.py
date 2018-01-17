@@ -63,7 +63,7 @@ class AttributionNew(AuditableModel):
     end_year = models.IntegerField(blank=True, null=True)
     score_responsible = models.BooleanField(default=False)
     summary_responsible = models.BooleanField(default=False)
-    substitute = models.ForeignKey('AttributionNew', blank=True, null=True)
+    substitute = models.ForeignKey('base.Person', blank=True, null=True)
 
     def __str__(self):
         return u"%s - %s" % (self.tutor.person, self.function)
@@ -73,14 +73,6 @@ class AttributionNew(AuditableModel):
         if self.start_year and self.end_year:
             return (self.end_year - self.start_year) + 1
         return None
-
-    @property
-    def volume_lecturing(self):
-        return attribution_charge_new.get_allocation_charge(self, component_type.LECTURING)
-
-    @property
-    def volume_practical(self):
-        return attribution_charge_new.get_allocation_charge(self, component_type.PRACTICAL_EXERCISES)
 
     class Meta:
         unique_together = ('learning_container_year', 'tutor', 'function')

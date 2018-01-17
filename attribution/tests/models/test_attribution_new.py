@@ -48,6 +48,10 @@ class AttributionChargeNewTest(TestCase):
     def test_duration(self):
         self.assertEqual(self.attribution_new.duration, 3)
 
+    def test_duration_without_end_year(self):
+        attribution_new_without_end_year = AttributionNewFactory(start_year=2018, end_year=None)
+        self.assertIsNone(attribution_new_without_end_year.duration)
+
     def test_search_with_tutor(self):
         result = attribution_new.search(tutor=self.tutor)
         self.assertCountEqual(result, [self.attribution_new])
@@ -56,7 +60,11 @@ class AttributionChargeNewTest(TestCase):
         result = attribution_new.search(learning_container_year=self.learning_container_year)
         self.assertCountEqual(result, [self.attribution_new])
 
+    def test_search_with_learning_container_years(self):
+        result = attribution_new.search(learning_container_year__in=[self.learning_container_year])
+        self.assertCountEqual(result, [self.attribution_new])
     def test_search_with_score_responsible(self):
+
         result = attribution_new.search(score_responsible=True)
         self.assertCountEqual(result, [self.attribution_new])
 

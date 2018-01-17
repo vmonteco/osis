@@ -23,23 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import string
-import factory
-import factory.fuzzy
-from faker import Faker
-
-from attribution.tests.factories.attribution import AttributionNewFactory
-from base.tests.factories.learning_component_year import LearningComponentYearFactory
-from osis_common.utils.datetime import get_tzinfo
-
-fake = Faker()
+from base import models as mdl_base
+from base.models.enums import academic_calendar_type
 
 
-class AttributionChargeFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "attribution.AttributionChargeNew"
-
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    attribution = factory.SubFactory(AttributionNewFactory)
-    learning_component_year = factory.SubFactory(LearningComponentYearFactory)
-    allocation_charge = 0
+def is_summary_submission_opened(user):
+    current_academic_year = mdl_base.academic_year.current_academic_year()
+    if current_academic_year:
+        return mdl_base.academic_calendar.is_academic_calendar_opened(
+            current_academic_year,
+            academic_calendar_type.SUMMARY_COURSE_SUBMISSION
+        )
+    return False
