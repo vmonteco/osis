@@ -251,7 +251,3 @@ class ComputeScoresEncodingsDeadlinesTest(TestCase):
         persistent_session_exams = SessionExamDeadline.objects.filter(pk__in=[obj.id for obj in session_exam_deadlines])
         for obj in persistent_session_exams:
             self._assert_date_equal(obj.deadline, new_global_submission_date)
-
-    def test_case_academic_calendar_submission_exists_but_not_academic_calendar_deliberation(self):
-        pass
-    #TODO :: déplacer les ficheirs de base evrs assessments
