@@ -95,7 +95,7 @@ class ComputeScoresEncodingsDeadlinesTest(TestCase):
     def _load_one_student_session_exam_deadline(self):
         off_enrol = OfferEnrollmentFactory(offer_year=self.offer_year_calendar_deliberation.offer_year)
         self.sess_exam_dealine = SessionExamDeadlineFactory(offer_enrollment=off_enrol, deliberation_date=None,
-                                                            deadline=self.academic_calendar_deliberation.end_date,
+                                                            deadline=scores_encodings_deadline._one_day_before(self.academic_calendar_deliberation.end_date),
                                                             deadline_tutor=0,
                                                             number_session=self.nb_session)
 
@@ -104,7 +104,7 @@ class ComputeScoresEncodingsDeadlinesTest(TestCase):
                                         end_date=end_date,
                                         offer_year=self.off_year)
 
-    def _get_session_exam_deadline(self):
+    def _get_persistent_session_exam_deadline(self):
         return SessionExamDeadline.objects.get(pk=self.sess_exam_dealine.id)
 
     def _change_student_deliberation_date(self, new_end_date):
@@ -121,7 +121,7 @@ class ComputeScoresEncodingsDeadlinesTest(TestCase):
 
         self.offer_year_calendar_deliberation.save()
 
-        self._assert_date_equal(self._get_session_exam_deadline().deadline, old_deadline)
+        self._assert_date_equal(self._get_persistent_session_exam_deadline().deadline, old_deadline)
 
     def test_compute_deadline_tutor_by_offer_year(self):
         """
@@ -155,67 +155,67 @@ class ComputeScoresEncodingsDeadlinesTest(TestCase):
 
     def test_case_only_global_scores_encoding_end_date_is_set(self):
         OfferYearCalendarFactory(academic_calendar=self.ac_score_exam_submission, start_date=None, end_date=None, offer_year=self.off_year)
-        self._assert_date_equal(self._get_session_exam_deadline().deadline, self.ac_score_exam_submission.end_date)
-        self._assert_date_equal(self._get_session_exam_deadline().deadline_tutor_computed, self.ac_score_exam_submission.end_date)
+        self._assert_date_equal(self._get_persistent_session_exam_deadline().deadline, self.ac_score_exam_submission.end_date)
+        self._assert_date_equal(self._get_persistent_session_exam_deadline().deadline_tutor_computed, self.ac_score_exam_submission.end_date)
 
     def test_case_tutor_scores_submission_date_gt_student_deliberation_date(self):
         delibe_date = self.offer_year_calendar_deliberation.end_date - timedelta(days=10)
         self._change_student_deliberation_date(delibe_date)
         self._create_tutor_scores_submission_end_date(delibe_date + timedelta(days=5))
-        self.assertEqual(self._get_session_exam_deadline().deadline_tutor_computed,
+        self.assertEqual(self._get_persistent_session_exam_deadline().deadline_tutor_computed,
                          scores_encodings_deadline._one_day_before(delibe_date))
 
     def test_case_tutor_scores_submission_date_gt_offer_year_deliberation_date(self):
         offer_year_delibe_date = self.offer_year_calendar_deliberation.end_date
         self._create_tutor_scores_submission_end_date(offer_year_delibe_date + timedelta(days=5))
-        self._assert_date_equal(self._get_session_exam_deadline().deadline_tutor_computed,
+        self._assert_date_equal(self._get_persistent_session_exam_deadline().deadline_tutor_computed,
                                 self.offer_year_calendar_deliberation.end_date)
 
     def test_case_tutor_scores_submission_date_gt_scores_encodings_end_date(self):
         scores_encodings_end_date = self.ac_score_exam_submission.end_date
         self._create_tutor_scores_submission_end_date(scores_encodings_end_date + timedelta(days=5))
-        self._assert_date_equal(self._get_session_exam_deadline().deadline_tutor_computed,
+        self._assert_date_equal(self._get_persistent_session_exam_deadline().deadline_tutor_computed,
                                 self.ac_score_exam_submission.end_date)
 
     def test_case_tutor_scores_submission_date_lt_student_deliberation_date(self):
         delibe_date = self.offer_year_calendar_deliberation.end_date - timedelta(days=10)
         self._change_student_deliberation_date(delibe_date)
         off_year_cal = self._create_tutor_scores_submission_end_date(delibe_date - timedelta(days=5))
-        self._assert_date_equal(self._get_session_exam_deadline().deadline_tutor_computed,
+        self._assert_date_equal(self._get_persistent_session_exam_deadline().deadline_tutor_computed,
                                 off_year_cal.end_date)
 
     def test_case_tutor_scores_submission_date_lt_offer_year_deliberation_date(self):
         off_year_delibe_date = self.offer_year_calendar_deliberation.end_date
         off_year_cal = self._create_tutor_scores_submission_end_date(off_year_delibe_date - timedelta(days=5))
-        self._assert_date_equal(self._get_session_exam_deadline().deadline_tutor_computed,
+        self._assert_date_equal(self._get_persistent_session_exam_deadline().deadline_tutor_computed,
                                 off_year_cal.end_date)
 
     def test_case_tutor_scores_submission_date_lt_scores_encodings_end_date(self):
         scores_encodings_end_date = self.ac_score_exam_submission.end_date
         off_year_cal = self._create_tutor_scores_submission_end_date(scores_encodings_end_date - timedelta(days=5))
-        self._assert_date_equal(self._get_session_exam_deadline().deadline_tutor_computed,
+        self._assert_date_equal(self._get_persistent_session_exam_deadline().deadline_tutor_computed,
                                 off_year_cal.end_date)
 
     def test_case_student_deliberation_date_gt_offer_year_deliberation_date(self):
         offer_year_delibe_date = self.offer_year_calendar_deliberation.end_date
         self._change_student_deliberation_date(offer_year_delibe_date + timedelta(days=5))
         before = scores_encodings_deadline._one_day_before(offer_year_delibe_date)
-        self._assert_date_equal(self._get_session_exam_deadline().deadline,
+        self._assert_date_equal(self._get_persistent_session_exam_deadline().deadline,
                                 before)
 
     def test_case_student_deliberation_date_lt_offer_year_deliberation_date(self):
         offer_year_delibe_date = self.offer_year_calendar_deliberation.end_date
         self._change_student_deliberation_date(offer_year_delibe_date - timedelta(days=5))
-        self.assertEqual(self._get_session_exam_deadline().deadline,
+        self.assertEqual(self._get_persistent_session_exam_deadline().deadline,
                          scores_encodings_deadline._one_day_before(self.sess_exam_dealine.deliberation_date))
 
-    def test_case_global_submission_date_lt_student_and_delibe_date(self):
+    def test_case_global_submission_date_lt_student_and_offer_year_delibe_date(self):
         offer_year_delibe_end_date = self.offer_year_calendar_deliberation.end_date
         global_submission_end_date = offer_year_delibe_end_date - timedelta(days=10)
         self._create_tutor_scores_submission_end_date(offer_year_delibe_end_date)
         self.ac_score_exam_submission.end_date = global_submission_end_date
         self.ac_score_exam_submission.save()
-        self._assert_date_equal(self._get_session_exam_deadline().deadline, global_submission_end_date)
+        self._assert_date_equal(self._get_persistent_session_exam_deadline().deadline, global_submission_end_date)
 
     def test_case_student_deliberation_date_lt_global_submission_date(self):
         new_student_delibe_date = self.ac_score_exam_submission.end_date - timedelta(days=5)
@@ -228,26 +228,27 @@ class ComputeScoresEncodingsDeadlinesTest(TestCase):
         new_offer_year_delibe_date = self.ac_score_exam_submission.end_date - timedelta(days=5)
         self.offer_year_calendar_deliberation.end_date = new_offer_year_delibe_date
         self.offer_year_calendar_deliberation.save()
-        self._assert_date_equal(self._get_session_exam_deadline().deadline,
+        self._assert_date_equal(self._get_persistent_session_exam_deadline().deadline,
                                 scores_encodings_deadline._one_day_before(new_offer_year_delibe_date))
 
     def test_case_mutliple_students_offer_enrollments(self):
         students = [StudentFactory() for _ in range(10)]
-        off_year_cal_submission = self._create_tutor_scores_submission_end_date(self.ac_score_exam_submission.end_date)
         offer_enrollments = [
-            OfferEnrollmentFactory(student=student, offer_year=off_year_cal_submission.offer_year)
+            OfferEnrollmentFactory(student=student, offer_year=self.offer_year_calendar_deliberation.offer_year)
             for student in students
             ]
 
         session_exam_deadlines = [
             SessionExamDeadlineFactory(offer_enrollment=offer_enrollment, number_session=self.nb_session,
-                                       deliberation_date=off_year_cal_submission.end_date)
+                                       deliberation_date=self.offer_year_calendar_deliberation.end_date,
+                                       deadline=scores_encodings_deadline._one_day_before(self.offer_year_calendar_deliberation.end_date),
+                                       deadline_tutor=0)
             for offer_enrollment in offer_enrollments
             ]
 
-        new_global_submission_date = off_year_cal_submission.end_date - timedelta(days=100)
-        self.ac_score_exam_submission.end_date = new_global_submission_date
-        self.ac_score_exam_submission.save()
+        new_global_submission_date = self.offer_year_calendar_deliberation.end_date - timedelta(days=20)
+        self.offer_year_calendar_deliberation.end_date = new_global_submission_date
+        self.offer_year_calendar_deliberation.save()
         persistent_session_exams = SessionExamDeadline.objects.filter(pk__in=[obj.id for obj in session_exam_deadlines])
         for obj in persistent_session_exams:
-            self._assert_date_equal(obj.deadline, new_global_submission_date)
+            self._assert_date_equal(obj.deadline, scores_encodings_deadline._one_day_before(new_global_submission_date))
