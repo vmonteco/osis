@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,24 +23,26 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import template
-from django.utils.translation import ugettext_lazy as _
+from django.test import TestCase
 
-register = template.Library()
+from reference.tests.factories.language import LanguageFactory
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 
 
-@register.filter
-def academic_years(start_year, end_year):
-    if start_year and end_year:
-        str_start_year = ''
-        str_end_year = ''
-        if start_year:
-            str_start_year = "{} {}-{}".format(_('from').title(), start_year, str(start_year+1)[-2:])
-        if end_year:
-            str_end_year = "{} {}-{}".format(_('to'), end_year, str(end_year+1)[-2:])
-        return "{} {}".format(str_start_year, str_end_year)
-    else:
-        if start_year and not end_year:
-            return "{} {}-{} ({})".format(_('from'), start_year, str(start_year+1)[-2:], _('not_end_year'))
-        else:
-            return "-"
+class TestValidation(TestCase):
+    def setUp(self):
+        self.language = LanguageFactory(code="EN")
+        self.form_data = {
+            "trans_text": "Text",
+            "cms_id": 1
+        }
+
+    def test_invalid_form(self):
+        del self.form_data['cms_id']
+        form = LearningUnitPedagogyEditForm(self.form_data)
+        self.assertFalse(form.is_valid())
+
+    def test_valid_form(self):
+        form = LearningUnitPedagogyEditForm(self.form_data)
+        self.assertEqual(form.errors, {})
+        self.assertTrue(form.is_valid())

@@ -23,24 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import template
-from django.utils.translation import ugettext_lazy as _
-
-register = template.Library()
+from base import models as mdl_base
+from base.models.enums import academic_calendar_type
 
 
-@register.filter
-def academic_years(start_year, end_year):
-    if start_year and end_year:
-        str_start_year = ''
-        str_end_year = ''
-        if start_year:
-            str_start_year = "{} {}-{}".format(_('from').title(), start_year, str(start_year+1)[-2:])
-        if end_year:
-            str_end_year = "{} {}-{}".format(_('to'), end_year, str(end_year+1)[-2:])
-        return "{} {}".format(str_start_year, str_end_year)
-    else:
-        if start_year and not end_year:
-            return "{} {}-{} ({})".format(_('from'), start_year, str(start_year+1)[-2:], _('not_end_year'))
-        else:
-            return "-"
+def is_summary_submission_opened(user):
+    current_academic_year = mdl_base.academic_year.current_academic_year()
+    if current_academic_year:
+        return mdl_base.academic_calendar.is_academic_calendar_opened(
+            current_academic_year,
+            academic_calendar_type.SUMMARY_COURSE_SUBMISSION
+        )
+    return False

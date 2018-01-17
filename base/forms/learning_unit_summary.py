@@ -23,24 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import template
-from django.utils.translation import ugettext_lazy as _
+from django import forms
+from ckeditor.widgets import CKEditorWidget
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
 
-register = template.Library()
+
+class LearningUnitSummaryForm(LearningUnitPedagogyForm):
+    RESUME = 'resume'
+
+    text_labels_name = [RESUME]
 
 
-@register.filter
-def academic_years(start_year, end_year):
-    if start_year and end_year:
-        str_start_year = ''
-        str_end_year = ''
-        if start_year:
-            str_start_year = "{} {}-{}".format(_('from').title(), start_year, str(start_year+1)[-2:])
-        if end_year:
-            str_end_year = "{} {}-{}".format(_('to'), end_year, str(end_year+1)[-2:])
-        return "{} {}".format(str_start_year, str_end_year)
-    else:
-        if start_year and not end_year:
-            return "{} {}-{} ({})".format(_('from'), start_year, str(start_year+1)[-2:], _('not_end_year'))
-        else:
-            return "-"
+class LearningUnitSummaryEditForm(LearningUnitPedagogyEditForm):
+    trans_text = forms.CharField(widget=CKEditorWidget(config_name='minimal'), required=False)
