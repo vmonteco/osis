@@ -29,6 +29,7 @@
 
 {% block breadcrumb %}
     {% include "education_group/breadcrumb.html" %}
+    <li>{% trans "MODIFICATION" %}</li>
 {% endblock %}
 
 
@@ -40,7 +41,6 @@
 
 {% block content %}
     {% include "education_group/header.html" %}
-
 <div class="panel panel-default">
     <div class="panel-body" id="tabs">
 
@@ -105,7 +105,13 @@
                         <br>
                     </div>
                 </div>
-                <input type="submit" class="btn btn-primary  pull-right" value="Save">
+                <div class="pull-right">
+                    <input type="submit" class="btn btn-primary" value="{% trans 'Save' %}"/>
+                    <button class="btn btn-default"
+                            href="{% url 'education_group_administrative' education_group_year_id %}">
+                        {% trans 'cancel' %}
+                    </button>
+                </div>
             </form>
             <br>
         </div>
@@ -123,6 +129,8 @@
             config.minDate = input.data("mindate");
             config.maxDate = input.data("maxdate");
             config.format = input.data('format');
+            config.showToday = false;
+            config.useCurrent = false;
         }
 
         $(document).ready(function() {
@@ -130,6 +138,16 @@
             $('.datepicker').each(function () {
                 var config = {
                     pickTime: false,
+                    language: '{{ LANGUAGE_CODE }}'
+                };
+
+                set_config(config, $(this));
+
+                $(this).datetimepicker(config);
+            });
+            $('.timepicker').each(function () {
+                var config = {
+                    pickDate: false,
                     language: '{{ LANGUAGE_CODE }}'
                 };
 
@@ -161,13 +179,14 @@
                     }
                 };
 
-                set_config(config, $(this))
+                set_config(config, $(this));
 
                 $(this).daterangepicker(config);
 
                 $(this).on('apply.daterangepicker', function(ev, picker) {
                     $(this).val(picker.startDate.format(format)
-                        + ' - ' + picker.endDate.format(format));
+                        + ' - ' + picker.endDate.format(format)
+                    );
                 });
                 $(this).on('cancel.daterangepicker', function(ev, picker) {
                     $(this).val('');

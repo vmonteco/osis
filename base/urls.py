@@ -98,7 +98,9 @@ urlpatterns = [
                 name="learning_unit_attributions"),
             url(r'^proposal/', include([
                 url(r'^modification/$', learning_unit_proposal.propose_modification_of_learning_unit,
-                    name="learning_unit_modification_proposal")
+                    name="learning_unit_modification_proposal"),
+                url(r'^cancel/$', learning_unit_proposal.cancel_proposal_of_learning_unit,
+                    name="learning_unit_cancel_proposal")
             ])),
             url(r'^specifications/$', learning_unit.learning_unit_specifications, name="learning_unit_specifications"),
             url(r'^specifications/edit/$', learning_unit.learning_unit_specifications_edit,
@@ -110,9 +112,13 @@ urlpatterns = [
                 url(u'^validation/$', learning_unit.volumes_validation, name="volumes_validation")])),
             url(r'^delete/$', base.views.learning_unit_deletion.delete_from_given_learning_unit_year, name="learning_unit_delete"),
             url(r'^delete_full/$', base.views.learning_unit_deletion.delete_all_learning_units_year, name="learning_unit_delete_all"),
+            url(r'^summary/$', learning_unit.learning_unit_summary, name="learning_unit_summary"),
+            url(r'^summary/edit/$', learning_unit.summary_edit, name="learning_unit_summary_edit"),
+
         ])),
         url(r'^check/$', learning_unit.check_acronym, name="check_acronym"),
         url(r'^check_code/$', learning_unit.check_code, name="check_code"),
+        url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
     ])),
 
     url(r'^my_osis/', include([
@@ -130,7 +136,8 @@ urlpatterns = [
         url(r'^profile/', include([
             url(r'^$', my_osis.profile, name='profile'),
             url(r'^lang/$', my_osis.profile_lang, name='profile_lang'),
-            url(r'^lang/edit/([A-Za-z-]+)/$', my_osis.profile_lang_edit, name='lang_edit')
+            url(r'^lang/edit/([A-Za-z-]+)/$', my_osis.profile_lang_edit, name='lang_edit'),
+            url(r'^attributions/$', my_osis.profile_attributions, name='profile_attributions'),
         ]))
     ])),
 

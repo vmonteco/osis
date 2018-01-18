@@ -34,15 +34,15 @@ from base.models.enums import entity_container_year_link_type
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
-from attribution.models import attribution_charge
+from attribution.models import attribution_charge_new
 from base.models.enums import component_type
 
 
 class AttributionAdmin(AuditableSerializableModelAdmin):
     list_display = ('tutor', 'function', 'score_responsible', 'learning_unit_year', 'start_year', 'end_year', 'changed')
-    list_filter = ('function', 'learning_unit_year__academic_year', 'score_responsible')
-    fieldsets = ((None, {'fields': ('learning_unit_year', 'tutor', 'function', 'score_responsible', 'start_year',
-                                    'end_year')}),)
+    list_filter = ('learning_unit_year__academic_year', 'function', 'score_responsible', 'summary_responsible')
+    fieldsets = ((None, {'fields': ('learning_unit_year', 'tutor', 'function', 'score_responsible',
+                                    'summary_responsible', 'start_year', 'end_year')}),)
     raw_id_fields = ('learning_unit_year', 'tutor')
     search_fields = ['tutor__person__first_name', 'tutor__person__last_name', 'learning_unit_year__acronym',
                      'tutor__person__global_id']
@@ -59,6 +59,7 @@ class Attribution(AuditableSerializableModel):
     learning_unit_year = models.ForeignKey('base.LearningUnitYear')
     tutor = models.ForeignKey('base.Tutor')
     score_responsible = models.BooleanField(default=False)
+    summary_responsible = models.BooleanField(default=False)
 
     def __str__(self):
         return u"%s - %s" % (self.tutor.person, self.function)
@@ -68,20 +69,6 @@ class Attribution(AuditableSerializableModel):
         if self.start_year and self.end_year:
             return (self.end_year - self.start_year) + 1
         return None
-
-    @property
-    def volume_lecturing(self):
-        return self.get_attribution(component_type.LECTURING)
-
-    @property
-    def volume_practical(self):
-        return self.get_attribution(component_type.PRACTICAL_EXERCISES)
-
-    def get_attribution(self, a_component_type):
-        attribution = attribution_charge.find_by_component_type(self, a_component_type)
-        if attribution:
-            return attribution.allocation_charge
-        return "{0:.2f}".format(float(0))
 
 
 def search(tutor=None, learning_unit_year=None, score_responsible=None, list_learning_unit_year=None):

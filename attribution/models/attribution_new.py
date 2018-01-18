@@ -26,15 +26,20 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from osis_common.models.auditable_model import AuditableModelAdmin, AuditableModel
+from attribution.models import attribution_charge_new
 from attribution.models.enums import function
+from base.models.enums import component_type
+from osis_common.models.auditable_model import AuditableModelAdmin, AuditableModel
 
 
 class AttributionNewAdmin(AuditableModelAdmin):
-    list_display = ('tutor', 'score_responsible', 'function', 'learning_container_year', 'start_year', 'end_year', 'changed')
-    list_filter = ('learning_container_year__academic_year', 'score_responsible')
-    fieldsets = ((None, {'fields': ('learning_container_year', 'tutor', 'score_responsible', 'start_year', 'end_year')}),)
-    raw_id_fields = ('learning_container_year', 'tutor')
+
+    list_display = ('tutor', 'score_responsible', 'function', 'learning_container_year', 'start_year', 'end_year',
+                    'changed', 'substitute')
+    list_filter = ('learning_container_year__academic_year', 'score_responsible', 'summary_responsible')
+    fieldsets = ((None, {'fields': ('learning_container_year', 'tutor', 'function', 'score_responsible',
+                                    'summary_responsible', 'start_year', 'end_year', 'substitute')}),)
+    raw_id_fields = ('learning_container_year', 'tutor', 'substitute')
     search_fields = ['tutor__person__first_name', 'tutor__person__last_name', 'learning_container_year__acronym',
                      'tutor__person__global_id', 'function']
     actions = ['publish_attribution_to_portal']
@@ -51,15 +56,23 @@ class AttributionNew(AuditableModel):
     changed = models.DateTimeField(null=True, auto_now=True)
     learning_container_year = models.ForeignKey('base.LearningContainerYear')
     tutor = models.ForeignKey('base.Tutor')
-    function = models.CharField(max_length=35, blank=True, null=True, choices=function.FUNCTIONS, db_index=True)
+    function = models.CharField(max_length=35, choices=function.FUNCTIONS, db_index=True)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
     start_year = models.IntegerField(blank=True, null=True)
     end_year = models.IntegerField(blank=True, null=True)
     score_responsible = models.BooleanField(default=False)
+    summary_responsible = models.BooleanField(default=False)
+    substitute = models.ForeignKey('base.Person', blank=True, null=True)
 
     def __str__(self):
         return u"%s - %s" % (self.tutor.person, self.function)
+
+    @property
+    def duration(self):
+        if self.start_year and self.end_year:
+            return (self.end_year - self.start_year) + 1
+        return None
 
     class Meta:
         unique_together = ('learning_container_year', 'tutor', 'function')

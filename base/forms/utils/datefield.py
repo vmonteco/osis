@@ -27,6 +27,7 @@ import datetime
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.forms.utils import to_current_timezone
 from django.utils import formats, timezone
 from django.utils.translation import ugettext_lazy as _
 
@@ -56,44 +57,55 @@ def _add_min_max_value(widget, min_date, max_date):
 
 class DatePickerInput(forms.DateInput):
 
-    def __init__(self, attrs=None, format=DATE_FORMAT):
-        if not attrs:
-            attrs = {
+    defaut_attrs = {
                 'class': 'datepicker',
                 'data-format': DATE_FORMAT_JS
             }
 
-        super().__init__(attrs)
+    def __init__(self, attrs=None, format=DATE_FORMAT):
+        super().__init__(attrs=attrs or self.defaut_attrs)
         self.format = format
 
     def add_min_max_value(self, min_date, max_date):
         _add_min_max_value(self, min_date, max_date)
 
 
-class DateTimePickerInput(forms.DateTimeInput):
-    def __init__(self, attrs=None, format=DATETIME_FORMAT):
-        if not attrs:
-            attrs = {
-                'class': 'datetimepicker',
-                'data-format': DATETIME_FORMAT_JS
-            }
+class DateTimePickerInput(forms.MultiWidget):
+    def __init__(self):
+        widgets = (
+            DatePickerInput(
+                format=DATE_FORMAT,
+            ),
+            forms.TimeInput(
+                attrs={
+                    'class': 'timepicker',
+                    'data-format': TIME_FORMAT_JS
+                },
+                format=TIME_FORMAT,
+            ),
+        )
 
-        super().__init__(attrs)
-        self.format = format
+        super().__init__(widgets)
 
     def add_min_max_value(self, min_date, max_date):
-        _add_min_max_value(self, min_date, max_date)
+        self.widgets[0].add_min_max_value(min_date, max_date)
+
+    def decompress(self, value):
+        if value:
+            value = to_current_timezone(value)
+            return [value.date(), value.time().replace(microsecond=0)]
+        return [None, None]
 
 
 class DateRangePickerInput(forms.TextInput):
-    def __init__(self, attrs=None, format=DATE_FORMAT):
-        if not attrs:
-            attrs = {
+
+    default_attrs = {
                 'class': 'daterange',
                 'data-format': DATE_FORMAT_JS
             }
 
-        super().__init__(attrs)
+    def __init__(self, attrs=None, format=DATE_FORMAT):
+        super().__init__(attrs=attrs or self.default_attrs)
         self.format = format
 
     def format_value(self, value):
@@ -125,6 +137,8 @@ class DateRangeField(forms.DateField):
         self.base = base
         if input_formats is not None:
             self.base.input_formats = input_formats
+        else:
+            self.base.input_formats = [DATE_FORMAT,]
 
     def to_python(self, value):
         if self.required is False and not value:

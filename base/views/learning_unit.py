@@ -26,7 +26,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods, require_POST
@@ -34,21 +34,25 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
+from attribution.business import attribution_charge_new
 from base import models as mdl
 from base.business import learning_unit_deletion, learning_unit_year_volumes, learning_unit_year_with_context, \
     learning_unit_proposal
-from attribution import models as mdl_attr
 from base.business.learning_unit import create_learning_unit, create_learning_unit_structure, \
     get_common_context_learning_unit_year, get_cms_label_data, \
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
-    get_all_attributions, get_last_academic_years
+    get_all_attributions, get_last_academic_years, \
+    SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls
 from base.forms.common import TooManyResultsException
+from base.forms.learning_units import LearningUnitYearForm
 from base.models import proposal_learning_unit, entity_version
+from base.models.campus import Campus
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
-from base.forms.learning_units import LearningUnitYearForm, CreateLearningUnitYearForm, EMPTY_FIELD
+
+from base.forms.learning_unit_create import CreateLearningUnitYearForm, EMPTY_FIELD
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
@@ -57,15 +61,18 @@ from base.models.person import Person
 from cms.models import text_label
 from reference.models import language
 from . import layout
+from base.forms.learning_unit_summary import LearningUnitSummaryForm, LearningUnitSummaryEditForm
+from base.utils import permission
+from django.core.urlresolvers import reverse_lazy
+from django.shortcuts import render
+
 
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
                       'other_informations', 'online_resources']
+CMS_LABEL_SUMMARY = ['resume']
 
 LEARNING_UNIT_CREATION_SPAN_YEARS = 6
-
-SIMPLE_SEARCH = 1
-SERVICE_COURSES_SEARCH = 2
 
 
 @login_required
@@ -95,6 +102,8 @@ def learning_unit_identification(request, learning_unit_year_id):
     context['components'] = get_components_identification(learning_unit_year)
     context['can_propose'] = learning_unit_proposal.is_eligible_for_modification_proposal(learning_unit_year, person)
     context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
+    context['can_cancel_proposal'] = learning_unit_proposal.\
+        is_eligible_for_cancel_of_proposal(context['proposal'], person) if context['proposal'] else False
     context['proposal_folder_entity_version'] = \
         entity_version.get_by_entity_and_date(context['proposal'].folder.entity, None) if context['proposal'] else None
     context['can_delete'] = learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year)
@@ -200,7 +209,9 @@ def learning_unit_pedagogy_edit(request, learning_unit_year_id):
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_attributions(request, learning_unit_year_id):
     context = get_common_context_learning_unit_year(learning_unit_year_id)
-    context['attributions'] = mdl_attr.attribution.find_by_learning_unit_year(learning_unit_year=learning_unit_year_id)
+    context['attribution_charge_news'] = \
+        attribution_charge_new.find_attribution_charge_new_by_learning_unit_year(
+            learning_unit_year=learning_unit_year_id)
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/attributions.html", context)
 
@@ -339,7 +350,7 @@ def learning_unit_year_add(request):
         allocation_entity_version = data.get('allocation_entity')
         requirement_entity_version = data.get('requirement_entity')
 
-        new_learning_container = LearningContainer.objects.create(start_year=year)
+        new_learning_container = LearningContainer.objects.create()
         new_learning_unit = create_learning_unit(data, new_learning_container, year)
         while year < starting_academic_year.year + LEARNING_UNIT_CREATION_SPAN_YEARS:
             academic_year = mdl.academic_year.find_academic_year_by_year(year)
@@ -385,7 +396,7 @@ def check_acronym(request):
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def check_code(request):
     campus_id = request.GET['campus']
-    campus = mdl.campus.find_by_id(campus_id)
+    campus = get_object_or_404(Campus, id=campus_id)
     return JsonResponse({'code': campus.code}, safe=False)
 
 
@@ -402,23 +413,22 @@ def learning_units_service_course(request):
 
 
 def _learning_units_search(request, search_type):
-    if request.GET.get('academic_year_id'):
-        form = LearningUnitYearForm(request.GET)
-    else:
-        form = LearningUnitYearForm()
+    service_course_search = search_type == SERVICE_COURSES_SEARCH
+    request_get = request.GET if request.GET.get('academic_year_id') else None
 
-    found_learning_units = None
+    form = LearningUnitYearForm(request_get, service_course_search=service_course_search)
+
+    found_learning_units = []
     try:
         if form.is_valid():
-
-            if search_type == SIMPLE_SEARCH:
-                found_learning_units = form.get_activity_learning_units()
-            elif search_type == SERVICE_COURSES_SEARCH:
-                found_learning_units = form.get_service_course_learning_units()
+            found_learning_units = form.get_activity_learning_units()
 
             _check_if_display_message(request, found_learning_units)
     except TooManyResultsException:
         messages.add_message(request, messages.ERROR, _('too_many_results'))
+
+    if request.GET.get('xls_status') == "xls":
+        return create_xls(request.user, found_learning_units)
 
     context = {
         'form': form,
@@ -452,3 +462,61 @@ def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
     if errors:
         for error_msg in errors:
             messages.add_message(request, messages.ERROR, error_msg)
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+def learning_unit_summary(request, learning_unit_year_id):
+    context = get_common_context_learning_unit_year(learning_unit_year_id)
+    learning_unit_year = context['learning_unit_year']
+
+    user_language = mdl.person.get_user_interface_language(request.user)
+    context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_SUMMARY, user_language)
+
+    fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
+    en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
+    context.update({
+        'summary_submission_opened': permission.is_summary_submission_opened(request.user),
+        'form_french': LearningUnitSummaryForm(learning_unit_year=learning_unit_year,
+                                               language=fr_language),
+        'form_english': LearningUnitSummaryForm(learning_unit_year=learning_unit_year,
+                                                language=en_language)
+    })
+    return layout.render(request, "learning_unit/summary.html", context)
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+@user_passes_test(permission.is_summary_submission_opened, login_url=reverse_lazy('outside_summary_submission_period'))
+def summary_edit(request, learning_unit_year_id):
+    if request.method == 'POST':
+        form = LearningUnitSummaryEditForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse("learning_unit_summary",
+                                                kwargs={'learning_unit_year_id': learning_unit_year_id}))
+
+    context = get_common_context_learning_unit_year(learning_unit_year_id)
+    label_name = request.GET.get('label')
+    language = request.GET.get('language')
+    text_lb = text_label.find_root_by_name(label_name)
+    form = LearningUnitSummaryEditForm(**{
+        'learning_unit_year': context['learning_unit_year'],
+        'language': language,
+        'text_label': text_lb
+    })
+    form.load_initial()  # Load data from database
+    context['form'] = form
+
+    user_language = mdl.person.get_user_interface_language(request.user)
+    context['text_label_translated'] = next((txt for txt in text_lb.translated_text_labels
+                                             if txt.language == user_language), None)
+    context['language_translated'] = next((lang for lang in settings.LANGUAGES if lang[0] == language), None)
+    return layout.render(request, "learning_unit/summary_edit.html", context)
+
+
+@login_required
+def outside_period(request):
+    text = _('summary_responsible_denied')
+    messages.add_message(request, messages.WARNING, "%s" % text)
+    return render(request, "access_denied.html")

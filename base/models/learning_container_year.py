@@ -32,11 +32,11 @@ from osis_common.models.auditable_serializable_model import AuditableSerializabl
 
 class LearningContainerYearAdmin(AuditableSerializableModelAdmin):
     list_display = ('learning_container', 'academic_year', 'container_type', 'acronym', 'title')
-    fieldsets = ((None, {'fields': ('learning_container', 'academic_year', 'container_type', 'acronym', 'title',
-                                    'title_english', 'language', 'is_vacant', 'type_declaration_vacant',
+    fieldsets = ((None, {'fields': ('academic_year', 'learning_container',  'container_type', 'acronym', 'title',
+                                    'title_english', 'language', 'campus', 'is_vacant', 'type_declaration_vacant',
                                     'team', 'in_charge')}),)
     search_fields = ['acronym']
-    raw_id_fields = ('learning_container',)
+    raw_id_fields = ('learning_container', 'campus', )
     list_filter = ('academic_year', 'in_charge', 'is_vacant',)
 
 
