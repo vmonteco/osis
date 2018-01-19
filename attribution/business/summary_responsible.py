@@ -31,3 +31,9 @@ def is_user_manager_of_entity_allocation_of_learning_unit_year(user, a_learning_
     entities_manager = mdl_base.entity_manager.find_by_user(user)
     entities_with_descendants = find_entities_with_descendants_from_entity_managers(entities_manager)
     return a_learning_unit_year.allocation_entity in entities_with_descendants
+
+
+def get_learning_unit_year_from_request(request):
+    learning_unit_year_id = request.GET.get('learning_unit_year').strip('learning_unit_year_')
+    a_learning_unit_year = mdl_base.learning_unit_year.get_by_id(learning_unit_year_id)
+    return a_learning_unit_year
