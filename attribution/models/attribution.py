@@ -188,12 +188,16 @@ def find_by_tutor(tutor):
 
 def clear_scores_responsible_by_learning_unit_year(learning_unit_year_pk):
     attributions = search_by_learning_unit_year_pk_this_academic_year(learning_unit_year_pk)
-    attributions.update(score_responsible=False)
+    for attribution in attributions:
+        attribution.score_responsible = False
+        attribution.save()
 
 
 def clear_summary_responsible_by_learning_unit_year(learning_unit_year_pk):
     attributions = search_by_learning_unit_year_pk_this_academic_year(learning_unit_year_pk)
-    attributions.update(summary_responsible=False)
+    for attribution in attributions:
+        attribution.summary_responsible = False
+        attributions.save()
 
 
 def search_by_learning_unit_year_pk_this_academic_year(learning_unit_year_pk):
