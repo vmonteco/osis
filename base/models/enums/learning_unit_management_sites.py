@@ -23,8 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-B="B"
-L="L"
+B = "B"
+L = "L"
 M = "M"
 W = "W"
 
@@ -32,5 +32,4 @@ LEARNING_UNIT_MANAGEMENT_SITE = (
     (B, B),
     (L, L),
     (M, M),
-    (W, W)
-)
+    (W, W))

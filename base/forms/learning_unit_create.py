@@ -35,6 +35,7 @@ from base.models.campus import find_administration_campuses
 from base.models.entity_version import find_main_entities_version, find_main_entities_version_filtered_by_person
 from base.models.enums import entity_container_year_link_type
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
+from base.models.enums.learning_unit_management_sites import LEARNING_UNIT_MANAGEMENT_SITE
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
 from reference.models.language import find_all_languages
@@ -67,8 +68,7 @@ class CreateLearningUnitYearForm(BootstrapForm):
                                 mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION,
                                 required=False)
     subtype = forms.CharField(widget=forms.HiddenInput())
-    first_letter = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
-                                             mdl.enums.learning_unit_management_sites.LEARNING_UNIT_MANAGEMENT_SITE,
+    first_letter = forms.ChoiceField(choices=((None, EMPTY_FIELD),) + LEARNING_UNIT_MANAGEMENT_SITE,
                                      required=True)
     container_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
                                        widget=forms.Select(attrs={'onchange': 'showInternshipSubtype(this.value)'}))
