@@ -81,16 +81,16 @@ def scores_responsible_search(request):
 @user_passes_test(is_entity_manager)
 def scores_responsible_management(request):
     a_learning_unit_year = get_learning_unit_year_managed_by_user_from_request(request)
-    attributions = mdl_attr.attribution.find_all_responsible_by_learning_unit_year(a_learning_unit_year)
-    academic_year = mdl_base.academic_year.current_academic_year()
-    return layout.render(request, 'scores_responsible_edit.html',
-                         {'learning_unit_year': a_learning_unit_year,
-                          'attributions': attributions,
-                          "academic_year": academic_year,
-                          'course_code': request.GET.get('course_code'),
-                          'learning_unit_title': request.GET.get('learning_unit_title'),
-                          'tutor': request.GET.get('tutor'),
-                          'scores_responsible': request.GET.get('scores_responsible')})
+    context = {
+        'learning_unit_year': a_learning_unit_year,
+        'attributions': mdl_attr.attribution.find_all_responsible_by_learning_unit_year(a_learning_unit_year),
+        'academic_year': mdl_base.academic_year.current_academic_year(),
+        'course_code': request.GET.get('course_code'),
+        'learning_unit_title': request.GET.get('learning_unit_title'),
+        'tutor': request.GET.get('tutor'),
+        'scores_responsible': request.GET.get('scores_responsible')
+    }
+    return layout.render(request, 'scores_responsible_edit.html', context)
 
 
 @login_required
