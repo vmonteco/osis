@@ -73,6 +73,4 @@ def find_entities_by_person(person):
 
 def find_entities_by_user(user):
     pers = person.find_by_user(user=user)
-    if pers:
-        return find_entities_by_person(pers)
-    return []
+    return find_entities_by_person(pers) if pers else []
