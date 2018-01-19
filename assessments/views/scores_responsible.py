@@ -93,7 +93,6 @@ def scores_responsible_management(request):
                           'scores_responsible': request.GET.get('scores_responsible')})
 
 
-
 @login_required
 @user_passes_test(is_entity_manager)
 def scores_responsible_add(request, pk):

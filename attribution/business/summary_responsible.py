@@ -28,6 +28,7 @@ from django.core.exceptions import PermissionDenied
 from base import models as mdl_base
 from base.models.entity_manager import find_entities_with_descendants_from_entity_managers
 
+
 def get_learning_unit_year_managed_by_user_from_request(request):
     user = request.user
     a_learning_unit_year = _get_learning_unit_year_from_request(request)
