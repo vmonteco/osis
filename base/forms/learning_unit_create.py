@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -39,7 +39,6 @@ from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
 from reference.models.language import find_all_languages
 
-
 MAX_RECORDS = 1000
 EMPTY_FIELD = "---------"
 
@@ -68,9 +67,9 @@ class CreateLearningUnitYearForm(BootstrapForm):
                                 mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION,
                                 required=False)
     subtype = forms.CharField(widget=forms.HiddenInput())
-    first_letter = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'text-center',
-                                                                                 'maxlength': "1",
-                                                                                 'readonly': 'readonly'}))
+    first_letter = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
+                                             mdl.enums.learning_unit_management_sites.LEARNING_UNIT_MANAGEMENT_SITE,
+                                     required=True)
     container_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
                                        widget=forms.Select(attrs={'onchange': 'showInternshipSubtype(this.value)'}))
     faculty_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))

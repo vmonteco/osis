@@ -23,7 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+B="B"
+L="L"
+M = "M"
+W = "W"
 
-from base.models.enums import internship_subtypes
-from base.models.enums import learning_unit_management_sites
-from base.models.enums import learning_unit_year_session
+LEARNING_UNIT_MANAGEMENT_SITE = (
+    (B, B),
+    (L, L),
+    (M, M),
+    (W, W)
+)
