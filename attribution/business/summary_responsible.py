@@ -27,14 +27,12 @@ from django.core.exceptions import PermissionDenied
 
 from attribution import models as mdl_attr
 from attribution.models.attribution import search_by_learning_unit_this_year
-
 from base import models as mdl_base
 from base.models.entity_manager import find_entities_with_descendants_from_entity_managers
 
 
-def get_learning_unit_year_managed_by_user_from_request(request):
-    user = request.user
-    a_learning_unit_year = _get_learning_unit_year_from_request(request)
+def get_learning_unit_year_managed_by_user_from_id(user, learning_unit_year_id):
+    a_learning_unit_year = mdl_base.learning_unit_year.get_by_id(learning_unit_year_id)
     if _is_user_manager_of_entity_allocation_of_learning_unit_year(user, a_learning_unit_year):
         return a_learning_unit_year
     raise PermissionDenied("User is not an entity manager of the allocation entity of the learning unit.")
@@ -46,20 +44,17 @@ def _is_user_manager_of_entity_allocation_of_learning_unit_year(user, a_learning
     return a_learning_unit_year.allocation_entity in entities_with_descendants
 
 
-def _get_learning_unit_year_from_request(request):
-    learning_unit_year_id = request.GET.get('learning_unit_year').strip('learning_unit_year_')
-    a_learning_unit_year = mdl_base.learning_unit_year.get_by_id(learning_unit_year_id)
-    return a_learning_unit_year
+def find_attributions_based_on_request_criterias(**criteria):
+    entities_manager = criteria["entities_manager"]
+    course_code = criteria["course_code"]
+    learning_unit_title = criteria["learning_unit_title"]
+    tutor = criteria["tutor"]
+    responsible = criteria["summary_responsible"]
 
-
-def find_attributions_based_on_request_criterias(entities_manager, request):
     entities_with_descendants = find_entities_with_descendants_from_entity_managers(entities_manager)
-    learning_unit_year_attributions_queryset = search_by_learning_unit_this_year(request.GET.get('course_code'),
-                                                                                 request.GET.get('learning_unit_title'))
+    learning_unit_year_attributions_queryset = search_by_learning_unit_this_year(course_code, learning_unit_title)
+
     attributions = list(mdl_attr.attribution.filter_attributions(
-        attributions_queryset=learning_unit_year_attributions_queryset,
-        entities=entities_with_descendants,
-        tutor=request.GET.get('tutor'),
-        responsible=request.GET.get('summary_responsible')
-    ))
+        attributions_queryset=learning_unit_year_attributions_queryset, entities=entities_with_descendants,
+        tutor=tutor, responsible=responsible))
     return attributions
