@@ -123,7 +123,7 @@ class LearningUnitViewTestCase(TestCase):
         self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL, start_date=today,
                                                    end_date=today.replace(year=today.year + 1))
 
-        self.campus = CampusFactory(organization=self.organization, is_administration=True, code="L")
+        self.campus = CampusFactory(organization=self.organization, is_administration=True)
         self.language = LanguageFactory(code='FR')
         self.a_superuser = SuperUserFactory()
         self.person = PersonFactory(user=self.a_superuser)
