@@ -141,19 +141,11 @@ def search_scores_responsible(learning_unit_title, course_code, entities, tutor,
 
 def search_summary_responsible(learning_unit_title, course_code, entities, tutor, responsible):
     queryset = search_by_learning_unit_this_year(course_code, learning_unit_title)
-    if tutor and responsible:
+    if tutor:
+        queryset = _filter_by_tutor(queryset, tutor)
+    if responsible:
         queryset = queryset \
-            .filter(learning_unit_year__id__in=LearningUnitYear.objects
-                    .filter(attribution__id__in=Attribution.objects
-                            .filter(summary_responsible=True,
-                                    tutor__person__in=person.find_by_firstname_or_lastname(responsible)))) \
-            .filter(tutor__person__in=person.find_by_firstname_or_lastname(tutor))
-    else:
-        if tutor:
-            queryset = _filter_by_tutor(queryset, tutor)
-        if responsible:
-            queryset = queryset \
-                .filter(summary_responsible=True, tutor__person__in=person.find_by_firstname_or_lastname(responsible))
+            .filter(summary_responsible=True, tutor__person__in=person.find_by_firstname_or_lastname(responsible))
     if entities:
         queryset = filter_by_entities(queryset, entities)
 
