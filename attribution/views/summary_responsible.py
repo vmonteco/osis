@@ -31,9 +31,10 @@ from django.views.decorators.http import require_http_methods
 from attribution import models as mdl_attr
 from attribution.business.attribution import get_attributions_list, _set_summary_responsible_to_true
 from attribution.business.entity_manager import _append_entity_version
-from attribution.business.summary_responsible import get_learning_unit_year_managed_by_user_from_request
+from attribution.business.summary_responsible import get_learning_unit_year_managed_by_user_from_request, \
+    find_attributions_based_on_request_criterias
 from base import models as mdl_base
-from base.models.entity_manager import is_entity_manager, find_entities_with_descendants_from_entity_managers
+from base.models.entity_manager import is_entity_manager
 from base.views import layout
 
 
@@ -47,14 +48,7 @@ def search(request):
                "academic_year": academic_year,
                "init": "0"}
     if request.GET:
-        entities_with_descendants = find_entities_with_descendants_from_entity_managers(entities_manager)
-        attributions = list(mdl_attr.attribution.search_summary_responsible(
-            learning_unit_title=request.GET.get('learning_unit_title'),
-            course_code=request.GET.get('course_code'),
-            entities=entities_with_descendants,
-            tutor=request.GET.get('tutor'),
-            responsible=request.GET.get('summary_responsible')
-        ))
+        attributions = find_attributions_based_on_request_criterias(entities_manager, request)
         context.update({"dict_attribution": get_attributions_list(attributions, "-summary_responsible"),
                         "learning_unit_title": request.GET.get('learning_unit_title'),
                         "course_code": request.GET.get('course_code'),

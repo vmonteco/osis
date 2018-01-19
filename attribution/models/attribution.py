@@ -139,8 +139,8 @@ def search_scores_responsible(learning_unit_title, course_code, entities, tutor,
                    .distinct("learning_unit_year")
 
 
-def search_summary_responsible(learning_unit_title, course_code, entities, tutor, responsible):
-    queryset = search_by_learning_unit_this_year(course_code, learning_unit_title)
+def filter_attributions(attributions_queryset, entities, tutor, responsible):
+    queryset = attributions_queryset
     if tutor:
         queryset = _filter_by_tutor(queryset, tutor)
     if responsible:

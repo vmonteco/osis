@@ -25,6 +25,9 @@
 ##############################################################################
 from django.core.exceptions import PermissionDenied
 
+from attribution import models as mdl_attr
+from attribution.models.attribution import search_by_learning_unit_this_year
+
 from base import models as mdl_base
 from base.models.entity_manager import find_entities_with_descendants_from_entity_managers
 
@@ -47,3 +50,16 @@ def _get_learning_unit_year_from_request(request):
     learning_unit_year_id = request.GET.get('learning_unit_year').strip('learning_unit_year_')
     a_learning_unit_year = mdl_base.learning_unit_year.get_by_id(learning_unit_year_id)
     return a_learning_unit_year
+
+
+def find_attributions_based_on_request_criterias(entities_manager, request):
+    entities_with_descendants = find_entities_with_descendants_from_entity_managers(entities_manager)
+    learning_unit_year_attributions_queryset = search_by_learning_unit_this_year(request.GET.get('course_code'),
+                                                                                 request.GET.get('learning_unit_title'))
+    attributions = list(mdl_attr.attribution.filter_attributions(
+        attributions_queryset=learning_unit_year_attributions_queryset,
+        entities=entities_with_descendants,
+        tutor=request.GET.get('tutor'),
+        responsible=request.GET.get('summary_responsible')
+    ))
+    return attributions
