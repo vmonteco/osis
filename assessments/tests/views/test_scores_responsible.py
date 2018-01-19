@@ -152,7 +152,7 @@ class ScoresResponsibleViewTestCase(TestCase):
             'learning_unit_year': "learning_unit_year_%d" % self.learning_unit_year.id
         }
         response = self.client.get(url, data=data)
-        self.assertEqual(response.status_code, 302)# Return "AccessDenied"
+        self.assertEqual(response.status_code, 403)
 
     def test_scores_responsible_add(self):
         self.client.force_login(self.user)

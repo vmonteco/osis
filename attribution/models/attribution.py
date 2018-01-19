@@ -151,8 +151,7 @@ def search_summary_responsible(learning_unit_title, course_code, entities, tutor
 
     queryset = _prefetch_entity_version(queryset)
 
-    return queryset.select_related('learning_unit_year')\
-                   .distinct("learning_unit_year")
+    return queryset.select_related('learning_unit_year').distinct("learning_unit_year")
 
 
 def search_by_learning_unit_this_year(code, title):
