@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ from django.views.decorators.http import require_http_methods
 from attribution import models as mdl_attr
 from attribution.business.attribution import get_attributions_list, _set_summary_responsible_to_true
 from attribution.business.entity_manager import _append_entity_version
+from attribution.business.summary_responsible import is_user_manager_of_entity_allocation_of_learning_unit_year
 from base import models as mdl_base
 from base.models.entity_manager import is_entity_manager, find_entities_with_descendants_from_entity_managers
 from base.views import layout
@@ -67,11 +68,9 @@ def search(request):
 @login_required
 @user_passes_test(is_entity_manager)
 def edit(request):
-    entities_manager = mdl_base.entity_manager.find_by_user(request.user)
-    entities_with_descendants = find_entities_with_descendants_from_entity_managers(entities_manager)
     learning_unit_year_id = request.GET.get('learning_unit_year').strip('learning_unit_year_')
     a_learning_unit_year = mdl_base.learning_unit_year.get_by_id(learning_unit_year_id)
-    if a_learning_unit_year.allocation_entity in entities_with_descendants:
+    if is_user_manager_of_entity_allocation_of_learning_unit_year(request.user, a_learning_unit_year):
         attributions = mdl_attr.attribution.find_all_responsible_by_learning_unit_year(a_learning_unit_year)
         academic_year = mdl_base.academic_year.current_academic_year()
         return layout.render(request, 'summary_responsible_edit.html',
