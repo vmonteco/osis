@@ -58,7 +58,6 @@ from django.utils import timezone
 
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
-from internship.tests.factories.speciality import SpecialityFactory
 
 
 class LearningUnitYearDeletion(TestCase):
@@ -266,13 +265,6 @@ class LearningUnitYearDeletion(TestCase):
 
         msg = learning_unit_deletion.check_learning_unit_year_deletion(learning_unit_year)
         self.assertIn(tutoring, msg.keys())
-
-    def test_check_delete_learning_unit_with_internship(self):
-        learning_unit = LearningUnitFactory()
-        speciality = SpecialityFactory(learning_unit=learning_unit)
-
-        msg = learning_unit_deletion.check_learning_unit_deletion(learning_unit)
-        self.assertIn(speciality, msg.keys())
 
     def test_can_delete_learning_unit_year_with_faculty_manager_role(self):
         # Faculty manager can only delete other type than COURSE/INTERNSHIP/DISSERTATION
