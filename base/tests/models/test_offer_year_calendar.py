@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import datetime
+from unittest import mock
 from django.test import TestCase
 from django.utils import timezone
 
@@ -31,6 +32,8 @@ from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.offer_year_calendar import OfferYearCalendarFactory
 from base.tests.factories.offer_year import OfferYearFactory
+
+from base.signals.publisher import compute_scores_encodings_deadlines
 
 
 YEAR_CALENDAR = timezone.now().year
@@ -54,4 +57,9 @@ class OfferYearCalendarsAttributesValidation(TestCase):
         self.offer_year_calendar.end_date = datetime.date(YEAR_CALENDAR, 8, 1)
         with self.assertRaises(AttributeError):
             self.offer_year_calendar.save()
+
+    def test_compute_deadline_is_called_case_offer_year_calendar_save(self):
+        with mock.patch.object(compute_scores_encodings_deadlines, 'send') as mock_method:
+            OfferYearCalendarFactory()
+            self.assertTrue(mock_method.called)
 

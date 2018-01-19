@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,18 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from attribution.models import *
-from django.contrib import admin
+from django.dispatch import Signal
 
 
-admin.site.register(attribution.Attribution,
-                    attribution.AttributionAdmin)
+compute_scores_encodings_deadlines = Signal(providing_args=["offer_year_calendar"])
 
-admin.site.register(attribution_new.AttributionNew,
-                    attribution_new.AttributionNewAdmin)
+compute_student_score_encoding_deadline = Signal(providing_args=["session_exam_deadline"])
 
-admin.site.register(attribution_charge_new.AttributionChargeNew,
-                    attribution_charge_new.AttributionChargeNewAdmin)
-
-admin.site.register(tutor_application.TutorApplication,
-                    tutor_application.TutorApplicationAdmin)
+compute_all_scores_encodings_deadlines = Signal(providing_args=["academic_calendar"])

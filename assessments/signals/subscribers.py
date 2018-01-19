@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,18 +23,22 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from attribution.models import *
-from django.contrib import admin
+from django.dispatch import receiver
+
+from assessments.business import scores_encodings_deadline
+from base.signals import publisher
 
 
-admin.site.register(attribution.Attribution,
-                    attribution.AttributionAdmin)
+@receiver(publisher.compute_scores_encodings_deadlines)
+def compute_scores_encodings_deadlines(sender, **kwargs):
+    scores_encodings_deadline.compute_deadline(kwargs['offer_year_calendar'])
 
-admin.site.register(attribution_new.AttributionNew,
-                    attribution_new.AttributionNewAdmin)
 
-admin.site.register(attribution_charge_new.AttributionChargeNew,
-                    attribution_charge_new.AttributionChargeNewAdmin)
+@receiver(publisher.compute_student_score_encoding_deadline)
+def compute_student_score_encoding_deadline(sender, **kwargs):
+    scores_encodings_deadline.compute_deadline_by_student(kwargs['session_exam_deadline'])
 
-admin.site.register(tutor_application.TutorApplication,
-                    tutor_application.TutorApplicationAdmin)
+
+@receiver(publisher.compute_all_scores_encodings_deadlines)
+def compute_all_scores_encodings_deadlines(sender, **kwargs):
+    scores_encodings_deadline.recompute_all_deadlines(kwargs['academic_calendar'])

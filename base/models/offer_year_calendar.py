@@ -29,6 +29,7 @@ from django.db import models
 from django.utils import formats
 from django.utils.translation import ugettext as _
 from osis_common.utils.datetime import is_in_chronological_order
+from base.signals.publisher import compute_scores_encodings_deadlines
 
 
 class OfferYearCalendarAdmin(admin.ModelAdmin):
@@ -76,6 +77,7 @@ class OfferYearCalendar(models.Model):
     def save(self, *args, **kwargs):
         self.end_start_dates_validation()
         super(OfferYearCalendar, self).save(*args, **kwargs)
+        compute_scores_encodings_deadlines.send(sender=self.__class__, offer_year_calendar=self)
 
     def end_start_dates_validation(self):
         if self._dates_are_set() and not is_in_chronological_order(self.start_date, self.end_date):
@@ -127,17 +129,20 @@ def get_by_education_group_year_and_academic_calendar(an_academic_calendar, an_e
         return None
 
 
-def search(education_group_year_id=None, academic_calendar_reference=None, number_session=None):
+def search(**kwargs):
 
     queryset = OfferYearCalendar.objects
 
-    if education_group_year_id is not None:
-        queryset = queryset.filter(education_group_year=education_group_year_id)
+    if 'education_group_year_id' in kwargs:
+        queryset = queryset.filter(education_group_year=kwargs['education_group_year_id'])
 
-    if academic_calendar_reference is not None:
-        queryset = queryset.filter(academic_calendar__reference=academic_calendar_reference)
+    if 'academic_calendar_reference' in kwargs:
+        queryset = queryset.filter(academic_calendar__reference=kwargs['academic_calendar_reference'])
 
-    if number_session:
-        queryset = queryset.filter(academic_calendar__sessionexamcalendar__number_session=number_session)
+    if 'number_session' in kwargs:
+        queryset = queryset.filter(academic_calendar__sessionexamcalendar__number_session=kwargs['number_session'])
+
+    if 'offer_year' in kwargs:
+        queryset = queryset.filter(offer_year=kwargs['offer_year'])
 
     return queryset
