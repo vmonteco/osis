@@ -31,8 +31,7 @@ from django.views.decorators.http import require_http_methods
 from attribution import models as mdl_attr
 from attribution.business.attribution import get_attributions_list, _set_summary_responsible_to_true
 from attribution.business.entity_manager import _append_entity_version
-from attribution.business.summary_responsible import get_learning_unit_year_managed_by_user_from_id, \
-    find_attributions_based_on_request_criterias
+from attribution.business.summary_responsible import search_attributions, get_attributions_data
 from base import models as mdl_base
 from base.models.entity_manager import is_entity_manager
 from base.views import layout
@@ -52,10 +51,10 @@ def search(request):
         summary_responsible = request.GET.get('summary_responsible')
         course_code = request.GET.get('course_code')
         learning_unit_title = request.GET.get('learning_unit_title')
-        attributions = find_attributions_based_on_request_criterias(entities_manager=entities_manager, tutor=tutor,
-                                                                    summary_responsible=summary_responsible,
-                                                                    course_code=course_code,
-                                                                    learning_unit_title=learning_unit_title)
+        attributions = search_attributions(entities_manager=entities_manager, tutor=tutor,
+                                           summary_responsible=summary_responsible,
+                                           course_code=course_code,
+                                           learning_unit_title=learning_unit_title)
         context.update({"dict_attribution": get_attributions_list(attributions, "-summary_responsible"),
                         "learning_unit_title": learning_unit_title,
                         "course_code": course_code,
@@ -69,18 +68,15 @@ def search(request):
 @login_required
 @user_passes_test(is_entity_manager)
 def edit(request):
-    learning_unit_year_id = request.GET.get('learning_unit_year').strip('learning_unit_year_')
-    a_learning_unit_year = get_learning_unit_year_managed_by_user_from_id(request.user,
-                                                                          learning_unit_year_id)
     context = {
-        'learning_unit_year': a_learning_unit_year,
-        'attributions': mdl_attr.attribution.find_all_responsible_by_learning_unit_year(a_learning_unit_year),
-        'academic_year': mdl_base.academic_year.current_academic_year(),
         'course_code': request.GET.get('course_code'),
         'learning_unit_title': request.GET.get('learning_unit_title'),
         'tutor': request.GET.get('tutor'),
         'summary_responsible': request.GET.get('summary_responsible')
     }
+    learning_unit_year_id = request.GET.get('learning_unit_year').strip('learning_unit_year_')
+    attributions_data = get_attributions_data(request.user, learning_unit_year_id)
+    context.update(attributions_data)
     return layout.render(request, 'summary_responsible_edit.html', context)
 
 

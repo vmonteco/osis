@@ -29,7 +29,7 @@ from django.http import HttpResponseRedirect
 from attribution import models as mdl_attr
 from attribution.business.attribution import get_attributions_list
 from attribution.business.entity_manager import _append_entity_version
-from attribution.business.summary_responsible import get_learning_unit_year_managed_by_user_from_id
+from attribution.business.summary_responsible import get_attributions_data
 from base import models as mdl_base
 from base.models.entity_manager import is_entity_manager, find_entities_with_descendants_from_entity_managers
 from base.views import layout
@@ -80,16 +80,15 @@ def scores_responsible_search(request):
 @login_required
 @user_passes_test(is_entity_manager)
 def scores_responsible_management(request):
-    a_learning_unit_year = get_learning_unit_year_managed_by_user_from_id(request)
     context = {
-        'learning_unit_year': a_learning_unit_year,
-        'attributions': mdl_attr.attribution.find_all_responsible_by_learning_unit_year(a_learning_unit_year),
-        'academic_year': mdl_base.academic_year.current_academic_year(),
         'course_code': request.GET.get('course_code'),
         'learning_unit_title': request.GET.get('learning_unit_title'),
         'tutor': request.GET.get('tutor'),
         'scores_responsible': request.GET.get('scores_responsible')
     }
+    learning_unit_year_id = request.GET.get('learning_unit_year').strip('learning_unit_year_')
+    attributions_data = get_attributions_data(request.user, learning_unit_year_id)
+    context.update(attributions_data)
     return layout.render(request, 'scores_responsible_edit.html', context)
 
 

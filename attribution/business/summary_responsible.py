@@ -44,7 +44,7 @@ def _is_user_manager_of_entity_allocation_of_learning_unit_year(user, a_learning
     return a_learning_unit_year.allocation_entity in entities_with_descendants
 
 
-def find_attributions_based_on_request_criterias(**criteria):
+def search_attributions(**criteria):
     entities_manager = criteria["entities_manager"]
     course_code = criteria["course_code"]
     learning_unit_title = criteria["learning_unit_title"]
@@ -58,3 +58,12 @@ def find_attributions_based_on_request_criterias(**criteria):
         attributions_queryset=learning_unit_year_attributions_queryset, entities=entities_with_descendants,
         tutor=tutor, responsible=responsible))
     return attributions
+
+
+def get_attributions_data(user, learning_unit_year_id):
+    a_learning_unit_year = get_learning_unit_year_managed_by_user_from_id(user, learning_unit_year_id)
+    return {
+        'learning_unit_year': a_learning_unit_year,
+        'attributions': mdl_attr.attribution.find_all_responsible_by_learning_unit_year(a_learning_unit_year),
+        'academic_year': mdl_base.academic_year.current_academic_year()
+    }
