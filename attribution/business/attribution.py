@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from attribution import models as mdl_attr
+from base.business.entity_version import find_entity_version_according_academic_year
 
 
 def get_attributions_list(attributions, responsibles_order):
@@ -44,7 +45,8 @@ def _get_entity_version(learning_container_year_prefetched):
     if learning_container_year_prefetched.entities_containers_year:
         entity = learning_container_year_prefetched.entities_containers_year[0].entity
         if entity.entity_versions:
-            return next((entity_v for entity_v in entity.entity_versions), None)
+            return find_entity_version_according_academic_year(entity.entity_versions,
+                                                               learning_container_year_prefetched.academic_year)
     return None
 
 
