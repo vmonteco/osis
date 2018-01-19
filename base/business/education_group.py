@@ -23,9 +23,33 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from base.models import offer_year_entity
+from base.models import person_entity
+from base.models.enums import offer_year_entity_type
 from base.models.program_manager import is_program_manager
 
+CENTRAL_MANAGER_GROUP = "central_managers"
 
-def can_user_edit_administrative_data(a_user, an_education_group):
-    return is_program_manager(a_user, education_group=an_education_group) and \
-           a_user.has_perm("base.can_edit_education_group_administrative_data")
+
+def can_user_edit_administrative_data(a_user, an_education_group_year):
+    """
+    Edition of administrative data is allowed for user which have permission AND
+            if CENTRAL_MANAGER: Check attached entities [person_entity]
+            else Check if user is program manager of education group
+    """
+    if not a_user.has_perm("base.can_edit_education_group_administrative_data"):
+        return False
+
+    if a_user.groups.filter(name=CENTRAL_MANAGER_GROUP).exists() and \
+       _is_management_entity_linked_to_user(a_user, an_education_group_year):
+        return True
+
+    return is_program_manager(a_user, education_group=an_education_group_year.education_group)
+
+
+def _is_management_entity_linked_to_user(a_user, an_education_group_year):
+    management_entity_ids = list(offer_year_entity.find_by_education_group_year(
+        education_group_yr=an_education_group_year,
+        typ=offer_year_entity_type.ENTITY_MANAGEMENT).values_list('entity', flat=True))
+    entities_linked = person_entity.find_entities_by_user(a_user)
+    return any(entity.id in management_entity_ids for entity in entities_linked)

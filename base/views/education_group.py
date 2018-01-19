@@ -32,7 +32,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required, permission_required
 
 from base import models as mdl
-from base.business.education_group import can_user_edit_administrative_data
+from base.business import education_group as education_group_business
 from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
 from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataFormset
 from base.models.education_group_year import EducationGroupYear
@@ -195,8 +195,8 @@ def _education_group_administrative_data_tab(request, education_group_year_id):
                                                        education_group_year)})
     context.update({'scores_exam_diffusion': get_sessions_dates(academic_calendar_type.SCORES_EXAM_DIFFUSION,
                                                                 education_group_year)})
-    context.update({"can_edit_administrative_data":
-                        can_user_edit_administrative_data(request.user, education_group_year.education_group)})
+    context.update({"can_edit_administrative_data":  education_group_business.can_user_edit_administrative_data(
+                                                                                request.user, education_group_year)})
     return layout.render(request, "education_group/tab_administrative_data.html", context)
 
 
