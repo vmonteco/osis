@@ -187,17 +187,18 @@ def find_by_tutor(tutor):
 
 
 def clear_scores_responsible_by_learning_unit_year(learning_unit_year_pk):
-    attributions = search_by_learning_unit_year_pk_this_academic_year(learning_unit_year_pk)
-    for attribution in attributions:
-        attribution.score_responsible = False
-        attribution.save()
+    _clear_attributions_field_of_learning__unit_year(learning_unit_year_pk, "score_responsible")
 
 
 def clear_summary_responsible_by_learning_unit_year(learning_unit_year_pk):
+    _clear_attributions_field_of_learning__unit_year(learning_unit_year_pk, "summary_responsible")
+
+
+def _clear_attributions_field_of_learning__unit_year(learning_unit_year_pk, field_to_clear):
     attributions = search_by_learning_unit_year_pk_this_academic_year(learning_unit_year_pk)
     for attribution in attributions:
-        attribution.summary_responsible = False
-        attributions.save()
+        setattr(attribution, field_to_clear, False)
+        attribution.save()
 
 
 def search_by_learning_unit_year_pk_this_academic_year(learning_unit_year_pk):
