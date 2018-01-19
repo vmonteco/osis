@@ -23,14 +23,17 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import PermissionDenied
+
 from base import models as mdl_base
 from base.models.entity_manager import find_entities_with_descendants_from_entity_managers
 
-def find_learning_unit_year_managed_by_user_from_request(request):
+def get_learning_unit_year_managed_by_user_from_request(request):
     user = request.user
     a_learning_unit_year = _get_learning_unit_year_from_request(request)
-    return a_learning_unit_year \
-        if _is_user_manager_of_entity_allocation_of_learning_unit_year(user, a_learning_unit_year) else None
+    if _is_user_manager_of_entity_allocation_of_learning_unit_year(user, a_learning_unit_year):
+        return a_learning_unit_year
+    raise PermissionDenied("User is not an entity manager of the allocation entity of the learning unit.")
 
 
 def _is_user_manager_of_entity_allocation_of_learning_unit_year(user, a_learning_unit_year):
