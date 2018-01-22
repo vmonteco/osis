@@ -469,6 +469,8 @@ def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
 
 @login_required
 def learning_unit_summary(request, learning_unit_year_id):
+    if not permission.is_summary_submission_opened():
+        return redirect(reverse_lazy('outside_summary_submission_period'))
     if not is_tutor(request.user):
         raise PermissionDenied("User is not a tutor")
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
@@ -495,6 +497,8 @@ def learning_unit_summary(request, learning_unit_year_id):
 
 @login_required
 def summary_edit(request, learning_unit_year_id):
+    if not permission.is_summary_submission_opened():
+        return redirect(reverse_lazy('outside_summary_submission_period'))
     if not is_tutor(request.user):
         raise PermissionDenied("User is not a tutor")
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)

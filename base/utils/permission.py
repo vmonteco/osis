@@ -27,7 +27,7 @@ from base import models as mdl_base
 from base.models.enums import academic_calendar_type
 
 
-def is_summary_submission_opened(user):
+def is_summary_submission_opened():
     current_academic_year = mdl_base.academic_year.current_academic_year()
     if current_academic_year:
         return mdl_base.academic_calendar.is_academic_calendar_opened(

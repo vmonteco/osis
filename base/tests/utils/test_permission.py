@@ -45,17 +45,14 @@ YEAR_CALENDAR = timezone.now().year
 
 class TestPermission(TestCase):
 
-    def setUp(self):
-        self.a_user = User.objects.create_user(username='legat', email='legat@localhost', password='top_secret')
-
     def test_permission_is_undefined_no_academic_year(self):
-        self.assertEqual(permission.is_summary_submission_opened(self.a_user), False)
+        self.assertEqual(permission.is_summary_submission_opened(), False)
 
     def test_permission_is_undefined_no_academic_calendar(self):
         AcademicYearFactory(year=timezone.now().year,
                             start_date=start_date,
                             end_date=end_date)
-        self.assertEqual(permission.is_summary_submission_opened(self.a_user), False)
+        self.assertEqual(permission.is_summary_submission_opened(), False)
 
     def test_summary_submission_period_opened(self):
         current_academic_year = AcademicYearFakerFactory(start_date=timezone.now() - datetime.timedelta(days=10),
@@ -63,7 +60,7 @@ class TestPermission(TestCase):
 
         AcademicCalendarFactory(academic_year=current_academic_year,
                                 reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
-        self.assertTrue(permission.is_summary_submission_opened(self.a_user))
+        self.assertTrue(permission.is_summary_submission_opened())
 
     def test_summary_submission_period_closed(self):
 
@@ -77,4 +74,4 @@ class TestPermission(TestCase):
                                       reference="A calendar event",
                                       start_date=today_plus_3_days,
                                       end_date=today_plus_3_days)
-        self.assertFalse(permission.is_summary_submission_opened(self.a_user))
+        self.assertFalse(permission.is_summary_submission_opened())
