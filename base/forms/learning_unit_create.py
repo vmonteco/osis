@@ -24,12 +24,15 @@
 #
 ##############################################################################
 import re
+from decimal import Decimal
 
 from django import forms
+from django.core.validators import MinValueValidator
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
+from base.business import learning_unit
 from base.forms.bootstrap import BootstrapForm
 from base.models.campus import find_administration_campuses
 from base.models.entity_version import find_main_entities_version, find_main_entities_version_filtered_by_person
@@ -61,7 +64,7 @@ class CreateLearningUnitYearForm(BootstrapForm):
     internship_subtype = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
                                            mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES,
                                            required=False)
-    credits = forms.DecimalField(decimal_places=2)
+    credits = forms.DecimalField(decimal_places=2, validators=[MinValueValidator(Decimal('1.0'))])
     title = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
     title_english = forms.CharField(required=False, widget=forms.TextInput())
     session = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
@@ -129,6 +132,7 @@ class CreateLearningUnitYearForm(BootstrapForm):
             return False
         learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, self.data['acronym'])
         learning_unit_years_list = [learning_unit_year.acronym.lower() for learning_unit_year in learning_unit_years]
+        academic_year_max = learning_unit.compute_max_academic_year_adjournment()
         if self.data['acronym'] in learning_unit_years_list:
             self.add_error('acronym', _('existing_acronym'))
         elif not re.match(self.acronym_regex, self.cleaned_data['acronym']):
@@ -136,5 +140,8 @@ class CreateLearningUnitYearForm(BootstrapForm):
         elif self.cleaned_data["container_type"] == INTERNSHIP \
                 and not (self.cleaned_data['internship_subtype']):
             self._errors['internship_subtype'] = _('field_is_required')
+        elif academic_year.year > academic_year_max:
+            error_msg = _('learning_unit_creation_academic_year_max_error').format(academic_year_max)
+            self._errors['academic_year'] = error_msg
         else:
             return True

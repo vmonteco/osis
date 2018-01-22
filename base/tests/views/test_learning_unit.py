@@ -658,6 +658,13 @@ class LearningUnitViewTestCase(TestCase):
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['acronym'], [_('invalid_acronym')])
 
+    def test_create_learning_unit_case_invalid_academic_year(self):
+        wrond_academic_year_data = dict(self.get_valid_data())
+        AcademicYear.objects.filter(pk=self.current_academic_year.id).update(year=self.current_academic_year.year+1000)
+        wrond_academic_year_data['academic_year'] = self.current_academic_year
+        form = CreateLearningUnitYearForm(person=self.person, data=wrond_academic_year_data)
+        self.assertFalse(form.is_valid())
+
     def test_learning_unit_check_acronym(self):
         kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
 

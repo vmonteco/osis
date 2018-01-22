@@ -63,7 +63,7 @@
                                     {{ form.acronym }}
                                     <span class='error' id="{{ form.acronym.name }}_message" for='{{ form.acronym.name }}' generated="true"/>
                                     {% if form.acronym.errors %}
-                                        <label class='error' for='{{ form.acronym.name }}' generated="true">{{ form.acronym.errors|join:". " }}</label>
+                                        <b class='error' for='{{ form.acronym.name }}' generated="true">{{ form.acronym.errors|join:". " }}</b>
                                     {% endif %}
                                 </div>
                             </div>
@@ -97,6 +97,7 @@
                         <div class="col-md-2">
                             <label class="text-nowrap">{% trans 'academic_year' %}</label>
                             {{ form.academic_year }}
+                            <b style="color: red;">{{ form.academic_year.errors }}</b>
                         </div>
                         <div class="col-md-2">
                             <label>{% trans 'periodicity' %}*</label>

@@ -2481,3 +2481,6 @@ msgstr "no planned end"
 
 msgid "learning_unit_successfuly_created"
 msgstr "Leraning unit '{}' successfuly created with adjournment until {}."
+
+msgid "learning_unit_creation_academic_year_max_error"
+msgstr "Please select an academic year lower than {}."
