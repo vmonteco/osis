@@ -472,11 +472,9 @@ def learning_unit_summary(request, learning_unit_year_id):
         return redirect(reverse_lazy('outside_summary_submission_period'))
     if not is_tutor(request.user):
         raise PermissionDenied("User is not a tutor")
-    learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
-    attribution = get_object_or_404(Attribution, learning_unit_year=learning_unit_year,
-                                    tutor__person__user=request.user)
-    if not attribution.summary_responsible:
-        raise PermissionDenied("User is not summary responsible")
+    user = request.user
+    attribution = get_attribution_user_is_responsible_of_summary_from_learning_unit_year_id(learning_unit_year_id, user)
+    learning_unit_year = attribution.learning_unit_year
 
     context = dict()
     context["learning_unit_year"] = learning_unit_year
@@ -494,18 +492,22 @@ def learning_unit_summary(request, learning_unit_year_id):
     })
     return layout.render(request, "my_osis/educational_information.html", context)
 
+
+def get_attribution_user_is_responsible_of_summary_from_learning_unit_year_id(learning_unit_year_id, user):
+    attribution = get_object_or_404(Attribution, learning_unit_year__id=learning_unit_year_id,
+                                    tutor__person__user=user, summary_responsible=True)
+    return attribution
+
+
 @login_required
 def summary_edit(request, learning_unit_year_id):
     if not base.business.learning_unit.is_summary_submission_opened():
         return redirect(reverse_lazy('outside_summary_submission_period'))
     if not is_tutor(request.user):
         raise PermissionDenied("User is not a tutor")
-    learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
-    attribution = get_object_or_404(Attribution, learning_unit_year=learning_unit_year,
-                                    tutor__person__user=request.user)
-    if not attribution.summary_responsible:
-        raise PermissionDenied("User is not summary responsible")
-
+    user = request.user
+    attribution = get_attribution_user_is_responsible_of_summary_from_learning_unit_year_id(learning_unit_year_id, user)
+    learning_unit_year = attribution.learning_unit_year
 
     if request.method == 'POST':
         form = LearningUnitPedagogyEditForm(request.POST)

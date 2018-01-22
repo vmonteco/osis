@@ -110,8 +110,8 @@ class TestLearningUnitSummary(TestCase):
         self.attribution.save()
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
-        self.assertTemplateUsed(response, 'access_denied.html')
+        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
+        self.assertTemplateUsed(response, 'page_not_found.html')
 
     def test_when_valid_get_request(self):
         response = self.client.get(self.url)
@@ -192,8 +192,8 @@ class TestLearningUnitSummaryEdit(TestCase):
         self.attribution.save()
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
-        self.assertTemplateUsed(response, 'access_denied.html')
+        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
+        self.assertTemplateUsed(response, 'page_not_found.html')
 
     def test_valid_get_request(self):
         language = "en"
