@@ -28,6 +28,7 @@ import datetime
 from decimal import Decimal
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
+from base.tests.factories.academic_year import create_current_academic_year
 
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.person import PersonFactory
@@ -53,7 +54,8 @@ class TestSave(TestCase):
     def setUp(self):
         self.person = PersonFactory()
         an_organization = OrganizationFactory(type=organization_type.MAIN)
-        self.learning_unit_year = LearningUnitYearFakerFactory(credits=5, subtype=learning_unit_year_subtypes.FULL)
+        self.learning_unit_year = LearningUnitYearFakerFactory(credits=5, subtype=learning_unit_year_subtypes.FULL,
+                                                               academic_year=create_current_academic_year())
         self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.COURSE
         self.learning_unit_year.learning_container_year.save()
         self.learning_unit_year.learning_container_year.campus.organization = an_organization
