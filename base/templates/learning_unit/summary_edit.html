@@ -25,34 +25,6 @@
 {% endcomment %}
 
 {% block content %}
-    <div class="modal-dialog" role="document" style="width:850px;">
-        <div class="modal-content">
-            <form class="summary_edit_form" role="form" method="POST"
-                  action="{% url 'learning_unit_summary_edit' learning_unit_year_id=form.learning_unit_year.id %}">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">×</button>
-                    <h4>{{text_label_translated.label}} - {{language_translated.1}}</h4>
-                </div>
-                <div class="modal-body">
-                    {% csrf_token %}
-                    {{ form.trans_text }}
-                    {{ form.cms_id }}
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" type="submit">{% trans 'save' %}</button>
-                    <button type="submit" class="btn" data-dismiss="modal">{% trans 'cancel' %} </button>
-                </div>
-            </form>
-        </div>
-    </div>
-{% endblock %}
-{% block script %}
-    <script>
-        $(function() {
-            var richText = $('#id_trans_text');
-            // Get configuration of rich text field
-            var config = richText.data('config')
-            CKEDITOR.replace('id_trans_text', config)
-        });
-    </script>
+    {% include "learning_unit/modal_pedagogy_edit.html"
+    with post_url={% url 'learning_unit_pedagogy_edit' learning_unit_year_id=form.learning_unit_year.id %} %}
 {% endblock %}

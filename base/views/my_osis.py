@@ -158,5 +158,5 @@ def _get_data(request):
             'programs_managers': mdl.program_manager.find_by_person(person),
             'supported_languages': settings.LANGUAGES,
             'default_language': settings.LANGUAGE_CODE,
-            'summary_submission_opened': base.business.learning_unit.is_summary_submission_opened(request.user)}
+            'summary_submission_opened': base.business.learning_unit.is_summary_submission_opened()}
 
