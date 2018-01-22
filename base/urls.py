@@ -113,6 +113,8 @@ urlpatterns = [
             url(r'^delete/$', base.views.learning_unit_deletion.delete_from_given_learning_unit_year, name="learning_unit_delete"),
             url(r'^delete_full/$', base.views.learning_unit_deletion.delete_all_learning_units_year, name="learning_unit_delete_all"),
             url(r'^summary/$', learning_unit.learning_unit_summary, name="learning_unit_summary"),
+            url(r'^summary/edit/$', learning_unit.summary_edit, name="learning_unit_summary_edit"),
+
         ])),
         url(r'^check/$', learning_unit.check_acronym, name="check_acronym"),
         url(r'^check_code/$', learning_unit.check_code, name="check_code"),

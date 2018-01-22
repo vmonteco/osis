@@ -25,6 +25,7 @@
 ##############################################################################
 import datetime
 
+from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
@@ -107,3 +108,64 @@ class TestLearningUnitSummary(TestCase):
         self.assertTrue(context["form_english"])
         self.assertTrue(context["cms_labels_translated"])
 
+
+class TestLearningUnitSummaryEdit(TestCase):
+    def setUp(self):
+        self.tutor = TutorFactory()
+
+        self.learning_unit_year = LearningUnitYearFakerFactory()
+        self.attribution = AttributionFactory(learning_unit_year=self.learning_unit_year, summary_responsible=True,
+                                              tutor=self.tutor)
+
+        self.url = reverse('learning_unit_summary_edit', args=[self.learning_unit_year.id])
+        self.client.force_login(self.tutor.person.user)
+
+    def test_user_is_not_logged(self):
+        self.client.logout()
+        response = self.client.get(self.url)
+
+        self.assertRedirects(response, "/login/?next={}".format(self.url))
+
+    def test_user_is_not_a_tutor(self):
+        self.person = PersonFactory()
+        self.client.force_login(self.person.user)
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, 'access_denied.html')
+
+    def test_when_learning_unit_year_does_not_exist(self):
+        self.learning_unit_year.delete()
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
+        self.assertTemplateUsed(response, 'page_not_found.html')
+
+    def test_when_user_is_not_attributed_to_the_learning_unit(self):
+        self.attribution.delete()
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
+        self.assertTemplateUsed(response, 'page_not_found.html')
+
+    def test_when_user_is_not_summary_responsible_of_the_learning_unit(self):
+        self.attribution.summary_responsible = False
+        self.attribution.save()
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, 'access_denied.html')
+
+    def test_valid_get_request(self):
+        language = "en"
+        text_label = TextLabelFactory()
+        response = self.client.get(self.url, data={"language": language, "label": text_label.label})
+
+        self.assertTemplateUsed(response, "my_osis/educational_information_edit.html")
+
+        context = response.context
+        self.assertEqual(context["learning_unit_year"], self.learning_unit_year)
+        self.assertTrue(context["form"])
+        self.assertEqual(context["text_label_translated"], None)
+        self.assertEqual(context["language_translated"], ('en', _('English')))

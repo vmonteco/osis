@@ -474,7 +474,6 @@ def learning_unit_summary(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
     attribution = get_object_or_404(Attribution, learning_unit_year=learning_unit_year,
                                     tutor__person__user=request.user)
-
     if not attribution.summary_responsible:
         raise PermissionDenied("User is not summary responsible")
 
@@ -493,6 +492,43 @@ def learning_unit_summary(request, learning_unit_year_id):
                                                  language=en_language)
     })
     return layout.render(request, "my_osis/educational_information.html", context)
+
+@login_required
+def summary_edit(request, learning_unit_year_id):
+    if not is_tutor(request.user):
+        raise PermissionDenied("User is not a tutor")
+    learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
+    attribution = get_object_or_404(Attribution, learning_unit_year=learning_unit_year,
+                                    tutor__person__user=request.user)
+    if not attribution.summary_responsible:
+        raise PermissionDenied("User is not summary responsible")
+
+
+    if request.method == 'POST':
+        form = LearningUnitPedagogyEditForm(request.POST)
+        if form.is_valid():
+            form.save()
+        return HttpResponseRedirect(reverse("learning_unit_summary",
+                                            kwargs={'learning_unit_year_id': learning_unit_year_id}))
+
+    context = dict()
+    context["learning_unit_year"] = learning_unit_year
+    label_name = request.GET.get('label')
+    language = request.GET.get('language')
+    text_lb = text_label.find_root_by_name(label_name)
+    form = LearningUnitPedagogyEditForm(**{
+        'learning_unit_year': context['learning_unit_year'],
+        'language': language,
+        'text_label': text_lb
+    })
+    form.load_initial()  # Load data from database
+    context['form'] = form
+
+    user_language = mdl.person.get_user_interface_language(request.user)
+    context['text_label_translated'] = next((txt for txt in text_lb.translated_text_labels
+                                             if txt.language == user_language), None)
+    context['language_translated'] = next((lang for lang in settings.LANGUAGES if lang[0] == language), None)
+    return layout.render(request, "my_osis/educational_information_edit.html", context)
 
 
 @login_required
