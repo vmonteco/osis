@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.http import HttpResponseRedirect
@@ -35,6 +35,7 @@ from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
 from attribution.business import attribution_charge_new
+from attribution.models.attribution import Attribution
 from base import models as mdl
 from base.business import learning_unit_deletion, learning_unit_year_volumes, learning_unit_year_with_context, \
     learning_unit_proposal
@@ -57,7 +58,9 @@ from base.forms.learning_unit_specifications import LearningUnitSpecificationsFo
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_class import LearningClassEditForm
+from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
+from base.models.tutor import is_tutor
 from cms.models import text_label
 from reference.models import language
 from . import layout
@@ -465,24 +468,30 @@ def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
 
 
 @login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
+# @user_passes_test(is_tutor)
 def learning_unit_summary(request, learning_unit_year_id):
-    context = get_common_context_learning_unit_year(learning_unit_year_id)
-    learning_unit_year = context['learning_unit_year']
+    learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
+    attribution = get_object_or_404(Attribution, learning_unit_year=learning_unit_year,
+                                    tutor__person__user=request.user)
+
+    if not attribution.summary_responsible:
+        raise PermissionDenied("User is not summary responsible")
+
+    context = dict()
+    context["learning_unit_year"] = learning_unit_year
 
     user_language = mdl.person.get_user_interface_language(request.user)
-    context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_SUMMARY, user_language)
+    context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language)
 
     fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
     en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
     context.update({
-        'summary_submission_opened': permission.is_summary_submission_opened(request.user),
-        'form_french': LearningUnitSummaryForm(learning_unit_year=learning_unit_year,
-                                               language=fr_language),
-        'form_english': LearningUnitSummaryForm(learning_unit_year=learning_unit_year,
-                                                language=en_language)
+        'form_french': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
+                                                language=fr_language),
+        'form_english': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
+                                                 language=en_language)
     })
-    return layout.render(request, "learning_unit/summary.html", context)
+    return layout.render(request, "my_osis/educational_information.html", context)
 
 
 @login_required
