@@ -357,8 +357,8 @@ def learning_unit_year_add(request):
                                            allocation_entity_version, data, new_learning_container,
                                            new_learning_unit, requirement_entity_version, status, academic_year)
             year += 1
-        messages.add_message(request, messages.SUCCESS, _('learning_unit_successfuly_created').format(data['acronym'],
-                                                                                                      academic_year_max))
+        success_msg = _('learning_unit_successfuly_created').format(data['acronym'], academic_year_max)
+        messages.add_message(request, messages.SUCCESS, success_msg)
         return redirect('learning_units')
     else:
         return layout.render(request, "learning_unit/learning_unit_form.html", {'form': form})

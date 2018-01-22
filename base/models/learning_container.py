@@ -40,7 +40,8 @@ class LearningContainer(AuditableSerializableModel):
 
     @property
     def most_recent_acronym(self):
-        most_recent_container_year = self.learningcontaineryear_set.filter(learning_container_id=self.id).latest('academic_year__year')
+        most_recent_container_year = self.learningcontaineryear_set.filter(learning_container_id=self.id)\
+                                                                   .latest('academic_year__year')
         return most_recent_container_year.acronym
 
     def __str__(self):
