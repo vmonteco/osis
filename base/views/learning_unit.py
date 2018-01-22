@@ -34,6 +34,7 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
+import base.business.learning_unit
 from attribution.business import attribution_charge_new
 from attribution.models.attribution import Attribution
 from base import models as mdl
@@ -64,8 +65,6 @@ from base.models.tutor import is_tutor
 from cms.models import text_label
 from reference.models import language
 from . import layout
-from base.forms.learning_unit_summary import LearningUnitSummaryForm, LearningUnitSummaryEditForm
-from base.utils import permission
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render
 
@@ -469,7 +468,7 @@ def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
 
 @login_required
 def learning_unit_summary(request, learning_unit_year_id):
-    if not permission.is_summary_submission_opened():
+    if not base.business.learning_unit.is_summary_submission_opened():
         return redirect(reverse_lazy('outside_summary_submission_period'))
     if not is_tutor(request.user):
         raise PermissionDenied("User is not a tutor")
@@ -497,7 +496,7 @@ def learning_unit_summary(request, learning_unit_year_id):
 
 @login_required
 def summary_edit(request, learning_unit_year_id):
-    if not permission.is_summary_submission_opened():
+    if not base.business.learning_unit.is_summary_submission_opened():
         return redirect(reverse_lazy('outside_summary_submission_period'))
     if not is_tutor(request.user):
         raise PermissionDenied("User is not a tutor")

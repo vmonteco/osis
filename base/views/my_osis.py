@@ -32,6 +32,7 @@ from django.http import HttpResponseRedirect
 from django.utils import translation
 from django.utils.translation import ugettext as _
 
+import base.business.learning_unit
 from base import models as mdl
 from attribution import models as mdl_attr
 from base.forms.my_message import MyMessageActionForm, MyMessageForm
@@ -39,7 +40,6 @@ from base.utils import send_mail
 from base.views import layout
 from osis_common.models import message_history as message_history_mdl
 from django.shortcuts import redirect
-from base.utils import permission
 
 
 @login_required
@@ -158,5 +158,5 @@ def _get_data(request):
             'programs_managers': mdl.program_manager.find_by_person(person),
             'supported_languages': settings.LANGUAGES,
             'default_language': settings.LANGUAGE_CODE,
-            'summary_submission_opened': permission.is_summary_submission_opened(request.user)}
+            'summary_submission_opened': base.business.learning_unit.is_summary_submission_opened(request.user)}
 
