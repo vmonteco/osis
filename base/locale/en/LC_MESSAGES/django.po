@@ -2478,3 +2478,6 @@ msgstr "Substitute"
 
 msgid "not_end_year"
 msgstr "no planned end"
+
+msgid "learning_unit_successfuly_created"
+msgstr "Leraning unit '{}' successfuly created with adjournment until {}."

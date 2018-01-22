@@ -63,6 +63,8 @@ VALID_VOLUMES_KEYS = [
     'VOLUME_TOTAL_REQUIREMENT_ENTITIES'
 ]
 
+LEARNING_UNIT_CREATION_SPAN_YEARS = 6
+
 
 def extract_volumes_from_data(post_data):
     volumes = {}
@@ -207,6 +209,11 @@ def _is_used_by_full_learning_unit_year(a_learning_class_year):
             return True
 
     return False
+
+
+def compute_max_academic_year_adjournment():
+    starting_academic_year = mdl.academic_year.starting_academic_year()
+    return starting_academic_year.year + LEARNING_UNIT_CREATION_SPAN_YEARS
 
 
 def create_learning_unit_structure(additional_entity_version_1, additional_entity_version_2, allocation_entity_version,

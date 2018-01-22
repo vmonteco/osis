@@ -2485,3 +2485,6 @@ msgstr "Suppléé"
 
 msgid "not_end_year"
 msgstr "pas de fin prévue"
+
+msgid "learning_unit_successfuly_created"
+msgstr "L'Unité d'Enseignement {} a été créée jusqu'en {} avec succès."
