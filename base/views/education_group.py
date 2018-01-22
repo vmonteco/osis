@@ -204,8 +204,9 @@ def _education_group_administrative_data_tab(request, education_group_year_id):
 @permission_required('base.can_edit_education_group_administrative_data', raise_exception=True)
 def education_group_edit_administrative_data(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
-    if not is_program_manager(request.user, education_group=education_group_year.education_group):
-        raise PermissionDenied("Only program managers of the education group can edit.")
+    if not education_group_business.can_user_edit_administrative_data(request.user, education_group_year):
+        raise PermissionDenied("Only program managers of the education group OR central manager "
+                               "linked to entity can edit.")
 
     formset_session = AdministrativeDataFormset(request.POST or None,
                                                 form_kwargs={'education_group_year': education_group_year})
