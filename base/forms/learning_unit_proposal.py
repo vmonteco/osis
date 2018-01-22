@@ -23,27 +23,30 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import re
+
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.learning_unit_create import CreateLearningUnitYearForm, EntitiesVersionChoiceField
+from base.forms.learning_unit_create import CreateLearningUnitYearForm, EntitiesVersionChoiceField, LearningUnitYearForm
 from base.models.entity_version import find_main_entities_version
 from base.models import proposal_folder, proposal_learning_unit, entity_container_year
 from base.models.enums import learning_container_year_types
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
     ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2
+from base.models.enums.learning_container_year_types import INTERNSHIP
 
 
 def add_none_choice(choices):
     return ((None, "-----"),) + choices
 
 
-class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
+class LearningUnitProposalModificationForm(LearningUnitYearForm):
     folder_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
 
     def __init__(self, *args, **kwargs):
-        super(LearningUnitProposalModificationForm, self).__init__(None, *args, **kwargs)
+        super(LearningUnitProposalModificationForm, self).__init__(*args, **kwargs)
         self.fields["academic_year"].disabled = True
         self.fields["academic_year"].required = False
         self.fields["subtype"].required = False
@@ -51,11 +54,12 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         self.fields["requirement_entity"].queryset = find_main_entities_version()
 
     def clean(self):
-        cleaned_data = super(CreateLearningUnitYearForm, self).clean()
+        cleaned_data = super(LearningUnitYearForm, self).clean()
 
         if cleaned_data.get("internship_subtype") and cleaned_data.get("internship_subtype") != 'None' and \
            cleaned_data["container_type"] != learning_container_year_types.INTERNSHIP:
             self.add_error("internship_subtype", _("learning_unit_type_is_not_internship"))
+
 
     def save(self, learning_unit_year, a_person, type_proposal, state_proposal):
         if not self.is_valid():
@@ -83,6 +87,12 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
 
         _create_learning_unit_proposal(a_person, folder_entity, folder_id, initial_data, learning_unit_year,
                                        state_proposal, type_proposal)
+
+    def is_valid(self):
+        if not super().is_valid():
+            return False
+        else:
+            return True
 
 
 def _copy_learning_unit_data(learning_unit_year):

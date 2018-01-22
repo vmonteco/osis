@@ -53,7 +53,7 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
         return obj.acronym
 
 
-class CreateLearningUnitYearForm(BootstrapForm):
+class LearningUnitYearForm(BootstrapForm):
     acronym = forms.CharField(widget=forms.TextInput(attrs={'maxlength': "15", 'required': True}))
     academic_year = forms.ModelChoiceField(queryset=mdl.academic_year.find_academic_years(), required=True,
                                            empty_label=_('all_label'))
@@ -109,15 +109,29 @@ class CreateLearningUnitYearForm(BootstrapForm):
 
     acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}$"
 
-    def __init__(self, person, *args, **kwargs):
-        super(CreateLearningUnitYearForm, self).__init__(*args, **kwargs)
-        # When we create a learning unit, we can only select requirement entity which are attached to the person
-        self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
-
     def clean_acronym(self):
         data_cleaned = self.data.get('first_letter')+self.cleaned_data.get('acronym')
         if data_cleaned:
             return data_cleaned.upper()
+
+    def is_valid(self):
+        if not super().is_valid():
+            return False
+        elif not re.match(self.acronym_regex, self.cleaned_data['acronym']):
+            self.add_error('acronym', _('invalid_acronym'))
+        elif self.cleaned_data["container_type"] == INTERNSHIP \
+                and not (self.cleaned_data['internship_subtype']):
+            self._errors['internship_subtype'] = _('field_is_required')
+        else:
+            return True
+
+
+class CreateLearningUnitYearForm(LearningUnitYearForm):
+
+    def __init__(self, person, *args, **kwargs):
+        super(CreateLearningUnitYearForm, self).__init__(*args, **kwargs)
+        # When we create a learning unit, we can only select requirement entity which are attached to the person
+        self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
 
     def is_valid(self):
         if not super().is_valid():
@@ -130,10 +144,5 @@ class CreateLearningUnitYearForm(BootstrapForm):
         learning_unit_years_list = [learning_unit_year.acronym for learning_unit_year in learning_unit_years]
         if self.cleaned_data['acronym'] in learning_unit_years_list:
             self.add_error('acronym', _('existing_acronym'))
-        elif not re.match(self.acronym_regex, self.cleaned_data['acronym']):
-            self.add_error('acronym', _('invalid_acronym'))
-        elif self.cleaned_data["container_type"] == INTERNSHIP \
-                and not (self.cleaned_data['internship_subtype']):
-            self._errors['internship_subtype'] = _('field_is_required')
         else:
-            return True
+            return False
