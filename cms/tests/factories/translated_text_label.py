@@ -32,6 +32,6 @@ class TranslatedTextLabelFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = "cms.TranslatedTextLabel"
 
-    language = 1  # French default
+    language = "fr-be"  # French default
     text_label = factory.SubFactory(TextLabelFactory)
     label = factory.fuzzy.FuzzyText('label_', 20)

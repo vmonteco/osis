@@ -45,6 +45,7 @@ from base.forms.learning_unit_summary import LearningUnitSummaryForm
 from cms.enums import entity_name
 from cms.tests.factories.text_label import TextLabelFactory
 from cms.tests.factories.translated_text import TranslatedTextFactory
+from cms.tests.factories.translated_text_label import TranslatedTextLabelFactory
 from reference.tests.factories.language import LanguageFactory
 
 
@@ -169,3 +170,33 @@ class TestLearningUnitSummaryEdit(TestCase):
         self.assertTrue(context["form"])
         self.assertEqual(context["text_label_translated"], None)
         self.assertEqual(context["language_translated"], ('en', _('English')))
+
+    def test_valid_get_request_with_translated_text_labels(self):
+        language = "fr-be"
+        self.tutor.person.language = language
+        self.tutor.person.save()
+        trans_text_label = TranslatedTextLabelFactory()
+        response = self.client.get(self.url, data={"language": language, "label": trans_text_label.text_label.label})
+
+        self.assertTemplateUsed(response, "my_osis/educational_information_edit.html")
+
+        context = response.context
+        self.assertEqual(context["learning_unit_year"], self.learning_unit_year)
+        self.assertTrue(context["form"])
+        self.assertEqual(context["text_label_translated"], trans_text_label)
+        self.assertEqual(context["language_translated"], ('fr-be', _('French')))
+
+    def test_invalid_post_request(self):
+        response = self.client.post(self.url, data={"trans_text": "Hello world!!"})
+        self.assertRedirects(response, reverse("learning_unit_summary", args=[self.learning_unit_year.id]))
+
+    def test_valid_post_request(self):
+        new_text = "Hello world!!"
+        translated_text = TranslatedTextFactory()
+        response = self.client.post(self.url, data={"trans_text": new_text, "cms_id": translated_text.id})
+
+        self.assertRedirects(response, reverse("learning_unit_summary", args=[self.learning_unit_year.id]))
+        translated_text.refresh_from_db()
+        self.assertEqual(translated_text.text, new_text)
+
+
