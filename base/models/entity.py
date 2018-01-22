@@ -55,8 +55,11 @@ class Entity(SerializableModel):
 
     @property
     def most_recent_acronym(self):
-        most_recent_entity_version = self.entityversion_set.filter(entity_id=self.id).latest('start_date')
-        return most_recent_entity_version.acronym
+        try:
+            most_recent_entity_version = self.entityversion_set.filter(entity_id=self.id).latest('start_date')
+            return most_recent_entity_version.acronym
+        except ObjectDoesNotExist:
+            return None
 
     class Meta:
         verbose_name_plural = "entities"
