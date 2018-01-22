@@ -65,7 +65,7 @@ class Entity(SerializableModel):
         return self.location and self.postal_code and self.city
 
     def __str__(self):
-        return "{0} - {1}".format(self.id, self.external_id)
+        return "{0} - {1}".format(self.most_recent_acronym, self.external_id)
 
 
 def search(**kwargs):

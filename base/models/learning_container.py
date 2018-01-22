@@ -38,6 +38,11 @@ class LearningContainer(AuditableSerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
 
+    @property
+    def most_recent_acronym(self):
+        most_recent_container_year = self.learningcontaineryear_set.filter(learning_container_id=self.id).latest('academic_year__year')
+        return most_recent_container_year.acronym
+
     def __str__(self):
         return u"%s" % self.external_id
 
