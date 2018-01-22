@@ -31,7 +31,7 @@ from osis_common.models.auditable_serializable_model import AuditableSerializabl
 class LearningContainerAdmin(AuditableSerializableModelAdmin):
     list_display = ('external_id',)
     fieldsets = ((None, {'fields': ('external_id',)}),)
-    search_fields = ['external_id']
+    search_fields = ['external_id', 'learningcontaineryear__acronym']
 
 
 class LearningContainer(AuditableSerializableModel):
