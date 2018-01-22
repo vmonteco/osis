@@ -64,14 +64,14 @@ class TestLearningUnitSummary(TestCase):
 
         self.assertRedirects(response, "/login/?next={}".format(self.url))
 
-    # def test_user_is_not_a_tutor(self):
-    #     self.person = PersonFactory()
-    #     self.client.force_login(self.person.user)
-    #
-    #     response = self.client.get(self.url)
-    #
-    #     self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
-    #     self.assertTemplateUsed(response, 'access_denied.html')
+    def test_user_is_not_a_tutor(self):
+        self.person = PersonFactory()
+        self.client.force_login(self.person.user)
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, 'access_denied.html')
 
     def test_when_learning_unit_year_does_not_exist(self):
         self.learning_unit_year.delete()
@@ -106,3 +106,4 @@ class TestLearningUnitSummary(TestCase):
         self.assertTrue(context["form_french"])
         self.assertTrue(context["form_english"])
         self.assertTrue(context["cms_labels_translated"])
+

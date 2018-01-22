@@ -33,7 +33,7 @@
 {% load getattr %}
 
 {% block content %}
-    {% include "learning_unit/header.html" %}
+    {% include "learning_unit/header.html" with disabled_nav=True %}
 <div class="panel panel-default" >
     <div class="panel-body" id="tabs" >
         <div class="tab-content" id="tab_content">
