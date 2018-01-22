@@ -47,7 +47,7 @@ from base.models.enums import entity_container_year_link_type
 from base.models.enums import learning_container_year_types, organization_type, entity_type
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.internship_subtypes import TEACHING_INTERNSHIP
-from base.models.enums.learning_container_year_types import COURSE
+from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP
 from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.enums.learning_unit_year_session import SESSION_P23
 from base.models.learning_unit import LearningUnit
@@ -616,6 +616,17 @@ class LearningUnitViewTestCase(TestCase):
         faultydict["acronym"] = "TA200"
         return faultydict
 
+    def get_existing_acronym(self):
+        faultydict = dict(self.get_valid_data())
+        faultydict["acronym"] = "DRT2018"
+        return faultydict
+
+    def get_empty_internship_subtype(self):
+        faultydict = dict(self.get_valid_data())
+        faultydict["container_type"] = INTERNSHIP
+        faultydict["internship_subtype"] = ""
+        return faultydict
+
     def get_empty_acronym(self):
         faultyDict = dict(self.get_valid_data())
         faultyDict["acronym"] = ""
@@ -648,14 +659,26 @@ class LearningUnitViewTestCase(TestCase):
     def test_learning_unit_acronym_form(self):
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_valid_data())
         self.assertTrue(form.is_valid(), form.errors)
+        self.assertTrue(form.cleaned_data, form.errors)
+        self.assertEqual(form.cleaned_data['acronym'], "LTAU2000")
 
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_empty_acronym())
         self.assertFalse(form.is_valid(), form.errors)
-        self.assertEqual(form.errors['acronym'], [_('This field is required.')])
+        self.assertEqual(form.errors['acronym'], [_('field_is_required')])
 
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_faulty_acronym())
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['acronym'], [_('invalid_acronym')])
+
+        LearningUnitYearFactory(acronym="LDRT2018", academic_year=self.current_academic_year)
+        form = CreateLearningUnitYearForm(person=self.person, data=self.get_existing_acronym())
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertEqual(form.errors['acronym'], [_('existing_acronym')])
+
+        form = CreateLearningUnitYearForm(person=self.person, data=self.get_empty_internship_subtype())
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertEqual(form.errors['internship_subtype'], _('field_is_required'))
+
 
     def test_learning_unit_check_acronym(self):
         kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
