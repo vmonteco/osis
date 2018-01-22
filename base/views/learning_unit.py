@@ -26,7 +26,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
+from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods, require_POST
@@ -34,7 +34,6 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
-import base.business.learning_unit
 from attribution.business import attribution_charge_new
 from attribution.models.attribution import Attribution
 from base import models as mdl
@@ -45,7 +44,8 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, get_last_academic_years, \
-    SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls
+    SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, is_summary_submission_opened, \
+    initialize_learning_unit_pedagogy_forms_in_fr_and_en
 from base.forms.common import TooManyResultsException
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import proposal_learning_unit, entity_version
@@ -56,10 +56,9 @@ from base.models.learning_container import LearningContainer
 
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, EMPTY_FIELD
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_class import LearningClassEditForm
-from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.models.tutor import is_tutor
 from cms.models import text_label
@@ -165,14 +164,8 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
     user_language = mdl.person.get_user_interface_language(request.user)
     context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language)
 
-    fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
-    en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
-    context.update({
-        'form_french': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
-                                                language=fr_language),
-        'form_english': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
-                                                 language=en_language)
-    })
+
+    context.update(initialize_learning_unit_pedagogy_forms_in_fr_and_en(learning_unit_year))
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/pedagogy.html", context)
 
@@ -468,45 +461,30 @@ def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
 
 @login_required
 def learning_unit_summary(request, learning_unit_year_id):
-    if not base.business.learning_unit.is_summary_submission_opened():
+    if not is_summary_submission_opened():
         return redirect(reverse_lazy('outside_summary_submission_period'))
     if not is_tutor(request.user):
         raise PermissionDenied("User is not a tutor")
-    user = request.user
-    attribution = get_attribution_user_is_responsible_of_summary_from_learning_unit_year_id(learning_unit_year_id, user)
+    attribution = get_object_or_404(Attribution, learning_unit_year__id=learning_unit_year_id,
+                                    tutor__person__user=request.user, summary_responsible=True)
     learning_unit_year = attribution.learning_unit_year
+    user_language = mdl.person.get_user_interface_language(request.user)
 
     context = dict()
     context["learning_unit_year"] = learning_unit_year
-
-    user_language = mdl.person.get_user_interface_language(request.user)
     context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language)
-
-    fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
-    en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
-    context.update({
-        'form_french': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
-                                                language=fr_language),
-        'form_english': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
-                                                 language=en_language)
-    })
+    context.update(initialize_learning_unit_pedagogy_forms_in_fr_and_en(learning_unit_year))
     return layout.render(request, "my_osis/educational_information.html", context)
-
-
-def get_attribution_user_is_responsible_of_summary_from_learning_unit_year_id(learning_unit_year_id, user):
-    attribution = get_object_or_404(Attribution, learning_unit_year__id=learning_unit_year_id,
-                                    tutor__person__user=user, summary_responsible=True)
-    return attribution
 
 
 @login_required
 def summary_edit(request, learning_unit_year_id):
-    if not base.business.learning_unit.is_summary_submission_opened():
+    if not is_summary_submission_opened():
         return redirect(reverse_lazy('outside_summary_submission_period'))
     if not is_tutor(request.user):
         raise PermissionDenied("User is not a tutor")
-    user = request.user
-    attribution = get_attribution_user_is_responsible_of_summary_from_learning_unit_year_id(learning_unit_year_id, user)
+    attribution = get_object_or_404(Attribution, learning_unit_year__id=learning_unit_year_id,
+                                    tutor__person__user=request.user, summary_responsible=True)
     learning_unit_year = attribution.learning_unit_year
 
     if request.method == 'POST':
@@ -517,19 +495,19 @@ def summary_edit(request, learning_unit_year_id):
                                             kwargs={'learning_unit_year_id': learning_unit_year_id}))
 
     context = dict()
-    context["learning_unit_year"] = learning_unit_year
     label_name = request.GET.get('label')
     language = request.GET.get('language')
     text_lb = text_label.find_root_by_name(label_name)
     form = LearningUnitPedagogyEditForm(**{
-        'learning_unit_year': context['learning_unit_year'],
+        'learning_unit_year': learning_unit_year,
         'language': language,
         'text_label': text_lb
     })
     form.load_initial()  # Load data from database
-    context['form'] = form
-
     user_language = mdl.person.get_user_interface_language(request.user)
+
+    context["learning_unit_year"] = learning_unit_year
+    context['form'] = form
     context['text_label_translated'] = next((txt for txt in text_lb.translated_text_labels
                                              if txt.language == user_language), None)
     context['language_translated'] = next((lang for lang in settings.LANGUAGES if lang[0] == language), None)

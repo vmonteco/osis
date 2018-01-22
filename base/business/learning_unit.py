@@ -26,10 +26,12 @@
 import datetime
 from collections import OrderedDict
 
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl, models as mdl_base
 from base.business.learning_unit_year_with_context import volume_learning_component_year
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import entity_container_year
 from base.models.entity_component_year import EntityComponentYear
@@ -361,3 +363,12 @@ def is_summary_submission_opened():
     current_academic_year = mdl_base.academic_year.current_academic_year()
     return mdl_base.academic_calendar.is_academic_calendar_opened( current_academic_year,
                                                                    academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+
+
+def initialize_learning_unit_pedagogy_forms_in_fr_and_en(learning_unit_year):
+    fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
+    en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
+    return {
+        'form_french': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year, language=fr_language),
+        'form_english': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year, language=en_language)
+    }
