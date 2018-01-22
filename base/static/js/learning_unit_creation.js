@@ -1,8 +1,9 @@
 const internship = "INTERNSHIP";
     var form = $('#LearningUnitYearForm').closest("form");
 
-    function showInternshipSubtype(elem){
-        document.getElementById('id_internship_subtype').disabled = elem != internship;
+    function showInternshipSubtype(){
+        var container_type_value = document.getElementById('id_container_type').value;
+        document.getElementById('id_internship_subtype').disabled = container_type_value != internship;
     }
 
     function showAdditionalEntity(elem, id){
@@ -66,7 +67,7 @@ const internship = "INTERNSHIP";
             required: trans_field_required
         });
 
-        showInternshipSubtype('{{form.container_type.value}}');
+        showInternshipSubtype();
         document.getElementById('id_additional_entity_1').disabled = '{{form.requirement_entity.value}}' != "0";
         document.getElementById('id_additional_entity_2').disabled = '{{form.requirement_entity_1.value}}' != "0";
 

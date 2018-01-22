@@ -75,7 +75,7 @@ class CreateLearningUnitYearForm(BootstrapForm):
                                                                                  'maxlength': "1",
                                                                                  'readonly': 'readonly'}))
     container_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
-                                       widget=forms.Select(attrs={'onchange': 'showInternshipSubtype(this.value)'}))
+                                       widget=forms.Select(attrs={'onchange': 'showInternshipSubtype()'}))
     faculty_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
     other_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
     periodicity = forms.CharField(widget=forms.Select(choices=PERIODICITY_TYPES))
