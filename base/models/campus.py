@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,14 +24,15 @@
 #
 ##############################################################################
 from django.db import models
+
 from base.models.enums.organization_type import MAIN
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
 class CampusAdmin(SerializableModelAdmin):
     list_display = ('name', 'organization', 'is_administration', 'changed')
-    list_filter = ('is_administration',)
-    fieldsets = ((None, {'fields': ('name', 'organization', 'code', 'is_administration')}),)
+    list_filter = ('organization',)
+    fieldsets = ((None, {'fields': ('name', 'organization', 'is_administration')}),)
     search_fields = ['name', 'organization__name']
     raw_id_fields = ('organization',)
 
@@ -41,7 +42,6 @@ class Campus(SerializableModel):
     changed = models.DateTimeField(null=True, auto_now=True)
     name = models.CharField(max_length=100, blank=True, null=True)
     organization = models.ForeignKey('Organization')
-    code = models.CharField(max_length=1, blank=True, null=True)
     is_administration = models.BooleanField(default=False)
 
     def __str__(self):

@@ -23,7 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from osis_common.utils.enumerations import ChoiceEnum
 
-from base.models.enums import internship_subtypes
-from base.models.enums import learning_unit_management_sites
-from base.models.enums import learning_unit_year_session
+
+class LearningUnitManagementSite(ChoiceEnum):
+    B = "B"
+    L = "L"
+    M = "M"
+    W = "W"

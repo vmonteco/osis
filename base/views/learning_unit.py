@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,15 +24,17 @@
 #
 ##############################################################################
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
+from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect, get_object_or_404
-from django.views.decorators.http import require_http_methods, require_POST
 from django.http import JsonResponse
-from django.contrib import messages
+from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_http_methods, require_POST
 
 from attribution.business import attribution_charge_new
 from base import models as mdl
@@ -45,27 +47,22 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     get_all_attributions, get_last_academic_years, \
     SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, compute_max_academic_year_adjournment
 from base.forms.common import TooManyResultsException
+from base.forms.learning_class import LearningClassEditForm
+from base.forms.learning_unit_component import LearningUnitComponentEditForm
+from base.forms.learning_unit_create import CreateLearningUnitYearForm, EMPTY_FIELD
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
+from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
+from base.forms.learning_unit_summary import LearningUnitSummaryForm, LearningUnitSummaryEditForm
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import proposal_learning_unit, entity_version
-from base.models.campus import Campus
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
-
-from base.forms.learning_unit_create import CreateLearningUnitYearForm, EMPTY_FIELD
-from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
-from base.forms.learning_unit_component import LearningUnitComponentEditForm
-from base.forms.learning_class import LearningClassEditForm
 from base.models.person import Person
+from base.utils import permission
 from cms.models import text_label
 from reference.models import language
 from . import layout
-from base.forms.learning_unit_summary import LearningUnitSummaryForm, LearningUnitSummaryEditForm
-from base.utils import permission
-from django.core.urlresolvers import reverse_lazy
-from django.shortcuts import render
-
 
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
@@ -346,6 +343,7 @@ def learning_unit_year_add(request):
         additional_entity_version_2 = data.get('additional_entity_2')
         allocation_entity_version = data.get('allocation_entity')
         requirement_entity_version = data.get('requirement_entity')
+        campus = data.get('campus')
 
         new_learning_container = LearningContainer.objects.create()
         new_learning_unit = create_learning_unit(data, new_learning_container, year)
@@ -355,7 +353,7 @@ def learning_unit_year_add(request):
 
             create_learning_unit_structure(additional_entity_version_1, additional_entity_version_2,
                                            allocation_entity_version, data, new_learning_container,
-                                           new_learning_unit, requirement_entity_version, status, academic_year)
+                                           new_learning_unit, requirement_entity_version, status, academic_year, campus)
             year += 1
         success_msg = _('learning_unit_successfuly_created').format(data['acronym'], academic_year_max)
         messages.add_message(request, messages.SUCCESS, success_msg)
@@ -390,14 +388,6 @@ def check_acronym(request):
                          'existing_acronym': existing_acronym,
                          'existed_acronym': existed_acronym,
                          'last_using': last_using}, safe=False)
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def check_code(request):
-    campus_id = request.GET['campus']
-    campus = get_object_or_404(Campus, id=campus_id)
-    return JsonResponse({'code': campus.code}, safe=False)
 
 
 @login_required
