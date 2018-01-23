@@ -608,14 +608,6 @@ class LearningUnitViewTestCase(TestCase):
         self.assertRaises(ObjectDoesNotExist,
                           learning_unit_component_class.LearningUnitComponentClass.objects.filter(pk=a_link.id).first())
 
-    def test_check_code(self):
-        campus_m = CampusFactory(organization=self.organization, is_administration=True, code="M")
-        # self.client.force_login(self.user)
-        url = reverse('check_code')
-        response = self.client.get(url+"?campus={}".format(campus_m.id))
-
-        self.assertEqual(response.status_code, 200)
-        self.assertJSONEqual(force_text(response.content), {'code': campus_m.code})
 
     def get_base_form_data(self):
         data = self.get_common_data()

@@ -33,15 +33,17 @@ from base import models as mdl
 from base.forms.bootstrap import BootstrapForm
 from base.models.campus import find_administration_campuses
 from base.models.entity_version import find_main_entities_version, find_main_entities_version_filtered_by_person
-from base.models.enums import entity_container_year_link_type
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
 from reference.models.language import find_all_languages
+from base.models.enums import learning_container_year_types
+
 
 MAX_RECORDS = 1000
 EMPTY_FIELD = "---------"
+READONLY_ATTR = "readonly"
 
 
 def create_learning_container_year_type_list():
@@ -58,15 +60,15 @@ class LearningUnitYearForm(BootstrapForm):
     academic_year = forms.ModelChoiceField(queryset=mdl.academic_year.find_academic_years(), required=True,
                                            empty_label=_('all_label'))
     status = forms.CharField(required=False, widget=forms.CheckboxInput())
-    internship_subtype = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
-                                                   mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES,
-                                           required=False)
+    internship_subtype = forms.ChoiceField(
+        choices=((None, EMPTY_FIELD),) + mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES,
+        required=False)
     credits = forms.DecimalField(decimal_places=2)
     title = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
     title_english = forms.CharField(required=False, widget=forms.TextInput())
-    session = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
-                                        mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION,
-                                required=False)
+    session = forms.ChoiceField(
+        choices=((None, EMPTY_FIELD),) + mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION,
+        required=False)
     subtype = forms.CharField(widget=forms.HiddenInput())
     first_letter = forms.ChoiceField(choices=((None, EMPTY_FIELD),) + LearningUnitManagementSite.choices(),
                                      required=True)
@@ -169,6 +171,7 @@ class CreatePartimForm(CreateLearningUnitYearForm):
         self.learning_unit_year_parent = kwargs.pop('learning_unit_year_parent', None)
         super(CreatePartimForm, self).__init__(*args, **kwargs)
         self.learning_unit_year_parent = kwargs.pop('learning_unit_year_parent', None)
+        self.fields['first_letter'].required = False
         self.set_read_only_fields()
 
     def set_read_only_fields(self):
@@ -196,4 +199,3 @@ class CreatePartimForm(CreateLearningUnitYearForm):
         data_cleaned = self.data.get('partim_letter')
         if data_cleaned:
             return data_cleaned.upper()
-
