@@ -23,10 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
 from django.test import TestCase
 from base.tests.factories.academic_year import create_current_academic_year
-from django.utils import timezone
 from base.business import learning_unit
 
 
