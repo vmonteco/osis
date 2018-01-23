@@ -48,8 +48,10 @@ EMPTY_FIELD = "---------"
 def create_learning_container_year_type_list():
     return ((None, EMPTY_FIELD),) + LEARNING_CONTAINER_YEAR_TYPES
 
-def create_faculty_learning_container_year_type_list():
+
+def create_faculty_learning_container_type_list():
     return ((None, EMPTY_FIELD),) + LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
+
 
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
@@ -136,7 +138,7 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
         # When we create a learning unit, we can only select requirement entity which are attached to the person
         self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
         if person.user.groups.filter(name='faculty_managers').exists():
-            self.fields["container_type"] = forms.ChoiceField(choices=create_faculty_learning_container_year_type_list(),
+            self.fields["container_type"] = forms.ChoiceField(choices=create_faculty_learning_container_type_list(),
                                                               widget=forms.Select(attrs={'class': 'form-control'}))
             self.fields['internship_subtype'] = forms.ChoiceField(widget=forms.HiddenInput(), label='')
 
