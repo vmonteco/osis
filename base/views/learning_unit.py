@@ -46,8 +46,8 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, get_last_academic_years, \
-    SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, is_summary_submission_opened, \
-    initialize_learning_unit_pedagogy_forms_in_fr_and_en, find_language_in_settings
+    SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, is_summary_submission_opened, find_language_in_settings, \
+    initialize_learning_unit_pedagogy_form
 from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
@@ -161,7 +161,8 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
     user_language = mdl.person.get_user_interface_language(request.user)
     context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language)
 
-    context.update(initialize_learning_unit_pedagogy_forms_in_fr_and_en(learning_unit_year))
+    context['form_french'] = initialize_learning_unit_pedagogy_form(learning_unit_year, 'fr-be')
+    context['form_english'] = initialize_learning_unit_pedagogy_form(learning_unit_year, 'en')
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/pedagogy.html", context)
 
@@ -462,7 +463,8 @@ def learning_unit_summary(request, learning_unit_year_id):
     context = dict()
     context["learning_unit_year"] = learning_unit_year
     context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language)
-    context.update(initialize_learning_unit_pedagogy_forms_in_fr_and_en(learning_unit_year))
+    context['form_french'] = initialize_learning_unit_pedagogy_form(learning_unit_year, 'fr-be')
+    context['form_english'] = initialize_learning_unit_pedagogy_form(learning_unit_year, 'en')
     return layout.render(request, "my_osis/educational_information.html", context)
 
 

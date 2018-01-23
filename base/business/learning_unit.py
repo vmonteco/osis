@@ -363,13 +363,9 @@ def is_summary_submission_opened():
                                                                   academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
 
 
-def initialize_learning_unit_pedagogy_forms_in_fr_and_en(learning_unit_year):
-    fr_language = find_language_in_settings('fr-be')
-    en_language = find_language_in_settings('en')
-    return {
-        'form_french': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year, language=fr_language),
-        'form_english': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year, language=en_language)
-    }
+def initialize_learning_unit_pedagogy_form(learning_unit_year, language_code):
+    lang = find_language_in_settings(language_code)
+    return LearningUnitPedagogyForm(learning_unit_year=learning_unit_year, language=lang)
 
 
 def find_language_in_settings(language_code):
