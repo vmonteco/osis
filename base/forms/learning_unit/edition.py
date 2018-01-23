@@ -57,7 +57,7 @@ class LearningUnitEndDateForm(BootstrapForm):
 
         queryset = _get_academic_years(current_academic_year.year, end_year)
 
-        periodicity = learning_unit.periocity
+        periodicity = learning_unit.periodicity
         self.fields['academic_year'].queryset = _filter_biennial(queryset, periodicity)
 
     def _set_initial_value(self, end_year):
@@ -70,7 +70,7 @@ class LearningUnitEndDateForm(BootstrapForm):
 def _get_academic_years(start_year, end_year):
     end_year += LEARNING_UNIT_CREATION_SPAN_YEARS if end_year else None
     return AcademicYear.objects.filter(
-        year_gte=start_year, year__lte=end_year
+        year__gte=start_year, year__lte=end_year
     )
 
 

@@ -24,18 +24,29 @@
 #
 ##############################################################################
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, permission_required
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
+from base.business.learning_units.edition import is_eligible_for_modification_end_date
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.models import learning_unit_year as learning_unit_year_mdl
 from base.models.learning_unit_year import LearningUnitYear
+from base.models.person import Person
 from base.views import layout
 from base.views.learning_unit_deletion import delete_from_given_learning_unit_year
 
 
+@login_required
+@permission_required('base.can_edit_learningunit_date', raise_exception=True)
 def learning_unit_modify_end_date(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+    user_person = get_object_or_404(Person, user=request.user)
+
+    if not is_eligible_for_modification_end_date(learning_unit_year, user_person):
+        raise PermissionDenied("Learning unit year date is not editable or user has not sufficient rights.")
+
     form = LearningUnitEndDateForm(request.POST or None, learning_unit=learning_unit_year.learning_unit)
     if form.is_valid():
         academic_year_to_delete = form.cleaned_data['academic_year']

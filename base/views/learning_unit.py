@@ -44,6 +44,7 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, get_last_academic_years, \
     SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls
+from base.business.learning_units.edition import is_eligible_for_modification_end_date
 from base.forms.common import TooManyResultsException
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import proposal_learning_unit, entity_version
@@ -101,6 +102,7 @@ def learning_unit_identification(request, learning_unit_year_id):
     context.update(get_all_attributions(learning_unit_year))
     context['components'] = get_components_identification(learning_unit_year)
     context['can_propose'] = learning_unit_proposal.is_eligible_for_modification_proposal(learning_unit_year, person)
+    context['can_edit_date'] = is_eligible_for_modification_end_date(learning_unit_year, person)
     context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
     context['can_cancel_proposal'] = learning_unit_proposal.\
         is_eligible_for_cancel_of_proposal(context['proposal'], person) if context['proposal'] else False

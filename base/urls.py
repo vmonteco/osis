@@ -103,7 +103,7 @@ urlpatterns = [
                 url(r'^cancel/$', learning_unit_proposal.cancel_proposal_of_learning_unit,
                     name="learning_unit_cancel_proposal")
             ])),
-            url(r'^modification/$', edition.learning_unit_modify_end_date,
+            url(r'^date/edit/$', edition.learning_unit_modify_end_date,
                 name="learning_unit_end_date_edition"),
             url(r'^specifications/$', learning_unit.learning_unit_specifications, name="learning_unit_specifications"),
             url(r'^specifications/edit/$', learning_unit.learning_unit_specifications_edit,
