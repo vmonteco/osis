@@ -30,63 +30,16 @@
     <li ><a href="{% url 'profile' %}" id="lnk_profile">{% trans 'profile' %}</a></li>
     <li class="active">{% trans 'educational_information' %}</li>
 {% endblock %}
-{% load getattr %}
 
 {% block content %}
-    {% include "learning_unit/header.html" with disabled_nav=True %}
-<div class="panel panel-default" >
-    <div class="panel-body" id="tabs" >
-        <div class="tab-content" id="tab_content">
-            <div role="tabpanel" class="tab-pane active" id="pedagogy">
-                 <div class="row" style="margin-top:10px;">
-                        <div class="col-md-2">
-                            <label> {% trans 'language'%} </label>
-                        </div>
-                        <div class="col-md-5">
-                            <label> {{ form_french.language.1 }} </label>
-                        </div>
-                        <div class="col-md-5">
-                            <label> {{ form_english.language.1 }} </label>
-                        </div>
-                    </div>
-                    <hr/>
-                    {% for label_key, label_translated in cms_labels_translated.items %}
-                        <div class="row" style="margin-top:10px;">
-                            <div class="col-md-2">
-                                <label> {{ label_translated }} </label>
-                            </div>
-                            <div class="col-md-5">
-                                {% if perms.base.can_edit_learningunit_pedagogy %}
-                                <a class="pedagogy-edit-btn pull-right" href="#"
-                                   data-form="{% url 'learning_unit_summary_edit' learning_unit_year_id=learning_unit_year.id %}?language={{form_french.language.0}}&label={{label_key}}"
-                                   title="{% trans 'edit' %}">
-                                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                                </a>
-                                {% endif %}
-
-                                {{ form_french|getattr:label_key }}
-                            </div>
-                            <div class="col-md-5">
-                                {% if perms.base.can_edit_learningunit_pedagogy %}
-                                <a class="pedagogy-edit-btn pull-right" href="#"
-                                   data-form="{% url 'learning_unit_summary_edit' learning_unit_year_id=learning_unit_year.id %}?language={{form_english.language.0}}&label={{label_key}}"
-                                   title="{% trans 'edit' %}">
-                                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                                </a>
-                                {% endif %}
-                                {{ form_english|getattr:label_key}}
-                            </div>
-                        </div>
-                        <hr/>
-                    {% endfor %}
-            </div>
+    <div class="panel panel-default">
+        <div class="panel-body">
+        {% url 'learning_unit_summary_edit' learning_unit_year_id=learning_unit_year.id as post_url%}
+        {% include "learning_unit/panel_educational_informations.html" %}
         </div>
     </div>
-</div>
-
-<div class="modal fade" id="pedagogy_edit" role="dialog" data-backdrop="static"></div>
+    <div class="modal fade" id="pedagogy_edit" role="dialog" data-backdrop="static"></div>
 {% endblock %}
-
 {% block script %}
     <script>
         $(".pedagogy-edit-btn").click(function(ev) {

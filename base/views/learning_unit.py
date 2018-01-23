@@ -511,6 +511,7 @@ def summary_edit(request, learning_unit_year_id):
     context['text_label_translated'] = next((txt for txt in text_lb.translated_text_labels
                                              if txt.language == user_language), None)
     context['language_translated'] = next((lang for lang in settings.LANGUAGES if lang[0] == language), None)
+
     return layout.render(request, "my_osis/educational_information_edit.html", context)
 
 
