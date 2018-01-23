@@ -23,18 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import re
 
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.learning_unit_create import CreateLearningUnitYearForm, EntitiesVersionChoiceField, LearningUnitYearForm
-from base.models.entity_version import find_main_entities_version
+from base.forms.learning_unit_create import EntitiesVersionChoiceField, LearningUnitYearForm
 from base.models import proposal_folder, proposal_learning_unit, entity_container_year
+from base.models.entity_version import find_main_entities_version
 from base.models.enums import learning_container_year_types
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
     ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2
-from base.models.enums.learning_container_year_types import INTERNSHIP
 
 
 def add_none_choice(choices):
@@ -86,12 +84,6 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
 
         _create_learning_unit_proposal(a_person, folder_entity, folder_id, initial_data, learning_unit_year,
                                        state_proposal, type_proposal)
-
-    def is_valid(self):
-        if not super().is_valid():
-            return False
-        else:
-            return True
 
 
 def _copy_learning_unit_data(learning_unit_year):

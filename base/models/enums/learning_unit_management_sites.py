@@ -23,13 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-B = "B"
-L = "L"
-M = "M"
-W = "W"
+from osis_common.utils.enumerations import ChoiceEnum
 
-LEARNING_UNIT_MANAGEMENT_SITE = (
-    (B, B),
-    (L, L),
-    (M, M),
-    (W, W))
+
+class LearningUnitManagementSite(ChoiceEnum):
+    B = "B"
+    L = "L"
+    M = "M"
+    W = "W"
