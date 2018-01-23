@@ -336,8 +336,7 @@ def learning_unit_year_add(request):
     form = CreateLearningUnitYearForm(person, request.POST)
     if form.is_valid():
         data = form.cleaned_data
-        academic_year = data['academic_year']
-        year = academic_year.year
+        year = data['academic_year'].year
         status = data['status'] == 'on'
         additional_entity_version_1 = data.get('additional_entity_1')
         additional_entity_version_2 = data.get('additional_entity_2')

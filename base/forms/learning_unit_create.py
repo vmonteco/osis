@@ -150,7 +150,8 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
     def is_valid(self):
         if not super().is_valid():
             return False
-        learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(self.get_academic_year(), self.cleaned_data['acronym'])
+        learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(self.get_academic_year(),
+                                                                           self.cleaned_data['acronym'])
         learning_unit_years_list = [learning_unit_year.acronym for learning_unit_year in learning_unit_years]
         if self.cleaned_data['acronym'] in learning_unit_years_list:
             self.add_error('acronym', _('existing_acronym'))
