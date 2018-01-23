@@ -372,3 +372,7 @@ def initialize_learning_unit_pedagogy_forms_in_fr_and_en(learning_unit_year):
         'form_french': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year, language=fr_language),
         'form_english': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year, language=en_language)
     }
+
+
+def find_language_in_settings(language_code):
+    return  next((lang for lang in settings.LANGUAGES if lang[0] == language_code), None)

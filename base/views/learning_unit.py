@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.conf import settings
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
@@ -45,7 +44,7 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, get_last_academic_years, \
     SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, is_summary_submission_opened, \
-    initialize_learning_unit_pedagogy_forms_in_fr_and_en
+    initialize_learning_unit_pedagogy_forms_in_fr_and_en, find_language_in_settings
 from base.forms.common import TooManyResultsException
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import proposal_learning_unit, entity_version
@@ -195,7 +194,7 @@ def learning_unit_pedagogy_edit(request, learning_unit_year_id):
     user_language = mdl.person.get_user_interface_language(request.user)
     context['text_label_translated'] = next((txt for txt in text_lb.translated_text_labels
                                              if txt.language == user_language), None)
-    context['language_translated'] = next((lang for lang in settings.LANGUAGES if lang[0] == language), None)
+    context['language_translated'] = find_language_in_settings(language)
     return layout.render(request, "learning_unit/pedagogy_edit.html", context)
 
 
@@ -219,8 +218,8 @@ def learning_unit_specifications(request, learning_unit_year_id):
     user_language = mdl.person.get_user_interface_language(request.user)
     context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_SPECIFICATIONS, user_language)
 
-    fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
-    en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
+    fr_language = find_language_in_settings('fr_be')
+    en_language = find_language_in_settings('en')
 
     context.update({
         'form_french': LearningUnitSpecificationsForm(learning_unit_year, fr_language),
@@ -256,7 +255,7 @@ def learning_unit_specifications_edit(request, learning_unit_year_id):
     user_language = mdl.person.get_user_interface_language(request.user)
     context['text_label_translated'] = next((txt for txt in text_lb.translated_text_labels
                                              if txt.language == user_language), None)
-    context['language_translated'] = next((lang for lang in settings.LANGUAGES if lang[0] == language), None)
+    context['language_translated'] = find_language_in_settings(language)
     return layout.render(request, "learning_unit/specifications_edit.html", context)
 
 
@@ -509,7 +508,7 @@ def summary_edit(request, learning_unit_year_id):
     context['form'] = form
     context['text_label_translated'] = next((txt for txt in text_lb.translated_text_labels
                                              if txt.language == user_language), None)
-    context['language_translated'] = next((lang for lang in settings.LANGUAGES if lang[0] == language), None)
+    context['language_translated'] = find_language_in_settings(language)
 
     return layout.render(request, "my_osis/educational_information_edit.html", context)
 
