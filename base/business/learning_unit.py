@@ -30,7 +30,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
 from base.business.learning_unit_year_with_context import volume_learning_component_year
-from base.forms.learning_units import LearningUnitYearForm
 from base.models import entity_container_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -44,7 +43,6 @@ from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from cms import models as mdl_cms
 from cms.enums import entity_name
-from django.core.exceptions import ObjectDoesNotExist
 
 
 # List of key that a user can modify
@@ -233,25 +231,29 @@ def create_learning_unit_structure(additional_entity_version_1, additional_entit
         create_entity_container_year(additional_entity_version_2, new_learning_container_year,
                                      entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
 
-    create_learning_unit_content(academic_year, data, new_learning_container_year, new_learning_unit,
-                                 new_requirement_entity, status)
+    create_learning_unit_content({'academic_year': academic_year,
+                                  'data': data,
+                                  'new_learning_container_year': new_learning_container_year,
+                                  'new_learning_unit': new_learning_unit,
+                                  'new_requirement_entity': new_requirement_entity,
+                                  'status': status})
 
 
-def create_another_type(an_academic_year, data, new_learning_container_year, new_learning_unit, new_requirement_entity,
-                        status):
+def create_another_type(data_dict):
+    new_learning_container_year = data_dict.get('new_learning_container_year', None)
+    new_requirement_entity = data_dict.get('new_requirement_entity', None)
     new_learning_component_year = create_learning_component_year(new_learning_container_year,
                                                                  "NT1", None)
     EntityComponentYear.objects.create(entity_container_year=new_requirement_entity,
                                        learning_component_year=new_learning_component_year)
-    new_learning_unit_year = create_learning_unit_year(an_academic_year, data,
-                                                       new_learning_container_year,
-                                                       new_learning_unit,
-                                                       status)
+    new_learning_unit_year = create_learning_unit_year(data_dict)
     create_learning_unit_component(new_learning_unit_year, new_learning_component_year, None)
 
 
-def create_course(an_academic_year, data, new_learning_container_year, new_learning_unit,
-                  new_requirement_entity, status):
+def create_course(data_dict):
+    new_learning_container_year = data_dict.get('new_learning_container_year', None)
+    new_requirement_entity = data_dict.get('new_requirement_entity', None)
+
     new_lecturing = create_learning_component_year(new_learning_container_year, "CM1",
                                                    learning_component_year_type.LECTURING)
     new_practical_exercise = create_learning_component_year(new_learning_container_year, "TP1",
@@ -260,10 +262,7 @@ def create_course(an_academic_year, data, new_learning_container_year, new_learn
                                        learning_component_year=new_lecturing)
     EntityComponentYear.objects.create(entity_container_year=new_requirement_entity,
                                        learning_component_year=new_practical_exercise)
-    new_learning_unit_year = create_learning_unit_year(an_academic_year, data,
-                                                       new_learning_container_year,
-                                                       new_learning_unit,
-                                                       status)
+    new_learning_unit_year = create_learning_unit_year(data_dict)
     create_learning_unit_component(new_learning_unit_year, new_lecturing,
                                    learning_component_year_type.LECTURING)
     create_learning_unit_component(new_learning_unit_year, new_practical_exercise,
@@ -297,16 +296,18 @@ def create_learning_unit(data, learning_container, year, end_year=None):
                                        end_year=end_year)
 
 
-def create_learning_unit_year(academic_year, data, learning_container_year, learning_unit, status):
-    return LearningUnitYear.objects.create(academic_year=academic_year, learning_unit=learning_unit,
-                                           learning_container_year=learning_container_year,
+def create_learning_unit_year(data_dict):
+    data = data_dict.get('data')
+    return LearningUnitYear.objects.create(academic_year=data_dict.get('academic_year'),
+                                           learning_unit=data_dict.get('new_learning_unit'),
+                                           learning_container_year=data_dict.get('new_learning_container_year'),
                                            acronym=data['acronym'].upper(),
                                            title=data['title'],
                                            title_english=data['title_english'],
                                            subtype=data['subtype'],
                                            credits=data['credits'],
                                            internship_subtype=data.get('internship_subtype'),
-                                           status=status,
+                                           status=data_dict.get('status'),
                                            session=data['session'],
                                            quadrimester=data['quadrimester'])
 
@@ -390,18 +391,21 @@ def create_partim(data_dict, new_learning_container_year):
         get_entity_container_year(additional_entity_version_2, new_learning_container_year,
                                   entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
 
-    create_learning_unit_content(academic_year, data, new_learning_container_year, new_learning_unit,
-                                 new_requirement_entity, status)
+    create_learning_unit_content({'academic_year': academic_year,
+                                  'data': data,
+                                  'new_learning_container_year': new_learning_container_year,
+                                  'new_learning_unit': new_learning_unit,
+                                  'new_requirement_entity': new_requirement_entity,
+                                  'status': status})
 
 
-def create_learning_unit_content(academic_year, data, new_learning_container_year, new_learning_unit,
-                                 new_requirement_entity, status):
+def create_learning_unit_content(data_dict):
+    data = data_dict.get('data', None)
+
     if data['container_type'] == learning_container_year_types.COURSE:
-        create_course(academic_year, data, new_learning_container_year, new_learning_unit,
-                      new_requirement_entity, status)
+        create_course(data_dict)
     else:
-        create_another_type(academic_year, data, new_learning_container_year, new_learning_unit,
-                            new_requirement_entity, status)
+        create_another_type(data_dict)
 
 
 def get_entity_container_year(entity_version, learning_container_year, type_entity_container_year):
