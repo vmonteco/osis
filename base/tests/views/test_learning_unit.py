@@ -119,7 +119,8 @@ class LearningUnitViewTestCase(TestCase):
         self.entity_container_yr_3 = EntityContainerYearFactory(learning_container_year=self.learning_container_yr,
                                                                 type=entity_container_year_link_type.REQUIREMENT_ENTITY,
                                                                 entity=self.entity_3)
-        self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL, start_date=today,
+        self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL,
+                                                   start_date=today-datetime.timedelta(days=1),
                                                    end_date=today.replace(year=today.year + 1))
 
         self.campus = CampusFactory(organization=self.organization, is_administration=True)
@@ -656,25 +657,29 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(len(form.errors), 1)
         self.assertTrue('requirement_entity' in form.errors)
 
-    def test_learning_unit_acronym_form(self):
+    def test_learning_unit_creation_form_with_valid_data(self):
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_valid_data())
         self.assertTrue(form.is_valid(), form.errors)
         self.assertTrue(form.cleaned_data, form.errors)
         self.assertEqual(form.cleaned_data['acronym'], "LTAU2000")
 
+    def test_learning_unit_creation_form_with_empty_acronym(self):
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_empty_acronym())
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['acronym'], [_('field_is_required')])
 
+    def test_learning_unit_creation_form_with_invalid_data(self):
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_faulty_acronym())
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['acronym'], [_('invalid_acronym')])
 
+    def test_learning_unit_creation_form_with_existing_acronym(self):
         LearningUnitYearFactory(acronym="LDRT2018", academic_year=self.current_academic_year)
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_existing_acronym())
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['acronym'], [_('existing_acronym')])
 
+    def test_learning_unit_creation_form_with_field_is_required_empty(self):
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_empty_internship_subtype())
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['internship_subtype'], _('field_is_required'))

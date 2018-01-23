@@ -144,5 +144,5 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
         learning_unit_years_list = [learning_unit_year.acronym for learning_unit_year in learning_unit_years]
         if self.cleaned_data['acronym'] in learning_unit_years_list:
             self.add_error('acronym', _('existing_acronym'))
-        else:
             return False
+        return True
