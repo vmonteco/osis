@@ -557,17 +557,12 @@ def learning_unit_create_partim(request, learning_unit_year_id):
 @permission_required('base.can_create_learningunit', raise_exception=True)
 @require_POST
 def learning_unit_year_partim_add(request):
-    print('learning_unit_year_partim_add')
     person = get_object_or_404(Person, user=request.user)
     form = CreatePartimForm(person, request.POST)
 
     if form.is_valid():
-        print('form valid')
-
         return create_partim_process(form)
     else:
-        print(form.errors)
-        print('form invalid')
         return layout.render(request, "learning_unit/partim_form.html", {'form': form})
 
 
