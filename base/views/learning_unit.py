@@ -484,32 +484,22 @@ def summary_edit(request, learning_unit_year_id):
     attribution = get_object_or_404(Attribution, learning_unit_year__id=learning_unit_year_id,
                                     tutor__person__user=request.user, summary_responsible=True)
     learning_unit_year = attribution.learning_unit_year
-
     if request.method == 'POST':
         form = LearningUnitPedagogyEditForm(request.POST)
         if form.is_valid():
             form.save()
-        return HttpResponseRedirect(reverse("learning_unit_summary",
-                                            kwargs={'learning_unit_year_id': learning_unit_year_id}))
-
-    context = dict()
+        return redirect("learning_unit_summary", learning_unit_year_id=learning_unit_year_id)
     label_name = request.GET.get('label')
-    language = request.GET.get('language')
+    lang = request.GET.get('language')
     text_lb = text_label.find_root_by_name(label_name)
-    form = LearningUnitPedagogyEditForm(**{
-        'learning_unit_year': learning_unit_year,
-        'language': language,
-        'text_label': text_lb
-    })
-    form.load_initial()  # Load data from database
+    form = LearningUnitPedagogyEditForm(**{ 'learning_unit_year': learning_unit_year, 'language': lang,
+                                            'text_label': text_lb })
+    form.load_initial()
     user_language = mdl.person.get_user_interface_language(request.user)
-
-    context["learning_unit_year"] = learning_unit_year
-    context['form'] = form
-    context['text_label_translated'] = next((txt for txt in text_lb.translated_text_labels
-                                             if txt.language == user_language), None)
-    context['language_translated'] = find_language_in_settings(language)
-
+    text_label_translated = next((txt for txt in text_lb.translated_text_labels if txt.language == user_language), None)
+    context = dict({ "learning_unit_year": learning_unit_year, "form": form,
+                     "language_translated": find_language_in_settings(lang),
+                     "text_label_translated": text_label_translated, })
     return layout.render(request, "my_osis/educational_information_edit.html", context)
 
 
