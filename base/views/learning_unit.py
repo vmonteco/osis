@@ -492,14 +492,14 @@ def summary_edit(request, learning_unit_year_id):
     label_name = request.GET.get('label')
     lang = request.GET.get('language')
     text_lb = text_label.find_root_by_name(label_name)
-    form = LearningUnitPedagogyEditForm(**{ 'learning_unit_year': learning_unit_year, 'language': lang,
-                                            'text_label': text_lb })
+    form = LearningUnitPedagogyEditForm(**{'learning_unit_year': learning_unit_year, 'language': lang,
+                                           'text_label': text_lb})
     form.load_initial()
     user_language = mdl.person.get_user_interface_language(request.user)
     text_label_translated = next((txt for txt in text_lb.translated_text_labels if txt.language == user_language), None)
-    context = dict({ "learning_unit_year": learning_unit_year, "form": form,
-                     "language_translated": find_language_in_settings(lang),
-                     "text_label_translated": text_label_translated, })
+    context = dict({"learning_unit_year": learning_unit_year, "form": form,
+                    "language_translated": find_language_in_settings(lang),
+                    "text_label_translated": text_label_translated, })
     return layout.render(request, "my_osis/educational_information_edit.html", context)
 
 

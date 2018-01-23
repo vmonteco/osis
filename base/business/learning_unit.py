@@ -366,8 +366,8 @@ def is_summary_submission_opened():
 
 
 def initialize_learning_unit_pedagogy_forms_in_fr_and_en(learning_unit_year):
-    fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
-    en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
+    fr_language = find_language_in_settings('fr-be')
+    en_language = find_language_in_settings('en')
     return {
         'form_french': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year, language=fr_language),
         'form_english': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year, language=en_language)
@@ -375,4 +375,4 @@ def initialize_learning_unit_pedagogy_forms_in_fr_and_en(learning_unit_year):
 
 
 def find_language_in_settings(language_code):
-    return  next((lang for lang in settings.LANGUAGES if lang[0] == language_code), None)
+    return next((lang for lang in settings.LANGUAGES if lang[0] == language_code), None)
