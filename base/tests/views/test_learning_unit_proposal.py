@@ -33,8 +33,9 @@ from django.contrib.auth.models import Permission
 from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseNotFound, HttpResponse, HttpResponseForbidden
 
-from base.tests.factories.academic_year import AcademicYearFakerFactory
+from base.tests.factories.academic_year import AcademicYearFakerFactory, create_current_academic_year
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
@@ -53,29 +54,26 @@ from reference.tests.factories.language import LanguageFactory
 
 class TestLearningUnitModificationProposal(TestCase):
     def setUp(self):
-        today = datetime.date.today()
-
         self.person = PersonFactory()
         self.permission = Permission.objects.get(codename="can_propose_learningunit")
         self.person.user.user_permissions.add(self.permission)
 
         an_organization = OrganizationFactory(type=organization_type.MAIN)
+        current_academic_year = create_current_academic_year()
+        learning_container_year = LearningContainerYearFactory(
+            academic_year=current_academic_year,
+            container_type=learning_container_year_types.COURSE,
+            campus=CampusFactory(organization=an_organization, is_administration=True)
+        )
         self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212",
-                                                               subtype=learning_unit_year_subtypes.FULL)
-        self.learning_unit_year.academic_year.start_date = today - datetime.timedelta(days=15)
-        self.learning_unit_year.academic_year.end_date = today + datetime.timedelta(days=15)
-        self.learning_unit_year.academic_year.year = self.learning_unit_year.academic_year.start_date.year
-        self.learning_unit_year.academic_year.save()
-        self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.COURSE
-        self.learning_unit_year.learning_container_year.save()
-        self.learning_unit_year.learning_container_year.campus.organization = an_organization
-        self.learning_unit_year.learning_container_year.campus.is_administration = True
-        self.learning_unit_year.learning_container_year.campus.save()
+                                                               subtype=learning_unit_year_subtypes.FULL,
+                                                               academic_year=current_academic_year,
+                                                               learning_container_year=learning_container_year)
 
         an_entity = EntityFactory(organization=an_organization)
         self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
-                                                   start_date=today - datetime.timedelta(days=25),
-                                                   end_date=today.replace(year=today.year + 1))
+                                                   start_date=current_academic_year.start_date,
+                                                   end_date=current_academic_year.end_date)
         self.requirement_entity = EntityContainerYearFactory(
             learning_container_year=self.learning_unit_year.learning_container_year,
             entity=self.entity_version.entity,

@@ -97,7 +97,6 @@ class TestLearningUnitSummary(TestCase):
         self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
         self.assertTemplateUsed(response, 'page_not_found.html')
 
-
     def test_when_user_is_not_attributed_to_the_learning_unit(self):
         self.attribution.delete()
         response = self.client.get(self.url)

@@ -30,10 +30,11 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 
 class CampusAdmin(SerializableModelAdmin):
-    list_display = ('name', 'organization', 'changed')
-    list_filter = ('organization',)
+    list_display = ('name', 'organization', 'is_administration', 'changed')
+    list_filter = ('organization', 'is_administration')
     fieldsets = ((None, {'fields': ('name', 'organization', 'is_administration')}),)
     search_fields = ['name', 'organization__name']
+    raw_id_fields = ('organization',)
 
 
 class Campus(SerializableModel):

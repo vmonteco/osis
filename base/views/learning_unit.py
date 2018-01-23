@@ -47,7 +47,7 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, get_last_academic_years, \
     SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, is_summary_submission_opened, find_language_in_settings, \
-    initialize_learning_unit_pedagogy_form
+    initialize_learning_unit_pedagogy_form, compute_max_academic_year_adjournment
 from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
@@ -69,8 +69,6 @@ CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prereq
 CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
                       'other_informations', 'online_resources']
 CMS_LABEL_SUMMARY = ['resume']
-
-LEARNING_UNIT_CREATION_SPAN_YEARS = 6
 
 
 @login_required
@@ -333,9 +331,7 @@ def learning_unit_year_add(request):
     form = CreateLearningUnitYearForm(person, request.POST)
     if form.is_valid():
         data = form.cleaned_data
-        starting_academic_year = mdl.academic_year.starting_academic_year()
-        academic_year = data['academic_year']
-        year = academic_year.year
+        year = data['academic_year'].year
         status = data['status'] == 'on'
         additional_entity_version_1 = data.get('additional_entity_1')
         additional_entity_version_2 = data.get('additional_entity_2')
@@ -345,13 +341,16 @@ def learning_unit_year_add(request):
 
         new_learning_container = LearningContainer.objects.create()
         new_learning_unit = create_learning_unit(data, new_learning_container, year)
-        while year < starting_academic_year.year + LEARNING_UNIT_CREATION_SPAN_YEARS:
+        academic_year_max = compute_max_academic_year_adjournment()
+        while year < academic_year_max:
             academic_year = mdl.academic_year.find_academic_year_by_year(year)
 
             create_learning_unit_structure(additional_entity_version_1, additional_entity_version_2,
                                            allocation_entity_version, data, new_learning_container,
                                            new_learning_unit, requirement_entity_version, status, academic_year, campus)
             year += 1
+        success_msg = _('learning_unit_successfuly_created').format(data['acronym'], academic_year_max)
+        messages.add_message(request, messages.SUCCESS, success_msg)
         return redirect('learning_units')
     else:
         return layout.render(request, "learning_unit/learning_unit_form.html", {'form': form})

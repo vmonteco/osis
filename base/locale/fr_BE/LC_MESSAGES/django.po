@@ -2485,3 +2485,9 @@ msgstr "Suppléé"
 
 msgid "not_end_year"
 msgstr "pas de fin prévue"
+
+msgid "learning_unit_successfuly_created"
+msgstr "L'Unité d'Enseignement {} a été créée jusqu'en {} avec succès."
+
+msgid "learning_unit_creation_academic_year_max_error"
+msgstr "Impossible de créer une UE dont l'année académique est supérieure à {}."

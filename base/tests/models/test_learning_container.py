@@ -24,8 +24,12 @@
 #
 ##############################################################################
 from base.models import learning_container
+from base.models.learning_container_year import LearningContainerYear
+from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_container import LearningContainerFactory
 from django.test import TestCase
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
+
 
 class LearningContainerTest(TestCase):
     def test_find_by_id_with_id(self):
@@ -35,3 +39,12 @@ class LearningContainerTest(TestCase):
     def test_find_by_id_bad_value(self):
         with self.assertRaises(ValueError):
             learning_container.find_by_id("BAD VALUE")
+
+    def test_most_recent_acronym(self):
+        container = LearningContainerFactory()
+        most_recent_year = 2018
+        for year in range(2016, most_recent_year + 1):
+            LearningContainerYearFactory(learning_container=container, academic_year=AcademicYearFactory(year=year))
+        most_recent_container_year = LearningContainerYear.objects.get(academic_year__year=most_recent_year,
+                                                                       learning_container=container)
+        self.assertEqual(container.most_recent_acronym, most_recent_container_year.acronym)

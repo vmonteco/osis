@@ -24,19 +24,20 @@
 #
 ##############################################################################
 import re
+from django.core.validators import MinValueValidator
 from django.db import models
 
-from base.models.entity_version import EntityVersion
 from base.models.group_element_year import GroupElementYear
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 
-from base.models import entity_container_year, learning_container
+from base.models import entity_container_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
+MINIMUM_CREDITS = 0.0
 
 
 class LearningUnitYearAdmin(AuditableSerializableModelAdmin):
@@ -61,7 +62,8 @@ class LearningUnitYear(AuditableSerializableModel):
     title_english = models.CharField(max_length=250, blank=True, null=True)
     subtype = models.CharField(max_length=50, blank=True, null=True,
                                choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES)
-    credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True,
+                                  validators=[MinValueValidator(MINIMUM_CREDITS)])
     decimal_scores = models.BooleanField(default=False)
     structure = models.ForeignKey('Structure', blank=True, null=True)
     internship_subtype = models.CharField(max_length=250, blank=True, null=True,
@@ -73,7 +75,6 @@ class LearningUnitYear(AuditableSerializableModel):
                                     choices=learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
     attribution_procedure = models.CharField(max_length=20, blank=True, null=True,
                                              choices=attribution_procedure.ATTRIBUTION_PROCEDURES)
-
 
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)

@@ -28,8 +28,10 @@ import datetime
 from decimal import Decimal
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
+from base.tests.factories.academic_year import create_current_academic_year
 
 from base.tests.factories.campus import CampusFactory
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.tests.factories.entity_version import EntityVersionFactory
@@ -53,12 +55,16 @@ class TestSave(TestCase):
     def setUp(self):
         self.person = PersonFactory()
         an_organization = OrganizationFactory(type=organization_type.MAIN)
-        self.learning_unit_year = LearningUnitYearFakerFactory(credits=5, subtype=learning_unit_year_subtypes.FULL)
-        self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.COURSE
-        self.learning_unit_year.learning_container_year.save()
-        self.learning_unit_year.learning_container_year.campus.organization = an_organization
-        self.learning_unit_year.learning_container_year.campus.is_administration = True
-        self.learning_unit_year.learning_container_year.campus.save()
+        current_academic_year = create_current_academic_year()
+        learning_container_year = LearningContainerYearFactory(
+            academic_year=current_academic_year,
+            container_type=learning_container_year_types.COURSE,
+            campus=CampusFactory(organization=an_organization, is_administration=True)
+        )
+        self.learning_unit_year = LearningUnitYearFakerFactory(credits=5,
+                                                               subtype=learning_unit_year_subtypes.FULL,
+                                                               academic_year=current_academic_year,
+                                                               learning_container_year=learning_container_year)
 
         self.entity_container_year = EntityContainerYearFactory(
             learning_container_year=self.learning_unit_year.learning_container_year,
@@ -245,63 +251,9 @@ class TestSave(TestCase):
 
         self.assertDictEqual(a_proposal_learning_unt.initial_data, initial_data_expected)
 
-
-class TestIsValid(TestCase):
-    def setUp(self):
-        self.person = PersonFactory()
-        an_organization = OrganizationFactory(type=organization_type.MAIN)
-        self.learning_unit_year = LearningUnitYearFakerFactory(credits=5, subtype=learning_unit_year_subtypes.FULL)
-        self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.COURSE
-        self.learning_unit_year.learning_container_year.save()
-        self.learning_unit_year.learning_container_year.campus.organization = an_organization
-        self.learning_unit_year.learning_container_year.campus.is_administration = True
-        self.learning_unit_year.learning_container_year.campus.save()
-
-        self.entity_container_year = EntityContainerYearFactory(
-            learning_container_year=self.learning_unit_year.learning_container_year,
-            type=entity_container_year_link_type.REQUIREMENT_ENTITY
-        )
-
-        today = datetime.date.today()
-        an_entity = EntityFactory(organization=an_organization)
-        self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL, start_date=today,
-                                                   end_date=today.replace(year=today.year + 1))
-
-        self.language = LanguageFactory(code="EN")
-        self.campus = CampusFactory(name="OSIS Campus", organization=OrganizationFactory(type=organization_type.MAIN),
-                                    is_administration=True)
-
-        self.form_data = {
-            "academic_year": self.learning_unit_year.academic_year.id,
-            "first_letter": "L",
-            "acronym": "OSIS1245",
-            "title": "New title",
-            "title_english": "New title english",
-            "container_type": self.learning_unit_year.learning_container_year.container_type,
-            "internship_subtype": "",
-            "credits": "4",
-            "periodicity": learning_unit_periodicity.BIENNIAL_ODD,
-            "status": False,
-            "language": self.language.id,
-            "quadrimester": learning_unit_year_quadrimesters.Q1,
-            "campus": self.campus.id,
-            "requirement_entity": self.entity_version.id,
-            "folder_entity": self.entity_version.id,
-            "folder_id": "1",
-        }
-
     def test_internship_subtype(self):
         self.form_data["internship_subtype"] = internship_subtypes.TEACHING_INTERNSHIP
         form = LearningUnitProposalModificationForm(self.form_data)
 
         self.assertFalse(form.is_valid())
         self.assertIn(_("learning_unit_type_is_not_internship"), form.errors["internship_subtype"])
-
-
-
-
-
-
-
-
-
