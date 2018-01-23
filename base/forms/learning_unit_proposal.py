@@ -60,7 +60,6 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
            cleaned_data["container_type"] != learning_container_year_types.INTERNSHIP:
             self.add_error("internship_subtype", _("learning_unit_type_is_not_internship"))
 
-
     def save(self, learning_unit_year, a_person, type_proposal, state_proposal):
         if not self.is_valid():
             raise ValueError("Form is invalid.")
