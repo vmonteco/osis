@@ -58,6 +58,23 @@ const internship = "INTERNSHIP";
         });
     }
 
+    function checkPartimLetter() {
+        $('#partim_letter_message').removeClass("error-message").text("");
+        window.valid_partim_letter = true;
+        existing_letters = $('#hdn_existing_letters').val();
+        new_partim_letter = $('#hdn_partim_letter').val();
+        if (new_partim_letter){
+            new_partim_letter = new_partim_letter.toUpperCase();
+        }
+
+        if (existing_letters.indexOf(new_partim_letter) != -1) {
+            window.valid_partim_letter = false;
+            $('#partim_letter_message').addClass("error").text(trans_invalid_partim_letter);
+            $("#partim_letter_message").css("color", "red");
+
+        }
+    }
+
     $(document).ready(function() {
         $(function () {
             $('#LearningUnitYearForm').validate();

@@ -44,6 +44,7 @@ from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from cms import models as mdl_cms
 from cms.enums import entity_name
+from django.core.exceptions import ObjectDoesNotExist
 
 
 # List of key that a user can modify
@@ -290,10 +291,13 @@ def create_entity_container_year(entity_version, learning_container_year, type_e
                                               type=type_entity_container_year)
 
 
-def create_learning_unit(data, learning_container, year):
+def create_learning_unit(data, learning_container, year, end_year=None):
+    if end_year and end_year < year:
+        end_year = None
     return LearningUnit.objects.create(acronym=data['acronym'].upper(), title=data['title'], start_year=year,
                                        periodicity=data['periodicity'], learning_container=learning_container,
-                                       faculty_remark=data['faculty_remark'], other_remark=data['other_remark'])
+                                       faculty_remark=data['faculty_remark'], other_remark=data['other_remark'],
+                                       end_year=end_year)
 
 
 def create_learning_unit_year(academic_year, data, learning_container_year, learning_unit, status):
@@ -355,3 +359,34 @@ def _get_entity_acronym(an_entity):
 def create_xls(user, found_learning_units):
     workingsheets_data = prepare_xls_content(found_learning_units)
     return xls_build.generate_xls(prepare_xls_parameters_list(user, workingsheets_data))
+
+
+def create_learning_unit_partim_structure(additional_entity_version_1, additional_entity_version_2, allocation_entity_version,
+                                   data, original_learning_container, new_learning_unit, requirement_entity_version,
+                                   status, academic_year):
+    new_learning_container_year = mdl.learning_container_year.search(academic_year, original_learning_container).first()
+    if new_learning_container_year:
+        new_requirement_entity = get_entity_container_year(requirement_entity_version,
+                                                           new_learning_container_year,
+                                                           entity_container_year_link_type.REQUIREMENT_ENTITY)
+        if allocation_entity_version:
+            get_entity_container_year(allocation_entity_version, new_learning_container_year,
+                                         entity_container_year_link_type.ALLOCATION_ENTITY)
+        if additional_entity_version_1:
+            get_entity_container_year(additional_entity_version_1, new_learning_container_year,
+                                         entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
+        if additional_entity_version_2:
+            get_entity_container_year(additional_entity_version_2, new_learning_container_year,
+                                         entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
+        if data['container_type'] == learning_container_year_types.COURSE:
+            create_course(academic_year, data, new_learning_container_year, new_learning_unit,
+                          new_requirement_entity, status)
+        else:
+            create_another_type(academic_year, data, new_learning_container_year, new_learning_unit,
+                                new_requirement_entity, status)
+
+
+def get_entity_container_year(entity_version, learning_container_year, type_entity_container_year):
+    return mdl.entity_container_year.get_entity_container_year(entity_version.entity,
+                                                               learning_container_year,
+                                                               type_entity_container_year)

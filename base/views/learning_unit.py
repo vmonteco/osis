@@ -43,7 +43,7 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, get_last_academic_years, \
-    SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls
+    SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, create_learning_unit_partim_structure
 from base.forms.common import TooManyResultsException
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import proposal_learning_unit, entity_version
@@ -52,7 +52,7 @@ from base.models.enums import learning_container_year_types, learning_unit_year_
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
 
-from base.forms.learning_unit_create import CreateLearningUnitYearForm, EMPTY_FIELD
+from base.forms.learning_unit_create import CreateLearningUnitYearForm, EMPTY_FIELD, CreatePartimForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
@@ -520,3 +520,95 @@ def outside_period(request):
     text = _('summary_responsible_denied')
     messages.add_message(request, messages.WARNING, "%s" % text)
     return render(request, "access_denied.html")
+
+
+@login_required
+@permission_required('base.can_create_learningunit', raise_exception=True)
+def learning_unit_create_partim(request, learning_unit_year_id):
+    person = get_object_or_404(Person, user=request.user)
+    context = get_common_context_learning_unit_year(learning_unit_year_id)
+    learning_unit_yr = context['learning_unit_year']
+
+    attributions = get_all_attributions(learning_unit_yr)
+    campus = get_campus_from_learning_unit_year(learning_unit_yr)
+    letters = get_existing_partim_letters(learning_unit_yr)
+
+    form = CreatePartimForm(person, initial={'academic_year': learning_unit_yr.academic_year,
+                                             'acronym': learning_unit_yr.acronym,
+                                             'subtype': learning_unit_year_subtypes.PARTIM,
+                                             'container_type': learning_unit_yr.learning_container_year.container_type,
+                                             'language': language.find_by_code('FR'),
+                                             'status': learning_unit_yr.status,
+                                             'credits': learning_unit_yr.credits,
+                                             'title': learning_unit_yr.learning_container_year.title,
+                                             'title_english': learning_unit_yr.learning_container_year.title_english,
+                                             'session': learning_unit_yr.session,
+                                             'faculty_remark': learning_unit_yr.learning_unit.faculty_remark,
+                                             'other_remark': learning_unit_yr.learning_unit.other_remark,
+                                             'periodicity': learning_unit_yr.learning_unit.periodicity,
+                                             'quadrimester': learning_unit_yr.quadrimester,
+                                             'campus': campus,
+                                             'requirement_entity': attributions['requirement_entity'],
+                                             'allocation_entity': attributions['allocation_entity'],
+                                             'additional_entity_1': attributions['additional_requirement_entities'],
+                                             'additional_entity_2': attributions['additional_requirement_entities'],
+                                             'learning_unit_year_parent': learning_unit_yr.id,
+                                             'existing_letters': ''.join(letters)
+                                             })
+
+    return layout.render(request, "learning_unit/partim_form.html", {'form': form})
+
+
+@login_required
+@permission_required('base.can_create_learningunit', raise_exception=True)
+@require_POST
+def learning_unit_year_partim_add(request):
+    person = get_object_or_404(Person, user=request.user)
+    form = CreatePartimForm(person, request.POST)
+
+    if form.is_valid():
+        data = form.cleaned_data
+
+        starting_academic_year = mdl.academic_year.starting_academic_year()
+        academic_year = data['academic_year']
+        year = academic_year.year
+        status = data['status']
+
+        additional_entity_version_1 = data.get('additional_entity_1')
+        additional_entity_version_2 = data.get('additional_entity_2')
+        allocation_entity_version = data.get('allocation_entity')
+        requirement_entity_version = data.get('requirement_entity')
+
+        original_learning_container = None
+
+        learning_unit_yr = mdl.learning_unit_year.get_by_id(data.get('learning_unit_year_parent'))
+        if learning_unit_yr:
+            original_learning_container = learning_unit_yr.learning_container_year.learning_container
+
+        new_learning_unit = create_learning_unit(data,
+                                                 original_learning_container,
+                                                 year,
+                                                 learning_unit_yr.learning_unit.end_year)
+
+        while year < starting_academic_year.year + LEARNING_UNIT_CREATION_SPAN_YEARS:
+            academic_year = mdl.academic_year.find_academic_year_by_year(year)
+
+            create_learning_unit_partim_structure(additional_entity_version_1, additional_entity_version_2,
+                                                  allocation_entity_version, data, original_learning_container,
+                                                  new_learning_unit, requirement_entity_version, status, academic_year)
+            year += 1
+
+        return HttpResponseRedirect(reverse("learning_unit",
+                                            kwargs={'learning_unit_year_id': learning_unit_yr.id}))
+    else:
+        return layout.render(request, "learning_unit/partim_form.html", {'form': form})
+
+
+def get_existing_partim_letters(learning_unit_year):
+    existing_partims = learning_unit_year.learning_container_year.get_partims_related()
+    letters = []
+    for e in existing_partims:
+        if e.subdivision not in letters:
+            letters.append(e.subdivision)
+    return letters
+

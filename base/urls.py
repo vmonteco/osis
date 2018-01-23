@@ -87,6 +87,8 @@ urlpatterns = [
             url(r'^academic_year_id=(?P<academic_year>[0-9]+)$', learning_unit.learning_unit_create,
                 name="learning_unit_create"),
             url(r'^learning_unit_year_add/$', learning_unit.learning_unit_year_add, name='learning_unit_year_add'),
+            url(r'^learning_unit_year_partim_add/$', learning_unit.learning_unit_year_partim_add, name='learning_unit_year_partim_add'),
+
         ])),
         url(r'^(?P<learning_unit_year_id>[0-9]+)/', include([
             url(r'^$', learning_unit.learning_unit_identification, name='learning_unit'),
@@ -114,6 +116,7 @@ urlpatterns = [
             url(r'^delete_full/$', base.views.learning_unit_deletion.delete_all_learning_units_year, name="learning_unit_delete_all"),
             url(r'^summary/$', learning_unit.learning_unit_summary, name="learning_unit_summary"),
             url(r'^summary/edit/$', learning_unit.summary_edit, name="learning_unit_summary_edit"),
+            url(r'^new/partim/$', learning_unit.learning_unit_create_partim, name="learning_unit_create_partim"),
 
         ])),
         url(r'^check/$', learning_unit.check_acronym, name="check_acronym"),
