@@ -26,25 +26,28 @@
 import datetime
 from unittest import mock
 
-from django.contrib.messages.storage.fallback import FallbackStorage
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.messages.storage.fallback import FallbackStorage
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseForbidden
 from django.test import TestCase, RequestFactory
+from django.utils.translation import ugettext_lazy as _
 
 import base.business.learning_unit
+from base.business import learning_unit as learning_unit_business
 from base.forms import learning_units
 from base.forms.learning_unit_create import CreateLearningUnitYearForm
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import learning_unit_component
 from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear
+from base.models.enums import entity_container_year_link_type
 from base.models.enums import learning_container_year_types, organization_type, entity_type
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.internship_subtypes import TEACHING_INTERNSHIP
-from base.models.enums.learning_container_year_types import COURSE
+from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP
 from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.enums.learning_unit_year_session import SESSION_P23
 from base.models.learning_unit import LearningUnit
@@ -52,23 +55,19 @@ from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
+from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
-from base.tests.factories.learning_unit_component_class import LearningUnitComponentClassFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.learning_class_year import LearningClassYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from base.tests.factories.learning_container import LearningContainerFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
-from base.tests.factories.entity_container_year import EntityContainerYearFactory
-from base.models.enums import entity_container_year_link_type
+from base.tests.factories.learning_unit_component_class import LearningUnitComponentClassFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
-from base.business import learning_unit as learning_unit_business
-from django.utils.translation import ugettext_lazy as _
-
 from osis_common.document import xls_build
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
@@ -120,10 +119,11 @@ class LearningUnitViewTestCase(TestCase):
         self.entity_container_yr_3 = EntityContainerYearFactory(learning_container_year=self.learning_container_yr,
                                                                 type=entity_container_year_link_type.REQUIREMENT_ENTITY,
                                                                 entity=self.entity_3)
-        self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL, start_date=today,
+        self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL,
+                                                   start_date=today-datetime.timedelta(days=1),
                                                    end_date=today.replace(year=today.year + 1))
 
-        self.campus = CampusFactory(organization=self.organization, is_administration=True, code="L")
+        self.campus = CampusFactory(organization=self.organization, is_administration=True)
         self.language = LanguageFactory(code='FR')
         self.a_superuser = SuperUserFactory()
         self.person = PersonFactory(user=self.a_superuser)
@@ -617,6 +617,17 @@ class LearningUnitViewTestCase(TestCase):
         faultydict["acronym"] = "TA200"
         return faultydict
 
+    def get_existing_acronym(self):
+        faultydict = dict(self.get_valid_data())
+        faultydict["acronym"] = "DRT2018"
+        return faultydict
+
+    def get_empty_internship_subtype(self):
+        faultydict = dict(self.get_valid_data())
+        faultydict["container_type"] = INTERNSHIP
+        faultydict["internship_subtype"] = ""
+        return faultydict
+
     def get_empty_acronym(self):
         faultyDict = dict(self.get_valid_data())
         faultyDict["acronym"] = ""
@@ -646,17 +657,33 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(len(form.errors), 1)
         self.assertTrue('requirement_entity' in form.errors)
 
-    def test_learning_unit_acronym_form(self):
+    def test_learning_unit_creation_form_with_valid_data(self):
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_valid_data())
         self.assertTrue(form.is_valid(), form.errors)
+        self.assertTrue(form.cleaned_data, form.errors)
+        self.assertEqual(form.cleaned_data['acronym'], "LTAU2000")
 
+    def test_learning_unit_creation_form_with_empty_acronym(self):
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_empty_acronym())
         self.assertFalse(form.is_valid(), form.errors)
-        self.assertEqual(form.errors['acronym'], [_('This field is required.')])
+        self.assertEqual(form.errors['acronym'], [_('field_is_required')])
 
+    def test_learning_unit_creation_form_with_invalid_data(self):
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_faulty_acronym())
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['acronym'], [_('invalid_acronym')])
+
+    def test_learning_unit_creation_form_with_existing_acronym(self):
+        LearningUnitYearFactory(acronym="LDRT2018", academic_year=self.current_academic_year)
+        form = CreateLearningUnitYearForm(person=self.person, data=self.get_existing_acronym())
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertEqual(form.errors['acronym'], [_('existing_acronym')])
+
+    def test_learning_unit_creation_form_with_field_is_required_empty(self):
+        form = CreateLearningUnitYearForm(person=self.person, data=self.get_empty_internship_subtype())
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertEqual(form.errors['internship_subtype'], _('field_is_required'))
+
 
     def test_learning_unit_check_acronym(self):
         kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
@@ -948,7 +975,7 @@ class TestCreateXls(TestCase):
     @mock.patch("osis_common.document.xls_build.generate_xls")
     def test_generate_xls_data_with_no_data(self, mock_generate_xls):
         learning_unit_business.create_xls(self.user, [])
-        expected_argument = expected_argument = _generate_xls_build_parameter([], self.user)
+        expected_argument = _generate_xls_build_parameter([], self.user)
         mock_generate_xls.assert_called_with(expected_argument)
 
 
