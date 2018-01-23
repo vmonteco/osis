@@ -77,6 +77,6 @@ class LearningUnitYearFakerFactory(DjangoModelFactory):
     acronym = factory.LazyAttribute(lambda obj: obj.learning_container_year.acronym)
     title = factory.LazyAttribute(lambda obj: obj.learning_container_year.title)
     subtype = factory.Iterator(learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, getter=operator.itemgetter(0))
-    credits = factory.fuzzy.FuzzyDecimal(9)
+    credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, 9)
     decimal_scores = False
     status = True
