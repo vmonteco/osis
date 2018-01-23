@@ -346,6 +346,7 @@ def learning_unit_year_add(request):
         additional_entity_version_2 = data.get('additional_entity_2')
         allocation_entity_version = data.get('allocation_entity')
         requirement_entity_version = data.get('requirement_entity')
+        campus = data.get('campus')
 
         new_learning_container = LearningContainer.objects.create()
         new_learning_unit = create_learning_unit(data, new_learning_container, year)
@@ -354,7 +355,7 @@ def learning_unit_year_add(request):
 
             create_learning_unit_structure(additional_entity_version_1, additional_entity_version_2,
                                            allocation_entity_version, data, new_learning_container,
-                                           new_learning_unit, requirement_entity_version, status, academic_year)
+                                           new_learning_unit, requirement_entity_version, status, academic_year, campus)
             year += 1
         return redirect('learning_units')
     else:

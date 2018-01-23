@@ -211,14 +211,15 @@ def _is_used_by_full_learning_unit_year(a_learning_class_year):
 
 def create_learning_unit_structure(additional_entity_version_1, additional_entity_version_2, allocation_entity_version,
                                    data, new_learning_container, new_learning_unit, requirement_entity_version,
-                                   status, academic_year):
+                                   status, academic_year, campus):
     new_learning_container_year = LearningContainerYear.objects. \
         create(academic_year=academic_year,
                learning_container=new_learning_container,
                title=data['title'],
                acronym=data['acronym'].upper(),
                container_type=data['container_type'],
-               language=data['language'])
+               language=data['language'],
+               campus=campus)
     new_requirement_entity = create_entity_container_year(requirement_entity_version,
                                                           new_learning_container_year,
                                                           entity_container_year_link_type.REQUIREMENT_ENTITY)
