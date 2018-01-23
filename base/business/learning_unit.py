@@ -26,15 +26,17 @@
 import datetime
 from collections import OrderedDict
 
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from base import models as mdl
+from base import models as mdl, models as mdl_base
 from base.business.learning_unit_year_with_context import volume_learning_component_year
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import entity_container_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
-from base.models.enums import entity_container_year_link_type
+from base.models.enums import entity_container_year_link_type, academic_calendar_type
 from base.models.enums import learning_component_year_type
 from base.models.enums import learning_container_year_types
 from base.models.learning_component_year import LearningComponentYear
@@ -360,3 +362,18 @@ def _get_entity_acronym(an_entity):
 def create_xls(user, found_learning_units):
     workingsheets_data = prepare_xls_content(found_learning_units)
     return xls_build.generate_xls(prepare_xls_parameters_list(user, workingsheets_data))
+
+
+def is_summary_submission_opened():
+    current_academic_year = mdl_base.academic_year.current_academic_year()
+    return mdl_base.academic_calendar.is_academic_calendar_opened(current_academic_year,
+                                                                  academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+
+
+def initialize_learning_unit_pedagogy_form(learning_unit_year, language_code):
+    lang = find_language_in_settings(language_code)
+    return LearningUnitPedagogyForm(learning_unit_year=learning_unit_year, language=lang)
+
+
+def find_language_in_settings(language_code):
+    return next((lang for lang in settings.LANGUAGES if lang[0] == language_code), None)
