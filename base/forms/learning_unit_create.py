@@ -34,7 +34,8 @@ from base.forms.bootstrap import BootstrapForm
 from base.models.campus import find_administration_campuses
 from base.models.entity_version import find_main_entities_version, find_main_entities_version_filtered_by_person
 from base.models.enums import entity_container_year_link_type
-from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
+from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP, \
+    LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 from base.models.enums.learning_unit_management_sites import LEARNING_UNIT_MANAGEMENT_SITE
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
@@ -47,6 +48,8 @@ EMPTY_FIELD = "---------"
 def create_learning_container_year_type_list():
     return ((None, EMPTY_FIELD),) + LEARNING_CONTAINER_YEAR_TYPES
 
+def create_faculty_learning_container_year_type_list():
+    return ((None, EMPTY_FIELD),) + LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
@@ -132,6 +135,10 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
         super(CreateLearningUnitYearForm, self).__init__(*args, **kwargs)
         # When we create a learning unit, we can only select requirement entity which are attached to the person
         self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
+        if person.user.groups.filter(name='faculty_managers').exists():
+            self.fields["container_type"] = forms.ChoiceField(choices=create_faculty_learning_container_year_type_list(),
+                                                              widget=forms.Select(attrs={'class': 'form-control'}))
+            self.fields['internship_subtype'] = forms.ChoiceField(widget=forms.HiddenInput(), label='')
 
     def is_valid(self):
         if not super().is_valid():

@@ -2,6 +2,7 @@ const internship = "INTERNSHIP";
     var form = $('#LearningUnitYearForm').closest("form");
 
     function showInternshipSubtype(elem){
+        if(document.getElementById('id_internship_subtype'))
         document.getElementById('id_internship_subtype').disabled = elem != internship;
     }
 
