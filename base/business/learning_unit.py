@@ -232,12 +232,9 @@ def create_learning_unit_structure(additional_entity_version_1, additional_entit
     if additional_entity_version_2:
         create_entity_container_year(additional_entity_version_2, new_learning_container_year,
                                      entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
-    if data['container_type'] == learning_container_year_types.COURSE:
-        create_course(academic_year, data, new_learning_container_year, new_learning_unit,
-                      new_requirement_entity, status)
-    else:
-        create_another_type(academic_year, data, new_learning_container_year, new_learning_unit,
-                            new_requirement_entity, status)
+
+    create_learning_unit_content(academic_year, data, new_learning_container_year, new_learning_unit,
+                                 new_requirement_entity, status)
 
 
 def create_another_type(an_academic_year, data, new_learning_container_year, new_learning_unit, new_requirement_entity,
@@ -361,29 +358,50 @@ def create_xls(user, found_learning_units):
     return xls_build.generate_xls(prepare_xls_parameters_list(user, workingsheets_data))
 
 
-def create_learning_unit_partim_structure(additional_entity_version_1, additional_entity_version_2, allocation_entity_version,
-                                   data, original_learning_container, new_learning_unit, requirement_entity_version,
-                                   status, academic_year):
+def create_learning_unit_partim_structure(data_dict):
+    original_learning_container = data_dict.get('original_learning_container', None)
+    academic_year = data_dict.get('academic_year', None)
+
     new_learning_container_year = mdl.learning_container_year.search(academic_year, original_learning_container).first()
     if new_learning_container_year:
-        new_requirement_entity = get_entity_container_year(requirement_entity_version,
-                                                           new_learning_container_year,
-                                                           entity_container_year_link_type.REQUIREMENT_ENTITY)
-        if allocation_entity_version:
-            get_entity_container_year(allocation_entity_version, new_learning_container_year,
-                                         entity_container_year_link_type.ALLOCATION_ENTITY)
-        if additional_entity_version_1:
-            get_entity_container_year(additional_entity_version_1, new_learning_container_year,
-                                         entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
-        if additional_entity_version_2:
-            get_entity_container_year(additional_entity_version_2, new_learning_container_year,
-                                         entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
-        if data['container_type'] == learning_container_year_types.COURSE:
-            create_course(academic_year, data, new_learning_container_year, new_learning_unit,
-                          new_requirement_entity, status)
-        else:
-            create_another_type(academic_year, data, new_learning_container_year, new_learning_unit,
-                                new_requirement_entity, status)
+        create_partim(data_dict, new_learning_container_year)
+
+
+def create_partim(data_dict, new_learning_container_year):
+    additional_entity_version_1 = data_dict.get('additional_entity_version_1', None)
+    additional_entity_version_2 = data_dict.get('additional_entity_version_2', None)
+    allocation_entity_version = data_dict.get('allocation_entity_version', None)
+    data = data_dict.get('data', None)
+    new_learning_unit = data_dict.get('new_learning_unit', None)
+    requirement_entity_version = data_dict.get('requirement_entity_version', None)
+    status = data_dict.get('status', None)
+    academic_year = data_dict.get('academic_year', None)
+
+    new_requirement_entity = get_entity_container_year(requirement_entity_version,
+                                                       new_learning_container_year,
+                                                       entity_container_year_link_type.REQUIREMENT_ENTITY)
+    if allocation_entity_version:
+        get_entity_container_year(allocation_entity_version, new_learning_container_year,
+                                  entity_container_year_link_type.ALLOCATION_ENTITY)
+    if additional_entity_version_1:
+        get_entity_container_year(additional_entity_version_1, new_learning_container_year,
+                                  entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
+    if additional_entity_version_2:
+        get_entity_container_year(additional_entity_version_2, new_learning_container_year,
+                                  entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
+
+    create_learning_unit_content(academic_year, data, new_learning_container_year, new_learning_unit,
+                                 new_requirement_entity, status)
+
+
+def create_learning_unit_content(academic_year, data, new_learning_container_year, new_learning_unit,
+                                 new_requirement_entity, status):
+    if data['container_type'] == learning_container_year_types.COURSE:
+        create_course(academic_year, data, new_learning_container_year, new_learning_unit,
+                      new_requirement_entity, status)
+    else:
+        create_another_type(academic_year, data, new_learning_container_year, new_learning_unit,
+                            new_requirement_entity, status)
 
 
 def get_entity_container_year(entity_version, learning_container_year, type_entity_container_year):

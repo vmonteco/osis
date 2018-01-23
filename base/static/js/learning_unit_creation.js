@@ -34,19 +34,22 @@ const internship = "INTERNSHIP";
                     }else{
                         window.valid_acronym = false;
                         if(data['existing_acronym']){
-                            $('#acronym_message').addClass("error").text(trans_existed_acronym);
-                            $("#acronym_message").css("color","red");
+                            set_error_message(trans_existed_acronym, '#acronym_message' )
                             window.acronym_already_used = true;
                         }
                     }
                 });
             } else {
                 window.valid_acronym = false;
-                $('#acronym_message').addClass("error").text(trans_invalid_acronym);
-                $("#acronym_message").css("color","red");
+                set_error_message(trans_invalid_acronym, '#acronym_message' )
             }
         }
     };
+
+    function set_error_message(text, element){
+        $(element).addClass("error").text(text);
+        $(element).css("color","red");
+    }
 
     function setFirstLetter(){
         var url = "?campus=" + $('#id_campus').val()

@@ -160,7 +160,6 @@ class CreatePartimForm(CreateLearningUnitYearForm):
     learning_unit_year_parent = forms.CharField(required=False, widget=forms.HiddenInput())
     existing_letters = forms.CharField(required=False, widget=forms.HiddenInput(attrs={'id': 'hdn_existing_letters'}))
     acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}[A-Z]$"
-    # acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}\w{1}$"
 
     def __init__(self, *args, **kwargs):
         self.learning_unit_year_parent = kwargs.pop('learning_unit_year_parent', None)
