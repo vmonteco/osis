@@ -24,10 +24,14 @@
 #
 ##############################################################################
 from django import forms
+from django.db.models import F
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.bootstrap import BootstrapForm
+from base.models import academic_year
 from base.models.academic_year import AcademicYear
+from base.models.enums import learning_unit_periodicity
+from base.models.learning_unit import is_old_learning_unit
 from base.views.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
 
 
@@ -35,19 +39,44 @@ class LearningUnitEndDateForm(BootstrapForm):
 
     academic_year = forms.ModelChoiceField(required=False,
                                            queryset=AcademicYear.objects.none(),
-                                           empty_label=_('Whiteout validity end date'))
+                                           empty_label=_('Without validity end date'))
 
     def __init__(self, *args, **kwargs):
         learning_unit = kwargs.pop('learning_unit')
         super().__init__(*args, **kwargs)
         end_year = learning_unit.end_year
 
-        self.fields['academic_year'].queryset = AcademicYear.objects.filter(
-            year__gte=learning_unit.start_year, year__lte=(end_year + LEARNING_UNIT_CREATION_SPAN_YEARS)
-        )
+        self._set_initial_value(end_year)
+
+        current_academic_year = academic_year.current_academic_year()
+        if is_old_learning_unit(learning_unit):
+            raise ValueError(
+                'Learning_unit.end_year {} cannot be less than the current academic_year {}'.format(
+                    learning_unit.end_year, current_academic_year)
+            )
+
+        queryset = _get_academic_years(current_academic_year.year, end_year)
+
+        periodicity = learning_unit.periocity
+        self.fields['academic_year'].queryset = _filter_biennial(queryset, periodicity)
+
+    def _set_initial_value(self, end_year):
         try:
             self.fields['academic_year'].initial = AcademicYear.objects.get(year=end_year)
         except (AcademicYear.DoesNotExist, AcademicYear.MultipleObjectsReturned):
             self.fields['academic_year'].initial = None
 
 
+def _get_academic_years(start_year, end_year):
+    end_year += LEARNING_UNIT_CREATION_SPAN_YEARS if end_year else None
+    return AcademicYear.objects.filter(
+        year_gte=start_year, year__lte=end_year
+    )
+
+
+def _filter_biennial(queryset, periodicity):
+    result = queryset
+    if periodicity != learning_unit_periodicity.ANNUAL:
+        is_odd = periodicity == learning_unit_periodicity.BIENNIAL_ODD
+        result = queryset.annotate(odd=F('year') % 2).filter(odd=is_odd)
+    return result
