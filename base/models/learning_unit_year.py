@@ -24,22 +24,20 @@
 #
 ##############################################################################
 import re
-from decimal import Decimal
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from base.models.entity_version import EntityVersion
 from base.models.group_element_year import GroupElementYear
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 
-from base.models import entity_container_year, learning_container
+from base.models import entity_container_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
-MINIMUM_CREDITS = Decimal(0.0)
+MINIMUM_CREDITS = 0.0
 
 
 class LearningUnitYearAdmin(AuditableSerializableModelAdmin):

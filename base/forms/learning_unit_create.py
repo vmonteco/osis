@@ -24,7 +24,6 @@
 #
 ##############################################################################
 import re
-from decimal import Decimal
 
 from django import forms
 from django.core.validators import MinValueValidator
@@ -36,7 +35,6 @@ from base.business import learning_unit
 from base.forms.bootstrap import BootstrapForm
 from base.models.campus import find_administration_campuses
 from base.models.entity_version import find_main_entities_version, find_main_entities_version_filtered_by_person
-from base.models.enums import entity_container_year_link_type
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES

@@ -36,7 +36,7 @@ from base.tests.factories.person import PersonFactory
 
 from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
-from base.tests.factories.academic_year import AcademicYearFakerFactory
+from base.tests.factories.academic_year import AcademicYearFakerFactory, create_current_academic_year
 from django.utils import timezone
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.forms.learning_unit_summary import LearningUnitSummaryForm
@@ -84,14 +84,13 @@ class TestLearningUnitSummary(TestCase):
         self.person.user.user_permissions.add(permission)
         self.client.force_login(self.person.user)
 
-        current_academic_year = AcademicYearFakerFactory(start_date=timezone.now() - datetime.timedelta(days=10),
-                                                         end_date=timezone.now() + datetime.timedelta(days=10))
+        current_academic_year = create_current_academic_year()
 
         AcademicCalendarFactory(academic_year=current_academic_year,
                                 reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
 
         self.language = LanguageFactory(code="en")
-        self.learning_unit_year = LearningUnitYearFakerFactory()
+        self.learning_unit_year = LearningUnitYearFakerFactory(academic_year=current_academic_year)
 
         self.text_label_lu = TextLabelFactory(order=1,
                                               label=LearningUnitSummaryForm.RESUME,

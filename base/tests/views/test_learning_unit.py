@@ -52,7 +52,7 @@ from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.enums.learning_unit_year_session import SESSION_P23
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
-from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -674,10 +674,12 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(form.errors['acronym'], [_('invalid_acronym')])
 
     def test_create_learning_unit_case_invalid_academic_year(self):
-        wrond_academic_year_data = dict(self.get_valid_data())
-        AcademicYear.objects.filter(pk=self.current_academic_year.id).update(year=self.current_academic_year.year+1000)
-        wrond_academic_year_data['academic_year'] = self.current_academic_year
-        form = CreateLearningUnitYearForm(person=self.person, data=wrond_academic_year_data)
+        now = datetime.datetime.now()
+        bad_academic_year = AcademicYearFactory.build(year=now.year + 100)
+        super(AcademicYear, bad_academic_year).save()
+        data = dict(self.get_valid_data())
+        data['academic_year'] = bad_academic_year.id
+        form = CreateLearningUnitYearForm(person=self.person, data=data)
         self.assertFalse(form.is_valid())
 
     def test_learning_unit_creation_form_with_existing_acronym(self):
@@ -867,6 +869,7 @@ class LearningUnitCreate(TestCase):
 
 class LearningUnitYearAdd(TestCase):
     def setUp(self):
+        create_current_academic_year()
         self.person = PersonFactory()
         content_type = ContentType.objects.get_for_model(LearningUnit)
         permission = Permission.objects.get(codename="can_create_learningunit",
