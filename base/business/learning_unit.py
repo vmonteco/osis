@@ -369,9 +369,6 @@ def create_learning_unit_partim_structure(data_dict):
 
 
 def create_partim(data_dict, new_learning_container_year):
-    additional_entity_version_1 = data_dict.get('additional_entity_version_1', None)
-    additional_entity_version_2 = data_dict.get('additional_entity_version_2', None)
-    allocation_entity_version = data_dict.get('allocation_entity_version', None)
     data = data_dict.get('data', None)
     new_learning_unit = data_dict.get('new_learning_unit', None)
     requirement_entity_version = data_dict.get('requirement_entity_version', None)
@@ -381,15 +378,6 @@ def create_partim(data_dict, new_learning_container_year):
     new_requirement_entity = get_entity_container_year(requirement_entity_version,
                                                        new_learning_container_year,
                                                        entity_container_year_link_type.REQUIREMENT_ENTITY)
-    if allocation_entity_version:
-        get_entity_container_year(allocation_entity_version, new_learning_container_year,
-                                  entity_container_year_link_type.ALLOCATION_ENTITY)
-    if additional_entity_version_1:
-        get_entity_container_year(additional_entity_version_1, new_learning_container_year,
-                                  entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
-    if additional_entity_version_2:
-        get_entity_container_year(additional_entity_version_2, new_learning_container_year,
-                                  entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
 
     create_learning_unit_content({'academic_year': academic_year,
                                   'data': data,
