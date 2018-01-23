@@ -94,7 +94,7 @@ class TestSave(TestCase):
         }
 
     def test_invalid_form(self):
-        del self.form_data['academic_year']
+        del self.form_data['requirement_entity']
 
         form = LearningUnitProposalModificationForm(self.form_data)
         with self.assertRaises(ValueError):
