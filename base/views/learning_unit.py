@@ -164,7 +164,6 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
     user_language = mdl.person.get_user_interface_language(request.user)
     context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language)
 
-
     context.update(initialize_learning_unit_pedagogy_forms_in_fr_and_en(learning_unit_year))
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/pedagogy.html", context)
@@ -480,7 +479,7 @@ def learning_unit_summary(request, learning_unit_year_id):
 @login_required
 def summary_edit(request, learning_unit_year_id):
     if not is_summary_submission_opened():
-        return redirect(reverse_lazy('outside_summary_submission_period'))
+        return redirect(reverse_lazy("outside_summary_submission_period"))
     if not is_tutor(request.user):
         raise PermissionDenied("User is not a tutor")
     attribution = get_object_or_404(Attribution, learning_unit_year__id=learning_unit_year_id,
