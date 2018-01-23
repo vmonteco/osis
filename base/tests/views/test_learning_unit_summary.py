@@ -128,7 +128,7 @@ class TestLearningUnitSummary(TestCase):
 class TestLearningUnitSummaryEdit(TestCase):
     def setUp(self):
         today = datetime.date.today()
-        academic_year = AcademicYearFakerFactory(start_date=today, year=today.year,
+        academic_year = AcademicYearFakerFactory(start_date=today-datetime.timedelta(days=1), year=today.year,
                                                  end_date=today + datetime.timedelta(days=5))
         self.summary_course_submission_calendar = \
             AcademicCalendarFactory(academic_year=academic_year,
