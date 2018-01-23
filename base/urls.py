@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,13 +24,13 @@
 #
 ##############################################################################
 from django.conf import settings
-from django.conf.urls.static import static
 from django.conf.urls import url, include
+from django.conf.urls.static import static
+
+import base.views.learning_unit_deletion
 from attribution.views import attribution, tutor_application
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group, learning_unit_proposal
-import base.views.learning_unit_deletion
-
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -121,7 +121,6 @@ urlpatterns = [
 
         ])),
         url(r'^check/$', learning_unit.check_acronym, name="check_acronym"),
-        url(r'^check_code/$', learning_unit.check_code, name="check_code"),
         url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
     ])),
 

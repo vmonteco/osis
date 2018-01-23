@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,7 +23,19 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.conf.urls import url, include
 
-from base.models.enums import internship_subtypes
-from base.models.enums import learning_unit_management_sites
-from base.models.enums import learning_unit_year_session
+from attribution.views import summary_responsible
+
+urlpatterns = [
+
+    url(r'^summary_responsible_manager/', include([
+        url(r'^$', summary_responsible.search,
+            name='summary_responsible'),
+        url(r'^edit/$', summary_responsible.edit,
+            name='summary_responsible_edit'),
+        url(r'^update/(?P<pk>[0-9]+)/$', summary_responsible.update,
+            name='summary_responsible_update')
+    ])),
+
+]

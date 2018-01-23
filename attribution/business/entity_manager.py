@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,7 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from base.business.entity_version import find_entity_version_according_academic_year
 
-from base.models.enums import internship_subtypes
-from base.models.enums import learning_unit_management_sites
-from base.models.enums import learning_unit_year_session
+
+def _append_entity_version(entities_manager, academic_year):
+    for entity_manager in entities_manager:
+        if hasattr(entity_manager.entity, 'entity_versions') and entity_manager.entity.entity_versions:
+            entity_manager.entity_version = find_entity_version_according_academic_year(
+                entity_manager.entity.entity_versions, academic_year)
+        else:
+            entity_manager.entity_version = None
