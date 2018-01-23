@@ -24,13 +24,14 @@
 #
 ##############################################################################
 from django.conf import settings
-from django.conf.urls.static import static
 from django.conf.urls import url, include
+from django.conf.urls.static import static
+
+import base.views.learning_unit_deletion
 from attribution.views import attribution, tutor_application
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group, learning_unit_proposal
-import base.views.learning_unit_deletion
-
+from base.views.learning_units import edition
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -102,6 +103,8 @@ urlpatterns = [
                 url(r'^cancel/$', learning_unit_proposal.cancel_proposal_of_learning_unit,
                     name="learning_unit_cancel_proposal")
             ])),
+            url(r'^modification/$', edition.learning_unit_modify_end_date,
+                name="learning_unit_end_date_edition"),
             url(r'^specifications/$', learning_unit.learning_unit_specifications, name="learning_unit_specifications"),
             url(r'^specifications/edit/$', learning_unit.learning_unit_specifications_edit,
                 name="learning_unit_specifications_edit"),
@@ -110,8 +113,10 @@ urlpatterns = [
             url(r'^volumes/', include([
                 url(u'^$', learning_unit.learning_unit_volumes_management, name="learning_unit_volumes_management"),
                 url(u'^validation/$', learning_unit.volumes_validation, name="volumes_validation")])),
-            url(r'^delete/$', base.views.learning_unit_deletion.delete_from_given_learning_unit_year, name="learning_unit_delete"),
-            url(r'^delete_full/$', base.views.learning_unit_deletion.delete_all_learning_units_year, name="learning_unit_delete_all"),
+            url(r'^delete/$', base.views.learning_unit_deletion.delete_from_given_learning_unit_year,
+                name="learning_unit_delete"),
+            url(r'^delete_full/$', base.views.learning_unit_deletion.delete_all_learning_units_year,
+                name="learning_unit_delete_all"),
             url(r'^summary/$', learning_unit.learning_unit_summary, name="learning_unit_summary"),
             url(r'^summary/edit/$', learning_unit.summary_edit, name="learning_unit_summary_edit"),
 
