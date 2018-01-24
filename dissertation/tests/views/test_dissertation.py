@@ -243,13 +243,11 @@ class DissertationViewTestCase(TestCase):
                                      'adviser_pk': str(self.teacher.id)})
         self.assertEqual(response.status_code, NO_ERROR_CODE)
         self.assertEqual(dissert_role_count + 1, count_by_dissertation(self.dissertation_1))
-        response2 = self.client.get('/dissertation/manager_dissertations_role_delete_by_ajax/999999')
-        self.assertEqual(response2.status_code, ERROR_404_PAGE_NO_FOUND)
         liste_dissert_roles = search_by_dissertation_and_role(self.dissertation_1, 'READER')
         for element in liste_dissert_roles:
             dissert_role_count = count_by_dissertation(self.dissertation_1)
-            url = "/dissertation/manager_dissertations_role_delete_by_ajax/{}"
-            response2 = self.client.get(url.format(str(element.id)))
+            url = "/dissertation/manager_dissertations_role_delete_by_ajax/{role}"
+            response2 = self.client.get(url.format(role = str(element.id)))
             self.assertEqual(response2.status_code, NO_ERROR_CODE)
             self.assertEqual(count_by_dissertation(self.dissertation_1), dissert_role_count-1)
         response = self.client.post('/dissertation/manager_dissertations_wait_comm_json_list', )
@@ -264,6 +262,6 @@ class DissertationViewTestCase(TestCase):
         self.assertEqual(response.status_code, ERROR_403_NOT_AUTORIZED)
         liste_dissert_roles = search_by_dissertation_and_role(self.dissertation_1, 'READER')
         for element in liste_dissert_roles:
-            url = "/dissertation/manager_dissertations_role_delete_by_ajax/{}"
-            response = self.client.get(url.format(str(element.id)))
+            url = "/dissertation/manager_dissertations_role_delete_by_ajax/{role}"
+            response = self.client.get(url.format(role = str(element.id)))
             self.assertEqual(response.status_code, ERROR_403_NOT_AUTORIZED)

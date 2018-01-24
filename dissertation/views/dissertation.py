@@ -526,7 +526,7 @@ def _justification_dissert_role_delete_change(request, dissert, dissert_role, in
 @login_required
 @user_passes_test(adviser.is_manager)
 def manager_dissertations_role_delete_by_ajax(request, pk):
-    dissert_role = get_object_or_404(DissertationRole, pk)
+    dissert_role = get_object_or_404(DissertationRole,pk=pk)
     dissert = dissert_role.dissertation
     person = mdl.person.find_by_user(request.user)
     adv = adviser.search_by_person(person)
