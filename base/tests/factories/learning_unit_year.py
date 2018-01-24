@@ -33,6 +33,7 @@ from factory.django import DjangoModelFactory
 from faker import Faker
 
 from base.models.enums import learning_unit_year_subtypes
+from base.models.learning_unit_year import MINIMUM_CREDITS
 from base.tests.factories.academic_year import AcademicYearFactory, AcademicYearFakerFactory
 from base.tests.factories.learning_unit import LearningUnitFactory, LearningUnitFakerFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
@@ -59,7 +60,7 @@ class LearningUnitYearFactory(DjangoModelFactory):
     acronym = factory.Sequence(lambda n: 'LUY-%d' % n)
     title = factory.Sequence(lambda n: 'Learning unit year - %d' % n)
     subtype = factory.Iterator(learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, getter=operator.itemgetter(0))
-    credits = factory.fuzzy.FuzzyDecimal(99)
+    credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, 99)
     decimal_scores = False
     status = True
 
@@ -76,6 +77,6 @@ class LearningUnitYearFakerFactory(DjangoModelFactory):
     acronym = factory.LazyAttribute(lambda obj: obj.learning_container_year.acronym)
     title = factory.LazyAttribute(lambda obj: obj.learning_container_year.title)
     subtype = factory.Iterator(learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, getter=operator.itemgetter(0))
-    credits = factory.fuzzy.FuzzyDecimal(9)
+    credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, 9)
     decimal_scores = False
     status = True
