@@ -38,7 +38,7 @@ def is_eligible_for_modification_end_date(learning_unit_year, a_person):
                                                                          learning_container_year_types.DISSERTATION,
                                                                          learning_container_year_types.INTERNSHIP):
         return False
-    if proposal_learning_unit.find_by_learning_unit_year(learning_unit_year).exist():
+    if proposal_learning_unit.find_by_learning_unit_year(learning_unit_year):
         return False
     return is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person)
 

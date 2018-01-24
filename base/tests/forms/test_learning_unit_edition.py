@@ -27,6 +27,7 @@ import datetime
 
 from django.test import TestCase
 
+from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.models.academic_year import AcademicYear
 from base.models.enums import learning_unit_periodicity
@@ -34,7 +35,6 @@ from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
-from base.views.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
 
 
 class TestLearningUnitEditionForm(TestCase):
