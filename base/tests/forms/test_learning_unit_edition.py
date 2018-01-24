@@ -29,6 +29,7 @@ from django.test import TestCase
 
 from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
+from base.models import academic_year as mdl_academic_year
 from base.models.academic_year import AcademicYear
 from base.models.enums import learning_unit_periodicity
 from base.tests.factories.academic_year import AcademicYearFactory
@@ -52,23 +53,25 @@ class TestLearningUnitEditionForm(TestCase):
         We need at least seven academic years to have N+6 academic years,
         N being the current academic year.
         """
-        #TODO: refactor self.start_year
-        self.today = datetime.date.today()
-        self.start_year = self.today.year if self.today.month>9 and self.today.month<12 else self.today.year-1
-        self.last_year = self.start_year + LEARNING_UNIT_CREATION_SPAN_YEARS
+        self.this_year = datetime.datetime.now().year
+        self.start_year = self.this_year - LEARNING_UNIT_CREATION_SPAN_YEARS
+        self.last_year = self.this_year + LEARNING_UNIT_CREATION_SPAN_YEARS
+
         self.list_of_academic_years = self._create_list_of_academic_years(self.start_year, self.last_year)
-        self.list_of_academic_years_before_now = self._create_list_of_academic_years(
-            self.start_year-LEARNING_UNIT_CREATION_SPAN_YEARS, self.start_year-1)
-        self.current_academic_year = self.list_of_academic_years[0]
-        self.oldest_academic_year = self.list_of_academic_years_before_now[0]
-        self.last_academic_year = self.list_of_academic_years[LEARNING_UNIT_CREATION_SPAN_YEARS]
-        self.list_of_odd_academic_years = [academic_year for academic_year in self.list_of_academic_years
+
+        self.current_academic_year = mdl_academic_year.current_academic_year()
+        self.oldest_academic_year = self.list_of_academic_years[0]
+        self.last_academic_year = self.list_of_academic_years[-1]
+
+        self.list_of_academic_years_after_now = [academic_year for academic_year in self.list_of_academic_years
+                                                    if academic_year.year>=self.current_academic_year.year]
+        self.list_of_odd_academic_years = [academic_year for academic_year in self.list_of_academic_years_after_now
                                                     if academic_year.year%2]
-        self.list_of_even_academic_years = [academic_year for academic_year in self.list_of_academic_years
+        self.list_of_even_academic_years = [academic_year for academic_year in self.list_of_academic_years_after_now
                                                     if not academic_year.year%2]
 
     def _setup_learning_units(self):
-        self.learning_unit = LearningUnitFactory(start_year=self.today.year,
+        self.learning_unit = LearningUnitFactory(start_year=self.current_academic_year.year,
                                                  periodicity=learning_unit_periodicity.ANNUAL)
         self.learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
         self.learning_unit_year = LearningUnitYearFakerFactory(
@@ -97,7 +100,7 @@ class TestLearningUnitEditionForm(TestCase):
         In other words : N < end_dates =< N+6
         """
         form = LearningUnitEndDateForm(None, learning_unit=self.learning_unit_year.learning_unit)
-        self.assertEqual(list(form.fields['academic_year'].queryset), self.list_of_academic_years)
+        self.assertEqual(list(form.fields['academic_year'].queryset), self.list_of_academic_years_after_now)
 
     def test_edit_end_date_send_dates_with_end_date_not_defined_and_periodicity_biennal_even(self):
         """
@@ -129,7 +132,7 @@ class TestLearningUnitEditionForm(TestCase):
         self.learning_unit.periodicity = learning_unit_periodicity.ANNUAL
         self.learning_unit.end_year = self.last_academic_year.year
         form = LearningUnitEndDateForm(None, learning_unit=self.learning_unit_year.learning_unit)
-        self.assertEqual(list(form.fields['academic_year'].queryset), self.list_of_academic_years)
+        self.assertEqual(list(form.fields['academic_year'].queryset), self.list_of_academic_years_after_now)
 
     def test_edit_end_date_send_dates_with_end_inferior_to_current_academic_year(self):
         """
