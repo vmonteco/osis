@@ -27,10 +27,14 @@ import datetime
 
 from django.test import TestCase
 
+from base.forms.learning_unit.edition import LearningUnitEndDateForm
+from base.models.academic_year import AcademicYear
+from base.models.enums import learning_unit_periodicity
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
+from base.views.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
 
 
 class TestLearningUnitEditionForm(TestCase):
@@ -49,17 +53,29 @@ class TestLearningUnitEditionForm(TestCase):
         :return: self
         """
 
-        today = datetime.date.today()
-        self.current_academic_year = AcademicYearFactory(
-            start_date=today,
-            end_date=today.replace(year=today.year + 1),
-            year=today.year)
-        self.start_year = self.current_academic_year.year
-        self.last_year = self.current_academic_year.year + 6
+        self.today = datetime.date.today()
+
+        #TODO: refactor self.start_year
+        self.start_year = self.today.year if self.today.month>9 and self.today.month<12 else self.today.year-1
+        self.last_year = self.start_year + LEARNING_UNIT_CREATION_SPAN_YEARS
+
+        self.list_of_academic_years = self._create_list_of_academic_years(self.start_year, self.last_year)
+        self.current_academic_year = self.list_of_academic_years[0]
+
+        for academic_year in self.list_of_academic_years:
+            if academic_year.year%2:
+                self.list_of_academic_years_biennal_odd = academic_year
+            else:
+                self.list_of_academic_years_biennal_even = academic_year
+
+        self.list_of_odd_academic_years = [academic_year for academic_year in self.list_of_academic_years
+                                                    if academic_year.year%2]
+        self.list_of_even_academic_years = [academic_year for academic_year in self.list_of_academic_years
+                                                    if not academic_year.year%2]
 
         #The first learning unit has a starting date equal to the current academic year N
-        self.learning_unit = LearningUnitFactory(start_year=self.current_academic_year.year)
-        self.list_of_academic_years = self._create_list_of_academic_years(self.start_year, self.last_year)
+        self.learning_unit = LearningUnitFactory(start_year=self.today.year,
+                                                 periodicity=learning_unit_periodicity.ANNUAL)
         self.learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
         self.learning_unit_year = LearningUnitYearFakerFactory(
             academic_year=self.current_academic_year,
@@ -67,9 +83,12 @@ class TestLearningUnitEditionForm(TestCase):
             learning_container_year=self.learning_container_year)
 
     def _create_list_of_academic_years(self, start_year, end_year):
-        return [AcademicYearFactory(year=year) for year in range(start_year, end_year+1)]
+        results = [AcademicYearFactory.build(year=year) for year in range(start_year, end_year+1)]
+        for result in results:
+            super(AcademicYear, result).save()
+        return results
 
-    def test_edit_end_date_send_dates_with_end_date_not_defined_yet(self):
+    def test_edit_end_date_send_dates_with_end_date_not_defined(self):
         """
         @:param request : GET (request = None)
         @:return list of non biennal academic years from the current academic year to six years later
@@ -83,20 +102,23 @@ class TestLearningUnitEditionForm(TestCase):
         to the current academic year N (end_dates > N) and equal or inferior to N+6 (en_dates =< N+6)
         In other words : N < end_dates =< N+6
         """
-        form = LearningUnitEditionForm(None, learning_unit=self.learning_unit_year.learning_unit)
-        self.assertIsHaha(form.hoho)
+        form = LearningUnitEndDateForm(None, learning_unit=self.learning_unit_year.learning_unit)
+        self.assertEqual(list(form.fields['academic_year'].queryset), self.list_of_academic_years)
 
-    def test_edit_end_date_send_non_biennal_dates(self):
+    def test_edit_end_date_send_dates_with_end_date_not_defined_and_periodicity_biennal_even(self):
         """
+        @:param request : GET (request = None)
+        @:return list of non biennal academic years from the current academic year to six years later
         """
-        pass
+        self.learning_unit.periodicity = learning_unit_periodicity.BIENNIAL_EVEN
+        form = LearningUnitEndDateForm(None, learning_unit=self.learning_unit_year.learning_unit)
+        self.assertEqual(list(form.fields['academic_year'].queryset), self.list_of_even_academic_years)
 
-    def test_edit_end_date_send_biennal_even_dates(self):
+    def test_edit_end_date_send_dates_with_end_date_not_defined_and_periodicity_biennal_odd(self):
         """
+        @:param request : GET (request = None)
+        @:return list of non biennal academic years from the current academic year to six years later
         """
-        pass
-
-    def test_edit_end_date_send_biennal_odd_dates(self):
-        """
-        """
-        pass
+        self.learning_unit.periodicity = learning_unit_periodicity.BIENNIAL_ODD
+        form = LearningUnitEndDateForm(None, learning_unit=self.learning_unit_year.learning_unit)
+        self.assertEqual(list(form.fields['academic_year'].queryset), self.list_of_odd_academic_years)
