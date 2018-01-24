@@ -61,12 +61,7 @@ class TestLearningUnitEditionForm(TestCase):
 
         self.list_of_academic_years = self._create_list_of_academic_years(self.start_year, self.last_year)
         self.current_academic_year = self.list_of_academic_years[0]
-
-        for academic_year in self.list_of_academic_years:
-            if academic_year.year%2:
-                self.list_of_academic_years_biennal_odd = academic_year
-            else:
-                self.list_of_academic_years_biennal_even = academic_year
+        self.last_academic_year = self.list_of_academic_years[LEARNING_UNIT_CREATION_SPAN_YEARS]
 
         self.list_of_odd_academic_years = [academic_year for academic_year in self.list_of_academic_years
                                                     if academic_year.year%2]
@@ -91,13 +86,13 @@ class TestLearningUnitEditionForm(TestCase):
     def test_edit_end_date_send_dates_with_end_date_not_defined(self):
         """
         @:param request : GET (request = None)
-        @:return list of non biennal academic years from the current academic year to six years later
+        @:return list of annual academic years from the current academic year to six years later
 
         The user wants to edit the end date of a learning unit.
         All the valid years from the start date to the end date
         are send to the view.
 
-        First scenario: the end date is not defined yet.
+        First scenario: the end date is not defined yet and the learning unit is annual.
         Which means that all the possible end dates must be stricly superior
         to the current academic year N (end_dates > N) and equal or inferior to N+6 (en_dates =< N+6)
         In other words : N < end_dates =< N+6
@@ -108,7 +103,9 @@ class TestLearningUnitEditionForm(TestCase):
     def test_edit_end_date_send_dates_with_end_date_not_defined_and_periodicity_biennal_even(self):
         """
         @:param request : GET (request = None)
-        @:return list of non biennal academic years from the current academic year to six years later
+        @:return list of biennal even academic years from the current academic year to six years later
+
+        Second scenario: the end date is not defined yet and the learning unit is biennal even.
         """
         self.learning_unit.periodicity = learning_unit_periodicity.BIENNIAL_EVEN
         form = LearningUnitEndDateForm(None, learning_unit=self.learning_unit_year.learning_unit)
@@ -117,8 +114,22 @@ class TestLearningUnitEditionForm(TestCase):
     def test_edit_end_date_send_dates_with_end_date_not_defined_and_periodicity_biennal_odd(self):
         """
         @:param request : GET (request = None)
-        @:return list of non biennal academic years from the current academic year to six years later
+        @:return list of biennal odd academic years from the current academic year to six years later
+
+        Third scenario: the end date is not defined yet and the learning unit is biennal odd.
         """
         self.learning_unit.periodicity = learning_unit_periodicity.BIENNIAL_ODD
         form = LearningUnitEndDateForm(None, learning_unit=self.learning_unit_year.learning_unit)
         self.assertEqual(list(form.fields['academic_year'].queryset), self.list_of_odd_academic_years)
+
+    def test_edit_end_date_send_dates_with_end_date_defined(self):
+        """
+        @:param request : GET (request = None)
+        @:return list of annual academic years from the current academic year to six years later
+
+        Fourth scenario: the end date is defined and the learning unit is annual
+        """
+        self.learning_unit.periodicity = learning_unit_periodicity.ANNUAL
+        self.learning_unit.end_year = self.last_academic_year.year
+        form = LearningUnitEndDateForm(None, learning_unit=self.learning_unit_year.learning_unit)
+        self.assertEqual(list(form.fields['academic_year'].queryset), self.list_of_academic_years)
