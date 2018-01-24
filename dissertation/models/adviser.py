@@ -192,8 +192,8 @@ def get_by_id(adviser_id):
         return None
 
 
-def find_advisers_last_name_email(query):
-    if query is None:
+def find_advisers_last_name_email(term, maximum_in_request):
+    if term is None:
         return []
     else:
-        return Adviser.objects.filter(Q(person__email__icontains=query) | Q(person__last_name__icontains=query))
+        return Adviser.objects.filter(Q(person__email__icontains=term) | Q(person__last_name__icontains=term))[:maximum_in_request]
