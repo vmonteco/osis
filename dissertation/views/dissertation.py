@@ -45,14 +45,16 @@ from django.utils import timezone
 import json
 from django.shortcuts import get_object_or_404
 
-def role_can_be_deleted(dissert, dissert_role):
+ERROR_405_BAD_REQUEST = 405
+ERROR_404_PAGE_NO_FOUND = 404
+NO_ERROR_CODE = 200
+ERROR_403_NOT_AUTORIZED = 403
+
+
+def _role_can_be_deleted(dissert, dissert_role):
     promotors_count = dissertation_role.count_by_status_dissertation('PROMOTEUR', dissert)
     return dissert_role.status != 'PROMOTEUR' or promotors_count > 1
 
-ERROR_405_BAD_REQUEST=405
-ERROR_404_PAGE_NO_FOUND = 404
-NO_ERROR_CODE = 200
-ERROR_403_NOT_AUTORIZED=403
 
 #########################
 #      GLOBAL VIEW      #
@@ -512,7 +514,7 @@ def manager_dissertations_role_delete(request, pk):
 
 
 def _justification_dissert_role_delete_change(request, dissert, dissert_role, intitule):
-    if dissert.status != 'DRAFT' and role_can_be_deleted(dissert, dissert_role):
+    if dissert.status != 'DRAFT' and _role_can_be_deleted(dissert, dissert_role):
         justification = "%s %s" % (intitule, dissert_role)
         dissertation_update.add(request, dissert, dissert.status, justification=justification)
         dissert_role.delete()
@@ -524,7 +526,7 @@ def _justification_dissert_role_delete_change(request, dissert, dissert_role, in
 @login_required
 @user_passes_test(adviser.is_manager)
 def manager_dissertations_role_delete_by_ajax(request, pk):
-    dissert_role = get_object_or_404(DissertationRole,pk)
+    dissert_role = get_object_or_404(DissertationRole, pk)
     dissert = dissert_role.dissertation
     person = mdl.person.find_by_user(request.user)
     adv = adviser.search_by_person(person)
@@ -708,7 +710,7 @@ def manager_dissertations_wait_comm_list(request):
     show_evaluation_first_year = offer_proposition.show_evaluation_first_year(offer_props)
     return layout.render(request, 'manager_dissertations_wait_commission_list.html',
                          {'show_validation_commission': show_validation_commission,
-                          'STATUS_CHOICES' : STATUS_CHOICES,
+                          'STATUS_CHOICES': STATUS_CHOICES,
                           'show_evaluation_first_year': show_evaluation_first_year})
 
 

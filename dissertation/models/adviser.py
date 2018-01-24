@@ -196,4 +196,5 @@ def find_advisers_last_name_email(term, maximum_in_request):
     if term is None:
         return []
     else:
-        return Adviser.objects.filter(Q(person__email__icontains=term) | Q(person__last_name__icontains=term))[:maximum_in_request]
+        return Adviser.objects.filter(Q(person__email__icontains=term) |
+                                      Q(person__last_name__icontains=term))[:maximum_in_request]

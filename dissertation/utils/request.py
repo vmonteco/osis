@@ -32,6 +32,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.http import JsonResponse
 MAX_RETURN = 50
 
+
 @login_required
 @user_passes_test(adviser.is_manager)
 def get_students_list_in_offer_year(request, offer_year_start_id):
