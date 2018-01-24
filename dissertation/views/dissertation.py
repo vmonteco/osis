@@ -39,7 +39,7 @@ from django.views.decorators.http import require_http_methods
 from openpyxl.writer.excel import save_virtual_workbook
 from openpyxl import Workbook
 from openpyxl.utils.exceptions import IllegalCharacterError
-from django.http import HttpResponse
+from django.http import HttpResponse,JsonResponse
 import time
 from django.utils import timezone
 import json
@@ -733,8 +733,7 @@ def manager_dissertations_wait_comm_jsonlist(request):
             'description': dissert.description
         } for dissert in disserts
     ]
-    json_list = json.dumps(dissert_waiting_list_json)
-    return HttpResponse(json_list, content_type='application/json')
+    return JsonResponse(dissert_waiting_list_json, safe=False)
 
 
 @login_required
@@ -996,7 +995,7 @@ def dissertations_role_delete(request, pk):
     adv = adviser.search_by_person(person)
     offer_prop = offer_proposition.get_by_dissertation(dissert)
     if offer_prop is not None and teacher_is_promotor(adv, dissert):
-        if offer_prop.adviser_can_suggest_reader and role_can_be_deleted(dissert, dissert_role):
+        if offer_prop.adviser_can_suggest_reader and _role_can_be_deleted(dissert, dissert_role):
             justification = "%s %s" % ("teacher_delete_jury", str(dissert_role))
             dissertation_update.add(request, dissert, dissert.status, justification=justification)
             dissert_role.delete()

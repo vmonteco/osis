@@ -136,7 +136,6 @@
                     '<span class="glyphicon glyphicon-remove span2"></span></a> </td>';
             tab_dissert_roles =tab_dissert_roles+'<tr>';
         };
-
         if (list_dissert_roles.length < 4){
             bt_add='<a href="#"lnk_add_dissertation_jury_member" class="add_jury btn btn-default btn-sm"'+
             'role="button" title="{% trans 'add_dissertation_jury_member'%}" data-toggle="modal" data-target="#myModal"'+
@@ -161,6 +160,7 @@
         '</td></tr>'+
         '</table>';
     };
+
 
     function get_dissertation_roles(row,rowdata)
     {
@@ -194,7 +194,7 @@
                 data:dissertations_json,
                 rowId: 'pk',
                 error: function (response){
-                alert("Error :"+ response.error );
+                    alert("Error :"+ response.error );
                 },
                 "columns":
                 [{
