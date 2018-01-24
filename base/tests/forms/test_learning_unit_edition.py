@@ -127,17 +127,22 @@ class TestLearningUnitEditionForm(TestCase):
     def test_edit_end_date_send_dates_with_end_date_defined(self):
         """
         @:param request = GET (or None)
-        Fourth scenario: the end date is defined and the learning unit is annual
+        Fourth scenario: the end date is defined and the learning unit is annual.
+        The end date of the learning unit is set to an academic year superior
+        to the current academic year.
         """
         self.learning_unit.periodicity = learning_unit_periodicity.ANNUAL
         self.learning_unit.end_year = self.last_academic_year.year
         form = LearningUnitEndDateForm(None, learning_unit=self.learning_unit_year.learning_unit)
         self.assertEqual(list(form.fields['academic_year'].queryset), self.list_of_academic_years_after_now)
 
-    def test_edit_end_date_send_dates_with_end_inferior_to_current_academic_year(self):
+    def test_edit_end_date_send_dates_with_end_date_of_learning_unit_inferior_to_current_academic_year(self):
         """
         @:param request = GET (or None)
         Fith scenario: the end date is defined and the learning unit is annual
+        BUT the end date of the learning unit is already passed.
+        The user cannot change the end date of a learning unit for which
+        the end date is inferior to the current academic year.
         """
         self.learning_unit.periodicity = learning_unit_periodicity.ANNUAL
         self.learning_unit.end_year = self.oldest_academic_year.year
@@ -148,7 +153,10 @@ class TestLearningUnitEditionForm(TestCase):
     def test_edit_end_date(self):
         """
         @:param request = POST
-        Sixth scenario: the end date is edited
+        @:param request = the form and his data
+        @:param request = the learning unit for which the end date must be changed
+        Sixth scenario: the end date of a learning unit is edited.
+        We need to be verify the validation of the form, nothing else.
         """
         self.learning_unit.periodicity = learning_unit_periodicity.ANNUAL
         self.learning_unit.end_year = self.last_academic_year.year
