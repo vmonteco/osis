@@ -2478,3 +2478,6 @@ msgstr "Substitute"
 
 msgid "not_end_year"
 msgstr "no planned end"
+
+msgid "Edit learning unit end date"
+msgstr ""

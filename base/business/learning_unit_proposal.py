@@ -93,7 +93,7 @@ def is_eligible_for_modification_proposal(learning_unit_year, a_person):
         return False
     if proposal:
         return False
-    return _is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person)
+    return is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person)
 
 
 def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
@@ -109,10 +109,10 @@ def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
     an_entity = entity.get_by_internal_id(initial_entity_requirement_id)
     if an_entity in person_entity.find_entities_by_person(a_person):
         return True
-    return _is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_proposal.learning_unit_year, a_person)
+    return is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_proposal.learning_unit_year, a_person)
 
 
-def _is_person_linked_to_entity_in_charge_of_learning_unit(a_learning_unit_year, a_person):
+def is_person_linked_to_entity_in_charge_of_learning_unit(a_learning_unit_year, a_person):
     entity_containers_year = entity_container_year.search(
         learning_container_year=a_learning_unit_year.learning_container_year,
         link_type=entity_container_year_link_type.REQUIREMENT_ENTITY)

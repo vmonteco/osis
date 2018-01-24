@@ -2485,3 +2485,6 @@ msgstr "Suppléé"
 
 msgid "not_end_year"
 msgstr "pas de fin prévue"
+
+msgid "Edit learning unit end date"
+msgstr "Modifier la date de fin l'unité d'enseignement"
