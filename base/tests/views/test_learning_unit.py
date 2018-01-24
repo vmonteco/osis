@@ -52,7 +52,7 @@ from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.enums.learning_unit_year_session import SESSION_P23
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
-from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -61,6 +61,7 @@ from base.tests.factories.learning_class_year import LearningClassYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from base.tests.factories.learning_container import LearningContainerFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_component_class import LearningUnitComponentClassFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
@@ -458,8 +459,8 @@ class LearningUnitViewTestCase(TestCase):
     def test_component_save(self):
         learning_unit_yr = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                    learning_container_year=self.learning_container_yr)
-        LearningUnitComponentFactory(learning_unit_year=learning_unit_yr,
-                                     learning_component_year=self.learning_component_yr)
+        learning_unit_compnt = LearningUnitComponentFactory(learning_unit_year=learning_unit_yr,
+                                                            learning_component_year=self.learning_component_yr)
         url = reverse('learning_unit_component_edit', args=[learning_unit_yr.id])
         qs = 'learning_component_year_id={}'.format(self.learning_component_yr.id)
 
@@ -563,8 +564,8 @@ class LearningUnitViewTestCase(TestCase):
     def test_class_save(self):
         learning_unit_yr = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                    learning_container_year=self.learning_container_yr)
-        LearningUnitComponentFactory(learning_unit_year=learning_unit_yr,
-                                     learning_component_year=self.learning_component_yr)
+        learning_unit_compnt = LearningUnitComponentFactory(learning_unit_year=learning_unit_yr,
+                                                            learning_component_year=self.learning_component_yr)
         learning_class_yr = LearningClassYearFactory(learning_component_year=self.learning_component_yr)
 
         response = self.client.post('{}?{}&{}'.format(reverse('learning_class_year_edit', args=[learning_unit_yr.id]),
@@ -608,7 +609,6 @@ class LearningUnitViewTestCase(TestCase):
         self.assertRaises(ObjectDoesNotExist,
                           learning_unit_component_class.LearningUnitComponentClass.objects.filter(pk=a_link.id).first())
 
-
     def get_base_form_data(self):
         data = self.get_common_data()
         data.update(self.get_learning_unit_data())
@@ -648,7 +648,8 @@ class LearningUnitViewTestCase(TestCase):
             'acronym': 'LTAU2000',
             'partim_letter': 'B',
             'learning_unit_year_parent': original_learning_unit_year.id,
-            "subtype": learning_unit_year_subtypes.PARTIM}
+            "subtype": learning_unit_year_subtypes.PARTIM
+        }
 
     def get_valid_data(self):
         return self.get_base_form_data()
@@ -716,6 +717,15 @@ class LearningUnitViewTestCase(TestCase):
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_faulty_acronym())
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['acronym'], [_('invalid_acronym')])
+
+    def test_create_learning_unit_case_invalid_academic_year(self):
+        now = datetime.datetime.now()
+        bad_academic_year = AcademicYearFactory.build(year=now.year + 100)
+        super(AcademicYear, bad_academic_year).save()
+        data = dict(self.get_valid_data())
+        data['academic_year'] = bad_academic_year.id
+        form = CreateLearningUnitYearForm(person=self.person, data=data)
+        self.assertFalse(form.is_valid())
 
     def test_learning_unit_creation_form_with_existing_acronym(self):
         LearningUnitYearFactory(acronym="LDRT2018", academic_year=self.current_academic_year)
@@ -872,6 +882,7 @@ class LearningUnitViewTestCase(TestCase):
     def test_expected_partim_creation_on_6_years(self):
 
         a_learning_container = LearningContainerFactory()
+        a_learning_unit = LearningUnitFactory(end_year=None)
 
         a_learning_container_yr_1 = self.build_learning_container_year(a_learning_container, self.current_academic_year)
         a_learning_container_yr_2 = self.build_learning_container_year(a_learning_container, self.academic_year_1)
@@ -888,7 +899,8 @@ class LearningUnitViewTestCase(TestCase):
 
         original_learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                               subtype=learning_unit_year_subtypes.FULL,
-                                                              learning_container_year=a_learning_container_yr_1)
+                                                              learning_container_year=a_learning_container_yr_1,
+                                                              learning_unit=a_learning_unit)
 
         partim_data = self.get_valid_partim_data(original_learning_unit_year)
         partim_data.update({'first_letter': None,
@@ -900,20 +912,22 @@ class LearningUnitViewTestCase(TestCase):
         form = CreatePartimForm(person=self.person, data=partim_data)
         self.assertTrue(form.is_valid(), form.errors)
 
-        url = reverse('learning_unit_year_partim_add')
+        url = reverse('learning_unit_year_partim_add',
+                      kwargs={'learning_unit_year_id': original_learning_unit_year.id})
         response = self.client.post(url, data=partim_data)
         self.assertEqual(response.status_code, 302)
 
         count_learning_unit_year = LearningUnitYear.objects.filter(acronym=full_acronym).count()
         self.assertEqual(count_learning_unit_year, 6)
-        count_learning_unit_year = LearningUnitYear.objects.filter(subtype=learning_unit_year_subtypes.PARTIM,
-                                                                   learning_container_year__in=learning_container_yrs)\
-            .count()
-        self.assertEqual(count_learning_unit_year, 6)
+        count_partims = LearningUnitYear.objects.filter(subtype=learning_unit_year_subtypes.PARTIM,
+                                                        learning_container_year__in=learning_container_yrs)\
+                                                .count()
+        self.assertEqual(count_partims, 6)
 
-    def test_partim_creation_learning_container_year_missing_on_one_of_the_6_years(self):
+    def test_partim_creation_when_learning_unit_end_date_is_before_6_future_years(self):
 
         a_learning_container = LearningContainerFactory()
+        a_learning_unit = LearningUnitFactory(end_year=None)
 
         a_learning_container_yr_1 = self.build_learning_container_year(a_learning_container, self.current_academic_year)
         a_learning_container_yr_2 = self.build_learning_container_year(a_learning_container, self.academic_year_1)
@@ -922,7 +936,8 @@ class LearningUnitViewTestCase(TestCase):
 
         original_learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                               subtype=learning_unit_year_subtypes.FULL,
-                                                              learning_container_year=a_learning_container_yr_1)
+                                                              learning_container_year=a_learning_container_yr_1,
+                                                              learning_unit=a_learning_unit)
 
         partim_data = self.get_valid_partim_data(original_learning_unit_year)
         partim_data.update({'first_letter': None,
@@ -934,7 +949,8 @@ class LearningUnitViewTestCase(TestCase):
         form = CreatePartimForm(person=self.person, data=partim_data)
         self.assertTrue(form.is_valid(), form.errors)
 
-        url = reverse('learning_unit_year_partim_add')
+        url = reverse('learning_unit_year_partim_add',
+                      kwargs={'learning_unit_year_id': original_learning_unit_year.id})
         response = self.client.post(url, data=partim_data)
         self.assertEqual(response.status_code, 302)
 
@@ -1014,6 +1030,7 @@ class LearningUnitCreate(TestCase):
 
 class LearningUnitYearAdd(TestCase):
     def setUp(self):
+        create_current_academic_year()
         self.person = PersonFactory()
         content_type = ContentType.objects.get_for_model(LearningUnit)
         permission = Permission.objects.get(codename="can_create_learningunit",
@@ -1132,6 +1149,7 @@ class TestCreateXls(TestCase):
         expected_argument = _generate_xls_build_parameter([], self.user)
         mock_generate_xls.assert_called_with(expected_argument)
 
+
     @mock.patch("osis_common.document.xls_build.generate_xls")
     def test_generate_xls_data_with_a_learning_unit(self, mock_generate_xls):
         a_form = LearningUnitYearForm({"acronym": self.learning_unit_year.acronym}, service_course_search=False)
@@ -1166,3 +1184,4 @@ def _generate_xls_build_parameter(xls_data, user):
                   }
                  ]
             }
+

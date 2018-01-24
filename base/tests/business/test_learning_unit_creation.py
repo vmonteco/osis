@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,16 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import forms
-from ckeditor.widgets import CKEditorWidget
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
+from django.test import TestCase
+from base.tests.factories.academic_year import create_current_academic_year
+from base.business import learning_unit
 
 
-class LearningUnitSummaryForm(LearningUnitPedagogyForm):
-    RESUME = 'resume'
+class LearningUnitCreationTest(TestCase):
 
-    text_labels_name = [RESUME]
-
-
-class LearningUnitSummaryEditForm(LearningUnitPedagogyEditForm):
-    trans_text = forms.CharField(widget=CKEditorWidget(config_name='minimal'), required=False)
+    def test_compute_max_academic_year_adjournment(self):
+        current_academic_year = create_current_academic_year()
+        self.assertEqual(learning_unit.compute_max_academic_year_adjournment(),
+                         current_academic_year.year + learning_unit.LEARNING_UNIT_CREATION_SPAN_YEARS)

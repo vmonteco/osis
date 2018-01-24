@@ -26,17 +26,21 @@
 import re
 
 from django import forms
+from django.core.validators import MinValueValidator
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
+from base.business import learning_unit
 from base.forms.bootstrap import BootstrapForm
 from base.models.campus import find_administration_campuses
 from base.models.entity_version import find_main_entities_version, find_main_entities_version_filtered_by_person
+from base.models.enums import entity_container_year_link_type
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
+from base.models.learning_unit_year import MINIMUM_CREDITS
 from reference.models.language import find_all_languages
 from base.models.enums import learning_container_year_types
 
@@ -60,15 +64,15 @@ class LearningUnitYearForm(BootstrapForm):
     academic_year = forms.ModelChoiceField(queryset=mdl.academic_year.find_academic_years(), required=True,
                                            empty_label=_('all_label'))
     status = forms.CharField(required=False, widget=forms.CheckboxInput())
-    internship_subtype = forms.ChoiceField(
-        choices=((None, EMPTY_FIELD),) + mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES,
-        required=False)
-    credits = forms.DecimalField(decimal_places=2)
+    internship_subtype = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
+                                           mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES,
+                                           required=False)
+    credits = forms.DecimalField(decimal_places=2, validators=[MinValueValidator(MINIMUM_CREDITS)])
     title = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
     title_english = forms.CharField(required=False, widget=forms.TextInput())
-    session = forms.ChoiceField(
-        choices=((None, EMPTY_FIELD),) + mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION,
-        required=False)
+    session = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
+                                mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION,
+                                required=False)
     subtype = forms.CharField(widget=forms.HiddenInput())
     first_letter = forms.ChoiceField(choices=((None, EMPTY_FIELD),) + LearningUnitManagementSite.choices(),
                                      required=True)
@@ -78,8 +82,8 @@ class LearningUnitYearForm(BootstrapForm):
     other_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
     periodicity = forms.CharField(widget=forms.Select(choices=PERIODICITY_TYPES))
     quadrimester = forms.CharField(
-        widget=forms.Select(choices=((None, EMPTY_FIELD),) + LEARNING_UNIT_YEAR_QUADRIMESTERS),
-        required=False
+                        widget=forms.Select(choices=((None, EMPTY_FIELD),) + LEARNING_UNIT_YEAR_QUADRIMESTERS),
+                        required=False
     )
     campus = forms.ModelChoiceField(queryset=find_administration_campuses(),
                                     widget=forms.Select(attrs={'onchange': 'setFirstLetter()'}))
@@ -116,14 +120,26 @@ class LearningUnitYearForm(BootstrapForm):
         if data_cleaned:
             return data_cleaned.upper()
 
+    def get_academic_year(self):
+        try:
+            return mdl.academic_year.find_academic_year_by_id(self.data.get('academic_year'))
+        except mdl.academic_year.AcademicYear.DoesNotExist:
+            return None
+
     def is_valid(self):
+        academic_year = self.get_academic_year()
+        academic_year_max = learning_unit.compute_max_academic_year_adjournment()
         if not super().is_valid():
+            return False
+        elif not academic_year:
             return False
         elif not re.match(self.acronym_regex, self.cleaned_data['acronym']):
             self.add_error('acronym', _('invalid_acronym'))
-        elif self.cleaned_data["container_type"] == INTERNSHIP \
-                and not (self.cleaned_data['internship_subtype']):
+        elif self.cleaned_data["container_type"] == INTERNSHIP and not (self.cleaned_data['internship_subtype']):
             self._errors['internship_subtype'] = _('field_is_required')
+        elif academic_year.year > academic_year_max:
+            error_msg = _('learning_unit_creation_academic_year_max_error').format(academic_year_max)
+            self._errors['academic_year'] = error_msg
         else:
             return True
 
@@ -155,23 +171,17 @@ def create_learning_container_year_type_for_partim_list():
 
 
 class CreatePartimForm(CreateLearningUnitYearForm):
-
     partim_letter = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'text-center',
                                                                                  'style': 'text-transform: uppercase;',
                                                                                  'maxlength': "1",
                                                                                  'id': 'hdn_partim_letter',
                                                                                  'onchange': 'checkPartimLetter()'}))
-    container_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_for_partim_list, tuple),
-                                       widget=forms.Select(attrs={'onchange': 'showInternshipSubtype(this.value)'}))
-    learning_unit_year_parent = forms.CharField(required=False, widget=forms.HiddenInput())
-    existing_letters = forms.CharField(required=False, widget=forms.HiddenInput(attrs={'id': 'hdn_existing_letters'}))
     acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}[A-Z]$"
 
     def __init__(self, *args, **kwargs):
-        self.learning_unit_year_parent = kwargs.pop('learning_unit_year_parent', None)
         super(CreatePartimForm, self).__init__(*args, **kwargs)
-        self.learning_unit_year_parent = kwargs.pop('learning_unit_year_parent', None)
         self.fields['first_letter'].required = False
+        self.fields['container_type'].choices = create_learning_container_year_type_for_partim_list()
         self.set_read_only_fields()
 
     def set_read_only_fields(self):

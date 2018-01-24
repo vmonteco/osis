@@ -1,8 +1,13 @@
 const internship = "INTERNSHIP";
     var form = $('#LearningUnitYearForm').closest("form");
 
-    function showInternshipSubtype(elem){
-        document.getElementById('id_internship_subtype').disabled = elem != internship;
+    function showInternshipSubtype(){
+        var container_type_value = document.getElementById('id_container_type').value;
+        var value_not_internship = container_type_value != internship;
+        document.getElementById('id_internship_subtype').disabled = value_not_internship;
+        if (value_not_internship){
+            $('#id_internship_subtype option:first-child').attr("selected", "selected");
+        }
     }
 
     function showAdditionalEntity(elem, id){
@@ -63,20 +68,39 @@ const internship = "INTERNSHIP";
 
     function checkPartimLetter() {
         $('#partim_letter_message').removeClass("error-message").text("");
-        window.valid_partim_letter = true;
-        existing_letters = $('#hdn_existing_letters').val();
-        new_partim_letter = $('#hdn_partim_letter').val();
-        if (new_partim_letter){
-            new_partim_letter = new_partim_letter.toUpperCase();
-        }
+        partim_letter = $('#hdn_partim_letter').val()
+        submit_btn = $('#learning_unit_year_add')
+        submit_btn.prop('disabled', false);
 
-        if (existing_letters.indexOf(new_partim_letter) != -1) {
-            window.valid_partim_letter = false;
-            $('#partim_letter_message').addClass("error").text(trans_invalid_partim_letter);
-            $("#partim_letter_message").css("color", "red");
+        if (partim_letter && partim_letter != '') {
+            acronym = $('#id_acronym').val() + partim_letter;
+            validateion_url = $('#LearningUnitYearForm').data('validate-url')
+            year_id = $('#id_academic_year').val()
 
+            validateAcronymAjax(validateion_url, acronym, year_id, function(data){
+                if (data['existing_acronym']) {
+                    set_error_message(trans_invalid_partim_letter, "#partim_letter_message"); //Show error message
+                    submit_btn.prop('disabled', true);   //Disable button
+                } else {
+                    submit_btn.prop('disabled', false);  //Enable button
+                }
+            });
         }
     }
+
+    function validateAcronymAjax(url, acronym, year_id, callback) {
+        /**
+        * This function will check if the acronym exist or have already existed
+        **/
+        queryString = "?acronym=" + acronym + "&year_id=" + year_id
+        $.ajax({
+           url: url + queryString
+        }).done(function(data){
+            callback(data);
+        });
+    }
+
+
 
     $(document).ready(function() {
         $(function () {
@@ -86,7 +110,7 @@ const internship = "INTERNSHIP";
             required: trans_field_required
         });
 
-        showInternshipSubtype('{{form.container_type.value}}');
+        showInternshipSubtype();
         document.getElementById('id_additional_entity_1').disabled = '{{form.requirement_entity.value}}' != "0";
         document.getElementById('id_additional_entity_2').disabled = '{{form.requirement_entity_1.value}}' != "0";
 

@@ -26,14 +26,20 @@
 import datetime
 from collections import OrderedDict
 
+from django.conf import settings
+from django.core.exceptions import PermissionDenied
+from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
-from base import models as mdl
+from attribution.models.attribution import Attribution
+from base import models as mdl_base
 from base.business.learning_unit_year_with_context import volume_learning_component_year
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 from base.models import entity_container_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
-from base.models.enums import entity_container_year_link_type
+from base.models.enums import entity_container_year_link_type, academic_calendar_type
 from base.models.enums import learning_component_year_type
 from base.models.enums import learning_container_year_types
 from base.models.learning_component_year import LearningComponentYear
@@ -62,6 +68,8 @@ VALID_VOLUMES_KEYS = [
     'VOLUME_TOTAL_REQUIREMENT_ENTITIES'
 ]
 
+LEARNING_UNIT_CREATION_SPAN_YEARS = 6
+
 
 def extract_volumes_from_data(post_data):
     volumes = {}
@@ -83,22 +91,22 @@ def _is_a_valid_volume_key(post_key):
 def get_last_academic_years(last_years=10):
     today = datetime.date.today()
     date_ten_years_before = today.replace(year=today.year - last_years)
-    return mdl.academic_year.find_academic_years().filter(start_date__gte=date_ten_years_before)
+    return mdl_base.academic_year.find_academic_years().filter(start_date__gte=date_ten_years_before)
 
 
 def get_common_context_learning_unit_year(learning_unit_year_id):
-    learning_unit_year = mdl.learning_unit_year.get_by_id(learning_unit_year_id)
+    learning_unit_year = mdl_base.learning_unit_year.get_by_id(learning_unit_year_id)
     return {
         'learning_unit_year': learning_unit_year,
-        'current_academic_year': mdl.academic_year.current_academic_year()
+        'current_academic_year': mdl_base.academic_year.current_academic_year()
     }
 
 
 def get_same_container_year_components(learning_unit_year, with_classes=False):
     learning_container_year = learning_unit_year.learning_container_year
     components = []
-    learning_components_year = mdl.learning_component_year.find_by_learning_container_year(learning_container_year,
-                                                                                           with_classes)
+    learning_components_year = mdl_base.learning_component_year.find_by_learning_container_year(learning_container_year,
+                                                                                                with_classes)
 
     for learning_component_year in learning_components_year:
         if learning_component_year.classes:
@@ -107,7 +115,7 @@ def get_same_container_year_components(learning_unit_year, with_classes=False):
                 learning_class_year.is_used_by_full_learning_unit_year = _is_used_by_full_learning_unit_year(
                     learning_class_year)
 
-        used_by_learning_unit = mdl.learning_unit_component.search(learning_component_year, learning_unit_year)
+        used_by_learning_unit = mdl_base.learning_unit_component.search(learning_component_year, learning_unit_year)
 
         entity_components_yr = EntityComponentYear.objects.filter(learning_component_year=learning_component_year)
 
@@ -169,13 +177,13 @@ def get_cms_label_data(cms_label, user_language):
 
 
 def _learning_unit_usage(a_learning_component_year):
-    components = mdl.learning_unit_component.find_by_learning_component_year(a_learning_component_year)
+    components = mdl_base.learning_unit_component.find_by_learning_component_year(a_learning_component_year)
     return ", ".join(["{} ({})".format(c.learning_unit_year.acronym, c.learning_unit_year.quadrimester or '?')
                       for c in components])
 
 
 def _learning_unit_usage_by_class(a_learning_class_year):
-    queryset = mdl.learning_unit_component_class.find_by_learning_class_year(a_learning_class_year) \
+    queryset = mdl_base.learning_unit_component_class.find_by_learning_class_year(a_learning_class_year) \
         .order_by('learning_unit_component__learning_unit_year__acronym') \
         .values_list('learning_unit_component__learning_unit_year__acronym', flat=True)
     return ", ".join(list(queryset))
@@ -185,11 +193,11 @@ def get_components_identification(learning_unit_yr):
     a_learning_container_yr = learning_unit_yr.learning_container_year
     components = []
     if a_learning_container_yr:
-        learning_component_year_list = mdl.learning_component_year.find_by_learning_container_year(
+        learning_component_year_list = mdl_base.learning_component_year.find_by_learning_container_year(
             a_learning_container_yr)
 
         for learning_component_year in learning_component_year_list:
-            if mdl.learning_unit_component.search(learning_component_year, learning_unit_yr).exists():
+            if mdl_base.learning_unit_component.search(learning_component_year, learning_unit_yr).exists():
                 entity_components_yr = EntityComponentYear.objects.filter(
                     learning_component_year=learning_component_year)
 
@@ -201,11 +209,16 @@ def get_components_identification(learning_unit_yr):
 
 
 def _is_used_by_full_learning_unit_year(a_learning_class_year):
-    for l in mdl.learning_unit_component_class.find_by_learning_class_year(a_learning_class_year):
+    for l in mdl_base.learning_unit_component_class.find_by_learning_class_year(a_learning_class_year):
         if l.learning_unit_component.learning_unit_year.subdivision is None:
             return True
 
     return False
+
+
+def compute_max_academic_year_adjournment():
+    starting_academic_year = mdl_base.academic_year.starting_academic_year()
+    return starting_academic_year.year + LEARNING_UNIT_CREATION_SPAN_YEARS
 
 
 def create_learning_unit_structure(additional_entity_version_1, additional_entity_version_2, allocation_entity_version,
@@ -228,7 +241,6 @@ def create_learning_unit_structure(additional_entity_version_1, additional_entit
     if additional_entity_version_2:
         create_entity_container_year(additional_entity_version_2, new_learning_container_year,
                                      entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
-
     create_learning_unit_content({'academic_year': academic_year,
                                   'data': data,
                                   'new_learning_container_year': new_learning_container_year,
@@ -286,8 +298,6 @@ def create_entity_container_year(entity_version, learning_container_year, type_e
 
 
 def create_learning_unit(data, learning_container, year, end_year=None):
-    if end_year and end_year < year:
-        end_year = None
     return LearningUnit.objects.create(acronym=data['acronym'].upper(), title=data['title'], start_year=year,
                                        periodicity=data['periodicity'], learning_container=learning_container,
                                        faculty_remark=data['faculty_remark'], other_remark=data['other_remark'],
@@ -344,7 +354,7 @@ def prepare_xls_parameters_list(user, workingsheets_data):
 
 
 def _get_name_or_username(a_user):
-    person = mdl.person.find_by_user(a_user)
+    person = mdl_base.person.find_by_user(a_user)
     return "{}, {}".format(person.last_name, person.first_name) if person else a_user.username
 
 
@@ -361,7 +371,7 @@ def create_learning_unit_partim_structure(data_dict):
     original_learning_container = data_dict.get('original_learning_container', None)
     academic_year = data_dict.get('academic_year', None)
 
-    new_learning_container_year = mdl.learning_container_year.search(academic_year, original_learning_container).first()
+    new_learning_container_year = mdl_base.learning_container_year.search(academic_year, original_learning_container).first()
     if new_learning_container_year:
         create_partim(data_dict, new_learning_container_year)
 
@@ -373,9 +383,10 @@ def create_partim(data_dict, new_learning_container_year):
     status = data_dict.get('status', None)
     academic_year = data_dict.get('academic_year', None)
 
-    new_requirement_entity = get_entity_container_year(requirement_entity_version,
-                                                       new_learning_container_year,
-                                                       entity_container_year_link_type.REQUIREMENT_ENTITY)
+    new_requirement_entity = mdl_base.entity_container_year.get_entity_container_year(
+        requirement_entity_version.entity, new_learning_container_year,
+        entity_container_year_link_type.REQUIREMENT_ENTITY
+    )
 
     create_learning_unit_content({'academic_year': academic_year,
                                   'data': data,
@@ -394,7 +405,25 @@ def create_learning_unit_content(data_dict):
         create_another_type(data_dict)
 
 
-def get_entity_container_year(entity_version, learning_container_year, type_entity_container_year):
-    return mdl.entity_container_year.get_entity_container_year(entity_version.entity,
-                                                               learning_container_year,
-                                                               type_entity_container_year)
+def is_summary_submission_opened():
+    current_academic_year = mdl_base.academic_year.current_academic_year()
+    return mdl_base.academic_calendar.is_academic_calendar_opened(current_academic_year,
+                                                                  academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+
+
+def can_access_summary(user, learning_unit_year):
+    try:
+        get_object_or_404(Attribution, learning_unit_year=learning_unit_year,
+                          tutor__person__user=user, summary_responsible=True)
+    except Http404:
+        raise PermissionDenied()
+    return True
+
+
+def initialize_learning_unit_pedagogy_form(learning_unit_year, language_code):
+    lang = find_language_in_settings(language_code)
+    return LearningUnitPedagogyForm(learning_unit_year=learning_unit_year, language=lang)
+
+
+def find_language_in_settings(language_code):
+    return next((lang for lang in settings.LANGUAGES if lang[0] == language_code), None)

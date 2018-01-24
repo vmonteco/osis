@@ -38,12 +38,10 @@
 </div>
 <div class="panel panel-default">
     <div class="panel-body">
-        <form method="post" action="{% url 'learning_unit_year_partim_add' %}"
+        <form method="post" action="{% url 'learning_unit_year_partim_add' learning_unit_year_id=request.resolver_match.kwargs.learning_unit_year_id %}"
               data-validate-url="{% url 'check_acronym'%}"
               id="LearningUnitYearForm">
             {% csrf_token %}
-            {{ form.learning_unit_year_parent }}
-            {{ form.existing_letters }}
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <label>{% trans 'basic_informations_title' %}</label>
