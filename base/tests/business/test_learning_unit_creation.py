@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,15 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base import models as mdl_base
-from base.models.enums import academic_calendar_type
+from django.test import TestCase
+from base.tests.factories.academic_year import create_current_academic_year
+from base.business import learning_unit
 
 
-def is_summary_submission_opened(user):
-    current_academic_year = mdl_base.academic_year.current_academic_year()
-    if current_academic_year:
-        return mdl_base.academic_calendar.is_academic_calendar_opened(
-            current_academic_year,
-            academic_calendar_type.SUMMARY_COURSE_SUBMISSION
-        )
-    return False
+class LearningUnitCreationTest(TestCase):
+
+    def test_compute_max_academic_year_adjournment(self):
+        current_academic_year = create_current_academic_year()
+        self.assertEqual(learning_unit.compute_max_academic_year_adjournment(),
+                         current_academic_year.year + learning_unit.LEARNING_UNIT_CREATION_SPAN_YEARS)

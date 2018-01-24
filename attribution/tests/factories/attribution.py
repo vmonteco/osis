@@ -52,6 +52,7 @@ class AttributionFactory(factory.django.DjangoModelFactory):
     learning_unit_year = factory.SubFactory(LearningUnitYearFakerFactory)
     tutor = factory.SubFactory(TutorFactory)
     score_responsible = False
+    summary_responsible = False
 
 
 class AttributionNewFactory(factory.django.DjangoModelFactory):

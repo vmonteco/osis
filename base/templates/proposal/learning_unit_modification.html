@@ -9,7 +9,7 @@
 * The core business involves the administration of students, teachers,
 * courses, programs and so on.
 *
-* Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+* Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active">
                 <br/>
-                <form method="post" id="LearningUnitYearForm" data-validate-url="{% url 'check_acronym'%}" code-validate-url="{% url 'check_code'%}">
+                <form method="post" id="LearningUnitYearForm" data-validate-url="{% url 'check_acronym'%}">
                   {% csrf_token %}
                   <div class="row">
                       <div class="col-md-8">
@@ -58,11 +58,11 @@
                                         <div class="col-md-12">
                                           <label for="{{ form.acronym.id_for_label }}">{% trans 'acronym'%}</label>
                                         </div>
-                                        <div class="col-md-4" style="padding-right:0;">
+                                        <div class="col-md-5" style="padding-right:0;">
                                           {{ form.first_letter }}
                                             <span class="error">{{ form.first_letter.errors }}</span>
                                         </div>
-                                        <div class="col-md-8" style="padding-left:0;">
+                                        <div class="col-md-7" style="padding:0;">
                                           {{ form.acronym }}
                                             <span class='error' id="{{ form.acronym.name }}_message" for='{{ form.acronym.name }}' generated="true">
                                             {{ form.acronym.errors }}

@@ -32,7 +32,6 @@ from base.models import learning_unit_enrollment, learning_unit_component, learn
 from base.models import person_entity
 from base.models.enums import learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes
-from internship.models import internship_speciality
 
 FACULTY_MANAGER_GROUP = "faculty_managers"
 CENTRAL_MANAGER_GROUP = "central_managers"
@@ -43,9 +42,6 @@ def check_learning_unit_deletion(learning_unit):
 
     for learning_unit_year in learn_unit_year_model.search(learning_unit=learning_unit).order_by('academic_year__year'):
         msg.update(check_learning_unit_year_deletion(learning_unit_year))
-
-    for speciality in internship_speciality.search(learning_unit=learning_unit):
-        msg.update(_check_internship_speciality(speciality))
 
     return msg
 
@@ -92,14 +88,6 @@ def _check_tutoring_learning_unit_year(tutoring):
                             'year': tutoring.learning_unit_year.academic_year}
 
     return msg
-
-
-def _check_internship_speciality(speciality):
-    msg = _("The learning unit %(acronym)s is related to the internship speciality %(speciality)s") % {
-        "acronym": speciality.learning_unit,
-        "speciality": speciality
-    }
-    return {speciality: msg}
 
 
 def _check_group_element_year_deletion(group_element_year):
@@ -159,7 +147,7 @@ def _can_delete_learning_unit_year_according_type(user, learning_unit_year):
         subtype = learning_unit_year.subtype
 
         return not (
-                    container_type == learning_container_year_types.COURSE and subtype == learning_unit_year_subtypes.FULL) \
+                container_type == learning_container_year_types.COURSE and subtype == learning_unit_year_subtypes.FULL) \
                and container_type not in [learning_container_year_types.DISSERTATION,
                                           learning_container_year_types.INTERNSHIP]
     return True

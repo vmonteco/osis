@@ -1,4 +1,3 @@
-{% extends "layout.html" %}
 {% load staticfiles %}
 {% load i18n %}
 {% comment "License" %}
@@ -25,28 +24,32 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-{% block breadcrumb %}
-{% include "learning_unit/breadcrumb.html" %}
-{% endblock %}
-{% load getattr %}
-
-{% block content %}
-{% include "learning_unit/header.html" %}
-<div class="panel panel-default" >
-    <div class="panel-body" id="tabs" >
-        {% include "learning_unit/tabs.html" %}
-        <div class="tab-content" id="tab_content">
-            <div role="tabpanel" class="tab-pane active" id="pedagogy">
-                 {% url 'learning_unit_pedagogy_edit' learning_unit_year_id=learning_unit_year.id as post_url%}
-                {% include "learning_unit/components/panel_educational_informations.html" with can_edit_information=perms.base.can_edit_learningunit_pedagogy %}
+<div class="modal-dialog" role="document" style="width:850px;">
+    <div class="modal-content">
+        <form class="pedagogy-form" role="form" method="POST"
+              action="{{ post_url }}">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4>{{text_label_translated.label}} - {{language_translated.1}}</h4>
             </div>
-        </div>
+            <div class="modal-body">
+                {% csrf_token %}
+                {{ form.trans_text }}
+                {{ form.cms_id }}
+            </div>
+            <div class="modal-footer">
+               <button class="btn btn-primary" type="submit">{% trans 'save' %}</button>
+               <button type="submit" class="btn" data-dismiss="modal">{% trans 'cancel' %} </button>
+          </div>
+        </form>
     </div>
 </div>
 
-<div class="modal fade" id="pedagogy_edit" role="dialog" data-backdrop="static"></div>
-{% endblock %}
-
-{% block script %}
-    <script src="{% static 'js/pedagogy_modal.js' %}"></script>
-{% endblock %}
+<script>
+    $(function() {
+        var richText = $('#id_trans_text');
+        // Get configuration of rich text field
+        var config = richText.data('config')
+        CKEDITOR.replace('id_trans_text', config)
+    });
+</script>

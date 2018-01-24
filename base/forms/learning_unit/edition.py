@@ -27,12 +27,12 @@ from django import forms
 from django.db.models import F
 from django.utils.translation import ugettext_lazy as _
 
+from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
 from base.forms.bootstrap import BootstrapForm
 from base.models import academic_year
 from base.models.academic_year import AcademicYear
 from base.models.enums import learning_unit_periodicity
 from base.models.learning_unit import is_old_learning_unit
-from base.views.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
 
 
 class LearningUnitEndDateForm(BootstrapForm):
