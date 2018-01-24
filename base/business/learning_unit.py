@@ -30,7 +30,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
 from base.business.learning_unit_year_with_context import volume_learning_component_year
-from base.forms.learning_units import LearningUnitYearForm
 from base.models import entity_container_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -44,8 +43,6 @@ from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from cms import models as mdl_cms
 from cms.enums import entity_name
-
-
 # List of key that a user can modify
 from osis_common.document import xls_build
 

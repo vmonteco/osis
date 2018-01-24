@@ -24,49 +24,46 @@
 #
 ##############################################################################
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
+from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect, get_object_or_404
-from django.views.decorators.http import require_http_methods, require_POST
 from django.http import JsonResponse
-from django.contrib import messages
+from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_http_methods, require_POST
 
 from attribution.business import attribution_charge_new
 from base import models as mdl
 from base.business import learning_unit_deletion, learning_unit_year_volumes, learning_unit_year_with_context, \
     learning_unit_proposal
-from base.business.learning_unit import create_learning_unit, create_learning_unit_structure, \
-    get_common_context_learning_unit_year, get_cms_label_data, \
+from base.business.learning_unit import create_learning_unit, get_common_context_learning_unit_year, get_cms_label_data, \
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, get_last_academic_years, \
-    SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls
+    SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, create_learning_unit_structure
 from base.business.learning_units.edition import is_eligible_for_modification_end_date
 from base.forms.common import TooManyResultsException
+from base.forms.learning_class import LearningClassEditForm
+from base.forms.learning_unit_component import LearningUnitComponentEditForm
+from base.forms.learning_unit_create import CreateLearningUnitYearForm, EMPTY_FIELD
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
+from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
+from base.forms.learning_unit_summary import LearningUnitSummaryForm, LearningUnitSummaryEditForm
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import proposal_learning_unit, entity_version
 from base.models.campus import Campus
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
-
-from base.forms.learning_unit_create import CreateLearningUnitYearForm, EMPTY_FIELD
-from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
-from base.forms.learning_unit_component import LearningUnitComponentEditForm
-from base.forms.learning_class import LearningClassEditForm
 from base.models.person import Person
+from base.utils import permission
 from cms.models import text_label
 from reference.models import language
 from . import layout
-from base.forms.learning_unit_summary import LearningUnitSummaryForm, LearningUnitSummaryEditForm
-from base.utils import permission
-from django.core.urlresolvers import reverse_lazy
-from django.shortcuts import render
-
 
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',

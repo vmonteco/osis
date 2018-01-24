@@ -2488,3 +2488,6 @@ msgstr "pas de fin prévue"
 
 msgid "Edit learning unit end date"
 msgstr "Modifier la date de fin l'unité d'enseignement"
+
+msgid "No planned end"
+msgstr "Pas de fin prévue"

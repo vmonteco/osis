@@ -39,7 +39,7 @@ class LearningUnitEndDateForm(BootstrapForm):
 
     academic_year = forms.ModelChoiceField(required=False,
                                            queryset=AcademicYear.objects.none(),
-                                           empty_label=_('Without validity end date'))
+                                           empty_label=_('No planned end'))
 
     def __init__(self, *args, **kwargs):
         learning_unit = kwargs.pop('learning_unit')
