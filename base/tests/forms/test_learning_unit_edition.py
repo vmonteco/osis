@@ -43,32 +43,31 @@ class TestLearningUnitEditionForm(TestCase):
         """
         Set up several learning units year associated with his learning unit,
         his learning container year and an academic year.
+        """
+        self._setup_academic_years()
+        self._setup_learning_units()
 
+    def _setup_academic_years(self):
+        """
         We need at least seven academic years to have N+6 academic years,
         N being the current academic year.
-
-        We need some specific learnign units as describe below:
-            1. A learning unit associated to a start date only
-            2. A learning unit associated to a start date and a end_date
-        :return: self
         """
-
-        self.today = datetime.date.today()
-
         #TODO: refactor self.start_year
+        self.today = datetime.date.today()
         self.start_year = self.today.year if self.today.month>9 and self.today.month<12 else self.today.year-1
         self.last_year = self.start_year + LEARNING_UNIT_CREATION_SPAN_YEARS
-
         self.list_of_academic_years = self._create_list_of_academic_years(self.start_year, self.last_year)
+        self.list_of_academic_years_before_now = self._create_list_of_academic_years(
+            self.start_year-LEARNING_UNIT_CREATION_SPAN_YEARS, self.start_year-1)
         self.current_academic_year = self.list_of_academic_years[0]
+        self.oldest_academic_year = self.list_of_academic_years_before_now[0]
         self.last_academic_year = self.list_of_academic_years[LEARNING_UNIT_CREATION_SPAN_YEARS]
-
         self.list_of_odd_academic_years = [academic_year for academic_year in self.list_of_academic_years
                                                     if academic_year.year%2]
         self.list_of_even_academic_years = [academic_year for academic_year in self.list_of_academic_years
                                                     if not academic_year.year%2]
 
-        #The first learning unit has a starting date equal to the current academic year N
+    def _setup_learning_units(self):
         self.learning_unit = LearningUnitFactory(start_year=self.today.year,
                                                  periodicity=learning_unit_periodicity.ANNUAL)
         self.learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
@@ -85,7 +84,7 @@ class TestLearningUnitEditionForm(TestCase):
 
     def test_edit_end_date_send_dates_with_end_date_not_defined(self):
         """
-        @:param request : GET (request = None)
+        @:param request = GET (or None)
         @:return list of annual academic years from the current academic year to six years later
 
         The user wants to edit the end date of a learning unit.
@@ -102,7 +101,7 @@ class TestLearningUnitEditionForm(TestCase):
 
     def test_edit_end_date_send_dates_with_end_date_not_defined_and_periodicity_biennal_even(self):
         """
-        @:param request : GET (request = None)
+        @:param request = GET (or None)
         @:return list of biennal even academic years from the current academic year to six years later
 
         Second scenario: the end date is not defined yet and the learning unit is biennal even.
@@ -113,7 +112,7 @@ class TestLearningUnitEditionForm(TestCase):
 
     def test_edit_end_date_send_dates_with_end_date_not_defined_and_periodicity_biennal_odd(self):
         """
-        @:param request : GET (request = None)
+        @:param request = GET (or None)
         @:return list of biennal odd academic years from the current academic year to six years later
 
         Third scenario: the end date is not defined yet and the learning unit is biennal odd.
@@ -124,12 +123,35 @@ class TestLearningUnitEditionForm(TestCase):
 
     def test_edit_end_date_send_dates_with_end_date_defined(self):
         """
-        @:param request : GET (request = None)
-        @:return list of annual academic years from the current academic year to six years later
-
+        @:param request = GET (or None)
         Fourth scenario: the end date is defined and the learning unit is annual
         """
         self.learning_unit.periodicity = learning_unit_periodicity.ANNUAL
         self.learning_unit.end_year = self.last_academic_year.year
         form = LearningUnitEndDateForm(None, learning_unit=self.learning_unit_year.learning_unit)
         self.assertEqual(list(form.fields['academic_year'].queryset), self.list_of_academic_years)
+
+    def test_edit_end_date_send_dates_with_end_inferior_to_current_academic_year(self):
+        """
+        @:param request = GET (or None)
+        Fith scenario: the end date is defined and the learning unit is annual
+        """
+        self.learning_unit.periodicity = learning_unit_periodicity.ANNUAL
+        self.learning_unit.end_year = self.oldest_academic_year.year
+
+        with self.assertRaises(ValueError):
+            LearningUnitEndDateForm(None, learning_unit=self.learning_unit_year.learning_unit)
+
+    def test_edit_end_date(self):
+        """
+        @:param request = POST
+        Sixth scenario: the end date is edited
+        """
+        self.learning_unit.periodicity = learning_unit_periodicity.ANNUAL
+        self.learning_unit.end_year = self.last_academic_year.year
+
+        form_data = {"academic_year": self.current_academic_year.pk}
+
+        form = LearningUnitEndDateForm(form_data, learning_unit=self.learning_unit)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data['academic_year'], self.current_academic_year)
