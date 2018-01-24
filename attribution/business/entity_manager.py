@@ -23,15 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base import models as mdl_base
-from base.models.enums import academic_calendar_type
+from base.business.entity_version import find_entity_version_according_academic_year
 
 
-def is_summary_submission_opened(user):
-    current_academic_year = mdl_base.academic_year.current_academic_year()
-    if current_academic_year:
-        return mdl_base.academic_calendar.is_academic_calendar_opened(
-            current_academic_year,
-            academic_calendar_type.SUMMARY_COURSE_SUBMISSION
-        )
-    return False
+def _append_entity_version(entities_manager, academic_year):
+    for entity_manager in entities_manager:
+        if hasattr(entity_manager.entity, 'entity_versions') and entity_manager.entity.entity_versions:
+            entity_manager.entity_version = find_entity_version_according_academic_year(
+                entity_manager.entity.entity_versions, academic_year)
+        else:
+            entity_manager.entity_version = None

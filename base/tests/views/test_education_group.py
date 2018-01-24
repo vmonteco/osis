@@ -336,7 +336,9 @@ class EducationGroupViewTestCase(TestCase):
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.education_group_year.find_by_id')
+    @mock.patch('base.business.education_group.can_user_edit_administrative_data')
     def test_education_administrative_data(self,
+                                           mock_can_user_edit_administrative_data,
                                            mock_find_by_id,
                                            mock_render,
                                            mock_decorators):
@@ -348,6 +350,7 @@ class EducationGroupViewTestCase(TestCase):
         from base.views.education_group import education_group_administrative_data
 
         mock_find_by_id.return_value = education_group_year
+        mock_can_user_edit_administrative_data.return_value = True
         education_group_administrative_data(request, education_group_year.id)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -388,7 +391,9 @@ class EducationGroupViewTestCase(TestCase):
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
+    @mock.patch('base.business.education_group.can_user_edit_administrative_data')
     def test_education_edit_administrative_data(self,
+                                                mock_can_user_edit_administrative_data,
                                                 mock_render,
                                                 mock_decorators):
         mock_decorators.login_required = lambda x: x
@@ -401,6 +406,7 @@ class EducationGroupViewTestCase(TestCase):
             'education_group_year_id': education_group_year.id
         }))
         request.user = mock.Mock()
+        mock_can_user_edit_administrative_data.return_value = True
 
         education_group_edit_administrative_data(request, education_group_year.id)
         self.assertTrue(mock_render.called)
