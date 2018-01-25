@@ -53,10 +53,11 @@ def create_learning_unit_with_context(academic_year, structure, entity, acronym)
 
 class LearningUnitsMixin:
 
-    this_year = start_year = last_year = list_of_academic_years = current_academic_year = None
-    oldest_academic_year = last_academic_year = list_of_academic_years_after_now = None
-    list_of_odd_academic_years = list_of_even_academic_years = learning_unit = None
-    learning_container_year = learning_unit_year = None
+    this_year = start_year = last_year = current_academic_year = None
+    old_academic_year = last_academic_year = oldest_academic_year = latest_academic_year = None
+    list_of_academic_years = list_of_academic_years_after_now = None
+    list_of_odd_academic_years = list_of_even_academic_years = None
+    learning_unit = learning_unit_year = learning_container_year = None
 
     def setup_academic_years(self):
         """
@@ -70,17 +71,23 @@ class LearningUnitsMixin:
          - a list with viennal odd academic years from from N to (N + LEARNING_UNIT_CREATION_SPAN_YEARS).
         """
         self.this_year = datetime.datetime.now().year
-        self.start_year = self.this_year - LEARNING_UNIT_CREATION_SPAN_YEARS
-        self.last_year = self.this_year + LEARNING_UNIT_CREATION_SPAN_YEARS
+        self.start_year = self.this_year - LEARNING_UNIT_CREATION_SPAN_YEARS * 2
+        self.last_year = self.this_year + LEARNING_UNIT_CREATION_SPAN_YEARS * 2
 
         self.list_of_academic_years = self.create_list_of_academic_years(self.start_year, self.last_year)
 
         self.current_academic_year = mdl_academic_year.current_academic_year()
+        index_of_current_academic_year_in_list = self.list_of_academic_years.index(self.current_academic_year)
+
         self.oldest_academic_year = self.list_of_academic_years[0]
-        self.last_academic_year = self.list_of_academic_years[-1]
+        self.latest_academic_year = self.list_of_academic_years[-1]
+        self.old_academic_year = self.list_of_academic_years[index_of_current_academic_year_in_list-
+                                                             LEARNING_UNIT_CREATION_SPAN_YEARS]
+        self.last_academic_year = self.list_of_academic_years[index_of_current_academic_year_in_list+
+                                                              LEARNING_UNIT_CREATION_SPAN_YEARS]
 
         self.list_of_academic_years_after_now = [academic_year for academic_year in self.list_of_academic_years
-                                                 if academic_year.year >= self.current_academic_year.year]
+            if (self.current_academic_year.year <= academic_year.year <= self.last_academic_year.year)]
         self.list_of_odd_academic_years = [academic_year for academic_year in self.list_of_academic_years_after_now
                                            if academic_year.year % 2]
         self.list_of_even_academic_years = [academic_year for academic_year in self.list_of_academic_years_after_now
@@ -91,8 +98,9 @@ class LearningUnitsMixin:
         Set up learning units associated with a learning container and a learning unit year.
         By default, the learning unit start year is the current academic year and the periodicity is annual.
         """
-        self.learning_unit = LearningUnitFactory(start_year=self.current_academic_year.year,
-                                                 periodicity=learning_unit_periodicity.ANNUAL)
+        self.learning_unit = LearningUnitFactory(
+            start_year=self.current_academic_year.year,
+            periodicity=learning_unit_periodicity.ANNUAL)
         self.learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
         self.learning_unit_year = LearningUnitYearFakerFactory(
             academic_year=self.current_academic_year,

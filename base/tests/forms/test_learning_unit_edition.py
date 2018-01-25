@@ -84,8 +84,10 @@ class TestLearningUnitEditionForm(TestCase, LearningUnitsMixin):
         Fourth scenario: the end date is defined and the learning unit is annual.
         The end date of the learning unit is set to an academic year superior
         to the current academic year.
+        Warning: the number of academic years presented to the user as always a maxium value of N+6.
+        Example: the current year is 2018 (N), but the learning unit as a start date of 2020 (X);
+        we cannot propose 2020 to 2026 (X+6) but 2024 to 2024 (N +6).
         """
-        self.learning_unit.periodicity = learning_unit_periodicity.ANNUAL
         self.learning_unit.end_year = self.last_academic_year.year
         form = LearningUnitEndDateForm(None, learning_unit=self.learning_unit_year.learning_unit)
         self.assertEqual(list(form.fields['academic_year'].queryset), self.list_of_academic_years_after_now)
@@ -98,9 +100,7 @@ class TestLearningUnitEditionForm(TestCase, LearningUnitsMixin):
         The user cannot change the end date of a learning unit for which
         the end date is inferior to the current academic year.
         """
-        self.learning_unit.periodicity = learning_unit_periodicity.ANNUAL
         self.learning_unit.end_year = self.oldest_academic_year.year
-
         with self.assertRaises(ValueError):
             LearningUnitEndDateForm(None, learning_unit=self.learning_unit_year.learning_unit)
 
@@ -112,11 +112,8 @@ class TestLearningUnitEditionForm(TestCase, LearningUnitsMixin):
         Sixth scenario: the end date of a learning unit is edited.
         We need to be verify the validation of the form, nothing else.
         """
-        self.learning_unit.periodicity = learning_unit_periodicity.ANNUAL
         self.learning_unit.end_year = self.last_academic_year.year
-
         form_data = {"academic_year": self.current_academic_year.pk}
-
         form = LearningUnitEndDateForm(form_data, learning_unit=self.learning_unit)
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data['academic_year'], self.current_academic_year)

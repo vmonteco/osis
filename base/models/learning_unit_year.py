@@ -24,16 +24,8 @@
 #
 ##############################################################################
 import re
-<<<<<<< HEAD
-
-from django.db import models
-=======
 from django.core.validators import MinValueValidator
 from django.db import models
-
-from base.models.group_element_year import GroupElementYear
-from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
->>>>>>> origin/OSIS-578
 
 from base.models import entity_container_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, internship_subtypes, \

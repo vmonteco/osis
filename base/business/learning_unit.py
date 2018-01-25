@@ -24,18 +24,14 @@
 #
 ##############################################################################
 import datetime
-from collections import OrderedDict
 
+from collections import OrderedDict
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl, models as mdl_base
 from base.business.learning_unit_year_with_context import volume_learning_component_year
-<<<<<<< HEAD
-=======
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
-from base.forms.learning_units import LearningUnitYearForm
->>>>>>> origin/OSIS-578
 from base.models import entity_container_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -49,6 +45,7 @@ from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from cms import models as mdl_cms
 from cms.enums import entity_name
+
 # List of key that a user can modify
 from osis_common.document import xls_build
 
