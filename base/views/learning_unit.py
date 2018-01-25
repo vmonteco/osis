@@ -51,6 +51,7 @@ from base.forms.learning_units import LearningUnitYearForm
 from base.models import entity_container_year
 from base.models import proposal_learning_unit, entity_version
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
+from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
 
@@ -513,13 +514,19 @@ def outside_period(request):
 def learning_unit_create_partim(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
     learning_unit_year_parent = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+    initial = _get_partim_creation_form_initial_data(learning_unit_year_parent)
+    return layout.render(request, "learning_unit/partim_form.html", {'form': CreatePartimForm(person, initial=initial)})
+
+
+def _get_partim_creation_form_initial_data(learning_unit_year_parent):
     attributions = entity_container_year.find_last_entity_version_grouped_by_linktypes(
         learning_unit_year_parent.learning_container_year
     )
     campus = get_campus_from_learning_unit_year(learning_unit_year_parent)
-
     data = {
-        'academic_year': learning_unit_year_parent.academic_year, 'acronym': learning_unit_year_parent.acronym,
+        'academic_year': learning_unit_year_parent.academic_year.id,
+        'first_letter': learning_unit_year_parent.acronym[:1],
+        'acronym': learning_unit_year_parent.acronym[1:],
         'subtype': learning_unit_year_subtypes.PARTIM,
         'container_type': learning_unit_year_parent.learning_container_year.container_type,
         'language': language.find_by_code('FR'), 'status': learning_unit_year_parent.status,
@@ -530,10 +537,10 @@ def learning_unit_create_partim(request, learning_unit_year_id):
         'other_remark': learning_unit_year_parent.learning_unit.other_remark,
         'periodicity': learning_unit_year_parent.learning_unit.periodicity,
         'quadrimester': learning_unit_year_parent.quadrimester,
-        'campus': campus
+        'campus': campus.id
     }
     data.update({k.lower(): v for k, v in attributions.items()})
-    return layout.render(request, "learning_unit/partim_form.html", {'form': CreatePartimForm(person, initial=data)})
+    return data
 
 
 @login_required
@@ -542,7 +549,10 @@ def learning_unit_create_partim(request, learning_unit_year_id):
 def learning_unit_year_partim_add(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
     learning_unit_year_parent = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
-    form = CreatePartimForm(person, request.POST)
+    initial = _get_partim_creation_form_initial_data(learning_unit_year_parent)
+    post_data = dict(request.POST)
+    post_data.update(initial)
+    form = CreatePartimForm(person, post_data)
 
     if form.is_valid():
         return create_partim_process(learning_unit_year_parent, form)
