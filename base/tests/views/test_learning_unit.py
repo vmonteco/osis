@@ -26,7 +26,7 @@
 import datetime
 from unittest import mock
 
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import ObjectDoesNotExist
@@ -831,6 +831,19 @@ class LearningUnitViewTestCase(TestCase):
 
     def test_prepare_xls_content_no_data(self):
         self.assertEqual(base.business.learning_unit.prepare_xls_content([]), [])
+
+    def test_learning_unit_year_form_with_faculty_user(self):
+        faculty_managers_group = Group.objects.get(name="faculty_managers")
+        faculty_superuser = SuperUserFactory()
+        faculty_superuser.groups.add(faculty_managers_group.id)
+        faculty_person = PersonFactory(user=faculty_superuser)
+        PersonEntityFactory(person=faculty_person, entity=self.entity)
+        form = CreateLearningUnitYearForm(person=self.person, data=self.get_valid_data())
+        self.assertTrue(form.is_valid(), form.errors)
+        url = reverse('learning_unit_year_add')
+        response = self.client.post(url, data=self.get_valid_data())
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(LearningUnitYear.objects.all().count(), 6)
 
 
 class LearningUnitCreate(TestCase):

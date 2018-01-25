@@ -118,8 +118,7 @@ class LearningUnitYearForm(BootstrapForm):
 
     def clean_acronym(self):
         data_cleaned = self.data.get('first_letter')+self.cleaned_data.get('acronym')
-        if data_cleaned:
-            return data_cleaned.upper()
+        return data_cleaned.upper()
 
     def get_academic_year(self):
         try:
@@ -131,8 +130,6 @@ class LearningUnitYearForm(BootstrapForm):
         academic_year = self.get_academic_year()
         academic_year_max = learning_unit.compute_max_academic_year_adjournment()
         if not super().is_valid():
-            return False
-        elif not academic_year:
             return False
         elif not re.match(self.acronym_regex, self.cleaned_data['acronym']):
             self.add_error('acronym', _('invalid_acronym'))
