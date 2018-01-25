@@ -27,25 +27,11 @@
     <a class="button" onclick="showDiv()">
         <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
     </a>
-    <div id="collapse" class="panel panel-default" style="display:block;">
+    <div id="collapse" class="panel panel-default" style="display:block;overflow: auto;">
         <div class="panel-body" id="panel_file_tree">
-            <ul>
-                <li>
-                    {% if parent.id %}
-                    <a href="{% url 'education_group_read' education_group_year_id=parent.id %}?root={{ parent.id}}&tree=1">{{ parent.acronym }}</a>
-                    {% endif %}
-
-                    {% for elem in parent.children_by_group_element_year %}
-                        <ul>
-                            <li>
-                                <a href="{% url 'education_group_read' education_group_year_id=elem.id %}?root={{ parent.id}}&tree=1">{{ elem.acronym }}</a>
-                                {% include "education_group/branch.html" %}
-                            </li>
-                        </ul>
-                    {% endfor %}
-
-                </li>
-            </ul>
+            {% include "education_group/branch.html" with parent=parent children=parent.children_by_group_element_year root=parent only %}
         </div>
     </div>
 </div>
+
+{#data-jstree='{"icon":"fa fa-file-o"}'#}

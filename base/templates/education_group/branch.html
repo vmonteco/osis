@@ -24,15 +24,13 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-{% with  children=elem.children_by_group_element_year  parent=parent %}
-    {% for elem in children %}
-        <ul>
-            <li>
-                <a href="{% url 'education_group_read' education_group_year_id=elem.id %}?root={{ parent.id }}">
-                    {{ elem.acronym }}
-                </a>
-                {% include "education_group/branch.html" %}
-            </li>
-        </ul>
-    {% endfor %}
-{% endwith %}
+<ul>
+    <li>
+        <a href="{% url 'education_group_read' education_group_year_id=parent.id %}?root={{ root.id }}">
+            {{ parent.acronym }}
+        </a>
+        {% for elem in children %}
+        {% include "education_group/branch.html" with children=elem.children_by_group_element_year parent=elem root=root only%}
+        {% endfor %}
+    </li>
+</ul>
