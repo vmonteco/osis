@@ -23,10 +23,18 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models.enums import entity_container_year_link_type
+import datetime
+
+from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
+from base.models import academic_year as mdl_academic_year
+from base.models.academic_year import AcademicYear
+from base.models.enums import entity_container_year_link_type, learning_unit_periodicity
+from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 
 
 def create_learning_unit_with_context(academic_year, structure, entity, acronym):
@@ -41,3 +49,59 @@ def create_learning_unit_with_context(academic_year, structure, entity, acronym)
                                entity=entity)
 
     return learning_unit_year
+
+
+class LearningUnitsMixin:
+
+    this_year = start_year = last_year = list_of_academic_years = current_academic_year = None
+    oldest_academic_year = last_academic_year = list_of_academic_years_after_now = None
+    list_of_odd_academic_years = list_of_even_academic_years = learning_unit = None
+    learning_container_year = learning_unit_year = None
+
+    def setup_academic_years(self):
+        """
+        Set up academic years from (N - LEARNING_UNIT_CREATION_SPAN_YEARS) to (N + LEARNING_UNIT_CREATION_SPAN_YEARS),
+        N being the current academic year.
+        Ex : from 2012-2013 to 2024-2025, N being 2018-2019.
+
+        From this list we create three lists :
+         - a list with annual academic years from N to (N + LEARNING_UNIT_CREATION_SPAN_YEARS);
+         - a list with biennal even academic years from  N to (N + LEARNING_UNIT_CREATION_SPAN_YEARS);
+         - a list with viennal odd academic years from from N to (N + LEARNING_UNIT_CREATION_SPAN_YEARS).
+        """
+        self.this_year = datetime.datetime.now().year
+        self.start_year = self.this_year - LEARNING_UNIT_CREATION_SPAN_YEARS
+        self.last_year = self.this_year + LEARNING_UNIT_CREATION_SPAN_YEARS
+
+        self.list_of_academic_years = self.create_list_of_academic_years(self.start_year, self.last_year)
+
+        self.current_academic_year = mdl_academic_year.current_academic_year()
+        self.oldest_academic_year = self.list_of_academic_years[0]
+        self.last_academic_year = self.list_of_academic_years[-1]
+
+        self.list_of_academic_years_after_now = [academic_year for academic_year in self.list_of_academic_years
+                                                 if academic_year.year >= self.current_academic_year.year]
+        self.list_of_odd_academic_years = [academic_year for academic_year in self.list_of_academic_years_after_now
+                                           if academic_year.year % 2]
+        self.list_of_even_academic_years = [academic_year for academic_year in self.list_of_academic_years_after_now
+                                            if not academic_year.year % 2]
+
+    def setup_learning_units(self):
+        """
+        Set up learning units associated with a learning container and a learning unit year.
+        By default, the learning unit start year is the current academic year and the periodicity is annual.
+        """
+        self.learning_unit = LearningUnitFactory(start_year=self.current_academic_year.year,
+                                                 periodicity=learning_unit_periodicity.ANNUAL)
+        self.learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
+        self.learning_unit_year = LearningUnitYearFakerFactory(
+            academic_year=self.current_academic_year,
+            learning_unit=self.learning_unit,
+            learning_container_year=self.learning_container_year)
+
+    @staticmethod
+    def create_list_of_academic_years(start_year, end_year):
+        results = [AcademicYearFactory.build(year=year) for year in range(start_year, end_year + 1)]
+        for result in results:
+            super(AcademicYear, result).save()
+        return results

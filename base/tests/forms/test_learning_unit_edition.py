@@ -27,63 +27,17 @@ import datetime
 
 from django.test import TestCase
 
-from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
-from base.models import academic_year as mdl_academic_year
-from base.models.academic_year import AcademicYear
 from base.models.enums import learning_unit_periodicity
-from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.learning_container_year import LearningContainerYearFactory
-from base.tests.factories.learning_unit import LearningUnitFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
+from base.tests.factories.business.learning_units import LearningUnitsMixin
 
 
-class TestLearningUnitEditionForm(TestCase):
+class TestLearningUnitEditionForm(TestCase, LearningUnitsMixin):
 
     def setUp(self):
-        """
-        Set up several learning units year associated with his learning unit,
-        his learning container year and an academic year.
-        """
-        self._setup_academic_years()
-        self._setup_learning_units()
-
-    def _setup_academic_years(self):
-        """
-        We need at least seven academic years to have N+6 academic years,
-        N being the current academic year.
-        """
-        self.this_year = datetime.datetime.now().year
-        self.start_year = self.this_year - LEARNING_UNIT_CREATION_SPAN_YEARS
-        self.last_year = self.this_year + LEARNING_UNIT_CREATION_SPAN_YEARS
-
-        self.list_of_academic_years = self._create_list_of_academic_years(self.start_year, self.last_year)
-
-        self.current_academic_year = mdl_academic_year.current_academic_year()
-        self.oldest_academic_year = self.list_of_academic_years[0]
-        self.last_academic_year = self.list_of_academic_years[-1]
-
-        self.list_of_academic_years_after_now = [academic_year for academic_year in self.list_of_academic_years
-                                                    if academic_year.year>=self.current_academic_year.year]
-        self.list_of_odd_academic_years = [academic_year for academic_year in self.list_of_academic_years_after_now
-                                                    if academic_year.year%2]
-        self.list_of_even_academic_years = [academic_year for academic_year in self.list_of_academic_years_after_now
-                                                    if not academic_year.year%2]
-
-    def _setup_learning_units(self):
-        self.learning_unit = LearningUnitFactory(start_year=self.current_academic_year.year,
-                                                 periodicity=learning_unit_periodicity.ANNUAL)
-        self.learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
-        self.learning_unit_year = LearningUnitYearFakerFactory(
-            academic_year=self.current_academic_year,
-            learning_unit=self.learning_unit,
-            learning_container_year=self.learning_container_year)
-
-    def _create_list_of_academic_years(self, start_year, end_year):
-        results = [AcademicYearFactory.build(year=year) for year in range(start_year, end_year+1)]
-        for result in results:
-            super(AcademicYear, result).save()
-        return results
+        super().setUp()
+        self.setup_academic_years()
+        self.setup_learning_units()
 
     def test_edit_end_date_send_dates_with_end_date_not_defined(self):
         """
