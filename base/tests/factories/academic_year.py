@@ -34,6 +34,13 @@ from osis_common.utils.datetime import get_tzinfo
 fake = Faker()
 
 
+def create_current_academic_year():
+    now = timezone.now()
+    return AcademicYearFakerFactory(year=now.year,
+                                    start_date=datetime.date(now.year, now.month, 15),
+                                    end_date=datetime.date(now.year + 1, now.month, 28))
+
+
 class AcademicYearFactory(DjangoModelFactory):
     class Meta:
         model = "base.AcademicYear"
@@ -45,6 +52,15 @@ class AcademicYearFactory(DjangoModelFactory):
     year = factory.fuzzy.FuzzyInteger(1950, timezone.now().year)
     start_date = factory.LazyAttribute(lambda obj: datetime.date(obj.year, 9, 15))
     end_date = factory.LazyAttribute(lambda obj: datetime.date(obj.year+1, 9, 30))
+
+    @staticmethod
+    def produce_in_past(from_year=None, quantity=3):
+        if not from_year:
+            from_year = datetime.date.today().year
+        i = 0
+        while i < quantity:
+            AcademicYearFactory(year=from_year-i)
+            i += 1
 
 
 class AcademicYearFakerFactory(DjangoModelFactory):

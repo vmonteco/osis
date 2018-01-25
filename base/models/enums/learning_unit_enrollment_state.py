@@ -23,24 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import string
-import factory
-import factory.fuzzy
-from faker import Faker
+ENROLLED = 'ENROLLED'
 
-from attribution.tests.factories.attribution import AttributionNewFactory
-from base.tests.factories.learning_component_year import LearningComponentYearFactory
-from osis_common.utils.datetime import get_tzinfo
-
-fake = Faker()
-
-
-class AttributionChargeFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "attribution.AttributionChargeNew"
-
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    attribution = factory.SubFactory(AttributionNewFactory)
-    learning_component_year = factory.SubFactory(LearningComponentYearFactory)
-    allocation_charge = 0
-    deleted = False
+STATES = ((ENROLLED, ENROLLED),)

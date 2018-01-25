@@ -108,7 +108,7 @@ def load_mandates(request):
 def export_mandates(request):
     xls = generate_xls()
     filename = 'assistants_mandates_{}.xlsx'.format(time.strftime("%Y%m%d_%H%M"))
-    response = HttpResponse(xls, content_type='application/vnd.ms-excel')
+    response = HttpResponse(xls, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = "%s%s" % ("attachment; filename=", filename)
     return response
 

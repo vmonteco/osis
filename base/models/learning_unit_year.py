@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import re
+from django.core.validators import MinValueValidator
 from django.db import models
 
 from base.models.group_element_year import GroupElementYear
@@ -31,18 +32,20 @@ from osis_common.models.auditable_serializable_model import AuditableSerializabl
 
 from base.models import entity_container_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, internship_subtypes, \
-    learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters
+    learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
+MINIMUM_CREDITS = 0.0
 
 
 class LearningUnitYearAdmin(AuditableSerializableModelAdmin):
     list_display = ('external_id', 'acronym', 'title', 'academic_year', 'credits', 'changed', 'structure', 'status')
-    fieldsets = ((None, {'fields': ('academic_year', 'learning_unit', 'acronym', 'title', 'title_english', 'credits',
-                                    'decimal_scores', 'structure', 'learning_container_year',
-                                    'subtype', 'status', 'internship_subtype', 'session', 'quadrimester')}),)
+    fieldsets = ((None, {'fields': ('academic_year', 'learning_unit', 'learning_container_year', 'acronym',
+                                    'title', 'title_english', 'subtype', 'credits', 'decimal_scores', 'structure',
+                                    'internship_subtype', 'status', 'session', 'quadrimester',
+                                    'attribution_procedure')}),)
     list_filter = ('academic_year', 'decimal_scores')
     raw_id_fields = ('learning_unit', 'learning_container_year', 'structure')
     search_fields = ['acronym', 'structure__acronym', 'external_id']
@@ -59,7 +62,8 @@ class LearningUnitYear(AuditableSerializableModel):
     title_english = models.CharField(max_length=250, blank=True, null=True)
     subtype = models.CharField(max_length=50, blank=True, null=True,
                                choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES)
-    credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True,
+                                  validators=[MinValueValidator(MINIMUM_CREDITS)])
     decimal_scores = models.BooleanField(default=False)
     structure = models.ForeignKey('Structure', blank=True, null=True)
     internship_subtype = models.CharField(max_length=250, blank=True, null=True,
@@ -69,7 +73,8 @@ class LearningUnitYear(AuditableSerializableModel):
                                choices=learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION)
     quadrimester = models.CharField(max_length=4, blank=True, null=True,
                                     choices=learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
-
+    attribution_procedure = models.CharField(max_length=20, blank=True, null=True,
+                                             choices=attribution_procedure.ATTRIBUTION_PROCEDURES)
 
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
@@ -177,7 +182,7 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
     if container_type:
         queryset = queryset.filter(learning_container_year__container_type=container_type)
 
-    return queryset.select_related('learning_container_year')
+    return queryset.select_related('learning_container_year', 'academic_year')
 
 
 def count_search_results(**kwargs):

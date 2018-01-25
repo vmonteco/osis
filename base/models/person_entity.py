@@ -28,6 +28,7 @@ from django.contrib import admin
 
 from base.models import entity
 from base.models import entity_version
+from base.models import person
 
 
 class PersonEntityAdmin(admin.ModelAdmin):
@@ -66,5 +67,10 @@ def find_entities_by_person(person):
     entity_with_child = [pers_ent.entity for pers_ent in person_entities if pers_ent.with_child]
     if entity_with_child:
         entity_with_find_descendants = entity.find_descendants(entity_with_child, with_entities=True)
-        entities |= set(entity_with_find_descendants) if entity_with_find_descendants else {}
+        entities |= set(entity_with_find_descendants) if entity_with_find_descendants else set()
     return list(entities)
+
+
+def find_entities_by_user(user):
+    pers = person.find_by_user(user=user)
+    return find_entities_by_person(pers) if pers else []

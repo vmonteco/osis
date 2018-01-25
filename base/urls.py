@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,14 +24,13 @@
 #
 ##############################################################################
 from django.conf import settings
-from django.conf.urls.static import static
 from django.conf.urls import url, include
+from django.conf.urls.static import static
 
-from attribution.views import attribution
+import base.views.learning_unit_deletion
+from attribution.views import attribution, tutor_application
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group, learning_unit_proposal
-import base.views.learning_unit_deletion
-
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -57,6 +56,8 @@ urlpatterns = [
 
     url(r'^api/v1/', include([
         url(r'^entities/$', entity.post_entities, name='post_entities'),
+        url(r'^tutor_application/recompute_portal$', tutor_application.recompute_portal,
+            name='recompute_tutor_application_portal'),
         url(r'^attribution/recompute_portal$', attribution.recompute_portal, name='recompute_attribution_portal'),
     ])),
 
@@ -97,7 +98,9 @@ urlpatterns = [
                 name="learning_unit_attributions"),
             url(r'^proposal/', include([
                 url(r'^modification/$', learning_unit_proposal.propose_modification_of_learning_unit,
-                    name="learning_unit_modification_proposal")
+                    name="learning_unit_modification_proposal"),
+                url(r'^cancel/$', learning_unit_proposal.cancel_proposal_of_learning_unit,
+                    name="learning_unit_cancel_proposal")
             ])),
             url(r'^specifications/$', learning_unit.learning_unit_specifications, name="learning_unit_specifications"),
             url(r'^specifications/edit/$', learning_unit.learning_unit_specifications_edit,
@@ -109,9 +112,12 @@ urlpatterns = [
                 url(u'^validation/$', learning_unit.volumes_validation, name="volumes_validation")])),
             url(r'^delete/$', base.views.learning_unit_deletion.delete_from_given_learning_unit_year, name="learning_unit_delete"),
             url(r'^delete_full/$', base.views.learning_unit_deletion.delete_all_learning_units_year, name="learning_unit_delete_all"),
+            url(r'^summary/$', learning_unit.learning_unit_summary, name="learning_unit_summary"),
+            url(r'^summary/edit/$', learning_unit.summary_edit, name="learning_unit_summary_edit"),
+
         ])),
         url(r'^check/$', learning_unit.check_acronym, name="check_acronym"),
-        url(r'^check_code/$', learning_unit.check_code, name="check_code"),
+        url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
     ])),
 
     url(r'^my_osis/', include([
@@ -129,7 +135,8 @@ urlpatterns = [
         url(r'^profile/', include([
             url(r'^$', my_osis.profile, name='profile'),
             url(r'^lang/$', my_osis.profile_lang, name='profile_lang'),
-            url(r'^lang/edit/([A-Za-z-]+)/$', my_osis.profile_lang_edit, name='lang_edit')
+            url(r'^lang/edit/([A-Za-z-]+)/$', my_osis.profile_lang_edit, name='lang_edit'),
+            url(r'^attributions/$', my_osis.profile_attributions, name='profile_attributions'),
         ]))
     ])),
 
@@ -152,8 +159,10 @@ urlpatterns = [
             url(r'^diplomas/$', education_group.education_group_diplomas, name='education_group_diplomas'),
             url(r'^informations/$', education_group.education_group_general_informations,
                 name='education_group_general_informations'),
-
-            url(r'^administrative/$', education_group.education_group_administrative_data, name='education_group_administrative'),
+            url(r'^administrative/', include([
+                url(u'^$', education_group.education_group_administrative_data, name='education_group_administrative'),
+                url(u'^edit/$', education_group.education_group_edit_administrative_data,
+                    name='education_group_edit_administrative')])),
             url(r'^content/$', education_group.education_group_content, name='education_group_content'),
         ]))
     ])),

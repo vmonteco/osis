@@ -390,7 +390,10 @@ msgid "encoding_status_notended"
 msgstr "It remains notes to encode."
 
 msgid "end_date"
-msgstr "End date"
+msgstr "Teacher Deadline"
+
+msgid "end_date_teacher"
+msgstr "Teacher Deadline"
 
 msgid "enrollment_activity_not_exist"
 msgstr "The enrollment to the activity %s doesn't exist"
@@ -1049,9 +1052,6 @@ msgstr "A server error occured."
 
 msgid "server_error_message"
 msgstr "We will fix this as soon as possible"
-
-msgid "sessionn"
-msgstr "Session"
 
 msgid "short_title"
 msgstr "Short title"
@@ -1885,10 +1885,10 @@ msgid "remarks_title"
 msgstr "Remarks"
 
 msgid "faculty_remark"
-msgstr "Faculty"
+msgstr "Faculty remark"
 
 msgid "other_remark"
-msgstr "Other"
+msgstr "Other remark"
 
 msgid "new_learning_unit"
 msgstr "New learning unit"
@@ -2303,7 +2303,7 @@ msgid "scores_diffusion"
 msgstr "Scores diffusion"
 
 msgid "session"
-msgstr "Session"
+msgstr "session"
 
 msgid "at"
 msgstr "at"
@@ -2316,12 +2316,6 @@ msgstr "Type of learning unit must be full"
 
 msgid "learning_unit_type_is_not_internship"
 msgstr "Learning unit is not of type internship."
-
-msgid "learning_unit_is_not_of_type_full"
-msgstr "Learning unit is not of type full."
-
-msgid "proposal_already_exists"
-msgstr "A proposal has already been made for the learning unit."
 
 msgid "CREATION"
 msgstr "Creation"
@@ -2337,9 +2331,6 @@ msgstr "Transformation and modification"
 
 msgid "SUPPRESSION"
 msgstr "Suppression"
-
-msgid "cannot_do_modification_proposal_for_past_learning_unit"
-msgstr "Cannot make modification proposal for past learning unit."
 
 msgid "CENTRAL"
 msgstr "Central"
@@ -2436,3 +2427,60 @@ msgstr "Academic entity"
 
 msgid "folder_number"
 msgstr "Folder n°{}"
+
+msgid "produce_xls"
+msgstr "Produce an Excel file with the list of results"
+
+msgid "produce_xls_lu"
+msgstr "Xls with learning units"
+
+msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
+msgstr ""
+
+msgid "success_cancel_proposal"
+msgstr "The proposal for {} was cancelled."
+
+msgid "cancel_proposal"
+msgstr "Cancel proposal"
+
+msgid "msg_confirm_cancel_proposal"
+msgstr "Are you certain that you want to cancel the learning unit proposal ?"
+
+msgid "The administrative data has been successfully modified"
+msgstr ""
+
+msgid "vacant"
+msgstr "Vacant"
+
+msgid "team_management"
+msgstr "Team management"
+
+msgid "type_declaration_vacant"
+msgstr "Decision"
+
+msgid "procedure"
+msgstr "Procedure"
+
+msgid "educational_information_management"
+msgstr "Management of educational information"
+
+msgid "resume_edit"
+msgstr "Edit course summary"
+
+msgid "SUMMARY_COURSE_SUBMISSION"
+msgstr "Summary course submission"
+
+msgid "INTERNAL_TEAM"
+msgstr "Internal/team"
+
+msgid "substitute"
+msgstr "Substitute"
+
+msgid "not_end_year"
+msgstr "no planned end"
+
+msgid "learning_unit_successfuly_created"
+msgstr "Leraning unit '{}' successfuly created with adjournment until {}."
+
+msgid "learning_unit_creation_academic_year_max_error"
+msgstr "Please select an academic year lower than {}."

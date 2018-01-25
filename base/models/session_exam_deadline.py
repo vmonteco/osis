@@ -27,12 +27,14 @@ import datetime
 from django.db import models
 from django.contrib import admin
 from base.models.enums import number_session
+from base.signals.publisher import compute_student_score_encoding_deadline
 
 
 class SessionExamDeadlineAdmin(admin.ModelAdmin):
     list_display = ('offer_enrollment', 'deadline', 'deadline_tutor', 'number_session', 'changed')
     list_filter = ('number_session',)
-    fieldsets = ((None, {'fields': ('deadline', 'deadline_tutor', 'number_session', 'offer_enrollment')}),)
+    fieldsets = ((None, {'fields': ('deliberation_date', 'deadline', 'deadline_tutor', 'number_session',
+                                    'offer_enrollment',)}),)
     raw_id_fields = ('offer_enrollment',)
     search_fields = ['offer_enrollment__student__person__first_name', 'offer_enrollment__student__person__last_name',
                      'offer_enrollment__student__registration_id', 'offer_enrollment__offer_year__acronym']
@@ -42,9 +44,21 @@ class SessionExamDeadline(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     deadline = models.DateField()
+    deliberation_date = models.DateField(blank=True, null=True)
     deadline_tutor = models.IntegerField(null=True, blank=True)  # Delta day(s)
     number_session = models.IntegerField(choices=number_session.NUMBERS_SESSION)
     offer_enrollment = models.ForeignKey('OfferEnrollment')
+
+    __original_deliberation_date = None
+
+    def __init__(self, *args, **kwargs):
+        super(SessionExamDeadline, self).__init__(*args, **kwargs)
+        self.__original_deliberation_date = self.deliberation_date
+
+    def save(self, *args, **kwargs):
+        super(SessionExamDeadline, self).save(*args, **kwargs)
+        if self.deliberation_date != self.__original_deliberation_date:
+            compute_student_score_encoding_deadline.send(sender=self.__class__, session_exam_deadline=self)
 
     @property
     def deadline_tutor_computed(self):

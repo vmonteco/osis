@@ -23,12 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.learning_units import CreateLearningUnitYearForm, EntitiesVersionChoiceField
-from base.models.entity_version import find_main_entities_version
+from base.forms.learning_unit_create import EntitiesVersionChoiceField, LearningUnitYearForm
 from base.models import proposal_folder, proposal_learning_unit, entity_container_year
+from base.models.entity_version import find_main_entities_version
 from base.models.enums import learning_container_year_types
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
     ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2
@@ -38,7 +39,7 @@ def add_none_choice(choices):
     return ((None, "-----"),) + choices
 
 
-class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
+class LearningUnitProposalModificationForm(LearningUnitYearForm):
     folder_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
 
@@ -47,9 +48,11 @@ class LearningUnitProposalModificationForm(CreateLearningUnitYearForm):
         self.fields["academic_year"].disabled = True
         self.fields["academic_year"].required = False
         self.fields["subtype"].required = False
+        # When we submit a proposal, we can select all requirement entity available
+        self.fields["requirement_entity"].queryset = find_main_entities_version()
 
     def clean(self):
-        cleaned_data = super(CreateLearningUnitYearForm, self).clean()
+        cleaned_data = super(LearningUnitYearForm, self).clean()
 
         if cleaned_data.get("internship_subtype") and cleaned_data.get("internship_subtype") != 'None' and \
            cleaned_data["container_type"] != learning_container_year_types.INTERNSHIP:

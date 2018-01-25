@@ -28,7 +28,7 @@ import datetime
 from django.db import models
 from django.contrib import admin
 from base.models.enums import number_session, academic_calendar_type
-from base.models import offer_year_calendar, academic_year, academic_calendar
+from base.models import offer_year_calendar, academic_year
 
 
 class SessionExamCalendarAdmin(admin.ModelAdmin):
@@ -43,10 +43,7 @@ class SessionExamCalendar(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     number_session = models.IntegerField(choices=number_session.NUMBERS_SESSION)
-    academic_calendar = models.ForeignKey('AcademicCalendar')
-
-    class Meta:
-        unique_together = (("number_session", "academic_calendar"),)
+    academic_calendar = models.OneToOneField('AcademicCalendar')
 
     def __str__(self):
         return u"%s - %s" % (self.academic_calendar, self.number_session)
@@ -110,10 +107,13 @@ def find_deliberation_date(nb_session, offer_year):
         offer_year_cal = offer_year_calendar.find_by_offer_year(offer_yr=offer_year)\
                        .filter(academic_calendar__in=academic_cals_id)\
                        .first()
-        return offer_year_cal.start_date if offer_year_cal.start_date else \
-                                            offer_year_cal.academic_calendar.start_date
+        return offer_year_cal.start_date
 
     return None
+
+
+def find_by_session_and_academic_year(nb_session, an_academic_year):
+    return SessionExamCalendar.objects.filter(number_session=nb_session, academic_calendar__academic_year=an_academic_year)
 
 
 def get_by_session_reference_and_academic_year(nb_session, a_reference, an_academic_year):
@@ -123,3 +123,8 @@ def get_by_session_reference_and_academic_year(nb_session, a_reference, an_acade
                                                academic_calendar__academic_year=an_academic_year)
     except SessionExamCalendar.DoesNotExist:
         return None
+
+
+def get_number_session_by_academic_calendar(academic_calendar):
+    session = getattr(academic_calendar, 'sessionexamcalendar', None)
+    return session.number_session if session else None

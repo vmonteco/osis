@@ -29,8 +29,12 @@ import factory
 import factory.fuzzy
 import datetime
 from base.models import entity_version
+from base.models.enums import organization_type
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.organization import OrganizationFactory
+from base.tests.factories.person import PersonFactory
+from base.tests.factories.person_entity import PersonEntityFactory
 from reference.tests.factories.country import CountryFactory
 from base.tests.factories.academic_year import AcademicYearFactory
 
@@ -40,8 +44,10 @@ now = datetime.datetime.now()
 class EntityVersionTest(TestCase):
     def setUp(self):
         self.country = CountryFactory()
-        self.entities = [EntityFactory(country=self.country) for x in range(3)]
-        self.parent = EntityFactory(country=self.country)
+        self.organization = OrganizationFactory(name="Université catholique de Louvain", acronym="UCL",
+                                                type=organization_type.MAIN)
+        self.entities = [EntityFactory(country=self.country, organization=self.organization) for x in range(3)]
+        self.parent = EntityFactory(country=self.country, organization=self.organization)
         self.start_date = datetime.date(2015, 1, 1)
         self.end_date = datetime.date(2015, 12, 31)
         self.date_in_2015 = factory.fuzzy.FuzzyDate(datetime.date(2015, 1, 1),
@@ -240,7 +246,7 @@ class EntityVersionTest(TestCase):
         ac_yr = AcademicYearFactory()
         start_date = ac_yr.start_date
         end_date = ac_yr.end_date
-        entity_faculty = EntityFactory(country=self.country)
+        entity_faculty = EntityFactory(country=self.country, organization=self.organization)
         entity_faculty_version = EntityVersionFactory(
             entity=entity_faculty,
             acronym="ENTITY_FACULTY",
@@ -250,7 +256,7 @@ class EntityVersionTest(TestCase):
             start_date=start_date,
             end_date=end_date
         )
-        entity_school_child_level1 = EntityFactory(country=self.country)
+        entity_school_child_level1 = EntityFactory(country=self.country, organization=self.organization)
         EntityVersionFactory(entity=entity_school_child_level1,
                              acronym="ENTITY_LEVEL1",
                              title="This is the entity version level1 ",
@@ -258,7 +264,7 @@ class EntityVersionTest(TestCase):
                              parent=entity_faculty,
                              start_date=start_date,
                              end_date=end_date)
-        entity_school_child_level2 = EntityFactory(country=self.country)
+        entity_school_child_level2 = EntityFactory(country=self.country, organization=self.organization)
         entity_school_version_level2 = EntityVersionFactory(
             entity=entity_school_child_level2,
             acronym="ENTITY_LEVEL2",
@@ -269,7 +275,7 @@ class EntityVersionTest(TestCase):
             end_date=end_date
         )
 
-        self.assertEqual(entity_school_version_level2.find_parent_faculty_version(ac_yr),
+        self.assertEqual(entity_school_version_level2.find_faculty_version(ac_yr),
                          entity_faculty_version)
 
     def test_find_parent_faculty_version_no_parent(self):
@@ -279,7 +285,7 @@ class EntityVersionTest(TestCase):
         ac_yr = AcademicYearFactory(year=(now.year - 1),
                                     start_date=datetime.datetime(now.year - 1, now.month, 15),
                                     end_date=datetime.datetime(now.year, now.month, 28))
-        entity_school_no_parent = EntityFactory(country=self.country)
+        entity_school_no_parent = EntityFactory(country=self.country, organization=self.organization)
         entity_school_version_no_parent = EntityVersionFactory(
             entity=entity_school_no_parent,
             acronym="ENTITY_LEVEL2",
@@ -290,7 +296,7 @@ class EntityVersionTest(TestCase):
             end_date=end_date
         )
 
-        self.assertIsNone(entity_school_version_no_parent.find_parent_faculty_version(ac_yr))
+        self.assertIsNone(entity_school_version_no_parent.find_faculty_version(ac_yr))
 
     def test_find_parent_faculty_version_no_faculty_parent(self):
 
@@ -301,7 +307,7 @@ class EntityVersionTest(TestCase):
                                     start_date=datetime.datetime(now.year - 1, now.month, 15),
                                     end_date=datetime.datetime(now.year, now.month, 28))
 
-        entity_parent = EntityFactory(country=self.country)
+        entity_parent = EntityFactory(country=self.country, organization=self.organization)
         EntityVersionFactory(entity=entity_parent,
                              acronym="ENTITY_NOT_FACULTY",
                              title="This is not an entity faculty ",
@@ -309,7 +315,7 @@ class EntityVersionTest(TestCase):
                              parent=None,
                              start_date=start_date,
                              end_date=end_date)
-        entity_school_child_level1 = EntityFactory(country=self.country)
+        entity_school_child_level1 = EntityFactory(country=self.country, organization=self.organization)
         entity_school_version_level1 = EntityVersionFactory(
             entity=entity_school_child_level1,
             acronym="ENTITY_LEVEL1",
@@ -319,4 +325,19 @@ class EntityVersionTest(TestCase):
             start_date=start_date,
             end_date=end_date
         )
-        self.assertIsNone(entity_school_version_level1.find_parent_faculty_version(ac_yr))
+        self.assertIsNone(entity_school_version_level1.find_faculty_version(ac_yr))
+
+    def test_find_main_entities_version_filtered_by_person(self):
+        person = PersonFactory()
+        entity_attached = EntityFactory(organization=self.organization)
+        entity_version_attached = EntityVersionFactory(entity=entity_attached, entity_type="SECTOR", parent=None,
+                                                       end_date=None,
+                                                       start_date=datetime.date.today() - datetime.timedelta(days=5))
+        entity_not_attached = EntityFactory(organization=self.organization)
+        EntityVersionFactory(entity=entity_not_attached, entity_type="SECTOR", parent=None, end_date=None)
+        PersonEntityFactory(person=person, entity=entity_attached)
+        entity_list = list(entity_version.find_main_entities_version_filtered_by_person(person))
+        self.assertTrue(entity_list)
+        self.assertEqual(len(entity_list), 1)
+        self.assertEqual(entity_list[0], entity_version_attached)
+        

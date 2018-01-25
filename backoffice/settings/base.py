@@ -190,24 +190,10 @@ LOGO_INSTITUTION_URL = os.environ.get('LOGO_INSTITUTION_URL',
                                       os.path.join(BASE_DIR, "base/static/img/logo_institution.jpg"))
 LOGO_OSIS_URL = os.environ.get('LOGO_OSIS_URL', '')
 
-
-# Queues Definition
-# The queue system uses RabbitMq queues to communicate with other application (ex : osis-portal)
-if not TESTING or not SKIP_QUEUES_TESTS:
-    QUEUES = {
-        'QUEUE_URL': os.environ.get('RABBITMQ_HOST', 'localhost'),
-        'QUEUE_USER': os.environ.get('RABBITMQ_USER', 'guest'),
-        'QUEUE_PASSWORD': os.environ.get('RABBITMQ_PASSWORD', 'guest'),
-        'QUEUE_PORT': int(os.environ.get('RABBITMQ_PORT', 5672)),
-        'QUEUE_CONTEXT_ROOT': os.environ.get('RABBITMQ_CONTEXT_ROOT', '/'),
-        'QUEUES_NAME': {
-            'MIGRATIONS_TO_PRODUCE': 'osis_portal',
-            'MIGRATIONS_TO_CONSUME': 'osis',
-            'SCORE_ENCODING_PDF_REQUEST': 'score_encoding_pdf_request',
-            'SCORE_ENCODING_PDF_RESPONSE': 'score_encoding_pdf_response',
-            'ATTRIBUTION_RESPONSE': 'attribution_response'
-        }
-    }
+# The Queues are optional
+# They are used to ensure the migration of Data between Osis and other application (ex : Osis <> Osis-Portal)
+# See in settings.dev.example to configure the queues
+QUEUES = {}
 
 # Additionnal Locale Path
 # Add local path in your environment settings (ex: dev.py)
@@ -241,7 +227,16 @@ CKEDITOR_CONFIGS = {
             ['NumberedList', 'BulletedList'],
             ['Link', 'Unlink']
         ]
-    }
+    },
+    'minimal_plus_headers': {
+        'toolbar': 'Custom',
+        'toolbar_Custom': [
+            ['Format', 'Styles'],
+            ['Bold', 'Italic', 'Underline'],
+            ['Link', 'Unlink'],
+            ['NumberedList', 'BulletedList']
+        ]
+    },
 }
 
 LOGGING = {

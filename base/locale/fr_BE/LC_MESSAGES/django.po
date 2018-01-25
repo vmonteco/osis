@@ -386,7 +386,10 @@ msgid "encoding_status_notended"
 msgstr "Il reste encore des notes à encoder."
 
 msgid "end_date"
-msgstr "Date de fin"
+msgstr "Échéance Prof"
+
+msgid "end_date_teacher"
+msgstr "Échéance Prof"
 
 msgid "enrollment_activity_not_exist"
 msgstr "L'inscription à l'activité %s n'existe pas"
@@ -1067,9 +1070,6 @@ msgstr "Une erreur innatendue s'est produite"
 
 msgid "server_error_message"
 msgstr "Nous mettons tout en oeuvre pour résoudre ce problème."
-
-msgid "sessionn"
-msgstr "Session"
 
 msgid "short_title"
 msgstr "Titre abrégé"
@@ -1891,10 +1891,10 @@ msgid "remarks_title"
 msgstr "Remarques"
 
 msgid "faculty_remark"
-msgstr "Faculté"
+msgstr "Remarque de faculté"
 
 msgid "other_remark"
-msgstr "Autre"
+msgstr "Autre remarque"
 
 msgid "new_learning_unit"
 msgstr "Nouvelle unité d'enseignement"
@@ -2309,7 +2309,7 @@ msgid "scores_diffusion"
 msgstr "Diffusion des notes"
 
 msgid "session"
-msgstr "Session"
+msgstr "session"
 
 msgid "at"
 msgstr "à"
@@ -2322,12 +2322,6 @@ msgstr "Le type de l'unité d'enseignement doit être complet."
 
 msgid "learning_unit_type_is_not_internship"
 msgstr "L'unité d'enseignement n'est pas de type stage."
-
-msgid "learning_unit_is_not_of_type_full"
-msgstr "L'unité d'enseignement n'est pas de type complet."
-
-msgid "proposal_already_exists"
-msgstr "Une proposition existe déjà pour l'unité d'enseignement."
 
 msgid "CREATION"
 msgstr "Création"
@@ -2343,9 +2337,6 @@ msgstr "Transformation et modification"
 
 msgid "SUPPRESSION"
 msgstr "Suppression"
-
-msgid "cannot_do_modification_proposal_for_past_learning_unit"
-msgstr "Vous ne pouvez pas faire de proposition de modification pour une unité d'enseignement passée."
 
 msgid "CENTRAL"
 msgstr "Central"
@@ -2443,3 +2434,60 @@ msgstr "Entité académique"
 
 msgid "folder_number"
 msgstr "Dossier n°{}"
+
+msgid "produce_xls"
+msgstr "Produire un excel avec la liste des résultats"
+
+msgid "produce_xls_lu"
+msgstr "Xls avec les activités"
+
+msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
+msgstr "%(date)s doit être comprise entre %(start_date)s et %(end_date)s"
+
+msgid "success_cancel_proposal"
+msgstr "La proposition pour {} a été annulée."
+
+msgid "cancel_proposal"
+msgstr "Annuler proposition"
+
+msgid "msg_confirm_cancel_proposal"
+msgstr "Etes-vous certain de vouloir annuler la proposition ?"
+
+msgid "The administrative data has been successfully modified"
+msgstr "Les données administratives ont été sauvées avec succès"
+
+msgid "vacant"
+msgstr "Vacant"
+
+msgid "team_management"
+msgstr "Gestion par équipe"
+
+msgid "type_declaration_vacant"
+msgstr "Décision"
+
+msgid "procedure"
+msgstr "Procédure"
+
+msgid "educational_information_management"
+msgstr "Gestion des informations pédagogiques"
+
+msgid "resume_edit"
+msgstr "Editer le résumé de cours"
+
+msgid "SUMMARY_COURSE_SUBMISSION"
+msgstr "Soumission des résumés de cours"
+
+msgid "INTERNAL_TEAM"
+msgstr "Interne/Equipe"
+
+msgid "substitute"
+msgstr "Suppléé"
+
+msgid "not_end_year"
+msgstr "pas de fin prévue"
+
+msgid "learning_unit_successfuly_created"
+msgstr "L'Unité d'Enseignement {} a été créée jusqu'en {} avec succès."
+
+msgid "learning_unit_creation_academic_year_max_error"
+msgstr "Impossible de créer une UE dont l'année académique est supérieure à {}."

@@ -25,12 +25,18 @@
 ##############################################################################
 import datetime
 from collections import OrderedDict
-from base import models as mdl
+
+from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
+
+from base import models as mdl, models as mdl_base
 from base.business.learning_unit_year_with_context import volume_learning_component_year
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
+from base.forms.learning_units import LearningUnitYearForm
 from base.models import entity_container_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
-from base.models.enums import entity_container_year_link_type
+from base.models.enums import entity_container_year_link_type, academic_calendar_type
 from base.models.enums import learning_component_year_type
 from base.models.enums import learning_container_year_types
 from base.models.learning_component_year import LearningComponentYear
@@ -43,6 +49,11 @@ from cms.enums import entity_name
 
 
 # List of key that a user can modify
+from osis_common.document import xls_build
+
+SIMPLE_SEARCH = 1
+SERVICE_COURSES_SEARCH = 2
+
 VALID_VOLUMES_KEYS = [
     'VOLUME_TOTAL',
     'VOLUME_Q1',
@@ -53,6 +64,8 @@ VALID_VOLUMES_KEYS = [
     'VOLUME_' + entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2,
     'VOLUME_TOTAL_REQUIREMENT_ENTITIES'
 ]
+
+LEARNING_UNIT_CREATION_SPAN_YEARS = 6
 
 
 def extract_volumes_from_data(post_data):
@@ -200,18 +213,21 @@ def _is_used_by_full_learning_unit_year(a_learning_class_year):
     return False
 
 
+def compute_max_academic_year_adjournment():
+    starting_academic_year = mdl.academic_year.starting_academic_year()
+    return starting_academic_year.year + LEARNING_UNIT_CREATION_SPAN_YEARS
+
+
 def create_learning_unit_structure(additional_entity_version_1, additional_entity_version_2, allocation_entity_version,
                                    data, new_learning_container, new_learning_unit, requirement_entity_version,
-                                   status, academic_year):
-    new_learning_container_year = LearningContainerYear.objects. \
-        create(academic_year=academic_year,
-               learning_container=new_learning_container,
-               title=data['title'],
-               acronym=data['acronym'].upper(),
-               container_type=data['container_type'],
-               language=data['language'])
-    new_requirement_entity = create_entity_container_year(requirement_entity_version,
-                                                          new_learning_container_year,
+                                   status, academic_year, campus):
+    new_learning_container_year = LearningContainerYear.objects.create(academic_year=academic_year,
+                                                                       learning_container=new_learning_container,
+                                                                       title=data['title'],
+                                                                       acronym=data['acronym'].upper(),
+                                                                       container_type=data['container_type'],
+                                                                       language=data['language'], campus=campus)
+    new_requirement_entity = create_entity_container_year(requirement_entity_version, new_learning_container_year,
                                                           entity_container_year_link_type.REQUIREMENT_ENTITY)
     if allocation_entity_version:
         create_entity_container_year(allocation_entity_version, new_learning_container_year,
@@ -223,11 +239,11 @@ def create_learning_unit_structure(additional_entity_version_1, additional_entit
         create_entity_container_year(additional_entity_version_2, new_learning_container_year,
                                      entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
     if data['container_type'] == learning_container_year_types.COURSE:
-        create_course(academic_year, data, new_learning_container_year, new_learning_unit,
-                      new_requirement_entity, status)
+        create_course(academic_year, data, new_learning_container_year, new_learning_unit, new_requirement_entity,
+                      status)
     else:
-        create_another_type(academic_year, data, new_learning_container_year, new_learning_unit,
-                            new_requirement_entity, status)
+        create_another_type(academic_year, data, new_learning_container_year, new_learning_unit, new_requirement_entity,
+                            status)
 
 
 def create_another_type(an_academic_year, data, new_learning_container_year, new_learning_unit, new_requirement_entity,
@@ -301,3 +317,63 @@ def create_learning_unit_year(academic_year, data, learning_container_year, lear
                                            quadrimester=data['quadrimester'])
 
 
+def prepare_xls_content(found_learning_units):
+    return [_extract_xls_data_from_learning_unit(lu) for lu in found_learning_units]
+
+
+def _extract_xls_data_from_learning_unit(learning_unit):
+    return [learning_unit.academic_year.name, learning_unit.acronym, learning_unit.title,
+            xls_build.translate(learning_unit.learning_container_year.container_type),
+            xls_build.translate(learning_unit.subtype),
+            _get_entity_acronym(learning_unit.entities.get('REQUIREMENT_ENTITY')),
+            _get_entity_acronym(learning_unit.entities.get('ALLOCATION_ENTITY')),
+            learning_unit.credits, xls_build.translate(learning_unit.status)]
+
+
+def prepare_xls_parameters_list(user, workingsheets_data):
+    return {xls_build.LIST_DESCRIPTION_KEY: "Liste d'activités",
+            xls_build.FILENAME_KEY: 'Learning_units',
+            xls_build.USER_KEY:  _get_name_or_username(user),
+            xls_build.WORKSHEETS_DATA:
+                [{xls_build.CONTENT_KEY: workingsheets_data,
+                  xls_build.HEADER_TITLES_KEY: [str(_('academic_year_small')),
+                                                str(_('code')),
+                                                str(_('title')),
+                                                str(_('type')),
+                                                str(_('subtype')),
+                                                str(_('requirement_entity_small')),
+                                                str(_('allocation_entity_small')),
+                                                str(_('credits')),
+                                                str(_('active_title'))],
+                  xls_build.WORKSHEET_TITLE_KEY: 'Learning_units',
+                  }
+                 ]}
+
+
+def _get_name_or_username(a_user):
+    person = mdl.person.find_by_user(a_user)
+    return "{}, {}".format(person.last_name, person.first_name) if person else a_user.username
+
+
+def _get_entity_acronym(an_entity):
+    return an_entity.acronym if an_entity else None
+
+
+def create_xls(user, found_learning_units):
+    workingsheets_data = prepare_xls_content(found_learning_units)
+    return xls_build.generate_xls(prepare_xls_parameters_list(user, workingsheets_data))
+
+
+def is_summary_submission_opened():
+    current_academic_year = mdl_base.academic_year.current_academic_year()
+    return mdl_base.academic_calendar.is_academic_calendar_opened(current_academic_year,
+                                                                  academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+
+
+def initialize_learning_unit_pedagogy_form(learning_unit_year, language_code):
+    lang = find_language_in_settings(language_code)
+    return LearningUnitPedagogyForm(learning_unit_year=learning_unit_year, language=lang)
+
+
+def find_language_in_settings(language_code):
+    return next((lang for lang in settings.LANGUAGES if lang[0] == language_code), None)
