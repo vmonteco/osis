@@ -25,7 +25,11 @@
 ##############################################################################
 from django.contrib.auth.models import User
 from base.models.person import Person
-from dissertation.models.adviser import Adviser
+from dissertation.models.adviser import Adviser, find_advisers_last_name_email
+from django.test import TestCase
+from base.tests.factories.person import PersonFactory
+from dissertation.tests.factories.adviser import AdviserTeacherFactory
+
 
 
 def create_adviser(person, type="PRF"):

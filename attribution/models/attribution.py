@@ -34,7 +34,7 @@ from base.models.enums import entity_container_year_link_type
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
-from attribution.models import attribution_charge
+from attribution.models import attribution_charge_new
 from base.models.enums import component_type
 
 
@@ -69,20 +69,6 @@ class Attribution(AuditableSerializableModel):
         if self.start_year and self.end_year:
             return (self.end_year - self.start_year) + 1
         return None
-
-    @property
-    def volume_lecturing(self):
-        return self.get_attribution(component_type.LECTURING)
-
-    @property
-    def volume_practical(self):
-        return self.get_attribution(component_type.PRACTICAL_EXERCISES)
-
-    def get_attribution(self, a_component_type):
-        attribution = attribution_charge.find_by_component_type(self, a_component_type)
-        if attribution:
-            return attribution.allocation_charge
-        return "{0:.2f}".format(float(0))
 
 
 def search(tutor=None, learning_unit_year=None, score_responsible=None, list_learning_unit_year=None):

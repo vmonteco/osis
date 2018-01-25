@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,24 +23,25 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import string
-import factory
-import factory.fuzzy
-from faker import Faker
+import datetime
+from unittest import mock
+from django.test import TestCase
 
-from attribution.tests.factories.attribution import AttributionNewFactory
-from base.tests.factories.learning_component_year import LearningComponentYearFactory
-from osis_common.utils.datetime import get_tzinfo
-
-fake = Faker()
+from base.signals.publisher import compute_student_score_encoding_deadline
+from base.tests.factories.session_exam_deadline import SessionExamDeadlineFactory
 
 
-class AttributionChargeFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "attribution.AttributionChargeNew"
+class SessionExamDeadlineTest(TestCase):
 
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    attribution = factory.SubFactory(AttributionNewFactory)
-    learning_component_year = factory.SubFactory(LearningComponentYearFactory)
-    allocation_charge = 0
-    deleted = False
+    def setUp(self):
+        self.sess_exam_deadline = SessionExamDeadlineFactory()
+
+    def test_compute_deadline_is_called_case_changing_student_deliberation_date(self):
+        with mock.patch.object(compute_student_score_encoding_deadline, 'send') as mock_method:
+            self.sess_exam_deadline.deadline_tutor = 5 # Changing a different field from deliberation_date
+            self.sess_exam_deadline.save()
+            self.assertTrue(not mock_method.called)
+
+            self.sess_exam_deadline.deliberation_date = datetime.datetime.now()
+            self.sess_exam_deadline.save()
+            self.assertTrue(mock_method.called)

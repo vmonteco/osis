@@ -91,11 +91,9 @@
             <input id="search_advisers" name="search_advisers" class="form-control" value="">
             <input type="hidden" name="adviser_pk" id="adviser_pk" value="">
             <div>
-
-                    {% trans 'if_unavailable_adviser' %}
-                    <a href="{% url 'manager_informations_add' %}" id="lnk_informations_add" class=""
-                       title="{% trans 'informations_add'%}" target="_blank" >{% trans 'add_advisers' %}</a>
-
+                {% trans 'if_unavailable_adviser' %}
+                <a href="{% url 'manager_informations_add' %}" id="lnk_informations_add" class=""
+                title="{% trans 'informations_add'%}" target="_blank" >{% trans 'add_advisers' %}</a>
             </div>
             <br>
             <div class="modal-footer">
@@ -138,7 +136,6 @@
                     '<span class="glyphicon glyphicon-remove span2"></span></a> </td>';
             tab_dissert_roles =tab_dissert_roles+'<tr>';
         };
-
         if (list_dissert_roles.length < 4){
             bt_add='<a href="#"lnk_add_dissertation_jury_member" class="add_jury btn btn-default btn-sm"'+
             'role="button" title="{% trans 'add_dissertation_jury_member'%}" data-toggle="modal" data-target="#myModal"'+
@@ -164,6 +161,7 @@
         '</table>';
     };
 
+
     function get_dissertation_roles(row,rowdata)
     {
         $.ajax({
@@ -186,7 +184,7 @@
         {
             url:"/dissertation/manager_dissertations_wait_comm_json_list",
             error: function (response){
-                alert("Error :"+ response.error +" with manager_dissertations_wait_comm_json_list' %}");
+                alert("Error :"+ response.error +" with manager_dissertations_wait_comm_json_list ");
             },
 
         }).done(function(dissertations_json)
@@ -195,6 +193,9 @@
             {
                 data:dissertations_json,
                 rowId: 'pk',
+                error: function (response){
+                    alert("Error :"+ response.error );
+                },
                 "columns":
                 [{
                     "className":'details-control',
@@ -305,7 +306,6 @@
             data: jQuery.param({ status_choice: status_choice , adviser_pk : adviser, pk_dissertation : dissertation}) ,
             contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
             success: function (response) {
-                alert("{% trans 'add_success' %}");
                 var table_dissertations=$('#tb_memoire').DataTable();
                 var row_parent = table_dissertations.row('#'+dissertation);
                 get_dissertation_roles(row_parent,row_parent.data());

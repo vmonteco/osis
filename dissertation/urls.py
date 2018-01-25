@@ -155,7 +155,7 @@ urlpatterns = [
         name='manager_proposition_dissertation_new'),
     url(r'^manager_proposition_dissertation_search$', proposition_dissertation.manager_proposition_dissertations_search,
         name='manager_proposition_dissertations_search'),
-    url (r'^find_adviser_list/', find_adviser_list_json, name='find_adviser_list_json'),
+    url(r'^find_adviser_list/', find_adviser_list_json, name='find_adviser_list_json'),
 
     url(r'^my_dissertation_propositions$', proposition_dissertation.my_dissertation_propositions,
         name='my_dissertation_propositions'),
