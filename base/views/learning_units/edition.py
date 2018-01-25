@@ -25,11 +25,13 @@
 ##############################################################################
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.core.exceptions import PermissionDenied
+from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
-from base.business.learning_units.edition import change_learning_unit_end_date
+from base.business.learning_units.edition import change_learning_unit_end_date, is_eligible_for_modification_end_date
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
@@ -41,18 +43,26 @@ from base.views import layout
 def learning_unit_modify_end_date(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     learning_unit_to_edit = learning_unit_year.learning_unit
+
     user_person = get_object_or_404(Person, user=request.user)
-    """
     if not is_eligible_for_modification_end_date(learning_unit_year, user_person):
         raise PermissionDenied("Learning unit year date is not editable or user has not sufficient rights.")
-    """
 
     form = LearningUnitEndDateForm(request.POST or None, learning_unit=learning_unit_to_edit)
     if form.is_valid():
         new_academic_year = form.cleaned_data['academic_year']
-        result = change_learning_unit_end_date(learning_unit_to_edit, new_academic_year, user_person)
-        for message in result:
-            messages.success(request, message)
+        try:
+            result = change_learning_unit_end_date(learning_unit_to_edit, new_academic_year, user_person)
+            for message in result:
+                messages.success(request, message)
+        except IntegrityError as e:
+            msgs = e.args
+            if not isinstance(msgs, list):
+                msgs = list(msgs)
+
+            for msg in msgs:
+                messages.error(request, msg)
+
         return HttpResponseRedirect(reverse('learning_unit', args=[learning_unit_year_id]))
 
     return layout.render(request, 'learning_unit/date_modification.html',
