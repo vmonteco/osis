@@ -24,7 +24,8 @@
 #
 ##############################################################################
 from django.db import models
-from base.models import learning_unit_year, learning_component_year
+
+from base.models import learning_unit_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types
 from base.models.enums import vacant_declaration_type
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin

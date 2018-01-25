@@ -31,11 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl, models as mdl_base
 from base.business.learning_unit_year_with_context import volume_learning_component_year
-<<<<<<< HEAD
-=======
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
-from base.forms.learning_units import LearningUnitYearForm
->>>>>>> origin/OSIS-578
 from base.models import entity_container_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear

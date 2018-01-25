@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import uuid
+
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_deletion import can_delete_learning_unit_year, delete_from_given_learning_unit_year
@@ -55,11 +57,8 @@ def change_learning_unit_end_date(learning_unit_to_edit, new_academic_year, user
     """
     Decide to extend or shorten the learning unit
     """
-    result = None
-    if new_academic_year.year == learning_unit_to_edit.end_year:
-        # Do nothing
-        pass
-    elif new_academic_year.year > learning_unit_to_edit.end_year:
+    result = []
+    if new_academic_year.year > learning_unit_to_edit.end_year:
         result = extend_learning_unit(learning_unit_to_edit, new_academic_year)
     elif new_academic_year.year < learning_unit_to_edit.end_year:
         result = shorten_learning_unit(learning_unit_to_edit, new_academic_year, user)
@@ -71,45 +70,42 @@ def shorten_learning_unit(learning_unit_to_edit, new_academic_year, user):
     """
     Delete existing learning_unit_years above a given academic_year
     """
-    assert learning_unit_to_edit.end_year > new_academic_year.year
     learning_unit_year_to_delete = LearningUnitYear.objects.filter(
         learning_unit=learning_unit_to_edit,
         academic_year__year=new_academic_year.year + 1
     ).order_by('academic_year__start_date').first()
 
+    result = []
     if learning_unit_year_to_delete:
 
         if not can_delete_learning_unit_year(user, learning_unit_year_to_delete):
             return
 
-        result = delete_from_given_learning_unit_year(learning_unit_year_to_delete)
+        result.extend(delete_from_given_learning_unit_year(learning_unit_year_to_delete))
 
-        msg = _("You asked the deletion of the learning unit %(acronym)s from the year %(year)s") \
-                      % {'acronym': learning_unit_year_to_delete.acronym,
-                         'year': learning_unit_year_to_delete.academic_year}
-
-        send_mail_after_the_learning_unit_year_deletion(
-            [],
-            learning_unit_year_to_delete.acronym,
-            learning_unit_year_to_delete.academic_year,
-            result
-        )
+        send_mail_after_the_learning_unit_year_deletion([],
+                                                        learning_unit_year_to_delete.acronym,
+                                                        learning_unit_year_to_delete.academic_year,
+                                                        result)
 
     else:
         # The learning_unit does not have learning_unit_year
         # We can simply update end_year field
         learning_unit_to_edit.end_year = new_academic_year.year
         learning_unit_to_edit.save()
-        msg = _('Learning unit end year has been updated successfully')
+        result.append(
+            _('Learning unit %(learning_unit)s has been updated successfully') % {
+                'learning_unit': learning_unit_to_edit
+            }
+        )
 
-    return msg
+    return result
 
 
 def extend_learning_unit(learning_unit_to_edit, new_academic_year):
     """
     Create new learning_unit_years until a given academic_year
     """
-    assert learning_unit_to_edit.end_year > new_academic_year.year
     result = []
     last_learning_unit_year = LearningUnitYear.objects.filter(learning_unit=learning_unit_to_edit
                                                               ).order_by('academic_year').last()
@@ -117,7 +113,11 @@ def extend_learning_unit(learning_unit_to_edit, new_academic_year):
     range_years = list(range(learning_unit_to_edit.end_year + 1, new_academic_year.year + 1))
 
     for ac_year in AcademicYear.objects.filter(year__in=range_years).order_by('year'):
-        result.append(_update_academic_year_for_learning_unit_year(last_learning_unit_year, ac_year))
+        new_luy = _update_academic_year_for_learning_unit_year(last_learning_unit_year, ac_year)
+        result.append(_('Learning unit created %(learning_unit)s for the academic year %(academic_year)s') % {
+            'learning_unit': new_luy.acronym,
+            'academic_year': new_luy.academic_year
+        })
 
     learning_unit_to_edit.end_year = new_academic_year.year
     learning_unit_to_edit.save()
@@ -126,6 +126,7 @@ def extend_learning_unit(learning_unit_to_edit, new_academic_year):
 
 def _duplicate_object(obj):
     obj.pk = None
+    obj.uuid = uuid.uuid4()
     return obj
 
 
@@ -134,7 +135,7 @@ def _update_academic_year_for_learning_unit_year(luy, new_academic_year):
 
     duplicated_luy.academic_year = new_academic_year
     duplicated_luy.learning_container_year = _update_academic_year_for_learning_container_year(
-        luy.learning_container_year, new_academic_year)
+        duplicated_luy.learning_container_year, new_academic_year)
 
     duplicated_luy.save()
 

@@ -23,15 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-<<<<<<< HEAD
-from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
-=======
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
->>>>>>> origin/OSIS-578
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.urlresolvers import reverse_lazy
@@ -51,36 +45,23 @@ from base.business.learning_unit import create_learning_unit, get_common_context
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, get_last_academic_years, \
-<<<<<<< HEAD
-    SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, create_learning_unit_structure
-=======
-    SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, initialize_learning_unit_pedagogy_form, find_language_in_settings, \
-    compute_max_academic_year_adjournment, is_summary_submission_opened
->>>>>>> origin/OSIS-578
+    SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, create_learning_unit_structure, \
+    initialize_learning_unit_pedagogy_form, find_language_in_settings, compute_max_academic_year_adjournment, \
+    is_summary_submission_opened
 from base.business.learning_units.edition import is_eligible_for_modification_end_date
 from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, EMPTY_FIELD
-<<<<<<< HEAD
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, LearningUnitPedagogyEditForm
-from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
-from base.forms.learning_unit_summary import LearningUnitSummaryForm, LearningUnitSummaryEditForm
-=======
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
->>>>>>> origin/OSIS-578
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import proposal_learning_unit, entity_version
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
 from base.models.person import Person
-<<<<<<< HEAD
-from base.utils import permission
-=======
 from base.models.tutor import is_tutor
->>>>>>> origin/OSIS-578
 from cms.models import text_label
 from reference.models import language
 from . import layout
