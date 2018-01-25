@@ -44,8 +44,8 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, get_last_academic_years, \
     SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, is_summary_submission_opened, find_language_in_settings, \
-    initialize_learning_unit_pedagogy_form, compute_max_academic_year_adjournment, create_learning_unit_partim_structure, \
-    can_access_summary
+    initialize_learning_unit_pedagogy_form, compute_max_academic_year_adjournment, \
+    create_learning_unit_partim_structure, can_access_summary
 from base.forms.common import TooManyResultsException
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import entity_container_year
@@ -556,7 +556,7 @@ def create_partim_process(learning_unit_year_parent, form):
     end_year = learning_unit_year_parent.learning_unit.end_year
 
     learning_container = learning_unit_year_parent.learning_container_year.learning_container
-    learning_unit_created = create_learning_unit(data,learning_container, start_year, end_year)
+    learning_unit_created = create_learning_unit(data, learning_container, start_year, end_year)
 
     create_partim_process_on_years(data, learning_unit_created, learning_container)
     return HttpResponseRedirect(reverse("learning_unit",

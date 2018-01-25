@@ -371,7 +371,8 @@ def create_learning_unit_partim_structure(data_dict):
     original_learning_container = data_dict.get('original_learning_container', None)
     academic_year = data_dict.get('academic_year', None)
 
-    new_learning_container_year = mdl_base.learning_container_year.search(academic_year, original_learning_container).first()
+    new_learning_container_year = mdl_base.learning_container_year.search(academic_year, original_learning_container)\
+                                                                  .first()
     if new_learning_container_year:
         create_partim(data_dict, new_learning_container_year)
 
