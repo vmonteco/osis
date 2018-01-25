@@ -26,10 +26,12 @@
 import re
 
 from django import forms
+from django.core.validators import MinValueValidator
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
+from base.business import learning_unit
 from base.forms.bootstrap import BootstrapForm
 from base.models.campus import find_administration_campuses
 from base.models.entity_version import find_main_entities_version, find_main_entities_version_filtered_by_person
@@ -39,6 +41,7 @@ from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_Y
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
+from base.models.learning_unit_year import MINIMUM_CREDITS
 from reference.models.language import find_all_languages
 
 MAX_RECORDS = 1000
@@ -66,7 +69,7 @@ class LearningUnitYearForm(BootstrapForm):
     internship_subtype = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
                                            mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES,
                                            required=False)
-    credits = forms.DecimalField(decimal_places=2)
+    credits = forms.DecimalField(decimal_places=2, validators=[MinValueValidator(MINIMUM_CREDITS)])
     title = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
     title_english = forms.CharField(required=False, widget=forms.TextInput())
     session = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
@@ -76,7 +79,7 @@ class LearningUnitYearForm(BootstrapForm):
     first_letter = forms.ChoiceField(choices=((None, EMPTY_FIELD),) + LearningUnitManagementSite.choices(),
                                      required=True)
     container_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
-                                       widget=forms.Select(attrs={'onchange': 'showInternshipSubtype(this.value)'}))
+                                       widget=forms.Select(attrs={'onchange': 'showInternshipSubtype()'}))
     faculty_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
     other_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
     periodicity = forms.CharField(widget=forms.Select(choices=PERIODICITY_TYPES))
@@ -84,8 +87,7 @@ class LearningUnitYearForm(BootstrapForm):
                         widget=forms.Select(choices=((None, EMPTY_FIELD),) + LEARNING_UNIT_YEAR_QUADRIMESTERS),
                         required=False
     )
-    campus = forms.ModelChoiceField(queryset=find_administration_campuses(),
-                                    widget=forms.Select(attrs={'onchange': 'setFirstLetter()'}))
+    campus = forms.ModelChoiceField(queryset=find_administration_campuses())
 
     requirement_entity = EntitiesVersionChoiceField(
         find_main_entities_version().none(),
@@ -119,14 +121,26 @@ class LearningUnitYearForm(BootstrapForm):
         if data_cleaned:
             return data_cleaned.upper()
 
+    def get_academic_year(self):
+        try:
+            return mdl.academic_year.find_academic_year_by_id(self.data.get('academic_year'))
+        except mdl.academic_year.AcademicYear.DoesNotExist:
+            return None
+
     def is_valid(self):
+        academic_year = self.get_academic_year()
+        academic_year_max = learning_unit.compute_max_academic_year_adjournment()
         if not super().is_valid():
+            return False
+        elif not academic_year:
             return False
         elif not re.match(self.acronym_regex, self.cleaned_data['acronym']):
             self.add_error('acronym', _('invalid_acronym'))
-        elif self.cleaned_data["container_type"] == INTERNSHIP \
-                and not (self.cleaned_data['internship_subtype']):
+        elif self.cleaned_data["container_type"] == INTERNSHIP and not (self.cleaned_data['internship_subtype']):
             self._errors['internship_subtype'] = _('field_is_required')
+        elif academic_year.year > academic_year_max:
+            error_msg = _('learning_unit_creation_academic_year_max_error').format(academic_year_max)
+            self._errors['academic_year'] = error_msg
         else:
             return True
 
@@ -140,16 +154,13 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
         if person.user.groups.filter(name='faculty_managers').exists():
             self.fields["container_type"] = forms.ChoiceField(choices=create_faculty_learning_container_type_list(),
                                                               widget=forms.Select(attrs={'class': 'form-control'}))
-            self.fields['internship_subtype'] = forms.ChoiceField(widget=forms.HiddenInput(), label='')
+            del self.fields['internship_subtype']
 
     def is_valid(self):
         if not super().is_valid():
             return False
-        try:
-            academic_year = mdl.academic_year.find_academic_year_by_id(self.data.get('academic_year'))
-        except mdl.academic_year.AcademicYear.DoesNotExist:
-            return False
-        learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, self.cleaned_data['acronym'])
+        learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(self.get_academic_year(),
+                                                                           self.cleaned_data['acronym'])
         learning_unit_years_list = [learning_unit_year.acronym for learning_unit_year in learning_unit_years]
         if self.cleaned_data['acronym'] in learning_unit_years_list:
             self.add_error('acronym', _('existing_acronym'))

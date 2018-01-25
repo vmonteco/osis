@@ -63,7 +63,7 @@
                                     {{ form.acronym }}
                                     <span class='error' id="{{ form.acronym.name }}_message" for='{{ form.acronym.name }}' generated="true"/>
                                     {% if form.acronym.errors %}
-                                        <label class='error' for='{{ form.acronym.name }}' generated="true">{{ form.acronym.errors|join:". " }}</label>
+                                        <b class='error' for='{{ form.acronym.name }}' generated="true">{{ form.acronym.errors|join:". " }}</b>
                                     {% endif %}
                                 </div>
                             </div>
@@ -97,15 +97,16 @@
                     </div>
                     <div class="row">
                         <div class="col-md-2">
-                            <label>{% trans 'academic_year' %}</label>
+                            <label class="text-nowrap">{% trans 'academic_year' %}</label>
                             {{ form.academic_year }}
+                            <b style="color: red;">{{ form.academic_year.errors }}</b>
                         </div>
                         <div class="col-md-2">
-                            <label>{% trans 'periodicity' %}</label>
+                            <label>{% trans 'periodicity' %}*</label>
                             {{ form.periodicity }}
                         </div>
                         <div class="col-md-2">
-                            <label>{% trans 'language' %}</label>
+                            <label>{% trans 'language' %}*</label>
                             {{ form.language }}
                         </div>
                         <div class="col-md-6">
@@ -139,6 +140,7 @@
                             </div>
                         </div>
                     </div>
+                </div>
             </div>
             <div class="panel panel-default">
                 <div class="panel-heading">

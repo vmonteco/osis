@@ -1,9 +1,15 @@
 const internship = "INTERNSHIP";
     var form = $('#LearningUnitYearForm').closest("form");
 
-    function showInternshipSubtype(elem){
-        if(document.getElementById('id_internship_subtype'))
-        document.getElementById('id_internship_subtype').disabled = elem != internship;
+    function showInternshipSubtype(){
+        var container_type_value = document.getElementById('id_container_type').value;
+        var value_not_internship = container_type_value != internship;
+        if(document.getElementById('id_internship_subtype')){
+            document.getElementById('id_internship_subtype').disabled = value_not_internship;
+        }
+        if (value_not_internship){
+            $('#id_internship_subtype option:first-child').attr("selected", "selected");
+        }
     }
 
     function showAdditionalEntity(elem, id){
@@ -49,16 +55,6 @@ const internship = "INTERNSHIP";
         }
     };
 
-    function setFirstLetter(){
-        var url = "?campus=" + $('#id_campus').val()
-        $.ajax({
-            url: form.attr("code-validate-url")+url
-        }).done(function(data){
-            document.getElementById('id_first_letter').value = data['code'];
-            validate_acronym();
-        });
-    }
-
     $(document).ready(function() {
         $(function () {
             $('#LearningUnitYearForm').validate();
@@ -67,7 +63,7 @@ const internship = "INTERNSHIP";
             required: trans_field_required
         });
 
-        showInternshipSubtype('{{form.container_type.value}}');
+        showInternshipSubtype();
         document.getElementById('id_additional_entity_1').disabled = '{{form.requirement_entity.value}}' != "0";
         document.getElementById('id_additional_entity_2').disabled = '{{form.requirement_entity_1.value}}' != "0";
 

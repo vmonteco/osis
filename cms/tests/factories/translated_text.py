@@ -34,6 +34,6 @@ class TranslatedTextFactory(factory.django.DjangoModelFactory):
 
     language = 1  # French default
     text_label = factory.SubFactory(TextLabelFactory)
-    entity = factory.fuzzy.FuzzyText(prefix="Entity ", length=20)
+    entity = factory.fuzzy.FuzzyText(prefix="Entity ", length=15)
     reference = factory.fuzzy.FuzzyInteger(1, 10)
     text = None

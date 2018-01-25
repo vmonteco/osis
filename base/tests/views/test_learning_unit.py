@@ -52,7 +52,7 @@ from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.enums.learning_unit_year_session import SESSION_P23
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
-from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -673,6 +673,15 @@ class LearningUnitViewTestCase(TestCase):
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['acronym'], [_('invalid_acronym')])
 
+    def test_create_learning_unit_case_invalid_academic_year(self):
+        now = datetime.datetime.now()
+        bad_academic_year = AcademicYearFactory.build(year=now.year + 100)
+        super(AcademicYear, bad_academic_year).save()
+        data = dict(self.get_valid_data())
+        data['academic_year'] = bad_academic_year.id
+        form = CreateLearningUnitYearForm(person=self.person, data=data)
+        self.assertFalse(form.is_valid())
+
     def test_learning_unit_creation_form_with_existing_acronym(self):
         LearningUnitYearFactory(acronym="LDRT2018", academic_year=self.current_academic_year)
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_existing_acronym())
@@ -683,7 +692,6 @@ class LearningUnitViewTestCase(TestCase):
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_empty_internship_subtype())
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['internship_subtype'], _('field_is_required'))
-
 
     def test_learning_unit_check_acronym(self):
         kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
@@ -824,6 +832,7 @@ class LearningUnitViewTestCase(TestCase):
     def test_prepare_xls_content_no_data(self):
         self.assertEqual(base.business.learning_unit.prepare_xls_content([]), [])
 
+
 class LearningUnitCreate(TestCase):
     def setUp(self):
         self.person = PersonFactory()
@@ -860,6 +869,7 @@ class LearningUnitCreate(TestCase):
 
 class LearningUnitYearAdd(TestCase):
     def setUp(self):
+        create_current_academic_year()
         self.person = PersonFactory()
         content_type = ContentType.objects.get_for_model(LearningUnit)
         permission = Permission.objects.get(codename="can_create_learningunit",
@@ -978,7 +988,6 @@ class TestCreateXls(TestCase):
         expected_argument = _generate_xls_build_parameter([], self.user)
         mock_generate_xls.assert_called_with(expected_argument)
 
-
     @mock.patch("osis_common.document.xls_build.generate_xls")
     def test_generate_xls_data_with_a_learning_unit(self, mock_generate_xls):
         a_form = LearningUnitYearForm({"acronym": self.learning_unit_year.acronym}, service_course_search=False)
@@ -999,18 +1008,17 @@ def _generate_xls_build_parameter(xls_data, user):
             xls_build.FILENAME_KEY: 'Learning_units',
             xls_build.USER_KEY: user.username,
             xls_build.WORKSHEETS_DATA:
-                [{xls_build.CONTENT_KEY: xls_data,
-                  xls_build.HEADER_TITLES_KEY: [str(_('academic_year_small')),
-                                                str(_('code')),
-                                                str(_('title')),
-                                                str(_('type')),
-                                                str(_('subtype')),
-                                                str(_('requirement_entity_small')),
-                                                str(_('allocation_entity_small')),
-                                                str(_('credits')),
-                                                str(_('active_title'))],
-                 xls_build.WORKSHEET_TITLE_KEY: 'Learning_units',
-                 }
+                [
+                    {xls_build.CONTENT_KEY: xls_data,
+                     xls_build.HEADER_TITLES_KEY: [str(_('academic_year_small')),
+                                                   str(_('code')),
+                                                   str(_('title')),
+                                                   str(_('type')),
+                                                   str(_('subtype')),
+                                                   str(_('requirement_entity_small')),
+                                                   str(_('allocation_entity_small')),
+                                                   str(_('credits')),
+                                                   str(_('active_title'))],
+                     xls_build.WORKSHEET_TITLE_KEY: 'Learning_units',}
                 ]
             }
-
