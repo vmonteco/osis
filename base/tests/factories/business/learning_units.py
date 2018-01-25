@@ -34,7 +34,6 @@ from base.tests.factories.entity_container_year import EntityContainerYearFactor
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 
 
 def create_learning_unit_with_context(academic_year, structure, entity, acronym):
@@ -125,7 +124,8 @@ class LearningUnitsMixin:
     def setup_learning_unit_year(academic_year, learning_unit, learning_container_year):
         result = None
         if academic_year and learning_unit and learning_container_year:
-            result = LearningUnitYearFakerFactory(
+            result = LearningUnitYearFactory(
+                acronym=learning_unit.acronym,
                 academic_year=academic_year,
                 learning_unit=learning_unit,
                 learning_container_year=learning_container_year)
@@ -146,7 +146,8 @@ class LearningUnitsMixin:
                 if learning_unit.start_year <= academic_year.year <= learning_unit.end_year:
                     learning_container_year = LearningContainerYearFactory(academic_year=academic_year)
                     results.append(
-                        LearningUnitYearFakerFactory(
+                        LearningUnitYearFactory(
+                            acronym=learning_unit.acronym,
                             academic_year=academic_year,
                             learning_unit=learning_unit,
                             learning_container_year=learning_container_year

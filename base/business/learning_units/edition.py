@@ -56,7 +56,7 @@ def is_eligible_for_modification_end_date(learning_unit_year, a_person):
     return result
 
 
-def change_learning_unit_end_date(learning_unit_to_edit, new_academic_year, user):
+def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year):
     """
     Decide to extend or shorten the learning unit
     """
@@ -71,7 +71,7 @@ def change_learning_unit_end_date(learning_unit_to_edit, new_academic_year, user
     if new_academic_year.year > end_year:
         result.extend(extend_learning_unit(learning_unit_to_edit, new_academic_year))
     elif new_academic_year.year < end_year:
-        result.extend(shorten_learning_unit(learning_unit_to_edit, new_academic_year, user))
+        result.extend(shorten_learning_unit(learning_unit_to_edit, new_academic_year))
 
     result.append(_update_end_year_field(learning_unit_to_edit, new_end_year))
     return result
