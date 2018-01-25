@@ -314,18 +314,14 @@ class EducationGroupViewTestCase(TestCase):
 
     def test_education_group_general_informations(self):
         an_education_group = EducationGroupYearFactory()
-        user = UserFactory()
-        user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
-        self.client.force_login(user)
+        self.set_session()
         url = reverse("education_group_general_informations", args=[an_education_group.id])
         response = self.client.get(url)
         self.assertTemplateUsed(response, "education_group/tab_general_informations.html")
 
     def test_education_administrative_data(self):
         an_education_group = EducationGroupYearFactory()
-        user = UserFactory()
-        user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
-        self.client.force_login(user)
+        self.set_session()
         url = reverse("education_group_administrative", args=[an_education_group.id])
         response = self.client.get(url)
         self.assertTemplateUsed(response, "education_group/tab_administrative_data.html")
@@ -392,9 +388,7 @@ class EducationGroupViewTestCase(TestCase):
 
     def test_education_content(self):
         an_education_group = EducationGroupYearFactory()
-        user = UserFactory()
-        user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
-        self.client.force_login(user)
+        self.set_session()
         url = reverse("education_group_content", args=[an_education_group.id])
         response = self.client.get(url)
         self.assertTemplateUsed(response, "education_group/tab_content.html")
@@ -470,6 +464,11 @@ class EducationGroupViewTestCase(TestCase):
                                entity=ages_entity,
                                education_group_year=ages_education_group_year,
                                type=offer_year_entity_type.ENTITY_MANAGEMENT)
+
+    def set_session(self):
+        user = UserFactory()
+        user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
+        self.client.force_login(user)
 
 
 class EducationGroupAdministrativedata(TestCase):
