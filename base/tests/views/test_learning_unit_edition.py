@@ -73,7 +73,9 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         self.learning_unit.start_year = self.current_academic_year.year - 1
         self.learning_unit.end_year = self.current_academic_year.year + 1
 
-        self.setup_list_of_learning_unit_years(self.learning_unit, self.learning_container_year)
+        self.setup_list_of_learning_unit_years(self.list_of_academic_years_after_now,
+                                               self.learning_unit)
+        print(self.list_of_learning_unit_years)
 
     def test_edit_end_date_with_start_date_superior_to_current_academic_year_and_subtype_is_full(self):
         """

@@ -54,10 +54,10 @@ def create_learning_unit_with_context(academic_year, structure, entity, acronym)
 class LearningUnitsMixin:
     this_year = start_year = last_year = current_academic_year = None
     old_academic_year = last_academic_year = oldest_academic_year = latest_academic_year = None
-    list_of_academic_years = list_of_academic_years_after_now = None
-    list_of_odd_academic_years = list_of_even_academic_years = None
     learning_unit = learning_unit_year = learning_container_year = None
-    list_of_learning_units = list_of_learning_unit_years = None
+    list_of_academic_years = list_of_academic_years_after_now = []
+    list_of_odd_academic_years = list_of_even_academic_years = []
+    list_of_learning_units = list_of_learning_container_year = list_of_learning_unit_years = []
 
     def setup_academic_years(self):
         """
@@ -88,7 +88,7 @@ class LearningUnitsMixin:
 
         self.list_of_academic_years_after_now = [academic_year for academic_year in self.list_of_academic_years
                                                  if (
-                                                 self.current_academic_year.year <= academic_year.year <= self.last_academic_year.year)]
+                                                     self.current_academic_year.year <= academic_year.year <= self.last_academic_year.year)]
         self.list_of_odd_academic_years = [academic_year for academic_year in self.list_of_academic_years_after_now
                                            if academic_year.year % 2]
         self.list_of_even_academic_years = [academic_year for academic_year in self.list_of_academic_years_after_now
@@ -114,25 +114,28 @@ class LearningUnitsMixin:
 
     def setup_learning_unit_year(self):
         self.learning_unit_year = LearningUnitYearFakerFactory(
-                academic_year=self.current_academic_year,
-                learning_unit=self.learning_unit,
-                learning_container_year=self.learning_container_year)
+            academic_year=self.current_academic_year,
+            learning_unit=self.learning_unit,
+            learning_container_year=self.learning_container_year)
 
-    def setup_list_of_learning_unit_years(self, learning_unit, learning_container_year):
+    def setup_list_of_learning_unit_years(self, list_of_academic_years, learning_unit):
         """
         Given a learning unit, generate a set of learning units years,
         from the start date to the end date of the associated learning unit.
+        :param list_of_academic_years: a list of academic year instances
         :param learning_unit: a learning unit associated to the learning unit
-        :param learning_container_year: a learning unit container
-        :return: list of learning units created
+        :return: list of learning unit years created from learning unit start date to end date
         """
-        self.list_of_learning_unit_years = [
-            LearningUnitYearFakerFactory(
-                academic_year=x,
-                learning_unit=learning_unit,
-                learning_container_year=learning_container_year)
-            for x in range(learning_unit.start_date, learning_unit.end_date + 1)
-            ]
+        for academic_year in list_of_academic_years:
+            if learning_unit.start_year <= academic_year.year <= learning_unit.end_year:
+                learning_container_year = LearningContainerYearFactory(academic_year=academic_year)
+                self.list_of_learning_unit_years.append(
+                    LearningUnitYearFakerFactory(
+                        academic_year=academic_year,
+                        learning_unit=learning_unit,
+                        learning_container_year=learning_container_year
+                    )
+                )
 
     @staticmethod
     def create_list_of_academic_years(start_year, end_year):
