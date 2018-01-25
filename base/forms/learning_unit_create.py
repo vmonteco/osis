@@ -26,7 +26,7 @@
 import re
 
 from django import forms
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, RegexValidator
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
@@ -52,6 +52,10 @@ READONLY_ATTR = "readonly"
 
 def create_learning_container_year_type_list():
     return ((None, EMPTY_FIELD),) + LEARNING_CONTAINER_YEAR_TYPES
+
+
+def _create_learning_container_year_type_for_partim_list():
+    return ((None, EMPTY_FIELD),) + learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES_PARTIM
 
 
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
@@ -85,32 +89,23 @@ class LearningUnitYearForm(BootstrapForm):
                         widget=forms.Select(choices=((None, EMPTY_FIELD),) + LEARNING_UNIT_YEAR_QUADRIMESTERS),
                         required=False
     )
-    campus = forms.ModelChoiceField(queryset=find_administration_campuses(),
-                                    widget=forms.Select(attrs={'onchange': 'setFirstLetter()'}))
-
+    campus = forms.ModelChoiceField(queryset=find_administration_campuses())
     requirement_entity = EntitiesVersionChoiceField(
         find_main_entities_version().none(),
         widget=forms.Select(
-            attrs={'onchange': 'showAdditionalEntity(this.value, "id_additional_entity_1")'}
+            attrs={'onchange': 'showAdditionalEntity(this.value, "id_additional_requirement_entity_1")'}
         )
     )
-
-    allocation_entity = EntitiesVersionChoiceField(find_main_entities_version(),
-                                                   required=False,
+    allocation_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
                                                    widget=forms.Select(attrs={'id': 'allocation_entity'}))
-
-    additional_entity_1 = EntitiesVersionChoiceField(
-        find_main_entities_version(),
-        required=False,
+    additional_requirement_entity_1 = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
         widget=forms.Select(
-            attrs={'onchange': 'showAdditionalEntity(this.value, "id_additional_entity_2")', 'disable': 'disable'}
+            attrs={'onchange': 'showAdditionalEntity(this.value, "id_additional_requirement_entity_2")',
+                   'disable': 'disable'}
         )
     )
-
-    additional_entity_2 = EntitiesVersionChoiceField(find_main_entities_version(),
-                                                     required=False,
+    additional_requirement_entity_2 = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
                                                      widget=forms.Select(attrs={'disable': 'disable'}))
-
     language = forms.ModelChoiceField(find_all_languages(), empty_label=None)
 
     acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}$"
@@ -166,10 +161,6 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
         return True
 
 
-def create_learning_container_year_type_for_partim_list():
-    return ((None, EMPTY_FIELD),) + learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES_PARTIM
-
-
 class CreatePartimForm(CreateLearningUnitYearForm):
     partim_letter = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'text-center',
                                                                                  'style': 'text-transform: uppercase;',
@@ -181,31 +172,16 @@ class CreatePartimForm(CreateLearningUnitYearForm):
     def __init__(self, *args, **kwargs):
         super(CreatePartimForm, self).__init__(*args, **kwargs)
         self.fields['first_letter'].required = False
-        self.fields['container_type'].choices = create_learning_container_year_type_for_partim_list()
+        self.fields['container_type'].choices = _create_learning_container_year_type_for_partim_list()
         self.set_read_only_fields()
 
     def set_read_only_fields(self):
-        ready_only_fields = {'acronym',
-                             'title',
-                             'title_english',
-                             'requirement_entity',
-                             'allocation_entity',
-                             'language',
-                             'periodicity',
-                             'campus',
-                             'academic_year'}
+        ready_only_fields = {'acronym', 'title', 'title_english', 'requirement_entity', 'allocation_entity',
+                             'language', 'periodicity', 'campus', 'academic_year'}
         for field in ready_only_fields:
             self.fields[field].widget.attrs[READONLY_ATTR] = READONLY_ATTR
 
     def clean_acronym(self):
-        if self.data.get('partim_letter'):
-            data_cleaned = self.cleaned_data.get('acronym') + self.data.get('partim_letter')
-        else:
-            data_cleaned = self.cleaned_data.get('acronym')
-        if data_cleaned:
-            return data_cleaned.upper()
-
-    def clean_partim_letter(self):
-        data_cleaned = self.data.get('partim_letter')
+        data_cleaned = self.cleaned_data.get('acronym') + self.data.get('partim_letter')
         if data_cleaned:
             return data_cleaned.upper()

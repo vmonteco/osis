@@ -53,8 +53,8 @@ def compute_form_initial_data(learning_unit_year):
         "campus": learning_unit_year.learning_container_year.campus,
         "requirement_entity": entities_version.get(entity_container_year_link_type.REQUIREMENT_ENTITY),
         "allocation_entity": entities_version.get(entity_container_year_link_type.ALLOCATION_ENTITY),
-        "additional_entity_1": entities_version.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1),
-        "additional_entity_2": entities_version.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
+        "additional_requirement_entity_1": entities_version.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1),
+        "additional_requirement_entity_2": entities_version.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
     }
     return {key: value for key, value in initial_data.items() if value is not None}
 

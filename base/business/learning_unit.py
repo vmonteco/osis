@@ -221,9 +221,9 @@ def compute_max_academic_year_adjournment():
     return starting_academic_year.year + LEARNING_UNIT_CREATION_SPAN_YEARS
 
 
-def create_learning_unit_structure(additional_entity_version_1, additional_entity_version_2, allocation_entity_version,
-                                   data, new_learning_container, new_learning_unit, requirement_entity_version,
-                                   status, academic_year, campus):
+def create_learning_unit_structure(additional_requirement_entity_1, additional_requirement_entity_2,
+                                   allocation_entity_version, data, new_learning_container, new_learning_unit,
+                                   requirement_entity_version, status, academic_year, campus):
     new_learning_container_year = LearningContainerYear.objects.create(academic_year=academic_year,
                                                                        learning_container=new_learning_container,
                                                                        title=data['title'],
@@ -235,11 +235,11 @@ def create_learning_unit_structure(additional_entity_version_1, additional_entit
     if allocation_entity_version:
         create_entity_container_year(allocation_entity_version, new_learning_container_year,
                                      entity_container_year_link_type.ALLOCATION_ENTITY)
-    if additional_entity_version_1:
-        create_entity_container_year(additional_entity_version_1, new_learning_container_year,
+    if additional_requirement_entity_1:
+        create_entity_container_year(additional_requirement_entity_1, new_learning_container_year,
                                      entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
-    if additional_entity_version_2:
-        create_entity_container_year(additional_entity_version_2, new_learning_container_year,
+    if additional_requirement_entity_2:
+        create_entity_container_year(additional_requirement_entity_2, new_learning_container_year,
                                      entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
     create_learning_unit_content({'academic_year': academic_year,
                                   'data': data,
@@ -368,32 +368,29 @@ def create_xls(user, found_learning_units):
 
 
 def create_learning_unit_partim_structure(data_dict):
-    original_learning_container = data_dict.get('original_learning_container', None)
+    learning_container = data_dict.get('learning_container', None)
     academic_year = data_dict.get('academic_year', None)
-
-    new_learning_container_year = mdl_base.learning_container_year.search(academic_year, original_learning_container)\
-                                                                  .first()
-    if new_learning_container_year:
-        create_partim(data_dict, new_learning_container_year)
+    learning_container_year = mdl_base.learning_container_year.search(academic_year, learning_container).get()
+    create_partim(data_dict, learning_container_year)
 
 
 def create_partim(data_dict, new_learning_container_year):
     data = data_dict.get('data', None)
     new_learning_unit = data_dict.get('new_learning_unit', None)
-    requirement_entity_version = data_dict.get('requirement_entity_version', None)
     status = data_dict.get('status', None)
     academic_year = data_dict.get('academic_year', None)
 
-    new_requirement_entity = mdl_base.entity_container_year.get_entity_container_year(
-        requirement_entity_version.entity, new_learning_container_year,
-        entity_container_year_link_type.REQUIREMENT_ENTITY
-    )
+    # Get entity_container_year [Link betwen entity AND learning container year]
+    entity_container_yr = entity_container_year.find_by_learning_container_year(
+        a_learning_container_year=new_learning_container_year,
+        a_entity_container_year_link_type=entity_container_year_link_type.REQUIREMENT_ENTITY
+    ).get()
 
     create_learning_unit_content({'academic_year': academic_year,
                                   'data': data,
                                   'new_learning_container_year': new_learning_container_year,
                                   'new_learning_unit': new_learning_unit,
-                                  'new_requirement_entity': new_requirement_entity,
+                                  'new_requirement_entity': entity_container_yr,
                                   'status': status})
 
 

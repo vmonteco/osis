@@ -62,9 +62,11 @@ class LearningContainerYear(AuditableSerializableModel):
         return u"%s - %s" % (self.acronym, self.title)
 
     class Meta:
+        unique_together = ("learning_container", "academic_year",)
         permissions = (
             ("can_access_learningcontaineryear", "Can access learning container year"),
         )
+
 
     def get_partims_related(self):
         return learning_unit_year.search(learning_container_year_id=self,

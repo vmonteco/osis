@@ -56,16 +56,6 @@ const internship = "INTERNSHIP";
         $(element).css("color","red");
     }
 
-    function setFirstLetter(){
-        var url = "?campus=" + $('#id_campus').val()
-        $.ajax({
-            url: form.attr("code-validate-url")+url
-        }).done(function(data){
-            document.getElementById('id_first_letter').value = data['code'];
-            validate_acronym();
-        });
-    }
-
     function checkPartimLetter() {
         $('#partim_letter_message').removeClass("error-message").text("");
         partim_letter = $('#hdn_partim_letter').val()
@@ -111,8 +101,8 @@ const internship = "INTERNSHIP";
         });
 
         showInternshipSubtype();
-        document.getElementById('id_additional_entity_1').disabled = '{{form.requirement_entity.value}}' != "0";
-        document.getElementById('id_additional_entity_2').disabled = '{{form.requirement_entity_1.value}}' != "0";
+        document.getElementById('id_additional_requirement_entity_1').disabled = '{{form.requirement_entity.value}}' != "0";
+        document.getElementById('id_additional_requirement_entity_2').disabled = '{{form.requirement_entity_1.value}}' != "0";
 
         $('#id_acronym').change(validate_acronym);
         $('#id_academic_year').change(validate_acronym);

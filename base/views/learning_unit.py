@@ -336,8 +336,8 @@ def learning_unit_year_add(request):
         data = form.cleaned_data
         year = data['academic_year'].year
         status = data['status'] == 'on'
-        additional_entity_version_1 = data.get('additional_entity_1')
-        additional_entity_version_2 = data.get('additional_entity_2')
+        additional_requirement_entity_1 = data.get('additional_requirement_entity_1')
+        additional_requirement_entity_2 = data.get('additional_requirement_entity_2')
         allocation_entity_version = data.get('allocation_entity')
         requirement_entity_version = data.get('requirement_entity')
         campus = data.get('campus')
@@ -348,7 +348,7 @@ def learning_unit_year_add(request):
         while year < academic_year_max:
             academic_year = mdl.academic_year.find_academic_year_by_year(year)
 
-            create_learning_unit_structure(additional_entity_version_1, additional_entity_version_2,
+            create_learning_unit_structure(additional_requirement_entity_1, additional_requirement_entity_2,
                                            allocation_entity_version, data, new_learning_container,
                                            new_learning_unit, requirement_entity_version, status, academic_year, campus)
             year += 1
@@ -558,36 +558,32 @@ def create_partim_process(learning_unit_year_parent, form):
     learning_container = learning_unit_year_parent.learning_container_year.learning_container
     learning_unit_created = create_learning_unit(data, learning_container, start_year, end_year)
 
-    create_partim_process_on_years(data, learning_unit_created, learning_container)
+    create_partim_process_on_years(data, learning_unit_created, learning_container, end_year)
     return HttpResponseRedirect(reverse("learning_unit",
                                         kwargs={'learning_unit_year_id': learning_unit_year_parent.id}))
 
 
-def create_partim_process_on_years(data, new_learning_unit, original_learning_container):
+def create_partim_process_on_years(data, new_learning_unit, learning_container, end_year_learning_unit_parent):
     academic_year = data['academic_year']
     year = academic_year.year
     status = data['status']
-    additional_entity_version_1 = data.get('additional_entity_1')
-    additional_entity_version_2 = data.get('additional_entity_2')
+    additional_requirement_entity_version_1 = data.get('additional_requirement_entity_1')
+    additional_requirement_entity_version_2 = data.get('additional_requirement_entity_2')
     allocation_entity_version = data.get('allocation_entity')
     requirement_entity_version = data.get('requirement_entity')
     academic_year_max = compute_max_academic_year_adjournment()
 
-    while year < academic_year_max:
+    while (year < academic_year_max) and (not end_year_learning_unit_parent or year <= end_year_learning_unit_parent):
         academic_year = mdl.academic_year.find_academic_year_by_year(year)
-        create_learning_unit_partim_structure({'additional_entity_version_1': additional_entity_version_1,
-                                               'additional_entity_version_2': additional_entity_version_2,
-                                               'allocation_entity_version': allocation_entity_version,
-                                               'data': data,
-                                               'original_learning_container': original_learning_container,
-                                               'new_learning_unit': new_learning_unit,
-                                               'requirement_entity_version': requirement_entity_version,
-                                               'status': status,
-                                               'academic_year': academic_year})
+        create_learning_unit_partim_structure({
+            'requirement_entity_version': requirement_entity_version,
+            'additional_requirement_entity_version_1': additional_requirement_entity_version_1,
+            'additional_requirement_entity_version_2': additional_requirement_entity_version_2,
+            'allocation_entity_version': allocation_entity_version,
+            'data': data,
+            'learning_container': learning_container,
+            'new_learning_unit': new_learning_unit,
+            'status': status,
+            'academic_year': academic_year
+        })
         year += 1
-
-
-def get_existing_partim_letters(learning_unit_year):
-    existing_partims = learning_unit_year.learning_container_year.get_partims_related()
-    letters = {partim.subdivision for partim in existing_partims}
-    return list(letters)

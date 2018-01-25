@@ -84,12 +84,12 @@ class TestLearningUnitModificationProposal(TestCase):
             entity=self.entity_version.entity,
             type=entity_container_year_link_type.ALLOCATION_ENTITY
         )
-        self.additional_entity_1= EntityContainerYearFactory(
+        self.additional_requirement_entity_1= EntityContainerYearFactory(
             learning_container_year=self.learning_unit_year.learning_container_year,
             entity=self.entity_version.entity,
             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1
         )
-        self.additional_entity_2 = EntityContainerYearFactory(
+        self.additional_requirement_entity_2 = EntityContainerYearFactory(
             learning_container_year=self.learning_unit_year.learning_container_year,
             entity=self.entity_version.entity,
             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2
@@ -116,8 +116,8 @@ class TestLearningUnitModificationProposal(TestCase):
             "campus": self.learning_unit_year.learning_container_year.campus.id,
             "requirement_entity": self.entity_version.id,
             "allocation_entity": self.entity_version.id,
-            "additional_entity_1": self.entity_version.id,
-            "additional_entity_2": self.entity_version.id,
+            "additional_requirement_entity_1": self.entity_version.id,
+            "additional_requirement_entity_2": self.entity_version.id,
             "folder_entity": self.entity_version.id,
             "folder_id": "1",
         }
@@ -173,8 +173,8 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(form_initial['language'], self.learning_unit_year.learning_container_year.language)
         self.assertEqual(form_initial['requirement_entity'], self.entity_version)
         self.assertEqual(form_initial['allocation_entity'], self.entity_version)
-        self.assertEqual(form_initial['additional_entity_1'], self.entity_version)
-        self.assertEqual(form_initial['additional_entity_2'], self.entity_version)
+        self.assertEqual(form_initial['additional_requirement_entity_1'], self.entity_version)
+        self.assertEqual(form_initial['additional_requirement_entity_2'], self.entity_version)
         self.assertEqual(form_initial['campus'], self.learning_unit_year.learning_container_year.campus)
 
     def test_post_request_with_invalid_form(self):

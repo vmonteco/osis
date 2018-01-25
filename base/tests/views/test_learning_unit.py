@@ -631,8 +631,8 @@ class LearningUnitViewTestCase(TestCase):
                 "title_english": "LAW",
                 "requirement_entity": self.entity_version.id,
                 "allocation_entity": self.entity_version.id,
-                "additional_entity_1": self.entity_version.id,
-                "additional_entity_2": self.entity_version.id,
+                "additional_requirement_entity_1": self.entity_version.id,
+                "additional_requirement_entity_2": self.entity_version.id,
                 "language": self.language.id,
                 "session": SESSION_P23,
                 "faculty_remark": "faculty remark",
@@ -645,6 +645,7 @@ class LearningUnitViewTestCase(TestCase):
 
     def get_partim_data(self, original_learning_unit_year):
         return {
+            'first_letter': None,
             'acronym': 'LTAU2000',
             'partim_letter': 'B',
             'learning_unit_year_parent': original_learning_unit_year.id,
@@ -880,40 +881,31 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(base.business.learning_unit.prepare_xls_content([]), [])
 
     def test_expected_partim_creation_on_6_years(self):
-
+        # Create container + container year for N+6
         a_learning_container = LearningContainerFactory()
-        a_learning_unit = LearningUnitFactory(end_year=None)
-
         a_learning_container_yr_1 = self.build_learning_container_year(a_learning_container, self.current_academic_year)
         a_learning_container_yr_2 = self.build_learning_container_year(a_learning_container, self.academic_year_1)
         a_learning_container_yr_3 = self.build_learning_container_year(a_learning_container, self.academic_year_2)
         a_learning_container_yr_4 = self.build_learning_container_year(a_learning_container, self.academic_year_3)
         a_learning_container_yr_5 = self.build_learning_container_year(a_learning_container, self.academic_year_4)
         a_learning_container_yr_6 = self.build_learning_container_year(a_learning_container, self.academic_year_5)
-        learning_container_yrs = [a_learning_container_yr_1,
-                                  a_learning_container_yr_2,
-                                  a_learning_container_yr_3,
-                                  a_learning_container_yr_4,
-                                  a_learning_container_yr_5,
-                                  a_learning_container_yr_6]
+        learning_container_yrs = [a_learning_container_yr_1, a_learning_container_yr_2, a_learning_container_yr_3,
+                                  a_learning_container_yr_4, a_learning_container_yr_5, a_learning_container_yr_6]
 
-        original_learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
-                                                              subtype=learning_unit_year_subtypes.FULL,
-                                                              learning_container_year=a_learning_container_yr_1,
-                                                              learning_unit=a_learning_unit)
+        # Create UE with NO end_year
+        a_learning_unit = LearningUnitFactory(end_year=None)
+        learning_unit_year_parent = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                            subtype=learning_unit_year_subtypes.FULL,
+                                                            learning_container_year=a_learning_container_yr_1,
+                                                            learning_unit=a_learning_unit)
 
-        partim_data = self.get_valid_partim_data(original_learning_unit_year)
-        partim_data.update({'first_letter': None,
-                            'acronym': 'LTAU2000',
-                            'partim_letter': 'B',
-                            'learning_unit_year_parent': original_learning_unit_year.id,
-                            "subtype": learning_unit_year_subtypes.PARTIM})
+        partim_data = self.get_valid_partim_data(learning_unit_year_parent)
         full_acronym = partim_data.get('acronym') + partim_data.get('partim_letter')
         form = CreatePartimForm(person=self.person, data=partim_data)
         self.assertTrue(form.is_valid(), form.errors)
 
         url = reverse('learning_unit_year_partim_add',
-                      kwargs={'learning_unit_year_id': original_learning_unit_year.id})
+                      kwargs={'learning_unit_year_id': learning_unit_year_parent.id})
         response = self.client.post(url, data=partim_data)
         self.assertEqual(response.status_code, 302)
 
@@ -925,32 +917,27 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(count_partims, 6)
 
     def test_partim_creation_when_learning_unit_end_date_is_before_6_future_years(self):
-
+        # Create container + container year for N+1
         a_learning_container = LearningContainerFactory()
-        a_learning_unit = LearningUnitFactory(end_year=None)
-
         a_learning_container_yr_1 = self.build_learning_container_year(a_learning_container, self.current_academic_year)
         a_learning_container_yr_2 = self.build_learning_container_year(a_learning_container, self.academic_year_1)
         learning_container_yrs = [a_learning_container_yr_1,
                                   a_learning_container_yr_2]
 
-        original_learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
-                                                              subtype=learning_unit_year_subtypes.FULL,
-                                                              learning_container_year=a_learning_container_yr_1,
-                                                              learning_unit=a_learning_unit)
+        # Create UE with end_year set to N+1
+        a_learning_unit = LearningUnitFactory(end_year=self.academic_year_1.year)
+        learning_unit_year_parent = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                            subtype=learning_unit_year_subtypes.FULL,
+                                                            learning_container_year=a_learning_container_yr_1,
+                                                            learning_unit=a_learning_unit)
 
-        partim_data = self.get_valid_partim_data(original_learning_unit_year)
-        partim_data.update({'first_letter': None,
-                            'partim_letter': 'B',
-                            'acronym': 'LTAU2000',
-                            'learning_unit_year_parent': original_learning_unit_year.id,
-                            "subtype": learning_unit_year_subtypes.PARTIM})
+        partim_data = self.get_valid_partim_data(learning_unit_year_parent)
         full_acronym = partim_data.get('acronym')+partim_data.get('partim_letter')
         form = CreatePartimForm(person=self.person, data=partim_data)
         self.assertTrue(form.is_valid(), form.errors)
 
         url = reverse('learning_unit_year_partim_add',
-                      kwargs={'learning_unit_year_id': original_learning_unit_year.id})
+                      kwargs={'learning_unit_year_id': learning_unit_year_parent.id})
         response = self.client.post(url, data=partim_data)
         self.assertEqual(response.status_code, 302)
 
@@ -1005,27 +992,6 @@ class LearningUnitCreate(TestCase):
         self.assertTemplateUsed(response, 'learning_unit/learning_unit_form.html')
 
         self.assertIsInstance(response.context['form'], CreateLearningUnitYearForm)
-
-    def test_no_existing_partim_letters(self):
-        from base.views.learning_unit import get_existing_partim_letters
-        learning_unit_yr = LearningUnitYearFactory(learning_container_year=LearningContainerYearFactory(),
-                                                   subtype=learning_unit_year_subtypes.FULL,
-                                                   acronym="LOSI1452")
-        self.assertEqual(len(get_existing_partim_letters(learning_unit_yr)), 0)
-
-    def test_get_existing_partim_letters(self):
-        from base.views.learning_unit import get_existing_partim_letters
-        a_learning_container_year = LearningContainerYearFactory()
-        learning_unit_yr = LearningUnitYearFactory(learning_container_year=a_learning_container_year,
-                                                   subtype=learning_unit_year_subtypes.FULL,
-                                                   acronym="LOSI1452")
-        LearningUnitYearFactory(learning_container_year=a_learning_container_year,
-                                subtype=learning_unit_year_subtypes.PARTIM,
-                                acronym="LOSI1452A")
-        LearningUnitYearFactory(learning_container_year=a_learning_container_year,
-                                subtype=learning_unit_year_subtypes.PARTIM,
-                                acronym="LOSI1452B")
-        self.assertEqual(len(get_existing_partim_letters(learning_unit_yr)), 2)
 
 
 class LearningUnitYearAdd(TestCase):
