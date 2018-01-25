@@ -326,6 +326,16 @@ class EducationGroupViewTestCase(TestCase):
         response = self.client.get(url)
         self.assertTemplateUsed(response, "education_group/tab_administrative_data.html")
         self.assertEqual(response.context['education_group_year'], an_education_group)
+        self.assertEqual(response.context['parent'], an_education_group)
+
+    def test_education_administrative_data_with_root_set(self):
+        a_group_element_year = GroupElementYearFactory()
+        self.set_session()
+        url = reverse("education_group_administrative", args=[a_group_element_year.child_branch.id])
+        response = self.client.get(url, data={"root": a_group_element_year.parent.id})
+        self.assertTemplateUsed(response, "education_group/tab_administrative_data.html")
+        self.assertEqual(response.context['education_group_year'], a_group_element_year.child_branch)
+        self.assertEqual(response.context['parent'], a_group_element_year.parent)
 
     def test_get_sessions_dates(self):
         from base.views.education_group import get_sessions_dates
