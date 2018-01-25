@@ -89,6 +89,18 @@ def shorten_learning_unit(learning_unit_to_edit, new_academic_year, user):
     if not learning_unit_year_to_delete:
         return []
 
+    partims = learning_unit_year_to_delete.get_partims_related() or []
+    for partim in partims:
+        if partim.learning_unit.end_year <= new_academic_year.year:
+            continue
+        raise IntegrityError(
+            _('The learning unit %(learning_unit) has a partim %(partim)s with an end year greater than %(year)s') % {
+                'learning_unit': learning_unit_year_to_delete.acronym,
+                'partim': partim.acronym,
+                'year': new_academic_year
+            }
+        )
+
     warning_msg = check_learning_unit_year_deletion(learning_unit_year_to_delete)
     if warning_msg:
         raise IntegrityError(list(warning_msg.values()))
