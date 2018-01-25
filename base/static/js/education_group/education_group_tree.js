@@ -1,27 +1,31 @@
 function showDiv() {
-    if (document.getElementById('collapse').style.display == "block") {
+    if (document.getElementById('collapse').style.display === "block") {
         document.getElementById('collapse').style.display = "none";
         document.getElementById('panel-collapse').className = "col-md-0";
         document.getElementById('panel-data').className = "col-md-12";
-        document.getElementById('link_identification').href = "{% url 'education_group_read' education_group_year_id=education_group_year.id %}?root={{ parent.id}}&tree=0";
-        document.getElementById('link_diploma').href = "{% url 'education_group_diplomas' education_group_year_id=education_group_year.id %}?root={{ parent.id}}&tree=0";
-        document.getElementById('link_general_information').href = "{% url 'education_group_general_informations' education_group_year_id=education_group_year.id %}?root={{ parent.id}}&tree=0";
-        document.getElementById('link_administrative').href = "{% url 'education_group_administrative' education_group_year_id=education_group_year.id %}?root={{ parent.id}}&tree=0";
-        document.getElementById('link_content').href = "{% url 'education_group_content' education_group_year_id=education_group_year.id %}?root={{ parent.id}}&tree=0";
-    }
-    else {
+
+    } else {
         document.getElementById('collapse').style.display = "block";
         document.getElementById('panel-collapse').className = "col-md-3";
         document.getElementById('panel-data').className = "col-md-9";
-        document.getElementById('link_identification').href = "{% url 'education_group_read' education_group_year_id=education_group_year.id %}?root={{ parent.id}}&tree=1";
-        document.getElementById('link_diploma').href = "{% url 'education_group_diplomas' education_group_year_id=education_group_year.id %}?root={{ parent.id}}&tree=1";
-        document.getElementById('link_general_information').href = "{% url 'education_group_general_informations' education_group_year_id=education_group_year.id %}?root={{ parent.id}}&tree=1";
-        document.getElementById('link_administrative').href = "{% url 'education_group_administrative' education_group_year_id=education_group_year.id %}?root={{ parent.id}}&tree=1";
-        document.getElementById('link_content').href = "{% url 'education_group_content' education_group_year_id=education_group_year.id %}?root={{ parent.id}}&tree=1";
     }
+
+    document.getElementById('link_identification').href = switchUrlParameterTreeValue(document.getElementById('link_identification').href);
+    document.getElementById('link_diploma').href = switchUrlParameterTreeValue(document.getElementById('link_diploma').href);
+    document.getElementById('link_general_information').href = switchUrlParameterTreeValue(document.getElementById('link_general_information').href);
+    document.getElementById('link_administrative').href = switchUrlParameterTreeValue(document.getElementById('link_administrative').href);
+    document.getElementById('link_content').href = switchUrlParameterTreeValue(document.getElementById('link_content').href);
 }
 
-function getParameterByName(name, url) {
+
+function switchUrlParameterTreeValue(currentUrl){
+    var currentTreeValue = currentUrl.charAt(currentUrl.length - 1);
+    var newTreeValue = (currentTreeValue === '0') ? '1' : '0';
+    return "".concat(currentUrl.slice(0, -1), newTreeValue);
+}
+
+
+function getUrlParameterValue(name, url) {
     if (!url) url = window.location.href;
     name = name.replace(/[\[\]]/g, "\\$&");
     var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
@@ -30,6 +34,7 @@ function getParameterByName(name, url) {
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
+
 
 $(document).ready(function () {
     var $documentTree = $('#panel_file_tree');
@@ -41,15 +46,7 @@ $(document).ready(function () {
     });
     $documentTree.jstree();
 
-
-    if (getParameterByName('tree') === "0") {
-        document.getElementById('collapse').style.display = "none";
-        document.getElementById('panel-collapse').className = "col-md-0";
-        document.getElementById('panel-data').className = "col-md-12";
-        document.getElementById('link_identification').href = "{% url 'education_group_read' education_group_year_id=education_group_year.id %}?root={{ parent.id}}&tree=0";
-        document.getElementById('link_diploma').href = "{% url 'education_group_diplomas' education_group_year_id=education_group_year.id %}?root={{ parent.id}}&tree=0";
-        document.getElementById('link_general_information').href = "{% url 'education_group_general_informations' education_group_year_id=education_group_year.id %}?root={{ parent.id}}&tree=0";
-        document.getElementById('link_administrative').href = "{% url 'education_group_administrative' education_group_year_id=education_group_year.id %}?root={{ parent.id}}&tree=0";
-        document.getElementById('link_content').href = "{% url 'education_group_content' education_group_year_id=education_group_year.id %}?root={{ parent.id}}&tree=0";
+    if (getUrlParameterValue('tree') === "0") {
+        showDiv();
     }
 });
