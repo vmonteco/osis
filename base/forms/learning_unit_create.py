@@ -98,14 +98,15 @@ class LearningUnitYearForm(BootstrapForm):
     )
     allocation_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
                                                    widget=forms.Select(attrs={'id': 'allocation_entity'}))
-    additional_requirement_entity_1 = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
+    additional_requirement_entity_1 = EntitiesVersionChoiceField(
+        queryset=find_main_entities_version(), required=False,
         widget=forms.Select(
             attrs={'onchange': 'showAdditionalEntity(this.value, "id_additional_requirement_entity_2")',
                    'disable': 'disable'}
         )
     )
     additional_requirement_entity_2 = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
-                                                     widget=forms.Select(attrs={'disable': 'disable'}))
+                                                                 widget=forms.Select(attrs={'disable': 'disable'}))
     language = forms.ModelChoiceField(find_all_languages(), empty_label=None)
 
     acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}$"
