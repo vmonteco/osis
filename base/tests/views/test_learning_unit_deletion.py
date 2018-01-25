@@ -76,15 +76,15 @@ class LearningUnitDelete(TestCase):
         self.learning_unit_year_list = self.create_learning_unit_years_and_dependencies()
 
     def create_learning_unit_years_and_dependencies(self):
-        l1 = LearningUnitFactory()
+        l1 = LearningUnitFactory(start_year=1900)
 
-        learning_unit_years=[]
+        learning_unit_years = []
         for year in range(4):
             ac_year = AcademicYearFactory(year=2000 + year)
             l_containeryear = LearningContainerYearFactory(academic_year=ac_year)
             EntityContainerYearFactory(learning_container_year=l_containeryear, entity=self.entity_version.entity,
                                        type=entity_container_year_link_type.REQUIREMENT_ENTITY)
-            learning_unit_year = LearningUnitYearFactory(learning_unit=l1,academic_year=ac_year,
+            learning_unit_year = LearningUnitYearFactory(learning_unit=l1, academic_year=ac_year,
                                                          learning_container_year=l_containeryear)
             learning_unit_years.append(learning_unit_year)
 
@@ -285,14 +285,14 @@ class LearningUnitDelete(TestCase):
         from base.views.learning_unit_deletion import delete_from_given_learning_unit_year
 
         l_unit_year_to_delete = self.learning_unit_year_list[0]
-        PersonEntity.objects.all().delete() # Remove all link person entity
+        PersonEntity.objects.all().delete()  # Remove all link person entity
 
         request_factory = RequestFactory()
         request = request_factory.get(reverse(delete_from_given_learning_unit_year, args=[l_unit_year_to_delete.id]))
         request.user = self.user
 
         response = delete_from_given_learning_unit_year(request, l_unit_year_to_delete.id)
-        self.assertEqual(response.status_code, 403) # Forbidden
+        self.assertEqual(response.status_code, 403)  # Forbidden
 
     def test_delete_from_given_learning_unit_year_faculty_manager_role(self):
         """A Faculty manager can only remove container_type other than COURSE/INTERNSHIP/DISSERTATION"""
@@ -332,7 +332,7 @@ class LearningUnitDelete(TestCase):
         request = request_factory.get(reverse(delete_from_given_learning_unit_year, args=[l_unit_year_to_delete.id]))
         request.user = self.user
         response = delete_from_given_learning_unit_year(request, l_unit_year_to_delete.id)
-        self.assertEqual(response.status_code, 403) # Forbidden
+        self.assertEqual(response.status_code, 403)  # Forbidden
 
         # Internship
         l_container_year.container_type = learning_container_year_types.INTERNSHIP
@@ -340,7 +340,7 @@ class LearningUnitDelete(TestCase):
         request = request_factory.get(reverse(delete_from_given_learning_unit_year, args=[l_unit_year_to_delete.id]))
         request.user = self.user
         response = delete_from_given_learning_unit_year(request, l_unit_year_to_delete.id)
-        self.assertEqual(response.status_code, 403) # Forbidden
+        self.assertEqual(response.status_code, 403)  # Forbidden
 
         # Dissertation
         l_container_year.container_type = learning_container_year_types.DISSERTATION
@@ -348,7 +348,7 @@ class LearningUnitDelete(TestCase):
         request = request_factory.get(reverse(delete_from_given_learning_unit_year, args=[l_unit_year_to_delete.id]))
         request.user = self.user
         response = delete_from_given_learning_unit_year(request, l_unit_year_to_delete.id)
-        self.assertEqual(response.status_code, 403) # Forbidden
+        self.assertEqual(response.status_code, 403)  # Forbidden
 
 
 def add_to_group(user, group_name):
