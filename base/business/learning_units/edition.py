@@ -34,7 +34,6 @@ from base.business.learning_unit_deletion import delete_from_given_learning_unit
 from base.business.learning_unit_proposal import is_person_linked_to_entity_in_charge_of_learning_unit
 from base.models import proposal_learning_unit
 from base.models.academic_year import AcademicYear
-from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit import is_old_learning_unit
 from base.models.learning_unit_year import LearningUnitYear
 

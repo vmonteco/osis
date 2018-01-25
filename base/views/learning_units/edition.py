@@ -40,7 +40,7 @@ from base.views import layout
 
 @login_required
 @permission_required('base.can_edit_learningunit_date', raise_exception=True)
-def learning_unit_modify_end_date(request, learning_unit_year_id):
+def learning_unit_edition(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     learning_unit_to_edit = learning_unit_year.learning_unit
 
@@ -55,6 +55,9 @@ def learning_unit_modify_end_date(request, learning_unit_year_id):
             result = change_learning_unit_end_date(learning_unit_to_edit, new_academic_year, user_person)
             for message in result:
                 messages.success(request, message)
+
+            return HttpResponseRedirect(reverse('learning_unit', args=[learning_unit_year_id]))
+
         except IntegrityError as e:
             msgs = e.args
             if not isinstance(msgs, list):
@@ -63,7 +66,5 @@ def learning_unit_modify_end_date(request, learning_unit_year_id):
             for msg in msgs:
                 messages.error(request, msg)
 
-        return HttpResponseRedirect(reverse('learning_unit', args=[learning_unit_year_id]))
-
-    return layout.render(request, 'learning_unit/date_modification.html',
+    return layout.render(request, 'learning_unit/edition.html',
                          {'form': form, 'learning_unit_year': learning_unit_year})
