@@ -37,9 +37,13 @@ class TestLearningUnitEditionForm(TestCase, LearningUnitsMixin):
     def setUp(self):
         super().setUp()
         self.setup_academic_years()
-        self.setup_learning_unit()
-        self.setup_learning_container_year()
-        self.setup_learning_unit_year()
+        self.learning_unit = self.setup_learning_unit(self.current_academic_year.year)
+        self.learning_container_year = self.setup_learning_container_year(self.current_academic_year)
+        self.learning_unit_year = self.setup_learning_unit_year(
+            self.current_academic_year,
+            self.learning_unit,
+            self.learning_container_year
+        )
 
     def test_edit_end_date_send_dates_with_end_date_not_defined(self):
         """
