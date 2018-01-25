@@ -655,9 +655,6 @@ class LearningUnitViewTestCase(TestCase):
     def get_valid_data(self):
         return self.get_base_form_data()
 
-    def get_valid_partim_data(self, original_learning_unit_year):
-        return self.get_base_partim_form_data(original_learning_unit_year)
-
     def get_faulty_acronym(self):
         faultydict = dict(self.get_valid_data())
         faultydict["acronym"] = "TA200"
@@ -899,14 +896,14 @@ class LearningUnitViewTestCase(TestCase):
                                                             learning_container_year=a_learning_container_yr_1,
                                                             learning_unit=a_learning_unit)
 
-        partim_data = self.get_valid_partim_data(learning_unit_year_parent)
-        full_acronym = partim_data.get('acronym') + partim_data.get('partim_letter')
-        form = CreatePartimForm(person=self.person, data=partim_data)
+        valid_partim_data = self.get_base_partim_form_data(learning_unit_year_parent)
+        full_acronym = valid_partim_data.get('acronym') + valid_partim_data.get('partim_letter')
+        form = CreatePartimForm(person=self.person, data=valid_partim_data)
         self.assertTrue(form.is_valid(), form.errors)
 
         url = reverse('learning_unit_year_partim_add',
                       kwargs={'learning_unit_year_id': learning_unit_year_parent.id})
-        response = self.client.post(url, data=partim_data)
+        response = self.client.post(url, data=valid_partim_data)
         self.assertEqual(response.status_code, 302)
 
         count_learning_unit_year = LearningUnitYear.objects.filter(acronym=full_acronym).count()
@@ -931,14 +928,14 @@ class LearningUnitViewTestCase(TestCase):
                                                             learning_container_year=a_learning_container_yr_1,
                                                             learning_unit=a_learning_unit)
 
-        partim_data = self.get_valid_partim_data(learning_unit_year_parent)
-        full_acronym = partim_data.get('acronym')+partim_data.get('partim_letter')
-        form = CreatePartimForm(person=self.person, data=partim_data)
+        valid_partim_data = self.get_base_partim_form_data(learning_unit_year_parent)
+        full_acronym = valid_partim_data.get('acronym')+valid_partim_data.get('partim_letter')
+        form = CreatePartimForm(person=self.person, data=valid_partim_data)
         self.assertTrue(form.is_valid(), form.errors)
 
         url = reverse('learning_unit_year_partim_add',
                       kwargs={'learning_unit_year_id': learning_unit_year_parent.id})
-        response = self.client.post(url, data=partim_data)
+        response = self.client.post(url, data=valid_partim_data)
         self.assertEqual(response.status_code, 302)
 
         count_learning_unit_year = LearningUnitYear.objects.filter(acronym=full_acronym).count()
@@ -1115,7 +1112,6 @@ class TestCreateXls(TestCase):
         expected_argument = _generate_xls_build_parameter([], self.user)
         mock_generate_xls.assert_called_with(expected_argument)
 
-
     @mock.patch("osis_common.document.xls_build.generate_xls")
     def test_generate_xls_data_with_a_learning_unit(self, mock_generate_xls):
         a_form = LearningUnitYearForm({"acronym": self.learning_unit_year.acronym}, service_course_search=False)
@@ -1132,22 +1128,22 @@ class TestCreateXls(TestCase):
 
 
 def _generate_xls_build_parameter(xls_data, user):
-    return {xls_build.LIST_DESCRIPTION_KEY: "Liste d'activités",
-            xls_build.FILENAME_KEY: 'Learning_units',
-            xls_build.USER_KEY: user.username,
-            xls_build.WORKSHEETS_DATA:
-                [{xls_build.CONTENT_KEY: xls_data,
-                  xls_build.HEADER_TITLES_KEY: [str(_('academic_year_small')),
-                                                str(_('code')),
-                                                str(_('title')),
-                                                str(_('type')),
-                                                str(_('subtype')),
-                                                str(_('requirement_entity_small')),
-                                                str(_('allocation_entity_small')),
-                                                str(_('credits')),
-                                                str(_('active_title'))],
-                  xls_build.WORKSHEET_TITLE_KEY: 'Learning_units',
-                  }
-                 ]
-            }
+    return {
+        xls_build.LIST_DESCRIPTION_KEY: "Liste d'activités",
+        xls_build.FILENAME_KEY: 'Learning_units',
+        xls_build.USER_KEY: user.username,
+        xls_build.WORKSHEETS_DATA: [{
+            xls_build.CONTENT_KEY: xls_data,
+            xls_build.HEADER_TITLES_KEY: [str(_('academic_year_small')),
+                                          str(_('code')),
+                                          str(_('title')),
+                                          str(_('type')),
+                                          str(_('subtype')),
+                                          str(_('requirement_entity_small')),
+                                          str(_('allocation_entity_small')),
+                                          str(_('credits')),
+                                          str(_('active_title'))],
+            xls_build.WORKSHEET_TITLE_KEY: 'Learning_units',
+            }]
+        }
 
