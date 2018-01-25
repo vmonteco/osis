@@ -26,13 +26,18 @@
 from django.contrib import admin
 
 
+NON_UPDATABLE_FIELDS = ["id", "uuid", "external_id", "changed", "deleted"]
+FIELDS_NOT_IN_FIELDSET = ["id", "changed"]
+
+
 class OsisModelAdmin(admin.ModelAdmin):
 
     def __init__(self, model, admin_site):
-        list_fields = [field.name for field in model._meta.fields if field.name != "id" and field.name != "changed"]
-        self.fieldsets = ((None, {'fields': list_fields}), )
-        list_fields_readonly = \
-            [field.name for field in model._meta.fields if field.name == "external_id" and field.name != "changed"]
+        self.fieldsets = (
+            (None,
+             {'fields': [field.name for field in model._meta.fields if field.name not in FIELDS_NOT_IN_FIELDSET]}), )
+
+        list_fields_readonly = [field.name for field in model._meta.fields if field.name in NON_UPDATABLE_FIELDS]
         self.readonly_fields = list_fields_readonly
 
         super(OsisModelAdmin, self).__init__(model, admin_site)

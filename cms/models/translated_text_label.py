@@ -27,11 +27,11 @@ from django.contrib import admin
 from django.db import models
 from django.conf import settings
 from .text_label import TextLabel
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class TranslatedTextLabelAdmin(admin.ModelAdmin):
+class TranslatedTextLabelAdmin(OsisModelAdmin):
     list_display = ('label', 'language', 'text_label',)
-    fieldsets = ((None, {'fields': ('label', 'language', 'text_label')}),)
     search_fields = ['label', 'text_label__label']
     ordering = ('label',)
     raw_id_fields = ('text_label',)
