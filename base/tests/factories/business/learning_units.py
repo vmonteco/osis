@@ -94,14 +94,19 @@ class LearningUnitsMixin:
         self.list_of_even_academic_years = [academic_year for academic_year in self.list_of_academic_years_after_now
                                             if not academic_year.year % 2]
 
-    def setup_learning_unit(self):
+    @staticmethod
+    def setup_learning_unit(start_year):
         """
         Set up a learning unit associated with a learning container and a learning unit year.
         By default, the learning unit start year is the current academic year and the periodicity is annual.
+        @:param start_year: represent the first year of existence
         """
-        self.learning_unit = LearningUnitFactory(
-            start_year=self.current_academic_year.year,
-            periodicity=learning_unit_periodicity.ANNUAL)
+        result = None
+        if start_year:
+            result = LearningUnitFactory(
+                start_year=start_year,
+                periodicity=learning_unit_periodicity.ANNUAL)
+        return result
 
     def setup_list_of_learning_units(self, number):
         for i in range(0, number):
@@ -109,16 +114,25 @@ class LearningUnitsMixin:
                 start_year=self.current_academic_year.year,
                 periodicity=learning_unit_periodicity.ANNUAL)
 
-    def setup_learning_container_year(self):
-        self.learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
+    @staticmethod
+    def setup_learning_container_year(academic_year):
+        result = None
+        if academic_year:
+            result = LearningContainerYearFactory(academic_year=academic_year)
+        return result
 
-    def setup_learning_unit_year(self):
-        self.learning_unit_year = LearningUnitYearFakerFactory(
-            academic_year=self.current_academic_year,
-            learning_unit=self.learning_unit,
-            learning_container_year=self.learning_container_year)
+    @staticmethod
+    def setup_learning_unit_year(academic_year, learning_unit, learning_container_year):
+        result = None
+        if academic_year and learning_unit and learning_container_year:
+            result = LearningUnitYearFakerFactory(
+                academic_year=academic_year,
+                learning_unit=learning_unit,
+                learning_container_year=learning_container_year)
+        return result
 
-    def setup_list_of_learning_unit_years(self, list_of_academic_years, learning_unit):
+    @staticmethod
+    def setup_list_of_learning_unit_years(list_of_academic_years, learning_unit):
         """
         Given a learning unit, generate a set of learning units years,
         from the start date to the end date of the associated learning unit.
@@ -126,20 +140,25 @@ class LearningUnitsMixin:
         :param learning_unit: a learning unit associated to the learning unit
         :return: list of learning unit years created from learning unit start date to end date
         """
-        for academic_year in list_of_academic_years:
-            if learning_unit.start_year <= academic_year.year <= learning_unit.end_year:
-                learning_container_year = LearningContainerYearFactory(academic_year=academic_year)
-                self.list_of_learning_unit_years.append(
-                    LearningUnitYearFakerFactory(
-                        academic_year=academic_year,
-                        learning_unit=learning_unit,
-                        learning_container_year=learning_container_year
+        results = []
+        if list_of_academic_years and learning_unit:
+            for academic_year in list_of_academic_years:
+                if learning_unit.start_year <= academic_year.year <= learning_unit.end_year:
+                    learning_container_year = LearningContainerYearFactory(academic_year=academic_year)
+                    results.append(
+                        LearningUnitYearFakerFactory(
+                            academic_year=academic_year,
+                            learning_unit=learning_unit,
+                            learning_container_year=learning_container_year
+                        )
                     )
-                )
+        return results
 
     @staticmethod
     def create_list_of_academic_years(start_year, end_year):
-        results = [AcademicYearFactory.build(year=year) for year in range(start_year, end_year + 1)]
-        for result in results:
-            super(AcademicYear, result).save()
+        results = None
+        if start_year and end_year:
+            results = [AcademicYearFactory.build(year=year) for year in range(start_year, end_year + 1)]
+            for result in results:
+                super(AcademicYear, result).save()
         return results

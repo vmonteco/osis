@@ -29,7 +29,7 @@ from django.test import TestCase
 from base.tests.factories.business.learning_units import LearningUnitsMixin
 
 
-class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
+class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
     """
     WARNING: the user cannot edit a learning unit whith a end date
     inferior to the current academic year!
@@ -53,16 +53,20 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
     def setUp(self):
         super().setUp()
         self.setup_academic_years()
-        self.setup_learning_unit()
-        self.setup_learning_container_year()
-        self.setup_learning_unit_year()
+        self.learning_unit = self.setup_learning_unit(self.current_academic_year.year)
+        self.learning_container_year = self.setup_learning_container_year(self.current_academic_year)
+        self.learning_unit_year = self.setup_learning_unit_year(
+            self.current_academic_year,
+            self.learning_unit,
+            self.learning_container_year
+        )
 
     def test_edit_end_date_inferior_to_current_academic_year(self):
         """
         """
         pass
 
-    def test_edit_end_date_with_start_date_inferior_to_current_academic_year_and_subtype_is_full(self):
+    def test_edit_learning_unit_end_date_with_start_date_inferior_to_current_academic_year_and_subtype_is_full(self):
         """
         The en date before editing is the current academic year incremented by one;
         example:
@@ -73,11 +77,14 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         self.learning_unit.start_year = self.current_academic_year.year - 1
         self.learning_unit.end_year = self.current_academic_year.year + 1
 
-        self.setup_list_of_learning_unit_years(self.list_of_academic_years_after_now,
-                                               self.learning_unit)
+        self.list_of_learning_unit_years = self.setup_list_of_learning_unit_years(
+            self.list_of_academic_years_after_now,
+            self.learning_unit
+        )
+        print('TEST 1:')
         print(self.list_of_learning_unit_years)
 
-    def test_edit_end_date_with_start_date_superior_to_current_academic_year_and_subtype_is_full(self):
+    def test_edit_learning_unit_end_date_with_start_date_superior_to_current_academic_year_and_subtype_is_full(self):
         """
         The en date before editing is the current academic year incremented by one;
         example:
@@ -88,20 +95,11 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         self.learning_unit.start_year = self.current_academic_year.year + 1
         self.learning_unit.end_year = self.current_academic_year.year + 2
 
-    def test_edit_end_date_superior_to_current_academic_year_and_subtype_is_partim(self):
-        """
-        - find parent
-        - check parent date
-        """
-        pass
+        self.list_of_learning_unit_years = self.setup_list_of_learning_unit_years(
+            self.list_of_academic_years_after_now,
+            self.learning_unit
+        )
 
-    def test_edit_end_date_superior_to_current_academic_year_and_subtype_is_partim_with_superior_end_date_parent(self):
-        """
-        """
-        pass
-
-    def test_edit_end_date_superior_to_current_academic_year_and_subtype_is_partim_with_inferior_end_date_parent(self):
-        """
-        """
-        pass
+        print('TEST 2:')
+        print(self.list_of_learning_unit_years)
 
