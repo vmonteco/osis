@@ -51,6 +51,7 @@ from base.tests.factories.offer_year_entity import OfferYearEntityFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.program_manager import ProgramManagerFactory
 from base.tests.factories.structure import StructureFactory
+from base.tests.factories.user import UserFactory
 from reference.tests.factories.country import CountryFactory
 
 from base.views.education_group import education_groups
@@ -311,51 +312,24 @@ class EducationGroupViewTestCase(TestCase):
         self.assertEqual(template, 'education_group/tab_identification.html')
         self.assertEqual(context['education_group_year'].parent_by_training, education_group_year_parent)
 
-    @mock.patch('django.contrib.auth.decorators')
-    @mock.patch('base.views.layout.render')
-    @mock.patch('base.models.person.get_user_interface_language', return_value=True)
-    @mock.patch('base.models.education_group_year.find_by_id')
-    def test_education_group_general_informations(self,
-                                                  mock_find_by_id,
-                                                  mock_get_user_interface_language,
-                                                  mock_render,
-                                                  mock_decorators):
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
-        education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
-        request = mock.Mock(method='GET')
+    def test_education_group_general_informations(self):
+        an_education_group = EducationGroupYearFactory()
+        user = UserFactory()
+        user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
+        self.client.force_login(user)
+        url = reverse("education_group_general_informations", args=[an_education_group.id])
+        response = self.client.get(url)
+        self.assertTemplateUsed(response, "education_group/tab_general_informations.html")
 
-        from base.views.education_group import education_group_general_informations
-
-        mock_find_by_id.return_value = education_group_year
-        education_group_general_informations(request, education_group_year.id)
-        self.assertTrue(mock_render.called)
-        request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'education_group/tab_general_informations.html')
-
-    @mock.patch('django.contrib.auth.decorators')
-    @mock.patch('base.views.layout.render')
-    @mock.patch('base.models.education_group_year.find_by_id')
-    @mock.patch('base.business.education_group.can_user_edit_administrative_data')
-    def test_education_administrative_data(self,
-                                           mock_can_user_edit_administrative_data,
-                                           mock_find_by_id,
-                                           mock_render,
-                                           mock_decorators):
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
-        education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
-        request = mock.Mock(method='GET')
-
-        from base.views.education_group import education_group_administrative_data
-
-        mock_find_by_id.return_value = education_group_year
-        mock_can_user_edit_administrative_data.return_value = True
-        education_group_administrative_data(request, education_group_year.id)
-        self.assertTrue(mock_render.called)
-        request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'education_group/tab_administrative_data.html')
-        self.assertEqual(context['education_group_year'], education_group_year)
+    def test_education_administrative_data(self):
+        an_education_group = EducationGroupYearFactory()
+        user = UserFactory()
+        user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
+        self.client.force_login(user)
+        url = reverse("education_group_administrative", args=[an_education_group.id])
+        response = self.client.get(url)
+        self.assertTemplateUsed(response, "education_group/tab_administrative_data.html")
+        self.assertEqual(response.context['education_group_year'], an_education_group)
 
     def test_get_sessions_dates(self):
         from base.views.education_group import get_sessions_dates
@@ -416,26 +390,14 @@ class EducationGroupViewTestCase(TestCase):
         self.assertEqual(context['course_enrollment_validity'], False)
         self.assertEqual(context['formset_session_validity'], False)
 
-    @mock.patch('django.contrib.auth.decorators')
-    @mock.patch('base.views.layout.render')
-    @mock.patch('base.models.education_group_year.find_by_id')
-    def test_education_content(self,
-                               mock_find_by_id,
-                               mock_render,
-                               mock_decorators):
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
-        education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
-        request = mock.Mock(method='GET')
-
-        from base.views.education_group import education_group_content
-
-        mock_find_by_id.return_value = education_group_year
-        education_group_content(request, education_group_year.id)
-        self.assertTrue(mock_render.called)
-        request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'education_group/tab_content.html')
-        self.assertEqual(context['education_group_year'], education_group_year)
+    def test_education_content(self):
+        an_education_group = EducationGroupYearFactory()
+        user = UserFactory()
+        user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
+        self.client.force_login(user)
+        url = reverse("education_group_content", args=[an_education_group.id])
+        response = self.client.get(url)
+        self.assertTemplateUsed(response, "education_group/tab_content.html")
 
     def _prepare_context_education_groups_search(self):
         # Create a structure [Entity / Entity version]

@@ -215,7 +215,7 @@ def learning_unit_specifications(request, learning_unit_year_id):
     user_language = mdl.person.get_user_interface_language(request.user)
     context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_SPECIFICATIONS, user_language)
 
-    fr_language = find_language_in_settings('fr_be')
+    fr_language = find_language_in_settings('fr-be')
     en_language = find_language_in_settings('en')
 
     context.update({
