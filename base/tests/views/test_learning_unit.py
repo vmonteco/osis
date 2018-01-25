@@ -47,7 +47,7 @@ from base.models.enums import entity_container_year_link_type
 from base.models.enums import learning_container_year_types, organization_type, entity_type
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.internship_subtypes import TEACHING_INTERNSHIP
-from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP
+from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP, MASTER_THESIS
 from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.enums.learning_unit_year_session import SESSION_P23
 from base.models.learning_unit import LearningUnit
@@ -833,15 +833,17 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(base.business.learning_unit.prepare_xls_content([]), [])
 
     def test_learning_unit_year_form_with_faculty_user(self):
-        faculty_managers_group = Group.objects.get(name="faculty_managers")
-        faculty_superuser = SuperUserFactory()
-        faculty_superuser.groups.add(faculty_managers_group.id)
-        faculty_person = PersonFactory(user=faculty_superuser)
+        faculty_managers_group = Group.objects.get(name='faculty_managers')
+        faculty_user = UserFactory()
+        faculty_user.groups.add(faculty_managers_group)
+        faculty_person = PersonFactory(user=faculty_user)
         PersonEntityFactory(person=faculty_person, entity=self.entity)
-        form = CreateLearningUnitYearForm(person=self.person, data=self.get_valid_data())
+        data = dict(self.get_valid_data())
+        data['container_type'] = MASTER_THESIS
+        form = CreateLearningUnitYearForm(person=faculty_person, data=data)
         self.assertTrue(form.is_valid(), form.errors)
         url = reverse('learning_unit_year_add')
-        response = self.client.post(url, data=self.get_valid_data())
+        response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(LearningUnitYear.objects.all().count(), 6)
 
