@@ -2488,8 +2488,8 @@ msgstr "Leraning unit '{}' successfuly created with adjournment until {}."
 msgid "learning_unit_creation_academic_year_max_error"
 msgstr "Please select an academic year lower than {}."
 
-msgid "partim_letter"
-msgstr "Partim's letter"
+msgid "partim"
+msgstr "Partim"
 
 msgid "partim_letter_rules"
 msgstr "Aplhabetical code with 1 letter"

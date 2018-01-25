@@ -48,60 +48,71 @@
                 </div>
                 <div class="panel-body">
                     <div class="row">
-                        <div class="col-md-3" style="padding:0;">
+                        <div class="col-md-4" style="padding:0;">
+
                             <div class="row" style="margin:0;">
-                                <div class="col-md-9" style="padding:0;margin-top:7px;">
-                                <label>{% trans 'acronym' %}*</label>
-                                {{ form.acronym }}
-                                <span class='error' id="{{ form.acronym.name }}_message" for='{{ form.acronym.name }}' generated="true"/>
-                                {% if form.acronym.errors %}
-                                    <label class='error' for='{{ form.acronym.name }}' generated="true">{{ form.acronym.errors|join:". " }}</label>
-                                {% endif %}
-                                </div>
                                 <div class="col-md-3" style="padding-right:0;">
-                                    <label {% if form.errors.partim_letter %}style="color:red;"{% endif %}>
-                                        {% trans 'partim_letter' %}*
+                                    <label>
+                                        {% trans 'acronym' %}*
                                     </label>
-                                    <abbr title="{% trans 'partim_letter_rules' %}">
-                                    <span class="glyphicon glyphicon-question-sign pull-right"
-                                          title="{% trans 'partim_letter_rules' %}" style="font-size: 14pt;"
-                                          aria-hidden="true"></span></abbr>
+                                    {{ form.first_letter }}
+                                </div>
+                                <div class="col-md-5" style="padding:0;margin-top:5px;">
+                                    <br>
+                                    {{ form.acronym }}
+                                    <span class='error' id="{{ form.acronym.name }}_message" for='{{ form.acronym.name }}' generated="true"/>
+                                    {% if form.acronym.errors %}
+                                        <b class='error' for='{{ form.acronym.name }}' generated="true">{{ form.acronym.errors|join:". " }}</b>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-3" style="padding-left:0;">
+                                    <label class="text-no-wrap" {% if form.errors.partim_letter %}style="color:red;"{% endif %}>
+                                        {% trans 'partim' %}*
+                                    </label>
                                     {{ form.partim_letter }}
-                                <span class='error' id="{{ form.partim_letter.name }}_message" for='{{ form.partim_letter.name }}' generated="true"/>
-                                {% if form.partim_letter.errors %}
-                                    <label class='error' for='{{ form.partim_letter.name }}' generated="true">{{ form.partim_letter.errors|join:". " }}</label>
-                                {% endif %}
+                                    <span class='error' id="{{ form.partim_letter.name }}_message" for='{{ form.partim_letter.name }}' generated="true"/>
+                                    {% if form.partim_letter.errors %}
+                                        <label class='error' for='{{ form.partim_letter.name }}' generated="true">{{ form.partim_letter.errors|join:". " }}</label>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-1">
+                                    <abbr title="{% trans 'partim_letter_rules' %}">
+                                            <span class="glyphicon glyphicon-question-sign pull-right"
+                                                  title="{% trans 'partim_letter_rules' %}" style="font-size: 14pt;"
+                                                  aria-hidden="true"></span></abbr>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <label {% if form.errors.container_type%}style="color:red;"{% endif %}>
-                                {% trans 'type' %}*
-                            </label>
-                            {{ form.container_type}}
-                            <label {% if form.errors.container_type%}style="color:red;"{% endif %}>
-                                {{ form.errors.container_type| striptags }}
-                            </label>
-                        </div>
-                        <div class="col-md-3">
-                            <label>
-                                {% trans 'internship_subtype' %}
-                            </label>
-                            {{ form.internship_subtype }}
-                        </div>
-                        <div class="col-md-3">
-                            <label {% if form.errors.campus %}style="color:red;"{% endif %}>
-                                {% trans 'learning_location' %}*
-                            </label>
-                            {{ form.campus }}
-                            <label {% if form.errors.campus %}style="color:red;"{% endif %}>
-                                {{ form.errors.campus| striptags }}
-                            </label>
+                        <div class="col-md-8">
+                            <div class="col-md-4">
+                                <label {% if form.errors.container_type%}style="color:red;"{% endif %}>
+                                    {% trans 'type' %}*
+                                </label>
+                                {{ form.container_type}}
+                                <label {% if form.errors.container_type%}style="color:red;"{% endif %}>
+                                    {{ form.errors.container_type| striptags }}
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <label>
+                                    {% trans 'internship_subtype' %}
+                                </label>
+                                {{ form.internship_subtype }}
+                            </div>
+                            <div class="col-md-4">
+                                <label {% if form.errors.campus %}style="color:red;"{% endif %}>
+                                    {% trans 'learning_location' %}*
+                                </label>
+                                {{ form.campus }}
+                                <label {% if form.errors.campus %}style="color:red;"{% endif %}>
+                                    {{ form.errors.campus| striptags }}
+                                </label>
+                            </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-2">
-                            <label>{% trans 'academic_year' %}</label>
+                            <label class="text-nowrap">{% trans 'academic_year' %}</label>
                             {{ form.academic_year }}
                         </div>
                         <div class="col-md-2">

@@ -2489,8 +2489,8 @@ msgstr "pas de fin prévue"
 msgid "new_partim"
 msgstr "Créer un nouveau partim"
 
-msgid "partim_letter"
-msgstr "Lettre partim"
+msgid "partim"
+msgstr "Partim"
 
 msgid "partim_letter_rules"
 msgstr "Une lettre obligatoire"
