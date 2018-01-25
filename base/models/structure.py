@@ -30,11 +30,11 @@ from django.contrib import admin
 
 from base.models.academic_year import current_academic_years
 from base.models.enums import structure_type
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class StructureAdmin(admin.ModelAdmin):
+class StructureAdmin(OsisModelAdmin):
     list_display = ('acronym', 'title', 'part_of', 'organization', 'type')
-    fieldsets = ((None, {'fields': ('acronym', 'title', 'part_of', 'organization', 'type')}),)
     raw_id_fields = ('part_of',)
     search_fields = ['acronym']
 
