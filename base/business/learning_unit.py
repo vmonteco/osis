@@ -24,8 +24,8 @@
 #
 ##############################################################################
 import datetime
-from collections import OrderedDict
 
+from collections import OrderedDict
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
@@ -45,6 +45,7 @@ from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from cms import models as mdl_cms
 from cms.enums import entity_name
+
 # List of key that a user can modify
 from osis_common.document import xls_build
 
