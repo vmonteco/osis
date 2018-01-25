@@ -28,11 +28,9 @@
     {% for elem in children %}
         <ul>
             <li>
-                <span {% if elem.children_by_group_element_year %} class="folder" {% else %} class="file" {% endif %}>
-                    <a href="{% url 'education_group_read' education_group_year_id=elem.id %}?root={{ parent.id }}">
-                        {{ elem.acronym }}
-                    </a>
-                </span>
+                <a href="{% url 'education_group_read' education_group_year_id=elem.id %}?root={{ parent.id }}">
+                    {{ elem.acronym }}
+                </a>
                 {% include "education_group/branch.html" %}
             </li>
         </ul>
