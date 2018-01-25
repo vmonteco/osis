@@ -74,6 +74,9 @@ class LearningUnitYear(AuditableSerializableModel):
     attribution_procedure = models.CharField(max_length=20, blank=True, null=True,
                                              choices=attribution_procedure.ATTRIBUTION_PROCEDURES)
 
+    class Meta:
+        unique_together = ('learning_unit', 'academic_year', 'deleted')
+
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
 

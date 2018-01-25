@@ -34,7 +34,6 @@ from base.business.learning_unit_deletion import delete_from_given_learning_unit
 from base.business.learning_unit_proposal import is_person_linked_to_entity_in_charge_of_learning_unit
 from base.models import proposal_learning_unit
 from base.models.academic_year import AcademicYear
-from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit import is_old_learning_unit
 from base.models.learning_unit_year import LearningUnitYear
 
@@ -88,6 +87,18 @@ def shorten_learning_unit(learning_unit_to_edit, new_academic_year, user):
 
     if not learning_unit_year_to_delete:
         return []
+
+    partims = learning_unit_year_to_delete.get_partims_related() or []
+    for partim in partims:
+        if partim.learning_unit.end_year <= new_academic_year.year:
+            continue
+        raise IntegrityError(
+            _('The learning unit %(learning_unit) has a partim %(partim)s with an end year greater than %(year)s') % {
+                'learning_unit': learning_unit_year_to_delete.acronym,
+                'partim': partim.acronym,
+                'year': new_academic_year
+            }
+        )
 
     warning_msg = check_learning_unit_year_deletion(learning_unit_year_to_delete)
     if warning_msg:

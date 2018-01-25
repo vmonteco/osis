@@ -1,7 +1,5 @@
-{% extends "layout.html" %}
-{% load staticfiles %}
+{% extends "learning_unit/identification.html" %}
 {% load i18n %}
-{% load learning_unit %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -25,27 +23,12 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
-{% block breadcrumb %}
-{% include "learning_unit/breadcrumb.html" %}
-{% endblock %}
-
-{% block content %}
-{% include "template_messages.html" %}
-<div class="panel panel-warning" >
-    <div class="panel-heading">
-        <h2 class="panel-title">
-            {{ title | safe }}
-        </h2>
-    </div>
-    {% trans 'are_you_sure' %}
-    <div class="panel-footer">
-        <form method="post" style="display: inline;">
-            {% csrf_token %}
-            {{ form }}
-            <input type="hidden" name="learning_unit_id" value="{{ learning_unit.id }}" />
-            <a href="{% url 'learning_unit' learning_unit_year_id=learning_unit_year.id %}" class="btn btn-default">{% trans 'cancel' %}</a>
-            <button type="submit" class="btn btn-danger">{% trans 'i_confirm' %}</button>
-        </form>
-    </div>
-</div>
+{% block edit_academic_year %}
+    <form method="post" style="display: inline;">
+        {% csrf_token %}
+        {{ form }}
+        <input type="hidden" name="learning_unit_id" value="{{ learning_unit.id }}" />
+        <a href="{% url 'learning_unit' learning_unit_year_id=learning_unit_year.id %}" class="btn btn-default">{% trans 'cancel' %}</a>
+        <button type="submit" class="btn btn-danger">{% trans 'i_confirm' %}</button>
+    </form>
 {% endblock %}
