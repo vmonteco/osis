@@ -29,11 +29,12 @@ from django.db import IntegrityError
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import compute_max_academic_year_adjournment
-from base.business.learning_unit_deletion import can_delete_learning_unit_year, delete_from_given_learning_unit_year, \
+from base.business.learning_unit_deletion import delete_from_given_learning_unit_year, \
     check_learning_unit_year_deletion
 from base.business.learning_unit_proposal import is_person_linked_to_entity_in_charge_of_learning_unit
 from base.models import proposal_learning_unit
 from base.models.academic_year import AcademicYear
+from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit import is_old_learning_unit
 from base.models.learning_unit_year import LearningUnitYear
 
@@ -102,6 +103,12 @@ def extend_learning_unit(learning_unit_to_edit, new_academic_year):
     result = []
     last_learning_unit_year = LearningUnitYear.objects.filter(learning_unit=learning_unit_to_edit
                                                               ).order_by('academic_year').last()
+
+    lu_parent = last_learning_unit_year.parent
+    if lu_parent and lu_parent.learning_unit.end_year < new_academic_year.year:
+        raise IntegrityError(_('The selected end year is greater than the end year of the parent %(lu_parent)s') % {
+            'lu_parent': lu_parent
+        })
 
     range_years = list(range(learning_unit_to_edit.end_year + 1, new_academic_year.year + 1))
 
