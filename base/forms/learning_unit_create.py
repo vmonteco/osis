@@ -35,7 +35,6 @@ from base.business import learning_unit
 from base.forms.bootstrap import BootstrapForm
 from base.models.campus import find_administration_campuses
 from base.models.entity_version import find_main_entities_version, find_main_entities_version_filtered_by_person
-from base.models.enums import entity_container_year_link_type
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
@@ -47,7 +46,11 @@ from base.models.enums import learning_container_year_types
 
 MAX_RECORDS = 1000
 EMPTY_FIELD = "---------"
-READONLY_ATTR = "readonly"
+READONLY_ATTR = "disabled"
+
+
+def _create_first_letter_choices():
+    return ((None, EMPTY_FIELD),) + LearningUnitManagementSite.choices()
 
 
 def create_learning_container_year_type_list():
@@ -78,10 +81,9 @@ class LearningUnitYearForm(BootstrapForm):
                                 mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION,
                                 required=False)
     subtype = forms.CharField(widget=forms.HiddenInput())
-    first_letter = forms.ChoiceField(choices=((None, EMPTY_FIELD),) + LearningUnitManagementSite.choices(),
-                                     required=True)
+    first_letter = forms.ChoiceField(choices=lazy(_create_first_letter_choices, tuple), required=True)
     container_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
-                                       widget=forms.Select(attrs={'onchange': 'showInternshipSubtype(this.value)'}))
+                                       widget=forms.Select(attrs={'onchange': 'showInternshipSubtype()'}))
     faculty_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
     other_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
     periodicity = forms.CharField(widget=forms.Select(choices=PERIODICITY_TYPES))
@@ -150,11 +152,8 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
     def is_valid(self):
         if not super().is_valid():
             return False
-        try:
-            academic_year = mdl.academic_year.find_academic_year_by_id(self.data.get('academic_year'))
-        except mdl.academic_year.AcademicYear.DoesNotExist:
-            return False
-        learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, self.cleaned_data['acronym'])
+        learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(self.get_academic_year(),
+                                                                           self.cleaned_data['acronym'])
         learning_unit_years_list = [learning_unit_year.acronym for learning_unit_year in learning_unit_years]
         if self.cleaned_data['acronym'] in learning_unit_years_list:
             self.add_error('acronym', _('existing_acronym'))
@@ -172,17 +171,14 @@ class CreatePartimForm(CreateLearningUnitYearForm):
 
     def __init__(self, *args, **kwargs):
         super(CreatePartimForm, self).__init__(*args, **kwargs)
-        self.fields['first_letter'].required = False
         self.fields['container_type'].choices = _create_learning_container_year_type_for_partim_list()
         self.set_read_only_fields()
 
     def set_read_only_fields(self):
-        ready_only_fields = {'acronym', 'title', 'title_english', 'requirement_entity', 'allocation_entity',
-                             'language', 'periodicity', 'campus', 'academic_year'}
+        ready_only_fields = {'first_letter', 'acronym', 'title', 'title_english', 'requirement_entity',
+                             'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year'}
         for field in ready_only_fields:
             self.fields[field].widget.attrs[READONLY_ATTR] = READONLY_ATTR
 
     def clean_acronym(self):
-        data_cleaned = self.cleaned_data.get('acronym') + self.data.get('partim_letter')
-        if data_cleaned:
-            return data_cleaned.upper()
+        return super().clean_acronym() + self.data.get('partim_letter', [])[0].upper()
