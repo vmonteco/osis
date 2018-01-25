@@ -58,14 +58,14 @@ const internship = "INTERNSHIP";
 
     function checkPartimLetter() {
         $('#partim_letter_message').removeClass("error-message").text("");
-        partim_letter = $('#hdn_partim_letter').val()
-        submit_btn = $('#learning_unit_year_add')
+        partim_letter = $('#hdn_partim_letter').val();
+        submit_btn = $('#learning_unit_year_add');
         submit_btn.prop('disabled', false);
 
         if (partim_letter && partim_letter != '') {
             acronym = $('#id_acronym').val() + partim_letter;
-            validateion_url = $('#LearningUnitYearForm').data('validate-url')
-            year_id = $('#id_academic_year').val()
+            validateion_url = $('#LearningUnitYearForm').data('validate-url');
+            year_id = $('#id_academic_year').val();
 
             validateAcronymAjax(validateion_url, acronym, year_id, function(data){
                 if (data['existing_acronym']) {
@@ -82,7 +82,7 @@ const internship = "INTERNSHIP";
         /**
         * This function will check if the acronym exist or have already existed
         **/
-        queryString = "?acronym=" + acronym + "&year_id=" + year_id
+        queryString = "?acronym=" + acronym + "&year_id=" + year_id;
         $.ajax({
            url: url + queryString
         }).done(function(data){
