@@ -17,6 +17,7 @@ function showDiv() {
     document.getElementById('link_content').href = switchUrlParameterTreeValue(document.getElementById('link_content').href);
 }
 
+
 function switchUrlParameterTreeValue(currentUrlString){
     var urlObject = new URL(currentUrlString);
     var currentTreeValue = urlObject.searchParams.get("tree");
