@@ -54,9 +54,13 @@ class LearningUnitsMixin:
     this_year = start_year = last_year = current_academic_year = None
     old_academic_year = last_academic_year = oldest_academic_year = latest_academic_year = None
     learning_unit = learning_unit_year = learning_container_year = None
-    list_of_academic_years = list_of_academic_years_after_now = []
-    list_of_odd_academic_years = list_of_even_academic_years = []
-    list_of_learning_units = list_of_learning_container_year = list_of_learning_unit_years = []
+    list_of_academic_years = []
+    list_of_academic_years_after_now = []
+    list_of_odd_academic_years = []
+    list_of_even_academic_years = []
+    list_of_learning_units = []
+    list_of_learning_container_year = []
+    list_of_learning_unit_years = []
 
     def setup_academic_years(self):
         """
@@ -86,8 +90,7 @@ class LearningUnitsMixin:
                                                               LEARNING_UNIT_CREATION_SPAN_YEARS]
 
         self.list_of_academic_years_after_now = [academic_year for academic_year in self.list_of_academic_years
-                                                 if (
-                                                             self.current_academic_year.year <= academic_year.year <= self.last_academic_year.year)]
+            if (self.current_academic_year.year <= academic_year.year <= self.last_academic_year.year)]
         self.list_of_odd_academic_years = [academic_year for academic_year in self.list_of_academic_years_after_now
                                            if academic_year.year % 2]
         self.list_of_even_academic_years = [academic_year for academic_year in self.list_of_academic_years_after_now
