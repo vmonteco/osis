@@ -86,7 +86,8 @@ class LearningUnitsMixin:
                                                               LEARNING_UNIT_CREATION_SPAN_YEARS]
 
         self.list_of_academic_years_after_now = [academic_year for academic_year in self.list_of_academic_years
-            if (self.current_academic_year.year <= academic_year.year <= self.last_academic_year.year)]
+                                                 if (
+                                                             self.current_academic_year.year <= academic_year.year <= self.last_academic_year.year)]
         self.list_of_odd_academic_years = [academic_year for academic_year in self.list_of_academic_years_after_now
                                            if academic_year.year % 2]
         self.list_of_even_academic_years = [academic_year for academic_year in self.list_of_academic_years_after_now
