@@ -146,6 +146,6 @@ class EntityTest(TestCase):
                                                                entity=entity_instance)
         self.assertEqual(entity_instance.most_recent_acronym, most_recent_entity_version.acronym)
 
-    def test_find_versions_from_entites_without_date(self):
+    def test_find_versions_from_entites_with_date(self):
         entities_list = find_versions_from_entites([self.parent.id], self.start_date)
         self.assertEqual(len(entities_list), 1)
