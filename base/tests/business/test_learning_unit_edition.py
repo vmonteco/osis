@@ -231,7 +231,39 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
     def test_edit_learning_unit_full_even_end_date_gt_old_end_date_with_start_date_lt_now(self):
         """
         """
-        self.fail('Finish the test!')
+        learning_unit_full_annual = self.setup_learning_unit(
+            start_year=self.current_academic_year.year,
+            periodicity=learning_unit_periodicity.BIENNIAL_EVEN
+        )
+
+        learning_unit_full_annual.start_year = self.current_academic_year.year - 2
+        learning_unit_full_annual.end_year = self.current_academic_year.year + 2
+        learning_unit_full_annual.save()
+
+        self.setup_list_of_learning_unit_years(
+            list_of_academic_years=self.list_of_academic_years,
+            learning_unit=learning_unit_full_annual,
+            learning_container_year=self.learning_container_year_course,
+            learning_unit_year_subtype=learning_unit_year_subtypes.FULL
+        )
+
+        list_of_expected_learning_unit_years = []
+        for learning_unit_year in list(LearningUnitYear.objects.all()):
+            list_of_expected_learning_unit_years.append(learning_unit_year.academic_year.year)
+        if self.current_academic_year.year%2:
+            list_of_expected_learning_unit_years.append(learning_unit_full_annual.end_year+1)
+        else:
+            list_of_expected_learning_unit_years.append(learning_unit_full_annual.end_year+2)
+
+        academic_year_of_new_end_date = academic_year.find_academic_year_by_year(
+            learning_unit_full_annual.end_year+2
+        )
+        edit_learning_unit_end_date(learning_unit_full_annual, academic_year_of_new_end_date)
+
+        list_of_learning_unit_years = []
+        for learning_unit_year in list(LearningUnitYear.objects.all()):
+            list_of_learning_unit_years.append(learning_unit_year.academic_year.year)
+        self.assertEqual(sorted(list_of_learning_unit_years), sorted(list_of_expected_learning_unit_years))
 
     def test_edit_learning_unit_partim_annual_end_gt_old_end_date_date_with_start_date_lt_now(self):
         """
