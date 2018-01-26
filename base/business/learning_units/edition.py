@@ -88,7 +88,7 @@ def extend_learning_unit(learning_unit_to_edit, new_academic_year):
                                                               ).order_by('academic_year').last()
 
     lu_parent = last_learning_unit_year.parent
-    if lu_parent and lu_parent.learning_unit.end_year < new_academic_year.year:
+    if lu_parent != last_learning_unit_year and lu_parent.learning_unit.end_year < new_academic_year.year:
         raise IntegrityError(_('The selected end year is greater than the end year of the parent %(lu_parent)s') % {
             'lu_parent': lu_parent
         })
