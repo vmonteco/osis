@@ -27,7 +27,7 @@ from django import forms
 from django.db.models import F
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS, compute_max_academic_year_adjournment
+from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.forms.bootstrap import BootstrapForm
 from base.models import academic_year
 from base.models.academic_year import AcademicYear
@@ -57,7 +57,6 @@ class LearningUnitEndDateForm(BootstrapForm):
             self.fields['academic_year'].initial = AcademicYear.objects.get(year=end_year)
         except (AcademicYear.DoesNotExist, AcademicYear.MultipleObjectsReturned):
             self.fields['academic_year'].initial = None
-
 
     def _get_academic_years(self):
         current_academic_year = academic_year.current_academic_year()
