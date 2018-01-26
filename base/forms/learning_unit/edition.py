@@ -28,6 +28,7 @@ from django.db.models import F
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import compute_max_academic_year_adjournment
+from base.business.learning_units.edition import _filter_biennial
 from base.forms.bootstrap import BootstrapForm
 from base.models import academic_year
 from base.models.academic_year import AcademicYear
@@ -79,9 +80,3 @@ class LearningUnitEndDateForm(BootstrapForm):
         return AcademicYear.objects.filter(year__gte=min_year, year__lte=max_year)
 
 
-def _filter_biennial(queryset, periodicity):
-    result = queryset
-    if periodicity != learning_unit_periodicity.ANNUAL:
-        is_odd = periodicity == learning_unit_periodicity.BIENNIAL_ODD
-        result = queryset.annotate(odd=F('year') % 2).filter(odd=is_odd)
-    return result

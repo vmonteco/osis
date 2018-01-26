@@ -36,7 +36,7 @@ from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
-from base.views.common import display_error_messages
+from base.views.common import display_error_messages, display_success_messages
 
 
 @login_required
@@ -54,7 +54,7 @@ def learning_unit_edition(request, learning_unit_year_id):
         new_academic_year = form.cleaned_data['academic_year']
         try:
             result = edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year)
-            display_error_messages(request, result)
+            display_success_messages(request, result)
 
             return HttpResponseRedirect(reverse('learning_unit', args=[learning_unit_year_id]))
 
@@ -66,5 +66,5 @@ def learning_unit_edition(request, learning_unit_year_id):
 
 
 def _check_permission_to_edit_date(context):
-    if not context.get('can_edit_date', False):
+    if not context.get('can_edit_date'):
         raise PermissionDenied("Learning unit year date is not editable or user has not sufficient rights.")

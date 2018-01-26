@@ -26,12 +26,14 @@
 import uuid
 
 from django.db import IntegrityError
+from django.db.models import F
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_unit_deletion import delete_from_given_learning_unit_year, \
     check_learning_unit_year_deletion
 from base.models.academic_year import AcademicYear
+from base.models.enums import learning_unit_periodicity
 from base.models.learning_unit_year import LearningUnitYear
 
 
@@ -91,9 +93,7 @@ def extend_learning_unit(learning_unit_to_edit, new_academic_year):
             'lu_parent': lu_parent
         })
 
-    range_years = list(range(learning_unit_to_edit.end_year + 1, new_academic_year.year + 1))
-
-    for ac_year in AcademicYear.objects.filter(year__in=range_years).order_by('year'):
+    for ac_year in _get_next_academic_years(learning_unit_to_edit, new_academic_year.year):
         new_luy = _update_academic_year_for_learning_unit_year(last_learning_unit_year, ac_year)
         result.append(_('Learning unit %(learning_unit)s created for the academic year %(academic_year)s') % {
             'learning_unit': new_luy.acronym,
@@ -139,7 +139,7 @@ def _update_academic_year_for_learning_container_year(lcy, new_academic_year):
 def _check_partims(learning_unit_year_to_delete, new_academic_year):
     partims = learning_unit_year_to_delete.get_partims_related() or []
     for partim in partims:
-        if partim.learning_unit.end_year <= new_academic_year.year:
+        if partim.learning_unit.end_year or partim.learning_unit.end_year <= new_academic_year.year:
             continue
         raise IntegrityError(
             _('The learning unit %(learning_unit) has a partim %(partim)s with an end year greater than %(year)s') % {
@@ -156,3 +156,17 @@ def _get_actual_end_year(learning_unit_to_edit):
 
 def _get_new_end_year(new_academic_year):
     return new_academic_year.year if new_academic_year else None
+
+
+def _get_next_academic_years(learning_unit_to_edit, year):
+    range_years = list(range(learning_unit_to_edit.end_year + 1, year + 1))
+    queryset = AcademicYear.objects.filter(year__in=range_years).order_by('year')
+    return _filter_biennial(queryset, learning_unit_to_edit.periocity)
+
+
+def _filter_biennial(queryset, periodicity):
+    result = queryset
+    if periodicity != learning_unit_periodicity.ANNUAL:
+        is_odd = periodicity == learning_unit_periodicity.BIENNIAL_ODD
+        result = queryset.annotate(odd=F('year') % 2).filter(odd=is_odd)
+    return result
