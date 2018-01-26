@@ -48,7 +48,18 @@ $(document).ready(function () {
     $documentTree.bind("changed.jstree", function (event, data) {
         document.location.href = data.node.a_attr.href;
     });
+
     $documentTree.jstree();
+
+    $("#tree_open_all").click(function(){
+        $documentTree.jstree("open_all");
+
+    });
+
+    $("#tree_close_all").click(function(){
+        $documentTree.jstree("close_all");
+
+    });
 
     if (getUrlParameterValue('tree') === "0") {
         showDiv();

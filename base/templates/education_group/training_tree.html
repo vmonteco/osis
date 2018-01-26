@@ -28,8 +28,23 @@
         <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
     </a>
     <div id="collapse" class="panel panel-default" style="display:block;overflow: auto;">
-        <div class="panel-body" id="panel_file_tree">
-            {% include "education_group/branch.html" with parent=parent children=parent.children_by_group_element_year root=parent only %}
+        <div class="panel-body">
+
+{#            Button to expand and close all nodes of the trees#}
+            <div class="row">
+                <a class="button pull-right col-md-1" id="tree_close_all">
+                    <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
+                </a>
+
+                <a class="button pull-right col-md-1" id="tree_open_all">
+                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                </a>
+            </div>
+
+{#            Tree figure#}
+            <div class="row" id="panel_file_tree">
+                {% include "education_group/branch.html" with parent=parent children=parent.children_by_group_element_year root=parent current_education_group_year=education_group_year only %}
+            </div>
         </div>
     </div>
 </div>
