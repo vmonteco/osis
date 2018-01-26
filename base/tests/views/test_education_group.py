@@ -314,14 +314,14 @@ class EducationGroupViewTestCase(TestCase):
 
     def test_education_group_general_informations(self):
         an_education_group = EducationGroupYearFactory()
-        self.set_session()
+        self.initialize_session()
         url = reverse("education_group_general_informations", args=[an_education_group.id])
         response = self.client.get(url)
         self.assertTemplateUsed(response, "education_group/tab_general_informations.html")
 
     def test_education_administrative_data(self):
         an_education_group = EducationGroupYearFactory()
-        self.set_session()
+        self.initialize_session()
         url = reverse("education_group_administrative", args=[an_education_group.id])
         response = self.client.get(url)
         self.assertTemplateUsed(response, "education_group/tab_administrative_data.html")
@@ -330,7 +330,7 @@ class EducationGroupViewTestCase(TestCase):
 
     def test_education_administrative_data_with_root_set(self):
         a_group_element_year = GroupElementYearFactory()
-        self.set_session()
+        self.initialize_session()
         url = reverse("education_group_administrative", args=[a_group_element_year.child_branch.id])
         response = self.client.get(url, data={"root": a_group_element_year.parent.id})
         self.assertTemplateUsed(response, "education_group/tab_administrative_data.html")
@@ -398,7 +398,14 @@ class EducationGroupViewTestCase(TestCase):
 
     def test_education_content(self):
         an_education_group = EducationGroupYearFactory()
-        self.set_session()
+        self.initialize_session()
+        url = reverse("education_group_diplomas", args=[an_education_group.id])
+        response = self.client.get(url)
+        self.assertTemplateUsed(response, "education_group/tab_diplomas.html")
+
+    def test_education_group_diplomas(self):
+        an_education_group = EducationGroupYearFactory()
+        self.initialize_session()
         url = reverse("education_group_content", args=[an_education_group.id])
         response = self.client.get(url)
         self.assertTemplateUsed(response, "education_group/tab_content.html")
@@ -475,7 +482,7 @@ class EducationGroupViewTestCase(TestCase):
                                education_group_year=ages_education_group_year,
                                type=offer_year_entity_type.ENTITY_MANAGEMENT)
 
-    def set_session(self):
+    def initialize_session(self):
         user = UserFactory()
         user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
         self.client.force_login(user)
