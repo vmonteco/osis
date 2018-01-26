@@ -26,11 +26,11 @@
 
 <ul>
     <li {% if not children %} data-jstree='{"icon":"jstree-icon jstree-file"}' {% endif %}>
-        <a href="{% url 'education_group_read' education_group_year_id=parent.id %}?root={{ root.id }}">
+        <a href="{% url 'education_group_read' education_group_year_id=parent.id %}?root={{ root.id }}" >
             {{ parent.acronym }}
         </a>
         {% for elem in children %}
-        {% include "education_group/branch.html" with children=elem.children_by_group_element_year parent=elem root=root only%}
+        {% include "education_group/branch.html" with children=elem.children_by_group_element_year parent=elem root=root current_education_group_year=current_education_group_year only%}
         {% endfor %}
     </li>
 </ul>
