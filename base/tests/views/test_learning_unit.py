@@ -73,7 +73,10 @@ from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
 from django.test.utils import override_settings
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
-from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm
+from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
+from cms.tests.factories.text_label import TextLabelFactory
+from cms.tests.factories.translated_text import TranslatedTextFactory
+from cms.enums import entity_name
 
 
 class LearningUnitViewTestCase(TestCase):
@@ -869,7 +872,7 @@ class LearningUnitViewTestCase(TestCase):
         self.assertIsInstance(context['form_english'], LearningUnitPedagogyForm)
 
     @mock.patch('base.views.layout.render')
-    def test_learning_unit_pedagogy(self, mock_render):
+    def test_learning_unit_specification(self, mock_render):
         learning_unit_year = LearningUnitYearFactory()
 
         request_factory = RequestFactory()
@@ -877,26 +880,6 @@ class LearningUnitViewTestCase(TestCase):
         request = request_factory.get(reverse('learning_unit',
                                               args=[learning_unit_year.id]))
 
-        request.user = self.a_superuser
-
-        from base.views.learning_unit import learning_unit_specifications
-
-        learning_unit_specifications(request, learning_unit_year.id)
-
-        self.assertTrue(mock_render.called)
-        request, template, context = mock_render.call_args[0]
-
-        self.assertEqual(template, 'learning_unit/specifications.html')
-        self.assertIsInstance(context['form_french'], LearningUnitSpecificationsForm)
-        self.assertIsInstance(context['form_english'], LearningUnitSpecificationsForm)
-
-    @mock.patch('base.views.layout.render')
-    def test_learning_unit_pedagogy(self, mock_render):
-        learning_unit_year = LearningUnitYearFactory()
-
-        request_factory = RequestFactory()
-        request = request_factory.get(reverse('learning_unit',
-                                              args=[learning_unit_year.id]))
         request.user = self.a_superuser
 
         from base.views.learning_unit import learning_unit_specifications
@@ -913,6 +896,7 @@ class LearningUnitViewTestCase(TestCase):
     @mock.patch('base.views.layout.render')
     def test_learning_unit_attributions(self, mock_render):
         learning_unit_year = LearningUnitYearFactory()
+
         request_factory = RequestFactory()
         request = request_factory.get(reverse('learning_unit',
                                               args=[learning_unit_year.id]))
@@ -926,6 +910,31 @@ class LearningUnitViewTestCase(TestCase):
         request, template, context = mock_render.call_args[0]
 
         self.assertEqual(template, 'learning_unit/attributions.html')
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_unit_specifications_edit(self, mock_render):
+        a_label = 'label'
+        learning_unit_year = LearningUnitYearFactory()
+        text_label_lu = TextLabelFactory(order=1, label=a_label, entity=entity_name.LEARNING_UNIT_YEAR)
+        TranslatedTextFactory(text_label=text_label_lu, entity=entity_name.LEARNING_UNIT_YEAR)
+        request_factory = RequestFactory()
+        request = request_factory.get(reverse('learning_unit',
+                                              args=[learning_unit_year.id]), data={
+            'label': a_label,
+            'language': 'en'
+        })
+        request.user = self.a_superuser
+        # request.label = 'label'
+        # request.language = 'en'
+        from base.views.learning_unit import learning_unit_specifications_edit
+
+        learning_unit_specifications_edit(request, learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/specifications_edit.html')
+        self.assertIsInstance(context['form'], LearningUnitSpecificationsEditForm)
 
 
 class LearningUnitCreate(TestCase):
