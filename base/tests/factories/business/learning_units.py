@@ -28,7 +28,7 @@ import datetime
 from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
 from base.models import academic_year as mdl_academic_year
 from base.models.academic_year import AcademicYear
-from base.models.enums import entity_container_year_link_type, learning_container_year_types
+from base.models.enums import entity_container_year_link_type, learning_container_year_types, learning_unit_periodicity
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
@@ -149,15 +149,29 @@ class LearningUnitsMixin:
         if list_of_academic_years and learning_unit:
             for academic_year in list_of_academic_years:
                 if learning_unit.start_year <= academic_year.year <= learning_unit.end_year:
-                    results.append(
-                        LearningUnitYearFactory(
-                            acronym=learning_unit.acronym,
-                            academic_year=academic_year,
-                            learning_unit=learning_unit,
-                            learning_container_year=learning_container_year,
-                            subtype=learning_unit_year_subtype
+                    if learning_unit.periodicity == learning_unit_periodicity.BIENNIAL_ODD:
+                        if academic_year.year%2:
+                            create_learning_unit_year = True
+                        else:
+                            create_learning_unit_year = False
+                    elif learning_unit.periodicity == learning_unit_periodicity.BIENNIAL_EVEN:
+                        if academic_year.year%2:
+                            create_learning_unit_year = False
+                        else:
+                            create_learning_unit_year = True
+                    else:
+                        create_learning_unit_year = True
+
+                    if create_learning_unit_year:
+                        results.append(
+                            LearningUnitYearFactory(
+                                acronym=learning_unit.acronym,
+                                academic_year=academic_year,
+                                learning_unit=learning_unit,
+                                learning_container_year=learning_container_year,
+                                subtype=learning_unit_year_subtype
+                            )
                         )
-                    )
         return results
 
     @staticmethod
