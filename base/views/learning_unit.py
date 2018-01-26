@@ -47,7 +47,7 @@ from base.business.learning_unit import create_learning_unit, get_common_context
     get_all_attributions, get_last_academic_years, \
     SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, create_learning_unit_structure, \
     initialize_learning_unit_pedagogy_form, find_language_in_settings, compute_max_academic_year_adjournment, \
-    is_summary_submission_opened
+    is_summary_submission_opened, get_learning_unit_identification_context
 from base.business.learning_units.edition import is_eligible_for_modification_end_date
 from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
@@ -88,24 +88,7 @@ def learning_units_service_course(request):
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_identification(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
-    context = get_common_context_learning_unit_year(learning_unit_year_id)
-    learning_unit_year = context['learning_unit_year']
-    context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
-    context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
-    context['campus'] = get_campus_from_learning_unit_year(learning_unit_year)
-    context['experimental_phase'] = True
-    context['show_subtype'] = show_subtype(learning_unit_year)
-    context.update(get_all_attributions(learning_unit_year))
-    context['components'] = get_components_identification(learning_unit_year)
-    context['can_propose'] = learning_unit_proposal.is_eligible_for_modification_proposal(learning_unit_year, person)
-    context['can_edit_date'] = is_eligible_for_modification_end_date(learning_unit_year, person)
-    context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
-    context['can_cancel_proposal'] = learning_unit_proposal.\
-        is_eligible_for_cancel_of_proposal(context['proposal'], person) if context['proposal'] else False
-    context['proposal_folder_entity_version'] = \
-        entity_version.get_by_entity_and_date(context['proposal'].folder.entity, None) if context['proposal'] else None
-    context['can_delete'] = learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year)
-
+    context = get_learning_unit_identification_context(learning_unit_year_id, person)
     return layout.render(request, "learning_unit/identification.html", context)
 
 

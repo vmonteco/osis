@@ -31,6 +31,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
+from base.business.learning_unit import get_learning_unit_identification_context
 from base.business.learning_units.edition import change_learning_unit_end_date, is_eligible_for_modification_end_date
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.models.learning_unit_year import LearningUnitYear
@@ -66,5 +67,7 @@ def learning_unit_edition(request, learning_unit_year_id):
             for msg in msgs:
                 messages.error(request, msg)
 
-    return layout.render(request, 'learning_unit/edition.html',
-                         {'form': form, 'learning_unit_year': learning_unit_year})
+    context = get_learning_unit_identification_context(learning_unit_year_id, user_person)
+    context['form'] = form
+
+    return layout.render(request, 'learning_unit/edition.html', context)
