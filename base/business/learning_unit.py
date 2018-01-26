@@ -24,15 +24,14 @@
 #
 ##############################################################################
 import datetime
-
 from collections import OrderedDict
+
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl_base
 from base.business import learning_unit_proposal, learning_unit_deletion
 from base.business.learning_unit_year_with_context import volume_learning_component_year
-from base.business.learning_units.edition import is_eligible_for_modification_end_date
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 from base.models import entity_container_year, proposal_learning_unit
 from base.models.entity_component_year import EntityComponentYear
@@ -47,7 +46,6 @@ from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from cms import models as mdl_cms
 from cms.enums import entity_name
-
 # List of key that a user can modify
 from osis_common.document import xls_build
 
@@ -354,7 +352,7 @@ def _extract_xls_data_from_learning_unit(learning_unit):
 def prepare_xls_parameters_list(user, workingsheets_data):
     return {xls_build.LIST_DESCRIPTION_KEY: "Liste d'activités",
             xls_build.FILENAME_KEY: 'Learning_units',
-            xls_build.USER_KEY:  _get_name_or_username(user),
+            xls_build.USER_KEY: _get_name_or_username(user),
             xls_build.WORKSHEETS_DATA:
                 [{xls_build.CONTENT_KEY: workingsheets_data,
                   xls_build.HEADER_TITLES_KEY: [str(_('academic_year_small')),
@@ -398,3 +396,20 @@ def initialize_learning_unit_pedagogy_form(learning_unit_year, language_code):
 
 def find_language_in_settings(language_code):
     return next((lang for lang in settings.LANGUAGES if lang[0] == language_code), None)
+
+
+def is_eligible_for_modification_end_date(learning_unit_year, a_person):
+    """
+    A learning unit end date can be editable only under some conditions:
+        - It cannot be in the past
+        - It cannot be in a proposal state
+        - The user have the right to edit it
+    """
+    result = False
+    if is_old_learning_unit(learning_unit_year.learning_unit):
+        pass
+    elif proposal_learning_unit.find_by_learning_unit_year(learning_unit_year):
+        pass
+    elif is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person):
+        result = True
+    return result

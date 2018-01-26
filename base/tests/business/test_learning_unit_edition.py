@@ -26,6 +26,9 @@
 
 from django.test import TestCase
 
+from base.business.learning_units.edition import edit_learning_unit_end_date
+from base.models import academic_year
+from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.business.learning_units import LearningUnitsMixin
 
 
@@ -54,12 +57,6 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         super().setUp()
         self.setup_academic_years()
         self.learning_unit = self.setup_learning_unit(self.current_academic_year.year)
-        self.learning_container_year = self.setup_learning_container_year(self.current_academic_year)
-        self.learning_unit_year = self.setup_learning_unit_year(
-            self.current_academic_year,
-            self.learning_unit,
-            self.learning_container_year
-        )
 
     def test_edit_end_date_inferior_to_current_academic_year(self):
         """
@@ -77,12 +74,25 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         self.learning_unit.start_year = self.current_academic_year.year - 1
         self.learning_unit.end_year = self.current_academic_year.year + 1
 
-        self.list_of_learning_unit_years = self.setup_list_of_learning_unit_years(
+        self.setup_list_of_learning_unit_years(
             self.list_of_academic_years_after_now,
             self.learning_unit
         )
-        print('TEST 1:')
-        print(self.list_of_learning_unit_years)
+
+        list_of_expected_learning_unit_years = []
+        for learning_unit_year in list(LearningUnitYear.objects.all()):
+            list_of_expected_learning_unit_years.append(learning_unit_year.academic_year.year)
+        list_of_expected_learning_unit_years.append(self.learning_unit.end_year+1)
+        list_of_expected_learning_unit_years.append(self.learning_unit.end_year+2)
+
+        self.academic_year_of_new_end_date = academic_year.find_academic_year_by_year(self.learning_unit.end_year+2)
+        edit_learning_unit_end_date(self.learning_unit, self.academic_year_of_new_end_date)
+
+        list_of_learning_unit_years = []
+        for learning_unit_year in list(LearningUnitYear.objects.all()):
+            list_of_learning_unit_years.append(learning_unit_year.academic_year.year)
+
+        self.assertEqual(sorted(list_of_learning_unit_years), sorted(list_of_learning_unit_years))
 
     def test_edit_learning_unit_end_date_with_start_date_superior_to_current_academic_year_and_subtype_is_full(self):
         """
@@ -100,6 +110,18 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
             self.learning_unit
         )
 
-        print('TEST 2:')
-        print(self.list_of_learning_unit_years)
+        list_of_expected_learning_unit_years = []
+        for learning_unit_year in list(LearningUnitYear.objects.all()):
+            list_of_expected_learning_unit_years.append(learning_unit_year.academic_year.year)
+        list_of_expected_learning_unit_years.append(self.learning_unit.end_year+1)
+        list_of_expected_learning_unit_years.append(self.learning_unit.end_year+2)
+
+        self.academic_year_of_new_end_date = academic_year.find_academic_year_by_year(self.learning_unit.end_year+2)
+        edit_learning_unit_end_date(self.learning_unit, self.academic_year_of_new_end_date)
+
+        list_of_learning_unit_years = []
+        for learning_unit_year in list(LearningUnitYear.objects.all()):
+            list_of_learning_unit_years.append(learning_unit_year.academic_year.year)
+
+        self.assertEqual(sorted(list_of_learning_unit_years), sorted(list_of_learning_unit_years))
 

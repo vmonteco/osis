@@ -31,8 +31,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
-from base.business.learning_unit import get_learning_unit_identification_context
-from base.business.learning_units.edition import change_learning_unit_end_date, is_eligible_for_modification_end_date
+from base.business.learning_unit import get_learning_unit_identification_context, is_eligible_for_modification_end_date
+from base.business.learning_units.edition import edit_learning_unit_end_date
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
@@ -53,7 +53,7 @@ def learning_unit_edition(request, learning_unit_year_id):
     if form.is_valid():
         new_academic_year = form.cleaned_data['academic_year']
         try:
-            result = change_learning_unit_end_date(learning_unit_to_edit, new_academic_year, user_person)
+            result = edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year, user_person)
             for message in result:
                 messages.success(request, message)
 

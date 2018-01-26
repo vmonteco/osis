@@ -31,31 +31,11 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_unit_deletion import delete_from_given_learning_unit_year, \
     check_learning_unit_year_deletion
-from base.business.learning_unit_proposal import is_person_linked_to_entity_in_charge_of_learning_unit
-from base.models import proposal_learning_unit
 from base.models.academic_year import AcademicYear
-from base.models.learning_unit import is_old_learning_unit
 from base.models.learning_unit_year import LearningUnitYear
 
 
-def is_eligible_for_modification_end_date(learning_unit_year, a_person):
-    """
-    A learning unit end date can be editable only under some conditions:
-        - It cannot be in the past
-        - It cannot be in a proposal state
-        - The user have the right to edit it
-    """
-    result = False
-    if is_old_learning_unit(learning_unit_year.learning_unit):
-        pass
-    elif proposal_learning_unit.find_by_learning_unit_year(learning_unit_year):
-        pass
-    elif is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person):
-        result = True
-    return result
-
-
-def change_learning_unit_end_date(learning_unit_to_edit, new_academic_year, user):
+def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year):
     """
     Decide to extend or shorten the learning unit
     """
@@ -70,7 +50,7 @@ def change_learning_unit_end_date(learning_unit_to_edit, new_academic_year, user
     if new_academic_year.year > end_year:
         result.extend(extend_learning_unit(learning_unit_to_edit, new_academic_year))
     elif new_academic_year.year < end_year:
-        result.extend(shorten_learning_unit(learning_unit_to_edit, new_academic_year, user))
+        result.extend(shorten_learning_unit(learning_unit_to_edit, new_academic_year))
 
     result.append(_update_end_year_field(learning_unit_to_edit, new_end_year))
     return result
