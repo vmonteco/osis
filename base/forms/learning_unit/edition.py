@@ -24,21 +24,21 @@
 #
 ##############################################################################
 from django import forms
-from django.db.models import F
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS, compute_max_academic_year_adjournment
+from base.business.learning_unit import compute_max_academic_year_adjournment
+from base.business.learning_units.edition import filter_biennial
 from base.forms.bootstrap import BootstrapForm
 from base.models import academic_year
 from base.models.academic_year import AcademicYear
-from base.models.enums import learning_unit_periodicity
 from base.models.learning_unit import is_old_learning_unit
 
 
 class LearningUnitEndDateForm(BootstrapForm):
     academic_year = forms.ModelChoiceField(required=False,
                                            queryset=AcademicYear.objects.none(),
-                                           empty_label=_('No planned end'))
+                                           empty_label=_('not_end_year'),
+                                           label=_('academic_end_year'))
 
     def __init__(self, *args, **kwargs):
         self.learning_unit = kwargs.pop('learning_unit')
@@ -50,7 +50,7 @@ class LearningUnitEndDateForm(BootstrapForm):
         queryset = self._get_academic_years()
 
         periodicity = self.learning_unit.periodicity
-        self.fields['academic_year'].queryset = _filter_biennial(queryset, periodicity)
+        self.fields['academic_year'].queryset = filter_biennial(queryset, periodicity)
 
     def _set_initial_value(self, end_year):
         try:
@@ -58,10 +58,13 @@ class LearningUnitEndDateForm(BootstrapForm):
         except (AcademicYear.DoesNotExist, AcademicYear.MultipleObjectsReturned):
             self.fields['academic_year'].initial = None
 
-
     def _get_academic_years(self):
         current_academic_year = academic_year.current_academic_year()
+        min_year = current_academic_year.year
         max_year = compute_max_academic_year_adjournment()
+
+        if self.learning_unit.start_year > min_year:
+            min_year = self.learning_unit.start_year
 
         if is_old_learning_unit(self.learning_unit):
             raise ValueError(
@@ -69,12 +72,7 @@ class LearningUnitEndDateForm(BootstrapForm):
                     self.learning_unit.end_year, current_academic_year)
             )
 
-        return AcademicYear.objects.filter(year__gte=current_academic_year.year, year__lte=max_year)
+        if min_year > max_year:
+            raise ValueError('Learning_unit {} cannot be modify'.format(self.learning_unit))
 
-
-def _filter_biennial(queryset, periodicity):
-    result = queryset
-    if periodicity != learning_unit_periodicity.ANNUAL:
-        is_odd = periodicity == learning_unit_periodicity.BIENNIAL_ODD
-        result = queryset.annotate(odd=F('year') % 2).filter(odd=is_odd)
-    return result
+        return AcademicYear.objects.filter(year__gte=min_year, year__lte=max_year)
