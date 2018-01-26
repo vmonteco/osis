@@ -411,6 +411,8 @@ def is_eligible_for_modification_end_date(learning_unit_year, a_person):
         pass
     elif proposal_learning_unit.find_by_learning_unit_year(learning_unit_year):
         pass
+    elif a_person.user.is_superuser:
+        result = True
     elif is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person):
         result = True
     return result
