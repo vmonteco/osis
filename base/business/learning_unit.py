@@ -31,6 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl_base
 from base.business import learning_unit_proposal, learning_unit_deletion
+from base.business.learning_unit_proposal import is_person_linked_to_entity_in_charge_of_learning_unit
 from base.business.learning_unit_year_with_context import volume_learning_component_year
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 from base.models import entity_container_year, proposal_learning_unit
@@ -41,7 +42,7 @@ from base.models.enums import learning_component_year_type
 from base.models.enums import learning_container_year_types
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_container_year import LearningContainerYear
-from base.models.learning_unit import LearningUnit
+from base.models.learning_unit import LearningUnit, is_old_learning_unit
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from cms import models as mdl_cms
