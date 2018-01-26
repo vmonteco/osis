@@ -28,7 +28,7 @@ import datetime
 from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
 from base.models import academic_year as mdl_academic_year
 from base.models.academic_year import AcademicYear
-from base.models.enums import entity_container_year_link_type, learning_unit_periodicity
+from base.models.enums import entity_container_year_link_type, learning_unit_periodicity, learning_container_year_types
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
@@ -86,71 +86,72 @@ class LearningUnitsMixin:
                                                               LEARNING_UNIT_CREATION_SPAN_YEARS]
 
         self.list_of_academic_years_after_now = [academic_year for academic_year in self.list_of_academic_years
-                                                 if (
-                                                     self.current_academic_year.year <= academic_year.year <= self.last_academic_year.year)]
+            if (self.current_academic_year.year <= academic_year.year <= self.last_academic_year.year)]
         self.list_of_odd_academic_years = [academic_year for academic_year in self.list_of_academic_years_after_now
                                            if academic_year.year % 2]
         self.list_of_even_academic_years = [academic_year for academic_year in self.list_of_academic_years_after_now
                                             if not academic_year.year % 2]
 
     @staticmethod
-    def setup_learning_unit(start_year):
+    def setup_learning_unit(start_year, periodicity):
         """
         Set up a learning unit associated with a learning container and a learning unit year.
         By default, the learning unit start year is the current academic year and the periodicity is annual.
-        @:param start_year: represent the first year of existence
+        :param start_year: represent the first year of existence
+        :param periodicity:
         """
         result = None
         if start_year:
             result = LearningUnitFactory(
                 start_year=start_year,
-                periodicity=learning_unit_periodicity.ANNUAL)
+                periodicity=periodicity)
         return result
-
-    def setup_list_of_learning_units(self, number):
-        for i in range(0, number):
-            self.list_of_learning_units[i] = LearningUnitFactory(
-                start_year=self.current_academic_year.year,
-                periodicity=learning_unit_periodicity.ANNUAL)
 
     @staticmethod
     def setup_learning_container_year(academic_year):
         result = None
         if academic_year:
-            result = LearningContainerYearFactory(academic_year=academic_year)
+            result = LearningContainerYearFactory(
+                academic_year=academic_year,
+                container_type=learning_container_year_types.COURSE
+            )
         return result
 
     @staticmethod
-    def setup_learning_unit_year(academic_year, learning_unit, learning_container_year):
+    def setup_learning_unit_year(academic_year, learning_unit, learning_container_year, learning_unit_year_subtype):
         result = None
         if academic_year and learning_unit and learning_container_year:
             result = LearningUnitYearFactory(
                 acronym=learning_unit.acronym,
                 academic_year=academic_year,
                 learning_unit=learning_unit,
-                learning_container_year=learning_container_year)
+                learning_container_year=learning_container_year,
+                subtype=learning_unit_year_subtype
+            )
         return result
 
     @staticmethod
-    def setup_list_of_learning_unit_years(list_of_academic_years, learning_unit):
+    def setup_list_of_learning_unit_years(list_of_academic_years, learning_unit, learning_container_year,
+                                          learning_unit_year_subtype):
         """
         Given a learning unit, generate a set of learning units years,
         from the start date to the end date of the associated learning unit.
         :param list_of_academic_years: a list of academic year instances
         :param learning_unit: a learning unit associated to the learning unit
+        :param learning_unit_year_subtype
         :return: list of learning unit years created from learning unit start date to end date
         """
         results = []
         if list_of_academic_years and learning_unit:
             for academic_year in list_of_academic_years:
                 if learning_unit.start_year <= academic_year.year <= learning_unit.end_year:
-                    learning_container_year = LearningContainerYearFactory(academic_year=academic_year)
                     results.append(
                         LearningUnitYearFactory(
                             acronym=learning_unit.acronym,
                             academic_year=academic_year,
                             learning_unit=learning_unit,
-                            learning_container_year=learning_container_year
+                            learning_container_year=learning_container_year,
+                            subtype=learning_unit_year_subtype
                         )
                     )
         return results

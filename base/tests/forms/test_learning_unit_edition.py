@@ -27,7 +27,7 @@
 from django.test import TestCase
 
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
-from base.models.enums import learning_unit_periodicity
+from base.models.enums import learning_unit_periodicity, learning_unit_year_subtypes
 from base.tests.factories.business.learning_units import LearningUnitsMixin
 
 
@@ -41,7 +41,8 @@ class TestLearningUnitEditionForm(TestCase, LearningUnitsMixin):
         self.learning_unit_year = self.setup_learning_unit_year(
             self.current_academic_year,
             self.learning_unit,
-            self.learning_container_year
+            self.learning_container_year,
+            learning_unit_year_subtypes.FULL
         )
 
     def test_edit_end_date_send_dates_with_end_date_not_defined(self):
@@ -122,3 +123,9 @@ class TestLearningUnitEditionForm(TestCase, LearningUnitsMixin):
         form = LearningUnitEndDateForm(form_data, learning_unit=self.learning_unit)
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data['academic_year'], self.current_academic_year)
+
+    def test_edit_end_date_with_end_date_before_start_date(self):
+        """
+        :return:
+        """
+        self.fail('Finish the test!')
