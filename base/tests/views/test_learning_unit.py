@@ -870,8 +870,7 @@ class LearningUnitViewTestCase(TestCase):
 
     @mock.patch('base.views.layout.render')
     def test_learning_unit_pedagogy(self, mock_render):
-        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
-                                                     learning_container_year=self.learning_container_yr)
+        learning_unit_year = LearningUnitYearFactory()
 
         request_factory = RequestFactory()
 
@@ -890,6 +889,43 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_unit/specifications.html')
         self.assertIsInstance(context['form_french'], LearningUnitSpecificationsForm)
         self.assertIsInstance(context['form_english'], LearningUnitSpecificationsForm)
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_unit_pedagogy(self, mock_render):
+        learning_unit_year = LearningUnitYearFactory()
+
+        request_factory = RequestFactory()
+        request = request_factory.get(reverse('learning_unit',
+                                              args=[learning_unit_year.id]))
+        request.user = self.a_superuser
+
+        from base.views.learning_unit import learning_unit_specifications
+
+        learning_unit_specifications(request, learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/specifications.html')
+        self.assertIsInstance(context['form_french'], LearningUnitSpecificationsForm)
+        self.assertIsInstance(context['form_english'], LearningUnitSpecificationsForm)
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_unit_attributions(self, mock_render):
+        learning_unit_year = LearningUnitYearFactory()
+        request_factory = RequestFactory()
+        request = request_factory.get(reverse('learning_unit',
+                                              args=[learning_unit_year.id]))
+        request.user = self.a_superuser
+
+        from base.views.learning_unit import learning_unit_attributions
+
+        learning_unit_attributions(request, learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/attributions.html')
 
 
 class LearningUnitCreate(TestCase):
