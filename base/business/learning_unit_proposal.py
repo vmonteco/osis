@@ -33,14 +33,11 @@ from base.models.utils.person_entity_filter import filter_by_attached_entities
 from reference.models import language
 
 
-# Todo: Filtrer les données non-modifiables dans la view
 def compute_proposal_type(initial_data, current_data):
     data_changed = _compute_data_changed(initial_data, current_data)
-    filtered_data_changed = filter(lambda key: key not in ["academic_year", "session", "language", "campus",
-                                                           "subtype", "acronym", "additional_requirement_entity_1",
-                                                           "allocation_entity", "additional_requirement_entity_2",
-                                                           "requirement_entity"], data_changed)
-    transformation = current_data["acronym"] != "{}{}".format(initial_data["first_letter"], initial_data["acronym"])
+    filtered_data_changed = filter(lambda key: key not in ["academic_year", "subtype", "acronym"], data_changed)
+    transformation = "{}{}".format(current_data["first_letter"], current_data["acronym"]) != \
+                     "{}{}".format(initial_data["first_letter"], initial_data["acronym"])
     modification = any(map(lambda x: x != "acronym", filtered_data_changed))
     if transformation and modification:
         return proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name

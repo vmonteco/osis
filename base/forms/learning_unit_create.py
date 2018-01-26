@@ -26,7 +26,7 @@
 import re
 
 from django import forms
-from django.core.validators import MinValueValidator, RegexValidator
+from django.core.validators import MinValueValidator
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
@@ -120,26 +120,14 @@ class LearningUnitYearForm(BootstrapForm):
         if data_cleaned:
             return data_cleaned.upper()
 
-    def get_academic_year(self):
-        try:
-            return mdl.academic_year.find_academic_year_by_id(self.data.get('academic_year'))
-        except mdl.academic_year.AcademicYear.DoesNotExist:
-            return None
-
     def is_valid(self):
-        academic_year = self.get_academic_year()
-        academic_year_max = learning_unit.compute_max_academic_year_adjournment()
         if not super().is_valid():
             return False
-        elif not academic_year:
-            return False
-        elif not re.match(self.acronym_regex, self.cleaned_data['acronym']):
+
+        if not re.match(self.acronym_regex, self.cleaned_data['acronym']):
             self.add_error('acronym', _('invalid_acronym'))
         elif self.cleaned_data["container_type"] == INTERNSHIP and not (self.cleaned_data['internship_subtype']):
             self._errors['internship_subtype'] = _('field_is_required')
-        elif academic_year.year > academic_year_max:
-            error_msg = _('learning_unit_creation_academic_year_max_error').format(academic_year_max)
-            self._errors['academic_year'] = error_msg
         else:
             return True
 
@@ -154,11 +142,16 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
     def is_valid(self):
         if not super().is_valid():
             return False
-        learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(self.get_academic_year(),
+        academic_year_max = learning_unit.compute_max_academic_year_adjournment()
+        learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(self.cleaned_data['academic_year'],
                                                                            self.cleaned_data['acronym'])
         learning_unit_years_list = [learning_unit_year.acronym for learning_unit_year in learning_unit_years]
         if self.cleaned_data['acronym'] in learning_unit_years_list:
             self.add_error('acronym', _('existing_acronym'))
+            return False
+        elif self.cleaned_data['academic_year'].year > academic_year_max:
+            error_msg = _('learning_unit_creation_academic_year_max_error').format(academic_year_max)
+            self._errors['academic_year'] = error_msg
             return False
         return True
 

@@ -528,8 +528,8 @@ def learning_unit_year_partim_add(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
     learning_unit_year_parent = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
 
-    post_data = _get_post_data_without_read_only_field(request.POST.copy())
     initial = compute_partim_form_initial_data(learning_unit_year_parent)
+    post_data = _get_post_data_without_read_only_field(request.POST.copy())
 
     post_data_merged = QueryDict('', mutable=True)
     post_data_merged.update(initial)
