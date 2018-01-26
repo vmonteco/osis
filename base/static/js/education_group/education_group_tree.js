@@ -17,11 +17,12 @@ function showDiv() {
     document.getElementById('link_content').href = switchUrlParameterTreeValue(document.getElementById('link_content').href);
 }
 
-
-function switchUrlParameterTreeValue(currentUrl){
-    var currentTreeValue = currentUrl.charAt(currentUrl.length - 1);
+function switchUrlParameterTreeValue(currentUrlString){
+    var urlObject = new URL(currentUrlString);
+    var currentTreeValue = urlObject.searchParams.get("tree");
     var newTreeValue = (currentTreeValue === '0') ? '1' : '0';
-    return "".concat(currentUrl.slice(0, -1), newTreeValue);
+    urlObject.searchParams.set("tree", newTreeValue);
+    return urlObject.toString();
 }
 
 
