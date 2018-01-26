@@ -15,8 +15,8 @@ function showDiv() {
 
 function modifyPanelAttribute(collapse_style_display, panel_collapse_class, panel_data_class){
     document.getElementById('collapse').style.display = collapse_style_display;
-        document.getElementById('panel-collapse').className = panel_collapse_class;
-        document.getElementById('panel-data').className = panel_data_class;
+    document.getElementById('panel-collapse').className = panel_collapse_class;
+    document.getElementById('panel-data').className = panel_data_class;
 }
 
 
