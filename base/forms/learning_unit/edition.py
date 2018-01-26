@@ -38,7 +38,8 @@ from base.models.learning_unit import is_old_learning_unit
 class LearningUnitEndDateForm(BootstrapForm):
     academic_year = forms.ModelChoiceField(required=False,
                                            queryset=AcademicYear.objects.none(),
-                                           empty_label=_('No planned end'))
+                                           empty_label=_('No planned end'),
+                                           label=_('academic_end_year'))
 
     def __init__(self, *args, **kwargs):
         self.learning_unit = kwargs.pop('learning_unit')
@@ -75,7 +76,7 @@ class LearningUnitEndDateForm(BootstrapForm):
         if min_year > max_year:
             raise ValueError('Learning_unit {} cannot be modify'.format(self.learning_unit))
 
-        return AcademicYear.objects.filter(year__gte=min_year.year, year__lte=max_year)
+        return AcademicYear.objects.filter(year__gte=min_year, year__lte=max_year)
 
 
 def _filter_biennial(queryset, periodicity):

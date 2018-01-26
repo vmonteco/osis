@@ -31,7 +31,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
-from base.business.learning_unit import get_learning_unit_identification_context, is_eligible_for_modification_end_date
+from base.business.learning_unit import get_learning_unit_identification_context
 from base.business.learning_units.edition import edit_learning_unit_end_date
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.models.learning_unit_year import LearningUnitYear
@@ -46,14 +46,16 @@ def learning_unit_edition(request, learning_unit_year_id):
     learning_unit_to_edit = learning_unit_year.learning_unit
 
     user_person = get_object_or_404(Person, user=request.user)
-    if not is_eligible_for_modification_end_date(learning_unit_year, user_person):
+
+    context = get_learning_unit_identification_context(learning_unit_year_id, user_person)
+    if not context.get('can_edit_date', False):
         raise PermissionDenied("Learning unit year date is not editable or user has not sufficient rights.")
 
     form = LearningUnitEndDateForm(request.POST or None, learning_unit=learning_unit_to_edit)
     if form.is_valid():
         new_academic_year = form.cleaned_data['academic_year']
         try:
-            result = edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year, user_person)
+            result = edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year)
             for message in result:
                 messages.success(request, message)
 
@@ -67,7 +69,6 @@ def learning_unit_edition(request, learning_unit_year_id):
             for msg in msgs:
                 messages.error(request, msg)
 
-    context = get_learning_unit_identification_context(learning_unit_year_id, user_person)
     context['form'] = form
 
     return layout.render(request, 'learning_unit/edition.html', context)
