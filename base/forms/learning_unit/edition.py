@@ -60,7 +60,11 @@ class LearningUnitEndDateForm(BootstrapForm):
 
     def _get_academic_years(self):
         current_academic_year = academic_year.current_academic_year()
+        min_year = current_academic_year.year
         max_year = compute_max_academic_year_adjournment()
+
+        if self.learning_unit.start_year > min_year:
+            min_year = self.learning_unit.start_year
 
         if is_old_learning_unit(self.learning_unit):
             raise ValueError(
@@ -68,7 +72,10 @@ class LearningUnitEndDateForm(BootstrapForm):
                     self.learning_unit.end_year, current_academic_year)
             )
 
-        return AcademicYear.objects.filter(year__gte=current_academic_year.year, year__lte=max_year)
+        if min_year > max_year:
+            raise ValueError('Learning_unit {} cannot be modify'.format(self.learning_unit))
+
+        return AcademicYear.objects.filter(year__gte=min_year.year, year__lte=max_year)
 
 
 def _filter_biennial(queryset, periodicity):

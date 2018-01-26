@@ -56,7 +56,7 @@ def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year):
     return result
 
 
-def shorten_learning_unit(learning_unit_to_edit, new_academic_year, user):
+def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
     """
     Delete existing learning_unit_years above a given academic_year
     """
