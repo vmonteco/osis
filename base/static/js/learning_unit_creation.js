@@ -63,7 +63,7 @@ const internship = "INTERNSHIP";
         submit_btn.prop('disabled', false);
 
         if (partim_letter && partim_letter != '') {
-            acronym = $('#id_acronym').val() + partim_letter;
+            acronym = $('#id_first_letter').val() + $('#id_acronym').val() + partim_letter;
             validateion_url = $('#LearningUnitYearForm').data('validate-url');
             year_id = $('#id_academic_year').val();
 

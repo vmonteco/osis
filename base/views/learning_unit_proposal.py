@@ -30,9 +30,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import PermissionDenied
 
 
-from base.business.learning_unit_proposal import compute_form_initial_data, compute_proposal_type, \
+from base.business.learning_unit_proposal import compute_proposal_type, \
     is_eligible_for_modification_proposal, is_eligible_for_cancel_of_proposal, reinitialize_data_before_proposal, \
     delete_learning_unit_proposal
+from base.views.learning_unit import compute_form_initial_data
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.models.enums import proposal_state
 from base.models.learning_unit_year import LearningUnitYear

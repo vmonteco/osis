@@ -26,6 +26,7 @@
 import datetime
 from unittest import mock
 
+from decimal import Decimal
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
@@ -45,11 +46,11 @@ from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear
 from base.models.enums import entity_container_year_link_type
 from base.models.enums import learning_container_year_types, organization_type, entity_type
+from base.models.enums import learning_unit_periodicity
+from base.models.enums import learning_unit_year_quadrimesters
+from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
-from base.models.enums.internship_subtypes import TEACHING_INTERNSHIP
-from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP
-from base.models.enums.learning_unit_periodicity import ANNUAL
-from base.models.enums.learning_unit_year_session import SESSION_P23
+from base.models.enums import internship_subtypes
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
@@ -69,10 +70,10 @@ from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
+from base.views.learning_unit import compute_partim_form_initial_data, _get_post_data_without_read_only_field
 from osis_common.document import xls_build
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
-from django.utils.encoding import force_text
 
 
 class LearningUnitViewTestCase(TestCase):
@@ -412,7 +413,8 @@ class LearningUnitViewTestCase(TestCase):
                                                      learning_container_year=learning_container_yr)
         learning_unit_yr_2 = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      acronym='LBIOLB',
-                                                     learning_container_year=learning_container_yr)
+                                                     learning_container_year=learning_container_yr,
+                                                     quadrimester=None)
 
         learning_component_yr = LearningComponentYearFactory(learning_container_year=learning_container_yr)
 
@@ -612,6 +614,7 @@ class LearningUnitViewTestCase(TestCase):
     def get_base_form_data(self):
         data = self.get_common_data()
         data.update(self.get_learning_unit_data())
+        data['internship_subtype'] = internship_subtypes.TEACHING_INTERNSHIP
         return data
 
     def get_base_partim_form_data(self, original_learning_unit_year):
@@ -620,13 +623,12 @@ class LearningUnitViewTestCase(TestCase):
         return data
 
     def get_common_data(self):
-        return {"container_type": COURSE,
+        return {"container_type": learning_container_year_types.COURSE,
                 "academic_year": self.current_academic_year.id,
                 "status": True,
-                "periodicity": ANNUAL,
+                "periodicity": learning_unit_periodicity.ANNUAL,
                 "credits": "5",
                 "campus": self.campus.id,
-                "internship_subtype": TEACHING_INTERNSHIP,
                 "title": "LAW",
                 "title_english": "LAW",
                 "requirement_entity": self.entity_version.id,
@@ -634,7 +636,7 @@ class LearningUnitViewTestCase(TestCase):
                 "additional_requirement_entity_1": self.entity_version.id,
                 "additional_requirement_entity_2": self.entity_version.id,
                 "language": self.language.id,
-                "session": SESSION_P23,
+                "session": learning_unit_year_session.SESSION_P23,
                 "faculty_remark": "faculty remark",
                 "other_remark": "other remark"}
 
@@ -645,8 +647,8 @@ class LearningUnitViewTestCase(TestCase):
 
     def get_partim_data(self, original_learning_unit_year):
         return {
-            'first_letter': None,
-            'acronym': 'LTAU2000',
+            'first_letter': original_learning_unit_year.acronym[:1],
+            'acronym': original_learning_unit_year.acronym[1:],
             'partim_letter': 'B',
             'learning_unit_year_parent': original_learning_unit_year.id,
             "subtype": learning_unit_year_subtypes.PARTIM
@@ -667,7 +669,7 @@ class LearningUnitViewTestCase(TestCase):
 
     def get_empty_internship_subtype(self):
         faultydict = dict(self.get_valid_data())
-        faultydict["container_type"] = INTERNSHIP
+        faultydict["container_type"] = learning_container_year_types.INTERNSHIP
         faultydict["internship_subtype"] = ""
         return faultydict
 
@@ -735,7 +737,6 @@ class LearningUnitViewTestCase(TestCase):
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_empty_internship_subtype())
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['internship_subtype'], _('field_is_required'))
-
 
     def test_learning_unit_check_acronym(self):
         kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
@@ -891,15 +892,20 @@ class LearningUnitViewTestCase(TestCase):
 
         # Create UE with NO end_year
         a_learning_unit = LearningUnitFactory(end_year=None)
-        learning_unit_year_parent = LearningUnitYearFactory(academic_year=self.current_academic_year,
+        learning_unit_year_parent = LearningUnitYearFactory(acronym='LBIR1200',
+                                                            academic_year=self.current_academic_year,
                                                             subtype=learning_unit_year_subtypes.FULL,
                                                             learning_container_year=a_learning_container_yr_1,
                                                             learning_unit=a_learning_unit)
 
         valid_partim_data = self.get_base_partim_form_data(learning_unit_year_parent)
-        full_acronym = valid_partim_data.get('acronym') + valid_partim_data.get('partim_letter')
+        # Learning unit year parent doesn't have any additional entities
+        del valid_partim_data['additional_requirement_entity_1']
+        del valid_partim_data['additional_requirement_entity_2']
+
         form = CreatePartimForm(person=self.person, data=valid_partim_data)
         self.assertTrue(form.is_valid(), form.errors)
+        full_acronym = form.cleaned_data['acronym']
 
         url = reverse('learning_unit_year_partim_add',
                       kwargs={'learning_unit_year_id': learning_unit_year_parent.id})
@@ -923,15 +929,20 @@ class LearningUnitViewTestCase(TestCase):
 
         # Create UE with end_year set to N+1
         a_learning_unit = LearningUnitFactory(end_year=self.academic_year_1.year)
-        learning_unit_year_parent = LearningUnitYearFactory(academic_year=self.current_academic_year,
+        learning_unit_year_parent = LearningUnitYearFactory(acronym='LBIR1200',
+                                                            academic_year=self.current_academic_year,
                                                             subtype=learning_unit_year_subtypes.FULL,
                                                             learning_container_year=a_learning_container_yr_1,
                                                             learning_unit=a_learning_unit)
 
         valid_partim_data = self.get_base_partim_form_data(learning_unit_year_parent)
-        full_acronym = valid_partim_data.get('acronym')+valid_partim_data.get('partim_letter')
+        # Learning unit year parent doesn't have any additional entities
+        del valid_partim_data['additional_requirement_entity_1']
+        del valid_partim_data['additional_requirement_entity_2']
+
         form = CreatePartimForm(person=self.person, data=valid_partim_data)
         self.assertTrue(form.is_valid(), form.errors)
+        full_acronym = form.cleaned_data['acronym']
 
         url = reverse('learning_unit_year_partim_add',
                       kwargs={'learning_unit_year_id': learning_unit_year_parent.id})
@@ -945,9 +956,55 @@ class LearningUnitViewTestCase(TestCase):
             .count()
         self.assertEqual(count_learning_unit_year, 2)
 
+    def test_get_partim_creation_form_initial_data(self):
+        l_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year,
+                                                        acronym='LBIR1200',
+                                                        container_type=learning_container_year_types.COURSE,
+                                                        campus=self.campus,
+                                                        language=self.language)
+        l_unit = LearningUnitFactory(faculty_remark="Remarks Faculty",other_remark="Other Remarks",
+                                     periodicity=learning_unit_periodicity.ANNUAL)
+        learning_unit_year_parent = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                            learning_unit=l_unit,
+                                                            acronym='LBIR1200',
+                                                            subtype=learning_unit_year_subtypes.FULL,
+                                                            learning_container_year=l_container_year,
+                                                            credits=Decimal(5),
+                                                            session=learning_unit_year_session.SESSION_1XX,
+                                                            quadrimester=learning_unit_year_quadrimesters.Q1)
+        initial = compute_partim_form_initial_data(learning_unit_year_parent)
+        self.assertTrue(initial)
+        self.assertIsInstance(initial, dict)
+        self.assertEqual(initial['academic_year'], self.current_academic_year.id)
+        self.assertEqual(initial['first_letter'], "L")
+        self.assertEqual(initial['acronym'], "BIR1200")
+        self.assertEqual(initial['subtype'], learning_unit_year_subtypes.PARTIM)
+        self.assertEqual(initial['container_type'], learning_container_year_types.COURSE)
+        self.assertTrue(initial['status'])
+        self.assertEqual(initial['language'], self.language.id)
+        self.assertEqual(initial['credits'], Decimal(5))
+        self.assertEqual(initial['session'], learning_unit_year_session.SESSION_1XX)
+        self.assertEqual(initial['faculty_remark'], "Remarks Faculty")
+        self.assertEqual(initial['other_remark'], "Other Remarks")
+        self.assertEqual(initial['periodicity'], learning_unit_periodicity.ANNUAL)
+        self.assertEqual(initial['quadrimester'], learning_unit_year_quadrimesters.Q1)
+        self.assertEqual(initial['campus'], self.campus.id)
+
+    @mock.patch('base.views.learning_unit.PARTIM_FORM_READ_ONLY_FIELD', {'container_type', 'campus'})
+    def test_get_post_data_without_read_only_field(self):
+        post_data = {'other_remark': 'Autre remarque', 'container_type': learning_container_year_types.COURSE,
+                     'campus': self.campus.id}
+        post_data_filtered = _get_post_data_without_read_only_field(post_data)
+        self.assertIsInstance(post_data_filtered, dict)
+        self.assertEqual(post_data_filtered['other_remark'], 'Autre remarque')
+        self.assertRaises(KeyError, lambda: post_data_filtered['container_type'])
+        self.assertRaises(KeyError, lambda: post_data_filtered['campus'])
+
     def build_learning_container_year(self, a_learning_container, an_academic_year):
         a_learning_container_yr = LearningContainerYearFactory(academic_year=an_academic_year,
-                                                               learning_container=a_learning_container)
+                                                               learning_container=a_learning_container,
+                                                               campus=self.campus,
+                                                               container_type=learning_container_year_types.COURSE)
         EntityContainerYearFactory(learning_container_year=a_learning_container_yr,
                                    entity=self.entity_version.entity,
                                    type=entity_container_year_link_type.REQUIREMENT_ENTITY)
@@ -1072,19 +1129,19 @@ class LearningUnitYearAdd(TestCase):
         form_data = {
             "first_letter": "L",
             "acronym": "TAU2000",
-            "container_type": COURSE,
+            "container_type": learning_container_year_types.COURSE,
             "academic_year": current_academic_year.id,
             "status": True,
-            "periodicity": ANNUAL,
+            "periodicity": learning_unit_periodicity.ANNUAL,
             "credits": "5",
             "campus": campus.id,
-            "internship_subtype": TEACHING_INTERNSHIP,
+            "internship_subtype": internship_subtypes.TEACHING_INTERNSHIP,
             "title": "LAW",
             "title_english": "LAW",
             "requirement_entity": entity_version.id,
             "subtype": learning_unit_year_subtypes.FULL,
             "language": language.id,
-            "session": SESSION_P23,
+            "session": learning_unit_year_session.SESSION_P23,
             "faculty_remark": "faculty remark",
             "other_remark": "other remark"
         }

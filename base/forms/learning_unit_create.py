@@ -47,6 +47,8 @@ from base.models.enums import learning_container_year_types
 MAX_RECORDS = 1000
 EMPTY_FIELD = "---------"
 READONLY_ATTR = "disabled"
+PARTIM_FORM_READ_ONLY_FIELD = {'first_letter', 'acronym', 'title', 'title_english', 'requirement_entity',
+                               'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year'}
 
 
 def _create_first_letter_choices():
@@ -175,10 +177,8 @@ class CreatePartimForm(CreateLearningUnitYearForm):
         self.set_read_only_fields()
 
     def set_read_only_fields(self):
-        ready_only_fields = {'first_letter', 'acronym', 'title', 'title_english', 'requirement_entity',
-                             'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year'}
-        for field in ready_only_fields:
+        for field in PARTIM_FORM_READ_ONLY_FIELD:
             self.fields[field].widget.attrs[READONLY_ATTR] = READONLY_ATTR
 
     def clean_acronym(self):
-        return super().clean_acronym() + self.data.get('partim_letter', [])[0].upper()
+        return super(CreatePartimForm, self).clean_acronym() + self.data.get('partim_letter', [])[0].upper()
