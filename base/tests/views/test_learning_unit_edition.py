@@ -23,13 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from unittest import mock
+
 from django.contrib import messages
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
-from mock import mock
 
 from base.models.enums import learning_unit_periodicity
 from base.tests.factories.business.learning_units import LearningUnitsMixin
