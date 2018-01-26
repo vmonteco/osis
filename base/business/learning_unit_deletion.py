@@ -146,9 +146,9 @@ def _can_delete_learning_unit_year_according_type(user, learning_unit_year):
         subtype = learning_unit_year.subtype
 
         return not (
-                container_type == learning_container_year_types.COURSE and subtype == learning_unit_year_subtypes.FULL) \
-               and container_type not in [learning_container_year_types.DISSERTATION,
-                                          learning_container_year_types.INTERNSHIP]
+                container_type == learning_container_year_types.COURSE and subtype == learning_unit_year_subtypes.FULL
+        ) and container_type not in [learning_container_year_types.DISSERTATION,
+                                     learning_container_year_types.INTERNSHIP]
     return True
 
 

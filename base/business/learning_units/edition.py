@@ -56,14 +56,6 @@ def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year):
     return result
 
 
-def _get_actual_end_year(learning_unit_to_edit):
-    return learning_unit_to_edit.end_year or compute_max_academic_year_adjournment()
-
-
-def _get_new_end_year(new_academic_year):
-    return new_academic_year.year if new_academic_year else None
-
-
 def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
     """
     Delete existing learning_unit_years above a given academic_year
@@ -76,17 +68,7 @@ def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
     if not learning_unit_year_to_delete:
         return []
 
-    partims = learning_unit_year_to_delete.get_partims_related() or []
-    for partim in partims:
-        if partim.learning_unit.end_year <= new_academic_year.year:
-            continue
-        raise IntegrityError(
-            _('The learning unit %(learning_unit) has a partim %(partim)s with an end year greater than %(year)s') % {
-                'learning_unit': learning_unit_year_to_delete.acronym,
-                'partim': partim.acronym,
-                'year': new_academic_year
-            }
-        )
+    _check_partims(learning_unit_year_to_delete, new_academic_year)
 
     warning_msg = check_learning_unit_year_deletion(learning_unit_year_to_delete)
     if warning_msg:
@@ -152,3 +134,25 @@ def _update_academic_year_for_learning_container_year(lcy, new_academic_year):
     duplicated_lcy.save()
 
     return duplicated_lcy
+
+
+def _check_partims(learning_unit_year_to_delete, new_academic_year):
+    partims = learning_unit_year_to_delete.get_partims_related() or []
+    for partim in partims:
+        if partim.learning_unit.end_year <= new_academic_year.year:
+            continue
+        raise IntegrityError(
+            _('The learning unit %(learning_unit) has a partim %(partim)s with an end year greater than %(year)s') % {
+                'learning_unit': learning_unit_year_to_delete.acronym,
+                'partim': partim.acronym,
+                'year': new_academic_year
+            }
+        )
+
+
+def _get_actual_end_year(learning_unit_to_edit):
+    return learning_unit_to_edit.end_year or compute_max_academic_year_adjournment()
+
+
+def _get_new_end_year(new_academic_year):
+    return new_academic_year.year if new_academic_year else None
