@@ -72,6 +72,8 @@ from osis_common.document import xls_build
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
 from django.test.utils import override_settings
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
+from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm
 
 
 class LearningUnitViewTestCase(TestCase):
@@ -833,15 +835,62 @@ class LearningUnitViewTestCase(TestCase):
     def test_prepare_xls_content_no_data(self):
         self.assertEqual(base.business.learning_unit.prepare_xls_content([]), [])
 
-    @override_settings(LANGUAGES=[('fr-be', 'French'),('en', 'English'),])
+    @override_settings(LANGUAGES=[('fr-be', 'French'), ('en', 'English'), ])
     def test_find_inexisting_language_in_settings(self):
         wrong_language_code = 'pt'
         self.assertIsNone(learning_unit_business.find_language_in_settings(wrong_language_code))
 
-    @override_settings(LANGUAGES=[('fr-be', 'French'),('en', 'English'),])
+    @override_settings(LANGUAGES=[('fr-be', 'French'), ('en', 'English'), ])
     def test_find_language_in_settings(self):
         existing_language_code = 'en'
         self.assertEquals(learning_unit_business.find_language_in_settings(existing_language_code), ('en', 'English'))
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_unit_pedagogy(self, mock_render):
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=self.learning_container_yr)
+
+        request_factory = RequestFactory()
+
+        request = request_factory.get(reverse('learning_unit',
+                                              args=[learning_unit_year.id]))
+
+        request.user = self.a_superuser
+
+        from base.views.learning_unit import learning_unit_pedagogy
+
+        learning_unit_pedagogy(request, learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/pedagogy.html')
+        self.assertIsInstance(context['form_french'], LearningUnitPedagogyForm)
+        self.assertIsInstance(context['form_english'], LearningUnitPedagogyForm)
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_unit_pedagogy(self, mock_render):
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=self.learning_container_yr)
+
+        request_factory = RequestFactory()
+
+        request = request_factory.get(reverse('learning_unit',
+                                              args=[learning_unit_year.id]))
+
+        request.user = self.a_superuser
+
+        from base.views.learning_unit import learning_unit_specifications
+
+        learning_unit_specifications(request, learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/specifications.html')
+        self.assertIsInstance(context['form_french'], LearningUnitSpecificationsForm)
+        self.assertIsInstance(context['form_english'], LearningUnitSpecificationsForm)
+
 
 class LearningUnitCreate(TestCase):
     def setUp(self):
@@ -1029,6 +1078,6 @@ def _generate_xls_build_parameter(xls_data, user):
                                                    str(_('allocation_entity_small')),
                                                    str(_('credits')),
                                                    str(_('active_title'))],
-                     xls_build.WORKSHEET_TITLE_KEY: 'Learning_units',}
+                     xls_build.WORKSHEET_TITLE_KEY: 'Learning_units', }
                 ]
             }
