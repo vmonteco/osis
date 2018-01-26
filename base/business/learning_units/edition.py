@@ -142,7 +142,7 @@ def _check_partims(learning_unit_year_to_delete, new_academic_year):
         if partim.learning_unit.end_year or partim.learning_unit.end_year <= new_academic_year.year:
             continue
         raise IntegrityError(
-            _('The learning unit %(learning_unit) has a partim %(partim)s with an end year greater than %(year)s') % {
+            _('The learning unit %(learning_unit)s has a partim %(partim)s with an end year greater than %(year)s') % {
                 'learning_unit': learning_unit_year_to_delete.acronym,
                 'partim': partim.acronym,
                 'year': new_academic_year
@@ -161,10 +161,10 @@ def _get_new_end_year(new_academic_year):
 def _get_next_academic_years(learning_unit_to_edit, year):
     range_years = list(range(learning_unit_to_edit.end_year + 1, year + 1))
     queryset = AcademicYear.objects.filter(year__in=range_years).order_by('year')
-    return _filter_biennial(queryset, learning_unit_to_edit.periocity)
+    return filter_biennial(queryset, learning_unit_to_edit.periodicity)
 
 
-def _filter_biennial(queryset, periodicity):
+def filter_biennial(queryset, periodicity):
     result = queryset
     if periodicity != learning_unit_periodicity.ANNUAL:
         is_odd = periodicity == learning_unit_periodicity.BIENNIAL_ODD
