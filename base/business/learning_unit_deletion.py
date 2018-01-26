@@ -91,18 +91,17 @@ def _check_tutoring_learning_unit_year(tutoring):
 
 
 def _check_group_element_year_deletion(group_element_year):
-    msg = {}
+    if not group_element_year.parent:
+        return {}
 
-    if group_element_year.parent:
-        msg[group_element_year] = _(
-            '%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s') \
-                                  % {'subtype': _str_partim_or_full(group_element_year.child_leaf),
-                                     'acronym': group_element_year.child_leaf.acronym,
-                                     'group': group_element_year.parent.acronym,
-                                     'program': group_element_year.parent.education_group_type,
-                                     'year': group_element_year.child_leaf.academic_year}
-
-    return msg
+    return {group_element_year: _(
+        '%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s'
+    ) % {'subtype': _str_partim_or_full(group_element_year.child_leaf),
+         'acronym': group_element_year.child_leaf.acronym,
+         'group': group_element_year.parent.acronym,
+         'program': group_element_year.parent.education_group_type,
+         'year': group_element_year.child_leaf.academic_year}
+            }
 
 
 def _check_learning_unit_component_deletion(l_unit_component):

@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
@@ -37,38 +36,35 @@ from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
+from base.views.common import display_error_messages
 
 
 @login_required
 @permission_required('base.can_edit_learningunit_date', raise_exception=True)
 def learning_unit_edition(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
-    learning_unit_to_edit = learning_unit_year.learning_unit
-
     user_person = get_object_or_404(Person, user=request.user)
 
     context = get_learning_unit_identification_context(learning_unit_year_id, user_person)
-    if not context.get('can_edit_date', False):
-        raise PermissionDenied("Learning unit year date is not editable or user has not sufficient rights.")
+    _check_permission_to_edit_date(context)
 
+    learning_unit_to_edit = learning_unit_year.learning_unit
     form = LearningUnitEndDateForm(request.POST or None, learning_unit=learning_unit_to_edit)
     if form.is_valid():
         new_academic_year = form.cleaned_data['academic_year']
         try:
             result = edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year)
-            for message in result:
-                messages.success(request, message)
+            display_error_messages(request, result)
 
             return HttpResponseRedirect(reverse('learning_unit', args=[learning_unit_year_id]))
 
         except IntegrityError as e:
-            msgs = e.args
-            if not isinstance(msgs, list):
-                msgs = list(msgs)
-
-            for msg in msgs:
-                messages.error(request, msg)
+            display_error_messages(request, e.args)
 
     context['form'] = form
-
     return layout.render(request, 'learning_unit/edition.html', context)
+
+
+def _check_permission_to_edit_date(context):
+    if not context.get('can_edit_date', False):
+        raise PermissionDenied("Learning unit year date is not editable or user has not sufficient rights.")
