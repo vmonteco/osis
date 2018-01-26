@@ -36,11 +36,16 @@ from base.models.academic_year import AcademicYear
 from base.models.enums import learning_unit_periodicity
 from base.models.learning_unit_year import LearningUnitYear
 
+message_templates = {
+    'parent_greater_than_partim': _('The selected end year is greater than the end year of the parent %(lu_parent)s'),
+    'learning_unit_created': _('Learning unit %(learning_unit)s created for the academic year %(academic_year)s'),
+    'learning_unit_updated': _('Learning unit %(learning_unit)s has been updated successfully'),
+    'partim_greater_than_parent':
+        _('The learning unit %(learning_unit)s has a partim %(partim)s with an end year greater than %(year)s')
+}
+
 
 def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year):
-    """
-    Decide to extend or shorten the learning unit
-    """
     result = []
 
     new_end_year = _get_new_end_year(new_academic_year)
@@ -59,9 +64,6 @@ def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year):
 
 
 def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
-    """
-    Delete existing learning_unit_years above a given academic_year
-    """
     learning_unit_year_to_delete = LearningUnitYear.objects.filter(
         learning_unit=learning_unit_to_edit,
         academic_year__year=new_academic_year.year + 1
@@ -80,22 +82,18 @@ def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
 
 
 def extend_learning_unit(learning_unit_to_edit, new_academic_year):
-    """
-    Create new learning_unit_years until a given academic_year
-    """
     result = []
     last_learning_unit_year = LearningUnitYear.objects.filter(learning_unit=learning_unit_to_edit
                                                               ).order_by('academic_year').last()
 
     lu_parent = last_learning_unit_year.parent
-    if lu_parent != last_learning_unit_year and lu_parent.learning_unit.end_year < new_academic_year.year:
-        raise IntegrityError(_('The selected end year is greater than the end year of the parent %(lu_parent)s') % {
-            'lu_parent': lu_parent
-        })
+    if last_learning_unit_year.subtype == 'PARTIM' and \
+            lu_parent and lu_parent.learning_unit.end_year < new_academic_year.year:
+        raise IntegrityError(message_templates['parent_greater_than_partim'] % {'lu_parent': lu_parent})
 
     for ac_year in _get_next_academic_years(learning_unit_to_edit, new_academic_year.year):
         new_luy = _update_academic_year_for_learning_unit_year(last_learning_unit_year, ac_year)
-        result.append(_('Learning unit %(learning_unit)s created for the academic year %(academic_year)s') % {
+        result.append(message_templates['learning_unit_created'] % {
             'learning_unit': new_luy.acronym,
             'academic_year': new_luy.academic_year
         })
@@ -106,7 +104,7 @@ def extend_learning_unit(learning_unit_to_edit, new_academic_year):
 def _update_end_year_field(lu, year):
     lu.end_year = year
     lu.save()
-    return _('Learning unit %(learning_unit)s has been updated successfully') % {'learning_unit': lu}
+    return message_templates['learning_unit_updated'] % {'learning_unit': lu.acronym}
 
 
 def _duplicate_object(obj):
@@ -142,7 +140,7 @@ def _check_partims(learning_unit_year_to_delete, new_academic_year):
         if partim.learning_unit.end_year or partim.learning_unit.end_year <= new_academic_year.year:
             continue
         raise IntegrityError(
-            _('The learning unit %(learning_unit)s has a partim %(partim)s with an end year greater than %(year)s') % {
+            message_templates['partim_greater_than_parent'] % {
                 'learning_unit': learning_unit_year_to_delete.acronym,
                 'partim': partim.acronym,
                 'year': new_academic_year

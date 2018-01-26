@@ -38,13 +38,15 @@ from django.views.decorators.http import require_http_methods, require_POST
 
 from attribution.business import attribution_charge_new
 from attribution.models.attribution import Attribution
-from base import models as mdl
-from base.business import learning_unit_year_volumes, learning_unit_year_with_context
+from base import models as mdl, models as mdl_base
+from base.business import learning_unit_year_volumes, learning_unit_year_with_context, learning_unit_proposal, \
+    learning_unit_deletion
 from base.business.learning_unit import create_learning_unit, get_common_context_learning_unit_year, \
     get_cms_label_data, extract_volumes_from_data, get_same_container_year_components, get_last_academic_years, \
     SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, create_learning_unit_structure, \
     initialize_learning_unit_pedagogy_form, find_language_in_settings, compute_max_academic_year_adjournment, \
-    is_summary_submission_opened, get_learning_unit_identification_context
+    is_summary_submission_opened, get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
+    show_subtype, get_all_attributions, get_components_identification, is_eligible_for_modification_end_date
 from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
@@ -52,6 +54,7 @@ from base.forms.learning_unit_create import CreateLearningUnitYearForm, EMPTY_FI
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_units import LearningUnitYearForm
+from base.models import proposal_learning_unit
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
@@ -480,3 +483,24 @@ def outside_period(request):
     text = _('summary_responsible_denied')
     messages.add_message(request, messages.WARNING, "%s" % text)
     return render(request, "access_denied.html")
+
+
+def get_learning_unit_identification_context(learning_unit_year_id, person):
+    context = get_common_context_learning_unit_year(learning_unit_year_id)
+    learning_unit_year = context['learning_unit_year']
+    context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
+    context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
+    context['campus'] = get_campus_from_learning_unit_year(learning_unit_year)
+    context['experimental_phase'] = True
+    context['show_subtype'] = show_subtype(learning_unit_year)
+    context.update(get_all_attributions(learning_unit_year))
+    context['components'] = get_components_identification(learning_unit_year)
+    context['can_propose'] = learning_unit_proposal.is_eligible_for_modification_proposal(learning_unit_year, person)
+    context['can_edit_date'] = is_eligible_for_modification_end_date(learning_unit_year, person)
+    context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
+    context['can_cancel_proposal'] = learning_unit_proposal. \
+        is_eligible_for_cancel_of_proposal(context['proposal'], person) if context['proposal'] else False
+    context['proposal_folder_entity_version'] = mdl_base.entity_version.get_by_entity_and_date(
+        context['proposal'].folder.entity, None) if context['proposal'] else None
+    context['can_delete'] = learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year)
+    return context

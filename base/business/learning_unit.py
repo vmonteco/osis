@@ -30,7 +30,6 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl_base
-from base.business import learning_unit_proposal, learning_unit_deletion
 from base.business.learning_unit_proposal import is_person_linked_to_entity_in_charge_of_learning_unit
 from base.business.learning_unit_year_with_context import volume_learning_component_year
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
@@ -88,27 +87,6 @@ def get_last_academic_years(last_years=10):
     today = datetime.date.today()
     date_ten_years_before = today.replace(year=today.year - last_years)
     return mdl_base.academic_year.find_academic_years().filter(start_date__gte=date_ten_years_before)
-
-
-def get_learning_unit_identification_context(learning_unit_year_id, person):
-    context = get_common_context_learning_unit_year(learning_unit_year_id)
-    learning_unit_year = context['learning_unit_year']
-    context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
-    context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
-    context['campus'] = get_campus_from_learning_unit_year(learning_unit_year)
-    context['experimental_phase'] = True
-    context['show_subtype'] = show_subtype(learning_unit_year)
-    context.update(get_all_attributions(learning_unit_year))
-    context['components'] = get_components_identification(learning_unit_year)
-    context['can_propose'] = learning_unit_proposal.is_eligible_for_modification_proposal(learning_unit_year, person)
-    context['can_edit_date'] = is_eligible_for_modification_end_date(learning_unit_year, person)
-    context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
-    context['can_cancel_proposal'] = learning_unit_proposal. \
-        is_eligible_for_cancel_of_proposal(context['proposal'], person) if context['proposal'] else False
-    context['proposal_folder_entity_version'] = mdl_base.entity_version.get_by_entity_and_date(
-        context['proposal'].folder.entity, None) if context['proposal'] else None
-    context['can_delete'] = learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year)
-    return context
 
 
 def get_common_context_learning_unit_year(learning_unit_year_id):
@@ -400,12 +378,6 @@ def find_language_in_settings(language_code):
 
 
 def is_eligible_for_modification_end_date(learning_unit_year, a_person):
-    """
-    A learning unit end date can be editable only under some conditions:
-        - It cannot be in the past
-        - It cannot be in a proposal state
-        - The user have the right to edit it
-    """
     result = False
     if is_old_learning_unit(learning_unit_year.learning_unit):
         pass
