@@ -538,7 +538,7 @@ def learning_unit_year_partim_add(request, learning_unit_year_id):
     if form.is_valid():
         create_partim_process(learning_unit_year_parent, form)
         return HttpResponseRedirect(reverse("learning_unit",
-                                        kwargs={'learning_unit_year_id': learning_unit_year_parent.id}))
+                                            kwargs={'learning_unit_year_id': learning_unit_year_parent.id}))
     return layout.render(request, "learning_unit/partim_form.html", {'form': form})
 
 
