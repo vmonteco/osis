@@ -400,12 +400,6 @@ def find_language_in_settings(language_code):
 
 
 def is_eligible_for_modification_end_date(learning_unit_year, a_person):
-    """
-    A learning unit end date can be editable only under some conditions:
-        - It cannot be in the past
-        - It cannot be in a proposal state
-        - The user have the right to edit it
-    """
     result = False
     if is_old_learning_unit(learning_unit_year.learning_unit):
         pass

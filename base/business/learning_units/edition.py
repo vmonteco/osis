@@ -38,9 +38,6 @@ from base.models.learning_unit_year import LearningUnitYear
 
 
 def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year):
-    """
-    Decide to extend or shorten the learning unit
-    """
     result = []
 
     new_end_year = _get_new_end_year(new_academic_year)
@@ -59,9 +56,6 @@ def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year):
 
 
 def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
-    """
-    Delete existing learning_unit_years above a given academic_year
-    """
     learning_unit_year_to_delete = LearningUnitYear.objects.filter(
         learning_unit=learning_unit_to_edit,
         academic_year__year=new_academic_year.year + 1
@@ -80,9 +74,6 @@ def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
 
 
 def extend_learning_unit(learning_unit_to_edit, new_academic_year):
-    """
-    Create new learning_unit_years until a given academic_year
-    """
     result = []
     last_learning_unit_year = LearningUnitYear.objects.filter(learning_unit=learning_unit_to_edit
                                                               ).order_by('academic_year').last()
