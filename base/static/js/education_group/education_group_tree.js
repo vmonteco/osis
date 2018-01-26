@@ -1,13 +1,8 @@
 function showDiv() {
     if (document.getElementById('collapse').style.display === "block") {
-        document.getElementById('collapse').style.display = "none";
-        document.getElementById('panel-collapse').className = "col-md-0";
-        document.getElementById('panel-data').className = "col-md-12";
-
+        modifyPanelAttribute("none", "col-md-0", "col-md-12");
     } else {
-        document.getElementById('collapse').style.display = "block";
-        document.getElementById('panel-collapse').className = "col-md-3";
-        document.getElementById('panel-data').className = "col-md-9";
+        modifyPanelAttribute("block", "col-md-3", "col-md-9");
     }
 
     document.getElementById('link_identification').href = switchUrlParameterTreeValue(document.getElementById('link_identification').href);
@@ -15,6 +10,13 @@ function showDiv() {
     document.getElementById('link_general_information').href = switchUrlParameterTreeValue(document.getElementById('link_general_information').href);
     document.getElementById('link_administrative').href = switchUrlParameterTreeValue(document.getElementById('link_administrative').href);
     document.getElementById('link_content').href = switchUrlParameterTreeValue(document.getElementById('link_content').href);
+}
+
+
+function modifyPanelAttribute(collapse_style_display, panel_collapse_class, panel_data_class){
+    document.getElementById('collapse').style.display = collapse_style_display;
+        document.getElementById('panel-collapse').className = panel_collapse_class;
+        document.getElementById('panel-data').className = panel_data_class;
 }
 
 
