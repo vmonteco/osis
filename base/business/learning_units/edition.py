@@ -44,6 +44,7 @@ message_templates = {
         _('The learning unit %(learning_unit)s has a partim %(partim)s with an end year greater than %(year)s')
 }
 
+
 def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year):
     result = []
 

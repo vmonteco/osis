@@ -26,6 +26,7 @@
 from unittest import mock
 
 from django.contrib import messages
+from django.contrib.auth.models import Permission
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
@@ -43,6 +44,11 @@ class TestLearningUnitEditionViewForm(TestCase, LearningUnitsMixin):
     def setUp(self):
         super().setUp()
         self.user = UserFactory(username="YodaTheJediMaster")
+        self.person = PersonFactory(user=self.user)
+        self.permission = Permission.objects.get(codename="can_edit_learningunit_date")
+        self.person.user.user_permissions.add(self.permission)
+        self.client.force_login(self.user)
+
         self.setup_academic_years()
         self.learning_unit = self.setup_learning_unit(self.current_academic_year.year, learning_unit_periodicity.ANNUAL)
         self.learning_container_year = self.setup_learning_container_year(self.current_academic_year)
@@ -59,12 +65,8 @@ class TestLearningUnitEditionViewForm(TestCase, LearningUnitsMixin):
     def test_view_learning_unit_edition_permission_denied(self):
         from base.views.learning_units.edition import learning_unit_edition
 
-        request_factory = RequestFactory()
-        request = request_factory.get(reverse(learning_unit_edition, args=[self.learning_unit_year.id]))
-        request.user = self.user
-
-        with self.assertRaises(PermissionDenied):
-            learning_unit_edition(request, self.learning_unit_year.id)
+        response = self.client.get(reverse(learning_unit_edition, args=[self.learning_unit_year.id]))
+        self.assertEqual(response.status_code, 403)
 
     @mock.patch('base.views.layout.render')
     def test_view_learning_unit_edition_get(self, mock_render):
