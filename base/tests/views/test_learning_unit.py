@@ -71,6 +71,7 @@ from base.tests.factories.user import SuperUserFactory, UserFactory
 from osis_common.document import xls_build
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
+from django.test.utils import override_settings
 
 
 class LearningUnitViewTestCase(TestCase):
@@ -832,6 +833,15 @@ class LearningUnitViewTestCase(TestCase):
     def test_prepare_xls_content_no_data(self):
         self.assertEqual(base.business.learning_unit.prepare_xls_content([]), [])
 
+    @override_settings(LANGUAGES=[('fr-be', 'French'),('en', 'English'),])
+    def test_find_inexisting_language_in_settings(self):
+        wrong_language_code = 'pt'
+        self.assertIsNone(learning_unit_business.find_language_in_settings(wrong_language_code))
+
+    @override_settings(LANGUAGES=[('fr-be', 'French'),('en', 'English'),])
+    def test_find_language_in_settings(self):
+        existing_language_code = 'en'
+        self.assertEquals(learning_unit_business.find_language_in_settings(existing_language_code), ('en', 'English'))
 
 class LearningUnitCreate(TestCase):
     def setUp(self):
