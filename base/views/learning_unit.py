@@ -64,9 +64,9 @@ from base.models.tutor import is_tutor
 from cms.models import text_label
 from reference.models import language
 from . import layout
+from django.conf import settings
 
-LANGUAGE_CODE_FR = 'fr-be'
-LANGUAGE_CODE_EN = 'en'
+
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
                       'other_informations', 'online_resources']
@@ -161,8 +161,8 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
     user_language = mdl.person.get_user_interface_language(request.user)
     context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language)
 
-    context['form_french'] = initialize_learning_unit_pedagogy_form(learning_unit_year, LANGUAGE_CODE_FR)
-    context['form_english'] = initialize_learning_unit_pedagogy_form(learning_unit_year, LANGUAGE_CODE_EN)
+    context['form_french'] = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_FR)
+    context['form_english'] = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_EN)
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/pedagogy.html", context)
 
@@ -217,8 +217,8 @@ def learning_unit_specifications(request, learning_unit_year_id):
     user_language = mdl.person.get_user_interface_language(request.user)
     context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_SPECIFICATIONS, user_language)
 
-    fr_language = find_language_in_settings(LANGUAGE_CODE_FR)
-    en_language = find_language_in_settings(LANGUAGE_CODE_EN)
+    fr_language = find_language_in_settings(settings.LANGUAGE_CODE_FR)
+    en_language = find_language_in_settings(settings.LANGUAGE_CODE_EN)
 
     context.update({
         'form_french': LearningUnitSpecificationsForm(learning_unit_year, fr_language),
@@ -464,8 +464,8 @@ def learning_unit_summary(request, learning_unit_year_id):
     context = dict()
     context["learning_unit_year"] = learning_unit_year
     context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language)
-    context['form_french'] = initialize_learning_unit_pedagogy_form(learning_unit_year, LANGUAGE_CODE_FR)
-    context['form_english'] = initialize_learning_unit_pedagogy_form(learning_unit_year, 'en')
+    context['form_french'] = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_FR)
+    context['form_english'] = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_EN)
     return layout.render(request, "my_osis/educational_information.html", context)
 
 

@@ -135,6 +135,8 @@ LANGUAGES = [
     ('fr-be', _('French')),
     ('en', _('English')),
 ]
+LANGUAGE_CODE_FR = 'fr-be'
+LANGUAGE_CODE_EN = 'en'
 # You can change default values for internalizations settings in your .env file
 USE_I18N = os.environ.get('USE_I18N', 'True').lower() == 'true'
 USE_L10N = os.environ.get('USE_L10N', 'True').lower() == 'true'
