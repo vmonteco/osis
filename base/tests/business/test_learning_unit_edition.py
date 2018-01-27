@@ -329,7 +329,7 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         )
 
         learning_unit_full_annual.start_year = self.current_academic_year.year - 1
-        learning_unit_full_annual.end_year = self.current_academic_year.year + 2
+        learning_unit_full_annual.end_year = self.current_academic_year.year + 4
         learning_unit_full_annual.save()
 
         self.setup_list_of_learning_unit_years(
