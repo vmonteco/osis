@@ -85,7 +85,6 @@ def extend_learning_unit(learning_unit_to_edit, new_academic_year):
     result = []
     last_learning_unit_year = LearningUnitYear.objects.filter(learning_unit=learning_unit_to_edit
                                                               ).order_by('academic_year').last()
-
     lu_parent = last_learning_unit_year.parent
     if last_learning_unit_year.subtype == 'PARTIM' and \
             lu_parent and lu_parent.learning_unit.end_year < new_academic_year.year:

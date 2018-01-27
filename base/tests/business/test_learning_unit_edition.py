@@ -360,40 +360,56 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
     def test_edit_learning_unit_partim_annual_end_date_is_none_with_start_date_lt_now(self):
         """
         """
-        current_year = self.current_academic_year.year
-
-        end_date_expected = current_year + 6
-        learning_unit_full_annual = LearningUnitFactory(
-            periodicity=learning_unit_periodicity.ANNUAL,
-            start_year=current_year - 1,
-            end_year=None)
-
-        learning_unit_partim_annual = LearningUnitFactory(
-            periodicity=learning_unit_periodicity.ANNUAL,
-            start_year=current_year + 1,
-            end_year=None)
-
-        self.setup_list_learning_unit_year_years_from_learning_unit(
-            learning_unit_full_annual, self.learning_container_year_course, learning_unit_year_subtypes.FULL
+        learning_unit_full_annual = self.setup_learning_unit(
+            start_year=self.current_academic_year.year,
+            periodicity=learning_unit_periodicity.ANNUAL
         )
-        self.setup_list_learning_unit_year_years_from_learning_unit(
-            learning_unit_partim_annual, self.learning_container_year_course, learning_unit_year_subtypes.PARTIM
+        learning_unit_partim_annual = self.setup_learning_unit(
+            start_year=self.current_academic_year.year,
+            periodicity=learning_unit_periodicity.ANNUAL
+        )
+        learning_unit_full_annual.start_year = self.current_academic_year.year - 1
+        learning_unit_full_annual.end_year = self.current_academic_year.year + 6
+        learning_unit_full_annual.save()
+        learning_unit_partim_annual.start_year = self.current_academic_year.year - 1
+        learning_unit_partim_annual.end_year = self.current_academic_year.year + 4
+        learning_unit_partim_annual.save()
+
+        list_of_learning_unit_years_full_annual = self.setup_list_of_learning_unit_years(
+            list_of_academic_years=self.list_of_academic_years,
+            learning_unit=learning_unit_full_annual,
+            learning_container_year=self.learning_container_year_course,
+            learning_unit_year_subtype=learning_unit_year_subtypes.FULL
+        )
+        list_of_learning_unit_years_partim_annual = self.setup_list_of_learning_unit_years(
+            list_of_academic_years=self.list_of_academic_years,
+            learning_unit=learning_unit_partim_annual,
+            learning_container_year=self.learning_container_year_course,
+            learning_unit_year_subtype=learning_unit_year_subtypes.PARTIM
         )
 
-        list_of_expected_learning_unit_years = list(LearningUnitYear.objects.filter(
-            subtype=learning_unit_year_subtypes.PARTIM).order_by(
-            'academic_year').values_list('academic_year__year', flat=True))
+        list_of_expected_learning_unit_years = []
+        for learning_unit_year_expected in list_of_learning_unit_years_partim_annual:
+            list_of_expected_learning_unit_years.append(learning_unit_year_expected.academic_year.year)
+        list_of_expected_learning_unit_years.append(learning_unit_partim_annual.end_year + 1)
+        list_of_expected_learning_unit_years.append(learning_unit_partim_annual.end_year + 2)
 
         academic_year_of_new_end_date = None
 
         edit_learning_unit_end_date(learning_unit_partim_annual, academic_year_of_new_end_date)
 
-        list_of_learning_unit_years_partim = list(LearningUnitYear.objects.filter(
-            subtype=learning_unit_year_subtypes.PARTIM).order_by(
-            'academic_year').values_list('academic_year__year', flat=True))
+        list_of_learning_unit_years_full = []
+        list_of_learning_unit_years_partim = []
+        list_of_all_learning_unit_years = list(LearningUnitYear.objects.all())
 
-        self.assertListEqual(list_of_learning_unit_years_partim, list_of_expected_learning_unit_years)
-        self.assertEqual(list_of_learning_unit_years_partim[-1], end_date_expected)
+        for learning_unit_year_saved in list_of_all_learning_unit_years:
+            if learning_unit_year_saved.get_partims_related():
+                list_of_learning_unit_years_full.append(learning_unit_year_saved.academic_year.year)
+            else:
+                list_of_learning_unit_years_partim.append(learning_unit_year_saved.academic_year.year)
+
+        self.assertEqual(len(list_of_learning_unit_years_full), len(list_of_learning_unit_years_full_annual))
+        self.assertEqual(sorted(list_of_learning_unit_years_partim), sorted(list_of_expected_learning_unit_years))
 
     def test_edit_learning_unit_partim_annual_end_date_is_none_with_start_date_lt_now_with_error(self):
         """
@@ -409,22 +425,22 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         learning_unit_full_annual.start_year = self.current_academic_year.year - 1
         learning_unit_full_annual.end_year = self.current_academic_year.year + 4
         learning_unit_full_annual.save()
-        learning_unit_partim_annual.start_year = self.current_academic_year.year + 1
+        learning_unit_partim_annual.start_year = self.current_academic_year.year -1
         learning_unit_partim_annual.end_year = self.current_academic_year.year + 2
         learning_unit_partim_annual.save()
 
-        list_of_learning_unit_years_partim_annual = self.setup_list_of_learning_unit_years(
-            list_of_academic_years=self.list_of_academic_years_after_now,
+        self.setup_list_of_learning_unit_years(
+            list_of_academic_years=self.list_of_academic_years,
+            learning_unit=learning_unit_full_annual,
+            learning_container_year=self.learning_container_year_course,
+            learning_unit_year_subtype=learning_unit_year_subtypes.FULL
+        )
+        self.setup_list_of_learning_unit_years(
+            list_of_academic_years=self.list_of_academic_years,
             learning_unit=learning_unit_partim_annual,
             learning_container_year=self.learning_container_year_course,
             learning_unit_year_subtype=learning_unit_year_subtypes.PARTIM
         )
-
-        list_of_expected_learning_unit_years = []
-        for learning_unit_year_expected in list_of_learning_unit_years_partim_annual:
-            list_of_expected_learning_unit_years.append(learning_unit_year_expected.academic_year.year)
-        list_of_expected_learning_unit_years.append(learning_unit_partim_annual.end_year + 1)
-        list_of_expected_learning_unit_years.append(learning_unit_partim_annual.end_year + 2)
 
         academic_year_of_new_end_date = None
 
