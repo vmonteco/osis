@@ -25,7 +25,7 @@
 ##############################################################################
 import datetime
 
-from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
+from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS, compute_max_academic_year_adjournment
 from base.models import academic_year as mdl_academic_year
 from base.models.academic_year import AcademicYear
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, learning_unit_periodicity
@@ -89,8 +89,10 @@ class LearningUnitsMixin:
         self.last_academic_year = self.list_of_academic_years[index_of_current_academic_year_in_list +
                                                               LEARNING_UNIT_CREATION_SPAN_YEARS]
 
-        self.list_of_academic_years_after_now = [academic_year for academic_year in self.list_of_academic_years
-            if (self.current_academic_year.year <= academic_year.year <= self.last_academic_year.year)]
+        self.list_of_academic_years_after_now = [
+            academic_year for academic_year in self.list_of_academic_years
+            if (self.current_academic_year.year <= academic_year.year <= self.last_academic_year.year)
+        ]
         self.list_of_odd_academic_years = [academic_year for academic_year in self.list_of_academic_years_after_now
                                            if academic_year.year % 2]
         self.list_of_even_academic_years = [academic_year for academic_year in self.list_of_academic_years_after_now
@@ -135,6 +137,17 @@ class LearningUnitsMixin:
         return result
 
     @staticmethod
+    def setup_list_learning_unit_year_years_from_learning_unit(learning_unit, learning_container_year,
+                                                               learning_unit_subtype):
+        academic_years = []
+        end_year = learning_unit.end_year or compute_max_academic_year_adjournment()
+        for year in range(learning_unit.start_year, end_year + 1):
+            academic_years.append(AcademicYearFactory(year=year))
+        return LearningUnitsMixin.setup_list_of_learning_unit_years(
+            academic_years, learning_unit, learning_container_year, learning_unit_subtype
+        )
+
+    @staticmethod
     def setup_list_of_learning_unit_years(list_of_academic_years, learning_unit, learning_container_year,
                                           learning_unit_year_subtype):
         """
@@ -142,36 +155,34 @@ class LearningUnitsMixin:
         from the start date to the end date of the associated learning unit.
         :param list_of_academic_years: a list of academic year instances
         :param learning_unit: a learning unit associated to the learning unit
+        :param learning_container_year
         :param learning_unit_year_subtype
         :return: list of learning unit years created from learning unit start date to end date
         """
         results = []
-        if list_of_academic_years and learning_unit:
-            for academic_year in list_of_academic_years:
-                if learning_unit.start_year <= academic_year.year <= learning_unit.end_year:
-                    if learning_unit.periodicity == learning_unit_periodicity.BIENNIAL_ODD:
-                        if academic_year.year%2:
-                            create_learning_unit_year = True
-                        else:
-                            create_learning_unit_year = False
-                    elif learning_unit.periodicity == learning_unit_periodicity.BIENNIAL_EVEN:
-                        if academic_year.year%2:
-                            create_learning_unit_year = False
-                        else:
-                            create_learning_unit_year = True
-                    else:
-                        create_learning_unit_year = True
+        if not list_of_academic_years or not learning_unit:
+            return results
 
-                    if create_learning_unit_year:
-                        results.append(
-                            LearningUnitYearFactory(
-                                acronym=learning_unit.acronym,
-                                academic_year=academic_year,
-                                learning_unit=learning_unit,
-                                learning_container_year=learning_container_year,
-                                subtype=learning_unit_year_subtype
-                            )
-                        )
+        end_year = learning_unit.end_year or compute_max_academic_year_adjournment()
+
+        for academic_year in list_of_academic_years:
+            if learning_unit.start_year <= academic_year.year <= end_year:
+                if learning_unit.periodicity == learning_unit_periodicity.BIENNIAL_ODD:
+                    if academic_year.year % 2 == 0:
+                        continue
+                elif learning_unit.periodicity == learning_unit_periodicity.BIENNIAL_EVEN:
+                    if academic_year.year % 2 != 0:
+                        continue
+
+                results.append(
+                    LearningUnitYearFactory(
+                        acronym=learning_unit.acronym,
+                        academic_year=academic_year,
+                        learning_unit=learning_unit,
+                        learning_container_year=learning_container_year,
+                        subtype=learning_unit_year_subtype
+                    )
+                )
         return results
 
     @staticmethod
