@@ -29,17 +29,16 @@ from django.contrib import messages
 from django.contrib.auth.models import Permission
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
-from django.core.exceptions import PermissionDenied
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 
-from base.models.enums import learning_unit_periodicity
+from base.models.enums import learning_unit_periodicity, learning_container_year_types
 from base.tests.factories.business.learning_units import LearningUnitsMixin
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory, SuperUserFactory
 
 
-class TestLearningUnitEditionViewForm(TestCase, LearningUnitsMixin):
+class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
 
     def setUp(self):
         super().setUp()
@@ -51,7 +50,10 @@ class TestLearningUnitEditionViewForm(TestCase, LearningUnitsMixin):
 
         self.setup_academic_years()
         self.learning_unit = self.setup_learning_unit(self.current_academic_year.year, learning_unit_periodicity.ANNUAL)
-        self.learning_container_year = self.setup_learning_container_year(self.current_academic_year)
+        self.learning_container_year = self.setup_learning_container_year(
+            academic_year=self.current_academic_year,
+            container_type=learning_container_year_types.COURSE
+        )
         self.learning_unit_year = self.setup_learning_unit_year(
             self.current_academic_year,
             self.learning_unit,
