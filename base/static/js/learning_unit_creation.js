@@ -41,19 +41,56 @@ const internship = "INTERNSHIP";
                     }else{
                         window.valid_acronym = false;
                         if(data['existing_acronym']){
-                            $('#acronym_message').addClass("error").text(trans_existed_acronym);
-                            $("#acronym_message").css("color","red");
+                            set_error_message(trans_existed_acronym, '#acronym_message' )
                             window.acronym_already_used = true;
                         }
                     }
                 });
             } else {
                 window.valid_acronym = false;
-                $('#acronym_message').addClass("error").text(trans_invalid_acronym);
-                $("#acronym_message").css("color","red");
+                set_error_message(trans_invalid_acronym, '#acronym_message' )
             }
         }
     };
+
+    function set_error_message(text, element){
+        $(element).addClass("error").text(text);
+        $(element).css("color","red");
+    }
+
+    function checkPartimLetter() {
+        $('#partim_letter_message').removeClass("error-message").text("");
+        partim_letter = $('#hdn_partim_letter').val();
+        submit_btn = $('#learning_unit_year_add');
+        submit_btn.prop('disabled', false);
+
+        if (partim_letter && partim_letter != '') {
+            acronym = $('#id_first_letter').val() + $('#id_acronym').val() + partim_letter;
+            validateion_url = $('#LearningUnitYearForm').data('validate-url');
+            year_id = $('#id_academic_year').val();
+
+            validateAcronymAjax(validateion_url, acronym, year_id, function(data){
+                if (data['existing_acronym']) {
+                    set_error_message(trans_invalid_partim_letter, "#partim_letter_message"); //Show error message
+                    submit_btn.prop('disabled', true);   //Disable button
+                } else {
+                    submit_btn.prop('disabled', false);  //Enable button
+                }
+            });
+        }
+    }
+
+    function validateAcronymAjax(url, acronym, year_id, callback) {
+        /**
+        * This function will check if the acronym exist or have already existed
+        **/
+        queryString = "?acronym=" + acronym + "&year_id=" + year_id;
+        $.ajax({
+           url: url + queryString
+        }).done(function(data){
+            callback(data);
+        });
+    }
 
     $(document).ready(function() {
         $(function () {
@@ -64,8 +101,8 @@ const internship = "INTERNSHIP";
         });
 
         showInternshipSubtype();
-        document.getElementById('id_additional_entity_1').disabled = '{{form.requirement_entity.value}}' != "0";
-        document.getElementById('id_additional_entity_2').disabled = '{{form.requirement_entity_1.value}}' != "0";
+        document.getElementById('id_additional_requirement_entity_1').disabled = '{{form.requirement_entity.value}}' != "0";
+        document.getElementById('id_additional_requirement_entity_2').disabled = '{{form.requirement_entity_1.value}}' != "0";
 
         $('#id_acronym').change(validate_acronym);
         $('#id_academic_year').change(validate_acronym);
