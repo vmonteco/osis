@@ -109,6 +109,14 @@ class LearningUnitsMixin:
         return results
 
     @staticmethod
+    def create_learning_unit_year_full():
+        pass
+
+    @staticmethod
+    def create_learning_unit_year_partim():
+        pass
+
+    @staticmethod
     def setup_learning_unit(start_year, periodicity):
         """
         Set up a learning unit associated with a learning container and a learning unit year.
@@ -135,15 +143,31 @@ class LearningUnitsMixin:
 
     @staticmethod
     def setup_learning_unit_year(academic_year, learning_unit, learning_container_year, learning_unit_year_subtype):
+        next = False
         result = None
-        if academic_year and learning_unit and learning_container_year:
-            result = LearningUnitYearFactory(
-                acronym=learning_unit.acronym,
-                academic_year=academic_year,
-                learning_unit=learning_unit,
-                learning_container_year=learning_container_year,
-                subtype=learning_unit_year_subtype
-            )
+        if learning_unit.start_year <= academic_year.year <= learning_unit.end_year:
+            if learning_unit.periodicity == learning_unit_periodicity.BIENNIAL_ODD:
+                if not (academic_year.year % 2):
+                    next = True
+            elif learning_unit.periodicity == learning_unit_periodicity.BIENNIAL_EVEN:
+                if academic_year.year % 2:
+                    next = True
+            elif learning_unit.periodicity == learning_unit_periodicity.ANNUAL:
+                    next = True
+
+            if next:
+                if not learning_container_year:
+                    learning_container_year = LearningUnitsMixin.setup_learning_container_year(
+                        academic_year, learning_container_year_types.COURSE
+                    )
+
+                result = LearningUnitYearFactory(
+                    acronym=learning_unit.acronym,
+                    academic_year=academic_year,
+                    learning_unit=learning_unit,
+                    learning_container_year=learning_container_year,
+                    subtype=learning_unit_year_subtype
+                )
         return result
 
     @staticmethod
@@ -160,37 +184,23 @@ class LearningUnitsMixin:
             return results
 
         for academic_year in list_of_academic_years:
-            if learning_unit_full.start_year <= academic_year.year <= learning_unit_full.end_year:
-                if learning_unit_full.periodicity == learning_unit_periodicity.BIENNIAL_ODD:
-                    if not (academic_year.year % 2):
-                        continue
-                elif learning_unit_full.periodicity == learning_unit_periodicity.BIENNIAL_EVEN:
-                    if academic_year.year % 2:
-                        continue
-
-                learning_container_year = LearningUnitsMixin.setup_learning_container_year(
-                    academic_year, learning_container_year_types.COURSE
+            results.append(
+                LearningUnitsMixin.setup_learning_unit_year(
+                    academic_year=academic_year,
+                    learning_unit=learning_unit_full,
+                    learning_container_year=None,
+                    learning_unit_year_subtype=learning_unit_year_subtypes.FULL
                 )
-
-                results.append(
-                    LearningUnitYearFactory(
-                        acronym=learning_unit_full.acronym,
-                        academic_year=academic_year,
-                        learning_unit=learning_unit_full,
-                        learning_container_year=learning_container_year,
-                        subtype=learning_unit_year_subtypes.FULL
-                    )
-                )
+            )
         return results
 
     @staticmethod
     def setup_list_of_learning_unit_years_partim(list_of_academic_years, learning_unit_full, learning_unit_partim):
         """
-
         :param list_of_academic_years: (object list)
         :param learning_unit_full: (object)
         :param learning_unit_partim: (object)
-        :return:
+        :return: (object list) list of learning unit years of subtypes full associated with partims
         """
         results = []
         if not list_of_academic_years or not learning_unit_full or not learning_unit_partim:
