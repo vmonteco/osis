@@ -90,27 +90,20 @@ class TestLearningUnitSummary(TestCase):
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, 'access_denied.html')
 
-    def test_when_learning_unit_year_does_not_exist(self):
-        self.learning_unit_year.delete()
-        response = self.client.get(self.url)
-
-        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
-        self.assertTemplateUsed(response, 'page_not_found.html')
-
     def test_when_user_is_not_attributed_to_the_learning_unit(self):
         self.attribution.delete()
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
-        self.assertTemplateUsed(response, 'page_not_found.html')
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, 'access_denied.html')
 
     def test_when_user_is_not_summary_responsible_of_the_learning_unit(self):
         self.attribution.summary_responsible = False
         self.attribution.save()
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
-        self.assertTemplateUsed(response, 'page_not_found.html')
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, 'access_denied.html')
 
     def test_when_valid_get_request(self):
         response = self.client.get(self.url)
@@ -183,16 +176,16 @@ class TestLearningUnitSummaryEdit(TestCase):
         self.attribution.delete()
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
-        self.assertTemplateUsed(response, 'page_not_found.html')
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, 'access_denied.html')
 
     def test_when_user_is_not_summary_responsible_of_the_learning_unit(self):
         self.attribution.summary_responsible = False
         self.attribution.save()
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
-        self.assertTemplateUsed(response, 'page_not_found.html')
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, 'access_denied.html')
 
     def test_valid_get_request(self):
         language = "en"
