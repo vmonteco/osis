@@ -143,19 +143,19 @@ class LearningUnitsMixin:
 
     @staticmethod
     def setup_learning_unit_year(academic_year, learning_unit, learning_container_year, learning_unit_year_subtype):
-        next = False
+        create = False
         result = None
         if learning_unit.start_year <= academic_year.year <= learning_unit.end_year:
             if learning_unit.periodicity == learning_unit_periodicity.BIENNIAL_ODD:
                 if not (academic_year.year % 2):
-                    next = True
+                    create = True
             elif learning_unit.periodicity == learning_unit_periodicity.BIENNIAL_EVEN:
                 if academic_year.year % 2:
-                    next = True
+                    create = True
             elif learning_unit.periodicity == learning_unit_periodicity.ANNUAL:
-                    next = True
+                    create = True
 
-            if next:
+            if create:
                 if not learning_container_year:
                     learning_container_year = LearningUnitsMixin.setup_learning_container_year(
                         academic_year, learning_container_year_types.COURSE
@@ -207,43 +207,24 @@ class LearningUnitsMixin:
             return results
 
         for academic_year in list_of_academic_years:
-            if learning_unit_full.start_year <= academic_year.year <= learning_unit_full.end_year:
-                if learning_unit_full.periodicity == learning_unit_periodicity.BIENNIAL_ODD:
-                    if not (academic_year.year % 2):
-                        continue
-                elif learning_unit_full.periodicity == learning_unit_periodicity.BIENNIAL_EVEN:
-                    if academic_year.year % 2:
-                        continue
 
-                learning_container_year = LearningUnitsMixin.setup_learning_container_year(
-                    academic_year, learning_container_year_types.COURSE
+            learning_unit_year_full = LearningUnitsMixin.setup_learning_unit_year(
+                academic_year=academic_year,
+                learning_unit=learning_unit_full,
+                learning_container_year=None,
+                learning_unit_year_subtype=learning_unit_year_subtypes.FULL
+            )
+
+            if learning_unit_year_full:
+                results.append(learning_unit_year_full)
+
+                learning_unit_year_partim = LearningUnitsMixin.setup_learning_unit_year(
+                    academic_year=academic_year,
+                    learning_unit=learning_unit_partim,
+                    learning_container_year=learning_unit_year_full.learning_container_year,
+                    learning_unit_year_subtype=learning_unit_year_subtypes.PARTIM
                 )
+                if learning_unit_year_partim:
+                    results.append(learning_unit_year_partim)
 
-                results.append(
-                    LearningUnitYearFactory(
-                        acronym=learning_unit_full.acronym,
-                        academic_year=academic_year,
-                        learning_unit=learning_unit_full,
-                        learning_container_year=learning_container_year,
-                        subtype=learning_unit_year_subtypes.FULL
-                    )
-                )
-
-                if learning_unit_partim.start_year <= academic_year.year <= learning_unit_partim.end_year:
-                    if learning_unit_partim.periodicity == learning_unit_periodicity.BIENNIAL_ODD:
-                        if not (academic_year.year % 2):
-                            continue
-                    elif learning_unit_partim.periodicity == learning_unit_periodicity.BIENNIAL_EVEN:
-                        if academic_year.year % 2:
-                            continue
-
-                    results.append(
-                        LearningUnitYearFactory(
-                            acronym=learning_unit_partim.acronym,
-                            academic_year=academic_year,
-                            learning_unit=learning_unit_partim,
-                            learning_container_year=learning_container_year,
-                            subtype=learning_unit_year_subtypes.PARTIM
-                        )
-                    )
         return results
