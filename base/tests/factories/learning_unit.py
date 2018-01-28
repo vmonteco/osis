@@ -50,6 +50,8 @@ class LearningUnitFactory(DjangoModelFactory):
     start_year = factory.fuzzy.FuzzyInteger(2000, timezone.now().year)
     end_year = factory.LazyAttribute(lambda obj: factory.fuzzy.FuzzyInteger(obj.start_year + 1, obj.start_year + 9).fuzz())
     periodicity = factory.Iterator(learning_unit_periodicity.PERIODICITY_TYPES, getter=operator.itemgetter(0))
+    faculty_remark = factory.fuzzy.FuzzyText(length=255)
+    other_remark = factory.fuzzy.FuzzyText(length=255)
 
 
 class LearningUnitFakerFactory(DjangoModelFactory):
