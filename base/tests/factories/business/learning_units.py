@@ -25,7 +25,7 @@
 ##############################################################################
 import datetime
 
-from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
+from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS, compute_max_academic_year_adjournment
 from base.models import academic_year as mdl_academic_year
 from base.models.academic_year import AcademicYear
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, learning_unit_periodicity, \
@@ -99,12 +99,13 @@ class LearningUnitsMixin:
         return results
 
     @staticmethod
-    def setup_learning_unit(start_year, periodicity):
+    def setup_learning_unit(start_year, periodicity=learning_unit_periodicity.ANNUAL, end_year=None):
         result = None
         if start_year:
             result = LearningUnitFactory(
                 start_year=start_year,
-                periodicity=periodicity)
+                periodicity=periodicity,
+                end_year=end_year)
         return result
 
     @staticmethod
@@ -121,7 +122,8 @@ class LearningUnitsMixin:
     def setup_learning_unit_year(academic_year, learning_unit, learning_container_year, learning_unit_year_subtype):
         create = False
         result = None
-        if learning_unit.start_year <= academic_year.year <= learning_unit.end_year:
+        end_year = learning_unit.end_year or compute_max_academic_year_adjournment()
+        if learning_unit.start_year <= academic_year.year <= end_year:
             if learning_unit.periodicity == learning_unit_periodicity.BIENNIAL_ODD:
                 if not (academic_year.year % 2):
                     create = True
