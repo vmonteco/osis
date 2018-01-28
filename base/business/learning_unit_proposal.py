@@ -113,6 +113,9 @@ def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
 
 
 def is_person_linked_to_entity_in_charge_of_learning_unit(a_learning_unit_year, a_person):
+    if a_person.user.is_superuser:
+        return True
+
     entity_containers_year = entity_container_year.search(
         learning_container_year=a_learning_unit_year.learning_container_year,
         link_type=entity_container_year_link_type.REQUIREMENT_ENTITY)
