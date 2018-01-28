@@ -25,7 +25,7 @@
 ##############################################################################
 import datetime
 
-from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS, compute_max_academic_year_adjournment
+from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
 from base.models import academic_year as mdl_academic_year
 from base.models.academic_year import AcademicYear
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, learning_unit_periodicity, \
@@ -64,16 +64,6 @@ class LearningUnitsMixin:
     list_of_learning_unit_years = []
 
     def setup_academic_years(self):
-        """
-        Set up academic years from (N - LEARNING_UNIT_CREATION_SPAN_YEARS) to (N + LEARNING_UNIT_CREATION_SPAN_YEARS),
-        N being the current academic year.
-        Ex : from 2012-2013 to 2024-2025, N being 2018-2019.
-
-        From this list we create three lists :
-         - a list with annual academic years from N to (N + LEARNING_UNIT_CREATION_SPAN_YEARS);
-         - a list with biennal even academic years from  N to (N + LEARNING_UNIT_CREATION_SPAN_YEARS);
-         - a list with viennal odd academic years from from N to (N + LEARNING_UNIT_CREATION_SPAN_YEARS).
-        """
         self.this_year = datetime.datetime.now().year
         self.start_year = self.this_year - LEARNING_UNIT_CREATION_SPAN_YEARS * 2
         self.last_year = self.this_year + LEARNING_UNIT_CREATION_SPAN_YEARS * 2
@@ -109,21 +99,7 @@ class LearningUnitsMixin:
         return results
 
     @staticmethod
-    def create_learning_unit_year_full():
-        pass
-
-    @staticmethod
-    def create_learning_unit_year_partim():
-        pass
-
-    @staticmethod
     def setup_learning_unit(start_year, periodicity):
-        """
-        Set up a learning unit associated with a learning container and a learning unit year.
-        By default, the learning unit start year is the current academic year and the periodicity is annual.
-        :param start_year: represent the first year of existence
-        :param periodicity:
-        """
         result = None
         if start_year:
             result = LearningUnitFactory(
@@ -172,13 +148,6 @@ class LearningUnitsMixin:
 
     @staticmethod
     def setup_list_of_learning_unit_years_full(list_of_academic_years, learning_unit_full):
-        """
-        Given a learning unit, generate a set of learning units years,
-        from the start date to the end date of the associated learning unit.
-        :param list_of_academic_years: (object list) a list of academic year instances
-        :param learning_unit_full: (object)
-        :return: list of learning unit years created from learning unit start date to end date
-        """
         results = []
         if not list_of_academic_years or not learning_unit_full:
             return results
@@ -196,12 +165,6 @@ class LearningUnitsMixin:
 
     @staticmethod
     def setup_list_of_learning_unit_years_partim(list_of_academic_years, learning_unit_full, learning_unit_partim):
-        """
-        :param list_of_academic_years: (object list)
-        :param learning_unit_full: (object)
-        :param learning_unit_partim: (object)
-        :return: (object list) list of learning unit years of subtypes full associated with partims
-        """
         results = []
         if not list_of_academic_years or not learning_unit_full or not learning_unit_partim:
             return results

@@ -32,7 +32,6 @@ from base.models import academic_year
 from base.models.enums import learning_unit_year_subtypes, learning_unit_periodicity, learning_container_year_types
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.business.learning_units import LearningUnitsMixin
-from base.tests.factories.learning_unit import LearningUnitFactory
 
 
 class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
@@ -73,8 +72,6 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         )
 
     def test_edit_learning_unit_full_annual_end_date_gt_old_end_date_with_start_date_gt_now(self):
-        """
-        """
         learning_unit_full_annual = self.setup_learning_unit(
             start_year=self.current_academic_year.year,
             periodicity=learning_unit_periodicity.ANNUAL
@@ -106,9 +103,6 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         self.assertEqual(sorted(list_of_learning_unit_years), sorted(list_of_expected_learning_unit_years))
 
     def test_edit_learning_unit_partim_annual_end_date_gt_old_end_date_with_start_date_gt_now(self):
-
-        """
-        """
         learning_unit_full_annual = self.setup_learning_unit(
             start_year=self.current_academic_year.year,
             periodicity=learning_unit_periodicity.ANNUAL
@@ -160,13 +154,10 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
                          sorted(list_of_expected_learning_unit_years_partim))
 
     def test_edit_learning_unit_full_annual_end_date_gt_old_end_date_with_start_date_lt_now(self):
-        """
-        """
         learning_unit_full_annual = self.setup_learning_unit(
             start_year=self.current_academic_year.year,
             periodicity=learning_unit_periodicity.ANNUAL
         )
-
         learning_unit_full_annual.start_year = self.current_academic_year.year - 1
         learning_unit_full_annual.end_year = self.current_academic_year.year + 1
         learning_unit_full_annual.save()
@@ -193,13 +184,10 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         self.assertEqual(sorted(list_of_learning_unit_years), sorted(list_of_expected_learning_unit_years))
 
     def test_edit_learning_unit_full_odd_end_date_gt_old_end_date_with_start_date_lt_now(self):
-        """
-        """
         learning_unit_full_annual = self.setup_learning_unit(
             start_year=self.current_academic_year.year,
             periodicity=learning_unit_periodicity.BIENNIAL_ODD
         )
-
         learning_unit_full_annual.start_year = self.current_academic_year.year - 2
         learning_unit_full_annual.end_year = self.current_academic_year.year + 2
         learning_unit_full_annual.save()
@@ -228,13 +216,10 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         self.assertEqual(sorted(list_of_learning_unit_years), sorted(list_of_expected_learning_unit_years))
 
     def test_edit_learning_unit_full_even_end_date_gt_old_end_date_with_start_date_lt_now(self):
-        """
-        """
         learning_unit_full_annual = self.setup_learning_unit(
             start_year=self.current_academic_year.year,
             periodicity=learning_unit_periodicity.BIENNIAL_EVEN
         )
-
         learning_unit_full_annual.start_year = self.current_academic_year.year - 2
         learning_unit_full_annual.end_year = self.current_academic_year.year + 2
         learning_unit_full_annual.save()
@@ -263,8 +248,6 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         self.assertEqual(sorted(list_of_learning_unit_years), sorted(list_of_expected_learning_unit_years))
 
     def test_edit_learning_unit_partim_annual_end_gt_old_end_date_date_with_start_date_lt_now(self):
-        """
-        """
         learning_unit_full_annual = self.setup_learning_unit(
             start_year=self.current_academic_year.year,
             periodicity=learning_unit_periodicity.ANNUAL
@@ -316,13 +299,10 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
                          sorted(list_of_expected_learning_unit_years_partim))
 
     def test_edit_learning_unit_full_annual_end_date_is_none_with_start_date_lt_now(self):
-        """
-        """
         learning_unit_full_annual = self.setup_learning_unit(
             start_year=self.current_academic_year.year,
             periodicity=learning_unit_periodicity.ANNUAL
         )
-
         learning_unit_full_annual.start_year = self.current_academic_year.year - 1
         learning_unit_full_annual.end_year = self.current_academic_year.year + 4
         learning_unit_full_annual.save()
@@ -348,8 +328,6 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         self.assertEqual(sorted(list_of_learning_unit_years), sorted(list_of_expected_learning_unit_years))
 
     def test_edit_learning_unit_partim_annual_end_date_is_none_with_start_date_lt_now(self):
-        """
-        """
         learning_unit_full_annual = self.setup_learning_unit(
             start_year=self.current_academic_year.year,
             periodicity=learning_unit_periodicity.ANNUAL
@@ -358,7 +336,6 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
             start_year=self.current_academic_year.year,
             periodicity=learning_unit_periodicity.ANNUAL
         )
-
         learning_unit_full_annual.start_year = self.current_academic_year.year - 1
         learning_unit_full_annual.end_year = self.current_academic_year.year + 6
         learning_unit_full_annual.save()
@@ -401,8 +378,6 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
                          sorted(list_of_expected_learning_unit_years_partim))
 
     def test_edit_learning_unit_partim_annual_end_date_is_none_with_start_date_lt_now_with_error(self):
-        """
-        """
         learning_unit_full_annual = self.setup_learning_unit(
             start_year=self.current_academic_year.year,
             periodicity=learning_unit_periodicity.ANNUAL
@@ -430,13 +405,10 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
             edit_learning_unit_end_date(learning_unit_partim_annual, academic_year_of_new_end_date)
 
     def test_edit_learning_unit_full_annual_end_date_lt_old_end_date_with_start_date_lt_now(self):
-        """
-        """
         learning_unit_full_annual = self.setup_learning_unit(
             start_year=self.current_academic_year.year,
             periodicity=learning_unit_periodicity.ANNUAL
         )
-
         learning_unit_full_annual.start_year = self.current_academic_year.year - 1
         learning_unit_full_annual.end_year = self.current_academic_year.year + 6
         learning_unit_full_annual.save()
@@ -464,13 +436,10 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         self.assertEqual(sorted(list_of_learning_unit_years), sorted(list_of_expected_learning_unit_years))
 
     def test_edit_learning_unit_full_odd_end_date_lt_old_end_date_with_start_date_lt_now(self):
-        """
-        """
         learning_unit_full_annual = self.setup_learning_unit(
             start_year=self.current_academic_year.year,
             periodicity=learning_unit_periodicity.BIENNIAL_ODD
         )
-
         learning_unit_full_annual.start_year = self.current_academic_year.year - 1
         learning_unit_full_annual.end_year = self.current_academic_year.year + 6
         learning_unit_full_annual.save()
@@ -498,13 +467,10 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         self.assertEqual(sorted(list_of_learning_unit_years), sorted(list_of_expected_learning_unit_years))
 
     def test_edit_learning_unit_full_even_end_date_lt_old_end_date_with_start_date_lt_now(self):
-        """
-        """
         learning_unit_full_annual = self.setup_learning_unit(
             start_year=self.current_academic_year.year,
             periodicity=learning_unit_periodicity.BIENNIAL_EVEN
         )
-
         learning_unit_full_annual.start_year = self.current_academic_year.year - 1
         learning_unit_full_annual.end_year = self.current_academic_year.year + 6
         learning_unit_full_annual.save()
@@ -532,8 +498,6 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         self.assertEqual(sorted(list_of_learning_unit_years), sorted(list_of_expected_learning_unit_years))
 
     def test_edit_learning_unit_partim_annual_end_date_lt_old_end_date_with_start_date_lt_now(self):
-        """
-        """
         learning_unit_full_annual = self.setup_learning_unit(
             start_year=self.current_academic_year.year,
             periodicity=learning_unit_periodicity.ANNUAL
@@ -542,7 +506,6 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
             start_year=self.current_academic_year.year,
             periodicity=learning_unit_periodicity.ANNUAL
         )
-
         learning_unit_full_annual.start_year = self.current_academic_year.year - 1
         learning_unit_full_annual.end_year = self.current_academic_year.year + 6
         learning_unit_full_annual.save()
