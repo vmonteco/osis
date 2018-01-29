@@ -171,7 +171,7 @@ class CreatePartimForm(CreateLearningUnitYearForm):
                                                                                  'style': 'text-transform: uppercase;',
                                                                                  'maxlength': "1",
                                                                                  'id': 'hdn_partim_letter',
-                                                                                 'onchange': 'checkPartimLetter()'}))
+                                                                                 'onchange': 'validate_acronym()'}))
     acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}[A-Z]$"
 
     def __init__(self, *args, **kwargs):

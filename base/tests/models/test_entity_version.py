@@ -340,4 +340,3 @@ class EntityVersionTest(TestCase):
         self.assertTrue(entity_list)
         self.assertEqual(len(entity_list), 1)
         self.assertEqual(entity_list[0], entity_version_attached)
-        
