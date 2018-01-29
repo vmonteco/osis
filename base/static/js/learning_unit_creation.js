@@ -10,8 +10,15 @@ const internship = "INTERNSHIP";
         }
     }
 
-    function showAdditionalEntity(elem, id){
-        document.getElementById(id).disabled = elem == "";
+    function updateAdditionalEntityEditability(elem, id, disable_only){
+        var empty_element = elem == "";
+        if (empty_element){
+            $('#'.concat(id))[0].selectedIndex = 0;
+            document.getElementById(id).disabled = true;
+        }
+        else if (!disable_only){
+            document.getElementById(id).disabled = false;
+        }
     }
 
     function validate_acronym () {
