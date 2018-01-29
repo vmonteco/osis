@@ -25,11 +25,11 @@
 ##############################################################################
 from django.db import models
 from django.contrib import admin
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class OrganizationAddressAdmin(admin.ModelAdmin):
+class OrganizationAddressAdmin(OsisModelAdmin):
     list_display = ('organization', 'label', 'location', 'postal_code', 'city', 'country')
-    fieldsets = ((None, {'fields': ('organization', 'label', 'location', 'postal_code', 'city', 'country')}),)
 
 
 class OrganizationAddress(models.Model):

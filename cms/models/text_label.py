@@ -29,9 +29,10 @@ from django.db import models
 from django.db.models import Prefetch
 
 from cms.enums.entity_name import ENTITY_NAME
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class TextLabelAdmin(admin.ModelAdmin):
+class TextLabelAdmin(OsisModelAdmin):
     list_display = ('parent', 'entity', 'label', 'order', 'published',)
     search_fields = ['label']
     ordering = ('entity',)

@@ -26,11 +26,11 @@
 from django.db import models
 from django.contrib import admin
 from django.utils import timezone
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class SynchronizationAdmin(admin.ModelAdmin):
+class SynchronizationAdmin(OsisModelAdmin):
     list_display = ('date',)
-    fieldsets = ((None, {'fields': ('date',)}),)
     search_fields = ['date']
     ordering = ('date',)
 

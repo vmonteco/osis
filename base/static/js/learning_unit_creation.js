@@ -1,7 +1,21 @@
 const internship = "INTERNSHIP";
-    var form = $('#LearningUnitYearForm').closest("form");
+const LEARNING_UNIT_FULL_SUBTYPE = "FULL";
 
-    function showInternshipSubtype(){
+var form = $('#LearningUnitYearForm').closest("form");
+
+
+function isLearningUnitSubtypeFull(){
+    return document.getElementById('id_subtype').value == LEARNING_UNIT_FULL_SUBTYPE
+}
+
+
+function isValueEmpty(html_id){
+    return document.getElementById(html_id).value == ""
+}
+
+
+function showInternshipSubtype(){
+    if (isLearningUnitSubtypeFull()) {
         var container_type_value = document.getElementById('id_container_type').value;
         var value_not_internship = container_type_value != internship;
         if(document.getElementById('id_internship_subtype')){
@@ -11,9 +25,17 @@ const internship = "INTERNSHIP";
             $('#id_internship_subtype')[0].selectedIndex = 0;
         }
     }
+}
 
-    function showAdditionalEntity(elem, id){
-        document.getElementById(id).disabled = elem == "";
+    function updateAdditionalEntityEditability(elem, id, disable_only){
+        var empty_element = elem == "";
+        if (empty_element){
+            $('#'.concat(id))[0].selectedIndex = 0;
+            document.getElementById(id).disabled = true;
+        }
+        else if (!disable_only){
+            document.getElementById(id).disabled = false;
+        }
     }
 
     function validate_acronym () {
@@ -41,7 +63,7 @@ const internship = "INTERNSHIP";
                     }else{
                         window.valid_acronym = false;
                         if(data['existing_acronym']){
-                            set_error_message(trans_existing_acronym, '#acronym_message' )
+                            set_error_message(trans_existing_acronym, '#acronym_message' );
                             window.acronym_already_used = true;
                         }
                     }
@@ -101,8 +123,9 @@ const internship = "INTERNSHIP";
         });
 
         showInternshipSubtype();
-        document.getElementById('id_additional_requirement_entity_1').disabled = document.getElementById('id_requirement_entity').value == "";
-        document.getElementById('id_additional_requirement_entity_2').disabled = document.getElementById('id_additional_requirement_entity_1').value == "";
+        document.getElementById('id_additional_requirement_entity_1').disabled = !isLearningUnitSubtypeFull() || isValueEmpty('id_requirement_entity');
+        document.getElementById('id_additional_requirement_entity_2').disabled = !isLearningUnitSubtypeFull() || isValueEmpty('id_additional_requirement_entity_1');
+
 
         $('#id_acronym').change(validate_acronym);
         $('#id_academic_year').change(validate_acronym);

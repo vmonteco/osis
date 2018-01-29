@@ -49,7 +49,9 @@ MAX_RECORDS = 1000
 EMPTY_FIELD = "---------"
 READONLY_ATTR = "disabled"
 PARTIM_FORM_READ_ONLY_FIELD = {'first_letter', 'acronym', 'title', 'title_english', 'requirement_entity',
-                               'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year'}
+                               'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year',
+                               'container_type', 'internship_subtype',
+                               'additional_requirement_entity_1', 'additional_requirement_entity_2'}
 
 
 def _create_first_letter_choices():
@@ -102,16 +104,25 @@ class LearningUnitYearForm(BootstrapForm):
     requirement_entity = EntitiesVersionChoiceField(
         find_main_entities_version().none(),
         widget=forms.Select(
-            attrs={'onchange': 'showAdditionalEntity(this.value, "id_additional_requirement_entity_1")'}
+            attrs={
+                'onchange': (
+                    'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_1", false);'
+                    'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", true);'
+                )
+            }
         )
     )
     allocation_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
                                                    widget=forms.Select(attrs={'id': 'allocation_entity'}))
     additional_requirement_entity_1 = EntitiesVersionChoiceField(
-        queryset=find_main_entities_version(), required=False,
+        queryset=find_main_entities_version(),
+        required=False,
         widget=forms.Select(
-            attrs={'onchange': 'showAdditionalEntity(this.value, "id_additional_requirement_entity_2")',
-                   'disable': 'disable'}
+            attrs={
+                'onchange':
+                    'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", false)',
+                'disable': 'disable'
+            }
         )
     )
     additional_requirement_entity_2 = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
