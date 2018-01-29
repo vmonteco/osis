@@ -436,5 +436,5 @@ def is_eligible_for_modification_end_date(learning_unit_year, a_person):
         return False
     if a_person.is_faculty_manager() and \
             learning_unit_year.learning_container_year.container_type in non_authorized_types_for_faculty_manager:
-       return False
-    return  is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person)
+        return False
+    return is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person)
