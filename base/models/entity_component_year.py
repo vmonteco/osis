@@ -47,7 +47,7 @@ class EntityComponentYear(AuditableSerializableModel):
         return u"%s - %s" % (self.entity_container_year, self.learning_component_year)
 
     class Meta:
-        unique_together = ('entity_container_year', 'learning_component_year',)
+        unique_together = ('entity_container_year', 'learning_component_year', 'deleted', )
 
 
 def find_by_learning_container_year(learning_container_yr):

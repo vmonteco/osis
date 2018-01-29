@@ -63,7 +63,7 @@ class LearningContainerYear(AuditableSerializableModel):
         return u"%s - %s" % (self.acronym, self.title)
 
     class Meta:
-        unique_together = ("learning_container", "academic_year",)
+        unique_together = ("learning_container", "academic_year", "deleted", )
         permissions = (
             ("can_access_learningcontaineryear", "Can access learning container year"),
         )
