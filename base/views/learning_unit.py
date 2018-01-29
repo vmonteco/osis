@@ -37,6 +37,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods, require_POST, require_GET
+import re
 
 from attribution.business import attribution_charge_new
 from base import models as mdl
@@ -352,7 +353,6 @@ def check_acronym(request):
     acronym = request.GET['acronym']
     year_id = request.GET['year_id']
     academic_yr = mdl.academic_year.find_academic_year_by_id(year_id)
-    valid = True
     existed_acronym = False
     existing_acronym = False
     last_using = ""
@@ -366,7 +366,9 @@ def check_acronym(request):
 
     if learning_unit_years:
         existing_acronym = True
-        valid = False
+
+    acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}[A-Z]{0,1}$"
+    valid = bool(re.match(acronym_regex, acronym))
 
     return JsonResponse({'valid': valid,
                          'existing_acronym': existing_acronym,

@@ -788,7 +788,7 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            {'valid': True,
+            {'valid': False,
              'existing_acronym': False,
              'existed_acronym': False,
              'last_using': ""}
@@ -811,7 +811,7 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            {'valid': False,
+            {'valid': True,
              'existing_acronym': True,
              'existed_acronym': False,
              'last_using': ""}
