@@ -32,7 +32,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpResponse
 from django.test import TestCase, RequestFactory
 
-from base.forms.education_groups import EducationGroupFilter
+from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
 from base.models.enums import education_group_categories, offer_year_entity_type, academic_calendar_type
 from base.models.enums.education_group_categories import TRAINING
 
@@ -56,53 +56,56 @@ from reference.tests.factories.country import CountryFactory
 
 
 class EducationGroupSearch(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         today = datetime.date.today()
-        self.academic_year = AcademicYearFactory(start_date=today, end_date=today.replace(year=today.year + 1),
-                                                 year=today.year)
-        self.previous_academic_year = AcademicYearFactory(start_date=today.replace(year=today.year - 1),
-                                                          end_date=today - datetime.timedelta(days=1),
-                                                          year=today.year - 1)
+        cls.academic_year = AcademicYearFactory(start_date=today, end_date=today.replace(year=today.year + 1),
+                                                year=today.year)
+        cls.previous_academic_year = AcademicYearFactory(start_date=today.replace(year=today.year - 1),
+                                                         end_date=today - datetime.timedelta(days=1),
+                                                         year=today.year - 1)
 
-        self.type_training = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
-        self.type_minitraining = EducationGroupTypeFactory(category=education_group_categories.MINI_TRAINING)
-        self.type_group = EducationGroupTypeFactory(category=education_group_categories.GROUP)
+        cls.type_training = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
+        cls.type_minitraining = EducationGroupTypeFactory(category=education_group_categories.MINI_TRAINING)
+        cls.type_group = EducationGroupTypeFactory(category=education_group_categories.GROUP)
 
-        self.education_group_edph2 = EducationGroupYearFactory(acronym='EDPH2', academic_year=self.academic_year,
-                                                               partial_acronym='EDPH2_SCS',
-                                                               education_group_type=self.type_group)
-        self.education_group_arke2a = EducationGroupYearFactory(acronym='ARKE2A', academic_year=self.academic_year,
-                                                               education_group_type=self.type_training)
-        self.education_group_hist2a = EducationGroupYearFactory(acronym='HIST2A', academic_year=self.academic_year,
-                                                                education_group_type=self.type_group)
+        cls.education_group_edph2 = EducationGroupYearFactory(acronym='EDPH2', academic_year=cls.academic_year,
+                                                              partial_acronym='EDPH2_SCS',
+                                                              education_group_type=cls.type_group)
+        cls.education_group_arke2a = EducationGroupYearFactory(acronym='ARKE2A', academic_year=cls.academic_year,
+                                                               education_group_type=cls.type_training)
+        cls.education_group_hist2a = EducationGroupYearFactory(acronym='HIST2A', academic_year=cls.academic_year,
+                                                               education_group_type=cls.type_group)
 
-        self.education_group_arke2a_previous_year = EducationGroupYearFactory(acronym='ARKE2A',
-                                                                              academic_year=self.previous_academic_year,
-                                                                              education_group_type=self.type_training)
+        cls.education_group_arke2a_previous_year = EducationGroupYearFactory(acronym='ARKE2A',
+                                                                             academic_year=cls.previous_academic_year,
+                                                                             education_group_type=cls.type_training)
 
         oph_entity = EntityFactory()
         envi_entity = EntityFactory()
-        self.oph_entity_v = EntityVersionFactory(entity=oph_entity, parent=envi_entity, end_date=None)
-        self.envi_entity_v = EntityVersionFactory(entity=envi_entity, end_date=None)
+        cls.oph_entity_v = EntityVersionFactory(entity=oph_entity, parent=envi_entity, end_date=None)
+        cls.envi_entity_v = EntityVersionFactory(entity=envi_entity, end_date=None)
 
 
-        self.offer_year_entity_edph2 = OfferYearEntityFactory(education_group_year=self.education_group_edph2,
-                                                              entity=envi_entity,
+        cls.offer_year_entity_edph2 = OfferYearEntityFactory(education_group_year=cls.education_group_edph2,
+                                                             entity=envi_entity,
+                                                             type=offer_year_entity_type.ENTITY_MANAGEMENT)
+        cls.offer_year_entity_hist2a = OfferYearEntityFactory(education_group_year=cls.education_group_hist2a,
+                                                              entity=oph_entity,
                                                               type=offer_year_entity_type.ENTITY_MANAGEMENT)
-        self.offer_year_entity_hist2a = OfferYearEntityFactory(education_group_year=self.education_group_hist2a,
-                                                               entity=oph_entity,
-                                                               type=offer_year_entity_type.ENTITY_MANAGEMENT)
-        self.offer_year_entity_arke2a = OfferYearEntityFactory(education_group_year=self.education_group_arke2a,
-                                                               type=offer_year_entity_type.ENTITY_MANAGEMENT,
-                                                               entity=oph_entity)
-        self.offer_year_entity_arke2a_previous_year = \
-            OfferYearEntityFactory(education_group_year=self.education_group_arke2a_previous_year,
+        cls.offer_year_entity_arke2a = OfferYearEntityFactory(education_group_year=cls.education_group_arke2a,
+                                                              type=offer_year_entity_type.ENTITY_MANAGEMENT,
+                                                              entity=oph_entity)
+        cls.offer_year_entity_arke2a_previous_year = \
+            OfferYearEntityFactory(education_group_year=cls.education_group_arke2a_previous_year,
                                    type=offer_year_entity_type.ENTITY_MANAGEMENT, entity=oph_entity)
 
-        user = UserFactory()
-        user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
-        self.client.force_login(user)
-        self.url = reverse("education_groups")
+        cls.user = UserFactory()
+        cls.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
+        cls.url = reverse("education_groups")
+
+    def setUp(self):
+        self.client.force_login(self.user)
 
     def test_when_not_logged(self):
         self.client.logout()
@@ -156,6 +159,19 @@ class EducationGroupSearch(TestCase):
         self.assertEqual(len(context["object_list"]), 0)
         messages = [str(m) for m in context["messages"]]
         self.assertIn(_('no_result'), messages)
+
+    @mock.patch.object(EducationGroupFilter, "get_object_list", lambda self: list(range(0, MAX_RECORDS+2)))
+    def test_with_too_many_results(self):
+        response = self.client.get(self.url, data={"category": education_group_categories.MINI_TRAINING})
+
+        self.assertTemplateUsed(response, "education_groups.html")
+
+        context = response.context
+        self.assertIsInstance(context["form"], EducationGroupFilter)
+        self.assertEqual(context["experimental_phase"], True)
+        self.assertEqual(context["object_list"], None)
+        messages = [str(m) for m in context["messages"]]
+        self.assertIn(_('too_many_results'), messages)
 
     def test_search_with_acronym_only(self):
         response = self.client.get(self.url, data={"acronym": self.education_group_arke2a.acronym})
