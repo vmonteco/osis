@@ -213,10 +213,12 @@
                                     <label style="margin-top:10px;">{% trans 'additional_requirement_entity'%}</label><br>
                                     {{ entity.acronym }}<br>
                                 {% endfor %}
-                                <label style="margin-top:10px;">{% trans 'academic_years'%}</label><br>
-                                {% if learning_unit_year.learning_container_year.learning_container %}
-                                    {{ learning_unit_year.learning_unit.start_year|academic_years:learning_unit_year.learning_unit.end_year }}
-                                {% endif %}
+                                {% block edit_academic_year %}
+                                    <label style="margin-top:10px;">{% trans 'academic_years'%}</label><br>
+                                    {% if learning_unit_year.learning_container_year.learning_container %}
+                                        {{ learning_unit_year.learning_unit.start_year|academic_years:learning_unit_year.learning_unit.end_year }}
+                                    {% endif %}
+                                {% endblock %}
                             </div>
                         </div>
                         {% if proposal %}
