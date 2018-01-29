@@ -25,11 +25,11 @@
 ##############################################################################
 from django.db import models
 from django.contrib import admin
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class OfferTypeAdmin(admin.ModelAdmin):
+class OfferTypeAdmin(OsisModelAdmin):
     list_display = ('name', )
-    fieldsets = ((None, {'fields': ('name', )}),)
     list_filter = ('name', )
     search_fields = ['name']
 

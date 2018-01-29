@@ -29,15 +29,11 @@ from django.contrib import admin
 from base.models import organization_address
 from base.models.enums import diploma_coorganization
 from base.models.organization_address import OrganizationAddress
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class EducationGroupOrganizationAdmin(admin.ModelAdmin):
+class EducationGroupOrganizationAdmin(OsisModelAdmin):
     list_display = ('education_group_year', 'organization')
-    fieldsets = ((None, {'fields': ('education_group_year',
-                                    'organization',
-                                    'all_students',
-                                    'enrollment_place',
-                                    'diploma')}),)
     raw_id_fields = ('education_group_year', 'organization')
     search_fields = ['education_group_year']
 

@@ -30,12 +30,11 @@ from django.utils import formats
 from django.utils.translation import ugettext as _
 from osis_common.utils.datetime import is_in_chronological_order
 from base.signals.publisher import compute_scores_encodings_deadlines
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class OfferYearCalendarAdmin(admin.ModelAdmin):
+class OfferYearCalendarAdmin(OsisModelAdmin):
     list_display = ('academic_calendar', 'offer_year', 'start_date', 'end_date', 'changed', 'education_group_year')
-    fieldsets = ((None, {'fields': ('offer_year', 'academic_calendar', 'start_date', 'end_date',
-                                    'education_group_year')}),)
     raw_id_fields = ('offer_year', 'education_group_year')
     search_fields = ['offer_year__acronym']
     list_filter = ('academic_calendar__academic_year', 'academic_calendar__reference',)

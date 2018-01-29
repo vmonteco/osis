@@ -27,11 +27,11 @@ from django.contrib import admin
 from django.db import models
 from assessments.models.enums import score_sheet_address_choices
 from django.core.exceptions import ObjectDoesNotExist
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class ScoreSheetAddressAdmin(admin.ModelAdmin):
+class ScoreSheetAddressAdmin(OsisModelAdmin):
     list_display = ('offer_year', 'entity_address_choice', 'location', 'postal_code', 'city', 'phone', 'fax', 'email')
-    fieldsets = ((None, {'fields': ('offer_year', 'entity_address_choice', 'location', 'postal_code', 'city', 'country', 'phone', 'fax', 'email')}),)
     search_fields = ['offer_year__acronym', 'location']
     list_filter = ('entity_address_choice',)
     raw_id_fields = ('offer_year',)

@@ -29,9 +29,10 @@ from django.db import models
 from django.conf import settings
 from cms.enums.entity_name import ENTITY_NAME
 from .text_label import TextLabel
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class TranslatedTextAdmin(admin.ModelAdmin):
+class TranslatedTextAdmin(OsisModelAdmin):
     list_display = ('text_label', 'entity', 'reference', 'language', 'text',)
     ordering = ('text_label',)
     list_filter = ('entity',)
