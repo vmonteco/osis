@@ -31,9 +31,8 @@ from django.urls.base import reverse
 
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import SuperUserFactory
-from django.forms import formset_factory
 from osis_common.models import message_history
-from django.contrib.messages.storage.fallback import FallbackStorage
+from django.test.utils import override_settings
 
 
 class MyOsisViewTestCase(TestCase):
@@ -74,7 +73,7 @@ class MyOsisViewTestCase(TestCase):
         messages = message_history.MessageHistory.objects.all()
         from base.views.my_osis import get_messages_formset
         formset_factory_result = get_messages_formset(messages)
-        self.assertEqual(len(messages),len(formset_factory_result))
+        self.assertEqual(len(messages), len(formset_factory_result))
 
     @mock.patch('base.views.layout.render')
     def test_profile(self, mock_render):
@@ -109,37 +108,13 @@ class MyOsisViewTestCase(TestCase):
         request = self.get_request()
         from base.views.my_osis import read_message
 
-        read_message(request, message.id )
+        read_message(request, message.id)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
 
         self.assertEqual(template, 'my_osis/my_message.html')
         self.assertEqual(context['my_message'], message)
-
-    @mock.patch('base.views.layout.render')
-    def test_profile_lang(self, mock_render):
-        data = {
-            "ui_language": 'fr'
-        }
-        request_factory = RequestFactory()
-        request = request_factory.post(reverse('profile_lang'), data)
-        request.user = self.a_superuser
-
-        from base.views.my_osis import profile_lang
-
-        profile_lang(request)
-
-        self.assertTrue(mock_render.called)
-        request, template, context = mock_render.call_args[0]
-
-        self.assertEqual(template, 'my_osis/profile.html')
-
-
-    def get_message(self):
-        messages = message_history.MessageHistory.objects.all()
-        message = messages[0]
-        return message
 
     @mock.patch('base.views.layout.render')
     def test_get_data(self, mock_render):
@@ -154,3 +129,8 @@ class MyOsisViewTestCase(TestCase):
         request = request_factory.get(reverse('home'))
         request.user = self.a_superuser
         return request
+
+    def get_message(self):
+        messages = message_history.MessageHistory.objects.all()
+        message = messages[0]
+        return message
