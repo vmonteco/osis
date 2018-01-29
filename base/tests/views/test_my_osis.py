@@ -1,4 +1,4 @@
-##############################################################################
+#############################################################################
 #
 #    OSIS stands for Open Student Information System. It's an application
 #    designed to manage the core business of higher education institutions,
@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -31,6 +31,9 @@ from django.urls.base import reverse
 
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import SuperUserFactory
+from django.forms import formset_factory
+from osis_common.models import message_history
+from django.contrib.messages.storage.fallback import FallbackStorage
 
 
 class MyOsisViewTestCase(TestCase):
@@ -67,6 +70,87 @@ class MyOsisViewTestCase(TestCase):
         template = response.templates[0].name
         self.assertEqual(template, 'my_osis/my_messages.html')
 
+    def test_get_messages_formset(self):
+        messages = message_history.MessageHistory.objects.all()
+        from base.views.my_osis import get_messages_formset
+        formset_factory_result = get_messages_formset(messages)
+        self.assertEqual(len(messages),len(formset_factory_result))
+
+    @mock.patch('base.views.layout.render')
+    def test_profile(self, mock_render):
+        request = self.get_request()
+        from base.views.my_osis import profile
+
+        profile(request)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'my_osis/profile.html')
+        with self.assertRaises(KeyError):
+            context['tab_attribution_on']
+
+    @mock.patch('base.views.layout.render')
+    def test_profile_attributions(self, mock_render):
+        request = self.get_request()
+        from base.views.my_osis import profile_attributions
+
+        profile_attributions(request)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'my_osis/profile.html')
+        self.assertEqual(context['tab_attribution_on'], True)
+
+    @mock.patch('base.views.layout.render')
+    def test_read_message(self, mock_render):
+        message = self.get_message()
+        request = self.get_request()
+        from base.views.my_osis import read_message
+
+        read_message(request, message.id )
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'my_osis/my_message.html')
+        self.assertEqual(context['my_message'], message)
+
+    @mock.patch('base.views.layout.render')
+    def test_profile_lang(self, mock_render):
+        data = {
+            "ui_language": 'fr'
+        }
+        request_factory = RequestFactory()
+        request = request_factory.post(reverse('profile_lang'), data)
+        request.user = self.a_superuser
+
+        from base.views.my_osis import profile_lang
+
+        profile_lang(request)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'my_osis/profile.html')
 
 
+    def get_message(self):
+        messages = message_history.MessageHistory.objects.all()
+        message = messages[0]
+        return message
 
+    @mock.patch('base.views.layout.render')
+    def test_get_data(self, mock_render):
+        request = self.get_request()
+        from base.views.my_osis import _get_data
+
+        data = _get_data(request)
+        self.assertEqual(data['person'], self.person)
+
+    def get_request(self):
+        request_factory = RequestFactory()
+        request = request_factory.get(reverse('home'))
+        request.user = self.a_superuser
+        return request

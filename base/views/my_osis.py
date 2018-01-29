@@ -55,13 +55,7 @@ def my_messages_index(request):
     if not my_messages:
         messages.add_message(request, messages.INFO, _('no_messages'))
     else:
-        initial_formset_content = [{'selected': False,
-                                    'subject':  message_hist.subject,
-                                    'created':  message_hist.created,
-                                    'id':       message_hist.id,
-                                    'read':     message_hist.read_by_user
-                                    } for message_hist in my_messages]
-        my_messages_formset = formset_factory(MyMessageForm, extra=0)(initial=initial_formset_content)
+        my_messages_formset = get_messages_formset(my_messages)
     return layout.render(request,
                          "my_osis/my_messages.html",
                          {
@@ -132,7 +126,8 @@ def messages_templates_index(request):
 @user_passes_test(lambda u: u.is_superuser)
 def send_message_again(request, message_id):
     message_history = message_history_mdl.find_by_id(message_id)
-    if not message_history.person.email:
+
+    if not has_email(message_history):
         messages.add_message(request, messages.ERROR, _('message_not_resent_no_email'))
     else:
         send_mail.send_again(message_id)
@@ -160,3 +155,19 @@ def _get_data(request):
             'default_language': settings.LANGUAGE_CODE,
             'summary_submission_opened': base.business.learning_unit.is_summary_submission_opened()}
 
+
+def get_messages_formset(my_messages):
+    initial_formset_content = [{'selected': False,
+                                'subject': message_hist.subject,
+                                'created': message_hist.created,
+                                'id': message_hist.id,
+                                'read': message_hist.read_by_user
+                                } for message_hist in my_messages]
+    return formset_factory(MyMessageForm, extra=0)(initial=initial_formset_content)
+
+
+def has_email(message_history):
+    person = mdl.person.find_by_id(message_history.receiver_id)
+    if person and person.email:
+        return True
+    return False
