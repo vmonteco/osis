@@ -56,22 +56,23 @@ function getCompleteAcronym(){
     return acronym.toUpperCase();
 }
 
+function extractValue(domElem){
+    return (domElem && domElem.val()) ? domElem.val(): "";
+}
+
 
 function getFirstLetter(){
-    var domElem = $('#id_first_letter');
-    return (domElem && domElem.val()) ? domElem.val(): "";
+    return extractValue($('#id_first_letter'));
 }
 
 
 function getAcronym(){
-    var domElem = $('#id_acronym');
-    return (domElem && domElem.val()) ? domElem.val(): "";
+    return extractValue($('#id_acronym'));
 }
 
 
 function getPartimLetter(){
-    var domElem = $('#hdn_partim_letter');
-    return (domElem && domElem.val()) ? domElem.val(): "";
+    return extractValue($('#hdn_partim_letter'));
 }
 
 
