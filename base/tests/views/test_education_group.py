@@ -521,8 +521,6 @@ class EducationGroupGeneralInformations(TestCase):
         self.assertEqual(list(form_english.text_labels_name), [self.cms_label_for_child.text_label.label])
 
 
-
-
 class EducationGroupViewTestCase(TestCase):
     def setUp(self):
         today = datetime.date.today()
@@ -617,78 +615,6 @@ class EducationGroupViewTestCase(TestCase):
         url = reverse("education_group_diplomas", args=[an_education_group.id])
         response = self.client.get(url)
         self.assertTemplateUsed(response, "education_group/tab_diplomas.html")
-
-    def _prepare_context_education_groups_search(self):
-        # Create a structure [Entity / Entity version]
-        country = CountryFactory()
-        structure = StructureFactory()
-        ssh_entity = EntityFactory(country=country)
-        ssh_entity_v = EntityVersionFactory(acronym="SSH", end_date=None, entity=ssh_entity)
-
-        agro_entity = EntityFactory(country=country)
-        envi_entity = EntityFactory(country=country)
-        ages_entity = EntityFactory(country=country)
-        agro_entity_v = EntityVersionFactory(entity=agro_entity, parent=ssh_entity_v.entity, acronym="AGRO",
-                                             end_date=None)
-        EntityVersionFactory(entity=envi_entity, parent=agro_entity_v.entity, acronym="ENVI",
-                                             end_date=None)
-        EntityVersionFactory(entity=ages_entity, parent=agro_entity_v.entity, acronym="AGES",
-                                             end_date=None)
-
-        # Create EG and put entity charge [AGRO]
-        agro_education_group = EducationGroupFactory()
-        agro_education_group_type = EducationGroupTypeFactory(category=TRAINING)
-
-        agro_education_group_year = EducationGroupYearFactory(acronym='EDPH2',
-                                                              academic_year=self.academic_year,
-                                                              education_group=agro_education_group,
-                                                              education_group_type=agro_education_group_type)
-
-        agro_offer = OfferFactory()
-        agro_offer_year = OfferYearFactory(offer=agro_offer,
-                                           entity_management=structure,
-                                           entity_administration_fac=structure)
-
-        OfferYearEntityFactory(offer_year=agro_offer_year,
-                               entity=agro_entity,
-                               education_group_year=agro_education_group_year,
-                               type=offer_year_entity_type.ENTITY_MANAGEMENT)
-
-        # Create EG and put entity charge [ENVI]
-        envi_education_group = EducationGroupFactory()
-        envi_education_group_type = EducationGroupTypeFactory(category=TRAINING)
-
-        envi_education_group_year = EducationGroupYearFactory(academic_year=self.academic_year,
-                                                              education_group=envi_education_group,
-                                                              education_group_type=envi_education_group_type)
-
-        envi_offer = OfferFactory()
-        envi_offer_year = OfferYearFactory(offer=envi_offer,
-                                           entity_management=structure,
-                                           entity_administration_fac=structure)
-
-        OfferYearEntityFactory(offer_year=envi_offer_year,
-                               entity=envi_entity,
-                               education_group_year=envi_education_group_year,
-                               type=offer_year_entity_type.ENTITY_MANAGEMENT)
-
-        # Create EG and put entity charge [AGES]
-        ages_education_group = EducationGroupFactory()
-        ages_education_group_type = EducationGroupTypeFactory(category=TRAINING)
-
-        ages_education_group_year = EducationGroupYearFactory(academic_year=self.academic_year,
-                                                              education_group=ages_education_group,
-                                                              education_group_type=ages_education_group_type)
-
-        ages_offer = OfferFactory()
-        ages_offer_year = OfferYearFactory(offer=ages_offer,
-                                           entity_management=structure,
-                                           entity_administration_fac=structure)
-
-        OfferYearEntityFactory(offer_year=ages_offer_year,
-                               entity=ages_entity,
-                               education_group_year=ages_education_group_year,
-                               type=offer_year_entity_type.ENTITY_MANAGEMENT)
 
     def initialize_session(self):
         user = UserFactory()
