@@ -36,27 +36,21 @@ from django.test import TestCase, RequestFactory
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
 from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
 from base.models.enums import education_group_categories, offer_year_entity_type, academic_calendar_type
-from base.models.enums.education_group_categories import TRAINING
 from cms.enums import entity_name
 
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_language import EducationGroupLanguageFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
-from base.tests.factories.education_group import EducationGroupFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
-from base.tests.factories.offer import OfferFactory
-from base.tests.factories.offer_year import OfferYearFactory
 from base.tests.factories.offer_year_entity import OfferYearEntityFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.program_manager import ProgramManagerFactory
-from base.tests.factories.structure import StructureFactory
 from base.tests.factories.user import UserFactory
 from cms.tests.factories.text_label import TextLabelFactory
 from cms.tests.factories.translated_text import TranslatedTextFactory
-from reference.tests.factories.country import CountryFactory
 
 
 
