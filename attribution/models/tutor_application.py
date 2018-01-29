@@ -61,7 +61,7 @@ class TutorApplication(AuditableModel):
     last_changed = models.DateTimeField(null=True)
 
     class Meta:
-        unique_together = ('learning_container_year', 'tutor', 'function')
+        unique_together = ('learning_container_year', 'tutor', 'function', 'deleted')
 
     def __str__(self):
         return u"%s - %s" % (self.tutor, self.function)
