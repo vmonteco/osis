@@ -56,15 +56,16 @@ def _compute_data_changed(initial_data, current_data):
 
 
 def is_eligible_for_modification_proposal(learning_unit_year, a_person):
+    non_authorized_types = (learning_container_year_types.COURSE, learning_container_year_types.DISSERTATION,
+                            learning_container_year_types.INTERNSHIP)
     proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
     current_year = current_academic_year().year
 
     if learning_unit_year.academic_year.year < current_year or \
             learning_unit_year.subtype == learning_unit_year_subtypes.PARTIM:
         return False
-    if learning_unit_year.learning_container_year.container_type not in (learning_container_year_types.COURSE,
-                                                                         learning_container_year_types.DISSERTATION,
-                                                                         learning_container_year_types.INTERNSHIP):
+    if learning_unit_year.learning_container_year and \
+            learning_unit_year.learning_container_year.container_type not in non_authorized_types:
         return False
     if proposal:
         return False

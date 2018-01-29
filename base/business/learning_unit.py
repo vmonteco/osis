@@ -44,6 +44,7 @@ from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import entity_container_year_link_type, academic_calendar_type
 from base.models.enums import learning_component_year_type
 from base.models.enums import learning_container_year_types
+from base.models.enums.learning_container_year_types import COURSE, DISSERTATION, INTERNSHIP
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LearningUnit, is_old_learning_unit
@@ -428,10 +429,14 @@ def find_language_in_settings(language_code):
 
 
 def is_eligible_for_modification_end_date(learning_unit_year, a_person):
+    non_authorized_types_for_faculty_manager = [COURSE, DISSERTATION, INTERNSHIP]
     result = False
     if is_old_learning_unit(learning_unit_year.learning_unit):
         pass
     elif proposal_learning_unit.find_by_learning_unit_year(learning_unit_year):
+        pass
+    elif a_person.is_faculty_manager() and \
+            learning_unit_year.learning_container_year.container_type in non_authorized_types_for_faculty_manager:
         pass
     elif is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person):
         result = True
