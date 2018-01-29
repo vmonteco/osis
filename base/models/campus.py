@@ -53,10 +53,6 @@ def find_by_organization(organization):
                          .order_by('name')
 
 
-def find_administration_campuses():
-    return Campus.objects.filter(organization__type=MAIN, is_administration=True).order_by('name')
-
-
 def find_by_id(campus_id):
     try:
         return Campus.objects.get(id=campus_id)
