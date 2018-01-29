@@ -506,6 +506,7 @@ def learning_unit_create_partim(request, learning_unit_year_id):
     initial = compute_partim_form_initial_data(learning_unit_year_parent)
     return layout.render(request, "learning_unit/partim_form.html", {'form': CreatePartimForm(person, initial=initial)})
 
+
 @login_required
 @permission_required('base.can_create_learningunit', raise_exception=True)
 @require_POST
@@ -617,7 +618,8 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
         context['show_subtype'] = show_subtype(learning_unit_year)
         context.update(get_all_attributions(learning_unit_year))
         context['components'] = get_components_identification(learning_unit_year)
-        context['can_propose'] = learning_unit_proposal.is_eligible_for_modification_proposal(learning_unit_year, person)
+        context['can_propose'] = learning_unit_proposal.is_eligible_for_modification_proposal(learning_unit_year,
+                                                                                              person)
         context['can_edit_date'] = is_eligible_for_modification_end_date(learning_unit_year, person)
         context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
         context['can_cancel_proposal'] = learning_unit_proposal. \
