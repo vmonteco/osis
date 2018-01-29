@@ -6,7 +6,7 @@ const internship = "INTERNSHIP";
         var value_not_internship = container_type_value != internship;
         document.getElementById('id_internship_subtype').disabled = value_not_internship;
         if (value_not_internship){
-            $('#id_internship_subtype option:first-child').attr("selected", "selected");
+            $('#id_internship_subtype')[0].selectedIndex = 0;
         }
     }
 
