@@ -160,8 +160,8 @@ class TestSave(TestCase):
                                                            end_date=today.replace(year=today.year + 1),
                                                            entity=entity_2)
         self.form_data["allocation_entity"] = self.entity_version.id
-        self.form_data["additional_entity_1"] = additional_entity_version_1.id
-        self.form_data["additional_entity_2"] = additional_entity_version_2.id
+        self.form_data["additional_requirement_entity_1"] = additional_entity_version_1.id
+        self.form_data["additional_requirement_entity_2"] = additional_entity_version_2.id
 
         form = LearningUnitProposalModificationForm(self.form_data)
         form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)

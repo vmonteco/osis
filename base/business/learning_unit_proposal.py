@@ -23,46 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from base.models import entity_container_year
 from base.models import proposal_learning_unit, campus, entity, person_entity
 from base.models.academic_year import current_academic_year
-from base.models import entity_container_year
-from base.models.proposal_learning_unit import find_by_folder
-from base.models.utils.person_entity_filter import filter_by_attached_entities
 from base.models.enums import entity_container_year_link_type, proposal_type, learning_unit_year_subtypes, \
     learning_container_year_types, proposal_state
+from base.models.proposal_learning_unit import find_by_folder
+from base.models.utils.person_entity_filter import filter_by_attached_entities
 from reference.models import language
-
-
-def compute_form_initial_data(learning_unit_year):
-    entities_version = entity_container_year.find_last_entity_version_grouped_by_linktypes(
-        learning_unit_year.learning_container_year)
-    initial_data = {
-        "academic_year": learning_unit_year.academic_year.id,
-        "first_letter": learning_unit_year.acronym[0],
-        "acronym": learning_unit_year.acronym[1:],
-        "title": learning_unit_year.title,
-        "title_english": learning_unit_year.title_english,
-        "container_type": learning_unit_year.learning_container_year.container_type,
-        "subtype": learning_unit_year.subtype,
-        "internship_subtype": learning_unit_year.internship_subtype,
-        "credits": learning_unit_year.credits,
-        "periodicity": learning_unit_year.learning_unit.periodicity,
-        "status": learning_unit_year.status,
-        "language": learning_unit_year.learning_container_year.language,
-        "quadrimester": learning_unit_year.quadrimester,
-        "campus": learning_unit_year.learning_container_year.campus,
-        "requirement_entity": entities_version.get(entity_container_year_link_type.REQUIREMENT_ENTITY),
-        "allocation_entity": entities_version.get(entity_container_year_link_type.ALLOCATION_ENTITY),
-        "additional_entity_1": entities_version.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1),
-        "additional_entity_2": entities_version.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
-    }
-    return {key: value for key, value in initial_data.items() if value is not None}
 
 
 def compute_proposal_type(initial_data, current_data):
     data_changed = _compute_data_changed(initial_data, current_data)
     filtered_data_changed = filter(lambda key: key not in ["academic_year", "subtype", "acronym"], data_changed)
-    transformation = current_data["acronym"] != "{}{}".format(initial_data["first_letter"], initial_data["acronym"])
+    transformation = "{}{}".format(current_data["first_letter"], current_data["acronym"]) != \
+                     "{}{}".format(initial_data["first_letter"], initial_data["acronym"])
     modification = any(map(lambda x: x != "acronym", filtered_data_changed))
     if transformation and modification:
         return proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name
@@ -93,7 +68,7 @@ def is_eligible_for_modification_proposal(learning_unit_year, a_person):
         return False
     if proposal:
         return False
-    return _is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person)
+    return is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person)
 
 
 def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
@@ -109,10 +84,13 @@ def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
     an_entity = entity.get_by_internal_id(initial_entity_requirement_id)
     if an_entity in person_entity.find_entities_by_person(a_person):
         return True
-    return _is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_proposal.learning_unit_year, a_person)
+    return is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_proposal.learning_unit_year, a_person)
 
 
-def _is_person_linked_to_entity_in_charge_of_learning_unit(a_learning_unit_year, a_person):
+def is_person_linked_to_entity_in_charge_of_learning_unit(a_learning_unit_year, a_person):
+    if a_person.user.is_superuser:
+        return True
+
     entity_containers_year = entity_container_year.search(
         learning_container_year=a_learning_unit_year.learning_container_year,
         link_type=entity_container_year_link_type.REQUIREMENT_ENTITY)

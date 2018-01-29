@@ -68,7 +68,8 @@ class TestLearningUnitModificationProposal(TestCase):
         self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212",
                                                                subtype=learning_unit_year_subtypes.FULL,
                                                                academic_year=current_academic_year,
-                                                               learning_container_year=learning_container_year)
+                                                               learning_container_year=learning_container_year,
+                                                               quadrimester=None)
 
         an_entity = EntityFactory(organization=an_organization)
         self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
@@ -84,12 +85,12 @@ class TestLearningUnitModificationProposal(TestCase):
             entity=self.entity_version.entity,
             type=entity_container_year_link_type.ALLOCATION_ENTITY
         )
-        self.additional_entity_1= EntityContainerYearFactory(
+        self.additional_requirement_entity_1= EntityContainerYearFactory(
             learning_container_year=self.learning_unit_year.learning_container_year,
             entity=self.entity_version.entity,
             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1
         )
-        self.additional_entity_2 = EntityContainerYearFactory(
+        self.additional_requirement_entity_2 = EntityContainerYearFactory(
             learning_container_year=self.learning_unit_year.learning_container_year,
             entity=self.entity_version.entity,
             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2
@@ -114,10 +115,11 @@ class TestLearningUnitModificationProposal(TestCase):
             "language": self.learning_unit_year.learning_container_year.language.id,
             "quadrimester": "",
             "campus": self.learning_unit_year.learning_container_year.campus.id,
+            "session": self.learning_unit_year.session,
             "requirement_entity": self.entity_version.id,
             "allocation_entity": self.entity_version.id,
-            "additional_entity_1": self.entity_version.id,
-            "additional_entity_2": self.entity_version.id,
+            "additional_requirement_entity_1": self.entity_version.id,
+            "additional_requirement_entity_2": self.entity_version.id,
             "folder_entity": self.entity_version.id,
             "folder_id": "1",
         }
@@ -160,7 +162,7 @@ class TestLearningUnitModificationProposal(TestCase):
 
         self.assertIsInstance(response.context['form'], LearningUnitProposalModificationForm)
         form_initial = response.context['form'].initial
-        self.assertEqual(form_initial['academic_year'], self.learning_unit_year.academic_year.pk)
+        self.assertEqual(form_initial['academic_year'], self.learning_unit_year.academic_year.id)
         self.assertEqual(form_initial['first_letter'], self.learning_unit_year.acronym[0])
         self.assertEqual(form_initial['acronym'], self.learning_unit_year.acronym[1:])
         self.assertEqual(form_initial['title'], self.learning_unit_year.title)
@@ -170,12 +172,12 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(form_initial['credits'], self.learning_unit_year.credits)
         self.assertEqual(form_initial['periodicity'], self.learning_unit_year.learning_unit.periodicity)
         self.assertEqual(form_initial['status'], self.learning_unit_year.status)
-        self.assertEqual(form_initial['language'], self.learning_unit_year.learning_container_year.language)
-        self.assertEqual(form_initial['requirement_entity'], self.entity_version)
-        self.assertEqual(form_initial['allocation_entity'], self.entity_version)
-        self.assertEqual(form_initial['additional_entity_1'], self.entity_version)
-        self.assertEqual(form_initial['additional_entity_2'], self.entity_version)
-        self.assertEqual(form_initial['campus'], self.learning_unit_year.learning_container_year.campus)
+        self.assertEqual(form_initial['language'], self.learning_unit_year.learning_container_year.language.id)
+        self.assertEqual(form_initial['requirement_entity'], self.entity_version.id)
+        self.assertEqual(form_initial['allocation_entity'], self.entity_version.id)
+        self.assertEqual(form_initial['additional_requirement_entity_1'], self.entity_version.id)
+        self.assertEqual(form_initial['additional_requirement_entity_2'], self.entity_version.id)
+        self.assertEqual(form_initial['campus'], self.learning_unit_year.learning_container_year.campus.id)
 
     def test_post_request_with_invalid_form(self):
         response = self.client.post(self.url, data={})
@@ -203,7 +205,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertIn(_("success_modification_proposal").format(_(proposal_type.ProposalType.MODIFICATION.name),
                                                                 self.learning_unit_year.acronym),
                       list(messages))
-
+#
     def test_transformation_proposal_request(self):
         self.form_data["acronym"] = "OSIS1452"
         self.client.post(self.url, data=self.form_data)

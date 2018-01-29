@@ -28,6 +28,8 @@ import datetime
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
+from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 
 from assistant.models.tutoring_learning_unit_year import TutoringLearningUnitYear
 from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
@@ -53,9 +55,6 @@ from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_enrollment import LearningUnitEnrollmentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
-from django.utils.translation import ugettext_lazy as _
-from django.utils import timezone
-
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 
@@ -63,11 +62,13 @@ from base.tests.factories.person_entity import PersonEntityFactory
 class LearningUnitYearDeletion(TestCase):
     def setUp(self):
         self.academic_year = AcademicYearFactory(year=timezone.now().year)
+        self.learning_unit = LearningUnitFactory(start_year=1900)
 
     def test_check_related_partims_deletion(self):
         l_container_year = LearningContainerYearFactory()
         l_unit_1 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
-                                           academic_year=self.academic_year, subtype=learning_unit_year_subtypes.FULL)
+                                           academic_year=self.academic_year, subtype=learning_unit_year_subtypes.FULL,
+                                           learning_unit=self.learning_unit)
         msg = learning_unit_deletion._check_related_partims_deletion(l_container_year)
         self.assertEqual(len(msg.values()), 0)
 
@@ -116,8 +117,7 @@ class LearningUnitYearDeletion(TestCase):
                                           'tutor': attribution_2.tutor},
                       msg)
 
-        msg_delete_offer_type = _(
-            '%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s')
+        msg_delete_offer_type = _('lu_included_in_group')
 
         self.assertIn(msg_delete_offer_type
                       % {'subtype': _('The partim'),
@@ -157,27 +157,34 @@ class LearningUnitYearDeletion(TestCase):
         self.assertEqual(len(msg), 2)
 
     def test_delete_next_years(self):
-        l_unit = LearningUnitFactory()
+        l_unit = LearningUnitFactory(start_year=1900)
 
         dict_learning_units = {}
         for year in range(2000, 2017):
             academic_year = AcademicYearFactory(year=year)
             dict_learning_units[year] = LearningUnitYearFactory(academic_year=academic_year, learning_unit=l_unit)
 
-        msg = learning_unit_deletion.delete_from_given_learning_unit_year(dict_learning_units[2007])
-        self.assertEqual(LearningUnitYear.objects.filter(academic_year__year__gte=2007, learning_unit=l_unit).count(),
+        year_to_delete = 2007
+        msg = learning_unit_deletion.delete_from_given_learning_unit_year(dict_learning_units[year_to_delete])
+        self.assertEqual(LearningUnitYear.objects.filter(academic_year__year__gte=year_to_delete,
+                                                         learning_unit=l_unit).count(),
                          0)
-        self.assertEqual(len(msg), 2017-2007)
+        self.assertEqual(len(msg), 2017-year_to_delete)
+        self.assertEqual(l_unit.end_year, year_to_delete-1)
 
     def test_delete_partim_from_full(self):
         l_container_year = LearningContainerYearFactory()
+        l_u = LearningUnitFactory(start_year=1900)
         l_unit_year = LearningUnitYearFactory(subtype=learning_unit_year_subtypes.FULL,
-                                              learning_container_year=l_container_year)
+                                              learning_container_year=l_container_year,
+                                              learning_unit=l_u)
 
         l_unit_partim_1 = LearningUnitYearFactory(subtype=learning_unit_year_subtypes.PARTIM,
-                                                  learning_container_year=l_container_year)
+                                                  learning_container_year=l_container_year,
+                                                  learning_unit=l_u)
         l_unit_partim_2 = LearningUnitYearFactory(subtype=learning_unit_year_subtypes.PARTIM,
-                                                  learning_container_year=l_container_year)
+                                                  learning_container_year=l_container_year,
+                                                  learning_unit=l_u)
 
         learning_unit_deletion.delete_from_given_learning_unit_year(l_unit_year)
 
@@ -202,6 +209,7 @@ class LearningUnitYearDeletion(TestCase):
         learning_unit_component = LearningUnitComponentFactory(learning_component_year=learning_component_year)
 
         learning_unit_year = learning_unit_component.learning_unit_year
+        learning_unit_year.learning_unit.start_year = 1900
         learning_unit_year.subtype = learning_unit_year_subtypes.PARTIM
         learning_unit_year.save()
 
@@ -228,12 +236,16 @@ class LearningUnitYearDeletion(TestCase):
     def test_delete_learning_container_year(self):
         learning_container_year = LearningContainerYearFactory()
 
+        learning_unit = LearningUnitFactory(start_year=1900)
         learning_unit_year_full = LearningUnitYearFactory(learning_container_year=learning_container_year,
-                                                          subtype=learning_unit_year_subtypes.FULL)
+                                                          subtype=learning_unit_year_subtypes.FULL,
+                                                          learning_unit=learning_unit)
         learning_unit_year_partim = LearningUnitYearFactory(learning_container_year=learning_container_year,
-                                                            subtype=learning_unit_year_subtypes.PARTIM)
+                                                            subtype=learning_unit_year_subtypes.PARTIM,
+                                                            learning_unit=learning_unit)
         learning_unit_year_none = LearningUnitYearFactory(learning_container_year=learning_container_year,
-                                                          subtype=None)
+                                                          subtype=None,
+                                                          learning_unit=learning_unit)
 
         learning_unit_deletion.delete_from_given_learning_unit_year(learning_unit_year_none)
 

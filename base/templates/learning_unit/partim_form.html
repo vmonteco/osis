@@ -9,7 +9,7 @@
 * The core business involves the administration of students, teachers,
 * courses, programs and so on.
 *
-* Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+* Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -34,12 +34,13 @@
 
 {% block content %}
 <div class="page-header">
-    <h2>{% trans 'new_learning_unit' %}</h2>
+    <h2>{% trans 'new_learning_unit' %} - Partim</h2>
 </div>
 <div class="panel panel-default">
     <div class="panel-body">
-        <form method="post" action="{% url 'learning_unit_year_add' %}" id="LearningUnitYearForm"
-        data-validate-url="{% url 'check_acronym'%}">
+        <form method="post" action="{% url 'learning_unit_year_partim_add' learning_unit_year_id=request.resolver_match.kwargs.learning_unit_year_id %}"
+              data-validate-url="{% url 'check_acronym'%}"
+              id="LearningUnitYearForm">
             {% csrf_token %}
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -47,7 +48,8 @@
                 </div>
                 <div class="panel-body">
                     <div class="row">
-                        <div class="col-md-3" style="padding:0;">
+                        <div class="col-md-4" style="padding:0;">
+
                             <div class="row" style="margin:0;">
                                 <div class="col-md-3" style="padding-right:0;">
                                     <label>
@@ -55,56 +57,70 @@
                                     </label>
                                     {{ form.first_letter }}
                                 </div>
-                                <abbr title="{% trans 'acronym_rules' %}">
-                                    <span class="glyphicon glyphicon-question-sign pull-right"
-                                          title="{% trans 'acronym_rules' %}" style="font-size: 14pt;"
-                                          aria-hidden="true"></span></abbr>
-                                <div class="col-md-9" style="padding:0;margin-top:7px;">
+                                <div class="col-md-5" style="padding:0;margin-top:5px;">
+                                    <br>
                                     {{ form.acronym }}
                                     <span class='error' id="{{ form.acronym.name }}_message" for='{{ form.acronym.name }}' generated="true"/>
                                     {% if form.acronym.errors %}
                                         <b class='error' for='{{ form.acronym.name }}' generated="true">{{ form.acronym.errors|join:". " }}</b>
                                     {% endif %}
                                 </div>
+                                <div class="col-md-3" style="padding-left:0;">
+                                    <label class="text-no-wrap" {% if form.errors.partim_letter %}style="color:red;"{% endif %}>
+                                        {% trans 'partim' %}*
+                                    </label>
+                                    {{ form.partim_letter }}
+                                    <span class='error' id="{{ form.partim_letter.name }}_message" for='{{ form.partim_letter.name }}' generated="true"/>
+                                    {% if form.partim_letter.errors %}
+                                        <label class='error' for='{{ form.partim_letter.name }}' generated="true">{{ form.partim_letter.errors|join:". " }}</label>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-1">
+                                    <abbr title="{% trans 'partim_letter_rules' %}">
+                                            <span class="glyphicon glyphicon-question-sign pull-right"
+                                                  title="{% trans 'partim_letter_rules' %}" style="font-size: 14pt;"
+                                                  aria-hidden="true"></span></abbr>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <label {% if form.errors.container_type%}style="color:red;"{% endif %}>
-                                {% trans 'type' %}*
-                            </label>
-                            {{ form.container_type}}
-                            <label {% if form.errors.container_type%}style="color:red;"{% endif %}>
-                                {{ form.errors.container_type| striptags }}
-                            </label>
-                        </div>
-                        <div class="col-md-3">
-                            <label>
-                                {% trans 'internship_subtype' %}
-                            </label>
-                            {{ form.internship_subtype }}
-                        </div>
-                        <div class="col-md-3">
-                            <label {% if form.errors.campus %}style="color:red;"{% endif %}>
-                                {% trans 'learning_location' %}*
-                            </label>
-                            {{ form.campus }}
-                            <label {% if form.errors.campus %}style="color:red;"{% endif %}>
-                                {{ form.errors.campus| striptags }}
-                            </label>
+                        <div class="col-md-8">
+                            <div class="col-md-4">
+                                <label {% if form.errors.container_type%}style="color:red;"{% endif %}>
+                                    {% trans 'type' %}*
+                                </label>
+                                {{ form.container_type}}
+                                <label {% if form.errors.container_type%}style="color:red;"{% endif %}>
+                                    {{ form.errors.container_type| striptags }}
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <label>
+                                    {% trans 'internship_subtype' %}
+                                </label>
+                                {{ form.internship_subtype }}
+                            </div>
+                            <div class="col-md-4">
+                                <label {% if form.errors.campus %}style="color:red;"{% endif %}>
+                                    {% trans 'learning_location' %}*
+                                </label>
+                                {{ form.campus }}
+                                <label {% if form.errors.campus %}style="color:red;"{% endif %}>
+                                    {{ form.errors.campus| striptags }}
+                                </label>
+                            </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-2">
                             <label class="text-nowrap">{% trans 'academic_year' %}</label>
                             {{ form.academic_year }}
-                            <b style="color: red;">{{ form.academic_year.errors }}</b>
                         </div>
                         <div class="col-md-2">
-                            <label>{% trans 'periodicity' %}*</label>
+                            <label>{% trans 'periodicity' %}</label>
                             {{ form.periodicity }}
                         </div>
                         <div class="col-md-2">
-                            <label>{% trans 'language' %}*</label>
+                            <label>{% trans 'language' %}</label>
                             {{ form.language }}
                         </div>
                         <div class="col-md-6">
@@ -138,7 +154,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
             </div>
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -214,27 +229,8 @@
             <div class="panel-body">
                 <button type="button" id="learning_unit_year_add" class="btn btn-primary" title="{% trans 'add' %}">{% trans 'save' %}</button>
             </div>
-        </form>
-
-        <!-- Modal -->
-        <div class="modal fade" id="prolongOrCreateModal" tabindex="-1" role="dialog" aria-labelledby="prolongOrCreateModalLabel">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">{% trans 'confirm_your_action' %}</h4>
-              </div>
-              <div class="modal-body">
-                {% trans 'prolong_or_create_learning_unit_message' %}
-              </div>
-              <div class="modal-footer">
-                  <button type="submit" id="buttonCreate" class="btn btn-primary" form="LearningUnitYearForm" value="Submit">{% trans 'create' %}</button>
-                  <button type="button" class="btn btn-info" >{% trans 'prolong' %}</button>
-                  <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'cancel' %}</button>
-              </div>
             </div>
-          </div>
-        </div>
+        </form>
 
     </div>
 </div>
@@ -242,9 +238,9 @@
 {% block script %}
     <script type="text/javascript">
         const trans_existed_acronym = "{% trans 'existed_acronym' %}";
-        const trans_existing_acronym = "{% trans 'existing_acronym' %}";
         const trans_invalid_acronym = "{% trans 'invalid_acronym' %}";
         const trans_field_required = "{% trans 'field_is_required' %}";
+        const trans_invalid_partim_letter = "{% trans 'invalid_partim_letter' %}";
         const form_acronym_regex = /{{ form.acronym_regex }}/;
         const currentAcronym = "";
     </script>

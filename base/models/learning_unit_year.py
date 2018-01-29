@@ -27,13 +27,11 @@ import re
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from base.models.group_element_year import GroupElementYear
-from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
-
 from base.models import entity_container_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
-
+from base.models.group_element_year import GroupElementYear
+from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
@@ -75,6 +73,9 @@ class LearningUnitYear(AuditableSerializableModel):
                                     choices=learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
     attribution_procedure = models.CharField(max_length=20, blank=True, null=True,
                                              choices=attribution_procedure.ATTRIBUTION_PROCEDURES)
+
+    class Meta:
+        unique_together = ('learning_unit', 'academic_year', 'deleted')
 
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
@@ -120,7 +121,7 @@ class LearningUnitYear(AuditableSerializableModel):
     def get_learning_unit_next_year(self):
         try:
             return LearningUnitYear.objects.get(learning_unit=self.learning_unit,
-                                                academic_year__year=(self.academic_year.year+1))
+                                                academic_year__year=(self.academic_year.year + 1))
         except LearningUnitYear.DoesNotExist:
             return None
 
@@ -135,8 +136,8 @@ class LearningUnitYear(AuditableSerializableModel):
 
 
 def get_by_id(learning_unit_year_id):
-    return LearningUnitYear.objects.select_related('learning_container_year__learning_container')\
-                                   .get(pk=learning_unit_year_id)
+    return LearningUnitYear.objects.select_related('learning_container_year__learning_container') \
+        .get(pk=learning_unit_year_id)
 
 
 def find_by_acronym(acronym):
@@ -202,4 +203,3 @@ def find_lt_year_acronym(academic_yr, acronym):
 def check_if_acronym_regex_is_valid(acronym):
     if isinstance(acronym, str):
         return re.fullmatch(REGEX_ACRONYM_CHARSET, acronym.upper())
-

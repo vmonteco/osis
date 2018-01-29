@@ -24,7 +24,8 @@
 #
 ##############################################################################
 from django.db import models
-from base.models import learning_unit_year, learning_component_year
+
+from base.models import learning_unit_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types
 from base.models.enums import vacant_declaration_type
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
@@ -62,6 +63,7 @@ class LearningContainerYear(AuditableSerializableModel):
         return u"%s - %s" % (self.acronym, self.title)
 
     class Meta:
+        unique_together = ("learning_container", "academic_year",)
         permissions = (
             ("can_access_learningcontaineryear", "Can access learning container year"),
         )
@@ -73,3 +75,14 @@ class LearningContainerYear(AuditableSerializableModel):
 
 def find_by_id(learning_container_year_id):
     return LearningContainerYear.objects.get(pk=learning_container_year_id)
+
+
+def search(an_academic_year=None, a_learning_container=None):
+    queryset = LearningContainerYear.objects
+
+    if an_academic_year:
+        queryset = queryset.filter(academic_year=an_academic_year)
+    if a_learning_container:
+        queryset = queryset.filter(learning_container=a_learning_container)
+
+    return queryset
