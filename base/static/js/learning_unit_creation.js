@@ -101,8 +101,8 @@ const internship = "INTERNSHIP";
         });
 
         showInternshipSubtype();
-        document.getElementById('id_additional_requirement_entity_1').disabled = '{{form.requirement_entity.value}}' != "0";
-        document.getElementById('id_additional_requirement_entity_2').disabled = '{{form.requirement_entity_1.value}}' != "0";
+        document.getElementById('id_additional_requirement_entity_1').disabled = document.getElementById('id_requirement_entity').value == "";
+        document.getElementById('id_additional_requirement_entity_2').disabled = document.getElementById('id_additional_requirement_entity_1').value == "";
 
         $('#id_acronym').change(validate_acronym);
         $('#id_academic_year').change(validate_acronym);
