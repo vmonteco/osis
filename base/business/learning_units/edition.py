@@ -79,7 +79,7 @@ def extend_learning_unit(learning_unit_to_edit, new_academic_year):
                                                               ).order_by('academic_year').last()
     lu_parent = last_learning_unit_year.parent
     if last_learning_unit_year.subtype == 'PARTIM' and lu_parent:
-        if _get_actual_end_year(lu_parent) < new_academic_year.year:
+        if _get_actual_end_year(lu_parent.learning_unit) < new_academic_year.year:
             raise IntegrityError(_('parent_greater_than_partim') % {'lu_parent': lu_parent})
 
     for ac_year in _get_next_academic_years(learning_unit_to_edit, new_academic_year.year):
