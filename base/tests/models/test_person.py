@@ -27,10 +27,13 @@ import functools
 import contextlib
 import factory
 import datetime
+
+from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.test import override_settings
 from base.models import person
 from base.models.enums import person_source_type
+from base.models.person import CENTRAL_MANAGER_GROUP, FACULTY_MANAGER_GROUP
 from base.tests.factories.person import PersonFactory, generate_person_email
 from base.tests.factories import user
 
@@ -139,3 +142,17 @@ class PersonTest(PersonTestCase):
         self.assertEquals(person.calculate_age(a_person), 30)
         a_person.birth_date = datetime.datetime.now() - datetime.timedelta(days=((30*365)-5))
         self.assertEquals(person.calculate_age(a_person), 29)
+
+    def test_is_central_manager(self):
+        a_person = PersonFactory()
+        self.assertFalse(a_person.is_central_manager())
+
+        a_person.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
+        self.assertTrue(a_person.is_central_manager())
+
+    def test_is_faculty_manager(self):
+        a_person = PersonFactory()
+        self.assertFalse(a_person.is_faculty_manager())
+
+        a_person.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
+        self.assertTrue(a_person.is_faculty_manager())
