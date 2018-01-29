@@ -33,7 +33,7 @@ from django.utils.translation import ugettext_lazy as _
 from base import models as mdl
 from base.business import learning_unit
 from base.forms.bootstrap import BootstrapForm
-from base.models.campus import find_by_organization
+from base.models.campus import find_main_campuses
 from base.models.entity_version import find_main_entities_version, find_main_entities_version_filtered_by_person
 from base.models.enums import learning_container_year_types
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
@@ -92,7 +92,7 @@ class LearningUnitYearForm(BootstrapForm):
                         widget=forms.Select(choices=((None, EMPTY_FIELD),) + LEARNING_UNIT_YEAR_QUADRIMESTERS),
                         required=False
     )
-    campus = forms.ModelChoiceField(queryset=find_by_organization())
+    campus = forms.ModelChoiceField(queryset=find_main_campuses())
     requirement_entity = EntitiesVersionChoiceField(
         find_main_entities_version().none(),
         widget=forms.Select(
