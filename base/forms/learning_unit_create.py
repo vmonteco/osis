@@ -47,7 +47,9 @@ MAX_RECORDS = 1000
 EMPTY_FIELD = "---------"
 READONLY_ATTR = "disabled"
 PARTIM_FORM_READ_ONLY_FIELD = {'first_letter', 'acronym', 'title', 'title_english', 'requirement_entity',
-                               'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year'}
+                               'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year',
+                               'container_type', 'internship_subtype',
+                               'additional_requirement_entity_1', 'additional_requirement_entity_2'}
 
 
 def _create_first_letter_choices():
