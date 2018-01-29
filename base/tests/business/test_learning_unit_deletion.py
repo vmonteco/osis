@@ -44,6 +44,7 @@ from base.models.learning_class_year import LearningClassYear
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
+from base.models.person import FACULTY_MANAGER_GROUP, CENTRAL_MANAGER_GROUP
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
@@ -66,9 +67,11 @@ class LearningUnitYearDeletion(TestCase):
 
     def test_check_related_partims_deletion(self):
         l_container_year = LearningContainerYearFactory()
-        l_unit_1 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
-                                           academic_year=self.academic_year, subtype=learning_unit_year_subtypes.FULL,
-                                           learning_unit=self.learning_unit)
+        LearningUnitYearFactory(
+            acronym="LBIR1212",
+            learning_container_year=l_container_year,
+            academic_year=self.academic_year, subtype=learning_unit_year_subtypes.FULL,
+            learning_unit=self.learning_unit)
         msg = learning_unit_deletion._check_related_partims_deletion(l_container_year)
         self.assertEqual(len(msg.values()), 0)
 
@@ -145,8 +148,8 @@ class LearningUnitYearDeletion(TestCase):
 
         l_unit_2 = LearningUnitYearFactory(acronym="LBIR1212A", learning_container_year=l_container_year,
                                            academic_year=self.academic_year, subtype=learning_unit_year_subtypes.PARTIM)
-        l_unit_3 = LearningUnitYearFactory(acronym="LBIR1212B", learning_container_year=l_container_year,
-                                           academic_year=self.academic_year, subtype=learning_unit_year_subtypes.PARTIM)
+        LearningUnitYearFactory(acronym="LBIR1212B", learning_container_year=l_container_year,
+                                academic_year=self.academic_year, subtype=learning_unit_year_subtypes.PARTIM)
 
         LearningUnitEnrollmentFactory(learning_unit_year=l_unit_1)
         LearningUnitEnrollmentFactory(learning_unit_year=l_unit_2)
@@ -169,8 +172,8 @@ class LearningUnitYearDeletion(TestCase):
         self.assertEqual(LearningUnitYear.objects.filter(academic_year__year__gte=year_to_delete,
                                                          learning_unit=l_unit).count(),
                          0)
-        self.assertEqual(len(msg), 2017-year_to_delete)
-        self.assertEqual(l_unit.end_year, year_to_delete-1)
+        self.assertEqual(len(msg), 2017 - year_to_delete)
+        self.assertEqual(l_unit.end_year, year_to_delete - 1)
 
     def test_delete_partim_from_full(self):
         l_container_year = LearningContainerYearFactory()
@@ -282,7 +285,7 @@ class LearningUnitYearDeletion(TestCase):
     def test_can_delete_learning_unit_year_with_faculty_manager_role(self):
         # Faculty manager can only delete other type than COURSE/INTERNSHIP/DISSERTATION
         person = PersonFactory()
-        add_to_group(person.user, learning_unit_deletion.FACULTY_MANAGER_GROUP)
+        add_to_group(person.user, FACULTY_MANAGER_GROUP)
         entity_version = EntityVersionFactory(entity_type=entity_type.FACULTY, acronym="SST",
                                               start_date=datetime.date(year=1990, month=1, day=1),
                                               end_date=None)
@@ -307,7 +310,7 @@ class LearningUnitYearDeletion(TestCase):
         self.assertTrue(learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year))
 
         # With both role, greatest is taken
-        add_to_group(person.user, learning_unit_deletion.CENTRAL_MANAGER_GROUP)
+        add_to_group(person.user, CENTRAL_MANAGER_GROUP)
         learning_unit_year.subtype = learning_unit_year_subtypes.FULL
         learning_unit_year.save()
         self.assertTrue(learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year))

@@ -26,9 +26,8 @@
 from base.models import offer_year_entity
 from base.models import person_entity
 from base.models.enums import offer_year_entity_type
+from base.models.person import CENTRAL_MANAGER_GROUP
 from base.models.program_manager import is_program_manager
-
-CENTRAL_MANAGER_GROUP = "central_managers"
 
 
 def can_user_edit_administrative_data(a_user, an_education_group_year):

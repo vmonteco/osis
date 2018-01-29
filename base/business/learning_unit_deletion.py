@@ -33,9 +33,6 @@ from base.models import person_entity
 from base.models.enums import learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes
 
-FACULTY_MANAGER_GROUP = "faculty_managers"
-CENTRAL_MANAGER_GROUP = "central_managers"
-
 
 def check_learning_unit_deletion(learning_unit):
     msg = {}
@@ -140,8 +137,7 @@ def can_delete_learning_unit_year(person, learning_unit_year):
 
 def _can_delete_learning_unit_year_according_type(user, learning_unit_year):
     # Faculty manager can only delete other type than COURSE/INTERNSHIP/DISSERTATION
-    if not user.groups.filter(name=CENTRAL_MANAGER_GROUP).exists() and \
-            user.groups.filter(name=FACULTY_MANAGER_GROUP).exists():
+    if not user.person.is_central_manager() and user.person.is_faculty_manager():
         container_type = learning_unit_year.learning_container_year.container_type
         subtype = learning_unit_year.subtype
 
