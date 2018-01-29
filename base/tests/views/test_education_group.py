@@ -27,21 +27,23 @@ import datetime
 from unittest import mock
 
 from django.contrib.auth.models import Permission, Group
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpResponse
 from django.test import TestCase, RequestFactory
 
+from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
 from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
 from base.models.enums import education_group_categories, offer_year_entity_type, academic_calendar_type
 from base.models.enums.education_group_categories import TRAINING
+from cms.enums import entity_name
 
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_language import EducationGroupLanguageFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.education_group import EducationGroupFactory
-from base.tests.factories.education_group_organization import EducationGroupOrganizationFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
@@ -52,6 +54,8 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.program_manager import ProgramManagerFactory
 from base.tests.factories.structure import StructureFactory
 from base.tests.factories.user import UserFactory
+from cms.tests.factories.text_label import TextLabelFactory
+from cms.tests.factories.translated_text import TranslatedTextFactory
 from reference.tests.factories.country import CountryFactory
 
 
@@ -443,6 +447,78 @@ class EducationGroupDiplomas(TestCase):
         context = response.context
         self.assertEqual(context["education_group_year"], self.education_group_child)
         self.assertEqual(context["parent"], self.education_group_parent)
+
+
+class EducationGroupGeneralInformations(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        academic_year = AcademicYearFactory()
+        cls.education_group_parent = EducationGroupYearFactory(acronym="Parent", academic_year=academic_year)
+        cls.education_group_child = EducationGroupYearFactory(acronym="Child_1", academic_year=academic_year)
+
+        GroupElementYearFactory(parent=cls.education_group_parent, child_branch=cls.education_group_child)
+
+        cls.cms_label_for_child = TranslatedTextFactory(text_label=TextLabelFactory(entity=entity_name.OFFER_YEAR),
+                                                        reference=cls.education_group_child.id)
+
+        cls.user = UserFactory()
+        cls.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
+        cls.url = reverse("education_group_general_informations", args=[cls.education_group_child.id])
+
+    def setUp(self):
+        self.client.force_login(self.user)
+
+    def test_when_not_logged(self):
+        self.client.logout()
+        response = self.client.get(self.url)
+
+        self.assertRedirects(response, "/login/?next={}".format(self.url))
+
+    def test_user_without_permission(self):
+        an_other_user = UserFactory()
+        self.client.force_login(an_other_user)
+        response = self.client.get(self.url)
+
+        self.assertTemplateUsed(response, "access_denied.html")
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+
+    def test_with_non_existent_education_group_year(self):
+        non_existent_id = self.education_group_child.id + self.education_group_parent.id
+        url = reverse("education_group_diplomas", args=[non_existent_id])
+        response = self.client.get(url)
+
+        self.assertTemplateUsed(response, "page_not_found.html")
+        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
+
+    def test_without_get_data(self):
+        response = self.client.get(self.url)
+
+        self.assertTemplateUsed(response, "education_group/tab_general_informations.html")
+
+        context = response.context
+        self.assertEqual(context["parent"], self.education_group_child)
+        self.assertEqual(context["education_group_year"], self.education_group_child)
+        self.assertDictEqual(context["cms_labels_translated"], {self.cms_label_for_child.text_label.label: None})
+        self.assertIsInstance(context["form_french"], EducationGroupGeneralInformationsForm)
+        self.assertIsInstance(context["form_english"], EducationGroupGeneralInformationsForm)
+
+    def test_form_initialization(self):
+        response = self.client.get(self.url)
+
+        self.assertTemplateUsed(response, "education_group/tab_general_informations.html")
+
+        context = response.context
+        form_french = context["form_french"]
+        form_english = context["form_english"]
+
+        self.assertEqual(form_french.education_group_year, self.education_group_child)
+        self.assertEqual(form_english.education_group_year, self.education_group_child)
+
+        self.assertEqual(form_french.language, settings.LANGUAGES[0])
+        self.assertEqual(form_english.language, settings.LANGUAGES[1])
+
+        self.assertEqual(list(form_french.text_labels_name), [self.cms_label_for_child.text_label.label])
+        self.assertEqual(list(form_english.text_labels_name), [self.cms_label_for_child.text_label.label])
 
 
 class EducationGroupViewTestCase(TestCase):
