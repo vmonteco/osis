@@ -38,7 +38,8 @@ class LearningUnitEndDateForm(BootstrapForm):
     academic_year = forms.ModelChoiceField(required=False,
                                            queryset=AcademicYear.objects.none(),
                                            empty_label=_('not_end_year'),
-                                           label=_('academic_end_year'))
+                                           label=_('academic_end_year')
+                                           )
 
     def __init__(self, *args, **kwargs):
         self.learning_unit = kwargs.pop('learning_unit')
@@ -47,10 +48,13 @@ class LearningUnitEndDateForm(BootstrapForm):
 
         self._set_initial_value(end_year)
 
-        queryset = self._get_academic_years()
+        try:
+            queryset = self._get_academic_years()
 
-        periodicity = self.learning_unit.periodicity
-        self.fields['academic_year'].queryset = filter_biennial(queryset, periodicity)
+            periodicity = self.learning_unit.periodicity
+            self.fields['academic_year'].queryset = filter_biennial(queryset, periodicity)
+        except ValueError:
+            self.fields['academic_year'].disabled = True
 
     def _set_initial_value(self, end_year):
         try:
@@ -75,4 +79,4 @@ class LearningUnitEndDateForm(BootstrapForm):
         if min_year > max_year:
             raise ValueError('Learning_unit {} cannot be modify'.format(self.learning_unit))
 
-        return AcademicYear.objects.filter(year__gte=min_year, year__lte=max_year)
+        return academic_year.find_academic_years(start_year=min_year, end_year=max_year)

@@ -71,8 +71,8 @@ class TestLearningUnitEditionForm(TestCase, LearningUnitsMixin):
 
     def test_edit_end_date_send_dates_with_end_date_of_learning_unit_inferior_to_current_academic_year(self):
         self.learning_unit.end_year = self.oldest_academic_year.year
-        with self.assertRaises(ValueError):
-            LearningUnitEndDateForm(None, learning_unit=self.learning_unit_year.learning_unit)
+        form = LearningUnitEndDateForm(None, learning_unit=self.learning_unit_year.learning_unit)
+        self.assertEqual(form.fields['academic_year'].disabled, True)
 
     def test_edit_end_date(self):
         self.learning_unit.end_year = self.last_academic_year.year
