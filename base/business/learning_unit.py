@@ -430,14 +430,11 @@ def find_language_in_settings(language_code):
 
 def is_eligible_for_modification_end_date(learning_unit_year, a_person):
     non_authorized_types_for_faculty_manager = [COURSE, DISSERTATION, INTERNSHIP]
-    result = False
     if is_old_learning_unit(learning_unit_year.learning_unit):
-        pass
-    elif proposal_learning_unit.find_by_learning_unit_year(learning_unit_year):
-        pass
-    elif a_person.is_faculty_manager() and \
+        return False
+    if proposal_learning_unit.find_by_learning_unit_year(learning_unit_year):
+        return False
+    if a_person.is_faculty_manager() and \
             learning_unit_year.learning_container_year.container_type in non_authorized_types_for_faculty_manager:
-        pass
-    elif is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person):
-        result = True
-    return result
+       return False
+    return  is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person)
