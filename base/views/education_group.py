@@ -168,10 +168,6 @@ def _get_cms_label_data(cms_label, user_language):
 @login_required
 @permission_required('base.can_access_education_group', raise_exception=True)
 def education_group_administrative_data(request, education_group_year_id):
-    return _education_group_administrative_data_tab(request, education_group_year_id)
-
-
-def _education_group_administrative_data_tab(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
     education_group_year_root_id = request.GET.get('root')
     parent = _get_education_group_root(education_group_year_root_id, education_group_year)

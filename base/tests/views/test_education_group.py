@@ -521,6 +521,8 @@ class EducationGroupGeneralInformations(TestCase):
         self.assertEqual(list(form_english.text_labels_name), [self.cms_label_for_child.text_label.label])
 
 
+
+
 class EducationGroupViewTestCase(TestCase):
     def setUp(self):
         today = datetime.date.today()
@@ -560,13 +562,6 @@ class EducationGroupViewTestCase(TestCase):
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'education_group/tab_identification.html')
         self.assertEqual(context['education_group_year'].parent_by_training, education_group_year_parent)
-
-    def test_education_group_general_informations(self):
-        an_education_group = EducationGroupYearFactory()
-        self.initialize_session()
-        url = reverse("education_group_general_informations", args=[an_education_group.id])
-        response = self.client.get(url)
-        self.assertTemplateUsed(response, "education_group/tab_general_informations.html")
 
     def test_education_administrative_data(self):
         an_education_group = EducationGroupYearFactory()
