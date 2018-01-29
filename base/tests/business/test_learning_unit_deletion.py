@@ -117,8 +117,7 @@ class LearningUnitYearDeletion(TestCase):
                                           'tutor': attribution_2.tutor},
                       msg)
 
-        msg_delete_offer_type = _(
-            '%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s')
+        msg_delete_offer_type = _('lu_included_in_group')
 
         self.assertIn(msg_delete_offer_type
                       % {'subtype': _('The partim'),

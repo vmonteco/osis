@@ -2212,7 +2212,7 @@ msgstr "%(subtype)s %(acronym)s est attribué(e) à %(tutor)s l’année %(year)
 msgid "%(subtype)s %(acronym)s is assigned to the assistant %(assistant)s for the year %(year)s"
 msgstr "%(subtype)s %(acronym)s est attribué(e) à l'assistant %(assistant)s l'année %(year)s"
 
-msgid "%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s"
+msgid "lu_included_in_group"
 msgstr "%(subtype)s %(acronym)s est repris dans le groupement %(group)s du programme %(program)s l’année %(year)s"
 
 msgid "The learning unit %(acronym)s is related to the internship speciality %(speciality)s"
