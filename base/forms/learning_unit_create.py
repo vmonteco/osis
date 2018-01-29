@@ -111,7 +111,8 @@ class LearningUnitYearForm(BootstrapForm):
         required=False,
         widget=forms.Select(
             attrs={
-                'onchange': 'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", false)',
+                'onchange':
+                    'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", false)',
                 'disable': 'disable'
             }
         )
