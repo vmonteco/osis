@@ -62,6 +62,12 @@
                     <a  {% if can_delete %} href="{% url 'learning_unit_delete_all' learning_unit_year_id=learning_unit_year.id %}" {% endif %}>{% trans 'Delete all the learning unit' %}</a>
                 </li>
             {% endif %}
+            {% if "base.can_create_learningunit" in perms and learning_unit_year.subtype == 'FULL' %}
+                <li class="divider"></li>
+                <li>
+                    <a href="{% url 'learning_unit_create_partim' learning_unit_year_id=learning_unit_year.id %}">{% trans 'new_partim' %}</a>
+                </li>
+            {% endif %}
         </ul>
     </div>
 

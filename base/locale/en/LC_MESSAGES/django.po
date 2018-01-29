@@ -2482,6 +2482,9 @@ msgstr "no planned end"
 msgid "edit_learning_unit_end_date"
 msgstr "Edit learning unit end date"
 
+msgid "new_partim"
+msgstr "Create a new partim"
+
 msgid "learning_unit_successfuly_created"
 msgstr "Learning unit '{}' successfuly created with adjournment until {}."
 
@@ -2499,3 +2502,12 @@ msgstr "Learning unit %(learning_unit)s has been updated successfully"
 
 msgid "partim_greater_than_parent"
 msgstr "The learning unit %(learning_unit)s has a partim %(partim)s with an end year greater than %(year)s"
+
+msgid "partim"
+msgstr "Partim"
+
+msgid "partim_letter_rules"
+msgstr "Aplhabetical code with 1 letter"
+
+msgid "invalid_partim_letter"
+msgstr "Letter already used"

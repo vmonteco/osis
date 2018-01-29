@@ -32,6 +32,8 @@ import factory.fuzzy
 from factory.django import DjangoModelFactory
 from faker import Faker
 
+from base.models.enums import learning_unit_year_quadrimesters
+from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit_year import MINIMUM_CREDITS
 from base.tests.factories.academic_year import AcademicYearFactory, AcademicYearFakerFactory
@@ -63,6 +65,9 @@ class LearningUnitYearFactory(DjangoModelFactory):
     credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, 99)
     decimal_scores = False
     status = True
+    session = factory.Iterator(learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION, getter=operator.itemgetter(0))
+    quadrimester = factory.Iterator(learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS,
+                                    getter=operator.itemgetter(0))
 
 
 class LearningUnitYearFakerFactory(DjangoModelFactory):
@@ -80,3 +85,6 @@ class LearningUnitYearFakerFactory(DjangoModelFactory):
     credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, 9)
     decimal_scores = False
     status = True
+    session = factory.Iterator(learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION, getter=operator.itemgetter(0))
+    quadrimester = factory.Iterator(learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS,
+                                    getter=operator.itemgetter(0))
