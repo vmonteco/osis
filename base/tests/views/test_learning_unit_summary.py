@@ -227,5 +227,3 @@ class TestLearningUnitSummaryEdit(TestCase):
         self.assertRedirects(response, reverse("learning_unit_summary", args=[self.learning_unit_year.id]))
         translated_text.refresh_from_db()
         self.assertEqual(translated_text.text, new_text)
-
-

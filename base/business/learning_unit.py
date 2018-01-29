@@ -414,7 +414,7 @@ def can_access_summary(user, learning_unit_year):
         get_object_or_404(Attribution, learning_unit_year=learning_unit_year,
                           tutor__person__user=user, summary_responsible=True)
     except Http404:
-        raise PermissionDenied()
+        return False
     return True
 
 

@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from collections import ChainMap
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -40,7 +39,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods, require_POST, require_GET
 
 from attribution.business import attribution_charge_new
-from attribution.models.attribution import Attribution
 from base import models as mdl
 from base.business import learning_unit_deletion, learning_unit_year_volumes, learning_unit_year_with_context, \
     learning_unit_proposal
@@ -53,11 +51,6 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     initialize_learning_unit_pedagogy_form, compute_max_academic_year_adjournment, \
     create_learning_unit_partim_structure, can_access_summary
 from base.forms.common import TooManyResultsException
-from base.forms.learning_class import LearningClassEditForm
-from base.forms.learning_unit_component import LearningUnitComponentEditForm
-from base.forms.learning_unit_create import CreateLearningUnitYearForm, EMPTY_FIELD
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
-from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import entity_container_year
 from base.models import proposal_learning_unit, entity_version
@@ -468,7 +461,6 @@ def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
 def learning_unit_summary(request, learning_unit_year_id):
     if not is_summary_submission_opened():
         return redirect(reverse_lazy('outside_summary_submission_period'))
-
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     if not can_access_summary(request.user, learning_unit_year):
         raise PermissionDenied("User is not summary responsible")
