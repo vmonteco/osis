@@ -121,8 +121,8 @@ class MyOsisViewTestCase(TestCase):
         self.assertEqual(template, 'my_osis/my_message.html')
         self.assertEqual(context['my_message'], message)
 
-    @mock.patch('base.views.layout.render')
-    def test_get_data(self, mock_render):
+
+    def test_get_data(self):
         request = self.get_request()
         from base.views.my_osis import _get_data
 
@@ -130,7 +130,7 @@ class MyOsisViewTestCase(TestCase):
         self.assertEqual(data['person'], self.person)
 
     @mock.patch('base.views.layout.render')
-    @override_settings(LANGUAGES=[('fr-be', 'French'), ('en', 'English'), ], LANGUAGE_CODE='en')
+    @override_settings(LANGUAGES=[('fr-be', 'French'), ('en', 'English'), ], LANGUAGE_CODE='fr-be')
     def test_profile_lang(self, mock_render):
 
         data = {
