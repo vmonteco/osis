@@ -39,7 +39,7 @@ const internship = "INTERNSHIP";
                     }else{
                         window.valid_acronym = false;
                         if(data['existing_acronym']){
-                            set_error_message(trans_existed_acronym, '#acronym_message' )
+                            set_error_message(trans_existing_acronym, '#acronym_message' )
                             window.acronym_already_used = true;
                         }
                     }
