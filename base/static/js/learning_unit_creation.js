@@ -8,7 +8,7 @@ const internship = "INTERNSHIP";
             document.getElementById('id_internship_subtype').disabled = value_not_internship;
         }
         if (value_not_internship){
-            $('#id_internship_subtype option:first-child').attr("selected", "selected");
+            $('#id_internship_subtype')[0].selectedIndex = 0;
         }
     }
 
@@ -41,7 +41,7 @@ const internship = "INTERNSHIP";
                     }else{
                         window.valid_acronym = false;
                         if(data['existing_acronym']){
-                            set_error_message(trans_existed_acronym, '#acronym_message' )
+                            set_error_message(trans_existing_acronym, '#acronym_message' )
                             window.acronym_already_used = true;
                         }
                     }
@@ -101,8 +101,8 @@ const internship = "INTERNSHIP";
         });
 
         showInternshipSubtype();
-        document.getElementById('id_additional_requirement_entity_1').disabled = '{{form.requirement_entity.value}}' != "0";
-        document.getElementById('id_additional_requirement_entity_2').disabled = '{{form.requirement_entity_1.value}}' != "0";
+        document.getElementById('id_additional_requirement_entity_1').disabled = document.getElementById('id_requirement_entity').value == "";
+        document.getElementById('id_additional_requirement_entity_2').disabled = document.getElementById('id_additional_requirement_entity_1').value == "";
 
         $('#id_acronym').change(validate_acronym);
         $('#id_academic_year').change(validate_acronym);

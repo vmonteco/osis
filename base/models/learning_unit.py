@@ -25,8 +25,9 @@
 ##############################################################################
 from django.db import models
 
-from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
+from base.models import academic_year
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
+from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 
 
 class LearningUnitAdmin(AuditableSerializableModelAdmin):
@@ -64,6 +65,7 @@ class LearningUnit(AuditableSerializableModel):
     class Meta:
         permissions = (
             ("can_access_learningunit", "Can access learning unit"),
+            ("can_edit_learningunit_date", "Can edit learning unit date"),
             ("can_edit_learningunit_pedagogy", "Can edit learning unit pedagogy"),
             ("can_edit_learningunit_specification", "Can edit learning unit specification"),
             ("can_delete_learningunit", "Can delete learning unit"),
@@ -87,3 +89,8 @@ def search(acronym=None):
         queryset = queryset.filter(acronym=acronym)
 
     return queryset
+
+
+def is_old_learning_unit(learning_unit):
+    current_academic_year = academic_year.current_academic_year()
+    return learning_unit.end_year and current_academic_year.year > learning_unit.end_year

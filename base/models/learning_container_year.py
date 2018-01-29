@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.db import models
+
 from base.models import learning_unit_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types
 from base.models.enums import vacant_declaration_type
@@ -62,7 +63,7 @@ class LearningContainerYear(AuditableSerializableModel):
         return u"%s - %s" % (self.acronym, self.title)
 
     class Meta:
-        unique_together = ("learning_container", "academic_year",)
+        unique_together = ("learning_container", "academic_year", "deleted", )
         permissions = (
             ("can_access_learningcontaineryear", "Can access learning container year"),
         )

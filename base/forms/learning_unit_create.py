@@ -33,18 +33,17 @@ from django.utils.translation import ugettext_lazy as _
 from base import models as mdl
 from base.business import learning_unit
 from base.forms.bootstrap import BootstrapForm
-from base.models.campus import find_administration_campuses
+from base.models.campus import find_main_campuses
 from base.models.entity_version import find_main_entities_version, find_main_entities_version_filtered_by_person
 from base.models.enums import entity_container_year_link_type
-from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP, \
-    LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
+from base.models.enums import learning_container_year_types
+from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
+from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
 from base.models.learning_unit_year import MINIMUM_CREDITS
 from reference.models.language import find_all_languages
-from base.models.enums import learning_container_year_types
-
 
 MAX_RECORDS = 1000
 EMPTY_FIELD = "---------"
@@ -99,8 +98,7 @@ class LearningUnitYearForm(BootstrapForm):
                         widget=forms.Select(choices=((None, EMPTY_FIELD),) + LEARNING_UNIT_YEAR_QUADRIMESTERS),
                         required=False
     )
-    campus = forms.ModelChoiceField(queryset=find_administration_campuses())
-
+    campus = forms.ModelChoiceField(queryset=find_main_campuses())
     requirement_entity = EntitiesVersionChoiceField(
         find_main_entities_version().none(),
         widget=forms.Select(
