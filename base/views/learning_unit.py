@@ -23,18 +23,17 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from collections import ChainMap
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.http import QueryDict
 from django.shortcuts import redirect, get_object_or_404
-from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods, require_POST, require_GET
 
@@ -107,7 +106,7 @@ def learning_unit_identification(request, learning_unit_year_id):
     context['components'] = get_components_identification(learning_unit_year)
     context['can_propose'] = learning_unit_proposal.is_eligible_for_modification_proposal(learning_unit_year, person)
     context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
-    context['can_cancel_proposal'] = learning_unit_proposal.\
+    context['can_cancel_proposal'] = learning_unit_proposal. \
         is_eligible_for_cancel_of_proposal(context['proposal'], person) if context['proposal'] else False
     context['proposal_folder_entity_version'] = \
         entity_version.get_by_entity_and_date(context['proposal'].folder.entity, None) if context['proposal'] else None
@@ -461,6 +460,7 @@ def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
 def learning_unit_summary(request, learning_unit_year_id):
     if not is_summary_submission_opened():
         return redirect(reverse_lazy('outside_summary_submission_period'))
+
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     if not can_access_summary(request.user, learning_unit_year):
         raise PermissionDenied("User is not summary responsible")
@@ -503,6 +503,7 @@ def summary_edit(request, learning_unit_year_id):
         "language_translated": find_language_in_settings(lang),
         "text_label_translated": text_label_translated
     })
+
 
 @login_required
 def outside_period(request):
