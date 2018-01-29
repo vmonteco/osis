@@ -192,8 +192,8 @@ def display_success_messages(request, messages_to_display):
 
 
 def display_messages(request, messages_to_display, level):
-    if not isinstance(messages_to_display, list):
-        messages_to_display = list(messages_to_display)
+    if not isinstance(messages_to_display, (tuple, list)):
+        messages_to_display = [messages_to_display]
 
     for msg in messages_to_display:
         messages.add_message(request, level, msg)
