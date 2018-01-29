@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from collections import ChainMap
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
@@ -31,10 +33,11 @@ from django.core.urlresolvers import reverse
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
+from django.http import QueryDict
 from django.shortcuts import redirect, get_object_or_404
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
-from django.views.decorators.http import require_http_methods, require_POST
+from django.views.decorators.http import require_http_methods, require_POST, require_GET
 
 from attribution.business import attribution_charge_new
 from attribution.models.attribution import Attribution
@@ -47,7 +50,8 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, get_last_academic_years, \
     SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, is_summary_submission_opened, find_language_in_settings, \
-    initialize_learning_unit_pedagogy_form, compute_max_academic_year_adjournment
+    initialize_learning_unit_pedagogy_form, compute_max_academic_year_adjournment, \
+    create_learning_unit_partim_structure, can_access_summary
 from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
@@ -55,15 +59,25 @@ from base.forms.learning_unit_create import CreateLearningUnitYearForm, EMPTY_FI
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_units import LearningUnitYearForm
+from base.models import entity_container_year
 from base.models import proposal_learning_unit, entity_version
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
+
+from base.forms.learning_unit_create import CreateLearningUnitYearForm, EMPTY_FIELD, CreatePartimForm, \
+    PARTIM_FORM_READ_ONLY_FIELD
+from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
+from base.forms.learning_unit_component import LearningUnitComponentEditForm
+from base.forms.learning_class import LearningClassEditForm
+from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
-from base.models.tutor import is_tutor
 from cms.models import text_label
 from reference.models import language
 from . import layout
+from django.core.urlresolvers import reverse_lazy
+from django.shortcuts import render
 from django.conf import settings
 
 
@@ -335,8 +349,8 @@ def learning_unit_year_add(request):
         data = form.cleaned_data
         year = data['academic_year'].year
         status = data['status'] == 'on'
-        additional_entity_version_1 = data.get('additional_entity_1')
-        additional_entity_version_2 = data.get('additional_entity_2')
+        additional_requirement_entity_1 = data.get('additional_requirement_entity_1')
+        additional_requirement_entity_2 = data.get('additional_requirement_entity_2')
         allocation_entity_version = data.get('allocation_entity')
         requirement_entity_version = data.get('requirement_entity')
         campus = data.get('campus')
@@ -347,7 +361,7 @@ def learning_unit_year_add(request):
         while year < academic_year_max:
             academic_year = mdl.academic_year.find_academic_year_by_year(year)
 
-            create_learning_unit_structure(additional_entity_version_1, additional_entity_version_2,
+            create_learning_unit_structure(additional_requirement_entity_1, additional_requirement_entity_2,
                                            allocation_entity_version, data, new_learning_container,
                                            new_learning_unit, requirement_entity_version, status, academic_year, campus)
             year += 1
@@ -454,30 +468,30 @@ def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
 def learning_unit_summary(request, learning_unit_year_id):
     if not is_summary_submission_opened():
         return redirect(reverse_lazy('outside_summary_submission_period'))
-    if not is_tutor(request.user):
-        raise PermissionDenied("User is not a tutor")
-    attribution = get_object_or_404(Attribution, learning_unit_year__id=learning_unit_year_id,
-                                    tutor__person__user=request.user, summary_responsible=True)
-    learning_unit_year = attribution.learning_unit_year
-    user_language = mdl.person.get_user_interface_language(request.user)
 
-    context = dict()
-    context["learning_unit_year"] = learning_unit_year
-    context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language)
-    context['form_french'] = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_FR)
-    context['form_english'] = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_EN)
-    return layout.render(request, "my_osis/educational_information.html", context)
+    learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+    if not can_access_summary(request.user, learning_unit_year):
+        raise PermissionDenied("User is not summary responsible")
+
+    user_language = mdl.person.get_user_interface_language(request.user)
+    return layout.render(request, "my_osis/educational_information.html", {
+        'learning_unit_year': learning_unit_year,
+        'cms_labels_translated': get_cms_label_data(CMS_LABEL_SUMMARY, user_language),
+        'form_french': initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_FR),
+        'form_english': initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_EN)
+    })
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def summary_edit(request, learning_unit_year_id):
     if not is_summary_submission_opened():
         return redirect(reverse_lazy("outside_summary_submission_period"))
-    if not is_tutor(request.user):
-        raise PermissionDenied("User is not a tutor")
-    attribution = get_object_or_404(Attribution, learning_unit_year__id=learning_unit_year_id,
-                                    tutor__person__user=request.user, summary_responsible=True)
-    learning_unit_year = attribution.learning_unit_year
+
+    learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+    if not can_access_summary(request.user, learning_unit_year):
+        raise PermissionDenied("User is not summary responsible")
+
     if request.method == 'POST':
         form = LearningUnitPedagogyEditForm(request.POST)
         if form.is_valid():
@@ -491,14 +505,124 @@ def summary_edit(request, learning_unit_year_id):
     form.load_initial()
     user_language = mdl.person.get_user_interface_language(request.user)
     text_label_translated = next((txt for txt in text_lb.translated_text_labels if txt.language == user_language), None)
-    context = dict({"learning_unit_year": learning_unit_year, "form": form,
-                    "language_translated": find_language_in_settings(lang),
-                    "text_label_translated": text_label_translated, })
-    return layout.render(request, "my_osis/educational_information_edit.html", context)
-
+    return layout.render(request, "my_osis/educational_information_edit.html", {
+        "learning_unit_year": learning_unit_year,
+        "form": form,
+        "language_translated": find_language_in_settings(lang),
+        "text_label_translated": text_label_translated
+    })
 
 @login_required
 def outside_period(request):
     text = _('summary_responsible_denied')
     messages.add_message(request, messages.WARNING, "%s" % text)
     return render(request, "access_denied.html")
+
+
+@login_required
+@permission_required('base.can_create_learningunit', raise_exception=True)
+@require_GET
+def learning_unit_create_partim(request, learning_unit_year_id):
+    person = get_object_or_404(Person, user=request.user)
+    learning_unit_year_parent = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+    initial = compute_partim_form_initial_data(learning_unit_year_parent)
+    return layout.render(request, "learning_unit/partim_form.html", {'form': CreatePartimForm(person, initial=initial)})
+
+
+@login_required
+@permission_required('base.can_create_learningunit', raise_exception=True)
+@require_POST
+def learning_unit_year_partim_add(request, learning_unit_year_id):
+    person = get_object_or_404(Person, user=request.user)
+    learning_unit_year_parent = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+
+    initial = compute_partim_form_initial_data(learning_unit_year_parent)
+    post_data = _get_post_data_without_read_only_field(request.POST.copy())
+
+    post_data_merged = QueryDict('', mutable=True)
+    post_data_merged.update(initial)
+    post_data_merged.update(post_data)
+    form = CreatePartimForm(person, post_data_merged)
+    if form.is_valid():
+        create_partim_process(learning_unit_year_parent, form)
+        return HttpResponseRedirect(reverse("learning_unit",
+                                            kwargs={'learning_unit_year_id': learning_unit_year_parent.id}))
+    return layout.render(request, "learning_unit/partim_form.html", {'form': form})
+
+
+def _get_post_data_without_read_only_field(post_data):
+    post_data_without_read_only = post_data.copy()
+    for read_only_field in PARTIM_FORM_READ_ONLY_FIELD:
+        post_data_without_read_only.pop(read_only_field, None)
+    return post_data_without_read_only
+
+
+def create_partim_process(learning_unit_year_parent, form):
+    data = form.cleaned_data
+    academic_year = data['academic_year']
+    start_year = academic_year.year
+    end_year = learning_unit_year_parent.learning_unit.end_year
+
+    learning_container = learning_unit_year_parent.learning_container_year.learning_container
+    learning_unit_created = create_learning_unit(data, learning_container, start_year, end_year)
+
+    create_partim_process_on_years(data, learning_unit_created, learning_container, end_year)
+
+
+def create_partim_process_on_years(data, new_learning_unit, learning_container, end_year_learning_unit_parent):
+    academic_year = data['academic_year']
+    year = academic_year.year
+    status = data['status']
+    additional_requirement_entity_version_1 = data.get('additional_requirement_entity_1')
+    additional_requirement_entity_version_2 = data.get('additional_requirement_entity_2')
+    allocation_entity_version = data.get('allocation_entity')
+    requirement_entity_version = data.get('requirement_entity')
+    academic_year_max = compute_max_academic_year_adjournment()
+
+    while (year < academic_year_max) and (not end_year_learning_unit_parent or year <= end_year_learning_unit_parent):
+        academic_year = mdl.academic_year.find_academic_year_by_year(year)
+        create_learning_unit_partim_structure({
+            'requirement_entity_version': requirement_entity_version,
+            'additional_requirement_entity_version_1': additional_requirement_entity_version_1,
+            'additional_requirement_entity_version_2': additional_requirement_entity_version_2,
+            'allocation_entity_version': allocation_entity_version,
+            'data': data,
+            'learning_container': learning_container,
+            'new_learning_unit': new_learning_unit,
+            'status': status,
+            'academic_year': academic_year
+        })
+        year += 1
+
+
+def compute_partim_form_initial_data(learning_unit_year_parent):
+    initial = compute_form_initial_data(learning_unit_year_parent)
+    initial['subtype'] = learning_unit_year_subtypes.PARTIM
+    return initial
+
+
+def compute_form_initial_data(learning_unit_year):
+    initial_data = {
+        "academic_year": learning_unit_year.academic_year.id,
+        "first_letter": learning_unit_year.acronym[0],
+        "acronym": learning_unit_year.acronym[1:],
+        "subtype": learning_unit_year.subtype,
+        "container_type": learning_unit_year.learning_container_year.container_type,
+        "language": learning_unit_year.learning_container_year.language.id,
+        "status": learning_unit_year.status,
+        "credits": learning_unit_year.credits,
+        "title": learning_unit_year.title,
+        "title_english": learning_unit_year.title_english,
+        'session': learning_unit_year.session,
+        'faculty_remark': learning_unit_year.learning_unit.faculty_remark,
+        'other_remark': learning_unit_year.learning_unit.other_remark,
+        "periodicity": learning_unit_year.learning_unit.periodicity,
+        "quadrimester": learning_unit_year.quadrimester,
+        "campus": learning_unit_year.learning_container_year.campus.id,
+        "internship_subtype": learning_unit_year.internship_subtype
+    }
+    attributions = entity_container_year.find_last_entity_version_grouped_by_linktypes(
+        learning_unit_year.learning_container_year
+    )
+    initial_data.update({k.lower(): v.id for k, v in attributions.items()})
+    return {key: value for key, value in initial_data.items() if value is not None}

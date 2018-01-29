@@ -131,3 +131,12 @@ def find_by_learning_container_year_and_linktype(a_learning_container_year, link
         return EntityContainerYear.objects.get(learning_container_year=a_learning_container_year, type=linktype)
     except ObjectDoesNotExist:
         return None
+
+
+def get_entity_container_year(an_entity_version, a_learning_container_year, a_type_entity_container_year):
+    try:
+        return EntityContainerYear.objects.get(entity=an_entity_version,
+                                               learning_container_year=a_learning_container_year,
+                                               type=a_type_entity_container_year)
+    except ObjectDoesNotExist:
+        return None
