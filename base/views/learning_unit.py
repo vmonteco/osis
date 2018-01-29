@@ -520,6 +520,9 @@ def learning_unit_year_partim_add(request, learning_unit_year_id):
     form = CreatePartimForm(person, post_data_merged)
     if form.is_valid():
         create_partim_process(learning_unit_year_parent, form)
+        success_msg = _('learning_unit_successfuly_created').format(form.cleaned_data['acronym'],
+                                                                    compute_max_academic_year_adjournment())
+        messages.add_message(request, messages.SUCCESS, success_msg)
         return HttpResponseRedirect(reverse("learning_unit",
                                             kwargs={'learning_unit_year_id': learning_unit_year_parent.id}))
     return layout.render(request, "learning_unit/partim_form.html", {'form': form})
