@@ -34,6 +34,9 @@ from base.models.enums import person_source_type
 from django.db.models import Value
 from django.db.models.functions import Concat, Lower
 
+CENTRAL_MANAGER_GROUP = "central_managers"
+FACULTY_MANAGER_GROUP = "faculty_managers"
+
 
 class PersonAdmin(SerializableModelAdmin):
     list_display = ('get_first_name', 'middle_name', 'last_name', 'username', 'email', 'gender', 'global_id',
@@ -92,6 +95,12 @@ class Person(SerializableModel):
             return self.user.first_name
         else:
             return "-"
+
+    def is_central_manager(self):
+        return self.user.groups.filter(name=CENTRAL_MANAGER_GROUP).exists()
+
+    def is_faculty_manager(self):
+        return self.user.groups.filter(name=FACULTY_MANAGER_GROUP).exists()
 
     def __str__(self):
         first_name = ""

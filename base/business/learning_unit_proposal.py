@@ -33,6 +33,11 @@ from base.models.utils.person_entity_filter import filter_by_attached_entities
 from reference.models import language
 
 
+AUTHORIZED_TYPE_FOR_MODIFICATION_PROPOSAL = (learning_container_year_types.COURSE,
+                                             learning_container_year_types.DISSERTATION,
+                                             learning_container_year_types.INTERNSHIP)
+
+
 def compute_proposal_type(initial_data, current_data):
     data_changed = _compute_data_changed(initial_data, current_data)
     filtered_data_changed = filter(lambda key: key not in ["academic_year", "subtype", "acronym"], data_changed)
@@ -62,9 +67,8 @@ def is_eligible_for_modification_proposal(learning_unit_year, a_person):
     if learning_unit_year.academic_year.year < current_year or \
             learning_unit_year.subtype == learning_unit_year_subtypes.PARTIM:
         return False
-    if learning_unit_year.learning_container_year.container_type not in (learning_container_year_types.COURSE,
-                                                                         learning_container_year_types.DISSERTATION,
-                                                                         learning_container_year_types.INTERNSHIP):
+    if learning_unit_year.learning_container_year and \
+            learning_unit_year.learning_container_year.container_type not in AUTHORIZED_TYPE_FOR_MODIFICATION_PROPOSAL:
         return False
     if proposal:
         return False

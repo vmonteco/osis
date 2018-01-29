@@ -36,6 +36,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
 
 from base.business import learning_unit_deletion
+from base.models import person
 from base.models.enums import entity_container_year_link_type
 from base.models.enums import entity_type
 from base.models.enums import learning_container_year_types
@@ -298,7 +299,7 @@ class LearningUnitDelete(TestCase):
         """A Faculty manager can only remove container_type other than COURSE/INTERNSHIP/DISSERTATION"""
         from base.views.learning_unit_deletion import delete_from_given_learning_unit_year
 
-        add_to_group(self.user, learning_unit_deletion.FACULTY_MANAGER_GROUP)
+        add_to_group(self.user, person.FACULTY_MANAGER_GROUP)
         l_unit_year_to_delete = self.learning_unit_year_list[0]
         l_unit_year_to_delete.subtype = learning_unit_year_subtypes.PARTIM
         l_unit_year_to_delete.save()
@@ -319,7 +320,7 @@ class LearningUnitDelete(TestCase):
         """A Faculty manager can only remove container_type other than COURSE/INTERNSHIP/DISSERTATION"""
         from base.views.learning_unit_deletion import delete_from_given_learning_unit_year
 
-        add_to_group(self.user, learning_unit_deletion.FACULTY_MANAGER_GROUP)
+        add_to_group(self.user, person.FACULTY_MANAGER_GROUP)
         l_unit_year_to_delete = self.learning_unit_year_list[0]
         l_container_year = l_unit_year_to_delete.learning_container_year
         request_factory = RequestFactory()
