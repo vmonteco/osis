@@ -96,16 +96,25 @@ class LearningUnitYearForm(BootstrapForm):
     requirement_entity = EntitiesVersionChoiceField(
         find_main_entities_version().none(),
         widget=forms.Select(
-            attrs={'onchange': 'showAdditionalEntity(this.value, "id_additional_requirement_entity_1")'}
+            attrs={
+                'onchange': (
+                    'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_1", false);'
+                    'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", true);'
+                )
+            }
         )
     )
     allocation_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
                                                    widget=forms.Select(attrs={'id': 'allocation_entity'}))
     additional_requirement_entity_1 = EntitiesVersionChoiceField(
-        queryset=find_main_entities_version(), required=False,
+        queryset=find_main_entities_version(),
+        required=False,
         widget=forms.Select(
-            attrs={'onchange': 'showAdditionalEntity(this.value, "id_additional_requirement_entity_2")',
-                   'disable': 'disable'}
+            attrs={
+                'onchange':
+                    'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", false)',
+                'disable': 'disable'
+            }
         )
     )
     additional_requirement_entity_2 = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
