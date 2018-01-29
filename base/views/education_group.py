@@ -129,10 +129,6 @@ def education_group_diplomas(request, education_group_year_id):
 @login_required
 @permission_required('base.can_access_education_group', raise_exception=True)
 def education_group_general_informations(request, education_group_year_id):
-    return _education_group_general_informations_tab(request, education_group_year_id)
-
-
-def _education_group_general_informations_tab(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, id=education_group_year_id)
 
     CMS_LABEL = mdl_cms.translated_text.find_by_entity_reference(entity_name.OFFER_YEAR, education_group_year_id)
