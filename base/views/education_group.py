@@ -104,21 +104,6 @@ def education_group_read(request, education_group_year_id):
 
 @login_required
 @permission_required('base.can_access_education_group', raise_exception=True)
-def education_group_parent_read(request, education_group_year_id):
-    root = request.GET.get('root')
-    education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
-    education_group_languages = [education_group_language.language.name for education_group_language in
-                                 mdl.education_group_language.find_by_education_group_year(education_group_year)]
-    enums = mdl.enums.education_group_categories
-    if root:
-        parent = mdl.education_group_year.find_by_id(root)
-    else:
-        parent = education_group_year
-    return layout.render(request, "education_group/tab_identification.html", locals())
-
-
-@login_required
-@permission_required('base.can_access_education_group', raise_exception=True)
 def education_group_diplomas(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, id=education_group_year_id)
     education_group_year_root_id = request.GET.get('root')

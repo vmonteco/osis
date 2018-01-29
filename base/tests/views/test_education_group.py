@@ -534,35 +534,6 @@ class EducationGroupViewTestCase(TestCase):
         self.type_minitraining = EducationGroupTypeFactory(category=education_group_categories.MINI_TRAINING)
         self.type_group = EducationGroupTypeFactory(category=education_group_categories.GROUP)
 
-    @mock.patch('django.contrib.auth.decorators')
-    @mock.patch('base.views.layout.render')
-    @mock.patch('base.models.education_group_year.find_by_id')
-    def test_education_group_parent_read(self,
-                                         mock_find_by_id,
-                                         mock_render,
-                                         mock_decorators):
-        mock_decorators.login_required = lambda x: x
-        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
-
-        education_group_type = EducationGroupTypeFactory(category=TRAINING)
-
-        education_group_year_child = EducationGroupYearFactory(academic_year=self.academic_year,
-                                                               education_group_type=education_group_type)
-        education_group_year_parent = EducationGroupYearFactory(academic_year=self.academic_year,
-                                                                education_group_type=education_group_type)
-
-        GroupElementYearFactory(parent=education_group_year_parent, child_branch=education_group_year_child)
-        request = mock.Mock(method='GET')
-
-        from base.views.education_group import education_group_parent_read
-
-        mock_find_by_id.return_value = education_group_year_child
-        education_group_parent_read(request, education_group_year_child.id)
-        self.assertTrue(mock_render.called)
-        request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'education_group/tab_identification.html')
-        self.assertEqual(context['education_group_year'].parent_by_training, education_group_year_parent)
-
     def test_education_administrative_data(self):
         an_education_group = EducationGroupYearFactory()
         self.initialize_session()
