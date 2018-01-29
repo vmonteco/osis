@@ -33,6 +33,10 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import SuperUserFactory
 from osis_common.models import message_history
 from django.test.utils import override_settings
+from django.utils import translation
+
+LANGUAGE_CODE_FR = 'fr-be'
+LANGUAGE_CODE_EN = 'en'
 
 
 class MyOsisViewTestCase(TestCase):
@@ -41,7 +45,8 @@ class MyOsisViewTestCase(TestCase):
 
     def setUp(self):
         self.a_superuser = SuperUserFactory()
-        self.person = PersonFactory(user=self.a_superuser)
+        self.person = PersonFactory(user=self.a_superuser,
+                                    language=LANGUAGE_CODE_FR)
         self.client.force_login(self.a_superuser)
         self.requestFactory = RequestFactory()
 
@@ -123,6 +128,28 @@ class MyOsisViewTestCase(TestCase):
 
         data = _get_data(request)
         self.assertEqual(data['person'], self.person)
+
+    @mock.patch('base.views.layout.render')
+    @override_settings(LANGUAGES=[('fr-be', 'French'), ('en', 'English'), ], LANGUAGE_CODE='en')
+    def test_profile_lang(self, mock_render):
+
+        data = {
+            "ui_language": LANGUAGE_CODE_EN
+        }
+        request_factory = RequestFactory()
+        request = request_factory.post(reverse('profile_lang'), data)
+        request.user = self.a_superuser
+
+        request.session = {translation.LANGUAGE_SESSION_KEY: LANGUAGE_CODE_FR}
+        from base.views.my_osis import profile_lang
+
+        response = profile_lang(request)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'my_osis/profile.html')
+        self.assertEqual(context['person'].language, LANGUAGE_CODE_EN)
 
     def get_request(self):
         request_factory = RequestFactory()
