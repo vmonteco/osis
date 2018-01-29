@@ -36,14 +36,6 @@ from base.models.academic_year import AcademicYear
 from base.models.enums import learning_unit_periodicity
 from base.models.learning_unit_year import LearningUnitYear
 
-message_templates = {
-    'parent_greater_than_partim': _('The selected end year is greater than the end year of the parent %(lu_parent)s'),
-    'learning_unit_created': _('Learning unit %(learning_unit)s created for the academic year %(academic_year)s'),
-    'learning_unit_updated': _('Learning unit %(learning_unit)s has been updated successfully'),
-    'partim_greater_than_parent':
-        _('The learning unit %(learning_unit)s has a partim %(partim)s with an end year greater than %(year)s')
-}
-
 
 def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year):
     result = []
@@ -88,11 +80,11 @@ def extend_learning_unit(learning_unit_to_edit, new_academic_year):
     lu_parent = last_learning_unit_year.parent
     if last_learning_unit_year.subtype == 'PARTIM' and \
             lu_parent and lu_parent.learning_unit.end_year < new_academic_year.year:
-        raise IntegrityError(message_templates['parent_greater_than_partim'] % {'lu_parent': lu_parent})
+        raise IntegrityError(_('parent_greater_than_partim') % {'lu_parent': lu_parent})
 
     for ac_year in _get_next_academic_years(learning_unit_to_edit, new_academic_year.year):
         new_luy = _update_academic_year_for_learning_unit_year(last_learning_unit_year, ac_year)
-        result.append(message_templates['learning_unit_created'] % {
+        result.append(_('learning_unit_created') % {
             'learning_unit': new_luy.acronym,
             'academic_year': new_luy.academic_year
         })
@@ -103,7 +95,7 @@ def extend_learning_unit(learning_unit_to_edit, new_academic_year):
 def _update_end_year_field(lu, year):
     lu.end_year = year
     lu.save()
-    return message_templates['learning_unit_updated'] % {'learning_unit': lu.acronym}
+    return _('learning_unit_updated') % {'learning_unit': lu.acronym}
 
 
 def _duplicate_object(obj):
@@ -136,15 +128,14 @@ def _update_academic_year_for_learning_container_year(lcy, new_academic_year):
 def _check_partims(learning_unit_year_to_delete, new_academic_year):
     partims = learning_unit_year_to_delete.get_partims_related() or []
     for partim in partims:
-        if partim.learning_unit.end_year or partim.learning_unit.end_year <= new_academic_year.year:
-            continue
-        raise IntegrityError(
-            message_templates['partim_greater_than_parent'] % {
-                'learning_unit': learning_unit_year_to_delete.acronym,
-                'partim': partim.acronym,
-                'year': new_academic_year
-            }
-        )
+        if _get_actual_end_year(partim.learning_unit) > new_academic_year.year:
+            raise IntegrityError(
+                _('partim_greater_than_parent') % {
+                    'learning_unit': learning_unit_year_to_delete.acronym,
+                    'partim': partim.acronym,
+                    'year': new_academic_year
+                }
+            )
 
 
 def _get_actual_end_year(learning_unit_to_edit):

@@ -2479,8 +2479,8 @@ msgstr "Substitute"
 msgid "not_end_year"
 msgstr "no planned end"
 
-msgid "Edit learning unit end date"
-msgstr ""
+msgid "edit_learning_unit_end_date"
+msgstr "Edit learning unit end date"
 
 msgid "learning_unit_successfuly_created"
 msgstr "Learning unit '{}' successfuly created with adjournment until {}."
@@ -2488,14 +2488,14 @@ msgstr "Learning unit '{}' successfuly created with adjournment until {}."
 msgid "learning_unit_creation_academic_year_max_error"
 msgstr "Please select an academic year lower than {}."
 
-msgid "The selected end year is greater than the end year of the parent %(lu_parent)s"
-msgstr ""
+msgid "parent_greater_than_partim"
+msgstr "The selected end year is greater than the end year of the parent %(lu_parent)s"
 
-msgid "Learning unit %(learning_unit)s created for the academic year %(academic_year)s"
-msgstr ""
+msgid "learning_unit_created"
+msgstr "Learning unit %(learning_unit)s created for the academic year %(academic_year)s"
 
-msgid "Learning unit %(learning_unit)s has been updated successfully"
-msgstr ""
+msgid "learning_unit_updated"
+msgstr "Learning unit %(learning_unit)s has been updated successfully"
 
-msgid "The learning unit %(learning_unit)s has a partim %(partim)s with an end year greater than %(year)s"
-msgstr ""
+msgid "partim_greater_than_parent"
+msgstr "The learning unit %(learning_unit)s has a partim %(partim)s with an end year greater than %(year)s"

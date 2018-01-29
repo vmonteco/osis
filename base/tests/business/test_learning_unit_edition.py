@@ -26,6 +26,7 @@
 
 from django.db import IntegrityError
 from django.test import TestCase
+from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_units.edition import edit_learning_unit_end_date
 from base.models import academic_year
@@ -440,6 +441,31 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
 
         self.assertEqual(len(list_of_learning_unit_years_full), len(list_of_expected_learning_unit_years_full))
         self.assertEqual(sorted(list_of_learning_unit_years_partim), list_of_expected_learning_unit_years_partim)
+
+    def test_edit_learning_unit_full_annual_end_date_with_wrong_partim_end_year(self):
+        start_year = self.current_academic_year.year - 1
+        end_year = self.current_academic_year.year + 6
+
+        learning_unit_full_annual = self.setup_learning_unit(start_year=start_year,end_year=end_year)
+        learning_unit_partim_annual = self.setup_learning_unit(start_year=start_year, end_year=end_year)
+
+        list_partims = self.setup_list_of_learning_unit_years_partim(
+            list_of_academic_years=self.list_of_academic_years_after_now,
+            learning_unit_full=learning_unit_full_annual,
+            learning_unit_partim=learning_unit_partim_annual
+        )
+
+        academic_year_of_new_end_date = academic_year.find_academic_year_by_year(end_year-3)
+
+        with self.assertRaises(IntegrityError) as context:
+            edit_learning_unit_end_date(learning_unit_full_annual, academic_year_of_new_end_date)
+
+        self.assertEqual(str(context.exception),
+                         _('partim_greater_than_parent') % {
+                    'learning_unit': learning_unit_full_annual.acronym,
+                    'partim': list_partims[-1].acronym,
+                    'year': academic_year_of_new_end_date}
+                         )
 
 
 def _get_list_years_learning_unit(subtype=learning_unit_year_subtypes.FULL):
