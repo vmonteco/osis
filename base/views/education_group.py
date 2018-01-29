@@ -127,7 +127,8 @@ def education_group_diplomas(request, education_group_year_id):
 
 def _education_group_diplomas_tab(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
-    parent = get_root(education_group_year_id, request)
+    education_group_year_root_id = request.GET.get('root')
+    parent = _get_education_group_root(education_group_year_root_id, education_group_year)
     return layout.render(request, "education_group/tab_diplomas.html", locals())
 
 
@@ -145,7 +146,8 @@ def _education_group_general_informations_tab(request, education_group_year_id):
     fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
     en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
 
-    parent = get_root(education_group_year_id, request)
+    education_group_year_root_id = request.GET.get('root')
+    parent = _get_education_group_root(education_group_year_root_id, education_group_year)
 
     context = {'parent': parent,
                'education_group_year': education_group_year,
@@ -177,8 +179,8 @@ def education_group_administrative_data(request, education_group_year_id):
 
 def _education_group_administrative_data_tab(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
-
-    parent = get_root(education_group_year_id, request)
+    education_group_year_root_id = request.GET.get('root')
+    parent = _get_education_group_root(education_group_year_root_id, education_group_year)
 
     context = {'parent': parent,
                'education_group_year': education_group_year,
@@ -228,15 +230,6 @@ def education_group_edit_administrative_data(request, education_group_year_id):
     return layout.render(request, "education_group/tab_edit_administrative_data.html", locals())
 
 
-def get_root(education_group_year_id, request):
-    root = request.GET.get('root')
-    if root:
-        parent = mdl.education_group_year.find_by_id(root)
-    else:
-        parent = education_group_year_id
-    return parent
-
-
 def get_sessions_dates(an_academic_calendar_type, an_education_group_year):
     date_dict = {}
 
@@ -270,12 +263,19 @@ def education_group_content(request, education_group_year_id):
 
 def _education_group_content_tab(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
-    parent = get_root(education_group_year_id, request)
+    education_group_year_root_id = request.GET.get('root')
+    parent = _get_education_group_root(education_group_year_root_id, education_group_year)
+
     context = {'parent': parent,
                'education_group_year': education_group_year,
                'group_elements': _group_elements(education_group_year),
                }
     return layout.render(request, "education_group/tab_content.html", context)
+
+
+def _get_education_group_root(education_group_year_root_id, default_education_group_year_root):
+    return get_object_or_404(mdl.education_group_year.EducationGroupYear, id=education_group_year_root_id) \
+        if education_group_year_root_id else default_education_group_year_root
 
 
 def _group_elements(education_group_yr):
