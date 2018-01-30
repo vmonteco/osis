@@ -178,9 +178,8 @@ class EducationGroupSearch(TestCase):
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
         self.assertEqual(context["experimental_phase"], True)
-        self.assertEqual(len(context["object_list"]), 2)
-        self.assertSetEqual(set(context["object_list"]),
-                            {self.education_group_arke2a, self.education_group_arke2a_previous_year})
+        self.assertCountEqual(context["object_list"],
+                              [self.education_group_arke2a, self.education_group_arke2a_previous_year])
 
     def test_search_with_academic_year_only(self):
         response = self.client.get(self.url, data={"academic_year": self.academic_year.id})
@@ -190,9 +189,8 @@ class EducationGroupSearch(TestCase):
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
         self.assertEqual(context["experimental_phase"], True)
-        self.assertEqual(len(context["object_list"]), 3)
-        self.assertSetEqual(set(context["object_list"]),
-                            {self.education_group_arke2a, self.education_group_edph2, self.education_group_hist2a})
+        self.assertCountEqual(context["object_list"],
+                              [self.education_group_arke2a, self.education_group_edph2, self.education_group_hist2a])
 
     def test_search_with_partial_acronym(self):
         response = self.client.get(self.url, data={"partial_acronym": self.education_group_edph2.partial_acronym})
@@ -202,8 +200,7 @@ class EducationGroupSearch(TestCase):
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
         self.assertEqual(context["experimental_phase"], True)
-        self.assertEqual(len(context["object_list"]), 1)
-        self.assertSetEqual(set(context["object_list"]), {self.education_group_edph2})
+        self.assertCountEqual(context["object_list"], [self.education_group_edph2])
 
     def test_search_with_requirement_entity(self):
         response = self.client.get(self.url,
@@ -214,10 +211,9 @@ class EducationGroupSearch(TestCase):
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
         self.assertEqual(context["experimental_phase"], True)
-        self.assertEqual(len(context["object_list"]), 3)
-        self.assertSetEqual(set(context["object_list"]),
-                            {self.education_group_arke2a, self.education_group_arke2a_previous_year,
-                             self.education_group_hist2a})
+        self.assertCountEqual(context["object_list"],
+                              [self.education_group_arke2a, self.education_group_arke2a_previous_year,
+                               self.education_group_hist2a])
 
     def test_search_with_entities_subordinated(self):
         response = self.client.get(self.url,
@@ -229,10 +225,9 @@ class EducationGroupSearch(TestCase):
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
         self.assertEqual(context["experimental_phase"], True)
-        self.assertEqual(len(context["object_list"]), 4)
-        self.assertSetEqual(set(context["object_list"]),
-                            {self.education_group_arke2a, self.education_group_arke2a_previous_year,
-                             self.education_group_hist2a, self.education_group_edph2})
+        self.assertCountEqual(context["object_list"],
+                              [self.education_group_arke2a, self.education_group_arke2a_previous_year,
+                               self.education_group_hist2a, self.education_group_edph2])
 
     def test_search_by_education_group_type(self):
         response = self.client.get(self.url,
@@ -243,9 +238,7 @@ class EducationGroupSearch(TestCase):
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
         self.assertEqual(context["experimental_phase"], True)
-        self.assertEqual(len(context["object_list"]), 2)
-        self.assertSetEqual(set(context["object_list"]),
-                            {self.education_group_hist2a, self.education_group_edph2})
+        self.assertCountEqual(context["object_list"], [self.education_group_hist2a, self.education_group_edph2])
 
     def test_search_by_education_group_category(self):
         response = self.client.get(self.url,
@@ -256,9 +249,8 @@ class EducationGroupSearch(TestCase):
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
         self.assertEqual(context["experimental_phase"], True)
-        self.assertEqual(len(context["object_list"]), 2)
-        self.assertSetEqual(set(context["object_list"]),
-                            {self.education_group_arke2a, self.education_group_arke2a_previous_year})
+        self.assertCountEqual(context["object_list"],
+                              [self.education_group_arke2a, self.education_group_arke2a_previous_year])
 
     def test_with_multiple_criterias(self):
         response = self.client.get(self.url,
@@ -272,8 +264,7 @@ class EducationGroupSearch(TestCase):
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
         self.assertEqual(context["experimental_phase"], True)
-        self.assertEqual(len(context["object_list"]), 1)
-        self.assertSetEqual(set(context["object_list"]), {self.education_group_arke2a})
+        self.assertCountEqual(context["object_list"], [self.education_group_arke2a])
 
 
 class EducationGroupRead(TestCase):
