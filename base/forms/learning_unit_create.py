@@ -185,7 +185,8 @@ class CreatePartimForm(CreateLearningUnitYearForm):
 
     def set_read_only_fields(self):
         for field in PARTIM_FORM_READ_ONLY_FIELD:
-            self.fields[field].widget.attrs[READONLY_ATTR] = READONLY_ATTR
+            if self.fields.get(field):
+                self.fields[field].widget.attrs[READONLY_ATTR] = READONLY_ATTR
 
     def clean_acronym(self):
         return super(CreatePartimForm, self).clean_acronym() + self.data.get('partim_letter', [])[0].upper()
