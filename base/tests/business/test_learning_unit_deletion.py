@@ -179,13 +179,16 @@ class LearningUnitYearDeletion(TestCase):
         l_container_year = LearningContainerYearFactory(academic_year=self.academic_year)
         l_unit_year = LearningUnitYearFactory(subtype=learning_unit_year_subtypes.FULL,
                                               learning_container_year=l_container_year,
+                                              learning_unit=LearningUnitFactory(start_year=1900),
                                               academic_year=l_container_year.academic_year)
 
         l_unit_partim_1 = LearningUnitYearFactory(subtype=learning_unit_year_subtypes.PARTIM,
                                                   learning_container_year=l_container_year,
+                                                  learning_unit=LearningUnitFactory(start_year=1900),
                                                   academic_year=l_container_year.academic_year)
         l_unit_partim_2 = LearningUnitYearFactory(subtype=learning_unit_year_subtypes.PARTIM,
                                                   learning_container_year=l_container_year,
+                                                  learning_unit=LearningUnitFactory(start_year=1900),
                                                   academic_year=l_container_year.academic_year)
 
         learning_unit_deletion.delete_from_given_learning_unit_year(l_unit_year)
@@ -238,16 +241,18 @@ class LearningUnitYearDeletion(TestCase):
     def test_delete_learning_container_year(self):
         learning_container_year = LearningContainerYearFactory()
 
-        learning_unit = LearningUnitFactory(start_year=1900)
         learning_unit_year_full = LearningUnitYearFactory(learning_container_year=learning_container_year,
                                                           subtype=learning_unit_year_subtypes.FULL,
-                                                          learning_unit=learning_unit)
+                                                          learning_unit=LearningUnitFactory(start_year=1900),
+                                                          academic_year=learning_container_year.academic_year)
         learning_unit_year_partim = LearningUnitYearFactory(learning_container_year=learning_container_year,
                                                             subtype=learning_unit_year_subtypes.PARTIM,
-                                                            learning_unit=learning_unit)
+                                                            learning_unit=LearningUnitFactory(start_year=1900),
+                                                            academic_year=learning_container_year.academic_year)
         learning_unit_year_none = LearningUnitYearFactory(learning_container_year=learning_container_year,
                                                           subtype=None,
-                                                          learning_unit=learning_unit)
+                                                          learning_unit=LearningUnitFactory(start_year=1900),
+                                                          academic_year=learning_container_year.academic_year)
 
         learning_unit_deletion.delete_from_given_learning_unit_year(learning_unit_year_none)
 
