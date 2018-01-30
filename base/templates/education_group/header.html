@@ -25,7 +25,12 @@
 
 {% include "template_messages.html" %}
 <div class="page-header">
-    <h2>{{ education_group_year.acronym }} - {{ education_group_year.title }}
+    <h2>
+        {% if education_group_year.education_group_type.category == "TRAINING" %}
+            {{ education_group_year.acronym }} - {{ education_group_year.title }}
+        {% else %}
+            {{ education_group_year.partial_acronym }} - {{ education_group_year.title }}
+        {% endif %}
         <small style="color:black;font-family:Verdana;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{education_group_year.academic_year}}</small>
     </h2>
 </div>
