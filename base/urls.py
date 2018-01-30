@@ -119,7 +119,7 @@ urlpatterns = [
             url(r'^summary/$', learning_unit.learning_unit_summary, name="learning_unit_summary"),
             url(r'^summary/edit/$', learning_unit.summary_edit, name="learning_unit_summary_edit"),
             url(r'^partim/', include([
-                url(r'^new/$', learning_unit.learning_unit_create_partim, name="learning_unit_create_partim"),
+                url(r'^new/$', learning_unit.get_partim_creation_form, name="learning_unit_create_partim"),
                 url(r'^add/$', learning_unit.learning_unit_year_partim_add, name='learning_unit_year_partim_add')
             ])),
         ])),

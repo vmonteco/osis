@@ -500,7 +500,7 @@ def outside_period(request):
 @login_required
 @permission_required('base.can_create_learningunit', raise_exception=True)
 @require_GET
-def learning_unit_create_partim(request, learning_unit_year_id):
+def get_partim_creation_form(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
     learning_unit_year_parent = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     if not is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year_parent, person):
