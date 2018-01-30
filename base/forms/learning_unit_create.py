@@ -55,19 +55,19 @@ PARTIM_FORM_READ_ONLY_FIELD = {'first_letter', 'acronym', 'title', 'title_englis
 
 
 def _create_first_letter_choices():
-    return ((None, BLANK_CHOICE_DASH),) + LearningUnitManagementSite.choices()
+    return tuple(BLANK_CHOICE_DASH) + LearningUnitManagementSite.choices()
 
 
 def create_learning_container_year_type_list():
-    return ((None, BLANK_CHOICE_DASH),) + LEARNING_CONTAINER_YEAR_TYPES
+    return tuple(BLANK_CHOICE_DASH) + LEARNING_CONTAINER_YEAR_TYPES
 
 
 def create_faculty_learning_container_type_list():
-    return ((None, BLANK_CHOICE_DASH),) + LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
+    return tuple(BLANK_CHOICE_DASH) + LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 
 
 def _create_learning_container_year_type_for_partim_list():
-    return ((None, BLANK_CHOICE_DASH),) + learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES_PARTIM
+    return tuple(BLANK_CHOICE_DASH) + learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES_PARTIM
 
 
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
@@ -80,15 +80,14 @@ class LearningUnitYearForm(BootstrapForm):
     academic_year = forms.ModelChoiceField(queryset=mdl.academic_year.find_academic_years(), required=True,
                                            empty_label=_('all_label'))
     status = forms.CharField(required=False, widget=forms.CheckboxInput())
-    internship_subtype = forms.ChoiceField(choices=((None, BLANK_CHOICE_DASH),) +
+    internship_subtype = forms.ChoiceField(choices=tuple(BLANK_CHOICE_DASH) +
                                            mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES,
                                            required=False)
     credits = forms.DecimalField(decimal_places=2, validators=[MinValueValidator(MINIMUM_CREDITS)])
     title = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
     title_english = forms.CharField(required=False, widget=forms.TextInput())
-    session = forms.ChoiceField(choices=((None, BLANK_CHOICE_DASH),) +
-                                mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION,
-                                required=False)
+    session = forms.ChoiceField(choices=tuple(BLANK_CHOICE_DASH) +
+                                        mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION, required=False)
     subtype = forms.CharField(widget=forms.HiddenInput())
     first_letter = forms.ChoiceField(choices=lazy(_create_first_letter_choices, tuple), required=True)
     container_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
@@ -97,7 +96,7 @@ class LearningUnitYearForm(BootstrapForm):
     other_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
     periodicity = forms.CharField(widget=forms.Select(choices=PERIODICITY_TYPES))
     quadrimester = forms.CharField(
-                        widget=forms.Select(choices=((None, BLANK_CHOICE_DASH),) + LEARNING_UNIT_YEAR_QUADRIMESTERS),
+                        widget=forms.Select(choices=tuple(BLANK_CHOICE_DASH) + LEARNING_UNIT_YEAR_QUADRIMESTERS),
                         required=False
     )
     campus = forms.ModelChoiceField(queryset=find_main_campuses())
