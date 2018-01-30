@@ -24,9 +24,9 @@
 #
 ##############################################################################
 import datetime
+from decimal import Decimal
 from unittest import mock
 
-from decimal import Decimal
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
@@ -45,12 +45,13 @@ from base.models import learning_unit_component
 from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear
 from base.models.enums import entity_container_year_link_type
+from base.models.enums import internship_subtypes
 from base.models.enums import learning_container_year_types, organization_type, entity_type
 from base.models.enums import learning_unit_periodicity
 from base.models.enums import learning_unit_year_quadrimesters
 from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
-from base.models.enums import internship_subtypes
+from base.models.enums.learning_container_year_types import MASTER_THESIS
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import FACULTY_MANAGER_GROUP
@@ -920,6 +921,21 @@ class LearningUnitViewTestCase(TestCase):
     def test_prepare_xls_content_no_data(self):
         self.assertEqual(base.business.learning_unit.prepare_xls_content([]), [])
 
+    def test_learning_unit_year_form_with_faculty_user(self):
+        faculty_managers_group = Group.objects.get(name='faculty_managers')
+        faculty_user = UserFactory()
+        faculty_user.groups.add(faculty_managers_group)
+        faculty_person = PersonFactory(user=faculty_user)
+        PersonEntityFactory(person=faculty_person, entity=self.entity)
+        data = dict(self.get_valid_data())
+        data['container_type'] = MASTER_THESIS
+        form = CreateLearningUnitYearForm(person=faculty_person, data=data)
+        self.assertTrue(form.is_valid(), form.errors)
+        url = reverse('learning_unit_year_add')
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(LearningUnitYear.objects.all().count(), 6)
+
     def test_expected_partim_creation_on_6_years(self):
         # Create container + container year for N+6
         a_learning_container = LearningContainerFactory()
@@ -1080,7 +1096,6 @@ class LearningUnitViewTestCase(TestCase):
                                    entity=self.entity_version.entity,
                                    type=entity_container_year_link_type.ALLOCATION_ENTITY)
         return a_learning_container_yr
-
 
 class LearningUnitCreate(TestCase):
     def setUp(self):

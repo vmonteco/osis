@@ -28,11 +28,11 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from base.models.enums import offer_year_entity_type
 from django.db import models
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class OfferYearEntityAdmin(admin.ModelAdmin):
+class OfferYearEntityAdmin(OsisModelAdmin):
     list_display = ('offer_year', 'entity', 'type', 'education_group_year')
-    fieldsets = ((None, {'fields': ('offer_year', 'entity', 'type', 'education_group_year')}),)
     search_fields = ['type', 'entity__entityversion__acronym', 'offer_year__acronym', 'education_group_year__acronym']
     list_filter = ('type', 'offer_year__academic_year',)
     raw_id_fields = ('offer_year', 'entity', 'education_group_year')

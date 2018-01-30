@@ -27,11 +27,11 @@ from django.db import models
 from django.contrib import admin
 
 from base.models.enums import education_group_categories
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class EducationGroupTypeAdmin(admin.ModelAdmin):
+class EducationGroupTypeAdmin(OsisModelAdmin):
     list_display = ('name', 'category', )
-    fieldsets = ((None, {'fields': ('name', 'category', )}),)
     list_filter = ('name', 'category', )
     search_fields = ['name', 'category']
 

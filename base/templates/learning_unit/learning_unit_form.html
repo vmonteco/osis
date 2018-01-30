@@ -77,12 +77,14 @@
                                 {{ form.errors.container_type| striptags }}
                             </label>
                         </div>
-                        <div class="col-md-3">
-                            <label>
-                                {% trans 'internship_subtype' %}
-                            </label>
-                            {{ form.internship_subtype }}
-                        </div>
+                        {% if form.internship_subtype in form.visible_fields %}
+                            <div class="col-md-3">
+                                <label>
+                                    {% trans 'internship_subtype' %}
+                                </label>
+                                {{ form.internship_subtype }}
+                            </div>
+                        {% endif %}
                         <div class="col-md-3">
                             <label {% if form.errors.campus %}style="color:red;"{% endif %}>
                                 {% trans 'learning_location' %}*

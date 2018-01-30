@@ -29,11 +29,11 @@ from django.contrib import admin
 from base.models import entity
 from base.models import entity_version
 from base.models import person
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class PersonEntityAdmin(admin.ModelAdmin):
+class PersonEntityAdmin(OsisModelAdmin):
     list_display = ('person', 'entity', 'latest_entity_version_name', 'with_child')
-    fieldsets = ((None, {'fields': ('person', 'entity', 'with_child')}),)
     search_fields = ['person__first_name', 'person__last_name']
     raw_id_fields = ('person', 'entity',)
 
