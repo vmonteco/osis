@@ -323,7 +323,7 @@ def learning_unit_year_add(request):
     if form.is_valid():
         data = form.cleaned_data
         year = data['academic_year'].year
-        status = data['status'] == 'on'
+        status = data['status']
         additional_requirement_entity_1 = data.get('additional_requirement_entity_1')
         additional_requirement_entity_2 = data.get('additional_requirement_entity_2')
         allocation_entity_version = data.get('allocation_entity')

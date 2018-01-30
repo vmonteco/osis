@@ -26,7 +26,7 @@
 import re
 
 from django import forms
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
@@ -40,7 +40,7 @@ from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_Y
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
-from base.models.learning_unit_year import MINIMUM_CREDITS
+from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
 from reference.models.language import find_all_languages
 
 MAX_RECORDS = 1000
@@ -73,11 +73,12 @@ class LearningUnitYearForm(BootstrapForm):
     acronym = forms.CharField(widget=forms.TextInput(attrs={'maxlength': "15", 'required': True}))
     academic_year = forms.ModelChoiceField(queryset=mdl.academic_year.find_academic_years(), required=True,
                                            empty_label=_('all_label'))
-    status = forms.CharField(required=False, widget=forms.CheckboxInput())
+    status = forms.BooleanField(required=False, initial=True)
     internship_subtype = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
                                            mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES,
                                            required=False)
-    credits = forms.DecimalField(decimal_places=2, validators=[MinValueValidator(MINIMUM_CREDITS)])
+    credits = forms.DecimalField(decimal_places=2, validators=[MinValueValidator(MINIMUM_CREDITS),
+                                                               MaxValueValidator(MAXIMUM_CREDITS)])
     title = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
     title_english = forms.CharField(required=False, widget=forms.TextInput())
     session = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
