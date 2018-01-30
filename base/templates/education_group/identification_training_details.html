@@ -64,7 +64,7 @@
                         <label>{% trans 'academic_type' %}</label><br>
                         {% if education_group_year.academic_type %}
                             {% trans education_group_year.academic_type %}
-                        {% else %}
+                        {% elif parent.academic_type %}
                             <strong class="text-primary">{% trans parent.academic_type %}</strong><br>
                         {% endif %}
                         <br><br>

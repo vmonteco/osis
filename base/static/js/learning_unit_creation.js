@@ -18,8 +18,10 @@ function showInternshipSubtype(){
     if (isLearningUnitSubtypeFull()) {
         var container_type_value = document.getElementById('id_container_type').value;
         var value_not_internship = container_type_value != internship;
-        document.getElementById('id_internship_subtype').disabled = value_not_internship;
-        if (value_not_internship) {
+        if(document.getElementById('id_internship_subtype')){
+            document.getElementById('id_internship_subtype').disabled = value_not_internship;
+        }
+        if (value_not_internship){
             $('#id_internship_subtype')[0].selectedIndex = 0;
         }
     }
@@ -109,8 +111,6 @@ function setWarningMessage(text, element){
             callback(data);
         });
     }
-
-
 
     $(document).ready(function() {
         $(function () {
