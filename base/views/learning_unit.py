@@ -613,8 +613,8 @@ def compute_form_initial_data(learning_unit_year):
 def get_learning_unit_identification_context(learning_unit_year_id, person):
         context = get_common_context_learning_unit_year(learning_unit_year_id)
         learning_unit_year = context['learning_unit_year']
-        context['is_person_linked_to_entity'] = is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year
-                                                                                                      , person)
+        context['is_person_linked_to_entity'] = is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year,
+                                                                                                      person)
         context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
         context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
         context['campus'] = get_campus_from_learning_unit_year(learning_unit_year)

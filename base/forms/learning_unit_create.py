@@ -87,7 +87,8 @@ class LearningUnitYearForm(BootstrapForm):
     title = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
     title_english = forms.CharField(required=False, widget=forms.TextInput())
     session = forms.ChoiceField(choices=tuple(BLANK_CHOICE_DASH) +
-                                        mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION, required=False)
+                                        mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION,
+                                required=False)
     subtype = forms.CharField(widget=forms.HiddenInput())
     first_letter = forms.ChoiceField(choices=lazy(_create_first_letter_choices, tuple), required=True)
     container_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
