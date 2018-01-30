@@ -25,9 +25,10 @@
 ##############################################################################
 from django.db import models
 from django.contrib import admin
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class EducationGroupAdmin(admin.ModelAdmin):
+class EducationGroupAdmin(OsisModelAdmin):
     list_display = ('most_recent_acronym', 'start_year', 'end_year', 'changed')
     search_fields = ('educationgroupyear__acronym',)
 

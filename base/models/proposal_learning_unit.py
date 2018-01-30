@@ -29,11 +29,11 @@ from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 
 from base.models.enums import proposal_type, proposal_state
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class ProposalLearningUnitAdmin(admin.ModelAdmin):
+class ProposalLearningUnitAdmin(OsisModelAdmin):
     list_display = ('learning_unit_year', 'folder', 'type', 'state', )
-    fieldsets = ((None, {'fields': ('folder', 'type', 'state', 'initial_data')}),)
 
     search_fields = ['folder__folder_id', 'folder_entity', 'learning_unit_year__acronym']
     list_filter = ('type', 'state')

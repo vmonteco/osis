@@ -30,6 +30,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.urlresolvers import reverse_lazy
+from django.db.models import BLANK_CHOICE_DASH
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.http import QueryDict
@@ -37,6 +38,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods, require_POST, require_GET
+import re
 
 from attribution.business import attribution_charge_new
 from base import models as mdl
@@ -52,10 +54,11 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     initialize_learning_unit_pedagogy_form, compute_max_academic_year_adjournment, \
     create_learning_unit_partim_structure, can_access_summary
 from base.business.learning_unit import is_eligible_for_modification_end_date
+from base.business.learning_unit_proposal import is_person_linked_to_entity_in_charge_of_learning_unit
 from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
-from base.forms.learning_unit_create import CreateLearningUnitYearForm, EMPTY_FIELD, CreatePartimForm, \
+from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
     PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
@@ -308,7 +311,7 @@ def learning_unit_create(request, academic_year):
     person = get_object_or_404(Person, user=request.user)
     form = CreateLearningUnitYearForm(person, initial={'academic_year': academic_year,
                                                        'subtype': FULL,
-                                                       "container_type": EMPTY_FIELD,
+                                                       "container_type": BLANK_CHOICE_DASH,
                                                        'language': language.find_by_code('FR')})
     return layout.render(request, "learning_unit/learning_unit_form.html", {'form': form})
 
@@ -352,7 +355,6 @@ def check_acronym(request):
     acronym = request.GET['acronym']
     year_id = request.GET['year_id']
     academic_yr = mdl.academic_year.find_academic_year_by_id(year_id)
-    valid = True
     existed_acronym = False
     existing_acronym = False
     last_using = ""
@@ -366,7 +368,9 @@ def check_acronym(request):
 
     if learning_unit_years:
         existing_acronym = True
-        valid = False
+
+    acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}[A-Z]{0,1}$"
+    valid = bool(re.match(acronym_regex, acronym))
 
     return JsonResponse({'valid': valid,
                          'existing_acronym': existing_acronym,
@@ -500,6 +504,8 @@ def outside_period(request):
 def learning_unit_create_partim(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
     learning_unit_year_parent = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+    if not is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year_parent, person):
+        raise PermissionDenied("User is not summary responsible")
     initial = compute_partim_form_initial_data(learning_unit_year_parent)
     return layout.render(request, "learning_unit/partim_form.html", {'form': CreatePartimForm(person, initial=initial)})
 
@@ -520,6 +526,9 @@ def learning_unit_year_partim_add(request, learning_unit_year_id):
     form = CreatePartimForm(person, post_data_merged)
     if form.is_valid():
         create_partim_process(learning_unit_year_parent, form)
+        success_msg = _('learning_unit_successfuly_created').format(form.cleaned_data['acronym'],
+                                                                    compute_max_academic_year_adjournment())
+        messages.add_message(request, messages.SUCCESS, success_msg)
         return HttpResponseRedirect(reverse("learning_unit",
                                             kwargs={'learning_unit_year_id': learning_unit_year_parent.id}))
     return layout.render(request, "learning_unit/partim_form.html", {'form': form})
@@ -604,21 +613,26 @@ def compute_form_initial_data(learning_unit_year):
 
 
 def get_learning_unit_identification_context(learning_unit_year_id, person):
-    context = get_common_context_learning_unit_year(learning_unit_year_id)
-    learning_unit_year = context['learning_unit_year']
-    context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
-    context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
-    context['campus'] = get_campus_from_learning_unit_year(learning_unit_year)
-    context['experimental_phase'] = True
-    context['show_subtype'] = show_subtype(learning_unit_year)
-    context.update(get_all_attributions(learning_unit_year))
-    context['components'] = get_components_identification(learning_unit_year)
-    context['can_propose'] = learning_unit_proposal.is_eligible_for_modification_proposal(learning_unit_year, person)
-    context['can_edit_date'] = is_eligible_for_modification_end_date(learning_unit_year, person)
-    context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
-    context['can_cancel_proposal'] = learning_unit_proposal. \
-        is_eligible_for_cancel_of_proposal(context['proposal'], person) if context['proposal'] else False
-    context['proposal_folder_entity_version'] = mdl_base.entity_version.get_by_entity_and_date(
-        context['proposal'].folder.entity, None) if context['proposal'] else None
-    context['can_delete'] = learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year)
-    return context
+        context = get_common_context_learning_unit_year(learning_unit_year_id)
+        learning_unit_year = context['learning_unit_year']
+        context['is_person_linked_to_entity'] = is_person_linked_to_entity_in_charge_of_learning_unit(
+            learning_unit_year,
+            person
+        )
+        context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
+        context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
+        context['campus'] = get_campus_from_learning_unit_year(learning_unit_year)
+        context['experimental_phase'] = True
+        context['show_subtype'] = show_subtype(learning_unit_year)
+        context.update(get_all_attributions(learning_unit_year))
+        context['components'] = get_components_identification(learning_unit_year)
+        context['can_propose'] = learning_unit_proposal.is_eligible_for_modification_proposal(learning_unit_year,
+                                                                                              person)
+        context['can_edit_date'] = is_eligible_for_modification_end_date(learning_unit_year, person)
+        context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
+        context['can_cancel_proposal'] = learning_unit_proposal. \
+            is_eligible_for_cancel_of_proposal(context['proposal'], person) if context['proposal'] else False
+        context['proposal_folder_entity_version'] = mdl_base.entity_version.get_by_entity_and_date(
+            context['proposal'].folder.entity, None) if context['proposal'] else None
+        context['can_delete'] = learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year)
+        return context

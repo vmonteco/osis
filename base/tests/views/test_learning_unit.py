@@ -24,10 +24,10 @@
 #
 ##############################################################################
 import datetime
+from decimal import Decimal
 from unittest import mock
 
-from decimal import Decimal
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import ObjectDoesNotExist
@@ -45,14 +45,16 @@ from base.models import learning_unit_component
 from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear
 from base.models.enums import entity_container_year_link_type
+from base.models.enums import internship_subtypes
 from base.models.enums import learning_container_year_types, organization_type, entity_type
 from base.models.enums import learning_unit_periodicity
 from base.models.enums import learning_unit_year_quadrimesters
 from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
-from base.models.enums import internship_subtypes
+from base.models.enums.learning_container_year_types import MASTER_THESIS
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
+from base.models.person import FACULTY_MANAGER_GROUP
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
@@ -316,6 +318,45 @@ class LearningUnitViewTestCase(TestCase):
 
         self.assertEqual(template, 'learning_unit/identification.html')
         self.assertEqual(context['learning_unit_year'], learning_unit_year)
+
+    def test_learning_unit__with_faculty_manager_when_can_edit_end_date(self):
+        learning_container_year = LearningContainerYearFactory(
+            academic_year=self.current_academic_year, container_type=learning_container_year_types.OTHER_COLLECTIVE)
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=learning_container_year)
+        entity_container = EntityContainerYearFactory(learning_container_year=learning_container_year,
+                                                      type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+
+        learning_unit_year.learning_unit.end_year = None
+        learning_unit_year.learning_unit.save()
+
+        person_entity = PersonEntityFactory(entity=entity_container.entity)
+        person_entity.person.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
+        url = reverse("learning_unit", args=[learning_unit_year.id])
+        self.client.force_login(person_entity.person.user)
+
+        response = self.client.get(url)
+        self.assertEqual(response.context["can_edit_date"], True)
+
+    def test_learning_unit_with_faculty_manager_when_cannot_edit_end_date(self):
+        learning_container_year = \
+            LearningContainerYearFactory(academic_year=self.current_academic_year,
+                                         container_type=learning_container_year_types.COURSE)
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=learning_container_year)
+        entity_container = EntityContainerYearFactory(learning_container_year=learning_container_year,
+                                                      type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+
+        learning_unit_year.learning_unit.end_year = None
+        learning_unit_year.learning_unit.save()
+
+        person_entity = PersonEntityFactory(entity=entity_container.entity)
+        person_entity.person.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
+        url = reverse("learning_unit", args=[learning_unit_year.id])
+        self.client.force_login(person_entity.person.user)
+
+        response = self.client.get(url)
+        self.assertEqual(response.context["can_edit_date"], False)
 
     def test_get_components_no_learning_container_yr(self):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year)
@@ -748,7 +789,7 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            {'valid': True,
+            {'valid': False,
              'existing_acronym': False,
              'existed_acronym': False,
              'last_using': ""}
@@ -771,7 +812,7 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            {'valid': False,
+            {'valid': True,
              'existing_acronym': True,
              'existed_acronym': False,
              'last_using': ""}
@@ -877,6 +918,21 @@ class LearningUnitViewTestCase(TestCase):
 
     def test_prepare_xls_content_no_data(self):
         self.assertEqual(base.business.learning_unit.prepare_xls_content([]), [])
+
+    def test_learning_unit_year_form_with_faculty_user(self):
+        faculty_managers_group = Group.objects.get(name='faculty_managers')
+        faculty_user = UserFactory()
+        faculty_user.groups.add(faculty_managers_group)
+        faculty_person = PersonFactory(user=faculty_user)
+        PersonEntityFactory(person=faculty_person, entity=self.entity)
+        data = dict(self.get_valid_data())
+        data['container_type'] = MASTER_THESIS
+        form = CreateLearningUnitYearForm(person=faculty_person, data=data)
+        self.assertTrue(form.is_valid(), form.errors)
+        url = reverse('learning_unit_year_add')
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(LearningUnitYear.objects.all().count(), 6)
 
     def test_expected_partim_creation_on_6_years(self):
         # Create container + container year for N+6
@@ -1012,7 +1068,6 @@ class LearningUnitViewTestCase(TestCase):
                                    entity=self.entity_version.entity,
                                    type=entity_container_year_link_type.ALLOCATION_ENTITY)
         return a_learning_container_yr
-
 
 class LearningUnitCreate(TestCase):
     def setUp(self):
