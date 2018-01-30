@@ -25,11 +25,11 @@
 ##############################################################################
 from django.db import models
 from django.contrib import admin
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class StructureAddressAdmin(admin.ModelAdmin):
+class StructureAddressAdmin(OsisModelAdmin):
     list_display = ('structure', 'label', 'location', 'postal_code', 'city', 'country')
-    fieldsets = ((None, {'fields': ('structure', 'label', 'location', 'postal_code', 'city', 'country', 'phone', 'fax', 'email')}),)
     search_fields = ['structure__acronym']
 
 

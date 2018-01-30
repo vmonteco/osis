@@ -27,11 +27,11 @@ from django.db import models
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class ProposalFolderAdmin(admin.ModelAdmin):
+class ProposalFolderAdmin(OsisModelAdmin):
     list_display = ('entity', 'folder_id', )
-    fieldsets = ((None, {'fields': ('entity', 'folder_id', )}), )
 
     search_fields = ['folder_id']
     raw_id_fields = ('entity', )

@@ -33,22 +33,23 @@ from django.utils.translation import ugettext_lazy as _
 from base import models as mdl
 from base.business import learning_unit
 from base.forms.bootstrap import BootstrapForm
-from base.models.campus import find_administration_campuses
+from base.models.campus import find_main_campuses
 from base.models.entity_version import find_main_entities_version, find_main_entities_version_filtered_by_person
+from base.models.enums import learning_container_year_types
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
 from base.models.learning_unit_year import MINIMUM_CREDITS
 from reference.models.language import find_all_languages
-from base.models.enums import learning_container_year_types
-
 
 MAX_RECORDS = 1000
 EMPTY_FIELD = "---------"
 READONLY_ATTR = "disabled"
 PARTIM_FORM_READ_ONLY_FIELD = {'first_letter', 'acronym', 'title', 'title_english', 'requirement_entity',
-                               'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year'}
+                               'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year',
+                               'container_type', 'internship_subtype',
+                               'additional_requirement_entity_1', 'additional_requirement_entity_2'}
 
 
 def _create_first_letter_choices():
@@ -93,20 +94,29 @@ class LearningUnitYearForm(BootstrapForm):
                         widget=forms.Select(choices=((None, EMPTY_FIELD),) + LEARNING_UNIT_YEAR_QUADRIMESTERS),
                         required=False
     )
-    campus = forms.ModelChoiceField(queryset=find_administration_campuses())
+    campus = forms.ModelChoiceField(queryset=find_main_campuses())
     requirement_entity = EntitiesVersionChoiceField(
         find_main_entities_version().none(),
         widget=forms.Select(
-            attrs={'onchange': 'showAdditionalEntity(this.value, "id_additional_requirement_entity_1")'}
+            attrs={
+                'onchange': (
+                    'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_1", false);'
+                    'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", true);'
+                )
+            }
         )
     )
     allocation_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
                                                    widget=forms.Select(attrs={'id': 'allocation_entity'}))
     additional_requirement_entity_1 = EntitiesVersionChoiceField(
-        queryset=find_main_entities_version(), required=False,
+        queryset=find_main_entities_version(),
+        required=False,
         widget=forms.Select(
-            attrs={'onchange': 'showAdditionalEntity(this.value, "id_additional_requirement_entity_2")',
-                   'disable': 'disable'}
+            attrs={
+                'onchange':
+                    'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", false)',
+                'disable': 'disable'
+            }
         )
     )
     additional_requirement_entity_2 = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
@@ -161,7 +171,7 @@ class CreatePartimForm(CreateLearningUnitYearForm):
                                                                                  'style': 'text-transform: uppercase;',
                                                                                  'maxlength': "1",
                                                                                  'id': 'hdn_partim_letter',
-                                                                                 'onchange': 'checkPartimLetter()'}))
+                                                                                 'onchange': 'validate_acronym()'}))
     acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}[A-Z]$"
 
     def __init__(self, *args, **kwargs):

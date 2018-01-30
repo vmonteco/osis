@@ -26,6 +26,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import admin
+from base.models.osis_model_admin import OsisModelAdmin
 
 
 LABELS = (
@@ -34,10 +35,9 @@ LABELS = (
 )
 
 
-class PersonAddressAdmin(admin.ModelAdmin):
+class PersonAddressAdmin(OsisModelAdmin):
     list_display = ('person', 'label', 'location', 'postal_code', 'city', 'country')
     search_fields = ['person__first_name', 'person__last_name', 'person__global_id']
-    fieldsets = ((None, {'fields': ('person', 'label', 'location', 'postal_code', 'city', 'country')}),)
     raw_id_fields = ('person',)
     list_filter = ('label', 'city')
 

@@ -26,12 +26,11 @@
 from base.models.enums import mandate_type as mandate_types
 from django.db import models
 from django.contrib import admin
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class MandateAdmin(admin.ModelAdmin):
+class MandateAdmin(OsisModelAdmin):
     list_display = ('education_group', 'function')
-    fieldsets = ((None, {'fields': ('education_group',
-                                    'function')}),)
 
     raw_id_fields = ('education_group',)
     search_fields = ['education_group', 'function', 'external_id']

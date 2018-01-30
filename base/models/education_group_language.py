@@ -26,9 +26,10 @@
 from django.db import models
 from django.contrib import admin
 from base.models.enums import education_group_language
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class EducationGroupLanguageAdmin(admin.ModelAdmin):
+class EducationGroupLanguageAdmin(OsisModelAdmin):
     list_display = ('type', 'order', 'education_group_year', 'language')
     raw_id_fields = ('education_group_year', 'language')
 

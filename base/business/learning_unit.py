@@ -34,23 +34,24 @@ from django.utils.translation import ugettext_lazy as _
 
 from attribution.models.attribution import Attribution
 from base import models as mdl_base
+from base.business.learning_unit_proposal import is_person_linked_to_entity_in_charge_of_learning_unit
 from base.business.learning_unit_year_with_context import volume_learning_component_year
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 from base.models import entity_container_year
+from base.models import proposal_learning_unit
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import entity_container_year_link_type, academic_calendar_type
 from base.models.enums import learning_component_year_type
 from base.models.enums import learning_container_year_types
+from base.models.enums.learning_container_year_types import COURSE, DISSERTATION, INTERNSHIP
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_container_year import LearningContainerYear
-from base.models.learning_unit import LearningUnit
+from base.models.learning_unit import LearningUnit, is_old_learning_unit
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from cms import models as mdl_cms
 from cms.enums import entity_name
-
-
 # List of key that a user can modify
 from osis_common.document import xls_build
 
@@ -336,7 +337,7 @@ def _extract_xls_data_from_learning_unit(learning_unit):
 def prepare_xls_parameters_list(user, workingsheets_data):
     return {xls_build.LIST_DESCRIPTION_KEY: "Liste d'activités",
             xls_build.FILENAME_KEY: 'Learning_units',
-            xls_build.USER_KEY:  _get_name_or_username(user),
+            xls_build.USER_KEY: _get_name_or_username(user),
             xls_build.WORKSHEETS_DATA:
                 [{xls_build.CONTENT_KEY: workingsheets_data,
                   xls_build.HEADER_TITLES_KEY: [str(_('academic_year_small')),
@@ -425,3 +426,15 @@ def initialize_learning_unit_pedagogy_form(learning_unit_year, language_code):
 
 def find_language_in_settings(language_code):
     return next((lang for lang in settings.LANGUAGES if lang[0] == language_code), None)
+
+
+def is_eligible_for_modification_end_date(learning_unit_year, a_person):
+    non_authorized_types_for_faculty_manager = [COURSE, DISSERTATION, INTERNSHIP]
+    if is_old_learning_unit(learning_unit_year.learning_unit):
+        return False
+    if proposal_learning_unit.find_by_learning_unit_year(learning_unit_year):
+        return False
+    if a_person.is_faculty_manager() and \
+            learning_unit_year.learning_container_year.container_type in non_authorized_types_for_faculty_manager:
+        return False
+    return is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person)

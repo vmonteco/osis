@@ -2212,7 +2212,7 @@ msgstr "%(subtype)s %(acronym)s est attribué(e) à %(tutor)s l’année %(year)
 msgid "%(subtype)s %(acronym)s is assigned to the assistant %(assistant)s for the year %(year)s"
 msgstr "%(subtype)s %(acronym)s est attribué(e) à l'assistant %(assistant)s l'année %(year)s"
 
-msgid "%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s"
+msgid "lu_included_in_group"
 msgstr "%(subtype)s %(acronym)s est repris dans le groupement %(group)s du programme %(program)s l’année %(year)s"
 
 msgid "The learning unit %(acronym)s is related to the internship speciality %(speciality)s"
@@ -2486,6 +2486,9 @@ msgstr "Suppléé"
 msgid "not_end_year"
 msgstr "pas de fin prévue"
 
+msgid "edit_learning_unit_end_date"
+msgstr "Modifier la date de fin l'unité d'enseignement"
+
 msgid "new_partim"
 msgstr "Créer un nouveau partim"
 
@@ -2503,3 +2506,15 @@ msgstr "L'Unité d'Enseignement {} a été créée jusqu'en {} avec succès."
 
 msgid "learning_unit_creation_academic_year_max_error"
 msgstr "Impossible de créer une UE dont l'année académique est supérieure à {}."
+
+msgid "parent_greater_than_partim"
+msgstr "L'année de fin selectionnée est plus grande que l'année de fin du parent %(lu_parent)s"
+
+msgid "learning_unit_created"
+msgstr "L'unité d'enseignement %(learning_unit)s créée pour l'année academique %(academic_year)s"
+
+msgid "learning_unit_updated"
+msgstr "L'unité d'enseignement %(learning_unit)s a été mise à jour avec succès"
+
+msgid "partim_greater_than_parent"
+msgstr "L'unité d'enseignement %(learning_unit)s a un partim %(partim)s avec une année de fin plus grande que %(year)s"
