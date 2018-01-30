@@ -43,21 +43,26 @@ from cms.tests.factories.translated_text_label import TranslatedTextLabelFactory
 
 
 class TestLearningUnitSummary(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         today = datetime.date.today()
-        academic_year = AcademicYearFakerFactory(start_date=today, year=today.year,
-                                                 end_date=today+datetime.timedelta(days=5))
-        self.summary_course_submission_calendar = \
+        academic_year = AcademicYearFakerFactory(start_date=today - datetime.timedelta(days=3), year=today.year,
+                                                 end_date=today + datetime.timedelta(days=5))
+        cls.summary_course_submission_calendar = \
             AcademicCalendarFactory(academic_year=academic_year,
+                                    start_date=academic_year.start_date,
+                                    end_date=academic_year.end_date,
                                     reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
 
-        self.tutor = TutorFactory()
+        cls.tutor = TutorFactory()
 
-        self.learning_unit_year = LearningUnitYearFakerFactory(academic_year=academic_year)
-        self.attribution = AttributionFactory(learning_unit_year=self.learning_unit_year, summary_responsible=True,
-                                              tutor=self.tutor)
+        cls.learning_unit_year = LearningUnitYearFakerFactory(academic_year=academic_year)
+        cls.attribution = AttributionFactory(learning_unit_year=cls.learning_unit_year, summary_responsible=True,
+                                             tutor=cls.tutor)
 
-        self.url = reverse('learning_unit_summary', args=[self.learning_unit_year.id])
+        cls.url = reverse('learning_unit_summary', args=[cls.learning_unit_year.id])
+
+    def setUp(self):
         self.client.force_login(self.tutor.person.user)
 
     def test_user_is_not_logged(self):
@@ -82,8 +87,8 @@ class TestLearningUnitSummary(TestCase):
         self.assertRedirects(response, reverse("outside_summary_submission_period"))
 
     def test_user_is_not_a_tutor(self):
-        self.person = PersonFactory()
-        self.client.force_login(self.person.user)
+        person = PersonFactory()
+        self.client.force_login(person.user)
 
         response = self.client.get(self.url)
 
@@ -159,8 +164,8 @@ class TestLearningUnitSummaryEdit(TestCase):
         self.assertRedirects(response, reverse("outside_summary_submission_period"))
 
     def test_user_is_not_a_tutor(self):
-        self.person = PersonFactory()
-        self.client.force_login(self.person.user)
+        person = PersonFactory()
+        self.client.force_login(person.user)
 
         response = self.client.get(self.url)
 

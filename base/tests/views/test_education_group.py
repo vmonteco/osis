@@ -95,7 +95,8 @@ class EducationGroupSearch(TestCase):
                                                               entity=oph_entity)
         cls.offer_year_entity_arke2a_previous_year = \
             OfferYearEntityFactory(education_group_year=cls.education_group_arke2a_previous_year,
-                                   type=offer_year_entity_type.ENTITY_MANAGEMENT, entity=oph_entity)
+                                   entity=oph_entity,
+                                   type=offer_year_entity_type.ENTITY_MANAGEMENT)
 
         cls.user = UserFactory()
         cls.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
@@ -510,7 +511,7 @@ class EducationGroupViewTestCase(TestCase):
     def setUp(self):
         today = datetime.date.today()
         self.academic_year = AcademicYearFactory(start_date=today,
-                                                    end_date=today.replace(year=today.year + 1),
+                                                 end_date=today.replace(year=today.year + 1),
                                                  year=today.year)
 
         self.type_training = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
