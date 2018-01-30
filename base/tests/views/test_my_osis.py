@@ -34,6 +34,8 @@ from base.tests.factories.user import SuperUserFactory
 from osis_common.models import message_history
 from django.test.utils import override_settings
 from django.utils import translation
+from base.views import my_osis
+
 
 LANGUAGE_CODE_FR = 'fr-be'
 LANGUAGE_CODE_EN = 'en'
@@ -49,6 +51,12 @@ class MyOsisViewTestCase(TestCase):
                                     language=LANGUAGE_CODE_FR)
         self.client.force_login(self.a_superuser)
         self.requestFactory = RequestFactory()
+
+    @staticmethod
+    def get_message_history():
+        messages = message_history.MessageHistory.objects.all()
+        message = messages[0]
+        return message
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
@@ -109,7 +117,7 @@ class MyOsisViewTestCase(TestCase):
 
     @mock.patch('base.views.layout.render')
     def test_read_message(self, mock_render):
-        message = self.get_message()
+        message = self.get_message_history()
         request = self.get_request()
         from base.views.my_osis import read_message
 
@@ -120,7 +128,6 @@ class MyOsisViewTestCase(TestCase):
 
         self.assertEqual(template, 'my_osis/my_message.html')
         self.assertEqual(context['my_message'], message)
-
 
     def test_get_data(self):
         request = self.get_request()
@@ -143,7 +150,7 @@ class MyOsisViewTestCase(TestCase):
         request.session = {translation.LANGUAGE_SESSION_KEY: LANGUAGE_CODE_FR}
         from base.views.my_osis import profile_lang
 
-        response = profile_lang(request)
+        profile_lang(request)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -151,13 +158,19 @@ class MyOsisViewTestCase(TestCase):
         self.assertEqual(template, 'my_osis/profile.html')
         self.assertEqual(context['person'].language, LANGUAGE_CODE_EN)
 
+    def test_has_no_email(self):
+        message_history = self.get_message_history()
+        message_history.receiver_id = None
+        self.assertFalse(my_osis.has_email(message_history))
+
+    def test_has_email(self):
+        receiver_person = PersonFactory()
+        message_history = self.get_message_history()
+        message_history.receiver_id = receiver_person.id
+        self.assertTrue(my_osis.has_email(message_history))
+
     def get_request(self):
         request_factory = RequestFactory()
         request = request_factory.get(reverse('home'))
         request.user = self.a_superuser
         return request
-
-    def get_message(self):
-        messages = message_history.MessageHistory.objects.all()
-        message = messages[0]
-        return message
