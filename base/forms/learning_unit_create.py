@@ -153,8 +153,7 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
         # When we create a learning unit, we can only select requirement entity which are attached to the person
         self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
         if person.user.groups.filter(name='faculty_managers').exists():
-            self.fields["container_type"] = forms.ChoiceField(choices=create_faculty_learning_container_type_list(),
-                                                              widget=forms.Select(attrs={'class': 'form-control'}))
+            self.fields["container_type"].choices = create_faculty_learning_container_type_list()
             del self.fields['internship_subtype']
 
     def is_valid(self):
