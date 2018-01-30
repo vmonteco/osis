@@ -30,6 +30,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.urlresolvers import reverse_lazy
+from django.db.models import BLANK_CHOICE_DASH
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.http import QueryDict
@@ -56,7 +57,7 @@ from base.business.learning_unit_proposal import is_person_linked_to_entity_in_c
 from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
-from base.forms.learning_unit_create import CreateLearningUnitYearForm, EMPTY_FIELD, CreatePartimForm, \
+from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
     PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
@@ -309,7 +310,7 @@ def learning_unit_create(request, academic_year):
     person = get_object_or_404(Person, user=request.user)
     form = CreateLearningUnitYearForm(person, initial={'academic_year': academic_year,
                                                        'subtype': FULL,
-                                                       "container_type": EMPTY_FIELD,
+                                                       "container_type": BLANK_CHOICE_DASH,
                                                        'language': language.find_by_code('FR')})
     return layout.render(request, "learning_unit/learning_unit_form.html", {'form': form})
 
@@ -612,8 +613,8 @@ def compute_form_initial_data(learning_unit_year):
 def get_learning_unit_identification_context(learning_unit_year_id, person):
         context = get_common_context_learning_unit_year(learning_unit_year_id)
         learning_unit_year = context['learning_unit_year']
-        if is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, person):
-            context['is_person_linked_to_entity'] = True
+        context['is_person_linked_to_entity'] = is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year
+                                                                                                      , person)
         context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
         context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
         context['campus'] = get_campus_from_learning_unit_year(learning_unit_year)
