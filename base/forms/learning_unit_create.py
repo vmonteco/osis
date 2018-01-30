@@ -27,13 +27,13 @@ import re
 
 from django import forms
 from django.core.validators import MinValueValidator
-from django.db.models import BLANK_CHOICE_DASH
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
 from base.business import learning_unit
 from base.forms.bootstrap import BootstrapForm
+from base.forms.utils.choice_field import add_blank
 from base.models.campus import find_main_campuses
 from base.models.entity_version import find_main_entities_version, find_main_entities_version_filtered_by_person
 from base.models.enums import entity_container_year_link_type
@@ -55,19 +55,19 @@ PARTIM_FORM_READ_ONLY_FIELD = {'first_letter', 'acronym', 'title', 'title_englis
 
 
 def _create_first_letter_choices():
-    return tuple(BLANK_CHOICE_DASH) + LearningUnitManagementSite.choices()
+    return add_blank(LearningUnitManagementSite.choices())
 
 
 def create_learning_container_year_type_list():
-    return tuple(BLANK_CHOICE_DASH) + LEARNING_CONTAINER_YEAR_TYPES
+    return add_blank(LEARNING_CONTAINER_YEAR_TYPES)
 
 
 def create_faculty_learning_container_type_list():
-    return tuple(BLANK_CHOICE_DASH) + LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
+    return add_blank(LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY)
 
 
 def _create_learning_container_year_type_for_partim_list():
-    return tuple(BLANK_CHOICE_DASH) + learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES_PARTIM
+    return add_blank(learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES_PARTIM)
 
 
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
@@ -80,14 +80,12 @@ class LearningUnitYearForm(BootstrapForm):
     academic_year = forms.ModelChoiceField(queryset=mdl.academic_year.find_academic_years(), required=True,
                                            empty_label=_('all_label'))
     status = forms.CharField(required=False, widget=forms.CheckboxInput())
-    internship_subtype = forms.ChoiceField(choices=tuple(BLANK_CHOICE_DASH) +
-                                           mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES,
+    internship_subtype = forms.ChoiceField(choices=add_blank(mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES),
                                            required=False)
     credits = forms.DecimalField(decimal_places=2, validators=[MinValueValidator(MINIMUM_CREDITS)])
     title = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
     title_english = forms.CharField(required=False, widget=forms.TextInput())
-    session = forms.ChoiceField(choices=tuple(BLANK_CHOICE_DASH) +
-                                        mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION,
+    session = forms.ChoiceField(choices=add_blank(mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION),
                                 required=False)
     subtype = forms.CharField(widget=forms.HiddenInput())
     first_letter = forms.ChoiceField(choices=lazy(_create_first_letter_choices, tuple), required=True)
@@ -96,10 +94,9 @@ class LearningUnitYearForm(BootstrapForm):
     faculty_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
     other_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
     periodicity = forms.CharField(widget=forms.Select(choices=PERIODICITY_TYPES))
-    quadrimester = forms.CharField(
-                        widget=forms.Select(choices=tuple(BLANK_CHOICE_DASH) + LEARNING_UNIT_YEAR_QUADRIMESTERS),
-                        required=False
-    )
+    quadrimester = forms.CharField(widget=forms.Select(choices=add_blank(LEARNING_UNIT_YEAR_QUADRIMESTERS)),
+                                   required=False
+                                   )
     campus = forms.ModelChoiceField(queryset=find_main_campuses())
     requirement_entity = EntitiesVersionChoiceField(
         find_main_entities_version().none(),
@@ -132,7 +129,7 @@ class LearningUnitYearForm(BootstrapForm):
     acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}$"
 
     def clean_acronym(self):
-        data_cleaned = self.data.get('first_letter', "")+self.cleaned_data.get('acronym')
+        data_cleaned = self.data.get('first_letter', "") + self.cleaned_data.get('acronym')
         return data_cleaned.upper()
 
     def is_valid(self):
