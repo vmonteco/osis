@@ -198,15 +198,14 @@
         <div class="panel panel-default">
             <div class="panel-body">
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <label>{% trans 'acronym' %}</label><br>
                         {% if education_group_year.acronym %}
                             {{ education_group_year.acronym }}
                         {% elif parent.acronym %}
                             <strong class="text-primary">{{ parent.acronym }}</strong>
                         {% endif %}
-                    </div>
-                    <div class="col-md-6">
+                        <br><br>
                         <label>{% trans 'code'%}</label><br>
                         {% if education_group_year.partial_acronym %}
                             {{ education_group_year.partial_acronym }}
