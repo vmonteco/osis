@@ -2511,3 +2511,9 @@ msgstr "Aplhabetical code with 1 letter"
 
 msgid "invalid_partim_letter"
 msgstr "Letter already used"
+
+msgid "remark"
+msgstr "Remark"
+
+msgid "remark_english"
+msgstr "Remark in english"
