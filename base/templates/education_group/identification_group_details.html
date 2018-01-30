@@ -119,16 +119,6 @@
             <div class="panel-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <label>{% trans 'status' %}</label><br>
-                        {%if education_group_year.active %}
-                            {% trans education_group_year.active %}
-                        {% elif parent.active %}
-                            <strong class="text-primary">
-                            {% trans parent.active %}
-                            </strong>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-6">
                         <label>{% trans 'schedule_type' %}</label><br>
                         {% if education_group_year.schedule_type %}
                             {% trans education_group_year.schedule_type %}
