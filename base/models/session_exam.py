@@ -26,13 +26,13 @@
 from django.db import models
 from django.contrib import admin
 from base.models.enums import number_session
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class SessionExamAdmin(admin.ModelAdmin):
+class SessionExamAdmin(OsisModelAdmin):
     list_display = ('offer_year', 'learning_unit_year', 'number_session', 'changed')
     list_filter = ('learning_unit_year__academic_year', 'number_session', 'offer_year__academic_year')
     raw_id_fields = ('learning_unit_year', 'offer_year')
-    fieldsets = ((None, {'fields': ('learning_unit_year', 'number_session', 'offer_year')}),)
     search_fields = ['learning_unit_year__acronym', 'offer_year__acronym']
 
 

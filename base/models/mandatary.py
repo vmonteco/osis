@@ -25,15 +25,12 @@
 ##############################################################################
 from django.db import models
 from django.contrib import admin
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class MandataryAdmin(admin.ModelAdmin):
+class MandataryAdmin(OsisModelAdmin):
     list_display = ('mandate', 'person', 'start_date', 'end_date')
-    fieldsets = ((None, {'fields': ('mandate',
-                                    'person',
-                                    'start_date',
-                                    'end_date')}),)
-    
+
     raw_id_fields = ('mandate', 'person')
     search_fields = ['person__first_name', 'person__last_name']
 
