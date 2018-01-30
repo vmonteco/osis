@@ -33,10 +33,13 @@ from django.utils.translation import ugettext_lazy as _
 from base import models as mdl
 from base.business import learning_unit
 from base.forms.bootstrap import BootstrapForm
+from base.forms.utils.choice_field import add_blank
 from base.models.campus import find_main_campuses
 from base.models.entity_version import find_main_entities_version, find_main_entities_version_filtered_by_person
+from base.models.enums import entity_container_year_link_type
 from base.models.enums import learning_container_year_types
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
+from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
@@ -44,7 +47,6 @@ from base.models.learning_unit_year import MINIMUM_CREDITS
 from reference.models.language import find_all_languages
 
 MAX_RECORDS = 1000
-EMPTY_FIELD = "---------"
 READONLY_ATTR = "disabled"
 PARTIM_FORM_READ_ONLY_FIELD = {'first_letter', 'acronym', 'title', 'title_english', 'requirement_entity',
                                'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year',
@@ -53,15 +55,19 @@ PARTIM_FORM_READ_ONLY_FIELD = {'first_letter', 'acronym', 'title', 'title_englis
 
 
 def _create_first_letter_choices():
-    return ((None, EMPTY_FIELD),) + LearningUnitManagementSite.choices()
+    return add_blank(LearningUnitManagementSite.choices())
 
 
 def create_learning_container_year_type_list():
-    return ((None, EMPTY_FIELD),) + LEARNING_CONTAINER_YEAR_TYPES
+    return add_blank(LEARNING_CONTAINER_YEAR_TYPES)
+
+
+def create_faculty_learning_container_type_list():
+    return add_blank(LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY)
 
 
 def _create_learning_container_year_type_for_partim_list():
-    return ((None, EMPTY_FIELD),) + learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES_PARTIM
+    return add_blank(learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES_PARTIM)
 
 
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
@@ -74,14 +80,12 @@ class LearningUnitYearForm(BootstrapForm):
     academic_year = forms.ModelChoiceField(queryset=mdl.academic_year.find_academic_years(), required=True,
                                            empty_label=_('all_label'))
     status = forms.CharField(required=False, widget=forms.CheckboxInput())
-    internship_subtype = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
-                                           mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES,
+    internship_subtype = forms.ChoiceField(choices=add_blank(mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES),
                                            required=False)
     credits = forms.DecimalField(decimal_places=2, validators=[MinValueValidator(MINIMUM_CREDITS)])
     title = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
     title_english = forms.CharField(required=False, widget=forms.TextInput())
-    session = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
-                                mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION,
+    session = forms.ChoiceField(choices=add_blank(mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION),
                                 required=False)
     subtype = forms.CharField(widget=forms.HiddenInput())
     first_letter = forms.ChoiceField(choices=lazy(_create_first_letter_choices, tuple), required=True)
@@ -90,10 +94,9 @@ class LearningUnitYearForm(BootstrapForm):
     faculty_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
     other_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
     periodicity = forms.CharField(widget=forms.Select(choices=PERIODICITY_TYPES))
-    quadrimester = forms.CharField(
-                        widget=forms.Select(choices=((None, EMPTY_FIELD),) + LEARNING_UNIT_YEAR_QUADRIMESTERS),
-                        required=False
-    )
+    quadrimester = forms.CharField(widget=forms.Select(choices=add_blank(LEARNING_UNIT_YEAR_QUADRIMESTERS)),
+                                   required=False
+                                   )
     campus = forms.ModelChoiceField(queryset=find_main_campuses())
     requirement_entity = EntitiesVersionChoiceField(
         find_main_entities_version().none(),
@@ -126,15 +129,13 @@ class LearningUnitYearForm(BootstrapForm):
     acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}$"
 
     def clean_acronym(self):
-        data_cleaned = self.data.get('first_letter')+self.cleaned_data.get('acronym')
-        if data_cleaned:
-            return data_cleaned.upper()
+        data_cleaned = self.data.get('first_letter', "") + self.cleaned_data.get('acronym')
+        return data_cleaned.upper()
 
     def is_valid(self):
         if not super().is_valid():
             return False
-
-        if not re.match(self.acronym_regex, self.cleaned_data['acronym']):
+        elif not re.match(self.acronym_regex, self.cleaned_data['acronym']):
             self.add_error('acronym', _('invalid_acronym'))
         elif self.cleaned_data["container_type"] == INTERNSHIP and not (self.cleaned_data['internship_subtype']):
             self._errors['internship_subtype'] = _('field_is_required')
@@ -148,6 +149,9 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
         super(CreateLearningUnitYearForm, self).__init__(*args, **kwargs)
         # When we create a learning unit, we can only select requirement entity which are attached to the person
         self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
+        if person.user.groups.filter(name='faculty_managers').exists():
+            self.fields["container_type"].choices = create_faculty_learning_container_type_list()
+            del self.fields['internship_subtype']
 
     def is_valid(self):
         if not super().is_valid():

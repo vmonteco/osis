@@ -23,37 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.db.models import BLANK_CHOICE_DASH
 
-from django.utils.translation import ugettext_lazy as _
 
-COURSE = "COURSE"
-INTERNSHIP = "INTERNSHIP"
-DISSERTATION = "DISSERTATION"
-OTHER_COLLECTIVE = "OTHER_COLLECTIVE"
-OTHER_INDIVIDUAL = "OTHER_INDIVIDUAL"
-MASTER_THESIS = "MASTER_THESIS"
-EXTERNAL = "EXTERNAL"
+def add_blank(choices):
+    if isinstance(choices, list):
+        return BLANK_CHOICE_DASH + choices
 
-LEARNING_CONTAINER_YEAR_TYPES = (
-    (COURSE, _(COURSE)),
-    (INTERNSHIP, _(INTERNSHIP)),
-    (DISSERTATION, _(DISSERTATION)),
-    (OTHER_COLLECTIVE, _(OTHER_COLLECTIVE)),
-    (OTHER_INDIVIDUAL, _(OTHER_INDIVIDUAL)),
-    (MASTER_THESIS, _(MASTER_THESIS)),
-    (EXTERNAL, _(EXTERNAL)),
-)
-
-LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY = (
-    (OTHER_COLLECTIVE, _(OTHER_COLLECTIVE)),
-    (OTHER_INDIVIDUAL, _(OTHER_INDIVIDUAL)),
-    (MASTER_THESIS, _(MASTER_THESIS)),
-)
-
-LEARNING_CONTAINER_YEAR_TYPES_PARTIM = (
-    (COURSE, _(COURSE)),
-    (INTERNSHIP, _(INTERNSHIP)),
-    (DISSERTATION, _(DISSERTATION)),
-    (OTHER_COLLECTIVE, _(OTHER_COLLECTIVE)),
-    (OTHER_INDIVIDUAL, _(OTHER_INDIVIDUAL))
-)
+    return tuple(BLANK_CHOICE_DASH) + choices
