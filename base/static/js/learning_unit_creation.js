@@ -15,7 +15,7 @@ function isValueEmpty(html_id){
 
 
 function showInternshipSubtype(){
-    if (isLearningUnitSubtypeFull()) {
+    if (isLearningUnitSubtypeFull() && document.getElementById('id_internship_subtype')) {
         var container_type_value = document.getElementById('id_container_type').value;
         var value_not_internship = container_type_value != internship;
         document.getElementById('id_internship_subtype').disabled = value_not_internship;
@@ -109,8 +109,6 @@ function setWarningMessage(text, element){
             callback(data);
         });
     }
-
-
 
     $(document).ready(function() {
         $(function () {
