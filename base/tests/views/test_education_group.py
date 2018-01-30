@@ -696,6 +696,28 @@ class EducationGroupAdministrativedata(TestCase):
 
         self.assertFalse(response.context["can_edit_administrative_data"])
 
+    def test_with_education_group_year_of_type_mini_training(self):
+        mini_training_education_group_year = EducationGroupYearFactory()
+        mini_training_education_group_year.education_group_type.category = education_group_categories.MINI_TRAINING
+        mini_training_education_group_year.education_group_type.save()
+
+        url = reverse("education_group_administrative", args=[mini_training_education_group_year.id])
+        response = self.client.get(url)
+
+        self.assertTemplateUsed(response, "access_denied.html")
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+
+    def test_with_education_group_year_of_type_group(self):
+        group_education_group_year = EducationGroupYearFactory()
+        group_education_group_year.education_group_type.category = education_group_categories.GROUP
+        group_education_group_year.education_group_type.save()
+
+        url = reverse("education_group_administrative", args=[group_education_group_year.id])
+        response = self.client.get(url)
+
+        self.assertTemplateUsed(response, "access_denied.html")
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+
     def test_user_can_edit_administrative_data(self):
         response = self.client.get(self.url)
 

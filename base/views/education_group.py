@@ -155,6 +155,8 @@ def _get_cms_label_data(cms_label, user_language):
 @permission_required('base.can_access_education_group', raise_exception=True)
 def education_group_administrative_data(request, education_group_year_id):
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+    if education_group_year.education_group_type.category != education_group_categories.TRAINING:
+        raise PermissionDenied("View education group administrative only accept training education group")
     education_group_year_root_id = request.GET.get('root')
     parent = _get_education_group_root(education_group_year_root_id, education_group_year)
 
