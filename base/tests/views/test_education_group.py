@@ -696,6 +696,13 @@ class EducationGroupAdministrativedata(TestCase):
 
         self.assertFalse(response.context["can_edit_administrative_data"])
 
+    def test_education_group_non_existent(self):
+        self.education_group_year.delete()
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
+        self.assertTemplateUsed(response, "page_not_found.html")
+
     def test_with_education_group_year_of_type_mini_training(self):
         mini_training_education_group_year = EducationGroupYearFactory()
         mini_training_education_group_year.education_group_type.category = education_group_categories.MINI_TRAINING
