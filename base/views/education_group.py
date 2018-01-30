@@ -33,11 +33,11 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from base import models as mdl
 from base.business import education_group as education_group_business
+from base.business.education_group import assert_category_of_education_group_year
 from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
 from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataFormset
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
-from base.models.program_manager import is_program_manager
 
 from . import layout
 from cms.enums import entity_name
@@ -106,8 +106,7 @@ def education_group_read(request, education_group_year_id):
 @permission_required('base.can_access_education_group', raise_exception=True)
 def education_group_diplomas(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, id=education_group_year_id)
-    if education_group_year.education_group_type.category != education_group_categories.TRAINING:
-        raise PermissionDenied("View education group diplomas only accept training education group")
+    assert_category_of_education_group_year(education_group_year, (education_group_categories.TRAINING,))
     education_group_year_root_id = request.GET.get('root')
     parent = _get_education_group_root(education_group_year_root_id, education_group_year)
     return layout.render(request, "education_group/tab_diplomas.html", locals())
@@ -117,9 +116,7 @@ def education_group_diplomas(request, education_group_year_id):
 @permission_required('base.can_access_education_group', raise_exception=True)
 def education_group_general_informations(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, id=education_group_year_id)
-    if education_group_year.education_group_type.category == education_group_categories.GROUP:
-        raise PermissionDenied("View education group general informations only accept training and mini-training"
-                               " education group")
+    assert_category_of_education_group_year(education_group_year, (education_group_categories.TRAINING, education_group_categories.MINI_TRAINING))
 
     CMS_LABEL = mdl_cms.translated_text.find_by_entity_reference(entity_name.OFFER_YEAR, education_group_year_id)
 
@@ -155,8 +152,9 @@ def _get_cms_label_data(cms_label, user_language):
 @permission_required('base.can_access_education_group', raise_exception=True)
 def education_group_administrative_data(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
-    if education_group_year.education_group_type.category != education_group_categories.TRAINING:
-        raise PermissionDenied("View education group administrative only accept training education group")
+
+    assert_category_of_education_group_year(education_group_year, (education_group_categories.TRAINING,))
+
     education_group_year_root_id = request.GET.get('root')
     parent = _get_education_group_root(education_group_year_root_id, education_group_year)
 
@@ -184,8 +182,9 @@ def education_group_administrative_data(request, education_group_year_id):
 @permission_required('base.can_edit_education_group_administrative_data', raise_exception=True)
 def education_group_edit_administrative_data(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
-    if education_group_year.education_group_type.category != education_group_categories.TRAINING:
-        raise PermissionDenied("View education group edit administrative only accept training education group")
+
+    assert_category_of_education_group_year(education_group_year, (education_group_categories.TRAINING,))
+
     if not education_group_business.can_user_edit_administrative_data(request.user, education_group_year):
         raise PermissionDenied("Only program managers of the education group OR central manager "
                                "linked to entity can edit.")
