@@ -1074,6 +1074,18 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(initial['quadrimester'], learning_unit_year_quadrimesters.Q1)
         self.assertEqual(initial['campus'], self.campus.id)
 
+    def test_get_partim_creation_form(self):
+        partim = LearningUnitYearFactory(learning_container_year=self.learning_container_yr,
+                                         academic_year=self.learning_container_yr.academic_year,
+                                         subtype=learning_unit_year_subtypes.PARTIM)
+        LearningUnitYearFactory(learning_container_year=self.learning_container_yr,
+                                academic_year=self.learning_container_yr.academic_year,
+                                subtype=learning_unit_year_subtypes.FULL)
+        url = reverse('learning_unit_create_partim', args=[partim.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'learning_unit/partim_form.html')
+
     @mock.patch('base.views.learning_unit.PARTIM_FORM_READ_ONLY_FIELD', {'container_type', 'campus'})
     def test_get_post_data_without_read_only_field(self):
         post_data = {'other_remark': 'Autre remarque', 'container_type': learning_container_year_types.COURSE,
