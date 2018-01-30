@@ -660,6 +660,7 @@ class LearningUnitViewTestCase(TestCase):
     def get_base_partim_form_data(self, original_learning_unit_year):
         data = self.get_common_data()
         data.update(self.get_partim_data(original_learning_unit_year))
+        data['partial_title'] = "Partim partial title"
         return data
 
     def get_common_data(self):
@@ -669,8 +670,8 @@ class LearningUnitViewTestCase(TestCase):
                 "periodicity": learning_unit_periodicity.ANNUAL,
                 "credits": "5",
                 "campus": self.campus.id,
-                "title": "LAW",
-                "title_english": "LAW",
+                "common_title": "Common UE title",
+                "common_title_english": "Common English UUE title",
                 "requirement_entity": self.entity_version.id,
                 "allocation_entity": self.entity_version.id,
                 "additional_requirement_entity_1": self.entity_version.id,
@@ -734,7 +735,7 @@ class LearningUnitViewTestCase(TestCase):
         response = self.client.post(url, data=self.get_base_form_data())
         self.assertEqual(response.status_code, 302)
         count_learning_unit_year = LearningUnitYear.objects.all().count()
-        self.assertEqual(count_learning_unit_year, 6)
+        self.assertEqual(count_learning_unit_year, 7)
 
     def test_create_learning_unit_year_requirement_entity_not_allowed(self):
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_faulty_requirement_entity())
@@ -927,8 +928,10 @@ class LearningUnitViewTestCase(TestCase):
         a_learning_container_yr_4 = self.build_learning_container_year(a_learning_container, self.academic_year_3)
         a_learning_container_yr_5 = self.build_learning_container_year(a_learning_container, self.academic_year_4)
         a_learning_container_yr_6 = self.build_learning_container_year(a_learning_container, self.academic_year_5)
+        a_learning_container_yr_7 = self.build_learning_container_year(a_learning_container, self.academic_year_6)
         learning_container_yrs = [a_learning_container_yr_1, a_learning_container_yr_2, a_learning_container_yr_3,
-                                  a_learning_container_yr_4, a_learning_container_yr_5, a_learning_container_yr_6]
+                                  a_learning_container_yr_4, a_learning_container_yr_5, a_learning_container_yr_6,
+                                  a_learning_container_yr_7]
 
         # Create UE with NO end_year
         a_learning_unit = LearningUnitFactory(end_year=None)
@@ -953,11 +956,11 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
 
         count_learning_unit_year = LearningUnitYear.objects.filter(acronym=full_acronym).count()
-        self.assertEqual(count_learning_unit_year, 6)
+        self.assertEqual(count_learning_unit_year, 7)
         count_partims = LearningUnitYear.objects.filter(subtype=learning_unit_year_subtypes.PARTIM,
                                                         learning_container_year__in=learning_container_yrs)\
                                                 .count()
-        self.assertEqual(count_partims, 6)
+        self.assertEqual(count_partims, 7)
 
     def test_partim_creation_when_learning_unit_end_date_is_before_6_future_years(self):
         # Create container + container year for N+1

@@ -46,7 +46,7 @@ from reference.models.language import find_all_languages
 MAX_RECORDS = 1000
 EMPTY_FIELD = "---------"
 READONLY_ATTR = "disabled"
-PARTIM_FORM_READ_ONLY_FIELD = {'first_letter', 'acronym', 'title', 'title_english', 'requirement_entity',
+PARTIM_FORM_READ_ONLY_FIELD = {'first_letter', 'acronym', 'common_title', 'common_title_english', 'requirement_entity',
                                'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year',
                                'container_type', 'internship_subtype',
                                'additional_requirement_entity_1', 'additional_requirement_entity_2'}
@@ -79,8 +79,10 @@ class LearningUnitYearForm(BootstrapForm):
                                            required=False)
     credits = forms.DecimalField(decimal_places=2, validators=[MinValueValidator(MINIMUM_CREDITS),
                                                                MaxValueValidator(MAXIMUM_CREDITS)])
-    title = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
-    title_english = forms.CharField(required=False, widget=forms.TextInput())
+    common_title = forms.CharField()
+    common_title_english = forms.CharField(required=False, widget=forms.TextInput())
+    partial_title = forms.CharField(required=False)
+    partial_english_title = forms.CharField(required=False, widget=forms.TextInput())
     session = forms.ChoiceField(choices=((None, EMPTY_FIELD),) +
                                 mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION,
                                 required=False)
@@ -178,6 +180,7 @@ class CreatePartimForm(CreateLearningUnitYearForm):
     def __init__(self, *args, **kwargs):
         super(CreatePartimForm, self).__init__(*args, **kwargs)
         self.fields['container_type'].choices = _create_learning_container_year_type_for_partim_list()
+        self.fields['partial_title'].required = True
         self.set_read_only_fields()
 
     def set_read_only_fields(self):
