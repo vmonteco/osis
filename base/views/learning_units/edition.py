@@ -56,6 +56,9 @@ def learning_unit_edition(request, learning_unit_year_id):
             result = edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year)
             display_success_messages(request, result)
 
+            if not LearningUnitYear.objects.get(learning_unit_year=learning_unit_year_id).exists():
+                learning_unit_year_id = LearningUnitYear.objects.filter(learning_unit=learning_unit_to_edit).last()
+
             return HttpResponseRedirect(reverse('learning_unit', args=[learning_unit_year_id]))
 
         except IntegrityError as e:
