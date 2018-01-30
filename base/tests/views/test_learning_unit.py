@@ -934,7 +934,7 @@ class LearningUnitViewTestCase(TestCase):
         url = reverse('learning_unit_year_add')
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(LearningUnitYear.objects.all().count(), 6)
+        self.assertEqual(LearningUnitYear.objects.all().count(), 7)
 
     def test_expected_partim_creation_on_6_years(self):
         # Create container + container year for N+6
