@@ -117,6 +117,9 @@ def education_group_diplomas(request, education_group_year_id):
 @permission_required('base.can_access_education_group', raise_exception=True)
 def education_group_general_informations(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, id=education_group_year_id)
+    if education_group_year.education_group_type.category == education_group_categories.GROUP:
+        raise PermissionDenied("View education group general informations only accept training and mini-training"
+                               " education group")
 
     CMS_LABEL = mdl_cms.translated_text.find_by_entity_reference(entity_name.OFFER_YEAR, education_group_year_id)
 
