@@ -106,6 +106,8 @@ def education_group_read(request, education_group_year_id):
 @permission_required('base.can_access_education_group', raise_exception=True)
 def education_group_diplomas(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, id=education_group_year_id)
+    if education_group_year.education_group_type.category != education_group_categories.TRAINING:
+        raise PermissionDenied("View education group diplomas only accept training education group")
     education_group_year_root_id = request.GET.get('root')
     parent = _get_education_group_root(education_group_year_root_id, education_group_year)
     return layout.render(request, "education_group/tab_diplomas.html", locals())

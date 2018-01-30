@@ -377,8 +377,11 @@ class EducationGroupDiplomas(TestCase):
     @classmethod
     def setUpTestData(cls):
         academic_year = AcademicYearFactory()
-        cls.education_group_parent = EducationGroupYearFactory(acronym="Parent", academic_year=academic_year)
-        cls.education_group_child = EducationGroupYearFactory(acronym="Child_1", academic_year=academic_year)
+        type_training = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
+        cls.education_group_parent = EducationGroupYearFactory(acronym="Parent", academic_year=academic_year,
+                                                               education_group_type=type_training)
+        cls.education_group_child = EducationGroupYearFactory(acronym="Child_1", academic_year=academic_year,
+                                                              education_group_type=type_training)
         GroupElementYearFactory(parent=cls.education_group_parent, child_branch=cls.education_group_child)
         cls.user = UserFactory()
         cls.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
@@ -408,6 +411,28 @@ class EducationGroupDiplomas(TestCase):
 
         self.assertTemplateUsed(response, "page_not_found.html")
         self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
+
+    def test_with_education_group_year_of_type_mini_training(self):
+        mini_training_education_group_year = EducationGroupYearFactory()
+        mini_training_education_group_year.education_group_type.category = education_group_categories.MINI_TRAINING
+        mini_training_education_group_year.education_group_type.save()
+
+        url = reverse("education_group_diplomas", args=[mini_training_education_group_year.id])
+        response = self.client.get(url)
+
+        self.assertTemplateUsed(response, "access_denied.html")
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+
+    def test_with_education_group_year_of_type_group(self):
+        mini_training_education_group_year = EducationGroupYearFactory()
+        mini_training_education_group_year.education_group_type.category = education_group_categories.GROUP
+        mini_training_education_group_year.education_group_type.save()
+
+        url = reverse("education_group_diplomas", args=[mini_training_education_group_year.id])
+        response = self.client.get(url)
+
+        self.assertTemplateUsed(response, "access_denied.html")
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
 
     def test_without_get_data(self):
         response = self.client.get(self.url)
