@@ -502,7 +502,8 @@ def learning_unit_create_partim(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
     learning_unit_year_parent = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     initial = compute_partim_form_initial_data(learning_unit_year_parent)
-    return layout.render(request, "learning_unit/partim_form.html", {'form': CreatePartimForm(person, initial=initial)})
+    form = CreatePartimForm(learning_unit_year_parent=learning_unit_year_parent, person=person, initial=initial)
+    return layout.render(request, "learning_unit/partim_form.html", {'form': form})
 
 
 @login_required
@@ -518,7 +519,7 @@ def learning_unit_year_partim_add(request, learning_unit_year_id):
     post_data_merged = QueryDict('', mutable=True)
     post_data_merged.update(initial)
     post_data_merged.update(post_data)
-    form = CreatePartimForm(person, post_data_merged)
+    form = CreatePartimForm(learning_unit_year_parent=learning_unit_year_parent, person=person, data=post_data_merged)
     if form.is_valid():
         _create_partim_process(request, learning_unit_year_parent, form)
         return HttpResponseRedirect(reverse("learning_unit",

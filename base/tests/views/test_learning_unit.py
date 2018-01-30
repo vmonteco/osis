@@ -664,22 +664,24 @@ class LearningUnitViewTestCase(TestCase):
         return data
 
     def get_common_data(self):
-        return {"container_type": learning_container_year_types.COURSE,
-                "academic_year": self.current_academic_year.id,
-                "status": True,
-                "periodicity": learning_unit_periodicity.ANNUAL,
-                "credits": "5",
-                "campus": self.campus.id,
-                "common_title": "Common UE title",
-                "common_title_english": "Common English UUE title",
-                "requirement_entity": self.entity_version.id,
-                "allocation_entity": self.entity_version.id,
-                "additional_requirement_entity_1": self.entity_version.id,
-                "additional_requirement_entity_2": self.entity_version.id,
-                "language": self.language.id,
-                "session": learning_unit_year_session.SESSION_P23,
-                "faculty_remark": "faculty remark",
-                "other_remark": "other remark"}
+        return {
+            "container_type": learning_container_year_types.COURSE,
+            "academic_year": self.current_academic_year.id,
+            "status": True,
+            "periodicity": learning_unit_periodicity.ANNUAL,
+            "credits": "5",
+            "campus": self.campus.id,
+            "common_title": "Common UE title",
+            "common_title_english": "Common English UUE title",
+            "requirement_entity": self.entity_version.id,
+            "allocation_entity": self.entity_version.id,
+            "additional_requirement_entity_1": self.entity_version.id,
+            "additional_requirement_entity_2": self.entity_version.id,
+            "language": self.language.id,
+            "session": learning_unit_year_session.SESSION_P23,
+            "faculty_remark": "faculty remark",
+            "other_remark": "other remark"
+        }
 
     def get_learning_unit_data(self):
         return {'first_letter': 'L',
@@ -691,7 +693,6 @@ class LearningUnitViewTestCase(TestCase):
             'first_letter': original_learning_unit_year.acronym[:1],
             'acronym': original_learning_unit_year.acronym[1:],
             'partim_letter': 'B',
-            'learning_unit_year_parent': original_learning_unit_year.id,
             "subtype": learning_unit_year_subtypes.PARTIM
         }
 
@@ -939,14 +940,16 @@ class LearningUnitViewTestCase(TestCase):
                                                             academic_year=self.current_academic_year,
                                                             subtype=learning_unit_year_subtypes.FULL,
                                                             learning_container_year=a_learning_container_yr_1,
-                                                            learning_unit=a_learning_unit)
+                                                            learning_unit=a_learning_unit,
+                                                            credits=Decimal(5))
 
         valid_partim_data = self.get_base_partim_form_data(learning_unit_year_parent)
         # Learning unit year parent doesn't have any additional entities
         del valid_partim_data['additional_requirement_entity_1']
         del valid_partim_data['additional_requirement_entity_2']
 
-        form = CreatePartimForm(person=self.person, data=valid_partim_data)
+        form = CreatePartimForm(person=self.person, learning_unit_year_parent=learning_unit_year_parent,
+                                data=valid_partim_data)
         self.assertTrue(form.is_valid(), form.errors)
         full_acronym = form.cleaned_data['acronym']
 
@@ -976,14 +979,16 @@ class LearningUnitViewTestCase(TestCase):
                                                             academic_year=self.current_academic_year,
                                                             subtype=learning_unit_year_subtypes.FULL,
                                                             learning_container_year=a_learning_container_yr_1,
-                                                            learning_unit=a_learning_unit)
+                                                            learning_unit=a_learning_unit,
+                                                            credits=Decimal(5))
 
         valid_partim_data = self.get_base_partim_form_data(learning_unit_year_parent)
         # Learning unit year parent doesn't have any additional entities
         del valid_partim_data['additional_requirement_entity_1']
         del valid_partim_data['additional_requirement_entity_2']
 
-        form = CreatePartimForm(person=self.person, data=valid_partim_data)
+        form = CreatePartimForm(person=self.person, learning_unit_year_parent=learning_unit_year_parent,
+                                data=valid_partim_data)
         self.assertTrue(form.is_valid(), form.errors)
         full_acronym = form.cleaned_data['acronym']
 
@@ -998,6 +1003,26 @@ class LearningUnitViewTestCase(TestCase):
                                                                    learning_container_year__in=learning_container_yrs) \
             .count()
         self.assertEqual(count_learning_unit_year, 2)
+
+    def test_partim_creation_when_credits_partim_is_greater_than_ue_parent(self):
+        a_learning_container_year = LearningContainerYearFactory(acronym='LBIR1200',
+                                                                 academic_year=self.current_academic_year)
+        learning_unit_year_parent = LearningUnitYearFactory(acronym=a_learning_container_year.acronym,
+                                                            academic_year=self.current_academic_year,
+                                                            subtype=learning_unit_year_subtypes.FULL,
+                                                            learning_container_year=a_learning_container_year,
+                                                            credits=Decimal(2))
+
+        valid_partim_data = self.get_base_partim_form_data(learning_unit_year_parent)
+        valid_partim_data['credits']='10'
+        # Learning unit year parent doesn't have any additional entities
+        del valid_partim_data['additional_requirement_entity_1']
+        del valid_partim_data['additional_requirement_entity_2']
+
+        form = CreatePartimForm(person=self.person, learning_unit_year_parent=learning_unit_year_parent,
+                                data=valid_partim_data)
+        self.assertFalse(form.is_valid())
+        self.assertTrue(form.errors['credits'])
 
     def test_get_partim_creation_form_initial_data(self):
         l_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year,
