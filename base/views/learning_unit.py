@@ -24,6 +24,8 @@
 #
 ##############################################################################
 
+import re
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
@@ -38,7 +40,6 @@ from django.shortcuts import redirect, get_object_or_404
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods, require_POST, require_GET
-import re
 
 from attribution.business import attribution_charge_new
 from base import models as mdl
@@ -47,11 +48,10 @@ from base.business import learning_unit_deletion, learning_unit_year_volumes, le
 from base.business.learning_unit import create_learning_unit, create_learning_unit_structure, get_cms_label_data, \
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
-    get_all_attributions, get_last_academic_years, \
-    SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, is_summary_submission_opened, find_language_in_settings, \
+    get_all_attributions, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, is_summary_submission_opened, \
+    find_language_in_settings, \
     initialize_learning_unit_pedagogy_form, compute_max_academic_year_adjournment, \
     create_learning_unit_partim_structure, can_access_summary
-import base.business.learning_units.perms
 from base.business.learning_units import perms as business_perms
 from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
@@ -63,11 +63,11 @@ from base.forms.learning_unit_specifications import LearningUnitSpecificationsFo
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import entity_container_year
 from base.models import proposal_learning_unit
-from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
-from base.models.enums.learning_unit_year_subtypes import FULL
+from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_container import LearningContainer
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
+from base.views.common import display_error_messages
 from base.views.learning_units import perms
 from cms.models import text_label
 from reference.models import language
@@ -330,7 +330,7 @@ def learning_class_year_edit(request, learning_unit_year_id):
 def learning_unit_create(request, academic_year):
     person = get_object_or_404(Person, user=request.user)
     form = CreateLearningUnitYearForm(person, initial={'academic_year': academic_year,
-                                                       'subtype': FULL,
+                                                       'subtype': learning_unit_year_subtypes.FULL,
                                                        "container_type": BLANK_CHOICE_DASH,
                                                        'language': language.find_by_code('FR')})
     return layout.render(request, "learning_unit/learning_unit_form.html", {'form': form})
@@ -409,9 +409,9 @@ def learning_units_service_course(request):
 
 def _learning_units_search(request, search_type):
     service_course_search = search_type == SERVICE_COURSES_SEARCH
-    request_get = request.GET if request.GET.get('academic_year_id') else None
+    #request_get = request.GET if request.GET.get('academic_year_id') else None
 
-    form = LearningUnitYearForm(request_get, service_course_search=service_course_search)
+    form = LearningUnitYearForm(request.GET or None, service_course_search=service_course_search)
 
     found_learning_units = []
     try:
@@ -427,9 +427,6 @@ def _learning_units_search(request, search_type):
 
     context = {
         'form': form,
-        'academic_years': get_last_academic_years(),
-        'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
-        'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
         'learning_units': found_learning_units,
         'current_academic_year': mdl.academic_year.current_academic_year(),
         'experimental_phase': True,
@@ -455,8 +452,7 @@ def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
         messages.add_message(request, messages.ERROR, _(error_msg))
 
     if errors:
-        for error_msg in errors:
-            messages.add_message(request, messages.ERROR, error_msg)
+        display_error_messages(request, errors)
 
 
 @login_required
