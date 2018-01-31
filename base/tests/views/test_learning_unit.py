@@ -957,7 +957,7 @@ class LearningUnitViewTestCase(TestCase):
                                                             subtype=learning_unit_year_subtypes.FULL,
                                                             learning_container_year=a_learning_container_yr_1,
                                                             learning_unit=a_learning_unit,
-                                                            credits=Decimal(5))
+                                                            credits=Decimal(5.5))
 
         valid_partim_data = self.get_base_partim_form_data(learning_unit_year_parent)
         # Learning unit year parent doesn't have any additional entities
@@ -996,7 +996,7 @@ class LearningUnitViewTestCase(TestCase):
                                                             subtype=learning_unit_year_subtypes.FULL,
                                                             learning_container_year=a_learning_container_yr_1,
                                                             learning_unit=a_learning_unit,
-                                                            credits=Decimal(5))
+                                                            credits=Decimal(5.5))
 
         valid_partim_data = self.get_base_partim_form_data(learning_unit_year_parent)
         # Learning unit year parent doesn't have any additional entities
@@ -1020,7 +1020,29 @@ class LearningUnitViewTestCase(TestCase):
             .count()
         self.assertEqual(count_learning_unit_year, 2)
 
+    def test_partim_creation_when_credits_partim_is_equals_than_ue_parent(self):
+        """The credits of partim cannot be equals to credits of UE"""
+        a_learning_container_year = LearningContainerYearFactory(acronym='LBIR1200',
+                                                                 academic_year=self.current_academic_year)
+        learning_unit_year_parent = LearningUnitYearFactory(acronym=a_learning_container_year.acronym,
+                                                            academic_year=self.current_academic_year,
+                                                            subtype=learning_unit_year_subtypes.FULL,
+                                                            learning_container_year=a_learning_container_year,
+                                                            credits=Decimal(15))
+
+        valid_partim_data = self.get_base_partim_form_data(learning_unit_year_parent)
+        valid_partim_data['credits'] = '15'
+        # Learning unit year parent doesn't have any additional entities
+        del valid_partim_data['additional_requirement_entity_1']
+        del valid_partim_data['additional_requirement_entity_2']
+
+        form = CreatePartimForm(person=self.person, learning_unit_year_parent=learning_unit_year_parent,
+                                data=valid_partim_data)
+        self.assertFalse(form.is_valid())
+        self.assertTrue(form.errors['credits'])
+
     def test_partim_creation_when_credits_partim_is_greater_than_ue_parent(self):
+        """The credits of partim cannot be greater than credits of UE"""
         a_learning_container_year = LearningContainerYearFactory(acronym='LBIR1200',
                                                                  academic_year=self.current_academic_year)
         learning_unit_year_parent = LearningUnitYearFactory(acronym=a_learning_container_year.acronym,

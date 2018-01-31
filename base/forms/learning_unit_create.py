@@ -26,7 +26,7 @@
 import re
 
 from django import forms
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, BaseValidator
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
@@ -73,6 +73,14 @@ def _create_learning_container_year_type_for_partim_list():
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.acronym
+
+
+class MaxStrictlyValueValidator(BaseValidator):
+    message = _('Ensure this value is less than to %(limit_value)s.')
+    code = 'max_strictly_value'
+
+    def compare(self, a, b):
+        return a >= b
 
 
 class LearningUnitYearForm(BootstrapForm):
@@ -186,7 +194,7 @@ class CreatePartimForm(CreateLearningUnitYearForm):
         self.fields['container_type'].choices = _create_learning_container_year_type_for_partim_list()
         self.fields['partial_title'].required = True
         # The credit of LUY partim cannot be greater than credit of full LUY
-        self.fields['credits'].validators.append(MaxValueValidator(learning_unit_year_parent.credits))
+        self.fields['credits'].validators.append(MaxStrictlyValueValidator(learning_unit_year_parent.credits))
         self.set_read_only_fields()
 
     def set_read_only_fields(self):
