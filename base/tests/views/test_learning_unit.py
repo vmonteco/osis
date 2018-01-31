@@ -1097,16 +1097,20 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(initial['campus'], self.campus.id)
 
     def test_get_partim_creation_form(self):
-        partim = LearningUnitYearFactory(learning_container_year=self.learning_container_yr,
-                                         academic_year=self.learning_container_yr.academic_year,
-                                         subtype=learning_unit_year_subtypes.PARTIM)
-        LearningUnitYearFactory(learning_container_year=self.learning_container_yr,
-                                academic_year=self.learning_container_yr.academic_year,
-                                subtype=learning_unit_year_subtypes.FULL)
-        url = reverse('learning_unit_create_partim', args=[partim.id])
+        luy_parent = LearningUnitYearFactory(acronym='LBIR1200',
+                                             learning_container_year=self.learning_container_yr,
+                                             academic_year=self.learning_container_yr.academic_year,
+                                             subtype=learning_unit_year_subtypes.FULL)
+        url = reverse('learning_unit_create_partim', args=[luy_parent.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, 'learning_unit/partim_form.html')
+        form_initial_data = response.context['form'].initial
+        #  Ensure that PARTIM is predefined value
+        self.assertEqual(form_initial_data['subtype'], learning_unit_year_subtypes.PARTIM)
+        self.assertEqual(form_initial_data['academic_year'], self.learning_container_yr.academic_year.id)
+        self.assertEqual(form_initial_data['first_letter'], 'L')
+        self.assertEqual(form_initial_data['acronym'], 'BIR1200')
 
     @mock.patch('base.views.learning_unit.PARTIM_FORM_READ_ONLY_FIELD', {'container_type', 'campus'})
     def test_get_post_data_without_read_only_field(self):
