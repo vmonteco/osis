@@ -23,10 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.utils.translation import ugettext_lazy as _
+
 FULL = "FULL"
 PARTIM = "PARTIM"
 
 LEARNING_UNIT_YEAR_SUBTYPES = (
-    (FULL, FULL),
-    (PARTIM, PARTIM)
+    (FULL, _(FULL)),
+    (PARTIM, _(PARTIM))
 )

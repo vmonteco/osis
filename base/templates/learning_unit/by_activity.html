@@ -1,7 +1,7 @@
-
 {% load staticfiles %}
 {% load i18n %}
 {% load learning_unit %}
+{% load bootstrap3 %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -32,118 +32,55 @@
         <div class="panel-body">
             <div class="row">
                 <div class="col-md-2">
-                    <label for="slt_academic_year">{% trans 'academic_year_small'%}</label>
-                    <select class="form-control" id="slt_academic_year" name="academic_year_id">
-                        <option value="0">{% trans 'all_label' %}</option>
-                        {% for ac_year in academic_years %}
-                        <option
-                                {% if request.GET.academic_year_id and ac_year.id == request.GET.academic_year_id|add:"0" %}
-                        selected
-                        {% endif %}
-                        {% if not request.GET.academic_year_id and ac_year.id == current_academic_year.id %}
-                        selected
-                        {% endif %}
-                        value="{{ ac_year.id }}">{{ ac_year }}
-                        </option>
-                        {% endfor %}
-                    </select>
+                    {% bootstrap_field form.academic_year_id %}
                 </div>
 
                 <div class="col-md-2">
-                    <label for="id_acronym">{% trans 'acronym'%}</label>
-                    {{ form.acronym }}
-                    <span class="warning">{{ form.acronym.errors |escape  }}</span>
+                    {% bootstrap_field form.acronym %}
                 </div>
 
                 <div class="col-md-4">
-                    <label for="id_title">{% trans 'title' %}</label>
-                    {{ form.title }}
+                    {% bootstrap_field form.title %}
                 </div>
 
                 <div class="col-md-2">
-                    <label for="id_container_type">{% trans 'type' %}</label>
-                    <select class="form-control" id="slt_container_type" name="container_type">
-                        <option value="">{% trans 'all_label' %}</option>
-                        {% for container_type in container_types %}
-                        <option
-                                {% if request.GET.container_type and container_type.0 == request.GET.container_type %}
-                                selected
-                                {% endif %}
-                                value="{{ container_type.0 }}">{% trans container_type.1 %}
-                        </option>
-                        {% endfor %}
-                    </select>
+                    {% bootstrap_field form.container_type %}
                 </div>
 
                 <div class="col-md-2">
-                    <label for="id_subtype">{% trans 'subtype' %}</label>
-                    <select class="form-control" id="slt_type" name="subtype">
-                        <option value="">{% trans 'all_label' %}</option>
-                        {% for type in types %}
-                        <option
-                                {% if request.GET.subtype and type.0 == request.GET.subtype %}
-                                selected
-                                {% endif %}
-                                value="{{ type.0 }}">{% trans type.1 %}
-                        </option>
-                        {% endfor %}
-                    </select>
+                    {% bootstrap_field form.subtype %}
                 </div>
-
             </div>
 
             <div class="row" style="margin-top:10px;">
                 <div class="col-md-2">
-                    <label for="id_status">{% trans 'status' %}</label>
-                    <select class="form-control" id="slt_status" name="status">
-                        <option value="">{% trans 'all_label' %}</option>
-                        <option value="True"
-                                {% if request.GET.status == 'True' %}
-                        selected
-                        {% endif %}>{% trans 'active'|title %}</option>
-                        <option value="False"
-                                {% if request.GET.status == 'False' %}
-                        selected
-                        {% endif %}>{% trans 'inactive' %}</option>
-
-                    </select>
+                    {% bootstrap_field form.status %}
                 </div>
                 <div class="col-md-2">
-                    <label for="id_requirement_entity_acronym">{% trans 'requirement_entity_small' %}</label>
-                    {{ form.requirement_entity_acronym }}
+                    {% bootstrap_field form.requirement_entity_acronym %}
                 </div>
+                {% block additionnal_fields %}
                 <div class="col-md-7">
-                    <div style="display:inline-block;">
-                        <input type="checkbox" id="id_with_entity_subordinated"
-                               name="with_entity_subordinated" style="margin-top:37px;"
-                               {% if request.GET.with_entity_subordinated and 'on' == request.GET.with_entity_subordinated %}
-                        checked
-                        {% endif %} >
-                        <label>{% trans 'with_entity_subordinated_small' %}</label>
-                    </div>
+                    {% bootstrap_field form.with_entity_subordinated %}
                 </div>
+                {% endblock additionnal_fields %}
+
                 <div class="col-md-1 text-right" style="line-height:55px;">
                     <button type="submit" id="bt_submit_learning_unit_search" style="vertical-align:bottom;"
                             class="btn btn-primary" role="button"
                             title="{% trans 'learning_unit_search' %}">
-                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                        {% bootstrap_icon "search" %}
                     </button>
                 </div>
             </div>
         </div>
-
         <div style="margin-top:10px;">
-            {% if form.non_field_errors %}
-            <div id="pnl_error_messages" class="alert alert-warning" role="alert">
-                {% for error in form.non_field_errors %}
-                {% trans error|escape %}<br>
-                {% endfor %}
-            </div>
-            {% endif %}
+            {% bootstrap_form_errors form %}
 
             {% if learning_units %}
                 <strong style="margin-left:10px;color:grey;"> {{learning_units|length}} {% trans 'learning_units'|lower %} </strong>
-                <button type="submit" id="btn_produce_xls" class="btn btn-default pull-right" style="margin-right:10px;
+                <button type="submit" id="btn_produce_xls" class="btn btn-default pull-right"
+                        style="margin-right:10px;"
                         title="{% trans 'produce_xls' %}" >
                     <i class="fa fa-table" aria-hidden="true" style="padding-left:10px;"></i>&nbsp;{% trans 'produce_xls_lu' %}
                 </button>

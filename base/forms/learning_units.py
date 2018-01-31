@@ -33,22 +33,59 @@ from base import models as mdl
 from base.business.entity import get_entities_ids
 from base.business.entity_version import SERVICE_COURSE
 from base.business.learning_unit_year_with_context import append_latest_entities
-from base.forms.bootstrap import BootstrapForm
 from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, TooManyResultsException
 from base.models import entity_version as mdl_entity_version, learning_unit_year
-from base.models.enums import entity_container_year_link_type
+from base.models.academic_year import AcademicYear
+from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
+    learning_unit_year_subtypes, active_status
 
 MAX_RECORDS = 1000
+ALL_CHOICES = (("", _('all_label')),)
 
 
-class LearningUnitYearForm(BootstrapForm):
-    academic_year_id = forms.CharField(max_length=10, required=False)
-    container_type = subtype = status = forms.CharField(required=False)
-    acronym = title = requirement_entity_acronym = allocation_entity_acronym = forms.CharField(
-        widget=forms.TextInput(attrs={'autofocus': True}),
+class LearningUnitYearForm(forms.Form):
+    academic_year_id = forms.ModelChoiceField(
+        label=_('academic_year_small'),
+        queryset=AcademicYear.objects.all(),
+        empty_label=_('all_label'),
+        required=False
+    )
+
+    container_type = forms.ChoiceField(
+        label=_('type'),
+        choices=ALL_CHOICES + learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
+        required=False
+    )
+    subtype = forms.ChoiceField(
+        label=_('subtype'),
+        choices=ALL_CHOICES + learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
+        required=False
+    )
+    status = forms.ChoiceField(label=_('status'),
+                               choices=ALL_CHOICES + active_status.ACTIVE_STATUS_LIST[:-1],
+                               required=False)
+
+    acronym = forms.CharField(
         max_length=20,
-        required=False)
-    with_entity_subordinated = forms.BooleanField(required=False)
+        required=False, label=_('acronym'))
+
+    title = forms.CharField(
+        max_length=20,
+        required=False, label=_('title'))
+
+    requirement_entity_acronym = forms.CharField(
+        max_length=20,
+        required=False,
+        label=_('requirement_entity_small')
+    )
+
+    allocation_entity_acronym = forms.CharField(
+        max_length=20,
+        required=False,
+        label=_('allocation_entity_small')
+    )
+
+    with_entity_subordinated = forms.BooleanField(required=False, label=_('with_entity_subordinated_small'))
 
     def __init__(self, *args, **kwargs):
         self.service_course_search = kwargs.pop('service_course_search', False)
@@ -59,12 +96,6 @@ class LearningUnitYearForm(BootstrapForm):
         data_cleaned = treat_empty_or_str_none_as_none(data_cleaned)
         if data_cleaned and learning_unit_year.check_if_acronym_regex_is_valid(data_cleaned) is None:
             raise ValidationError(_('LU_ERRORS_INVALID_REGEX_SYNTAX'))
-        return data_cleaned
-
-    def clean_academic_year_id(self):
-        data_cleaned = self.cleaned_data.get('academic_year_id')
-        if data_cleaned == '0':
-            return None
         return data_cleaned
 
     def clean_requirement_entity_acronym(self):
@@ -80,6 +111,7 @@ class LearningUnitYearForm(BootstrapForm):
         return data_cleaned
 
     def clean(self):
+        print(self.cleaned_data)
         if not self.service_course_search \
                 and self.cleaned_data and learning_unit_year.count_search_results(**self.cleaned_data) > MAX_RECORDS:
             raise TooManyResultsException
