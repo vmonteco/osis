@@ -5,3 +5,4 @@ pyvirtualdisplay
 python-magic
 Faker
 parse
+pypom
