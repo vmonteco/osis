@@ -30,14 +30,21 @@ import factory
 from osis_common.utils.datetime import get_tzinfo
 
 
+def generate_person_email(person, domain=None):
+    if domain is None:
+        domain = factory.Faker('domain_name').generate({})
+    return '{0.first_name}.{0.last_name}@{1}'.format(person, domain).lower()
+
+
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = 'auth.User'
 
-    username = factory.Faker('user_name')
+    username = factory.Sequence(lambda n: 'user{}'.format(n))
+    #username = factory.Faker('user_name')
     first_name = factory.Faker('first_name')
     last_name = factory.Faker('last_name')
-    email = factory.Faker('email')
+    email = factory.LazyAttribute(generate_person_email)
     password = factory.PostGenerationMethodCall('set_password', 'password123')
 
     is_active = True
