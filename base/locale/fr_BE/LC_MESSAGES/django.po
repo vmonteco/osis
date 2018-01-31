@@ -1609,8 +1609,20 @@ msgstr "Cette fonctionnalité est en phase expérimentale"
 msgid "title_official_1"
 msgstr "Intitulé officiel (partie 1 commune aux partims)"
 
+msgid "common_official_title"
+msgstr "Intitulé officiel commun"
+
+msgid "common_official_english_title"
+msgstr "Intitulé officiel commun en anglais"
+
 msgid "title_official_2"
 msgstr "Intitulé officiel (partie 2 propre au partim)"
+
+msgid "official_title_proper_to_UE"
+msgstr "Intitulé officiel propre à l'UE"
+
+msgid "official_english_title_proper_to_UE"
+msgstr "Intitulé officiel en anglais propre à l'UE"
 
 msgid "title_in_english"
 msgstr "Intitulé en anglais"
@@ -2502,7 +2514,7 @@ msgid "invalid_partim_letter"
 msgstr "Lettre déjà utilisée"
 
 msgid "learning_unit_successfuly_created"
-msgstr "L'Unité d'Enseignement {} a été créée jusqu'en {} avec succès."
+msgstr "Unité d'Enseignement {} ({}) créée avec succès."
 
 msgid "learning_unit_creation_academic_year_max_error"
 msgstr "Impossible de créer une UE dont l'année académique est supérieure à {}."
@@ -2524,3 +2536,6 @@ msgstr "Remarque"
 
 msgid "remark_english"
 msgstr "Remarque en anglais"
+
+msgid "Ensure this value is less than %(limit_value)s."
+msgstr "Assurez-vous que cette valeur est inférieure à %(limit_value)s."

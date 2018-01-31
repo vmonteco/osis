@@ -35,8 +35,8 @@ from faker import Faker
 from base.models.enums import learning_unit_year_quadrimesters
 from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
-from base.models.learning_unit_year import MINIMUM_CREDITS
-from base.tests.factories.academic_year import AcademicYearFactory, AcademicYearFakerFactory
+from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
+from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory, LearningUnitFakerFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from osis_common.utils.datetime import get_tzinfo
@@ -62,7 +62,7 @@ class LearningUnitYearFactory(DjangoModelFactory):
     acronym = factory.Sequence(lambda n: 'LUY-%d' % n)
     title = factory.Sequence(lambda n: 'Learning unit year - %d' % n)
     subtype = factory.Iterator(learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, getter=operator.itemgetter(0))
-    credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, 99)
+    credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, MAXIMUM_CREDITS)
     decimal_scores = False
     status = True
     session = factory.Iterator(learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION, getter=operator.itemgetter(0))
@@ -82,7 +82,7 @@ class LearningUnitYearFakerFactory(DjangoModelFactory):
     acronym = factory.LazyAttribute(lambda obj: obj.learning_container_year.acronym)
     title = factory.LazyAttribute(lambda obj: obj.learning_container_year.title)
     subtype = factory.Iterator(learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, getter=operator.itemgetter(0))
-    credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, 9)
+    credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, MAXIMUM_CREDITS)
     decimal_scores = False
     status = True
     session = factory.Iterator(learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION, getter=operator.itemgetter(0))

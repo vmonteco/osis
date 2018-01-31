@@ -24,7 +24,7 @@
 #
 ##############################################################################
 import re
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from base.models import entity_container_year
@@ -36,6 +36,7 @@ from osis_common.models.auditable_serializable_model import AuditableSerializabl
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
 MINIMUM_CREDITS = 0.0
+MAXIMUM_CREDITS = 500
 
 
 class LearningUnitYearAdmin(AuditableSerializableModelAdmin):
@@ -61,7 +62,7 @@ class LearningUnitYear(AuditableSerializableModel):
     subtype = models.CharField(max_length=50, blank=True, null=True,
                                choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES)
     credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True,
-                                  validators=[MinValueValidator(MINIMUM_CREDITS)])
+                                  validators=[MinValueValidator(MINIMUM_CREDITS), MaxValueValidator(MAXIMUM_CREDITS)])
     decimal_scores = models.BooleanField(default=False)
     structure = models.ForeignKey('Structure', blank=True, null=True)
     internship_subtype = models.CharField(max_length=250, blank=True, null=True,

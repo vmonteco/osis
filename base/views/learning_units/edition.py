@@ -56,6 +56,8 @@ def learning_unit_edition(request, learning_unit_year_id):
             result = edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year)
             display_success_messages(request, result)
 
+            learning_unit_year_id = _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id)
+
             return HttpResponseRedirect(reverse('learning_unit', args=[learning_unit_year_id]))
 
         except IntegrityError as e:
@@ -68,3 +70,11 @@ def learning_unit_edition(request, learning_unit_year_id):
 def _check_permission_to_edit_date(context):
     if not context.get('can_edit_date'):
         raise PermissionDenied("Learning unit year date is not editable or user has not sufficient rights.")
+
+
+def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id):
+    if not LearningUnitYear.objects.filter(pk=learning_unit_year_id).exists():
+        result = LearningUnitYear.objects.filter(learning_unit=learning_unit_to_edit).last()
+    else:
+        result = learning_unit_year_id
+    return result

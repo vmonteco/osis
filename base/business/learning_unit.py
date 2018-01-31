@@ -227,10 +227,12 @@ def create_learning_unit_structure(additional_requirement_entity_1, additional_r
                                    requirement_entity_version, status, academic_year, campus):
     new_learning_container_year = LearningContainerYear.objects.create(academic_year=academic_year,
                                                                        learning_container=new_learning_container,
-                                                                       title=data['title'],
+                                                                       title=data['common_title'],
                                                                        acronym=data['acronym'].upper(),
                                                                        container_type=data['container_type'],
-                                                                       language=data['language'], campus=campus)
+                                                                       language=data['language'],
+                                                                       campus=campus,
+                                                                       title_english=data['common_title_english'])
     new_requirement_entity = create_entity_container_year(requirement_entity_version, new_learning_container_year,
                                                           entity_container_year_link_type.REQUIREMENT_ENTITY)
     if allocation_entity_version:
@@ -299,7 +301,7 @@ def create_entity_container_year(entity_version, learning_container_year, type_e
 
 
 def create_learning_unit(data, learning_container, year, end_year=None):
-    return LearningUnit.objects.create(acronym=data['acronym'].upper(), title=data['title'], start_year=year,
+    return LearningUnit.objects.create(acronym=data['acronym'].upper(), title=data['common_title'], start_year=year,
                                        periodicity=data['periodicity'], learning_container=learning_container,
                                        faculty_remark=data['faculty_remark'], other_remark=data['other_remark'],
                                        end_year=end_year)
@@ -311,8 +313,8 @@ def create_learning_unit_year(data_dict):
                                            learning_unit=data_dict.get('new_learning_unit'),
                                            learning_container_year=data_dict.get('new_learning_container_year'),
                                            acronym=data['acronym'].upper(),
-                                           title=data['title'],
-                                           title_english=data['title_english'],
+                                           title=data.get('partial_title'),
+                                           title_english=data.get('partial_english_title'),
                                            subtype=data['subtype'],
                                            credits=data['credits'],
                                            internship_subtype=data.get('internship_subtype'),
