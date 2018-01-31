@@ -2523,3 +2523,6 @@ msgstr "Aplhabetical code with 1 letter"
 
 msgid "invalid_partim_letter"
 msgstr "Letter already used"
+
+msgid "Ensure this value is less than %(limit_value)s."
+msgstr "Ensure this value is less than or equal to %(limit_value)s."

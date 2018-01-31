@@ -76,7 +76,7 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
 
 
 class MaxStrictlyValueValidator(BaseValidator):
-    message = _('Ensure this value is less than to %(limit_value)s.')
+    message = _('Ensure this value is less than %(limit_value)s.')
     code = 'max_strictly_value'
 
     def compare(self, a, b):
