@@ -523,19 +523,16 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         _create_learning_component_years(learning_unit_years, self.number_classes)
         _create_entity_container_years(learning_unit_years, self.entity)
 
-        # shorten lu
+        # shorten & extend lu
         excepted_end_year = end_year_full - 2
         self._edit_lu(learning_unit_full_annual, excepted_end_year)
 
-        # extend lu
         excepted_end_year += 2
         self._edit_lu(learning_unit_full_annual, excepted_end_year)
 
-        # shorten lu
         excepted_end_year -= 2
         self._edit_lu(learning_unit_full_annual, excepted_end_year)
 
-        # shorten lu
         excepted_end_year += 3
         self._edit_lu(learning_unit_full_annual, excepted_end_year)
 
