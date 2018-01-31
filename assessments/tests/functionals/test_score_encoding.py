@@ -28,7 +28,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
 from attribution.tests.factories.attribution import AttributionFactory
-from base.models import session_exam_calendar
 from base.tests.factories.academic_calendar import (AcademicCalendarExamSubmissionFactory,
                                                     AcademicCalendarFactory)
 from base.tests.factories.academic_year import AcademicYearFactory
@@ -99,7 +98,7 @@ class SeleniumTestCase(StaticLiveServerTestCase):
     def tearDownClass(cls):
         shutil.rmtree(cls.full_path_temp_dir)
         cls.driver.quit()
-        #cls.display.stop()
+        cls.display.stop()
 
         super().tearDownClass()
 
@@ -143,7 +142,7 @@ class SeleniumTestCase(StaticLiveServerTestCase):
         )
 
 
-class Scenario1FunctionalTest(SeleniumTestCase, BusinessMixin):
+class FunctionalTest(SeleniumTestCase, BusinessMixin):
     def test_01_scenario_modifier_periode_encoding(self):
         user = self.create_super_user()
         academic_year = AcademicYearFactory(year=pendulum.today().year-1)
@@ -978,3 +977,161 @@ class Scenario1FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         mimetype = magic.from_file(full_path, mime=True)
         self.assertEqual(mimetype, 'application/pdf')
+
+class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
+    def test(self):
+        user, person = self.create_user_person()
+
+        academic_year, academic_calendar = self.create_academic_year_calendar()
+
+        acronyms = ['PHYS11BA', 'ECON2M1', 'PHYS1BA', 'PHYS2M1', 'PHYS2MA']
+
+        offers = self.create_offers(academic_year, acronyms, person=person)
+        offer_year = offers['PHYS11BA']
+
+        OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offer_year)
+
+        # unité d'enseignement = learning_unit_year
+        learning_unit_year = LearningUnitYearFactory(academic_year=academic_year)
+
+        AttributionFactory(
+            tutor=TutorFactory(person=person),
+            learning_unit_year=learning_unit_year,
+            score_responsible=True
+        )
+
+        session_exam_calendar = SessionExamCalendarFactory(academic_calendar=academic_calendar)
+        session_exam = self.create_session_exam(learning_unit_year, session_exam_calendar, offer_year)
+        exam_enrollments = self.create_exam_enrollments(offer_year, learning_unit_year, session_exam)
+
+        self.login(user.username)
+
+        self.goto('scores_encoding')
+
+        self.click_on('lnk_encode_{}'.format(learning_unit_year.id))
+        self.assertElementTextEqualInt('number_of_enrollments', len(exam_enrollments))
+
+        note_enrollments = {}
+
+        for counter in range(1, 11):
+            element = self.driver.find_element_by_css_selector("[tabindex='%d']" % counter)
+            element_id = element.get_attribute('id')
+            enrollment_id = int(element_id.split('_')[-1])
+            self.fill_by_id(element_id, counter)
+            note_enrollments[enrollment_id] = counter
+
+        self.click_on('bt_save_online_encoding_up')
+
+
+        score_encoding = ScoresEncodingPage(self.driver, base_url=self.get_url_by_name('scores_encoding')).open()
+        time.sleep(1)
+
+        score_encoding.via_paper.click()
+        # self.click_on('lnk_via_paper')
+        time.sleep(1)
+
+        self.click_on('lnk_notes_printing_{}'.format(learning_unit_year.id))
+        time.sleep(1)
+
+        filename = 'Feuille de notes.pdf'
+        self.assertBrowserFileExists(filename, 'application/pdf')
+
+    def assertBrowserFileExists(self, filename, mimetype=None):
+        path = os.path.join(self.full_path_temp_dir, filename)
+        self.assertTrue(os.path.exists(path))
+
+        if mimetype:
+            self.assertEqual(mimetype, magic.from_file(path, mime=True))
+
+    def create_student(self, offer_year, learning_unit_year, session_exam):
+        student = StudentFactory()
+
+        offer_enrollment = OfferEnrollmentFactory(offer_year=offer_year, student=student)
+        learning_unit_enrollment = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment,
+                                                                 learning_unit_year=learning_unit_year)
+        enrollment = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment, session_exam=session_exam)
+
+        return student, enrollment
+
+    def create_user_person(self):
+        user = self.create_user()
+        self.add_group(user, 'program_managers', 'tutors')
+        self.add_permission(user, 'can_access_academic_calendar', 'assessments.can_access_scoreencoding')
+        person = PersonFactory(
+            user=user,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            language='fr-be'
+        )
+        return user, person
+
+    @classmethod
+    def create_academic_year_calendar(self, year=None, start_date=None, days=None):
+        if year is None:
+            year = pendulum.today().year - 1
+
+        academic_year = AcademicYearFactory(year=year)
+        academic_calendar = AcademicCalendarExamSubmissionFactory.build(academic_year=academic_year)
+        academic_calendar.save(functions=[])
+
+        return academic_year, academic_calendar
+
+    @classmethod
+    def create_session_exam(self, learning_unit_year, session_exam_calendar, offer_year):
+        return SessionExamFactory(
+            learning_unit_year=learning_unit_year,
+            number_session=session_exam_calendar.number_session,
+            offer_year=offer_year
+        )
+
+    def create_exam_enrollments(self, offer_year, learning_unit_year, session_exam, number_of_students=10):
+        return [
+            self.create_student(offer_year, learning_unit_year, session_exam)[1]
+            for counter in range(number_of_students)
+        ]
+
+    @classmethod
+    def create_offers(cls, academic_year, acronyms, person=None):
+        assert isinstance(acronyms, (list, tuple)) and len(acronyms) > 0
+        offers = {
+            acronym: OfferYearFactory(academic_year=academic_year, acronym=acronym)
+            for acronym in acronyms
+        }
+
+        if person:
+            for offer in offers.values():
+                ProgramManagerFactory(offer_year=offer, person=person)
+
+        return offers
+
+
+import pypom
+
+class Field:
+    def __init__(self, *locator):
+        self.locator = locator
+
+class InputField(Field):
+    def __set__(self, obj, value):
+        element = obj.find_element(*self.locator)
+        element.clear()
+        if value is not None:
+            element.send_keys(value)
+
+    def __get__(self, obj, owner):
+        element = obj.find_element(*self.locator)
+        return element.get_attribute('value')
+
+class SubmitField(Field):
+    def __get__(self, obj, owner):
+        return obj.find_element(*self.locator)
+
+class ScoresEncodingPage(pypom.Page):
+    acronym = InputField(By.ID, 'txt_acronym')
+    search_button = SubmitField(By.ID, 'bt_submit_offer_search')
+    via_paper = SubmitField(By.ID, 'lnk_via_paper')
+
+    def search(self, acronym=None):
+        self.acronym = acronym
+
+        self.search_button.click()
