@@ -74,7 +74,7 @@ def _check_permission_to_edit_date(context):
 
 def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id):
     if not LearningUnitYear.objects.filter(pk=learning_unit_year_id).exists():
-        result = LearningUnitYear.objects.filter(learning_unit=learning_unit_to_edit).last()
+        result = LearningUnitYear.objects.filter(learning_unit=learning_unit_to_edit).last().pk
     else:
         result = learning_unit_year_id
     return result
