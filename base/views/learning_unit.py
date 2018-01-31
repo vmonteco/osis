@@ -101,10 +101,12 @@ def learning_unit_identification(request, learning_unit_year_id):
 
 def _get_common_context_learning_unit_year(learning_unit_year_id, person):
     learning_unit_year = mdl_base.learning_unit_year.get_by_id(learning_unit_year_id)
+    is_person_linked_to_entity = business_perms.\
+        is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, person)
     return {
         'learning_unit_year': learning_unit_year,
         'current_academic_year': mdl_base.academic_year.current_academic_year(),
-        'is_person_linked_to_entity': business_perms.is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, person)
+        'is_person_linked_to_entity': is_person_linked_to_entity
     }
 
 
@@ -625,8 +627,8 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
         context['can_propose'] = business_perms.is_eligible_for_modification_proposal(learning_unit_year, person)
         context['can_edit_date'] = business_perms.is_eligible_for_modification_end_date(learning_unit_year, person)
         context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
-        context['can_cancel_proposal'] = business_perms.is_eligible_for_cancel_of_proposal(context['proposal'], person) \
-            if context['proposal'] else False
+        context['can_cancel_proposal'] = business_perms.\
+            is_eligible_for_cancel_of_proposal(context['proposal'], person) if context['proposal'] else False
         context['proposal_folder_entity_version'] = mdl_base.entity_version.get_by_entity_and_date(
             context['proposal'].folder.entity, None) if context['proposal'] else None
         context['can_delete'] = learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year)
