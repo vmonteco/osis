@@ -356,16 +356,14 @@ def learning_unit_year_add(request):
         new_learning_unit = create_learning_unit(data, new_learning_container, year)
         while year <= compute_max_academic_year_adjournment():
             academic_year = mdl.academic_year.find_academic_year_by_year(year)
-
-            create_learning_unit_structure(additional_requirement_entity_1, additional_requirement_entity_2,
-                                           allocation_entity_version, data, new_learning_container,
-                                           new_learning_unit, requirement_entity_version, status, academic_year, campus)
+            luy_created = create_learning_unit_structure(additional_requirement_entity_1,
+                                                         additional_requirement_entity_2, allocation_entity_version,
+                                                         data, new_learning_container, new_learning_unit,
+                                                         requirement_entity_version, status, academic_year, campus)
+            _show_success_learning_unit_year_creation_message(request, luy_created)
             year += 1
-            success_msg = _('learning_unit_successfuly_created').format(data['acronym'], academic_year)
-            messages.add_message(request, messages.SUCCESS, success_msg)
         return redirect('learning_units')
-    else:
-        return layout.render(request, "learning_unit/learning_unit_form.html", {'form': form})
+    return layout.render(request, "learning_unit/learning_unit_form.html", {'form': form})
 
 
 @login_required
@@ -565,7 +563,7 @@ def _create_partim_process(request, learning_unit_year_parent, form):
     learning_container = learning_unit_year_parent.learning_container_year.learning_container
     while (year <= compute_max_academic_year_adjournment()) and (not parent_end_year or year <= parent_end_year):
         academic_year = mdl.academic_year.find_academic_year_by_year(year)
-        create_learning_unit_partim_structure({
+        luy_created = create_learning_unit_partim_structure({
             'requirement_entity_version': data.get('requirement_entity'),
             'additional_requirement_entity_version_1': data.get('additional_requirement_entity_1'),
             'additional_requirement_entity_version_2': data.get('additional_requirement_entity_2'),
@@ -576,9 +574,16 @@ def _create_partim_process(request, learning_unit_year_parent, form):
             'status': data['status'],
             'academic_year': academic_year
         })
+        _show_success_learning_unit_year_creation_message(request, luy_created)
         year += 1
-        success_msg = _('learning_unit_successfuly_created').format(form.cleaned_data['acronym'], academic_year)
-        messages.add_message(request, messages.SUCCESS, success_msg)
+
+
+def _show_success_learning_unit_year_creation_message(request, learning_unit_year_created):
+    link = reverse("learning_unit", kwargs={'learning_unit_year_id': learning_unit_year_created.id})
+    success_msg = _('learning_unit_successfuly_created') % {'link': link,
+                                                            'acronym': learning_unit_year_created.acronym,
+                                                            'academic_year': learning_unit_year_created.academic_year}
+    messages.add_message(request, messages.SUCCESS, success_msg, extra_tags='safe')
 
 
 def compute_partim_form_initial_data(learning_unit_year_parent):

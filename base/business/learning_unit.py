@@ -234,12 +234,12 @@ def create_learning_unit_structure(additional_requirement_entity_1, additional_r
     if additional_requirement_entity_2:
         create_entity_container_year(additional_requirement_entity_2, new_learning_container_year,
                                      entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
-    create_learning_unit_content({'academic_year': academic_year,
-                                  'data': data,
-                                  'new_learning_container_year': new_learning_container_year,
-                                  'new_learning_unit': new_learning_unit,
-                                  'new_requirement_entity': new_requirement_entity,
-                                  'status': status})
+    return create_learning_unit_content({'academic_year': academic_year,
+                                         'data': data,
+                                         'new_learning_container_year': new_learning_container_year,
+                                         'new_learning_unit': new_learning_unit,
+                                         'new_requirement_entity': new_requirement_entity,
+                                         'status': status})
 
 
 def create_another_type(data_dict):
@@ -251,6 +251,7 @@ def create_another_type(data_dict):
                                        learning_component_year=new_learning_component_year)
     new_learning_unit_year = create_learning_unit_year(data_dict)
     create_learning_unit_component(new_learning_unit_year, new_learning_component_year, None)
+    return new_learning_unit_year
 
 
 def create_course(data_dict):
@@ -270,6 +271,7 @@ def create_course(data_dict):
                                    learning_component_year_type.LECTURING)
     create_learning_unit_component(new_learning_unit_year, new_practical_exercise,
                                    learning_component_year_type.PRACTICAL_EXERCISES)
+    return new_learning_unit_year
 
 
 def create_learning_component_year(learning_container_year, acronym, type_learning_component_year):
@@ -364,7 +366,7 @@ def create_learning_unit_partim_structure(data_dict):
     learning_container = data_dict.get('learning_container', None)
     academic_year = data_dict.get('academic_year', None)
     learning_container_year = mdl_base.learning_container_year.search(academic_year, learning_container).get()
-    create_partim(data_dict, learning_container_year)
+    return create_partim(data_dict, learning_container_year)
 
 
 def create_partim(data_dict, new_learning_container_year):
@@ -379,21 +381,25 @@ def create_partim(data_dict, new_learning_container_year):
         a_entity_container_year_link_type=entity_container_year_link_type.REQUIREMENT_ENTITY
     ).get()
 
-    create_learning_unit_content({'academic_year': academic_year,
-                                  'data': data,
-                                  'new_learning_container_year': new_learning_container_year,
-                                  'new_learning_unit': new_learning_unit,
-                                  'new_requirement_entity': entity_container_yr,
-                                  'status': status})
+    return create_learning_unit_content({'academic_year': academic_year,
+                                         'data': data,
+                                         'new_learning_container_year': new_learning_container_year,
+                                         'new_learning_unit': new_learning_unit,
+                                         'new_requirement_entity': entity_container_yr,
+                                         'status': status})
 
 
 def create_learning_unit_content(data_dict):
+    """
+    This function will create component + learning unit year according to container_type
+    :param data_dict:
+    :return: The Learning Unit Year created
+    """
     data = data_dict.get('data', None)
 
     if data['container_type'] == learning_container_year_types.COURSE:
-        create_course(data_dict)
-    else:
-        create_another_type(data_dict)
+        return create_course(data_dict)
+    return create_another_type(data_dict)
 
 
 def is_summary_submission_opened():
