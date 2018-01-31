@@ -37,6 +37,7 @@ from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import AcademicYearFakerFactory, create_current_academic_year
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from cms.tests.factories.text_label import TextLabelFactory
 from cms.tests.factories.translated_text import TranslatedTextFactory
 from cms.tests.factories.translated_text_label import TranslatedTextLabelFactory
@@ -46,11 +47,11 @@ class TestLearningUnitSummary(TestCase):
     @classmethod
     def setUpTestData(cls):
         academic_year = create_current_academic_year()
-        cls.summary_course_submission_calendar = \
-            AcademicCalendarFactory(academic_year=academic_year,
-                                    start_date=academic_year.start_date,
-                                    end_date=academic_year.end_date,
-                                    reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+        cls.summary_course_submission_calendar = AcademicCalendarFactory(
+            academic_year=academic_year,
+            start_date=academic_year.start_date,
+            end_date=academic_year.end_date,
+            reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
 
         cls.tutor = TutorFactory()
 
@@ -133,7 +134,9 @@ class TestLearningUnitSummaryEdit(TestCase):
 
         self.tutor = TutorFactory()
 
-        self.learning_unit_year = LearningUnitYearFakerFactory(academic_year=academic_year)
+        learning_container_year = LearningContainerYearFactory(academic_year=academic_year)
+        self.learning_unit_year = LearningUnitYearFakerFactory(academic_year=academic_year,
+                                                               learning_container_year=learning_container_year)
         self.attribution = AttributionFactory(learning_unit_year=self.learning_unit_year, summary_responsible=True,
                                               tutor=self.tutor)
 

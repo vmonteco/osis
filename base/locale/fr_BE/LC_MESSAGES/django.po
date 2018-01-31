@@ -2520,7 +2520,7 @@ msgid "learning_unit_creation_academic_year_max_error"
 msgstr "Impossible de créer une UE dont l'année académique est supérieure à {}."
 
 msgid "parent_greater_than_partim"
-msgstr "L'année de fin selectionnée est plus grande que l'année de fin du parent %(lu_parent)s"
+msgstr "L'année de fin selectionnée (%(partim_end_year)s) est plus grande que l'année de fin du parent %(lu_parent)s"
 
 msgid "learning_unit_created"
 msgstr "L'unité d'enseignement %(learning_unit)s créée pour l'année academique %(academic_year)s"
@@ -2530,6 +2530,12 @@ msgstr "L'unité d'enseignement %(learning_unit)s a été mise à jour avec succ
 
 msgid "partim_greater_than_parent"
 msgstr "L'unité d'enseignement %(learning_unit)s a un partim %(partim)s avec une année de fin plus grande que %(year)s"
+
+msgid "remark"
+msgstr "Remarque"
+
+msgid "remark_english"
+msgstr "Remarque en anglais"
 
 msgid "Ensure this value is less than %(limit_value)s."
 msgstr "Assurez-vous que cette valeur est inférieure à %(limit_value)s."

@@ -780,7 +780,7 @@ class LearningUnitViewTestCase(TestCase):
     def test_learning_unit_creation_form_with_field_is_required_empty(self):
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_empty_internship_subtype())
         self.assertFalse(form.is_valid(), form.errors)
-        self.assertEqual(form.errors['internship_subtype'], _('field_is_required'))
+        self.assertEqual(form.errors['internship_subtype'], [_('field_is_required')])
 
     def test_learning_unit_check_acronym(self):
         kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}

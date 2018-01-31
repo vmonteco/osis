@@ -148,7 +148,7 @@ class LearningUnitYearForm(BootstrapForm):
         elif not re.match(self.acronym_regex, self.cleaned_data['acronym']):
             self.add_error('acronym', _('invalid_acronym'))
         elif self.cleaned_data["container_type"] == INTERNSHIP and not (self.cleaned_data['internship_subtype']):
-            self._errors['internship_subtype'] = _('field_is_required')
+            self.add_error('internship_subtype', _('field_is_required'))
         else:
             return True
 

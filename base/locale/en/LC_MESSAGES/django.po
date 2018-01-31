@@ -2504,7 +2504,7 @@ msgid "learning_unit_creation_academic_year_max_error"
 msgstr "Please select an academic year lower than {}."
 
 msgid "parent_greater_than_partim"
-msgstr "The selected end year is greater than the end year of the parent %(lu_parent)s"
+msgstr "The selected end year (%(partim_end_year)s) is greater than the end year of the parent %(lu_parent)s"
 
 msgid "learning_unit_created"
 msgstr "Learning unit %(learning_unit)s created for the academic year %(academic_year)s"
@@ -2523,6 +2523,12 @@ msgstr "Aplhabetical code with 1 letter"
 
 msgid "invalid_partim_letter"
 msgstr "Letter already used"
+
+msgid "remark"
+msgstr "Remark"
+
+msgid "remark_english"
+msgstr "Remark in english"
 
 msgid "Ensure this value is less than %(limit_value)s."
 msgstr "Ensure this value is less than %(limit_value)s."

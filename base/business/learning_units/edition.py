@@ -36,6 +36,7 @@ from base.business.learning_unit_deletion import delete_from_given_learning_unit
 from base.models import entity_container_year, learning_component_year, learning_class_year, learning_unit_component
 from base.models.academic_year import AcademicYear
 from base.models.enums import learning_unit_periodicity
+from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit_year import LearningUnitYear
 
 
@@ -84,7 +85,11 @@ def extend_learning_unit(learning_unit_to_edit, new_academic_year):
     lu_parent = last_learning_unit_year.parent
     if last_learning_unit_year.subtype == 'PARTIM' and lu_parent:
         if _get_actual_end_year(lu_parent.learning_unit) < new_academic_year.year:
-            raise IntegrityError(_('parent_greater_than_partim') % {'lu_parent': lu_parent})
+            raise IntegrityError(_('parent_greater_than_partim') % {
+                'partim_end_year': new_academic_year,
+                'lu_parent': lu_parent.acronym
+            }
+                                 )
 
     with transaction.atomic():
         for ac_year in _get_next_academic_years(learning_unit_to_edit, new_academic_year.year):
@@ -117,16 +122,28 @@ def _update_academic_year_for_learning_unit_year(luy, new_academic_year):
     duplicated_luy.learning_container_year = _update_learning_container_year(duplicated_luy,
                                                                              new_academic_year,
                                                                              old_luy_pk)
+    duplicated_luy.save()
     return duplicated_luy
 
 
 def _update_learning_container_year(luy, new_academic_year, old_luy_pk):
     old_lcy_pk = luy.learning_container_year.pk
-    duplicated_lcy = _update_related_row(luy.learning_container_year, 'academic_year', new_academic_year)
+    return _get_or_duplication_container(luy, new_academic_year, old_lcy_pk, old_luy_pk)
 
-    _update_entity_container_year(old_lcy_pk, duplicated_lcy)
+
+def _get_or_duplication_container(luy, new_academic_year, old_lcy_pk, old_luy_pk):
+    queryset = LearningContainerYear.objects.filter(
+        academic_year=new_academic_year,
+        learning_container=luy.learning_unit.learning_container
+    )
+    # Sometimes, the container already exists, we can directly use it and its entitycontaineryear
+    if not queryset.exists():
+        duplicated_lcy = _update_related_row(luy.learning_container_year, 'academic_year', new_academic_year)
+        _update_entity_container_year(old_lcy_pk, duplicated_lcy)
+    else:
+        duplicated_lcy = queryset.get()
+
     _update_learning_component_year(old_lcy_pk, duplicated_lcy, old_luy_pk, luy)
-
     return duplicated_lcy
 
 
@@ -137,17 +154,18 @@ def _update_entity_container_year(old_lcy_pk, new_lcy):
 
 def _update_learning_component_year(old_lcy_pk, new_lcy, old_luy_pk, luy):
     for component in learning_component_year.find_by_learning_container_year(old_lcy_pk):
-        old_pk = component.pk
+        old_component_pk = component.pk
         component = _update_related_row(component, 'learning_container_year', new_lcy)
-        _update_learning_class_year(old_pk, component)
-        _update_learning_unit_component(old_pk, old_luy_pk, component, luy)
+        _update_learning_class_year(old_component_pk, component)
+        _update_learning_unit_component(old_component_pk, old_luy_pk, component, luy)
 
 
 def _update_learning_unit_component(old_component_pk, old_luy_pk, component, luy):
     for luc in learning_unit_component.search(a_learning_component_year=old_component_pk,
                                               a_learning_unit_year=old_luy_pk):
-        luc.learning_unit_component = component
-        _update_related_row(luc, 'learning_unit_year', luy)
+        new_luc = _update_related_row(luc, 'learning_unit_year', luy)
+        new_luc.learning_component_year = component
+        new_luc.save()
 
 
 def _update_learning_class_year(old_component_pk, new_component):
