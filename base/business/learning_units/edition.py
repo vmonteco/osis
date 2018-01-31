@@ -117,6 +117,7 @@ def _update_academic_year_for_learning_unit_year(luy, new_academic_year):
     duplicated_luy.learning_container_year = _update_learning_container_year(duplicated_luy,
                                                                              new_academic_year,
                                                                              old_luy_pk)
+    duplicated_luy.save()
     return duplicated_luy
 
 
@@ -137,17 +138,18 @@ def _update_entity_container_year(old_lcy_pk, new_lcy):
 
 def _update_learning_component_year(old_lcy_pk, new_lcy, old_luy_pk, luy):
     for component in learning_component_year.find_by_learning_container_year(old_lcy_pk):
-        old_pk = component.pk
+        old_component_pk = component.pk
         component = _update_related_row(component, 'learning_container_year', new_lcy)
-        _update_learning_class_year(old_pk, component)
-        _update_learning_unit_component(old_pk, old_luy_pk, component, luy)
+        _update_learning_class_year(old_component_pk, component)
+        _update_learning_unit_component(old_component_pk, old_luy_pk, component, luy)
 
 
 def _update_learning_unit_component(old_component_pk, old_luy_pk, component, luy):
     for luc in learning_unit_component.search(a_learning_component_year=old_component_pk,
                                               a_learning_unit_year=old_luy_pk):
-        luc.learning_unit_component = component
-        _update_related_row(luc, 'learning_unit_year', luy)
+        new_luc = _update_related_row(luc, 'learning_unit_year', luy)
+        new_luc.learning_component_year = component
+        new_luc.save()
 
 
 def _update_learning_class_year(old_component_pk, new_component):
