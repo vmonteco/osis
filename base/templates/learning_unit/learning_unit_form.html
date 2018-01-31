@@ -148,17 +148,17 @@
                 </div>
                 <div class="panel-body">
                     <div>
-                        <label {% if form.errors.title %}style="color:red;"{% endif %}>
-                            {% trans 'title' %}*
+                        <label {% if form.errors.common_title %}style="color:red;"{% endif %}>
+                            {% trans 'common_official_title' %}*
                         </label>
-                        {{ form.title }}
-                        <label {% if form.errors.title %}style="color:red;"{% endif %}>
-                                {{ form.errors.title| striptags }}
+                        {{ form.common_title }}
+                        <label {% if form.errors.common_title %}style="color:red;"{% endif %}>
+                            {{ form.errors.common_title| striptags }}
                         </label>
                     </div>
                     <div>
-                        <label>{% trans 'title_in_english' %}</label>
-                        {{ form.title_english }}
+                        <label>{% trans 'common_official_english_title' %}</label>
+                        {{ form.common_title_english }}
                     </div>
                 </div>
             </div>

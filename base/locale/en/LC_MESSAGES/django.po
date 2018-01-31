@@ -1612,8 +1612,20 @@ msgstr "This feature is in testing phase"
 msgid "title_official_1"
 msgstr "Official title (Part 1, common with partims)"
 
+msgid "common_official_title"
+msgstr "Common official title"
+
+msgid "common_official_english_title"
+msgstr "Common official English title"
+
 msgid "title_official_2"
 msgstr "Official title (Part 2, specific to each partim)"
+
+msgid "official_title_proper_to_UE"
+msgstr "Official title proper to the learning unit"
+
+msgid "official_english_title_proper_to_UE"
+msgstr "Official English title proper to the learning unit"
 
 msgid "title_in_english"
 msgstr "Title in English"
@@ -2486,7 +2498,7 @@ msgid "new_partim"
 msgstr "Create a new partim"
 
 msgid "learning_unit_successfuly_created"
-msgstr "Learning unit '{}' successfuly created with adjournment until {}."
+msgstr "Learning unit '{}' ({}) successfuly created."
 
 msgid "learning_unit_creation_academic_year_max_error"
 msgstr "Please select an academic year lower than {}."
@@ -2511,3 +2523,6 @@ msgstr "Aplhabetical code with 1 letter"
 
 msgid "invalid_partim_letter"
 msgstr "Letter already used"
+
+msgid "Ensure this value is less than %(limit_value)s."
+msgstr "Ensure this value is less than %(limit_value)s."
