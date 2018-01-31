@@ -2498,7 +2498,7 @@ msgid "new_partim"
 msgstr "Create a new partim"
 
 msgid "learning_unit_successfuly_created"
-msgstr "Learning unit '{}' ({}) successfuly created."
+msgstr "Learning unit <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
 
 msgid "learning_unit_creation_academic_year_max_error"
 msgstr "Please select an academic year lower than {}."
