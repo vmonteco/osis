@@ -2532,3 +2532,6 @@ msgstr "Remark in english"
 
 msgid "Ensure this value is less than %(limit_value)s."
 msgstr "Ensure this value is less than %(limit_value)s."
+
+msgid "Entity_not_exist"
+msgstr "The entity %(entity_acronym)s does not exist for the selected academic year %(academic_year)s"

@@ -54,7 +54,7 @@ class EntityContainerYear(AuditableSerializableModel):
         return u"%s - %s - %s" % (self.entity, self.learning_container_year, self.type)
 
     def get_latest_entity_version(self):
-        if self.entity.entity_versions:
+        if getattr(self.entity, 'entity_versions'):
             return self.entity.entity_versions[-1]
 
 

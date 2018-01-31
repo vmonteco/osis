@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from datetime import datetime
 
 from django.db import IntegrityError
 from django.test import TestCase
@@ -39,6 +40,7 @@ from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.business.learning_units import LearningUnitsMixin
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
+from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_class_year import LearningClassYearFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 
@@ -80,7 +82,8 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
             container_type=learning_container_year_types.COURSE
         )
         self.number_classes = 5
-        self.entity = EntityFactory()
+        self.entity_version = EntityVersionFactory(start_date=datetime.now(), end_date=datetime(3000, 1, 1))
+        self.entity = self.entity_version.entity
 
     def test_edit_learning_unit_full_annual_end_date_gt_old_end_date_with_start_date_gt_now(self):
         start_year = self.current_academic_year.year + 1
@@ -536,6 +539,28 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
 
         excepted_end_year -= 4
         self._edit_lu(learning_unit_full_annual, excepted_end_year)
+
+    def test_extend_learning_unit_with_wrong_entity(self):
+        start_year_full = self.current_academic_year.year
+        end_year_full = start_year_full + 6
+
+        learning_unit_full_annual = self.setup_learning_unit(start_year=start_year_full, end_year=end_year_full)
+        learning_unit_years = self.setup_list_of_learning_unit_years_full(self.list_of_academic_years_after_now,
+                                                                          learning_unit_full_annual)
+
+        _create_learning_component_years(learning_unit_years, self.number_classes)
+        _create_entity_container_years(learning_unit_years, self.entity)
+
+        self.entity_version.end_date = self.current_academic_year.end_date
+        self.entity_version.save()
+        excepted_end_year = end_year_full + 3
+        with self.assertRaises(IntegrityError) as e:
+            self._edit_lu(learning_unit_full_annual, excepted_end_year)
+
+        self.assertEqual(str(e.exception), _('Entity_not_exist') % {
+            'entity_acronym': self.entity_version.acronym,
+            'academic_year': academic_year.find_academic_year_by_year(end_year_full+1)
+        })
 
     def _edit_lu(self, learning_unit_full_annual, excepted_end_year):
         excepted_nb_msg = abs(learning_unit_full_annual.end_year - excepted_end_year) + 1
