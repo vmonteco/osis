@@ -2531,5 +2531,11 @@ msgstr "L'unité d'enseignement %(learning_unit)s a été mise à jour avec succ
 msgid "partim_greater_than_parent"
 msgstr "L'unité d'enseignement %(learning_unit)s a un partim %(partim)s avec une année de fin plus grande que %(year)s"
 
+msgid "remark"
+msgstr "Remarque"
+
+msgid "remark_english"
+msgstr "Remarque en anglais"
+
 msgid "Ensure this value is less than %(limit_value)s."
 msgstr "Assurez-vous que cette valeur est inférieure à %(limit_value)s."

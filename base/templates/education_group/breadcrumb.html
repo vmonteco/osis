@@ -28,7 +28,11 @@
 <li><a href="{% url 'education_groups' %}" id="lnk_formations">{% trans 'formations' %}</a></li>
 <li class="active">
     <a href="{% url 'education_group_read' education_group_year.id %}">
-        {{ education_group_year.acronym }}
+        {% if education_group_year.education_group_type.category == "TRAINING" %}
+            {{ education_group_year.acronym }}
+        {% else %}
+            {{ education_group_year.partial_acronym }}
+        {% endif %}
     </a>
 </li>
 
