@@ -24,7 +24,6 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required, permission_required
-from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -37,16 +36,17 @@ from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
 from base.views.common import display_error_messages, display_success_messages
+from base.views.learning_units import perms
 
 
 @login_required
 @permission_required('base.can_edit_learningunit_date', raise_exception=True)
+@perms.can_perform_end_date_modification
 def learning_unit_edition(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     user_person = get_object_or_404(Person, user=request.user)
 
     context = get_learning_unit_identification_context(learning_unit_year_id, user_person)
-    _check_permission_to_edit_date(context)
 
     learning_unit_to_edit = learning_unit_year.learning_unit
     form = LearningUnitEndDateForm(request.POST or None, learning_unit=learning_unit_to_edit)
@@ -65,11 +65,6 @@ def learning_unit_edition(request, learning_unit_year_id):
 
     context['form'] = form
     return layout.render(request, 'learning_unit/edition.html', context)
-
-
-def _check_permission_to_edit_date(context):
-    if not context.get('can_edit_date'):
-        raise PermissionDenied("Learning unit year date is not editable or user has not sufficient rights.")
 
 
 def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id):
