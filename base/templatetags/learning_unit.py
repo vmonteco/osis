@@ -44,3 +44,10 @@ def academic_years(start_year, end_year):
             return "{} {}-{} ({})".format(_('from'), start_year, str(start_year+1)[-2:], _('not_end_year'))
         else:
             return "-"
+
+
+@register.filter
+def academic_year(year):
+    if year:
+        return "{}-{}".format(year, str(year+1)[-2:])
+    return "-"
