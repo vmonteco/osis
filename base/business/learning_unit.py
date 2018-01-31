@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@ def get_common_context_learning_unit_year(learning_unit_year_id):
 def get_same_container_year_components(learning_unit_year, with_classes=False):
     learning_container_year = learning_unit_year.learning_container_year
     components = []
-    learning_components_year = mdl_base.learning_component_year.find_by_learning_container_year(learning_container_year,
+    learning_components_year = mdl_base.learning_component_year.figit nd_by_learning_container_year(learning_container_year,
                                                                                                 with_classes)
 
     for learning_component_year in learning_components_year:
