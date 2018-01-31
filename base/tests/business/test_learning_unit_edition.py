@@ -34,7 +34,6 @@ from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import learning_unit_year_subtypes, learning_unit_periodicity, learning_container_year_types
 from base.models.learning_class_year import LearningClassYear
 from base.models.learning_component_year import LearningComponentYear
-from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.business.learning_units import LearningUnitsMixin
@@ -82,7 +81,6 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         )
         self.number_classes = 5
         self.entity = EntityFactory()
-
 
     def test_edit_learning_unit_full_annual_end_date_gt_old_end_date_with_start_date_gt_now(self):
         start_year = self.current_academic_year.year + 1
