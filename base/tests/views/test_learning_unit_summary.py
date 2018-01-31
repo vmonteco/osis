@@ -35,7 +35,7 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.tutor import TutorFactory
 from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
-from base.tests.factories.academic_year import AcademicYearFakerFactory
+from base.tests.factories.academic_year import AcademicYearFakerFactory, create_current_academic_year
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from cms.tests.factories.text_label import TextLabelFactory
 from cms.tests.factories.translated_text import TranslatedTextFactory
@@ -45,9 +45,7 @@ from cms.tests.factories.translated_text_label import TranslatedTextLabelFactory
 class TestLearningUnitSummary(TestCase):
     @classmethod
     def setUpTestData(cls):
-        today = datetime.date.today()
-        academic_year = AcademicYearFakerFactory(start_date=today - datetime.timedelta(days=3), year=today.year,
-                                                 end_date=today + datetime.timedelta(days=5))
+        academic_year = create_current_academic_year()
         cls.summary_course_submission_calendar = \
             AcademicCalendarFactory(academic_year=academic_year,
                                     start_date=academic_year.start_date,

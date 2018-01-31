@@ -34,24 +34,22 @@ from django.utils.translation import ugettext_lazy as _
 
 from attribution.models.attribution import Attribution
 from base import models as mdl_base
-from base.business.learning_unit_proposal import is_person_linked_to_entity_in_charge_of_learning_unit
 from base.business.learning_unit_year_with_context import volume_learning_component_year
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 from base.models import entity_container_year
-from base.models import proposal_learning_unit
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import entity_container_year_link_type, academic_calendar_type
 from base.models.enums import learning_component_year_type
 from base.models.enums import learning_container_year_types
-from base.models.enums.learning_container_year_types import COURSE, DISSERTATION, INTERNSHIP
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_container_year import LearningContainerYear
-from base.models.learning_unit import LearningUnit, is_old_learning_unit
+from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from cms import models as mdl_cms
 from cms.enums import entity_name
+
 # List of key that a user can modify
 from osis_common.document import xls_build
 
@@ -93,14 +91,6 @@ def get_last_academic_years(last_years=10):
     today = datetime.date.today()
     date_ten_years_before = today.replace(year=today.year - last_years)
     return mdl_base.academic_year.find_academic_years().filter(start_date__gte=date_ten_years_before)
-
-
-def get_common_context_learning_unit_year(learning_unit_year_id):
-    learning_unit_year = mdl_base.learning_unit_year.get_by_id(learning_unit_year_id)
-    return {
-        'learning_unit_year': learning_unit_year,
-        'current_academic_year': mdl_base.academic_year.current_academic_year()
-    }
 
 
 def get_same_container_year_components(learning_unit_year, with_classes=False):
@@ -428,15 +418,3 @@ def initialize_learning_unit_pedagogy_form(learning_unit_year, language_code):
 
 def find_language_in_settings(language_code):
     return next((lang for lang in settings.LANGUAGES if lang[0] == language_code), None)
-
-
-def is_eligible_for_modification_end_date(learning_unit_year, a_person):
-    non_authorized_types_for_faculty_manager = [COURSE, DISSERTATION, INTERNSHIP]
-    if is_old_learning_unit(learning_unit_year.learning_unit):
-        return False
-    if proposal_learning_unit.find_by_learning_unit_year(learning_unit_year):
-        return False
-    if a_person.is_faculty_manager() and \
-            learning_unit_year.learning_container_year.container_type in non_authorized_types_for_faculty_manager:
-        return False
-    return is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person)

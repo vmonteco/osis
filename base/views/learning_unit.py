@@ -43,18 +43,16 @@ import re
 from attribution.business import attribution_charge_new
 from base import models as mdl
 from base import models as mdl_base
-from base.business import learning_unit_deletion, learning_unit_year_volumes, learning_unit_year_with_context, \
-    learning_unit_proposal
-from base.business.learning_unit import create_learning_unit, create_learning_unit_structure, \
-    get_common_context_learning_unit_year, get_cms_label_data, \
+from base.business import learning_unit_deletion, learning_unit_year_volumes, learning_unit_year_with_context
+from base.business.learning_unit import create_learning_unit, create_learning_unit_structure, get_cms_label_data, \
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, get_last_academic_years, \
     SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, is_summary_submission_opened, find_language_in_settings, \
     initialize_learning_unit_pedagogy_form, compute_max_academic_year_adjournment, \
     create_learning_unit_partim_structure, can_access_summary
-from base.business.learning_unit import is_eligible_for_modification_end_date
-from base.business.learning_unit_proposal import is_person_linked_to_entity_in_charge_of_learning_unit
+import base.business.learning_units.perms
+from base.business.learning_units import perms as business_perms
 from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
@@ -70,6 +68,7 @@ from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
+from base.views.learning_units import perms
 from cms.models import text_label
 from reference.models import language
 from . import layout
@@ -100,17 +99,28 @@ def learning_unit_identification(request, learning_unit_year_id):
     return layout.render(request, "learning_unit/identification.html", context)
 
 
+def _get_common_context_learning_unit_year(learning_unit_year_id, person):
+    learning_unit_year = mdl_base.learning_unit_year.get_by_id(learning_unit_year_id)
+    return {
+        'learning_unit_year': learning_unit_year,
+        'current_academic_year': mdl_base.academic_year.current_academic_year(),
+        'is_person_linked_to_entity': business_perms.is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, person)
+    }
+
+
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_formations(request, learning_unit_year_id):
-    context = get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id,
+                                                     get_object_or_404(Person, user=request.user))
     return layout.render(request, "learning_unit/formations.html", context)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_components(request, learning_unit_year_id):
-    context = get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id,
+                                                     get_object_or_404(Person, user=request.user))
     context['components'] = get_same_container_year_components(context['learning_unit_year'], True)
     context['tab_active'] = 'components'
     context['experimental_phase'] = True
@@ -134,7 +144,8 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
     if request.method == 'POST':
         _learning_unit_volumes_management_edit(request, learning_unit_year_id)
 
-    context = get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id,
+                                                     get_object_or_404(Person, user=request.user))
     context['learning_units'] = learning_unit_year_with_context.get_with_context(
         learning_container_year_id=context['learning_unit_year'].learning_container_year_id
     )
@@ -146,7 +157,8 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_pedagogy(request, learning_unit_year_id):
-    context = get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id,
+                                                     get_object_or_404(Person, user=request.user))
     learning_unit_year = context['learning_unit_year']
 
     user_language = mdl.person.get_user_interface_language(request.user)
@@ -169,7 +181,8 @@ def learning_unit_pedagogy_edit(request, learning_unit_year_id):
         return HttpResponseRedirect(reverse("learning_unit_pedagogy",
                                             kwargs={'learning_unit_year_id': learning_unit_year_id}))
 
-    context = get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id,
+                                                     get_object_or_404(Person, user=request.user))
     label_name = request.GET.get('label')
     language = request.GET.get('language')
     text_lb = text_label.find_root_by_name(label_name)
@@ -191,7 +204,8 @@ def learning_unit_pedagogy_edit(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_attributions(request, learning_unit_year_id):
-    context = get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id,
+                                                     get_object_or_404(Person, user=request.user))
     context['attribution_charge_news'] = \
         attribution_charge_new.find_attribution_charge_new_by_learning_unit_year(
             learning_unit_year=learning_unit_year_id)
@@ -202,7 +216,8 @@ def learning_unit_attributions(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_specifications(request, learning_unit_year_id):
-    context = get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id,
+                                                     get_object_or_404(Person, user=request.user))
     learning_unit_year = context['learning_unit_year']
 
     user_language = mdl.person.get_user_interface_language(request.user)
@@ -230,7 +245,8 @@ def learning_unit_specifications_edit(request, learning_unit_year_id):
         return HttpResponseRedirect(reverse("learning_unit_specifications",
                                             kwargs={'learning_unit_year_id': learning_unit_year_id}))
 
-    context = get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id,
+                                                     get_object_or_404(Person, user=request.user))
     label_name = request.GET.get('label')
     text_lb = text_label.find_root_by_name(label_name)
     language = request.GET.get('language')
@@ -253,7 +269,8 @@ def learning_unit_specifications_edit(request, learning_unit_year_id):
 @permission_required('base.change_learningcomponentyear', raise_exception=True)
 @require_http_methods(["GET", "POST"])
 def learning_unit_component_edit(request, learning_unit_year_id):
-    context = get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id,
+                                                     get_object_or_404(Person, user=request.user))
     learning_component_id = request.GET.get('learning_component_year_id')
     context['learning_component_year'] = mdl.learning_component_year.find_by_id(learning_component_id)
 
@@ -277,7 +294,8 @@ def learning_unit_component_edit(request, learning_unit_year_id):
 @permission_required('base.change_learningclassyear', raise_exception=True)
 @require_http_methods(["GET", "POST"])
 def learning_class_year_edit(request, learning_unit_year_id):
-    context = get_common_context_learning_unit_year(learning_unit_year_id)
+    context = _get_common_context_learning_unit_year(learning_unit_year_id,
+                                                     get_object_or_404(Person, user=request.user))
     context.update(
         {'learning_class_year': mdl.learning_class_year.find_by_id(request.GET.get('learning_class_year_id')),
          'learning_component_year':
@@ -499,20 +517,8 @@ def outside_period(request):
 
 @login_required
 @permission_required('base.can_create_learningunit', raise_exception=True)
-@require_GET
-def get_partim_creation_form(request, learning_unit_year_id):
-    person = get_object_or_404(Person, user=request.user)
-    learning_unit_year_parent = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
-    if not is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year_parent, person):
-        raise PermissionDenied("User is not summary responsible")
-    initial = compute_partim_form_initial_data(learning_unit_year_parent)
-    form = CreatePartimForm(learning_unit_year_parent=learning_unit_year_parent, person=person, initial=initial)
-    return layout.render(request, "learning_unit/partim_form.html", {'form': form})
-
-
-@login_required
-@permission_required('base.can_create_learningunit', raise_exception=True)
 @require_POST
+@perms.can_create_partim
 def learning_unit_year_partim_add(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
     learning_unit_year_parent = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
@@ -528,6 +534,18 @@ def learning_unit_year_partim_add(request, learning_unit_year_id):
         _create_partim_process(request, learning_unit_year_parent, form)
         return HttpResponseRedirect(reverse("learning_unit",
                                             kwargs={'learning_unit_year_id': learning_unit_year_parent.id}))
+    return layout.render(request, "learning_unit/partim_form.html", {'form': form})
+
+
+@login_required
+@permission_required('base.can_create_learningunit', raise_exception=True)
+@require_GET
+@perms.can_create_partim
+def get_partim_creation_form(request, learning_unit_year_id):
+    person = get_object_or_404(Person, user=request.user)
+    learning_unit_year_parent = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+    initial = compute_partim_form_initial_data(learning_unit_year_parent)
+    form = CreatePartimForm(learning_unit_year_parent=learning_unit_year_parent, person=person, initial=initial)
     return layout.render(request, "learning_unit/partim_form.html", {'form': form})
 
 
@@ -595,12 +613,8 @@ def compute_form_initial_data(learning_unit_year):
 
 
 def get_learning_unit_identification_context(learning_unit_year_id, person):
-        context = get_common_context_learning_unit_year(learning_unit_year_id)
+        context = _get_common_context_learning_unit_year(learning_unit_year_id, person)
         learning_unit_year = context['learning_unit_year']
-        context['is_person_linked_to_entity'] = is_person_linked_to_entity_in_charge_of_learning_unit(
-            learning_unit_year,
-            person
-        )
         context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
         context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
         context['campus'] = get_campus_from_learning_unit_year(learning_unit_year)
@@ -608,12 +622,11 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
         context['show_subtype'] = show_subtype(learning_unit_year)
         context.update(get_all_attributions(learning_unit_year))
         context['components'] = get_components_identification(learning_unit_year)
-        context['can_propose'] = learning_unit_proposal.is_eligible_for_modification_proposal(learning_unit_year,
-                                                                                              person)
-        context['can_edit_date'] = is_eligible_for_modification_end_date(learning_unit_year, person)
+        context['can_propose'] = business_perms.is_eligible_for_modification_proposal(learning_unit_year, person)
+        context['can_edit_date'] = business_perms.is_eligible_for_modification_end_date(learning_unit_year, person)
         context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
-        context['can_cancel_proposal'] = learning_unit_proposal. \
-            is_eligible_for_cancel_of_proposal(context['proposal'], person) if context['proposal'] else False
+        context['can_cancel_proposal'] = business_perms.is_eligible_for_cancel_of_proposal(context['proposal'], person) \
+            if context['proposal'] else False
         context['proposal_folder_entity_version'] = mdl_base.entity_version.get_by_entity_and_date(
             context['proposal'].folder.entity, None) if context['proposal'] else None
         context['can_delete'] = learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year)

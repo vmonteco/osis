@@ -76,6 +76,7 @@ from base.views.learning_unit import compute_partim_form_initial_data, _get_post
 from osis_common.document import xls_build
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
+from base.views.learning_unit import learning_unit_volumes_management
 
 
 class LearningUnitViewTestCase(TestCase):
@@ -863,11 +864,11 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_year.save()
 
         request_factory = RequestFactory()
+        request_factory.user = self.a_superuser
         url = reverse("learning_unit_volumes_management", args=[learning_unit_year.id])
         # GET request
         request = request_factory.get(url)
         request.user = self.a_superuser
-        from base.views.learning_unit import learning_unit_volumes_management
         learning_unit_volumes_management(request, learning_unit_year.id)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -876,7 +877,7 @@ class LearningUnitViewTestCase(TestCase):
 
         # POST request
         request = request_factory.post(url, self._get_volumes_data([learning_unit_year]))
-        request.user = mock.Mock()
+        request.user = self.a_superuser
         learning_unit_volumes_management(request, learning_unit_year.id)
         self.assertTrue(mock_render.called)
 
@@ -1112,6 +1113,12 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(form_initial_data['first_letter'], 'L')
         self.assertEqual(form_initial_data['acronym'], 'BIR1200')
 
+    def test_get_partim_creation_form_when_can_not_create_partim(self):
+        luy_parent = LearningUnitYearFactory(subtype=learning_unit_year_subtypes.FULL)
+        url = reverse('learning_unit_create_partim', args=[luy_parent.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+
     @mock.patch('base.views.learning_unit.PARTIM_FORM_READ_ONLY_FIELD', {'container_type', 'campus'})
     def test_get_post_data_without_read_only_field(self):
         post_data = {'other_remark': 'Autre remarque', 'container_type': learning_container_year_types.COURSE,
@@ -1134,6 +1141,7 @@ class LearningUnitViewTestCase(TestCase):
                                    entity=self.entity_version.entity,
                                    type=entity_container_year_link_type.ALLOCATION_ENTITY)
         return a_learning_container_yr
+
 
 class LearningUnitCreate(TestCase):
     def setUp(self):

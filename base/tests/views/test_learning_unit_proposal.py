@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import datetime
+from unittest.mock import patch
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
@@ -37,7 +38,7 @@ from base.tests.factories.academic_year import AcademicYearFakerFactory, create_
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.person import PersonFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory, LearningUnitYearFactory
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.entity import EntityFactory
@@ -205,7 +206,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertIn(_("success_modification_proposal").format(_(proposal_type.ProposalType.MODIFICATION.name),
                                                                 self.learning_unit_year.acronym),
                       list(messages))
-#
+
     def test_transformation_proposal_request(self):
         self.form_data["acronym"] = "OSIS1452"
         self.client.post(self.url, data=self.form_data)
@@ -354,6 +355,7 @@ class TestLearningUnitModificationProposal(TestCase):
 
 class TestLearningUnitProposalCancellation(TestCase):
     def setUp(self):
+        create_current_academic_year()
         self.person = PersonFactory()
         self.permission = Permission.objects.get(codename="can_propose_learningunit")
         self.person.user.user_permissions.add(self.permission)
