@@ -35,6 +35,7 @@ from base.business.learning_unit_deletion import delete_from_given_learning_unit
     check_learning_unit_year_deletion
 from base.models import entity_container_year, learning_component_year, learning_class_year, learning_unit_component
 from base.models.academic_year import AcademicYear
+from base.models.entity_version import EntityVersion
 from base.models.enums import learning_unit_periodicity
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit_year import LearningUnitYear
@@ -67,7 +68,7 @@ def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
     if not learning_unit_year_to_delete:
         return []
 
-    _check_partims(learning_unit_year_to_delete, new_academic_year)
+    _check_shorten_partims(learning_unit_year_to_delete, new_academic_year)
 
     warning_msg = check_learning_unit_year_deletion(learning_unit_year_to_delete)
     if warning_msg:
@@ -82,14 +83,8 @@ def extend_learning_unit(learning_unit_to_edit, new_academic_year):
     result = []
     last_learning_unit_year = LearningUnitYear.objects.filter(learning_unit=learning_unit_to_edit
                                                               ).order_by('academic_year').last()
-    lu_parent = last_learning_unit_year.parent
-    if last_learning_unit_year.subtype == 'PARTIM' and lu_parent:
-        if _get_actual_end_year(lu_parent.learning_unit) < new_academic_year.year:
-            raise IntegrityError(_('parent_greater_than_partim') % {
-                'partim_end_year': new_academic_year,
-                'lu_parent': lu_parent.acronym
-            }
-                                 )
+
+    _check_extend_partim(last_learning_unit_year, new_academic_year)
 
     with transaction.atomic():
         for ac_year in _get_next_academic_years(learning_unit_to_edit, new_academic_year.year):
@@ -100,6 +95,16 @@ def extend_learning_unit(learning_unit_to_edit, new_academic_year):
             })
 
     return result
+
+
+def _check_extend_partim(last_learning_unit_year, new_academic_year):
+    lu_parent = last_learning_unit_year.parent
+    if last_learning_unit_year.subtype == 'PARTIM' and lu_parent:
+        if _get_actual_end_year(lu_parent.learning_unit) < new_academic_year.year:
+            raise IntegrityError(
+                _('parent_greater_than_partim') % {'partim_end_year': new_academic_year,
+                                                   'lu_parent': lu_parent.acronym}
+                                 )
 
 
 def _update_end_year_field(lu, year):
@@ -118,7 +123,7 @@ def _duplicate_object(obj):
 def _update_academic_year_for_learning_unit_year(luy, new_academic_year):
     old_luy_pk = luy.pk
     duplicated_luy = _update_related_row(luy, 'academic_year', new_academic_year)
-
+    duplicated_luy.attribution_procedure = None
     duplicated_luy.learning_container_year = _update_learning_container_year(duplicated_luy,
                                                                              new_academic_year,
                                                                              old_luy_pk)
@@ -139,16 +144,27 @@ def _get_or_duplication_container(luy, new_academic_year, old_lcy_pk, old_luy_pk
     # Sometimes, the container already exists, we can directly use it and its entitycontaineryear
     if not queryset.exists():
         duplicated_lcy = _update_related_row(luy.learning_container_year, 'academic_year', new_academic_year)
-        _update_entity_container_year(old_lcy_pk, duplicated_lcy)
+        duplicated_lcy.is_vacant = False
+        duplicated_lcy.type_declaration_vacant = None
+
+        _update_entity_container_year(old_lcy_pk, duplicated_lcy, new_academic_year)
     else:
         duplicated_lcy = queryset.get()
 
     _update_learning_component_year(old_lcy_pk, duplicated_lcy, old_luy_pk, luy)
+    duplicated_lcy.save()
     return duplicated_lcy
 
 
-def _update_entity_container_year(old_lcy_pk, new_lcy):
+def _update_entity_container_year(old_lcy_pk, new_lcy, new_academic_year):
     for row in entity_container_year.search(learning_container_year=old_lcy_pk):
+        entity_versions = EntityVersion.objects.entity(row.entity)
+        if not entity_versions.current(new_academic_year.end_date).exists():
+            raise IntegrityError(
+                _('Entity_not_exist') % {
+                    'entity_acronym': entity_versions.last().acronym,
+                    'academic_year': new_academic_year
+                })
         _update_related_row(row, 'learning_container_year', new_lcy)
 
 
@@ -180,7 +196,7 @@ def _update_related_row(row, attribute_name, new_value):
     return duplicated_row
 
 
-def _check_partims(learning_unit_year_to_delete, new_academic_year):
+def _check_shorten_partims(learning_unit_year_to_delete, new_academic_year):
     partims = learning_unit_year_to_delete.get_partims_related() or []
     for partim in partims:
         if _get_actual_end_year(partim.learning_unit) > new_academic_year.year:
