@@ -502,7 +502,7 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         for container in LearningContainerYear.objects.all():
             EntityContainerYearFactory(learning_container_year=container, entity=entity)
 
-        list_of_expected_learning_unit_years_full = list(range(start_year_full, excepted_end_year+1))
+        list_of_expected_years = list(range(start_year_full, excepted_end_year+1))
 
         academic_year_of_new_end_date = academic_year.find_academic_year_by_year(excepted_end_year)
 
@@ -510,7 +510,7 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
 
         list_of_learning_unit_years_full = _get_list_years_learning_unit(learning_unit_year_subtypes.FULL)
 
-        self.assertEqual(list_of_learning_unit_years_full, list_of_expected_learning_unit_years_full)
+        self.assertEqual(list_of_learning_unit_years_full, list_of_expected_years)
         last_luy = LearningUnitYear.objects.filter(learning_unit=learning_unit_full_annual
                                                    ).order_by('academic_year').last()
         last_container = last_luy.learning_container_year
