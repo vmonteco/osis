@@ -339,12 +339,33 @@ class LearningUnitViewTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.context["can_edit_date"], True)
 
+    def test_learning_unit_of_type_partim_with_faculty_manager(self):
+        learning_container_year = LearningContainerYearFactory(
+            academic_year=self.current_academic_year, container_type=learning_container_year_types.COURSE)
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=learning_container_year,
+                                                     subtype=learning_unit_year_subtypes.PARTIM)
+        entity_container = EntityContainerYearFactory(learning_container_year=learning_container_year,
+                                                      type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+
+        learning_unit_year.learning_unit.end_year = None
+        learning_unit_year.learning_unit.save()
+
+        person_entity = PersonEntityFactory(entity=entity_container.entity)
+        person_entity.person.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
+        url = reverse("learning_unit", args=[learning_unit_year.id])
+        self.client.force_login(person_entity.person.user)
+
+        response = self.client.get(url)
+        self.assertEqual(response.context["can_edit_date"], True)
+
     def test_learning_unit_with_faculty_manager_when_cannot_edit_end_date(self):
         learning_container_year = \
             LearningContainerYearFactory(academic_year=self.current_academic_year,
                                          container_type=learning_container_year_types.COURSE)
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
-                                                     learning_container_year=learning_container_year)
+                                                     learning_container_year=learning_container_year,
+                                                     subtype=learning_unit_year_subtypes.FULL)
         entity_container = EntityContainerYearFactory(learning_container_year=learning_container_year,
                                                       type=entity_container_year_link_type.REQUIREMENT_ENTITY)
 

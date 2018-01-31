@@ -28,6 +28,7 @@ from base.models.academic_year import current_academic_year
 from base.models.enums import entity_container_year_link_type, learning_unit_year_subtypes, proposal_state, \
     proposal_type, learning_container_year_types
 from base.models.enums.learning_container_year_types import COURSE, DISSERTATION, INTERNSHIP
+from base.models.enums.learning_unit_year_subtypes import PARTIM
 from base.models.learning_unit import is_old_learning_unit
 from base.models.utils.person_entity_filter import filter_by_attached_entities
 
@@ -76,12 +77,16 @@ def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
 
 
 def is_eligible_for_modification_end_date(learn_unit_year, a_person):
-    non_authorized_types_for_faculty_manager = [COURSE, DISSERTATION, INTERNSHIP]
     if is_old_learning_unit(learn_unit_year.learning_unit):
         return False
     if proposal_learning_unit.find_by_learning_unit_year(learn_unit_year):
         return False
-    if a_person.is_faculty_manager() and \
-            learn_unit_year.learning_container_year.container_type in non_authorized_types_for_faculty_manager:
+    if a_person.is_faculty_manager() and not _can_faculty_manager_modify_end_date(learn_unit_year):
         return False
     return is_person_linked_to_entity_in_charge_of_learning_unit(learn_unit_year, a_person)
+
+def _can_faculty_manager_modify_end_date(learning_unit_year):
+    if learning_unit_year.learning_container_year.container_type == COURSE and learning_unit_year.subtype == PARTIM:
+        return True
+    return learning_unit_year.learning_container_year.container_type not in [COURSE, DISSERTATION, INTERNSHIP]
+
