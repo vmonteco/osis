@@ -29,11 +29,10 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
-from base.models.academic_year import AcademicYear
 from base.models.enums import entity_type
 from base.models.enums.organization_type import MAIN
-from osis_common.utils.datetime import get_tzinfo
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
+from osis_common.utils.datetime import get_tzinfo
 
 
 class EntityVersionAdmin(SerializableModelAdmin):

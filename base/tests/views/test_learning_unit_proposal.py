@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import datetime
+from unittest.mock import patch
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
@@ -37,7 +38,7 @@ from base.tests.factories.academic_year import AcademicYearFakerFactory, create_
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.person import PersonFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory, LearningUnitYearFactory
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.entity import EntityFactory
@@ -105,8 +106,8 @@ class TestLearningUnitModificationProposal(TestCase):
             "academic_year": self.learning_unit_year.academic_year.id,
             "first_letter": self.learning_unit_year.acronym[0],
             "acronym": self.learning_unit_year.acronym[1:],
-            "title": self.learning_unit_year.title,
-            "title_english": self.learning_unit_year.title_english,
+            "common_title": self.learning_unit_year.title,
+            "common_title_english": self.learning_unit_year.title_english,
             "container_type": self.learning_unit_year.learning_container_year.container_type,
             "internship_subtype": "",
             "credits": self.learning_unit_year.credits,
@@ -165,7 +166,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(form_initial['academic_year'], self.learning_unit_year.academic_year.id)
         self.assertEqual(form_initial['first_letter'], self.learning_unit_year.acronym[0])
         self.assertEqual(form_initial['acronym'], self.learning_unit_year.acronym[1:])
-        self.assertEqual(form_initial['title'], self.learning_unit_year.title)
+        self.assertEqual(form_initial['common_title'], self.learning_unit_year.learning_container_year.title)
         self.assertEqual(form_initial['container_type'], self.learning_unit_year.
                          learning_container_year.container_type)
         self.assertEqual(form_initial['subtype'], self.learning_unit_year.subtype)
@@ -205,7 +206,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertIn(_("success_modification_proposal").format(_(proposal_type.ProposalType.MODIFICATION.name),
                                                                 self.learning_unit_year.acronym),
                       list(messages))
-#
+
     def test_transformation_proposal_request(self):
         self.form_data["acronym"] = "OSIS1452"
         self.client.post(self.url, data=self.form_data)
@@ -214,8 +215,8 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.TRANSFORMATION.name)
 
     def test_modification_proposal_request(self):
-        self.form_data["title"] = "New title"
-        self.form_data["title_english"] = "New english title"
+        self.form_data["common_title"] = "New title"
+        self.form_data["common_title_english"] = "New english title"
         self.client.post(self.url, data=self.form_data)
 
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
@@ -223,8 +224,8 @@ class TestLearningUnitModificationProposal(TestCase):
 
     def test_transformation_and_modification_proposal_request(self):
         self.form_data["acronym"] = "OSIS1452"
-        self.form_data["title"] = "New title"
-        self.form_data["title_english"] = "New english title"
+        self.form_data["common_title"] = "New title"
+        self.form_data["common_title_english"] = "New english title"
         self.client.post(self.url, data=self.form_data)
 
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
@@ -354,6 +355,7 @@ class TestLearningUnitModificationProposal(TestCase):
 
 class TestLearningUnitProposalCancellation(TestCase):
     def setUp(self):
+        create_current_academic_year()
         self.person = PersonFactory()
         self.permission = Permission.objects.get(codename="can_propose_learningunit")
         self.person.user.user_permissions.add(self.permission)

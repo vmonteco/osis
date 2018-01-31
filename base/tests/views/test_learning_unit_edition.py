@@ -36,6 +36,7 @@ from base.models.enums import learning_unit_periodicity, learning_container_year
 from base.tests.factories.business.learning_units import LearningUnitsMixin
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory, SuperUserFactory
+from base.views.learning_units.edition import learning_unit_edition
 
 
 class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
@@ -70,12 +71,13 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         response = self.client.get(reverse(learning_unit_edition, args=[self.learning_unit_year.id]))
         self.assertEqual(response.status_code, 403)
 
+    @mock.patch('base.business.learning_units.perms.is_eligible_for_modification_end_date')
     @mock.patch('base.views.layout.render')
-    def test_view_learning_unit_edition_get(self, mock_render):
-        from base.views.learning_units.edition import learning_unit_edition
+    def test_view_learning_unit_edition_get(self, mock_render, mock_perms):
+        mock_perms.return_value = True
 
         request_factory = RequestFactory()
-        request = request_factory.get(reverse(learning_unit_edition, args=[self.learning_unit_year.id]))
+        request = request_factory.get(reverse('learning_unit_edition', args=[self.learning_unit_year.id]))
         request.user = self.a_superuser
 
         learning_unit_edition(request, self.learning_unit_year.id)
@@ -84,14 +86,15 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, "learning_unit/edition.html")
 
+    @mock.patch('base.business.learning_units.perms.is_eligible_for_modification_end_date')
     @mock.patch('base.views.layout.render')
-    def test_view_learning_unit_edition_post(self, mock_render):
-        from base.views.learning_units.edition import learning_unit_edition
+    def test_view_learning_unit_edition_post(self, mock_render, mock_perms):
+        mock_perms.return_value = True
 
         request_factory = RequestFactory()
 
         form_data = {"academic_year": self.current_academic_year.pk}
-        request = request_factory.post(reverse(learning_unit_edition, args=[self.learning_unit_year.id]),
+        request = request_factory.post(reverse('learning_unit_edition', args=[self.learning_unit_year.id]),
                                        data=form_data)
         request.user = self.a_superuser
         setattr(request, 'session', 'session')

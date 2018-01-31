@@ -49,7 +49,7 @@
                     <div class="row">
                         <div class="col-md-3" style="padding:0;">
                             <div class="row" style="margin:0;">
-                                <div class="col-md-3" style="padding-right:0;">
+                                <div class="col-md-4" style="padding-right:0;">
                                     <label>
                                         {% trans 'acronym' %}*
                                     </label>
@@ -59,7 +59,7 @@
                                     <span class="glyphicon glyphicon-question-sign pull-right"
                                           title="{% trans 'acronym_rules' %}" style="font-size: 14pt;"
                                           aria-hidden="true"></span></abbr>
-                                <div class="col-md-9" style="padding:0;margin-top:7px;">
+                                <div class="col-md-8" style="padding:0;margin-top:7px;">
                                     {{ form.acronym }}
                                     <span class='error' id="{{ form.acronym.name }}_message" for='{{ form.acronym.name }}' generated="true"/>
                                     {% if form.acronym.errors %}
@@ -79,10 +79,14 @@
                         </div>
                         {% if form.internship_subtype in form.visible_fields %}
                             <div class="col-md-3">
-                                <label>
+                                <label id="lbl_internship_subtype">
                                     {% trans 'internship_subtype' %}
                                 </label>
                                 {{ form.internship_subtype }}
+                                <label id="lbl_internship_subtype_error"
+                                       {% if form.errors.internship_subtype%}style="color:red;"{% endif %}>
+                                    {{ form.errors.internship_subtype| striptags }}
+                                </label>
                             </div>
                         {% endif %}
                         <div class="col-md-3">
@@ -148,17 +152,17 @@
                 </div>
                 <div class="panel-body">
                     <div>
-                        <label {% if form.errors.title %}style="color:red;"{% endif %}>
-                            {% trans 'title' %}*
+                        <label {% if form.errors.common_title %}style="color:red;"{% endif %}>
+                            {% trans 'common_official_title' %}*
                         </label>
-                        {{ form.title }}
-                        <label {% if form.errors.title %}style="color:red;"{% endif %}>
-                                {{ form.errors.title| striptags }}
+                        {{ form.common_title }}
+                        <label {% if form.errors.common_title %}style="color:red;"{% endif %}>
+                            {{ form.errors.common_title| striptags }}
                         </label>
                     </div>
                     <div>
-                        <label>{% trans 'title_in_english' %}</label>
-                        {{ form.title_english }}
+                        <label>{% trans 'common_official_english_title' %}</label>
+                        {{ form.common_title_english }}
                     </div>
                 </div>
             </div>
