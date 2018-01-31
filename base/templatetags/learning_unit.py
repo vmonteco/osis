@@ -45,6 +45,7 @@ def academic_years(start_year, end_year):
         else:
             return "-"
 
+
 @register.filter
 def academic_year(year):
     if year:
