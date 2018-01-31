@@ -79,19 +79,19 @@
             <div class="col-md-3">
                 <div class="form-group">
                     <label>{% trans 'academic_year' %}</label><br>
-                    {{ academic_year }}
+                    <span id="academic_year">{{ academic_year }}</span>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-group">
                     <label>{% trans 'number_session' %}</label><br>
-                    {{ number_session }}
+                    <span id="number_session">{{ number_session }}</span>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-group">
                     <label>{% trans 'number_of_enrollments' %}</label><br>
-                    {{ enrollments|length }}
+                    <span id="number_of_enrollments">{{ enrollments|length }}</span>
                 </div>
             </div>
         </div>
