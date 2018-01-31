@@ -79,10 +79,14 @@
                         </div>
                         {% if form.internship_subtype in form.visible_fields %}
                             <div class="col-md-3">
-                                <label>
+                                <label id="lbl_internship_subtype">
                                     {% trans 'internship_subtype' %}
                                 </label>
                                 {{ form.internship_subtype }}
+                                <label id="lbl_internship_subtype_error"
+                                       {% if form.errors.internship_subtype%}style="color:red;"{% endif %}>
+                                    {{ form.errors.internship_subtype| striptags }}
+                                </label>
                             </div>
                         {% endif %}
                         <div class="col-md-3">
