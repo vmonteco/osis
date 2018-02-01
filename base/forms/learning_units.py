@@ -98,6 +98,12 @@ class LearningUnitYearForm(forms.Form):
             raise ValidationError(_('LU_ERRORS_INVALID_REGEX_SYNTAX'))
         return data_cleaned
 
+    def clean_status(self):
+        data_cleaned = self.cleaned_data.get('status')
+        if data_cleaned:
+            return data_cleaned == active_status.ACTIVE
+        return None
+
     def clean_requirement_entity_acronym(self):
         data_cleaned = self.cleaned_data.get('requirement_entity_acronym')
         if data_cleaned:
@@ -111,7 +117,6 @@ class LearningUnitYearForm(forms.Form):
         return data_cleaned
 
     def clean(self):
-        print(self.cleaned_data)
         if not self.service_course_search \
                 and self.cleaned_data and learning_unit_year.count_search_results(**self.cleaned_data) > MAX_RECORDS:
             raise TooManyResultsException

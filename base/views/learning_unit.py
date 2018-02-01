@@ -51,7 +51,7 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     get_all_attributions, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, is_summary_submission_opened, \
     find_language_in_settings, \
     initialize_learning_unit_pedagogy_form, compute_max_academic_year_adjournment, \
-    create_learning_unit_partim_structure, can_access_summary
+    create_learning_unit_partim_structure, can_access_summary, get_last_academic_years
 from base.business.learning_units import perms as business_perms
 from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
@@ -63,7 +63,7 @@ from base.forms.learning_unit_specifications import LearningUnitSpecificationsFo
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import entity_container_year
 from base.models import proposal_learning_unit
-from base.models.enums import learning_unit_year_subtypes
+from base.models.enums import learning_unit_year_subtypes, learning_container_year_types
 from base.models.learning_container import LearningContainer
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
@@ -427,6 +427,9 @@ def _learning_units_search(request, search_type):
 
     context = {
         'form': form,
+        'academic_years': get_last_academic_years(),
+        'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
+        'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
         'learning_units': found_learning_units,
         'current_academic_year': mdl.academic_year.current_academic_year(),
         'experimental_phase': True,

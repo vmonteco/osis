@@ -142,8 +142,7 @@ def get_by_id(learning_unit_year_id):
 
 
 def find_by_acronym(acronym):
-    return LearningUnitYear.objects.filter(acronym=acronym) \
-        .select_related('learning_container_year')
+    return LearningUnitYear.objects.filter(acronym=acronym).select_related('learning_container_year')
 
 
 def _is_regex(acronym):
