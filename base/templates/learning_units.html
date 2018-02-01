@@ -65,12 +65,7 @@
         </a>
     </li>
 </ul>
-{% if search_type == 1 %}
     {% include 'learning_unit/by_activity.html' %}
-{% endif %}
-{% if search_type == 2 %}
-    {% include 'learning_unit/by_service_course.html' %}
-{% endif %}
 
 {% endblock %}
 

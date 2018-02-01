@@ -63,6 +63,7 @@ from base.forms.learning_unit_specifications import LearningUnitSpecificationsFo
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import entity_container_year
 from base.models import proposal_learning_unit
+from base.models.academic_year import current_academic_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types
 from base.models.learning_container import LearningContainer
 from base.models.learning_unit_year import LearningUnitYear
@@ -409,7 +410,6 @@ def learning_units_service_course(request):
 
 def _learning_units_search(request, search_type):
     service_course_search = search_type == SERVICE_COURSES_SEARCH
-    #request_get = request.GET if request.GET.get('academic_year_id') else None
 
     form = LearningUnitYearForm(request.GET or None, service_course_search=service_course_search)
 

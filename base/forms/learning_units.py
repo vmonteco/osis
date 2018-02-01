@@ -35,12 +35,12 @@ from base.business.entity_version import SERVICE_COURSE
 from base.business.learning_unit_year_with_context import append_latest_entities
 from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, TooManyResultsException
 from base.models import entity_version as mdl_entity_version, learning_unit_year
-from base.models.academic_year import AcademicYear
+from base.models.academic_year import AcademicYear, current_academic_year
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
     learning_unit_year_subtypes, active_status
 
 MAX_RECORDS = 1000
-ALL_CHOICES = (("", _('all_label')),)
+ALL_CHOICES = ((None, _('all_label')),)
 
 
 class LearningUnitYearForm(forms.Form):
@@ -56,22 +56,30 @@ class LearningUnitYearForm(forms.Form):
         choices=ALL_CHOICES + learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
         required=False
     )
+
     subtype = forms.ChoiceField(
         label=_('subtype'),
         choices=ALL_CHOICES + learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
         required=False
     )
-    status = forms.ChoiceField(label=_('status'),
-                               choices=ALL_CHOICES + active_status.ACTIVE_STATUS_LIST[:-1],
-                               required=False)
+
+    status = forms.ChoiceField(
+        label=_('status'),
+        choices=ALL_CHOICES + active_status.ACTIVE_STATUS_LIST[:-1],
+        required=False
+    )
 
     acronym = forms.CharField(
         max_length=20,
-        required=False, label=_('acronym'))
+        required=False,
+        label=_('acronym')
+    )
 
     title = forms.CharField(
         max_length=20,
-        required=False, label=_('title'))
+        required=False,
+        label=_('title')
+    )
 
     requirement_entity_acronym = forms.CharField(
         max_length=20,
@@ -90,6 +98,7 @@ class LearningUnitYearForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.service_course_search = kwargs.pop('service_course_search', False)
         super().__init__(*args, **kwargs)
+        self.fields['academic_year_id'].initial = current_academic_year()
 
     def clean_acronym(self):
         data_cleaned = self.cleaned_data.get('acronym')
@@ -97,12 +106,6 @@ class LearningUnitYearForm(forms.Form):
         if data_cleaned and learning_unit_year.check_if_acronym_regex_is_valid(data_cleaned) is None:
             raise ValidationError(_('LU_ERRORS_INVALID_REGEX_SYNTAX'))
         return data_cleaned
-
-    def clean_status(self):
-        data_cleaned = self.cleaned_data.get('status')
-        if data_cleaned:
-            return data_cleaned == active_status.ACTIVE
-        return None
 
     def clean_requirement_entity_acronym(self):
         data_cleaned = self.cleaned_data.get('requirement_entity_acronym')
