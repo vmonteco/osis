@@ -81,11 +81,8 @@
                     </div>
                 </div>
                 <div class="pull-right">
-                    <input type="submit" class="btn btn-primary" value="{% trans 'Save' %}"/>
-                    <button class="btn btn-default"
-                            href="{% url 'education_group_administrative' education_group_year_id %}">
-                        {% trans 'cancel' %}
-                    </button>
+                    {% bootstrap_button _("Save") button_type="submit" button_class="btn-primary" %}
+                    {% bootstrap_button _("cancel") button_type="reset"  %}
                 </div>
             </form>
         </div>
