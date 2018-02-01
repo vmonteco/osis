@@ -39,12 +39,12 @@ class OrganizationTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        OrganizationFactory(acronym=ACRONYM_ORG_1,
-                            name=NAME_ORG_1,
-                            type=TYPE_ORG_1_AND_2)
-        OrganizationFactory(acronym="ORG-2",
-                            name="organization2",
-                            type=TYPE_ORG_1_AND_2)
+        cls.organization_1 = OrganizationFactory(acronym=ACRONYM_ORG_1,
+                                                 name=NAME_ORG_1,
+                                                 type=TYPE_ORG_1_AND_2)
+        cls.organization_2 = OrganizationFactory(acronym="ORG-2",
+                                                 name="organization2",
+                                                 type=TYPE_ORG_1_AND_2)
 
     def test_search_no_result(self):
         self.assertIsNone(organization.search(None, None, None))
@@ -54,14 +54,14 @@ class OrganizationTest(TestCase):
 
     def test_search_with_results(self):
         result = organization.search(ACRONYM_ORG_1, None, None)
-        self.assertEqual(len(result), 1)
+        self.assertCountEqual(result, [self.organization_1])
         result = organization.search(None, NAME_ORG_1, None)
-        self.assertEqual(len(result), 1)
+        self.assertCountEqual(result, [self.organization_1])
         result = organization.search(None, None, TYPE_ORG_1_AND_2)
-        self.assertEqual(len(result), 2)
+        self.assertCountEqual(result, [self.organization_1, self.organization_2])
         result = organization.search("ORG-", None, None)
-        self.assertEqual(len(result), 2)
+        self.assertCountEqual(result, [self.organization_1, self.organization_2])
         result = organization.search("org-", None, None)
-        self.assertEqual(len(result), 2)
+        self.assertCountEqual(result, [self.organization_1, self.organization_2])
         result = organization.search(None, NAME_ORG_1.lower(), None)
-        self.assertEqual(len(result), 1)
+        self.assertCountEqual(result, [self.organization_1])
