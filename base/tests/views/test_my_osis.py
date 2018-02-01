@@ -29,13 +29,22 @@ from unittest import mock
 
 from django.urls.base import reverse
 
-from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import SuperUserFactory
 from osis_common.models import message_history
 from django.test.utils import override_settings
 from django.utils import translation
 from base.views import my_osis
 
+from django.core.urlresolvers import reverse
+from django.test import TestCase
+
+from attribution.tests.factories.attribution import AttributionFactory
+from base.tests.factories.person import PersonFactory
+from base.tests.factories.tutor import TutorFactory
+from base.models.enums import academic_calendar_type
+from base.tests.factories.academic_calendar import AcademicCalendarFactory
+from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 
 LANGUAGE_CODE_FR = 'fr-be'
 LANGUAGE_CODE_EN = 'en'
@@ -52,11 +61,23 @@ class MyOsisViewTestCase(TestCase):
         self.client.force_login(self.a_superuser)
         self.requestFactory = RequestFactory()
 
+        academic_year = create_current_academic_year()
+        self.summary_course_submission_calendar = AcademicCalendarFactory(
+            academic_year=academic_year,
+            start_date=academic_year.start_date,
+            end_date=academic_year.end_date,
+            reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+
+        self.tutor = TutorFactory(person=self.person)
+
+        self.learning_unit_year = LearningUnitYearFakerFactory(academic_year=academic_year)
+        self.attribution = AttributionFactory(learning_unit_year=self.learning_unit_year, summary_responsible=True,
+                                              tutor=self.tutor)
+
+
     @staticmethod
     def get_message_history():
-        messages = message_history.MessageHistory.objects.all()
-        message = messages[0]
-        return message
+        return message_history.MessageHistory.objects.all().first()
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
@@ -86,7 +107,15 @@ class MyOsisViewTestCase(TestCase):
         messages = message_history.MessageHistory.objects.all()
         from base.views.my_osis import get_messages_formset
         formset_factory_result = get_messages_formset(messages)
+
         self.assertEqual(len(messages), len(formset_factory_result))
+
+        cpt = 0
+        for form in formset_factory_result:
+            message = messages[cpt]
+            self.assertEqual(message.subject, form['subject'].value())
+            self.assertEqual(message.id, form['id'].value())
+            cpt += 1
 
     @mock.patch('base.views.layout.render')
     def test_profile(self, mock_render):
@@ -102,6 +131,8 @@ class MyOsisViewTestCase(TestCase):
         with self.assertRaises(KeyError):
             context['tab_attribution_on']
 
+        self.check_context_data(context)
+
     @mock.patch('base.views.layout.render')
     def test_profile_attributions(self, mock_render):
         request = self.get_request()
@@ -114,6 +145,7 @@ class MyOsisViewTestCase(TestCase):
 
         self.assertEqual(template, 'my_osis/profile.html')
         self.assertEqual(context['tab_attribution_on'], True)
+        self.check_context_data(context)
 
     @mock.patch('base.views.layout.render')
     def test_read_message(self, mock_render):
@@ -159,18 +191,26 @@ class MyOsisViewTestCase(TestCase):
         self.assertEqual(context['person'].language, LANGUAGE_CODE_EN)
 
     def test_has_no_email(self):
-        message_history = self.get_message_history()
-        message_history.receiver_id = None
-        self.assertFalse(my_osis.has_email(message_history))
+        message_history_record = self.get_message_history()
+        message_history_record.receiver_id = None
+        self.assertFalse(my_osis.has_email(message_history_record))
 
     def test_has_email(self):
         receiver_person = PersonFactory()
-        message_history = self.get_message_history()
-        message_history.receiver_id = receiver_person.id
-        self.assertTrue(my_osis.has_email(message_history))
+        message_history_record = self.get_message_history()
+        message_history_record.receiver_id = receiver_person.id
+        self.assertTrue(my_osis.has_email(message_history_record))
 
     def get_request(self):
         request_factory = RequestFactory()
         request = request_factory.get(reverse('home'))
         request.user = self.a_superuser
         return request
+
+    def check_context_data(self, context):
+        self.assertEqual(context['person'], self.person)
+        self.assertCountEqual(context['addresses'], [])
+        self.assertEqual(context['tutor'], self.tutor)
+        self.assertCountEqual(context['attributions'], [self.attribution])
+        self.assertCountEqual(context['programs_managers'], [])
+        self.assertTrue(context['summary_submission_opened'])

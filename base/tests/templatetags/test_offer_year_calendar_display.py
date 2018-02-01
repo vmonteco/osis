@@ -41,9 +41,9 @@ class OfferYearCalendarDisplayTagTest(TestCase):
     def setUp(self):
 
         self.build_current_offer_yr_calendar()
-        self.build_previous_offer_yr_calendar()
+        self.build_old_offer_yr_calendar()
 
-    def build_previous_offer_yr_calendar(self):
+    def build_old_offer_yr_calendar(self):
         self.previous_academic_year = AcademicYearFactory(start_date=today.replace(year=today.year - 3),
                                                           end_date=today.replace(year=today.year - 2),
                                                           year=today.year - 3)
