@@ -311,9 +311,7 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=learning_container_year)
 
-        request_factory = RequestFactory()
-        request = request_factory.get(reverse('learning_unit', args=[learning_unit_year.id]))
-        request.user = self.a_superuser
+        request = self.learning_unit(learning_unit_year)
 
         from base.views.learning_unit import learning_unit_identification
 
@@ -437,9 +435,7 @@ class LearningUnitViewTestCase(TestCase):
             academic_year=self.current_academic_year
         )
 
-        request_factory = RequestFactory()
-        request = request_factory.get(reverse('learning_unit', args=[learning_unit_year.id]))
-        request.user = self.a_superuser
+        request = self.learning_unit(learning_unit_year)
 
         from base.views.learning_unit import learning_unit_identification
 
@@ -1080,7 +1076,7 @@ class LearningUnitViewTestCase(TestCase):
                                                             credits=Decimal(2))
 
         valid_partim_data = self.get_base_partim_form_data(learning_unit_year_parent)
-        valid_partim_data['credits']='10'
+        valid_partim_data['credits'] = '10'
         # Learning unit year parent doesn't have any additional entities
         del valid_partim_data['additional_requirement_entity_1']
         del valid_partim_data['additional_requirement_entity_2']
@@ -1096,7 +1092,7 @@ class LearningUnitViewTestCase(TestCase):
                                                         container_type=learning_container_year_types.COURSE,
                                                         campus=self.campus,
                                                         language=self.language)
-        l_unit = LearningUnitFactory(faculty_remark="Remarks Faculty",other_remark="Other Remarks",
+        l_unit = LearningUnitFactory(faculty_remark="Remarks Faculty", other_remark="Other Remarks",
                                      periodicity=learning_unit_periodicity.ANNUAL)
         learning_unit_year_parent = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                             learning_unit=l_unit,
@@ -1169,7 +1165,6 @@ class LearningUnitViewTestCase(TestCase):
                                    type=entity_container_year_link_type.ALLOCATION_ENTITY)
         return a_learning_container_yr
 
-
     @override_settings(LANGUAGES=[('fr-be', 'French'), ('en', 'English'), ])
     def test_find_inexisting_language_in_settings(self):
         wrong_language_code = 'pt'
@@ -1185,12 +1180,7 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=self.learning_container_yr)
 
-        request_factory = RequestFactory()
-
-        request = request_factory.get(reverse('learning_unit',
-                                              args=[learning_unit_year.id]))
-
-        request.user = self.a_superuser
+        request = self.learning_unit(learning_unit_year)
 
         from base.views.learning_unit import learning_unit_pedagogy
 
@@ -1207,12 +1197,7 @@ class LearningUnitViewTestCase(TestCase):
     def test_learning_unit_specification(self, mock_render):
         learning_unit_year = LearningUnitYearFactory()
 
-        request_factory = RequestFactory()
-
-        request = request_factory.get(reverse('learning_unit',
-                                              args=[learning_unit_year.id]))
-
-        request.user = self.a_superuser
+        request = self.learning_unit(learning_unit_year)
 
         from base.views.learning_unit import learning_unit_specifications
 
@@ -1229,10 +1214,7 @@ class LearningUnitViewTestCase(TestCase):
     def test_learning_unit_attributions(self, mock_render):
         learning_unit_year = LearningUnitYearFactory()
 
-        request_factory = RequestFactory()
-        request = request_factory.get(reverse('learning_unit',
-                                              args=[learning_unit_year.id]))
-        request.user = self.a_superuser
+        request = self.learning_unit(learning_unit_year)
 
         from base.views.learning_unit import learning_unit_attributions
 
@@ -1268,6 +1250,12 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_unit/specifications_edit.html')
         self.assertIsInstance(context['form'], LearningUnitSpecificationsEditForm)
 
+    def learning_unit(self, learning_unit_year):
+        request_factory = RequestFactory()
+        request = request_factory.get(reverse('learning_unit',
+                                              args=[learning_unit_year.id]))
+        request.user = self.a_superuser
+        return request
 
 
 class LearningUnitCreate(TestCase):
