@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -155,14 +155,15 @@ class LearningUnitsMixin:
             return results
 
         for academic_year in list_of_academic_years:
-            results.append(
-                LearningUnitsMixin.setup_learning_unit_year(
+
+                new_luy = LearningUnitsMixin.setup_learning_unit_year(
                     academic_year=academic_year,
                     learning_unit=learning_unit_full,
                     learning_container_year=None,
-                    learning_unit_year_subtype=learning_unit_year_subtypes.FULL
-                )
-            )
+                    learning_unit_year_subtype=learning_unit_year_subtypes.FULL)
+                if new_luy:
+                    results.append(new_luy)
+
         return results
 
     @staticmethod

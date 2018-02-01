@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -28,12 +28,10 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.http import QueryDict
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
-from django.core.exceptions import PermissionDenied
 
-
-from base.business.learning_unit_proposal import compute_proposal_type, \
-    is_eligible_for_modification_proposal, is_eligible_for_cancel_of_proposal, reinitialize_data_before_proposal, \
+from base.business.learning_unit_proposal import compute_proposal_type, reinitialize_data_before_proposal, \
     delete_learning_unit_proposal
+from base.views.learning_units import perms
 from base.views.learning_unit import compute_form_initial_data
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.models.enums import proposal_state
@@ -43,14 +41,11 @@ from base.models.proposal_learning_unit import ProposalLearningUnit
 
 
 @login_required
+@perms.can_perform_modification_proposal
 @permission_required('base.can_propose_learningunit', raise_exception=True)
 def propose_modification_of_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
     user_person = get_object_or_404(Person, user=request.user)
-
-    if not is_eligible_for_modification_proposal(learning_unit_year, user_person):
-        raise PermissionDenied("Learning unit year not eligible for proposal or user has not sufficient rights.")
-
     initial_data = compute_form_initial_data(learning_unit_year)
 
     if request.method == 'POST':
@@ -77,15 +72,11 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
 
 
 @login_required
+@perms.can_perform_cancel_proposal
 @permission_required('base.can_propose_learningunit', raise_exception=True)
 def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
-    user_person = get_object_or_404(Person, user=request.user)
     learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learning_unit_year)
-
-    if not is_eligible_for_cancel_of_proposal(learning_unit_proposal, user_person):
-        raise PermissionDenied("Learning unit proposal cannot be cancelled.")
-
     reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year)
     delete_learning_unit_proposal(learning_unit_proposal)
     messages.add_message(request, messages.SUCCESS,

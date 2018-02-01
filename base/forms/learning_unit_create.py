@@ -26,7 +26,7 @@
 import re
 
 from django import forms
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, BaseValidator
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
@@ -43,12 +43,12 @@ from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_Y
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
-from base.models.learning_unit_year import MINIMUM_CREDITS
+from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
 from reference.models.language import find_all_languages
 
 MAX_RECORDS = 1000
 READONLY_ATTR = "disabled"
-PARTIM_FORM_READ_ONLY_FIELD = {'first_letter', 'acronym', 'title', 'title_english', 'requirement_entity',
+PARTIM_FORM_READ_ONLY_FIELD = {'first_letter', 'acronym', 'common_title', 'common_title_english', 'requirement_entity',
                                'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year',
                                'container_type', 'internship_subtype',
                                'additional_requirement_entity_1', 'additional_requirement_entity_2'}
@@ -75,17 +75,28 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
         return obj.acronym
 
 
+class MaxStrictlyValueValidator(BaseValidator):
+    message = _('Ensure this value is less than %(limit_value)s.')
+    code = 'max_strictly_value'
+
+    def compare(self, a, b):
+        return a >= b
+
+
 class LearningUnitYearForm(BootstrapForm):
     acronym = forms.CharField(widget=forms.TextInput(attrs={'maxlength': "15", 'required': True}))
     academic_year = forms.ModelChoiceField(queryset=mdl.academic_year.find_academic_years(), required=True,
                                            empty_label=_('all_label'))
-    status = forms.CharField(required=False, widget=forms.CheckboxInput())
+    status = forms.BooleanField(required=False, initial=True)
     internship_subtype = forms.ChoiceField(choices=add_blank(mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES),
                                            required=False)
-    credits = forms.DecimalField(decimal_places=2, validators=[MinValueValidator(MINIMUM_CREDITS)])
-    title = forms.CharField(widget=forms.TextInput(attrs={'required': True}))
-    title_english = forms.CharField(required=False, widget=forms.TextInput())
-    session = forms.ChoiceField(choices=add_blank(mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION),
+    credits = forms.DecimalField(decimal_places=2, validators=[MinValueValidator(MINIMUM_CREDITS),
+                                                               MaxValueValidator(MAXIMUM_CREDITS)])
+    common_title = forms.CharField()
+    common_title_english = forms.CharField(required=False, widget=forms.TextInput())
+    partial_title = forms.CharField(required=False)
+    partial_english_title = forms.CharField(required=False, widget=forms.TextInput())
+    session = forms.ChoiceField(add_blank(mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION),
                                 required=False)
     subtype = forms.CharField(widget=forms.HiddenInput())
     first_letter = forms.ChoiceField(choices=lazy(_create_first_letter_choices, tuple), required=True)
@@ -95,8 +106,7 @@ class LearningUnitYearForm(BootstrapForm):
     other_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
     periodicity = forms.CharField(widget=forms.Select(choices=PERIODICITY_TYPES))
     quadrimester = forms.CharField(widget=forms.Select(choices=add_blank(LEARNING_UNIT_YEAR_QUADRIMESTERS)),
-                                   required=False
-                                   )
+                                   required=False)
     campus = forms.ModelChoiceField(queryset=find_main_campuses())
     requirement_entity = EntitiesVersionChoiceField(
         find_main_entities_version().none(),
@@ -138,7 +148,7 @@ class LearningUnitYearForm(BootstrapForm):
         elif not re.match(self.acronym_regex, self.cleaned_data['acronym']):
             self.add_error('acronym', _('invalid_acronym'))
         elif self.cleaned_data["container_type"] == INTERNSHIP and not (self.cleaned_data['internship_subtype']):
-            self._errors['internship_subtype'] = _('field_is_required')
+            self.add_error('internship_subtype', _('field_is_required'))
         else:
             return True
 
@@ -178,14 +188,19 @@ class CreatePartimForm(CreateLearningUnitYearForm):
                                                                                  'onchange': 'validate_acronym()'}))
     acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}[A-Z]$"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, learning_unit_year_parent, *args, **kwargs):
+        self.learning_unit_year_parent = learning_unit_year_parent
         super(CreatePartimForm, self).__init__(*args, **kwargs)
         self.fields['container_type'].choices = _create_learning_container_year_type_for_partim_list()
+        self.fields['partial_title'].required = True
+        # The credit of LUY partim cannot be greater than credit of full LUY
+        self.fields['credits'].validators.append(MaxStrictlyValueValidator(learning_unit_year_parent.credits))
         self.set_read_only_fields()
 
     def set_read_only_fields(self):
         for field in PARTIM_FORM_READ_ONLY_FIELD:
-            self.fields[field].widget.attrs[READONLY_ATTR] = READONLY_ATTR
+            if self.fields.get(field):
+                self.fields[field].widget.attrs[READONLY_ATTR] = READONLY_ATTR
 
     def clean_acronym(self):
         return super(CreatePartimForm, self).clean_acronym() + self.data.get('partim_letter', [])[0].upper()

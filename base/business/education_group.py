@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import PermissionDenied
+
 from base.models import offer_year_entity
 from base.models import person_entity
 from base.models.enums import offer_year_entity_type
@@ -52,3 +54,8 @@ def _is_management_entity_linked_to_user(a_user, an_education_group_year):
         typ=offer_year_entity_type.ENTITY_MANAGEMENT).values_list('entity', flat=True))
     entities_linked = person_entity.find_entities_by_user(a_user)
     return any(entity.id in management_entity_ids for entity in entities_linked)
+
+
+def assert_category_of_education_group_year(education_group_year, authorized_categories):
+    if education_group_year.education_group_type.category not in authorized_categories:
+        raise PermissionDenied("Education group category is not correct.")

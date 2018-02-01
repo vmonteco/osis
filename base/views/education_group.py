@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -33,11 +33,11 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from base import models as mdl
 from base.business import education_group as education_group_business
+from base.business.education_group import assert_category_of_education_group_year
 from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
 from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataFormset
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
-from base.models.program_manager import is_program_manager
 
 from . import layout
 from cms.enums import entity_name
@@ -93,40 +93,20 @@ def _check_if_display_message(request, an_education_groups):
 @permission_required('base.can_access_education_group', raise_exception=True)
 def education_group_read(request, education_group_year_id):
     root = request.GET.get('root')
-    education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+    education_group_year = get_object_or_404(EducationGroupYear, id=education_group_year_id)
     education_group_languages = [education_group_language.language.name for education_group_language in
                                  mdl.education_group_language.find_by_education_group_year(education_group_year)]
     enums = mdl.enums.education_group_categories
-    if root:
-        parent = mdl.education_group_year.find_by_id(root)
-    else:
-        parent = education_group_year
-    return layout.render(request, "education_group/tab_identification.html", locals())
+    parent = _get_education_group_root(root, education_group_year)
 
-
-@login_required
-@permission_required('base.can_access_education_group', raise_exception=True)
-def education_group_parent_read(request, education_group_year_id):
-    root = request.GET.get('root')
-    education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
-    education_group_languages = [education_group_language.language.name for education_group_language in
-                                 mdl.education_group_language.find_by_education_group_year(education_group_year)]
-    enums = mdl.enums.education_group_categories
-    if root:
-        parent = mdl.education_group_year.find_by_id(root)
-    else:
-        parent = education_group_year
     return layout.render(request, "education_group/tab_identification.html", locals())
 
 
 @login_required
 @permission_required('base.can_access_education_group', raise_exception=True)
 def education_group_diplomas(request, education_group_year_id):
-    return _education_group_diplomas_tab(request, education_group_year_id)
-
-
-def _education_group_diplomas_tab(request, education_group_year_id):
-    education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+    education_group_year = get_object_or_404(EducationGroupYear, id=education_group_year_id)
+    assert_category_of_education_group_year(education_group_year, (education_group_categories.TRAINING,))
     education_group_year_root_id = request.GET.get('root')
     parent = _get_education_group_root(education_group_year_root_id, education_group_year)
     return layout.render(request, "education_group/tab_diplomas.html", locals())
@@ -135,11 +115,9 @@ def _education_group_diplomas_tab(request, education_group_year_id):
 @login_required
 @permission_required('base.can_access_education_group', raise_exception=True)
 def education_group_general_informations(request, education_group_year_id):
-    return _education_group_general_informations_tab(request, education_group_year_id)
-
-
-def _education_group_general_informations_tab(request, education_group_year_id):
-    education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+    education_group_year = get_object_or_404(EducationGroupYear, id=education_group_year_id)
+    assert_category_of_education_group_year(
+        education_group_year, (education_group_categories.TRAINING, education_group_categories.MINI_TRAINING))
 
     CMS_LABEL = mdl_cms.translated_text.find_by_entity_reference(entity_name.OFFER_YEAR, education_group_year_id)
 
@@ -174,11 +152,10 @@ def _get_cms_label_data(cms_label, user_language):
 @login_required
 @permission_required('base.can_access_education_group', raise_exception=True)
 def education_group_administrative_data(request, education_group_year_id):
-    return _education_group_administrative_data_tab(request, education_group_year_id)
+    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
 
+    assert_category_of_education_group_year(education_group_year, (education_group_categories.TRAINING,))
 
-def _education_group_administrative_data_tab(request, education_group_year_id):
-    education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
     education_group_year_root_id = request.GET.get('root')
     parent = _get_education_group_root(education_group_year_root_id, education_group_year)
 
@@ -206,6 +183,9 @@ def _education_group_administrative_data_tab(request, education_group_year_id):
 @permission_required('base.can_edit_education_group_administrative_data', raise_exception=True)
 def education_group_edit_administrative_data(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+
+    assert_category_of_education_group_year(education_group_year, (education_group_categories.TRAINING,))
+
     if not education_group_business.can_user_edit_administrative_data(request.user, education_group_year):
         raise PermissionDenied("Only program managers of the education group OR central manager "
                                "linked to entity can edit.")
