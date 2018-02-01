@@ -37,13 +37,14 @@ TYPE_ORG_1_AND_2 = organization_type.ACADEMIC_PARTNER
 
 class OrganizationTest(TestCase):
 
-    def setUp(self):
-        self.organization_1 = OrganizationFactory(acronym=ACRONYM_ORG_1,
-                                                  name=NAME_ORG_1,
-                                                  type=TYPE_ORG_1_AND_2)
-        self.organization_2 = OrganizationFactory(acronym="ORG-2",
-                                                  name="organization2",
-                                                  type=TYPE_ORG_1_AND_2)
+    @classmethod
+    def setUpTestData(cls):
+        OrganizationFactory(acronym=ACRONYM_ORG_1,
+                            name=NAME_ORG_1,
+                            type=TYPE_ORG_1_AND_2)
+        OrganizationFactory(acronym="ORG-2",
+                            name="organization2",
+                            type=TYPE_ORG_1_AND_2)
 
     def test_search_no_result(self):
         self.assertIsNone(organization.search(None, None, None))
