@@ -10,7 +10,7 @@
 * The core business involves the administration of students, teachers,
 * courses, programs and so on.
 *
-* Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+* Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -121,18 +121,18 @@
                                     </div>
                                 </div>
                                 <br>
-                                <label title="{% trans 'title_official_1' %}">{% trans 'title_official' %} - {% trans 'part1' %}</label><br>
+                                <label title="{% trans 'title_official_1' %}">{% trans 'common_official_title' %}</label><br>
                                 {{ learning_unit_year.learning_container_year.title | default_if_none:'' }}
                                 <br><br>
-                                <label title="{% trans 'title_official_2' %}">{% trans 'title_official' %} - {% trans 'part2' %}</label><br>
+                                <label title="{% trans 'title_official_2' %}">{% trans 'official_title_proper_to_UE' %}</label><br>
                                 {% if learning_unit_year.subtype == 'PARTIM'%}
                                     {{learning_unit_year.title | default_if_none:''}}
                                 {% endif%}
                                 <br><br>
-                                <label title="{% trans 'title_in_english' %} {% trans 'title_in_english_1' %}">{% trans 'title_in_english' %} - {% trans 'part1' %}</label><br>
+                                <label title="{% trans 'title_in_english' %} {% trans 'title_in_english_1' %}">{% trans 'common_official_english_title' %}</label><br>
                                 {{learning_unit_year.learning_container_year.title_english | default_if_none:'' }}
                                 <br><br>
-                                <label title="{% trans 'title_in_english' %} {% trans 'title_in_english_2' %}">{% trans 'title_in_english' %}- {% trans 'part2' %}</label><br>
+                                <label title="{% trans 'title_in_english' %} {% trans 'title_in_english_2' %}">{% trans 'official_english_title_proper_to_UE' %}</label><br>
                                 {% if learning_unit_year.subtype == 'PARTIM' %}
                                     {{learning_unit_year.title_english | default_if_none:'' }}
                                 {% endif%}

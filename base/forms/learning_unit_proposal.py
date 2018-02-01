@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -67,10 +67,12 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
         learning_container_year = learning_unit_year.learning_container_year
 
         _update_model_object(learning_unit_year.learning_unit, self.cleaned_data, ["periodicity"])
-        _update_model_object(learning_unit_year, self.cleaned_data, ["acronym", "title", "title_english", "status",
-                                                                     "quadrimester", "internship_subtype", "credits"])
-        _update_model_object(learning_container_year, self.cleaned_data, ["acronym", "title", "language",
-                                                                          "title_english", "campus", "container_type"])
+        _update_model_object(learning_unit_year, self.cleaned_data, ["acronym", "status", "quadrimester",
+                                                                     "internship_subtype", "credits"])
+        learning_container_year.title = self.cleaned_data['common_title']
+        learning_container_year.title_english = self.cleaned_data.get('common_title_english')
+        _update_model_object(learning_container_year, self.cleaned_data, ["acronym", "title", "language", "campus",
+                                                                          "container_type"])
 
         _update_entity(self.cleaned_data["requirement_entity"], learning_container_year, REQUIREMENT_ENTITY)
         _update_entity(self.cleaned_data["allocation_entity"], learning_container_year, ALLOCATION_ENTITY)

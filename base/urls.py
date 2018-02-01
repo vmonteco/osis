@@ -119,7 +119,7 @@ urlpatterns = [
             url(r'^summary/$', learning_unit.learning_unit_summary, name="learning_unit_summary"),
             url(r'^summary/edit/$', learning_unit.summary_edit, name="learning_unit_summary_edit"),
             url(r'^partim/', include([
-                url(r'^new/$', learning_unit.learning_unit_create_partim, name="learning_unit_create_partim"),
+                url(r'^new/$', learning_unit.get_partim_creation_form, name="learning_unit_create_partim"),
                 url(r'^add/$', learning_unit.learning_unit_year_partim_add, name='learning_unit_year_partim_add')
             ])),
         ])),
@@ -162,7 +162,6 @@ urlpatterns = [
         url(r'^$', education_group.education_groups, name='education_groups'),
         url(r'^(?P<education_group_year_id>[0-9]+)/', include([
             url(r'^$', education_group.education_group_read, name='education_group_read'),
-            url(r'^parent/$', education_group.education_group_parent_read, name='education_group_parent_read'),
             url(r'^diplomas/$', education_group.education_group_diplomas, name='education_group_diplomas'),
             url(r'^informations/$', education_group.education_group_general_informations,
                 name='education_group_general_informations'),

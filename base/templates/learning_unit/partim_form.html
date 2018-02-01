@@ -9,7 +9,7 @@
 * The core business involves the administration of students, teachers,
 * courses, programs and so on.
 *
-* Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+* Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,6 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-4" style="padding:0;">
-
                             <div class="row" style="margin:0;">
                                 <div class="col-md-3" style="padding-right:0;">
                                     <label>
@@ -94,10 +93,14 @@
                                 </label>
                             </div>
                             <div class="col-md-4">
-                                <label>
+                                 <label id="lbl_internship_subtype">
                                     {% trans 'internship_subtype' %}
                                 </label>
                                 {{ form.internship_subtype }}
+                                <label id="lbl_internship_subtype_error"
+                                   {% if form.errors.internship_subtype%}style="color:red;"{% endif %}>
+                                    {{ form.errors.internship_subtype| striptags }}
+                                </label>
                             </div>
                             <div class="col-md-4">
                                 <label {% if form.errors.campus %}style="color:red;"{% endif %}>
@@ -155,23 +158,41 @@
                         </div>
                     </div>
             </div>
+            </div>
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <label>{% trans 'titles' %}</label>
                 </div>
                 <div class="panel-body">
-                    <div>
-                        <label {% if form.errors.title %}style="color:red;"{% endif %}>
-                            {% trans 'title' %}*
-                        </label>
-                        {{ form.title }}
-                        <label {% if form.errors.title %}style="color:red;"{% endif %}>
-                                {{ form.errors.title| striptags }}
-                        </label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label {% if form.errors.common_title %}style="color:red;"{% endif %}>
+                                {% trans 'common_official_title' %}*
+                            </label>
+                            {{ form.common_title }}
+                            <label {% if form.errors.common_title %}style="color:red;"{% endif %}>
+                                    {{ form.errors.common_title| striptags }}
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <label {% if form.errors.partial_title %}style="color:red;"{% endif %}>
+                                {% trans 'official_title_proper_to_UE' %}*
+                            </label>
+                            {{ form.partial_title }}
+                            <label {% if form.errors.partial_title %}style="color:red;"{% endif %}>
+                                {{ form.errors.partial_title| striptags }}
+                            </label>
+                        </div>
                     </div>
-                    <div>
-                        <label>{% trans 'title_in_english' %}</label>
-                        {{ form.title_english }}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>{% trans 'common_official_english_title' %}</label>
+                            {{ form.common_title_english }}
+                        </div>
+                        <div class="col-md-6">
+                            <label>{% trans 'official_english_title_proper_to_UE' %}</label>
+                            {{ form.partial_english_title }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -229,9 +250,7 @@
             <div class="panel-body">
                 <button type="button" id="learning_unit_year_add" class="btn btn-primary" title="{% trans 'add' %}">{% trans 'save' %}</button>
             </div>
-            </div>
         </form>
-
     </div>
 </div>
 {% endblock %}

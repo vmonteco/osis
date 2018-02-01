@@ -1609,8 +1609,20 @@ msgstr "Cette fonctionnalité est en phase expérimentale"
 msgid "title_official_1"
 msgstr "Intitulé officiel (partie 1 commune aux partims)"
 
+msgid "common_official_title"
+msgstr "Intitulé officiel commun"
+
+msgid "common_official_english_title"
+msgstr "Intitulé officiel commun en anglais"
+
 msgid "title_official_2"
 msgstr "Intitulé officiel (partie 2 propre au partim)"
+
+msgid "official_title_proper_to_UE"
+msgstr "Intitulé officiel propre à l'UE"
+
+msgid "official_english_title_proper_to_UE"
+msgstr "Intitulé officiel en anglais propre à l'UE"
 
 msgid "title_in_english"
 msgstr "Intitulé en anglais"
@@ -2502,13 +2514,13 @@ msgid "invalid_partim_letter"
 msgstr "Lettre déjà utilisée"
 
 msgid "learning_unit_successfuly_created"
-msgstr "L'Unité d'Enseignement {} a été créée jusqu'en {} avec succès."
+msgstr "Unité d'enseignement <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> créée avec succès."
 
 msgid "learning_unit_creation_academic_year_max_error"
 msgstr "Impossible de créer une UE dont l'année académique est supérieure à {}."
 
 msgid "parent_greater_than_partim"
-msgstr "L'année de fin selectionnée est plus grande que l'année de fin du parent %(lu_parent)s"
+msgstr "L'année de fin selectionnée (%(partim_end_year)s) est plus grande que l'année de fin du parent %(lu_parent)s"
 
 msgid "learning_unit_created"
 msgstr "L'unité d'enseignement %(learning_unit)s créée pour l'année academique %(academic_year)s"
@@ -2518,3 +2530,15 @@ msgstr "L'unité d'enseignement %(learning_unit)s a été mise à jour avec succ
 
 msgid "partim_greater_than_parent"
 msgstr "L'unité d'enseignement %(learning_unit)s a un partim %(partim)s avec une année de fin plus grande que %(year)s"
+
+msgid "remark"
+msgstr "Remarque"
+
+msgid "remark_english"
+msgstr "Remarque en anglais"
+
+msgid "Ensure this value is less than %(limit_value)s."
+msgstr "Assurez-vous que cette valeur est inférieure à %(limit_value)s."
+
+msgid "Entity_not_exist"
+msgstr "L'entité %(entity_acronym)s n'existe pas pour l'année académique sélectionnée %(academic_year)s"

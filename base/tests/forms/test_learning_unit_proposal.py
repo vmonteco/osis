@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -84,8 +84,8 @@ class TestSave(TestCase):
             "academic_year": self.learning_unit_year.academic_year.id,
             "first_letter": "L",
             "acronym": "OSIS1245",
-            "title": "New title",
-            "title_english": "New title english",
+            "common_title": "New title",
+            "common_title_english": "New title english",
             "container_type": self.learning_unit_year.learning_container_year.container_type,
             "internship_subtype": "",
             "credits": "4",
@@ -117,16 +117,23 @@ class TestSave(TestCase):
     def test_learning_unit_year_update(self):
         form = LearningUnitProposalModificationForm(self.form_data)
         form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
-
         self.learning_unit_year.refresh_from_db()
-
-        self.assertEqual(self.learning_unit_year.acronym,
-                         "{}{}".format(self.form_data['first_letter'], self.form_data['acronym']))
-        self.assertEqual(self.learning_unit_year.title, self.form_data['title'])
-        self.assertEqual(self.learning_unit_year.title_english, self.form_data['title_english'])
+        self._assert_acronym_has_changed_in_proposal()
+        self._assert_common_titles_stored_in_container()
         self.assertFalse(self.learning_unit_year.status)
         self.assertEqual(self.learning_unit_year.credits, Decimal(self.form_data['credits']))
         self.assertEqual(self.learning_unit_year.quadrimester, self.form_data['quadrimester'])
+
+    def _assert_acronym_has_changed_in_proposal(self):
+        self.assertEqual(self.learning_unit_year.acronym,
+                         "{}{}".format(self.form_data['first_letter'], self.form_data['acronym']))
+
+    def _assert_common_titles_stored_in_container(self):
+        self.assertNotEqual(self.learning_unit_year.title, self.form_data['common_title'])
+        self.assertNotEqual(self.learning_unit_year.title_english, self.form_data['common_title_english'])
+        self.assertEqual(self.learning_unit_year.learning_container_year.title, self.form_data['common_title'])
+        self.assertEqual(self.learning_unit_year.learning_container_year.title_english,
+                         self.form_data['common_title_english'])
 
     def test_learning_container_update(self):
         form = LearningUnitProposalModificationForm(self.form_data)
@@ -137,8 +144,8 @@ class TestSave(TestCase):
 
         self.assertEqual(learning_container_year.acronym,
                          "{}{}".format(self.form_data['first_letter'], self.form_data['acronym']))
-        self.assertEqual(learning_container_year.title, self.form_data['title'])
-        self.assertEqual(learning_container_year.title_english, self.form_data['title_english'])
+        self.assertEqual(learning_container_year.title, self.form_data['common_title'])
+        self.assertEqual(learning_container_year.title_english, self.form_data['common_title_english'])
         self.assertEqual(learning_container_year.language, self.language)
         self.assertEqual(learning_container_year.campus, self.campus)
 
@@ -212,8 +219,8 @@ class TestSave(TestCase):
             "learning_container_year": {
                 "id": self.learning_unit_year.learning_container_year.id,
                 "acronym": self.learning_unit_year.acronym,
-                "title": self.learning_unit_year.title,
-                "title_english": self.learning_unit_year.title_english,
+                "title": self.learning_unit_year.learning_container_year.title,
+                "title_english": self.learning_unit_year.learning_container_year.title_english,
                 "container_type": self.learning_unit_year.learning_container_year.container_type,
                 "campus": self.learning_unit_year.learning_container_year.campus.id,
                 "language": self.learning_unit_year.learning_container_year.language.id,
