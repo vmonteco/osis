@@ -37,8 +37,8 @@ fake = Faker()
 def create_current_academic_year():
     now = timezone.now()
     return AcademicYearFakerFactory(year=now.year,
-                                    start_date=datetime.date(now.year, now.month, 15),
-                                    end_date=datetime.date(now.year + 1, now.month, 28))
+                                    start_date=datetime.date(now.year, now.month-1, 1),
+                                    end_date=datetime.date(now.year + 1, now.month, 1))
 
 
 class AcademicYearFactory(DjangoModelFactory):
