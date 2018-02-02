@@ -30,6 +30,11 @@ from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 
 
+LEARNING_UNIT_ACRONYM_REGEX_BASE = "^[BLMW][A-Z]{2,4}\d{4}[A-Z,0-9]"
+LEARNING_UNIT_ACRONYM_REGEX_ALL = LEARNING_UNIT_ACRONYM_REGEX_BASE + "{0,1}$"
+LEARNING_UNIT_ACRONYM_REGEX_PARTIM = LEARNING_UNIT_ACRONYM_REGEX_BASE + "$"
+
+
 class LearningUnitAdmin(AuditableSerializableModelAdmin):
     list_display = ('learning_container', 'acronym', 'title', 'start_year', 'end_year', 'changed')
     fieldsets = ((None, {
