@@ -36,7 +36,7 @@ from base.business.learning_unit_deletion import delete_from_given_learning_unit
 from base.models import entity_container_year, learning_component_year, learning_class_year, learning_unit_component
 from base.models.academic_year import AcademicYear
 from base.models.entity_version import EntityVersion
-from base.models.enums import learning_unit_periodicity
+from base.models.enums import learning_unit_periodicity, learning_unit_year_subtypes
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit_year import LearningUnitYear
 
@@ -60,6 +60,8 @@ def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year):
 
 
 def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
+    _check_shorten_partims(learning_unit_to_edit, new_academic_year)
+
     learning_unit_year_to_delete = LearningUnitYear.objects.filter(
         learning_unit=learning_unit_to_edit,
         academic_year__year=new_academic_year.year + 1
@@ -67,8 +69,6 @@ def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
 
     if not learning_unit_year_to_delete:
         return []
-
-    _check_shorten_partims(learning_unit_year_to_delete, new_academic_year)
 
     warning_msg = check_learning_unit_year_deletion(learning_unit_year_to_delete)
     if warning_msg:
@@ -196,17 +196,25 @@ def _update_related_row(row, attribute_name, new_value):
     return duplicated_row
 
 
-def _check_shorten_partims(learning_unit_year_to_delete, new_academic_year):
-    partims = learning_unit_year_to_delete.get_partims_related() or []
-    for partim in partims:
-        if _get_actual_end_year(partim.learning_unit) > new_academic_year.year:
-            raise IntegrityError(
-                _('partim_greater_than_parent') % {
-                    'learning_unit': learning_unit_year_to_delete.acronym,
-                    'partim': partim.acronym,
-                    'year': new_academic_year
-                }
-            )
+def _check_shorten_partims(learning_unit_to_edit, new_academic_year):
+    if not LearningUnitYear.objects.filter(
+            learning_unit=learning_unit_to_edit, subtype=learning_unit_year_subtypes.FULL).exists():
+        return None
+
+    for lcy in LearningContainerYear.objects.filter(learning_container=learning_unit_to_edit.learning_container):
+        for partim in lcy.get_partims_related():
+            _check_shorten_partim(learning_unit_to_edit, new_academic_year, partim)
+
+
+def _check_shorten_partim(learning_unit_to_edit, new_academic_year, partim):
+    if _get_actual_end_year(partim.learning_unit) > new_academic_year.year:
+        raise IntegrityError(
+            _('partim_greater_than_parent') % {
+                'learning_unit': learning_unit_to_edit.acronym,
+                'partim': partim.acronym,
+                'year': new_academic_year
+            }
+        )
 
 
 def _get_actual_end_year(learning_unit_to_edit):
