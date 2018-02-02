@@ -88,8 +88,8 @@ def export_mandates(mandates=None):
 
 
 def add_mandate_content(content, mandate, styles):
-    content.append(create_paragraph(mandate.assistant.person.first_name + " " + mandate.assistant.person.last_name,
-                                    get_administrative_data(mandate), styles['StandardWithBorder']))
+    content.append(create_paragraph(str(mandate.assistant.person), get_administrative_data(mandate),
+                                    styles['StandardWithBorder']))
     content.append(create_paragraph("%s" % (_('entities')), get_entities(mandate), styles['StandardWithBorder']))
     content.append(create_paragraph("<strong>%s</strong>" % (_('absences')), get_absences(mandate),
                                     styles['StandardWithBorder']))
