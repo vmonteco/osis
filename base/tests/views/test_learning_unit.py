@@ -312,7 +312,7 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=learning_container_year)
 
-        request = self.learning_unit(learning_unit_year)
+        request = self.create_learning_unit_request(learning_unit_year)
 
         from base.views.learning_unit import learning_unit_identification
 
@@ -436,7 +436,7 @@ class LearningUnitViewTestCase(TestCase):
             academic_year=self.current_academic_year
         )
 
-        request = self.learning_unit(learning_unit_year)
+        request = self.create_learning_unit_request(learning_unit_year)
 
         from base.views.learning_unit import learning_unit_identification
 
@@ -1180,7 +1180,7 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=self.learning_container_yr)
 
-        request = self.learning_unit(learning_unit_year)
+        request = self.create_learning_unit_request(learning_unit_year)
 
         from base.views.learning_unit import learning_unit_pedagogy
 
@@ -1197,7 +1197,7 @@ class LearningUnitViewTestCase(TestCase):
     def test_learning_unit_specification(self, mock_render):
         learning_unit_year = LearningUnitYearFactory()
 
-        request = self.learning_unit(learning_unit_year)
+        request = self.create_learning_unit_request(learning_unit_year)
 
         from base.views.learning_unit import learning_unit_specifications
 
@@ -1214,7 +1214,7 @@ class LearningUnitViewTestCase(TestCase):
     def test_learning_unit_attributions(self, mock_render):
         learning_unit_year = LearningUnitYearFactory()
 
-        request = self.learning_unit(learning_unit_year)
+        request = self.create_learning_unit_request(learning_unit_year)
 
         from base.views.learning_unit import learning_unit_attributions
 
@@ -1250,7 +1250,7 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_unit/specifications_edit.html')
         self.assertIsInstance(context['form'], LearningUnitSpecificationsEditForm)
 
-    def learning_unit(self, learning_unit_year):
+    def create_learning_unit_request(self, learning_unit_year):
         request_factory = RequestFactory()
         request = request_factory.get(reverse('learning_unit',
                                               args=[learning_unit_year.id]))
