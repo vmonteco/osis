@@ -74,7 +74,7 @@
     $(document).ready(function()
     {
 	 // Must be always DataTable declaration !!!
-        setEventKeepIds('table_learning_units', 'learningUnitIds')
+        setEventKeepIds('table_learning_units', 'learningUnitIds');
 
         $('#table_learning_units').DataTable(
             {
@@ -89,7 +89,7 @@
                 "language": {
                     "oAria": {
                         "sSortAscending":  "{% trans 'datatable_sortascending'%}",
-                        "sSortDescending": "{% trans 'datatable_sortdescending'%}",
+                        "sSortDescending": "{% trans 'datatable_sortdescending'%}"
                     }
                 }
             })
@@ -98,7 +98,7 @@
     $("#btn_produce_xls").click(function(e) {
         e.preventDefault();
         $("#xls_status").val('xls');
-        $("#form_learning_units").submit();
+        $("#search_form").submit();
         $("#xls_status").val('');
     });
 

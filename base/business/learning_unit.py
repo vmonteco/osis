@@ -320,8 +320,10 @@ def prepare_xls_content(found_learning_units):
 
 
 def _extract_xls_data_from_learning_unit(learning_unit):
+    container_type = learning_unit.learning_container_year.container_type if learning_unit.learning_container_year \
+        else ""
     return [learning_unit.academic_year.name, learning_unit.acronym, learning_unit.title,
-            xls_build.translate(learning_unit.learning_container_year.container_type),
+            xls_build.translate(container_type),
             xls_build.translate(learning_unit.subtype),
             _get_entity_acronym(learning_unit.entities.get('REQUIREMENT_ENTITY')),
             _get_entity_acronym(learning_unit.entities.get('ALLOCATION_ENTITY')),

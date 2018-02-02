@@ -29,7 +29,7 @@
 {% block content %}
 <div class="panel panel-default">
 
-    {% include "learning_unit/search_form_learning_unit.html" %}
+    {% include "learning_unit/components/search_form_learning_unit.html" %}
 
     <div style="margin-top:10px;">
 
@@ -38,26 +38,27 @@
                 {{learning_units|length}}
                 {% trans 'learning_units'|lower %}
             </strong>
+
             <button type="submit" id="btn_produce_xls" class="btn btn-default pull-right"
-                    style="margin-right:10px;"
-                    title="{% trans 'produce_xls' %}" >
-                <i class="fa fa-table" aria-hidden="true" style="padding-left:10px;"></i>&nbsp;{% trans 'produce_xls_lu' %}
+                    style="margin-right:10px;" title="{% trans 'produce_xls' %}" >
+                <i class="fa fa-table" aria-hidden="true" style="padding-left:10px;"></i>
+                &nbsp;{% trans 'produce_xls_lu' %}
             </button>
-            <input type="hidden" id="xls_status" name="xls_status">
+
             <table id="table_learning_units" class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <th>{% trans 'academic_year_small'%}</th>
-                        <th>{% trans 'code'%}</th>
-                        <th  id="lu_title_sort">{% trans 'title'%}</th>
-                        <th>{% trans 'type'%}</th>
-                        <th>{% trans 'subtype'%}</th>
-                        <th>{% trans 'requirement_entity_small'%}</th>
-                        <th>{% trans 'allocation_entity_small'%}</th>
-                        <th>{% trans 'credits'%}</th>
-                        <th>{% trans 'active'|title%}</th>
-                    </tr>
-                </thead>
+            <thead>
+                <tr>
+                    <th>{% trans 'academic_year_small'%}</th>
+                    <th>{% trans 'code'%}</th>
+                    <th  id="lu_title_sort">{% trans 'title'%}</th>
+                    <th>{% trans 'type'%}</th>
+                    <th>{% trans 'subtype'%}</th>
+                    <th>{% trans 'requirement_entity_small'%}</th>
+                    <th>{% trans 'allocation_entity_small'%}</th>
+                    <th>{% trans 'credits'%}</th>
+                    <th>{% trans 'active'|title%}</th>
+                </tr>
+            </thead>
                 {% for learning_unit in learning_units %}
                 <tr data-id="{{learning_unit.id}}" data-value="{{learning_unit.acronym}}">
                     <td>{{learning_unit.academic_year.name}}</td>
