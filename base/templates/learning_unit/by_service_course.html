@@ -164,7 +164,7 @@
                             <a href="{% url 'learning_unit' learning_unit.id %}"
                                id="lnk_learning_unit_{{learning_unit.id}}">{{ learning_unit.acronym }}</a>
                         </td>
-                        <td>{{ learning_unit.title }}</td>
+                        <td>{{ learning_unit.complete_title }}</td>
                         <td>
                             {% with learning_unit.learning_container_year.container_type|default_if_none:'-' as type %}
                             {% trans type %}

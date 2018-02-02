@@ -38,7 +38,8 @@ class LearningUnitYearTest(TestCase):
     def setUp(self):
         self.tutor = TutorFactory()
         self.academic_year = AcademicYearFactory(year=timezone.now().year)
-        self.learning_unit_year = LearningUnitYearFactory(acronym="LDROI1004", title="Juridic law courses",
+        self.learning_unit_year = LearningUnitYearFactory(acronym="LDROI1004",
+                                                          specific_title="Juridic law courses",
                                                           academic_year=self.academic_year)
 
     def test_find_by_tutor_with_none_argument(self):

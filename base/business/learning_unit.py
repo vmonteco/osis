@@ -217,12 +217,12 @@ def create_learning_unit_structure(additional_requirement_entity_1, additional_r
                                    requirement_entity_version, status, academic_year, campus):
     new_learning_container_year = LearningContainerYear.objects.create(academic_year=academic_year,
                                                                        learning_container=new_learning_container,
-                                                                       title=data['common_title'],
+                                                                       common_title=data['common_title'],
                                                                        acronym=data['acronym'].upper(),
                                                                        container_type=data['container_type'],
                                                                        language=data['language'],
                                                                        campus=campus,
-                                                                       title_english=data['common_title_english'])
+                                                                       common_title_english=data['common_title_english'])
     new_requirement_entity = create_entity_container_year(requirement_entity_version, new_learning_container_year,
                                                           entity_container_year_link_type.REQUIREMENT_ENTITY)
     if allocation_entity_version:
@@ -305,8 +305,8 @@ def create_learning_unit_year(data_dict):
                                            learning_unit=data_dict.get('new_learning_unit'),
                                            learning_container_year=data_dict.get('new_learning_container_year'),
                                            acronym=data['acronym'].upper(),
-                                           title=data.get('partial_title'),
-                                           title_english=data.get('partial_english_title'),
+                                           specific_title=data.get('partial_title'),
+                                           specific_title_english=data.get('partial_english_title'),
                                            subtype=data['subtype'],
                                            credits=data['credits'],
                                            internship_subtype=data.get('internship_subtype'),
@@ -319,13 +319,13 @@ def prepare_xls_content(found_learning_units):
     return [_extract_xls_data_from_learning_unit(lu) for lu in found_learning_units]
 
 
-def _extract_xls_data_from_learning_unit(learning_unit):
-    return [learning_unit.academic_year.name, learning_unit.acronym, learning_unit.title,
-            xls_build.translate(learning_unit.learning_container_year.container_type),
-            xls_build.translate(learning_unit.subtype),
-            _get_entity_acronym(learning_unit.entities.get('REQUIREMENT_ENTITY')),
-            _get_entity_acronym(learning_unit.entities.get('ALLOCATION_ENTITY')),
-            learning_unit.credits, xls_build.translate(learning_unit.status)]
+def _extract_xls_data_from_learning_unit(learning_unit_yr):
+    return [learning_unit_yr.academic_year.name, learning_unit_yr.acronym, learning_unit_yr.specific_title,
+            xls_build.translate(learning_unit_yr.learning_container_year.container_type),
+            xls_build.translate(learning_unit_yr.subtype),
+            _get_entity_acronym(learning_unit_yr.entities.get('REQUIREMENT_ENTITY')),
+            _get_entity_acronym(learning_unit_yr.entities.get('ALLOCATION_ENTITY')),
+            learning_unit_yr.credits, xls_build.translate(learning_unit_yr.status)]
 
 
 def prepare_xls_parameters_list(user, workingsheets_data):

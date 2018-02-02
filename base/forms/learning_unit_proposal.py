@@ -69,8 +69,8 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
         _update_model_object(learning_unit_year.learning_unit, self.cleaned_data, ["periodicity"])
         _update_model_object(learning_unit_year, self.cleaned_data, ["acronym", "status", "quadrimester",
                                                                      "internship_subtype", "credits"])
-        learning_container_year.title = self.cleaned_data['common_title']
-        learning_container_year.title_english = self.cleaned_data.get('common_title_english')
+        learning_container_year.common_title = self.cleaned_data['common_title']
+        learning_container_year.common_title_english = self.cleaned_data.get('common_title_english')
         _update_model_object(learning_container_year, self.cleaned_data, ["acronym", "title", "language", "campus",
                                                                           "container_type"])
 
@@ -93,10 +93,10 @@ def _copy_learning_unit_data(learning_unit_year):
     entities_by_type = entity_container_year.find_entities_grouped_by_linktype(learning_container_year)
 
     learning_container_year_values = _get_attributes_values(learning_container_year,
-                                                            ["id", "acronym", "title", "title_english", "container_type",
+                                                            ["id", "acronym", "common_title", "common_title_english", "container_type",
                                                             "campus__id", "language__id", "in_charge"])
     learning_unit_values = _get_attributes_values(learning_unit_year.learning_unit, ["id", "periodicity"])
-    learning_unit_year_values = _get_attributes_values(learning_unit_year, ["id", "acronym", "title", "title_english",
+    learning_unit_year_values = _get_attributes_values(learning_unit_year, ["id", "acronym", "specific_title", "specific_title_english",
                                                                            "internship_subtype", "quadrimester"])
     learning_unit_year_values["credits"] = float(learning_unit_year.credits) if learning_unit_year.credits else None
     initial_data = {

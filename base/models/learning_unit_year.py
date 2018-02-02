@@ -40,11 +40,12 @@ MAXIMUM_CREDITS = 500
 
 
 class LearningUnitYearAdmin(AuditableSerializableModelAdmin):
-    list_display = ('external_id', 'acronym', 'title', 'academic_year', 'credits', 'changed', 'structure', 'status')
+    list_display = ('external_id', 'acronym', 'specific_title', 'academic_year', 'credits', 'changed', 'structure',
+                    'status')
     fieldsets = ((None, {'fields': ('academic_year', 'learning_unit', 'learning_container_year', 'acronym',
-                                    'title', 'title_english', 'subtype', 'credits', 'decimal_scores', 'structure',
-                                    'internship_subtype', 'status', 'session', 'quadrimester',
-                                    'attribution_procedure')}),)
+                                    'specific_title', 'specific_title_english', 'subtype', 'credits', 'decimal_scores',
+                                    'structure', 'internship_subtype', 'status', 'session',
+                                    'quadrimester', 'attribution_procedure')}),)
     list_filter = ('academic_year', 'decimal_scores')
     raw_id_fields = ('learning_unit', 'learning_container_year', 'structure')
     search_fields = ['acronym', 'structure__acronym', 'external_id']
@@ -57,8 +58,8 @@ class LearningUnitYear(AuditableSerializableModel):
     learning_container_year = models.ForeignKey('LearningContainerYear', blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     acronym = models.CharField(max_length=15, db_index=True)
-    title = models.CharField(max_length=255)
-    title_english = models.CharField(max_length=250, blank=True, null=True)
+    specific_title = models.CharField(max_length=255, blank=True, null=True)
+    specific_title_english = models.CharField(max_length=250, blank=True, null=True)
     subtype = models.CharField(max_length=50, blank=True, null=True,
                                choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES)
     credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True,
@@ -111,6 +112,12 @@ class LearningUnitYear(AuditableSerializableModel):
             learning_container_year=self.learning_container_year
         ).first()
         return entity_container_yr.entity if entity_container_yr else None
+
+    @property
+    def complete_title(self):
+        if self.specific_title:
+            return "{} {}".format(self.learning_container_year.common_title, self.specific_title)
+        return self.learning_container_year.common_title
 
     def get_partims_related(self):
         if self.subtype == learning_unit_year_subtypes.FULL and self.learning_container_year:
