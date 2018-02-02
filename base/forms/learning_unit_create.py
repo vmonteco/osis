@@ -177,11 +177,12 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
 
 
 class CreatePartimForm(CreateLearningUnitYearForm):
-    partim_letter = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'text-center',
-                                                                                 'style': 'text-transform: uppercase;',
-                                                                                 'maxlength': "1",
-                                                                                 'id': 'hdn_partim_letter',
-                                                                                 'onchange': 'validate_acronym()'}))
+    partim_character = forms.CharField(required=True,
+                                       widget=forms.TextInput(attrs={'class': 'text-center',
+                                                                     'style': 'text-transform: uppercase;',
+                                                                     'maxlength': "1",
+                                                                     'id': 'hdn_partim_character',
+                                                                     'onchange': 'validate_acronym()'}))
     acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}[A-Z,0-9]$"
 
     def __init__(self, learning_unit_year_parent, *args, **kwargs):
@@ -199,4 +200,4 @@ class CreatePartimForm(CreateLearningUnitYearForm):
                 self.fields[field].widget.attrs[READONLY_ATTR] = READONLY_ATTR
 
     def clean_acronym(self):
-        return super(CreatePartimForm, self).clean_acronym() + self.data.get('partim_letter', [])[0].upper()
+        return super(CreatePartimForm, self).clean_acronym() + self.data.get('partim_character', [])[0].upper()

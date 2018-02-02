@@ -377,7 +377,6 @@ def check_acronym(request):
     existed_acronym = False
     existing_acronym = False
     last_using = ""
-
     learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_yr, acronym)
     old_learning_unit_year = mdl.learning_unit_year.find_lt_year_acronym(academic_yr, acronym).last()
 

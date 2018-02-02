@@ -717,7 +717,7 @@ class LearningUnitViewTestCase(TestCase):
         return {
             'first_letter': original_learning_unit_year.acronym[:1],
             'acronym': original_learning_unit_year.acronym[1:],
-            'partim_letter': 'B',
+            'partim_character': 'B',
             "subtype": learning_unit_year_subtypes.PARTIM
         }
 

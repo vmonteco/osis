@@ -58,7 +58,7 @@ function cleanErrorMessage(){
 
 
 function getCompleteAcronym(){
-    var acronym = getFirstLetter() + getAcronym() + getPartimLetter();
+    var acronym = getFirstLetter() + getAcronym() + getPartimCharacter();
     return acronym.toUpperCase();
 }
 
@@ -77,8 +77,8 @@ function getAcronym(){
 }
 
 
-function getPartimLetter(){
-    return extractValue($('#hdn_partim_letter'));
+function getPartimCharacter(){
+    return extractValue($('#hdn_partim_character'));
 }
 
 
