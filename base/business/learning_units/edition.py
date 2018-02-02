@@ -199,18 +199,18 @@ def _update_related_row(row, attribute_name, new_value):
 def _check_shorten_partims(learning_unit_to_edit, new_academic_year):
     if not LearningUnitYear.objects.filter(
             learning_unit=learning_unit_to_edit, subtype=learning_unit_year_subtypes.FULL).exists():
-        return
+        return None
 
     for lcy in LearningContainerYear.objects.filter(learning_container=learning_unit_to_edit.learning_container):
-        partim = lcy.get_partims_related().first()
-        if partim and _get_actual_end_year(partim.learning_unit) > new_academic_year.year:
-            raise IntegrityError(
-                _('partim_greater_than_parent') % {
-                    'learning_unit': learning_unit_to_edit.acronym,
-                    'partim': partim.acronym,
-                    'year': new_academic_year
-                }
-            )
+        for partim in lcy.get_partims_related():
+            if _get_actual_end_year(partim.learning_unit) > new_academic_year.year:
+                raise IntegrityError(
+                    _('partim_greater_than_parent') % {
+                        'learning_unit': learning_unit_to_edit.acronym,
+                        'partim': partim.acronym,
+                        'year': new_academic_year
+                    }
+                )
 
 
 def _get_actual_end_year(learning_unit_to_edit):

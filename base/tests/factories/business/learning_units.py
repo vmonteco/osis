@@ -28,11 +28,10 @@ import datetime
 from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS, compute_max_academic_year_adjournment
 from base.models import academic_year as mdl_academic_year
 from base.models.academic_year import AcademicYear
-from base.models.enums import entity_container_year_link_type, learning_container_year_types, learning_unit_periodicity, \
-    learning_unit_year_subtypes
+from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
+    learning_unit_periodicity, learning_unit_year_subtypes
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
-from base.tests.factories.learning_container import LearningContainerFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
