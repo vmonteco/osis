@@ -41,6 +41,7 @@ from base.business import learning_unit as learning_unit_business
 from base.forms import learning_units
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm
 from base.forms.learning_units import LearningUnitYearForm
+from base import models as mdl
 from base.models import learning_unit_component
 from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear
@@ -77,6 +78,12 @@ from osis_common.document import xls_build
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
 from base.views.learning_unit import learning_unit_volumes_management
+from django.test.utils import override_settings
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
+from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
+from cms.tests.factories.text_label import TextLabelFactory
+from cms.tests.factories.translated_text import TranslatedTextFactory
+from cms.enums import entity_name
 
 
 class LearningUnitViewTestCase(TestCase):
@@ -304,9 +311,7 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=learning_container_year)
 
-        request_factory = RequestFactory()
-        request = request_factory.get(reverse('learning_unit', args=[learning_unit_year.id]))
-        request.user = self.a_superuser
+        request = self.create_learning_unit_request(learning_unit_year)
 
         from base.views.learning_unit import learning_unit_identification
 
@@ -430,9 +435,7 @@ class LearningUnitViewTestCase(TestCase):
             academic_year=self.current_academic_year
         )
 
-        request_factory = RequestFactory()
-        request = request_factory.get(reverse('learning_unit', args=[learning_unit_year.id]))
-        request.user = self.a_superuser
+        request = self.create_learning_unit_request(learning_unit_year)
 
         from base.views.learning_unit import learning_unit_identification
 
@@ -447,8 +450,7 @@ class LearningUnitViewTestCase(TestCase):
 
     @mock.patch('base.views.layout.render')
     def test_learning_unit_formation(self, mock_render):
-
-        learning_unit_year = LearningUnitYearFactory()
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year)
         request_factory = RequestFactory()
 
         request = request_factory.get(reverse('learning_unit_formations', args=[learning_unit_year.id]))
@@ -1073,7 +1075,7 @@ class LearningUnitViewTestCase(TestCase):
                                                             credits=Decimal(2))
 
         valid_partim_data = self.get_base_partim_form_data(learning_unit_year_parent)
-        valid_partim_data['credits']='10'
+        valid_partim_data['credits'] = '10'
         # Learning unit year parent doesn't have any additional entities
         del valid_partim_data['additional_requirement_entity_1']
         del valid_partim_data['additional_requirement_entity_2']
@@ -1089,7 +1091,7 @@ class LearningUnitViewTestCase(TestCase):
                                                         container_type=learning_container_year_types.COURSE,
                                                         campus=self.campus,
                                                         language=self.language)
-        l_unit = LearningUnitFactory(faculty_remark="Remarks Faculty",other_remark="Other Remarks",
+        l_unit = LearningUnitFactory(faculty_remark="Remarks Faculty", other_remark="Other Remarks",
                                      periodicity=learning_unit_periodicity.ANNUAL)
         learning_unit_year_parent = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                             learning_unit=l_unit,
@@ -1161,6 +1163,98 @@ class LearningUnitViewTestCase(TestCase):
                                    entity=self.entity_version.entity,
                                    type=entity_container_year_link_type.ALLOCATION_ENTITY)
         return a_learning_container_yr
+
+    @override_settings(LANGUAGES=[('fr-be', 'French'), ('en', 'English'), ])
+    def test_find_inexisting_language_in_settings(self):
+        wrong_language_code = 'pt'
+        self.assertIsNone(learning_unit_business.find_language_in_settings(wrong_language_code))
+
+    @override_settings(LANGUAGES=[('fr-be', 'French'), ('en', 'English'), ])
+    def test_find_language_in_settings(self):
+        existing_language_code = 'en'
+        self.assertEquals(learning_unit_business.find_language_in_settings(existing_language_code), ('en', 'English'))
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_unit_pedagogy(self, mock_render):
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=self.learning_container_yr)
+
+        request = self.create_learning_unit_request(learning_unit_year)
+
+        from base.views.learning_unit import learning_unit_pedagogy
+
+        learning_unit_pedagogy(request, learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/pedagogy.html')
+        self.assertIsInstance(context['form_french'], LearningUnitPedagogyForm)
+        self.assertIsInstance(context['form_english'], LearningUnitPedagogyForm)
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_unit_specification(self, mock_render):
+        learning_unit_year = LearningUnitYearFactory()
+
+        request = self.create_learning_unit_request(learning_unit_year)
+
+        from base.views.learning_unit import learning_unit_specifications
+
+        learning_unit_specifications(request, learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/specifications.html')
+        self.assertIsInstance(context['form_french'], LearningUnitSpecificationsForm)
+        self.assertIsInstance(context['form_english'], LearningUnitSpecificationsForm)
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_unit_attributions(self, mock_render):
+        learning_unit_year = LearningUnitYearFactory()
+
+        request = self.create_learning_unit_request(learning_unit_year)
+
+        from base.views.learning_unit import learning_unit_attributions
+
+        learning_unit_attributions(request, learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/attributions.html')
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_unit_specifications_edit(self, mock_render):
+        a_label = 'label'
+        learning_unit_year = LearningUnitYearFactory()
+        text_label_lu = TextLabelFactory(order=1, label=a_label, entity=entity_name.LEARNING_UNIT_YEAR)
+        TranslatedTextFactory(text_label=text_label_lu, entity=entity_name.LEARNING_UNIT_YEAR)
+        request_factory = RequestFactory()
+        request = request_factory.get(reverse('learning_unit',
+                                              args=[learning_unit_year.id]), data={
+            'label': a_label,
+            'language': 'en'
+        })
+        request.user = self.a_superuser
+        # request.label = 'label'
+        # request.language = 'en'
+        from base.views.learning_unit import learning_unit_specifications_edit
+
+        learning_unit_specifications_edit(request, learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/specifications_edit.html')
+        self.assertIsInstance(context['form'], LearningUnitSpecificationsEditForm)
+
+    def create_learning_unit_request(self, learning_unit_year):
+        request_factory = RequestFactory()
+        request = request_factory.get(reverse('learning_unit',
+                                              args=[learning_unit_year.id]))
+        request.user = self.a_superuser
+        return request
 
 
 class LearningUnitCreate(TestCase):

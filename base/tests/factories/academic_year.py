@@ -23,22 +23,24 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
-import string
 import datetime
+import string
+
+import factory.fuzzy
 from django.utils import timezone
 from factory.django import DjangoModelFactory
 from faker import Faker
+
 from osis_common.utils.datetime import get_tzinfo
+
 fake = Faker()
 
 
 def create_current_academic_year():
     now = timezone.now()
     return AcademicYearFakerFactory(year=now.year,
-                                    start_date=datetime.date(now.year, now.month, 1),
-                                    end_date=datetime.date(now.year + 1, now.month, 28))
+                                    start_date=datetime.date(now.year, now.month-1, 1),
+                                    end_date=datetime.date(now.year + 1, now.month, 1))
 
 
 class AcademicYearFactory(DjangoModelFactory):
