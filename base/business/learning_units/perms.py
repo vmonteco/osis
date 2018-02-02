@@ -77,6 +77,7 @@ def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
 
 
 def is_eligible_for_modification_end_date(learn_unit_year, a_person):
+    return True
     if is_old_learning_unit(learn_unit_year.learning_unit):
         return False
     if proposal_learning_unit.find_by_learning_unit_year(learn_unit_year):
