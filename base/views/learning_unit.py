@@ -388,7 +388,7 @@ def check_acronym(request):
     if learning_unit_years:
         existing_acronym = True
 
-    acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}[A-Z]{0,1}$"
+    acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}[A-Z,0-9]{0,1}$"
     valid = bool(re.match(acronym_regex, acronym))
 
     return JsonResponse({'valid': valid,
