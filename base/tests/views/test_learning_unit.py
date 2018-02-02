@@ -960,6 +960,15 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(LearningUnitYear.objects.all().count(), 7)
 
+    def test_learning_unit_form_without_allocation_entity(self):
+        faultydict = dict(self.get_valid_data())
+        faultydict['allocation_entity'] = None
+        form = CreateLearningUnitYearForm(person=self.person, data=faultydict)
+        self.assertFalse(form.is_valid(), form.errors)
+        url = reverse('learning_unit_year_add')
+        response = self.client.post(url, data=faultydict)
+        self.assertEqual(response.status_code, 200)
+
     def test_expected_partim_creation_on_6_years(self):
         # Create container + container year for N+6
         a_learning_container = LearningContainerFactory()
