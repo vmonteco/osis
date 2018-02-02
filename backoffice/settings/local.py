@@ -32,6 +32,7 @@ OPTIONAL_APPS = (
     'internship',
     'assessments',
     'cms',
+    'django_extensions'
 )
 
 INSTALLED_APPS += OPTIONAL_APPS
