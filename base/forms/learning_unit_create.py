@@ -43,6 +43,7 @@ from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_Y
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
+from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_FULL, LEARNING_UNIT_ACRONYM_REGEX_PARTIM
 from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
 from reference.models.language import find_all_languages
 
@@ -132,7 +133,7 @@ class LearningUnitYearForm(BootstrapForm):
                                                                  widget=forms.Select(attrs={'disable': 'disable'}))
     language = forms.ModelChoiceField(find_all_languages(), empty_label=None)
 
-    acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}$"
+    acronym_regex = LEARNING_UNIT_ACRONYM_REGEX_FULL
 
     def clean_acronym(self):
         data_cleaned = self.data.get('first_letter', "") + self.cleaned_data.get('acronym')
@@ -183,7 +184,7 @@ class CreatePartimForm(CreateLearningUnitYearForm):
                                                                      'maxlength': "1",
                                                                      'id': 'hdn_partim_character',
                                                                      'onchange': 'validate_acronym()'}))
-    acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}[A-Z,0-9]$"
+    acronym_regex = LEARNING_UNIT_ACRONYM_REGEX_PARTIM
 
     def __init__(self, learning_unit_year_parent, *args, **kwargs):
         self.learning_unit_year_parent = learning_unit_year_parent
