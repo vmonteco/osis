@@ -343,7 +343,7 @@ def _match_dates(osis_date, esb_date):
 def find_main_entities_version():
     entities_version = find_latest_version(date=datetime.datetime.now(get_tzinfo())) \
         .filter(entity_type__in=[entity_type.SECTOR, entity_type.FACULTY, entity_type.SCHOOL,
-                                 entity_type.INSTITUTE, entity_type.DOCTORAL_COMMISSION],
+                                 entity_type.INSTITUTE, entity_type.DOCTORAL_COMMISSION, entity_type.LOGISTICS_ENTITY],
                 entity__organization__type=MAIN).order_by('acronym')
     return entities_version
 
