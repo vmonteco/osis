@@ -215,28 +215,28 @@ def compute_max_academic_year_adjournment():
 def create_learning_unit_structure(additional_requirement_entity_1, additional_requirement_entity_2,
                                    allocation_entity_version, data, new_learning_container, new_learning_unit,
                                    requirement_entity_version, status, academic_year, campus):
-    new_learning_container_year = LearningContainerYear.objects.create(academic_year=academic_year,
-                                                                       learning_container=new_learning_container,
-                                                                       common_title=data['common_title'],
-                                                                       acronym=data['acronym'].upper(),
-                                                                       container_type=data['container_type'],
-                                                                       language=data['language'],
-                                                                       campus=campus,
-                                                                       common_title_english=data['common_title_english'])
-    new_requirement_entity = create_entity_container_year(requirement_entity_version, new_learning_container_year,
+    new_learning_container_yr = LearningContainerYear.objects.create(academic_year=academic_year,
+                                                                     learning_container=new_learning_container,
+                                                                     common_title=data['common_title'],
+                                                                     acronym=data['acronym'].upper(),
+                                                                     container_type=data['container_type'],
+                                                                     language=data['language'],
+                                                                     campus=campus,
+                                                                     common_title_english=data['common_title_english'])
+    new_requirement_entity = create_entity_container_year(requirement_entity_version, new_learning_container_yr,
                                                           entity_container_year_link_type.REQUIREMENT_ENTITY)
     if allocation_entity_version:
-        create_entity_container_year(allocation_entity_version, new_learning_container_year,
+        create_entity_container_year(allocation_entity_version, new_learning_container_yr,
                                      entity_container_year_link_type.ALLOCATION_ENTITY)
     if additional_requirement_entity_1:
-        create_entity_container_year(additional_requirement_entity_1, new_learning_container_year,
+        create_entity_container_year(additional_requirement_entity_1, new_learning_container_yr,
                                      entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
     if additional_requirement_entity_2:
-        create_entity_container_year(additional_requirement_entity_2, new_learning_container_year,
+        create_entity_container_year(additional_requirement_entity_2, new_learning_container_yr,
                                      entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
     return create_learning_unit_content({'academic_year': academic_year,
                                          'data': data,
-                                         'new_learning_container_year': new_learning_container_year,
+                                         'new_learning_container_year': new_learning_container_yr,
                                          'new_learning_unit': new_learning_unit,
                                          'new_requirement_entity': new_requirement_entity,
                                          'status': status})
