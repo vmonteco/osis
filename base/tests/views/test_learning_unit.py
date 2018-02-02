@@ -965,9 +965,6 @@ class LearningUnitViewTestCase(TestCase):
         faultydict['allocation_entity'] = None
         form = CreateLearningUnitYearForm(person=self.person, data=faultydict)
         self.assertFalse(form.is_valid(), form.errors)
-        url = reverse('learning_unit_year_add')
-        response = self.client.post(url, data=faultydict)
-        self.assertEqual(response.status_code, 200)
 
     def test_expected_partim_creation_on_6_years(self):
         # Create container + container year for N+6
