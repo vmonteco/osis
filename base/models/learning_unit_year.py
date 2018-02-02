@@ -93,9 +93,7 @@ class LearningUnitYear(AuditableSerializableModel):
             return LearningUnitYear.objects.filter(
                 subtype=learning_unit_year_subtypes.FULL,
                 learning_container_year=self.learning_container_year,
-                learning_container_year__acronym=self.learning_container_year.acronym,
-                learning_container_year__container_type=learning_container_year_types.COURSE
-            ).first()
+            ).get()
         return None
 
     @property
