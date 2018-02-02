@@ -131,7 +131,7 @@ def scores_encoding(request):
                                     .distinct('learning_unit_year') \
                                     .values_list('learning_unit_year_id', flat=True)
             learning_unit_year_ids = list(learning_unit_year_ids_filter_by_tutor)
-        print('ici')
+
         score_encoding_progress_list = score_encoding_progress.get_scores_encoding_progress(
             user=request.user,
             offer_year_id=offer_year_id,
@@ -139,10 +139,10 @@ def scores_encoding(request):
             academic_year=academic_yr,
             learning_unit_year_ids=learning_unit_year_ids
         )
-        print('ici1')
+
         score_encoding_progress_list = score_encoding_progress.\
             append_related_tutors_and_score_responsibles(score_encoding_progress_list)
-        print('ici 2')
+
         if incomplete_encodings_only:
             score_encoding_progress_list = score_encoding_progress.filter_only_incomplete(score_encoding_progress_list)
 
@@ -156,7 +156,7 @@ def scores_encoding(request):
 
         if not score_encoding_progress_list:
             messages.add_message(request, messages.WARNING, "%s" % _('no_result'))
-        print('ici 3')
+
         context.update({'offer_list': all_offers,
                         'tutor_list': all_tutors,
                         'offer_year_id': offer_year_id,
