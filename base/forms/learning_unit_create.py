@@ -119,7 +119,7 @@ class LearningUnitYearForm(BootstrapForm):
             }
         )
     )
-    allocation_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
+    allocation_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=True,
                                                    widget=forms.Select(attrs={'id': 'allocation_entity'}))
     additional_requirement_entity_1 = EntitiesVersionChoiceField(
         queryset=find_main_entities_version(),

@@ -95,6 +95,7 @@ class TestSave(TestCase):
             "quadrimester": learning_unit_year_quadrimesters.Q1,
             "campus": self.campus.id,
             "requirement_entity": self.entity_version.id,
+            "allocation_entity": self.entity_version.id,
             "folder_entity": self.entity_version.id,
             "folder_id": "1",
         }
