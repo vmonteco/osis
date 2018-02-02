@@ -101,6 +101,12 @@ def _copy_learning_unit_data(learning_unit_year):
                                                                             "specific_title_english",
                                                                             "internship_subtype", "quadrimester"])
     learning_unit_year_values["credits"] = float(learning_unit_year.credits) if learning_unit_year.credits else None
+    
+    return get_initial_data(entities_by_type, learning_container_year_values, learning_unit_values,
+                            learning_unit_year_values)
+
+
+def get_initial_data(entities_by_type, learning_container_year_values, learning_unit_values, learning_unit_year_values):
     initial_data = {
         "learning_container_year": learning_container_year_values,
         "learning_unit_year": learning_unit_year_values,
