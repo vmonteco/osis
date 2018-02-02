@@ -23,32 +23,50 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from dissertation.models.dissertation_role import find_all_promoteur_by_dissertation
 from osis_common.messaging import message_config, send_message as message_service
-from dissertation.models.dissertation_role import get_promoteur_by_dissertation, search_by_dissertation
+from dissertation.models import dissertation_role
+
 
 
 def get_base_template(dissert):
     template_base_data = {'author': dissert.author,
                           'title': dissert.title,
-                          'promoteur': get_promoteur_by_dissertation(dissert).person,
+                          'promoteur': create_string_list_promoteurs(dissert),
                           'description': dissert.description,
                           'dissertation_proposition_titre': dissert.proposition_dissertation.title}
     return template_base_data
 
 
-def get_commission_template(dissert):
-    commission_to_read = search_by_dissertation(dissert)
-    list_commission_string = ''
-    for member in commission_to_read:
-        list_commission_string = list_commission_string + member.adviser.person.first_name +  ' ' + \
-                                member.adviser.person.last_name + ' : '+ member.status + ' - '
+def create_string_list_promoteurs(dissert):
+    liste_promoteurs_string = ''
+    promoteurs = find_all_promoteur_by_dissertation(dissert)
+    if promoteurs:
+        liste_promoteurs_string = ','.join(['{} {}'.format(dissrole.adviser.person.first_name,
+                                            dissrole.adviser.person.last_name)
+                                            for dissrole in promoteurs])
+    return liste_promoteurs_string
 
+
+def create_string_list_commission_lecture(dissert):
+    commission_to_read = dissertation_role.search_by_dissertation(dissert)
+    list_commission_string = ''
+    if commission_to_read:
+        list_commission_string = ' - '.join(['{} {} ({})'.
+                                            format(member_commission.adviser.person.first_name,
+                                                   member_commission.adviser.person.last_name,
+                                                   member_commission.status)
+                                             for member_commission in commission_to_read])
+    return list_commission_string
+
+
+def get_commission_template(dissert):
     template_commission_data = {'author' : dissert.author,
-                          'title': dissert.title,
-                          'promoteur' : get_promoteur_by_dissertation(dissert).person,
-                          'description' : dissert.description,
-                          'commission_string' : list_commission_string,
-                          'dissertation_proposition_titre': dissert.proposition_dissertation.title}
+                                'title': dissert.title,
+                                'promoteur': create_string_list_promoteurs(dissert),
+                                'description': dissert.description,
+                                'commission_string': create_string_list_commission_lecture(dissert),
+                                'dissertation_proposition_titre': dissert.proposition_dissertation.title}
     return template_commission_data
 
 
@@ -67,10 +85,20 @@ def send_email(dissert, template_ref, receivers):
     return message_service.send_messages(message_content)
 
 
-def generate_receivers(*receivers):
+def generate_receivers(receivers):
     receivers_tab = []
     for receiver in receivers:
         receivers_tab.append(message_config.create_receiver(receiver.person.id,
                                                             receiver.person.email,
                                                             receiver.person.language))
     return receivers_tab
+
+
+def send_email_to_jury_members(dissert):
+    receivers = [diss_role.adviser for diss_role in dissertation_role.search_by_dissertation(dissert)]
+    send_email(dissert, 'dissertation_to_commission_list', receivers)
+
+
+def send_email_to_all_promoteurs(dissert):
+    receivers = [diss_role.adviser for diss_role in dissertation_role.find_all_promoteur_by_dissertation(dissert)]
+    send_email(dissert, 'dissertation_adviser_new_project_dissertation', receivers)

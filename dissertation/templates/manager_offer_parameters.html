@@ -195,6 +195,20 @@
                             {% endif %}
                         </td>
                     </tr>
+                    <tr>
+                        <td style="padding-right: 1em">
+                            {% trans 'send_email_to_commission_accepted'%}
+                        </td>
+                        <td>
+                            {% if offer_proposition.global_email_to_commission %}
+                                <span class="glyphicon glyphicon-ok"
+                                      style="color: green" aria-hidden="true"></span>
+                            {% else %}
+                                <span class="glyphicon glyphicon-remove"
+                                      style="color: red" aria-hidden="true"></span>
+                            {% endif %}
+                        </td>
+                    </tr>
                 </table>
             </td>
           </tr>
