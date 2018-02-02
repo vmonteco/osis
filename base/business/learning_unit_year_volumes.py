@@ -77,7 +77,7 @@ def _save(volumes_grouped_by_lunityear):
 def _save_requirement_entities(entity_components_year, data):
     for ecy in entity_components_year:
         link_type = ecy.entity_container_year.type
-        ecy.hourly_volume_total = data.get('VOLUME_' + link_type)
+        ecy.repartition_volume = data.get('VOLUME_' + link_type)
         ecy.save()
 
 

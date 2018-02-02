@@ -2518,11 +2518,11 @@ msgstr "The learning unit %(learning_unit)s has a partim %(partim)s with an end 
 msgid "partim"
 msgstr "Partim"
 
-msgid "partim_letter_rules"
-msgstr "Aplhabetical code with 1 letter"
+msgid "partim_character_rules"
+msgstr "One letter or digit mandatory"
 
-msgid "invalid_partim_letter"
-msgstr "Letter already used"
+msgid "invalid_partim_character"
+msgstr "Character already used"
 
 msgid "remark"
 msgstr "Remark"

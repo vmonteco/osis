@@ -43,6 +43,7 @@ from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_class_year import LearningClassYearFactory
+from base.tests.factories.learning_container import LearningContainerFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 
 
@@ -468,6 +469,39 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
             learning_unit_full=learning_unit_full_annual,
             learning_unit_partim=learning_unit_partim_annual
         )
+        learning_unit_full_annual.learning_container = list_partims[0].learning_container_year.learning_container
+        learning_unit_full_annual.save()
+        learning_unit_partim_annual.learning_container = list_partims[0].learning_container_year.learning_container
+        learning_unit_partim_annual.save()
+
+        academic_year_of_new_end_date = academic_year.find_academic_year_by_year(end_year-3)
+
+        with self.assertRaises(IntegrityError) as context:
+            edit_learning_unit_end_date(learning_unit_full_annual, academic_year_of_new_end_date)
+
+        self.assertEqual(str(context.exception),
+                         _('partim_greater_than_parent') % {
+                    'learning_unit': learning_unit_full_annual.acronym,
+                    'partim': list_partims[-1].acronym,
+                    'year': academic_year_of_new_end_date}
+                         )
+
+    def test_edit_learning_unit_full_annual_end_date_with_wrong_partim_end_year_and_no_luy(self):
+        start_year = self.current_academic_year.year - 1
+        end_year = self.current_academic_year.year + 6
+
+        learning_unit_full_annual = self.setup_learning_unit(start_year=start_year, end_year=end_year)
+        learning_unit_partim_annual = self.setup_learning_unit(start_year=start_year, end_year=end_year)
+
+        list_partims = self.setup_list_of_learning_unit_years_partim(
+            list_of_academic_years=self.list_of_academic_years_after_now[:2],
+            learning_unit_full=learning_unit_full_annual,
+            learning_unit_partim=learning_unit_partim_annual
+        )
+        learning_unit_full_annual.learning_container = list_partims[0].learning_container_year.learning_container
+        learning_unit_full_annual.save()
+        learning_unit_partim_annual.learning_container = list_partims[0].learning_container_year.learning_container
+        learning_unit_partim_annual.save()
 
         academic_year_of_new_end_date = academic_year.find_academic_year_by_year(end_year-3)
 
