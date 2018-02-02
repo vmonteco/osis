@@ -32,7 +32,8 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.learning_units.edition import edit_learning_unit_end_date
 from base.models import academic_year
 from base.models.entity_container_year import EntityContainerYear
-from base.models.enums import learning_unit_year_subtypes, learning_unit_periodicity, learning_container_year_types
+from base.models.enums import learning_unit_year_subtypes, learning_unit_periodicity, learning_container_year_types, \
+    attribution_procedure
 from base.models.learning_class_year import LearningClassYear
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_component import LearningUnitComponent
@@ -595,6 +596,40 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
             'entity_acronym': self.entity_version.acronym,
             'academic_year': academic_year.find_academic_year_by_year(end_year_full+1)
         })
+
+    def test_with_partim_fields_that_are_not_reported(self):
+        lu_full = self.setup_learning_unit(start_year=self.current_academic_year.year,
+                                           end_year=self.list_of_academic_years_after_now[3].year)
+        lu_partim =  self.setup_learning_unit(start_year=self.current_academic_year.year,
+                                              end_year=self.current_academic_year.year)
+        lu_year_partims = self.setup_list_of_learning_unit_years_partim(
+            list_of_academic_years=self.list_of_academic_years_after_now[:4],
+            learning_unit_full=lu_full,
+            learning_unit_partim=lu_partim
+        )
+
+        for partim in lu_year_partims[2:]:
+            partim.delete()
+
+        lu_year_partims[1].attribution_procedure = attribution_procedure.INTERNAL_TEAM
+        lu_year_partims[1].save()
+        lu_year_partims[1].learning_container_year.is_vacant = True
+        lu_year_partims[1].learning_container_year.team = True
+        lu_year_partims[1].learning_container_year.save()
+
+
+        edit_learning_unit_end_date(lu_partim, self.list_of_academic_years_after_now[3])
+        created_partims = list(
+            LearningUnitYear.objects.filter(subtype=learning_unit_year_subtypes.PARTIM)
+                .exclude(id=lu_year_partims[1].id)
+        )
+
+        self.assertEqual(len(created_partims), 3)
+
+        for partim in created_partims:
+            self.assertIsNone(partim.attribution_procedure)
+            self.assertFalse(partim.learning_container_year.is_vacant)
+            self.assertTrue(partim.learning_container_year.team)
 
     def _edit_lu(self, learning_unit_full_annual, excepted_end_year):
         excepted_nb_msg = abs(learning_unit_full_annual.end_year - excepted_end_year) + 1
