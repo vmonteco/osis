@@ -58,16 +58,12 @@ def _create_first_letter_choices():
     return add_blank(LearningUnitManagementSite.choices())
 
 
-def create_learning_container_year_type_list():
+def _create_learning_container_year_type_list():
     return add_blank(LEARNING_CONTAINER_YEAR_TYPES)
 
 
 def create_faculty_learning_container_type_list():
     return add_blank(LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY)
-
-
-def _create_learning_container_year_type_for_partim_list():
-    return add_blank(learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES_PARTIM)
 
 
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
@@ -100,7 +96,7 @@ class LearningUnitYearForm(BootstrapForm):
                                 required=False)
     subtype = forms.CharField(widget=forms.HiddenInput())
     first_letter = forms.ChoiceField(choices=lazy(_create_first_letter_choices, tuple), required=True)
-    container_type = forms.ChoiceField(choices=lazy(create_learning_container_year_type_list, tuple),
+    container_type = forms.ChoiceField(choices=lazy(_create_learning_container_year_type_list, tuple),
                                        widget=forms.Select(attrs={'onchange': 'showInternshipSubtype()'}))
     faculty_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
     other_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
@@ -191,7 +187,7 @@ class CreatePartimForm(CreateLearningUnitYearForm):
     def __init__(self, learning_unit_year_parent, *args, **kwargs):
         self.learning_unit_year_parent = learning_unit_year_parent
         super(CreatePartimForm, self).__init__(*args, **kwargs)
-        self.fields['container_type'].choices = _create_learning_container_year_type_for_partim_list()
+        self.fields['container_type'].choices = _create_learning_container_year_type_list()
         self.fields['partial_title'].required = True
         # The credit of LUY partim cannot be greater than credit of full LUY
         self.fields['credits'].validators.append(MaxStrictlyValueValidator(learning_unit_year_parent.credits))
