@@ -65,19 +65,19 @@
                                     {% endif %}
                                 </div>
                                 <div class="col-md-3" style="padding-left:0;">
-                                    <label class="text-no-wrap" {% if form.errors.partim_letter %}style="color:red;"{% endif %}>
+                                    <label class="text-no-wrap" {% if form.errors.partim_character %}style="color:red;"{% endif %}>
                                         {% trans 'partim' %}*
                                     </label>
-                                    {{ form.partim_letter }}
-                                    <span class='error' id="{{ form.partim_letter.name }}_message" for='{{ form.partim_letter.name }}' generated="true"/>
-                                    {% if form.partim_letter.errors %}
-                                        <label class='error' for='{{ form.partim_letter.name }}' generated="true">{{ form.partim_letter.errors|join:". " }}</label>
+                                    {{ form.partim_character }}
+                                    <span class='error' id="{{ form.partim_character.name }}_message" for='{{ form.partim_character.name }}' generated="true"/>
+                                    {% if form.partim_character.errors %}
+                                        <label class='error' for='{{ form.partim_character.name }}' generated="true">{{ form.partim_character.errors|join:". " }}</label>
                                     {% endif %}
                                 </div>
                                 <div class="col-md-1">
-                                    <abbr title="{% trans 'partim_letter_rules' %}">
+                                    <abbr title="{% trans 'partim_character_rules' %}">
                                             <span class="glyphicon glyphicon-question-sign pull-right"
-                                                  title="{% trans 'partim_letter_rules' %}" style="font-size: 14pt;"
+                                                  title="{% trans 'partim_character_rules' %}" style="font-size: 14pt;"
                                                   aria-hidden="true"></span></abbr>
                                 </div>
                             </div>
@@ -260,7 +260,7 @@
         const trans_invalid_acronym = "{% trans 'invalid_acronym' %}";
         const trans_existing_acronym = "{% trans 'existing_acronym' %}";
         const trans_field_required = "{% trans 'field_is_required' %}";
-        const trans_invalid_partim_letter = "{% trans 'invalid_partim_letter' %}";
+        const trans_invalid_partim_character = "{% trans 'invalid_partim_character' %}";
         const currentAcronym = "";
     </script>
     <script type="text/javascript" src="{% static 'js/learning_unit_creation.js' %}"></script>
