@@ -101,7 +101,6 @@ def _copy_learning_unit_data(learning_unit_year):
                                                                             "specific_title_english",
                                                                             "internship_subtype", "quadrimester"])
     learning_unit_year_values["credits"] = float(learning_unit_year.credits) if learning_unit_year.credits else None
-    
     return get_initial_data(entities_by_type, learning_container_year_values, learning_unit_values,
                             learning_unit_year_values)
 
@@ -111,18 +110,22 @@ def get_initial_data(entities_by_type, learning_container_year_values, learning_
         "learning_container_year": learning_container_year_values,
         "learning_unit_year": learning_unit_year_values,
         "learning_unit": learning_unit_values,
-        "entities": {
-            REQUIREMENT_ENTITY: entities_by_type[REQUIREMENT_ENTITY].id
-            if entities_by_type.get(REQUIREMENT_ENTITY) else None,
-            ALLOCATION_ENTITY: entities_by_type[ALLOCATION_ENTITY].id
-            if entities_by_type.get(ALLOCATION_ENTITY) else None,
-            ADDITIONAL_REQUIREMENT_ENTITY_1: entities_by_type[ADDITIONAL_REQUIREMENT_ENTITY_1].id
-            if entities_by_type.get(ADDITIONAL_REQUIREMENT_ENTITY_1) else None,
-            ADDITIONAL_REQUIREMENT_ENTITY_2: entities_by_type[ADDITIONAL_REQUIREMENT_ENTITY_2].id
-            if entities_by_type.get(ADDITIONAL_REQUIREMENT_ENTITY_2) else None
-        }
+        "entities": get_entities(entities_by_type)
     }
     return initial_data
+
+
+def get_entities(entities_by_type):
+    return {
+        REQUIREMENT_ENTITY: entities_by_type[REQUIREMENT_ENTITY].id
+        if entities_by_type.get(REQUIREMENT_ENTITY) else None,
+        ALLOCATION_ENTITY: entities_by_type[ALLOCATION_ENTITY].id
+        if entities_by_type.get(ALLOCATION_ENTITY) else None,
+        ADDITIONAL_REQUIREMENT_ENTITY_1: entities_by_type[ADDITIONAL_REQUIREMENT_ENTITY_1].id
+        if entities_by_type.get(ADDITIONAL_REQUIREMENT_ENTITY_1) else None,
+        ADDITIONAL_REQUIREMENT_ENTITY_2: entities_by_type[ADDITIONAL_REQUIREMENT_ENTITY_2].id
+        if entities_by_type.get(ADDITIONAL_REQUIREMENT_ENTITY_2) else None
+    }
 
 
 def _update_model_object(obj, data_values, fields_to_update):
