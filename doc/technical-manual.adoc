@@ -187,6 +187,7 @@ backend database:
     $ psql -d osis_local
       =# grant connect on database osis_local to osis;
       =# revoke connect on database osis_local from public;
+      =# alter user osis createdb;
       =# \q
 
 [[installing-django]]
