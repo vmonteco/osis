@@ -314,4 +314,4 @@ def _assign_volume(container_year, component_year, map_entity_type_and_volume):
         entity_cont = EntityContainerYearFactory(type=entity_type, learning_container_year=container_year)
         EntityComponentYearFactory(entity_container_year=entity_cont,
                                    learning_component_year=component_year,
-                                   hourly_volume_total=volume.get('vol_tot'),)
+                                   repartition_volume=volume.get('vol_tot'),)
