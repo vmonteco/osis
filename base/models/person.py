@@ -124,7 +124,10 @@ class Person(SerializableModel):
 
 
 def find_by_id(person_id):
-    return Person.objects.get(id=person_id)
+    try:
+        return Person.objects.get(id=person_id)
+    except Person.DoesNotExist:
+        return None
 
 
 def find_by_user(user):
