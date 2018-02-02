@@ -203,7 +203,7 @@ def _check_shorten_partims(learning_unit_to_edit, new_academic_year):
 
     for lcy in LearningContainerYear.objects.filter(learning_container=learning_unit_to_edit.learning_container):
         partim = lcy.get_partims_related().first()
-        if not partim or partim.learning_unit == learning_unit_to_edit:
+        if not partim:
             continue
         if partim and _get_actual_end_year(partim.learning_unit) > new_academic_year.year:
             raise IntegrityError(
