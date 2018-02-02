@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import datetime
+import factory.fuzzy
 from decimal import Decimal
 from unittest import mock
 
@@ -717,7 +718,7 @@ class LearningUnitViewTestCase(TestCase):
         return {
             'first_letter': original_learning_unit_year.acronym[:1],
             'acronym': original_learning_unit_year.acronym[1:],
-            'partim_character': 'B',
+            'partim_character': factory.fuzzy.FuzzyText(length=1).fuzz(),
             "subtype": learning_unit_year_subtypes.PARTIM
         }
 
