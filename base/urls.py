@@ -104,6 +104,7 @@ urlpatterns = [
                     name="learning_unit_cancel_proposal")
             ])),
             url(r'^edit/$', edition.learning_unit_edition, name="learning_unit_edition"),
+            url(r'^modify/$', edition.learning_unit_edition, name="edit_learning_unit"),
             url(r'^specifications/$', learning_unit.learning_unit_specifications, name="learning_unit_specifications"),
             url(r'^specifications/edit/$', learning_unit.learning_unit_specifications_edit,
                 name="learning_unit_specifications_edit"),

@@ -67,6 +67,11 @@ def learning_unit_edition(request, learning_unit_year_id):
     return layout.render(request, 'learning_unit/edition.html', context)
 
 
+@login_required
+def modify_learning_unit(request, learning_unit_year_id):
+    return
+
+
 def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id):
     if not LearningUnitYear.objects.filter(pk=learning_unit_year_id).exists():
         result = LearningUnitYear.objects.filter(learning_unit=learning_unit_to_edit).last().pk

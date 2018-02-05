@@ -30,10 +30,13 @@ from django.contrib.auth.models import Permission
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import TestCase, RequestFactory
-from django.urls import reverse
+from django.urls import reverse, resolve
 
-from base.models.enums import learning_unit_periodicity, learning_container_year_types
+from base.models.enums import learning_unit_periodicity, learning_container_year_types, learning_unit_year_subtypes
+from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.business.learning_units import LearningUnitsMixin
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory, SuperUserFactory
 from base.views.learning_units.edition import learning_unit_edition
@@ -106,3 +109,21 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         msg = [m.message for m in get_messages(request)]
         self.assertEqual(len(msg), 1)
         self.assertIn(messages.SUCCESS, msg_level)
+
+
+class TestEditLearningUnit(TestCase):
+    def setUp(self):
+        an_academic_year = AcademicYearFactory()
+        learning_container_year = LearningContainerYearFactory(academic_year=an_academic_year,
+                                                               container_type=learning_container_year_types.COURSE)
+        learning_unit_year = LearningUnitYearFactory(learning_container_year=learning_container_year,
+                                                     subtype=learning_unit_year_subtypes.FULL)
+        user = UserFactory()
+        self.client.force_login(user)
+        self.url = reverse("edit_learning_unit", args=[learning_unit_year.id])
+
+    def test_user_not_logged(self):
+        self.client.logout()
+        response = self.client.get(self.url)
+
+        self.assertRedirects(response, "/login/?next={}".format(self.url))
