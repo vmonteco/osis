@@ -29,6 +29,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_units.edition import filter_biennial
 from base.forms.bootstrap import BootstrapForm
+from base.forms.learning_unit_create import LearningUnitYearForm
 from base.models import academic_year
 from base.models.academic_year import AcademicYear
 from base.models.learning_unit import is_old_learning_unit
@@ -80,3 +81,7 @@ class LearningUnitEndDateForm(BootstrapForm):
             raise ValueError('Learning_unit {} cannot be modify'.format(self.learning_unit))
 
         return academic_year.find_academic_years(start_year=min_year, end_year=max_year)
+
+
+class LearningUnitModificationForm(LearningUnitYearForm):
+    pass

@@ -34,6 +34,7 @@ from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpRespons
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 
+from base.forms.learning_unit.edition import LearningUnitModificationForm
 from base.models.enums import learning_unit_periodicity, learning_container_year_types, learning_unit_year_subtypes
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.business.learning_units import LearningUnitsMixin
@@ -191,6 +192,17 @@ class TestEditLearningUnit(TestCase):
 
         self.assertTemplateUsed(response, "learning_unit/modification.html")
         self.assertEqual(response.status_code, HttpResponse.status_code)
+
+    def test_context_used_for_get_request(self):
+        response = self.client.get(self.url)
+
+        context = response.context
+
+        self.assertEqual(context["learning_unit_year"], self.learning_unit_year)
+
+        form = context["form"]
+        self.assertIsInstance(form, LearningUnitModificationForm)
+
 
 
 

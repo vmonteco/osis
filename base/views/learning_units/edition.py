@@ -31,7 +31,7 @@ from django.urls import reverse
 
 from base.views.learning_unit import get_learning_unit_identification_context
 from base.business.learning_units.edition import edit_learning_unit_end_date
-from base.forms.learning_unit.edition import LearningUnitEndDateForm
+from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
@@ -72,8 +72,10 @@ def learning_unit_edition(request, learning_unit_year_id):
 @perms.can_perform_learning_unit_modification
 def modify_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+    form = LearningUnitModificationForm()
     context = {
-        "learning_unit_year": learning_unit_year
+        "learning_unit_year": learning_unit_year,
+        "form": form
     }
     return layout.render(request, 'learning_unit/modification.html', context)
 
