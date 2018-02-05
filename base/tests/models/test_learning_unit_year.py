@@ -27,6 +27,7 @@ from django.test import TestCase
 from django.utils import timezone
 from attribution.models import attribution
 from base.models import learning_unit_year
+from base.models.enums import learning_unit_year_subtypes
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.academic_year import AcademicYearFactory
@@ -96,3 +97,20 @@ class LearningUnitYearTest(TestCase):
         result = list(selected_learning_unit_year.find_gte_learning_units_year().values_list('academic_year__year',
                                                                                              flat=True))
         self.assertEqual(result, [2017])
+
+    def test_get_learning_unit_parent(self):
+        lunit_container_year = LearningContainerYearFactory(academic_year=self.academic_year, acronym='LBIR1230')
+        luy_parent = LearningUnitYearFactory(academic_year=self.academic_year, acronym='LBIR1230',
+                                             learning_container_year=lunit_container_year,
+                                             subtype=learning_unit_year_subtypes.FULL)
+        luy_partim = LearningUnitYearFactory(academic_year=self.academic_year, acronym='LBIR1230B',
+                                             learning_container_year=lunit_container_year,
+                                             subtype=learning_unit_year_subtypes.PARTIM)
+        self.assertEqual(luy_partim.parent, luy_parent)
+
+    def test_get_learning_unit_parent_without_parent(self):
+        lunit_container_year = LearningContainerYearFactory(academic_year=self.academic_year, acronym='LBIR1230')
+        luy_parent = LearningUnitYearFactory(academic_year=self.academic_year, acronym='LBIR1230',
+                                             learning_container_year=lunit_container_year,
+                                             subtype=learning_unit_year_subtypes.FULL)
+        self.assertIsNone(luy_parent.parent)
