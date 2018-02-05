@@ -71,3 +71,8 @@ def can_perform_end_date_modification(view_func):
             raise PermissionDenied("Learning unit year date is not editable or user has not sufficient rights.")
         return view_func(request, learning_unit_year_id)
     return f_can_perform_end_date_modification
+
+def can_perform_learning_unit_modification(view_func):
+    def f_can_perform_learning_unit_modification(request, learning_unit_year_id):
+        learn_unit_year = get_object_or_404(learning_unit_year.LearningUnitYear, pk=learning_unit_year_id)
+    return f_can_perform_learning_unit_modification

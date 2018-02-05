@@ -23,18 +23,19 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
 from unittest import mock
 
 from django.contrib import messages
 from django.contrib.auth.models import Permission
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 
 from base.models.enums import learning_unit_periodicity, learning_container_year_types, learning_unit_year_subtypes
-from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.business.learning_units import LearningUnitsMixin
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
@@ -113,16 +114,19 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
 
 
 class TestEditLearningUnit(TestCase):
-    def setUp(self):
-        an_academic_year = AcademicYearFactory()
+    @classmethod
+    def setUpTestData(cls):
+        an_academic_year = create_current_academic_year()
         learning_container_year = LearningContainerYearFactory(academic_year=an_academic_year,
                                                                container_type=learning_container_year_types.COURSE)
-        learning_unit_year = LearningUnitYearFactory(learning_container_year=learning_container_year,
+        cls.learning_unit_year = LearningUnitYearFactory(learning_container_year=learning_container_year,
                                                      subtype=learning_unit_year_subtypes.FULL)
-        user = UserFactory()
-        user.user_permissions.add(Permission.objects.get(codename="can_edit_learningunit"))
-        self.client.force_login(user)
-        self.url = reverse("edit_learning_unit", args=[learning_unit_year.id])
+        cls.user = PersonFactory().user
+        cls.user.user_permissions.add(Permission.objects.get(codename="can_edit_learningunit"))
+        cls.url = reverse("edit_learning_unit", args=[cls.learning_unit_year.id])
+
+    def setUp(self):
+        self.client.force_login(self.user)
 
     def test_user_not_logged(self):
         self.client.logout()
@@ -138,4 +142,13 @@ class TestEditLearningUnit(TestCase):
 
         self.assertTemplateUsed(response, "access_denied.html")
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+
+    def test_learning_unit_does_not_exist(self):
+        non_existent_learning_unit_year_id = self.learning_unit_year.id + 1
+        url = reverse("edit_learning_unit", args=[non_existent_learning_unit_year_id])
+
+        response = self.client.get(url)
+
+        self.assertTemplateUsed(response, "page_not_found.html")
+        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
 
