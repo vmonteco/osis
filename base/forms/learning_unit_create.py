@@ -144,7 +144,9 @@ class LearningUnitYearForm(BootstrapForm):
             return False
         elif not re.match(self.acronym_regex, self.cleaned_data['acronym']):
             self.add_error('acronym', _('invalid_acronym'))
-        elif self.cleaned_data["container_type"] == INTERNSHIP and not (self.cleaned_data['internship_subtype']):
+        elif 'internship_subtype' in self.fields \
+                and self.cleaned_data["container_type"] == INTERNSHIP \
+                and not (self.cleaned_data['internship_subtype']):
             self.add_error('internship_subtype', _('field_is_required'))
         else:
             return True
@@ -158,7 +160,7 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
         self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
         if person.user.groups.filter(name='faculty_managers').exists():
             self.fields["container_type"].choices = create_faculty_learning_container_type_list()
-            del self.fields['internship_subtype']
+            self.fields.pop('internship_subtype')
 
     def is_valid(self):
         if not super().is_valid():
