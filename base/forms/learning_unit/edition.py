@@ -99,3 +99,21 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     team = forms.BooleanField(required=False)
     type_declaration_vacant = forms.ChoiceField(required=False, choices=_create_type_declaration_vacant_list())
     attribution_procedure = forms.ChoiceField(required=False, choices=_create_attribution_procedure_list())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["first_letter"].disabled = True
+        self.fields["first_letter"].required = False
+
+        self.fields["acronym"].disabled = True
+        self.fields["acronym"].required = False
+
+        self.fields["academic_year"].disabled = True
+        self.fields["academic_year"].required = False
+
+        self.fields["container_type"].disabled = True
+        self.fields["container_type"].required = False
+
+        self.fields["subtype"].disabled = True
+        self.fields["subtype"].required = False
