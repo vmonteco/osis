@@ -43,6 +43,7 @@ from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_Y
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
+from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_FULL, LEARNING_UNIT_ACRONYM_REGEX_PARTIM
 from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
 from reference.models.language import find_all_languages
 
@@ -132,7 +133,7 @@ class LearningUnitYearForm(BootstrapForm):
                                                                  widget=forms.Select(attrs={'disable': 'disable'}))
     language = forms.ModelChoiceField(find_all_languages(), empty_label=None)
 
-    acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}$"
+    acronym_regex = LEARNING_UNIT_ACRONYM_REGEX_FULL
 
     def clean_acronym(self):
         data_cleaned = self.data.get('first_letter', "") + self.cleaned_data.get('acronym')
@@ -177,12 +178,13 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
 
 
 class CreatePartimForm(CreateLearningUnitYearForm):
-    partim_letter = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'text-center',
-                                                                                 'style': 'text-transform: uppercase;',
-                                                                                 'maxlength': "1",
-                                                                                 'id': 'hdn_partim_letter',
-                                                                                 'onchange': 'validate_acronym()'}))
-    acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}[A-Z]$"
+    partim_character = forms.CharField(required=True,
+                                       widget=forms.TextInput(attrs={'class': 'text-center',
+                                                                     'style': 'text-transform: uppercase;',
+                                                                     'maxlength': "1",
+                                                                     'id': 'hdn_partim_character',
+                                                                     'onchange': 'validate_acronym()'}))
+    acronym_regex = LEARNING_UNIT_ACRONYM_REGEX_PARTIM
 
     def __init__(self, learning_unit_year_parent, *args, **kwargs):
         self.learning_unit_year_parent = learning_unit_year_parent
@@ -198,4 +200,4 @@ class CreatePartimForm(CreateLearningUnitYearForm):
                 self.fields[field].widget.attrs[READONLY_ATTR] = READONLY_ATTR
 
     def clean_acronym(self):
-        return super(CreatePartimForm, self).clean_acronym() + self.data.get('partim_letter', [])[0].upper()
+        return super(CreatePartimForm, self).clean_acronym() + self.data.get('partim_character', [])[0].upper()

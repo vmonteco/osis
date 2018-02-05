@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
@@ -66,6 +65,7 @@ from base.models import proposal_learning_unit
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
+from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views.learning_units import perms
@@ -377,7 +377,6 @@ def check_acronym(request):
     existed_acronym = False
     existing_acronym = False
     last_using = ""
-
     learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_yr, acronym)
     old_learning_unit_year = mdl.learning_unit_year.find_lt_year_acronym(academic_yr, acronym).last()
 
@@ -388,8 +387,7 @@ def check_acronym(request):
     if learning_unit_years:
         existing_acronym = True
 
-    acronym_regex = "^[BLMW][A-Z]{2,4}\d{4}[A-Z]{0,1}$"
-    valid = bool(re.match(acronym_regex, acronym))
+    valid = bool(re.match(LEARNING_UNIT_ACRONYM_REGEX_ALL, acronym))
 
     return JsonResponse({'valid': valid,
                          'existing_acronym': existing_acronym,
