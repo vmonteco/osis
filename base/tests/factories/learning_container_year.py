@@ -53,3 +53,4 @@ class LearningContainerYearFactory(factory.django.DjangoModelFactory):
     changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
     in_charge = False
+    type_declaration_vacant = None

@@ -69,6 +69,7 @@ class LearningUnitYearFactory(DjangoModelFactory):
     session = factory.Iterator(learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION, getter=operator.itemgetter(0))
     quadrimester = factory.Iterator(learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS,
                                     getter=operator.itemgetter(0))
+    attribution_procedure = None
 
 
 class LearningUnitYearFakerFactory(DjangoModelFactory):

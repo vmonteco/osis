@@ -36,7 +36,7 @@ from django.urls import reverse
 
 from base.forms.learning_unit.edition import LearningUnitModificationForm
 from base.models.enums import learning_unit_periodicity, learning_container_year_types, learning_unit_year_subtypes, \
-    entity_container_year_link_type
+    entity_container_year_link_type, vacant_declaration_type, attribution_procedure
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.business.learning_units import LearningUnitsMixin
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -123,10 +123,12 @@ class TestEditLearningUnit(TestCase):
     def setUpTestData(cls):
         an_academic_year = create_current_academic_year()
         learning_container_year = LearningContainerYearFactory(academic_year=an_academic_year,
-                                                               container_type=learning_container_year_types.COURSE)
+                                                               container_type=learning_container_year_types.COURSE,
+                                                               type_declaration_vacant=vacant_declaration_type.DO_NOT_ASSIGN)
         cls.learning_unit_year = LearningUnitYearFactory(learning_container_year=learning_container_year,
                                                          academic_year=an_academic_year,
-                                                         subtype=learning_unit_year_subtypes.FULL)
+                                                         subtype=learning_unit_year_subtypes.FULL,
+                                                         attribution_procedure=attribution_procedure.INTERNAL_TEAM)
 
         cls.requirement_entity_container = EntityContainerYearFactory(
             learning_container_year=learning_container_year, type=entity_container_year_link_type.REQUIREMENT_ENTITY)
@@ -256,9 +258,10 @@ class TestEditLearningUnit(TestCase):
             "additional_requirement_entity_2": self.additional_entity_2.id,
             "language": self.learning_unit_year.learning_container_year.language.id,
             "is_vacant": self.learning_unit_year.learning_container_year.is_vacant,
-            "team": self.learning_unit_year.learning_container_year.team
+            "team": self.learning_unit_year.learning_container_year.team,
+            "type_declaration_vacant": self.learning_unit_year.learning_container_year.type_declaration_vacant,
+            "attribution_procedure": self.learning_unit_year.attribution_procedure
         }
-
         self.assertDictEqual(initial_data, expected_initial)
 
 
