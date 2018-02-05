@@ -30,7 +30,7 @@ from django.contrib import messages
 from django.contrib.auth.models import Permission
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
-from django.http import HttpResponseForbidden, HttpResponseNotFound
+from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpResponse
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 
@@ -121,7 +121,8 @@ class TestEditLearningUnit(TestCase):
         learning_container_year = LearningContainerYearFactory(academic_year=an_academic_year,
                                                                container_type=learning_container_year_types.COURSE)
         cls.learning_unit_year = LearningUnitYearFactory(learning_container_year=learning_container_year,
-                                                     subtype=learning_unit_year_subtypes.FULL)
+                                                         academic_year=an_academic_year,
+                                                         subtype=learning_unit_year_subtypes.FULL)
         cls.user = PersonFactory().user
         cls.user.user_permissions.add(Permission.objects.get(codename="can_edit_learningunit"))
         cls.url = reverse("edit_learning_unit", args=[cls.learning_unit_year.id])
@@ -184,6 +185,12 @@ class TestEditLearningUnit(TestCase):
 
         self.assertTemplateUsed(response, "access_denied.html")
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+
+    def test_template_used_for_get_request(self):
+        response = self.client.get(self.url)
+
+        self.assertTemplateUsed(response, "learning_unit/modification.html")
+        self.assertEqual(response.status_code, HttpResponse.status_code)
 
 
 

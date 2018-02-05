@@ -71,7 +71,11 @@ def learning_unit_edition(request, learning_unit_year_id):
 @permission_required('base.can_edit_learningunit', raise_exception=True)
 @perms.can_perform_learning_unit_modification
 def modify_learning_unit(request, learning_unit_year_id):
-    return
+    learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+    context = {
+        "learning_unit_year": learning_unit_year
+    }
+    return layout.render(request, 'learning_unit/modification.html', context)
 
 
 def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id):
