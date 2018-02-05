@@ -452,7 +452,8 @@ class LearningUnitViewTestCase(TestCase):
 
     @mock.patch('base.views.layout.render')
     def test_learning_unit_formation(self, mock_render):
-        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year)
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=self.learning_container_yr)
         request_factory = RequestFactory()
 
         request = request_factory.get(reverse('learning_unit_formations', args=[learning_unit_year.id]))
