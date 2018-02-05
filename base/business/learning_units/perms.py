@@ -97,7 +97,7 @@ def _can_faculty_manager_modify_end_date(learning_unit_year):
 
 def _learning_unit_year_is_past(learn_unit_year):
     current_year = current_academic_year().year
-    return  learn_unit_year.academic_year.year < current_year
+    return learn_unit_year.academic_year.year < current_year
 
 
 def _learning_unit_year_is_on_proposal(learn_unit_year):

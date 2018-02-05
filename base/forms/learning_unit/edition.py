@@ -89,6 +89,7 @@ class LearningUnitEndDateForm(BootstrapForm):
 def _create_type_declaration_vacant_list():
     return add_blank(VacantDeclarationType.translation_choices())
 
+
 def _create_attribution_procedure_list():
     return add_blank(AttributionProcedures.translation_choices())
 
@@ -98,4 +99,3 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     team = forms.BooleanField(required=False)
     type_declaration_vacant = forms.ChoiceField(required=False, choices=_create_type_declaration_vacant_list())
     attribution_procedure = forms.ChoiceField(required=False, choices=_create_attribution_procedure_list())
-
