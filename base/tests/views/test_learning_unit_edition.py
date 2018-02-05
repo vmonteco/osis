@@ -152,3 +152,14 @@ class TestEditLearningUnit(TestCase):
         self.assertTemplateUsed(response, "page_not_found.html")
         self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
 
+    def test_user_is_not_linked_to_a_person(self):
+        user = UserFactory()
+        user.user_permissions.add(Permission.objects.get(codename="can_edit_learningunit"))
+        self.client.force_login(user)
+
+        response = self.client.get(self.url)
+
+        self.assertTemplateUsed(response, "page_not_found.html")
+        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
+
+
