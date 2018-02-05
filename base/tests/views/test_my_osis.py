@@ -59,7 +59,6 @@ class MyOsisViewTestCase(TestCase):
         self.person = PersonFactory(user=self.a_superuser,
                                     language=LANGUAGE_CODE_FR)
         self.client.force_login(self.a_superuser)
-        self.requestFactory = RequestFactory()
 
         academic_year = create_current_academic_year()
         self.summary_course_submission_calendar = AcademicCalendarFactory(
@@ -86,8 +85,8 @@ class MyOsisViewTestCase(TestCase):
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
 
         from base.views.my_osis import my_osis_index
-
-        request = self.requestFactory.get(reverse(my_osis_index))
+        req_factory = RequestFactory()
+        request = req_factory.get(reverse(my_osis_index))
         request.user = mock.Mock()
         my_osis_index(request)
         self.assertTrue(mock_render.called)
