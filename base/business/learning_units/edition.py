@@ -218,7 +218,7 @@ def _check_shorten_partim(learning_unit_to_edit, new_academic_year, partim):
 
 
 def _get_actual_end_year(learning_unit_to_edit):
-    return learning_unit_to_edit.end_year or compute_max_academic_year_adjournment()
+    return learning_unit_to_edit.end_year or compute_max_academic_year_adjournment() + 1
 
 
 def _get_new_end_year(new_academic_year):
