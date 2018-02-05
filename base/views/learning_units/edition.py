@@ -68,6 +68,7 @@ def learning_unit_edition(request, learning_unit_year_id):
 
 
 @login_required
+@permission_required('base.can_edit_learningunit', raise_exception=True)
 def modify_learning_unit(request, learning_unit_year_id):
     return
 
