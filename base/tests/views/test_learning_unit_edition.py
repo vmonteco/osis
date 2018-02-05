@@ -162,4 +162,17 @@ class TestEditLearningUnit(TestCase):
         self.assertTemplateUsed(response, "page_not_found.html")
         self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
 
+    def test_cannot_modify_past_learning_unit(self):
+        past_year = datetime.date.today().year-2
+        past_academic_year = AcademicYearFactory(year=past_year)
+        past_learning_container_year = LearningContainerYearFactory(academic_year=past_academic_year,
+                                                               container_type=learning_container_year_types.COURSE)
+        past_learning_unit_year = LearningUnitYearFactory(learning_container_year=past_learning_container_year,
+                                                     subtype=learning_unit_year_subtypes.FULL)
+
+        url = reverse("edit_learning_unit", args=[past_learning_unit_year.id])
+        response = self.client.get(url)
+
+        self.assertTemplateUsed(response, "access_denied.html")
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
 
