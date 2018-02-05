@@ -46,16 +46,13 @@ def is_person_linked_to_entity_in_charge_of_learning_unit(a_learning_unit_year, 
 
 
 def is_eligible_for_modification_proposal(learn_unit_year, a_person):
-    proposal = proposal_learning_unit.find_by_learning_unit_year(learn_unit_year)
-    current_year = current_academic_year().year
-
-    if learn_unit_year.academic_year.year < current_year or \
+    if _learning_unit_year_is_past(learn_unit_year) or \
             learn_unit_year.subtype == learning_unit_year_subtypes.PARTIM:
         return False
     if learn_unit_year.learning_container_year and \
             learn_unit_year.learning_container_year.container_type not in AUTHORIZED_TYPE_FOR_MODIFICATION_PROPOSAL:
         return False
-    if proposal:
+    if _learning_unit_year_is_on_proposal(learn_unit_year):
         return False
     return is_person_linked_to_entity_in_charge_of_learning_unit(learn_unit_year, a_person)
 
@@ -87,17 +84,22 @@ def is_eligible_for_modification_end_date(learn_unit_year, a_person):
 
 
 def is_eligible_for_modification(learn_unit_year, pers):
-    current_year = current_academic_year().year
-    if learn_unit_year.academic_year.year < current_year:
+    if _learning_unit_year_is_past(learn_unit_year):
         return False
-    proposal = proposal_learning_unit.find_by_learning_unit_year(learn_unit_year)
-    if proposal:
-        return False
-    return True
-
+    return not _learning_unit_year_is_on_proposal(learn_unit_year)
 
 
 def _can_faculty_manager_modify_end_date(learning_unit_year):
     if learning_unit_year.learning_container_year.container_type == COURSE and learning_unit_year.subtype == PARTIM:
         return True
     return learning_unit_year.learning_container_year.container_type not in [COURSE, DISSERTATION, INTERNSHIP]
+
+
+def _learning_unit_year_is_past(learn_unit_year):
+    current_year = current_academic_year().year
+    return  learn_unit_year.academic_year.year < current_year
+
+
+def _learning_unit_year_is_on_proposal(learn_unit_year):
+    proposal = proposal_learning_unit.find_by_learning_unit_year(learn_unit_year)
+    return proposal is not None
