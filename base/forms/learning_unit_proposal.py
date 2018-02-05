@@ -105,29 +105,6 @@ def _copy_learning_unit_data(learning_unit_year):
                             learning_unit_year_values)
 
 
-def get_initial_data(entities_by_type, learning_container_year_values, learning_unit_values, learning_unit_year_values):
-    initial_data = {
-        "learning_container_year": learning_container_year_values,
-        "learning_unit_year": learning_unit_year_values,
-        "learning_unit": learning_unit_values,
-        "entities": get_entities(entities_by_type)
-    }
-    return initial_data
-
-
-def get_entities(entities_by_type):
-    return {
-        REQUIREMENT_ENTITY: entities_by_type[REQUIREMENT_ENTITY].id
-        if entities_by_type.get(REQUIREMENT_ENTITY) else None,
-        ALLOCATION_ENTITY: entities_by_type[ALLOCATION_ENTITY].id
-        if entities_by_type.get(ALLOCATION_ENTITY) else None,
-        ADDITIONAL_REQUIREMENT_ENTITY_1: entities_by_type[ADDITIONAL_REQUIREMENT_ENTITY_1].id
-        if entities_by_type.get(ADDITIONAL_REQUIREMENT_ENTITY_1) else None,
-        ADDITIONAL_REQUIREMENT_ENTITY_2: entities_by_type[ADDITIONAL_REQUIREMENT_ENTITY_2].id
-        if entities_by_type.get(ADDITIONAL_REQUIREMENT_ENTITY_2) else None
-    }
-
-
 def _update_model_object(obj, data_values, fields_to_update):
     obj_new_values = _create_sub_dictionary(data_values, fields_to_update)
     _set_attributes_from_dict(obj, obj_new_values)
@@ -171,6 +148,32 @@ def _get_attributes_values(obj, attributes_name):
     return attributes_values
 
 
+def get_initial_data(entities_by_type, learning_container_year_values, learning_unit_values, learning_unit_year_values):
+    initial_data = {
+        "learning_container_year": learning_container_year_values,
+        "learning_unit_year": learning_unit_year_values,
+        "learning_unit": learning_unit_values,
+        "entities": get_entities(entities_by_type)
+    }
+    return initial_data
+
+
+def get_entities(entities_by_type):
+    print('entities_by_type : {}'.format(entities_by_type))
+    ENTITY_TYPE_LIST = [REQUIREMENT_ENTITY, ALLOCATION_ENTITY,
+                        ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2]
+    data = {}
+    for entity_type in ENTITY_TYPE_LIST:
+        data.update(get_entity_by_type(entity_type, entities_by_type))
+    print('data : {}'.format(data))
+    return data
+
+
+def get_entity_by_type(entity_type, entities_by_type):
+    return {
+        entity_type: entities_by_type[entity_type].id
+        if entities_by_type.get(entity_type) else None,
+    }
 
 
 
