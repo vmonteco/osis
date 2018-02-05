@@ -130,10 +130,10 @@ class TestSave(TestCase):
                          "{}{}".format(self.form_data['first_letter'], self.form_data['acronym']))
 
     def _assert_common_titles_stored_in_container(self):
-        self.assertNotEqual(self.learning_unit_year.title, self.form_data['common_title'])
-        self.assertNotEqual(self.learning_unit_year.title_english, self.form_data['common_title_english'])
-        self.assertEqual(self.learning_unit_year.learning_container_year.title, self.form_data['common_title'])
-        self.assertEqual(self.learning_unit_year.learning_container_year.title_english,
+        self.assertNotEqual(self.learning_unit_year.specific_title, self.form_data['common_title'])
+        self.assertNotEqual(self.learning_unit_year.specific_title_english, self.form_data['common_title_english'])
+        self.assertEqual(self.learning_unit_year.learning_container_year.common_title, self.form_data['common_title'])
+        self.assertEqual(self.learning_unit_year.learning_container_year.common_title_english,
                          self.form_data['common_title_english'])
 
     def test_learning_container_update(self):
@@ -145,8 +145,8 @@ class TestSave(TestCase):
 
         self.assertEqual(learning_container_year.acronym,
                          "{}{}".format(self.form_data['first_letter'], self.form_data['acronym']))
-        self.assertEqual(learning_container_year.title, self.form_data['common_title'])
-        self.assertEqual(learning_container_year.title_english, self.form_data['common_title_english'])
+        self.assertEqual(learning_container_year.common_title, self.form_data['common_title'])
+        self.assertEqual(learning_container_year.common_title_english, self.form_data['common_title_english'])
         self.assertEqual(learning_container_year.language, self.language)
         self.assertEqual(learning_container_year.campus, self.campus)
 
@@ -220,8 +220,8 @@ class TestSave(TestCase):
             "learning_container_year": {
                 "id": self.learning_unit_year.learning_container_year.id,
                 "acronym": self.learning_unit_year.acronym,
-                "title": self.learning_unit_year.learning_container_year.title,
-                "title_english": self.learning_unit_year.learning_container_year.title_english,
+                "common_title": self.learning_unit_year.learning_container_year.common_title,
+                "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
                 "container_type": self.learning_unit_year.learning_container_year.container_type,
                 "campus": self.learning_unit_year.learning_container_year.campus.id,
                 "language": self.learning_unit_year.learning_container_year.language.id,
@@ -230,8 +230,8 @@ class TestSave(TestCase):
             "learning_unit_year": {
                 "id": self.learning_unit_year.id,
                 "acronym": self.learning_unit_year.acronym,
-                "title": self.learning_unit_year.title,
-                "title_english": self.learning_unit_year.title_english,
+                "specific_title": self.learning_unit_year.specific_title,
+                "specific_title_english": self.learning_unit_year.specific_title_english,
                 "internship_subtype": self.learning_unit_year.internship_subtype,
                 "credits": self.learning_unit_year.credits,
                 "quadrimester": self.learning_unit_year.quadrimester,
