@@ -28,13 +28,9 @@ class Migration(migrations.Migration):
             old_name='title_english',
             new_name='specific_title_english',
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name='learningunityear',
-            name='title',
-        ),
-        migrations.AddField(
-            model_name='learningunityear',
-            name='specific_title',
-            field=models.CharField(blank=True, max_length=255, null=True),
+            old_name='title',
+            new_name='specific_title',
         ),
     ]

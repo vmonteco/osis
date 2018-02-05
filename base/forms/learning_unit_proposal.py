@@ -32,7 +32,7 @@ from base.models import proposal_folder, proposal_learning_unit, entity_containe
 from base.models.entity_version import find_main_entities_version
 from base.models.enums import learning_container_year_types
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
-    ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2
+    ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2, ENTITY_TYPE_LIST
 
 
 def add_none_choice(choices):
@@ -159,22 +159,11 @@ def get_initial_data(entities_by_type, learning_container_year_values, learning_
 
 
 def get_entities(entities_by_type):
-    print('entities_by_type : {}'.format(entities_by_type))
-    ENTITY_TYPE_LIST = [REQUIREMENT_ENTITY, ALLOCATION_ENTITY,
-                        ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2]
-    data = {}
-    for entity_type in ENTITY_TYPE_LIST:
-        data.update(get_entity_by_type(entity_type, entities_by_type))
-    print('data : {}'.format(data))
-    return data
+    return {entity_type: get_entity_by_type(entity_type, entities_by_type) for entity_type in ENTITY_TYPE_LIST }
 
 
 def get_entity_by_type(entity_type, entities_by_type):
-    return {
-        entity_type: entities_by_type[entity_type].id
-        if entities_by_type.get(entity_type) else None,
-    }
-
-
-
-
+    if entities_by_type.get(entity_type):
+        return entities_by_type[entity_type].id
+    else:
+        return None
