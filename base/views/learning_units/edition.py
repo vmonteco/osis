@@ -85,15 +85,14 @@ def modify_learning_unit(request, learning_unit_year_id):
 
 
 def compute_form_initial_data(learning_unit_year):
-    learning_unit_year_fields_to_exclude = ["external_id", "changed", "id", "acronym", "learning_container_year",
-                                            "learning_unit", "specific_title", "specific_title_english",
-                                            "structure", "decimal_scores"]
-    learning_container_year_fields_to_exclude = ["external_id", "changed", "id", "academic_year", "learning_container",
-                                                 "in_charge", "acronym"]
-    learning_unit_fields_to_include = ["faculty_remark", "other_remark", "periodicity"]
-    learning_unit_year_key_values = model_to_dict(learning_unit_year, exclude=learning_unit_year_fields_to_exclude)
+    learning_unit_year_fields_to_include = ("academic_year", "status", "credits", "session", "subtype", "quadrimester",
+                                            "attribution_procedure")
+    learning_container_year_fields_to_include = ("common_title", "common_title_english", "container_type",
+                                                 "campus", "language","is_vacant", "team", "type_declaration_vacant")
+    learning_unit_fields_to_include = ("faculty_remark", "other_remark", "periodicity")
+    learning_unit_year_key_values = model_to_dict(learning_unit_year, fields=learning_unit_year_fields_to_include)
     learning_container_year_key_values = model_to_dict(learning_unit_year.learning_container_year,
-                                                       exclude=learning_container_year_fields_to_exclude)
+                                                       fields=learning_container_year_fields_to_include)
     learning_unit_keys_values = model_to_dict(learning_unit_year.learning_unit, fields=learning_unit_fields_to_include)
     other_fields = {
         "partial_title": learning_unit_year.specific_title,

@@ -226,7 +226,6 @@ class TestEditLearningUnit(TestCase):
         response = self.client.get(self.url)
 
         context = response.context
-
         self.assertEqual(context["learning_unit_year"], self.learning_unit_year)
         self.assertTrue(context["form"])
 
