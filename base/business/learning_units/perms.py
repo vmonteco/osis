@@ -90,6 +90,9 @@ def is_eligible_for_modification(learn_unit_year, pers):
     current_year = current_academic_year().year
     if learn_unit_year.academic_year.year < current_year:
         return False
+    proposal = proposal_learning_unit.find_by_learning_unit_year(learn_unit_year)
+    if proposal:
+        return False
     return True
 
 

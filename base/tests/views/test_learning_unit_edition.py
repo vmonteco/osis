@@ -40,6 +40,7 @@ from base.tests.factories.business.learning_units import LearningUnitsMixin
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.user import UserFactory, SuperUserFactory
 from base.views.learning_units.edition import learning_unit_edition
 
@@ -175,4 +176,14 @@ class TestEditLearningUnit(TestCase):
 
         self.assertTemplateUsed(response, "access_denied.html")
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+
+    def test_cannot_modify_learning_unit_on_modification_proposal(self):
+        ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year)
+
+        response = self.client.get(self.url)
+
+        self.assertTemplateUsed(response, "access_denied.html")
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+
+
 
