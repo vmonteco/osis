@@ -42,7 +42,7 @@ class TestSendMessage(TestCase):
 
         self.academic_year = test_academic_year.create_academic_year()
         self.learning_unit_year = LearningUnitYearFactory(acronym="TEST",
-                                                          title="Cours de test",
+                                                          specific_title="Cours de test",
                                                           academic_year=self.academic_year)
 
         self.offer_year = test_offer_year.create_offer_year("SINF2MA", "Master en Sciences Informatique",

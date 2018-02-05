@@ -106,8 +106,8 @@ class TestLearningUnitModificationProposal(TestCase):
             "academic_year": self.learning_unit_year.academic_year.id,
             "first_letter": self.learning_unit_year.acronym[0],
             "acronym": self.learning_unit_year.acronym[1:],
-            "common_title": self.learning_unit_year.title,
-            "common_title_english": self.learning_unit_year.title_english,
+            "common_title": self.learning_unit_year.specific_title,
+            "common_title_english": self.learning_unit_year.specific_title_english,
             "container_type": self.learning_unit_year.learning_container_year.container_type,
             "internship_subtype": "",
             "credits": self.learning_unit_year.credits,
@@ -166,7 +166,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(form_initial['academic_year'], self.learning_unit_year.academic_year.id)
         self.assertEqual(form_initial['first_letter'], self.learning_unit_year.acronym[0])
         self.assertEqual(form_initial['acronym'], self.learning_unit_year.acronym[1:])
-        self.assertEqual(form_initial['common_title'], self.learning_unit_year.learning_container_year.title)
+        self.assertEqual(form_initial['common_title'], self.learning_unit_year.learning_container_year.common_title)
         self.assertEqual(form_initial['container_type'], self.learning_unit_year.
                          learning_container_year.container_type)
         self.assertEqual(form_initial['subtype'], self.learning_unit_year.subtype)
@@ -514,8 +514,8 @@ def _create_proposal_learning_unit():
         "learning_container_year": {
             "id": a_learning_unit_year.learning_container_year.id,
             "acronym": a_learning_unit_year.acronym,
-            "title": a_learning_unit_year.title,
-            "title_english": a_learning_unit_year.title_english,
+            "common_title": a_learning_unit_year.specific_title,
+            "common_title_english": a_learning_unit_year.specific_title_english,
             "container_type": a_learning_unit_year.learning_container_year.container_type,
             "campus": a_learning_unit_year.learning_container_year.campus.id,
             "language": a_learning_unit_year.learning_container_year.language.id,
@@ -524,8 +524,8 @@ def _create_proposal_learning_unit():
         "learning_unit_year": {
             "id": a_learning_unit_year.id,
             "acronym": a_learning_unit_year.acronym,
-            "title": a_learning_unit_year.title,
-            "title_english": a_learning_unit_year.title_english,
+            "specific_title": a_learning_unit_year.specific_title,
+            "specific_title_english": a_learning_unit_year.specific_title_english,
             "internship_subtype": a_learning_unit_year.internship_subtype,
             "credits": float(a_learning_unit_year.credits),
             "quadrimester": a_learning_unit_year.quadrimester,
@@ -548,8 +548,8 @@ def _create_proposal_learning_unit():
 
 
 def _modify_learning_unit_year_data(a_learning_unit_year):
-    a_learning_unit_year.title = "New title"
-    a_learning_unit_year.title_english = "New english title"
+    a_learning_unit_year.specific_title = "New title"
+    a_learning_unit_year.specific_title_english = "New english title"
     a_learning_unit_year.acronym = "LNEW456"
     a_learning_unit_year.credits = 123
     a_learning_unit_year.save()

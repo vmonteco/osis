@@ -60,7 +60,7 @@ class LearningUnitYearFactory(DjangoModelFactory):
     changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
     acronym = factory.Sequence(lambda n: 'LUY-%d' % n)
-    title = factory.Sequence(lambda n: 'Learning unit year - %d' % n)
+    specific_title = factory.Sequence(lambda n: 'Learning unit year - %d' % n)
     subtype = factory.Iterator(learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, getter=operator.itemgetter(0))
     credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, MAXIMUM_CREDITS)
     decimal_scores = False
@@ -80,7 +80,7 @@ class LearningUnitYearFakerFactory(DjangoModelFactory):
     learning_container_year = factory.SubFactory(LearningContainerYearFactory)
     changed = fake.date_time_this_decade(before_now=True, after_now=True, tzinfo=get_tzinfo())
     acronym = factory.LazyAttribute(lambda obj: obj.learning_container_year.acronym)
-    title = factory.LazyAttribute(lambda obj: obj.learning_container_year.title)
+    specific_title = factory.LazyAttribute(lambda obj: obj.learning_container_year.common_title)
     subtype = factory.Iterator(learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, getter=operator.itemgetter(0))
     credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, MAXIMUM_CREDITS)
     decimal_scores = False

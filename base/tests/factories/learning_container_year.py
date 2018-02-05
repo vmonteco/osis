@@ -45,7 +45,7 @@ class LearningContainerYearFactory(factory.django.DjangoModelFactory):
     learning_container = factory.SubFactory(LearningContainerFactory)
     container_type = factory.Iterator(learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
                                       getter=operator.itemgetter(0))
-    title = factory.Sequence(lambda n: 'Learning container year - %d' % n)
+    common_title = factory.Sequence(lambda n: 'Learning container year - %d' % n)
     acronym = factory.Sequence(lambda n: 'LCY-%d' % n)
     campus = factory.SubFactory(CampusFactory)
     language = factory.SubFactory(LanguageFactory)
