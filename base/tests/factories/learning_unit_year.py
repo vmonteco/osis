@@ -61,6 +61,7 @@ class LearningUnitYearFactory(DjangoModelFactory):
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
     acronym = factory.Sequence(lambda n: 'LUY-%d' % n)
     specific_title = factory.Sequence(lambda n: 'Learning unit year - %d' % n)
+    specific_title_english = factory.Sequence(lambda n: 'Learning unit year english - %d' % n)
     subtype = factory.Iterator(learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, getter=operator.itemgetter(0))
     credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, MAXIMUM_CREDITS)
     decimal_scores = False

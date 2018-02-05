@@ -28,7 +28,9 @@ from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.forms.models import model_to_dict
 
+from base.models import entity_container_year
 from base.views.learning_unit import get_learning_unit_identification_context
 from base.business.learning_units.edition import edit_learning_unit_end_date
 from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
@@ -72,12 +74,46 @@ def learning_unit_edition(request, learning_unit_year_id):
 @perms.can_perform_learning_unit_modification
 def modify_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
-    form = LearningUnitModificationForm()
+    initial_data = compute_form_initial_data(learning_unit_year)
+    form = LearningUnitModificationForm(initial=initial_data)
+
     context = {
         "learning_unit_year": learning_unit_year,
         "form": form
     }
     return layout.render(request, 'learning_unit/modification.html', context)
+
+
+def compute_form_initial_data(learning_unit_year):
+    learning_unit_year_fields_to_exclude = ["external_id", "changed", "id", "acronym", "learning_container_year",
+                                            "learning_unit", "specific_title", "specific_title_english",
+                                            "structure", "decimal_scores"]
+    learning_container_year_fields_to_exclude = ["external_id", "changed", "id", "academic_year", "learning_container",
+                                                 "in_charge", "acronym"]
+    learning_unit_fields_to_include = ["faculty_remark", "other_remark", "periodicity"]
+    learning_unit_year_key_values = model_to_dict(learning_unit_year, exclude=learning_unit_year_fields_to_exclude)
+    learning_container_year_key_values = model_to_dict(learning_unit_year.learning_container_year,
+                                                       exclude=learning_container_year_fields_to_exclude)
+    learning_unit_keys_values = model_to_dict(learning_unit_year.learning_unit, fields=learning_unit_fields_to_include)
+    other_fields = {
+        "partial_title": learning_unit_year.specific_title,
+        "partial_english_title": learning_unit_year.specific_title_english,
+        "first_letter": learning_unit_year.acronym[0],
+        "acronym": learning_unit_year.acronym[1:]
+    }
+    initial_data = dict()
+    initial_data.update(learning_unit_year_key_values)
+    initial_data.update(learning_container_year_key_values)
+    initial_data.update(learning_unit_keys_values)
+    initial_data.update(other_fields)
+
+    attributions = entity_container_year.find_last_entity_version_grouped_by_linktypes(
+        learning_unit_year.learning_container_year
+    )
+    initial_data.update({k.lower(): v.id for k, v in attributions.items()})
+
+    return {key: value for key, value in initial_data.items() if value is not None}
+
 
 
 def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id):
