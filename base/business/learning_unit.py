@@ -242,7 +242,7 @@ def create_learning_unit_structure(additional_requirement_entity_1, additional_r
                                          'status': status})
 
 
-def create_another_type(data_dict):
+def create_with_untyped_component(data_dict):
     new_learning_container_year = data_dict.get('new_learning_container_year', None)
     new_requirement_entity = data_dict.get('new_requirement_entity', None)
     new_learning_component_year = create_learning_component_year(new_learning_container_year,
@@ -254,7 +254,7 @@ def create_another_type(data_dict):
     return new_learning_unit_year
 
 
-def create_course(data_dict):
+def create_with_lecturing_and_practical_components(data_dict):
     new_learning_container_year = data_dict.get('new_learning_container_year', None)
     new_requirement_entity = data_dict.get('new_requirement_entity', None)
 
@@ -396,10 +396,13 @@ def create_learning_unit_content(data_dict):
     :return: The Learning Unit Year created
     """
     data = data_dict.get('data', None)
-
-    if data['container_type'] == learning_container_year_types.COURSE:
-        return create_course(data_dict)
-    return create_another_type(data_dict)
+    container_type_with_default_component = [learning_container_year_types.COURSE,
+                                             learning_container_year_types.MASTER_THESIS,
+                                             learning_container_year_types.OTHER_COLLECTIVE,
+                                             learning_container_year_types.INTERNSHIP]
+    if data['container_type'] in container_type_with_default_component:
+        return create_with_lecturing_and_practical_components(data_dict)
+    return create_with_untyped_component(data_dict)
 
 
 def is_summary_submission_opened():
