@@ -396,8 +396,11 @@ def create_learning_unit_content(data_dict):
     :return: The Learning Unit Year created
     """
     data = data_dict.get('data', None)
-
-    if data['container_type'] == learning_container_year_types.COURSE:
+    container_type_with_default_component = [learning_container_year_types.COURSE,
+                                             learning_container_year_types.MASTER_THESIS,
+                                             learning_container_year_types.OTHER_COLLECTIVE,
+                                             learning_container_year_types.INTERNSHIP]
+    if data['container_type'] in container_type_with_default_component:
         return create_course(data_dict)
     return create_another_type(data_dict)
 
