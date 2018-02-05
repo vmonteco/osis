@@ -631,6 +631,7 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
         context['components'] = get_components_identification(learning_unit_year)
         context['can_propose'] = business_perms.is_eligible_for_modification_proposal(learning_unit_year, person)
         context['can_edit_date'] = business_perms.is_eligible_for_modification_end_date(learning_unit_year, person)
+        context['can_edit'] = business_perms.is_eligible_for_modification(learning_unit_year, person)
         context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
         context['can_cancel_proposal'] = business_perms.\
             is_eligible_for_cancel_of_proposal(context['proposal'], person) if context['proposal'] else False
