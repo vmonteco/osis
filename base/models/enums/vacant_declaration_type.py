@@ -25,7 +25,7 @@
 ##############################################################################
 from django.utils.translation import ugettext_lazy as _
 
-from osis_common.utils.enumerations import ChoiceEnum
+from base.models.utils.utils import ChoiceEnum
 
 RESEVED_FOR_INTERNS = "RESEVED_FOR_INTERNS"
 OPEN_FOR_EXTERNS = "OPEN_FOR_EXTERNS"

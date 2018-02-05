@@ -25,7 +25,13 @@
 ##############################################################################
 from enum import Enum
 
+from django.utils.translation import ugettext_lazy as _
+
 class ChoiceEnum(Enum):
     @classmethod
     def choices(cls):
         return tuple((x.name, x.value) for x in cls)
+
+    @classmethod
+    def translation_choices(cls):
+        return tuple((x.name, _(x.value)) for x in cls)

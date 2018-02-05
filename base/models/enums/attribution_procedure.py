@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from osis_common.utils.enumerations import ChoiceEnum
+from base.models.utils.utils import ChoiceEnum
 
 INTERNAL_TEAM = "INTERNAL_TEAM"
 EXTERNAL = "EXTERNAL"

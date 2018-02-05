@@ -87,10 +87,10 @@ class LearningUnitEndDateForm(BootstrapForm):
 
 
 def _create_type_declaration_vacant_list():
-    return add_blank(VacantDeclarationType.choices())
+    return add_blank(VacantDeclarationType.translation_choices())
 
 def _create_attribution_procedure_list():
-    return add_blank(AttributionProcedures.choices())
+    return add_blank(AttributionProcedures.translation_choices())
 
 
 class LearningUnitModificationForm(LearningUnitYearForm):
