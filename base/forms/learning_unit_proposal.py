@@ -159,7 +159,7 @@ def get_initial_data(entities_by_type, learning_container_year_values, learning_
 
 
 def get_entities(entities_by_type):
-    return {entity_type: get_entity_by_type(entity_type, entities_by_type) for entity_type in ENTITY_TYPE_LIST }
+    return {entity_type: get_entity_by_type(entity_type, entities_by_type) for entity_type in ENTITY_TYPE_LIST}
 
 
 def get_entity_by_type(entity_type, entities_by_type):
