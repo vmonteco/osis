@@ -263,9 +263,11 @@ def create_with_lecturing_and_practical_components(data_dict):
     new_learning_container_year = data_dict.get('new_learning_container_year', None)
     new_requirement_entity = data_dict.get('new_requirement_entity', None)
 
-    new_lecturing = create_learning_component_year(new_learning_container_year, DEFAULT_ACRONYM_LECTURING_COMPONENT,
+    new_lecturing = create_learning_component_year(new_learning_container_year,
+                                                   DEFAULT_ACRONYM_LECTURING_COMPONENT,
                                                    learning_component_year_type.LECTURING)
-    new_practical_exercise = create_learning_component_year(new_learning_container_year, DEFAULT_ACRONYM_PRACTICAL_COMPONENT,
+    new_practical_exercise = create_learning_component_year(new_learning_container_year,
+                                                            DEFAULT_ACRONYM_PRACTICAL_COMPONENT,
                                                             learning_component_year_type.PRACTICAL_EXERCISES)
     EntityComponentYear.objects.create(entity_container_year=new_requirement_entity,
                                        learning_component_year=new_lecturing)
