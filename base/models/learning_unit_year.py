@@ -188,15 +188,20 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
         queryset = queryset.filter(subtype=subtype)
 
     if status:
-        if status in (active_status.ACTIVE, active_status.INACTIVE):
-            status = status == active_status.ACTIVE
-        queryset = queryset.filter(status=status)
+        queryset = queryset.filter(status=_convert_status_bool(status))
 
     if container_type:
         queryset = queryset.filter(learning_container_year__container_type=container_type)
 
     return queryset.select_related('learning_container_year', 'academic_year')
 
+
+def _convert_status_bool(status):
+    if status in (active_status.ACTIVE, active_status.INACTIVE):
+        boolean = status == active_status.ACTIVE
+    else:
+        boolean = status
+    return boolean
 
 def count_search_results(**kwargs):
     return search(**kwargs).count()

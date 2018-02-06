@@ -52,7 +52,7 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     get_all_attributions, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, is_summary_submission_opened, \
     find_language_in_settings, \
     initialize_learning_unit_pedagogy_form, compute_max_academic_year_adjournment, \
-    create_learning_unit_partim_structure, can_access_summary
+    create_learning_unit_partim_structure, can_access_summary, get_last_academic_years
 from base.business.learning_units import perms as business_perms
 from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
