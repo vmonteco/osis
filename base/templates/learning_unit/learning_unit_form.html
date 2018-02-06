@@ -39,7 +39,7 @@
 <div class="panel panel-default">
     <div class="panel-body">
         <form method="post" action="{% url 'learning_unit_year_add' %}" id="LearningUnitYearForm"
-        data-validate-url="{% url 'check_acronym'%}">
+        data-validate-url="{% url 'check_acronym' type='full' %}">
             {% csrf_token %}
             <div class="panel panel-default">
                 <div class="panel-heading">

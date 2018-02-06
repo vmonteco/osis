@@ -124,7 +124,7 @@ urlpatterns = [
                 url(r'^add/$', learning_unit.learning_unit_year_partim_add, name='learning_unit_year_partim_add')
             ])),
         ])),
-        url(r'^check/$', learning_unit.check_acronym, name="check_acronym"),
+        url(r'^check/type=(?P<type>[a-z]+)$', learning_unit.check_acronym, name="check_acronym"),
         url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
     ])),
 

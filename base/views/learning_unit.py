@@ -64,7 +64,7 @@ from base.models import proposal_learning_unit, entity_container_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
-from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL
+from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, LEARNING_UNIT_ACRONYM_REGEX_FULL
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views.learning_units import perms
@@ -369,7 +369,7 @@ def learning_unit_year_add(request):
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
-def check_acronym(request):
+def check_acronym(request, type):
     acronym = request.GET['acronym']
     year_id = request.GET['year_id']
     academic_yr = mdl.academic_year.find_academic_year_by_id(year_id)
@@ -386,7 +386,10 @@ def check_acronym(request):
     if learning_unit_years:
         existing_acronym = True
 
-    valid = bool(re.match(LEARNING_UNIT_ACRONYM_REGEX_ALL, acronym))
+    if type == "partim":
+        valid = bool(re.match(LEARNING_UNIT_ACRONYM_REGEX_ALL, acronym))
+    elif type == "full":
+        valid = bool(re.match(LEARNING_UNIT_ACRONYM_REGEX_FULL, acronym))
 
     return JsonResponse({'valid': valid,
                          'existing_acronym': existing_acronym,
