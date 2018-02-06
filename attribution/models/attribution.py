@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -154,10 +154,10 @@ def filter_attributions(attributions_queryset, entities, tutor, responsible):
     return queryset.select_related('learning_unit_year').distinct("learning_unit_year")
 
 
-def search_by_learning_unit_this_year(code, title):
+def search_by_learning_unit_this_year(code, specific_title):
     queryset = Attribution.objects.filter(learning_unit_year__academic_year=current_academic_year())
-    if title:
-        queryset = queryset.filter(learning_unit_year__title__icontains=title)
+    if specific_title:
+        queryset = queryset.filter(learning_unit_year__specific_title__icontains=specific_title)
     if code:
         queryset = queryset.filter(learning_unit_year__acronym__icontains=code)
     return queryset

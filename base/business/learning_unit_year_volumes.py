@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ def _save(volumes_grouped_by_lunityear):
 def _save_requirement_entities(entity_components_year, data):
     for ecy in entity_components_year:
         link_type = ecy.entity_container_year.type
-        ecy.hourly_volume_total = data.get('VOLUME_' + link_type)
+        ecy.repartition_volume = data.get('VOLUME_' + link_type)
         ecy.save()
 
 

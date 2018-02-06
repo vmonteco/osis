@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import datetime
+from unittest.mock import patch
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
@@ -37,7 +38,7 @@ from base.tests.factories.academic_year import AcademicYearFakerFactory, create_
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.person import PersonFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory, LearningUnitYearFactory
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.entity import EntityFactory
@@ -68,7 +69,8 @@ class TestLearningUnitModificationProposal(TestCase):
         self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212",
                                                                subtype=learning_unit_year_subtypes.FULL,
                                                                academic_year=current_academic_year,
-                                                               learning_container_year=learning_container_year)
+                                                               learning_container_year=learning_container_year,
+                                                               quadrimester=None)
 
         an_entity = EntityFactory(organization=an_organization)
         self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
@@ -84,12 +86,12 @@ class TestLearningUnitModificationProposal(TestCase):
             entity=self.entity_version.entity,
             type=entity_container_year_link_type.ALLOCATION_ENTITY
         )
-        self.additional_entity_1= EntityContainerYearFactory(
+        self.additional_requirement_entity_1= EntityContainerYearFactory(
             learning_container_year=self.learning_unit_year.learning_container_year,
             entity=self.entity_version.entity,
             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1
         )
-        self.additional_entity_2 = EntityContainerYearFactory(
+        self.additional_requirement_entity_2 = EntityContainerYearFactory(
             learning_container_year=self.learning_unit_year.learning_container_year,
             entity=self.entity_version.entity,
             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2
@@ -104,8 +106,8 @@ class TestLearningUnitModificationProposal(TestCase):
             "academic_year": self.learning_unit_year.academic_year.id,
             "first_letter": self.learning_unit_year.acronym[0],
             "acronym": self.learning_unit_year.acronym[1:],
-            "title": self.learning_unit_year.title,
-            "title_english": self.learning_unit_year.title_english,
+            "common_title": self.learning_unit_year.learning_container_year.common_title,
+            "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
             "container_type": self.learning_unit_year.learning_container_year.container_type,
             "internship_subtype": "",
             "credits": self.learning_unit_year.credits,
@@ -114,10 +116,11 @@ class TestLearningUnitModificationProposal(TestCase):
             "language": self.learning_unit_year.learning_container_year.language.id,
             "quadrimester": "",
             "campus": self.learning_unit_year.learning_container_year.campus.id,
+            "session": self.learning_unit_year.session,
             "requirement_entity": self.entity_version.id,
             "allocation_entity": self.entity_version.id,
-            "additional_entity_1": self.entity_version.id,
-            "additional_entity_2": self.entity_version.id,
+            "additional_requirement_entity_1": self.entity_version.id,
+            "additional_requirement_entity_2": self.entity_version.id,
             "folder_entity": self.entity_version.id,
             "folder_id": "1",
         }
@@ -160,22 +163,22 @@ class TestLearningUnitModificationProposal(TestCase):
 
         self.assertIsInstance(response.context['form'], LearningUnitProposalModificationForm)
         form_initial = response.context['form'].initial
-        self.assertEqual(form_initial['academic_year'], self.learning_unit_year.academic_year.pk)
+        self.assertEqual(form_initial['academic_year'], self.learning_unit_year.academic_year.id)
         self.assertEqual(form_initial['first_letter'], self.learning_unit_year.acronym[0])
         self.assertEqual(form_initial['acronym'], self.learning_unit_year.acronym[1:])
-        self.assertEqual(form_initial['title'], self.learning_unit_year.title)
+        self.assertEqual(form_initial['common_title'], self.learning_unit_year.learning_container_year.common_title)
         self.assertEqual(form_initial['container_type'], self.learning_unit_year.
                          learning_container_year.container_type)
         self.assertEqual(form_initial['subtype'], self.learning_unit_year.subtype)
         self.assertEqual(form_initial['credits'], self.learning_unit_year.credits)
         self.assertEqual(form_initial['periodicity'], self.learning_unit_year.learning_unit.periodicity)
         self.assertEqual(form_initial['status'], self.learning_unit_year.status)
-        self.assertEqual(form_initial['language'], self.learning_unit_year.learning_container_year.language)
-        self.assertEqual(form_initial['requirement_entity'], self.entity_version)
-        self.assertEqual(form_initial['allocation_entity'], self.entity_version)
-        self.assertEqual(form_initial['additional_entity_1'], self.entity_version)
-        self.assertEqual(form_initial['additional_entity_2'], self.entity_version)
-        self.assertEqual(form_initial['campus'], self.learning_unit_year.learning_container_year.campus)
+        self.assertEqual(form_initial['language'], self.learning_unit_year.learning_container_year.language.id)
+        self.assertEqual(form_initial['requirement_entity'], self.entity_version.id)
+        self.assertEqual(form_initial['allocation_entity'], self.entity_version.id)
+        self.assertEqual(form_initial['additional_requirement_entity_1'], self.entity_version.id)
+        self.assertEqual(form_initial['additional_requirement_entity_2'], self.entity_version.id)
+        self.assertEqual(form_initial['campus'], self.learning_unit_year.learning_container_year.campus.id)
 
     def test_post_request_with_invalid_form(self):
         response = self.client.post(self.url, data={})
@@ -212,8 +215,8 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.TRANSFORMATION.name)
 
     def test_modification_proposal_request(self):
-        self.form_data["title"] = "New title"
-        self.form_data["title_english"] = "New english title"
+        self.form_data["common_title"] = "New title"
+        self.form_data["common_title_english"] = "New english title"
         self.client.post(self.url, data=self.form_data)
 
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
@@ -221,8 +224,8 @@ class TestLearningUnitModificationProposal(TestCase):
 
     def test_transformation_and_modification_proposal_request(self):
         self.form_data["acronym"] = "OSIS1452"
-        self.form_data["title"] = "New title"
-        self.form_data["title_english"] = "New english title"
+        self.form_data["common_title"] = "New title"
+        self.form_data["common_title_english"] = "New english title"
         self.client.post(self.url, data=self.form_data)
 
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
@@ -352,6 +355,7 @@ class TestLearningUnitModificationProposal(TestCase):
 
 class TestLearningUnitProposalCancellation(TestCase):
     def setUp(self):
+        create_current_academic_year()
         self.person = PersonFactory()
         self.permission = Permission.objects.get(codename="can_propose_learningunit")
         self.person.user.user_permissions.add(self.permission)
@@ -510,8 +514,8 @@ def _create_proposal_learning_unit():
         "learning_container_year": {
             "id": a_learning_unit_year.learning_container_year.id,
             "acronym": a_learning_unit_year.acronym,
-            "title": a_learning_unit_year.title,
-            "title_english": a_learning_unit_year.title_english,
+            "common_title": a_learning_unit_year.specific_title,
+            "common_title_english": a_learning_unit_year.specific_title_english,
             "container_type": a_learning_unit_year.learning_container_year.container_type,
             "campus": a_learning_unit_year.learning_container_year.campus.id,
             "language": a_learning_unit_year.learning_container_year.language.id,
@@ -520,8 +524,8 @@ def _create_proposal_learning_unit():
         "learning_unit_year": {
             "id": a_learning_unit_year.id,
             "acronym": a_learning_unit_year.acronym,
-            "title": a_learning_unit_year.title,
-            "title_english": a_learning_unit_year.title_english,
+            "specific_title": a_learning_unit_year.specific_title,
+            "specific_title_english": a_learning_unit_year.specific_title_english,
             "internship_subtype": a_learning_unit_year.internship_subtype,
             "credits": float(a_learning_unit_year.credits),
             "quadrimester": a_learning_unit_year.quadrimester,
@@ -544,8 +548,8 @@ def _create_proposal_learning_unit():
 
 
 def _modify_learning_unit_year_data(a_learning_unit_year):
-    a_learning_unit_year.title = "New title"
-    a_learning_unit_year.title_english = "New english title"
+    a_learning_unit_year.specific_title = "New title"
+    a_learning_unit_year.specific_title_english = "New english title"
     a_learning_unit_year.acronym = "LNEW456"
     a_learning_unit_year.credits = 123
     a_learning_unit_year.save()

@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -29,11 +29,10 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
-from base.models.academic_year import AcademicYear
 from base.models.enums import entity_type
 from base.models.enums.organization_type import MAIN
-from osis_common.utils.datetime import get_tzinfo
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
+from osis_common.utils.datetime import get_tzinfo
 
 
 class EntityVersionAdmin(SerializableModelAdmin):
@@ -344,7 +343,7 @@ def _match_dates(osis_date, esb_date):
 def find_main_entities_version():
     entities_version = find_latest_version(date=datetime.datetime.now(get_tzinfo())) \
         .filter(entity_type__in=[entity_type.SECTOR, entity_type.FACULTY, entity_type.SCHOOL,
-                                 entity_type.INSTITUTE, entity_type.DOCTORAL_COMMISSION],
+                                 entity_type.INSTITUTE, entity_type.DOCTORAL_COMMISSION, entity_type.LOGISTICS_ENTITY],
                 entity__organization__type=MAIN).order_by('acronym')
     return entities_version
 

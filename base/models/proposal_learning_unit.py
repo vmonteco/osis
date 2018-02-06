@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -29,11 +29,11 @@ from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 
 from base.models.enums import proposal_type, proposal_state
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class ProposalLearningUnitAdmin(admin.ModelAdmin):
+class ProposalLearningUnitAdmin(OsisModelAdmin):
     list_display = ('learning_unit_year', 'folder', 'type', 'state', )
-    fieldsets = ((None, {'fields': ('folder', 'type', 'state', 'initial_data')}),)
 
     search_fields = ['folder__folder_id', 'folder_entity', 'learning_unit_year__acronym']
     list_filter = ('type', 'state')

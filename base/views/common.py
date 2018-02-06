@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 ##############################################################################
 import subprocess
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth.views import login as django_login
 from django.contrib.auth import authenticate, logout
@@ -35,7 +36,6 @@ from . import layout
 from base import models as mdl
 from base.models.utils import native
 import logging
-
 
 logger = logging.getLogger(settings.DEFAULT_LOGGER)
 
@@ -182,3 +182,18 @@ def storage(request):
 
     return layout.render(request, "admin/storage.html", {'table': table})
 
+
+def display_error_messages(request, messages_to_display):
+    display_messages(request, messages_to_display, messages.ERROR)
+
+
+def display_success_messages(request, messages_to_display):
+    display_messages(request, messages_to_display, messages.SUCCESS)
+
+
+def display_messages(request, messages_to_display, level):
+    if not isinstance(messages_to_display, (tuple, list)):
+        messages_to_display = [messages_to_display]
+
+    for msg in messages_to_display:
+        messages.add_message(request, level, msg)

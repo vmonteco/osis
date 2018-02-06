@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ from base.models import proposal_folder, proposal_learning_unit, entity_containe
 from base.models.entity_version import find_main_entities_version
 from base.models.enums import learning_container_year_types
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
-    ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2
+    ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2, ENTITY_TYPE_LIST
 
 
 def add_none_choice(choices):
@@ -67,16 +67,18 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
         learning_container_year = learning_unit_year.learning_container_year
 
         _update_model_object(learning_unit_year.learning_unit, self.cleaned_data, ["periodicity"])
-        _update_model_object(learning_unit_year, self.cleaned_data, ["acronym", "title", "title_english", "status",
-                                                                     "quadrimester", "internship_subtype", "credits"])
-        _update_model_object(learning_container_year, self.cleaned_data, ["acronym", "title", "language",
-                                                                          "title_english", "campus", "container_type"])
+        _update_model_object(learning_unit_year, self.cleaned_data, ["acronym", "status", "quadrimester",
+                                                                     "internship_subtype", "credits"])
+        learning_container_year.common_title = self.cleaned_data['common_title']
+        learning_container_year.common_title_english = self.cleaned_data.get('common_title_english')
+        _update_model_object(learning_container_year, self.cleaned_data, ["acronym", "title", "language", "campus",
+                                                                          "container_type"])
 
         _update_entity(self.cleaned_data["requirement_entity"], learning_container_year, REQUIREMENT_ENTITY)
         _update_entity(self.cleaned_data["allocation_entity"], learning_container_year, ALLOCATION_ENTITY)
-        _update_entity(self.cleaned_data["additional_entity_1"], learning_container_year,
+        _update_entity(self.cleaned_data["additional_requirement_entity_1"], learning_container_year,
                        ADDITIONAL_REQUIREMENT_ENTITY_1)
-        _update_entity(self.cleaned_data["additional_entity_2"], learning_container_year,
+        _update_entity(self.cleaned_data["additional_requirement_entity_2"], learning_container_year,
                        ADDITIONAL_REQUIREMENT_ENTITY_2)
 
         folder_entity = self.cleaned_data['folder_entity'].entity
@@ -91,28 +93,16 @@ def _copy_learning_unit_data(learning_unit_year):
     entities_by_type = entity_container_year.find_entities_grouped_by_linktype(learning_container_year)
 
     learning_container_year_values = _get_attributes_values(learning_container_year,
-                                                            ["id", "acronym", "title", "title_english", "container_type",
-                                                            "campus__id", "language__id", "in_charge"])
+                                                            ["id", "acronym", "common_title", "common_title_english",
+                                                             "container_type",
+                                                             "campus__id", "language__id", "in_charge"])
     learning_unit_values = _get_attributes_values(learning_unit_year.learning_unit, ["id", "periodicity"])
-    learning_unit_year_values = _get_attributes_values(learning_unit_year, ["id", "acronym", "title", "title_english",
-                                                                           "internship_subtype", "quadrimester"])
+    learning_unit_year_values = _get_attributes_values(learning_unit_year, ["id", "acronym", "specific_title",
+                                                                            "specific_title_english",
+                                                                            "internship_subtype", "quadrimester"])
     learning_unit_year_values["credits"] = float(learning_unit_year.credits) if learning_unit_year.credits else None
-    initial_data = {
-        "learning_container_year": learning_container_year_values,
-        "learning_unit_year": learning_unit_year_values,
-        "learning_unit": learning_unit_values,
-        "entities": {
-            REQUIREMENT_ENTITY: entities_by_type[REQUIREMENT_ENTITY].id
-            if entities_by_type.get(REQUIREMENT_ENTITY) else None,
-            ALLOCATION_ENTITY: entities_by_type[ALLOCATION_ENTITY].id
-            if entities_by_type.get(ALLOCATION_ENTITY) else None,
-            ADDITIONAL_REQUIREMENT_ENTITY_1: entities_by_type[ADDITIONAL_REQUIREMENT_ENTITY_1].id
-            if entities_by_type.get(ADDITIONAL_REQUIREMENT_ENTITY_1) else None,
-            ADDITIONAL_REQUIREMENT_ENTITY_2: entities_by_type[ADDITIONAL_REQUIREMENT_ENTITY_2].id
-            if entities_by_type.get(ADDITIONAL_REQUIREMENT_ENTITY_2) else None
-        }
-    }
-    return initial_data
+    return get_initial_data(entities_by_type, learning_container_year_values, learning_unit_values,
+                            learning_unit_year_values)
 
 
 def _update_model_object(obj, data_values, fields_to_update):
@@ -158,7 +148,22 @@ def _get_attributes_values(obj, attributes_name):
     return attributes_values
 
 
+def get_initial_data(entities_by_type, learning_container_year_values, learning_unit_values, learning_unit_year_values):
+    initial_data = {
+        "learning_container_year": learning_container_year_values,
+        "learning_unit_year": learning_unit_year_values,
+        "learning_unit": learning_unit_values,
+        "entities": get_entities(entities_by_type)
+    }
+    return initial_data
 
 
+def get_entities(entities_by_type):
+    return {entity_type: get_entity_by_type(entity_type, entities_by_type) for entity_type in ENTITY_TYPE_LIST}
 
 
+def get_entity_by_type(entity_type, entities_by_type):
+    if entities_by_type.get(entity_type):
+        return entities_by_type[entity_type].id
+    else:
+        return None

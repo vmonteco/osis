@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -39,17 +39,15 @@ from base.models.enums import exam_enrollment_state as enrollment_states, exam_e
 from base.models.exceptions import JustificationValueException
 from base.models.utils.admin_extentions import remove_delete_action
 from osis_common.models.auditable_model import AuditableModel
+from base.models.osis_model_admin import OsisModelAdmin
 
 JUSTIFICATION_ABSENT_FOR_TUTOR = _('absent')
 
 
-class ExamEnrollmentAdmin(admin.ModelAdmin):
+class ExamEnrollmentAdmin(OsisModelAdmin):
     list_display = ('student', 'enrollment_state', 'session_exam', 'score_draft', 'justification_draft', 'score_final',
                     'justification_final', 'score_reencoded', 'justification_reencoded', 'changed')
     list_filter = ('session_exam__number_session', 'session_exam__learning_unit_year__academic_year')
-    fieldsets = ((None, {'fields': ('session_exam', 'enrollment_state', 'learning_unit_enrollment', 'score_draft',
-                                    'justification_draft', 'score_final', 'justification_final', 'score_reencoded',
-                                    'justification_reencoded')}),)
     raw_id_fields = ('session_exam', 'learning_unit_enrollment')
     search_fields = ['learning_unit_enrollment__offer_enrollment__student__person__first_name',
                      'learning_unit_enrollment__offer_enrollment__student__person__last_name',
@@ -223,9 +221,8 @@ def justification_label_authorized():
                        _('cheating_pdf_legend'))
 
 
-class ExamEnrollmentHistoryAdmin(admin.ModelAdmin):
+class ExamEnrollmentHistoryAdmin(OsisModelAdmin):
     list_display = ('person', 'score_final', 'justification_final', 'modification_date', 'exam_enrollment')
-    fieldsets = ((None, {'fields': ('exam_enrollment', 'person', 'score_final', 'justification_final')}),)
     raw_id_fields = ('exam_enrollment', 'person')
     search_fields = ['exam_enrollment__learning_unit_enrollment__offer_enrollment__student__person__first_name',
                      'exam_enrollment__learning_unit_enrollment__offer_enrollment__student__person__last_name',
@@ -313,7 +310,7 @@ def get_progress_by_learning_unit_years_and_offer_years(user,
                                  learning_unit_enrollment__learning_unit_year__acronym=
                                         F('learning_unit_enrollment__learning_unit_year__acronym'),
                                  learning_unit_enrollment__learning_unit_year__title=
-                                                F('learning_unit_enrollment__learning_unit_year__title'),
+                                                F('learning_unit_enrollment__learning_unit_year__specific_title'),
                                  exam_enrollments_encoded=Sum(Case(
                                           When(Q(score_final__isnull=False)|Q(justification_final__isnull=False),then=1),
                                           default=0,

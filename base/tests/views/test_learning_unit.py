@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,9 +24,11 @@
 #
 ##############################################################################
 import datetime
+import factory.fuzzy
+from decimal import Decimal
 from unittest import mock
 
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import ObjectDoesNotExist
@@ -38,20 +40,23 @@ from django.utils.translation import ugettext_lazy as _
 import base.business.learning_unit
 from base.business import learning_unit as learning_unit_business
 from base.forms import learning_units
-from base.forms.learning_unit_create import CreateLearningUnitYearForm
+from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm
 from base.forms.learning_units import LearningUnitYearForm
+from base import models as mdl
 from base.models import learning_unit_component
 from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear
 from base.models.enums import entity_container_year_link_type
+from base.models.enums import internship_subtypes
 from base.models.enums import learning_container_year_types, organization_type, entity_type
+from base.models.enums import learning_unit_periodicity
+from base.models.enums import learning_unit_year_quadrimesters
+from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
-from base.models.enums.internship_subtypes import TEACHING_INTERNSHIP
-from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP
-from base.models.enums.learning_unit_periodicity import ANNUAL
-from base.models.enums.learning_unit_year_session import SESSION_P23
+from base.models.enums.learning_container_year_types import MASTER_THESIS
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
+from base.models.person import FACULTY_MANAGER_GROUP
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
@@ -61,6 +66,7 @@ from base.tests.factories.learning_class_year import LearningClassYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from base.tests.factories.learning_container import LearningContainerFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_component_class import LearningUnitComponentClassFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
@@ -68,9 +74,17 @@ from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
+from base.views.learning_unit import compute_partim_form_initial_data, _get_post_data_without_read_only_field
 from osis_common.document import xls_build
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
+from base.views.learning_unit import learning_unit_volumes_management
+from django.test.utils import override_settings
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
+from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
+from cms.tests.factories.text_label import TextLabelFactory
+from cms.tests.factories.translated_text import TranslatedTextFactory
+from cms.enums import entity_name
 
 
 class LearningUnitViewTestCase(TestCase):
@@ -299,9 +313,7 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=learning_container_year)
 
-        request_factory = RequestFactory()
-        request = request_factory.get(reverse('learning_unit', args=[learning_unit_year.id]))
-        request.user = self.a_superuser
+        request = self.create_learning_unit_request(learning_unit_year)
 
         from base.views.learning_unit import learning_unit_identification
 
@@ -314,6 +326,66 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_unit/identification.html')
         self.assertEqual(context['learning_unit_year'], learning_unit_year)
 
+    def test_learning_unit__with_faculty_manager_when_can_edit_end_date(self):
+        learning_container_year = LearningContainerYearFactory(
+            academic_year=self.current_academic_year, container_type=learning_container_year_types.OTHER_COLLECTIVE)
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=learning_container_year)
+        entity_container = EntityContainerYearFactory(learning_container_year=learning_container_year,
+                                                      type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+
+        learning_unit_year.learning_unit.end_year = None
+        learning_unit_year.learning_unit.save()
+
+        person_entity = PersonEntityFactory(entity=entity_container.entity)
+        person_entity.person.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
+        url = reverse("learning_unit", args=[learning_unit_year.id])
+        self.client.force_login(person_entity.person.user)
+
+        response = self.client.get(url)
+        self.assertEqual(response.context["can_edit_date"], True)
+
+    def test_learning_unit_of_type_partim_with_faculty_manager(self):
+        learning_container_year = LearningContainerYearFactory(
+            academic_year=self.current_academic_year, container_type=learning_container_year_types.COURSE)
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=learning_container_year,
+                                                     subtype=learning_unit_year_subtypes.PARTIM)
+        entity_container = EntityContainerYearFactory(learning_container_year=learning_container_year,
+                                                      type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+
+        learning_unit_year.learning_unit.end_year = None
+        learning_unit_year.learning_unit.save()
+
+        person_entity = PersonEntityFactory(entity=entity_container.entity)
+        person_entity.person.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
+        url = reverse("learning_unit", args=[learning_unit_year.id])
+        self.client.force_login(person_entity.person.user)
+
+        response = self.client.get(url)
+        self.assertEqual(response.context["can_edit_date"], True)
+
+    def test_learning_unit_with_faculty_manager_when_cannot_edit_end_date(self):
+        learning_container_year = \
+            LearningContainerYearFactory(academic_year=self.current_academic_year,
+                                         container_type=learning_container_year_types.COURSE)
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=learning_container_year,
+                                                     subtype=learning_unit_year_subtypes.FULL)
+        entity_container = EntityContainerYearFactory(learning_container_year=learning_container_year,
+                                                      type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+
+        learning_unit_year.learning_unit.end_year = None
+        learning_unit_year.learning_unit.save()
+
+        person_entity = PersonEntityFactory(entity=entity_container.entity)
+        person_entity.person.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
+        url = reverse("learning_unit", args=[learning_unit_year.id])
+        self.client.force_login(person_entity.person.user)
+
+        response = self.client.get(url)
+        self.assertEqual(response.context["can_edit_date"], False)
+
     def test_get_components_no_learning_container_yr(self):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year)
         self.assertEqual(len(learning_unit_business.get_same_container_year_components(learning_unit_year, False)), 0)
@@ -321,7 +393,7 @@ class LearningUnitViewTestCase(TestCase):
     def test_get_components_with_classes(self):
         l_container = LearningContainerFactory()
         l_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year,
-                                                        title="LC-98998", learning_container=l_container)
+                                                        common_title="LC-98998", learning_container=l_container)
         l_component_year = LearningComponentYearFactory(learning_container_year=l_container_year)
         LearningClassYearFactory(learning_component_year=l_component_year)
         LearningClassYearFactory(learning_component_year=l_component_year)
@@ -365,9 +437,7 @@ class LearningUnitViewTestCase(TestCase):
             academic_year=self.current_academic_year
         )
 
-        request_factory = RequestFactory()
-        request = request_factory.get(reverse('learning_unit', args=[learning_unit_year.id]))
-        request.user = self.a_superuser
+        request = self.create_learning_unit_request(learning_unit_year)
 
         from base.views.learning_unit import learning_unit_identification
 
@@ -380,6 +450,26 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_unit/identification.html')
         self.assertEqual(len(context['learning_container_year_partims']), 3)
 
+    @mock.patch('base.views.layout.render')
+    def test_learning_unit_formation(self, mock_render):
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=self.learning_container_yr)
+        request_factory = RequestFactory()
+
+        request = request_factory.get(reverse('learning_unit_formations', args=[learning_unit_year.id]))
+        request.user = self.a_superuser
+
+        from base.views.learning_unit import learning_unit_formations
+
+        learning_unit_formations(request, learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/formations.html')
+        self.assertEqual(context['current_academic_year'], self.current_academic_year)
+        self.assertEqual(context['learning_unit_year'], learning_unit_year)
+
     def test_learning_unit_usage_two_usages(self):
         learning_container_yr = LearningContainerYearFactory(academic_year=self.current_academic_year,
                                                              acronym='LBIOL')
@@ -390,7 +480,8 @@ class LearningUnitViewTestCase(TestCase):
                                                      learning_container_year=learning_container_yr)
         learning_unit_yr_2 = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      acronym='LBIOLB',
-                                                     learning_container_year=learning_container_yr)
+                                                     learning_container_year=learning_container_yr,
+                                                     quadrimester=None)
 
         learning_component_yr = LearningComponentYearFactory(learning_container_year=learning_container_yr)
 
@@ -588,26 +679,49 @@ class LearningUnitViewTestCase(TestCase):
                           learning_unit_component_class.LearningUnitComponentClass.objects.filter(pk=a_link.id).first())
 
     def get_base_form_data(self):
-        return {"first_letter": "L",
-                "acronym": "TAU2000",
-                "container_type": COURSE,
-                "academic_year": self.current_academic_year.id,
-                "status": True,
-                "periodicity": ANNUAL,
-                "credits": "5",
-                "campus": self.campus.id,
-                "internship_subtype": TEACHING_INTERNSHIP,
-                "title": "LAW",
-                "title_english": "LAW",
-                "requirement_entity": self.entity_version.id,
-                "allocation_entity": self.entity_version.id,
-                "additional_entity_1": self.entity_version.id,
-                "additional_entity_2": self.entity_version.id,
-                "subtype": learning_unit_year_subtypes.FULL,
-                "language": self.language.id,
-                "session": SESSION_P23,
-                "faculty_remark": "faculty remark",
-                "other_remark": "other remark"}
+        data = self.get_common_data()
+        data.update(self.get_learning_unit_data())
+        data['internship_subtype'] = internship_subtypes.TEACHING_INTERNSHIP
+        return data
+
+    def get_base_partim_form_data(self, original_learning_unit_year):
+        data = self.get_common_data()
+        data.update(self.get_partim_data(original_learning_unit_year))
+        data['partial_title'] = "Partim partial title"
+        return data
+
+    def get_common_data(self):
+        return {
+            "container_type": learning_container_year_types.COURSE,
+            "academic_year": self.current_academic_year.id,
+            "status": True,
+            "periodicity": learning_unit_periodicity.ANNUAL,
+            "credits": "5",
+            "campus": self.campus.id,
+            "common_title": "Common UE title",
+            "common_title_english": "Common English UUE title",
+            "requirement_entity": self.entity_version.id,
+            "allocation_entity": self.entity_version.id,
+            "additional_requirement_entity_1": self.entity_version.id,
+            "additional_requirement_entity_2": self.entity_version.id,
+            "language": self.language.id,
+            "session": learning_unit_year_session.SESSION_P23,
+            "faculty_remark": "faculty remark",
+            "other_remark": "other remark"
+        }
+
+    def get_learning_unit_data(self):
+        return {'first_letter': 'L',
+                'acronym': 'TAU2000',
+                "subtype": learning_unit_year_subtypes.FULL}
+
+    def get_partim_data(self, original_learning_unit_year):
+        return {
+            'first_letter': original_learning_unit_year.acronym[:1],
+            'acronym': original_learning_unit_year.acronym[1:],
+            'partim_character': factory.fuzzy.FuzzyText(length=1).fuzz(),
+            "subtype": learning_unit_year_subtypes.PARTIM
+        }
 
     def get_valid_data(self):
         return self.get_base_form_data()
@@ -624,7 +738,7 @@ class LearningUnitViewTestCase(TestCase):
 
     def get_empty_internship_subtype(self):
         faultydict = dict(self.get_valid_data())
-        faultydict["container_type"] = INTERNSHIP
+        faultydict["container_type"] = learning_container_year_types.INTERNSHIP
         faultydict["internship_subtype"] = ""
         return faultydict
 
@@ -649,7 +763,7 @@ class LearningUnitViewTestCase(TestCase):
         response = self.client.post(url, data=self.get_base_form_data())
         self.assertEqual(response.status_code, 302)
         count_learning_unit_year = LearningUnitYear.objects.all().count()
-        self.assertEqual(count_learning_unit_year, 6)
+        self.assertEqual(count_learning_unit_year, 7)
 
     def test_create_learning_unit_year_requirement_entity_not_allowed(self):
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_faulty_requirement_entity())
@@ -691,7 +805,7 @@ class LearningUnitViewTestCase(TestCase):
     def test_learning_unit_creation_form_with_field_is_required_empty(self):
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_empty_internship_subtype())
         self.assertFalse(form.is_valid(), form.errors)
-        self.assertEqual(form.errors['internship_subtype'], _('field_is_required'))
+        self.assertEqual(form.errors['internship_subtype'], [_('field_is_required')])
 
     def test_learning_unit_check_acronym(self):
         kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
@@ -703,7 +817,7 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            {'valid': True,
+            {'valid': False,
              'existing_acronym': False,
              'existed_acronym': False,
              'last_using': ""}
@@ -726,7 +840,7 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),
-            {'valid': False,
+            {'valid': True,
              'existing_acronym': True,
              'existed_acronym': False,
              'last_using': ""}
@@ -775,11 +889,11 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_year.save()
 
         request_factory = RequestFactory()
+        request_factory.user = self.a_superuser
         url = reverse("learning_unit_volumes_management", args=[learning_unit_year.id])
         # GET request
         request = request_factory.get(url)
         request.user = self.a_superuser
-        from base.views.learning_unit import learning_unit_volumes_management
         learning_unit_volumes_management(request, learning_unit_year.id)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -788,7 +902,7 @@ class LearningUnitViewTestCase(TestCase):
 
         # POST request
         request = request_factory.post(url, self._get_volumes_data([learning_unit_year]))
-        request.user = mock.Mock()
+        request.user = self.a_superuser
         learning_unit_volumes_management(request, learning_unit_year.id)
         self.assertTrue(mock_render.called)
 
@@ -824,13 +938,333 @@ class LearningUnitViewTestCase(TestCase):
 
     def test_get_username_with_person(self):
         a_user = UserFactory(username='dupontm')
-        last_name='dupont'
-        first_name='marcel'
+        last_name = 'dupont'
+        first_name = 'marcel'
         self.person = PersonFactory(user=a_user, last_name=last_name, first_name=first_name)
-        self.assertEqual(base.business.learning_unit._get_name_or_username(a_user), '{}, {}'.format(last_name, first_name))
+        self.assertEqual(base.business.learning_unit._get_name_or_username(a_user),
+                         '{}, {}'.format(last_name, first_name))
 
     def test_prepare_xls_content_no_data(self):
         self.assertEqual(base.business.learning_unit.prepare_xls_content([]), [])
+
+    def test_learning_unit_year_form_with_faculty_user(self):
+        faculty_managers_group = Group.objects.get(name='faculty_managers')
+        faculty_user = UserFactory()
+        faculty_user.groups.add(faculty_managers_group)
+        faculty_person = PersonFactory(user=faculty_user)
+        PersonEntityFactory(person=faculty_person, entity=self.entity)
+        data = dict(self.get_valid_data())
+        data['container_type'] = MASTER_THESIS
+        form = CreateLearningUnitYearForm(person=faculty_person, data=data)
+        self.assertTrue(form.is_valid(), form.errors)
+        url = reverse('learning_unit_year_add')
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(LearningUnitYear.objects.all().count(), 7)
+
+    def test_learning_unit_form_without_allocation_entity(self):
+        faultydict = dict(self.get_valid_data())
+        faultydict['allocation_entity'] = None
+        form = CreateLearningUnitYearForm(person=self.person, data=faultydict)
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertTrue(form.errors['allocation_entity'])
+
+    def test_expected_partim_creation_on_6_years(self):
+        # Create container + container year for N+6
+        a_learning_container = LearningContainerFactory()
+        a_learning_container_yr_1 = self.build_learning_container_year(a_learning_container, self.current_academic_year)
+        a_learning_container_yr_2 = self.build_learning_container_year(a_learning_container, self.academic_year_1)
+        a_learning_container_yr_3 = self.build_learning_container_year(a_learning_container, self.academic_year_2)
+        a_learning_container_yr_4 = self.build_learning_container_year(a_learning_container, self.academic_year_3)
+        a_learning_container_yr_5 = self.build_learning_container_year(a_learning_container, self.academic_year_4)
+        a_learning_container_yr_6 = self.build_learning_container_year(a_learning_container, self.academic_year_5)
+        a_learning_container_yr_7 = self.build_learning_container_year(a_learning_container, self.academic_year_6)
+        learning_container_yrs = [a_learning_container_yr_1, a_learning_container_yr_2, a_learning_container_yr_3,
+                                  a_learning_container_yr_4, a_learning_container_yr_5, a_learning_container_yr_6,
+                                  a_learning_container_yr_7]
+
+        # Create UE with NO end_year
+        a_learning_unit = LearningUnitFactory(end_year=None)
+        learning_unit_year_parent = LearningUnitYearFactory(acronym='LBIR1200',
+                                                            academic_year=self.current_academic_year,
+                                                            subtype=learning_unit_year_subtypes.FULL,
+                                                            learning_container_year=a_learning_container_yr_1,
+                                                            learning_unit=a_learning_unit,
+                                                            credits=Decimal(5.5))
+
+        valid_partim_data = self.get_base_partim_form_data(learning_unit_year_parent)
+        # Learning unit year parent doesn't have any additional entities
+        del valid_partim_data['additional_requirement_entity_1']
+        del valid_partim_data['additional_requirement_entity_2']
+
+        form = CreatePartimForm(person=self.person, learning_unit_year_parent=learning_unit_year_parent,
+                                data=valid_partim_data)
+        self.assertTrue(form.is_valid(), form.errors)
+        full_acronym = form.cleaned_data['acronym']
+
+        url = reverse('learning_unit_year_partim_add',
+                      kwargs={'learning_unit_year_id': learning_unit_year_parent.id})
+        response = self.client.post(url, data=valid_partim_data)
+        self.assertEqual(response.status_code, 302)
+
+        count_learning_unit_year = LearningUnitYear.objects.filter(acronym=full_acronym).count()
+        self.assertEqual(count_learning_unit_year, 7)
+        count_partims = LearningUnitYear.objects.filter(subtype=learning_unit_year_subtypes.PARTIM,
+                                                        learning_container_year__in=learning_container_yrs)\
+                                                .count()
+        self.assertEqual(count_partims, 7)
+
+    def test_partim_creation_when_learning_unit_end_date_is_before_6_future_years(self):
+        # Create container + container year for N+1
+        a_learning_container = LearningContainerFactory()
+        a_learning_container_yr_1 = self.build_learning_container_year(a_learning_container, self.current_academic_year)
+        a_learning_container_yr_2 = self.build_learning_container_year(a_learning_container, self.academic_year_1)
+        learning_container_yrs = [a_learning_container_yr_1,
+                                  a_learning_container_yr_2]
+
+        # Create UE with end_year set to N+1
+        a_learning_unit = LearningUnitFactory(end_year=self.academic_year_1.year)
+        learning_unit_year_parent = LearningUnitYearFactory(acronym='LBIR1200',
+                                                            academic_year=self.current_academic_year,
+                                                            subtype=learning_unit_year_subtypes.FULL,
+                                                            learning_container_year=a_learning_container_yr_1,
+                                                            learning_unit=a_learning_unit,
+                                                            credits=Decimal(5.5))
+
+        valid_partim_data = self.get_base_partim_form_data(learning_unit_year_parent)
+        # Learning unit year parent doesn't have any additional entities
+        del valid_partim_data['additional_requirement_entity_1']
+        del valid_partim_data['additional_requirement_entity_2']
+
+        form = CreatePartimForm(person=self.person, learning_unit_year_parent=learning_unit_year_parent,
+                                data=valid_partim_data)
+        self.assertTrue(form.is_valid(), form.errors)
+        full_acronym = form.cleaned_data['acronym']
+
+        url = reverse('learning_unit_year_partim_add',
+                      kwargs={'learning_unit_year_id': learning_unit_year_parent.id})
+        response = self.client.post(url, data=valid_partim_data)
+        self.assertEqual(response.status_code, 302)
+
+        count_learning_unit_year = LearningUnitYear.objects.filter(acronym=full_acronym).count()
+        self.assertEqual(count_learning_unit_year, 2)
+        count_learning_unit_year = LearningUnitYear.objects.filter(subtype=learning_unit_year_subtypes.PARTIM,
+                                                                   learning_container_year__in=learning_container_yrs) \
+            .count()
+        self.assertEqual(count_learning_unit_year, 2)
+
+    def test_partim_creation_when_credits_partim_is_equals_than_ue_parent(self):
+        """The credits of partim cannot be equals to credits of UE"""
+        a_learning_container_year = LearningContainerYearFactory(acronym='LBIR1200',
+                                                                 academic_year=self.current_academic_year)
+        learning_unit_year_parent = LearningUnitYearFactory(acronym=a_learning_container_year.acronym,
+                                                            academic_year=self.current_academic_year,
+                                                            subtype=learning_unit_year_subtypes.FULL,
+                                                            learning_container_year=a_learning_container_year,
+                                                            credits=Decimal(15))
+
+        valid_partim_data = self.get_base_partim_form_data(learning_unit_year_parent)
+        valid_partim_data['credits'] = '15'
+        # Learning unit year parent doesn't have any additional entities
+        del valid_partim_data['additional_requirement_entity_1']
+        del valid_partim_data['additional_requirement_entity_2']
+
+        form = CreatePartimForm(person=self.person, learning_unit_year_parent=learning_unit_year_parent,
+                                data=valid_partim_data)
+        self.assertFalse(form.is_valid())
+        self.assertTrue(form.errors['credits'])
+
+    def test_partim_creation_when_credits_partim_is_greater_than_ue_parent(self):
+        """The credits of partim cannot be greater than credits of UE"""
+        a_learning_container_year = LearningContainerYearFactory(acronym='LBIR1200',
+                                                                 academic_year=self.current_academic_year)
+        learning_unit_year_parent = LearningUnitYearFactory(acronym=a_learning_container_year.acronym,
+                                                            academic_year=self.current_academic_year,
+                                                            subtype=learning_unit_year_subtypes.FULL,
+                                                            learning_container_year=a_learning_container_year,
+                                                            credits=Decimal(2))
+
+        valid_partim_data = self.get_base_partim_form_data(learning_unit_year_parent)
+        valid_partim_data['credits'] = '10'
+        # Learning unit year parent doesn't have any additional entities
+        del valid_partim_data['additional_requirement_entity_1']
+        del valid_partim_data['additional_requirement_entity_2']
+
+        form = CreatePartimForm(person=self.person, learning_unit_year_parent=learning_unit_year_parent,
+                                data=valid_partim_data)
+        self.assertFalse(form.is_valid())
+        self.assertTrue(form.errors['credits'])
+
+    def test_get_partim_creation_form_initial_data(self):
+        l_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year,
+                                                        acronym='LBIR1200',
+                                                        container_type=learning_container_year_types.COURSE,
+                                                        campus=self.campus,
+                                                        language=self.language)
+        l_unit = LearningUnitFactory(faculty_remark="Remarks Faculty", other_remark="Other Remarks",
+                                     periodicity=learning_unit_periodicity.ANNUAL)
+        learning_unit_year_parent = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                            learning_unit=l_unit,
+                                                            acronym='LBIR1200',
+                                                            subtype=learning_unit_year_subtypes.FULL,
+                                                            learning_container_year=l_container_year,
+                                                            credits=Decimal(5),
+                                                            session=learning_unit_year_session.SESSION_1XX,
+                                                            quadrimester=learning_unit_year_quadrimesters.Q1)
+        initial = compute_partim_form_initial_data(learning_unit_year_parent)
+        self.assertTrue(initial)
+        self.assertIsInstance(initial, dict)
+        self.assertEqual(initial['academic_year'], self.current_academic_year.id)
+        self.assertEqual(initial['first_letter'], "L")
+        self.assertEqual(initial['acronym'], "BIR1200")
+        self.assertEqual(initial['subtype'], learning_unit_year_subtypes.PARTIM)
+        self.assertEqual(initial['container_type'], learning_container_year_types.COURSE)
+        self.assertTrue(initial['status'])
+        self.assertEqual(initial['language'], self.language.id)
+        self.assertEqual(initial['credits'], Decimal(5))
+        self.assertEqual(initial['session'], learning_unit_year_session.SESSION_1XX)
+        self.assertEqual(initial['faculty_remark'], "Remarks Faculty")
+        self.assertEqual(initial['other_remark'], "Other Remarks")
+        self.assertEqual(initial['periodicity'], learning_unit_periodicity.ANNUAL)
+        self.assertEqual(initial['quadrimester'], learning_unit_year_quadrimesters.Q1)
+        self.assertEqual(initial['campus'], self.campus.id)
+
+    def test_get_partim_creation_form(self):
+        luy_parent = LearningUnitYearFactory(acronym='LBIR1200',
+                                             learning_container_year=self.learning_container_yr,
+                                             academic_year=self.learning_container_yr.academic_year,
+                                             subtype=learning_unit_year_subtypes.FULL)
+        url = reverse('learning_unit_create_partim', args=[luy_parent.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'learning_unit/partim_form.html')
+        form_initial_data = response.context['form'].initial
+        #  Ensure that PARTIM is predefined value
+        self.assertEqual(form_initial_data['subtype'], learning_unit_year_subtypes.PARTIM)
+        self.assertEqual(form_initial_data['academic_year'], self.learning_container_yr.academic_year.id)
+        self.assertEqual(form_initial_data['first_letter'], 'L')
+        self.assertEqual(form_initial_data['acronym'], 'BIR1200')
+
+    def test_get_partim_creation_form_when_can_not_create_partim(self):
+        luy_parent = LearningUnitYearFactory(subtype=learning_unit_year_subtypes.FULL)
+        url = reverse('learning_unit_create_partim', args=[luy_parent.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+
+    @mock.patch('base.views.learning_unit.PARTIM_FORM_READ_ONLY_FIELD', {'container_type', 'campus'})
+    def test_get_post_data_without_read_only_field(self):
+        post_data = {'other_remark': 'Autre remarque', 'container_type': learning_container_year_types.COURSE,
+                     'campus': self.campus.id}
+        post_data_filtered = _get_post_data_without_read_only_field(post_data)
+        self.assertIsInstance(post_data_filtered, dict)
+        self.assertEqual(post_data_filtered['other_remark'], 'Autre remarque')
+        self.assertRaises(KeyError, lambda: post_data_filtered['container_type'])
+        self.assertRaises(KeyError, lambda: post_data_filtered['campus'])
+
+    def build_learning_container_year(self, a_learning_container, an_academic_year):
+        a_learning_container_yr = LearningContainerYearFactory(academic_year=an_academic_year,
+                                                               learning_container=a_learning_container,
+                                                               campus=self.campus,
+                                                               container_type=learning_container_year_types.COURSE)
+        EntityContainerYearFactory(learning_container_year=a_learning_container_yr,
+                                   entity=self.entity_version.entity,
+                                   type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+        EntityContainerYearFactory(learning_container_year=a_learning_container_yr,
+                                   entity=self.entity_version.entity,
+                                   type=entity_container_year_link_type.ALLOCATION_ENTITY)
+        return a_learning_container_yr
+
+    @override_settings(LANGUAGES=[('fr-be', 'French'), ('en', 'English'), ])
+    def test_find_inexisting_language_in_settings(self):
+        wrong_language_code = 'pt'
+        self.assertIsNone(learning_unit_business.find_language_in_settings(wrong_language_code))
+
+    @override_settings(LANGUAGES=[('fr-be', 'French'), ('en', 'English'), ])
+    def test_find_language_in_settings(self):
+        existing_language_code = 'en'
+        self.assertEquals(learning_unit_business.find_language_in_settings(existing_language_code), ('en', 'English'))
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_unit_pedagogy(self, mock_render):
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=self.learning_container_yr)
+
+        request = self.create_learning_unit_request(learning_unit_year)
+
+        from base.views.learning_unit import learning_unit_pedagogy
+
+        learning_unit_pedagogy(request, learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/pedagogy.html')
+        self.assertIsInstance(context['form_french'], LearningUnitPedagogyForm)
+        self.assertIsInstance(context['form_english'], LearningUnitPedagogyForm)
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_unit_specification(self, mock_render):
+        learning_unit_year = LearningUnitYearFactory()
+
+        request = self.create_learning_unit_request(learning_unit_year)
+
+        from base.views.learning_unit import learning_unit_specifications
+
+        learning_unit_specifications(request, learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/specifications.html')
+        self.assertIsInstance(context['form_french'], LearningUnitSpecificationsForm)
+        self.assertIsInstance(context['form_english'], LearningUnitSpecificationsForm)
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_unit_attributions(self, mock_render):
+        learning_unit_year = LearningUnitYearFactory()
+
+        request = self.create_learning_unit_request(learning_unit_year)
+
+        from base.views.learning_unit import learning_unit_attributions
+
+        learning_unit_attributions(request, learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/attributions.html')
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_unit_specifications_edit(self, mock_render):
+        a_label = 'label'
+        learning_unit_year = LearningUnitYearFactory()
+        text_label_lu = TextLabelFactory(order=1, label=a_label, entity=entity_name.LEARNING_UNIT_YEAR)
+        TranslatedTextFactory(text_label=text_label_lu, entity=entity_name.LEARNING_UNIT_YEAR)
+        request_factory = RequestFactory()
+        request = request_factory.get(reverse('learning_unit',
+                                              args=[learning_unit_year.id]), data={
+            'label': a_label,
+            'language': 'en'
+        })
+        request.user = self.a_superuser
+        # request.label = 'label'
+        # request.language = 'en'
+        from base.views.learning_unit import learning_unit_specifications_edit
+
+        learning_unit_specifications_edit(request, learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/specifications_edit.html')
+        self.assertIsInstance(context['form'], LearningUnitSpecificationsEditForm)
+
+    def create_learning_unit_request(self, learning_unit_year):
+        request_factory = RequestFactory()
+        request = request_factory.get(reverse('learning_unit',
+                                              args=[learning_unit_year.id]))
+        request.user = self.a_superuser
+        return request
 
 
 class LearningUnitCreate(TestCase):
@@ -948,19 +1382,19 @@ class LearningUnitYearAdd(TestCase):
         form_data = {
             "first_letter": "L",
             "acronym": "TAU2000",
-            "container_type": COURSE,
+            "container_type": learning_container_year_types.COURSE,
             "academic_year": current_academic_year.id,
             "status": True,
-            "periodicity": ANNUAL,
+            "periodicity": learning_unit_periodicity.ANNUAL,
             "credits": "5",
             "campus": campus.id,
-            "internship_subtype": TEACHING_INTERNSHIP,
+            "internship_subtype": internship_subtypes.TEACHING_INTERNSHIP,
             "title": "LAW",
             "title_english": "LAW",
             "requirement_entity": entity_version.id,
             "subtype": learning_unit_year_subtypes.FULL,
             "language": language.id,
-            "session": SESSION_P23,
+            "session": learning_unit_year_session.SESSION_P23,
             "faculty_remark": "faculty remark",
             "other_remark": "other remark"
         }
@@ -995,7 +1429,7 @@ class TestCreateXls(TestCase):
         found_learning_units = a_form.get_activity_learning_units()
         learning_unit_business.create_xls(self.user, found_learning_units)
         xls_data = [[self.learning_unit_year.academic_year.name, self.learning_unit_year.acronym,
-                    self.learning_unit_year.title,
+                    self.learning_unit_year.specific_title,
                     xls_build.translate(self.learning_unit_year.learning_container_year.container_type),
                     xls_build.translate(self.learning_unit_year.subtype), None, None, self.learning_unit_year.credits,
                     xls_build.translate(self.learning_unit_year.status)]]
@@ -1004,21 +1438,22 @@ class TestCreateXls(TestCase):
 
 
 def _generate_xls_build_parameter(xls_data, user):
-    return {xls_build.LIST_DESCRIPTION_KEY: "Liste d'activités",
-            xls_build.FILENAME_KEY: 'Learning_units',
-            xls_build.USER_KEY: user.username,
-            xls_build.WORKSHEETS_DATA:
-                [
-                    {xls_build.CONTENT_KEY: xls_data,
-                     xls_build.HEADER_TITLES_KEY: [str(_('academic_year_small')),
-                                                   str(_('code')),
-                                                   str(_('title')),
-                                                   str(_('type')),
-                                                   str(_('subtype')),
-                                                   str(_('requirement_entity_small')),
-                                                   str(_('allocation_entity_small')),
-                                                   str(_('credits')),
-                                                   str(_('active_title'))],
-                     xls_build.WORKSHEET_TITLE_KEY: 'Learning_units',}
-                ]
-            }
+    return {
+        xls_build.LIST_DESCRIPTION_KEY: "Liste d'activités",
+        xls_build.FILENAME_KEY: 'Learning_units',
+        xls_build.USER_KEY: user.username,
+        xls_build.WORKSHEETS_DATA: [{
+            xls_build.CONTENT_KEY: xls_data,
+            xls_build.HEADER_TITLES_KEY: [str(_('academic_year_small')),
+                                          str(_('code')),
+                                          str(_('title')),
+                                          str(_('type')),
+                                          str(_('subtype')),
+                                          str(_('requirement_entity_small')),
+                                          str(_('allocation_entity_small')),
+                                          str(_('credits')),
+                                          str(_('active_title'))],
+            xls_build.WORKSHEET_TITLE_KEY: 'Learning_units',
+            }]
+        }
+

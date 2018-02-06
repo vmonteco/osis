@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,46 +23,18 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models import proposal_learning_unit, campus, entity, person_entity
-from base.models.academic_year import current_academic_year
 from base.models import entity_container_year
+from base.models import campus, entity
+from base.models.enums import proposal_type
 from base.models.proposal_learning_unit import find_by_folder
-from base.models.utils.person_entity_filter import filter_by_attached_entities
-from base.models.enums import entity_container_year_link_type, proposal_type, learning_unit_year_subtypes, \
-    learning_container_year_types, proposal_state
 from reference.models import language
-
-
-def compute_form_initial_data(learning_unit_year):
-    entities_version = entity_container_year.find_last_entity_version_grouped_by_linktypes(
-        learning_unit_year.learning_container_year)
-    initial_data = {
-        "academic_year": learning_unit_year.academic_year.id,
-        "first_letter": learning_unit_year.acronym[0],
-        "acronym": learning_unit_year.acronym[1:],
-        "title": learning_unit_year.title,
-        "title_english": learning_unit_year.title_english,
-        "container_type": learning_unit_year.learning_container_year.container_type,
-        "subtype": learning_unit_year.subtype,
-        "internship_subtype": learning_unit_year.internship_subtype,
-        "credits": learning_unit_year.credits,
-        "periodicity": learning_unit_year.learning_unit.periodicity,
-        "status": learning_unit_year.status,
-        "language": learning_unit_year.learning_container_year.language,
-        "quadrimester": learning_unit_year.quadrimester,
-        "campus": learning_unit_year.learning_container_year.campus,
-        "requirement_entity": entities_version.get(entity_container_year_link_type.REQUIREMENT_ENTITY),
-        "allocation_entity": entities_version.get(entity_container_year_link_type.ALLOCATION_ENTITY),
-        "additional_entity_1": entities_version.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1),
-        "additional_entity_2": entities_version.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
-    }
-    return {key: value for key, value in initial_data.items() if value is not None}
 
 
 def compute_proposal_type(initial_data, current_data):
     data_changed = _compute_data_changed(initial_data, current_data)
     filtered_data_changed = filter(lambda key: key not in ["academic_year", "subtype", "acronym"], data_changed)
-    transformation = current_data["acronym"] != "{}{}".format(initial_data["first_letter"], initial_data["acronym"])
+    transformation = "{}{}".format(current_data["first_letter"], current_data["acronym"]) != \
+                     "{}{}".format(initial_data["first_letter"], initial_data["acronym"])
     modification = any(map(lambda x: x != "acronym", filtered_data_changed))
     if transformation and modification:
         return proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name
@@ -78,46 +50,6 @@ def _compute_data_changed(initial_data, current_data):
         if str(value) != str(current_value):
             data_changed.append(key)
     return data_changed
-
-
-def is_eligible_for_modification_proposal(learning_unit_year, a_person):
-    proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
-    current_year = current_academic_year().year
-
-    if learning_unit_year.academic_year.year < current_year or \
-            learning_unit_year.subtype == learning_unit_year_subtypes.PARTIM:
-        return False
-    if learning_unit_year.learning_container_year.container_type not in (learning_container_year_types.COURSE,
-                                                                         learning_container_year_types.DISSERTATION,
-                                                                         learning_container_year_types.INTERNSHIP):
-        return False
-    if proposal:
-        return False
-    return _is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, a_person)
-
-
-def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
-    if learning_unit_proposal.state != proposal_state.ProposalState.FACULTY.name:
-        return False
-    valid_type = [proposal_type.ProposalType.MODIFICATION.name, proposal_type.ProposalType.TRANSFORMATION.name,
-                  proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name]
-    if learning_unit_proposal.type not in valid_type:
-        return False
-
-    initial_entity_requirement_id = \
-        learning_unit_proposal.initial_data["entities"][entity_container_year_link_type.REQUIREMENT_ENTITY]
-    an_entity = entity.get_by_internal_id(initial_entity_requirement_id)
-    if an_entity in person_entity.find_entities_by_person(a_person):
-        return True
-    return _is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_proposal.learning_unit_year, a_person)
-
-
-def _is_person_linked_to_entity_in_charge_of_learning_unit(a_learning_unit_year, a_person):
-    entity_containers_year = entity_container_year.search(
-        learning_container_year=a_learning_unit_year.learning_container_year,
-        link_type=entity_container_year_link_type.REQUIREMENT_ENTITY)
-
-    return filter_by_attached_entities(a_person, entity_containers_year).exists()
 
 
 def reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year):

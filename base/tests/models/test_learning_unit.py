@@ -30,7 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.models import learning_unit
 from base.models.enums import learning_unit_year_subtypes
-from base.templatetags.learning_unit import academic_years
+from base.templatetags.learning_unit import academic_years, academic_year
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
@@ -96,3 +96,7 @@ class LearningUnitTest(TestCase):
         self.assertEqual(academic_years(None, 2018), "-")
         self.assertEqual(academic_years(2017, None), _('from').title()+" 2017-18 ("+_('not_end_year').lower()+")")
         self.assertEqual(academic_years(None, None), "-")
+
+    def test_academic_year_tags(self):
+        self.assertEqual(academic_year(2017), "2017-18")
+        self.assertEqual(academic_year(None), "-")

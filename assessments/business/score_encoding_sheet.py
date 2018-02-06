@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -140,7 +140,7 @@ def scores_sheet_data(exam_enrollments, tutor=None):
                                                                  if scores_responsible_address else ''}
         learn_unit_year_dict['session_number'] = exam_enrollments[0].session_exam.number_session
         learn_unit_year_dict['acronym'] = learning_unit_yr.acronym
-        learn_unit_year_dict['title'] = learning_unit_yr.title
+        learn_unit_year_dict['title'] = learning_unit_yr.specific_title
         learn_unit_year_dict['decimal_scores'] = learning_unit_yr.decimal_scores
 
         programs = []
