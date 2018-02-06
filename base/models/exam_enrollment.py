@@ -310,7 +310,7 @@ def get_progress_by_learning_unit_years_and_offer_years(user,
                                  learning_unit_enrollment__learning_unit_year__acronym=
                                         F('learning_unit_enrollment__learning_unit_year__acronym'),
                                  learning_unit_enrollment__learning_unit_year__title=
-                                                F('learning_unit_enrollment__learning_unit_year__title'),
+                                                F('learning_unit_enrollment__learning_unit_year__specific_title'),
                                  exam_enrollments_encoded=Sum(Case(
                                           When(Q(score_final__isnull=False)|Q(justification_final__isnull=False),then=1),
                                           default=0,

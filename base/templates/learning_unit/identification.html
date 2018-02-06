@@ -122,19 +122,19 @@
                                 </div>
                                 <br>
                                 <label title="{% trans 'title_official_1' %}">{% trans 'common_official_title' %}</label><br>
-                                {{ learning_unit_year.learning_container_year.title | default_if_none:'' }}
+                                {{ learning_unit_year.learning_container_year.common_title | default_if_none:'' }}
                                 <br><br>
                                 <label title="{% trans 'title_official_2' %}">{% trans 'official_title_proper_to_UE' %}</label><br>
                                 {% if learning_unit_year.subtype == 'PARTIM'%}
-                                    {{learning_unit_year.title | default_if_none:''}}
+                                    {{learning_unit_year.specific_title | default_if_none:''}}
                                 {% endif%}
                                 <br><br>
                                 <label title="{% trans 'title_in_english' %} {% trans 'title_in_english_1' %}">{% trans 'common_official_english_title' %}</label><br>
-                                {{learning_unit_year.learning_container_year.title_english | default_if_none:'' }}
+                                {{learning_unit_year.learning_container_year.common_title_english | default_if_none:'' }}
                                 <br><br>
                                 <label title="{% trans 'title_in_english' %} {% trans 'title_in_english_2' %}">{% trans 'official_english_title_proper_to_UE' %}</label><br>
                                 {% if learning_unit_year.subtype == 'PARTIM' %}
-                                    {{learning_unit_year.title_english | default_if_none:'' }}
+                                    {{learning_unit_year.common_title_english | default_if_none:'' }}
                                 {% endif%}
                                 <br>
                             </div>
