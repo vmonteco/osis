@@ -33,6 +33,7 @@ from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_RE
 from base.forms.utils.choice_field import add_blank
 from base.models import academic_year
 from base.models.academic_year import AcademicYear
+from base.models.entity_version import find_main_entities_version_filtered_by_person
 from base.models.enums.attribution_procedure import AttributionProcedures
 from base.models.enums.learning_unit_year_subtypes import PARTIM
 from base.models.enums.vacant_declaration_type import VacantDeclarationType
@@ -106,12 +107,14 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     type_declaration_vacant = forms.ChoiceField(required=False, choices=_create_type_declaration_vacant_list())
     attribution_procedure = forms.ChoiceField(required=False, choices=_create_attribution_procedure_list())
 
-    def __init__(self, learning_unit_year_subtype, *args, **kwargs):
+    def __init__(self, person, learning_unit_year_subtype, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if learning_unit_year_subtype == PARTIM:
             self.disabled_fields(PARTIM_READ_ONLY_FIELDS)
         else:
             self.disabled_fields(FULL_READ_ONLY_FIELDS)
+
+        self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
 
     def disabled_fields(self, fields_to_disable):
         for field in fields_to_disable:
