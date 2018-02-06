@@ -29,9 +29,9 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
-from base.views.learning_unit import get_learning_unit_identification_context
+from base.views.learning_unit import get_learning_unit_identification_context, compute_learning_unit_form_initial_data
 from base.business.learning_units.edition import edit_learning_unit_end_date
-from base.forms.learning_unit.edition import LearningUnitEndDateForm
+from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
@@ -65,6 +65,38 @@ def learning_unit_edition(request, learning_unit_year_id):
 
     context['form'] = form
     return layout.render(request, 'learning_unit/edition.html', context)
+
+
+@login_required
+@permission_required('base.can_edit_learningunit', raise_exception=True)
+@perms.can_perform_learning_unit_modification
+def modify_learning_unit(request, learning_unit_year_id):
+    learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+    initial_data = compute_learning_unit_modification_form_initial_data(learning_unit_year)
+    form = LearningUnitModificationForm(initial=initial_data)
+
+    context = {
+        "learning_unit_year": learning_unit_year,
+        "form": form
+    }
+    return layout.render(request, 'learning_unit/modification.html', context)
+
+
+def compute_learning_unit_modification_form_initial_data(learning_unit_year):
+    other_fields_dict = {
+        "partial_title": learning_unit_year.specific_title,
+        "partial_english_title": learning_unit_year.specific_title_english,
+        "first_letter": learning_unit_year.acronym[0],
+        "acronym": learning_unit_year.acronym[1:]
+    }
+    fields = {
+        "learning_unit_year": ("academic_year", "status", "credits", "session", "subtype", "quadrimester",
+                               "attribution_procedure"),
+        "learning_container_year": ("common_title", "common_title_english", "container_type", "campus", "language",
+                                    "is_vacant", "team", "type_declaration_vacant"),
+        "learning_unit": ("faculty_remark", "other_remark", "periodicity")
+    }
+    return compute_learning_unit_form_initial_data(other_fields_dict, learning_unit_year, fields)
 
 
 def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id):

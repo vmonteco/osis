@@ -2542,3 +2542,6 @@ msgstr "Assurez-vous que cette valeur est inférieure à %(limit_value)s."
 
 msgid "Entity_not_exist"
 msgstr "L'entité %(entity_acronym)s n'existe pas pour l'année académique sélectionnée %(academic_year)s"
+
+msgid "edit_learning_unit"
+msgstr "Modifier l'unité d'enseignement"
