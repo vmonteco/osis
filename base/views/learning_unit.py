@@ -62,7 +62,7 @@ from base.forms.learning_unit_specifications import LearningUnitSpecificationsFo
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import proposal_learning_unit, entity_container_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
-from base.models.enums.learning_unit_year_subtypes import FULL
+from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.learning_container import LearningContainer
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, LEARNING_UNIT_ACRONYM_REGEX_FULL
 from base.models.learning_unit_year import LearningUnitYear
@@ -386,9 +386,9 @@ def check_acronym(request, type):
     if learning_unit_years:
         existing_acronym = True
 
-    if type == "partim":
+    if type == PARTIM:
         valid = bool(re.match(LEARNING_UNIT_ACRONYM_REGEX_ALL, acronym))
-    elif type == "full":
+    elif type == FULL:
         valid = bool(re.match(LEARNING_UNIT_ACRONYM_REGEX_FULL, acronym))
 
     return JsonResponse({'valid': valid,
