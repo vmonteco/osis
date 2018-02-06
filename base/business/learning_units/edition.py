@@ -142,7 +142,7 @@ def _get_or_create_container_year(new_learn_unit_year, new_academic_year):
     # Sometimes, the container already exists, we can directly use it and its entitycontaineryear
     if not queryset.exists():
         duplicated_lcy = _update_related_object(new_learn_unit_year.learning_container_year,
-                                             'academic_year', new_academic_year)
+                                                'academic_year', new_academic_year)
         duplicated_lcy.is_vacant = False
         duplicated_lcy.type_declaration_vacant = None
 
