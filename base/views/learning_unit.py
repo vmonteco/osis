@@ -592,23 +592,25 @@ def compute_partim_form_initial_data(learning_unit_year_parent):
 
 
 def compute_form_initial_data(learning_unit_year):
-    learn_unit_year_fields = ("academic_year", "status", "credits", "session", "quadrimester", "subtype")
-    learn_container_year_fields = ("common_title", "common_title_english", "container_type", "campus", "language")
-    learn_unit_fields = ("faculty_remark", "other_remark", "periodicity")
     other_fields_dict = {
         "first_letter": learning_unit_year.acronym[0],
         "acronym": learning_unit_year.acronym[1:]
     }
-    return compute_learning_unit_form_initial_data(other_fields_dict, learning_unit_year, learn_unit_year_fields,
-                                                   learn_container_year_fields, learn_unit_fields)
+    fields = {
+        "learning_unit_year": ("academic_year", "status", "credits", "session", "quadrimester", "subtype"),
+        "learning_container_year": ("common_title", "common_title_english", "container_type", "campus", "language"),
+        "learning_unit": ("faculty_remark", "other_remark", "periodicity")
+    }
+    return compute_learning_unit_form_initial_data(other_fields_dict, learning_unit_year, fields)
 
 
-def compute_learning_unit_form_initial_data(base_dict, learning_unit_year, learn_unit_year_fields,
-                                            learn_container_year_fields, learn_unit_fields):
+def compute_learning_unit_form_initial_data(base_dict, learning_unit_year, fields):
     initial_data = base_dict.copy()
-    initial_data.update(model_to_dict(learning_unit_year, fields=learn_unit_year_fields))
-    initial_data.update(model_to_dict(learning_unit_year.learning_container_year, fields=learn_container_year_fields))
-    initial_data.update(model_to_dict(learning_unit_year.learning_unit, fields=learn_unit_fields))
+    initial_data.update(model_to_dict(learning_unit_year, fields=fields["learning_unit_year"]))
+    initial_data.update(model_to_dict(learning_unit_year.learning_container_year,
+                                      fields=fields["learning_container_year"]))
+    initial_data.update(model_to_dict(learning_unit_year.learning_unit,
+                                      fields=fields["learning_unit"]))
     initial_data.update(get_attributions_of_learning_unit_year(learning_unit_year))
     return {key: value for key, value in initial_data.items() if value is not None}
 

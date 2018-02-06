@@ -83,19 +83,20 @@ def modify_learning_unit(request, learning_unit_year_id):
 
 
 def compute_learning_unit_modification_form_initial_data(learning_unit_year):
-    learn_unit_year_fields = ("academic_year", "status", "credits", "session", "subtype", "quadrimester",
-                              "attribution_procedure")
-    learn_container_year_fields = ("common_title", "common_title_english", "container_type", "campus", "language",
-                                   "is_vacant", "team", "type_declaration_vacant")
-    learn_unit_fields = ("faculty_remark", "other_remark", "periodicity")
     other_fields_dict = {
         "partial_title": learning_unit_year.specific_title,
         "partial_english_title": learning_unit_year.specific_title_english,
         "first_letter": learning_unit_year.acronym[0],
         "acronym": learning_unit_year.acronym[1:]
     }
-    return compute_learning_unit_form_initial_data(other_fields_dict, learning_unit_year, learn_unit_year_fields,
-                                                   learn_container_year_fields, learn_unit_fields)
+    fields = {
+        "learning_unit_year": ("academic_year", "status", "credits", "session", "subtype", "quadrimester",
+                               "attribution_procedure"),
+        "learning_container_year": ("common_title", "common_title_english", "container_type", "campus", "language",
+                                    "is_vacant", "team", "type_declaration_vacant"),
+        "learning_unit": ("faculty_remark", "other_remark", "periodicity")
+    }
+    return compute_learning_unit_form_initial_data(other_fields_dict, learning_unit_year, fields)
 
 
 def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id):
