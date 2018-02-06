@@ -99,6 +99,7 @@ FULL_READ_ONLY_FIELDS = {"first_letter", "acronym", "academic_year", "container_
 PARTIM_READ_ONLY_FIELDS = PARTIM_FORM_READ_ONLY_FIELD | {"is_vacant", "team", "type_declaration_vacant",
                                                          "attribution_procedure"}
 
+
 class LearningUnitModificationForm(LearningUnitYearForm):
     is_vacant = forms.BooleanField(required=False)
     team = forms.BooleanField(required=False)
