@@ -29,11 +29,18 @@ from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS, compu
 from base.models import academic_year as mdl_academic_year
 from base.models.academic_year import AcademicYear
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
-    learning_unit_periodicity, learning_unit_year_subtypes
+    learning_unit_periodicity, learning_unit_year_subtypes, component_type
 from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.entity import EntityFactory
+from base.tests.factories.entity_component_year import EntityComponentYearFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
+from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.learning_class_year import LearningClassYearFactory
+from base.tests.factories.learning_component_year import LearningComponentYearFactory
+from base.tests.factories.learning_container import LearningContainerFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
+from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 
 
@@ -131,7 +138,7 @@ class LearningUnitsMixin:
                 if academic_year.year % 2:
                     create = True
             elif learning_unit.periodicity == learning_unit_periodicity.ANNUAL:
-                    create = True
+                create = True
 
             if create:
                 if not learning_container_year:
@@ -156,13 +163,13 @@ class LearningUnitsMixin:
 
         for academic_year in list_of_academic_years:
 
-                new_luy = LearningUnitsMixin.setup_learning_unit_year(
-                    academic_year=academic_year,
-                    learning_unit=learning_unit_full,
-                    learning_container_year=None,
-                    learning_unit_year_subtype=learning_unit_year_subtypes.FULL)
-                if new_luy:
-                    results.append(new_luy)
+            new_luy = LearningUnitsMixin.setup_learning_unit_year(
+                academic_year=academic_year,
+                learning_unit=learning_unit_full,
+                learning_container_year=None,
+                learning_unit_year_subtype=learning_unit_year_subtypes.FULL)
+            if new_luy:
+                results.append(new_luy)
 
         return results
 
@@ -194,3 +201,173 @@ class LearningUnitsMixin:
                     results.append(learning_unit_year_partim)
 
         return results
+
+
+class GenerateContainer:
+
+    def __init__(self, start_year, end_year):
+        self.start_year = start_year
+        self.end_year = end_year
+        self.learning_container = LearningContainerFactory()
+        self.learning_unit_full = LearningUnitFactory(learning_container=self.learning_container,
+                                                      start_year=start_year,
+                                                      end_year=end_year,
+                                                      periodicity=learning_unit_periodicity.ANNUAL)
+        self.learning_unit_partim = LearningUnitFactory(learning_container=self.learning_container,
+                                                        start_year=start_year,
+                                                        end_year=end_year,
+                                                        periodicity=learning_unit_periodicity.ANNUAL)
+
+        self._setup_entities()
+
+        self.generated_container_years = [
+            GenerateContainerYear(
+                academic_year=AcademicYearFactory(year=year),
+                learning_unit_full=self.learning_unit_full,
+                learning_unit_partim=self.learning_unit_partim,
+                entities=self.entities
+            )
+            for year in range(self.start_year, self.end_year + 1)
+        ]
+
+    def _setup_entities(self):
+        self.entities = [
+            EntityVersionFactory(
+                start_date=datetime.datetime(1900, 1, 1),
+                end_date=None
+            ).entity for _ in range(4)
+        ]
+
+
+class GenerateContainerYear:
+
+    def __init__(self, academic_year, learning_unit_full, learning_unit_partim, entities):
+        self.academic_year = academic_year
+        self.entities = entities
+
+        self._setup_learning_container_year(learning_unit_full.learning_container)
+        self._setup_learning_unit_year_full(learning_unit_full)
+        self._setup_learning_unit_year_partim(learning_unit_partim)
+        self._setup_learning_components_year()
+        self._setup_entity_containers_year()
+        self._setup_entity_components_year()
+        self.nb_classes = 5
+        self._setup_classes()
+
+    def _setup_learning_container_year(self, learning_container):
+        self.learning_container_year = LearningContainerYearFactory(learning_container=learning_container,
+                                                                    academic_year=self.academic_year)
+        self.learning_container = self.learning_container_year.learning_container
+
+    def _setup_learning_unit_year_full(self, learning_unit):
+        self.learning_unit_year_full = _setup_learning_unit_year(learning_unit, self.learning_container_year,
+                                                                 learning_unit_year_subtypes.FULL)
+
+    def _setup_learning_unit_year_partim(self, learning_unit):
+        self.learning_unit_year_partim = _setup_learning_unit_year(learning_unit, self.learning_container_year,
+                                                                   learning_unit_year_subtypes.PARTIM)
+
+    def _setup_learning_components_year(self):
+
+        self.learning_component_cm_full = _setup_learning_component_cm(
+            self.learning_unit_year_full)
+        self.learning_component_cm_partim = _setup_learning_component_cm(
+            self.learning_unit_year_partim)
+        self.learning_component_tp_full = _setup_learning_component_tp(
+            self.learning_unit_year_full)
+        self.learning_component_tp_partim = _setup_learning_component_tp(
+            self.learning_unit_year_partim)
+
+        self.list_components = [
+            self.learning_component_cm_full,
+            self.learning_component_tp_full,
+            self.learning_component_cm_partim,
+            self.learning_component_tp_partim
+        ]
+
+    def _setup_entity_containers_year(self):
+        self.requirement_entity_container_year = _setup_entity_container_year(
+            self.learning_container_year,
+            entity_container_year_link_type.REQUIREMENT_ENTITY,
+            self.entities[0]
+        )
+        self.allocation_entity_container_year = _setup_entity_container_year(
+            self.learning_container_year,
+            entity_container_year_link_type.ALLOCATION_ENTITY,
+            self.entities[1]
+        )
+        self.additionnal_1_entity_container_year = _setup_entity_container_year(
+            self.learning_container_year,
+            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
+            self.entities[2]
+        )
+        self.addtionnal_2_entity_container_year = _setup_entity_container_year(
+            self.learning_container_year,
+            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2,
+            self.entities[3]
+        )
+        self.list_repartition_volume_entities = [
+            self.requirement_entity_container_year,
+            self.additionnal_1_entity_container_year,
+            self.addtionnal_2_entity_container_year
+        ]
+
+    def _setup_entity_components_year(self):
+        for component in self.list_components:
+            for entity_container_year in self.list_repartition_volume_entities:
+                _setup_entity_component_year(component, entity_container_year)
+
+    def _setup_classes(self):
+        for component in self.list_components:
+            _setup_classes(component, number_classes=self.nb_classes)
+
+
+def _setup_learning_unit_year(learning_unit, learning_container_year, subtype):
+    learning_unit_year = LearningUnitYearFactory(
+        learning_unit=learning_unit,
+        learning_container_year=learning_container_year,
+        academic_year=learning_container_year.academic_year,
+        subtype=subtype
+    )
+    learning_unit = learning_unit_year.learning_unit
+    learning_unit.learning_container = learning_container_year.learning_container
+    learning_unit.save()
+
+    return learning_unit_year
+
+
+def _setup_learning_component_cm(learning_unit_year):
+    return _setup_learning_component_year(learning_unit_year,
+                                          component_type.LECTURING)
+
+
+def _setup_learning_component_tp(learning_unit_year):
+    return _setup_learning_component_year(learning_unit_year,
+                                          component_type.PRACTICAL_EXERCISES)
+
+
+def _setup_learning_component_year(learning_unit_year, component_type):
+    component = LearningComponentYearFactory(learning_container_year=learning_unit_year.learning_container_year,
+                                             type=component_type)
+
+    LearningUnitComponentFactory(learning_unit_year=learning_unit_year,
+                                 learning_component_year=component)
+    return component
+
+
+def _setup_entity_container_year(learning_container_year, entity_container_type, entity):
+    return EntityContainerYearFactory(
+        learning_container_year=learning_container_year,
+        entity=entity,
+        type=entity_container_type
+    )
+
+
+def _setup_entity_component_year(learning_component_year, entity_container_year):
+    return EntityComponentYearFactory(learning_component_year=learning_component_year,
+                                      entity_container_year=entity_container_year)
+
+
+def _setup_classes(learning_component_year, number_classes=5):
+    for i in range(number_classes):
+        LearningClassYearFactory(learning_component_year=learning_component_year)
