@@ -90,9 +90,11 @@ def is_eligible_for_modification(learn_unit_year, pers):
 
 
 def _can_faculty_manager_modify_end_date(learning_unit_year):
-    if learning_unit_year.learning_container_year.container_type == COURSE and learning_unit_year.subtype == PARTIM:
-        return True
-    return learning_unit_year.learning_container_year.container_type not in [COURSE, DISSERTATION, INTERNSHIP]
+    if learning_unit_year.learning_container_year:
+        if learning_unit_year.learning_container_year.container_type == COURSE and learning_unit_year.subtype == PARTIM:
+            return True
+        return learning_unit_year.learning_container_year.container_type not in [COURSE, DISSERTATION, INTERNSHIP]
+    return False
 
 
 def _learning_unit_year_is_past(learn_unit_year):
