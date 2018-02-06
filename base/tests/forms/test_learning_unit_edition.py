@@ -24,7 +24,7 @@
 #
 ##############################################################################
 
-from django.test import TestCase, SimpleTestCase
+from django.test import TestCase
 
 from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
 from base.models.enums import learning_unit_periodicity, learning_unit_year_subtypes, learning_container_year_types
@@ -82,16 +82,16 @@ class TestLearningUnitEditionForm(TestCase, LearningUnitsMixin):
         self.assertEqual(form.cleaned_data['academic_year'], self.current_academic_year)
 
 
-class TestLearningUnitModificationForm(SimpleTestCase):
+class TestLearningUnitModificationForm(TestCase):
     def test_disabled_fields_in_case_of_learning_unit_of_type_full(self):
-        form = LearningUnitModificationForm(learning_unit_year_subtypes.FULL)
+        form = LearningUnitModificationForm(None, learning_unit_year_subtypes.FULL)
         disabled_fields = ("first_letter", "acronym", "academic_year", "container_type", "subtype")
         for field in disabled_fields:
             self.assertTrue(form.fields[field].disabled)
             self.assertFalse(form.fields[field].required)
 
     def test_disabled_fields_in_case_of_learning_unit_of_type_partim(self):
-        form = LearningUnitModificationForm(learning_unit_year_subtypes.PARTIM)
+        form = LearningUnitModificationForm(None, learning_unit_year_subtypes.PARTIM)
         disabled_fields = ('first_letter', 'acronym', 'common_title', 'common_title_english', 'requirement_entity',
                            'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year','container_type',
                            'internship_subtype', 'additional_requirement_entity_1', 'additional_requirement_entity_2',
