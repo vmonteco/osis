@@ -53,6 +53,11 @@ from cms.enums import entity_name
 # List of key that a user can modify
 from osis_common.document import xls_build
 
+
+DEFAULT_ACRONYM_LECTURING_COMPONENT = "CM1"
+DEFAULT_ACRONYM_PRACTICAL_COMPONENT = "TP1"
+UNTYPED_ACRONYM = "NT1"
+
 SIMPLE_SEARCH = 1
 SERVICE_COURSES_SEARCH = 2
 
@@ -246,7 +251,7 @@ def create_with_untyped_component(data_dict):
     new_learning_container_year = data_dict.get('new_learning_container_year', None)
     new_requirement_entity = data_dict.get('new_requirement_entity', None)
     new_learning_component_year = create_learning_component_year(new_learning_container_year,
-                                                                 "NT1", None)
+                                                                 UNTYPED_ACRONYM, None)
     EntityComponentYear.objects.create(entity_container_year=new_requirement_entity,
                                        learning_component_year=new_learning_component_year)
     new_learning_unit_year = create_learning_unit_year(data_dict)
@@ -258,9 +263,9 @@ def create_with_lecturing_and_practical_components(data_dict):
     new_learning_container_year = data_dict.get('new_learning_container_year', None)
     new_requirement_entity = data_dict.get('new_requirement_entity', None)
 
-    new_lecturing = create_learning_component_year(new_learning_container_year, "CM1",
+    new_lecturing = create_learning_component_year(new_learning_container_year, DEFAULT_ACRONYM_LECTURING_COMPONENT,
                                                    learning_component_year_type.LECTURING)
-    new_practical_exercise = create_learning_component_year(new_learning_container_year, "TP1",
+    new_practical_exercise = create_learning_component_year(new_learning_container_year, DEFAULT_ACRONYM_PRACTICAL_COMPONENT,
                                                             learning_component_year_type.PRACTICAL_EXERCISES)
     EntityComponentYear.objects.create(entity_container_year=new_requirement_entity,
                                        learning_component_year=new_lecturing)
@@ -402,6 +407,7 @@ def create_learning_unit_content(data_dict):
                                              learning_container_year_types.INTERNSHIP]
     if data['container_type'] in container_type_with_default_component:
         return create_with_lecturing_and_practical_components(data_dict)
+
     return create_with_untyped_component(data_dict)
 
 
