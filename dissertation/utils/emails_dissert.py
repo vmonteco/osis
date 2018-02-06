@@ -28,7 +28,6 @@ from osis_common.messaging import message_config, send_message as message_servic
 from dissertation.models import dissertation_role
 
 
-
 def get_base_template(dissert):
     template_base_data = {'author': dissert.author,
                           'title': dissert.title,
@@ -61,7 +60,7 @@ def create_string_list_commission_lecture(dissert):
 
 
 def get_commission_template(dissert):
-    template_commission_data = {'author' : dissert.author,
+    template_commission_data = {'author': dissert.author,
                                 'title': dissert.title,
                                 'promoteur': create_string_list_promoteurs(dissert),
                                 'description': dissert.description,

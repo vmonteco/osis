@@ -25,6 +25,7 @@
 ##############################################################################
 from base.tests.factories.academic_year import AcademicYearFactory
 from dissertation.tests.models.test_faculty_adviser import create_faculty_adviser
+
 from dissertation.views.dissertation import adviser_can_manage
 from django.test import TestCase
 from django.core.urlresolvers import reverse
@@ -38,25 +39,32 @@ from dissertation.tests.factories.faculty_adviser import FacultyAdviserFactory
 from dissertation.tests.factories.offer_proposition import OfferPropositionFactory
 from dissertation.tests.factories.proposition_dissertation import PropositionDissertationFactory
 from dissertation.tests.factories.proposition_offer import PropositionOfferFactory
+from osis_common.models import message_history,message_template
 
 
 class DissertationViewTestCase(TestCase):
+    fixtures = ['dissertation/fixtures/message_template.json',]
 
     def setUp(self):
         self.manager = AdviserManagerFactory()
         a_person_teacher = PersonFactory.create(first_name='Pierre', last_name='Dupont')
         self.teacher = AdviserTeacherFactory(person=a_person_teacher)
         a_person_student = PersonFactory.create(last_name="Durant", user=None)
-        student = StudentFactory.create(person=a_person_student)
+        self.student = StudentFactory.create(person=a_person_student)
         self.offer1 = OfferFactory(title="test_offer1")
         self.offer2 = OfferFactory(title="test_offer2")
         self.academic_year1 = AcademicYearFactory()
-        self.academic_year2 = AcademicYearFactory(year=self.academic_year1.year-1)
-        offer_year_start1 = OfferYearFactory(acronym="test_offer1", offer=self.offer1,
+        self.academic_year2 = AcademicYearFactory(year=self.academic_year1.year - 1)
+        self.offer_year_start1 = OfferYearFactory(acronym="test_offer1", offer=self.offer1,
                                              academic_year=self.academic_year1)
-        offer_year_start2 = OfferYearFactory(academic_year=self.academic_year2, acronym="test_offer2", offer=self.offer1)
+        offer_year_start2 = OfferYearFactory(academic_year=self.academic_year2, acronym="test_offer2",
+                                             offer=self.offer1)
         self.offer_proposition1 = OfferPropositionFactory(offer=self.offer1)
         self.offer_proposition2 = OfferPropositionFactory(offer=self.offer2)
+        self.proposition_dissertation = PropositionDissertationFactory(author=self.teacher,
+                                                                  creator=a_person_teacher,
+                                                                  title='Proposition 1212121'
+                                                                  )
         FacultyAdviserFactory(adviser=self.manager, offer=self.offer1)
 
         roles = ['PROMOTEUR', 'CO_PROMOTEUR', 'READER', 'PROMOTEUR', 'ACCOMPANIST', 'PRESIDENT']
@@ -70,9 +78,9 @@ class DissertationViewTestCase(TestCase):
             PropositionOfferFactory(proposition_dissertation=proposition_dissertation,
                                     offer_proposition=self.offer_proposition1)
 
-            DissertationFactory(author=student,
+            DissertationFactory(author=self.student,
                                 title='Dissertation {}'.format(x),
-                                offer_year_start=offer_year_start1,
+                                offer_year_start=self.offer_year_start1,
                                 proposition_dissertation=proposition_dissertation,
                                 status=status[x],
                                 active=True,
@@ -178,3 +186,19 @@ class DissertationViewTestCase(TestCase):
         self.assertEqual(adviser_can_manage(dissertation, manager), True)
         self.assertEqual(adviser_can_manage(dissertation, manager2), False)
         self.assertEqual(adviser_can_manage(dissertation, teacher), False)
+
+    def test_email_dissert(self):
+        dissertation = DissertationFactory(author=self.student,
+                                           title='Dissertation_test_email',
+                                           offer_year_start=self.offer_year_start1,
+                                           proposition_dissertation=self.proposition_dissertation,
+                                           status='DRAFT',
+                                           active=True,
+                                           dissertation_role__adviser=self.teacher,
+                                           dissertation_role__status='PROMOTEUR'
+                                           )
+        count_messages_before_status_change = len(message_history.find_my_messages(self.teacher.person.id))
+        dissertation.go_forward()
+        message_history_result = message_history.find_my_messages(self.teacher.person.id)
+        self.assertEqual(count_messages_before_status_change+1,len(message_history_result))
+        assert 'Vous avez reçu une demande d\'encadrement de mémoire' in message_history_result.first().subject
