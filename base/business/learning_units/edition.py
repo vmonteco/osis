@@ -36,6 +36,7 @@ from base.business.learning_unit_deletion import delete_from_given_learning_unit
 from base.models import entity_container_year, learning_component_year, learning_class_year, learning_unit_component
 from base.models.academic_year import AcademicYear
 from base.models.entity_component_year import EntityComponentYear
+from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import EntityVersion
 from base.models.enums import learning_unit_periodicity, learning_unit_year_subtypes
 from base.models.learning_container_year import LearningContainerYear
@@ -119,29 +120,23 @@ def _update_end_year_field(lu, year):
 
 
 def _duplicate_object(obj):
-    obj = copy(obj)
-    obj.pk = None
-    obj.uuid = uuid.uuid4()
-    return obj
+    new_obj = copy(obj)
+    new_obj.pk = None
+    new_obj.external_id = None 
+    new_obj.uuid = uuid.uuid4()
+    new_obj.copied_from = obj
+    return new_obj
 
 
 def _update_academic_year_for_learning_unit_year(luy, new_academic_year):
-    old_luy_pk = luy.pk
     duplicated_luy = _update_related_row(luy, 'academic_year', new_academic_year)
     duplicated_luy.attribution_procedure = None
-    duplicated_luy.learning_container_year = _update_learning_container_year(duplicated_luy,
-                                                                             new_academic_year,
-                                                                             old_luy_pk)
+    duplicated_luy.learning_container_year = _update_learning_container_year(duplicated_luy, new_academic_year)
     duplicated_luy.save()
     return duplicated_luy
 
 
-def _update_learning_container_year(luy, new_academic_year, old_luy_pk):
-    old_lcy_pk = luy.learning_container_year.pk
-    return _get_or_duplication_container(luy, new_academic_year, old_lcy_pk, old_luy_pk)
-
-
-def _get_or_duplication_container(luy, new_academic_year, old_lcy_pk, old_luy_pk):
+def _update_learning_container_year(luy, new_academic_year):
     queryset = LearningContainerYear.objects.filter(
         academic_year=new_academic_year,
         learning_container=luy.learning_unit.learning_container
@@ -152,17 +147,18 @@ def _get_or_duplication_container(luy, new_academic_year, old_lcy_pk, old_luy_pk
         duplicated_lcy.is_vacant = False
         duplicated_lcy.type_declaration_vacant = None
 
-        _update_entity_container_year(old_lcy_pk, duplicated_lcy, new_academic_year)
+        _update_entity_container_year(duplicated_lcy, new_academic_year)
     else:
         duplicated_lcy = queryset.get()
+        duplicated_lcy.copied_from = luy.learning_container_year
 
-    _update_learning_component_year(old_lcy_pk, duplicated_lcy, old_luy_pk, luy)
+    _update_learning_component_year(duplicated_lcy, luy)
     duplicated_lcy.save()
     return duplicated_lcy
 
 
-def _update_entity_container_year(old_lcy_pk, new_lcy, new_academic_year):
-    for entity_container_y in entity_container_year.search(learning_container_year=old_lcy_pk):
+def _update_entity_container_year(new_lcy, new_academic_year):
+    for entity_container_y in entity_container_year.search(learning_container_year=new_lcy.copied_from):
         entity_versions = EntityVersion.objects.entity(entity_container_y.entity)
         if not entity_versions.current(new_academic_year.end_date).exists():
             raise IntegrityError(
@@ -170,34 +166,45 @@ def _update_entity_container_year(old_lcy_pk, new_lcy, new_academic_year):
                     'entity_acronym': entity_versions.last().acronym,
                     'academic_year': new_academic_year
                 })
-        duplicate_ecy = _update_related_row(entity_container_y, 'learning_container_year', new_lcy)
-
-        _update_entity_component_year(duplicate_ecy, entity_container_y)
+        _update_related_row(entity_container_y, 'learning_container_year', new_lcy)
 
 
-def _update_entity_component_year(duplicate_ecy, entity_container_y):
-    for entity_component_year in EntityComponentYear.objects.filter(entity_container_year=entity_container_y):
-        _update_related_row(entity_component_year, 'entity_container_year', duplicate_ecy)
-
-
-def _update_learning_component_year(old_lcy_pk, new_lcy, old_luy_pk, luy):
-    for component in learning_component_year.find_by_learning_container_year(old_lcy_pk):
-        old_component_pk = component.pk
+def _update_learning_component_year(new_lcy, luy):
+    for component in learning_component_year.find_by_learning_container_year(new_lcy.copied_from):
         component = _update_related_row(component, 'learning_container_year', new_lcy)
-        _update_learning_class_year(old_component_pk, component)
-        _update_learning_unit_component(old_component_pk, old_luy_pk, component, luy)
+        _update_learning_class_year(component)
+        _update_learning_unit_component(component, luy)
+        _update_entity_component_year(component)
 
 
-def _update_learning_unit_component(old_component_pk, old_luy_pk, component, luy):
-    for luc in learning_unit_component.search(a_learning_component_year=old_component_pk,
-                                              a_learning_unit_year=old_luy_pk):
+def _update_entity_component_year(new_component):
+    new_learning_container = new_component.learning_container_year
+    for entity_component_year in EntityComponentYear.objects.filter(learning_component_year=new_component.copied_from):
+        old_entity_container = entity_component_year.entity_container_year
+        entity = old_entity_container.entity
+        new_entity_container_year = EntityContainerYear.objects.get(
+            learning_container_year=new_learning_container,
+            entity=entity,
+            type=old_entity_container.type
+        )
+
+        new_entity_component_year = _update_related_row(entity_component_year,
+                                                        'entity_container_year',
+                                                        new_entity_container_year)
+        new_entity_component_year.learning_component_year = new_component
+        new_entity_component_year.save()
+
+
+def _update_learning_unit_component(component, luy):
+    for luc in learning_unit_component.search(a_learning_component_year=component.copied_from,
+                                              a_learning_unit_year=luy.copied_from):
         new_luc = _update_related_row(luc, 'learning_unit_year', luy)
         new_luc.learning_component_year = component
         new_luc.save()
 
 
-def _update_learning_class_year(old_component_pk, new_component):
-    for learning_class in learning_class_year.find_by_learning_component_year(old_component_pk):
+def _update_learning_class_year(new_component):
+    for learning_class in learning_class_year.find_by_learning_component_year(new_component.copied_from):
         _update_related_row(learning_class, 'learning_component_year', new_component)
 
 

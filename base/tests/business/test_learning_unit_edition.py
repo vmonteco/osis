@@ -40,7 +40,7 @@ from base.models.learning_class_year import LearningClassYear
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
-from base.tests.factories.business.learning_units import LearningUnitsMixin
+from base.tests.factories.business.learning_units import LearningUnitsMixin, GenerateContainer
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_component_year import EntityComponentYearFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -579,36 +579,50 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         start_year_full = self.current_academic_year.year
         end_year_full = start_year_full + 6
 
-        learning_unit_full_annual = self.setup_learning_unit(start_year=start_year_full, end_year=end_year_full)
-        learning_unit_years = self.setup_list_of_learning_unit_years_full(
-            list_of_academic_years=self.list_of_academic_years_after_now,
-            learning_unit_full=learning_unit_full_annual,
-        )
-
-        _create_learning_component_years(learning_unit_years, self.number_classes)
-        _create_entity_container_years(learning_unit_years, self.entity)
+        generator_learning_container = GenerateContainer(start_year=start_year_full, end_year=end_year_full)
 
         excepted_end_year = end_year_full + 2
-        self._edit_lu(learning_unit_full_annual, excepted_end_year)
+        self._edit_lu(generator_learning_container.learning_unit_full, excepted_end_year)
 
-        last_luy = LearningUnitYear.objects.filter(learning_unit=learning_unit_full_annual
-                                                   ).order_by('academic_year').last()
-        last_container = last_luy.learning_container_year
+        last_generated_luy = LearningUnitYear.objects.filter(
+            learning_unit=generator_learning_container.learning_unit_full
+        ).order_by('academic_year').last()
 
-        # check if the link with entity is correctly duplicated
-        last_ecy = EntityContainerYear.objects.filter(learning_container_year=last_container).last()
-        self.assertEqual(last_ecy.entity, self.entity)
-        last_e_component_year = EntityComponentYear.objects.filter(entity_container_year=last_ecy).last()
-        self.assertEqual(last_e_component_year.entity_container_year.entity, self.entity)
+        last_container = last_generated_luy.learning_container_year
 
-        # check if the classes are correctly duplicated
-        component = LearningComponentYear.objects.filter(learning_container_year=last_container).last()
+        self._assert_entity_container_year_correctly_duplicated(generator_learning_container.entities, last_container)
+        expected_entities = [
+            entity_container_year.entity
+            for entity_container_year in
+            generator_learning_container.generated_container_years[0].list_repartition_volume_entities
+        ]
+        self._assert_entity_component_year_correctly_duplicated(expected_entities, last_container)
+
+        last_generated_luc = LearningUnitComponent.objects.filter(learning_unit_year=last_generated_luy).last()
+        last_generated_component = last_generated_luc.learning_component_year
+        self.assertEqual(last_generated_luy.learning_container_year, last_generated_component.learning_container_year)
+
+        self._assert_learning_classes_correctly_duplicated(
+            last_generated_component,
+            generator_learning_container.generated_container_years[0].nb_classes
+        )
+
+    def _assert_learning_classes_correctly_duplicated(self, component, expected_nb_classes):
         self.assertEqual(LearningClassYear.objects.filter(learning_component_year=component).count(),
-                         self.number_classes)
+                         expected_nb_classes)
 
-        # check if the learning unit component is correctly duplicated
-        self.assertTrue(LearningUnitComponent.objects.filter(learning_component_year=component,
-                                                             learning_unit_year=last_luy).exists())
+    def _assert_entity_container_year_correctly_duplicated(self, expected_entities, duplicated_container):
+        qs_entity_container_year = EntityContainerYear.objects.filter(learning_container_year=duplicated_container)
+        self.assertEqual(qs_entity_container_year.count(), 4)
+        for entity_container_year in qs_entity_container_year:
+            self.assertIn(entity_container_year.entity, expected_entities)
+
+    def _assert_entity_component_year_correctly_duplicated(self, expected_entities, duplicated_container):
+        for entity_component_year in EntityComponentYear.objects.filter(
+                entity_container_year__learning_container_year=duplicated_container):
+
+            self.assertIn(entity_component_year.entity_container_year.entity, expected_entities)
+
 
     def test_shorten_and_extend_learning_unit(self):
         start_year_full = self.current_academic_year.year
