@@ -101,7 +101,7 @@ urlpatterns = [
                 url(r'^modification/$', learning_unit_proposal.propose_modification_of_learning_unit,
                     name="learning_unit_modification_proposal"),
                 url(r'^cancel/$', learning_unit_proposal.cancel_proposal_of_learning_unit,
-                    name="learning_unit_cancel_proposal")
+                    name="learning_unit_cancel_proposal"),
             ])),
             url(r'^edit/$', edition.learning_unit_edition, name="learning_unit_edition"),
             url(r'^specifications/$', learning_unit.learning_unit_specifications, name="learning_unit_specifications"),
@@ -126,6 +126,8 @@ urlpatterns = [
         url(r'^check/$', learning_unit.check_acronym, name="check_acronym"),
         url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
     ])),
+    url(r'^proposals/$', learning_unit_proposal.learning_unit_proposals, name="learning_unit_proposals"),
+    url(r'^proposals/search/$', learning_unit_proposal.learning_unit_proposal_search, name="learning_unit_proposal_search"),
 
     url(r'^my_osis/', include([
         url(r'^$', my_osis.my_osis_index, name="my_osis"),

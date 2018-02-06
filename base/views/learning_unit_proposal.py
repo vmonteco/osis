@@ -38,6 +38,9 @@ from base.models.enums import proposal_state
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
+from base.views import layout
+from base.forms.proposal.proposal import ProposalForm
+from base.forms.common import TooManyResultsException
 
 
 @login_required
@@ -82,3 +85,35 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
     messages.add_message(request, messages.SUCCESS,
                          _("success_cancel_proposal").format(learning_unit_year.acronym))
     return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
+
+
+@login_required
+def learning_unit_proposals(request):
+    form = ProposalForm()
+    context = {'form': form}
+    return layout.render(request, "proposal/proposals.html", context)
+
+@login_required
+def learning_unit_proposal_search(request):
+    form = ProposalForm(request.GET or None)
+    found_learning_units = []
+    proposals = []
+    try:
+        if form.is_valid():
+            data = form._get_proposal_learning_units()
+            found_learning_units = data.get('learning_units')
+            proposals = data.get('proposals')
+            _check_if_display_message(request, proposals)
+    except TooManyResultsException:
+        messages.add_message(request, messages.ERROR, _('too_many_results'))
+
+    context = {'form': form,
+               'proposals': proposals,
+               'learning_units': found_learning_units}
+    return layout.render(request, "proposal/proposals.html", context)
+
+
+def _check_if_display_message(request, proposals):
+    if not proposals:
+        messages.add_message(request, messages.WARNING, _('no_result'))
+    return True

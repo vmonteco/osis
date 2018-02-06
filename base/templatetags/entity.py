@@ -23,42 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-from django.core.exceptions import ObjectDoesNotExist
-from django.utils.translation import ugettext_lazy as _
-from base.models.osis_model_admin import OsisModelAdmin
-from base import models as mdl_base
+
+from django import template
+from base.models import entity_version
 
 
-class ProposalFolderAdmin(OsisModelAdmin):
-    list_display = ('entity', 'folder_id', )
+register = template.Library()
 
-    search_fields = ['folder_id']
-    raw_id_fields = ('entity', )
-
-
-class ProposalFolder(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    entity = models.ForeignKey('Entity')
-    folder_id = models.IntegerField()
-
-    class Meta:
-        unique_together = ('entity', 'folder_id', )
-
-    def __str__(self):
-        return _("folder_number").format(self.folder_id)
-
-
-def find_by_entity_and_folder_id(an_entity, a_folder_id):
+@register.filter
+def requirement_entity(list, i):
     try:
-        return ProposalFolder.objects.get(entity=an_entity, folder_id=a_folder_id)
-    except ObjectDoesNotExist:
-        return None
+        return list[int(i)].entities.get('REQUIREMENT_ENTITY').acronym
+    except:
+        return ""
 
 
-def find_entities():
-    entities = []
-    for an_entity in mdl_base.proposal_folder.ProposalFolder.objects.distinct('entity'):
-        entities.append(an_entity.entity.id)
-    return mdl_base.entity.Entity.objects.filter(pk__in=entities)
+@register.filter
+def entity_last_version(entity):
+    return entity_version.get_last_version(entity).acronym

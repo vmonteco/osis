@@ -2542,3 +2542,15 @@ msgstr "Assurez-vous que cette valeur est inférieure à %(limit_value)s."
 
 msgid "Entity_not_exist"
 msgstr "L'entité %(entity_acronym)s n'existe pas pour l'année académique sélectionnée %(academic_year)s"
+
+msgid "Site"
+msgstr "Site"
+
+msgid "proposal_type"
+msgstr "Type proposition"
+
+msgid "proposal_status"
+msgstr "Etat proposition"
+
+msgid "folder_entity"
+msgstr "Sigle dossier"

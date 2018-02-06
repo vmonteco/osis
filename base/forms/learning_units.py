@@ -111,7 +111,7 @@ class LearningUnitYearForm(BootstrapForm):
                                              .prefetch_related(entity_version_prefetch),
                                              to_attr='entity_containers_year')
 
-        clean_data['learning_container_year_id'] = _get_filter_learning_container_ids(clean_data)
+        clean_data['learning_container_year_id'] = get_filter_learning_container_ids(clean_data)
         learning_units = mdl.learning_unit_year.search(**clean_data) \
             .select_related('academic_year', 'learning_container_year',
                             'learning_container_year__academic_year') \
@@ -150,9 +150,9 @@ class LearningUnitYearForm(BootstrapForm):
         )
 
 
-def _get_filter_learning_container_ids(filter_data):
-    requirement_entity_acronym = filter_data.get('requirement_entity_acronym')
-    allocation_entity_acronym = filter_data.get('allocation_entity_acronym')
+def get_filter_learning_container_ids(filter_data):
+    requirement_entity_acronym = filter_data.get('requirement_entity_acronym', None)
+    allocation_entity_acronym = filter_data.get('allocation_entity_acronym', None)
     with_entity_subordinated = filter_data.get('with_entity_subordinated', False)
     entities_id_list = []
 
