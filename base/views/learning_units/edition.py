@@ -73,7 +73,7 @@ def learning_unit_edition(request, learning_unit_year_id):
 def modify_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     initial_data = compute_learning_unit_modification_form_initial_data(learning_unit_year)
-    form = LearningUnitModificationForm(initial=initial_data)
+    form = LearningUnitModificationForm(learning_unit_year.subtype, initial=initial_data)
 
     context = {
         "learning_unit_year": learning_unit_year,

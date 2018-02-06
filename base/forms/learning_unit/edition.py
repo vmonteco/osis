@@ -29,11 +29,12 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_units.edition import filter_biennial
 from base.forms.bootstrap import BootstrapForm
-from base.forms.learning_unit_create import LearningUnitYearForm
+from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.utils.choice_field import add_blank
 from base.models import academic_year
 from base.models.academic_year import AcademicYear
 from base.models.enums.attribution_procedure import AttributionProcedures
+from base.models.enums.learning_unit_year_subtypes import PARTIM
 from base.models.enums.vacant_declaration_type import VacantDeclarationType
 from base.models.learning_unit import is_old_learning_unit
 
@@ -94,26 +95,24 @@ def _create_attribution_procedure_list():
     return add_blank(AttributionProcedures.translation_choices())
 
 
+FULL_READ_ONLY_FIELDS = {"first_letter", "acronym", "academic_year", "container_type", "subtype"}
+PARTIM_READ_ONLY_FIELDS = PARTIM_FORM_READ_ONLY_FIELD | {"is_vacant", "team", "type_declaration_vacant",
+                                                         "attribution_procedure"}
+
 class LearningUnitModificationForm(LearningUnitYearForm):
     is_vacant = forms.BooleanField(required=False)
     team = forms.BooleanField(required=False)
     type_declaration_vacant = forms.ChoiceField(required=False, choices=_create_type_declaration_vacant_list())
     attribution_procedure = forms.ChoiceField(required=False, choices=_create_attribution_procedure_list())
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, learning_unit_year_subtype, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if learning_unit_year_subtype == PARTIM:
+            self.disabled_fields(PARTIM_READ_ONLY_FIELDS)
+        else:
+            self.disabled_fields(FULL_READ_ONLY_FIELDS)
 
-        self.fields["first_letter"].disabled = True
-        self.fields["first_letter"].required = False
-
-        self.fields["acronym"].disabled = True
-        self.fields["acronym"].required = False
-
-        self.fields["academic_year"].disabled = True
-        self.fields["academic_year"].required = False
-
-        self.fields["container_type"].disabled = True
-        self.fields["container_type"].required = False
-
-        self.fields["subtype"].disabled = True
-        self.fields["subtype"].required = False
+    def disabled_fields(self, fields_to_disable):
+        for field in fields_to_disable:
+            self.fields[field].disabled = True
+            self.fields[field].required = False
