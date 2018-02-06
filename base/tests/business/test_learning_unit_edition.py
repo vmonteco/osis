@@ -293,31 +293,14 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
             end_year=self.current_academic_year.year + 4,
         )
 
-        list_of_learning_unit_years_annual = self.setup_list_of_learning_unit_years_partim(
+        self.setup_list_of_learning_unit_years_partim(
             list_of_academic_years=self.list_of_academic_years_after_now,
             learning_unit_full=learning_unit_full_annual,
             learning_unit_partim=learning_unit_partim_annual
         )
 
-        list_of_expected_learning_unit_years_full = []
-        list_of_expected_learning_unit_years_partim = []
-        for learning_unit_year_expected in list_of_learning_unit_years_annual:
-            if learning_unit_year_expected.subtype == learning_unit_year_subtypes.PARTIM:
-                list_of_expected_learning_unit_years_partim.append(learning_unit_year_expected.academic_year.year)
-            else:
-                list_of_expected_learning_unit_years_full.append(learning_unit_year_expected.academic_year.year)
-        list_of_expected_learning_unit_years_partim.append(learning_unit_partim_annual.end_year + 1)
-        list_of_expected_learning_unit_years_partim.append(learning_unit_partim_annual.end_year + 2)
-
-        academic_year_of_new_end_date = None
-
-        edit_learning_unit_end_date(learning_unit_partim_annual, academic_year_of_new_end_date)
-
-        list_of_learning_unit_years_full = _get_list_years_learning_unit(learning_unit_year_subtypes.FULL)
-        list_of_learning_unit_years_partim = _get_list_years_learning_unit(learning_unit_year_subtypes.PARTIM)
-
-        self.assertEqual(len(list_of_learning_unit_years_full), len(list_of_expected_learning_unit_years_full))
-        self.assertEqual(sorted(list_of_learning_unit_years_partim), list_of_expected_learning_unit_years_partim)
+        with self.assertRaises(IntegrityError):
+            edit_learning_unit_end_date(learning_unit_partim_annual, None)
 
     def test_edit_learning_unit_partim_annual_end_date_is_none_with_start_date_lt_now_with_error(self):
         learning_unit_full_annual = self.setup_learning_unit(
@@ -563,6 +546,32 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
 
         self._edit_lu(learning_unit_partim_annual, max_end_year, subtype=learning_unit_year_subtypes.PARTIM)
         self._edit_lu(learning_unit_full_annual, max_end_year)
+
+    def test_edit_learning_unit_full_end_year_noe_value_with_partim_end_year(self):
+        start_year = self.current_academic_year.year
+        max_end_year = compute_max_academic_year_adjournment()
+
+        learning_unit_full_annual = self.setup_learning_unit(start_year=start_year, end_year=max_end_year)
+        learning_unit_partim_annual = self.setup_learning_unit(start_year=start_year, end_year=max_end_year)
+
+        list_partims = self.setup_list_of_learning_unit_years_partim(
+            list_of_academic_years=self.list_of_academic_years_after_now,
+            learning_unit_full=learning_unit_full_annual,
+            learning_unit_partim=learning_unit_partim_annual
+        )
+        learning_unit_full_annual.learning_container = list_partims[0].learning_container_year.learning_container
+        learning_unit_full_annual.save()
+        learning_unit_partim_annual.learning_container = list_partims[0].learning_container_year.learning_container
+        learning_unit_partim_annual.save()
+
+        with self.assertRaises(IntegrityError) as context:
+            edit_learning_unit_end_date(learning_unit_partim_annual, None)
+
+        self.assertEqual(str(context.exception),
+                         _('parent_greater_than_partim') % {
+                             'partim_end_year': academic_year.find_academic_year_by_year(max_end_year+1),
+                             'lu_parent': learning_unit_full_annual.acronym
+        })
 
     def test_edition_learning_extend_with_related_tables(self):
         start_year_full = self.current_academic_year.year
