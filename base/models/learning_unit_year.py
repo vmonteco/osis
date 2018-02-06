@@ -203,6 +203,7 @@ def _convert_status_bool(status):
         boolean = status
     return boolean
 
+
 def count_search_results(**kwargs):
     return search(**kwargs).count()
 
