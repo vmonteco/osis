@@ -29,8 +29,14 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_units.edition import filter_biennial
 from base.forms.bootstrap import BootstrapForm
+from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_READ_ONLY_FIELD
+from base.forms.utils.choice_field import add_blank
 from base.models import academic_year
 from base.models.academic_year import AcademicYear
+from base.models.entity_version import find_main_entities_version_filtered_by_person
+from base.models.enums.attribution_procedure import AttributionProcedures
+from base.models.enums.learning_unit_year_subtypes import PARTIM
+from base.models.enums.vacant_declaration_type import VacantDeclarationType
 from base.models.learning_unit import is_old_learning_unit
 
 
@@ -80,3 +86,37 @@ class LearningUnitEndDateForm(BootstrapForm):
             raise ValueError('Learning_unit {} cannot be modify'.format(self.learning_unit))
 
         return academic_year.find_academic_years(start_year=min_year, end_year=max_year)
+
+
+def _create_type_declaration_vacant_list():
+    return add_blank(VacantDeclarationType.translation_choices())
+
+
+def _create_attribution_procedure_list():
+    return add_blank(AttributionProcedures.translation_choices())
+
+
+FULL_READ_ONLY_FIELDS = {"first_letter", "acronym", "academic_year", "container_type", "subtype"}
+PARTIM_READ_ONLY_FIELDS = PARTIM_FORM_READ_ONLY_FIELD | {"is_vacant", "team", "type_declaration_vacant",
+                                                         "attribution_procedure"}
+
+
+class LearningUnitModificationForm(LearningUnitYearForm):
+    is_vacant = forms.BooleanField(required=False)
+    team = forms.BooleanField(required=False)
+    type_declaration_vacant = forms.ChoiceField(required=False, choices=_create_type_declaration_vacant_list())
+    attribution_procedure = forms.ChoiceField(required=False, choices=_create_attribution_procedure_list())
+
+    def __init__(self, person, learning_unit_year_subtype, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if learning_unit_year_subtype == PARTIM:
+            self.disabled_fields(PARTIM_READ_ONLY_FIELDS)
+        else:
+            self.disabled_fields(FULL_READ_ONLY_FIELDS)
+
+        self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
+
+    def disabled_fields(self, fields_to_disable):
+        for field in fields_to_disable:
+            self.fields[field].disabled = True
+            self.fields[field].required = False

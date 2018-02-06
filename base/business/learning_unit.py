@@ -53,6 +53,11 @@ from cms.enums import entity_name
 # List of key that a user can modify
 from osis_common.document import xls_build
 
+
+DEFAULT_ACRONYM_LECTURING_COMPONENT = "CM1"
+DEFAULT_ACRONYM_PRACTICAL_COMPONENT = "TP1"
+UNTYPED_ACRONYM = "NT1"
+
 SIMPLE_SEARCH = 1
 SERVICE_COURSES_SEARCH = 2
 
@@ -215,38 +220,38 @@ def compute_max_academic_year_adjournment():
 def create_learning_unit_structure(additional_requirement_entity_1, additional_requirement_entity_2,
                                    allocation_entity_version, data, new_learning_container, new_learning_unit,
                                    requirement_entity_version, status, academic_year, campus):
-    new_learning_container_year = LearningContainerYear.objects.create(academic_year=academic_year,
-                                                                       learning_container=new_learning_container,
-                                                                       title=data['common_title'],
-                                                                       acronym=data['acronym'].upper(),
-                                                                       container_type=data['container_type'],
-                                                                       language=data['language'],
-                                                                       campus=campus,
-                                                                       title_english=data['common_title_english'])
-    new_requirement_entity = create_entity_container_year(requirement_entity_version, new_learning_container_year,
+    new_learning_container_yr = LearningContainerYear.objects.create(academic_year=academic_year,
+                                                                     learning_container=new_learning_container,
+                                                                     common_title=data['common_title'],
+                                                                     acronym=data['acronym'].upper(),
+                                                                     container_type=data['container_type'],
+                                                                     language=data['language'],
+                                                                     campus=campus,
+                                                                     common_title_english=data['common_title_english'])
+    new_requirement_entity = create_entity_container_year(requirement_entity_version, new_learning_container_yr,
                                                           entity_container_year_link_type.REQUIREMENT_ENTITY)
     if allocation_entity_version:
-        create_entity_container_year(allocation_entity_version, new_learning_container_year,
+        create_entity_container_year(allocation_entity_version, new_learning_container_yr,
                                      entity_container_year_link_type.ALLOCATION_ENTITY)
     if additional_requirement_entity_1:
-        create_entity_container_year(additional_requirement_entity_1, new_learning_container_year,
+        create_entity_container_year(additional_requirement_entity_1, new_learning_container_yr,
                                      entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
     if additional_requirement_entity_2:
-        create_entity_container_year(additional_requirement_entity_2, new_learning_container_year,
+        create_entity_container_year(additional_requirement_entity_2, new_learning_container_yr,
                                      entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
     return create_learning_unit_content({'academic_year': academic_year,
                                          'data': data,
-                                         'new_learning_container_year': new_learning_container_year,
+                                         'new_learning_container_year': new_learning_container_yr,
                                          'new_learning_unit': new_learning_unit,
                                          'new_requirement_entity': new_requirement_entity,
                                          'status': status})
 
 
-def create_another_type(data_dict):
+def create_with_untyped_component(data_dict):
     new_learning_container_year = data_dict.get('new_learning_container_year', None)
     new_requirement_entity = data_dict.get('new_requirement_entity', None)
     new_learning_component_year = create_learning_component_year(new_learning_container_year,
-                                                                 "NT1", None)
+                                                                 UNTYPED_ACRONYM, None)
     EntityComponentYear.objects.create(entity_container_year=new_requirement_entity,
                                        learning_component_year=new_learning_component_year)
     new_learning_unit_year = create_learning_unit_year(data_dict)
@@ -254,13 +259,15 @@ def create_another_type(data_dict):
     return new_learning_unit_year
 
 
-def create_course(data_dict):
+def create_with_lecturing_and_practical_components(data_dict):
     new_learning_container_year = data_dict.get('new_learning_container_year', None)
     new_requirement_entity = data_dict.get('new_requirement_entity', None)
 
-    new_lecturing = create_learning_component_year(new_learning_container_year, "CM1",
+    new_lecturing = create_learning_component_year(new_learning_container_year,
+                                                   DEFAULT_ACRONYM_LECTURING_COMPONENT,
                                                    learning_component_year_type.LECTURING)
-    new_practical_exercise = create_learning_component_year(new_learning_container_year, "TP1",
+    new_practical_exercise = create_learning_component_year(new_learning_container_year,
+                                                            DEFAULT_ACRONYM_PRACTICAL_COMPONENT,
                                                             learning_component_year_type.PRACTICAL_EXERCISES)
     EntityComponentYear.objects.create(entity_container_year=new_requirement_entity,
                                        learning_component_year=new_lecturing)
@@ -305,8 +312,8 @@ def create_learning_unit_year(data_dict):
                                            learning_unit=data_dict.get('new_learning_unit'),
                                            learning_container_year=data_dict.get('new_learning_container_year'),
                                            acronym=data['acronym'].upper(),
-                                           title=data.get('partial_title'),
-                                           title_english=data.get('partial_english_title'),
+                                           specific_title=data.get('partial_title'),
+                                           specific_title_english=data.get('partial_english_title'),
                                            subtype=data['subtype'],
                                            credits=data['credits'],
                                            internship_subtype=data.get('internship_subtype'),
@@ -319,15 +326,13 @@ def prepare_xls_content(found_learning_units):
     return [_extract_xls_data_from_learning_unit(lu) for lu in found_learning_units]
 
 
-def _extract_xls_data_from_learning_unit(learning_unit):
-    container_type = learning_unit.learning_container_year.container_type if learning_unit.learning_container_year \
-        else ""
-    return [learning_unit.academic_year.name, learning_unit.acronym, learning_unit.title,
-            xls_build.translate(container_type),
-            xls_build.translate(learning_unit.subtype),
-            _get_entity_acronym(learning_unit.entities.get('REQUIREMENT_ENTITY')),
-            _get_entity_acronym(learning_unit.entities.get('ALLOCATION_ENTITY')),
-            learning_unit.credits, xls_build.translate(learning_unit.status)]
+def _extract_xls_data_from_learning_unit(learning_unit_yr):
+    return [learning_unit_yr.academic_year.name, learning_unit_yr.acronym, learning_unit_yr.specific_title,
+            xls_build.translate(learning_unit_yr.learning_container_year.container_type),
+            xls_build.translate(learning_unit_yr.subtype),
+            _get_entity_acronym(learning_unit_yr.entities.get('REQUIREMENT_ENTITY')),
+            _get_entity_acronym(learning_unit_yr.entities.get('ALLOCATION_ENTITY')),
+            learning_unit_yr.credits, xls_build.translate(learning_unit_yr.status)]
 
 
 def prepare_xls_parameters_list(user, workingsheets_data):
@@ -398,10 +403,14 @@ def create_learning_unit_content(data_dict):
     :return: The Learning Unit Year created
     """
     data = data_dict.get('data', None)
+    container_type_with_default_component = [learning_container_year_types.COURSE,
+                                             learning_container_year_types.MASTER_THESIS,
+                                             learning_container_year_types.OTHER_COLLECTIVE,
+                                             learning_container_year_types.INTERNSHIP]
+    if data['container_type'] in container_type_with_default_component:
+        return create_with_lecturing_and_practical_components(data_dict)
 
-    if data['container_type'] == learning_container_year_types.COURSE:
-        return create_course(data_dict)
-    return create_another_type(data_dict)
+    return create_with_untyped_component(data_dict)
 
 
 def is_summary_submission_opened():

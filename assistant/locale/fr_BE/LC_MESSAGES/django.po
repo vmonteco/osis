@@ -223,6 +223,9 @@ msgstr "Gestion de l'envoi des courriels aux assistants et doyens de faculté"
 msgid "desc_lnk_export_mandates"
 msgstr "Exportation des dossiers vers un fichier XLSX"
 
+msgid "desc_lnk_export_mandates_pdf"
+msgstr "Exportation des données dans un fichier PDF"
+
 msgid "desc_lnk_import_mandates"
 msgstr "Importation des dossiers depuis un fichier XLSX"
 
@@ -246,6 +249,12 @@ msgstr "Courriels"
 
 msgid "end"
 msgstr "Fin"
+
+msgid "end_date_contract"
+msgstr "Date de fin du contrat"
+
+msgid "entry_date_contract"
+msgstr "Date de début du contrat"
 
 msgid "eq_fte"
 msgstr "Durée contrat (ETP)"
@@ -504,7 +513,7 @@ msgid "refused"
 msgstr "Désisté"
 
 msgid "registered_phd"
-msgstr "Inscrit au doctorat"
+msgstr "Inscrit·e au doctorat"
 
 msgid "remark"
 msgstr "Remarque"
@@ -558,6 +567,9 @@ msgid "reviewer_mandates_list"
 msgstr "Liste des dossiers"
 
 msgid "reviews"
+msgstr "Avis"
+
+msgid "review"
 msgstr "Avis"
 
 msgid "reviewer"

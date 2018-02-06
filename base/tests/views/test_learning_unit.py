@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import datetime
+import factory.fuzzy
 from decimal import Decimal
 from unittest import mock
 
@@ -391,7 +392,7 @@ class LearningUnitViewTestCase(TestCase):
     def test_get_components_with_classes(self):
         l_container = LearningContainerFactory()
         l_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year,
-                                                        title="LC-98998", learning_container=l_container)
+                                                        common_title="LC-98998", learning_container=l_container)
         l_component_year = LearningComponentYearFactory(learning_container_year=l_container_year)
         LearningClassYearFactory(learning_component_year=l_component_year)
         LearningClassYearFactory(learning_component_year=l_component_year)
@@ -450,7 +451,8 @@ class LearningUnitViewTestCase(TestCase):
 
     @mock.patch('base.views.layout.render')
     def test_learning_unit_formation(self, mock_render):
-        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year)
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=self.learning_container_yr)
         request_factory = RequestFactory()
 
         request = request_factory.get(reverse('learning_unit_formations', args=[learning_unit_year.id]))
@@ -716,7 +718,7 @@ class LearningUnitViewTestCase(TestCase):
         return {
             'first_letter': original_learning_unit_year.acronym[:1],
             'acronym': original_learning_unit_year.acronym[1:],
-            'partim_letter': 'B',
+            'partim_character': factory.fuzzy.FuzzyText(length=1).fuzz(),
             "subtype": learning_unit_year_subtypes.PARTIM
         }
 
@@ -958,6 +960,13 @@ class LearningUnitViewTestCase(TestCase):
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(LearningUnitYear.objects.all().count(), 7)
+
+    def test_learning_unit_form_without_allocation_entity(self):
+        faultydict = dict(self.get_valid_data())
+        faultydict['allocation_entity'] = None
+        form = CreateLearningUnitYearForm(person=self.person, data=faultydict)
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertTrue(form.errors['allocation_entity'])
 
     def test_expected_partim_creation_on_6_years(self):
         # Create container + container year for N+6
@@ -1419,7 +1428,7 @@ class TestCreateXls(TestCase):
         found_learning_units = a_form.get_activity_learning_units()
         learning_unit_business.create_xls(self.user, found_learning_units)
         xls_data = [[self.learning_unit_year.academic_year.name, self.learning_unit_year.acronym,
-                    self.learning_unit_year.title,
+                    self.learning_unit_year.specific_title,
                     xls_build.translate(self.learning_unit_year.learning_container_year.container_type),
                     xls_build.translate(self.learning_unit_year.subtype), None, None, self.learning_unit_year.credits,
                     xls_build.translate(self.learning_unit_year.status)]]

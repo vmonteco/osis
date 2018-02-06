@@ -53,7 +53,7 @@ class ExamEnrollmentTest(TestCase):
         self.academic_year = test_academic_year.create_academic_year()
         self.offer_year = test_offer_year.create_offer_year('SINF1BA', 'Bachelor in informatica', self.academic_year)
         self.learn_unit_year = LearningUnitYearFactory(acronym='LSINF1010',
-                                                       title='Introduction to algorithmic',
+                                                       specific_title='Introduction to algorithmic',
                                                        academic_year=self.academic_year)
         self.session_exam = test_session_exam.create_session_exam(1, self.learn_unit_year, self.offer_year)
         self.student = test_student.create_student('Pierre', 'Lacazette', '12345678')

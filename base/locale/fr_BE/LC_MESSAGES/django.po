@@ -2507,11 +2507,11 @@ msgstr "Créer un nouveau partim"
 msgid "partim"
 msgstr "Partim"
 
-msgid "partim_letter_rules"
-msgstr "Une lettre obligatoire"
+msgid "partim_character_rules"
+msgstr "Lettre ou chiffre obligatoire"
 
-msgid "invalid_partim_letter"
-msgstr "Lettre déjà utilisée"
+msgid "invalid_partim_character"
+msgstr "Caractère déjà utilisé"
 
 msgid "learning_unit_successfuly_created"
 msgstr "Unité d'enseignement <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> créée avec succès."
@@ -2542,3 +2542,6 @@ msgstr "Assurez-vous que cette valeur est inférieure à %(limit_value)s."
 
 msgid "Entity_not_exist"
 msgstr "L'entité %(entity_acronym)s n'existe pas pour l'année académique sélectionnée %(academic_year)s"
+
+msgid "edit_learning_unit"
+msgstr "Modifier l'unité d'enseignement"

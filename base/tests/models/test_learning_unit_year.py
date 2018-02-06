@@ -27,6 +27,7 @@ from django.test import TestCase
 from django.utils import timezone
 from attribution.models import attribution
 from base.models import learning_unit_year
+from base.models.enums import learning_unit_year_subtypes
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.academic_year import AcademicYearFactory
@@ -38,7 +39,8 @@ class LearningUnitYearTest(TestCase):
     def setUp(self):
         self.tutor = TutorFactory()
         self.academic_year = AcademicYearFactory(year=timezone.now().year)
-        self.learning_unit_year = LearningUnitYearFactory(acronym="LDROI1004", title="Juridic law courses",
+        self.learning_unit_year = LearningUnitYearFactory(acronym="LDROI1004",
+                                                          specific_title="Juridic law courses",
                                                           academic_year=self.academic_year)
 
     def test_find_by_tutor_with_none_argument(self):
@@ -95,3 +97,47 @@ class LearningUnitYearTest(TestCase):
         result = list(selected_learning_unit_year.find_gte_learning_units_year().values_list('academic_year__year',
                                                                                              flat=True))
         self.assertEqual(result, [2017])
+
+    def test_get_learning_unit_parent(self):
+        lunit_container_year = LearningContainerYearFactory(academic_year=self.academic_year, acronym='LBIR1230')
+        luy_parent = LearningUnitYearFactory(academic_year=self.academic_year, acronym='LBIR1230',
+                                             learning_container_year=lunit_container_year,
+                                             subtype=learning_unit_year_subtypes.FULL)
+        luy_partim = LearningUnitYearFactory(academic_year=self.academic_year, acronym='LBIR1230B',
+                                             learning_container_year=lunit_container_year,
+                                             subtype=learning_unit_year_subtypes.PARTIM)
+        self.assertEqual(luy_partim.parent, luy_parent)
+
+    def test_get_learning_unit_parent_without_parent(self):
+        lunit_container_year = LearningContainerYearFactory(academic_year=self.academic_year, acronym='LBIR1230')
+        luy_parent = LearningUnitYearFactory(academic_year=self.academic_year, acronym='LBIR1230',
+                                             learning_container_year=lunit_container_year,
+                                             subtype=learning_unit_year_subtypes.FULL)
+        self.assertIsNone(luy_parent.parent)
+
+    def test_complete_title_concatenation_of_two_titles(self):
+        a_common_title = "Titre commun"
+        a_specific_title = "Titre spécifique"
+        lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_year,
+                                                          common_title=a_common_title)
+        luy = LearningUnitYearFactory(academic_year=self.academic_year,
+                                      specific_title=a_specific_title,
+                                      learning_container_year=lunit_container_yr)
+        self.assertEqual(luy.complete_title, "{} {}".format(a_common_title, a_specific_title))
+
+    def test_complete_title_only_common_title(self):
+        a_common_title = "Titre commun"
+
+
+        lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_year,
+                                                          common_title=a_common_title)
+        luy = LearningUnitYearFactory(academic_year=self.academic_year,
+                                      specific_title=None,
+                                      learning_container_year=lunit_container_yr)
+        self.assertEqual(luy.complete_title, "{}".format(a_common_title))
+
+    def test_complete_title_no_title(self):
+        luy = LearningUnitYearFactory(academic_year=self.academic_year,
+                                      specific_title=None,
+                                      learning_container_year=None)
+        self.assertIsNone(luy.complete_title)
