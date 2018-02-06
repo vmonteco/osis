@@ -30,6 +30,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import BLANK_CHOICE_DASH
+from django.forms import model_to_dict
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.http import QueryDict
@@ -50,7 +51,6 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, is_summary_submission_opened, find_language_in_settings, \
     initialize_learning_unit_pedagogy_form, compute_max_academic_year_adjournment, \
     create_learning_unit_partim_structure, can_access_summary
-import base.business.learning_units.perms
 from base.business.learning_units import perms as business_perms
 from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
@@ -60,8 +60,7 @@ from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePa
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_units import LearningUnitYearForm
-from base.models import entity_container_year
-from base.models import proposal_learning_unit
+from base.models import proposal_learning_unit, entity_container_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_container import LearningContainer
@@ -593,30 +592,32 @@ def compute_partim_form_initial_data(learning_unit_year_parent):
 
 
 def compute_form_initial_data(learning_unit_year):
-    initial_data = {
-        "academic_year": learning_unit_year.academic_year.id,
+    learn_unit_year_fields = ("academic_year", "status", "credits", "session", "quadrimester", "subtype")
+    learn_container_year_fields = ("common_title", "common_title_english", "container_type", "campus", "language")
+    learn_unit_fields = ("faculty_remark", "other_remark", "periodicity")
+    other_fields_dict = {
         "first_letter": learning_unit_year.acronym[0],
-        "acronym": learning_unit_year.acronym[1:],
-        "subtype": learning_unit_year.subtype,
-        "container_type": learning_unit_year.learning_container_year.container_type,
-        "language": learning_unit_year.learning_container_year.language.id,
-        "status": learning_unit_year.status,
-        "credits": learning_unit_year.credits,
-        "common_title": learning_unit_year.learning_container_year.common_title,
-        "common_title_english": learning_unit_year.learning_container_year.common_title_english,
-        'session': learning_unit_year.session,
-        'faculty_remark': learning_unit_year.learning_unit.faculty_remark,
-        'other_remark': learning_unit_year.learning_unit.other_remark,
-        "periodicity": learning_unit_year.learning_unit.periodicity,
-        "quadrimester": learning_unit_year.quadrimester,
-        "campus": learning_unit_year.learning_container_year.campus.id,
-        "internship_subtype": learning_unit_year.internship_subtype
+        "acronym": learning_unit_year.acronym[1:]
     }
+    return compute_learning_unit_form_initial_data(other_fields_dict, learning_unit_year, learn_unit_year_fields,
+                                                   learn_container_year_fields, learn_unit_fields)
+
+
+def compute_learning_unit_form_initial_data(base_dict, learning_unit_year, learn_unit_year_fields,
+                                            learn_container_year_fields, learn_unit_fields):
+    initial_data = base_dict.copy()
+    initial_data.update(model_to_dict(learning_unit_year, fields=learn_unit_year_fields))
+    initial_data.update(model_to_dict(learning_unit_year.learning_container_year, fields=learn_container_year_fields))
+    initial_data.update(model_to_dict(learning_unit_year.learning_unit, fields=learn_unit_fields))
+    initial_data.update(get_attributions_of_learning_unit_year(learning_unit_year))
+    return {key: value for key, value in initial_data.items() if value is not None}
+
+
+def get_attributions_of_learning_unit_year(learning_unit_year):
     attributions = entity_container_year.find_last_entity_version_grouped_by_linktypes(
         learning_unit_year.learning_container_year
     )
-    initial_data.update({k.lower(): v.id for k, v in attributions.items()})
-    return {key: value for key, value in initial_data.items() if value is not None}
+    return {k.lower(): v.id for k, v in attributions.items()}
 
 
 def get_learning_unit_identification_context(learning_unit_year_id, person):
