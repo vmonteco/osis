@@ -85,7 +85,7 @@ def modify_learning_unit(request, learning_unit_year_id):
 def compute_learning_unit_modification_form_initial_data(learning_unit_year):
     learn_unit_year_fields = ("academic_year", "status", "credits", "session", "subtype", "quadrimester",
                               "attribution_procedure")
-    learn_container_year_fields = ("common_title", "common_title_english", "container_type","campus", "language",
+    learn_container_year_fields = ("common_title", "common_title_english", "container_type", "campus", "language",
                                    "is_vacant", "team", "type_declaration_vacant")
     learn_unit_fields = ("faculty_remark", "other_remark", "periodicity")
     other_fields_dict = {
