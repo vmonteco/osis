@@ -88,7 +88,7 @@ def compute_form_initial_data(learning_unit_year):
     learning_unit_year_fields_to_include = ("academic_year", "status", "credits", "session", "subtype", "quadrimester",
                                             "attribution_procedure")
     learning_container_year_fields_to_include = ("common_title", "common_title_english", "container_type",
-                                                 "campus", "language","is_vacant", "team", "type_declaration_vacant")
+                                                 "campus", "language", "is_vacant", "team", "type_declaration_vacant")
     learning_unit_fields_to_include = ("faculty_remark", "other_remark", "periodicity")
     learning_unit_year_key_values = model_to_dict(learning_unit_year, fields=learning_unit_year_fields_to_include)
     learning_container_year_key_values = model_to_dict(learning_unit_year.learning_container_year,
@@ -112,7 +112,6 @@ def compute_form_initial_data(learning_unit_year):
     initial_data.update({k.lower(): v.id for k, v in attributions.items()})
 
     return {key: value for key, value in initial_data.items() if value is not None}
-
 
 
 def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id):
