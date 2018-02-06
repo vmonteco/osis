@@ -122,7 +122,7 @@ def _update_end_year_field(lu, year):
 def _duplicate_object(obj):
     new_obj = copy(obj)
     new_obj.pk = None
-    new_obj.external_id = None 
+    new_obj.external_id = None
     new_obj.uuid = uuid.uuid4()
     new_obj.copied_from = obj
     return new_obj
