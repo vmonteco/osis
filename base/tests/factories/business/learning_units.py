@@ -211,10 +211,12 @@ class GenerateContainer:
         self.learning_container = LearningContainerFactory()
         self.learning_unit_full = LearningUnitFactory(learning_container=self.learning_container,
                                                       start_year=start_year,
-                                                      end_year=end_year)
+                                                      end_year=end_year,
+                                                      periodicity=learning_unit_periodicity.ANNUAL)
         self.learning_unit_partim = LearningUnitFactory(learning_container=self.learning_container,
                                                         start_year=start_year,
-                                                        end_year=end_year)
+                                                        end_year=end_year,
+                                                        periodicity=learning_unit_periodicity.ANNUAL)
 
         self._setup_entities()
 
