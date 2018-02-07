@@ -23,11 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db.models import BLANK_CHOICE_DASH
+BLANK_CHOICE = [(None, "---------")]
 
 
 def add_blank(choices):
     if isinstance(choices, list):
-        return BLANK_CHOICE_DASH + choices
+        return BLANK_CHOICE + choices
 
-    return tuple(BLANK_CHOICE_DASH) + choices
+    return tuple(BLANK_CHOICE) + choices
