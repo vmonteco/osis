@@ -33,6 +33,7 @@ from django.contrib.messages import get_messages
 from django.contrib.auth.models import Permission
 from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseNotFound, HttpResponse, HttpResponseForbidden
+from django.urls.exceptions import NoReverseMatch
 
 from base.tests.factories.academic_year import AcademicYearFakerFactory, create_current_academic_year
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -235,10 +236,9 @@ class TestLearningUnitModificationProposal(TestCase):
         self.learning_unit_year.subtype = None
         self.learning_unit_year.save()
 
-        response = self.client.get(self.url)
+        with self.assertRaises(NoReverseMatch):
+            self.client.get(self.url)
 
-        self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
 
     def test_learning_unit_must_not_be_partim(self):
         self.learning_unit_year.subtype = learning_unit_year_subtypes.PARTIM
