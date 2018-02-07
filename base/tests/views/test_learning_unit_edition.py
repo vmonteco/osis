@@ -154,7 +154,8 @@ class TestEditLearningUnit(TestCase):
                              end_date=an_academic_year.end_date)
 
         cls.user = PersonFactory().user
-        cls.user.user_permissions.add(Permission.objects.get(codename="can_edit_learningunit"))
+        cls.user.user_permissions.add(Permission.objects.get(codename="can_edit_learningunit"),
+                                      Permission.objects.get(codename="can_access_learningunit"))
         cls.url = reverse("edit_learning_unit", args=[cls.learning_unit_year.id])
 
     def setUp(self):
@@ -262,6 +263,14 @@ class TestEditLearningUnit(TestCase):
             "attribution_procedure": self.learning_unit_year.attribution_procedure
         }
         self.assertDictEqual(initial_data, expected_initial)
+
+    @mock.patch.object(LearningUnitModificationForm, "is_valid", lambda self: True)
+    def test_valid_post_request(self):
+        response = self.client.post(self.url)
+        expected_redirection = reverse("learning_unit", args=[self.learning_unit_year.id])
+        self.assertRedirects(response, expected_redirection)
+
+
 
 
 

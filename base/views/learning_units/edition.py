@@ -26,7 +26,7 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 
 from base.views.learning_unit import get_learning_unit_identification_context, compute_learning_unit_form_initial_data
@@ -74,7 +74,10 @@ def modify_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     person = get_object_or_404(Person, user=request.user)
     initial_data = compute_learning_unit_modification_form_initial_data(learning_unit_year)
-    form = LearningUnitModificationForm(person=person, subtype=learning_unit_year.subtype, initial=initial_data)
+    form = LearningUnitModificationForm(request.POST or None, person=person, subtype=learning_unit_year.subtype,
+                                        initial=initial_data)
+    if form.is_valid():
+        return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
 
     context = {
         "learning_unit_year": learning_unit_year,
