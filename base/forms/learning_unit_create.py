@@ -84,8 +84,9 @@ class LearningUnitYearForm(BootstrapForm):
     academic_year = forms.ModelChoiceField(queryset=mdl.academic_year.find_academic_years(), required=True,
                                            empty_label=_('all_label'))
     status = forms.BooleanField(required=False, initial=True)
-    internship_subtype = forms.ChoiceField(choices=add_blank(mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES),
-                                           required=False)
+    internship_subtype = forms.TypedChoiceField(
+        choices=add_blank(mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES),
+        required=False, empty_value=None)
     credits = forms.DecimalField(decimal_places=2, validators=[MinValueValidator(MINIMUM_CREDITS),
                                                                MaxValueValidator(MAXIMUM_CREDITS)])
     common_title = forms.CharField()
@@ -172,7 +173,7 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
             self.add_error('acronym', _('existing_acronym'))
             return False
         elif self.cleaned_data['academic_year'].year > academic_year_max:
-            error_msg = _('learning_unit_creation_academic_year_max_error').format(academic_year_max)
+            error_msg = _exemple('learning_unit_creation_academic_year_max_error').format(academic_year_max)
             self._errors['academic_year'] = error_msg
             return False
         return True
