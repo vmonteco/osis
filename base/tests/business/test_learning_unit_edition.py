@@ -723,24 +723,6 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
             self.assertFalse(partim.learning_container_year.is_vacant)
             self.assertTrue(partim.learning_container_year.team)
 
-    def test_shorten_lu_with_not_correctly_setup_luy(self):
-        start_year_full = self.current_academic_year.year
-
-        generator_learning_container = GenerateContainer(start_year=start_year_full,
-                                                         end_year=start_year_full + 2)
-
-        generator_learning_container.learning_unit_partim.end_year = None
-        generator_learning_container.learning_unit_partim.save()
-
-        excepted_end_year = start_year_full + 3
-        self._edit_lu(generator_learning_container.learning_unit_partim, excepted_end_year)
-
-        excepted_end_year += 2
-        self._edit_lu(generator_learning_container.learning_unit_partim, excepted_end_year)
-
-        with self.assertRaises(IntegrityError):
-            self._edit_lu(generator_learning_container.learning_unit_partim, None)
-
     def _edit_lu(self, learning_unit_annual, excepted_end_year):
         end_year = learning_unit_annual.end_year or compute_max_academic_year_adjournment()
         if not excepted_end_year:
@@ -753,7 +735,7 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
 
         academic_year_of_new_end_date = academic_year.find_academic_year_by_year(excepted_end_year)
         result = edit_learning_unit_end_date(learning_unit_annual, academic_year_of_new_end_date)
-        print(result)
+
         self.assertTrue(len(result) >= excepted_nb_msg)
         list_of_years_learning_unit = _get_list_years_learning_unit(learning_unit_annual)
         self.assertEqual(list_of_years_learning_unit, list_of_expected_years)
