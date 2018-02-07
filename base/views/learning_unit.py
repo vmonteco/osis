@@ -564,6 +564,7 @@ def _create_partim_process(request, learning_unit_year_parent, form):
     year = data['academic_year'].year
     parent_end_year = learning_unit_year_parent.learning_unit.end_year
     learning_container = learning_unit_year_parent.learning_container_year.learning_container
+    learning_unit_created = create_learning_unit(data, learning_container, year, parent_end_year)
     while (year <= compute_max_academic_year_adjournment()) and (not parent_end_year or year <= parent_end_year):
         academic_year = mdl.academic_year.find_academic_year_by_year(year)
         luy_created = create_learning_unit_partim_structure({
@@ -573,7 +574,7 @@ def _create_partim_process(request, learning_unit_year_parent, form):
             'allocation_entity_version': data.get('allocation_entity'),
             'data': data,
             'learning_container': learning_container,
-            'new_learning_unit': create_learning_unit(data, learning_container, year, parent_end_year),
+            'new_learning_unit': learning_unit_created,
             'status': data['status'],
             'academic_year': academic_year
         })
