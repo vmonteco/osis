@@ -24,33 +24,32 @@
 #
 ##############################################################################
 import datetime
-from unittest.mock import patch
 
-from django.test import TestCase
-from django.core.urlresolvers import reverse
-from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.messages import get_messages
 from django.contrib.auth.models import Permission
-from django.utils.translation import ugettext_lazy as _
+from django.contrib.messages import get_messages
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse
+from django.db import IntegrityError
 from django.http import HttpResponseNotFound, HttpResponse, HttpResponseForbidden
-from django.urls.exceptions import NoReverseMatch
+from django.test import TestCase
+from django.utils.translation import ugettext_lazy as _
 
-from base.tests.factories.academic_year import AcademicYearFakerFactory, create_current_academic_year
-from base.tests.factories.entity_container_year import EntityContainerYearFactory
-from base.tests.factories.learning_container_year import LearningContainerYearFactory
-from base.tests.factories.person import PersonFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory, LearningUnitYearFactory
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
-from base.tests.factories.entity_version import EntityVersionFactory
-from base.tests.factories.entity import EntityFactory
-from base.tests.factories.organization import OrganizationFactory
-from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
-from base.tests.factories.person_entity import PersonEntityFactory
-from base.tests.factories.campus import CampusFactory
 from base.models import entity_container_year
+from base.models import proposal_folder, proposal_learning_unit
 from base.models.enums import organization_type, entity_type, entity_container_year_link_type, \
     learning_unit_year_subtypes, proposal_type, learning_container_year_types, proposal_state
-from base.models import proposal_folder, proposal_learning_unit
+from base.tests.factories.academic_year import AcademicYearFakerFactory, create_current_academic_year
+from base.tests.factories.campus import CampusFactory
+from base.tests.factories.entity import EntityFactory
+from base.tests.factories.entity_container_year import EntityContainerYearFactory
+from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
+from base.tests.factories.organization import OrganizationFactory
+from base.tests.factories.person import PersonFactory
+from base.tests.factories.person_entity import PersonEntityFactory
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from reference.tests.factories.language import LanguageFactory
 
 
@@ -234,10 +233,8 @@ class TestLearningUnitModificationProposal(TestCase):
 
     def test_learning_unit_of_type_undefined(self):
         self.learning_unit_year.subtype = None
-        self.learning_unit_year.save()
-
-        with self.assertRaises(NoReverseMatch):
-            self.client.get(self.url)
+        with self.assertRaises(IntegrityError):
+            self.learning_unit_year.save()
 
 
     def test_learning_unit_must_not_be_partim(self):

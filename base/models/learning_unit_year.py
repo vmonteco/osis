@@ -60,8 +60,7 @@ class LearningUnitYear(AuditableSerializableModel):
     acronym = models.CharField(max_length=15, db_index=True)
     specific_title = models.CharField(max_length=255, blank=True, null=True)
     specific_title_english = models.CharField(max_length=250, blank=True, null=True)
-    subtype = models.CharField(max_length=50, blank=True, null=True,
-                               choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES)
+    subtype = models.CharField(max_length=50, choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES)
     credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True,
                                   validators=[MinValueValidator(MINIMUM_CREDITS), MaxValueValidator(MAXIMUM_CREDITS)])
     decimal_scores = models.BooleanField(default=False)
