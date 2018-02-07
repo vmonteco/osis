@@ -23,6 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import re
+
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
@@ -38,7 +41,6 @@ from django.shortcuts import redirect, get_object_or_404
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods, require_POST, require_GET
-import re
 
 from attribution.business import attribution_charge_new
 from base import models as mdl
@@ -71,8 +73,6 @@ from base.views.learning_units import perms
 from cms.models import text_label
 from reference.models import language
 from . import layout
-from django.conf import settings
-
 
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
@@ -102,7 +102,7 @@ def learning_unit_identification(request, learning_unit_year_id):
 
 def _get_common_context_learning_unit_year(learning_unit_year_id, person):
     learning_unit_year = mdl_base.learning_unit_year.get_by_id(learning_unit_year_id)
-    is_person_linked_to_entity = business_perms.\
+    is_person_linked_to_entity = business_perms. \
         is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, person)
     return {
         'learning_unit_year': learning_unit_year,
@@ -628,22 +628,22 @@ def get_attributions_of_learning_unit_year(learning_unit_year):
 
 
 def get_learning_unit_identification_context(learning_unit_year_id, person):
-        context = _get_common_context_learning_unit_year(learning_unit_year_id, person)
-        learning_unit_year = context['learning_unit_year']
-        context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
-        context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
-        context['campus'] = get_campus_from_learning_unit_year(learning_unit_year)
-        context['experimental_phase'] = True
-        context['show_subtype'] = show_subtype(learning_unit_year)
-        context.update(get_all_attributions(learning_unit_year))
-        context['components'] = get_components_identification(learning_unit_year)
-        context['can_propose'] = business_perms.is_eligible_for_modification_proposal(learning_unit_year, person)
-        context['can_edit_date'] = business_perms.is_eligible_for_modification_end_date(learning_unit_year, person)
-        context['can_edit'] = business_perms.is_eligible_for_modification(learning_unit_year, person)
-        context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
-        context['can_cancel_proposal'] = business_perms.\
-            is_eligible_for_cancel_of_proposal(context['proposal'], person) if context['proposal'] else False
-        context['proposal_folder_entity_version'] = mdl_base.entity_version.get_by_entity_and_date(
-            context['proposal'].folder.entity, None) if context['proposal'] else None
-        context['can_delete'] = learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year)
-        return context
+    context = _get_common_context_learning_unit_year(learning_unit_year_id, person)
+    learning_unit_year = context['learning_unit_year']
+    context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
+    context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
+    context['campus'] = get_campus_from_learning_unit_year(learning_unit_year)
+    context['experimental_phase'] = True
+    context['show_subtype'] = show_subtype(learning_unit_year)
+    context.update(get_all_attributions(learning_unit_year))
+    context['components'] = get_components_identification(learning_unit_year)
+    context['can_propose'] = business_perms.is_eligible_for_modification_proposal(learning_unit_year, person)
+    context['can_edit_date'] = business_perms.is_eligible_for_modification_end_date(learning_unit_year, person)
+    context['can_edit'] = business_perms.is_eligible_for_modification(learning_unit_year, person)
+    context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
+    context['can_cancel_proposal'] = business_perms. \
+        is_eligible_for_cancel_of_proposal(context['proposal'], person) if context['proposal'] else False
+    context['proposal_folder_entity_version'] = mdl_base.entity_version.get_by_entity_and_date(
+        context['proposal'].folder.entity, None) if context['proposal'] else None
+    context['can_delete'] = learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year)
+    return context

@@ -86,7 +86,7 @@ class TestLearningUnitModificationProposal(TestCase):
             entity=self.entity_version.entity,
             type=entity_container_year_link_type.ALLOCATION_ENTITY
         )
-        self.additional_requirement_entity_1= EntityContainerYearFactory(
+        self.additional_requirement_entity_1 = EntityContainerYearFactory(
             learning_container_year=self.learning_unit_year.learning_container_year,
             entity=self.entity_version.entity,
             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1
@@ -236,7 +236,6 @@ class TestLearningUnitModificationProposal(TestCase):
         with self.assertRaises(IntegrityError):
             self.learning_unit_year.save()
 
-
     def test_learning_unit_must_not_be_partim(self):
         self.learning_unit_year.subtype = learning_unit_year_subtypes.PARTIM
         self.learning_unit_year.save()
@@ -284,8 +283,8 @@ class TestLearningUnitModificationProposal(TestCase):
         today = datetime.date(self.learning_unit_year.academic_year.year, 1, 1)
 
         self.learning_unit_year.academic_year = \
-            AcademicYearFakerFactory(year=today.year-1, start_date=today.replace(day=1, year=today.year-1),
-                                     end_date=today.replace(day=20, year=today.year-1))
+            AcademicYearFakerFactory(year=today.year - 1, start_date=today.replace(day=1, year=today.year - 1),
+                                     end_date=today.replace(day=20, year=today.year - 1))
         self.learning_unit_year.save()
 
         response = self.client.get(self.url)
@@ -360,7 +359,7 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.learning_unit_proposal = _create_proposal_learning_unit()
         self.learning_unit_year = self.learning_unit_proposal.learning_unit_year
 
-        requirement_entity_container = entity_container_year.\
+        requirement_entity_container = entity_container_year. \
             find_by_learning_container_year_and_linktype(self.learning_unit_year.learning_container_year,
                                                          entity_container_year_link_type.REQUIREMENT_ENTITY)
         self.person_entity = PersonEntityFactory(person=self.person,
@@ -496,7 +495,7 @@ def _test_entities_equal(learning_container_year, entities_values_dict):
         if entities_values_dict[type_entity] is None and linked_entity_container is not None:
             return False
         if entities_values_dict[type_entity] is not None and \
-                linked_entity_container.entity.id != entities_values_dict[type_entity]:
+                        linked_entity_container.entity.id != entities_values_dict[type_entity]:
             return False
     return True
 
@@ -559,5 +558,5 @@ def _modify_learning_unit_year_data(a_learning_unit_year):
 
 def _modify_entities_linked_to_learning_container_year(a_learning_container_year):
     a_new_entity = EntityFactory()
-    entity_container_year.search(learning_container_year=a_learning_container_year).\
+    entity_container_year.search(learning_container_year=a_learning_container_year). \
         update(entity=a_new_entity)

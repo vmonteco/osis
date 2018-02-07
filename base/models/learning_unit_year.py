@@ -24,11 +24,12 @@
 #
 ##############################################################################
 import re
+
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from base.models import entity_container_year
-from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, internship_subtypes, \
+from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 from base.models.group_element_year import GroupElementYear
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
