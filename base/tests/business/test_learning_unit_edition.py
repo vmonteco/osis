@@ -26,11 +26,12 @@
 from datetime import datetime
 
 from django.db import IntegrityError
+from django.forms import model_to_dict
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import compute_max_academic_year_adjournment
-from base.business.learning_units.edition import edit_learning_unit_end_date
+from base.business.learning_units.edition import edit_learning_unit_end_date, update_learning_unit_year
 from base.models import academic_year
 from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import learning_unit_year_subtypes, learning_unit_periodicity, learning_container_year_types, \
@@ -39,12 +40,15 @@ from base.models.learning_class_year import LearningClassYear
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
+from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import LearningUnitsMixin
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_class_year import LearningClassYearFactory
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 
 
 class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
@@ -732,3 +736,40 @@ def _get_list_years_learning_unit(subtype=learning_unit_year_subtypes.FULL):
         LearningUnitYear.objects.filter(
             subtype=subtype).values_list('academic_year__year', flat=True).order_by('academic_year')
     )
+
+
+class TestModifyLearningUnit(TestCase):
+     def setUp(self):
+         self.current_academic_year = create_current_academic_year()
+         self.learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
+         self.learning_unit_year = LearningUnitYearFactory(learning_container_year=self.learning_container_year,
+                                                           subtype=learning_unit_year_subtypes.FULL)
+
+     def test_with_no_fields_to_update(self):
+         update_learning_unit_year(self.learning_unit_year, {})
+
+         old_luy_values = model_to_dict(self.learning_unit_year)
+         old_lc_values = model_to_dict(self.learning_container_year)
+
+         self.learning_unit_year.refresh_from_db()
+         self.learning_container_year.refresh_from_db()
+         new_luy_values = model_to_dict(self.learning_unit_year)
+         new_lc_values = model_to_dict(self.learning_container_year)
+
+         self.assertDictEqual(old_luy_values, new_luy_values)
+         self.assertDictEqual(old_lc_values, new_lc_values)
+
+     def test_with_learning_unit_fields_to_update(self):
+         data_to_update = {
+             "periodicity": learning_unit_periodicity.BIENNIAL_EVEN,
+             "faculty_remark": "Faculty remark",
+             "other_remark": "Other remark"
+         }
+         update_learning_unit_year(self.learning_unit_year, data_to_update)
+         self.learning_unit_year.learning_unit.refresh_from_db()
+
+         new_lu_values = model_to_dict(self.learning_unit_year.learning_unit, fields=data_to_update.keys())
+
+         self.assertDictEqual(data_to_update, new_lu_values)
+
+

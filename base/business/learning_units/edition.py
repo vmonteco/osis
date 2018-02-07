@@ -241,3 +241,10 @@ def filter_biennial(queryset, periodicity):
         is_odd = periodicity == learning_unit_periodicity.BIENNIAL_ODD
         result = queryset.annotate(odd=F('year') % 2).filter(odd=is_odd)
     return result
+
+
+def update_learning_unit_year(luy_to_update, fields_to_update):
+    lu = luy_to_update.learning_unit
+    for field, value in fields_to_update.items():
+        setattr(lu, field, value)
+    lu.save()
