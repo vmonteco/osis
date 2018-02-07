@@ -629,7 +629,7 @@ class LearningUnitViewTestCase(TestCase):
         EntityContainerYearFactory(learning_container_year=l_container_yr_4, entity=ages_entity_v.entity,
                                    type=entity_container_year_link_type.REQUIREMENT_ENTITY)
         LearningUnitYearFactory(acronym="AGES1500", learning_container_year=l_container_yr_4,
-                                academic_year=self.current_academic_year, subtype=None)
+                                academic_year=self.current_academic_year, subtype=learning_unit_year_subtypes.FULL)
 
     def test_class_save(self):
         learning_unit_yr = LearningUnitYearFactory(academic_year=self.current_academic_year,

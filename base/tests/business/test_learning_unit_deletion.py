@@ -249,15 +249,15 @@ class LearningUnitYearDeletion(TestCase):
                                                             subtype=learning_unit_year_subtypes.PARTIM,
                                                             learning_unit=LearningUnitFactory(start_year=1900),
                                                             academic_year=learning_container_year.academic_year)
-        learning_unit_year_none = LearningUnitYearFactory(learning_container_year=learning_container_year,
-                                                          subtype=None,
+        learning_unit_year_to_delete = LearningUnitYearFactory(learning_container_year=learning_container_year,
+                                                          subtype=learning_unit_year_subtypes.FULL,
                                                           learning_unit=LearningUnitFactory(start_year=1900),
                                                           academic_year=learning_container_year.academic_year)
 
-        learning_unit_deletion.delete_from_given_learning_unit_year(learning_unit_year_none)
+        learning_unit_deletion.delete_from_given_learning_unit_year(learning_unit_year_to_delete)
 
         with self.assertRaises(ObjectDoesNotExist):
-            LearningUnitYear.objects.get(id=learning_unit_year_none.id)
+            LearningUnitYear.objects.get(id=learning_unit_year_to_delete.id)
         self.assertEqual(learning_unit_year_partim, LearningUnitYear.objects.get(id=learning_unit_year_partim.id))
         self.assertEqual(learning_unit_year_full, LearningUnitYear.objects.get(id=learning_unit_year_full.id))
         self.assertEqual(learning_container_year, LearningContainerYear.objects.get(id=learning_container_year.id))
