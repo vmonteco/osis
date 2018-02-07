@@ -56,6 +56,7 @@ from base.models.enums import learning_unit_year_quadrimesters
 from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_container_year_types import MASTER_THESIS
+from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import FACULTY_MANAGER_GROUP
@@ -133,7 +134,7 @@ class LearningUnitViewTestCase(TestCase):
                                                                 type=entity_container_year_link_type.REQUIREMENT_ENTITY,
                                                                 entity=self.entity_3)
         self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL,
-                                                   start_date=today-datetime.timedelta(days=1),
+                                                   start_date=today - datetime.timedelta(days=1),
                                                    end_date=today.replace(year=today.year + 1))
 
         self.campus = CampusFactory(organization=self.organization, is_administration=True)
@@ -627,7 +628,7 @@ class LearningUnitViewTestCase(TestCase):
         EntityContainerYearFactory(learning_container_year=l_container_yr_4, entity=ages_entity_v.entity,
                                    type=entity_container_year_link_type.REQUIREMENT_ENTITY)
         LearningUnitYearFactory(acronym="AGES1500", learning_container_year=l_container_yr_4,
-                                academic_year=self.current_academic_year, subtype=None)
+                                academic_year=self.current_academic_year, subtype=learning_unit_year_subtypes.FULL)
 
     def test_class_save(self):
         learning_unit_yr = LearningUnitYearFactory(academic_year=self.current_academic_year,
@@ -809,7 +810,7 @@ class LearningUnitViewTestCase(TestCase):
     def test_learning_unit_check_acronym(self):
         kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
 
-        url = reverse('check_acronym')
+        url = reverse('check_acronym', kwargs={'type': FULL})
         get_data = {'acronym': 'goodacronym', 'year_id': self.academic_year_1.id}
         response = self.client.get(url, get_data, **kwargs)
 
@@ -1009,8 +1010,8 @@ class LearningUnitViewTestCase(TestCase):
         count_learning_unit_year = LearningUnitYear.objects.filter(acronym=full_acronym).count()
         self.assertEqual(count_learning_unit_year, 7)
         count_partims = LearningUnitYear.objects.filter(subtype=learning_unit_year_subtypes.PARTIM,
-                                                        learning_container_year__in=learning_container_yrs)\
-                                                .count()
+                                                        learning_container_year__in=learning_container_yrs) \
+            .count()
         self.assertEqual(count_partims, 7)
 
     def test_partim_creation_when_learning_unit_end_date_is_before_6_future_years(self):
@@ -1442,10 +1443,10 @@ class TestCreateXls(TestCase):
         found_learning_units = a_form.get_activity_learning_units()
         learning_unit_business.create_xls(self.user, found_learning_units)
         xls_data = [[self.learning_unit_year.academic_year.name, self.learning_unit_year.acronym,
-                    self.learning_unit_year.specific_title,
-                    xls_build.translate(self.learning_unit_year.learning_container_year.container_type),
-                    xls_build.translate(self.learning_unit_year.subtype), None, None, self.learning_unit_year.credits,
-                    xls_build.translate(self.learning_unit_year.status)]]
+                     self.learning_unit_year.specific_title,
+                     xls_build.translate(self.learning_unit_year.learning_container_year.container_type),
+                     xls_build.translate(self.learning_unit_year.subtype), None, None, self.learning_unit_year.credits,
+                     xls_build.translate(self.learning_unit_year.status)]]
         expected_argument = _generate_xls_build_parameter(xls_data, self.user)
         mock_generate_xls.assert_called_with(expected_argument)
 
@@ -1467,6 +1468,5 @@ def _generate_xls_build_parameter(xls_data, user):
                                           str(_('credits')),
                                           str(_('active_title'))],
             xls_build.WORKSHEET_TITLE_KEY: 'Learning_units',
-            }]
-        }
-
+        }]
+    }

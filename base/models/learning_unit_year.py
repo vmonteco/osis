@@ -24,11 +24,12 @@
 #
 ##############################################################################
 import re
+
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from base.models import entity_container_year
-from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, internship_subtypes, \
+from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 from base.models.group_element_year import GroupElementYear
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
@@ -60,8 +61,7 @@ class LearningUnitYear(AuditableSerializableModel):
     acronym = models.CharField(max_length=15, db_index=True)
     specific_title = models.CharField(max_length=255, blank=True, null=True)
     specific_title_english = models.CharField(max_length=250, blank=True, null=True)
-    subtype = models.CharField(max_length=50, blank=True, null=True,
-                               choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES)
+    subtype = models.CharField(max_length=50, choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES)
     credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True,
                                   validators=[MinValueValidator(MINIMUM_CREDITS), MaxValueValidator(MAXIMUM_CREDITS)])
     decimal_scores = models.BooleanField(default=False)
