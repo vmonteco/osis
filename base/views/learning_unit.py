@@ -597,9 +597,12 @@ def compute_form_initial_data(learning_unit_year):
         "acronym": learning_unit_year.acronym[1:]
     }
     fields = {
-        "learning_unit_year": ("academic_year", "status", "credits", "session", "quadrimester", "subtype"),
-        "learning_container_year": ("common_title", "common_title_english", "container_type", "campus", "language"),
-        "learning_unit": ("faculty_remark", "other_remark", "periodicity")
+        "learning_unit_year":
+            ("academic_year", "status", "credits", "session", "quadrimester", "subtype", "internship_subtype"),
+        "learning_container_year":
+            ("common_title", "common_title_english", "container_type", "campus", "language"),
+        "learning_unit":
+            ("faculty_remark", "other_remark", "periodicity")
     }
     return compute_learning_unit_form_initial_data(other_fields_dict, learning_unit_year, fields)
 
