@@ -1144,6 +1144,20 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(form_initial_data['first_letter'], 'L')
         self.assertEqual(form_initial_data['acronym'], 'BIR1200')
 
+    def test_get_internship_partim_creation_form(self):
+        self.learning_container_yr.container_type = learning_container_year_types.INTERNSHIP
+        luy_parent = LearningUnitYearFactory(acronym='LBIR1200',
+                                             learning_container_year=self.learning_container_yr,
+                                             academic_year=self.learning_container_yr.academic_year,
+                                             subtype=learning_unit_year_subtypes.FULL,
+                                             internship_subtype=internship_subtypes.CLINICAL_INTERNSHIP)
+        url = reverse('learning_unit_create_partim', args=[luy_parent.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'learning_unit/partim_form.html')
+        form_initial_data = response.context['form'].initial
+        self.assertEqual(form_initial_data['internship_subtype'], internship_subtypes.CLINICAL_INTERNSHIP)
+
     def test_get_partim_creation_form_when_can_not_create_partim(self):
         luy_parent = LearningUnitYearFactory(subtype=learning_unit_year_subtypes.FULL)
         url = reverse('learning_unit_create_partim', args=[luy_parent.id])
