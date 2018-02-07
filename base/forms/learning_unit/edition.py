@@ -107,7 +107,10 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     type_declaration_vacant = forms.ChoiceField(required=False, choices=_create_type_declaration_vacant_list())
     attribution_procedure = forms.ChoiceField(required=False, choices=_create_attribution_procedure_list())
 
-    def __init__(self, person, learning_unit_year_subtype, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        person = kwargs.pop("person")
+        learning_unit_year_subtype = kwargs.pop("subtype")
+        self.learning_unit_end_date = kwargs.pop("end_date", None)
         super().__init__(*args, **kwargs)
         if learning_unit_year_subtype == PARTIM:
             self.disabled_fields(PARTIM_READ_ONLY_FIELDS)
@@ -120,3 +123,19 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         for field in fields_to_disable:
             self.fields[field].disabled = True
             self.fields[field].required = False
+
+    def is_valid(self):
+        if not BootstrapForm.is_valid(self):
+            return False
+        if not self._is_requirement_entity_end_date_valid():
+            error_msg = _("requirement_entity_end_date_too_short")
+            self.add_error("requirement_entity", error_msg)
+            return False
+        return True
+
+    def _is_requirement_entity_end_date_valid(self):
+        if self.cleaned_data["requirement_entity"].end_date is None:
+            return True
+        if self.learning_unit_end_date is None:
+            return False
+        return self.cleaned_data["requirement_entity"].end_date >= self.learning_unit_end_date
