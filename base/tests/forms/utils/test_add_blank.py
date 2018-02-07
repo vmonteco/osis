@@ -23,15 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.utils.translation import ugettext_lazy as _
+from django.test import TestCase
+
+from base.forms.utils.choice_field import add_blank
 
 
-ACTIVE = "ACTIVE"
-INACTIVE = "INACTIVE"
-RE_REGISTRATION = "RE_REGISTRATION"
+class TestAddBlank(TestCase):
+    def test_add_blank_list(self):
+        result = add_blank([('yoda', 'jediMaster')])
+        self.assertEqual(result, [(None, '---------'), ('yoda', 'jediMaster')])
 
-ACTIVE_STATUS_LIST = (
-    (ACTIVE, _(ACTIVE)),
-    (INACTIVE, _(INACTIVE)),
-    (RE_REGISTRATION, _(RE_REGISTRATION))
-)
+    def test_add_blank_tuple(self):
+        result = add_blank((('yoda', 'jediMaster'),))
+        self.assertEqual(result, ((None, '---------'), ('yoda', 'jediMaster')))

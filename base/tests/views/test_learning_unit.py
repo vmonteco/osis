@@ -48,7 +48,7 @@ from base.forms.learning_units import LearningUnitYearForm
 from base.models import learning_unit_component
 from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear
-from base.models.enums import entity_container_year_link_type
+from base.models.enums import entity_container_year_link_type, active_status
 from base.models.enums import internship_subtypes
 from base.models.enums import learning_container_year_types, organization_type, entity_type
 from base.models.enums import learning_unit_periodicity
@@ -194,7 +194,7 @@ class LearningUnitViewTestCase(TestCase):
         request_factory = RequestFactory()
         filter_data = {
             'academic_year_id': self.current_academic_year.id,
-            'status': True,
+            'status': active_status.ACTIVE,
             'acronym': 'LBIR'
         }
         request = request_factory.get(reverse('learning_units'), data=filter_data)
@@ -213,7 +213,6 @@ class LearningUnitViewTestCase(TestCase):
         request_factory = RequestFactory()
         filter_data = {
             'academic_year_id': self.current_academic_year.id,
-            'status': True,
             'acronym': '^DRT.+A'
         }
         request = request_factory.get(reverse('learning_units'), data=filter_data)
@@ -232,7 +231,7 @@ class LearningUnitViewTestCase(TestCase):
         request_factory = RequestFactory()
         filter_data = {
             'academic_year_id': self.current_academic_year.id,
-            'status': True,
+            'status': active_status.ACTIVE,
             'acronym': '^LB(+)2+'
         }
         request = request_factory.get(reverse('learning_units'), data=filter_data)

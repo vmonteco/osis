@@ -23,11 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.core.urlresolvers import reverse_lazy
 import os
-
-from django.utils.translation import ugettext_lazy as _
 import sys
+
+from django.core.urlresolvers import reverse_lazy
+from django.utils.translation import ugettext_lazy as _
 
 BASE_DIR = os.path.dirname((os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
@@ -67,6 +67,7 @@ INSTALLED_APPS = (
     'statici18n',
     'rest_framework',
     'rest_framework.authtoken',
+    'bootstrap3'
 )
 
 MIDDLEWARE = (
@@ -295,8 +296,14 @@ REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }
 
-#ESB Configuration
+# ESB Configuration
 ESB_AUTHORIZATION = os.environ.get('ESB_AUTHORIZATION')
 ESB_STUDENT_API = os.environ.get('ESB_STUDENT_API')
 
 RELEASE_TAG = os.environ.get('RELEASE_TAG')
+
+# BOOTSTRAP3 Configuration
+BOOTSTRAP3 = {
+    'set_placeholder': False,
+    'success_css_class': ''
+}

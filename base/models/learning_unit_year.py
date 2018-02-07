@@ -29,6 +29,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from base.models import entity_container_year
+from base.models.enums import active_status
 from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 from base.models.group_element_year import GroupElementYear
@@ -151,8 +152,7 @@ def get_by_id(learning_unit_year_id):
 
 
 def find_by_acronym(acronym):
-    return LearningUnitYear.objects.filter(acronym=acronym) \
-        .select_related('learning_container_year')
+    return LearningUnitYear.objects.filter(acronym=acronym).select_related('learning_container_year')
 
 
 def _is_regex(acronym):
@@ -188,12 +188,20 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
         queryset = queryset.filter(subtype=subtype)
 
     if status:
-        queryset = queryset.filter(status=status)
+        queryset = queryset.filter(status=_convert_status_bool(status))
 
     if container_type:
         queryset = queryset.filter(learning_container_year__container_type=container_type)
 
     return queryset.select_related('learning_container_year', 'academic_year')
+
+
+def _convert_status_bool(status):
+    if status in (active_status.ACTIVE, active_status.INACTIVE):
+        boolean = status == active_status.ACTIVE
+    else:
+        boolean = status
+    return boolean
 
 
 def count_search_results(**kwargs):
