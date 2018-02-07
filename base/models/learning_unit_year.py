@@ -91,7 +91,7 @@ class LearningUnitYear(AuditableSerializableModel):
 
     @property
     def parent(self):
-        if self.subdivision:
+        if self.subdivision and self.subtype == learning_unit_year_subtypes.PARTIM:
             return LearningUnitYear.objects.filter(
                 subtype=learning_unit_year_subtypes.FULL,
                 learning_container_year=self.learning_container_year,
