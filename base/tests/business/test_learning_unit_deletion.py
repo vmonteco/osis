@@ -28,7 +28,6 @@ import datetime
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
-from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from assistant.models.tutoring_learning_unit_year import TutoringLearningUnitYear
@@ -250,9 +249,9 @@ class LearningUnitYearDeletion(TestCase):
                                                             learning_unit=LearningUnitFactory(start_year=1900),
                                                             academic_year=learning_container_year.academic_year)
         learning_unit_year_to_delete = LearningUnitYearFactory(learning_container_year=learning_container_year,
-                                                          subtype=learning_unit_year_subtypes.FULL,
-                                                          learning_unit=LearningUnitFactory(start_year=1900),
-                                                          academic_year=learning_container_year.academic_year)
+                                                               subtype=learning_unit_year_subtypes.PARTIM,
+                                                               learning_unit=LearningUnitFactory(start_year=1900),
+                                                               academic_year=learning_container_year.academic_year)
 
         learning_unit_deletion.delete_from_given_learning_unit_year(learning_unit_year_to_delete)
 

@@ -24,10 +24,10 @@
 #
 ##############################################################################
 import datetime
-import factory.fuzzy
 from decimal import Decimal
 from unittest import mock
 
+import factory.fuzzy
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
@@ -35,14 +35,16 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseForbidden
 from django.test import TestCase, RequestFactory
+from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
 import base.business.learning_unit
 from base.business import learning_unit as learning_unit_business
 from base.forms import learning_units
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
+from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_units import LearningUnitYearForm
-from base import models as mdl
 from base.models import learning_unit_component
 from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear
@@ -76,16 +78,13 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
 from base.views.learning_unit import compute_partim_form_initial_data, _get_post_data_without_read_only_field
+from base.views.learning_unit import learning_unit_volumes_management
+from cms.enums import entity_name
+from cms.tests.factories.text_label import TextLabelFactory
+from cms.tests.factories.translated_text import TranslatedTextFactory
 from osis_common.document import xls_build
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
-from base.views.learning_unit import learning_unit_volumes_management
-from django.test.utils import override_settings
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
-from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
-from cms.tests.factories.text_label import TextLabelFactory
-from cms.tests.factories.translated_text import TranslatedTextFactory
-from cms.enums import entity_name
 
 
 class LearningUnitViewTestCase(TestCase):
@@ -135,7 +134,7 @@ class LearningUnitViewTestCase(TestCase):
                                                                 type=entity_container_year_link_type.REQUIREMENT_ENTITY,
                                                                 entity=self.entity_3)
         self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL,
-                                                   start_date=today-datetime.timedelta(days=1),
+                                                   start_date=today - datetime.timedelta(days=1),
                                                    end_date=today.replace(year=today.year + 1))
 
         self.campus = CampusFactory(organization=self.organization, is_administration=True)
@@ -1011,8 +1010,8 @@ class LearningUnitViewTestCase(TestCase):
         count_learning_unit_year = LearningUnitYear.objects.filter(acronym=full_acronym).count()
         self.assertEqual(count_learning_unit_year, 7)
         count_partims = LearningUnitYear.objects.filter(subtype=learning_unit_year_subtypes.PARTIM,
-                                                        learning_container_year__in=learning_container_yrs)\
-                                                .count()
+                                                        learning_container_year__in=learning_container_yrs) \
+            .count()
         self.assertEqual(count_partims, 7)
 
     def test_partim_creation_when_learning_unit_end_date_is_before_6_future_years(self):
@@ -1430,10 +1429,10 @@ class TestCreateXls(TestCase):
         found_learning_units = a_form.get_activity_learning_units()
         learning_unit_business.create_xls(self.user, found_learning_units)
         xls_data = [[self.learning_unit_year.academic_year.name, self.learning_unit_year.acronym,
-                    self.learning_unit_year.specific_title,
-                    xls_build.translate(self.learning_unit_year.learning_container_year.container_type),
-                    xls_build.translate(self.learning_unit_year.subtype), None, None, self.learning_unit_year.credits,
-                    xls_build.translate(self.learning_unit_year.status)]]
+                     self.learning_unit_year.specific_title,
+                     xls_build.translate(self.learning_unit_year.learning_container_year.container_type),
+                     xls_build.translate(self.learning_unit_year.subtype), None, None, self.learning_unit_year.credits,
+                     xls_build.translate(self.learning_unit_year.status)]]
         expected_argument = _generate_xls_build_parameter(xls_data, self.user)
         mock_generate_xls.assert_called_with(expected_argument)
 
@@ -1455,6 +1454,5 @@ def _generate_xls_build_parameter(xls_data, user):
                                           str(_('credits')),
                                           str(_('active_title'))],
             xls_build.WORKSHEET_TITLE_KEY: 'Learning_units',
-            }]
-        }
-
+        }]
+    }
