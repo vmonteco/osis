@@ -54,6 +54,7 @@ from base.models.enums import learning_unit_year_quadrimesters
 from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_container_year_types import MASTER_THESIS
+from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import FACULTY_MANAGER_GROUP
@@ -810,7 +811,7 @@ class LearningUnitViewTestCase(TestCase):
     def test_learning_unit_check_acronym(self):
         kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
 
-        url = reverse('check_acronym')
+        url = reverse('check_acronym', kwargs={'type': FULL})
         get_data = {'acronym': 'goodacronym', 'year_id': self.academic_year_1.id}
         response = self.client.get(url, get_data, **kwargs)
 
