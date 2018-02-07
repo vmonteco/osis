@@ -23,11 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-BLANK_CHOICE = [(None, "---------")]
+from django.test import TestCase
+
+from base.forms.utils.choice_field import add_blank
 
 
-def add_blank(choices):
-    if isinstance(choices, list):
-        return BLANK_CHOICE + choices
+class TestAddBlank(TestCase):
+    def test_add_blank_list(self):
+        result = add_blank([('yoda', 'jediMaster')])
+        self.assertEqual(result, [(None, '---------'), ('yoda', 'jediMaster')])
 
-    return tuple(BLANK_CHOICE) + choices
+    def test_add_blank_tuple(self):
+        result = add_blank((('yoda', 'jediMaster'),))
+        self.assertEqual(result, ((None, '---------'), ('yoda', 'jediMaster')))

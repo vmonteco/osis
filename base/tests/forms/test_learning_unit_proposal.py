@@ -24,28 +24,27 @@
 #
 ##############################################################################
 import datetime
-
 from decimal import Decimal
+
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
-from base.tests.factories.academic_year import create_current_academic_year
 
-from base.tests.factories.campus import CampusFactory
-from base.tests.factories.learning_container_year import LearningContainerYearFactory
-from base.tests.factories.person import PersonFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
-from base.tests.factories.entity_version import EntityVersionFactory
-from base.tests.factories.entity import EntityFactory
-from base.tests.factories.organization import OrganizationFactory
-from base.tests.factories.entity_container_year import EntityContainerYearFactory
-from base.tests.factories.proposal_folder import ProposalFolderFactory
+from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
+from base.models import proposal_folder, proposal_learning_unit, entity_container_year
 from base.models.enums import organization_type, proposal_type, proposal_state, entity_type, \
     learning_container_year_types, learning_unit_year_quadrimesters, entity_container_year_link_type, \
     learning_unit_periodicity, internship_subtypes, learning_unit_year_subtypes
-from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
+from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.campus import CampusFactory
+from base.tests.factories.entity import EntityFactory
+from base.tests.factories.entity_container_year import EntityContainerYearFactory
+from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
+from base.tests.factories.organization import OrganizationFactory
+from base.tests.factories.person import PersonFactory
+from base.tests.factories.proposal_folder import ProposalFolderFactory
 from reference.tests.factories.language import LanguageFactory
-from base.models import proposal_folder, proposal_learning_unit, entity_container_year
-
 
 PROPOSAL_TYPE = proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name
 PROPOSAL_STATE = proposal_state.ProposalState.FACULTY.name

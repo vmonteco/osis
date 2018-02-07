@@ -24,10 +24,10 @@
 #
 ##############################################################################
 import datetime
-import factory.fuzzy
 from decimal import Decimal
 from unittest import mock
 
+import factory.fuzzy
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
@@ -35,14 +35,16 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseForbidden
 from django.test import TestCase, RequestFactory
+from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
 import base.business.learning_unit
 from base.business import learning_unit as learning_unit_business
 from base.forms import learning_units
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
+from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_units import LearningUnitYearForm
-from base import models as mdl
 from base.models import learning_unit_component
 from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear
@@ -54,6 +56,7 @@ from base.models.enums import learning_unit_year_quadrimesters
 from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_container_year_types import MASTER_THESIS
+from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import FACULTY_MANAGER_GROUP
@@ -75,16 +78,13 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
 from base.views.learning_unit import compute_partim_form_initial_data, _get_post_data_without_read_only_field
+from base.views.learning_unit import learning_unit_volumes_management
+from cms.enums import entity_name
+from cms.tests.factories.text_label import TextLabelFactory
+from cms.tests.factories.translated_text import TranslatedTextFactory
 from osis_common.document import xls_build
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
-from base.views.learning_unit import learning_unit_volumes_management
-from django.test.utils import override_settings
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
-from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
-from cms.tests.factories.text_label import TextLabelFactory
-from cms.tests.factories.translated_text import TranslatedTextFactory
-from cms.enums import entity_name
 
 
 class LearningUnitViewTestCase(TestCase):
@@ -134,7 +134,7 @@ class LearningUnitViewTestCase(TestCase):
                                                                 type=entity_container_year_link_type.REQUIREMENT_ENTITY,
                                                                 entity=self.entity_3)
         self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL,
-                                                   start_date=today-datetime.timedelta(days=1),
+                                                   start_date=today - datetime.timedelta(days=1),
                                                    end_date=today.replace(year=today.year + 1))
 
         self.campus = CampusFactory(organization=self.organization, is_administration=True)
@@ -627,7 +627,7 @@ class LearningUnitViewTestCase(TestCase):
         EntityContainerYearFactory(learning_container_year=l_container_yr_4, entity=ages_entity_v.entity,
                                    type=entity_container_year_link_type.REQUIREMENT_ENTITY)
         LearningUnitYearFactory(acronym="AGES1500", learning_container_year=l_container_yr_4,
-                                academic_year=self.current_academic_year, subtype=None)
+                                academic_year=self.current_academic_year, subtype=learning_unit_year_subtypes.FULL)
 
     def test_class_save(self):
         learning_unit_yr = LearningUnitYearFactory(academic_year=self.current_academic_year,
@@ -809,7 +809,7 @@ class LearningUnitViewTestCase(TestCase):
     def test_learning_unit_check_acronym(self):
         kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
 
-        url = reverse('check_acronym')
+        url = reverse('check_acronym', kwargs={'type': FULL})
         get_data = {'acronym': 'goodacronym', 'year_id': self.academic_year_1.id}
         response = self.client.get(url, get_data, **kwargs)
 
@@ -1009,8 +1009,8 @@ class LearningUnitViewTestCase(TestCase):
         count_learning_unit_year = LearningUnitYear.objects.filter(acronym=full_acronym).count()
         self.assertEqual(count_learning_unit_year, 7)
         count_partims = LearningUnitYear.objects.filter(subtype=learning_unit_year_subtypes.PARTIM,
-                                                        learning_container_year__in=learning_container_yrs)\
-                                                .count()
+                                                        learning_container_year__in=learning_container_yrs) \
+            .count()
         self.assertEqual(count_partims, 7)
 
     def test_partim_creation_when_learning_unit_end_date_is_before_6_future_years(self):
@@ -1143,6 +1143,20 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(form_initial_data['academic_year'], self.learning_container_yr.academic_year.id)
         self.assertEqual(form_initial_data['first_letter'], 'L')
         self.assertEqual(form_initial_data['acronym'], 'BIR1200')
+
+    def test_get_internship_partim_creation_form(self):
+        self.learning_container_yr.container_type = learning_container_year_types.INTERNSHIP
+        luy_parent = LearningUnitYearFactory(acronym='LBIR1200',
+                                             learning_container_year=self.learning_container_yr,
+                                             academic_year=self.learning_container_yr.academic_year,
+                                             subtype=learning_unit_year_subtypes.FULL,
+                                             internship_subtype=internship_subtypes.CLINICAL_INTERNSHIP)
+        url = reverse('learning_unit_create_partim', args=[luy_parent.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'learning_unit/partim_form.html')
+        form_initial_data = response.context['form'].initial
+        self.assertEqual(form_initial_data['internship_subtype'], internship_subtypes.CLINICAL_INTERNSHIP)
 
     def test_get_partim_creation_form_when_can_not_create_partim(self):
         luy_parent = LearningUnitYearFactory(subtype=learning_unit_year_subtypes.FULL)
@@ -1428,10 +1442,10 @@ class TestCreateXls(TestCase):
         found_learning_units = a_form.get_activity_learning_units()
         learning_unit_business.create_xls(self.user, found_learning_units)
         xls_data = [[self.learning_unit_year.academic_year.name, self.learning_unit_year.acronym,
-                    self.learning_unit_year.specific_title,
-                    xls_build.translate(self.learning_unit_year.learning_container_year.container_type),
-                    xls_build.translate(self.learning_unit_year.subtype), None, None, self.learning_unit_year.credits,
-                    xls_build.translate(self.learning_unit_year.status)]]
+                     self.learning_unit_year.specific_title,
+                     xls_build.translate(self.learning_unit_year.learning_container_year.container_type),
+                     xls_build.translate(self.learning_unit_year.subtype), None, None, self.learning_unit_year.credits,
+                     xls_build.translate(self.learning_unit_year.status)]]
         expected_argument = _generate_xls_build_parameter(xls_data, self.user)
         mock_generate_xls.assert_called_with(expected_argument)
 
@@ -1453,6 +1467,5 @@ def _generate_xls_build_parameter(xls_data, user):
                                           str(_('credits')),
                                           str(_('active_title'))],
             xls_build.WORKSHEET_TITLE_KEY: 'Learning_units',
-            }]
-        }
-
+        }]
+    }
