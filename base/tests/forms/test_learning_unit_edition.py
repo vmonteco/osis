@@ -30,6 +30,7 @@ from django.test import TestCase
 from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
 from base.models.enums import learning_unit_periodicity, learning_unit_year_subtypes, learning_container_year_types, \
     organization_type, entity_type
+from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import LearningUnitsMixin
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
@@ -110,66 +111,26 @@ class TestLearningUnitModificationForm(TestCase, LearningUnitsMixin):
 
     def test_entity_does_not_exist_for_lifetime_of_learning_unit(self):
         self.setup_academic_years()
-        current_year_plus_two = self.list_of_academic_years_after_now[2]
-        organization = OrganizationFactory(type=organization_type.MAIN)
-        a_campus = CampusFactory(organization=organization)
-        an_entity = EntityFactory(organization=organization)
-        an_entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL, parent=None,
-                                                 end_date=self.current_academic_year.end_date,
-                                                 start_date=datetime.date.today() - datetime.timedelta(days=5))
-        person_entity = PersonEntityFactory(entity=an_entity)
-        language = LanguageFactory()
-        form_data = {
-            "acronym": "OSIS1452",
-            "credits": "45",
-            "common_title": "OSIS",
-            "first_letter": "L",
-            "periodicity": learning_unit_periodicity.ANNUAL,
-            "campus": str(a_campus.id),
-            "requirement_entity": str(an_entity_version.id),
-            "allocation_entity": str(an_entity_version.id),
-            "language": str(language.id)
-        }
-
-        form = LearningUnitModificationForm(form_data, person=person_entity.person,
-                                            subtype=learning_unit_year_subtypes.FULL,
-                                            end_date=current_year_plus_two.end_date)
+        form = self._get_form_data(self.current_academic_year.end_date,
+                                   self.list_of_academic_years_after_now[2].end_date)
         self.assertFalse(form.is_valid())
 
     def test_entity_does_not_exist_for_lifetime_of_learning_unit_with_no_planned_end(self):
-        self.setup_academic_years()
-        organization = OrganizationFactory(type=organization_type.MAIN)
-        a_campus = CampusFactory(organization=organization)
-        an_entity = EntityFactory(organization=organization)
-        an_entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL, parent=None,
-                                                 end_date=self.current_academic_year.end_date,
-                                                 start_date=datetime.date.today() - datetime.timedelta(days=5))
-        person_entity = PersonEntityFactory(entity=an_entity)
-        language = LanguageFactory()
-        form_data = {
-            "acronym": "OSIS1452",
-            "credits": "45",
-            "common_title": "OSIS",
-            "first_letter": "L",
-            "periodicity": learning_unit_periodicity.ANNUAL,
-            "campus": str(a_campus.id),
-            "requirement_entity": str(an_entity_version.id),
-            "allocation_entity": str(an_entity_version.id),
-            "language": str(language.id)
-        }
-
-        form = LearningUnitModificationForm(form_data, person=person_entity.person,
-                                            subtype=learning_unit_year_subtypes.FULL,
-                                            end_date=None)
+        current_academic_year = create_current_academic_year()
+        form = self._get_form_data(current_academic_year.end_date, None)
         self.assertFalse(form.is_valid())
 
     def test_valid_form(self):
-        self.setup_academic_years()
+        form = self._get_form_data(None, None)
+        self.assertTrue(form.is_valid())
+
+    @staticmethod
+    def _get_form_data(entity_version_end_date, form_end_date):
         organization = OrganizationFactory(type=organization_type.MAIN)
         a_campus = CampusFactory(organization=organization)
         an_entity = EntityFactory(organization=organization)
         an_entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL, parent=None,
-                                                 end_date=None,
+                                                 end_date=entity_version_end_date,
                                                  start_date=datetime.date.today() - datetime.timedelta(days=5))
         person_entity = PersonEntityFactory(entity=an_entity)
         language = LanguageFactory()
@@ -185,8 +146,7 @@ class TestLearningUnitModificationForm(TestCase, LearningUnitsMixin):
             "language": str(language.id)
         }
 
-        form = LearningUnitModificationForm(form_data, person=person_entity.person,
+        return LearningUnitModificationForm(form_data, person=person_entity.person,
                                             subtype=learning_unit_year_subtypes.FULL,
-                                            end_date=None)
-        self.assertTrue(form.is_valid())
+                                            end_date=form_end_date)
 
