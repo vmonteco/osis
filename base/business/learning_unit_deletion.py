@@ -104,9 +104,7 @@ def _check_group_element_year_deletion(group_element_year):
 def _check_learning_unit_component_deletion(l_unit_component):
     msg = {}
 
-    for attribution_charge in l_unit_component.learning_component_year.get_attributions_charge():
-        attribution = attribution_charge.attribution
-
+    for attribution in l_unit_component.learning_component_year.get_attributions():
         msg[attribution] = _("%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s") % {
             'subtype': _str_partim_or_full(l_unit_component.learning_unit_year),
             'acronym': l_unit_component.learning_unit_year.acronym,
@@ -206,6 +204,7 @@ def _delete_learning_unit_component(l_unit_component):
 
     msg.extend(_delete_learning_component_year(l_unit_component.learning_component_year))
     l_unit_component.delete()
+
     return msg
 
 
