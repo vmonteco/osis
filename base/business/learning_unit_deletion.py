@@ -57,8 +57,7 @@ def check_learning_unit_year_deletion(learning_unit_year):
     if learning_unit_year.subtype == learning_unit_year_subtypes.FULL and learning_unit_year.learning_container_year:
         msg.update(_check_related_partims_deletion(learning_unit_year.learning_container_year))
 
-    for component in learning_unit_component.find_by_learning_unit_year(learning_unit_year):
-        msg.update(_check_learning_unit_component_deletion(component))
+    msg.update(_check_attribution_deletion(learning_unit_year))
 
     for group_element_year in learning_unit_year.find_list_group_element_year():
         msg.update(_check_group_element_year_deletion(group_element_year))
@@ -101,15 +100,15 @@ def _check_group_element_year_deletion(group_element_year):
             }
 
 
-def _check_learning_unit_component_deletion(l_unit_component):
+def _check_attribution_deletion(learning_unit_year):
     msg = {}
 
-    for attribution in l_unit_component.learning_component_year.get_attributions():
+    for attribution in learning_unit_year.learning_container_year.get_attributions():
         msg[attribution] = _("%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s") % {
-            'subtype': _str_partim_or_full(l_unit_component.learning_unit_year),
-            'acronym': l_unit_component.learning_unit_year.acronym,
+            'subtype': _str_partim_or_full(learning_unit_year),
+            'acronym': learning_unit_year.acronym,
             'tutor': attribution.tutor,
-            'year': l_unit_component.learning_unit_year.academic_year}
+            'year': learning_unit_year.academic_year}
 
     return msg
 

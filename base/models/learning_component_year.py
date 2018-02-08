@@ -77,9 +77,6 @@ class LearningComponentYear(AuditableSerializableModel):
     def real_classes(self):
         return len(learning_class_year.find_by_learning_component_year(self))
 
-    def get_attributions(self):
-        return AttributionNew.objects.filter(learning_component_year=self).select_related('tutor')
-
 
 def find_by_id(learning_component_year_id):
     return LearningComponentYear.objects.get(pk=learning_component_year_id)
