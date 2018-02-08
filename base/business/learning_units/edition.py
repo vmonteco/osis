@@ -30,8 +30,6 @@ from django.db import IntegrityError, transaction
 from django.db.models import F
 from django.utils.translation import ugettext_lazy as _
 
-from attribution.models.attribution_charge_new import AttributionChargeNew
-from attribution.models.attribution_new import AttributionNew
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_unit_deletion import delete_from_given_learning_unit_year, \
     check_learning_unit_year_deletion

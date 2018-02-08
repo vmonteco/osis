@@ -25,8 +25,6 @@
 ##############################################################################
 from django.db import models
 
-from attribution.models.attribution_charge_new import AttributionChargeNew
-from attribution.models.attribution_new import AttributionNew
 from base.models import learning_class_year
 from base.models.enums import learning_component_year_type, learning_container_year_types
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin

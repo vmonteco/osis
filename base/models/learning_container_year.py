@@ -77,7 +77,6 @@ class LearningContainerYear(AuditableSerializableModel):
         return AttributionNew.objects.filter(learning_container_year=self).select_related('tutor')
 
 
-
 def find_by_id(learning_container_year_id):
     return LearningContainerYear.objects.get(pk=learning_container_year_id)
 
