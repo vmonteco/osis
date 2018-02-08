@@ -86,8 +86,8 @@ class LearningUnitYearDeletion(TestCase):
 
         component = LearningUnitComponentFactory(learning_unit_year=l_unit_2)
 
-        attribution_1 = AttributionNewFactory()
-        attribution_2 = AttributionNewFactory()
+        attribution_1 = AttributionNewFactory(learning_container_year=l_unit_2.learning_container_year)
+        attribution_2 = AttributionNewFactory(learning_container_year=l_unit_2.learning_container_year)
 
         AttributionChargeNewFactory(learning_component_year=component.learning_component_year,
                                     attribution=attribution_1)
