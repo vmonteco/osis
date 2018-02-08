@@ -35,13 +35,15 @@ from base.business.learning_units.edition import edit_learning_unit_end_date, up
 from base.models import academic_year
 from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import learning_unit_year_subtypes, learning_unit_periodicity, learning_container_year_types, \
-    attribution_procedure, internship_subtypes, learning_unit_year_session, learning_unit_year_quadrimesters
+    attribution_procedure, internship_subtypes, learning_unit_year_session, learning_unit_year_quadrimesters, \
+    organization_type, vacant_declaration_type
 from base.models.learning_class_year import LearningClassYear
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import LearningUnitsMixin
+from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
@@ -49,6 +51,7 @@ from base.tests.factories.learning_class_year import LearningClassYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from reference.tests.factories.language import LanguageFactory
 
 
 class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
@@ -744,6 +747,8 @@ class TestModifyLearningUnit(TestCase):
          self.learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
          self.learning_unit_year = LearningUnitYearFactory(learning_container_year=self.learning_container_year,
                                                            subtype=learning_unit_year_subtypes.FULL)
+         self.other_language = LanguageFactory()
+         self.other_campus = CampusFactory()
 
      def test_with_no_fields_to_update(self):
          update_learning_unit_year(self.learning_unit_year, {})
@@ -790,5 +795,26 @@ class TestModifyLearningUnit(TestCase):
          new_luy_values = model_to_dict(self.learning_unit_year, fields=data_to_update.keys())
 
          self.assertDictEqual(data_to_update, new_luy_values)
+
+     def test_with_learning_container_year_fields_to_update(self):
+         data_to_update = {
+             "common_title": "Mon common",
+             "common_title_english": "My common",
+             "language": self.other_language,
+             "campus": self.other_campus,
+             "team": True,
+             "is_vacant": True,
+             "type_declaration_vacant": vacant_declaration_type.VACANT_NOT_PUBLISH
+         }
+
+         update_learning_unit_year(self.learning_unit_year, data_to_update)
+         self.learning_container_year.refresh_from_db()
+
+         new_lcy_values = model_to_dict(self.learning_container_year, fields=data_to_update.keys())
+         expected_model_dict_values = data_to_update
+         expected_model_dict_values["language"] = data_to_update["language"].id
+         expected_model_dict_values["campus"] = data_to_update["campus"].id
+
+         self.assertDictEqual(expected_model_dict_values, new_lcy_values)
 
 

@@ -245,11 +245,16 @@ def filter_biennial(queryset, periodicity):
 
 def update_learning_unit_year(luy_to_update, fields_to_update):
     lu = luy_to_update.learning_unit
+    luc = luy_to_update.learning_container_year
     for field, value in fields_to_update.items():
         if hasattr(lu.__class__, field):
             setattr(lu, field, value)
     for field, value in fields_to_update.items():
         if hasattr(luy_to_update.__class__, field):
             setattr(luy_to_update, field, value)
+    for field, value in fields_to_update.items():
+        if hasattr(luc.__class__, field):
+            setattr(luc, field, value)
     lu.save()
+    luc.save()
     luy_to_update.save()
