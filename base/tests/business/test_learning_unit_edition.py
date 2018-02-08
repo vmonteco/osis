@@ -765,20 +765,17 @@ class TestModifyLearningUnit(TestCase):
          self.assertDictEqual(old_lc_values, new_lc_values)
 
      def test_with_learning_unit_fields_to_update(self):
-         data_to_update = {
+         fields_to_update = {
              "periodicity": learning_unit_periodicity.BIENNIAL_EVEN,
              "faculty_remark": "Faculty remark",
              "other_remark": "Other remark"
          }
-         update_learning_unit_year(self.learning_unit_year, data_to_update)
-         self.learning_unit_year.learning_unit.refresh_from_db()
+         update_learning_unit_year(self.learning_unit_year, fields_to_update)
 
-         new_lu_values = model_to_dict(self.learning_unit_year.learning_unit, fields=data_to_update.keys())
-
-         self.assertDictEqual(data_to_update, new_lu_values)
+         self.assert_fields_updated(self.learning_unit_year.learning_unit, fields_to_update)
 
      def test_with_learning_unit_year_fields_to_update(self):
-         data_to_update = {
+         fields_to_update = {
              "specific_title": "Mon cours",
              "specific_title_english": "My course",
              "credits": 45,
@@ -789,15 +786,13 @@ class TestModifyLearningUnit(TestCase):
              "attribution_procedure": attribution_procedure.EXTERNAL
          }
 
-         update_learning_unit_year(self.learning_unit_year, data_to_update)
-         self.learning_unit_year.refresh_from_db()
+         update_learning_unit_year(self.learning_unit_year, fields_to_update)
 
-         new_luy_values = model_to_dict(self.learning_unit_year, fields=data_to_update.keys())
+         self.assert_fields_updated(self.learning_unit_year, fields_to_update)
 
-         self.assertDictEqual(data_to_update, new_luy_values)
 
      def test_with_learning_container_year_fields_to_update(self):
-         data_to_update = {
+         fields_to_update = {
              "common_title": "Mon common",
              "common_title_english": "My common",
              "language": self.other_language,
@@ -807,14 +802,47 @@ class TestModifyLearningUnit(TestCase):
              "type_declaration_vacant": vacant_declaration_type.VACANT_NOT_PUBLISH
          }
 
-         update_learning_unit_year(self.learning_unit_year, data_to_update)
+         update_learning_unit_year(self.learning_unit_year, fields_to_update)
          self.learning_container_year.refresh_from_db()
 
-         new_lcy_values = model_to_dict(self.learning_container_year, fields=data_to_update.keys())
-         expected_model_dict_values = data_to_update
-         expected_model_dict_values["language"] = data_to_update["language"].id
-         expected_model_dict_values["campus"] = data_to_update["campus"].id
+         new_lcy_values = model_to_dict(self.learning_container_year, fields=fields_to_update.keys())
+         expected_model_dict_values = fields_to_update
+         expected_model_dict_values["language"] = fields_to_update["language"].id
+         expected_model_dict_values["campus"] = fields_to_update["campus"].id
 
          self.assertDictEqual(expected_model_dict_values, new_lcy_values)
+
+     def test_with_fields_from_multiple_learning_unit_models_to_update(self):
+         learning_unit_fields_to_update = {
+             "faculty_remark": "Faculty remark"
+         }
+         learning_unit_year_fields_to_update = {
+             "specific_title_english": "My course",
+             "credits": 45,
+         }
+         learning_container_year_fields_to_update = {
+             "team": True,
+             "is_vacant": True,
+             "type_declaration_vacant": vacant_declaration_type.VACANT_NOT_PUBLISH
+         }
+
+         fields_to_update = dict()
+         fields_to_update.update(learning_unit_fields_to_update)
+         fields_to_update.update(learning_unit_year_fields_to_update)
+         fields_to_update.update(learning_container_year_fields_to_update)
+
+         update_learning_unit_year(self.learning_unit_year, fields_to_update)
+
+         self.assert_fields_updated(self.learning_unit_year, learning_unit_year_fields_to_update)
+         self.assert_fields_updated(self.learning_unit_year.learning_unit, learning_unit_fields_to_update)
+         self.assert_fields_updated(self.learning_unit_year.learning_container_year,
+                                    learning_container_year_fields_to_update)
+
+     def assert_fields_updated(self, instance, fields_value):
+         instance.refresh_from_db()
+
+         instance_values = model_to_dict(instance, fields=fields_value.keys())
+         self.assertDictEqual(fields_value, instance_values)
+
 
 
