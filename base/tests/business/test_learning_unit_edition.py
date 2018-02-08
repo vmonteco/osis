@@ -35,7 +35,7 @@ from base.business.learning_units.edition import edit_learning_unit_end_date, up
 from base.models import academic_year
 from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import learning_unit_year_subtypes, learning_unit_periodicity, learning_container_year_types, \
-    attribution_procedure
+    attribution_procedure, internship_subtypes, learning_unit_year_session, learning_unit_year_quadrimesters
 from base.models.learning_class_year import LearningClassYear
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_component import LearningUnitComponent
@@ -771,5 +771,24 @@ class TestModifyLearningUnit(TestCase):
          new_lu_values = model_to_dict(self.learning_unit_year.learning_unit, fields=data_to_update.keys())
 
          self.assertDictEqual(data_to_update, new_lu_values)
+
+     def test_with_learning_unit_year_fields_to_update(self):
+         data_to_update = {
+             "specific_title": "Mon cours",
+             "specific_title_english": "My course",
+             "credits": 45,
+             "internship_subtype": internship_subtypes.PROFESSIONAL_INTERNSHIP,
+             "status": False,
+             "session": learning_unit_year_session.SESSION_123,
+             "quadrimester": learning_unit_year_quadrimesters.Q2,
+             "attribution_procedure": attribution_procedure.EXTERNAL
+         }
+
+         update_learning_unit_year(self.learning_unit_year, data_to_update)
+         self.learning_unit_year.refresh_from_db()
+
+         new_luy_values = model_to_dict(self.learning_unit_year, fields=data_to_update.keys())
+
+         self.assertDictEqual(data_to_update, new_luy_values)
 
 
