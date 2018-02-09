@@ -61,6 +61,7 @@ from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import FACULTY_MANAGER_GROUP
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
+from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -77,7 +78,8 @@ from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
-from base.views.learning_unit import compute_partim_form_initial_data, _get_post_data_without_read_only_field
+from base.views.learning_unit import compute_partim_form_initial_data, _get_post_data_without_read_only_field, \
+    learning_unit_components
 from base.views.learning_unit import learning_unit_volumes_management
 from cms.enums import entity_name
 from cms.tests.factories.text_label import TextLabelFactory
@@ -1469,3 +1471,45 @@ def _generate_xls_build_parameter(xls_data, user):
             xls_build.WORKSHEET_TITLE_KEY: 'Learning_units',
         }]
     }
+
+
+class TestLearningUnitComponents(TestCase):
+    def setUp(self):
+        self.academic_years = GenerateAcademicYear(start_year=2010, end_year=2020).academic_years
+        self.generated_container = GenerateContainer(start_year=2010, end_year=2020)
+        self.a_superuser = SuperUserFactory()
+        self.person = PersonFactory(user=self.a_superuser)
+
+    @mock.patch('base.views.layout.render')
+    @mock.patch('base.models.program_manager.is_program_manager')
+    def test_learning_unit_components(self, mock_program_manager, mock_render):
+
+        mock_program_manager.return_value = True
+
+        learning_unit_year = self.generated_container.generated_container_years[0].learning_unit_year_full
+        partim = self.generated_container.generated_container_years[0].learning_unit_year_partim
+
+
+        request_factory = RequestFactory()
+        request = request_factory.get(reverse(learning_unit_components, args=[learning_unit_year.id]))
+        request.user = self.a_superuser
+
+        learning_unit_components(request, learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/components.html')
+        components = context['components']
+        self.assertEqual(len(components), 4)
+
+        for component in components:
+            self.assertIn(component['learning_component_year'],
+                          self.generated_container.generated_container_years[0].list_components)
+
+            volumes = component['volumes']
+            self.assertEqual(volumes['VOLUME_Q1'], None)
+            self.assertEqual(volumes['VOLUME_Q2'], None)
+
+

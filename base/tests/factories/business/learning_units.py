@@ -203,6 +203,15 @@ class LearningUnitsMixin:
         return results
 
 
+class GenerateAcademicYear:
+    academic_years = []
+
+    def __init__(self, start_year, end_year):
+        self.start_year = start_year
+        self.end_year = end_year
+        self.academic_years = LearningUnitsMixin.create_list_of_academic_years(start_year, end_year)
+
+
 class GenerateContainer:
 
     def __init__(self, start_year, end_year):
