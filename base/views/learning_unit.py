@@ -394,11 +394,8 @@ def check_acronym(request, type):
         valid = bool(re.match(LEARNING_UNIT_ACRONYM_REGEX_FULL, acronym))
     else:
         valid = False
-    return JsonResponse({'valid': valid,
-                         'existing_acronym': existing_acronym,
-                         'existed_acronym': existed_acronym,
-                         'first_using': first_using,
-                         'last_using': last_using}, safe=False)
+    return JsonResponse({'valid': valid, 'existing_acronym': existing_acronym, 'existed_acronym': existed_acronym,
+                         'first_using': first_using, 'last_using': last_using}, safe=False)
 
 
 @login_required
