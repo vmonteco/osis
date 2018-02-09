@@ -178,6 +178,21 @@ class TestLearningUnitModificationForm(TestCase):
                                             person=self.person, initial=self.initial_data)
         self.assertFalse(form.is_valid())
 
+    def test_when_requirement_and_attribution_entities_are_different_for_disseration_and_internship_subtype(self):
+        an_other_entity = EntityFactory(organization=self.organization)
+        an_other_entity_version = EntityVersionFactory(entity=an_other_entity, entity_type=entity_type.SCHOOL,
+                                                       parent=None, end_date=None,
+                                                       start_date=datetime.date.today() - datetime.timedelta(days=5))
+        form_data_with_different_allocation_entity = self.form_data.copy()
+        form_data_with_different_allocation_entity["allocation_entity"] = str(an_other_entity_version.id)
+
+        for container_type in (learning_container_year_types.DISSERTATION, learning_container_year_types.INTERNSHIP):
+            initial_data_with_specific_container_type = self.initial_data.copy()
+            initial_data_with_specific_container_type["container_type"] = container_type
+            form = LearningUnitModificationForm(form_data_with_different_allocation_entity,
+                                                person=self.person, initial=initial_data_with_specific_container_type)
+            self.assertFalse(form.is_valid())
+
     def test_valid_form(self):
         form = LearningUnitModificationForm(self.form_data, initial=self.initial_data, person=self.person)
         self.assertTrue(form.is_valid())
