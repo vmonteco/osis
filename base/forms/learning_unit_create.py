@@ -137,8 +137,8 @@ class LearningUnitYearForm(BootstrapForm):
 
     def clean(self):
         super().clean()
-        self.cleaned_data["acronym"] = self.cleaned_data.get('first_letter', "").upper() + \
-                                       self.cleaned_data.get('acronym').upper()
+        merge_first_letter_acronym = self.cleaned_data.get('first_letter', "") + self.cleaned_data.get('acronym')
+        self.cleaned_data["acronym"] = merge_first_letter_acronym.upper()
 
     def is_valid(self):
         if not super().is_valid():

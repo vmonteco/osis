@@ -136,15 +136,16 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         # from cleaned_data.
         errors_list = []
         if not self._is_requirement_entity_end_date_valid():
-            error_msg = _("requirement_entity_end_date_too_short")
-            errors_list.append(("requirement_entity", error_msg))
+            errors_list.append(("requirement_entity",
+                                _("requirement_entity_end_date_too_short")))
         if not self._are_requirement_and_allocation_entities_valid():
-            error_msg = _("requirement_and_allocation_entities_cannot_be_different")
-            errors_list.append(("requirement_entity", error_msg))
-            errors_list.append(("allocation_entity", error_msg))
+            errors_list.append(("requirement_entity",
+                                _("requirement_and_allocation_entities_cannot_be_different")))
+            errors_list.append(("allocation_entity",
+                                _("requirement_and_allocation_entities_cannot_be_different")))
         if not self._is_internship_subtype_valid():
-            error_msg = _("cannot_set_internship_subtype_for_type_other_than_internship")
-            errors_list.append(("internship_subtype", error_msg))
+            errors_list.append(("internship_subtype",
+                                _("cannot_set_internship_subtype_for_type_other_than_internship")))
         self.add_errors(errors_list)
         return not self.errors
 

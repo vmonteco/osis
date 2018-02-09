@@ -793,10 +793,10 @@ class TestModifyLearningUnit(TestCase):
          self.other_campus = CampusFactory()
 
      def test_with_no_fields_to_update(self):
-         update_learning_unit_year(self.learning_unit_year, {})
-
          old_luy_values = model_to_dict(self.learning_unit_year)
          old_lc_values = model_to_dict(self.learning_container_year)
+
+         update_learning_unit_year(self.learning_unit_year, {})
 
          self.learning_unit_year.refresh_from_db()
          self.learning_container_year.refresh_from_db()
@@ -890,13 +890,15 @@ class TestModifyLearningUnit(TestCase):
 class TestUpdateLearningUnitEntities(TestCase):
     def setUp(self):
         an_academic_year = create_current_academic_year()
-        self.learning_container_year = LearningContainerYearFactory(academic_year=an_academic_year,
-                                                               container_type=learning_container_year_types.COURSE,
-                                                               type_declaration_vacant=vacant_declaration_type.DO_NOT_ASSIGN)
-        self.learning_unit_year = LearningUnitYearFactory(learning_container_year=self.learning_container_year,
-                                                          academic_year=an_academic_year,
-                                                          subtype=learning_unit_year_subtypes.FULL,
-                                                          attribution_procedure=attribution_procedure.INTERNAL_TEAM)
+        self.learning_container_year = LearningContainerYearFactory(
+            academic_year=an_academic_year,
+            container_type=learning_container_year_types.COURSE,
+            type_declaration_vacant=vacant_declaration_type.DO_NOT_ASSIGN)
+        self.learning_unit_year = LearningUnitYearFactory(
+            learning_container_year=self.learning_container_year,
+            academic_year=an_academic_year,
+            subtype=learning_unit_year_subtypes.FULL,
+            attribution_procedure=attribution_procedure.INTERNAL_TEAM)
 
         self.requirement_entity_container = EntityContainerYearFactory(
             learning_container_year=self.learning_container_year,
