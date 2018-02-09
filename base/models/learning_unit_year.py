@@ -34,6 +34,8 @@ from base.models.enums import learning_unit_year_subtypes, internship_subtypes, 
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 from base.models.group_element_year import GroupElementYear
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
+from django.db.models import Q
+
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
@@ -182,7 +184,7 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
         queryset = queryset.filter(learning_unit=learning_unit)
 
     if title:
-        queryset = queryset.filter(title__icontains=title)
+        queryset = queryset.filter(Q(specific_title__icontains=title) | Q(learning_container_year__common_title__icontains=title))
 
     if subtype:
         queryset = queryset.filter(subtype=subtype)
