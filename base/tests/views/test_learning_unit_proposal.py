@@ -61,6 +61,8 @@ class TestLearningUnitModificationProposal(TestCase):
         self.permission = Permission.objects.get(codename="can_propose_learningunit")
         self.person.user.user_permissions.add(self.permission)
 
+        self.permission_2 = Permission.objects.get(codename="can_access_learningunit")
+        self.person.user.user_permissions.add(self.permission_2)
         an_organization = OrganizationFactory(type=organization_type.MAIN)
         current_academic_year = create_current_academic_year()
         learning_container_year = LearningContainerYearFactory(
@@ -351,17 +353,18 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertTemplateUsed(response, "access_denied.html")
 
     def test_learning_unit_proposals(self):
-        url = "learning_unit_proposals"
+        url = reverse('learning_unit_proposals')
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'proposal/by_proposal.html')
 
     def test_learning_units_proposal_search(self):
         a_learning_unit_proposal = _create_proposal_learning_unit()
-        self.form_data["acronym"] = a_learning_unit_proposal.learning_unit_year.acronym
-        response = self.client.post("learning_unit_proposal_search", data=self.form_data)
-        self.assertEqual(response.context['proposals'], [a_learning_unit_proposal])
+        data = {}
+        data["acronym"] = a_learning_unit_proposal.learning_unit_year.acronym
+        url = reverse('learning_unit_proposal_search')
+        response = self.client.get(url, data={'acronym': a_learning_unit_proposal.learning_unit_year.acronym})
+        self.assertCountEqual(response.context['proposals'], [a_learning_unit_proposal])
         self.assertIsInstance(response.context['form'], LearningUnitProposalForm)
         self.assertEqual(response.context['search_type'], PROPOSAL_SEARCH)
 

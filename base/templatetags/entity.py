@@ -41,4 +41,7 @@ def requirement_entity(list, i):
 
 @register.filter
 def entity_last_version(entity):
-    return entity_version.get_last_version(entity).acronym
+    try:
+        return entity_version.get_last_version(entity).acronym
+    except:
+        return None

@@ -97,7 +97,7 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
 def learning_unit_proposals(request):
     form = LearningUnitProposalForm()
     context = {'form': form}
-    return layout.render(request, "proposal/by_proposal.html", context)
+    return layout.render(request, "learning_units.html", context)
 
 
 @login_required
