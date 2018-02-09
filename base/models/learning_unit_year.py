@@ -184,7 +184,8 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
         queryset = queryset.filter(learning_unit=learning_unit)
 
     if title:
-        queryset = queryset.filter(Q(specific_title__icontains=title) | Q(learning_container_year__common_title__icontains=title))
+        queryset = queryset.\
+            filter(Q(specific_title__icontains=title) | Q(learning_container_year__common_title__icontains=title))
 
     if subtype:
         queryset = queryset.filter(subtype=subtype)
