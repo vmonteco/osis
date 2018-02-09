@@ -105,6 +105,7 @@ urlpatterns = [
                     name="learning_unit_cancel_proposal"),
             ])),
             url(r'^edit/$', edition.learning_unit_edition, name="learning_unit_edition"),
+            url(r'^modify/$', edition.modify_learning_unit, name="edit_learning_unit"),
             url(r'^specifications/$', learning_unit.learning_unit_specifications, name="learning_unit_specifications"),
             url(r'^specifications/edit/$', learning_unit.learning_unit_specifications_edit,
                 name="learning_unit_specifications_edit"),
@@ -124,7 +125,7 @@ urlpatterns = [
                 url(r'^add/$', learning_unit.learning_unit_year_partim_add, name='learning_unit_year_partim_add')
             ])),
         ])),
-        url(r'^check/$', learning_unit.check_acronym, name="check_acronym"),
+        url(r'^check/(?P<type>[A-Z]+)$', learning_unit.check_acronym, name="check_acronym"),
         url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
     ])),
     url(r'^proposals/$', learning_unit_proposal.learning_unit_proposals, name="learning_unit_proposals"),

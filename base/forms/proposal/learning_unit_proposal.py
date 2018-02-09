@@ -63,7 +63,7 @@ class LearningUnitProposalForm(forms.Form):
         label=_('academic_year_small'),
         queryset=AcademicYear.objects.all(),
         empty_label=_('all_label'),
-        required=False
+        required=False,
     )
 
     requirement_entity_acronym = forms.CharField(

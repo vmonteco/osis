@@ -46,9 +46,11 @@ class LearningContainerYearFactory(factory.django.DjangoModelFactory):
     container_type = factory.Iterator(learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
                                       getter=operator.itemgetter(0))
     common_title = factory.Sequence(lambda n: 'Learning container year - %d' % n)
+    common_title_english = factory.Sequence(lambda n: 'Learning container year english - %d' % n)
     acronym = factory.Sequence(lambda n: 'LCY-%d' % n)
     campus = factory.SubFactory(CampusFactory)
     language = factory.SubFactory(LanguageFactory)
     changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
     in_charge = False
+    type_declaration_vacant = None

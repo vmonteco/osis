@@ -114,3 +114,30 @@ class LearningUnitYearTest(TestCase):
                                              learning_container_year=lunit_container_year,
                                              subtype=learning_unit_year_subtypes.FULL)
         self.assertIsNone(luy_parent.parent)
+
+    def test_complete_title_concatenation_of_two_titles(self):
+        a_common_title = "Titre commun"
+        a_specific_title = "Titre spécifique"
+        lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_year,
+                                                          common_title=a_common_title)
+        luy = LearningUnitYearFactory(academic_year=self.academic_year,
+                                      specific_title=a_specific_title,
+                                      learning_container_year=lunit_container_yr)
+        self.assertEqual(luy.complete_title, "{} {}".format(a_common_title, a_specific_title))
+
+    def test_complete_title_only_common_title(self):
+        a_common_title = "Titre commun"
+
+
+        lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_year,
+                                                          common_title=a_common_title)
+        luy = LearningUnitYearFactory(academic_year=self.academic_year,
+                                      specific_title=None,
+                                      learning_container_year=lunit_container_yr)
+        self.assertEqual(luy.complete_title, "{}".format(a_common_title))
+
+    def test_complete_title_no_title(self):
+        luy = LearningUnitYearFactory(academic_year=self.academic_year,
+                                      specific_title=None,
+                                      learning_container_year=None)
+        self.assertIsNone(luy.complete_title)

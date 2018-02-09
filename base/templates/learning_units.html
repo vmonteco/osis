@@ -70,14 +70,10 @@
         </a>
     </li>
 </ul>
-{% if search_type == 1 %}
-    {% include 'learning_unit/by_activity.html' %}
-{% endif %}
-{% if search_type == 2 %}
-    {% include 'learning_unit/by_service_course.html' %}
-{% endif %}
 {% if search_type == 3 %}
     {% include 'learning_unit/by_proposal.html' %}
+{% else %}
+    {% include 'learning_unit/by_activity.html' %}
 {% endif %}
 {% endblock %}
 
@@ -86,7 +82,7 @@
     $(document).ready(function()
     {
 	 // Must be always DataTable declaration !!!
-        setEventKeepIds('table_learning_units', 'learningUnitIds')
+        setEventKeepIds('table_learning_units', 'learningUnitIds');
 
         $('#table_learning_units').DataTable(
             {
@@ -101,7 +97,7 @@
                 "language": {
                     "oAria": {
                         "sSortAscending":  "{% trans 'datatable_sortascending'%}",
-                        "sSortDescending": "{% trans 'datatable_sortdescending'%}",
+                        "sSortDescending": "{% trans 'datatable_sortdescending'%}"
                     }
                 }
             })
@@ -110,7 +106,7 @@
     $("#btn_produce_xls").click(function(e) {
         e.preventDefault();
         $("#xls_status").val('xls');
-        $("#form_learning_units").submit();
+        $("#search_form").submit();
         $("#xls_status").val('');
     });
 

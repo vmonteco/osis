@@ -24,11 +24,13 @@
 #
 ##############################################################################
 import re
+
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from base.models import entity_container_year
-from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, internship_subtypes, \
+from base.models.enums import active_status
+from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 from base.models.group_element_year import GroupElementYear
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
@@ -60,8 +62,7 @@ class LearningUnitYear(AuditableSerializableModel):
     acronym = models.CharField(max_length=15, db_index=True)
     specific_title = models.CharField(max_length=255, blank=True, null=True)
     specific_title_english = models.CharField(max_length=250, blank=True, null=True)
-    subtype = models.CharField(max_length=50, blank=True, null=True,
-                               choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES)
+    subtype = models.CharField(max_length=50, choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES)
     credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True,
                                   validators=[MinValueValidator(MINIMUM_CREDITS), MaxValueValidator(MAXIMUM_CREDITS)])
     decimal_scores = models.BooleanField(default=False)
@@ -90,7 +91,7 @@ class LearningUnitYear(AuditableSerializableModel):
 
     @property
     def parent(self):
-        if self.subdivision:
+        if self.subdivision and self.subtype == learning_unit_year_subtypes.PARTIM:
             return LearningUnitYear.objects.filter(
                 subtype=learning_unit_year_subtypes.FULL,
                 learning_container_year=self.learning_container_year,
@@ -113,9 +114,13 @@ class LearningUnitYear(AuditableSerializableModel):
 
     @property
     def complete_title(self):
-        if self.specific_title:
-            return "{} {}".format(self.learning_container_year.common_title, self.specific_title)
-        return self.learning_container_year.common_title
+        common_tit = None
+        if self.learning_container_year:
+            common_tit = self.learning_container_year.common_title
+
+        if self.specific_title and common_tit:
+            return "{} {}".format(common_tit, self.specific_title)
+        return common_tit
 
     def get_partims_related(self):
         if self.subtype == learning_unit_year_subtypes.FULL and self.learning_container_year:
@@ -147,8 +152,7 @@ def get_by_id(learning_unit_year_id):
 
 
 def find_by_acronym(acronym):
-    return LearningUnitYear.objects.filter(acronym=acronym) \
-        .select_related('learning_container_year')
+    return LearningUnitYear.objects.filter(acronym=acronym).select_related('learning_container_year')
 
 
 def _is_regex(acronym):
@@ -184,12 +188,20 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
         queryset = queryset.filter(subtype=subtype)
 
     if status:
-        queryset = queryset.filter(status=status)
+        queryset = queryset.filter(status=_convert_status_bool(status))
 
     if container_type:
         queryset = queryset.filter(learning_container_year__container_type=container_type)
 
     return queryset.select_related('learning_container_year', 'academic_year')
+
+
+def _convert_status_bool(status):
+    if status in (active_status.ACTIVE, active_status.INACTIVE):
+        boolean = status == active_status.ACTIVE
+    else:
+        boolean = status
+    return boolean
 
 
 def count_search_results(**kwargs):

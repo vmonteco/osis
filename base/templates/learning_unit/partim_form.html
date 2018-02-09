@@ -39,7 +39,7 @@
 <div class="panel panel-default">
     <div class="panel-body">
         <form method="post" action="{% url 'learning_unit_year_partim_add' learning_unit_year_id=request.resolver_match.kwargs.learning_unit_year_id %}"
-              data-validate-url="{% url 'check_acronym'%}"
+              data-validate-url="{% url 'check_acronym'  type='PARTIM' %}"
               id="LearningUnitYearForm">
             {% csrf_token %}
             <div class="panel panel-default">
@@ -212,7 +212,7 @@
                             </label>
                         </div>
                         <div class="col-md-6">
-                            <label>{% trans 'allocation_entity' %}</label>
+                            <label>{% trans 'allocation_entity' %}*</label>
                             {{ form.allocation_entity }}
                         </div>
                     </div>

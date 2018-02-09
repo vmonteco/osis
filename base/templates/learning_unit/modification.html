@@ -30,7 +30,7 @@
 <li><a href="{% url 'catalog' %}" id="lnk_catalog">{% trans 'formation_catalogue' %}</a></li>
 <li><a href="{% url 'learning_units' %}" id="lnk_learning_units">{% trans 'learning_units' %}</a></li>
 <li><a href="{% url 'learning_unit' learning_unit_year.id %}" id="lnk_learning_units">{{learning_unit_year.acronym}}</a></li>
-<li class="active">{% trans 'proposal' %}</li>{% endblock %}
+<li class="active">{% trans 'modification'|capfirst %}</li>{% endblock %}
 
 {% block content %}
 
@@ -40,8 +40,6 @@
 
 <div class="panel panel-default" >
     <div class="panel-body" id="tabs" >
-
-      {% include "proposal/tabs.html" %}
 
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active">
@@ -56,7 +54,7 @@
 
                                       <div class="col-md-3" style="padding-left:0;">
                                         <div class="col-md-12">
-                                          <label for="{{ form.acronym.id_for_label }}">{% trans 'acronym'%}</label>
+                                          <label for="{{ form.acronym.id_for_label }}">{% trans 'code'%}</label>
                                         </div>
                                         <div class="col-md-5" style="padding-right:0;">
                                           {{ form.first_letter }}
@@ -114,10 +112,33 @@
                                       </div>
 
                                       <div class="form-group col-md-3">
-                                          {{ form.status }}
+                                          <label for="{{ form.status.id_for_label }}">
+                                            {{ form.status }} {% trans 'active_title' %}
+                                          </label>
                                           <span class="error">{{ form.status.errors }}</span>
-                                          <label for="{{ form.status.id_for_label }}">{% trans 'active_title' %}</label>
                                       </div>
+
+                                       <div class="form-group col-md-3">
+                                           <label for="{{ form.language.id_for_label }}">{% trans 'language' %}</label>
+                                           {{ form.language }}
+                                           <span class="error">{{ form.language.errors }}</span>
+                                       </div>
+
+                                  </div>
+
+                                  <div class="row">
+
+                                    <div class="col-md-3">
+                                        <label for="{{ form.quadrimester.id_for_label }}">{% trans 'quadrimester' %}</label>
+                                        {{ form.quadrimester }}
+                                        <span class="error">{{ form.quadrimester.errors }}</span>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label for="{{ form.quadrimester.id_for_label }}">{% trans 'session_title' %}</label>
+                                        {{ form.quadrimester }}
+                                        <span class="error">{{ form.quadrimester.errors }}</span>
+                                    </div>
 
                                   </div>
 
@@ -130,31 +151,73 @@
                                   </div>
 
                                   <div class="form-group">
-                                    <label for="{{ form.common_title_english.id_for_label }}">{% trans 'official_english_title_proper_to_UE' %}</label>
+                                    <label for="{{ form.partial_title.id_for_label }}">{% trans 'official_title_proper_to_UE' %}</label>
+                                    {{ form.partial_title }}
+                                      <span class="error">{{ form.partial_title.errors }}</span>
+                                  </div>
+
+                                  <br>
+
+                                  <div class="form-group">
+                                    <label for="{{ form.common_title_english.id_for_label }}">{% trans 'common_official_english_title' %}</label>
                                     {{ form.common_title_english }}
                                       <span class="error">{{ form.common_title_english.errors }}</span>
                                   </div>
 
-                                  <div class="row">
-
-                                    <div class="form-group col-md-3">
-                                        <label for="{{ form.language.id_for_label }}">{% trans 'language' %}</label>
-                                        {{ form.language }}
-                                        <span class="error">{{ form.language.errors }}</span>
-                                    </div>
-
-                                    <div class="col-md-9">
-                                        <label for="{{ form.quadrimester.id_for_label }}">{% trans 'quadrimester' %}</label>
-                                        {{ form.quadrimester }}
-                                        <span class="error">{{ form.quadrimester.errors }}</span>
-                                    </div>
-
+                                  <div class="form-group">
+                                    <label for="{{ form.partial_english_title.id_for_label }}">{% trans 'official_english_title_proper_to_UE' %}</label>
+                                    {{ form.partial_english_title}}
+                                      <span class="error">{{ form.partial_english_title.errors }}</span>
                                   </div>
+
                               </div>
                           </div>
 
-                          {% if components %}
-                              {% include "learning_unit/components_identification.html" %}
+                          <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div>
+                                    <label for="{{ form.faculty_remarks.id_for_label }}">{% trans 'faculty_remark' %}</label><br>
+                                    {{ form.faculty_remark }}
+                                    <span class="error">{{ form.faculty.errors }}</span>
+                                </div>
+                                <br>
+                                <div>
+                                    <label for="{{ form.other_remark.id_for_label }}">{% trans 'other_remark' %}</label><br>
+                                    {{ form.other_remark }}
+                                    <span class="error">{{ form.other_remark.errors }}</span>
+                                </div>
+                            </div>
+                          </div>
+
+                          {% if learning_unit_year.subtype != "PARTIM" %}
+                          <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <label for="{{ form.is_vacant.id_for_label }}">
+                                            {{ form.is_vacant }} {% trans 'vacant' %}
+                                        </label>
+                                        <span class="error">{{ form.is_vacant.errors }}</span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label for="{{ form.team.id_for_label }}">
+                                            {{ form.team }} {% trans 'team_management' %}
+                                        </label>
+                                        <span class="error">{{ form.team.errors }}</span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="{{ form.type_declaration_vacant.id_for_label }}">{% trans 'type_declaration_vacant' %}</label><br>
+                                        {{ form.type_declaration_vacant }}
+                                        <span class="error">{{ form.type_declaration_vacant.errors }}</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="{{ form.attribution_procedure.id_for_label }}">{% trans 'procedure' %}</label><br>
+                                        {{ form.attribution_procedure }}
+                                        <span class="error">{{ form.attribution_procedure.errors }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                           </div>
                           {% endif %}
 
                       </div>
@@ -205,46 +268,6 @@
                                     {{ form.academic_year }}
                                       <span class="error">{{ form.academic_year.errors }}</span>
                                   </div>
-
-                              </div>
-                          </div>
-
-                          <div class="panel panel-default">
-                              <div class="panel-body">
-                                <p>{% trans 'proposal_management' %}</p>
-                                <div class="row">
-
-                                  <div class="col-md-4">
-                                    <label for="{{ form.folder_id.id_for_label }}">{% trans 'folder' %}</label>
-                                  </div>
-                                  <div class="col-md-4">
-                                    {{ form.folder_entity }}
-                                      <span class="error">{{ form.folder_entity.errors }}</span>
-                                  </div>
-                                  <div class="col-md-4">
-                                    {{ form.folder_id }}
-                                      <span class="error">{{ form.folder_id.errors }}</span>
-                                  </div>
-
-                                  <br><br>
-
-                                  <div class="col-md-4">
-                                    <b>{% trans 'introduced_by' %}</b>
-                                  </div>
-                                  <div class="col-md-8">
-                                    {{ person|default_if_none:request.user }}
-                                  </div>
-
-                                  <br><br>
-
-                                  <div class="col-md-4">
-                                    <b>{% trans 'the' %}</b>
-                                  </div>
-                                  <div class="col-md-8">
-                                    {% now "d/m/Y" %}
-                                  </div>
-
-                                </div>
 
                               </div>
                           </div>
