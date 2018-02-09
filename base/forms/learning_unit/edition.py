@@ -109,7 +109,9 @@ class LearningUnitModificationForm(LearningUnitYearForm):
 
     def __init__(self, *args, **kwargs):
         person = kwargs.pop("person")
-        learning_unit_year_subtype = kwargs.pop("subtype")
+        initial = kwargs.get("initial", None)
+        learning_unit_year_subtype = initial.get("subtype") if initial else None
+
         self.learning_unit_end_date = kwargs.pop("end_date", None)
         super().__init__(*args, **kwargs)
         if learning_unit_year_subtype == PARTIM:
@@ -122,7 +124,6 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     def disabled_fields(self, fields_to_disable):
         for field in fields_to_disable:
             self.fields[field].disabled = True
-            self.fields[field].required = False
 
     def is_valid(self):
         if not BootstrapForm.is_valid(self):

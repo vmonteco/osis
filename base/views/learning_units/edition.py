@@ -98,7 +98,7 @@ def modify_learning_unit(request, learning_unit_year_id):
 
 
 def extract_learning_unit_of_type_full_data_from_form_data(form_data):
-    data_without_entities = {field: value for field, value in form_data.items() if field.upper not in ENTITY_TYPE_LIST}
+    data_without_entities = {field: value for field, value in form_data.items() if field.upper() not in ENTITY_TYPE_LIST}
     lu_full_data = {field: value for field, value in data_without_entities.items()
                     if field not in FULL_READ_ONLY_FIELDS}
     return lu_full_data
