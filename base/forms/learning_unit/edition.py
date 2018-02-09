@@ -39,7 +39,7 @@ from base.models.enums.learning_container_year_types import INTERNSHIP, DISSERTA
 from base.models.enums.learning_unit_year_subtypes import PARTIM
 from base.models.enums.vacant_declaration_type import VacantDeclarationType
 from base.models.learning_unit import is_old_learning_unit
-
+from base.models.learning_unit_year import MAXIMUM_CREDITS
 
 FULL_READ_ONLY_FIELDS = {"first_letter", "acronym", "academic_year", "container_type", "subtype"}
 PARTIM_READ_ONLY_FIELDS = PARTIM_FORM_READ_ONLY_FIELD | {"is_vacant", "team", "type_declaration_vacant",
@@ -108,8 +108,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     type_declaration_vacant = forms.ChoiceField(required=False, choices=_create_type_declaration_vacant_list())
     attribution_procedure = forms.ChoiceField(required=False, choices=_create_attribution_procedure_list())
 
-    def __init__(self, *args, **kwargs):
-        person = kwargs.pop("person")
+    def __init__(self, *args, person=None,  max_credits=MAXIMUM_CREDITS, **kwargs):
         initial = kwargs.get("initial", None)
         learning_unit_year_subtype = initial.get("subtype") if initial else None
         learning_container_type = initial.get("container_type") if initial else None
@@ -121,6 +120,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
 
         self._disabled_fields_base_on_learning_unit_year_subtype(learning_unit_year_subtype)
         self._disabled_internship_subtype_field_if_not_internship_container_type(learning_container_type)
+        self._set_max_credits(max_credits)
 
     def is_valid(self):
         if not super().is_valid():
@@ -173,3 +173,6 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     def _disabled_fields(self, fields_to_disable):
         for field in fields_to_disable:
             self.fields[field].disabled = True
+
+    def _set_max_credits(self, max_credits):
+        self.fields["credits"].max_value = max_credits

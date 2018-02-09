@@ -99,7 +99,8 @@ class TestLearningUnitModificationForm(TestCase):
         cls.current_academic_year = create_current_academic_year()
         cls.learning_container_year = LearningContainerYearFactory(academic_year=cls.current_academic_year)
         cls.learning_unit_year = LearningUnitYearFactory(academic_year=cls.current_academic_year,
-                                                         learning_container_year=cls.learning_container_year)
+                                                         learning_container_year=cls.learning_container_year,
+                                                         credits=25)
 
         cls.organization = OrganizationFactory(type=organization_type.MAIN)
         a_campus = CampusFactory(organization=cls.organization)
@@ -176,6 +177,11 @@ class TestLearningUnitModificationForm(TestCase):
         form = LearningUnitModificationForm(form_data_with_invalid_requirement_entity, initial=self.initial_data,
                                             person=self.person, end_date=self.current_academic_year.end_date)
         self.assertFalse(form.is_valid())
+
+    def test_set_max_credits(self):
+        max_credits=45
+        form = LearningUnitModificationForm(max_credits=max_credits, person=None, initial=self.initial_data)
+        self.assertEqual(form.fields["credits"].max_value, max_credits)
 
     def test_entity_does_not_exist_for_lifetime_of_learning_unit_with_no_planned_end(self):
         an_other_entity = EntityFactory(organization=self.organization)
