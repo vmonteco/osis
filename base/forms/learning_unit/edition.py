@@ -108,7 +108,8 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     type_declaration_vacant = forms.ChoiceField(required=False, choices=_create_type_declaration_vacant_list())
     attribution_procedure = forms.ChoiceField(required=False, choices=_create_attribution_procedure_list())
 
-    def __init__(self, *args, person=None,  max_credits=MAXIMUM_CREDITS, status_value=None, **kwargs):
+    def __init__(self, *args, person=None,  max_credits=MAXIMUM_CREDITS, status_value=None,
+                 can_modify_periodicity=False, **kwargs):
         initial = kwargs.get("initial", None)
         learning_unit_year_subtype = initial.get("subtype") if initial else None
         learning_container_type = initial.get("container_type") if initial else None
@@ -122,6 +123,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         self._disabled_internship_subtype_field_if_not_internship_container_type(learning_container_type)
         self._set_max_credits(max_credits)
         self._set_status_value(status_value)
+        self._enabled_periodicity(can_modify_periodicity)
 
     def is_valid(self):
         if not super().is_valid():
@@ -183,3 +185,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
             pass
         self.fields["status"].initial = status_value
         self.fields["status"].disabled = True
+
+    def _enabled_periodicity(self, can_modify_periodicity):
+        if can_modify_periodicity:
+            self.fields["periodicity"].disabled = False

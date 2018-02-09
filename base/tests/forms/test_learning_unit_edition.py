@@ -190,6 +190,13 @@ class TestLearningUnitModificationForm(TestCase):
         self.assertEqual(form.fields["status"].initial, False)
         self.assertTrue(form.fields["status"].disabled)
 
+    def test_partim_can_modify_periodicity(self):
+        initial_data_with_subtype_partim = self.initial_data.copy()
+        initial_data_with_subtype_partim["subtype"] = learning_unit_year_subtypes.PARTIM
+        form = LearningUnitModificationForm(can_modify_periodicity=True, person=None,
+                                            initial=initial_data_with_subtype_partim)
+        self.assertFalse(form.fields["periodicity"].disabled)
+
     def test_entity_does_not_exist_for_lifetime_of_learning_unit_with_no_planned_end(self):
         an_other_entity = EntityFactory(organization=self.organization)
         an_other_entity_version = EntityVersionFactory(
