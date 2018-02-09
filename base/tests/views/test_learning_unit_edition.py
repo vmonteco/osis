@@ -39,10 +39,12 @@ from base.models.enums import learning_unit_periodicity, learning_container_year
     entity_container_year_link_type, vacant_declaration_type, attribution_procedure, entity_type, organization_type
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.business.learning_units import LearningUnitsMixin
+from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
@@ -123,9 +125,11 @@ class TestEditLearningUnit(TestCase):
     @classmethod
     def setUpTestData(cls):
         an_academic_year = create_current_academic_year()
-        learning_container_year = LearningContainerYearFactory(academic_year=an_academic_year,
-                                                               container_type=learning_container_year_types.COURSE,
-                                                               type_declaration_vacant=vacant_declaration_type.DO_NOT_ASSIGN)
+        learning_container_year = LearningContainerYearFactory(
+            academic_year=an_academic_year,
+            container_type=learning_container_year_types.COURSE,
+            type_declaration_vacant=vacant_declaration_type.DO_NOT_ASSIGN,
+            campus=CampusFactory(organization=OrganizationFactory(type=organization_type.MAIN)))
         cls.learning_unit_year = LearningUnitYearFactory(learning_container_year=learning_container_year,
                                                          acronym="LOSIS4512",
                                                          academic_year=an_academic_year,
