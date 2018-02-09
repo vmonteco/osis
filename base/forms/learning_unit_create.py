@@ -137,7 +137,7 @@ class LearningUnitYearForm(BootstrapForm):
 
     def clean(self):
         super().clean()
-        merge_first_letter_acronym = self.cleaned_data.get('first_letter', "") + self.cleaned_data.get('acronym')
+        merge_first_letter_acronym = self.cleaned_data.get('first_letter', "") + self.cleaned_data.get('acronym', "")
         self.cleaned_data["acronym"] = merge_first_letter_acronym.upper()
 
     def is_valid(self):
@@ -202,5 +202,6 @@ class CreatePartimForm(CreateLearningUnitYearForm):
             if self.fields.get(field):
                 self.fields[field].widget.attrs[READONLY_ATTR] = READONLY_ATTR
 
-    def clean_acronym(self):
-        return super(CreatePartimForm, self).clean_acronym() + self.data.get('partim_character', [])[0].upper()
+    def clean(self):
+        super().clean()
+        self.cleaned_data["acronym"] += self.cleaned_data.get('partim_character', [])[0].upper()
