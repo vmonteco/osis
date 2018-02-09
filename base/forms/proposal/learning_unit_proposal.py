@@ -43,7 +43,7 @@ ALL_CHOICES = (ALL_LABEL,)
 
 
 def get_entity_folder_id_ordered_by_acronym():
-    entities = mdl.proposal_folder.find_entities()
+    entities = mdl.proposal_folder.find_distinct_folder_entities()
     entities_sorted_by_acronym = sorted(list(entities), key=lambda t: t.most_recent_acronym)
 
     return [ALL_LABEL] + [(an_entity.pk, an_entity.most_recent_acronym) for an_entity in entities_sorted_by_acronym]
@@ -79,16 +79,17 @@ class LearningUnitProposalForm(forms.Form):
     )
 
     folder_id = forms.IntegerField(min_value=0,
-                                   required=False)
+                                   required=False,
+                                   label=_('folder_num'),)
 
     proposal_type = forms.ChoiceField(
-        label=_('type'),
+        label=_('proposal_type'),
         choices=ALL_CHOICES + get_sorted_proposal_type(),
         required=False
     )
 
     proposal_state = forms.ChoiceField(
-        label=_('status'),
+        label=_('proposal_status'),
         choices=ALL_CHOICES + get_sorted_proposal_state(),
         required=False
     )

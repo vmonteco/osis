@@ -2560,4 +2560,5 @@ msgstr "Sigle dossier"
 msgid "proposals_search"
 msgstr "Recherche - Propositions"
 
-
+msgid "folder_num"
+msgstr "N° dossier"

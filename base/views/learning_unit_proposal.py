@@ -102,7 +102,7 @@ def learning_unit_proposals(request):
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
-def learning_units_proposal(request):
+def learning_units_proposal_search(request):
     form = LearningUnitProposalForm(request.GET or None)
     found_learning_units = []
     proposals = []

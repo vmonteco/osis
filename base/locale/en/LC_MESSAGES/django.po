@@ -2554,3 +2554,5 @@ msgstr "Folder entity"
 msgid "proposals_search"
 msgstr "Proposal - Search"
 
+msgid "folder_num"
+msgstr "Folder num."

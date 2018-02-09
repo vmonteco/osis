@@ -57,6 +57,6 @@ def find_by_entity_and_folder_id(an_entity, a_folder_id):
         return None
 
 
-def find_entities():
+def find_distinct_folder_entities():
     entities = [an_entity.entity.id for an_entity in mdl_base.proposal_folder.ProposalFolder.objects.distinct('entity')]
     return mdl_base.entity.Entity.objects.filter(pk__in=entities)

@@ -51,6 +51,8 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from reference.tests.factories.language import LanguageFactory
+from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
+from base.views.learning_unit_proposal import PROPOSAL_SEARCH
 
 
 class TestLearningUnitModificationProposal(TestCase):
@@ -347,6 +349,22 @@ class TestLearningUnitModificationProposal(TestCase):
 
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
+
+    def test_learning_unit_proposals(self):
+        url = "learning_unit_proposals"
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'proposal/by_proposal.html')
+
+    def test_learning_units_proposal_search(self):
+        a_learning_unit_proposal = _create_proposal_learning_unit()
+        self.form_data["acronym"] = a_learning_unit_proposal.learning_unit_year.acronym
+        response = self.client.post("learning_unit_proposal_search", data=self.form_data)
+        self.assertEqual(response.context['proposals'], [a_learning_unit_proposal])
+        self.assertIsInstance(response.context['form'], LearningUnitProposalForm)
+        self.assertEqual(response.context['search_type'], PROPOSAL_SEARCH)
+
 
 
 class TestLearningUnitProposalCancellation(TestCase):

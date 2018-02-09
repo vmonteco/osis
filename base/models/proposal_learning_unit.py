@@ -71,7 +71,7 @@ def find_by_folder(a_folder):
 
 def search(academic_year_id=None, acronym=None, entity_folder_id=None, folder_id=None, proposal_type=None,
            proposal_state=None, learning_container_year_id=None, *args, **kwargs):
-    print('search')
+
     queryset = ProposalLearningUnit.objects
 
     if academic_year_id:
