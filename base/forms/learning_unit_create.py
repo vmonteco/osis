@@ -140,6 +140,8 @@ class LearningUnitYearForm(BootstrapForm):
         merge_first_letter_acronym = self.cleaned_data.get('first_letter', "") + self.cleaned_data.get('acronym', "")
         self.cleaned_data["acronym"] = merge_first_letter_acronym.upper()
 
+        return self.cleaned_data
+
     def is_valid(self):
         if not super().is_valid():
             return False
@@ -205,3 +207,5 @@ class CreatePartimForm(CreateLearningUnitYearForm):
     def clean(self):
         super().clean()
         self.cleaned_data["acronym"] += self.cleaned_data.get('partim_character', [])[0].upper()
+
+        return self.cleaned_data
