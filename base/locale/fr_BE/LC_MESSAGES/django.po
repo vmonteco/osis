@@ -1805,7 +1805,7 @@ msgid "existed_acronym"
 msgstr "Sigle a déjà existé pour "
 
 msgid "existing_acronym"
-msgstr "Sigle déja existant"
+msgstr "Sigle déja existant en "
 
 msgid "invalid_acronym"
 msgstr "Sigle non valide"
