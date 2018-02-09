@@ -114,20 +114,13 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         learning_unit_year_subtype = initial.get("subtype") if initial else None
         learning_container_type = initial.get("container_type") if initial else None
         self.learning_unit_end_date = kwargs.pop("end_date", None)
-        super().__init__(*args, **kwargs)
-        if learning_unit_year_subtype == PARTIM:
-            self.disabled_fields(PARTIM_READ_ONLY_FIELDS)
-        else:
-            self.disabled_fields(FULL_READ_ONLY_FIELDS)
 
-        if learning_container_type!= INTERNSHIP:
-            self.disabled_fields(["internship_subtype"])
+        super().__init__(*args, **kwargs)
 
         self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
 
-    def disabled_fields(self, fields_to_disable):
-        for field in fields_to_disable:
-            self.fields[field].disabled = True
+        self._disabled_fields_base_on_learning_unit_year_subtype(learning_unit_year_subtype)
+        self._disabled_internship_subtype_field_if_not_internship_container_type(learning_container_type)
 
     def is_valid(self):
         if not super().is_valid():
@@ -174,3 +167,17 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         if self.cleaned_data["internship_subtype"]:
             return self.cleaned_data["container_type"] == INTERNSHIP
         return True
+
+    def _disabled_fields_base_on_learning_unit_year_subtype(self, subtype):
+        if subtype == PARTIM:
+            self._disabled_fields(PARTIM_READ_ONLY_FIELDS)
+        else:
+            self._disabled_fields(FULL_READ_ONLY_FIELDS)
+
+    def _disabled_internship_subtype_field_if_not_internship_container_type(self, container_type):
+        if container_type != INTERNSHIP:
+            self._disabled_fields(["internship_subtype"])
+
+    def _disabled_fields(self, fields_to_disable):
+        for field in fields_to_disable:
+            self.fields[field].disabled = True
