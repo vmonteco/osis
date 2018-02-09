@@ -25,6 +25,7 @@
 ##############################################################################
 from django.db import models
 
+from attribution.models.attribution_new import AttributionNew
 from base.models import learning_unit_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types
 from base.models.enums import vacant_declaration_type
@@ -71,6 +72,9 @@ class LearningContainerYear(AuditableSerializableModel):
     def get_partims_related(self):
         return learning_unit_year.search(learning_container_year_id=self,
                                          subtype=learning_unit_year_subtypes.PARTIM).order_by('acronym')
+
+    def get_attributions(self):
+        return AttributionNew.objects.filter(learning_container_year=self).select_related('tutor')
 
 
 def find_by_id(learning_container_year_id):

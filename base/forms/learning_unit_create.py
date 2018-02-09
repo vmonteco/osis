@@ -37,7 +37,6 @@ from base.forms.utils.choice_field import add_blank
 from base.models.campus import find_main_campuses
 from base.models.entity_version import find_main_entities_version, find_main_entities_version_filtered_by_person
 from base.models.enums import entity_container_year_link_type
-from base.models.enums import learning_container_year_types
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
@@ -85,8 +84,9 @@ class LearningUnitYearForm(BootstrapForm):
     academic_year = forms.ModelChoiceField(queryset=mdl.academic_year.find_academic_years(), required=True,
                                            empty_label=_('all_label'))
     status = forms.BooleanField(required=False, initial=True)
-    internship_subtype = forms.ChoiceField(choices=add_blank(mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES),
-                                           required=False)
+    internship_subtype = forms.TypedChoiceField(
+        choices=add_blank(mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES),
+        required=False, empty_value=None)
     credits = forms.DecimalField(decimal_places=2, validators=[MinValueValidator(MINIMUM_CREDITS),
                                                                MaxValueValidator(MAXIMUM_CREDITS)])
     common_title = forms.CharField()

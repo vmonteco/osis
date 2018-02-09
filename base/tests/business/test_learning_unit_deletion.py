@@ -28,7 +28,6 @@ import datetime
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
-from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from assistant.models.tutoring_learning_unit_year import TutoringLearningUnitYear
@@ -87,8 +86,8 @@ class LearningUnitYearDeletion(TestCase):
 
         component = LearningUnitComponentFactory(learning_unit_year=l_unit_2)
 
-        attribution_1 = AttributionNewFactory()
-        attribution_2 = AttributionNewFactory()
+        attribution_1 = AttributionNewFactory(learning_container_year=l_unit_2.learning_container_year)
+        attribution_2 = AttributionNewFactory(learning_container_year=l_unit_2.learning_container_year)
 
         AttributionChargeNewFactory(learning_component_year=component.learning_component_year,
                                     attribution=attribution_1)
@@ -249,15 +248,15 @@ class LearningUnitYearDeletion(TestCase):
                                                             subtype=learning_unit_year_subtypes.PARTIM,
                                                             learning_unit=LearningUnitFactory(start_year=1900),
                                                             academic_year=learning_container_year.academic_year)
-        learning_unit_year_none = LearningUnitYearFactory(learning_container_year=learning_container_year,
-                                                          subtype=None,
-                                                          learning_unit=LearningUnitFactory(start_year=1900),
-                                                          academic_year=learning_container_year.academic_year)
+        learning_unit_year_to_delete = LearningUnitYearFactory(learning_container_year=learning_container_year,
+                                                               subtype=learning_unit_year_subtypes.PARTIM,
+                                                               learning_unit=LearningUnitFactory(start_year=1900),
+                                                               academic_year=learning_container_year.academic_year)
 
-        learning_unit_deletion.delete_from_given_learning_unit_year(learning_unit_year_none)
+        learning_unit_deletion.delete_from_given_learning_unit_year(learning_unit_year_to_delete)
 
         with self.assertRaises(ObjectDoesNotExist):
-            LearningUnitYear.objects.get(id=learning_unit_year_none.id)
+            LearningUnitYear.objects.get(id=learning_unit_year_to_delete.id)
         self.assertEqual(learning_unit_year_partim, LearningUnitYear.objects.get(id=learning_unit_year_partim.id))
         self.assertEqual(learning_unit_year_full, LearningUnitYear.objects.get(id=learning_unit_year_full.id))
         self.assertEqual(learning_container_year, LearningContainerYear.objects.get(id=learning_container_year.id))
