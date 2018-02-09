@@ -79,9 +79,9 @@ def modify_learning_unit(request, learning_unit_year_id):
     form = LearningUnitModificationForm(request.POST or None, person=person, subtype=learning_unit_year.subtype,
                                         initial=initial_data)
     if form.is_valid():
-        entities_data = {key: value.entity for key, value in form.cleaned_data.items()
+        entities_data = {key.upper(): value.entity if value else None for key, value in form.cleaned_data.items()
                         if key in ["requirement_entity", "allocation_entity", "additional_requirement_entity_1",
-                                       "additional_requirement_entity_2"] and value is not None}
+                                       "additional_requirement_entity_2"]}
         data_without_entities = {key: value for key, value in form.cleaned_data.items()
                         if key not in ["requirement_entity", "allocation_entity", "additional_requirement_entity_1",
                                        "additional_requirement_entity_2"]}

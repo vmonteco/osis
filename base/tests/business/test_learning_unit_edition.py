@@ -25,6 +25,7 @@
 ##############################################################################
 from datetime import datetime
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.forms import model_to_dict
 from django.test import TestCase
@@ -909,6 +910,16 @@ class TestUpdateLearningUnitEntities(TestCase):
         self.assert_entity_has_been_modified(self.allocation_entity_container, a_new_allocation_entity)
         self.assert_entity_has_been_modified(self.additional_entity_container_1, a_new_additional_entity_1)
         self.assert_entity_has_been_modified(self.additional_entity_container_2, a_new_additional_entity_2)
+
+    def test_with_entity_set_to_none(self):
+        entities_to_update = {entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: None}
+        update_learning_unit_year_entities(self.learning_unit_year, entities_to_update)
+        self.assert_entity_has_not_changed(self.requirement_entity_container)
+        self.assert_entity_has_not_changed(self.allocation_entity_container)
+        self.assert_entity_has_not_changed(self.additional_entity_container_1)
+
+        with self.assertRaises(ObjectDoesNotExist):
+            EntityContainerYear.objects.get(id=self.additional_entity_container_2.id)
 
     def assert_entity_has_not_changed(self, entity_container):
         past_entity = entity_container.entity
