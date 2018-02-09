@@ -58,7 +58,5 @@ def find_by_entity_and_folder_id(an_entity, a_folder_id):
 
 
 def find_entities():
-    entities = []
-    for an_entity in mdl_base.proposal_folder.ProposalFolder.objects.distinct('entity'):
-        entities.append(an_entity.entity.id)
+    entities = [an_entity.entity.id for an_entity in mdl_base.proposal_folder.ProposalFolder.objects.distinct('entity')]
     return mdl_base.entity.Entity.objects.filter(pk__in=entities)

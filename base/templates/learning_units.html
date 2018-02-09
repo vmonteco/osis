@@ -64,6 +64,11 @@
             {% trans 'service_course_search'%}
         </a>
     </li>
+    <li role="presentation" {% if search_type == 3 %} class="active" {% endif %}>
+        <a href="{% url 'learning_units_proposal'%}" role="tab" id="lnk_proposal_search">
+            {% trans 'proposals_search'%}
+        </a>
+    </li>
 </ul>
 {% if search_type == 1 %}
     {% include 'learning_unit/by_activity.html' %}
@@ -71,7 +76,9 @@
 {% if search_type == 2 %}
     {% include 'learning_unit/by_service_course.html' %}
 {% endif %}
-
+{% if search_type == 3 %}
+    {% include 'learning_unit/by_proposal.html' %}
+{% endif %}
 {% endblock %}
 
 {% block script %}

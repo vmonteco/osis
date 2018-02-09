@@ -69,8 +69,8 @@ def find_by_folder(a_folder):
     return ProposalLearningUnit.objects.filter(folder=a_folder)
 
 
-def search(academic_year_id=None, acronym=None, entity_folder_id=None, folder_id=None, a_proposal_type=None,
-           a_proposal_state=None, learning_container_year_id=None, *args, **kwargs):
+def search(academic_year_id=None, acronym=None, entity_folder_id=None, folder_id=None, proposal_type=None,
+           proposal_state=None, learning_container_year_id=None, *args, **kwargs):
     queryset = ProposalLearningUnit.objects
 
     if academic_year_id:
@@ -85,11 +85,11 @@ def search(academic_year_id=None, acronym=None, entity_folder_id=None, folder_id
     if folder_id:
         queryset = queryset.filter(folder__folder_id=folder_id)
 
-    if a_proposal_type:
-        queryset = queryset.filter(type=a_proposal_type)
+    if proposal_type:
+        queryset = queryset.filter(type=proposal_type)
 
-    if a_proposal_state:
-        queryset = queryset.filter(state=a_proposal_state)
+    if proposal_state:
+        queryset = queryset.filter(state=proposal_state)
 
     if learning_container_year_id is not None:
         if isinstance(learning_container_year_id, list):

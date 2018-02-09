@@ -33,14 +33,20 @@ from base.business.learning_unit_proposal import compute_proposal_type, reinitia
     delete_learning_unit_proposal
 from base.views.learning_units import perms
 from base.views.learning_unit import compute_form_initial_data
+from base.views.learning_unit import get_last_academic_years
+from base.views.learning_unit import check_if_display_message
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.models.enums import proposal_state
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views import layout
-from base.forms.proposal.proposal import ProposalForm
+from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
 from base.forms.common import TooManyResultsException
+from base import models as mdl
+
+
+PROPOSAL_SEARCH = 3
 
 
 @login_required
@@ -89,13 +95,15 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
 
 @login_required
 def learning_unit_proposals(request):
-    form = ProposalForm()
+    form = LearningUnitProposalForm()
     context = {'form': form}
-    return layout.render(request, "proposal/proposals.html", context)
+    return layout.render(request, "proposal/by_proposal.html", context)
+
 
 @login_required
-def learning_unit_proposal_search(request):
-    form = ProposalForm(request.GET or None)
+@permission_required('base.can_access_learningunit', raise_exception=True)
+def learning_units_proposal(request):
+    form = LearningUnitProposalForm(request.GET or None)
     found_learning_units = []
     proposals = []
     try:
@@ -103,17 +111,18 @@ def learning_unit_proposal_search(request):
             data = form._get_proposal_learning_units()
             found_learning_units = data.get('learning_units')
             proposals = data.get('proposals')
-            _check_if_display_message(request, proposals)
+            check_if_display_message(request, proposals)
     except TooManyResultsException:
         messages.add_message(request, messages.ERROR, _('too_many_results'))
 
-    context = {'form': form,
-               'proposals': proposals,
-               'learning_units': found_learning_units}
-    return layout.render(request, "proposal/proposals.html", context)
+    context = {
+        'form': form,
+        'academic_years': get_last_academic_years(),
+        'current_academic_year': mdl.academic_year.current_academic_year(),
+        'experimental_phase': True,
+        'search_type': PROPOSAL_SEARCH,
+        'proposals': proposals,
+        'learning_units': found_learning_units
+    }
 
-
-def _check_if_display_message(request, proposals):
-    if not proposals:
-        messages.add_message(request, messages.WARNING, _('no_result'))
-    return True
+    return layout.render(request, "learning_units.html", context)

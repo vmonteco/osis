@@ -41,7 +41,6 @@ import re
 
 from attribution.business import attribution_charge_new
 from base import models as mdl
-from base import models as mdl_base
 from base.business import learning_unit_deletion, learning_unit_year_volumes, learning_unit_year_with_context
 from base.business.learning_unit import create_learning_unit, create_learning_unit_structure, get_cms_label_data, \
     extract_volumes_from_data, get_same_container_year_components, get_components_identification, show_subtype, \
@@ -102,12 +101,12 @@ def learning_unit_identification(request, learning_unit_year_id):
 
 
 def _get_common_context_learning_unit_year(learning_unit_year_id, person):
-    learning_unit_year = mdl_base.learning_unit_year.get_by_id(learning_unit_year_id)
+    learning_unit_year = mdl.learning_unit_year.get_by_id(learning_unit_year_id)
     is_person_linked_to_entity = business_perms.\
         is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, person)
     return {
         'learning_unit_year': learning_unit_year,
-        'current_academic_year': mdl_base.academic_year.current_academic_year(),
+        'current_academic_year': mdl.academic_year.current_academic_year(),
         'is_person_linked_to_entity': is_person_linked_to_entity
     }
 
@@ -418,7 +417,7 @@ def _learning_units_search(request, search_type):
         if form.is_valid():
             found_learning_units = form.get_activity_learning_units()
 
-            _check_if_display_message(request, found_learning_units)
+            check_if_display_message(request, found_learning_units)
     except TooManyResultsException:
         messages.add_message(request, messages.ERROR, _('too_many_results'))
 
@@ -438,8 +437,8 @@ def _learning_units_search(request, search_type):
     return layout.render(request, "learning_units.html", context)
 
 
-def _check_if_display_message(request, found_learning_units):
-    if not found_learning_units:
+def check_if_display_message(request, results):
+    if not results:
         messages.add_message(request, messages.WARNING, _('no_result'))
     return True
 
@@ -634,7 +633,7 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
         context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
         context['can_cancel_proposal'] = business_perms.\
             is_eligible_for_cancel_of_proposal(context['proposal'], person) if context['proposal'] else False
-        context['proposal_folder_entity_version'] = mdl_base.entity_version.get_by_entity_and_date(
+        context['proposal_folder_entity_version'] = mdl.entity_version.get_by_entity_and_date(
             context['proposal'].folder.entity, None) if context['proposal'] else None
         context['can_delete'] = learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year)
         return context

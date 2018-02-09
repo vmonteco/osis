@@ -2554,3 +2554,6 @@ msgstr "Etat proposition"
 
 msgid "folder_entity"
 msgstr "Sigle dossier"
+
+msgid "proposals_search"
+msgstr "Recherche - Propositions"

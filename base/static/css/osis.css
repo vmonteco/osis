@@ -95,3 +95,16 @@
     -webkit-clip-path: polygon(75% 0%, 100% 50%, 75% 100%, 0% 100%, 0 50%, 0% 0%);
     clip-path: polygon(75% 0%, 100% 50%, 75% 100%, 0% 100%, 0 50%, 0% 0%);
 }
+
+/* Color of valid field*/
+.has-success .control-label{
+    color: black;
+}
+.has-success .help-block,
+.has-success .form-control {
+    border-color: #999;
+},
+.has-success .form-control-feedback {
+    color: #999;
+}
+

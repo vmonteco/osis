@@ -2547,3 +2547,6 @@ msgstr "Status proposal"
 
 msgid "folder_entity"
 msgstr "Folder entity"
+
+msgid "proposals_search"
+msgstr "Proposal - Search"
