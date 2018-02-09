@@ -132,6 +132,11 @@ class TestEditLearningUnit(TestCase):
                                                          subtype=learning_unit_year_subtypes.FULL,
                                                          attribution_procedure=attribution_procedure.INTERNAL_TEAM)
 
+        cls.partim_learning_unit = LearningUnitYearFactory(learning_container_year=learning_container_year,
+                                                           acronym="LOSIS4512A",
+                                                           academic_year=an_academic_year,
+                                                           subtype=learning_unit_year_subtypes.PARTIM)
+
         cls.requirement_entity_container = EntityContainerYearFactory(
             learning_container_year=learning_container_year, type=entity_container_year_link_type.REQUIREMENT_ENTITY)
         cls.requirement_entity_container.entity.organization.type = organization_type.MAIN
@@ -183,7 +188,7 @@ class TestEditLearningUnit(TestCase):
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
 
     def test_learning_unit_does_not_exist(self):
-        non_existent_learning_unit_year_id = self.learning_unit_year.id + 1
+        non_existent_learning_unit_year_id = self.learning_unit_year.id + self.partim_learning_unit.id
         url = reverse("edit_learning_unit", args=[non_existent_learning_unit_year_id])
 
         response = self.client.get(url)

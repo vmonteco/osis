@@ -148,7 +148,7 @@ class TestLearningUnitModificationForm(TestCase):
         disabled_fields = ('first_letter', 'acronym', 'common_title', 'common_title_english', 'requirement_entity',
                            'allocation_entity', 'language', 'periodicity', 'campus', 'container_type', "academic_year",
                            'internship_subtype', 'additional_requirement_entity_1', 'additional_requirement_entity_2',
-                           'is_vacant', 'team', 'type_declaration_vacant', 'attribution_procedure')
+                           'is_vacant', 'team', 'type_declaration_vacant', 'attribution_procedure', "subtype")
         for field in disabled_fields:
             self.assertTrue(form.fields[field].disabled)
 

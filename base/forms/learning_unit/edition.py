@@ -29,7 +29,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_units.edition import filter_biennial
 from base.forms.bootstrap import BootstrapForm
-from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_READ_ONLY_FIELD
+from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_READ_ONLY_FIELD, MaxStrictlyValueValidator
 from base.forms.utils.choice_field import add_blank
 from base.models import academic_year
 from base.models.academic_year import AcademicYear
@@ -43,7 +43,7 @@ from base.models.learning_unit_year import MAXIMUM_CREDITS
 
 FULL_READ_ONLY_FIELDS = {"first_letter", "acronym", "academic_year", "container_type", "subtype"}
 PARTIM_READ_ONLY_FIELDS = PARTIM_FORM_READ_ONLY_FIELD | {"is_vacant", "team", "type_declaration_vacant",
-                                                         "attribution_procedure"}
+                                                         "attribution_procedure", "subtype"}
 
 
 class LearningUnitEndDateForm(BootstrapForm):
@@ -126,7 +126,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         self._enabled_periodicity(can_modify_periodicity)
 
     def is_valid(self):
-        if not super().is_valid():
+        if not BootstrapForm.is_valid(self):
             return False
         # Use a list of errors because when adding an error for a specific field with add_error, it is removed
         # from cleaned_data.
@@ -179,6 +179,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
 
     def _set_max_credits(self, max_credits):
         self.fields["credits"].max_value = max_credits
+        self.fields['credits'].validators.append(MaxStrictlyValueValidator(max_credits))
 
     def _set_status_value(self, status_value):
         if status_value is None:
