@@ -127,6 +127,7 @@ class TestEditLearningUnit(TestCase):
                                                                container_type=learning_container_year_types.COURSE,
                                                                type_declaration_vacant=vacant_declaration_type.DO_NOT_ASSIGN)
         cls.learning_unit_year = LearningUnitYearFactory(learning_container_year=learning_container_year,
+                                                         acronym="LOSIS4512",
                                                          academic_year=an_academic_year,
                                                          subtype=learning_unit_year_subtypes.FULL,
                                                          attribution_procedure=attribution_procedure.INTERNAL_TEAM)
