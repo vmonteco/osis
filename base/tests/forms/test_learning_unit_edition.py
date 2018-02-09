@@ -132,6 +132,7 @@ class TestLearningUnitModificationForm(TestCase):
             "subtype": str(learning_unit_year_subtypes.FULL),
             "acronym": "OSIS1452",
             "first_letter": "L",
+            "status": True
         }
 
     def test_disabled_fields_in_case_of_learning_unit_of_type_full(self):
@@ -182,6 +183,12 @@ class TestLearningUnitModificationForm(TestCase):
         max_credits=45
         form = LearningUnitModificationForm(max_credits=max_credits, person=None, initial=self.initial_data)
         self.assertEqual(form.fields["credits"].max_value, max_credits)
+
+    def test_set_status_value(self):
+        status_value = False
+        form = LearningUnitModificationForm(status_value=status_value, person=None, initial=self.initial_data)
+        self.assertEqual(form.fields["status"].initial, False)
+        self.assertTrue(form.fields["status"].disabled)
 
     def test_entity_does_not_exist_for_lifetime_of_learning_unit_with_no_planned_end(self):
         an_other_entity = EntityFactory(organization=self.organization)

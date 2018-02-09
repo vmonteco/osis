@@ -108,7 +108,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     type_declaration_vacant = forms.ChoiceField(required=False, choices=_create_type_declaration_vacant_list())
     attribution_procedure = forms.ChoiceField(required=False, choices=_create_attribution_procedure_list())
 
-    def __init__(self, *args, person=None,  max_credits=MAXIMUM_CREDITS, **kwargs):
+    def __init__(self, *args, person=None,  max_credits=MAXIMUM_CREDITS, status_value=None, **kwargs):
         initial = kwargs.get("initial", None)
         learning_unit_year_subtype = initial.get("subtype") if initial else None
         learning_container_type = initial.get("container_type") if initial else None
@@ -121,6 +121,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         self._disabled_fields_base_on_learning_unit_year_subtype(learning_unit_year_subtype)
         self._disabled_internship_subtype_field_if_not_internship_container_type(learning_container_type)
         self._set_max_credits(max_credits)
+        self._set_status_value(status_value)
 
     def is_valid(self):
         if not super().is_valid():
@@ -176,3 +177,9 @@ class LearningUnitModificationForm(LearningUnitYearForm):
 
     def _set_max_credits(self, max_credits):
         self.fields["credits"].max_value = max_credits
+
+    def _set_status_value(self, status_value):
+        if status_value is None:
+            pass
+        self.fields["status"].initial = status_value
+        self.fields["status"].disabled = True
