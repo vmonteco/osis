@@ -88,7 +88,7 @@ function callbackAcronymValidation(data){
     } else if (data['existed_acronym'] && !data['existing_acronym']) {
         setWarningMessage(trans_existed_acronym + data['last_using'], '#acronym_message');
     } else if (data['existing_acronym']) {
-        setErrorMessage(trans_existing_acronym, '#acronym_message');
+        setErrorMessage(trans_existing_acronym + data['first_using'], '#acronym_message');
     }
 }
 

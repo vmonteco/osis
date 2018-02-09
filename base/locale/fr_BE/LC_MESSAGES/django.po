@@ -1805,7 +1805,7 @@ msgid "existed_acronym"
 msgstr "Sigle a déjà existé pour "
 
 msgid "existing_acronym"
-msgstr "Sigle déja existant"
+msgstr "Sigle déja existant en "
 
 msgid "invalid_acronym"
 msgstr "Sigle non valide"
@@ -2545,6 +2545,7 @@ msgstr "L'entité %(entity_acronym)s n'existe pas pour l'année académique sél
 
 msgid "edit_learning_unit"
 msgstr "Modifier l'unité d'enseignement"
+
 msgid "Site"
 msgstr "Site"
 
@@ -2562,3 +2563,4 @@ msgstr "Recherche - Propositions"
 
 msgid "folder_num"
 msgstr "N° dossier"
+
