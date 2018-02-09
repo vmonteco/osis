@@ -112,13 +112,16 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         person = kwargs.pop("person")
         initial = kwargs.get("initial", None)
         learning_unit_year_subtype = initial.get("subtype") if initial else None
-
+        learning_container_type = initial.get("container_type") if initial else None
         self.learning_unit_end_date = kwargs.pop("end_date", None)
         super().__init__(*args, **kwargs)
         if learning_unit_year_subtype == PARTIM:
             self.disabled_fields(PARTIM_READ_ONLY_FIELDS)
         else:
             self.disabled_fields(FULL_READ_ONLY_FIELDS)
+
+        if learning_container_type!= INTERNSHIP:
+            self.disabled_fields(["internship_subtype"])
 
         self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
 

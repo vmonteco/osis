@@ -150,6 +150,19 @@ class TestLearningUnitModificationForm(TestCase):
         for field in disabled_fields:
             self.assertTrue(form.fields[field].disabled)
 
+    def test_disabled_internship_subtype_in_case_of_container_type_different_than_internship(self):
+        form = LearningUnitModificationForm(person=None, initial=self.form_data)
+
+        self.assertTrue(form.fields["internship_subtype"].disabled)
+
+        form_with_internship_container_type = self.form_data.copy()
+        form_with_internship_container_type["container_type"] = learning_container_year_types.INTERNSHIP
+
+        form = LearningUnitModificationForm(person=None, initial=self.form_data)
+
+        self.assertFalse(form.fields["internship_subtype"].disabled)
+
+
     def test_entity_does_not_exist_for_lifetime_of_learning_unit(self):
         an_other_entity = EntityFactory(organization=self.organization)
         an_other_entity_version = EntityVersionFactory(
