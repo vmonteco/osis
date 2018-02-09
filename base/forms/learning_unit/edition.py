@@ -136,9 +136,6 @@ class LearningUnitModificationForm(LearningUnitYearForm):
                                 _("requirement_and_allocation_entities_cannot_be_different")))
             errors_list.append(("allocation_entity",
                                 _("requirement_and_allocation_entities_cannot_be_different")))
-        if not self._is_internship_subtype_valid():
-            errors_list.append(("internship_subtype",
-                                _("cannot_set_internship_subtype_for_type_other_than_internship")))
         self.add_errors(errors_list)
         return not self.errors
 
@@ -162,11 +159,6 @@ class LearningUnitModificationForm(LearningUnitYearForm):
 
     def _can_requirement_and_allocation_entities_be_different(self):
         return self.cleaned_data["container_type"] not in [INTERNSHIP, DISSERTATION]
-
-    def _is_internship_subtype_valid(self):
-        if self.cleaned_data["internship_subtype"]:
-            return self.cleaned_data["container_type"] == INTERNSHIP
-        return True
 
     def _disabled_fields_base_on_learning_unit_year_subtype(self, subtype):
         if subtype == PARTIM:

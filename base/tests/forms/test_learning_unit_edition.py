@@ -105,8 +105,8 @@ class TestLearningUnitModificationForm(TestCase):
         a_campus = CampusFactory(organization=cls.organization)
         an_entity = EntityFactory(organization=cls.organization)
         cls.an_entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL, parent=None,
-                                                 end_date=None,
-                                                 start_date=datetime.date.today() - datetime.timedelta(days=5))
+                                                     end_date=None,
+                                                     start_date=datetime.date.today() - datetime.timedelta(days=5))
         cls.person = PersonEntityFactory(entity=an_entity).person
 
         language = LanguageFactory()
@@ -151,14 +151,14 @@ class TestLearningUnitModificationForm(TestCase):
             self.assertTrue(form.fields[field].disabled)
 
     def test_disabled_internship_subtype_in_case_of_container_type_different_than_internship(self):
-        form = LearningUnitModificationForm(person=None, initial=self.form_data)
+        form = LearningUnitModificationForm(person=None, initial=self.initial_data)
 
         self.assertTrue(form.fields["internship_subtype"].disabled)
 
-        form_with_internship_container_type = self.form_data.copy()
-        form_with_internship_container_type["container_type"] = learning_container_year_types.INTERNSHIP
+        initial_data_with_internship_container_type = self.form_data.copy()
+        initial_data_with_internship_container_type["container_type"] = learning_container_year_types.INTERNSHIP
 
-        form = LearningUnitModificationForm(person=None, initial=self.form_data)
+        form = LearningUnitModificationForm(person=None, initial=initial_data_with_internship_container_type)
 
         self.assertFalse(form.fields["internship_subtype"].disabled)
 
@@ -205,14 +205,6 @@ class TestLearningUnitModificationForm(TestCase):
             form = LearningUnitModificationForm(form_data_with_different_allocation_entity,
                                                 person=self.person, initial=initial_data_with_specific_container_type)
             self.assertFalse(form.is_valid())
-
-    def test_cannot_set_internship_subtype_if_not_internship_container_type(self):
-        form_data_with_internship_subtype_set = self.form_data.copy()
-        form_data_with_internship_subtype_set["internship_subtype"] = internship_subtypes.PROFESSIONAL_INTERNSHIP
-
-        form = LearningUnitModificationForm(form_data_with_internship_subtype_set,
-                                            person=self.person, initial=self.initial_data)
-        self.assertFalse(form.is_valid())
 
     def test_valid_form(self):
         form = LearningUnitModificationForm(self.form_data, initial=self.initial_data, person=self.person)
