@@ -163,4 +163,3 @@ class LearningUnitModificationForm(LearningUnitYearForm):
 
     def _can_requirement_and_allocation_entities_be_different(self):
         return self.cleaned_data["container_type"] not in [INTERNSHIP, DISSERTATION]
-

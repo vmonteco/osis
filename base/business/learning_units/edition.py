@@ -287,6 +287,7 @@ def _update_entity(an_entity, learning_container_year, type_entity):
     entity_container_year.EntityContainerYear.objects.update_or_create(
         type=type_entity, learning_container_year=learning_container_year, defaults={"entity": an_entity})
 
+
 def _delete_entity(learning_container_year, type_entity):
     entity_container_year.EntityContainerYear.objects.filter(
         type=type_entity, learning_container_year=learning_container_year).delete()
