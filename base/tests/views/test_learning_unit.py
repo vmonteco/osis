@@ -58,6 +58,7 @@ from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_container_year_types import MASTER_THESIS
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_unit import LearningUnit
+from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import FACULTY_MANAGER_GROUP
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
@@ -79,7 +80,7 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
 from base.views.learning_unit import compute_partim_form_initial_data, _get_post_data_without_read_only_field, \
-    learning_unit_components
+    learning_unit_components, learning_class_year_edit
 from base.views.learning_unit import learning_unit_volumes_management
 from cms.enums import entity_name
 from cms.tests.factories.text_label import TextLabelFactory
@@ -634,11 +635,11 @@ class LearningUnitViewTestCase(TestCase):
     def test_class_save(self):
         learning_unit_yr = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                    learning_container_year=self.learning_container_yr)
-        learning_unit_compnt = LearningUnitComponentFactory(learning_unit_year=learning_unit_yr,
+        LearningUnitComponentFactory(learning_unit_year=learning_unit_yr,
                                                             learning_component_year=self.learning_component_yr)
         learning_class_yr = LearningClassYearFactory(learning_component_year=self.learning_component_yr)
 
-        response = self.client.post('{}?{}&{}'.format(reverse('learning_class_year_edit', args=[learning_unit_yr.id]),
+        response = self.client.post('{}?{}&{}'.format(reverse(learning_class_year_edit, args=[learning_unit_yr.id]),
                                                       'learning_component_year_id={}'.format(
                                                           self.learning_component_yr.id),
                                                       'learning_class_year_id={}'.format(learning_class_yr.id)),
@@ -653,7 +654,7 @@ class LearningUnitViewTestCase(TestCase):
                                                             learning_component_year=self.learning_component_yr)
         learning_class_yr = LearningClassYearFactory(learning_component_year=self.learning_component_yr)
 
-        response = self.client.post('{}?{}&{}'.format(reverse('learning_class_year_edit', args=[learning_unit_yr.id]),
+        response = self.client.post('{}?{}&{}'.format(reverse(learning_class_year_edit, args=[learning_unit_yr.id]),
                                                       'learning_component_year_id={}'.format(
                                                           self.learning_component_yr.id),
                                                       'learning_class_year_id={}'.format(learning_class_yr.id)),
@@ -670,14 +671,13 @@ class LearningUnitViewTestCase(TestCase):
         a_link = LearningUnitComponentClassFactory(learning_unit_component=learning_unit_compnt,
                                                    learning_class_year=learning_class_yr)
 
-        response = self.client.post('{}?{}&{}'.format(reverse('learning_class_year_edit', args=[learning_unit_yr.id]),
+        response = self.client.post('{}?{}&{}'.format(reverse(learning_class_year_edit, args=[learning_unit_yr.id]),
                                                       'learning_component_year_id={}'.format(
                                                           self.learning_component_yr.id),
                                                       'learning_class_year_id={}'.format(learning_class_yr.id)),
                                     data={})
 
-        self.assertRaises(ObjectDoesNotExist,
-                          learning_unit_component_class.LearningUnitComponentClass.objects.filter(pk=a_link.id).first())
+        self.assertFalse(learning_unit_component_class.LearningUnitComponentClass.objects.filter(pk=a_link.id).exists())
 
     def get_base_form_data(self):
         data = self.get_common_data()
@@ -1487,8 +1487,6 @@ class TestLearningUnitComponents(TestCase):
         mock_program_manager.return_value = True
 
         learning_unit_year = self.generated_container.generated_container_years[0].learning_unit_year_full
-        partim = self.generated_container.generated_container_years[0].learning_unit_year_partim
-
 
         request_factory = RequestFactory()
         request = request_factory.get(reverse(learning_unit_components, args=[learning_unit_year.id]))
