@@ -30,6 +30,7 @@ from base.models import entity_version
 
 register = template.Library()
 
+
 @register.filter
 def requirement_entity(list, i):
     try:

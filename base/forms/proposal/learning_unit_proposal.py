@@ -42,20 +42,15 @@ ALL_LABEL = (None, _('all_label'))
 ALL_CHOICES = (ALL_LABEL,)
 
 
-def get_entity_folder_id_ordered_by_acronym():
+def _get_entity_folder_id_ordered_by_acronym():
     entities = mdl.proposal_folder.find_distinct_folder_entities()
     entities_sorted_by_acronym = sorted(list(entities), key=lambda t: t.most_recent_acronym)
 
     return [ALL_LABEL] + [(an_entity.pk, an_entity.most_recent_acronym) for an_entity in entities_sorted_by_acronym]
 
 
-def get_sorted_proposal_type():
-
-    return tuple(sorted(proposal_type.CHOICES, key=lambda item: item[1]))
-
-
-def get_sorted_proposal_state():
-    return tuple(sorted(proposal_state.CHOICES, key=lambda item: item[1]))
+def _get_sorted_choices(tuple_of_choices):
+    return tuple(sorted(tuple_of_choices, key=lambda item: item[1]))
 
 
 class LearningUnitProposalForm(forms.Form):
@@ -74,7 +69,7 @@ class LearningUnitProposalForm(forms.Form):
 
     entity_folder_id = forms.ChoiceField(
         label=_('folder_entity'),
-        choices=get_entity_folder_id_ordered_by_acronym(),
+        choices=_get_entity_folder_id_ordered_by_acronym(),
         required=False
     )
 
@@ -84,13 +79,13 @@ class LearningUnitProposalForm(forms.Form):
 
     proposal_type = forms.ChoiceField(
         label=_('proposal_type'),
-        choices=ALL_CHOICES + get_sorted_proposal_type(),
+        choices=ALL_CHOICES + _get_sorted_choices(proposal_type.CHOICES),
         required=False
     )
 
     proposal_state = forms.ChoiceField(
         label=_('proposal_status'),
-        choices=ALL_CHOICES + get_sorted_proposal_state(),
+        choices=ALL_CHOICES + _get_sorted_choices(proposal_state.CHOICES),
         required=False
     )
 
@@ -108,12 +103,12 @@ class LearningUnitProposalForm(forms.Form):
         if not super().is_valid():
             return False
 
-        if not self.has_criteria():
+        if not self._has_criteria():
             self.add_error(None, _('minimum_one_criteria'))
             return False
         return True
 
-    def has_criteria(self):
+    def _has_criteria(self):
         criteria_present = False
         for name, field in self.fields.items():
             if self.cleaned_data[name]:
