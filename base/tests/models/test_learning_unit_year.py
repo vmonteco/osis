@@ -128,7 +128,6 @@ class LearningUnitYearTest(TestCase):
     def test_complete_title_only_common_title(self):
         a_common_title = "Titre commun"
 
-
         lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_year,
                                                           common_title=a_common_title)
         luy = LearningUnitYearFactory(academic_year=self.academic_year,
@@ -141,3 +140,20 @@ class LearningUnitYearTest(TestCase):
                                       specific_title=None,
                                       learning_container_year=None)
         self.assertIsNone(luy.complete_title)
+
+
+    def test_search_by_title(self):
+        common_part = "commun"
+        a_common_title = "Titre {}".format(common_part)
+        a_specific_title = "Specific title {}".format(common_part)
+        lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_year,
+                                                          common_title=a_common_title)
+        luy = LearningUnitYearFactory(academic_year=self.academic_year,
+                                      specific_title=a_specific_title,
+                                      learning_container_year=lunit_container_yr)
+
+
+        self.assertEqual(learning_unit_year.search(title="{} en plus".format(a_common_title)).count(), 0)
+        self.assertEqual(learning_unit_year.search(title=a_common_title)[0], luy)
+        self.assertEqual(learning_unit_year.search(title=common_part)[0], luy)
+        self.assertEqual(learning_unit_year.search(title=a_specific_title)[0], luy)
