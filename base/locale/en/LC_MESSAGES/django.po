@@ -1799,7 +1799,7 @@ msgid "existed_acronym"
 msgstr "Existed acronym for "
 
 msgid "existing_acronym"
-msgstr "Existing acronym"
+msgstr "Existing acronym for "
 
 msgid "invalid_acronym"
 msgstr "Invalid acronym"
