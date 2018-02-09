@@ -36,7 +36,7 @@ from django.urls import reverse
 
 from base.forms.learning_unit.edition import LearningUnitModificationForm
 from base.models.enums import learning_unit_periodicity, learning_container_year_types, learning_unit_year_subtypes, \
-    entity_container_year_link_type, vacant_declaration_type, attribution_procedure
+    entity_container_year_link_type, vacant_declaration_type, attribution_procedure, entity_type, organization_type
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.business.learning_units import LearningUnitsMixin
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -44,6 +44,7 @@ from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
+from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.user import UserFactory, SuperUserFactory
 from base.views.learning_units.edition import learning_unit_edition
@@ -132,28 +133,32 @@ class TestEditLearningUnit(TestCase):
 
         cls.requirement_entity_container = EntityContainerYearFactory(
             learning_container_year=learning_container_year, type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+        cls.requirement_entity_container.entity.organization.type = organization_type.MAIN
+        cls.requirement_entity_container.entity.organization.save()
         cls.requirement_entity = EntityVersionFactory(entity=cls.requirement_entity_container.entity,
-                             start_date=an_academic_year.start_date,
-                             end_date=an_academic_year.end_date)
+                                                      entity_type=entity_type.SCHOOL,
+                                                      start_date=an_academic_year.start_date,
+                                                      end_date=None)
         cls.allocation_entity_container = EntityContainerYearFactory(
             learning_container_year=learning_container_year, type=entity_container_year_link_type.ALLOCATION_ENTITY)
         cls.allocation_entity = EntityVersionFactory(entity=cls.allocation_entity_container.entity,
-                             start_date=an_academic_year.start_date,
-                             end_date=an_academic_year.end_date)
+                                                     start_date=an_academic_year.start_date,
+                                                     end_date=None)
         cls.additional_entity_container_1 = EntityContainerYearFactory(
             learning_container_year=learning_container_year,
             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
         cls.additional_entity_1 = EntityVersionFactory(entity=cls.additional_entity_container_1.entity,
-                             start_date=an_academic_year.start_date,
-                             end_date=an_academic_year.end_date)
+                                                       start_date=an_academic_year.start_date,
+                                                       end_date=None)
         cls.additional_entity_container_2 = EntityContainerYearFactory(
             learning_container_year=learning_container_year,
             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
         cls.additional_entity_2 = EntityVersionFactory(entity=cls.additional_entity_container_2.entity,
-                             start_date=an_academic_year.start_date,
-                             end_date=an_academic_year.end_date)
+                                                       start_date=an_academic_year.start_date,
+                                                       end_date=None)
 
-        cls.user = PersonFactory().user
+        cls.person = PersonFactory()
+        cls.user = cls.person.user
         cls.user.user_permissions.add(Permission.objects.get(codename="can_edit_learningunit"),
                                       Permission.objects.get(codename="can_access_learningunit"))
         cls.url = reverse("edit_learning_unit", args=[cls.learning_unit_year.id])
@@ -264,13 +269,23 @@ class TestEditLearningUnit(TestCase):
         }
         self.assertDictEqual(initial_data, expected_initial)
 
-    @mock.patch.object(LearningUnitModificationForm, "is_valid", lambda self: True)
-    def test_valid_post_request(self):
-        response = self.client.post(self.url)
+    @mock.patch("base.views.learning_units.edition.update_learning_unit_year", side_effect=None)
+    def test_valid_post_request(self, mock_update_learning_unit_year):
+        PersonEntityFactory(person=self.person, entity=self.requirement_entity_container.entity)
+        form_data = {
+            "acronym": self.learning_unit_year.acronym[1:],
+            "credits": str(self.learning_unit_year.credits + 1),
+            "common_title": self.learning_unit_year.learning_container_year.common_title,
+            "first_letter": self.learning_unit_year.acronym[0],
+            "periodicity": learning_unit_periodicity.ANNUAL,
+            "campus": str(self.learning_unit_year.learning_container_year.campus.id),
+            "requirement_entity": str(self.requirement_entity.id),
+            "allocation_entity": str(self.requirement_entity.id),
+            "language": str(self.learning_unit_year.learning_container_year.language.id)
+        }
+        response = self.client.post(self.url, data=form_data)
+
+        self.assertTrue(mock_update_learning_unit_year.called)
+
         expected_redirection = reverse("learning_unit", args=[self.learning_unit_year.id])
         self.assertRedirects(response, expected_redirection)
-
-
-
-
-

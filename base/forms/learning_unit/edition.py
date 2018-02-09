@@ -40,6 +40,11 @@ from base.models.enums.vacant_declaration_type import VacantDeclarationType
 from base.models.learning_unit import is_old_learning_unit
 
 
+FULL_READ_ONLY_FIELDS = {"first_letter", "acronym", "academic_year", "container_type", "subtype"}
+PARTIM_READ_ONLY_FIELDS = PARTIM_FORM_READ_ONLY_FIELD | {"is_vacant", "team", "type_declaration_vacant",
+                                                         "attribution_procedure"}
+
+
 class LearningUnitEndDateForm(BootstrapForm):
     academic_year = forms.ModelChoiceField(required=False,
                                            queryset=AcademicYear.objects.none(),
@@ -94,11 +99,6 @@ def _create_type_declaration_vacant_list():
 
 def _create_attribution_procedure_list():
     return add_blank(AttributionProcedures.translation_choices())
-
-
-FULL_READ_ONLY_FIELDS = {"first_letter", "acronym", "academic_year", "container_type", "subtype"}
-PARTIM_READ_ONLY_FIELDS = PARTIM_FORM_READ_ONLY_FIELD | {"is_vacant", "team", "type_declaration_vacant",
-                                                         "attribution_procedure"}
 
 
 class LearningUnitModificationForm(LearningUnitYearForm):

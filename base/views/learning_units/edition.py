@@ -30,8 +30,9 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 
 from base.views.learning_unit import get_learning_unit_identification_context, compute_learning_unit_form_initial_data
-from base.business.learning_units.edition import edit_learning_unit_end_date
-from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
+from base.business.learning_units.edition import edit_learning_unit_end_date, update_learning_unit_year
+from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm, \
+    FULL_READ_ONLY_FIELDS
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
@@ -77,8 +78,18 @@ def modify_learning_unit(request, learning_unit_year_id):
     form = LearningUnitModificationForm(request.POST or None, person=person, subtype=learning_unit_year.subtype,
                                         initial=initial_data)
     if form.is_valid():
-        return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
+        entities_data = {key: value for key, value in form.cleaned_data.items()
+                        if key in ["requirement_entity", "allocation_entity", "additional_requirement_entity_1",
+                                       "additional_requirement_entity_2"]}
+        data_without_entities = {key: value for key, value in form.cleaned_data.items()
+                        if key not in ["requirement_entity", "allocation_entity", "additional_requirement_entity_1",
+                                       "additional_requirement_entity_2"]}
+        full_data = {key: value for key, value in data_without_entities.items() if key not in FULL_READ_ONLY_FIELDS}
 
+        update_learning_unit_year(learning_unit_year, full_data)
+
+
+        return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
     context = {
         "learning_unit_year": learning_unit_year,
         "form": form
