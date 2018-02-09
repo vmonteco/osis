@@ -25,16 +25,15 @@
 ##############################################################################
 from django.db import models
 from django.db.models import Prefetch
+
 from attribution.models.enums import function
 from base.models import entity_container_year
-from base.models.academic_year import current_academic_year
-from base.models import person
-from base.models.enums import entity_container_year_link_type
 from base.models import learning_unit_year
+from base.models import person
+from base.models.academic_year import current_academic_year
+from base.models.enums import entity_container_year_link_type
 from base.models.learning_unit_year import LearningUnitYear
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
-from attribution.models import attribution_charge_new
-from base.models.enums import component_type
 
 
 class AttributionAdmin(AuditableSerializableModelAdmin):
