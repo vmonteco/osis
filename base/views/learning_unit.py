@@ -371,15 +371,13 @@ def learning_unit_year_add(request):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def check_acronym(request, type):
-    acronym = request.GET['acronym']
-    year_id = request.GET['year_id']
-    academic_yr = mdl.academic_year.find_academic_year_by_id(year_id)
+    academic_yr = mdl.academic_year.find_academic_year_by_id(request.GET['year_id'])
     existed_acronym = False
     existing_acronym = False
     first_using = ""
     last_using = ""
-    learning_unit_year = mdl.learning_unit_year.find_gte_year_acronym(academic_yr, acronym).first()
-    old_learning_unit_year = mdl.learning_unit_year.find_lt_year_acronym(academic_yr, acronym).last()
+    learning_unit_year = mdl.learning_unit_year.find_gte_year_acronym(academic_yr, request.GET['acronym']).first()
+    old_learning_unit_year = mdl.learning_unit_year.find_lt_year_acronym(academic_yr, request.GET['acronym']).last()
     if old_learning_unit_year:
         last_using = str(old_learning_unit_year.academic_year)
         existed_acronym = True
@@ -389,9 +387,9 @@ def check_acronym(request, type):
         existing_acronym = True
 
     if type == PARTIM:
-        valid = bool(re.match(LEARNING_UNIT_ACRONYM_REGEX_ALL, acronym))
+        valid = bool(re.match(LEARNING_UNIT_ACRONYM_REGEX_ALL, request.GET['acronym']))
     elif type == FULL:
-        valid = bool(re.match(LEARNING_UNIT_ACRONYM_REGEX_FULL, acronym))
+        valid = bool(re.match(LEARNING_UNIT_ACRONYM_REGEX_FULL, request.GET['acronym']))
     else:
         valid = False
     return JsonResponse({'valid': valid, 'existing_acronym': existing_acronym, 'existed_acronym': existed_acronym,
