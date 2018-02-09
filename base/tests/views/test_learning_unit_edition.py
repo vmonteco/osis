@@ -270,7 +270,8 @@ class TestEditLearningUnit(TestCase):
         self.assertDictEqual(initial_data, expected_initial)
 
     @mock.patch("base.views.learning_units.edition.update_learning_unit_year", side_effect=None)
-    def test_valid_post_request(self, mock_update_learning_unit_year):
+    @mock.patch("base.views.learning_units.edition.update_learning_unit_year_entities", side_effect=None)
+    def test_valid_post_request(self, mock_update_learning_unit_year, mock_update_entities):
         PersonEntityFactory(person=self.person, entity=self.requirement_entity_container.entity)
         form_data = {
             "acronym": self.learning_unit_year.acronym[1:],
@@ -286,6 +287,7 @@ class TestEditLearningUnit(TestCase):
         response = self.client.post(self.url, data=form_data)
 
         self.assertTrue(mock_update_learning_unit_year.called)
+        self.assertTrue(mock_update_entities.called)
 
         expected_redirection = reverse("learning_unit", args=[self.learning_unit_year.id])
         self.assertRedirects(response, expected_redirection)
