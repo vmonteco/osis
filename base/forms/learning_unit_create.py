@@ -81,8 +81,7 @@ class MaxStrictlyValueValidator(BaseValidator):
 
 class LearningUnitYearForm(BootstrapForm):
     acronym = forms.CharField(widget=forms.TextInput(attrs={'maxlength': "15", 'required': True}))
-    academic_year = forms.ModelChoiceField(queryset=mdl.academic_year.find_academic_years(), required=True,
-                                           empty_label=_('all_label'))
+    academic_year = forms.ModelChoiceField(queryset=mdl.academic_year.find_academic_years(), required=True)
     status = forms.BooleanField(required=False, initial=True)
     internship_subtype = forms.TypedChoiceField(
         choices=add_blank(mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES),
