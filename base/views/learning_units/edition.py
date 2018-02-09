@@ -96,6 +96,7 @@ def modify_learning_unit(request, learning_unit_year_id):
     }
     return layout.render(request, 'learning_unit/modification.html', context)
 
+
 def initialize_modification_form(luy, person, post_data):
     initial_data = compute_learning_unit_modification_form_initial_data(luy)
 
