@@ -26,6 +26,8 @@
 from django.utils.translation import ugettext_lazy as _
 
 from assistant.models import tutoring_learning_unit_year
+from attribution.models.attribution import Attribution
+from attribution.models.attribution_charge_new import AttributionChargeNew
 from base.models import entity_container_year
 from base.models import learning_unit_enrollment, learning_unit_component, learning_class_year, \
     learning_unit_year as learn_unit_year_model
@@ -105,7 +107,7 @@ def _check_group_element_year_deletion(group_element_year):
 def _check_attribution_deletion(learning_unit_year):
     msg = {}
 
-    for attribution in learning_unit_year.learning_container_year.get_attributions():
+    for attribution in Attribution.objects.filter(learning_unit_year=learning_unit_year):
         msg[attribution] = _("%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s") % {
             'subtype': _str_partim_or_full(learning_unit_year),
             'acronym': learning_unit_year.acronym,
@@ -118,7 +120,8 @@ def _check_attribution_deletion(learning_unit_year):
 def _check_learning_unit_component_deletion(l_unit_component):
     msg = {}
 
-    for attribution_charge in l_unit_component.learning_component_year.get_attributions_charge():
+    for attribution_charge in \
+            AttributionChargeNew.objects.filter(learning_component_year=l_unit_component.learning_component_year):
         attribution = attribution_charge.attribution
         msg[attribution] = _("%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s") % {
             'subtype': _str_partim_or_full(l_unit_component.learning_unit_year),
