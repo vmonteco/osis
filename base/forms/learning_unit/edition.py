@@ -127,7 +127,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
             self.fields[field].disabled = True
 
     def is_valid(self):
-        if not BootstrapForm.is_valid(self):
+        if not super().is_valid():
             return False
         # Use a list of errors because when adding an error for a specific field with add_error, it is removed
         # from cleaned_data.
@@ -139,7 +139,9 @@ class LearningUnitModificationForm(LearningUnitYearForm):
             error_msg = _("requirement_and_allocation_entities_cannot_be_different")
             errors_list.append(("requirement_entity", error_msg))
             errors_list.append(("allocation_entity", error_msg))
-
+        if not self._is_internship_subtype_valid():
+            error_msg = _("cannot_set_internship_subtype_for_type_other_than_internship")
+            errors_list.append(("internship_subtype", error_msg))
         self.add_errors(errors_list)
         return not self.errors
 
@@ -163,3 +165,8 @@ class LearningUnitModificationForm(LearningUnitYearForm):
 
     def _can_requirement_and_allocation_entities_be_different(self):
         return self.cleaned_data["container_type"] not in [INTERNSHIP, DISSERTATION]
+
+    def _is_internship_subtype_valid(self):
+        if self.cleaned_data["internship_subtype"]:
+            return self.cleaned_data["container_type"] == INTERNSHIP
+        return True

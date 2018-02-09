@@ -135,9 +135,10 @@ class LearningUnitYearForm(BootstrapForm):
 
     acronym_regex = LEARNING_UNIT_ACRONYM_REGEX_FULL
 
-    def clean_acronym(self):
-        data_cleaned = self.data.get('first_letter', "") + self.cleaned_data.get('acronym')
-        return data_cleaned.upper()
+    def clean(self):
+        super().clean()
+        self.cleaned_data["acronym"] = self.cleaned_data.get('first_letter', "").upper() + \
+                                       self.cleaned_data.get('acronym').upper()
 
     def is_valid(self):
         if not super().is_valid():

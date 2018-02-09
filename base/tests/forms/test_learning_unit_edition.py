@@ -29,7 +29,7 @@ from django.test import TestCase
 
 from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
 from base.models.enums import learning_unit_periodicity, learning_unit_year_subtypes, learning_container_year_types, \
-    organization_type, entity_type
+    organization_type, entity_type, internship_subtypes
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import LearningUnitsMixin
 from base.tests.factories.campus import CampusFactory
@@ -192,6 +192,14 @@ class TestLearningUnitModificationForm(TestCase):
             form = LearningUnitModificationForm(form_data_with_different_allocation_entity,
                                                 person=self.person, initial=initial_data_with_specific_container_type)
             self.assertFalse(form.is_valid())
+
+    def test_cannot_set_internship_subtype_if_not_internship_container_type(self):
+        form_data_with_internship_subtype_set = self.form_data.copy()
+        form_data_with_internship_subtype_set["internship_subtype"] = internship_subtypes.PROFESSIONAL_INTERNSHIP
+
+        form = LearningUnitModificationForm(form_data_with_internship_subtype_set,
+                                            person=self.person, initial=self.initial_data)
+        self.assertFalse(form.is_valid())
 
     def test_valid_form(self):
         form = LearningUnitModificationForm(self.form_data, initial=self.initial_data, person=self.person)
