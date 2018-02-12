@@ -40,6 +40,7 @@ from django.utils.translation import ugettext_lazy as _
 
 import base.business.learning_unit
 from base.business import learning_unit as learning_unit_business
+from base.business.learning_unit_year_with_context import _get_requirement_entities_volumes
 from base.forms import learning_units
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
@@ -59,7 +60,6 @@ from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_container_year_types import MASTER_THESIS
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_unit import LearningUnit
-from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import FACULTY_MANAGER_GROUP
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
@@ -918,26 +918,26 @@ class LearningUnitViewTestCase(TestCase):
             generated_container_year.learning_component_cm_full,
             generated_container_year.learning_component_tp_full
         ])
-        self.assertEqual(learning_full.components[generated_container_year.learning_component_cm_full]['PLANNED_CLASSES'],
-                         generated_container_year.learning_component_cm_full.planned_classes)
+
+        planned_classes = generated_container_year.learning_component_cm_full.planned_classes
+        self.assertEqual(
+            learning_full.components[generated_container_year.learning_component_cm_full]['PLANNED_CLASSES'],
+            planned_classes
+        )
 
         ecy = EntityComponentYear.objects.filter(
-            learning_component_year=generated_container_year.learning_component_cm_full).first()
+            learning_component_year=generated_container_year.learning_component_cm_full
+        )
+        volumes_tot = sum(_get_requirement_entities_volumes(ecy).values())/planned_classes
+
         self.assertEqual(learning_full.components[generated_container_year.learning_component_cm_full]['VOLUME_TOTAL'],
-                         EntityComponentYear.objects.filter(generated_container_year.learning_component_cm_full).first()
-                         )
-
-
-        print(learning_full.components['PLANNED_CLASSES'])
-        print(generated_container_year.learning_component_cm_full.__dict__)
+                         volumes_tot)
 
         learning_partim = context['learning_units'][1]
         self.assertEqual(list(learning_partim.components.keys()), [
             generated_container_year.learning_component_cm_partim,
             generated_container_year.learning_component_tp_partim
         ])
-
-
 
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager')

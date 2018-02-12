@@ -31,7 +31,6 @@ from base.models.academic_year import AcademicYear
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
     learning_unit_periodicity, learning_unit_year_subtypes, component_type
 from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_component_year import EntityComponentYearFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
