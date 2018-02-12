@@ -23,40 +23,66 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import factory.fuzzy
 from django.test import TestCase
 from base.tests.factories.academic_year import AcademicYearFactory
 
 from base.business.learning_units import perms
-from base.models.enums.learning_container_year_types import COURSE, MASTER_THESIS
-from base.models.enums.learning_unit_year_subtypes import PARTIM
+from base.models.enums import learning_container_year_types
+from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from django.utils import timezone
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
+
+
+TYPES_PROPOSAL_NEEDED_TO_EDIT = (learning_container_year_types.COURSE,
+                                 learning_container_year_types.DISSERTATION,
+                                 learning_container_year_types.INTERNSHIP)
+
+TYPES_DIRECT_EDIT_PERMITTED = (learning_container_year_types.OTHER_COLLECTIVE,
+                               learning_container_year_types.OTHER_INDIVIDUAL,
+                               learning_container_year_types.MASTER_THESIS,
+                               learning_container_year_types.EXTERNAL)
+
+ALL_TYPES = TYPES_PROPOSAL_NEEDED_TO_EDIT + TYPES_DIRECT_EDIT_PERMITTED
 
 
 class PermsTestCase(TestCase):
     def setUp(self):
         self.academic_yr = AcademicYearFactory(year=timezone.now().year)
 
-    def test_can_faculty_manager_modify_end_date_course_partim(self):
+    def test_can_faculty_manager_modify_end_date_partim(self):
+        random_container_type = factory.fuzzy.FuzzyChoice(ALL_TYPES)
         lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_yr,
-                                                          container_type=COURSE)
+                                                          container_type=random_container_type)
         luy = LearningUnitYearFactory(academic_year=self.academic_yr,
                                       learning_container_year=lunit_container_yr,
                                       subtype=PARTIM)
 
         self.assertTrue(perms._can_faculty_manager_modify_end_date(luy))
 
-    def test_can_faculty_manager_modify_end_date_not_course_partim(self):
+    def test_can_faculty_manager_modify_end_date_full(self):
+        random_container_type_direct_edit_permitted = factory.fuzzy.FuzzyChoice(TYPES_DIRECT_EDIT_PERMITTED)
         lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_yr,
-                                                          container_type=MASTER_THESIS)
+                                                          container_type=random_container_type_direct_edit_permitted)
         luy = LearningUnitYearFactory(academic_year=self.academic_yr,
-                                      learning_container_year=lunit_container_yr)
+                                      learning_container_year=lunit_container_yr,
+                                      subtype=FULL)
 
         self.assertTrue(perms._can_faculty_manager_modify_end_date(luy))
 
-    def test_cannot_faculty_manager_modify_end_date(self):
+
+    def test_cannot_faculty_manager_modify_end_date_full(self):
+        random_container_type_proposal_needed_to_edit = factory.fuzzy.FuzzyChoice(TYPES_PROPOSAL_NEEDED_TO_EDIT)
+        lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_yr,
+                                                          container_type=random_container_type_proposal_needed_to_edit)
         luy = LearningUnitYearFactory(academic_year=self.academic_yr,
-                                      learning_container_year=None,
-                                      subtype=PARTIM)
+                                      learning_container_year=lunit_container_yr,
+                                      subtype=FULL)
+
+        self.assertFalse(perms._can_faculty_manager_modify_end_date(luy))
+
+    def test_cannot_faculty_manager_modify_end_date_no_container(self):
+        luy = LearningUnitYearFactory(academic_year=self.academic_yr,
+                                      learning_container_year=None)
         self.assertFalse(perms._can_faculty_manager_modify_end_date(luy))
