@@ -52,11 +52,13 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
         self.fields["requirement_entity"].queryset = find_main_entities_version()
 
     def clean(self):
-        cleaned_data = super(LearningUnitYearForm, self).clean()
+        cleaned_data = super().clean()
 
         if cleaned_data.get("internship_subtype") and cleaned_data.get("internship_subtype") != 'None' and \
            cleaned_data["container_type"] != learning_container_year_types.INTERNSHIP:
             self.add_error("internship_subtype", _("learning_unit_type_is_not_internship"))
+
+        return cleaned_data
 
     def save(self, learning_unit_year, a_person, type_proposal, state_proposal):
         if not self.is_valid():
