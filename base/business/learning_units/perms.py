@@ -27,7 +27,6 @@ from base.models import entity_container_year, proposal_learning_unit, entity, p
 from base.models.academic_year import current_academic_year
 from base.models.enums import entity_container_year_link_type, learning_unit_year_subtypes, proposal_state, \
     proposal_type, learning_container_year_types
-from base.models.enums.learning_container_year_types import COURSE
 from base.models.enums.learning_unit_year_subtypes import PARTIM
 from base.models.learning_unit import is_old_learning_unit
 from base.models.utils.person_entity_filter import filter_by_attached_entities
@@ -91,7 +90,7 @@ def is_eligible_for_modification(learn_unit_year, pers):
 
 def _can_faculty_manager_modify_end_date(learning_unit_year):
     if learning_unit_year.learning_container_year:
-        if learning_unit_year.learning_container_year.container_type == COURSE and learning_unit_year.subtype == PARTIM:
+        if learning_unit_year.subtype == PARTIM:
             return True
         return learning_unit_year.learning_container_year.container_type not in TYPES_PROPOSAL_NEEDED_TO_EDIT
     return False
