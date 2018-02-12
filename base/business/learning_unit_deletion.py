@@ -34,6 +34,9 @@ from base.models import learning_unit_enrollment, learning_unit_component, learn
 from base.models import person_entity
 from base.models.enums import learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes
+from base.business.learning_unit import CMS_LABEL_SPECIFICATIONS, CMS_LABEL_PEDAGOGY, CMS_LABEL_SUMMARY
+from cms.models import translated_text
+from cms.enums import entity_name
 
 
 def check_learning_unit_deletion(learning_unit):
@@ -190,6 +193,8 @@ def delete_from_given_learning_unit_year(learning_unit_year):
     for component in learning_unit_component.find_by_learning_unit_year(learning_unit_year):
         msg.extend(_delete_learning_unit_component(component))
 
+    _delete_cms_data(learning_unit_year)
+
     learning_unit_year.delete()
 
     msg.append(_("%(subtype)s %(acronym)s has been deleted for the year %(year)s")
@@ -242,3 +247,11 @@ def _delete_learning_component_year(learning_component_year):
 def _str_partim_or_full(learning_unit_year):
     return _('The partim') if learning_unit_year.subtype == learning_unit_year_subtypes.PARTIM else _(
         'The learning unit')
+
+
+def _delete_cms_data(learning_unit_year):
+    text_label_names = CMS_LABEL_SPECIFICATIONS + CMS_LABEL_PEDAGOGY + CMS_LABEL_SUMMARY
+    for learning_unit_cms_data in translated_text.search(entity=entity_name.LEARNING_UNIT_YEAR,
+                                                         reference=learning_unit_year.id,
+                                                         text_labels_name=text_label_names):
+        learning_unit_cms_data.delete()
