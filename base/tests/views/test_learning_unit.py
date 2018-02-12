@@ -930,7 +930,7 @@ class LearningUnitViewTestCase(TestCase):
         )
         volumes_tot = sum(_get_requirement_entities_volumes(ecy).values())/planned_classes
 
-        self.assertEqual(learning_full.components[generated_container_year.learning_component_cm_full]['VOLUME_TOTAL'],
+        self.assertAlmostEqual(learning_full.components[generated_container_year.learning_component_cm_full]['VOLUME_TOTAL'],
                          volumes_tot)
 
         learning_partim = context['learning_units'][1]
