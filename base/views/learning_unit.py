@@ -142,16 +142,21 @@ def volumes_validation(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_volumes_management(request, learning_unit_year_id):
+    # FIXME : Use a formset instead !
     if request.method == 'POST':
         _learning_unit_volumes_management_edit(request, learning_unit_year_id)
 
-    context = _get_common_context_learning_unit_year(learning_unit_year_id,
-                                                     get_object_or_404(Person, user=request.user))
+    context = _get_common_context_learning_unit_year(
+        learning_unit_year_id,
+        get_object_or_404(Person, user=request.user)
+    )
+
     context['learning_units'] = learning_unit_year_with_context.get_with_context(
         learning_container_year_id=context['learning_unit_year'].learning_container_year_id
     )
     context['tab_active'] = 'components'
     context['experimental_phase'] = True
+
     return layout.render(request, "learning_unit/volumes_management.html", context)
 
 

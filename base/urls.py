@@ -28,6 +28,7 @@ from django.conf.urls import url, include
 from django.conf.urls.static import static
 
 import base.views.learning_unit_deletion
+import base.views.learning_units.edition
 from attribution.views import attribution, tutor_application
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group, learning_unit_proposal
@@ -216,4 +217,4 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns +=  static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
