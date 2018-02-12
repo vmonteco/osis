@@ -27,14 +27,13 @@ from base.models import entity_container_year, proposal_learning_unit, entity, p
 from base.models.academic_year import current_academic_year
 from base.models.enums import entity_container_year_link_type, learning_unit_year_subtypes, proposal_state, \
     proposal_type, learning_container_year_types
-from base.models.enums.learning_container_year_types import COURSE, DISSERTATION, INTERNSHIP
 from base.models.enums.learning_unit_year_subtypes import PARTIM
 from base.models.learning_unit import is_old_learning_unit
 from base.models.utils.person_entity_filter import filter_by_attached_entities
 
-AUTHORIZED_TYPE_FOR_MODIFICATION_PROPOSAL = (learning_container_year_types.COURSE,
-                                             learning_container_year_types.DISSERTATION,
-                                             learning_container_year_types.INTERNSHIP)
+TYPES_PROPOSAL_NEEDED_TO_EDIT = (learning_container_year_types.COURSE,
+                                 learning_container_year_types.DISSERTATION,
+                                 learning_container_year_types.INTERNSHIP)
 
 
 def is_person_linked_to_entity_in_charge_of_learning_unit(a_learning_unit_year, a_person):
@@ -50,7 +49,7 @@ def is_eligible_for_modification_proposal(learn_unit_year, a_person):
             learn_unit_year.subtype == learning_unit_year_subtypes.PARTIM:
         return False
     if learn_unit_year.learning_container_year and \
-            learn_unit_year.learning_container_year.container_type not in AUTHORIZED_TYPE_FOR_MODIFICATION_PROPOSAL:
+            learn_unit_year.learning_container_year.container_type not in TYPES_PROPOSAL_NEEDED_TO_EDIT:
         return False
     if _learning_unit_year_is_on_proposal(learn_unit_year):
         return False
@@ -91,9 +90,9 @@ def is_eligible_for_modification(learn_unit_year, pers):
 
 def _can_faculty_manager_modify_end_date(learning_unit_year):
     if learning_unit_year.learning_container_year:
-        if learning_unit_year.learning_container_year.container_type == COURSE and learning_unit_year.subtype == PARTIM:
+        if learning_unit_year.subtype == PARTIM:
             return True
-        return learning_unit_year.learning_container_year.container_type not in [COURSE, DISSERTATION, INTERNSHIP]
+        return learning_unit_year.learning_container_year.container_type not in TYPES_PROPOSAL_NEEDED_TO_EDIT
     return False
 
 
