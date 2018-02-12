@@ -52,35 +52,35 @@ class PermsTestCase(TestCase):
         self.academic_yr = AcademicYearFactory(year=timezone.now().year)
 
     def test_can_faculty_manager_modify_end_date_partim(self):
-        random_container_type = factory.fuzzy.FuzzyChoice(ALL_TYPES)
-        lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_yr,
-                                                          container_type=random_container_type)
-        luy = LearningUnitYearFactory(academic_year=self.academic_yr,
-                                      learning_container_year=lunit_container_yr,
-                                      subtype=PARTIM)
+        for container_type in ALL_TYPES:
+            lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_yr,
+                                                              container_type=container_type)
+            luy = LearningUnitYearFactory(academic_year=self.academic_yr,
+                                          learning_container_year=lunit_container_yr,
+                                          subtype=PARTIM)
 
-        self.assertTrue(perms._can_faculty_manager_modify_end_date(luy))
+            self.assertTrue(perms._can_faculty_manager_modify_end_date(luy))
 
     def test_can_faculty_manager_modify_end_date_full(self):
-        random_container_type_direct_edit_permitted = factory.fuzzy.FuzzyChoice(TYPES_DIRECT_EDIT_PERMITTED)
-        lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_yr,
-                                                          container_type=random_container_type_direct_edit_permitted)
-        luy = LearningUnitYearFactory(academic_year=self.academic_yr,
-                                      learning_container_year=lunit_container_yr,
-                                      subtype=FULL)
+        for direct_edit_permitted_container_type in TYPES_DIRECT_EDIT_PERMITTED:
+            lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_yr,
+                                                              container_type=direct_edit_permitted_container_type)
+            luy = LearningUnitYearFactory(academic_year=self.academic_yr,
+                                          learning_container_year=lunit_container_yr,
+                                          subtype=FULL)
 
-        self.assertTrue(perms._can_faculty_manager_modify_end_date(luy))
+            self.assertTrue(perms._can_faculty_manager_modify_end_date(luy))
 
 
     def test_cannot_faculty_manager_modify_end_date_full(self):
-        random_container_type_proposal_needed_to_edit = factory.fuzzy.FuzzyChoice(TYPES_PROPOSAL_NEEDED_TO_EDIT)
-        lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_yr,
-                                                          container_type=random_container_type_proposal_needed_to_edit)
-        luy = LearningUnitYearFactory(academic_year=self.academic_yr,
-                                      learning_container_year=lunit_container_yr,
-                                      subtype=FULL)
+        for proposal_needed_container_type in TYPES_PROPOSAL_NEEDED_TO_EDIT:
+            lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_yr,
+                                                              container_type=proposal_needed_container_type)
+            luy = LearningUnitYearFactory(academic_year=self.academic_yr,
+                                          learning_container_year=lunit_container_yr,
+                                          subtype=FULL)
 
-        self.assertFalse(perms._can_faculty_manager_modify_end_date(luy))
+            self.assertFalse(perms._can_faculty_manager_modify_end_date(luy))
 
     def test_cannot_faculty_manager_modify_end_date_no_container(self):
         luy = LearningUnitYearFactory(academic_year=self.academic_yr,
