@@ -58,6 +58,7 @@ from base.tests.factories.learning_unit_enrollment import LearningUnitEnrollment
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from cms.enums import entity_name
 from cms.models.translated_text import TranslatedText
 from cms.tests.factories.text_label import TextLabelFactory
@@ -162,6 +163,19 @@ class LearningUnitYearDeletion(TestCase):
 
         msg = list(msg.values())
         self.assertEqual(len(msg), 2)
+
+    def test_check_learning_unit_year_deletion_with_proposal(self):
+        l_container_year = LearningContainerYearFactory(acronym="LBIR1212", academic_year=self.academic_year)
+        l_unit_1 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
+                                           academic_year=self.academic_year, subtype=learning_unit_year_subtypes.FULL)
+        ProposalLearningUnitFactory(learning_unit_year=l_unit_1)
+        msg = learning_unit_deletion.check_learning_unit_year_deletion(l_unit_1)
+
+        msg = list(msg.values())
+        self.assertEqual(msg, [
+            _("%(subtype)s %(acronym)s is in proposal") % {'subtype': _('The learning unit'),
+                                                           'acronym': l_unit_1.acronym}
+        ])
 
     def test_delete_next_years(self):
         l_unit = LearningUnitFactory(start_year=1900)

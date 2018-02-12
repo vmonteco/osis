@@ -2557,3 +2557,6 @@ msgstr "L'unité d'enseignement a été modifiée."
 
 msgid "cannot_set_internship_subtype_for_type_other_than_internship"
 msgstr "Le sous-type de stage ne peut pas être séléctionnné pour un type d'unité d'enseignement autre que stage."
+
+msgid "%(subtype)s %(acronym)s is in a proposal state"
+msgstr "%(subtype)s %(acronym)s est en proposition"

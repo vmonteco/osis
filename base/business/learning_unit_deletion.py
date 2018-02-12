@@ -29,7 +29,7 @@ from assistant.models import tutoring_learning_unit_year
 from attribution.models.attribution import Attribution
 from attribution.models.attribution_charge_new import AttributionChargeNew
 from attribution.models.attribution_new import AttributionNew
-from base.models import entity_container_year
+from base.models import entity_container_year, proposal_learning_unit
 from base.models import learning_unit_enrollment, learning_unit_component, learning_class_year, \
     learning_unit_year as learn_unit_year_model
 from base.models import person_entity
@@ -51,6 +51,12 @@ def check_learning_unit_deletion(learning_unit):
 
 def check_learning_unit_year_deletion(learning_unit_year):
     msg = {}
+
+    proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
+    if proposal:
+        msg[proposal] = _("%(subtype)s %(acronym)s is in proposal") \
+                        % {'subtype': _str_partim_or_full(learning_unit_year),
+                           'acronym': learning_unit_year.acronym}
 
     enrollment_count = len(learning_unit_enrollment.find_by_learning_unit_year(learning_unit_year))
     if enrollment_count > 0:

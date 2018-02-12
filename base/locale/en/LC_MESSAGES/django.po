@@ -2550,3 +2550,6 @@ msgstr "The learning unit has been updated."
 
 msgid "cannot_set_internship_subtype_for_type_other_than_internship"
 msgstr "Internship subtype cannot bet set for learning unit type other than internship."
+
+msgid "%(subtype)s %(acronym)s is in proposal"
+msgstr ""
