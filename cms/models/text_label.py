@@ -32,10 +32,10 @@ from osis_common.models.auditable_model import AuditableModel, AuditableModelAdm
 
 
 class TextLabelAdmin(AuditableModelAdmin):
+    actions = None  # Remove ability to delete in Admin Interface
     list_display = ('parent', 'entity', 'label', 'order', 'published',)
     search_fields = ['label']
     ordering = ('entity',)
-    actions = ['delete_selected']
     raw_id_fields = ('parent',)
     list_filter = ('published',)
 

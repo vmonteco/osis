@@ -30,6 +30,7 @@ from osis_common.models.auditable_model import AuditableModel, AuditableModelAdm
 
 
 class TranslatedTextLabelAdmin(AuditableModelAdmin):
+    actions = None  # Remove ability to delete in Admin Interface
     list_display = ('label', 'language', 'text_label',)
     search_fields = ['label', 'text_label__label']
     ordering = ('label',)
