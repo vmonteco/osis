@@ -260,3 +260,34 @@ def filter_biennial(queryset, periodicity):
         is_odd = periodicity == learning_unit_periodicity.BIENNIAL_ODD
         result = queryset.annotate(odd=F('year') % 2).filter(odd=is_odd)
     return result
+
+
+def update_learning_unit_year(luy_to_update, fields_to_update):
+    _update_instance_model_from_data(luy_to_update.learning_unit, fields_to_update)
+    _update_instance_model_from_data(luy_to_update.learning_container_year, fields_to_update)
+    _update_instance_model_from_data(luy_to_update, fields_to_update)
+
+
+def _update_instance_model_from_data(instance, fields_to_update):
+    for field, value in fields_to_update.items():
+        if hasattr(instance.__class__, field):
+            setattr(instance, field, value)
+    instance.save()
+
+
+def update_learning_unit_year_entities(luy_to_update, entities_by_type_to_update):
+    for entity_link_type, entity, in entities_by_type_to_update.items():
+        if entity:
+            _update_entity_container_year(entity, luy_to_update.learning_container_year, entity_link_type)
+        else:
+            _delete_entity_container_year(luy_to_update.learning_container_year, entity_link_type)
+
+
+def _update_entity_container_year(an_entity, learning_container_year, type_entity):
+    entity_container_year.EntityContainerYear.objects.update_or_create(
+        type=type_entity, learning_container_year=learning_container_year, defaults={"entity": an_entity})
+
+
+def _delete_entity_container_year(learning_container_year, type_entity):
+    entity_container_year.EntityContainerYear.objects.filter(
+        type=type_entity, learning_container_year=learning_container_year).delete()

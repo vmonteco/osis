@@ -23,15 +23,19 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 
+from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.views.learning_unit import get_learning_unit_identification_context, compute_learning_unit_form_initial_data
-from base.business.learning_units.edition import edit_learning_unit_end_date
-from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
+from base.business.learning_units.edition import edit_learning_unit_end_date, update_learning_unit_year, \
+    update_learning_unit_year_entities
+from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm, \
+    FULL_READ_ONLY_FIELDS
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
@@ -74,13 +78,36 @@ def modify_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     person = get_object_or_404(Person, user=request.user)
     initial_data = compute_learning_unit_modification_form_initial_data(learning_unit_year)
-    form = LearningUnitModificationForm(person, learning_unit_year.subtype, initial=initial_data)
+    form = LearningUnitModificationForm(request.POST or None, person=person, initial=initial_data)
+    if form.is_valid():
+        entities_data = extract_entities_data_from_form_data(form.cleaned_data)
+        lu_type_full_data = extract_learning_unit_of_type_full_data_from_form_data(form.cleaned_data)
 
+        update_learning_unit_year(learning_unit_year, lu_type_full_data)
+        update_learning_unit_year_entities(learning_unit_year, entities_data)
+
+        display_success_messages(request, _("success_modification_learning_unit"))
+
+        return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
     context = {
         "learning_unit_year": learning_unit_year,
         "form": form
     }
     return layout.render(request, 'learning_unit/modification.html', context)
+
+
+def extract_learning_unit_of_type_full_data_from_form_data(form_data):
+    data_without_entities = {field: value for field, value in form_data.items()
+                             if field.upper() not in ENTITY_TYPE_LIST}
+    lu_full_data = {field: value for field, value in data_without_entities.items()
+                    if field not in FULL_READ_ONLY_FIELDS}
+    return lu_full_data
+
+
+def extract_entities_data_from_form_data(form_data):
+    return {entity_type.upper(): entity_version.entity if entity_version else None
+            for entity_type, entity_version in form_data.items()
+            if entity_type.upper() in ENTITY_TYPE_LIST}
 
 
 def compute_learning_unit_modification_form_initial_data(learning_unit_year):

@@ -35,9 +35,15 @@ from base.models import academic_year
 from base.models.academic_year import AcademicYear
 from base.models.entity_version import find_main_entities_version_filtered_by_person
 from base.models.enums.attribution_procedure import AttributionProcedures
+from base.models.enums.learning_container_year_types import INTERNSHIP, DISSERTATION
 from base.models.enums.learning_unit_year_subtypes import PARTIM
 from base.models.enums.vacant_declaration_type import VacantDeclarationType
 from base.models.learning_unit import is_old_learning_unit
+
+
+FULL_READ_ONLY_FIELDS = {"first_letter", "acronym", "academic_year", "container_type", "subtype"}
+PARTIM_READ_ONLY_FIELDS = PARTIM_FORM_READ_ONLY_FIELD | {"is_vacant", "team", "type_declaration_vacant",
+                                                         "attribution_procedure"}
 
 
 class LearningUnitEndDateForm(BootstrapForm):
@@ -96,27 +102,74 @@ def _create_attribution_procedure_list():
     return add_blank(AttributionProcedures.translation_choices())
 
 
-FULL_READ_ONLY_FIELDS = {"first_letter", "acronym", "academic_year", "container_type", "subtype"}
-PARTIM_READ_ONLY_FIELDS = PARTIM_FORM_READ_ONLY_FIELD | {"is_vacant", "team", "type_declaration_vacant",
-                                                         "attribution_procedure"}
-
-
 class LearningUnitModificationForm(LearningUnitYearForm):
     is_vacant = forms.BooleanField(required=False)
     team = forms.BooleanField(required=False)
     type_declaration_vacant = forms.ChoiceField(required=False, choices=_create_type_declaration_vacant_list())
     attribution_procedure = forms.ChoiceField(required=False, choices=_create_attribution_procedure_list())
 
-    def __init__(self, person, learning_unit_year_subtype, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        person = kwargs.pop("person")
+        initial = kwargs.get("initial", None)
+        learning_unit_year_subtype = initial.get("subtype") if initial else None
+        learning_container_type = initial.get("container_type") if initial else None
+        self.learning_unit_end_date = kwargs.pop("end_date", None)
+
         super().__init__(*args, **kwargs)
-        if learning_unit_year_subtype == PARTIM:
-            self.disabled_fields(PARTIM_READ_ONLY_FIELDS)
-        else:
-            self.disabled_fields(FULL_READ_ONLY_FIELDS)
 
         self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
 
-    def disabled_fields(self, fields_to_disable):
+        self._disabled_fields_base_on_learning_unit_year_subtype(learning_unit_year_subtype)
+        self._disabled_internship_subtype_field_if_not_internship_container_type(learning_container_type)
+
+    def is_valid(self):
+        if not super().is_valid():
+            return False
+        # Use a list of errors because when adding an error for a specific field with add_error, it is removed
+        # from cleaned_data.
+        errors_list = []
+        if not self._is_requirement_entity_end_date_valid():
+            errors_list.append(("requirement_entity",
+                                _("requirement_entity_end_date_too_short")))
+        if not self._are_requirement_and_allocation_entities_valid():
+            errors_list.append(("requirement_entity",
+                                _("requirement_and_allocation_entities_cannot_be_different")))
+            errors_list.append(("allocation_entity",
+                                _("requirement_and_allocation_entities_cannot_be_different")))
+        self.add_errors(errors_list)
+        return not self.errors
+
+    def add_errors(self, list_errors):
+        for field, error_msg in list_errors:
+            self.add_error(field, error_msg)
+
+    def _is_requirement_entity_end_date_valid(self):
+        if self.cleaned_data["requirement_entity"].end_date is None:
+            return True
+        if self.learning_unit_end_date is None:
+            return False
+        return self.cleaned_data["requirement_entity"].end_date >= self.learning_unit_end_date
+
+    def _are_requirement_and_allocation_entities_valid(self):
+        return self._are_requirement_and_allocation_entities_the_same() or \
+               self._can_requirement_and_allocation_entities_be_different()
+
+    def _are_requirement_and_allocation_entities_the_same(self):
+        return self.cleaned_data["requirement_entity"] == self.cleaned_data["allocation_entity"]
+
+    def _can_requirement_and_allocation_entities_be_different(self):
+        return self.cleaned_data["container_type"] not in [INTERNSHIP, DISSERTATION]
+
+    def _disabled_fields_base_on_learning_unit_year_subtype(self, subtype):
+        if subtype == PARTIM:
+            self._disabled_fields(PARTIM_READ_ONLY_FIELDS)
+        else:
+            self._disabled_fields(FULL_READ_ONLY_FIELDS)
+
+    def _disabled_internship_subtype_field_if_not_internship_container_type(self, container_type):
+        if container_type != INTERNSHIP:
+            self._disabled_fields(["internship_subtype"])
+
+    def _disabled_fields(self, fields_to_disable):
         for field in fields_to_disable:
             self.fields[field].disabled = True
-            self.fields[field].required = False

@@ -23,12 +23,23 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
 
 from django.test import TestCase
 
 from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
-from base.models.enums import learning_unit_periodicity, learning_unit_year_subtypes, learning_container_year_types
+from base.models.enums import learning_unit_periodicity, learning_unit_year_subtypes, learning_container_year_types, \
+    organization_type, entity_type, internship_subtypes
+from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import LearningUnitsMixin
+from base.tests.factories.campus import CampusFactory
+from base.tests.factories.entity import EntityFactory
+from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.organization import OrganizationFactory
+from base.tests.factories.person_entity import PersonEntityFactory
+from reference.tests.factories.language import LanguageFactory
 
 
 class TestLearningUnitEditionForm(TestCase, LearningUnitsMixin):
@@ -83,19 +94,118 @@ class TestLearningUnitEditionForm(TestCase, LearningUnitsMixin):
 
 
 class TestLearningUnitModificationForm(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.current_academic_year = create_current_academic_year()
+        cls.learning_container_year = LearningContainerYearFactory(academic_year=cls.current_academic_year)
+        cls.learning_unit_year = LearningUnitYearFactory(academic_year=cls.current_academic_year,
+                                                         learning_container_year=cls.learning_container_year)
+
+        cls.organization = OrganizationFactory(type=organization_type.MAIN)
+        a_campus = CampusFactory(organization=cls.organization)
+        an_entity = EntityFactory(organization=cls.organization)
+        cls.an_entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL, parent=None,
+                                                     end_date=None,
+                                                     start_date=datetime.date.today() - datetime.timedelta(days=5))
+        cls.person = PersonEntityFactory(entity=an_entity).person
+
+        language = LanguageFactory()
+        cls.form_data = {
+            "academic_year": str(cls.current_academic_year.id),
+            "container_type": str(learning_container_year_types.COURSE),
+            "subtype": str(learning_unit_year_subtypes.FULL),
+            "acronym": "OSIS1452",
+            "credits": "45",
+            "common_title": "OSIS",
+            "first_letter": "L",
+            "periodicity": learning_unit_periodicity.ANNUAL,
+            "campus": str(a_campus.id),
+            "requirement_entity": str(cls.an_entity_version.id),
+            "allocation_entity": str(cls.an_entity_version.id),
+            "language": str(language.id)
+        }
+
+        cls.initial_data = {
+            "academic_year": str(cls.current_academic_year.id),
+            "container_type": str(learning_container_year_types.COURSE),
+            "subtype": str(learning_unit_year_subtypes.FULL),
+            "acronym": "OSIS1452",
+            "first_letter": "L",
+        }
+
     def test_disabled_fields_in_case_of_learning_unit_of_type_full(self):
-        form = LearningUnitModificationForm(None, learning_unit_year_subtypes.FULL)
+        form = LearningUnitModificationForm(person=None, initial=self.initial_data)
         disabled_fields = ("first_letter", "acronym", "academic_year", "container_type", "subtype")
         for field in disabled_fields:
             self.assertTrue(form.fields[field].disabled)
-            self.assertFalse(form.fields[field].required)
 
     def test_disabled_fields_in_case_of_learning_unit_of_type_partim(self):
-        form = LearningUnitModificationForm(None, learning_unit_year_subtypes.PARTIM)
+        initial_data_with_subtype_partim = self.initial_data.copy()
+        initial_data_with_subtype_partim["subtype"] = learning_unit_year_subtypes.PARTIM
+        form = LearningUnitModificationForm(person=None, initial=initial_data_with_subtype_partim)
         disabled_fields = ('first_letter', 'acronym', 'common_title', 'common_title_english', 'requirement_entity',
-                           'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year','container_type',
+                           'allocation_entity', 'language', 'periodicity', 'campus', 'container_type', "academic_year",
                            'internship_subtype', 'additional_requirement_entity_1', 'additional_requirement_entity_2',
                            'is_vacant', 'team', 'type_declaration_vacant', 'attribution_procedure')
         for field in disabled_fields:
             self.assertTrue(form.fields[field].disabled)
-            self.assertFalse(form.fields[field].required)
+
+    def test_disabled_internship_subtype_in_case_of_container_type_different_than_internship(self):
+        form = LearningUnitModificationForm(person=None, initial=self.initial_data)
+
+        self.assertTrue(form.fields["internship_subtype"].disabled)
+
+        initial_data_with_internship_container_type = self.form_data.copy()
+        initial_data_with_internship_container_type["container_type"] = learning_container_year_types.INTERNSHIP
+
+        form = LearningUnitModificationForm(person=None, initial=initial_data_with_internship_container_type)
+
+        self.assertFalse(form.fields["internship_subtype"].disabled)
+
+
+    def test_entity_does_not_exist_for_lifetime_of_learning_unit(self):
+        an_other_entity = EntityFactory(organization=self.organization)
+        an_other_entity_version = EntityVersionFactory(
+            entity=an_other_entity, entity_type=entity_type.SCHOOL,  parent=None,
+            end_date=self.current_academic_year.end_date - datetime.timedelta(days=5),
+            start_date=datetime.date.today() - datetime.timedelta(days=5))
+        PersonEntityFactory(person=self.person, entity=an_other_entity)
+
+        form_data_with_invalid_requirement_entity = self.form_data.copy()
+        form_data_with_invalid_requirement_entity["requirement_entity"] = str(an_other_entity_version.id)
+        form = LearningUnitModificationForm(form_data_with_invalid_requirement_entity, initial=self.initial_data,
+                                            person=self.person, end_date=self.current_academic_year.end_date)
+        self.assertFalse(form.is_valid())
+
+    def test_entity_does_not_exist_for_lifetime_of_learning_unit_with_no_planned_end(self):
+        an_other_entity = EntityFactory(organization=self.organization)
+        an_other_entity_version = EntityVersionFactory(
+            entity=an_other_entity, entity_type=entity_type.SCHOOL, parent=None,
+            end_date=self.current_academic_year.end_date - datetime.timedelta(days=5),
+            start_date=datetime.date.today() - datetime.timedelta(days=5))
+        PersonEntityFactory(person=self.person, entity=an_other_entity)
+
+        form_data_with_invalid_requirement_entity = self.form_data.copy()
+        form_data_with_invalid_requirement_entity["requirement_entity"] = str(an_other_entity_version.id)
+        form = LearningUnitModificationForm(form_data_with_invalid_requirement_entity,
+                                            person=self.person, initial=self.initial_data)
+        self.assertFalse(form.is_valid())
+
+    def test_when_requirement_and_attribution_entities_are_different_for_disseration_and_internship_subtype(self):
+        an_other_entity = EntityFactory(organization=self.organization)
+        an_other_entity_version = EntityVersionFactory(entity=an_other_entity, entity_type=entity_type.SCHOOL,
+                                                       parent=None, end_date=None,
+                                                       start_date=datetime.date.today() - datetime.timedelta(days=5))
+        form_data_with_different_allocation_entity = self.form_data.copy()
+        form_data_with_different_allocation_entity["allocation_entity"] = str(an_other_entity_version.id)
+
+        for container_type in (learning_container_year_types.DISSERTATION, learning_container_year_types.INTERNSHIP):
+            initial_data_with_specific_container_type = self.initial_data.copy()
+            initial_data_with_specific_container_type["container_type"] = container_type
+            form = LearningUnitModificationForm(form_data_with_different_allocation_entity,
+                                                person=self.person, initial=initial_data_with_specific_container_type)
+            self.assertFalse(form.is_valid())
+
+    def test_valid_form(self):
+        form = LearningUnitModificationForm(self.form_data, initial=self.initial_data, person=self.person)
+        self.assertTrue(form.is_valid())
