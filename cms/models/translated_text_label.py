@@ -23,14 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib import admin
 from django.db import models
 from django.conf import settings
 from .text_label import TextLabel
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.auditable_model import AuditableModel, AuditableModelAdmin
 
 
-class TranslatedTextLabelAdmin(OsisModelAdmin):
+class TranslatedTextLabelAdmin(AuditableModelAdmin):
     list_display = ('label', 'language', 'text_label',)
     search_fields = ['label', 'text_label__label']
     ordering = ('label',)
@@ -38,7 +37,7 @@ class TranslatedTextLabelAdmin(OsisModelAdmin):
     list_filter = ('language',)
 
 
-class TranslatedTextLabel(models.Model):
+class TranslatedTextLabel(AuditableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     language = models.CharField(max_length=30, null=True, choices=settings.LANGUAGES, default=settings.LANGUAGE_CODE)

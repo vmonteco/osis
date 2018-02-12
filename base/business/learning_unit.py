@@ -54,6 +54,11 @@ from cms.enums import entity_name
 from osis_common.document import xls_build
 
 
+CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
+CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
+                      'other_informations', 'online_resources']
+CMS_LABEL_SUMMARY = ['resume']
+
 DEFAULT_ACRONYM_LECTURING_COMPONENT = "CM1"
 DEFAULT_ACRONYM_PRACTICAL_COMPONENT = "TP1"
 UNTYPED_ACRONYM = "NT1"

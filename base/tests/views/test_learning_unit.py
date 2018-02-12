@@ -822,6 +822,7 @@ class LearningUnitViewTestCase(TestCase):
             {'valid': False,
              'existing_acronym': False,
              'existed_acronym': False,
+             'first_using': "",
              'last_using': ""}
         )
 
@@ -845,6 +846,7 @@ class LearningUnitViewTestCase(TestCase):
             {'valid': True,
              'existing_acronym': True,
              'existed_acronym': False,
+             'first_using': str(self.current_academic_year),
              'last_using': ""}
         )
 
@@ -865,6 +867,7 @@ class LearningUnitViewTestCase(TestCase):
             {'valid': True,
              'existing_acronym': False,
              'existed_acronym': True,
+             'first_using': "",
              'last_using': str(self.current_academic_year)}
         )
 
