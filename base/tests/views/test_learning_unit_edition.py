@@ -24,7 +24,7 @@
 #
 ##############################################################################
 import datetime
-from unittest import mock, TestCase
+from unittest import mock
 
 from django.contrib import messages
 from django.contrib.auth.models import Permission
@@ -34,21 +34,18 @@ from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpRespons
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 
-from base.forms.learning_unit.edition import LearningUnitModificationForm
 from base.models.enums import learning_unit_periodicity, learning_container_year_types, learning_unit_year_subtypes, \
     entity_container_year_link_type, vacant_declaration_type, attribution_procedure
-from base.models.learning_unit_component import LearningUnitComponent
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
-from base.tests.factories.business.learning_units import LearningUnitsMixin, GenerateAcademicYear, GenerateContainer
+from base.tests.factories.business.learning_units import LearningUnitsMixin
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
-from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.user import UserFactory, SuperUserFactory
-from base.views.learning_units.edition import learning_unit_edition, learning_unit_component_edit
+from base.views.learning_units.edition import learning_unit_edition
 
 
 class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):

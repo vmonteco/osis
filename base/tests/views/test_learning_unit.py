@@ -48,6 +48,7 @@ from base.forms.learning_units import LearningUnitYearForm
 from base.models import learning_unit_component
 from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear
+from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type, active_status
 from base.models.enums import internship_subtypes
 from base.models.enums import learning_container_year_types, organization_type, entity_type
@@ -882,7 +883,62 @@ class LearningUnitViewTestCase(TestCase):
 
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager')
-    def test_get_learning_unit_volumes_management(self, mock_program_manager, mock_render):
+    def test_get_learning_unit_volumes_management_get(self, mock_program_manager, mock_render):
+        mock_program_manager.return_value = True
+
+        generated_container_year = GenerateContainer(
+            start_year=self.current_academic_year.year,
+            end_year=self.current_academic_year.year
+        ).generated_container_years[0]
+
+        learning_unit_year = generated_container_year.learning_unit_year_full
+        partim = generated_container_year.learning_unit_year_partim
+
+        request_factory = RequestFactory()
+        request_factory.user = self.a_superuser
+        url = reverse("learning_unit_volumes_management", args=[learning_unit_year.id])
+
+        request = request_factory.get(url)
+        request.user = self.a_superuser
+        learning_unit_volumes_management(request, learning_unit_year.id)
+        self.assertTrue(mock_render.called)
+
+        request, template, context = mock_render.call_args[0]
+        self.assertEqual(template, 'learning_unit/volumes_management.html')
+        self.assertEqual(context['tab_active'], 'components')
+        self.assertEqual(context['current_academic_year'], self.current_academic_year)
+        self.assertEqual(context['learning_unit_year'], learning_unit_year)
+        self.assertEqual(context['learning_units'], [learning_unit_year, partim])
+
+        learning_full = context['learning_units'][0]
+        self.assertEqual(list(learning_full.components.keys()), [
+            generated_container_year.learning_component_cm_full,
+            generated_container_year.learning_component_tp_full
+        ])
+        self.assertEqual(learning_full.components[generated_container_year.learning_component_cm_full]['PLANNED_CLASSES'],
+                         generated_container_year.learning_component_cm_full.planned_classes)
+
+        ecy = EntityComponentYear.objects.filter(
+            learning_component_year=generated_container_year.learning_component_cm_full).first()
+        self.assertEqual(learning_full.components[generated_container_year.learning_component_cm_full]['VOLUME_TOTAL'],
+                         EntityComponentYear.objects.filter(generated_container_year.learning_component_cm_full).first()
+                         )
+
+
+        print(learning_full.components['PLANNED_CLASSES'])
+        print(generated_container_year.learning_component_cm_full.__dict__)
+
+        learning_partim = context['learning_units'][1]
+        self.assertEqual(list(learning_partim.components.keys()), [
+            generated_container_year.learning_component_cm_partim,
+            generated_container_year.learning_component_tp_partim
+        ])
+
+
+
+    @mock.patch('base.views.layout.render')
+    @mock.patch('base.models.program_manager.is_program_manager')
+    def test_get_learning_unit_volumes_management_post(self, mock_program_manager, mock_render):
         mock_program_manager.return_value = True
 
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
@@ -892,16 +948,7 @@ class LearningUnitViewTestCase(TestCase):
         request_factory = RequestFactory()
         request_factory.user = self.a_superuser
         url = reverse("learning_unit_volumes_management", args=[learning_unit_year.id])
-        # GET request
-        request = request_factory.get(url)
-        request.user = self.a_superuser
-        learning_unit_volumes_management(request, learning_unit_year.id)
-        self.assertTrue(mock_render.called)
-        request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'learning_unit/volumes_management.html')
-        self.assertEqual(context['tab_active'], 'components')
 
-        # POST request
         request = request_factory.post(url, self._get_volumes_data([learning_unit_year]))
         request.user = self.a_superuser
         learning_unit_volumes_management(request, learning_unit_year.id)
