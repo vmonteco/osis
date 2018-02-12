@@ -24,15 +24,14 @@
 #
 ##############################################################################
 from ckeditor.fields import RichTextField
-from django.contrib import admin
 from django.db import models
 from django.conf import settings
 from cms.enums.entity_name import ENTITY_NAME
 from .text_label import TextLabel
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.auditable_model import AuditableModel, AuditableModelAdmin
 
 
-class TranslatedTextAdmin(OsisModelAdmin):
+class TranslatedTextAdmin(AuditableModelAdmin):
     list_display = ('text_label', 'entity', 'reference', 'language', 'text',)
     ordering = ('text_label',)
     list_filter = ('entity',)
@@ -40,7 +39,7 @@ class TranslatedTextAdmin(OsisModelAdmin):
     raw_id_fields = ('text_label',)
 
 
-class TranslatedText(models.Model):
+class TranslatedText(AuditableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     language = models.CharField(max_length=30, null=True, choices=settings.LANGUAGES, default=settings.LANGUAGE_CODE)
