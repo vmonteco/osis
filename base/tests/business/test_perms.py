@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory.fuzzy
 from django.test import TestCase
 from base.tests.factories.academic_year import AcademicYearFactory
 
