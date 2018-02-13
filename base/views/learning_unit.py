@@ -53,7 +53,8 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     get_all_attributions, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, is_summary_submission_opened, \
     find_language_in_settings, \
     initialize_learning_unit_pedagogy_form, compute_max_academic_year_adjournment, \
-    create_learning_unit_partim_structure, can_access_summary, get_last_academic_years
+    create_learning_unit_partim_structure, can_access_summary, get_last_academic_years, CMS_LABEL_SPECIFICATIONS, \
+    CMS_LABEL_PEDAGOGY, CMS_LABEL_SUMMARY
 from base.business.learning_units import perms as business_perms
 from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
@@ -75,11 +76,6 @@ from base.views.learning_units import perms
 from cms.models import text_label
 from reference.models import language
 from . import layout
-
-CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
-CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
-                      'other_informations', 'online_resources']
-CMS_LABEL_SUMMARY = ['resume']
 
 
 @login_required
@@ -146,16 +142,21 @@ def volumes_validation(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_volumes_management(request, learning_unit_year_id):
+    # FIXME : Use a formset instead !
     if request.method == 'POST':
         _learning_unit_volumes_management_edit(request, learning_unit_year_id)
 
-    context = _get_common_context_learning_unit_year(learning_unit_year_id,
-                                                     get_object_or_404(Person, user=request.user))
+    context = _get_common_context_learning_unit_year(
+        learning_unit_year_id,
+        get_object_or_404(Person, user=request.user)
+    )
+
     context['learning_units'] = learning_unit_year_with_context.get_with_context(
         learning_container_year_id=context['learning_unit_year'].learning_container_year_id
     )
     context['tab_active'] = 'components'
     context['experimental_phase'] = True
+
     return layout.render(request, "learning_unit/volumes_management.html", context)
 
 

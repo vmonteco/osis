@@ -81,8 +81,7 @@ class MaxStrictlyValueValidator(BaseValidator):
 
 class LearningUnitYearForm(BootstrapForm):
     acronym = forms.CharField(widget=forms.TextInput(attrs={'maxlength': "15", 'required': True}))
-    academic_year = forms.ModelChoiceField(queryset=mdl.academic_year.find_academic_years(), required=True,
-                                           empty_label=_('all_label'))
+    academic_year = forms.ModelChoiceField(queryset=mdl.academic_year.find_academic_years(), required=True)
     status = forms.BooleanField(required=False, initial=True)
     internship_subtype = forms.TypedChoiceField(
         choices=add_blank(mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES),
@@ -135,9 +134,12 @@ class LearningUnitYearForm(BootstrapForm):
 
     acronym_regex = LEARNING_UNIT_ACRONYM_REGEX_FULL
 
-    def clean_acronym(self):
-        data_cleaned = self.data.get('first_letter', "") + self.cleaned_data.get('acronym')
-        return data_cleaned.upper()
+    def clean(self):
+        super().clean()
+        merge_first_letter_acronym = self.cleaned_data.get('first_letter', "") + self.cleaned_data.get('acronym', "")
+        self.cleaned_data["acronym"] = merge_first_letter_acronym.upper()
+
+        return self.cleaned_data
 
     def is_valid(self):
         if not super().is_valid():
@@ -201,5 +203,8 @@ class CreatePartimForm(CreateLearningUnitYearForm):
             if self.fields.get(field):
                 self.fields[field].widget.attrs[READONLY_ATTR] = READONLY_ATTR
 
-    def clean_acronym(self):
-        return super(CreatePartimForm, self).clean_acronym() + self.data.get('partim_character', [])[0].upper()
+    def clean(self):
+        super().clean()
+        self.cleaned_data["acronym"] += self.cleaned_data.get('partim_character', [])[0].upper()
+
+        return self.cleaned_data

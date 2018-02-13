@@ -28,12 +28,16 @@ from django.utils.translation import ugettext_lazy as _
 from assistant.models import tutoring_learning_unit_year
 from attribution.models.attribution import Attribution
 from attribution.models.attribution_charge_new import AttributionChargeNew
-from base.models import entity_container_year
+from attribution.models.attribution_new import AttributionNew
+from base.models import entity_container_year, proposal_learning_unit
 from base.models import learning_unit_enrollment, learning_unit_component, learning_class_year, \
     learning_unit_year as learn_unit_year_model
 from base.models import person_entity
 from base.models.enums import learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes
+from base.business.learning_unit import CMS_LABEL_SPECIFICATIONS, CMS_LABEL_PEDAGOGY, CMS_LABEL_SUMMARY
+from cms.models import translated_text
+from cms.enums import entity_name
 
 
 def check_learning_unit_deletion(learning_unit):
@@ -47,6 +51,12 @@ def check_learning_unit_deletion(learning_unit):
 
 def check_learning_unit_year_deletion(learning_unit_year):
     msg = {}
+
+    proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
+    if proposal:
+        msg[proposal] = _("%(subtype)s %(acronym)s is in proposal") \
+                        % {'subtype': _str_partim_or_full(learning_unit_year),
+                           'acronym': learning_unit_year.acronym}
 
     enrollment_count = len(learning_unit_enrollment.find_by_learning_unit_year(learning_unit_year))
     if enrollment_count > 0:
@@ -106,12 +116,22 @@ def _check_group_element_year_deletion(group_element_year):
 
 def _check_attribution_deletion(learning_unit_year):
     msg = {}
+    error_attribution = "%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s"
 
     for attribution in Attribution.objects.filter(learning_unit_year=learning_unit_year):
-        msg[attribution] = _("%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s") % {
+        msg[attribution] = _(error_attribution) % {
             'subtype': _str_partim_or_full(learning_unit_year),
             'acronym': learning_unit_year.acronym,
             'tutor': attribution.tutor,
+            'year': learning_unit_year.academic_year}
+
+    for attribution_new in AttributionNew.objects.filter(
+            learning_container_year=learning_unit_year.learning_container_year):
+
+        msg[attribution_new] = _(error_attribution) % {
+            'subtype': _str_partim_or_full(learning_unit_year),
+            'acronym': learning_unit_year.acronym,
+            'tutor': attribution_new.tutor,
             'year': learning_unit_year.academic_year}
 
     return msg
@@ -190,6 +210,8 @@ def delete_from_given_learning_unit_year(learning_unit_year):
     for component in learning_unit_component.find_by_learning_unit_year(learning_unit_year):
         msg.extend(_delete_learning_unit_component(component))
 
+    _delete_cms_data(learning_unit_year)
+
     learning_unit_year.delete()
 
     msg.append(_("%(subtype)s %(acronym)s has been deleted for the year %(year)s")
@@ -242,3 +264,11 @@ def _delete_learning_component_year(learning_component_year):
 def _str_partim_or_full(learning_unit_year):
     return _('The partim') if learning_unit_year.subtype == learning_unit_year_subtypes.PARTIM else _(
         'The learning unit')
+
+
+def _delete_cms_data(learning_unit_year):
+    text_label_names = CMS_LABEL_SPECIFICATIONS + CMS_LABEL_PEDAGOGY + CMS_LABEL_SUMMARY
+    for learning_unit_cms_data in translated_text.search(entity=entity_name.LEARNING_UNIT_YEAR,
+                                                         reference=learning_unit_year.id,
+                                                         text_labels_name=text_label_names):
+        learning_unit_cms_data.delete()

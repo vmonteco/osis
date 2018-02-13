@@ -2539,6 +2539,21 @@ msgstr "The entity %(entity_acronym)s does not exist for the selected academic y
 msgid "edit_learning_unit"
 msgstr "Edit learning unit"
 
+msgid "requirement_entity_end_date_too_short"
+msgstr "The requirement entity lifetime is too short."
+
+msgid "requirement_and_allocation_entities_cannot_be_different"
+msgstr "The requirement and allocation entities cannot be different."
+
+msgid "success_modification_learning_unit"
+msgstr "The learning unit has been updated."
+
+msgid "cannot_set_internship_subtype_for_type_other_than_internship"
+msgstr "Internship subtype cannot bet set for learning unit type other than internship."
+
+msgid "%(subtype)s %(acronym)s is in proposal"
+msgstr ""
+
 msgid "Site"
 msgstr "Site"
 
