@@ -28,14 +28,10 @@ from django.test import TestCase
 
 from django.test import TestCase
 from django.utils import timezone
-from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory
-from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.entity import EntityFactory
-from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
-from base.models.enums import entity_container_year_link_type
 from base.templatetags.entity import requirement_entity, entity_last_version
+from base.tests.factories.business.learning_units import GenerateContainer
 
 ENTITY_REQUIREMENT_ACRONYM = "DRT"
 
@@ -49,17 +45,8 @@ class EntityTagTest(TestCase):
         yr = timezone.now().year
         self.entity_1 = EntityFactory()
         self.entity_version_1 = EntityVersionFactory(entity=self.entity_1, acronym=ENTITY_REQUIREMENT_ACRONYM)
-        self.an_academic_year = AcademicYearFactory(year=yr)
-        self.an_acronym = "LBIO1212"
-
-        self.learning_container_yr = LearningContainerYearFactory(academic_year=self.an_academic_year)
-        self.entity_version_container_ye = EntityContainerYearFactory(
-            learning_container_year=self.learning_container_yr,
-            entity=self.entity_1,
-            type=entity_container_year_link_type.REQUIREMENT_ENTITY)
-        self.a_learning_unit_year = LearningUnitYearFactory(acronym=self.an_acronym,
-                                                            academic_year=self.an_academic_year,
-                                                            learning_container_year=self.learning_container_yr)
+        generator_learning_container = GenerateContainer(start_year=yr-1, end_year=yr)
+        self.a_learning_unit_year = generator_learning_container.generated_container_years[0].learning_unit_year_full
 
     def test_requirement_entity(self):
         lu = self.a_learning_unit_year

@@ -128,7 +128,6 @@ urlpatterns = [
         url(r'^check/(?P<type>[A-Z]+)$', learning_unit.check_acronym, name="check_acronym"),
         url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
     ])),
-    url(r'^proposals/$', learning_unit_proposal.learning_unit_proposals, name="learning_unit_proposals"),
     url(r'^proposals/search/$', learning_unit_proposal.learning_units_proposal_search,
         name="learning_unit_proposal_search"),
 

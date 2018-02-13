@@ -353,7 +353,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertTemplateUsed(response, "access_denied.html")
 
     def test_learning_unit_proposals(self):
-        url = reverse('learning_unit_proposals')
+        url = reverse('learning_unit_proposal_search')
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)

@@ -36,6 +36,8 @@ from base.models.enums import entity_container_year_link_type
 from base.models.enums import proposal_type, proposal_state
 from base.forms import learning_units as learning_units_form
 from base.forms.common import get_clean_data, TooManyResultsException
+from base.forms.utils.uppercase import convert_to_uppercase
+
 
 MAX_RECORDS = 1000
 ALL_LABEL = (None, _('all_label'))
@@ -50,7 +52,7 @@ def _get_entity_folder_id_ordered_by_acronym():
 
 
 def _get_sorted_choices(tuple_of_choices):
-    return tuple(sorted(tuple_of_choices, key=lambda item: item[1]))
+    return ALL_CHOICES + tuple(sorted(tuple_of_choices, key=lambda item: item[1]))
 
 
 class LearningUnitProposalForm(forms.Form):
@@ -79,13 +81,13 @@ class LearningUnitProposalForm(forms.Form):
 
     proposal_type = forms.ChoiceField(
         label=_('proposal_type'),
-        choices=ALL_CHOICES + _get_sorted_choices(proposal_type.CHOICES),
+        choices=_get_sorted_choices(proposal_type.CHOICES),
         required=False
     )
 
     proposal_state = forms.ChoiceField(
         label=_('proposal_status'),
-        choices=ALL_CHOICES + _get_sorted_choices(proposal_state.CHOICES),
+        choices=_get_sorted_choices(proposal_state.CHOICES),
         required=False
     )
 
@@ -117,10 +119,7 @@ class LearningUnitProposalForm(forms.Form):
         return criteria_present
 
     def clean_requirement_entity_acronym(self):
-        data_cleaned = self.cleaned_data.get('requirement_entity_acronym')
-        if data_cleaned:
-            return data_cleaned.upper()
-        return data_cleaned
+        return convert_to_uppercase(self.cleaned_data.get('requirement_entity_acronym'))
 
     def clean(self):
         if self.cleaned_data and mdl.proposal_learning_unit.count_search_results(**self.cleaned_data) > MAX_RECORDS:

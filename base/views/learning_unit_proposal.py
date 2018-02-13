@@ -94,13 +94,6 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
 
 
 @login_required
-def learning_unit_proposals(request):
-    form = LearningUnitProposalForm()
-    context = {'form': form}
-    return layout.render(request, "learning_units.html", context)
-
-
-@login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units_proposal_search(request):
     form = LearningUnitProposalForm(request.GET or None)

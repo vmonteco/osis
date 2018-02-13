@@ -38,6 +38,7 @@ from base.models import entity_version as mdl_entity_version, learning_unit_year
 from base.models.academic_year import AcademicYear, current_academic_year
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
     learning_unit_year_subtypes, active_status
+from base.forms.utils.uppercase import convert_to_uppercase
 
 MAX_RECORDS = 1000
 ALL_CHOICES = ((None, _('all_label')),)
@@ -108,10 +109,7 @@ class LearningUnitYearForm(forms.Form):
         return data_cleaned
 
     def clean_requirement_entity_acronym(self):
-        data_cleaned = self.cleaned_data.get('requirement_entity_acronym')
-        if data_cleaned:
-            return data_cleaned.upper()
-        return data_cleaned
+        return convert_to_uppercase(self.cleaned_data.get('requirement_entity_acronym'))
 
     def clean_allocation_entity_acronym(self):
         data_cleaned = self.cleaned_data.get('allocation_entity_acronym')
@@ -191,8 +189,8 @@ class LearningUnitYearForm(forms.Form):
 
 
 def get_filter_learning_container_ids(filter_data):
-    requirement_entity_acronym = filter_data.get('requirement_entity_acronym', None)
-    allocation_entity_acronym = filter_data.get('allocation_entity_acronym', None)
+    requirement_entity_acronym = filter_data.get('requirement_entity_acronym')
+    allocation_entity_acronym = filter_data.get('allocation_entity_acronym')
     with_entity_subordinated = filter_data.get('with_entity_subordinated', False)
     entities_id_list = []
 

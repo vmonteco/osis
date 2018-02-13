@@ -1,8 +1,7 @@
-
 {% load staticfiles %}
 {% load i18n %}
 {% load bootstrap3 %}
-{% load learning_unit %}
+{% load entity %}
 {% comment "License" %}
     * OSIS stands for Open Student Information System. It's an application
     * designed to manage the core business of higher education institutions,
@@ -28,49 +27,44 @@
 {% endcomment %}
 
 {% block content %}
-    <form style="border-bottom: 1px solid #ddd;" method="get"
-          action="{% url 'learning_unit_proposal_search' %}"
-          name="proposal_search" id="proposal_search_form">
-        <div class="panel-body">
-            <div class="row" style="margin-top:10px;">
-                {% block search_form_row_1 %}
-                    <div class="row">
-                        <div class="col-md-2">
-                            {% bootstrap_field form.academic_year_id %}
-                        </div>
-                        <div class="col-md-2">
-                            {% bootstrap_field form.requirement_entity_acronym %}
-                        </div>
-                        <div class="col-md-2">
-                        {% bootstrap_field form.entity_folder_id %}
-                        </div>
-                        <div class="col-md-2">
-                            {% bootstrap_field form.folder_id %}
-                        </div>
-                        <div class="col-md-2">
-                            {% bootstrap_field form.proposal_type %}
-                        </div>
-                        <div class="col-md-2">
-                            {% bootstrap_field form.proposal_state %}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-2">
-                            {% bootstrap_field form.acronym %}
-                        </div>
+<div class="panel panel-default">
 
-                        <div class="col-md-1 text-right" style="line-height:55px;">
-                            {% bootstrap_button "" value=_('search') button_type="submit" button_class="btn-primary" icon="search" %}
-                        </div>
-                    </div>
-                {% endblock %}
-            </div>
-            <div class="row">
-                {% bootstrap_form_errors form %}
-            </div>
+    {% include "learning_unit/components/search_form_proposal.html" %}
+
+    <div style="margin-top:10px;">
+        {% if proposals %}
+            <table id="table_learning_units" class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>{% trans 'folder'%}</th>
+                    <th>{% trans 'acronym'%}</th>
+                    <th>{% trans 'validite'%}</th>
+                    <th>{% trans 'title'%}</th>
+                    <th>{% trans 'type'%}</th>
+                    <th>{% trans 'requirement_entity_small'%}</th>
+                    <th>{% trans 'proposal_type' %}</th>
+                    <th>{% trans 'proposal_status' %}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for proposal in proposals %}
+                    <tr data-id="{{proposal.id}}" data-value="{{proposal.acronym}}">
+                        <td>{{ proposal.folder.entity|entity_last_version }}{{ proposal.folder.folder_id }}</td>
+                        <td>{{ proposal.learning_unit_year.acronym }}</td>
+                        <td>{{ proposal.learning_unit_year.academic_year }}</td>
+                        <td>{{ proposal.learning_unit_year.complete_title |default_if_none:'' }}</td>
+                        <td>{% if proposal.learning_unit_year.learning_container_year.container_type %}{% trans proposal.learning_unit_year.learning_container_year.container_type %}{% endif %}</td>
+                        <td>{{ learning_units|requirement_entity:forloop.counter0 }}</td>
+                        <td>{% if proposal.type %}{%  trans proposal.type  %}{% endif %}</td>
+                        <td>{% if proposal.state %}{% trans proposal.state %}{% endif %}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+        {% endif %}
         </div>
-    </form>
-    {% include 'proposal/list.html' %}
+    </div>
 {% endblock %}
 
 {% block script %}
