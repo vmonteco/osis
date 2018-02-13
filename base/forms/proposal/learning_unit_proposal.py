@@ -52,7 +52,7 @@ class LearningUnitProposalForm(SearchForm):
 
     entity_folder_id = forms.ChoiceField(
         label=_('folder_entity'),
-        choices=lazy(_get_entity_folder_id_ordered_by_acronym, tuple),
+        choices=lazy(_get_entity_folder_id_ordered_by_acronym, list),
         required=False
     )
 
