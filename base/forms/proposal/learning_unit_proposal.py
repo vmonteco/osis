@@ -26,6 +26,7 @@
 
 from django import forms
 from django.db.models import Prefetch
+from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
@@ -51,7 +52,7 @@ class LearningUnitProposalForm(SearchForm):
 
     entity_folder_id = forms.ChoiceField(
         label=_('folder_entity'),
-        choices=_get_entity_folder_id_ordered_by_acronym(),
+        choices=lazy(_get_entity_folder_id_ordered_by_acronym, tuple),
         required=False
     )
 
