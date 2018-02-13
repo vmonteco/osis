@@ -25,19 +25,9 @@
 ##############################################################################
 
 from django import forms
-from django.core.exceptions import ValidationError
-from django.db.models import Prefetch
 from django.utils.translation import ugettext_lazy as _
 
-from base import models as mdl
-from base.business.entity import get_entities_ids
-from base.business.entity_version import SERVICE_COURSE
-from base.business.learning_unit_year_with_context import append_latest_entities
-from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, TooManyResultsException
-from base.models import entity_version as mdl_entity_version, learning_unit_year
 from base.models.academic_year import AcademicYear, current_academic_year
-from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
-    learning_unit_year_subtypes, active_status
 from base.forms.utils.uppercase import convert_to_uppercase
 
 
