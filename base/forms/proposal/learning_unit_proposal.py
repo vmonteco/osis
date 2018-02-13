@@ -31,43 +31,25 @@ from django.utils.translation import ugettext_lazy as _
 from base import models as mdl
 from base.business.learning_unit_year_with_context import append_latest_entities
 from base.models import entity_version as mdl_entity_version
-from base.models.academic_year import AcademicYear, current_academic_year
 from base.models.enums import entity_container_year_link_type
 from base.models.enums import proposal_type, proposal_state
 from base.forms import learning_units as learning_units_form
 from base.forms.common import get_clean_data, TooManyResultsException
-from base.forms.utils.uppercase import convert_to_uppercase
-
-
-MAX_RECORDS = 1000
-ALL_LABEL = (None, _('all_label'))
-ALL_CHOICES = (ALL_LABEL,)
+from base.forms.learning_unit_search import SearchForm
 
 
 def _get_entity_folder_id_ordered_by_acronym():
     entities = mdl.proposal_folder.find_distinct_folder_entities()
     entities_sorted_by_acronym = sorted(list(entities), key=lambda t: t.most_recent_acronym)
 
-    return [ALL_LABEL] + [(an_entity.pk, an_entity.most_recent_acronym) for an_entity in entities_sorted_by_acronym]
+    return [SearchForm.ALL_LABEL] + [(ent.pk, ent.most_recent_acronym) for ent in entities_sorted_by_acronym]
 
 
 def _get_sorted_choices(tuple_of_choices):
-    return ALL_CHOICES + tuple(sorted(tuple_of_choices, key=lambda item: item[1]))
+    return SearchForm.ALL_CHOICES + tuple(sorted(tuple_of_choices, key=lambda item: item[1]))
 
 
-class LearningUnitProposalForm(forms.Form):
-    academic_year_id = forms.ModelChoiceField(
-        label=_('academic_year_small'),
-        queryset=AcademicYear.objects.all(),
-        empty_label=_('all_label'),
-        required=False,
-    )
-
-    requirement_entity_acronym = forms.CharField(
-        max_length=20,
-        required=False,
-        label=_('requirement_entity_small')
-    )
+class LearningUnitProposalForm(SearchForm):
 
     entity_folder_id = forms.ChoiceField(
         label=_('folder_entity'),
@@ -91,16 +73,6 @@ class LearningUnitProposalForm(forms.Form):
         required=False
     )
 
-    acronym = forms.CharField(
-        max_length=15,
-        required=False,
-        label=_('acronym')
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['academic_year_id'].initial = current_academic_year()
-
     def is_valid(self):
         if not super().is_valid():
             return False
@@ -118,11 +90,9 @@ class LearningUnitProposalForm(forms.Form):
                 break
         return criteria_present
 
-    def clean_requirement_entity_acronym(self):
-        return convert_to_uppercase(self.cleaned_data.get('requirement_entity_acronym'))
-
     def clean(self):
-        if self.cleaned_data and mdl.proposal_learning_unit.count_search_results(**self.cleaned_data) > MAX_RECORDS:
+        if self.cleaned_data \
+                and mdl.proposal_learning_unit.count_search_results(**self.cleaned_data) > SearchForm.MAX_RECORDS:
             raise TooManyResultsException
         return get_clean_data(self.cleaned_data)
 
