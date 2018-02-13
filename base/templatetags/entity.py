@@ -26,7 +26,7 @@
 
 from django import template
 from base.models import entity_version
-
+from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
 
 register = template.Library()
 
@@ -34,8 +34,8 @@ register = template.Library()
 @register.filter
 def requirement_entity(list, i):
     try:
-        return list[int(i)].entities.get('REQUIREMENT_ENTITY').acronym
-    except:
+        return list[int(i)].entities.get(REQUIREMENT_ENTITY).acronym
+    except AttributeError:
         return ""
 
 
@@ -43,5 +43,5 @@ def requirement_entity(list, i):
 def entity_last_version(entity):
     try:
         return entity_version.get_last_version(entity).acronym
-    except:
+    except AttributeError:
         return None

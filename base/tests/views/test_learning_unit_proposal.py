@@ -50,6 +50,7 @@ from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
+from base.tests.factories.proposal_folder import ProposalFolderFactory
 from reference.tests.factories.language import LanguageFactory
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
 from base.views.learning_unit_proposal import PROPOSAL_SEARCH
@@ -352,12 +353,6 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
 
-    def test_learning_unit_proposals(self):
-        url = reverse('learning_unit_proposal_search')
-        response = self.client.get(self.url)
-
-        self.assertEqual(response.status_code, HttpResponse.status_code)
-
     def test_learning_units_proposal_search(self):
         a_learning_unit_proposal = _create_proposal_learning_unit()
         data = {}
@@ -367,7 +362,6 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertCountEqual(response.context['proposals'], [a_learning_unit_proposal])
         self.assertIsInstance(response.context['form'], LearningUnitProposalForm)
         self.assertEqual(response.context['search_type'], PROPOSAL_SEARCH)
-
 
 
 class TestLearningUnitProposalCancellation(TestCase):
@@ -522,6 +516,8 @@ def _test_entities_equal(learning_container_year, entities_values_dict):
 
 
 def _create_proposal_learning_unit():
+    an_entity = EntityFactory()
+    EntityVersionFactory(entity=an_entity)
     a_learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212", subtype=learning_unit_year_subtypes.FULL)
     an_entity_container_year = EntityContainerYearFactory(
         learning_container_year=a_learning_unit_year.learning_container_year,
@@ -558,10 +554,12 @@ def _create_proposal_learning_unit():
             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: None
         }
     }
+
     return ProposalLearningUnitFactory(learning_unit_year=a_learning_unit_year,
                                        type=proposal_type.ProposalType.MODIFICATION.name,
                                        state=proposal_state.ProposalState.FACULTY.name,
-                                       initial_data=initial_data)
+                                       initial_data=initial_data,
+                                       folder=ProposalFolderFactory(entity=an_entity))
 
 
 def _modify_learning_unit_year_data(a_learning_unit_year):
