@@ -46,7 +46,6 @@ class SearchForm(forms.Form):
     ALL_LABEL = (None, _('all_label'))
     ALL_CHOICES = (ALL_LABEL,)
 
-
     academic_year_id = forms.ModelChoiceField(
         label=_('academic_year_small'),
         queryset=AcademicYear.objects.all(),
