@@ -33,6 +33,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.urlresolvers import reverse_lazy
+from django.db import IntegrityError
 from django.db.models import BLANK_CHOICE_DASH
 from django.forms import model_to_dict
 from django.http import HttpResponseRedirect
@@ -71,7 +72,7 @@ from base.models.learning_container import LearningContainer
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, LEARNING_UNIT_ACRONYM_REGEX_FULL
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
-from base.views.common import display_error_messages
+from base.views.common import display_error_messages, display_success_messages
 from base.views.learning_units import perms
 from cms.models import text_label
 from reference.models import language
@@ -144,7 +145,13 @@ def volumes_validation(request, learning_unit_year_id):
 def learning_unit_volumes_management(request, learning_unit_year_id):
     # FIXME : Use a formset instead !
     if request.method == 'POST':
-        _learning_unit_volumes_management_edit(request, learning_unit_year_id)
+        errors = _learning_unit_volumes_management_edit(request, learning_unit_year_id)
+
+        if not errors:
+            display_success_messages(request, _('success_modification_learning_unit'))
+            return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
+
+        display_error_messages(request, errors)
 
     context = _get_common_context_learning_unit_year(
         learning_unit_year_id,
@@ -447,17 +454,12 @@ def _check_if_display_message(request, found_learning_units):
 
 
 def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
-    errors = None
     volumes_encoded = extract_volumes_from_data(request.POST.dict())
 
     try:
-        errors = learning_unit_year_volumes.update_volumes(learning_unit_year_id, volumes_encoded)
-    except Exception as e:
-        error_msg = e.messages[0] if isinstance(e, ValidationError) else e.args[0]
-        messages.add_message(request, messages.ERROR, _(error_msg))
-
-    if errors:
-        display_error_messages(request, errors)
+        return learning_unit_year_volumes.update_volumes(learning_unit_year_id, volumes_encoded)
+    except IntegrityError as e:
+        return e.args[0]
 
 
 @login_required

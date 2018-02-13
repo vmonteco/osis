@@ -28,8 +28,10 @@ from decimal import Decimal
 from unittest import mock
 
 import factory.fuzzy
+from django.contrib import messages
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
@@ -939,9 +941,8 @@ class LearningUnitViewTestCase(TestCase):
             generated_container_year.learning_component_tp_partim
         ])
 
-    @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager')
-    def test_get_learning_unit_volumes_management_post(self, mock_program_manager, mock_render):
+    def test_get_learning_unit_volumes_management_post(self, mock_program_manager):
         mock_program_manager.return_value = True
 
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
@@ -954,8 +955,15 @@ class LearningUnitViewTestCase(TestCase):
 
         request = request_factory.post(url, self._get_volumes_data([learning_unit_year]))
         request.user = self.a_superuser
+
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
         learning_unit_volumes_management(request, learning_unit_year.id)
-        self.assertTrue(mock_render.called)
+        msg_level = [m.level for m in get_messages(request)]
+        msg = [m.message for m in get_messages(request)]
+        self.assertEqual(len(msg), 1)
+        self.assertIn(messages.SUCCESS, msg_level)
 
     def test_volumes_validation(self):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
