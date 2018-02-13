@@ -27,7 +27,7 @@ from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 from base.models.osis_model_admin import OsisModelAdmin
-from base.models import proposal_folder, entity
+from base.models import entity
 
 
 class ProposalFolderAdmin(OsisModelAdmin):
@@ -58,5 +58,5 @@ def find_by_entity_and_folder_id(an_entity, a_folder_id):
 
 
 def find_distinct_folder_entities():
-    entities = [an_entity.entity.id for an_entity in proposal_folder.ProposalFolder.objects.distinct('entity')]
+    entities = [an_entity.entity.id for an_entity in ProposalFolder.objects.distinct('entity')]
     return entity.Entity.objects.filter(pk__in=entities)
