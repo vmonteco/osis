@@ -458,7 +458,7 @@ def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
 
     try:
         return learning_unit_year_volumes.update_volumes(learning_unit_year_id, volumes_encoded)
-    except IntegrityError as e:
+    except (IntegrityError, ValueError) as e:
         return e.args[0]
 
 
