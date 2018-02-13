@@ -2560,3 +2560,21 @@ msgstr "Le sous-type de stage ne peut pas être séléctionnné pour un type d'u
 
 msgid "%(subtype)s %(acronym)s is in proposal"
 msgstr "%(subtype)s %(acronym)s est en proposition"
+
+msgid "Site"
+msgstr "Site"
+
+msgid "proposal_type"
+msgstr "Type proposition"
+
+msgid "proposal_status"
+msgstr "Etat proposition"
+
+msgid "folder_entity"
+msgstr "Sigle dossier"
+
+msgid "proposals_search"
+msgstr "Recherche - Propositions"
+
+msgid "folder_num"
+msgstr "N° dossier"
