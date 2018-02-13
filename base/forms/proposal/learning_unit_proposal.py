@@ -30,9 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
 from base.business.learning_unit_year_with_context import append_latest_entities
-from base.models import entity_version as mdl_entity_version
-from base.models.enums import entity_container_year_link_type
-from base.models.enums import proposal_type, proposal_state
+from base.models.enums import entity_container_year_link_type, proposal_type, proposal_state
 from base.forms import learning_units as learning_units_form
 from base.forms.common import get_clean_data, TooManyResultsException
 from base.forms.learning_unit_search import SearchForm
@@ -99,11 +97,11 @@ class LearningUnitProposalForm(SearchForm):
     def _get_proposal_learning_units(self):
         clean_data = self.cleaned_data
         parent_version_prefetch = Prefetch('parent__entityversion_set',
-                                           queryset=mdl_entity_version.search(),
+                                           queryset=mdl.entity_version.search(),
                                            to_attr='entity_versions')
 
         entity_version_prefetch = Prefetch('entity__entityversion_set',
-                                           queryset=mdl_entity_version.search()
+                                           queryset=mdl.entity_version.search()
                                            .prefetch_related(parent_version_prefetch),
                                            to_attr='entity_versions')
         entity_container_prefetch = Prefetch('learning_unit_year__learning_container_year__entitycontaineryear_set',
