@@ -43,10 +43,10 @@ class EntityTagTest(TestCase):
 
     def setUp(self):
         yr = timezone.now().year
-        self.entity_1 = EntityFactory()
-        self.entity_version_1 = EntityVersionFactory(entity=self.entity_1, acronym=ENTITY_REQUIREMENT_ACRONYM)
         generator_learning_container = GenerateContainer(start_year=yr-1, end_year=yr)
         self.a_learning_unit_year = generator_learning_container.generated_container_years[0].learning_unit_year_full
+        self.entity_1 = generator_learning_container.entities[0]
+        self.entity_version_1 = EntityVersionFactory(entity=self.entity_1, acronym=ENTITY_REQUIREMENT_ACRONYM)
 
     def test_requirement_entity(self):
         lu = self.a_learning_unit_year
