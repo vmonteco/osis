@@ -58,5 +58,5 @@ def find_by_entity_and_folder_id(an_entity, a_folder_id):
 
 
 def find_distinct_folder_entities():
-    entities = [an_entity.entity.id for an_entity in ProposalFolder.objects.distinct('entity')]
+    entities = ProposalFolder.objects.distinct('entity').values_list('entity__id')
     return entity.Entity.objects.filter(pk__in=entities)
