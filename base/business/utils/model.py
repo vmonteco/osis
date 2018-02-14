@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+
+
 def update_instance_model_from_data(instance, fields_to_update):
     for field, value in fields_to_update.items():
         if hasattr(instance.__class__, field):
