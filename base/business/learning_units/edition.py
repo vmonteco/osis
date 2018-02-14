@@ -33,6 +33,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_unit_deletion import delete_from_given_learning_unit_year, \
     check_learning_unit_year_deletion
+from base.business.utils.model import update_instance_model_from_data
 from base.models import entity_container_year, learning_component_year, learning_class_year, learning_unit_component
 from base.models.academic_year import AcademicYear
 from base.models.entity_component_year import EntityComponentYear
@@ -263,16 +264,9 @@ def filter_biennial(queryset, periodicity):
 
 
 def update_learning_unit_year(luy_to_update, fields_to_update):
-    _update_instance_model_from_data(luy_to_update.learning_unit, fields_to_update)
-    _update_instance_model_from_data(luy_to_update.learning_container_year, fields_to_update)
-    _update_instance_model_from_data(luy_to_update, fields_to_update)
-
-
-def _update_instance_model_from_data(instance, fields_to_update):
-    for field, value in fields_to_update.items():
-        if hasattr(instance.__class__, field):
-            setattr(instance, field, value)
-    instance.save()
+    update_instance_model_from_data(luy_to_update.learning_unit, fields_to_update)
+    update_instance_model_from_data(luy_to_update.learning_container_year, fields_to_update)
+    update_instance_model_from_data(luy_to_update, fields_to_update)
 
 
 def update_learning_unit_year_entities(luy_to_update, entities_by_type_to_update):
