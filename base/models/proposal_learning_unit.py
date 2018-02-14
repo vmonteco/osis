@@ -36,7 +36,7 @@ class ProposalLearningUnitAdmin(OsisModelAdmin):
 
     search_fields = ['folder__folder_id', 'folder_entity', 'learning_unit_year__acronym']
     list_filter = ('type', 'state')
-    raw_id_fields = ('learning_unit_year', 'folder', 'author' )
+    raw_id_fields = ('learning_unit_year', 'folder', 'author')
 
 
 class ProposalLearningUnit(models.Model):
