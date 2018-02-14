@@ -196,16 +196,14 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         can_modify_periodicity = parent.learning_unit.periodicity == ANNUAL
         self.fields["periodicity"].disabled = not can_modify_periodicity
 
+    def get_data_for_learning_unit(self):
+        data_without_entities = {field: value for field, value in self.cleaned_data.items()
+                                 if field.upper() not in ENTITY_TYPE_LIST}
+        lu_full_data = {field: value for field, value in data_without_entities.items()
+                        if field not in FULL_READ_ONLY_FIELDS}
+        return lu_full_data
 
-def extract_data_of_learning_unit_of_type_full_from_form(form_data):
-    data_without_entities = {field: value for field, value in form_data.items()
-                             if field.upper() not in ENTITY_TYPE_LIST}
-    lu_full_data = {field: value for field, value in data_without_entities.items()
-                    if field not in FULL_READ_ONLY_FIELDS}
-    return lu_full_data
-
-
-def extract_entities_data_from_form_data(form_data):
-    return {entity_type.upper(): entity_version.entity if entity_version else None
-            for entity_type, entity_version in form_data.items()
-            if entity_type.upper() in ENTITY_TYPE_LIST}
+    def get_entities_data(self):
+        return {entity_type.upper(): entity_version.entity if entity_version else None
+                for entity_type, entity_version in self.cleaned_data.items()
+                if entity_type.upper() in ENTITY_TYPE_LIST}

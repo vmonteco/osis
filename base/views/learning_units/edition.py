@@ -30,15 +30,10 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 
-from base.models.enums.learning_unit_periodicity import ANNUAL
-from base.models.enums.learning_unit_year_subtypes import FULL
-
 from base.views.learning_unit import get_learning_unit_identification_context, compute_learning_unit_form_initial_data
 from base.business.learning_units.edition import edit_learning_unit_end_date, update_learning_unit_year, \
     update_learning_unit_year_entities
-from base.forms.learning_unit.edition import LearningUnitEndDateForm, \
-    extract_data_of_learning_unit_of_type_full_from_form, extract_entities_data_from_form_data, \
-    LearningUnitModificationForm
+from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
@@ -84,8 +79,8 @@ def modify_learning_unit(request, learning_unit_year_id):
     form = LearningUnitModificationForm(request.POST or None, parent=learning_unit_year.parent, person=person,
                                         initial=initial_data)
     if form.is_valid():
-        entities_data = extract_entities_data_from_form_data(form.cleaned_data)
-        lu_type_full_data = extract_data_of_learning_unit_of_type_full_from_form(form.cleaned_data)
+        entities_data = form.get_data_for_learning_unit()
+        lu_type_full_data = form.get_data_for_learning_unit()
 
         try:
             update_learning_unit_year(learning_unit_year, lu_type_full_data)
