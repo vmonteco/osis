@@ -85,6 +85,7 @@ urlpatterns = [
         url(r'^$', learning_unit.learning_units, name='learning_units'),
         url(r'^by_activity/', learning_unit.learning_units, name='learning_units_activity'),
         url(r'^by_service_course/', learning_unit.learning_units_service_course, name='learning_units_service_course'),
+        url(r'^by_proposal/', learning_unit_proposal.learning_units_proposal_search, name='learning_units_proposal'),
         url(r'^new/', include([
             url(r'^academic_year_id=(?P<academic_year>[0-9]+)$', learning_unit.learning_unit_create,
                 name="learning_unit_create"),
@@ -102,7 +103,7 @@ urlpatterns = [
                 url(r'^modification/$', learning_unit_proposal.propose_modification_of_learning_unit,
                     name="learning_unit_modification_proposal"),
                 url(r'^cancel/$', learning_unit_proposal.cancel_proposal_of_learning_unit,
-                    name="learning_unit_cancel_proposal")
+                    name="learning_unit_cancel_proposal"),
             ])),
             url(r'^edit/$', edition.learning_unit_edition, name="learning_unit_edition"),
             url(r'^modify/$', edition.modify_learning_unit, name="edit_learning_unit"),
@@ -128,6 +129,8 @@ urlpatterns = [
         url(r'^check/(?P<type>[A-Z]+)$', learning_unit.check_acronym, name="check_acronym"),
         url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
     ])),
+    url(r'^proposals/search/$', learning_unit_proposal.learning_units_proposal_search,
+        name="learning_unit_proposal_search"),
 
     url(r'^my_osis/', include([
         url(r'^$', my_osis.my_osis_index, name="my_osis"),

@@ -37,6 +37,7 @@ from base.tests.factories.entity_version import EntityVersionFactory
 from base.models.enums import entity_container_year_link_type, entity_type
 from reference.tests.factories.country import CountryFactory
 from base.forms import learning_units
+from base.forms.learning_unit_search import SearchForm
 
 
 class TestLearningUnitForm(TestCase):
@@ -178,7 +179,7 @@ class TestLearningUnitForm(TestCase):
 
     @patch("base.models.learning_unit_year.count_search_results")
     def test_case_maximum_results_reached(self, mock_count):
-        mock_count.return_value = learning_units.MAX_RECORDS + 1
+        mock_count.return_value = SearchForm.MAX_RECORDS + 1
         form = learning_units.LearningUnitYearForm(data=self.get_valid_data())
 
         with self.assertRaises(TooManyResultsException):

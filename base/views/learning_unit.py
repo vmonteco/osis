@@ -426,7 +426,7 @@ def _learning_units_search(request, search_type):
         if form.is_valid():
             found_learning_units = form.get_activity_learning_units()
 
-            _check_if_display_message(request, found_learning_units)
+            check_if_display_message(request, found_learning_units)
     except TooManyResultsException:
         messages.add_message(request, messages.ERROR, _('too_many_results'))
 
@@ -446,8 +446,8 @@ def _learning_units_search(request, search_type):
     return layout.render(request, "learning_units.html", context)
 
 
-def _check_if_display_message(request, found_learning_units):
-    if not found_learning_units:
+def check_if_display_message(request, results):
+    if not results:
         messages.add_message(request, messages.WARNING, _('no_result'))
     return True
 

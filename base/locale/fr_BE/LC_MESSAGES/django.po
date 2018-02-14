@@ -2563,3 +2563,21 @@ msgstr "%(subtype)s %(acronym)s est en proposition"
 
 msgid "volume_have_more_than_2_decimal_places"
 msgstr "Le volume a plus de 2 décimales"
+
+msgid "Site"
+msgstr "Site"
+
+msgid "proposal_type"
+msgstr "Type proposition"
+
+msgid "proposal_status"
+msgstr "Etat proposition"
+
+msgid "folder_entity"
+msgstr "Sigle dossier"
+
+msgid "proposals_search"
+msgstr "Recherche - Propositions"
+
+msgid "folder_num"
+msgstr "N° dossier"

@@ -38,11 +38,15 @@ class TextLabelAdmin(AuditableModelAdmin):
     ordering = ('entity',)
     raw_id_fields = ('parent',)
     list_filter = ('published',)
+    fieldsets = ((None, {'fields': ('parent', 'entity', 'label', 'order', 'published',)}),)
 
     def delete_selected(self, request, obj):
         for text_label in obj.all():
             text_label.delete()
             reorganise_order(text_label.parent)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 class TextLabel(AuditableModel):

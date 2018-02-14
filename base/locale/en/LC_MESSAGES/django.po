@@ -2556,3 +2556,21 @@ msgstr ""
 
 msgid "volume_have_more_than_2_decimal_places"
 msgstr "The volume have more than 2 decimal places"
+
+msgid "Site"
+msgstr "Site"
+
+msgid "proposal_type"
+msgstr "Proposal type"
+
+msgid "proposal_status"
+msgstr "Status proposal"
+
+msgid "folder_entity"
+msgstr "Folder entity"
+
+msgid "proposals_search"
+msgstr "Proposal - Search"
+
+msgid "folder_num"
+msgstr "Folder num."

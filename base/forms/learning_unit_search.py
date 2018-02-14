@@ -23,40 +23,41 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-from django.core.exceptions import ObjectDoesNotExist
+
+from django import forms
 from django.utils.translation import ugettext_lazy as _
-from base.models.osis_model_admin import OsisModelAdmin
-from base.models import entity
+
+from base.models.academic_year import AcademicYear, current_academic_year
+from base.forms.utils.uppercase import convert_to_uppercase
 
 
-class ProposalFolderAdmin(OsisModelAdmin):
-    list_display = ('entity', 'folder_id', )
+class SearchForm(forms.Form):
+    MAX_RECORDS = 1000
+    ALL_LABEL = (None, _('all_label'))
+    ALL_CHOICES = (ALL_LABEL,)
 
-    search_fields = ['folder_id']
-    raw_id_fields = ('entity', )
+    academic_year_id = forms.ModelChoiceField(
+        label=_('academic_year_small'),
+        queryset=AcademicYear.objects.all(),
+        empty_label=_('all_label'),
+        required=False,
+    )
 
+    requirement_entity_acronym = forms.CharField(
+        max_length=20,
+        required=False,
+        label=_('requirement_entity_small')
+    )
 
-class ProposalFolder(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    entity = models.ForeignKey('Entity')
-    folder_id = models.IntegerField()
+    acronym = forms.CharField(
+        max_length=15,
+        required=False,
+        label=_('acronym')
+    )
 
-    class Meta:
-        unique_together = ('entity', 'folder_id', )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['academic_year_id'].initial = current_academic_year()
 
-    def __str__(self):
-        return _("folder_number").format(self.folder_id)
-
-
-def find_by_entity_and_folder_id(an_entity, a_folder_id):
-    try:
-        return ProposalFolder.objects.get(entity=an_entity, folder_id=a_folder_id)
-    except ObjectDoesNotExist:
-        return None
-
-
-def find_distinct_folder_entities():
-    entities = ProposalFolder.objects.distinct('entity').values_list('entity__id', flat=True)
-    return entity.Entity.objects.filter(pk__in=entities)
+    def clean_requirement_entity_acronym(self):
+        return convert_to_uppercase(self.cleaned_data.get('requirement_entity_acronym'))
