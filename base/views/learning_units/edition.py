@@ -84,12 +84,17 @@ def modify_learning_unit(request, learning_unit_year_id):
         entities_data = extract_entities_data_from_form_data(form.cleaned_data)
         lu_type_full_data = extract_learning_unit_of_type_full_data_from_form_data(form.cleaned_data)
 
-        update_learning_unit_year(learning_unit_year, lu_type_full_data)
-        update_learning_unit_year_entities(learning_unit_year, entities_data)
+        try:
+            update_learning_unit_year(learning_unit_year, lu_type_full_data)
+            update_learning_unit_year_entities(learning_unit_year, entities_data)
 
-        display_success_messages(request, _("success_modification_learning_unit"))
+            display_success_messages(request, _("success_modification_learning_unit"))
 
-        return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
+            return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
+
+        except IntegrityError:
+            display_error_messages(request, _("error_modification_learning_unit"))
+
     context = {
         "learning_unit_year": learning_unit_year,
         "form": form

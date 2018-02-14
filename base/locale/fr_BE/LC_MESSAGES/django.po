@@ -2555,6 +2555,9 @@ msgstr "L'entité responsable cahier de charges et celle d'attribution ne peuven
 msgid "success_modification_learning_unit"
 msgstr "L'unité d'enseignement a été modifiée."
 
+msgid "error_modification_learning_unit"
+msgstr "Erreur lors de la modification de l'unité d'enseignement."
+
 msgid "cannot_set_internship_subtype_for_type_other_than_internship"
 msgstr "Le sous-type de stage ne peut pas être séléctionnné pour un type d'unité d'enseignement autre que stage."
 
