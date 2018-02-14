@@ -36,6 +36,7 @@ class TranslatedTextLabelAdmin(AuditableModelAdmin):
     ordering = ('label',)
     raw_id_fields = ('text_label',)
     list_filter = ('language',)
+    fieldsets = ((None, {'fields': ('label', 'language', 'text_label',)}),)
 
     def has_delete_permission(self, request, obj=None):
         return False
