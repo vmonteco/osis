@@ -199,9 +199,9 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     def get_data_for_learning_unit(self):
         data_without_entities = {field: value for field, value in self.cleaned_data.items()
                                  if field.upper() not in ENTITY_TYPE_LIST}
-        lu_full_data = {field: value for field, value in data_without_entities.items()
+        lu_data = {field: value for field, value in data_without_entities.items()
                         if field not in FULL_READ_ONLY_FIELDS}
-        return lu_full_data
+        return lu_data
 
     def get_entities_data(self):
         return {entity_type.upper(): entity_version.entity if entity_version else None
