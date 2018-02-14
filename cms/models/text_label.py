@@ -44,6 +44,9 @@ class TextLabelAdmin(AuditableModelAdmin):
             text_label.delete()
             reorganise_order(text_label.parent)
 
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 
 class TextLabel(AuditableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)

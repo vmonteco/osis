@@ -37,6 +37,9 @@ class TranslatedTextLabelAdmin(AuditableModelAdmin):
     raw_id_fields = ('text_label',)
     list_filter = ('language',)
 
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 
 class TranslatedTextLabel(AuditableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
