@@ -24,7 +24,9 @@
 #
 ##############################################################################
 import datetime
-from django.test import TestCase, RequestFactory
+from unittest import mock
+from django.test import TestCase, RequestFactory, Client
+from django.core.urlresolvers import reverse
 
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.person import PersonFactory
@@ -33,6 +35,7 @@ from assistant.views.phd_supervisor_review import generate_phd_supervisor_menu_t
 from assistant.tests.factories.review import ReviewFactory
 from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 from assistant.tests.factories.academic_assistant import AcademicAssistantFactory
+from assistant.tests.factories.settings import SettingsFactory
 from assistant.models.enums import assistant_mandate_state, review_status
 
 
@@ -40,6 +43,8 @@ class PhdSupervisorReviewViewTestCase(TestCase):
 
     def setUp(self):
         self.factory = RequestFactory()
+        self.client = Client()
+        self.settings = SettingsFactory()
         today = datetime.date.today()
         self.current_academic_year = AcademicYearFactory(start_date=today,
                                                          end_date=today.replace(year=today.year + 1),
@@ -75,4 +80,9 @@ class PhdSupervisorReviewViewTestCase(TestCase):
                                                            assistant_mandate_state.PHD_SUPERVISOR),
                          [{'item': assistant_mandate_state.PHD_SUPERVISOR, 'class': 'active',
                            'action': 'view'}])
+
+    def test_review_view(self):
+        self.client.force_login(self.phd_supervisor.user)
+        response = self.client.post('/assistants/phd_supervisor/pst_form/', {'mandate_id': self.assistant_mandate.id})
+        self.assertEqual(response.status_code, 200)
 

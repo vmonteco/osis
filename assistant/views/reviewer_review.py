@@ -32,12 +32,13 @@ from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils import timezone
 
-from base.models import person, entity_version
+from base.models import person, entity_version, academic_year
 from base.models.enums import entity_type
 from assistant.forms import ReviewForm
 from assistant.models import assistant_mandate, review, mandate_entity, tutoring_learning_unit_year
 from assistant.models import reviewer, settings, assistant_document_file
 from assistant.models.enums import review_status, assistant_mandate_state, reviewer_role, document_type
+from assistant.models.enums import assistant_mandate_renewal
 
 
 def user_is_reviewer_and_procedure_is_open(user):
@@ -179,6 +180,14 @@ def pst_form_view(request):
     current_reviewer = reviewer.find_by_person(request.user.person)
     current_role = current_reviewer.role
     entity = entity_version.get_last_version(current_reviewer.entity)
+    entities = []
+    entities_id = mandate.mandateentity_set.all().order_by('id')
+    for this_entity in entities_id:
+        current_entityversion = entity_version.get_by_entity_and_date(
+            this_entity.entity, academic_year.current_academic_year().start_date)[0]
+        if current_entityversion is None:
+            current_entityversion = entity_version.get_last_version(this_entity.entity)
+        entities.append(current_entityversion)
     learning_units = tutoring_learning_unit_year.find_by_mandate(mandate)
     phd_files = assistant_document_file.find_by_assistant_mandate_and_description(mandate,
                                                                                   document_type.PHD_DOCUMENT)
@@ -194,7 +203,9 @@ def pst_form_view(request):
                                                   'assistant': assistant, 'mandate': mandate,
                                                   'learning_units': learning_units,
                                                   'entity': entity,
+                                                  'entities': entities,
                                                   'phd_files': phd_files,
+                                                  'assistant_mandate_renewal': assistant_mandate_renewal,
                                                   'research_files': research_files,
                                                   'tutoring_files': tutoring_files,
                                                   'current_reviewer': current_reviewer,

@@ -30,12 +30,13 @@ from django.core.urlresolvers import reverse
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils import timezone
-from base.models import academic_year
+from base.models import academic_year, entity_version
 from base.models.enums import entity_type
 from assistant.forms import ReviewForm
 from assistant.models import assistant_mandate, review, tutoring_learning_unit_year, mandate_entity
 from assistant.models import settings, assistant_document_file
 from assistant.models.enums import review_status, assistant_mandate_state, reviewer_role, document_type
+from assistant.models.enums import assistant_mandate_renewal
 
 
 def user_is_phd_supervisor_and_procedure_is_open(user):
@@ -166,6 +167,14 @@ def pst_form_view(request):
     current_person = request.user.person
     learning_units = tutoring_learning_unit_year.find_by_mandate(mandate)
     assistant = mandate.assistant
+    entities = []
+    entities_id = mandate.mandateentity_set.all().order_by('id')
+    for this_entity in entities_id:
+        current_entityversion = entity_version.get_by_entity_and_date(
+            this_entity.entity, academic_year.current_academic_year().start_date)[0]
+        if current_entityversion is None:
+            current_entityversion = entity_version.get_last_version(this_entity.entity)
+        entities.append(current_entityversion)
     phd_files = assistant_document_file.find_by_assistant_mandate_and_description(mandate,
                                                                                   document_type.PHD_DOCUMENT)
     research_files = assistant_document_file.find_by_assistant_mandate_and_description(mandate,
@@ -179,9 +188,11 @@ def pst_form_view(request):
                                                   'learning_units': learning_units,
                                                   'current_person': current_person,
                                                   'phd_files': phd_files,
+                                                  'entities': entities,
                                                   'research_files': research_files,
                                                   'tutoring_files': tutoring_files,
                                                   'role': current_role,
+                                                  'assistant_mandate_renewal': assistant_mandate_renewal,
                                                   'menu_type': 'phd_supervisor_menu',
                                                   'year': mandate.academic_year.year + 1})
 
