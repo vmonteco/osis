@@ -79,7 +79,7 @@ def modify_learning_unit(request, learning_unit_year_id):
     form = LearningUnitModificationForm(request.POST or None, parent=learning_unit_year.parent, person=person,
                                         initial=initial_data)
     if form.is_valid():
-        entities_data = form.get_data_for_learning_unit()
+        entities_data = form.get_entities_data()
         lu_type_full_data = form.get_data_for_learning_unit()
 
         try:
