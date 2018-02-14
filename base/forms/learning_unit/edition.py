@@ -35,7 +35,9 @@ from base.models import academic_year
 from base.models.academic_year import AcademicYear
 from base.models.entity_version import find_main_entities_version_filtered_by_person
 from base.models.enums.attribution_procedure import AttributionProcedures
+from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums.learning_container_year_types import INTERNSHIP, DISSERTATION
+from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.enums.learning_unit_year_subtypes import PARTIM
 from base.models.enums.vacant_declaration_type import VacantDeclarationType
 from base.models.learning_unit import is_old_learning_unit
@@ -108,8 +110,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     type_declaration_vacant = forms.ChoiceField(required=False, choices=_create_type_declaration_vacant_list())
     attribution_procedure = forms.ChoiceField(required=False, choices=_create_attribution_procedure_list())
 
-    def __init__(self, *args, person=None,  max_credits=MAXIMUM_CREDITS, status_value=None,
-                 can_modify_periodicity=False, **kwargs):
+    def __init__(self, *args, parent=None, person=None, **kwargs):
         initial = kwargs.get("initial", None)
         learning_unit_year_subtype = initial.get("subtype") if initial else None
         learning_container_type = initial.get("container_type") if initial else None
@@ -121,9 +122,11 @@ class LearningUnitModificationForm(LearningUnitYearForm):
 
         self._disabled_fields_base_on_learning_unit_year_subtype(learning_unit_year_subtype)
         self._disabled_internship_subtype_field_if_not_internship_container_type(learning_container_type)
-        self._set_max_credits(max_credits)
-        self._set_status_value(status_value)
-        self._enabled_periodicity(can_modify_periodicity)
+
+        if parent:
+            self._set_max_credits(parent)
+            self._set_status_value(parent)
+            self._enabled_periodicity(parent)
 
     def is_valid(self):
         if not BootstrapForm.is_valid(self):
@@ -177,16 +180,32 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         for field in fields_to_disable:
             self.fields[field].disabled = True
 
-    def _set_max_credits(self, max_credits):
+    def _set_max_credits(self, parent):
+        max_credits = parent.credits
         self.fields["credits"].max_value = max_credits
         self.fields['credits'].validators.append(MaxStrictlyValueValidator(max_credits))
 
-    def _set_status_value(self, status_value):
+    def _set_status_value(self, parent):
+        status_value = None if parent.status else parent.status
         if status_value is None:
             pass
         self.fields["status"].initial = status_value
         self.fields["status"].disabled = True
 
-    def _enabled_periodicity(self, can_modify_periodicity):
-        if can_modify_periodicity:
-            self.fields["periodicity"].disabled = False
+    def _enabled_periodicity(self, parent):
+        can_modify_periodicity = parent.learning_unit.periodicity == ANNUAL
+        self.fields["periodicity"].disabled = not can_modify_periodicity
+
+
+def extract_data_of_learning_unit_of_type_full_from_form(form_data):
+    data_without_entities = {field: value for field, value in form_data.items()
+                             if field.upper() not in ENTITY_TYPE_LIST}
+    lu_full_data = {field: value for field, value in data_without_entities.items()
+                    if field not in FULL_READ_ONLY_FIELDS}
+    return lu_full_data
+
+
+def extract_entities_data_from_form_data(form_data):
+    return {entity_type.upper(): entity_version.entity if entity_version else None
+            for entity_type, entity_version in form_data.items()
+            if entity_type.upper() in ENTITY_TYPE_LIST}

@@ -30,14 +30,15 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 
-from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums.learning_unit_periodicity import ANNUAL
-from base.models.enums.learning_unit_year_subtypes import PARTIM, FULL
+from base.models.enums.learning_unit_year_subtypes import FULL
+
 from base.views.learning_unit import get_learning_unit_identification_context, compute_learning_unit_form_initial_data
 from base.business.learning_units.edition import edit_learning_unit_end_date, update_learning_unit_year, \
     update_learning_unit_year_entities
-from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm, \
-    FULL_READ_ONLY_FIELDS
+from base.forms.learning_unit.edition import LearningUnitEndDateForm, \
+    extract_data_of_learning_unit_of_type_full_from_form, extract_entities_data_from_form_data, \
+    LearningUnitModificationForm
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
@@ -79,10 +80,12 @@ def learning_unit_edition(request, learning_unit_year_id):
 def modify_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     person = get_object_or_404(Person, user=request.user)
-    form = initialize_modification_form(learning_unit_year, person, request.POST)
+    initial_data = compute_learning_unit_modification_form_initial_data(learning_unit_year)
+    form = LearningUnitModificationForm(request.POST or None, parent=learning_unit_year.parent, person=person,
+                                        initial=initial_data)
     if form.is_valid():
         entities_data = extract_entities_data_from_form_data(form.cleaned_data)
-        lu_type_full_data = extract_learning_unit_of_type_full_data_from_form_data(form.cleaned_data)
+        lu_type_full_data = extract_data_of_learning_unit_of_type_full_from_form(form.cleaned_data)
 
         try:
             update_learning_unit_year(learning_unit_year, lu_type_full_data)
@@ -100,36 +103,6 @@ def modify_learning_unit(request, learning_unit_year_id):
         "form": form
     }
     return layout.render(request, 'learning_unit/modification.html', context)
-
-
-def initialize_modification_form(luy, person, post_data):
-    initial_data = compute_learning_unit_modification_form_initial_data(luy)
-
-    parent_luy = luy.parent
-    if luy.subtype == FULL or parent_luy is None:
-        return LearningUnitModificationForm(post_data or None, person=person, initial=initial_data)
-
-    max_credits = parent_luy.credits
-    status_value = None if parent_luy.status else parent_luy.status
-    can_modify_periodicity = parent_luy.learning_unit.periodicity == ANNUAL
-
-    return LearningUnitModificationForm(post_data or None, person=person, max_credits=max_credits,
-                                        status_value=status_value, can_modify_periodicity=can_modify_periodicity,
-                                        initial=initial_data)
-
-
-def extract_learning_unit_of_type_full_data_from_form_data(form_data):
-    data_without_entities = {field: value for field, value in form_data.items()
-                             if field.upper() not in ENTITY_TYPE_LIST}
-    lu_full_data = {field: value for field, value in data_without_entities.items()
-                    if field not in FULL_READ_ONLY_FIELDS}
-    return lu_full_data
-
-
-def extract_entities_data_from_form_data(form_data):
-    return {entity_type.upper(): entity_version.entity if entity_version else None
-            for entity_type, entity_version in form_data.items()
-            if entity_type.upper() in ENTITY_TYPE_LIST}
 
 
 def compute_learning_unit_modification_form_initial_data(learning_unit_year):
