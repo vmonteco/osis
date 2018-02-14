@@ -35,6 +35,7 @@ from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 from attribution.tests.factories.attribution import AttributionNewFactory
 from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
 from base.business import learning_unit_deletion
+from base.business.learning_unit import CMS_LABEL_SPECIFICATIONS, CMS_LABEL_PEDAGOGY, CMS_LABEL_SUMMARY
 from base.models.enums import entity_container_year_link_type
 from base.models.enums import entity_type
 from base.models.enums import learning_container_year_types
@@ -57,6 +58,11 @@ from base.tests.factories.learning_unit_enrollment import LearningUnitEnrollment
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
+from cms.enums import entity_name
+from cms.models.translated_text import TranslatedText
+from cms.tests.factories.text_label import TextLabelFactory
+from cms.tests.factories.translated_text import TranslatedTextFactory
 
 
 class LearningUnitYearDeletion(TestCase):
@@ -157,6 +163,19 @@ class LearningUnitYearDeletion(TestCase):
 
         msg = list(msg.values())
         self.assertEqual(len(msg), 2)
+
+    def test_check_learning_unit_year_deletion_with_proposal(self):
+        l_container_year = LearningContainerYearFactory(acronym="LBIR1212", academic_year=self.academic_year)
+        l_unit_1 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
+                                           academic_year=self.academic_year, subtype=learning_unit_year_subtypes.FULL)
+        ProposalLearningUnitFactory(learning_unit_year=l_unit_1)
+        msg = learning_unit_deletion.check_learning_unit_year_deletion(l_unit_1)
+
+        msg = list(msg.values())
+        self.assertEqual(msg, [
+            _("%(subtype)s %(acronym)s is in proposal") % {'subtype': _('The learning unit'),
+                                                           'acronym': l_unit_1.acronym}
+        ])
 
     def test_delete_next_years(self):
         l_unit = LearningUnitFactory(start_year=1900)
@@ -275,6 +294,36 @@ class LearningUnitYearDeletion(TestCase):
 
         with self.assertRaises(ObjectDoesNotExist):
             LearningContainerYear.objects.get(id=learning_container_year.id)
+
+    def test_delete_cms_data(self):
+        """In this test, we will ensure that CMS data linked to the learning unit year is correctly deleted"""
+        learning_container_year = LearningContainerYearFactory(academic_year=self.academic_year)
+        learning_unit_year_to_delete = LearningUnitYearFactory(learning_container_year=learning_container_year,
+                                                               subtype=learning_unit_year_subtypes.FULL,
+                                                               academic_year=learning_container_year.academic_year)
+        # Create CMS data - TAB Specification
+        cms_specification_label = TextLabelFactory(entity=entity_name.LEARNING_UNIT_YEAR,
+                                                   label=CMS_LABEL_SPECIFICATIONS[0])
+        TranslatedTextFactory(entity=entity_name.LEARNING_UNIT_YEAR, reference=learning_unit_year_to_delete.pk,
+                              text_label=cms_specification_label, text='Specification of learning unit year')
+        # Create CMS data - TAB Pedagogy
+        cms_pedagogy_label = TextLabelFactory(entity=entity_name.LEARNING_UNIT_YEAR,
+                                              label=CMS_LABEL_PEDAGOGY[0])
+        TranslatedTextFactory(entity=entity_name.LEARNING_UNIT_YEAR, reference=learning_unit_year_to_delete.pk,
+                              text_label=cms_pedagogy_label, text='Pedagogy of learning unit year')
+        # Create CMS data - TAB Summary
+        cms_summary_label = TextLabelFactory(entity=entity_name.LEARNING_UNIT_YEAR,
+                                             label=CMS_LABEL_SUMMARY[0])
+        TranslatedTextFactory(entity=entity_name.LEARNING_UNIT_YEAR, reference=learning_unit_year_to_delete.pk,
+                              text_label=cms_summary_label, text='Summary of learning unit year')
+
+        # Before delete, we should have 3 data in CMS
+        self.assertEqual(3, TranslatedText.objects.all().count())
+
+        learning_unit_deletion._delete_cms_data(learning_unit_year_to_delete)
+
+        # After deletion, we should have no data in CMS
+        self.assertFalse(TranslatedText.objects.all().count())
 
     def test_check_delete_learning_unit_year_with_assistants(self):
         learning_unit_year = LearningUnitYearFactory()
