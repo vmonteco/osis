@@ -886,6 +886,16 @@ class LearningUnitViewTestCase(TestCase):
             data['PLANNED_CLASSES_{}_{}'.format(learning_unit_year.id, self.learning_component_yr.id)] = [2]
         return data
 
+    @staticmethod
+    def _get_volumes_wrong_data(learning_unit_year, learning_component_year):
+        return {
+            'VOLUME_TOTAL_REQUIREMENT_ENTITIES_{}_{}'.format(learning_unit_year.id, learning_component_year.id): [60],
+            'VOLUME_Q1_{}_{}'.format(learning_unit_year.id, learning_component_year.id): [15],
+            'VOLUME_Q2_{}_{}'.format(learning_unit_year.id, learning_component_year.id): [20],
+            'VOLUME_TOTAL_{}_{}'.format(learning_unit_year.id, learning_component_year.id): [30],
+            'PLANNED_CLASSES_{}_{}'.format(learning_unit_year.id, learning_component_year.id): [2]
+        }
+
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager')
     def test_get_learning_unit_volumes_management_get(self, mock_program_manager, mock_render):
@@ -964,6 +974,31 @@ class LearningUnitViewTestCase(TestCase):
         msg = [m.message for m in get_messages(request)]
         self.assertEqual(len(msg), 1)
         self.assertIn(messages.SUCCESS, msg_level)
+
+    @mock.patch('base.models.program_manager.is_program_manager')
+    def test_get_learning_unit_volumes_management_post_wrong_values(self, mock_program_manager):
+        mock_program_manager.return_value = True
+
+        g = GenerateContainer(start_year=self.current_academic_year.year, end_year=self.current_academic_year.year)
+        learning_unit_year = g.generated_container_years[0].learning_unit_year_full
+        learning_component = g.generated_container_years[0].learning_component_cm_full
+
+        request_factory = RequestFactory()
+        request_factory.user = self.a_superuser
+        url = reverse("learning_unit_volumes_management", args=[learning_unit_year.id])
+
+        request = request_factory.post(url, self._get_volumes_wrong_data(learning_unit_year, learning_component))
+        request.user = self.a_superuser
+
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        learning_unit_volumes_management(request, learning_unit_year.id)
+        msg_level = [m.level for m in get_messages(request)]
+        msg = [m.message for m in get_messages(request)]
+        self.assertEqual(len(msg), 1)
+        print(msg)
+        self.assertIn(messages.ERROR, msg_level)
 
     def test_volumes_validation(self):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,

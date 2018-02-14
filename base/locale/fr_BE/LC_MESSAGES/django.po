@@ -2560,3 +2560,6 @@ msgstr "Le sous-type de stage ne peut pas être séléctionnné pour un type d'u
 
 msgid "%(subtype)s %(acronym)s is in proposal"
 msgstr "%(subtype)s %(acronym)s est en proposition"
+
+msgid "volume_have_more_than_2_decimal_places"
+msgstr "Le volume a plus de 2 décimales"

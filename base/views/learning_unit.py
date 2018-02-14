@@ -30,7 +30,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
-from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.urlresolvers import reverse_lazy
 from django.db import IntegrityError
