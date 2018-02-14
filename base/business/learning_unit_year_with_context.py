@@ -45,7 +45,6 @@ def get_with_context(**learning_unit_year_data):
         queryset=mdl.entity_container_year.search(
             link_type=[
                 entity_types.REQUIREMENT_ENTITY,
-                entity_types.ALLOCATION_ENTITY,
                 entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1,
                 entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2
             ]

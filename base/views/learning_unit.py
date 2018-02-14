@@ -58,6 +58,7 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
 from base.business.learning_units import perms as business_perms
 from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
+from base.forms.learning_unit.edition_volume import VolumeEditionForm, VolumeEditionFormset
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
     PARTIM_FORM_READ_ONLY_FIELD
@@ -160,6 +161,12 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
     context['learning_units'] = learning_unit_year_with_context.get_with_context(
         learning_container_year_id=context['learning_unit_year'].learning_container_year_id
     )
+
+    context['formsets'] = {}
+    for learning_unit in context['learning_units']:
+        context['formsets'][learning_unit] = VolumeEditionFormset(
+            request.POST or None, learning_unit_year=learning_unit)
+
     context['tab_active'] = 'components'
     context['experimental_phase'] = True
 
