@@ -1,5 +1,7 @@
+{% extends "layout.html" %}
 
 {% load staticfiles %}
+{% load bootstrap3 %}
 {% load i18n %}
 
 {% comment "License" %}
@@ -26,6 +28,43 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
+
+{% block breadcrumb %}
 <li><a href="{% url 'catalog' %}" id="lnk_catalog">{% trans 'formation_catalogue' %}</a></li>
 <li><a href="{% url 'learning_units' %}" id="lnk_learning_units">{% trans 'learning_units' %}</a></li>
-<li class="active">{% trans 'learning_unit' %}</li>
+<li><a href="{% url 'learning_unit' learning_unit_year.id %}" id="lnk_learning_units">{{learning_unit_year.acronym}}</a></li>
+<li class="active">{% trans 'modification'|capfirst %}</li>
+{% endblock %}
+
+
+{% block content %}
+
+    {% with disabled_nav=True %}
+      {% include "learning_unit/header.html" %}
+    {% endwith %}
+
+    {% block form %}
+
+        {% block learning_unit %}
+        {% endblock %}
+
+        {% block institution %}
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        {% block institution %}
+                            {% include "learning_unit/components/institution.html" %}
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        {% endblock %}
+
+        {% block footer %}
+        {% endblock %}
+
+    {% endblock %}
+{% endblock %}
+
+{% block script %}
+{% endblock %}
