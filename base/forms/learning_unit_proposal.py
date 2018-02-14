@@ -33,6 +33,11 @@ from base.models.entity_version import find_main_entities_version
 from base.models.enums import learning_container_year_types
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
     ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2, ENTITY_TYPE_LIST
+from django.forms.models import model_to_dict
+
+
+CSS_SAME_VALUES = {'style': 'border: none;background-color: transparent;cursor: default;'}
+CSS_DIFFERENT_VALUES = {'style': 'border: none;background-color: transparent;color:red;cursor: help;'}
 
 
 def add_none_choice(choices):
@@ -169,3 +174,94 @@ def get_entity_by_type(entity_type, entities_by_type):
         return entities_by_type[entity_type].id
     else:
         return None
+
+
+class LearningUnitProposalViewForm(LearningUnitYearForm):
+
+    def __init__(self, *args, **kwargs):
+
+        luy_proposal_data = kwargs.pop("proposal_data")
+        proposal_entities = kwargs.pop("proposal_entities")
+
+        initial = kwargs.get("initial", None)
+        learning_unit_year_old = kwargs.pop('learning_unit_year_old')
+        learning_container_year_old = kwargs.pop('learning_container_year_old')
+        learning_unit_old = kwargs.pop('learning_unit_old')
+        modified_data = kwargs.pop('modified_data')
+
+        entities = kwargs.pop('entities')
+        old_learning_unit_values = _get_old_values(learning_container_year_old,
+                                                   learning_unit_year_old,
+                                                   learning_unit_old,
+                                                   entities)
+        recent_proposal_values = _get_proposal_values(luy_proposal_data, proposal_entities)
+
+        super(LearningUnitProposalViewForm, self).__init__(*args, **kwargs)
+        print('++++++++++++++++++++++++')
+        print(recent_proposal_values)
+        print('++++++++++++++++++++++++')
+        print(old_learning_unit_values)
+        # print('modified_data')
+        # print(modified_data)
+        # mod = modified_data.get('learning_unit_year')
+        # mod.update(modified_data.get('learning_unit'))
+        # mod.update(modified_data.get('learning_container_year'))
+        # print(mod)
+        if not _all_fields_expected_present(self.fields):
+            raise ValueError(
+                'Learning_unit_proposal problem'
+            )
+
+        for field in iter(self.fields):
+            self.fields[field].widget.attrs.update({'readonly': True,
+                                                    'disabled': True})
+            self.fields[field].widget.attrs.update(CSS_SAME_VALUES)
+
+            recent_value = recent_proposal_values.get(field, None)
+            old_value = old_learning_unit_values.get(field, None)
+
+            if recent_value != old_value:
+                self.fields[field].widget.attrs.update(CSS_DIFFERENT_VALUES)
+                if old_value:
+                    self.fields[field].widget.attrs.update({'title': '{} : {}'
+                                                           .format(_('value_before_proposal'), old_value)})
+                else:
+                    self.fields[field].widget.attrs.update({'title': _('no_value_before_proposal')})
+            else:
+                print('nonononnnonono {}'.format(field))
+            # if field in mod:
+            #     self.fields[field].widget.attrs.update(CSS_DIFFERENT_VALUES)
+                # if old_learning_unit_values.get(field):
+                #     self.fields[field].widget.attrs.update\
+                #         ({'title': '{} : {}'.format(_('value_before_proposal'),
+                #                                     old_learning_unit_values.get(field))})
+                # else:
+                #     self.fields[field].widget.attrs.update({'title': _('no_value_before_proposal')})
+
+
+def _get_proposal_values(luy_proposal_data, proposal_entities):
+    data_new = model_to_dict(luy_proposal_data)
+    data_new.update(model_to_dict(luy_proposal_data.learning_container_year))
+    data_new.update(model_to_dict(luy_proposal_data.learning_unit))
+    data_new.update(proposal_entities)
+    return data_new
+
+
+def _get_old_values(learning_container_year_old, learning_unit_year_old, learning_unit_old, entities):
+    old_data = learning_unit_year_old
+    old_data.update(learning_container_year_old)
+    old_data.update(learning_unit_old)
+    old_data.update({k.lower(): v for k, v in entities.items()})
+    return old_data
+
+
+def _all_fields_expected_present(form_fields):
+    field_names_expected = ['acronym', 'status', 'internship_subtype', 'credits', 'common_title',
+                            'common_title_english',
+                            'subtype', 'container_type', 'periodicity', 'quadrimester', 'requirement_entity',
+                            'allocation_entity', 'additional_requirement_entity_1',
+                            'additional_requirement_entity_2', 'language']
+    for field_name in field_names_expected:
+        if field_name not in form_fields:
+            return False
+    return True

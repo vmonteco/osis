@@ -125,7 +125,10 @@ urlpatterns = [
                 url(r'^new/$', learning_unit.get_partim_creation_form, name="learning_unit_create_partim"),
                 url(r'^add/$', learning_unit.learning_unit_year_partim_add, name='learning_unit_year_partim_add')
             ])),
+
         ])),
+        url(r'^proposal/(?P<proposal_id>[0-9]+)$', learning_unit_proposal.learning_unit_proposal_view, name="learning_unit_proposal"),
+
         url(r'^check/(?P<type>[A-Z]+)$', learning_unit.check_acronym, name="check_acronym"),
         url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
     ])),

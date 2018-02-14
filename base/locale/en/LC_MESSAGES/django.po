@@ -2572,3 +2572,8 @@ msgstr "Proposal - Search"
 msgid "folder_num"
 msgstr "Folder num."
 
+msgid "value_before_proposal"
+msgstr "Value before proposal"
+
+msgid "no_value_before_proposal"
+msgstr "No value before proposal"

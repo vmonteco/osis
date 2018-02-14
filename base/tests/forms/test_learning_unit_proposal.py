@@ -29,7 +29,8 @@ from decimal import Decimal
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
+from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, LearningUnitProposalViewForm,\
+    _all_fields_expected_present
 from base.models import proposal_folder, proposal_learning_unit, entity_container_year
 from base.models.enums import organization_type, proposal_type, proposal_state, entity_type, \
     learning_container_year_types, learning_unit_year_quadrimesters, entity_container_year_link_type, \
@@ -264,3 +265,33 @@ class TestSave(TestCase):
 
         self.assertFalse(form.is_valid())
         self.assertIn(_("learning_unit_type_is_not_internship"), form.errors["internship_subtype"])
+
+
+class TestDisplay(TestCase):
+
+    def setUp(self):
+        self.person = PersonFactory()
+        an_organization = OrganizationFactory(type=organization_type.MAIN)
+        current_academic_year = create_current_academic_year()
+        learning_container_year = LearningContainerYearFactory(
+            academic_year=current_academic_year,
+            container_type=learning_container_year_types.COURSE,
+            campus=CampusFactory(organization=an_organization, is_administration=True)
+        )
+        self.learning_unit_year = LearningUnitYearFakerFactory(credits=5,
+                                                               subtype=learning_unit_year_subtypes.FULL,
+                                                               academic_year=current_academic_year,
+                                                               learning_container_year=learning_container_year)
+
+    def test_all_fields_checked(self):
+        form = LearningUnitProposalViewForm(initial={},
+                                            proposal_entities={},
+                                            proposal_data=self.learning_unit_year,
+                                            learning_unit_year_old={},
+                                            learning_container_year_old={},
+                                            learning_unit_old={},
+                                            entities={},
+                                            modified_data={}
+                                            )
+
+        self.assertTrue(_all_fields_expected_present(form.fields))

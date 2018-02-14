@@ -50,7 +50,8 @@
                 {% for proposal in proposals %}
                     <tr data-id="{{proposal.id}}" data-value="{{proposal.acronym}}">
                         <td>{{ proposal.folder.entity|entity_last_version }}{{ proposal.folder.folder_id }}</td>
-                        <td>{{ proposal.learning_unit_year.acronym }}</td>
+                        <td><a href="{% url 'learning_unit_proposal' proposal.id %}"
+                               id="lnk_learning_unit_proposal_{{proposal.id}}">{{ proposal.learning_unit_year.acronym }}</a></td>
                         <td>{{ proposal.learning_unit_year.academic_year }}</td>
                         <td>{{ proposal.learning_unit_year.complete_title |default_if_none:'' }}</td>
                         <td>{% if proposal.learning_unit_year.learning_container_year.container_type %}{% trans proposal.learning_unit_year.learning_container_year.container_type %}{% endif %}</td>
