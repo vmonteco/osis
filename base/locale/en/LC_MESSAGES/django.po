@@ -2554,6 +2554,9 @@ msgstr "Internship subtype cannot bet set for learning unit type other than inte
 msgid "%(subtype)s %(acronym)s is in proposal"
 msgstr ""
 
+msgid "volume_have_more_than_2_decimal_places"
+msgstr "The volume have more than 2 decimal places"
+
 msgid "Site"
 msgstr "Site"
 
@@ -2571,4 +2574,3 @@ msgstr "Proposal - Search"
 
 msgid "folder_num"
 msgstr "Folder num."
-
