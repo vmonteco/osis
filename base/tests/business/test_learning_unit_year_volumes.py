@@ -141,6 +141,21 @@ class LearningUnitYearVolumesTestCase(TestCase):
         #                                            - VOL_TOT * PLANNED_CLASSE = VOL_TOT_REQ_ENTITIES
         self.assertEqual(4, len(errors))
 
+    def test_validate_components_data_with_req_entities_not_equal(self):
+        volumes = learning_unit_year_volumes._get_volumes_from_db(self.learning_unit_year_full.id)
+
+        l_full_with_volumes_computed = next((lunit_year for lunit_year in volumes
+                                            if lunit_year.id == self.learning_unit_year_full.id), None)
+        self.assertEqual(l_full_with_volumes_computed,  self.learning_unit_year_full)
+
+        # Simulate user modification -- Set VOL_TOT to 100 for CM/TP
+        for component, data in l_full_with_volumes_computed.components.items():
+            data['VOLUME_REQUIREMENT_ENTITY'] = 100
+
+        errors = learning_unit_year_volumes._validate_components_data(l_full_with_volumes_computed)
+        self.assertTrue(errors)
+        self.assertEqual(2, len(errors))
+
     def test_validate_parent_partim_component(self):
         parent_data = {'VOLUME_TOTAL': Decimal(30), 'VOLUME_Q1': Decimal(15),
                        'VOLUME_Q2': Decimal(15), 'PLANNED_CLASSES': 1,
