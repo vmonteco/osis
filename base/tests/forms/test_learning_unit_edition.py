@@ -101,9 +101,8 @@ class TestLearningUnitModificationForm(TestCase):
         cls.learning_container_year = LearningContainerYearFactory(academic_year=cls.current_academic_year)
         cls.learning_unit_year = LearningUnitYearFactory(academic_year=cls.current_academic_year,
                                                          learning_container_year=cls.learning_container_year,
+                                                         learning_unit__periodicity=ANNUAL,
                                                          credits=25, status=False)
-        cls.learning_unit_year.learning_unit.periodicity = ANNUAL
-        cls.learning_unit_year.learning_unit.save()
 
         cls.organization = OrganizationFactory(type=organization_type.MAIN)
         a_campus = CampusFactory(organization=cls.organization)
