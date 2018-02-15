@@ -30,6 +30,7 @@ from django.test import TestCase
 from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
 from base.models.enums import learning_unit_periodicity, learning_unit_year_subtypes, learning_container_year_types, \
     organization_type, entity_type, internship_subtypes
+from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import LearningUnitsMixin
 from base.tests.factories.campus import CampusFactory
@@ -99,7 +100,9 @@ class TestLearningUnitModificationForm(TestCase):
         cls.current_academic_year = create_current_academic_year()
         cls.learning_container_year = LearningContainerYearFactory(academic_year=cls.current_academic_year)
         cls.learning_unit_year = LearningUnitYearFactory(academic_year=cls.current_academic_year,
-                                                         learning_container_year=cls.learning_container_year)
+                                                         learning_container_year=cls.learning_container_year,
+                                                         learning_unit__periodicity=ANNUAL,
+                                                         credits=25, status=False)
 
         cls.organization = OrganizationFactory(type=organization_type.MAIN)
         a_campus = CampusFactory(organization=cls.organization)
@@ -131,6 +134,7 @@ class TestLearningUnitModificationForm(TestCase):
             "subtype": str(learning_unit_year_subtypes.FULL),
             "acronym": "OSIS1452",
             "first_letter": "L",
+            "status": True
         }
 
     def test_disabled_fields_in_case_of_learning_unit_of_type_full(self):
@@ -146,7 +150,7 @@ class TestLearningUnitModificationForm(TestCase):
         disabled_fields = ('first_letter', 'acronym', 'common_title', 'common_title_english', 'requirement_entity',
                            'allocation_entity', 'language', 'periodicity', 'campus', 'container_type', "academic_year",
                            'internship_subtype', 'additional_requirement_entity_1', 'additional_requirement_entity_2',
-                           'is_vacant', 'team', 'type_declaration_vacant', 'attribution_procedure')
+                           'is_vacant', 'team', 'type_declaration_vacant', 'attribution_procedure', "subtype")
         for field in disabled_fields:
             self.assertTrue(form.fields[field].disabled)
 
@@ -176,6 +180,22 @@ class TestLearningUnitModificationForm(TestCase):
         form = LearningUnitModificationForm(form_data_with_invalid_requirement_entity, initial=self.initial_data,
                                             person=self.person, end_date=self.current_academic_year.end_date)
         self.assertFalse(form.is_valid())
+
+    def test_set_max_credits(self):
+        form = LearningUnitModificationForm(parent=self.learning_unit_year, person=None, initial=self.initial_data)
+        self.assertEqual(form.fields["credits"].max_value, self.learning_unit_year.credits)
+
+    def test_set_status_value(self):
+        form = LearningUnitModificationForm(parent=self.learning_unit_year, person=None, initial=self.initial_data)
+        self.assertEqual(form.fields["status"].initial, False)
+        self.assertTrue(form.fields["status"].disabled)
+
+    def test_partim_can_modify_periodicity(self):
+        initial_data_with_subtype_partim = self.initial_data.copy()
+        initial_data_with_subtype_partim["subtype"] = learning_unit_year_subtypes.PARTIM
+        form = LearningUnitModificationForm(parent=self.learning_unit_year, person=None,
+                                            initial=initial_data_with_subtype_partim)
+        self.assertFalse(form.fields["periodicity"].disabled)
 
     def test_entity_does_not_exist_for_lifetime_of_learning_unit_with_no_planned_end(self):
         an_other_entity = EntityFactory(organization=self.organization)

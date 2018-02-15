@@ -29,21 +29,23 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_units.edition import filter_biennial
 from base.forms.bootstrap import BootstrapForm
-from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_READ_ONLY_FIELD
+from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_READ_ONLY_FIELD, MaxStrictlyValueValidator
 from base.forms.utils.choice_field import add_blank
 from base.models import academic_year
 from base.models.academic_year import AcademicYear
 from base.models.entity_version import find_main_entities_version_filtered_by_person
 from base.models.enums.attribution_procedure import AttributionProcedures
+from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums.learning_container_year_types import INTERNSHIP, DISSERTATION
+from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.enums.learning_unit_year_subtypes import PARTIM
 from base.models.enums.vacant_declaration_type import VacantDeclarationType
 from base.models.learning_unit import is_old_learning_unit
-
+from base.models.learning_unit_year import MAXIMUM_CREDITS
 
 FULL_READ_ONLY_FIELDS = {"first_letter", "acronym", "academic_year", "container_type", "subtype"}
 PARTIM_READ_ONLY_FIELDS = PARTIM_FORM_READ_ONLY_FIELD | {"is_vacant", "team", "type_declaration_vacant",
-                                                         "attribution_procedure"}
+                                                         "attribution_procedure", "subtype"}
 
 
 class LearningUnitEndDateForm(BootstrapForm):
@@ -108,8 +110,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     type_declaration_vacant = forms.ChoiceField(required=False, choices=_create_type_declaration_vacant_list())
     attribution_procedure = forms.ChoiceField(required=False, choices=_create_attribution_procedure_list())
 
-    def __init__(self, *args, **kwargs):
-        person = kwargs.pop("person")
+    def __init__(self, *args, parent=None, person=None, **kwargs):
         initial = kwargs.get("initial", None)
         learning_unit_year_subtype = initial.get("subtype") if initial else None
         learning_container_type = initial.get("container_type") if initial else None
@@ -122,8 +123,13 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         self._disabled_fields_base_on_learning_unit_year_subtype(learning_unit_year_subtype)
         self._disabled_internship_subtype_field_if_not_internship_container_type(learning_container_type)
 
+        if parent:
+            self._set_max_credits(parent)
+            self._set_status_value(parent)
+            self._enabled_periodicity(parent)
+
     def is_valid(self):
-        if not super().is_valid():
+        if not BootstrapForm.is_valid(self):
             return False
         # Use a list of errors because when adding an error for a specific field with add_error, it is removed
         # from cleaned_data.
@@ -173,3 +179,29 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     def _disabled_fields(self, fields_to_disable):
         for field in fields_to_disable:
             self.fields[field].disabled = True
+
+    def _set_max_credits(self, parent):
+        max_credits = parent.credits
+        self.fields["credits"].max_value = max_credits
+        self.fields['credits'].validators.append(MaxStrictlyValueValidator(max_credits))
+
+    def _set_status_value(self, parent):
+        if parent.status is False:
+            self.fields["status"].initial = parent.status
+            self.fields["status"].disabled = True
+
+    def _enabled_periodicity(self, parent):
+        can_modify_periodicity = parent.learning_unit.periodicity == ANNUAL
+        self.fields["periodicity"].disabled = not can_modify_periodicity
+
+    def get_data_for_learning_unit(self):
+        data_without_entities = {field: value for field, value in self.cleaned_data.items()
+                                 if field.upper() not in ENTITY_TYPE_LIST}
+        lu_data = {field: value for field, value in data_without_entities.items()
+                   if field not in FULL_READ_ONLY_FIELDS}
+        return lu_data
+
+    def get_entities_data(self):
+        return {entity_type.upper(): entity_version.entity if entity_version else None
+                for entity_type, entity_version in self.cleaned_data.items()
+                if entity_type.upper() in ENTITY_TYPE_LIST}

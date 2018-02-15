@@ -205,6 +205,5 @@ class CreatePartimForm(CreateLearningUnitYearForm):
 
     def clean(self):
         super().clean()
-        self.cleaned_data["acronym"] += self.cleaned_data.get('partim_character', [])[0].upper()
-
+        self.cleaned_data["acronym"] += self.cleaned_data.get('partim_character', "").upper()
         return self.cleaned_data
