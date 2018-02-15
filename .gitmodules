@@ -7,4 +7,4 @@
 	url = https://github.com/uclouvain/osis-internship.git
 [submodule "mobility"]
 	path = mobility
-	url = git@github.com:uclouvain/osis-mobility.git
+	url = https://github.com/uclouvain/osis-mobility.git
