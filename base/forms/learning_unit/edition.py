@@ -186,11 +186,9 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         self.fields['credits'].validators.append(MaxStrictlyValueValidator(max_credits))
 
     def _set_status_value(self, parent):
-        status_value = None if parent.status else parent.status
-        if status_value is None:
-            pass
-        self.fields["status"].initial = status_value
-        self.fields["status"].disabled = True
+        if parent.status is False:
+            self.fields["status"].initial = parent.status
+            self.fields["status"].disabled = True
 
     def _enabled_periodicity(self, parent):
         can_modify_periodicity = parent.learning_unit.periodicity == ANNUAL
