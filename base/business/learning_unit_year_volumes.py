@@ -110,29 +110,6 @@ def _set_volume_to_components(components, updated_volume):
     return components
 
 
-def _format_volumes(volumes):
-    volumes_formated = {}
-
-    # Planned classes is an int
-    try:
-        volumes_formated['PLANNED_CLASSES'] = int(volumes.get('PLANNED_CLASSES', 0))
-    except Exception:
-        raise ValueError("planned_classes_must_be_integer")
-    volumes_formated.update({k: _validate_decimals(volume) for k, volume in volumes.items()
-                             if k not in ("PLANNED_CLASSES", "VOLUME_QUARTER")})
-
-    return volumes_formated
-
-
-def _validate_decimals(volume):
-    volume_formated = _format_volume_to_decimal(volume)
-
-    try:
-        # Ensure that we cannot have more than 2 decimal
-        return volume_formated.quantize(Decimal(10) ** -2, context=Context(traps=[Inexact]))
-    except:
-        raise ValueError("volume_have_more_than_2_decimal_places")
-
 
 def _format_volume_to_decimal(volume):
     if isinstance(volume, str):

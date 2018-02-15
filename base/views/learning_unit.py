@@ -34,7 +34,7 @@ from django.core.urlresolvers import reverse
 from django.core.urlresolvers import reverse_lazy
 from django.db import IntegrityError
 from django.db.models import BLANK_CHOICE_DASH
-from django.forms import model_to_dict
+from django.forms import model_to_dict, formset_factory
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.http import QueryDict
@@ -58,7 +58,7 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
 from base.business.learning_units import perms as business_perms
 from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
-from base.forms.learning_unit.edition_volume import VolumeEditionForm, VolumeEditionFormset
+from base.forms.learning_unit.edition_volume import VolumeEditionForm, VolumeEditionBaseFormset
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
     PARTIM_FORM_READ_ONLY_FIELD
@@ -72,7 +72,7 @@ from base.models.learning_container import LearningContainer
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, LEARNING_UNIT_ACRONYM_REGEX_FULL
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
-from base.views.common import display_error_messages, display_success_messages
+from base.views.common import display_success_messages
 from base.views.learning_units import perms
 from cms.models import text_label
 from reference.models import language
@@ -129,29 +129,12 @@ def learning_unit_components(request, learning_unit_year_id):
     return layout.render(request, "learning_unit/components.html", context)
 
 
+# TODO Remove this method
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
-def volumes_validation(request, learning_unit_year_id):
-    volumes_encoded = extract_volumes_from_data(request.POST.dict())
-    volumes_grouped_by_lunityear = learning_unit_year_volumes.get_volumes_grouped_by_lunityear(learning_unit_year_id,
-                                                                                               volumes_encoded)
-    return JsonResponse({
-        'errors': learning_unit_year_volumes.validate(volumes_grouped_by_lunityear)
-    })
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def learning_unit_volumes_management(request, learning_unit_year_id):
-    # FIXME : Use a formset instead !
-    if request.method == 'POST':
-        errors = _learning_unit_volumes_management_edit(request, learning_unit_year_id)
-
-        if not errors:
-            display_success_messages(request, _('success_modification_learning_unit'))
-            return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
-
-        display_error_messages(request, errors)
+def volumes_validation(request, learning_unit_year_id, formset_id):
+    if not request.is_ajax():
+        return PermissionDenied
 
     context = _get_common_context_learning_unit_year(
         learning_unit_year_id,
@@ -161,16 +144,71 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
     context['learning_units'] = learning_unit_year_with_context.get_with_context(
         learning_container_year_id=context['learning_unit_year'].learning_container_year_id
     )
+    learning_unit = context['learning_units'][formset_id]
 
-    context['formsets'] = {}
-    for learning_unit in context['learning_units']:
-        context['formsets'][learning_unit] = VolumeEditionFormset(
-            request.POST or None, learning_unit_year=learning_unit)
+    formset = VolumeEditionFormset(request.POST or None, learning_unit_year=learning_unit)
+    if formset.is_valid():
+
+        #volumes_encoded = extract_volumes_from_data(request.POST.dict())
+        #volumes_grouped_by_lunityear = learning_unit_year_volumes.get_volumes_grouped_by_lunityear(learning_unit_year_id,
+        #                                                                                          volumes_encoded)
+
+        return JsonResponse({
+            'errors': formset.errors.as_json
+        })
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+def learning_unit_volumes_management(request, learning_unit_year_id):
+    context = _get_common_context_learning_unit_year(
+        learning_unit_year_id,
+        get_object_or_404(Person, user=request.user)
+    )
+
+    context['learning_units'] = learning_unit_year_with_context.get_with_context(
+        learning_container_year_id=context['learning_unit_year'].learning_container_year_id
+    )
+
+    context['formsets'] = generate_volume_edition_formset(context['learning_units'], request)
+
+    if all([formset.is_valid() for formset in context['formsets'].values()]):
+        print('tout tout tout bon !')
+        errors = _learning_unit_volumes_management_edit(request, learning_unit_year_id)
+
+        #if not errors:
+        display_success_messages(request, _('success_modification_learning_unit'))
+        return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
+
+        #display_error_messages(request, errors)
 
     context['tab_active'] = 'components'
     context['experimental_phase'] = True
 
     return layout.render(request, "learning_unit/volumes_management.html", context)
+
+
+def generate_volume_edition_formset(learning_units, request):
+    formsets = {}
+
+    for learning_unit in learning_units:
+        volume_edition_formset = formset_factory(
+            form=VolumeEditionForm, formset=VolumeEditionBaseFormset, extra=len(learning_unit.components)
+        )
+        formsets[learning_unit] = volume_edition_formset(
+            request.POST or None, learning_unit_year=learning_unit, prefix=learning_unit.acronym
+        )
+
+    return formsets
+
+
+def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
+    volumes_encoded = extract_volumes_from_data(request.POST.dict())
+
+    try:
+        return learning_unit_year_volumes.update_volumes(learning_unit_year_id, volumes_encoded)
+    except (IntegrityError, ValueError) as e:
+        return e.args[0]
 
 
 @login_required
@@ -457,15 +495,6 @@ def check_if_display_message(request, results):
     if not results:
         messages.add_message(request, messages.WARNING, _('no_result'))
     return True
-
-
-def _learning_unit_volumes_management_edit(request, learning_unit_year_id):
-    volumes_encoded = extract_volumes_from_data(request.POST.dict())
-
-    try:
-        return learning_unit_year_volumes.update_volumes(learning_unit_year_id, volumes_encoded)
-    except (IntegrityError, ValueError) as e:
-        return e.args[0]
 
 
 @login_required

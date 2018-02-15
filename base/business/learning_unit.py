@@ -79,7 +79,7 @@ VALID_VOLUMES_KEYS = [
 
 LEARNING_UNIT_CREATION_SPAN_YEARS = 6
 
-
+# TODO move this method in the form
 def extract_volumes_from_data(post_data):
     volumes = {}
 
