@@ -23,32 +23,30 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import time, json
+from django.http import HttpResponse,JsonResponse
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_http_methods
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import redirect
 from dissertation.models.dissertation_role import DissertationRole
 from dissertation.models.enums.status_types import STATUS_CHOICES
-from django.shortcuts import redirect
-from base.models.academic_year import find_academic_years, find_academic_year_by_id
-from django.contrib.auth.decorators import login_required, user_passes_test
+from base.models import academic_year
 from base import models as mdl
 from base.views import layout
-from dissertation.models.adviser import Adviser
 from dissertation.models import adviser, dissertation, dissertation_document_file, dissertation_role,\
     dissertation_update, faculty_adviser, offer_proposition, proposition_dissertation, proposition_role
 from dissertation.forms import ManagerDissertationForm, ManagerDissertationEditForm, ManagerDissertationRoleForm, \
     ManagerDissertationUpdateForm, AdviserForm
-from django.views.decorators.http import require_http_methods
 from openpyxl.writer.excel import save_virtual_workbook
 from openpyxl import Workbook
 from openpyxl.utils.exceptions import IllegalCharacterError
-from django.http import HttpResponse,JsonResponse
-import time
-from django.utils import timezone
-import json
-from django.shortcuts import get_object_or_404
 
 ERROR_405_BAD_REQUEST = 405
 ERROR_404_PAGE_NO_FOUND = 404
-NO_ERROR_CODE = 200
-ERROR_403_NOT_AUTORIZED = 403
+HTTP_OK = 200
+ERROR_403_NOT_FORBIDDEN = 403
 
 
 def _role_can_be_deleted(dissert, dissert_role):
@@ -83,7 +81,7 @@ def dissertations(request):
         if request.method == "POST":
             form = AdviserForm(request.POST)
             if form.is_valid():
-                adv = Adviser(person=person, available_by_email=False, available_by_phone=False,
+                adv = adviser.Adviser(person=person, available_by_email=False, available_by_phone=False,
                               available_at_office=False)
                 adv.save()
                 adv = adviser.search_by_person(person)
@@ -315,9 +313,9 @@ def manager_dissertations_jury_new_ajax(request):
             justification = "%s %s %s" % ("manager_add_jury", status_choice, adviser_of_dissert_role)
             dissertation_update.add(request, dissert, dissert.status, justification=justification)
             dissertation_role.add(status_choice, adviser_of_dissert_role, dissert)
-            return HttpResponse(status=NO_ERROR_CODE)
+            return HttpResponse(status=HTTP_OK)
         else:
-            return HttpResponse(status=ERROR_403_NOT_AUTORIZED)
+            return HttpResponse(status=ERROR_403_NOT_FORBIDDEN)
 
 
 @login_required
@@ -330,7 +328,7 @@ def manager_dissertations_list(request):
     offer_props = offer_proposition.search_by_offer(offers)
     start_date=timezone.now().replace(year=timezone.now().year - 10)
     end_date=timezone.now().replace(year=timezone.now().year + 1)
-    academic_year_10y=find_academic_years(end_date,start_date)
+    academic_year_10y = academic_year.find_academic_years(end_date,start_date)
     show_validation_commission = offer_proposition.show_validation_commission(offer_props)
     show_evaluation_first_year = offer_proposition.show_evaluation_first_year(offer_props)
     return layout.render(request, 'manager_dissertations_list.html',
@@ -450,7 +448,8 @@ def manager_dissertations_search(request):
         disserts = disserts.filter(offer_year_start__offer=offer_prop.offer)
     if academic_year_search!='':
         academic_year_search=int(academic_year_search)
-        disserts = disserts.filter(offer_year_start__academic_year=find_academic_year_by_id(academic_year_search))
+        disserts = disserts.filter(offer_year_start__academic_year=\
+                   academic_year.find_academic_year_by_id(academic_year_search))
     if status_search!='':
         disserts = disserts.filter(status=status_search)
     offer_props = offer_proposition.search_by_offer(offers)
@@ -458,7 +457,7 @@ def manager_dissertations_search(request):
     show_evaluation_first_year = offer_proposition.show_evaluation_first_year(offer_props)
     start_date=timezone.now().replace(year=timezone.now().year - 10)
     end_date=timezone.now().replace(year=timezone.now().year + 1)
-    academic_year_10y=find_academic_years(end_date,start_date)
+    academic_year_10y = academic_year.find_academic_years(end_date,start_date)
 
     if 'bt_xlsx' in request.GET:
         xls = generate_xls(disserts)
@@ -532,7 +531,7 @@ def manager_dissertations_role_delete_by_ajax(request, pk):
     adv = adviser.search_by_person(person)
     if adviser_can_manage(dissert, adv) and \
             _justification_dissert_role_delete_change(request, dissert, dissert_role, "manager_delete_jury"):
-        return HttpResponse(status=200)
+        return HttpResponse(HTTP_OK)
     else:
         return redirect('manager_dissertations_list')
 
