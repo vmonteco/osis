@@ -263,18 +263,28 @@ def filter_biennial(queryset, periodicity):
     return result
 
 
-def update_learning_unit_year(luy_to_update, fields_to_update):
-    update_instance_model_from_data(luy_to_update.learning_unit, fields_to_update)
-    update_instance_model_from_data(luy_to_update.learning_container_year, fields_to_update)
-    update_instance_model_from_data(luy_to_update, fields_to_update)
+def update_learning_unit_year_with_report(luy_to_update, fields_to_update):
+    fields_not_to_report = ["is_vacant", "type_declaration_vacant", "attribution_procedure"]
+    for index, luy in enumerate(luy_to_update.find_gte_learning_units_year()):
+        update_instance_model_from_data(luy.learning_unit, fields_to_update)
+        update_instance_model_from_data(luy, fields_to_update)
+        if index == 0:
+            update_instance_model_from_data(luy.learning_container_year, fields_to_update)
+        else:
+            update_instance_model_from_data(luy.learning_container_year, fields_to_update, exclude=fields_not_to_report)
 
 
-def update_learning_unit_year_entities(luy_to_update, entities_by_type_to_update):
+def update_learning_unit_year_entities_with_report(luy_to_update, entities_by_type_to_update):
+    for luy in luy_to_update.find_gte_learning_units_year():
+        _update_learning_unit_year_entities(entities_by_type_to_update, luy)
+
+
+def _update_learning_unit_year_entities(entities_by_type_to_update, luy):
     for entity_link_type, entity, in entities_by_type_to_update.items():
         if entity:
-            _update_entity_container_year(entity, luy_to_update.learning_container_year, entity_link_type)
+            _update_entity_container_year(entity, luy.learning_container_year, entity_link_type)
         else:
-            _delete_entity_container_year(luy_to_update.learning_container_year, entity_link_type)
+            _delete_entity_container_year(luy.learning_container_year, entity_link_type)
 
 
 def _update_entity_container_year(an_entity, learning_container_year, type_entity):
