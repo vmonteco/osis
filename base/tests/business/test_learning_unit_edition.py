@@ -33,7 +33,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_units.edition import edit_learning_unit_end_date, update_learning_unit_year_with_report, \
-    update_learning_unit_year_entities
+    update_learning_unit_year_entities_with_report
 from base.models import academic_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -934,7 +934,7 @@ class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
 
     def test_with_no_entities_to_update(self):
-        update_learning_unit_year_entities(self.learning_unit_year, {})
+        update_learning_unit_year_entities_with_report(self.learning_unit_year, {})
 
         self.assert_entity_has_not_changed(self.requirement_entity_container)
         self.assert_entity_has_not_changed(self.allocation_entity_container)
@@ -944,7 +944,7 @@ class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
     def test_with_one_entity_to_update(self):
         a_new_requirement_entity = EntityFactory()
         entities_to_update = {entity_container_year_link_type.REQUIREMENT_ENTITY: a_new_requirement_entity}
-        update_learning_unit_year_entities(self.learning_unit_year, entities_to_update)
+        update_learning_unit_year_entities_with_report(self.learning_unit_year, entities_to_update)
         self.assert_entity_has_not_changed(self.allocation_entity_container)
         self.assert_entity_has_not_changed(self.additional_entity_container_1)
         self.assert_entity_has_not_changed(self.additional_entity_container_2)
@@ -963,7 +963,7 @@ class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: a_new_additional_entity_2
         }
 
-        update_learning_unit_year_entities(self.learning_unit_year, entities_to_update)
+        update_learning_unit_year_entities_with_report(self.learning_unit_year, entities_to_update)
 
         self.assert_entity_has_been_modified(self.requirement_entity_container, a_new_requirement_entity)
         self.assert_entity_has_been_modified(self.allocation_entity_container, a_new_allocation_entity)
@@ -972,7 +972,7 @@ class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
 
     def test_with_entity_set_to_none(self):
         entities_to_update = {entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: None}
-        update_learning_unit_year_entities(self.learning_unit_year, entities_to_update)
+        update_learning_unit_year_entities_with_report(self.learning_unit_year, entities_to_update)
         self.assert_entity_has_not_changed(self.requirement_entity_container)
         self.assert_entity_has_not_changed(self.allocation_entity_container)
         self.assert_entity_has_not_changed(self.additional_entity_container_1)
@@ -994,7 +994,7 @@ class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
         a_new_requirement_entity = EntityFactory()
         entities_to_update = {entity_container_year_link_type.REQUIREMENT_ENTITY: a_new_requirement_entity}
 
-        update_learning_unit_year_entities(learning_unit_years[1], entities_to_update)
+        update_learning_unit_year_entities_with_report(learning_unit_years[1], entities_to_update)
 
         entity_container_luy_0 = EntityContainerYear.objects.get(
             learning_container_year=learning_unit_years[0].learning_container_year)

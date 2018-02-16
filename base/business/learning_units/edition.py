@@ -270,7 +270,7 @@ def update_learning_unit_year_with_report(luy_to_update, fields_to_update):
         update_instance_model_from_data(luy_to_update, fields_to_update)
 
 
-def update_learning_unit_year_entities(luy_to_update, entities_by_type_to_update):
+def update_learning_unit_year_entities_with_report(luy_to_update, entities_by_type_to_update):
     for luy_to_update in luy_to_update.find_gte_learning_units_year():
         for entity_link_type, entity, in entities_by_type_to_update.items():
             if entity:

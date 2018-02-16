@@ -32,7 +32,7 @@ from django.urls import reverse
 
 from base.views.learning_unit import get_learning_unit_identification_context, compute_learning_unit_form_initial_data
 from base.business.learning_units.edition import edit_learning_unit_end_date, update_learning_unit_year_with_report, \
-    update_learning_unit_year_entities
+    update_learning_unit_year_entities_with_report
 from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
@@ -84,7 +84,7 @@ def modify_learning_unit(request, learning_unit_year_id):
 
         try:
             update_learning_unit_year_with_report(learning_unit_year, lu_type_full_data)
-            update_learning_unit_year_entities(learning_unit_year, entities_data)
+            update_learning_unit_year_entities_with_report(learning_unit_year, entities_data)
 
             display_success_messages(request, _("success_modification_learning_unit"))
 
