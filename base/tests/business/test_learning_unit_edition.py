@@ -882,6 +882,7 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
          update_learning_unit_year_with_report(learning_unit_years[1], fields_to_update)
 
          self.assert_fields_not_updated(learning_unit_years[0])
+         self.assert_fields_not_updated(learning_unit_years[0].learning_container_year)
 
          for luy in learning_unit_years[1:]:
              self.assert_fields_updated(luy, learning_unit_year_fields_to_update)
@@ -978,6 +979,8 @@ class TestUpdateLearningUnitEntities(TestCase):
 
         with self.assertRaises(ObjectDoesNotExist):
             EntityContainerYear.objects.get(id=self.additional_entity_container_2.id)
+
+
 
     def assert_entity_has_not_changed(self, entity_container):
         past_entity = entity_container.entity
