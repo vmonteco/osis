@@ -32,7 +32,7 @@ from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import compute_max_academic_year_adjournment
-from base.business.learning_units.edition import edit_learning_unit_end_date, update_learning_unit_year, \
+from base.business.learning_units.edition import edit_learning_unit_end_date, update_learning_unit_year_with_report, \
     update_learning_unit_year_entities
 from base.models import academic_year
 from base.models.entity_component_year import EntityComponentYear
@@ -798,7 +798,7 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
          old_luy_values = model_to_dict(self.learning_unit_year)
          old_lc_values = model_to_dict(self.learning_container_year)
 
-         update_learning_unit_year(self.learning_unit_year, {})
+         update_learning_unit_year_with_report(self.learning_unit_year, {})
 
          self.learning_unit_year.refresh_from_db()
          self.learning_container_year.refresh_from_db()
@@ -814,7 +814,7 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
              "faculty_remark": "Faculty remark",
              "other_remark": "Other remark"
          }
-         update_learning_unit_year(self.learning_unit_year, fields_to_update)
+         update_learning_unit_year_with_report(self.learning_unit_year, fields_to_update)
 
          self.assert_fields_updated(self.learning_unit_year.learning_unit, fields_to_update)
 
@@ -830,7 +830,7 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
              "attribution_procedure": attribution_procedure.EXTERNAL
          }
 
-         update_learning_unit_year(self.learning_unit_year, fields_to_update)
+         update_learning_unit_year_with_report(self.learning_unit_year, fields_to_update)
 
          self.assert_fields_updated(self.learning_unit_year, fields_to_update)
 
@@ -846,7 +846,7 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
              "type_declaration_vacant": vacant_declaration_type.VACANT_NOT_PUBLISH
          }
 
-         update_learning_unit_year(self.learning_unit_year, fields_to_update)
+         update_learning_unit_year_with_report(self.learning_unit_year, fields_to_update)
          self.learning_container_year.refresh_from_db()
 
          new_lcy_values = model_to_dict(self.learning_container_year, fields=fields_to_update.keys())
@@ -879,7 +879,7 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
          fields_to_update.update(learning_unit_year_fields_to_update)
          fields_to_update.update(learning_container_year_fields_to_update)
 
-         update_learning_unit_year(learning_unit_years[1], fields_to_update)
+         update_learning_unit_year_with_report(learning_unit_years[1], fields_to_update)
 
          self.assert_fields_not_updated(learning_unit_years[0])
 
