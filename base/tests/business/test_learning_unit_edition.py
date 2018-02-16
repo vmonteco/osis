@@ -52,6 +52,7 @@ from base.tests.factories.entity_container_year import EntityContainerYearFactor
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_class_year import LearningClassYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from reference.tests.factories.language import LanguageFactory
@@ -783,9 +784,10 @@ def _get_list_years_learning_unit(learning_unit):
     )
 
 
-class TestModifyLearningUnit(TestCase):
+class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
      def setUp(self):
-         self.current_academic_year = create_current_academic_year()
+         super().setUp()
+         self.setup_academic_years()
          self.learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
          self.learning_unit_year = LearningUnitYearFactory(learning_container_year=self.learning_container_year,
                                                            subtype=learning_unit_year_subtypes.FULL)
@@ -885,6 +887,47 @@ class TestModifyLearningUnit(TestCase):
 
          instance_values = model_to_dict(instance, fields=fields_value.keys())
          self.assertDictEqual(fields_value, instance_values)
+
+
+     def assert_fields_not_updated(self, instance):
+         past_instance_values = model_to_dict(instance)
+
+         instance.refresh_from_db()
+         new_instance_values = model_to_dict(instance)
+         self.assertDictEqual(past_instance_values, new_instance_values)
+
+
+     def test_with_report(self):
+         a_learning_unit = self.setup_learning_unit(self.current_academic_year.year)
+         learning_unit_years = self.setup_list_of_learning_unit_years_full(self.list_of_academic_years_after_now,
+                                                                           a_learning_unit)
+
+         learning_unit_fields_to_update = {
+             "faculty_remark": "Faculty remark"
+         }
+         learning_unit_year_fields_to_update = {
+             "specific_title_english": "My course",
+             "credits": 45,
+         }
+         learning_container_year_fields_to_update = {
+             "team": True,
+             "is_vacant": True,
+             "type_declaration_vacant": vacant_declaration_type.VACANT_NOT_PUBLISH
+         }
+
+         fields_to_update = dict()
+         fields_to_update.update(learning_unit_fields_to_update)
+         fields_to_update.update(learning_unit_year_fields_to_update)
+         fields_to_update.update(learning_container_year_fields_to_update)
+
+         update_learning_unit_year(learning_unit_years[1], fields_to_update)
+
+         self.assert_fields_not_updated(learning_unit_years[0])
+
+         for luy in learning_unit_years[1:]:
+             self.assert_fields_updated(luy, learning_unit_year_fields_to_update)
+             self.assert_fields_updated(luy.learning_unit, learning_unit_fields_to_update)
+             self.assert_fields_updated(luy.learning_container_year, learning_container_year_fields_to_update)
 
 
 class TestUpdateLearningUnitEntities(TestCase):

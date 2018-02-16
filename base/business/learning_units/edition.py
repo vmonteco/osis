@@ -264,9 +264,10 @@ def filter_biennial(queryset, periodicity):
 
 
 def update_learning_unit_year(luy_to_update, fields_to_update):
-    update_instance_model_from_data(luy_to_update.learning_unit, fields_to_update)
-    update_instance_model_from_data(luy_to_update.learning_container_year, fields_to_update)
-    update_instance_model_from_data(luy_to_update, fields_to_update)
+    for luy_to_update in luy_to_update.find_gte_learning_units_year():
+        update_instance_model_from_data(luy_to_update.learning_unit, fields_to_update)
+        update_instance_model_from_data(luy_to_update.learning_container_year, fields_to_update)
+        update_instance_model_from_data(luy_to_update, fields_to_update)
 
 
 def update_learning_unit_year_entities(luy_to_update, entities_by_type_to_update):
