@@ -24,14 +24,10 @@
 #
 ##############################################################################
 
-from base.tests.factories.academic_year import AcademicYearFactory
-from dissertation.models import adviser
-from dissertation.models import dissertation_role
-from dissertation.tests.models.test_faculty_adviser import create_faculty_adviser
-from dissertation.views.dissertation import adviser_can_manage
 import json
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.offer_year import OfferYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.offer import OfferFactory
@@ -42,6 +38,10 @@ from dissertation.tests.factories.faculty_adviser import FacultyAdviserFactory
 from dissertation.tests.factories.offer_proposition import OfferPropositionFactory
 from dissertation.tests.factories.proposition_dissertation import PropositionDissertationFactory
 from dissertation.tests.factories.proposition_offer import PropositionOfferFactory
+from dissertation.models import adviser
+from dissertation.models import dissertation_role
+from dissertation.tests.models.test_faculty_adviser import create_faculty_adviser
+from dissertation.views.dissertation import adviser_can_manage
 
 ERROR_405_BAD_REQUEST=405
 ERROR_404_PAGE_NO_FOUND = 404
