@@ -264,10 +264,14 @@ def filter_biennial(queryset, periodicity):
 
 
 def update_learning_unit_year_with_report(luy_to_update, fields_to_update):
-    for luy in luy_to_update.find_gte_learning_units_year():
+    fields_not_to_report = ["is_vacant", "type_declaration_vacant", "attribution_procedure"]
+    for index, luy in enumerate(luy_to_update.find_gte_learning_units_year()):
         update_instance_model_from_data(luy.learning_unit, fields_to_update)
-        update_instance_model_from_data(luy.learning_container_year, fields_to_update)
         update_instance_model_from_data(luy, fields_to_update)
+        if index == 0:
+            update_instance_model_from_data(luy.learning_container_year, fields_to_update)
+        else:
+            update_instance_model_from_data(luy.learning_container_year, fields_to_update, exclude=fields_not_to_report)
 
 
 def update_learning_unit_year_entities_with_report(luy_to_update, entities_by_type_to_update):

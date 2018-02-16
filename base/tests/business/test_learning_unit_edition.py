@@ -884,23 +884,28 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
          self.assert_fields_not_updated(learning_unit_years[0])
          self.assert_fields_not_updated(learning_unit_years[0].learning_container_year)
 
-         for luy in learning_unit_years[1:]:
+         for index, luy in enumerate(learning_unit_years[1:]):
              self.assert_fields_updated(luy, learning_unit_year_fields_to_update)
              self.assert_fields_updated(luy.learning_unit, learning_unit_fields_to_update)
-             self.assert_fields_updated(luy.learning_container_year, learning_container_year_fields_to_update)
+             if index == 0:
+                self.assert_fields_updated(luy.learning_container_year, learning_container_year_fields_to_update)
+             else:
+                self.assert_fields_updated(luy.learning_container_year, learning_container_year_fields_to_update,
+                                           exclude=["is_vacant", "type_declaration_vacant"])
+                self.assert_fields_not_updated(luy.learning_container_year, fields=["team"])
 
-     def assert_fields_updated(self, instance, fields_value):
+     def assert_fields_updated(self, instance, fields_value, exclude=[]):
          instance.refresh_from_db()
 
-         instance_values = model_to_dict(instance, fields=fields_value.keys())
-         self.assertDictEqual(fields_value, instance_values)
+         instance_values = model_to_dict(instance, fields=fields_value.keys(), exclude=exclude)
+         fields_value_without_excluded = {field: value for field, value in fields_value.items() if field not in exclude}
+         self.assertDictEqual(fields_value_without_excluded, instance_values)
 
-
-     def assert_fields_not_updated(self, instance):
-         past_instance_values = model_to_dict(instance)
+     def assert_fields_not_updated(self, instance, fields=None):
+         past_instance_values = model_to_dict(instance, fields=fields)
 
          instance.refresh_from_db()
-         new_instance_values = model_to_dict(instance)
+         new_instance_values = model_to_dict(instance, fields=fields)
          self.assertDictEqual(past_instance_values, new_instance_values)
 
 
