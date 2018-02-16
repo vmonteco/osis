@@ -211,7 +211,7 @@ class DissertationViewTestCase(TestCase):
         for data in data_json:
             self.assertEqual(data['last_name'], 'Dupont')
 
-    def test_manager_dissertations_jury_by_ajax(self):
+    def test_manager_dissert_jury_new_by_ajax1(self):
         self.client.force_login(self.manager.person.user)
         dissert_role_count = dissertation_role.count_by_dissertation(self.dissertation_1)
         response = self.client.post('/dissertation/manager_dissertations_jury_new_ajax/',
@@ -229,6 +229,9 @@ class DissertationViewTestCase(TestCase):
                                      'adviser_pk': str(self.teacher.id)})
         self.assertEqual(response.status_code, NO_ERROR_CODE)
         self.assertEqual(dissert_role_count + 1, dissertation_role.count_by_dissertation(self.dissertation_1))
+
+    def test_manager_dissert_jury_delete_by_ajax(self):
+        self.client.force_login(self.manager.person.user)
         liste_dissert_roles = dissertation_role.search_by_dissertation_and_role(self.dissertation_1, 'READER')
         for element in liste_dissert_roles:
             dissert_role_count = dissertation_role.count_by_dissertation(self.dissertation_1)
@@ -236,10 +239,15 @@ class DissertationViewTestCase(TestCase):
             response2 = self.client.get(url.format(role = str(element.id)))
             self.assertEqual(response2.status_code, NO_ERROR_CODE)
             self.assertEqual(dissertation_role.count_by_dissertation(self.dissertation_1), dissert_role_count-1)
+
+    def test_manager_dissert_wait_comm_jsonlist(self):
+        self.client.force_login(self.manager.person.user)
         response = self.client.post('/dissertation/manager_dissertations_wait_comm_json_list', )
         response_data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, NO_ERROR_CODE)
         self.assertEqual(len(response_data), 2)
+
+    def test_manager_dissert_jury_security_ajax(self):
         self.client.force_login(self.manager2.person.user)
         response = self.client.post('/dissertation/manager_dissertations_jury_new_ajax/',
                                     {'pk_dissertation': str(self.dissertation_1.id),
