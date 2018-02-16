@@ -692,7 +692,7 @@ class LearningUnitViewTestCase(TestCase):
     def get_base_partim_form_data(self, original_learning_unit_year):
         data = self.get_common_data()
         data.update(self.get_partim_data(original_learning_unit_year))
-        data['partial_title'] = "Partim partial title"
+        data['specific_title'] = "Partim partial title"
         return data
 
     def get_common_data(self):
