@@ -84,7 +84,7 @@ from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
 from base.views.learning_unit import compute_partim_form_initial_data, _get_post_data_without_read_only_field, \
     learning_unit_components, learning_class_year_edit
-from base.views.learning_unit import learning_unit_volumes_management
+from base.views.learning_units.edition import learning_unit_volumes_management
 from cms.enums import entity_name
 from cms.tests.factories.text_label import TextLabelFactory
 from cms.tests.factories.translated_text import TranslatedTextFactory

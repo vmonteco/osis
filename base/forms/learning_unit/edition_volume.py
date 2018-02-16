@@ -24,14 +24,21 @@
 #
 ##############################################################################
 from django import forms
+from django.db import transaction
 from django.forms import formset_factory
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.learning_unit_year_volumes import ENTITY_TYPES
 from base.models.enums import entity_container_year_link_type as entity_types
 from base.models.enums.component_type import PRACTICAL_EXERCISES
 from base.models.enums.learning_component_year_type import LECTURING
+from base.models.enums import entity_container_year_link_type as entity_types
 
+
+ENTITY_TYPES = [
+    entity_types.REQUIREMENT_ENTITY,
+    entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1,
+    entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2
+]
 
 class EmptyField(forms.CharField):
     widget = forms.HiddenInput
@@ -155,16 +162,35 @@ class VolumeEditionForm(forms.Form):
         if parent_data[self.requirement_entity_key] < partim_data[self.requirement_entity_key]:
             errors.append("{}".format(_('entity_requirement_full_must_be_greater_or_equal_to_partim')))
 
-        self.compare_additionnal_requirement_entities(errors, parent_data, self.additional_requirement_entity_1_key)
-        self.compare_additionnal_requirement_entities(errors, parent_data, self.additional_requirement_entity_2_key)
+        self._compare_additionnal_requirement_entities(errors, parent_data, self.additional_requirement_entity_1_key)
+        self._compare_additionnal_requirement_entities(errors, parent_data, self.additional_requirement_entity_2_key)
 
         return errors
 
-    def compare_additionnal_requirement_entities(self, errors, parent_data, key):
+    def _compare_additionnal_requirement_entities(self, errors, parent_data, key):
         # Verify if we have additional_requirement entity
         if key in parent_data and key in self.cleaned_data:
             if parent_data[key] < self.cleaned_data[key]:
                 errors.append("{}".format(_('entity_requirement_full_must_be_greater_or_equal_to_partim')))
+
+    def save(self):
+        with transaction.atomic():
+            if self.changed_data:
+                self.component.hourly_volume_partial = self.cleaned_data['volume_q1']
+                self.component.planned_classes = self.cleaned_data['planned_classes']
+                self.component.save()
+                self._save_requirement_entities(self.component.entity_components_year)
+
+    def _save_requirement_entities(self, entity_components_year):
+        for ecy in entity_components_year:
+            link_type = ecy.entity_container_year.type
+            repartition_volume = self.cleaned_data.get('volume_' + link_type.lower())
+
+            if repartition_volume is None:
+                continue
+
+            ecy.repartition_volume = repartition_volume
+            ecy.save()
 
 
 class VolumeEditionBaseFormset(forms.BaseFormSet):
@@ -191,9 +217,10 @@ class VolumeEditionBaseFormset(forms.BaseFormSet):
 
     def validate_parent_partim(self, parent_formset):
         # Check CM
-        self._validate_parent_partim_by_type(parent_formset, LECTURING)
+        is_cm_valid = self._validate_parent_partim_by_type(parent_formset, LECTURING)
         # Check TP
-        self._validate_parent_partim_by_type(parent_formset, PRACTICAL_EXERCISES)
+        is_tp_valid = self._validate_parent_partim_by_type(parent_formset, PRACTICAL_EXERCISES)
+        return is_cm_valid and is_tp_valid
 
     def _validate_parent_partim_by_type(self, parent_formset, component_type):
 
@@ -213,11 +240,16 @@ class VolumeEditionBaseFormset(forms.BaseFormSet):
                     partim_form.component.acronym,
                     error)
                                        )
+        return not errors
 
     def get_form_by_type(self, component_type):
         for form in self.forms:
             if form.component.type == component_type:
                 return form
+
+    def save(self):
+        for form in self.forms:
+            form.save()
 
 
 class VolumeEditionFormsetContainer:
@@ -239,16 +271,22 @@ class VolumeEditionFormsetContainer:
             )
 
     def is_valid(self):
-        if self.request.POST:
-            if all([formset.is_valid() for formset in self.formsets.values()]):
-                if self._is_container_valid():
-                    return True
-        return False
+        if not self.request.POST:
+            return False
+
+        if not all([formset.is_valid() for formset in self.formsets.values()]):
+            return False
+
+        if not self._is_container_valid():
+            return False
+
+        return True
 
     def _is_container_valid(self):
         # Check consistency between formsets
-        for luy in self.formsets:
-            if luy != self.parent:
-                self.formsets[luy].validate_parent_partim(self.formsets[self.parent])
+        return all(self.formsets[luy].validate_parent_partim(self.formsets[self.parent]) for luy in self.formsets
+                   if luy != self.parent)
 
-
+    def save(self):
+        for formset in self.formsets.values():
+            formset.save()
