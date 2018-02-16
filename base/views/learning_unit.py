@@ -140,7 +140,8 @@ def volumes_validation(request, learning_unit_year_id):
 
 
 @login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
+@permission_required('base.can_edit_learningunit', raise_exception=True)
+@perms.can_perform_learning_unit_modification
 def learning_unit_volumes_management(request, learning_unit_year_id):
     # FIXME : Use a formset instead !
     if request.method == 'POST':
