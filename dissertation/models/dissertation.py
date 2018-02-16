@@ -101,7 +101,7 @@ class Dissertation(SerializableModel):
         if self.status == 'TO_RECEIVE' and next_status == 'TO_DEFEND':
             emails_dissert.send_email(self, 'dissertation_acknowledgement', [self.author])
         if (self.status == 'DRAFT' or self.status == 'DIR_KO') and next_status == 'DIR_SUBMIT':
-            emails_dissert.send_email_to_all_promoteurs(self)
+            emails_dissert.send_email_to_all_promoteurs(self,'dissertation_adviser_new_project_dissertation')
 
         self.set_status(next_status)
 
@@ -130,9 +130,7 @@ class Dissertation(SerializableModel):
             emails_dissert.send_email(self, 'dissertation_refused_by_teacher', [self.author])
         if self.status == 'COM_SUBMIT':
             emails_dissert.send_email(self, 'dissertation_refused_by_com_to_student', [self.author])
-            emails_dissert.send_email(self,
-                                      'dissertation_refused_by_com_to_teacher',
-                                      dissertation_role.find_all_promoteur_by_dissertation(self))
+            emails_dissert.send_email_to_all_promoteurs(self, 'dissertation_refused_by_com_to_teacher')
         self.set_status(next_status)
 
     class Meta:
