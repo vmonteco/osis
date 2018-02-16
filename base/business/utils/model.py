@@ -26,7 +26,7 @@
 
 
 def update_instance_model_from_data(instance, fields_to_update, exclude=[]):
-    fields_to_update_without_excluded = {field: value for field, value in  fields_to_update.items()
+    fields_to_update_without_excluded = {field: value for field, value in fields_to_update.items()
                                          if field not in exclude}
     for field, value in fields_to_update_without_excluded.items():
         if hasattr(instance.__class__, field):
