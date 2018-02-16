@@ -897,9 +897,10 @@ class LearningUnitViewTestCase(TestCase):
             'PLANNED_CLASSES_{}_{}'.format(learning_unit_year.id, learning_component_year.id): [2]
         }
 
+    @mock.patch("base.business.learning_units.perms.is_eligible_for_modification", side_effect=lambda luy, pers: True)
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager')
-    def test_get_learning_unit_volumes_management_get(self, mock_program_manager, mock_render):
+    def test_get_learning_unit_volumes_management_get(self, mock_program_manager, mock_render, mock_perm):
         mock_program_manager.return_value = True
 
         generated_container_year = GenerateContainer(
@@ -976,8 +977,9 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(len(msg), 1)
         self.assertIn(messages.SUCCESS, msg_level)
 
+    @mock.patch("base.business.learning_units.perms.is_eligible_for_modification", side_effect=lambda luy, pers: True)
     @mock.patch('base.models.program_manager.is_program_manager')
-    def test_get_learning_unit_volumes_management_post_wrong_values(self, mock_program_manager):
+    def test_get_learning_unit_volumes_management_post_wrong_values(self, mock_program_manager, mock_perm):
         mock_program_manager.return_value = True
 
         g = GenerateContainer(start_year=self.current_academic_year.year, end_year=self.current_academic_year.year)
