@@ -123,53 +123,39 @@ class DissertationViewTestCase(TestCase):
     def test_search_dissertations_for_manager(self):
         self.client.force_login(self.manager.person.user)
         url = reverse('manager_dissertations_search')
-
         response = self.client.get(url, data={"search": "no result search"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 0)
-
         response = self.client.get(url, data={"search": "Dissertation 2"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 2)
-
         response = self.client.get(url, data={"search": "Proposition 3"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 1)
-
         response = self.client.get(url, data={"search": "Dissertation"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 7)
-
-        response = self.client.get(url, data={"search": "Dissertation",
-                                              "offer_prop_search": self.offer_proposition1.id})
+        response = self.client.get(url, data={"search": "Dissertation","offer_prop_search": self.offer_proposition1.id})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 7)
-
-        response = self.client.get(url, data={"search": "Dissertation",
-                                              "offer_prop_search": self.offer_proposition2.id})
+        response = self.client.get(url, data={"search": "Dissertation","offer_prop_search": self.offer_proposition2.id})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 0)
-
         response = self.client.get(url, data={"academic_year": self.academic_year1.id})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 7)
-
         response = self.client.get(url, data={"academic_year": self.academic_year2.id})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 0)
-
         response = self.client.get(url, data={"status_search": "COM_SUBMIT"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 2)
-
         response = self.client.get(url, data={"search": "test_offer"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 7)
-
         response = self.client.get(url, data={"search": "Durant"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 7)
-
         response = self.client.get(url, data={"search": "Dupont"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 7)
