@@ -990,5 +990,3 @@ class TestUpdateLearningUnitEntities(TestCase):
         entity_container.refresh_from_db()
 
         self.assertEqual(entity_container.entity, expected_entity)
-
-
