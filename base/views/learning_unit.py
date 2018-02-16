@@ -58,7 +58,8 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
 from base.business.learning_units import perms as business_perms
 from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
-from base.forms.learning_unit.edition_volume import VolumeEditionForm, VolumeEditionBaseFormset
+from base.forms.learning_unit.edition_volume import VolumeEditionForm, VolumeEditionBaseFormset, \
+    VolumeEditionFormsetContainer
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
     PARTIM_FORM_READ_ONLY_FIELD
@@ -170,9 +171,9 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
         learning_container_year_id=context['learning_unit_year'].learning_container_year_id
     )
 
-    context['formsets'] = generate_volume_edition_formset(context['learning_units'], request)
+    volume_edition_formset_container = VolumeEditionFormsetContainer(request, context['learning_units'])
 
-    if all([formset.is_valid() for formset in context['formsets'].values()]):
+    if volume_edition_formset_container.is_valid():
         print('tout tout tout bon !')
         errors = _learning_unit_volumes_management_edit(request, learning_unit_year_id)
 
@@ -182,24 +183,11 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
 
         #display_error_messages(request, errors)
 
+    context['formsets'] = volume_edition_formset_container.formsets
     context['tab_active'] = 'components'
     context['experimental_phase'] = True
 
     return layout.render(request, "learning_unit/volumes_management.html", context)
-
-
-def generate_volume_edition_formset(learning_units, request):
-    formsets = {}
-
-    for learning_unit in learning_units:
-        volume_edition_formset = formset_factory(
-            form=VolumeEditionForm, formset=VolumeEditionBaseFormset, extra=len(learning_unit.components)
-        )
-        formsets[learning_unit] = volume_edition_formset(
-            request.POST or None, learning_unit_year=learning_unit, prefix=learning_unit.acronym
-        )
-
-    return formsets
 
 
 def _learning_unit_volumes_management_edit(request, learning_unit_year_id):

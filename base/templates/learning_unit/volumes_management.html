@@ -47,19 +47,9 @@
                 <h4 class="text-center">{% trans 'volumes_management' %}</h4>
                 <form role="form" method="POST" action="">
                     {% csrf_token %}
-                    <table class="table">
-                        <colgroup>
-                            <col style="background-color:#f3f3f3">
-                            <col style="background-color:#f3fcfc">
-                            <col style="background-color:#d7d9db">
-                            <col span="4" style="background-color:#f3fcfc">
-                            <col style="background-color:#f3f3f3">
-                            <col style="background-color:#cce6ff">
-                            <col style="background-color:#f3f3f3">
-                            <col span="2" style="background-color:#f3fcfc">
-                            <col style="background-color:#d7d9db">
-                        </colgroup>
+                    <table class="table volumes">
                         {% for learning_unit, formset in formsets.items %}
+                            <tbody>
                             <tr>
                                 <td>
                                     <b>{{ learning_unit.acronym }}</b>
@@ -96,6 +86,7 @@
                                     {% endfor %}
                                 </tr>
                             {% endfor %}
+                            </tbody>
                         {% endfor %}
                     </table>
                     <table class="table volumes">
