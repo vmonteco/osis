@@ -29,14 +29,14 @@ from django.forms import formset_factory
 from django.utils.translation import ugettext_lazy as _
 
 from base.models.enums import entity_container_year_link_type as entity_types
-from base.models.enums.component_type import PRACTICAL_EXERCISES
-from base.models.enums.learning_component_year_type import LECTURING
+from base.models.enums.component_type import PRACTICAL_EXERCISES, LECTURING
 
 ENTITY_TYPES = [
     entity_types.REQUIREMENT_ENTITY,
     entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1,
     entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2
 ]
+
 
 class EmptyField(forms.CharField):
     widget = forms.HiddenInput
@@ -70,13 +70,12 @@ class VolumeEditionForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.component = kwargs.pop('component')
         self.learning_unit_year = kwargs.pop('learning_unit_year')
+        self.entities = kwargs.pop('entities')
 
         self.title = self.component.acronym
         self.title_help = _(self.component.type) + ' ' if self.component.type else ''
         self.title_help += self.component.acronym
 
-        self.component_values = kwargs.pop('component_values')
-        self.entities = kwargs.pop('entities')
         super().__init__(*args, **kwargs)
 
         # Append dynamic fields
@@ -86,15 +85,7 @@ class VolumeEditionForm(forms.Form):
         self.fields['equal_field_3'] = EmptyField(label='=')
 
         self.fields['volume_total_requirement_entities'] = VolumeField(label=_('vol_charge'),
-                                                               help_text=_('total_volume_charge'))
-
-        self.set_initial_values()
-
-    def set_initial_values(self):
-        for key, value in self.component_values.items():
-            field = self.fields.get(key)
-            if field:
-                self.fields[key].initial = value
+                                                                       help_text=_('total_volume_charge'))
 
     def is_valid(self):
         if not super().is_valid():
@@ -137,7 +128,7 @@ class VolumeEditionForm(forms.Form):
             self.add_error('volume_total_requirement_entities', _('vol_tot_req_entities_not_equal_to_vol_tot_mult_cp'))
 
     def validate_parent_partim_component(self, parent_data):
-        partim_data = self.cleaned_data or self.component_values
+        partim_data = self.cleaned_data or self.initial
         errors = []
 
         if parent_data['volume_total'] <= partim_data['volume_total']:
@@ -167,12 +158,11 @@ class VolumeEditionForm(forms.Form):
                 errors.append("{}".format(_('entity_requirement_full_must_be_greater_or_equal_to_partim')))
 
     def save(self):
-        with transaction.atomic():
-            if self.changed_data:
-                self.component.hourly_volume_partial = self.cleaned_data['volume_q1']
-                self.component.planned_classes = self.cleaned_data['planned_classes']
-                self.component.save()
-                self._save_requirement_entities(self.component.entity_components_year)
+        if self.changed_data:
+            self.component.hourly_volume_partial = self.cleaned_data['volume_q1']
+            self.component.planned_classes = self.cleaned_data['planned_classes']
+            self.component.save()
+            self._save_requirement_entities(self.component.entity_components_year)
 
     def _save_requirement_entities(self, entity_components_year):
         for ecy in entity_components_year:
@@ -199,14 +189,14 @@ class VolumeEditionBaseFormset(forms.BaseFormSet):
         kwargs = super().get_form_kwargs(index)
         kwargs['learning_unit_year'] = self.learning_unit_year
         kwargs['component'] = self.components[index]
-        kwargs['component_values'] = self._clean_component_keys(self.components_values[index])
+        kwargs['initial'] = self._clean_component_keys(self.components_values[index])
         kwargs['entities'] = self.learning_unit_year.entities
         return kwargs
 
     @staticmethod
-    def _clean_component_keys(component_values):
+    def _clean_component_keys(component_dict):
         # Field's name must be in lowercase
-        return {k.lower(): v for k, v in component_values.items()}
+        return {k.lower(): v for k, v in component_dict.items()}
 
     def validate_parent_partim(self, parent_formset):
         # Check CM
@@ -220,19 +210,16 @@ class VolumeEditionBaseFormset(forms.BaseFormSet):
         parent_form = parent_formset.get_form_by_type(component_type)
         partim_form = self.get_form_by_type(component_type)
 
-        errors = partim_form.validate_parent_partim_component(parent_form.cleaned_data or parent_form.component_values)
+        errors = partim_form.validate_parent_partim_component(parent_form.cleaned_data or parent_form.initial)
 
         for error in errors:
             # Prefix with acronym learning unit + acronym component
             partim_form.add_error(
                 None,
-                "{} {} / {} {}: {}".format(
-                    parent_form.learning_unit_year.acronym,
-                    parent_form.component.acronym,
-                    partim_form.learning_unit_year.acronym,
-                    partim_form.component.acronym,
-                    error)
-                                       )
+                "{} {} / {} {}: {}".format(parent_form.learning_unit_year.acronym, parent_form.component.acronym,
+                                           partim_form.learning_unit_year.acronym, partim_form.component.acronym,
+                                           error)
+            )
         return not errors
 
     def get_form_by_type(self, component_type):
@@ -281,5 +268,6 @@ class VolumeEditionFormsetContainer:
                    if luy != self.parent)
 
     def save(self):
-        for formset in self.formsets.values():
-            formset.save()
+        with transaction.atomic():
+            for formset in self.formsets.values():
+                formset.save()

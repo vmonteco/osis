@@ -23,10 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
+from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_year_with_context import get_with_context
-from base.forms.learning_unit.edition_volume import VolumeEditionForm
+from base.forms.learning_unit.edition_volume import VolumeEditionForm, VolumeEditionBaseFormset, ENTITY_TYPES, \
+    VolumeEditionFormsetContainer
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
 
 
@@ -34,16 +36,264 @@ class TestVolumeEditionForm(TestCase):
     def setUp(self):
         self.start_year = 2010
         self.end_year = 2020
-        self.generated_ac_years= GenerateAcademicYear(self.start_year, self.end_year)
+        self.generated_ac_years = GenerateAcademicYear(self.start_year, self.end_year)
         self.generated_container = GenerateContainer(self.start_year, self.end_year)
         self.first_learning_unit_year = self.generated_container.generated_container_years[0].learning_unit_year_full
-
-    def test_get_volume_form(self):
-        learning_unit_with_context = get_with_context(
+        self.learning_unit_with_context = get_with_context(
             learning_container_year_id=self.first_learning_unit_year.learning_container_year)[0]
 
-        for component_values in learning_unit_with_context.components.values():
-            form = VolumeEditionForm(component_values=component_values, entities=learning_unit_with_context.entities)
+    def test_get_volume_form(self):
+        for component, component_values in self.learning_unit_with_context.components.items():
+            component_values = VolumeEditionBaseFormset._clean_component_keys(component_values)
+            form = VolumeEditionForm(learning_unit_year=self.learning_unit_with_context,
+                                     initial=component_values,
+                                     component=component,
+                                     entities=self.learning_unit_with_context.entities)
 
-            print(form.fields)
+            self.assertEqual(form.initial, component_values)
 
+    def test_post_volume_form(self):
+        for component, component_values in self.learning_unit_with_context.components.items():
+            component_values = VolumeEditionBaseFormset._clean_component_keys(component_values)
+            form = VolumeEditionForm(
+                data=_get_valid_data(),
+                learning_unit_year=self.learning_unit_with_context,
+                initial=component_values,
+                component=component,
+                entities=self.learning_unit_with_context.entities)
+            self.assertTrue(form.is_valid())
+
+    def test_post_volume_form_empty_field(self):
+        for component, component_values in self.learning_unit_with_context.components.items():
+            component_values = VolumeEditionBaseFormset._clean_component_keys(component_values)
+            form = VolumeEditionForm(
+                data=_get_wrong_data_empty_field(),
+                learning_unit_year=self.learning_unit_with_context,
+                initial=component_values,
+                component=component,
+                entities=self.learning_unit_with_context.entities)
+            self.assertFalse(form.is_valid())
+
+    def test_post_volume_form_wrong_volume_total(self):
+        for component, component_values in self.learning_unit_with_context.components.items():
+            component_values = VolumeEditionBaseFormset._clean_component_keys(component_values)
+            form = VolumeEditionForm(
+                data=_get_wrong_data_volume_tot(),
+                learning_unit_year=self.learning_unit_with_context,
+                initial=component_values,
+                component=component,
+                entities=self.learning_unit_with_context.entities)
+            self.assertFalse(form.is_valid())
+            self.assertEqual(form.errors['volume_total'][0], _('vol_tot_not_equal_to_q1_q2'))
+
+    def test_post_volume_form_wrong_volume_tot_requirement(self):
+        for component, component_values in self.learning_unit_with_context.components.items():
+            component_values = VolumeEditionBaseFormset._clean_component_keys(component_values)
+            form = VolumeEditionForm(
+                data=_get_wrong_data_volume_tot(),
+                learning_unit_year=self.learning_unit_with_context,
+                initial=component_values,
+                component=component,
+                entities=self.learning_unit_with_context.entities)
+            self.assertFalse(form.is_valid())
+            self.assertEqual(form.errors['volume_total_requirement_entities'][0],
+                             _('vol_tot_req_entities_not_equal_to_vol_tot_mult_cp'))
+
+    def test_post_volume_form_wrong_vol_req_entity(self):
+        for component, component_values in self.learning_unit_with_context.components.items():
+            component_values = VolumeEditionBaseFormset._clean_component_keys(component_values)
+            form = VolumeEditionForm(
+                data=_get_wrong_data_vol_req_entity(),
+                learning_unit_year=self.learning_unit_with_context,
+                initial=component_values,
+                component=component,
+                entities=self.learning_unit_with_context.entities)
+            self.assertFalse(form.is_valid())
+
+            error_msg = ' + '.join([self.learning_unit_with_context.entities.get(t).acronym for t in ENTITY_TYPES
+                                    if self.learning_unit_with_context.entities.get(t)])
+            error_msg += ' = {}'.format(_('vol_charge'))
+            self.assertEqual(form.errors['volume_total_requirement_entities'][0], error_msg)
+
+    def test_post_volume_form_partim_q1(self):
+        for component, component_values in self.learning_unit_with_context.components.items():
+            component_values = VolumeEditionBaseFormset._clean_component_keys(component_values)
+            form = VolumeEditionForm(
+                data=_get_valid_partim_data_alter(),
+                learning_unit_year=self.learning_unit_with_context,
+                initial=component_values,
+                component=component,
+                entities=self.learning_unit_with_context.entities)
+            self.assertTrue(form.is_valid())
+            print(form.errors)
+            parent_data = _get_valid_data()
+            errors = form.validate_parent_partim_component(parent_data)
+            self.assertEqual(errors,
+                             [_('vol_tot_full_must_be_greater_than_partim'),
+                              _('vol_q1_full_must_be_greater_or_equal_to_partim'),
+                              _('vol_q2_full_must_be_greater_or_equal_to_partim'),
+                              _('planned_classes_full_must_be_greater_or_equal_to_partim'),
+                              _('entity_requirement_full_must_be_greater_or_equal_to_partim'),
+                              _('entity_requirement_full_must_be_greater_or_equal_to_partim'),
+                              _('entity_requirement_full_must_be_greater_or_equal_to_partim')])
+
+
+def _get_wrong_data_empty_field():
+    data = _get_valid_data()
+    data['volume_total'] = ''
+    return data
+
+
+def _get_wrong_data_volume_tot():
+    data = _get_valid_data()
+    data['volume_total'] = 3
+    return data
+
+
+def _get_wrong_data_vol_req_entity():
+    data = _get_valid_data()
+    data['volume_additional_requirement_entity_1'] = 2
+    return data
+
+
+def _get_valid_data():
+    return {
+        'volume_total': 2,
+        'volume_q1': 0,
+        'volume_q2': 2,
+        'planned_classes': 1,
+        'volume_requirement_entity': 1,
+        'volume_additional_requirement_entity_1': 0.5,
+        'volume_additional_requirement_entity_2': 0.5,
+        'volume_total_requirement_entities': 2
+    }
+
+
+def _get_valid_partim_data():
+    return {
+        'volume_total': 1,
+        'volume_q1': 0,
+        'volume_q2': 1,
+        'planned_classes': 1,
+        'volume_requirement_entity': 0.5,
+        'volume_additional_requirement_entity_1': 0.25,
+        'volume_additional_requirement_entity_2': 0.25,
+        'volume_total_requirement_entities': 1
+    }
+
+
+def _get_valid_partim_data_alter():
+    return {
+        'volume_total': 4,
+        'volume_q1': 1,
+        'volume_q2': 3,
+        'planned_classes': 2,
+        'volume_requirement_entity': 6,
+        'volume_additional_requirement_entity_1': 1,
+        'volume_additional_requirement_entity_2': 1,
+        'volume_total_requirement_entities': 8
+    }
+
+
+class TestVolumeEditionFormsetContainer(TestCase):
+    def setUp(self):
+        self.start_year = 2010
+        self.end_year = 2020
+        self.generated_ac_years = GenerateAcademicYear(self.start_year, self.end_year)
+        self.generated_container = GenerateContainer(self.start_year, self.end_year)
+        self.generated_container_year = self.generated_container.generated_container_years[0]
+        self.learning_container_year = self.generated_container.generated_container_years[0].learning_container_year
+        self.learning_units_with_context = get_with_context(
+            learning_container_year_id=self.learning_container_year)
+
+        self.learning_unit_year_full = self.generated_container_year.learning_unit_year_full
+        self.learning_unit_year_partim = self.generated_container_year.learning_unit_year_partim
+
+    def test_get_volume_edition_formset_container(self):
+        request_factory = RequestFactory()
+
+        volume_edition_formset_container = VolumeEditionFormsetContainer(request_factory.get(None),
+                                                                         self.learning_units_with_context)
+
+        self.assertEqual(len(volume_edition_formset_container.formsets), 2)
+        self.assertEqual(list(volume_edition_formset_container.formsets.keys()),
+                         [self.learning_unit_year_full,
+                          self.learning_unit_year_partim])
+
+        first_formset = volume_edition_formset_container.formsets[self.learning_unit_year_full]
+        self.assertEqual(len(first_formset.forms), 2)
+        self.assertEqual(first_formset.forms[0].learning_unit_year,
+                         self.learning_unit_year_full)
+
+    def test_post_volume_edition_formset_container(self):
+        request_factory = RequestFactory()
+
+        data_forms = _get_valid_formset_data(self.learning_unit_year_full.acronym)
+        data_forms.update(_get_valid_formset_data(self.learning_unit_year_partim.acronym, is_partim=True))
+
+        volume_edition_formset_container = VolumeEditionFormsetContainer(
+            request_factory.post(None, data=data_forms),
+            self.learning_units_with_context)
+
+        self.assertTrue(volume_edition_formset_container.is_valid())
+
+        volume_edition_formset_container.save()
+
+    def test_post_volume_edition_formset_container_wrong_vol_tot_full_must_be_greater_than_partim(self):
+        request_factory = RequestFactory()
+
+        data_forms = _get_valid_formset_data(self.learning_unit_year_full.acronym)
+        data_forms.update(_get_valid_formset_data(self.learning_unit_year_partim.acronym))
+
+        volume_edition_formset_container = VolumeEditionFormsetContainer(
+            request_factory.post(None, data=data_forms),
+            self.learning_units_with_context)
+
+        self.assertFalse(volume_edition_formset_container.is_valid())
+        self.assertEqual(
+            volume_edition_formset_container.formsets[self.learning_unit_year_partim].errors[0],
+            {'__all__': [ self._get_error_with_prefix(_('vol_tot_full_must_be_greater_than_partim'))]}
+        )
+
+    def _get_error_with_prefix(self, error):
+        return "{} {} / {} {}: {}".format(
+            self.learning_unit_year_full.acronym,
+            self.generated_container_year.learning_component_cm_full.acronym,
+            self.learning_unit_year_partim.acronym,
+            self.generated_container_year.learning_component_cm_partim.acronym,
+            error
+        )
+
+
+def _get_valid_formset_data(prefix, is_partim=False):
+    form_data = {}
+    data = _get_valid_data() if not is_partim else _get_valid_partim_data()
+
+    for i in range(2):
+        form_data.update({'{}-{}'.format(i, k): v for k, v in data.items()})
+
+    form_data.update(
+        {'INITIAL_FORMS': '0',
+         'MAX_NUM_FORMS': '1000',
+         'MIN_NUM_FORMS': '0',
+         'TOTAL_FORMS': '2'}
+    )
+    return {'{}-{}'.format(prefix, k): v for k, v in form_data.items()}
+
+
+def _get_wrong_formset_data(prefix, is_partim=False):
+    form_data = {}
+    data = _get_valid_data() if not is_partim else _get_valid_partim_data()
+
+    for i in range(2):
+        form_data.update({'{}-{}'.format(i, k): v for k, v in data.items()})
+        if is_partim:
+            form_data['{}-{}'.format(i, 'volume_q1')] = 6
+
+    form_data.update(
+        {'INITIAL_FORMS': '0',
+         'MAX_NUM_FORMS': '1000',
+         'MIN_NUM_FORMS': '0',
+         'TOTAL_FORMS': '2'}
+    )
+    return {'{}-{}'.format(prefix, k): v for k, v in form_data.items()}
