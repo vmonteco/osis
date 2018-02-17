@@ -68,26 +68,26 @@ class LearningUnitYearVolumesTestCase(TestCase):
         VOLUME_TOTAL = learning_unit_year_volumes._validate_decimals('10')
         VOLUME_Q1 = learning_unit_year_volumes._validate_decimals('9')
         VOLUME_Q2 = learning_unit_year_volumes._validate_decimals('14')
-        self.assertFalse(learning_unit_year_volumes._is_tot_annual_equal_to_q1_q2(**locals()))
+        self.assertFalse(learning_unit_year_volumes._check_tot_annual_equal_to_q1_q2(**locals()))
 
     def test_is_tot_annual_equal_to_q1_q2(self):
         VOLUME_TOTAL = learning_unit_year_volumes._validate_decimals('40')
         VOLUME_Q1 = learning_unit_year_volumes._validate_decimals('37.45')
         VOLUME_Q2 = learning_unit_year_volumes._validate_decimals('2.55')
-        self.assertTrue(learning_unit_year_volumes._is_tot_annual_equal_to_q1_q2(**locals()))
+        self.assertTrue(learning_unit_year_volumes._check_tot_annual_equal_to_q1_q2(**locals()))
 
     def test_is_tot_annual_equal_to_q1_without_q2(self):
         VOLUME_TOTAL = learning_unit_year_volumes._validate_decimals('40')
         VOLUME_Q1 = learning_unit_year_volumes._validate_decimals('40.00')
-        self.assertTrue(learning_unit_year_volumes._is_tot_annual_equal_to_q1_q2(**locals()))
+        self.assertTrue(learning_unit_year_volumes._check_tot_annual_equal_to_q1_q2(**locals()))
 
     def test_is_tot_annual_equal_to_without_q1_q2(self):
         VOLUME_TOTAL = learning_unit_year_volumes._validate_decimals('70.4')
         VOLUME_Q2 = learning_unit_year_volumes._validate_decimals('70.40')
-        self.assertTrue(learning_unit_year_volumes._is_tot_annual_equal_to_q1_q2(**locals()))
+        self.assertTrue(learning_unit_year_volumes._check_tot_annual_equal_to_q1_q2(**locals()))
 
     def test_is_not_tot_req_entities_equal_to_vol_req_entity(self):
-        self.assertFalse(learning_unit_year_volumes._is_tot_req_entities_equal_to_vol_req_entity(**{
+        self.assertFalse(learning_unit_year_volumes._check_tot_req_entities_equal_to_vol_req_entity(**{
             'VOLUME_' + entity_container_year_link_type.REQUIREMENT_ENTITY : learning_unit_year_volumes._validate_decimals('40'),
             'VOLUME_' + entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1: learning_unit_year_volumes._validate_decimals('40'),
             'VOLUME_' + entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: learning_unit_year_volumes._validate_decimals('40'),
@@ -95,20 +95,20 @@ class LearningUnitYearVolumesTestCase(TestCase):
         }))
 
     def test_is_tot_req_entities_equal_to_vol_req_entity_without_additional_req(self):
-        self.assertTrue(learning_unit_year_volumes._is_tot_req_entities_equal_to_vol_req_entity(**{
+        self.assertTrue(learning_unit_year_volumes._check_tot_req_entities_equal_to_vol_req_entity(**{
             'VOLUME_' + entity_container_year_link_type.REQUIREMENT_ENTITY: learning_unit_year_volumes._validate_decimals('60.1'),
             'VOLUME_TOTAL_REQUIREMENT_ENTITIES': learning_unit_year_volumes._validate_decimals('60.1')
         }))
 
     def test_is_not_tot_req_entities_equal_to_vol_req_entity_without_additional_req_2(self):
-        self.assertFalse(learning_unit_year_volumes._is_tot_req_entities_equal_to_vol_req_entity(**{
+        self.assertFalse(learning_unit_year_volumes._check_tot_req_entities_equal_to_vol_req_entity(**{
             'VOLUME_' + entity_container_year_link_type.REQUIREMENT_ENTITY: learning_unit_year_volumes._validate_decimals('40'),
             'VOLUME_' + entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1: learning_unit_year_volumes._validate_decimals('40'),
             'VOLUME_TOTAL_REQUIREMENT_ENTITIES': learning_unit_year_volumes._validate_decimals('40')
         }))
 
     def test_is_tot_req_entities_equal_to_vol_req_entity_without_additional_req_2(self):
-        self.assertTrue(learning_unit_year_volumes._is_tot_req_entities_equal_to_vol_req_entity(**{
+        self.assertTrue(learning_unit_year_volumes._check_tot_req_entities_equal_to_vol_req_entity(**{
             'VOLUME_' + entity_container_year_link_type.REQUIREMENT_ENTITY: learning_unit_year_volumes._validate_decimals('30.46'),
             'VOLUME_' + entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1: learning_unit_year_volumes._validate_decimals('30.98'),
             'VOLUME_TOTAL_REQUIREMENT_ENTITIES': learning_unit_year_volumes._validate_decimals('61.44')

@@ -31,8 +31,6 @@ from django.utils.translation import ugettext_lazy as _
 from base.models.enums import entity_container_year_link_type as entity_types
 from base.models.enums.component_type import PRACTICAL_EXERCISES
 from base.models.enums.learning_component_year_type import LECTURING
-from base.models.enums import entity_container_year_link_type as entity_types
-
 
 ENTITY_TYPES = [
     entity_types.REQUIREMENT_ENTITY,
@@ -66,6 +64,8 @@ class VolumeEditionForm(forms.Form):
     mult_field = EmptyField(label='*')
     planned_classes = forms.IntegerField(label=_('planned_classes_pc'), help_text=_('planned_classes'), min_value=0)
     equal_field_2 = EmptyField(label='=')
+
+    _cleaned_data = {}
 
     def __init__(self, *args, **kwargs):
         self.component = kwargs.pop('component')
@@ -101,47 +101,40 @@ class VolumeEditionForm(forms.Form):
             return False
 
         if self.changed_data:
-            if not self._is_tot_annual_equal_to_q1_q2():
-                self.add_error(None, "<b>{}/{}:</b> {}".format(
-                    self.learning_unit_year.acronym, self.component.acronym,
-                    _('vol_tot_not_equal_to_q1_q2')
-                ))
+            self._cleaned_data = self.cleaned_data.copy()
 
-            if not self._is_tot_req_entities_equal_to_vol_req_entity():
-                error_msg = ' + '.join([self.entities.get(t).acronym for t in ENTITY_TYPES if self.entities.get(t)])
-                error_msg += ' = {}'.format(_('vol_charge'))
-                self.add_error(None, "<b>{}/{}:</b> {}".format(
-                    self.learning_unit_year.acronym, self.component.acronym, error_msg))
-
-            if not self._is_tot_req_entities_equal_to_tot_annual_mult_cp():
-                self.add_error(None, "<b>{}/{}:</b> {}".format(
-                    self.learning_unit_year.acronym, self.component.acronym,
-                    _('vol_tot_req_entities_not_equal_to_vol_tot_mult_cp')))
+            self._check_tot_annual_equal_to_q1_q2()
+            self._check_tot_req_entities_equal_to_tot_annual_mult_cp()
+            self._check_tot_req_entities_equal_to_vol_req_entity()
 
         return not self.errors
 
-    def _is_tot_annual_equal_to_q1_q2(self):
-        total_annual = self.cleaned_data['volume_total']
-        q1 = self.cleaned_data['volume_q1']
-        q2 = self.cleaned_data['volume_q2']
-        return total_annual == (q1 + q2)
+    def _check_tot_annual_equal_to_q1_q2(self):
+        total_annual = self._cleaned_data['volume_total']
+        q1 = self._cleaned_data['volume_q1']
+        q2 = self._cleaned_data['volume_q2']
+        if total_annual != (q1 + q2):
+            self.add_error("volume_total", _('vol_tot_not_equal_to_q1_q2'))
 
-    def _is_tot_req_entities_equal_to_vol_req_entity(self):
-        requirement_entity = self.cleaned_data[self.requirement_entity_key]
+    def _check_tot_req_entities_equal_to_vol_req_entity(self):
+        requirement_entity = self._cleaned_data[self.requirement_entity_key]
         # Optional fields
-        additional_requirement_entity_1 = self.cleaned_data.get(self.additional_requirement_entity_1_key, 0)
-        additional_requirement_entity_2 = self.cleaned_data.get(self.additional_requirement_entity_2_key, 0)
+        additional_requirement_entity_1 = self._cleaned_data.get(self.additional_requirement_entity_1_key, 0)
+        additional_requirement_entity_2 = self._cleaned_data.get(self.additional_requirement_entity_2_key, 0)
+        total = requirement_entity + additional_requirement_entity_1 + additional_requirement_entity_2
 
-        total_requirement_entities = self.cleaned_data['volume_total_requirement_entities']
+        if self._cleaned_data['volume_total_requirement_entities'] != total:
+            error_msg = ' + '.join([self.entities.get(t).acronym for t in ENTITY_TYPES if self.entities.get(t)])
+            error_msg += ' = {}'.format(_('vol_charge'))
+            self.add_error("volume_total_requirement_entities", error_msg)
 
-        return total_requirement_entities == (
-                requirement_entity + additional_requirement_entity_1 + additional_requirement_entity_2
-        )
+    def _check_tot_req_entities_equal_to_tot_annual_mult_cp(self):
+        total_annual = self._cleaned_data['volume_total']
+        cp = self._cleaned_data['planned_classes']
+        total_requirement_entities = self._cleaned_data['volume_total_requirement_entities']
 
-    def _is_tot_req_entities_equal_to_tot_annual_mult_cp(self):
-        total_annual = self.cleaned_data['volume_total']
-        cp = self.cleaned_data['planned_classes']
-        return self.cleaned_data['volume_total_requirement_entities'] == (total_annual * cp)
+        if total_requirement_entities != (total_annual * cp):
+            self.add_error('volume_total_requirement_entities', _('vol_tot_req_entities_not_equal_to_vol_tot_mult_cp'))
 
     def validate_parent_partim_component(self, parent_data):
         partim_data = self.cleaned_data or self.component_values
@@ -233,7 +226,7 @@ class VolumeEditionBaseFormset(forms.BaseFormSet):
             # Prefix with acronym learning unit + acronym component
             partim_form.add_error(
                 None,
-                "<b>{} {} / {} {}:</b> {}".format(
+                "{} {} / {} {}: {}".format(
                     parent_form.learning_unit_year.acronym,
                     parent_form.component.acronym,
                     partim_form.learning_unit_year.acronym,
