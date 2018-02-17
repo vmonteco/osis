@@ -27,7 +27,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -43,7 +43,7 @@ from base.models.person import Person
 from base.views import layout
 from base.views.common import display_error_messages, display_success_messages
 from base.views.learning_unit import get_learning_unit_identification_context, compute_learning_unit_form_initial_data, \
-    _get_common_context_learning_unit_year, learning_unit_components
+    get_common_context_learning_unit_year, learning_unit_components
 from base.views.learning_units import perms
 
 
@@ -145,7 +145,7 @@ def volumes_validation(request, learning_unit_year_id, formset_id):
     if not request.is_ajax():
         return PermissionDenied
 
-    context = _get_common_context_learning_unit_year(
+    context = get_common_context_learning_unit_year(
         learning_unit_year_id,
         get_object_or_404(Person, user=request.user)
     )
@@ -166,7 +166,7 @@ def volumes_validation(request, learning_unit_year_id, formset_id):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_volumes_management(request, learning_unit_year_id):
-    context = _get_common_context_learning_unit_year(
+    context = get_common_context_learning_unit_year(
         learning_unit_year_id,
         get_object_or_404(Person, user=request.user)
     )
