@@ -24,10 +24,9 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required, permission_required
-from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
-from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -141,30 +140,6 @@ def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
-def volumes_validation(request, learning_unit_year_id, formset_id):
-    if not request.is_ajax():
-        return PermissionDenied
-
-    context = get_common_context_learning_unit_year(
-        learning_unit_year_id,
-        get_object_or_404(Person, user=request.user)
-    )
-
-    context['learning_units'] = learning_unit_year_with_context.get_with_context(
-        learning_container_year_id=context['learning_unit_year'].learning_container_year_id
-    )
-
-    volume_edition_formset_container = VolumeEditionFormsetContainer(request, context['learning_units'])
-
-    if not volume_edition_formset_container.is_valid():
-
-        return JsonResponse({
-            'errors': volume_edition_formset_container.formsets.errors.as_json
-        })
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_volumes_management(request, learning_unit_year_id):
     context = get_common_context_learning_unit_year(
         learning_unit_year_id,
@@ -184,7 +159,7 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
             return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
 
         except IntegrityError as e:
-            display_error_messages(request, e.args[0])
+            display_error_messages(request, e.args[0] if e.args else 'Impossible to save data')
 
     context['formsets'] = volume_edition_formset_container.formsets
     context['tab_active'] = 'components'

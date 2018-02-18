@@ -228,8 +228,8 @@ class TestVolumeEditionFormsetContainer(TestCase):
     def test_post_volume_edition_formset_container(self):
         request_factory = RequestFactory()
 
-        data_forms = _get_valid_formset_data(self.learning_unit_year_full.acronym)
-        data_forms.update(_get_valid_formset_data(self.learning_unit_year_partim.acronym, is_partim=True))
+        data_forms = get_valid_formset_data(self.learning_unit_year_full.acronym)
+        data_forms.update(get_valid_formset_data(self.learning_unit_year_partim.acronym, is_partim=True))
 
         volume_edition_formset_container = VolumeEditionFormsetContainer(
             request_factory.post(None, data=data_forms),
@@ -242,8 +242,8 @@ class TestVolumeEditionFormsetContainer(TestCase):
     def test_post_volume_edition_formset_container_wrong_vol_tot_full_must_be_greater_than_partim(self):
         request_factory = RequestFactory()
 
-        data_forms = _get_valid_formset_data(self.learning_unit_year_full.acronym)
-        data_forms.update(_get_valid_formset_data(self.learning_unit_year_partim.acronym))
+        data_forms = get_valid_formset_data(self.learning_unit_year_full.acronym)
+        data_forms.update(get_valid_formset_data(self.learning_unit_year_partim.acronym))
 
         volume_edition_formset_container = VolumeEditionFormsetContainer(
             request_factory.post(None, data=data_forms),
@@ -252,7 +252,7 @@ class TestVolumeEditionFormsetContainer(TestCase):
         self.assertFalse(volume_edition_formset_container.is_valid())
         self.assertEqual(
             volume_edition_formset_container.formsets[self.learning_unit_year_partim].errors[0],
-            {'__all__': [ self._get_error_with_prefix(_('vol_tot_full_must_be_greater_than_partim'))]}
+            {'__all__': [self._get_error_with_prefix(_('vol_tot_full_must_be_greater_than_partim'))]}
         )
 
     def _get_error_with_prefix(self, error):
@@ -265,7 +265,7 @@ class TestVolumeEditionFormsetContainer(TestCase):
         )
 
 
-def _get_valid_formset_data(prefix, is_partim=False):
+def get_valid_formset_data(prefix, is_partim=False):
     form_data = {}
     data = _get_valid_data() if not is_partim else _get_valid_partim_data()
 
