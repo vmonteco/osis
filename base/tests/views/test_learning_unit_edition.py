@@ -336,8 +336,8 @@ class TestLearningUnitVolumesManagement(TestCase):
 
         self.assertEqual(template, 'learning_unit/volumes_management.html')
         self.assertEqual(context['learning_unit_year'], self.learning_unit_year)
-        self.assertEqual(list(context['formsets'].keys()), [self.learning_unit_year,
-                                                            self.learning_unit_year_partim])
+        for formset in context['formsets'].keys():
+            self.assertIn(formset, [self.learning_unit_year, self.learning_unit_year_partim])
 
     @mock.patch('base.models.program_manager.is_program_manager')
     def test_learning_unit_volumes_management_post(self, mock_program_manager):
