@@ -280,8 +280,7 @@ def update_learning_unit_year_entities_with_report(luy_to_update, entities_by_ty
 
 
 def _apply_report(method_of_update, base_luy, *args, **kwargs):
-    luy_to_apply_report = (luy for luy in base_luy.find_gte_learning_units_year() if luy != base_luy)
-    for luy in luy_to_apply_report:
+    for luy in base_luy.find_gt_learning_units_year():
         method_of_update(luy, *args, **kwargs)
 
 
