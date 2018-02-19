@@ -2550,7 +2550,7 @@ msgid "requirement_entity_end_date_too_short"
 msgstr "La durée de vie de l'entité responsable cahier de charges est trop courte."
 
 msgid "requirement_and_allocation_entities_cannot_be_different"
-msgstr "L'entité responsable cahier de charges et celle d'attribution ne peuvent pas être différentes."
+msgstr "L'entité responsable cahier de charges et celle d'attribution ne peuvent pas être différentes pour ce type d'unite d'enseignement."
 
 msgid "success_modification_learning_unit"
 msgstr "L'unité d'enseignement a été modifiée."
@@ -2584,3 +2584,6 @@ msgstr "Recherche - Propositions"
 
 msgid "folder_num"
 msgstr "N° dossier"
+
+msgid "ask_to_report_modification"
+msgstr "Voulez-vous reporter les modifications faites pour les années suivantes ?"
