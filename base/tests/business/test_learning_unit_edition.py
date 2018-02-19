@@ -867,6 +867,7 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
          learning_unit_year_fields_to_update = {
              "specific_title_english": "My course",
              "credits": 45,
+             "attribution_procedure": attribution_procedure.EXTERNAL
          }
          learning_container_year_fields_to_update = {
              "team": True,
@@ -885,14 +886,16 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
          self.assert_fields_not_updated(learning_unit_years[0].learning_container_year)
 
          for index, luy in enumerate(learning_unit_years[1:]):
-             self.assert_fields_updated(luy, learning_unit_year_fields_to_update)
              self.assert_fields_updated(luy.learning_unit, learning_unit_fields_to_update)
              if index == 0:
-                self.assert_fields_updated(luy.learning_container_year, learning_container_year_fields_to_update)
+                 self.assert_fields_updated(luy, learning_unit_year_fields_to_update)
+                 self.assert_fields_updated(luy.learning_container_year, learning_container_year_fields_to_update)
              else:
                 self.assert_fields_updated(luy.learning_container_year, learning_container_year_fields_to_update,
                                            exclude=["is_vacant", "type_declaration_vacant"])
                 self.assert_fields_not_updated(luy.learning_container_year, fields=["team"])
+                self.assert_fields_updated(luy, learning_unit_year_fields_to_update, exclude=["attribution_procedure"])
+                self.assert_fields_not_updated(luy, fields=["attribution_procedure"])
 
      def assert_fields_updated(self, instance, fields_value, exclude=[]):
          instance.refresh_from_db()
