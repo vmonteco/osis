@@ -83,8 +83,8 @@ def modify_learning_unit(request, learning_unit_year_id, with_report=False):
         lu_type_full_data = form.get_data_for_learning_unit()
 
         try:
-            update_learning_unit_year_with_report(learning_unit_year, lu_type_full_data)
-            update_learning_unit_year_entities_with_report(learning_unit_year, entities_data)
+            update_learning_unit_year_with_report(learning_unit_year, lu_type_full_data, with_report)
+            update_learning_unit_year_entities_with_report(learning_unit_year, entities_data, with_report)
 
             display_success_messages(request, _("success_modification_learning_unit"))
 
