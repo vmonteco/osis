@@ -138,24 +138,16 @@ class LearningUnitYearForm(BootstrapForm):
         super().clean()
         merge_first_letter_acronym = self.cleaned_data.get('first_letter', "") + self.cleaned_data.get('acronym', "")
         self.cleaned_data["acronym"] = merge_first_letter_acronym.upper()
-
-        return self.cleaned_data
-
-    def is_valid(self):
-        if not super().is_valid():
-            return False
-        elif not re.match(self.acronym_regex, self.cleaned_data['acronym']):
-            self.add_error('acronym', _('invalid_acronym'))
-        elif 'internship_subtype' in self.fields \
+        if 'internship_subtype' in self.fields \
                 and self.cleaned_data["container_type"] == INTERNSHIP \
                 and not (self.cleaned_data['internship_subtype']):
             self.add_error('internship_subtype', _('field_is_required'))
-        else:
-            return True
+        elif not re.match(self.acronym_regex, self.cleaned_data['acronym']):
+            self.add_error('acronym', _('invalid_acronym'))
+        return self.cleaned_data
 
 
 class CreateLearningUnitYearForm(LearningUnitYearForm):
-
     def __init__(self, person, *args, **kwargs):
         super(CreateLearningUnitYearForm, self).__init__(*args, **kwargs)
         # When we create a learning unit, we can only select requirement entity which are attached to the person

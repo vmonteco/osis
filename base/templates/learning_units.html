@@ -39,16 +39,34 @@
         <div class="col-md-11">
             <h2>{% trans 'learning_units' %}</h2>
         </div>
-        <div class="col-md-1" style="margin-top:20px;">
-            {% if request.GET.academic_year_id and request.GET.academic_year_id != '0' %}
-                <a href="{% url 'learning_unit_create' academic_year=request.GET.academic_year_id %}"
-                   id="lnk_learning_unit_create" class="btn btn-default pull-right" role="button" title="{% trans 'new_learning_unit' %}">
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
-            {% else %}
-                <a href="{% url 'learning_unit_create' academic_year=current_academic_year.id %}"
-                   id="lnk_learning_unit_create" class="btn btn-default pull-right" role="button" title="{% trans 'new_learning_unit' %}">
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
-            {% endif %}
+        <div class="dropdown col-md-1">
+            <button id="dLabel" class="btn btn-default" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
+                <li>
+                    {% if request.GET.academic_year_id and request.GET.academic_year_id != '0' %}
+                    <a href="{% url 'learning_unit_create' academic_year=request.GET.academic_year_id %}"
+                       id="lnk_learning_unit_create" class="disabled" role="button"
+                       title="{% trans 'new_learning_unit' %}">{% trans 'create_learning_unit' %}</a>
+                    {% else %}
+                        <a href="{% url 'learning_unit_create' academic_year=current_academic_year.id %}"
+                           id="lnk_learning_unit_create" class="disabled" role="button"
+                           title="{% trans 'new_learning_unit' %}">{% trans 'create_learning_unit' %}</a>
+                    {% endif %}
+                </li>
+                <li>
+                    {% if request.GET.academic_year_id and request.GET.academic_year_id != '0' %}
+                        <a href="{% url 'proposal_learning_unit_creation_form' academic_year=request.GET.academic_year_id %}"
+                           id="lnk_proposal_learning_unit_creation_form" class="disabled" role="button"
+                           title="{% trans 'proposal_new_learning_unit' %}">{% trans 'Create in proposal' %}</a>
+                    {% else %}
+                        <a href="{% url 'proposal_learning_unit_creation_form' academic_year=current_academic_year.id %}"
+                           id="lnk_proposal_learning_unit_creation_form" class="disabled" role="button"
+                           title="{% trans 'proposal_new_learning_unit' %}">{% trans 'Create in proposal' %}</a>
+                    {% endif %}
+                </li>
+            </ul>
         </div>
     </div>
 </div>
