@@ -80,23 +80,6 @@ VALID_VOLUMES_KEYS = [
 LEARNING_UNIT_CREATION_SPAN_YEARS = 6
 
 
-def extract_volumes_from_data(post_data):
-    volumes = {}
-
-    for param, value in post_data.items():
-        param_splitted = param.rsplit("_", 2)
-        key = param_splitted[0]
-        if _is_a_valid_volume_key(key) and len(param_splitted) == 3:  # KEY_[LEARNINGUNITYEARID]_[LEARNINGCOMPONENTID]
-            learning_unit_year_id = int(param_splitted[1])
-            component_id = int(param_splitted[2])
-            volumes.setdefault(learning_unit_year_id, {}).setdefault(component_id, {}).update({key: value})
-    return volumes
-
-
-def _is_a_valid_volume_key(post_key):
-    return post_key in VALID_VOLUMES_KEYS
-
-
 def get_last_academic_years(last_years=10):
     today = datetime.date.today()
     date_ten_years_before = today.replace(year=today.year - last_years)
