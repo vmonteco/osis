@@ -129,7 +129,8 @@ def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year
 
 
 @login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
+@permission_required('base.can_edit_learningunit', raise_exception=True)
+@perms.can_perform_learning_unit_modification
 def learning_unit_volumes_management(request, learning_unit_year_id):
     context = get_common_context_learning_unit_year(
         learning_unit_year_id,

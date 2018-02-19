@@ -308,14 +308,25 @@ class TestEditLearningUnit(TestCase):
 
 class TestLearningUnitVolumesManagement(TestCase):
     def setUp(self):
-        self.a_superuser = SuperUserFactory()
-        self.person = PersonFactory(user=self.a_superuser)
-        self.generate_container = GenerateContainer(start_year=2010, end_year=2010)
+        self.generate_container = GenerateContainer(start_year=create_current_academic_year().year,
+                                                    end_year=create_current_academic_year().year)
         self.generated_container_year = self.generate_container.generated_container_years[0]
 
         self.container_year = self.generated_container_year.learning_container_year
         self.learning_unit_year = self.generated_container_year.learning_unit_year_full
         self.learning_unit_year_partim = self.generated_container_year.learning_unit_year_partim
+
+        self.person = PersonFactory()
+
+        edit_learning_unit_permission = Permission.objects.get(codename="can_edit_learningunit")
+        self.person.user.user_permissions.add(edit_learning_unit_permission)
+
+        self.url = reverse('learning_unit_volumes_management', args=[self.learning_unit_year.id])
+
+        self.client.force_login(self.person.user)
+        self.user = self.person.user
+
+        PersonEntityFactory(entity=self.generate_container.entities[0], person=self.person)
 
     @mock.patch('base.models.program_manager.is_program_manager')
     @mock.patch('base.views.layout.render')
@@ -326,7 +337,7 @@ class TestLearningUnitVolumesManagement(TestCase):
         request = request_factory.get(reverse(learning_unit_volumes_management,
                                               args=[self.learning_unit_year.id]))
 
-        request.user = self.a_superuser
+        request.user = self.user
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
@@ -351,7 +362,7 @@ class TestLearningUnitVolumesManagement(TestCase):
                                                args=[self.learning_unit_year.id]),
                                        data=data)
 
-        request.user = self.a_superuser
+        request.user = self.user
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
@@ -375,7 +386,7 @@ class TestLearningUnitVolumesManagement(TestCase):
                                                args=[self.learning_unit_year.id]),
                                        data=data)
 
-        request.user = self.a_superuser
+        request.user = self.user
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
@@ -402,7 +413,7 @@ class TestLearningUnitVolumesManagement(TestCase):
                                                args=[self.learning_unit_year.id]),
                                        data=data)
 
-        request.user = self.a_superuser
+        request.user = self.user
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
@@ -421,3 +432,28 @@ class TestLearningUnitVolumesManagement(TestCase):
             self.generated_container_year.learning_component_cm_partim.acronym,
             _(error)
         )
+
+    def test_with_user_not_logged(self):
+        self.client.logout()
+        response = self.client.post(self.url)
+
+        self.assertRedirects(response, '/login/?next={}'.format(self.url))
+
+    def test_when_user_has_not_permission(self):
+        a_person = PersonFactory()
+        self.client.force_login(a_person.user)
+
+        response = self.client.post(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, 'access_denied.html')
+
+    @mock.patch("base.business.learning_units.perms.is_eligible_for_modification", side_effect=lambda luy, pers: False)
+    def test_view_decorated_with_can_perform_learning_unit_modification_permission(self, mock_permission):
+        response = self.client.post(self.url)
+
+        self.assertTrue(mock_permission.called)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, 'access_denied.html')
+
