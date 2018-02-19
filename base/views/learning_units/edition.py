@@ -102,8 +102,8 @@ def modify_learning_unit(request, learning_unit_year_id):
 
 def compute_learning_unit_modification_form_initial_data(learning_unit_year):
     other_fields_dict = {
-        "partial_title": learning_unit_year.specific_title,
-        "partial_english_title": learning_unit_year.specific_title_english,
+        "specific_title": learning_unit_year.specific_title,
+        "specific_title_english": learning_unit_year.specific_title_english,
         "first_letter": learning_unit_year.acronym[0],
         "acronym": learning_unit_year.acronym[1:]
     }

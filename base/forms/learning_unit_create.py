@@ -90,8 +90,8 @@ class LearningUnitYearForm(BootstrapForm):
                                                                MaxValueValidator(MAXIMUM_CREDITS)])
     common_title = forms.CharField()
     common_title_english = forms.CharField(required=False, widget=forms.TextInput())
-    partial_title = forms.CharField(required=False)
-    partial_english_title = forms.CharField(required=False, widget=forms.TextInput())
+    specific_title = forms.CharField(required=False)
+    specific_title_english = forms.CharField(required=False, widget=forms.TextInput())
     session = forms.ChoiceField(add_blank(mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION),
                                 required=False)
     subtype = forms.CharField(widget=forms.HiddenInput())

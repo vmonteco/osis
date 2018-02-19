@@ -169,7 +169,7 @@ class TestEditLearningUnit(TestCase):
                                                        start_date=an_academic_year.start_date,
                                                        end_date=None)
 
-        cls.person = PersonFactory()
+        cls.person = PersonEntityFactory(entity=cls.requirement_entity_container.entity).person
         cls.user = cls.person.user
         cls.user.user_permissions.add(Permission.objects.get(codename="can_edit_learningunit"),
                                       Permission.objects.get(codename="can_access_learningunit"))
@@ -258,8 +258,8 @@ class TestEditLearningUnit(TestCase):
             "credits": self.learning_unit_year.credits,
             "common_title": self.learning_unit_year.learning_container_year.common_title,
             "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
-            "partial_title": self.learning_unit_year.specific_title,
-            "partial_english_title": self.learning_unit_year.specific_title_english,
+            "specific_title": self.learning_unit_year.specific_title,
+            "specific_title_english": self.learning_unit_year.specific_title_english,
             "session": self.learning_unit_year.session,
             "subtype": self.learning_unit_year.subtype,
             "first_letter": self.learning_unit_year.acronym[0],
@@ -284,7 +284,6 @@ class TestEditLearningUnit(TestCase):
     @mock.patch("base.views.learning_units.edition.update_learning_unit_year_with_report", side_effect=None)
     @mock.patch("base.views.learning_units.edition.update_learning_unit_year_entities_with_report", side_effect=None)
     def test_valid_post_request(self, mock_update_learning_unit_year, mock_update_entities):
-        PersonEntityFactory(person=self.person, entity=self.requirement_entity_container.entity)
         form_data = {
             "acronym": self.learning_unit_year.acronym[1:],
             "credits": str(self.learning_unit_year.credits + 1),
