@@ -66,6 +66,7 @@ class VolumeEditionForm(forms.Form):
     equal_field_2 = EmptyField(label='=')
 
     _cleaned_data = {}
+    _post_errors = []
 
     def __init__(self, *args, **kwargs):
         self.component = kwargs.pop('component')
@@ -130,33 +131,35 @@ class VolumeEditionForm(forms.Form):
 
     def validate_parent_partim_component(self, parent_data):
         partim_data = self.cleaned_data or self.initial
-        errors = []
+        self._post_errors = []
 
-        if parent_data['volume_total'] <= partim_data['volume_total']:
-            errors.append("{}".format(_('vol_tot_full_must_be_greater_than_partim')))
+        self._compare(parent_data, partim_data, 'volume_total', 'vol_tot_full_must_be_greater_than_partim',
+                      lower_or_equal=True)
+        self._compare(parent_data, partim_data, 'volume_q1', 'vol_q1_full_must_be_greater_or_equal_to_partim')
+        self._compare(parent_data, partim_data, 'volume_q2', 'vol_q2_full_must_be_greater_or_equal_to_partim')
+        self._compare(parent_data, partim_data, 'planned_classes',
+                      'planned_classes_full_must_be_greater_or_equal_to_partim')
+        self._compare(parent_data, partim_data, self.requirement_entity_key,
+                      'entity_requirement_full_must_be_greater_or_equal_to_partim')
 
-        if parent_data['volume_q1'] < partim_data['volume_q1']:
-            errors.append("{}".format(_('vol_q1_full_must_be_greater_or_equal_to_partim')))
+        self._compare_additional_entities(parent_data, partim_data, self.additional_requirement_entity_1_key)
+        self._compare_additional_entities(parent_data, partim_data, self.additional_requirement_entity_2_key)
+        return self._post_errors
 
-        if parent_data['volume_q2'] < partim_data['volume_q2']:
-            errors.append("{}".format(_('vol_q2_full_must_be_greater_or_equal_to_partim')))
-
-        if parent_data['planned_classes'] < partim_data['planned_classes']:
-            errors.append("{}".format(_('planned_classes_full_must_be_greater_or_equal_to_partim')))
-
-        if parent_data[self.requirement_entity_key] < partim_data[self.requirement_entity_key]:
-            errors.append("{}".format(_('entity_requirement_full_must_be_greater_or_equal_to_partim')))
-
-        self._compare_additionnal_requirement_entities(errors, parent_data, self.additional_requirement_entity_1_key)
-        self._compare_additionnal_requirement_entities(errors, parent_data, self.additional_requirement_entity_2_key)
-
-        return errors
-
-    def _compare_additionnal_requirement_entities(self, errors, parent_data, key):
+    def _compare_additional_entities(self, parent_data, partim_data, key):
         # Verify if we have additional_requirement entity
-        if key in parent_data and key in self.cleaned_data:
-            if parent_data[key] < self.cleaned_data[key]:
-                errors.append("{}".format(_('entity_requirement_full_must_be_greater_or_equal_to_partim')))
+        if key in parent_data and key in partim_data:
+            self._compare(parent_data, partim_data, key,
+                          'entity_requirement_full_must_be_greater_or_equal_to_partim')
+
+    def _compare(self, parent_data, partim_data, key, msg, lower_or_equal=False):
+        if lower_or_equal:
+            condition = parent_data[key] <= partim_data[key]
+        else:
+            condition = parent_data[key] < partim_data[key]
+
+        if condition:
+            self._post_errors.append("{}".format(_(msg)))
 
     def save(self):
         if self.changed_data:

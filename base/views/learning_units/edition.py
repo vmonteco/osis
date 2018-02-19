@@ -39,8 +39,8 @@ from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
 from base.views.common import display_error_messages, display_success_messages
-from base.views.learning_unit import get_learning_unit_identification_context, compute_learning_unit_form_initial_data, \
-    get_common_context_learning_unit_year, learning_unit_components
+from base.views.learning_unit import get_learning_unit_identification_context, \
+    compute_learning_unit_form_initial_data, get_common_context_learning_unit_year, learning_unit_components
 from base.views.learning_units import perms
 
 
@@ -148,8 +148,8 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
             display_success_messages(request, _('success_modification_learning_unit'))
             return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
 
-        except IntegrityError as e:
-            display_error_messages(request, e.args[0] if e.args else 'Impossible to save data')
+        except IntegrityError:
+            display_error_messages(request, _("error_modification_learning_unit"))
 
     context['formsets'] = volume_edition_formset_container.formsets
     context['tab_active'] = 'components'
