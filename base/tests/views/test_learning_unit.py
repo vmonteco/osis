@@ -686,7 +686,7 @@ class LearningUnitViewTestCase(TestCase):
     def get_base_partim_form_data(self, original_learning_unit_year):
         data = self.get_common_data()
         data.update(self.get_partim_data(original_learning_unit_year))
-        data['partial_title'] = "Partim partial title"
+        data['specific_title'] = "Partim partial title"
         return data
 
     def get_common_data(self):
@@ -1475,5 +1475,47 @@ class TestLearningUnitComponents(TestCase):
             volumes = component['volumes']
             self.assertEqual(volumes['VOLUME_Q1'], None)
             self.assertEqual(volumes['VOLUME_Q2'], None)
+
+
+class TestLearningUnitVolumesManagement(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+
+        cls.person = PersonFactory()
+
+        learning_unit_year = LearningUnitYearFactory(academic_year=create_current_academic_year())
+
+        edit_learning_unit_permission = Permission.objects.get(codename="can_edit_learningunit")
+        cls.person.user.user_permissions.add(edit_learning_unit_permission)
+
+        cls.url = reverse('learning_unit_volumes_management', args=[learning_unit_year.id])
+
+    def setUp(self):
+        self.client.force_login(self.person.user)
+
+    def test_with_user_not_logged(self):
+        self.client.logout()
+        response = self.client.post(self.url)
+
+        self.assertRedirects(response, '/login/?next={}'.format(self.url))
+
+    def test_when_user_has_not_permission(self):
+        a_person = PersonFactory()
+        self.client.force_login(a_person.user)
+
+        response = self.client.post(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, 'access_denied.html')
+
+    @mock.patch("base.business.learning_units.perms.is_eligible_for_modification", side_effect=lambda luy, pers: False)
+    def test_view_decorated_with_can_perform_learning_unit_modification_permission(self, mock_permission):
+        response = self.client.post(self.url)
+
+        self.assertTrue(mock_permission.called)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, 'access_denied.html')
+
 
 

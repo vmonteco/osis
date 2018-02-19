@@ -137,6 +137,11 @@ class TestEditLearningUnit(TestCase):
                                                          subtype=learning_unit_year_subtypes.FULL,
                                                          attribution_procedure=attribution_procedure.INTERNAL_TEAM)
 
+        cls.partim_learning_unit = LearningUnitYearFactory(learning_container_year=learning_container_year,
+                                                           acronym="LOSIS4512A",
+                                                           academic_year=an_academic_year,
+                                                           subtype=learning_unit_year_subtypes.PARTIM)
+
         cls.requirement_entity_container = EntityContainerYearFactory(
             learning_container_year=learning_container_year, type=entity_container_year_link_type.REQUIREMENT_ENTITY)
         cls.requirement_entity_container.entity.organization.type = organization_type.MAIN
@@ -166,7 +171,7 @@ class TestEditLearningUnit(TestCase):
                                                        start_date=an_academic_year.start_date,
                                                        end_date=None)
 
-        cls.person = PersonFactory()
+        cls.person = PersonEntityFactory(entity=cls.requirement_entity_container.entity).person
         cls.user = cls.person.user
         cls.user.user_permissions.add(Permission.objects.get(codename="can_edit_learningunit"),
                                       Permission.objects.get(codename="can_access_learningunit"))
@@ -191,7 +196,7 @@ class TestEditLearningUnit(TestCase):
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
 
     def test_learning_unit_does_not_exist(self):
-        non_existent_learning_unit_year_id = self.learning_unit_year.id + 1
+        non_existent_learning_unit_year_id = self.learning_unit_year.id + self.partim_learning_unit.id
         url = reverse("edit_learning_unit", args=[non_existent_learning_unit_year_id])
 
         response = self.client.get(url)
@@ -255,8 +260,8 @@ class TestEditLearningUnit(TestCase):
             "credits": self.learning_unit_year.credits,
             "common_title": self.learning_unit_year.learning_container_year.common_title,
             "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
-            "partial_title": self.learning_unit_year.specific_title,
-            "partial_english_title": self.learning_unit_year.specific_title_english,
+            "specific_title": self.learning_unit_year.specific_title,
+            "specific_title_english": self.learning_unit_year.specific_title_english,
             "session": self.learning_unit_year.session,
             "subtype": self.learning_unit_year.subtype,
             "first_letter": self.learning_unit_year.acronym[0],
@@ -278,10 +283,9 @@ class TestEditLearningUnit(TestCase):
         }
         self.assertDictEqual(initial_data, expected_initial)
 
-    @mock.patch("base.views.learning_units.edition.update_learning_unit_year", side_effect=None)
-    @mock.patch("base.views.learning_units.edition.update_learning_unit_year_entities", side_effect=None)
+    @mock.patch("base.views.learning_units.edition.update_learning_unit_year_with_report", side_effect=None)
+    @mock.patch("base.views.learning_units.edition.update_learning_unit_year_entities_with_report", side_effect=None)
     def test_valid_post_request(self, mock_update_learning_unit_year, mock_update_entities):
-        PersonEntityFactory(person=self.person, entity=self.requirement_entity_container.entity)
         form_data = {
             "acronym": self.learning_unit_year.acronym[1:],
             "credits": str(self.learning_unit_year.credits + 1),
