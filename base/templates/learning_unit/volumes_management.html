@@ -50,29 +50,4 @@
         </div>
     </div>
 </div>
-    {% url 'volumes_validation' learning_unit_year_id=learning_unit_year.id %}
-
-{% endblock %}
-
-{% block script %}
-<script type="text/javascript">
-
-    //$('form :input').blur(validate_form);
-
-    function validate_form(e) {
-        var $form = $(this).closest("form");
-        $.ajax({
-            url: "{% url 'learning_unit_volumes_management' learning_unit_year_id=learning_unit_year.id %}",
-            data: $form.serialize(),
-            type: 'POST',
-            dataType: 'json',
-            encode: true
-
-        }).done(
-            function (data) {
-                console.log(data);
-            }
-        );
-    }
-</script>
 {% endblock %}

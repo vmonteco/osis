@@ -319,7 +319,8 @@ class TestLearningUnitVolumesManagement(TestCase):
         mock_program_manager.return_value = True
 
         request_factory = RequestFactory()
-        request = request_factory.get(reverse("learning_unit_volumes_management", args=[self.learning_unit_year.id]))
+        request = request_factory.get(reverse(learning_unit_volumes_management,
+                                              args=[self.learning_unit_year.id]))
 
         request.user = self.a_superuser
         setattr(request, 'session', 'session')
@@ -342,7 +343,7 @@ class TestLearningUnitVolumesManagement(TestCase):
         data = get_valid_formset_data(self.learning_unit_year.acronym)
         data.update(get_valid_formset_data(self.learning_unit_year_partim.acronym, is_partim=True))
 
-        request = request_factory.post(reverse("learning_unit_volumes_management",
+        request = request_factory.post(reverse(learning_unit_volumes_management,
                                                args=[self.learning_unit_year.id]),
                                        data=data)
 
@@ -366,7 +367,7 @@ class TestLearningUnitVolumesManagement(TestCase):
         data = get_valid_formset_data(self.learning_unit_year.acronym)
         data.update(get_valid_formset_data(self.learning_unit_year_partim.acronym))
 
-        request = request_factory.post(reverse("learning_unit_volumes_management",
+        request = request_factory.post(reverse(learning_unit_volumes_management,
                                                args=[self.learning_unit_year.id]),
                                        data=data)
 
@@ -393,7 +394,7 @@ class TestLearningUnitVolumesManagement(TestCase):
         data = get_valid_formset_data(self.learning_unit_year.acronym)
         data.update(get_valid_formset_data(self.learning_unit_year_partim.acronym, is_partim=True))
 
-        request = request_factory.post(reverse("learning_unit_volumes_management",
+        request = request_factory.post(reverse(learning_unit_volumes_management,
                                                args=[self.learning_unit_year.id]),
                                        data=data)
 
@@ -415,22 +416,4 @@ class TestLearningUnitVolumesManagement(TestCase):
             self.learning_unit_year_partim.acronym,
             self.generated_container_year.learning_component_cm_partim.acronym,
             _(error)
-        )
-
-    def test_volumes_validation(self):
-        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
-                                                     learning_container_year=self.learning_container_yr)
-        learning_unit_year.save()
-
-        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
-        url = reverse("volumes_validation", args=[learning_unit_year.id])
-
-        data = self._get_volumes_data(learning_unit_year)
-        # TODO inject wrong data
-        response = self.client.get(url, data, **kwargs)
-        self.assertEqual(response.status_code, 200)
-        self.assertJSONEqual(
-            str(response.content, encoding='utf8'),
-            {'errors': [],
-             }
         )

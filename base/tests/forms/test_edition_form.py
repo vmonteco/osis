@@ -27,7 +27,7 @@ from django.test import TestCase, RequestFactory
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_year_with_context import get_with_context
-from base.forms.learning_unit.edition_volume import VolumeEditionForm, VolumeEditionBaseFormset, ENTITY_TYPES, \
+from base.forms.learning_unit.edition_volume import VolumeEditionForm, VolumeEditionBaseFormset, ENTITY_TYPES_VOLUME, \
     VolumeEditionFormsetContainer
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
 
@@ -110,7 +110,7 @@ class TestVolumeEditionForm(TestCase):
                 entities=self.learning_unit_with_context.entities)
             self.assertFalse(form.is_valid())
 
-            error_msg = ' + '.join([self.learning_unit_with_context.entities.get(t).acronym for t in ENTITY_TYPES
+            error_msg = ' + '.join([self.learning_unit_with_context.entities.get(t).acronym for t in ENTITY_TYPES_VOLUME
                                     if self.learning_unit_with_context.entities.get(t)])
             error_msg += ' = {}'.format(_('vol_charge'))
             self.assertEqual(form.errors['volume_total_requirement_entities'][0], error_msg)

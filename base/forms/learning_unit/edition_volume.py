@@ -31,7 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.models.enums import entity_container_year_link_type as entity_types
 from base.models.enums.component_type import PRACTICAL_EXERCISES, LECTURING
 
-ENTITY_TYPES = [
+ENTITY_TYPES_VOLUME = [
     entity_types.REQUIREMENT_ENTITY,
     entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1,
     entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2
@@ -80,12 +80,13 @@ class VolumeEditionForm(forms.Form):
 
         # Append dynamic fields
         for key, entity in self.entities.items():
-            self.fields['volume_' + key.lower()] = VolumeField(label=entity.acronym, help_text=entity.title)
+            self.fields['volume_' + key.lower()] = VolumeField(
+                label=entity.acronym, help_text=entity.title)
 
         self.fields['equal_field_3'] = EmptyField(label='=')
 
-        self.fields['volume_total_requirement_entities'] = VolumeField(label=_('vol_charge'),
-                                                                       help_text=_('total_volume_charge'))
+        self.fields['volume_total_requirement_entities'] = VolumeField(
+            label=_('vol_charge'), help_text=_('total_volume_charge'))
 
     def is_valid(self):
         if not super().is_valid():
@@ -115,7 +116,7 @@ class VolumeEditionForm(forms.Form):
         total = requirement_entity + additional_requirement_entity_1 + additional_requirement_entity_2
 
         if self._cleaned_data['volume_total_requirement_entities'] != total:
-            error_msg = ' + '.join([self.entities.get(t).acronym for t in ENTITY_TYPES if self.entities.get(t)])
+            error_msg = ' + '.join([self.entities.get(t).acronym for t in ENTITY_TYPES_VOLUME if self.entities.get(t)])
             error_msg += ' = {}'.format(_('vol_charge'))
             self.add_error("volume_total_requirement_entities", error_msg)
 
