@@ -153,9 +153,9 @@ class VolumeEditionForm(forms.Form):
         partim_data = self.cleaned_data or self.initial
 
         if lower_or_equal:
-            condition = self.parent_data[key] <= partim_data[key]
+            condition = self._parent_data[key] <= partim_data[key]
         else:
-            condition = self.parent_data[key] < partim_data[key]
+            condition = self._parent_data[key] < partim_data[key]
 
         if condition:
             self._post_errors.append("{}".format(_(msg)))
