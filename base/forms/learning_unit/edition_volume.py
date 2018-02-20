@@ -272,4 +272,3 @@ class VolumeEditionFormsetContainer:
             for name, error in form_errors.items():
                 errors["{}-{}-{}".format(formset.prefix, i, name)] = error
         return errors
-
