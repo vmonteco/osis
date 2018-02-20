@@ -102,6 +102,8 @@ urlpatterns = [
             url(r'^proposal/', include([
                 url(r'^modification/$', learning_unit_proposal.propose_modification_of_learning_unit,
                     name="learning_unit_modification_proposal"),
+                # url(r'^edit/$', learning_unit_proposal.propose_edit_of_learning_unit,
+                #     name="learning_unit_edit_proposal"),
                 url(r'^cancel/$', learning_unit_proposal.cancel_proposal_of_learning_unit,
                     name="learning_unit_cancel_proposal"),
             ])),

@@ -44,6 +44,7 @@ from base.views import layout
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
 from base.forms.common import TooManyResultsException
 from base import models as mdl
+from django.views.decorators.http import require_POST, require_GET
 
 
 PROPOSAL_SEARCH = 3
@@ -58,14 +59,9 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
     initial_data = compute_form_initial_data(learning_unit_year)
 
     if request.method == 'POST':
-        modified_post_data = request.POST.copy()
-        post_data_merged = QueryDict('', mutable=True)
-        post_data_merged.update(initial_data)
-        post_data_merged.update(modified_post_data)
-
-        form = LearningUnitProposalModificationForm(post_data_merged, initial=initial_data)
+        form = LearningUnitProposalModificationForm(request.POST, initial=initial_data)
         if form.is_valid():
-            type_proposal = compute_proposal_type(initial_data, modified_post_data)
+            type_proposal = compute_proposal_type(initial_data, request.POST)
             form.save(learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name)
             messages.add_message(request, messages.SUCCESS,
                                  _("success_modification_proposal")
@@ -119,3 +115,21 @@ def learning_units_proposal_search(request):
     }
 
     return layout.render(request, "learning_units.html", context)
+
+
+@login_required
+@perms.can_perform_modification_proposal
+@permission_required('base.can_propose_learningunit', raise_exception=True)
+@require_GET
+def propose_edit_of_learning_unit(request, learning_unit_year_id):
+    print('propose_edit_of_learning_unit')
+    learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
+    user_person = get_object_or_404(Person, user=request.user)
+    initial_data = compute_form_initial_data(learning_unit_year)
+
+    form = LearningUnitProposalModificationForm(initial=initial_data)
+
+    return render(request, 'proposal/learning_unit_modification.html', {'learning_unit_year': learning_unit_year,
+                                                                        'person': user_person,
+                                                                        'form': form,
+                                                                        'experimental_phase': True})

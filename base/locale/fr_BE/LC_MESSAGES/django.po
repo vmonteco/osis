@@ -2589,4 +2589,4 @@ msgid "ask_to_report_modification"
 msgstr "Voulez-vous reporter les modifications faites pour les années suivantes ?"
 
 msgid "value_before_proposal"
-msgstr "Anciennement"
+msgstr "Valeur avant proposition"

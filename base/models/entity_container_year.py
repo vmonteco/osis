@@ -140,3 +140,20 @@ def get_entity_container_year(an_entity_version, a_learning_container_year, a_ty
                                                type=a_type_entity_container_year)
     except ObjectDoesNotExist:
         return None
+
+def find_by_learning_container_year_and_linktype_with_entity_versions(a_learning_container_year, linktype):
+    results =  EntityContainerYear.objects.filter(learning_container_year=a_learning_container_year, type=linktype)\
+        .prefetch_related(models.Prefetch('entity__entityversion_set', to_attr='entity_versions'))
+    if results:
+        return results[0]
+
+    return None
+
+
+def find_all_entities(learning_container_year):
+    results = find_last_entity_version_grouped_by_linktypes(learning_container_year, [
+        entity_container_year_link_type.REQUIREMENT_ENTITY,
+        entity_container_year_link_type.ALLOCATION_ENTITY,
+        entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
+        entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2])
+    return next(iter(results.values()), None)

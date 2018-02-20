@@ -50,9 +50,9 @@
                                     <div class="col-md-3">
                                         <label>{% trans 'code'%}</label><br>
                                         {% if learning_unit_year.parent %}
-                                            <a href="{% url 'learning_unit' learning_unit_year.parent.id%}" {{ differences|get_css:'acronym' }}>{{ learning_unit_year.learning_container_year.acronym }}</a>{{learning_unit_year.subdivision}}
+                                            <a href="{% url 'learning_unit' learning_unit_year.parent.id%}" {{ differences|get_css:'acronym'|safe  }}>{{ learning_unit_year.learning_container_year.acronym }}</a>{{learning_unit_year.subdivision}}
                                         {% else %}
-                                           <span {{ differences|get_css:'acronym' }}>{{ learning_unit_year.acronym }}</span>
+                                           <span {{ differences|get_css:'acronym'|safe  }}>{{ learning_unit_year.acronym }}</span>
                                         {% endif%}
                                     </div>
                                     <div class="col-md-3">
@@ -69,18 +69,18 @@
                                     <div class="col-md-3">
                                         <label>{% trans 'type' %}</label><br>
                                         {% if learning_unit_year.learning_container_year.container_type %}
-                                            <span {{ differences|get_css:'container_type' }}>{% trans learning_unit_year.learning_container_year.container_type %}</span>
+                                            <span {{ differences|get_css:'container_type'|safe  }}>{% trans learning_unit_year.learning_container_year.container_type %}</span>
                                         {% endif %}
                                         {% if show_subtype %}
                                             {% if learning_unit_year.subtype%}
-                                                <span {{ differences|get_css:'subtype' }}>({% trans learning_unit_year.subtype|lower  %})</span>
+                                                <span {{ differences|get_css:'subtype'|safe  }}>({% trans learning_unit_year.subtype|lower  %})</span>
                                             {% endif %}
                                         {% endif %}
                                     </div>
                                     <div class="col-md-3">
                                         <label>{% trans 'internship_subtype' %}</label><br>
                                         {% if learning_unit_year.internship_subtype %}
-                                            <span {{ differences|get_css:'internship_subtype' }}>{% trans learning_unit_year.internship_subtype %}</span>
+                                            <span {{ differences|get_css:'internship_subtype'|safe  }}>{% trans learning_unit_year.internship_subtype %}</span>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -88,17 +88,17 @@
                                 <div class="row">
                                     <div class="col-md-3">
                                         <label>{% trans 'nominal_credits' %}</label><br>
-                                        <span {{ differences|get_css:'credits' }}>{{ learning_unit_year.credits }}</span>
+                                        <span {{ differences|get_css:'credits'|safe  }}>{{ learning_unit_year.credits }}</span>
                                     </div>
                                     <div class="col-md-3">
                                         <label>{% trans 'periodicity' %}</label><br>
                                         {% if learning_unit_year.learning_unit.periodicity %}
-                                            <span {{ differences|get_css:'periodicity' }}>{% trans learning_unit_year.learning_unit.periodicity %}</span>
+                                            <span {{ differences|get_css:'periodicity'|safe  }}>{% trans learning_unit_year.learning_unit.periodicity %}</span>
                                         {% endif %}
                                     </div>
                                     <div class="col-md-3">
                                         <label>{% trans 'status' %}</label><br>
-                                        <span {{ differences|get_css:'status' }}>
+                                        <span {{ differences|get_css:'status'|safe  }}>
                                         {% if learning_unit_year.status %}
                                             {% trans 'active'|title %}
                                         {% else %}
@@ -108,32 +108,32 @@
                                     </div>
                                     <div class="col-md-3">
                                         <label>{% trans 'language' %}</label><br>
-                                        <span {{ differences|get_css:'language' }}>{{learning_unit_year.learning_container_year.language | default_if_none:'' }}</span>
+                                        <span {{ differences|get_css:'language'|safe  }}>{{learning_unit_year.learning_container_year.language | default_if_none:'' }}</span>
                                     </div>
                                 </div>
                                 <br>
                                 <div class="row">
                                     <div class="col-md-3">
                                         <label>{% trans 'quadrimester' %}</label><br>
-                                        <span {{ differences|get_css:'quadrimester' }}>{{ learning_unit_year.quadrimester | default_if_none:'' }}</span>
+                                        <span {{ differences|get_css:'quadrimester'|safe  }}>{{ learning_unit_year.quadrimester | default_if_none:'' }}</span>
                                     </div>
                                     <div class="col-md-9">
                                         <label>{% trans 'session_title' %}</label><br>
-                                        <span {{ differences|get_css:'session' }}>{{ learning_unit_year.session | default_if_none:'' }}</span>
+                                        <span {{ differences|get_css:'session'|safe  }}>{{ learning_unit_year.session | default_if_none:'' }}</span>
                                     </div>
                                 </div>
                                 <br>
                                 <label title="{% trans 'title_official_1' %}">{% trans 'common_official_title' %}</label><br>
-                                <span {{ differences|get_css:'common_title' }}>{{ learning_unit_year.learning_container_year.common_title | default_if_none:'' }}</span>
+                                <span {{ differences|get_css:'common_title'|safe  }}>{{ learning_unit_year.learning_container_year.common_title | default_if_none:'' }}</span>
                                 <br><br>
                                 <label title="{% trans 'title_official_2' %}">{% trans 'official_title_proper_to_UE' %}</label><br>                             
-                                    <span {{ differences|get_css:'specific_title' }}>{{learning_unit_year.specific_title | default_if_none:''}}</span>
+                                    <span {{ differences|get_css:'specific_title'|safe  }}>{{learning_unit_year.specific_title | default_if_none:''}}</span>
                                 <br><br>
                                 <label title="{% trans 'title_in_english' %} {% trans 'title_in_english_1' %}">{% trans 'common_official_english_title' %}</label><br>
-                                <span {{ differences|get_css:'common_title_english' }}>{{learning_unit_year.learning_container_year.common_title_english | default_if_none:'' }}</span>
+                                <span {{ differences|get_css:'common_title_english'|safe  }}>{{learning_unit_year.learning_container_year.common_title_english | default_if_none:'' }}</span>
                                 <br><br>
                                 <label title="{% trans 'title_in_english' %} {% trans 'title_in_english_2' %}">{% trans 'official_english_title_proper_to_UE' %}</label><br>                             
-                                    <span {{ differences|get_css:'specific_title_english' }}>{{learning_unit_year.common_title_english | default_if_none:'' }}</span>                             
+                                    <span {{ differences|get_css:'specific_title_english'|safe  }}>{{learning_unit_year.common_title_english | default_if_none:'' }}</span>
                                 <br>
                             </div>
                         </div>
@@ -141,12 +141,12 @@
                             <div class="panel-body">
                                 <div>
                                     <label>{% trans 'faculty_remark' %}</label><br>
-                                    <span {{ differences|get_css:'faculty_remark' }}>{{ learning_unit_year.learning_unit.faculty_remark | default_if_none:'' }}</span>
+                                    <span {{ differences|get_css:'faculty_remark'|safe  }}>{{ learning_unit_year.learning_unit.faculty_remark | default_if_none:'' }}</span>
                                 </div>
                                 <br>
                                 <div>
                                     <label>{% trans 'other_remark' %}</label><br>
-                                    <span {{ differences|get_css:'other_remark' }}>{{ learning_unit_year.learning_unit.other_remark | default_if_none:'' }}</span>
+                                    <span {{ differences|get_css:'other_remark'|safe  }}>{{ learning_unit_year.learning_unit.other_remark | default_if_none:'' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -194,7 +194,7 @@
                                 <br>
                                 <label style="margin-top:10px;">{% trans 'learning_location'%}</label><br>
                                  {% if campus %}
-                                    <span  {{ differences|get_css:'campus'}}>{{ campus.name }}</span>
+                                    <span  {{ differences|get_css:'campus'|safe }}>{{ campus.name }}</span>
                                  {% endif %}
                                 <br>
                                 <label style="margin-top:10px;">{% trans 'requirement_entity'%}</label><br>
@@ -203,7 +203,7 @@
                                              {% if REQUIREMENT_ENTITY_title %}
                                                 title="{{ REQUIREMENT_ENTITY_title | default_if_none:''}}"
                                              {% else %}
-                                                {{ differences|get_css:'REQUIREMENT_ENTITY' }}
+                                                {{ differences|get_css:'REQUIREMENT_ENTITY'|safe  }}
                                              {% endif %}>{{ requirement_entity.acronym }}</a>
                                 {% endif %}
                                 <br>
@@ -213,17 +213,17 @@
                                          {% if ALLOCATION_ENTITY_title %}
                                             title="{{ ALLOCATION_ENTITY_title | default_if_none:''}}"
                                          {% else %}
-                                            {{ differences|get_css:'ALLOCATION_ENTITY' }}
+                                            {{ differences|get_css:'ALLOCATION_ENTITY'|safe }}
                                          {% endif %}>{{ allocation_entity.acronym }}</a>
                                  {% endif %}
                                 <br>
                                 {% if additional_requirement_entity_1 %}
                                     <label style="margin-top:10px;">{% trans 'additional_requirement_entity'%}</label><br>
-                                    <span {{ differences|get_css:'ADDITIONAL_REQUIREMENT_ENTITY_1' }}> {{ additional_requirement_entity_1.acronym }}</span><br>
+                                    <span {{ differences|get_css:'ADDITIONAL_REQUIREMENT_ENTITY_1'|safe  }}> {{ additional_requirement_entity_1.acronym }}</span><br>
                                 {% endif %}
                                 {% if additional_requirement_entity_2 %}
                                     <label style="margin-top:10px;">{% trans 'additional_requirement_entity'%}</label><br>
-                                    <span {{ differences|get_css:'ADDITIONAL_REQUIREMENT_ENTITY_2' }}>{{ additional_requirement_entity_2.acronym }}</span><br>
+                                    <span {{ differences|get_css:'ADDITIONAL_REQUIREMENT_ENTITY_2'|safe  }}>{{ additional_requirement_entity_2.acronym }}</span><br>
                                 {% endif %}
                                 {% block edit_academic_year %}
                                     <label style="margin-top:10px;">{% trans 'academic_years'%}</label><br>

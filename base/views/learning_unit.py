@@ -78,6 +78,9 @@ from reference.models import language
 from . import layout
 from django.apps import apps
 
+LABEL_VALUE_BEFORE_PROPROSAL = _('value_before_proposal')
+
+APP_BASE_LABEL = 'base'
 
 END_FOREIGN_KEY_NAME = "_id"
 NO_PREVIOUS_VALUE = '-'
@@ -669,34 +672,38 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
 
         differences.update(_compare_model_with_initial_value(learning_unit_yr_proposal.learning_unit_year.id,
                                                              learning_unit_yr_initial_data,
-                                                             apps.get_model(app_label='base',
+                                                             apps.get_model(app_label=APP_BASE_LABEL,
                                                                             model_name="LearningUnitYear")))
 
         differences.update(_compare_model_with_initial_value(initial_learning_container_yr_id,
                                                              learning_container_yr_initial_data,
-                                                             apps.get_model(app_label='base',
+                                                             apps.get_model(app_label=APP_BASE_LABEL,
                                                                             model_name="LearningContainerYear")))
 
         differences.update(_compare_model_with_initial_value(learning_unit_initial_data.get('id'),
                                                              learning_unit_initial_data,
-                                                             apps.get_model(app_label='base',
+                                                             apps.get_model(app_label=APP_BASE_LABEL,
                                                                             model_name="LearningUnit")))
 
         learning_container_yr = mdl_base.learning_container_year.find_by_id(initial_learning_container_yr_id)
         if learning_container_yr:
             for entity_type, entity_id in learning_unit_yr_proposal.initial_data.get('entities').items():
-                entity_container_yr = mdl_base.entity_container_year\
-                    .find_by_learning_container_year_and_linktype(learning_container_yr, entity_type)
-                if entity_container_yr:
-                    if entity_container_yr.entity.id != entity_id:
+                entity_cont_yr = mdl_base.entity_container_year\
+                    .find_by_learning_container_year_and_linktype_with_entity_versions(learning_container_yr,
+                                                                                       entity_type)
+                if entity_cont_yr:
+                    if entity_cont_yr.entity.id != entity_id:
                         if entity_id:
                             old_value = mdl_base.entity.Entity.objects.get(pk=entity_id)
-                            differences.update({entity_type: "{}:{}".format(_('value_before_proposal'),
-                                                                            old_value.most_recent_acronym)})
+                            differences.update({entity_type: "{} : {}".format(_('value_before_proposal'),
+                                                                              old_value.most_recent_acronym)})
                         else:
                             differences.update({entity_type: "-"})
                     else:
-                        context['{}_title'.format(entity_type)] = entity_container_yr.get_latest_entity_version().title
+                        if entity_cont_yr.get_latest_entity_version():
+                            context['{}_title'.format(entity_type)] = entity_cont_yr.get_latest_entity_version().title
+                        else:
+                            context['{}_title'.format(entity_type)] = "?,,,,,,,,,,,,,,,,"
     context['differences'] = differences
     return context
 
@@ -711,11 +718,12 @@ def _compare_model_with_initial_value(an_id, model_initial_data, mymodel):
 
 
 def _check_differences(initial_data, actual_data):
-    corrected_dict = {key_name.replace(END_FOREIGN_KEY_NAME, ''): actual_data[key_name] for key_name in actual_data.keys()}
+    corrected_dict = {key_name.replace(END_FOREIGN_KEY_NAME, ''): actual_data[key_name]
+                      for key_name in actual_data.keys()}
     differences = {}
     if initial_data:
         for attribute, initial_value in initial_data.items():
-            if corrected_dict.get(attribute):
+            if attribute in corrected_dict:
                 if initial_data.get(attribute, None) != corrected_dict.get(attribute):
                     differences.update(_get_the_old_value(attribute, actual_data, initial_data))
     return differences
@@ -738,9 +746,9 @@ def _get_the_old_value(key, actual_data, initial_data):
         differences.update(_get_str_representing_old_data_from_foreign_key(key, initial_value))
     else:
         if _translation_needed(key, initial_value):
-            differences.update({key: _(initial_value)})
+            differences.update({key: "{} : {}".format(_('value_before_proposal'), _(initial_value))})
         else:
-            differences.update({key: initial_value})
+            differences.update({key: "{} : {}".format(_('value_before_proposal'), initial_value)})
     return differences
 
 
@@ -748,11 +756,13 @@ def _get_str_representing_old_data_from_foreign_key(cle, initial_value):
     differences = {}
     if initial_value != NO_PREVIOUS_VALUE:
         if cle == 'campus':
-            differences.update({cle: mdl_base.campus.find_by_id(initial_value)})
+            differences.update({cle: "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL,
+                                                      mdl_base.campus.find_by_id(initial_value))})
         if cle == 'language':
-            differences.update({cle: language.find_by_id(initial_value)})
+            differences.update({cle: "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL,
+                                                      language.find_by_id(initial_value))})
     else:
-        differences.update({cle: initial_value})
+        differences.update({cle: "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL, NO_PREVIOUS_VALUE)})
     return differences
 
 
