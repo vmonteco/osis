@@ -72,7 +72,7 @@ def learning_unit_edition(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_edit_learningunit', raise_exception=True)
 @perms.can_perform_learning_unit_modification
-def modify_learning_unit(request, learning_unit_year_id):
+def modify_learning_unit(request, learning_unit_year_id, with_report=False):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     person = get_object_or_404(Person, user=request.user)
     initial_data = compute_learning_unit_modification_form_initial_data(learning_unit_year)
@@ -83,8 +83,8 @@ def modify_learning_unit(request, learning_unit_year_id):
         lu_type_full_data = form.get_data_for_learning_unit()
 
         try:
-            update_learning_unit_year_with_report(learning_unit_year, lu_type_full_data)
-            update_learning_unit_year_entities_with_report(learning_unit_year, entities_data)
+            update_learning_unit_year_with_report(learning_unit_year, lu_type_full_data, with_report)
+            update_learning_unit_year_entities_with_report(learning_unit_year, entities_data, with_report)
 
             display_success_messages(request, _("success_modification_learning_unit"))
 

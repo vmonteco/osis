@@ -7,7 +7,10 @@ var form = $('#LearningUnitYearForm').closest("form");
 function isLearningUnitSubtypeFull(){
     if(document.getElementById('id_subtype') !== null){
 
-        return document.getElementById('id_subtype').value == LEARNING_UNIT_FULL_SUBTYPE
+        return document.getElementById('id_subtype').value === LEARNING_UNIT_FULL_SUBTYPE
+    }
+    else if (learning_unit_current_subtype !== undefined){
+        return learning_unit_current_subtype === LEARNING_UNIT_FULL_SUBTYPE;
     }
     return true;
 }
