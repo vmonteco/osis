@@ -141,8 +141,9 @@ def get_entity_container_year(an_entity_version, a_learning_container_year, a_ty
     except ObjectDoesNotExist:
         return None
 
+
 def find_by_learning_container_year_and_linktype_with_entity_versions(a_learning_container_year, linktype):
-    results =  EntityContainerYear.objects.filter(learning_container_year=a_learning_container_year, type=linktype)\
+    results = EntityContainerYear.objects.filter(learning_container_year=a_learning_container_year, type=linktype)\
         .prefetch_related(models.Prefetch('entity__entityversion_set', to_attr='entity_versions'))
     if results:
         return results[0]

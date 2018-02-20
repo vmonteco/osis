@@ -703,16 +703,20 @@ def _get_the_old_value(key, actual_data, initial_data):
 
 
 def _get_str_representing_old_data_from_foreign_key(cle, initial_value):
-    differences = {}
     if initial_value != NO_PREVIOUS_VALUE:
-        if cle == 'campus':
-            differences.update({cle: "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL,
-                                                      mdl_base.campus.find_by_id(initial_value))})
-        if cle == 'language':
-            differences.update({cle: "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL,
-                                                      language.find_by_id(initial_value))})
+        return _get_old_value_of_foreign_key(cle, initial_value)
     else:
-        differences.update({cle: "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL, NO_PREVIOUS_VALUE)})
+        return {cle: "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL, NO_PREVIOUS_VALUE)}
+
+
+def _get_old_value_of_foreign_key(cle, initial_value):
+    differences = {}
+    if cle == 'campus':
+        differences.update({cle: "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL,
+                                                  mdl_base.campus.find_by_id(initial_value))})
+    if cle == 'language':
+        differences.update({cle: "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL,
+                                                  language.find_by_id(initial_value))})
     return differences
 
 
@@ -720,4 +724,3 @@ def _is_foreign_key(cle, actual_data):
     if "{}{}".format(cle, END_FOREIGN_KEY_NAME) in actual_data:
         return True
     return False
-
