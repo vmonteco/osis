@@ -410,7 +410,8 @@ class TestLearningUnitVolumesManagement(TestCase):
 
         request = request_factory.post(reverse(learning_unit_volumes_management,
                                                args=[self.learning_unit_year.id]),
-                                       data=data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+                                       data=data, 
+                                       HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         request.user = self.user
 
