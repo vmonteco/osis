@@ -2580,7 +2580,4 @@ msgid "folder_num"
 msgstr "N° dossier"
 
 msgid "value_before_proposal"
-msgstr "Valeur avant proposition"
-
-msgid "no_value_before_proposal"
-msgstr "Pas de valeur avant proposition"
+msgstr "Anciennement"

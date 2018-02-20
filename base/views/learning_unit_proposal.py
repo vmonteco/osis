@@ -35,8 +35,7 @@ from base.views.learning_units import perms
 from base.views.learning_unit import compute_form_initial_data
 from base.views.learning_unit import get_last_academic_years
 from base.views.learning_unit import check_if_display_message
-from base.views.learning_unit import get_attributions_of_learning_unit_year
-from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, LearningUnitProposalViewForm
+from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.models.enums import proposal_state
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
@@ -120,29 +119,3 @@ def learning_units_proposal_search(request):
     }
 
     return layout.render(request, "learning_units.html", context)
-
-
-@login_required
-def learning_unit_proposal_view(request, proposal_id):
-
-    learning_unit_yr_proposal = get_object_or_404(ProposalLearningUnit, id=proposal_id)
-    user_person = get_object_or_404(Person, user=request.user)
-    print(learning_unit_yr_proposal.learning_unit_year.status)
-    initial_data = compute_form_initial_data(learning_unit_yr_proposal.learning_unit_year)
-    # proposal_data = compute_form_initial_data(learning_unit_yr_proposal.initial_data)
-    print('ici')
-    print(learning_unit_yr_proposal.initial_data.get('learning_unit_year', None).get('status'))
-
-    form = LearningUnitProposalViewForm(initial=initial_data,
-                                        proposal_entities=get_attributions_of_learning_unit_year(learning_unit_yr_proposal.learning_unit_year),
-                                        proposal_data=learning_unit_yr_proposal.learning_unit_year,
-                                        learning_unit_year_old=learning_unit_yr_proposal.initial_data.get('learning_unit_year', None),
-                                        learning_container_year_old=learning_unit_yr_proposal.initial_data.get('learning_container_year', None),
-                                        learning_unit_old=learning_unit_yr_proposal.initial_data.get('learning_unit', None),
-                                        entities=learning_unit_yr_proposal.initial_data.get('entities', None),
-                                        modified_data=learning_unit_yr_proposal.initial_data)
-
-    return render(request, 'proposal/learning_unit_modification.html', {'learning_unit_year': learning_unit_yr_proposal.learning_unit_year,
-                                                                        'person': user_person,
-                                                                        'form': form,
-                                                                        'experimental_phase': True})

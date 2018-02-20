@@ -51,3 +51,11 @@ def academic_year(year):
     if year:
         return "{}-{}".format(year, str(year+1)[-2:])
     return "-"
+
+
+@register.filter
+def get_css(differences, parameter):
+    if differences.get(parameter, None):
+        return " title={} class={} ".format(differences.get(parameter), "proposal_value")
+
+    return ''
