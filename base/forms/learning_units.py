@@ -102,23 +102,6 @@ class LearningUnitYearForm(SearchForm):
     def _get_learning_units(self, service_course_search=None):
         clean_data = self.cleaned_data
         service_course_search = service_course_search or self.service_course_search
-
-        parent_version_prefetch = Prefetch('parent__entityversion_set',
-                                           queryset=mdl_entity_version.search(),
-                                           to_attr='entity_versions')
-
-        entity_version_prefetch = Prefetch('entity__entityversion_set',
-                                           queryset=mdl_entity_version.search()
-                                           .prefetch_related(parent_version_prefetch),
-                                           to_attr='entity_versions')
-
-        entity_container_prefetch = Prefetch('learning_container_year__entitycontaineryear_set',
-                                             queryset=mdl.entity_container_year.search(
-                                                 link_type=[entity_container_year_link_type.ALLOCATION_ENTITY,
-                                                            entity_container_year_link_type.REQUIREMENT_ENTITY])
-                                             .prefetch_related(entity_version_prefetch),
-                                             to_attr='entity_containers_year')
-
         clean_data['learning_container_year_id'] = get_filter_learning_container_ids(clean_data)
 
         if not service_course_search \
@@ -129,7 +112,7 @@ class LearningUnitYearForm(SearchForm):
         learning_units = mdl.learning_unit_year.search(**clean_data) \
             .select_related('academic_year', 'learning_container_year',
                             'learning_container_year__academic_year') \
-            .prefetch_related(entity_container_prefetch) \
+            .prefetch_related(build_entity_container_prefetch()) \
             .order_by('academic_year__year', 'acronym')
 
         return [append_latest_entities(learning_unit, service_course_search) for learning_unit in
@@ -193,3 +176,19 @@ def get_filter_learning_container_ids(filter_data):
         )
 
     return entities_id_list if entities_id_list else None
+
+def build_entity_container_prefetch():
+    parent_version_prefetch = Prefetch('parent__entityversion_set',
+                                       queryset=mdl_entity_version.search(),
+                                       to_attr='entity_versions')
+    entity_version_prefetch = Prefetch('entity__entityversion_set',
+                                       queryset=mdl_entity_version.search()
+                                       .prefetch_related(parent_version_prefetch),
+                                       to_attr='entity_versions')
+    entity_container_prefetch = Prefetch('learning_container_year__entitycontaineryear_set',
+                                         queryset=mdl.entity_container_year.search(
+                                             link_type=[entity_container_year_link_type.ALLOCATION_ENTITY,
+                                                        entity_container_year_link_type.REQUIREMENT_ENTITY])
+                                         .prefetch_related(entity_version_prefetch),
+                                         to_attr='entity_containers_year')
+    return entity_container_prefetch
