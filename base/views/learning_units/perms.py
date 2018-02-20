@@ -74,10 +74,10 @@ def can_perform_end_date_modification(view_func):
 
 
 def can_perform_learning_unit_modification(view_func):
-    def f_can_perform_learning_unit_modification(request, learning_unit_year_id):
+    def f_can_perform_learning_unit_modification(request, learning_unit_year_id, *args, **kwargs):
         learn_unit_year = get_object_or_404(learning_unit_year.LearningUnitYear, pk=learning_unit_year_id)
         pers = get_object_or_404(person.Person, user=request.user)
         if not business_perms.is_eligible_for_modification(learn_unit_year, pers):
             raise PermissionDenied("Learning unit year cannot be modified.")
-        return view_func(request, learning_unit_year_id)
+        return view_func(request, learning_unit_year_id, *args, **kwargs)
     return f_can_perform_learning_unit_modification

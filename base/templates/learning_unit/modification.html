@@ -151,9 +151,9 @@
                                   </div>
 
                                   <div class="form-group">
-                                    <label for="{{ form.partial_title.id_for_label }}">{% trans 'official_title_proper_to_UE' %}</label>
-                                    {{ form.partial_title }}
-                                      <span class="error">{{ form.partial_title.errors }}</span>
+                                    <label for="{{ form.specific_title.id_for_label }}">{% trans 'official_title_proper_to_UE' %}</label>
+                                    {{ form.specific_title }}
+                                      <span class="error">{{ form.specific_title.errors }}</span>
                                   </div>
 
                                   <br>
@@ -165,9 +165,9 @@
                                   </div>
 
                                   <div class="form-group">
-                                    <label for="{{ form.partial_english_title.id_for_label }}">{% trans 'official_english_title_proper_to_UE' %}</label>
-                                    {{ form.partial_english_title}}
-                                      <span class="error">{{ form.partial_english_title.errors }}</span>
+                                    <label for="{{ form.specific_title_english.id_for_label }}">{% trans 'official_english_title_proper_to_UE' %}</label>
+                                    {{ form.specific_title_english}}
+                                      <span class="error">{{ form.specific_title_english.errors }}</span>
                                   </div>
 
                               </div>
@@ -278,14 +278,16 @@
 
                   <div class="row">
                     <div class="col-md-2 col-md-offset-8">
-                      <button type="submit" class="btn btn-primary">{% trans 'save' %}</button>
+                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalReport">{% trans 'save' %}</button>
                     </div>
                     <div class="col-md-2">
                       <a href="{% url 'learning_unit' learning_unit_year.id %}" class="btn btn-default" role="button">{% trans 'cancel' %}</a>
                     </div>
                   </div>
 
+                    {% include "learning_unit/components/modal_modification_ask_to_report.html" %}
                 </form>
+
 
             </div>
         </div>
@@ -298,7 +300,8 @@
         const trans_invalid_acronym = "{% trans 'invalid_acronym' %}";
         const trans_field_required = "{% trans 'field_is_required' %}";
         const form_acronym_regex = /{{ form.acronym_regex }}/;
-        const currentAcronym = "{{ learning_unit_year.acronym }}"
+        const currentAcronym = "{{ learning_unit_year.acronym }}";
+        const learning_unit_current_subtype = "{{ learning_unit_year.subtype }}";
     </script>
     <script type="text/javascript" src="{% static 'js/learning_unit_creation.js' %}"></script>
 {% endblock %}

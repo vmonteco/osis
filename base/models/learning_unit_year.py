@@ -147,6 +147,11 @@ class LearningUnitYear(AuditableSerializableModel):
                                                academic_year__year__gte=self.academic_year.year) \
             .order_by('academic_year__year')
 
+    def find_gt_learning_units_year(self):
+        return LearningUnitYear.objects.filter(learning_unit=self.learning_unit,
+                                               academic_year__year__gt=self.academic_year.year) \
+            .order_by('academic_year__year')
+
 
 def get_by_id(learning_unit_year_id):
     return LearningUnitYear.objects.select_related('learning_container_year__learning_container') \

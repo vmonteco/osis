@@ -138,8 +138,6 @@ class LearningUnitModificationForm(LearningUnitYearForm):
             errors_list.append(("requirement_entity",
                                 _("requirement_entity_end_date_too_short")))
         if not self._are_requirement_and_allocation_entities_valid():
-            errors_list.append(("requirement_entity",
-                                _("requirement_and_allocation_entities_cannot_be_different")))
             errors_list.append(("allocation_entity",
                                 _("requirement_and_allocation_entities_cannot_be_different")))
         self.add_errors(errors_list)

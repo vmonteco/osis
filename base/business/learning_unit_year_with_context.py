@@ -45,7 +45,6 @@ def get_with_context(**learning_unit_year_data):
         queryset=mdl.entity_container_year.search(
             link_type=[
                 entity_types.REQUIREMENT_ENTITY,
-                entity_types.ALLOCATION_ENTITY,
                 entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1,
                 entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2
             ]
@@ -161,7 +160,7 @@ def volume_learning_component_year(learning_component_year, entity_components_ye
     volume_total_charge = vol_req_entity + vol_add_req_entity_1 + vol_add_req_entity_2
     volume_partial = learning_component_year.hourly_volume_partial
     planned_classes = learning_component_year.planned_classes or 1
-    volume_total = Decimal(volume_total_charge / planned_classes)
+    volume_total = round(Decimal(volume_total_charge / planned_classes), 2)
     distribution = component_volume_distribution(volume_total, volume_partial)
 
     if distribution is None:

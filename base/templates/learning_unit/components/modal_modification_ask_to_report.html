@@ -1,8 +1,5 @@
-{% extends "layout.html" %}
 {% load staticfiles %}
 {% load i18n %}
-{% load components_classes %}
-{% load bootstrap3 %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -27,27 +24,17 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-{% block breadcrumb %}
-    <li><a href="{% url 'catalog' %}" id="lnk_catalog">{% trans 'formation_catalogue' %}</a></li>
-    <li><a href="{% url 'learning_units' %}" id="lnk_learning_units">{% trans 'learning_units' %}</a></li>
-    <li><a href="{% url 'learning_unit_components' learning_unit_year_id=learning_unit_year.id %}"
-           id="lnk_learning_unit">{{ learning_unit_year.acronym }}</a></li>
-    <li class="active">{% trans 'volumes_management' %}</li>
-{% endblock %}
-
-{% block content %}
-
-{% bootstrap_messages %}
-
-<div class="panel panel-default">
-    <div class="panel-body" id="tabs">
-        <div class="tab-content" id="tab_content">
-            <div role="tabpanel" class="tab-pane active" id="components">
-
-                <h4 class="text-center">{% trans 'volumes_management' %}</h4>
-                {% include "learning_unit/components/volumes_management_form.html" %}
-            </div>
-        </div>
+<div class="modal fade" id="modalReport" tabindex="-1" role="dialog" aria-labelledby="modalReport">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        {% trans "ask_to_report_modification" %}
+      </div>
+      <div class="modal-footer">
+          <button type="submit" class="btn btn-primary" formaction="{% url "edit_learning_unit" learning_unit_year_id=learning_unit_year.id %}">{% trans 'no' %}</button>
+          <button type="submit" class="btn btn-primary" formaction="{% url "edit_learning_unit_with_report" learning_unit_year_id=learning_unit_year.id %}">{% trans 'yes' %}</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "cancel" %}</button>
+      </div>
     </div>
+  </div>
 </div>
-{% endblock %}
