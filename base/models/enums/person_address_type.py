@@ -25,6 +25,7 @@
 ##############################################################################
 from osis_common.utils.enumerations import ChoiceEnum
 
+
 class PersonAddressType(ChoiceEnum):
     RESIDENTIAL = "RESIDENTIAL"
     PROFESSIONAL = "PROFESSIONAL"
