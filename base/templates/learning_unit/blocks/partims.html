@@ -1,0 +1,11 @@
+
+<label>{% trans 'partims' %}</label>
+
+<div>
+    {% for partim in learning_container_year_partims %}
+        {% if forloop.counter > 1 %}
+            ,
+        {% endif%}
+        {{ partim.subdivision}}
+    {% endfor %}
+</div>

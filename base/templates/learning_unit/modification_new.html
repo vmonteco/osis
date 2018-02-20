@@ -1,37 +1,8 @@
 {% extends "learning_unit_layout.html" %}
 
-{% comment "License" %}
-* OSIS stands for Open Student Information System. It's an application
-* designed to manage the core business of higher education institutions,
-* such as universities, faculties, institutes and professional schools.
-* The core business involves the administration of students, teachers,
-* courses, programs and so on.
-*
-* Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* A copy of this license - GNU General Public License - is available
-* at the root of the source code of this program.  If not,
-* see http://www.gnu.org/licenses/.
-{% endcomment %}
-
 {% block content %}
 
-<div class="panel panel-default" >
-    <div class="panel-body" id="tabs" >
 
-        <div class="tab-content" id="tab_content">
-            <div role="tabpanel" class="tab-pane active">
-                <br/>
                 <form method="post" id="LearningUnitYearForm" data-validate-url="{% url 'check_acronym' type=learning_unit_year.subtype %}">
                   {% csrf_token %}
                   <div class="row">
@@ -41,34 +12,15 @@
                                   <div class="row">
 
                                       <div class="col-md-3" style="padding-left:0;">
-                                        <div class="col-md-12">
-                                          <label for="{{ form.acronym.id_for_label }}">{% trans 'code'%}</label>
-                                        </div>
-                                        <div class="col-md-5" style="padding-right:0;">
-                                          {{ form.first_letter }}
-                                            <span class="error">{{ form.first_letter.errors }}</span>
-                                        </div>
-                                        <div class="col-md-7" style="padding:0;">
-                                          {{ form.acronym }}
-                                            <span class='error' id="{{ form.acronym.name }}_message" for='{{ form.acronym.name }}' generated="true">
-                                            {{ form.acronym.errors }}
-                                            </span>
-                                            {% if form.acronym.errors %}
-                                                <label class='error' for='{{ form.acronym.name }}' generated="true">{{ form.acronym.errors|join:". " }}</label>
-                                            {% endif %}
-                                        </div>
+                                        {% block acronym %}
+                                            {% include "learning_unit/blocks/acronym.html" %}
+                                        {% endblock %}
                                       </div>
 
                                       <div class="col-md-3">
-                                          <label>{% trans 'partims' %}</label>
-                                          <div>
-                                              {% for partim in learning_container_year_partims %}
-                                              {% if forloop.counter > 1 %}
-                                              ,
-                                              {% endif%}
-                                              {{ partim.subdivision}}
-                                              {% endfor %}
-                                          </div>
+                                        {% block partims %}
+                                            {% include "learning_unit/blocks/institution.html" %}
+                                        {% endblock %}
                                       </div>
 
                                       <div class="form_group col-md-3">

@@ -28,7 +28,6 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-
 {% block breadcrumb %}
 <li><a href="{% url 'catalog' %}" id="lnk_catalog">{% trans 'formation_catalogue' %}</a></li>
 <li><a href="{% url 'learning_units' %}" id="lnk_learning_units">{% trans 'learning_units' %}</a></li>
@@ -36,31 +35,65 @@
 <li class="active">{% trans 'modification'|capfirst %}</li>
 {% endblock %}
 
-
-{% block content %}
+{% block header %}
 
     {% with disabled_nav=True %}
       {% include "learning_unit/header.html" %}
     {% endwith %}
 
-    {% block form %}
+{% endblock %}
 
-        {% block learning_unit %}
-        {% endblock %}
 
-        {% block institution %}
-            <div class="col-md-4">
+{% block content %}
+
+<div class="panel panel-default" >
+    <div class="panel-body" id="tabs" >
+
+    {% block tabs %}
+    {% endblock %}
+
+        <div class="tab-content" id="tab_content">
+            <div role="tabpanel" class="tab-pane active">
+                <br/>
+
+                {% block form %}
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+
+                                    {% block learning_unit_identification %}
+                                        {% include "learning_unit/blocks/learning_unit_identification.html" %}
+                                    {% endblock %}
+
+
+
+
+                            <div class="col-md-4">
+                                {% block institution %}
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            {% block institution %}
+                                                {% include "learning_unit/blocks/institution.html" %}
+                                            {% endblock %}
+                                        </div>
+                                    </div>
+                                {% endblock %}
+                            </div>
+
+            {% block proposal_management %}
                 <div class="panel panel-default">
                     <div class="panel-body">
                         {% block institution %}
-                            {% include "learning_unit/components/institution.html" %}
+                            {% include "learning_unit/blocks/proposal_management.html" %}
                         {% endblock %}
                     </div>
                 </div>
-            </div>
-        {% endblock %}
+            {% endblock %}
+        </div>
 
-        {% block footer %}
+        {% block submit %}
         {% endblock %}
 
     {% endblock %}
