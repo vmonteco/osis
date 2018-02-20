@@ -175,12 +175,12 @@
                             </label>
                         </div>
                         <div class="col-md-6">
-                            <label {% if form.errors.partial_title %}style="color:red;"{% endif %}>
+                            <label {% if form.errors.specific_title %}style="color:red;"{% endif %}>
                                 {% trans 'official_title_proper_to_UE' %}
                             </label>
-                            {{ form.partial_title }}
-                            <label {% if form.errors.partial_title %}style="color:red;"{% endif %}>
-                                {{ form.errors.partial_title| striptags }}
+                            {{ form.specific_title }}
+                            <label {% if form.errors.specific_title %}style="color:red;"{% endif %}>
+                                {{ form.errors.specific_title | striptags }}
                             </label>
                         </div>
                     </div>
@@ -191,7 +191,7 @@
                         </div>
                         <div class="col-md-6">
                             <label>{% trans 'official_english_title_proper_to_UE' %}</label>
-                            {{ form.partial_english_title }}
+                            {{ form.specific_title_english }}
                         </div>
                     </div>
                 </div>

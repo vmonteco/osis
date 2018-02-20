@@ -33,6 +33,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_unit_deletion import delete_from_given_learning_unit_year, \
     check_learning_unit_year_deletion
+from base.business.utils.model import update_instance_model_from_data
 from base.models import entity_container_year, learning_component_year, learning_class_year, learning_unit_component
 from base.models.academic_year import AcademicYear
 from base.models.entity_component_year import EntityComponentYear
@@ -262,25 +263,39 @@ def filter_biennial(queryset, periodicity):
     return result
 
 
-def update_learning_unit_year(luy_to_update, fields_to_update):
-    _update_instance_model_from_data(luy_to_update.learning_unit, fields_to_update)
-    _update_instance_model_from_data(luy_to_update.learning_container_year, fields_to_update)
-    _update_instance_model_from_data(luy_to_update, fields_to_update)
+def update_learning_unit_year_with_report(luy_to_update, fields_to_update, with_report=True):
+    _update_learning_unit_year(luy_to_update, fields_to_update)
+
+    if with_report:
+        fields_not_to_report = ("is_vacant", "type_declaration_vacant", "attribution_procedure")
+        _apply_report(_update_learning_unit_year, luy_to_update, fields_to_update,
+                      fields_to_exclude=fields_not_to_report)
 
 
-def _update_instance_model_from_data(instance, fields_to_update):
-    for field, value in fields_to_update.items():
-        if hasattr(instance.__class__, field):
-            setattr(instance, field, value)
-    instance.save()
+def update_learning_unit_year_entities_with_report(luy_to_update, entities_by_type_to_update, with_report=True):
+    _update_learning_unit_year_entities(luy_to_update, entities_by_type_to_update)
+
+    if with_report:
+        _apply_report(_update_learning_unit_year_entities, luy_to_update, entities_by_type_to_update)
 
 
-def update_learning_unit_year_entities(luy_to_update, entities_by_type_to_update):
+def _apply_report(method_of_update, base_luy, *args, **kwargs):
+    for luy in base_luy.find_gt_learning_units_year():
+        method_of_update(luy, *args, **kwargs)
+
+
+def _update_learning_unit_year(luy_to_update, fields_to_update, fields_to_exclude=()):
+    update_instance_model_from_data(luy_to_update.learning_unit, fields_to_update)
+    update_instance_model_from_data(luy_to_update.learning_container_year, fields_to_update, exclude=fields_to_exclude)
+    update_instance_model_from_data(luy_to_update, fields_to_update, exclude=fields_to_exclude)
+
+
+def _update_learning_unit_year_entities(luy, entities_by_type_to_update):
     for entity_link_type, entity, in entities_by_type_to_update.items():
         if entity:
-            _update_entity_container_year(entity, luy_to_update.learning_container_year, entity_link_type)
+            _update_entity_container_year(entity, luy.learning_container_year, entity_link_type)
         else:
-            _delete_entity_container_year(luy_to_update.learning_container_year, entity_link_type)
+            _delete_entity_container_year(luy.learning_container_year, entity_link_type)
 
 
 def _update_entity_container_year(an_entity, learning_container_year, type_entity):

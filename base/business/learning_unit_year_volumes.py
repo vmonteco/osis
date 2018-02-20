@@ -33,6 +33,12 @@ from base.models.enums import learning_component_year_type
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums import entity_container_year_link_type as entity_types
 
+ENTITY_TYPES = [
+    entity_types.REQUIREMENT_ENTITY,
+    entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1,
+    entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2
+]
+
 
 def update_volumes(learning_unit_year_id, updated_volumes):
     volumes_grouped_by_lunityear = get_volumes_grouped_by_lunityear(learning_unit_year_id, updated_volumes)
@@ -146,14 +152,18 @@ def _validate_components_data(l_unit_year):
 
     for component, data in l_unit_year.components.items():
         if not _is_tot_annual_equal_to_q1_q2(**data):
-            errors.append("<b>{}/{}:</b> {}".format(l_unit_year.acronym, component.acronym, _('vol_tot_not_equal_to_q1_q2')))
+            errors.append("<b>{}/{}:</b> {}".format(
+                l_unit_year.acronym, component.acronym, _('vol_tot_not_equal_to_q1_q2')))
+
         if not _is_tot_req_entities_equal_to_vol_req_entity(**data):
-            types = [entity_types.REQUIREMENT_ENTITY, entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1, entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2]
-            error_msg = ' + '.join([l_unit_year.entities.get(t).acronym for t in types if l_unit_year.entities.get(t)])
+            error_msg = ' + '.join([
+                l_unit_year.entities.get(t).acronym for t in ENTITY_TYPES if l_unit_year.entities.get(t)
+            ])
             error_msg += ' = {}'.format(_('vol_charge'))
             errors.append("<b>{}/{}:</b> {}".format(l_unit_year.acronym, component.acronym, error_msg))
         if not _is_tot_req_entities_equal_to_tot_annual_mult_cp(**data):
-            errors.append("<b>{}/{}:</b> {}".format(l_unit_year.acronym, component.acronym, _('vol_tot_req_entities_not_equal_to_vol_tot_mult_cp')))
+            errors.append("<b>{}/{}:</b> {}".format(
+                l_unit_year.acronym, component.acronym, _('vol_tot_req_entities_not_equal_to_vol_tot_mult_cp')))
     return errors
 
 

@@ -126,18 +126,14 @@
                                 <label title="{% trans 'title_official_1' %}">{% trans 'common_official_title' %}</label><br>
                                 <span {{ differences|get_css:'common_title' }}>{{ learning_unit_year.learning_container_year.common_title | default_if_none:'' }}</span>
                                 <br><br>
-                                <label title="{% trans 'title_official_2' %}">{% trans 'official_title_proper_to_UE' %}</label><br>
-                                {% if learning_unit_year.subtype == 'PARTIM'%}
+                                <label title="{% trans 'title_official_2' %}">{% trans 'official_title_proper_to_UE' %}</label><br>                             
                                     <span {{ differences|get_css:'specific_title' }}>{{learning_unit_year.specific_title | default_if_none:''}}</span>
-                                {% endif%}
                                 <br><br>
                                 <label title="{% trans 'title_in_english' %} {% trans 'title_in_english_1' %}">{% trans 'common_official_english_title' %}</label><br>
                                 <span {{ differences|get_css:'common_title_english' }}>{{learning_unit_year.learning_container_year.common_title_english | default_if_none:'' }}</span>
                                 <br><br>
-                                <label title="{% trans 'title_in_english' %} {% trans 'title_in_english_2' %}">{% trans 'official_english_title_proper_to_UE' %}</label><br>
-                                {% if learning_unit_year.subtype == 'PARTIM' %}
-                                    <span {{ differences|get_css:'common_title_english' }}>{{learning_unit_year.common_title_english | default_if_none:'' }}</span>
-                                {% endif%}
+                                <label title="{% trans 'title_in_english' %} {% trans 'title_in_english_2' %}">{% trans 'official_english_title_proper_to_UE' %}</label><br>                             
+                                    <span {{ differences|get_css:'specific_title_english' }}>{{learning_unit_year.common_title_english | default_if_none:'' }}</span>                             
                                 <br>
                             </div>
                         </div>

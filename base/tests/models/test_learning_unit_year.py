@@ -98,6 +98,26 @@ class LearningUnitYearTest(TestCase):
                                                                                              flat=True))
         self.assertEqual(result, [2017])
 
+    def test_find_gt_learning_unit_year(self):
+        learning_unit = LearningUnitFactory()
+        dict_learning_unit_year = create_learning_units_year(2000, 2017, learning_unit)
+
+        selected_learning_unit_year = dict_learning_unit_year[2007]
+
+        result = list(selected_learning_unit_year.find_gt_learning_units_year().values_list('academic_year__year',
+                                                                                             flat=True))
+        self.assertListEqual(result, list(range(2008, 2018)))
+
+    def test_find_gt_learning_units_year_case_no_future(self):
+        learning_unit = LearningUnitFactory()
+        dict_learning_unit_year = create_learning_units_year(2000, 2017, learning_unit)
+
+        selected_learning_unit_year = dict_learning_unit_year[2017]
+
+        result = list(selected_learning_unit_year.find_gt_learning_units_year().values_list('academic_year__year',
+                                                                                             flat=True))
+        self.assertEqual(result, [])
+
     def test_get_learning_unit_parent(self):
         lunit_container_year = LearningContainerYearFactory(academic_year=self.academic_year, acronym='LBIR1230')
         luy_parent = LearningUnitYearFactory(academic_year=self.academic_year, acronym='LBIR1230',
