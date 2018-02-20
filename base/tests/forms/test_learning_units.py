@@ -181,9 +181,10 @@ class TestLearningUnitForm(TestCase):
     def test_case_maximum_results_reached(self, mock_count):
         mock_count.return_value = SearchForm.MAX_RECORDS + 1
         form = learning_units.LearningUnitYearForm(data=self.get_valid_data())
+        form.is_valid()
 
         with self.assertRaises(TooManyResultsException):
-            form.is_valid()
+            form.get_activity_learning_units()
 
     def test_get_service_courses_by_empty_requirement_and_allocation_entity(self):
         form_data = {}
