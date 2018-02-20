@@ -338,11 +338,11 @@ def learning_class_year_edit(request, learning_unit_year_id):
 @permission_required('base.can_create_learningunit', raise_exception=True)
 def learning_unit_create(request, academic_year):
     person = get_object_or_404(Person, user=request.user)
-    form = CreateLearningUnitYearForm(person, initial={'academic_year': academic_year,
+    learning_unit_form = CreateLearningUnitYearForm(person, initial={'academic_year': academic_year,
                                                        'subtype': learning_unit_year_subtypes.FULL,
                                                        "container_type": BLANK_CHOICE_DASH,
                                                        'language': language.find_by_code('FR')})
-    return layout.render(request, "learning_unit/learning_unit_form.html", {'form': form})
+    return layout.render(request, "learning_unit/simple/creation.html", {'learning_unit_form': learning_unit_form})
 
 
 @login_required
@@ -350,9 +350,9 @@ def learning_unit_create(request, academic_year):
 @require_POST
 def learning_unit_year_add(request):
     person = get_object_or_404(Person, user=request.user)
-    form = CreateLearningUnitYearForm(person, request.POST)
-    if form.is_valid():
-        data = form.cleaned_data
+    learning_unit_form = CreateLearningUnitYearForm(person, request.POST)
+    if learning_unit_form.is_valid():
+        data = learning_unit_form.cleaned_data
         year = data['academic_year'].year
         status = data['status']
         additional_requirement_entity_1 = data.get('additional_requirement_entity_1')
@@ -372,7 +372,7 @@ def learning_unit_year_add(request):
             _show_success_learning_unit_year_creation_message(request, luy_created)
             year += 1
         return redirect('learning_units')
-    return layout.render(request, "learning_unit/learning_unit_form.html", {'form': form})
+    return layout.render(request, "learning_unit/simple/creation.html", {'learning_unit_form': learning_unit_form})
 
 
 @login_required

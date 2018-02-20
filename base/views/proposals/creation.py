@@ -51,7 +51,7 @@ def proposal_learning_unit_creation_form(request, academic_year):
                                                                            "container_type": BLANK_CHOICE_DASH,
                                                                            'language': language.find_by_code('FR')})
     proposal_form = LearningUnitProposalForm()
-    return layout.render(request, "proposal/creation_form.html", {'learning_unit_form': learning_unit_form,
+    return layout.render(request, "learning_unit/proposal/creation.html", {'learning_unit_form': learning_unit_form,
                                                                   'proposal_form': proposal_form,
                                                                   'person': person})
 
@@ -84,7 +84,7 @@ def proposal_learning_unit_add(request):
         create_proposal(folder_entity, folder_id, luy_created, person)
         _show_success_proposal_learning_unit_creation_message(request, luy_created)
         return redirect('learning_units')
-    return layout.render(request, "proposal/creation_form.html", {'learning_unit_form': learning_unit_form,
+    return layout.render(request, "proposal/creation.html", {'learning_unit_form': learning_unit_form,
                                                                   'proposal_form': proposal_form,
                                                                   'person': person})
 

@@ -1405,7 +1405,7 @@ class LearningUnitCreate(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'learning_unit/learning_unit_form.html')
+        self.assertTemplateUsed(response, 'learning_unit/creation.html')
 
         self.assertIsInstance(response.context['form'], CreateLearningUnitYearForm)
 
@@ -1447,7 +1447,7 @@ class LearningUnitYearAdd(TestCase):
         response = self.client.post(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'learning_unit/learning_unit_form.html')
+        self.assertTemplateUsed(response, 'learning_unit/creation.html')
 
         self.assertIsInstance(response.context['form'], CreateLearningUnitYearForm)
 
