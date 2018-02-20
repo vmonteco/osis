@@ -262,7 +262,14 @@ class VolumeEditionFormsetContainer:
     def errors(self):
         errors = {}
         for formset in self.formsets.values():
-            for i, form_errors in enumerate(formset.errors):
-                for name, error in form_errors.items():
-                    errors["{}-{}-{}".format(formset.prefix, i, name)] = error
+            errors.update(self._get_formset_errors(formset))
         return errors
+
+    @staticmethod
+    def _get_formset_errors(formset):
+        errors = {}
+        for i, form_errors in enumerate(formset.errors):
+            for name, error in form_errors.items():
+                errors["{}-{}-{}".format(formset.prefix, i, name)] = error
+        return errors
+
