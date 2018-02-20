@@ -397,8 +397,31 @@ class TestLearningUnitVolumesManagement(TestCase):
         self.assertEqual(template, 'learning_unit/volumes_management.html')
         self.assertEqual(
             context['formsets'][self.learning_unit_year_partim].errors[0],
-            {'__all__': [self._get_error_with_prefix('vol_tot_full_must_be_greater_than_partim')]}
+            {'volume_total': [_('vol_tot_full_must_be_greater_than_partim')]}
         )
+
+    @mock.patch('base.models.program_manager.is_program_manager')
+    def test_learning_unit_volumes_management_post_wrong_data_ajax(self, mock_program_manager):
+        mock_program_manager.return_value = True
+
+        request_factory = RequestFactory()
+        data = get_valid_formset_data(self.learning_unit_year.acronym)
+        data.update(get_valid_formset_data(self.learning_unit_year_partim.acronym))
+
+        request = request_factory.post(reverse(learning_unit_volumes_management,
+                                               args=[self.learning_unit_year.id]),
+                                       data=data, 
+                                       HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        request.user = self.user
+
+        response = learning_unit_volumes_management(request, self.learning_unit_year.id)
+        prefix = self.learning_unit_year_partim.acronym
+        self.assertJSONEqual(response.content.decode("utf-8"),
+                             {"errors":
+                                  {prefix+"-0-volume_total": [_("vol_tot_full_must_be_greater_than_partim")],
+                                   prefix+"-1-volume_total": [_("vol_tot_full_must_be_greater_than_partim")]}
+                              })
 
     @mock.patch('base.models.learning_component_year.LearningComponentYear.save', side_effect=IntegrityError)
     @mock.patch('base.models.program_manager.is_program_manager')
@@ -423,15 +446,6 @@ class TestLearningUnitVolumesManagement(TestCase):
         msg = [m.message for m in get_messages(request)]
         self.assertEqual(len(msg), 1)
         self.assertIn(messages.ERROR, msg_level)
-
-    def _get_error_with_prefix(self, error):
-        return "{} {} / {} {}: {}".format(
-            self.learning_unit_year.acronym,
-            self.generated_container_year.learning_component_cm_full.acronym,
-            self.learning_unit_year_partim.acronym,
-            self.generated_container_year.learning_component_cm_partim.acronym,
-            _(error)
-        )
 
     def test_with_user_not_logged(self):
         self.client.logout()

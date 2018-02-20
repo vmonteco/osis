@@ -65,7 +65,6 @@ class VolumeEditionForm(forms.Form):
     planned_classes = forms.IntegerField(label=_('planned_classes_pc'), help_text=_('planned_classes'), min_value=0)
     equal_field_2 = EmptyField(label='=')
 
-    _cleaned_data = {}
     _post_errors = []
     _parent_data = {}
 
@@ -90,48 +89,42 @@ class VolumeEditionForm(forms.Form):
         self.fields['volume_total_requirement_entities'] = VolumeField(
             label=_('vol_charge'), help_text=_('total_volume_charge'))
 
-    def is_valid(self):
-        if not super().is_valid():
-            return False
+    def clean(self):
+        cleaned_data = super().clean().copy()
 
-        if self.changed_data:
-            self._cleaned_data = self.cleaned_data.copy()
+        self._check_tot_annual_equal_to_q1_q2(cleaned_data)
+        self._check_tot_req_entities_equal_to_tot_annual_mult_cp(cleaned_data)
+        self._check_tot_req_entities_equal_to_vol_req_entity(cleaned_data)
 
-            self._check_tot_annual_equal_to_q1_q2()
-            self._check_tot_req_entities_equal_to_tot_annual_mult_cp()
-            self._check_tot_req_entities_equal_to_vol_req_entity()
+    def _check_tot_annual_equal_to_q1_q2(self, cleaned_data):
+        total_annual = cleaned_data.get('volume_total', 0)
+        q1 = cleaned_data.get('volume_q1', 0)
+        q2 = cleaned_data.get('volume_q2', 0)
 
-        return not self.errors
-
-    def _check_tot_annual_equal_to_q1_q2(self):
-        total_annual = self._cleaned_data['volume_total']
-        q1 = self._cleaned_data['volume_q1']
-        q2 = self._cleaned_data['volume_q2']
         if total_annual != (q1 + q2):
             self.add_error("volume_total", _('vol_tot_not_equal_to_q1_q2'))
 
-    def _check_tot_req_entities_equal_to_vol_req_entity(self):
-        requirement_entity = self._cleaned_data[self.requirement_entity_key]
+    def _check_tot_req_entities_equal_to_vol_req_entity(self, cleaned_data):
+        requirement_entity = cleaned_data.get(self.requirement_entity_key, 0)
         # Optional fields
-        additional_requirement_entity_1 = self._cleaned_data.get(self.additional_requirement_entity_1_key, 0)
-        additional_requirement_entity_2 = self._cleaned_data.get(self.additional_requirement_entity_2_key, 0)
+        additional_requirement_entity_1 = cleaned_data.get(self.additional_requirement_entity_1_key, 0)
+        additional_requirement_entity_2 = cleaned_data.get(self.additional_requirement_entity_2_key, 0)
         total = requirement_entity + additional_requirement_entity_1 + additional_requirement_entity_2
 
-        if self._cleaned_data['volume_total_requirement_entities'] != total:
+        if cleaned_data.get('volume_total_requirement_entities') != total:
             error_msg = ' + '.join([self.entities.get(t).acronym for t in ENTITY_TYPES_VOLUME if self.entities.get(t)])
             error_msg += ' = {}'.format(_('vol_charge'))
             self.add_error("volume_total_requirement_entities", error_msg)
 
-    def _check_tot_req_entities_equal_to_tot_annual_mult_cp(self):
-        total_annual = self._cleaned_data['volume_total']
-        cp = self._cleaned_data['planned_classes']
-        total_requirement_entities = self._cleaned_data['volume_total_requirement_entities']
+    def _check_tot_req_entities_equal_to_tot_annual_mult_cp(self, cleaned_data):
+        total_annual = cleaned_data.get('volume_total', 0)
+        cp = cleaned_data.get('planned_classes', 0)
+        total_requirement_entities = cleaned_data.get('volume_total_requirement_entities', 0)
 
         if total_requirement_entities != (total_annual * cp):
             self.add_error('volume_total_requirement_entities', _('vol_tot_req_entities_not_equal_to_vol_tot_mult_cp'))
 
     def validate_parent_partim_component(self, parent_data):
-        self._post_errors = []
         self._parent_data = parent_data
 
         self._compare('volume_total', 'vol_tot_full_must_be_greater_than_partim', lower_or_equal=True)
@@ -142,11 +135,11 @@ class VolumeEditionForm(forms.Form):
         self._compare_additional_entities(self.additional_requirement_entity_1_key)
         self._compare_additional_entities(self.additional_requirement_entity_2_key)
 
-        return self._post_errors
+        return self.errors
 
     def _compare_additional_entities(self, key):
         # Verify if we have additional_requirement entity
-        if key in self._parent_data and key in self.initial:
+        if key in self._parent_data and key in self.cleaned_data:
             self._compare(key, 'entity_requirement_full_must_be_greater_or_equal_to_partim')
 
     def _compare(self, key, msg, lower_or_equal=False):
@@ -158,7 +151,7 @@ class VolumeEditionForm(forms.Form):
             condition = self._parent_data[key] < partim_data[key]
 
         if condition:
-            self._post_errors.append("{}".format(_(msg)))
+            self.add_error(key, _(msg))
 
     def save(self):
         if self.changed_data:
@@ -215,20 +208,10 @@ class VolumeEditionBaseFormset(forms.BaseFormSet):
 
         errors = partim_form.validate_parent_partim_component(parent_form.cleaned_data or parent_form.initial)
 
-        for error in errors:
-            # Prefix with acronym learning unit + acronym component
-            partim_form.add_error(
-                None,
-                "{} {} / {} {}: {}".format(parent_form.learning_unit_year.acronym, parent_form.component.acronym,
-                                           partim_form.learning_unit_year.acronym, partim_form.component.acronym,
-                                           error)
-            )
         return not errors
 
     def get_form_by_type(self, component_type):
-        for form in self.forms:
-            if form.component.type == component_type:
-                return form
+        return next(form for form in self.forms if form.component.type == component_type)
 
     def save(self):
         for form in self.forms:
@@ -274,3 +257,18 @@ class VolumeEditionFormsetContainer:
         with transaction.atomic():
             for formset in self.formsets.values():
                 formset.save()
+
+    @property
+    def errors(self):
+        errors = {}
+        for formset in self.formsets.values():
+            errors.update(self._get_formset_errors(formset))
+        return errors
+
+    @staticmethod
+    def _get_formset_errors(formset):
+        errors = {}
+        for i, form_errors in enumerate(formset.errors):
+            for name, error in form_errors.items():
+                errors["{}-{}-{}".format(formset.prefix, i, name)] = error
+        return errors

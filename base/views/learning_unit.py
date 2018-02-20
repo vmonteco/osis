@@ -580,7 +580,7 @@ def get_attributions_of_learning_unit_year(learning_unit_year):
     attributions = entity_container_year.find_last_entity_version_grouped_by_linktypes(
         learning_unit_year.learning_container_year
     )
-    return {k.lower(): v.id for k, v in attributions.items()}
+    return {k.lower(): v.id for k, v in attributions.items() if v is not None}
 
 
 def get_learning_unit_identification_context(learning_unit_year_id, person):

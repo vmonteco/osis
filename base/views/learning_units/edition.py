@@ -23,9 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import json
+
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -75,7 +77,7 @@ def learning_unit_edition(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_edit_learningunit', raise_exception=True)
 @perms.can_perform_learning_unit_modification
-def modify_learning_unit(request, learning_unit_year_id):
+def modify_learning_unit(request, learning_unit_year_id, with_report=False):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     person = get_object_or_404(Person, user=request.user)
     initial_data = compute_learning_unit_modification_form_initial_data(learning_unit_year)
@@ -86,8 +88,8 @@ def modify_learning_unit(request, learning_unit_year_id):
         lu_type_full_data = form.get_data_for_learning_unit()
 
         try:
-            update_learning_unit_year_with_report(learning_unit_year, lu_type_full_data)
-            update_learning_unit_year_entities_with_report(learning_unit_year, entities_data)
+            update_learning_unit_year_with_report(learning_unit_year, lu_type_full_data, with_report)
+            update_learning_unit_year_entities_with_report(learning_unit_year, entities_data, with_report)
 
             display_success_messages(request, _("success_modification_learning_unit"))
 
@@ -143,7 +145,7 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
 
     volume_edition_formset_container = VolumeEditionFormsetContainer(request, context['learning_units'])
 
-    if volume_edition_formset_container.is_valid():
+    if volume_edition_formset_container.is_valid() and not request.is_ajax():
         try:
             volume_edition_formset_container.save()
             display_success_messages(request, _('success_modification_learning_unit'))
@@ -155,5 +157,8 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
     context['formsets'] = volume_edition_formset_container.formsets
     context['tab_active'] = 'components'
     context['experimental_phase'] = True
+
+    if request.is_ajax():
+        return JsonResponse({'errors': volume_edition_formset_container.errors})
 
     return layout.render(request, "learning_unit/volumes_management.html", context)
