@@ -415,10 +415,11 @@ class TestLearningUnitVolumesManagement(TestCase):
         request.user = self.user
 
         response = learning_unit_volumes_management(request, self.learning_unit_year.id)
-        self.assertJSONEqual(response.content,
+        prefix = self.learning_unit_year_partim.acronym
+        self.assertJSONEqual(response.content.decode("utf-8"),
                              {"errors":
-                                  {"LUY-1-0-volume_total": [_("vol_tot_full_must_be_greater_than_partim")],
-                                   "LUY-1-1-volume_total": [_("vol_tot_full_must_be_greater_than_partim")]}
+                                  {prefix+"-0-volume_total": [_("vol_tot_full_must_be_greater_than_partim")],
+                                   prefix+"-1-volume_total": [_("vol_tot_full_must_be_greater_than_partim")]}
                               })
 
     @mock.patch('base.models.learning_component_year.LearningComponentYear.save', side_effect=IntegrityError)

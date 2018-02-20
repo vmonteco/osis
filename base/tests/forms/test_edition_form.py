@@ -128,15 +128,7 @@ class TestVolumeEditionForm(TestCase):
             print(form.errors)
             parent_data = _get_valid_data()
             errors = form.validate_parent_partim_component(parent_data)
-            self.assertEqual(list(errors.values()),
-                             [[_('vol_tot_full_must_be_greater_than_partim')],
-                              [_('vol_q1_full_must_be_greater_or_equal_to_partim')],
-                              [_('vol_q2_full_must_be_greater_or_equal_to_partim')],
-                              [_('planned_classes_full_must_be_greater_or_equal_to_partim')],
-                              [_('entity_requirement_full_must_be_greater_or_equal_to_partim')],
-                              [_('entity_requirement_full_must_be_greater_or_equal_to_partim')],
-                              [_('entity_requirement_full_must_be_greater_or_equal_to_partim')]
-                              ])
+            self.assertEqual(len(errors), 7)
 
 
 def _get_wrong_data_empty_field():
