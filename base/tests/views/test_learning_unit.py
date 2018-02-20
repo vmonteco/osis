@@ -28,10 +28,8 @@ from decimal import Decimal
 from unittest import mock
 
 import factory.fuzzy
-from django.contrib import messages
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
@@ -42,16 +40,14 @@ from django.utils.translation import ugettext_lazy as _
 
 import base.business.learning_unit
 from base.business import learning_unit as learning_unit_business
-from base.business.learning_unit_year_with_context import _get_requirement_entities_volumes
-from base.forms import learning_units
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
+from base.forms.learning_unit_search import SearchForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import learning_unit_component
 from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear
-from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type, active_status
 from base.models.enums import internship_subtypes
 from base.models.enums import learning_container_year_types, organization_type, entity_type
@@ -65,7 +61,7 @@ from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import FACULTY_MANAGER_GROUP
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
-from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear, GenerateContainerYear
+from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -86,17 +82,14 @@ from base.views.learning_unit import compute_partim_form_initial_data, _get_post
     learning_unit_components, learning_class_year_edit, _compare_model_with_initial_value, _check_differences, \
     _get_the_old_value, _is_foreign_key, END_FOREIGN_KEY_NAME, VALUES_WHICH_NEED_TRANSLATION, _translation_needed, \
     NO_PREVIOUS_VALUE, _get_str_representing_old_data_from_foreign_key, LABEL_VALUE_BEFORE_PROPROSAL
-from base.views.learning_unit import learning_unit_volumes_management
 from cms.enums import entity_name
 from cms.tests.factories.text_label import TextLabelFactory
 from cms.tests.factories.translated_text import TranslatedTextFactory
 from osis_common.document import xls_build
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
-from base.forms.learning_unit_search import SearchForm
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from django.apps import apps
-
 
 class LearningUnitViewTestCase(TestCase):
     def setUp(self):
@@ -644,7 +637,7 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_yr = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                    learning_container_year=self.learning_container_yr)
         LearningUnitComponentFactory(learning_unit_year=learning_unit_yr,
-                                                            learning_component_year=self.learning_component_yr)
+                                     learning_component_year=self.learning_component_yr)
         learning_class_yr = LearningClassYearFactory(learning_component_year=self.learning_component_yr)
 
         response = self.client.post('{}?{}&{}'.format(reverse(learning_class_year_edit, args=[learning_unit_yr.id]),
@@ -900,130 +893,6 @@ class LearningUnitViewTestCase(TestCase):
             'VOLUME_TOTAL_{}_{}'.format(learning_unit_year.id, learning_component_year.id): [30],
             'PLANNED_CLASSES_{}_{}'.format(learning_unit_year.id, learning_component_year.id): [2]
         }
-
-    @mock.patch("base.business.learning_units.perms.is_eligible_for_modification", side_effect=lambda luy, pers: True)
-    @mock.patch('base.views.layout.render')
-    @mock.patch('base.models.program_manager.is_program_manager')
-    def test_get_learning_unit_volumes_management_get(self, mock_program_manager, mock_render, mock_perm):
-        mock_program_manager.return_value = True
-
-        generated_container_year = GenerateContainer(
-            start_year=self.current_academic_year.year,
-            end_year=self.current_academic_year.year
-        ).generated_container_years[0]
-
-        learning_unit_year = generated_container_year.learning_unit_year_full
-        partim = generated_container_year.learning_unit_year_partim
-
-        request_factory = RequestFactory()
-        request_factory.user = self.a_superuser
-        url = reverse("learning_unit_volumes_management", args=[learning_unit_year.id])
-
-        request = request_factory.get(url)
-        request.user = self.a_superuser
-        learning_unit_volumes_management(request, learning_unit_year.id)
-        self.assertTrue(mock_render.called)
-
-        request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'learning_unit/volumes_management.html')
-        self.assertEqual(context['tab_active'], 'components')
-        self.assertEqual(context['current_academic_year'], self.current_academic_year)
-        self.assertEqual(context['learning_unit_year'], learning_unit_year)
-        self.assertEqual(context['learning_units'], [learning_unit_year, partim])
-
-        learning_full = context['learning_units'][0]
-        self.assertEqual(list(learning_full.components.keys()), [
-            generated_container_year.learning_component_cm_full,
-            generated_container_year.learning_component_tp_full
-        ])
-
-        planned_classes = generated_container_year.learning_component_cm_full.planned_classes
-        self.assertEqual(
-            learning_full.components[generated_container_year.learning_component_cm_full]['PLANNED_CLASSES'],
-            planned_classes
-        )
-
-        ecy = EntityComponentYear.objects.filter(
-            learning_component_year=generated_container_year.learning_component_cm_full
-        )
-        volumes_tot = sum(_get_requirement_entities_volumes(ecy).values())/planned_classes
-
-        self.assertAlmostEqual(learning_full.components[generated_container_year.learning_component_cm_full]['VOLUME_TOTAL'],
-                         volumes_tot)
-
-        learning_partim = context['learning_units'][1]
-        self.assertEqual(list(learning_partim.components.keys()), [
-            generated_container_year.learning_component_cm_partim,
-            generated_container_year.learning_component_tp_partim
-        ])
-
-    @mock.patch('base.models.program_manager.is_program_manager')
-    def test_get_learning_unit_volumes_management_post(self, mock_program_manager):
-        mock_program_manager.return_value = True
-
-        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
-                                                     learning_container_year=self.learning_container_yr)
-        learning_unit_year.save()
-
-        request_factory = RequestFactory()
-        request_factory.user = self.a_superuser
-        url = reverse("learning_unit_volumes_management", args=[learning_unit_year.id])
-
-        request = request_factory.post(url, self._get_volumes_data([learning_unit_year]))
-        request.user = self.a_superuser
-
-        setattr(request, 'session', 'session')
-        setattr(request, '_messages', FallbackStorage(request))
-
-        learning_unit_volumes_management(request, learning_unit_year.id)
-        msg_level = [m.level for m in get_messages(request)]
-        msg = [m.message for m in get_messages(request)]
-        self.assertEqual(len(msg), 1)
-        self.assertIn(messages.SUCCESS, msg_level)
-
-    @mock.patch("base.business.learning_units.perms.is_eligible_for_modification", side_effect=lambda luy, pers: True)
-    @mock.patch('base.models.program_manager.is_program_manager')
-    def test_get_learning_unit_volumes_management_post_wrong_values(self, mock_program_manager, mock_perm):
-        mock_program_manager.return_value = True
-
-        g = GenerateContainer(start_year=self.current_academic_year.year, end_year=self.current_academic_year.year)
-        learning_unit_year = g.generated_container_years[0].learning_unit_year_full
-        learning_component = g.generated_container_years[0].learning_component_cm_full
-
-        request_factory = RequestFactory()
-        request_factory.user = self.a_superuser
-        url = reverse("learning_unit_volumes_management", args=[learning_unit_year.id])
-
-        request = request_factory.post(url, self._get_volumes_wrong_data(learning_unit_year, learning_component))
-        request.user = self.a_superuser
-
-        setattr(request, 'session', 'session')
-        setattr(request, '_messages', FallbackStorage(request))
-
-        learning_unit_volumes_management(request, learning_unit_year.id)
-        msg_level = [m.level for m in get_messages(request)]
-        msg = [m.message for m in get_messages(request)]
-        self.assertEqual(len(msg), 1)
-        print(msg)
-        self.assertIn(messages.ERROR, msg_level)
-
-    def test_volumes_validation(self):
-        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
-                                                     learning_container_year=self.learning_container_yr)
-        learning_unit_year.save()
-
-        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
-        url = reverse("volumes_validation", args=[learning_unit_year.id])
-
-        data = self._get_volumes_data(learning_unit_year)
-        # TODO inject wrong data
-        response = self.client.get(url, data, **kwargs)
-        self.assertEqual(response.status_code, 200)
-        self.assertJSONEqual(
-            str(response.content, encoding='utf8'),
-            {'errors': [],
-             }
-        )
 
     @mock.patch("base.models.learning_unit_year.count_search_results")
     def test_error_message_case_too_many_results_to_show(self, mock_count):
@@ -1609,47 +1478,6 @@ class TestLearningUnitComponents(TestCase):
             volumes = component['volumes']
             self.assertEqual(volumes['VOLUME_Q1'], None)
             self.assertEqual(volumes['VOLUME_Q2'], None)
-
-
-class TestLearningUnitVolumesManagement(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-
-        cls.person = PersonFactory()
-
-        learning_unit_year = LearningUnitYearFactory(academic_year=create_current_academic_year())
-
-        edit_learning_unit_permission = Permission.objects.get(codename="can_edit_learningunit")
-        cls.person.user.user_permissions.add(edit_learning_unit_permission)
-
-        cls.url = reverse('learning_unit_volumes_management', args=[learning_unit_year.id])
-
-    def setUp(self):
-        self.client.force_login(self.person.user)
-
-    def test_with_user_not_logged(self):
-        self.client.logout()
-        response = self.client.post(self.url)
-
-        self.assertRedirects(response, '/login/?next={}'.format(self.url))
-
-    def test_when_user_has_not_permission(self):
-        a_person = PersonFactory()
-        self.client.force_login(a_person.user)
-
-        response = self.client.post(self.url)
-
-        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
-        self.assertTemplateUsed(response, 'access_denied.html')
-
-    @mock.patch("base.business.learning_units.perms.is_eligible_for_modification", side_effect=lambda luy, pers: False)
-    def test_view_decorated_with_can_perform_learning_unit_modification_permission(self, mock_permission):
-        response = self.client.post(self.url)
-
-        self.assertTrue(mock_permission.called)
-
-        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
-        self.assertTemplateUsed(response, 'access_denied.html')
 
 
 class TestLearningUnitProposalDisplay(TestCase):
