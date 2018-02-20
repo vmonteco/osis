@@ -81,6 +81,7 @@ from django.apps import apps
 
 END_FOREIGN_KEY_NAME = "_id"
 NO_PREVIOUS_VALUE = '-'
+VALUES_WHICH_NEED_TRANSLATION = ["periodicity", "container_type", "internship_subtype"]
 
 
 @login_required
@@ -716,24 +717,22 @@ def _check_differences(initial_data, actual_data):
         for attribute, initial_value in initial_data.items():
             if corrected_dict.get(attribute):
                 if initial_data.get(attribute, None) != corrected_dict.get(attribute):
-                    differences.update(_get_the_old_value(actual_data, attribute, initial_data))
+                    differences.update(_get_the_old_value(attribute, actual_data, initial_data))
     return differences
 
 
 def _translation_needed(key, initial_value):
-    values_which_need_translation = ["periodicity", "container_type", "internship_subtype"]
-    if key in values_which_need_translation and initial_value != NO_PREVIOUS_VALUE:
+    if key in VALUES_WHICH_NEED_TRANSLATION and initial_value != NO_PREVIOUS_VALUE:
         return True
     return False
 
 
-def _get_the_old_value(actual_data, key, initial_data):
+def _get_the_old_value(key, actual_data, initial_data):
     differences = {}
 
+    initial_value = NO_PREVIOUS_VALUE
     if initial_data.get(key):
         initial_value = initial_data.get(key)
-    else:
-        initial_value = NO_PREVIOUS_VALUE
 
     if _is_foreign_key(key, actual_data):
         differences.update(_get_str_representing_old_data_from_foreign_key(key, initial_value))
@@ -747,10 +746,13 @@ def _get_the_old_value(actual_data, key, initial_data):
 
 def _get_str_representing_old_data_from_foreign_key(cle, initial_value):
     differences = {}
-    if cle == 'campus':
-        differences.update({cle: mdl_base.campus.find_by_id(initial_value)})
-    if cle == 'language':
-        differences.update({cle: language.find_by_id(initial_value)})
+    if initial_value != NO_PREVIOUS_VALUE:
+        if cle == 'campus':
+            differences.update({cle: mdl_base.campus.find_by_id(initial_value)})
+        if cle == 'language':
+            differences.update({cle: language.find_by_id(initial_value)})
+    else:
+        differences.update({cle: initial_value})
     return differences
 
 
