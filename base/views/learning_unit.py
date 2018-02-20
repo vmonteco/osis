@@ -78,10 +78,9 @@ from reference.models import language
 from . import layout
 from django.apps import apps
 
+
 LABEL_VALUE_BEFORE_PROPROSAL = _('value_before_proposal')
-
 APP_BASE_LABEL = 'base'
-
 END_FOREIGN_KEY_NAME = "_id"
 NO_PREVIOUS_VALUE = '-'
 VALUES_WHICH_NEED_TRANSLATION = ["periodicity", "container_type", "internship_subtype"]

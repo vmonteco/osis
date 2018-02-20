@@ -44,7 +44,6 @@ from base.views import layout
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
 from base.forms.common import TooManyResultsException
 from base import models as mdl
-from django.views.decorators.http import require_POST, require_GET
 
 
 PROPOSAL_SEARCH = 3
@@ -115,21 +114,3 @@ def learning_units_proposal_search(request):
     }
 
     return layout.render(request, "learning_units.html", context)
-
-
-@login_required
-@perms.can_perform_modification_proposal
-@permission_required('base.can_propose_learningunit', raise_exception=True)
-@require_GET
-def propose_edit_of_learning_unit(request, learning_unit_year_id):
-    print('propose_edit_of_learning_unit')
-    learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
-    user_person = get_object_or_404(Person, user=request.user)
-    initial_data = compute_form_initial_data(learning_unit_year)
-
-    form = LearningUnitProposalModificationForm(initial=initial_data)
-
-    return render(request, 'proposal/learning_unit_modification.html', {'learning_unit_year': learning_unit_year,
-                                                                        'person': user_person,
-                                                                        'form': form,
-                                                                        'experimental_phase': True})
