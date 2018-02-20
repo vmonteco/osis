@@ -2584,3 +2584,12 @@ msgstr "Recherche - Propositions"
 
 msgid "folder_num"
 msgstr "N° dossier"
+
+msgid "proposal_learning_unit_successfuly_created"
+msgstr "Proposition d'unité d'enseignement <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> créée avec succès."
+
+msgid "new_learning_unit_proposal"
+msgstr "Nouvelle proposition d'unité d'enseignement"
+
+msgid "create_learning_unit_proposal"
+msgstr "Création d'une proposition d'unité d'enseignement"

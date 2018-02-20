@@ -2577,3 +2577,12 @@ msgstr "Proposal - Search"
 
 msgid "folder_num"
 msgstr "Folder num."
+
+msgid "proposal_learning_unit_successfuly_created"
+msgstr "Proposal learning unit <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
+
+msgid "new_learning_unit_proposal"
+msgstr "New learning unit proposal"
+
+msgid "create_learning_unit_proposal"
+msgstr "Create learning unit proposal"

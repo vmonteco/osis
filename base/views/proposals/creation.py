@@ -33,12 +33,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl_base
 from base.business.learning_unit import create_learning_unit, create_learning_unit_structure
-from base.forms.learning_unit_proposal import _copy_learning_unit_data
+from base.business.learning_units.proposal.creation import create_proposal
 from base.forms.proposal.creation import LearningUnitProposalCreationForm, LearningUnitProposalForm
-from base.models import proposal_folder, proposal_learning_unit
 from base.models.enums import learning_unit_year_subtypes
-from base.models.enums.proposal_state import ProposalState
-from base.models.enums.proposal_type import ProposalType
 from base.models.learning_container import LearningContainer
 from base.models.person import Person
 from base.views import layout
@@ -84,13 +81,7 @@ def proposal_learning_unit_add(request):
                                                      requirement_entity_version, status, academic_year, campus)
         folder_entity = data_proposal.get('folder_entity').entity
         folder_id = data_proposal.get('folder_id')
-        initial_data = _copy_learning_unit_data(luy_created)
-        folder, created = proposal_folder.ProposalFolder.objects.get_or_create(entity=folder_entity,
-                                                                               folder_id=folder_id)
-        proposal_learning_unit.ProposalLearningUnit.objects.create(folder=folder, learning_unit_year=luy_created,
-                                                                   type=ProposalType.CREATION.name,
-                                                                   state=ProposalState.FACULTY.name,
-                                                                   initial_data=initial_data, author=person)
+        create_proposal(folder_entity, folder_id, luy_created, person)
         _show_success_proposal_learning_unit_creation_message(request, luy_created)
         return redirect('learning_units')
     return layout.render(request, "proposal/creation_form.html", {'learning_unit_form': learning_unit_form,
