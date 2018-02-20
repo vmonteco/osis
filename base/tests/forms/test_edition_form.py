@@ -128,14 +128,7 @@ class TestVolumeEditionForm(TestCase):
             print(form.errors)
             parent_data = _get_valid_data()
             errors = form.validate_parent_partim_component(parent_data)
-            self.assertEqual(errors,
-                             [_('vol_tot_full_must_be_greater_than_partim'),
-                              _('vol_q1_full_must_be_greater_or_equal_to_partim'),
-                              _('vol_q2_full_must_be_greater_or_equal_to_partim'),
-                              _('planned_classes_full_must_be_greater_or_equal_to_partim'),
-                              _('entity_requirement_full_must_be_greater_or_equal_to_partim'),
-                              _('entity_requirement_full_must_be_greater_or_equal_to_partim'),
-                              _('entity_requirement_full_must_be_greater_or_equal_to_partim')])
+            self.assertEqual(len(errors), 7)
 
 
 def _get_wrong_data_empty_field():
@@ -252,16 +245,7 @@ class TestVolumeEditionFormsetContainer(TestCase):
         self.assertFalse(volume_edition_formset_container.is_valid())
         self.assertEqual(
             volume_edition_formset_container.formsets[self.learning_unit_year_partim].errors[0],
-            {'__all__': [self._get_error_with_prefix(_('vol_tot_full_must_be_greater_than_partim'))]}
-        )
-
-    def _get_error_with_prefix(self, error):
-        return "{} {} / {} {}: {}".format(
-            self.learning_unit_year_full.acronym,
-            self.generated_container_year.learning_component_cm_full.acronym,
-            self.learning_unit_year_partim.acronym,
-            self.generated_container_year.learning_component_cm_partim.acronym,
-            error
+            {'volume_total': [_('vol_tot_full_must_be_greater_than_partim')]}
         )
 
 
