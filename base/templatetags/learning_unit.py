@@ -57,5 +57,4 @@ def academic_year(year):
 def get_css(differences, parameter):
     if differences.get(parameter, None):
         return " data-toggle=tooltip title='{}' class={} ".format(differences.get(parameter), "proposal_value")
-
     return ''
