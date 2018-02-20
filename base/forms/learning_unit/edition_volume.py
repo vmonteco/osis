@@ -125,7 +125,6 @@ class VolumeEditionForm(forms.Form):
             self.add_error('volume_total_requirement_entities', _('vol_tot_req_entities_not_equal_to_vol_tot_mult_cp'))
 
     def validate_parent_partim_component(self, parent_data):
-        self._post_errors = []
         self._parent_data = parent_data
 
         self._compare('volume_total', 'vol_tot_full_must_be_greater_than_partim', lower_or_equal=True)
@@ -136,11 +135,11 @@ class VolumeEditionForm(forms.Form):
         self._compare_additional_entities(self.additional_requirement_entity_1_key)
         self._compare_additional_entities(self.additional_requirement_entity_2_key)
 
-        return self._post_errors
+        return self.errors
 
     def _compare_additional_entities(self, key):
         # Verify if we have additional_requirement entity
-        if key in self._parent_data and key in self.initial:
+        if key in self._parent_data and key in self.cleaned_data:
             self._compare(key, 'entity_requirement_full_must_be_greater_or_equal_to_partim')
 
     def _compare(self, key, msg, lower_or_equal=False):
@@ -152,7 +151,7 @@ class VolumeEditionForm(forms.Form):
             condition = self._parent_data[key] < partim_data[key]
 
         if condition:
-            self._post_errors.append("{}".format(_(msg)))
+            self.add_error(key, _(msg))
 
     def save(self):
         if self.changed_data:
@@ -209,14 +208,6 @@ class VolumeEditionBaseFormset(forms.BaseFormSet):
 
         errors = partim_form.validate_parent_partim_component(parent_form.cleaned_data or parent_form.initial)
 
-        for error in errors:
-            # Prefix with acronym learning unit + acronym component
-            partim_form.add_error(
-                None,
-                "{} {} / {} {}: {}".format(parent_form.learning_unit_year.acronym, parent_form.component.acronym,
-                                           partim_form.learning_unit_year.acronym, partim_form.component.acronym,
-                                           error)
-            )
         return not errors
 
     def get_form_by_type(self, component_type):
@@ -266,3 +257,12 @@ class VolumeEditionFormsetContainer:
         with transaction.atomic():
             for formset in self.formsets.values():
                 formset.save()
+
+    @property
+    def errors(self):
+        errors = {}
+        for formset in self.formsets.values():
+            for i, form_errors in enumerate(formset.errors):
+                for name, error in form_errors.items():
+                    errors["{}-{}-{}".format(formset.prefix, i, name)] = error
+        return errors

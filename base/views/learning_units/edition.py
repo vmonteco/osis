@@ -23,9 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import json
+
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -143,7 +145,7 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
 
     volume_edition_formset_container = VolumeEditionFormsetContainer(request, context['learning_units'])
 
-    if volume_edition_formset_container.is_valid():
+    if volume_edition_formset_container.is_valid() and not request.is_ajax():
         try:
             volume_edition_formset_container.save()
             display_success_messages(request, _('success_modification_learning_unit'))
@@ -155,5 +157,8 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
     context['formsets'] = volume_edition_formset_container.formsets
     context['tab_active'] = 'components'
     context['experimental_phase'] = True
+
+    if request.is_ajax():
+        return JsonResponse({'errors': volume_edition_formset_container.errors})
 
     return layout.render(request, "learning_unit/volumes_management.html", context)
