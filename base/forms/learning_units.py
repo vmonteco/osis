@@ -177,6 +177,7 @@ def get_filter_learning_container_ids(filter_data):
 
     return entities_id_list if entities_id_list else None
 
+
 def build_entity_container_prefetch():
     parent_version_prefetch = Prefetch('parent__entityversion_set',
                                        queryset=mdl_entity_version.search(),
