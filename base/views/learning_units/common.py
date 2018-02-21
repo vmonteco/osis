@@ -23,14 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models import proposal_folder, proposal_learning_unit
-from base.models.enums.proposal_state import ProposalState
-from base.models.enums.proposal_type import ProposalType
+
+from django.contrib import messages
+from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 
 
-def create_proposal(folder_entity, folder_id, luy_created, person):
-    folder, created = proposal_folder.ProposalFolder.objects.get_or_create(entity=folder_entity,
-                                                                           folder_id=folder_id)
-    proposal_learning_unit.ProposalLearningUnit.objects.create(folder=folder, learning_unit_year=luy_created,
-                                                               type=ProposalType.CREATION.name,
-                                                               state=ProposalState.FACULTY.name, author=person)
+def show_success_learning_unit_year_creation_message(request, learning_unit_year_created, translation_key):
+    link = reverse("learning_unit", kwargs={'learning_unit_year_id': learning_unit_year_created.id})
+    success_msg = _(translation_key) % {'link': link, 'acronym': learning_unit_year_created.acronym,
+                                'academic_year': learning_unit_year_created.academic_year}
+    messages.add_message(request, messages.SUCCESS, success_msg, extra_tags='safe')

@@ -24,12 +24,9 @@
 #
 ##############################################################################
 
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.core.urlresolvers import reverse
 from django.db.models import BLANK_CHOICE_DASH
 from django.shortcuts import redirect, get_object_or_404
-from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl_base
 from base.business.learning_unit import create_learning_unit, create_learning_unit_structure
@@ -39,7 +36,7 @@ from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_container import LearningContainer
 from base.models.person import Person
 from base.views import layout
-from base.views.learning_unit import _show_success_learning_unit_year_creation_message
+from base.views.learning_units.common import show_success_learning_unit_year_creation_message
 from reference.models import language
 
 
@@ -53,8 +50,8 @@ def proposal_learning_unit_creation_form(request, academic_year):
                                                                            'language': language.find_by_code('FR')})
     proposal_form = LearningUnitProposalForm()
     return layout.render(request, "learning_unit/proposal/creation.html", {'learning_unit_form': learning_unit_form,
-                                                                  'proposal_form': proposal_form,
-                                                                  'person': person})
+                                                                           'proposal_form': proposal_form,
+                                                                           'person': person})
 
 
 @login_required
@@ -76,16 +73,19 @@ def proposal_learning_unit_add(request):
         new_learning_container = LearningContainer.objects.create()
         new_learning_unit = create_learning_unit(data_learning_unit, new_learning_container, year)
         academic_year = mdl_base.academic_year.find_academic_year_by_year(year)
-        luy_created = create_learning_unit_structure(additional_requirement_entity_1,
-                                                     additional_requirement_entity_2, allocation_entity_version,
-                                                     data_learning_unit, new_learning_container, new_learning_unit,
+        luy_created = create_learning_unit_structure(additional_requirement_entity_1, additional_requirement_entity_2,
+                                                     allocation_entity_version, data_learning_unit,
+                                                     new_learning_container, new_learning_unit,
                                                      requirement_entity_version, status, academic_year, campus)
-        folder_entity = data_proposal.get('folder_entity').entity
-        folder_id = data_proposal.get('folder_id')
-        create_proposal(folder_entity, folder_id, luy_created, person)
-        _show_success_learning_unit_year_creation_message(request, luy_created,
+        create_proposal_structure(data_proposal, luy_created, person)
+        show_success_learning_unit_year_creation_message(request, luy_created,
                                                               'proposal_learning_unit_successfuly_created')
         return redirect('learning_units')
     return layout.render(request, "proposal/creation.html", {'learning_unit_form': learning_unit_form,
-                                                                  'proposal_form': proposal_form,
-                                                                  'person': person})
+                                                             'proposal_form': proposal_form, 'person': person})
+
+
+def create_proposal_structure(data_proposal, luy_created, person):
+    folder_entity = data_proposal.get('folder_entity').entity
+    folder_id = data_proposal.get('folder_id')
+    create_proposal(folder_entity, folder_id, luy_created, person)

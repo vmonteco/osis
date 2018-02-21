@@ -32,8 +32,7 @@ import base.views.learning_units.edition
 from attribution.views import attribution, tutor_application
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group, learning_unit_proposal
-from base.views.proposals import creation
-from base.views.learning_units import edition
+from base.views.learning_units import proposals, edition
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -92,9 +91,9 @@ urlpatterns = [
                 name="learning_unit_create"),
             url(r'^learning_unit_year_add/$', learning_unit.learning_unit_year_add, name='learning_unit_year_add'),
             url(r'^proposal/academic_year_id=(?P<academic_year>[0-9]+)$',
-                creation.proposal_learning_unit_creation_form,
+                proposals.creation.proposal_learning_unit_creation_form,
                 name="proposal_learning_unit_creation_form"),
-            url(r'^proposal_learning_unit_add/$', creation.proposal_learning_unit_add,
+            url(r'^proposal_learning_unit_add/$', proposals.creation.proposal_learning_unit_add,
                 name='proposal_learning_unit_add'),
         ])),
         url(r'^(?P<learning_unit_year_id>[0-9]+)/', include([

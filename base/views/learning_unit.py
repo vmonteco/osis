@@ -71,6 +71,7 @@ from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, LEARNING_
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views.learning_units import perms
+from base.views.learning_units.common import show_success_learning_unit_year_creation_message
 from cms.models import text_label
 from reference.models import language
 from . import layout
@@ -302,9 +303,9 @@ def learning_class_year_edit(request, learning_unit_year_id):
 def learning_unit_create(request, academic_year):
     person = get_object_or_404(Person, user=request.user)
     learning_unit_form = CreateLearningUnitYearForm(person, initial={'academic_year': academic_year,
-                                                       'subtype': learning_unit_year_subtypes.FULL,
-                                                       "container_type": BLANK_CHOICE_DASH,
-                                                       'language': language.find_by_code('FR')})
+                                                                     'subtype': learning_unit_year_subtypes.FULL,
+                                                                     "container_type": BLANK_CHOICE_DASH,
+                                                                     'language': language.find_by_code('FR')})
     return layout.render(request, "learning_unit/simple/creation.html", {'learning_unit_form': learning_unit_form})
 
 
@@ -332,7 +333,7 @@ def learning_unit_year_add(request):
                                                          additional_requirement_entity_2, allocation_entity_version,
                                                          data, new_learning_container, new_learning_unit,
                                                          requirement_entity_version, status, academic_year, campus)
-            _show_success_learning_unit_year_creation_message(request, luy_created, 'learning_unit_successfuly_created')
+            show_success_learning_unit_year_creation_message(request, luy_created, 'learning_unit_successfuly_created')
             year += 1
         return redirect('learning_units')
     return layout.render(request, "learning_unit/simple/creation.html", {'learning_unit_form': learning_unit_form})
@@ -531,15 +532,8 @@ def _create_partim_process(request, learning_unit_year_parent, form):
             'status': data['status'],
             'academic_year': academic_year
         })
-        _show_success_learning_unit_year_creation_message(request, luy_created, 'learning_unit_successfuly_created')
+        show_success_learning_unit_year_creation_message(request, luy_created, 'learning_unit_successfuly_created')
         year += 1
-
-
-def _show_success_learning_unit_year_creation_message(request, learning_unit_year_created, message):
-    link = reverse("learning_unit", kwargs={'learning_unit_year_id': learning_unit_year_created.id})
-    success_msg = _(message) % {'link': link, 'acronym': learning_unit_year_created.acronym,
-                                'academic_year': learning_unit_year_created.academic_year}
-    messages.add_message(request, messages.SUCCESS, success_msg, extra_tags='safe')
 
 
 def compute_partim_form_initial_data(learning_unit_year_parent):
