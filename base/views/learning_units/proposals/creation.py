@@ -79,8 +79,7 @@ def proposal_learning_unit_add(request):
                                                          'proposal_learning_unit_successfuly_created')
         return redirect('learning_units')
     return layout.render(request, "learning_unit/proposal/creation.html", {'learning_unit_form': learning_unit_form,
-                                                                           'proposal_form': proposal_form,
-                                                                           'person': person})
+                                                             'proposal_form': proposal_form, 'person': person})
 
 
 def create_proposal_structure(data_proposal, luy_created, person):
