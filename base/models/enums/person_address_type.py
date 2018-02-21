@@ -1,12 +1,12 @@
 ##############################################################################
 #
-# OSIS stands for Open Student Information System. It's an application
+#    OSIS stands for Open Student Information System. It's an application
 #    designed to manage the core business of higher education institutions,
 #    such as universities, faculties, institutes and professional schools.
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,20 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-from base.tests.factories.person import PersonFactory
-from reference.tests.factories.country import CountryFactory
+from osis_common.utils.enumerations import ChoiceEnum
 
 
-class PersonAddressFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = 'base.PersonAddress'
-
-
-    person = factory.SubFactory(PersonFactory)
-    location = factory.Faker('street_address')
-    postal_code = factory.Faker('zipcode')
-    city = factory.Faker('city')
-    country = factory.SubFactory(CountryFactory)
-
-
+class PersonAddressType(ChoiceEnum):
+    RESIDENTIAL = "RESIDENTIAL"
+    PROFESSIONAL = "PROFESSIONAL"

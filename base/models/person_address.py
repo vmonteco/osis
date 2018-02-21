@@ -24,15 +24,8 @@
 #
 ##############################################################################
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
-from django.contrib import admin
 from base.models.osis_model_admin import OsisModelAdmin
-
-
-LABELS = (
-    ('RESIDENTIAL', _('residential')),
-    ('PROFESSIONAL', _('professional'))
-)
+from base.models.enums.person_address_type import PersonAddressType
 
 
 class PersonAddressAdmin(OsisModelAdmin):
@@ -45,23 +38,17 @@ class PersonAddressAdmin(OsisModelAdmin):
 class PersonAddress(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     person = models.ForeignKey('Person')
-    label = models.CharField(max_length=20, choices=LABELS)
-    location = models.CharField(max_length=255)
-    postal_code = models.CharField(max_length=20)
-    city = models.CharField(max_length=255)
-    country = models.ForeignKey('reference.Country')
+    location = models.CharField(max_length=255, blank=True, null=True)
+    postal_code = models.CharField(max_length=20, blank=True, null=True)
+    city = models.CharField(max_length=255, blank=True, null=True)
+    country = models.ForeignKey('reference.Country', blank=True, null=True)
+    label = models.CharField(max_length=20, choices=PersonAddressType.choices(),
+                             default=PersonAddressType.PROFESSIONAL.value)
 
 
 def find_by_person(a_person):
-    """ Return a list containing one or more addresses of a person. Returns None if there is no address.
-    :param a_person: An instance of the class base.models.person.Person
-    """
     return PersonAddress.objects.filter(person=a_person)
 
 
-def find_by_person_label(a_person, a_label):
-    """ Return a list containing one address of a person. Returns the first one if there are several addresses.
-    :param a_person: An instance of the class base.models.person.Person
-    :param a_label:  A specific label to look for
-    """
+def get_by_label(a_person, a_label):
     return PersonAddress.objects.filter(person=a_person).filter(label=a_label).first()
