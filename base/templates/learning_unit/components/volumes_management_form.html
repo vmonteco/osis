@@ -75,6 +75,7 @@
            href="{% url 'learning_unit_components' learning_unit_year_id=learning_unit_year.id %}">
             {% trans 'cancel' %}
         </a>
-        {% bootstrap_button _("save") button_type="submit" button_class="btn-primary" %}
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalReport">{% trans 'save' %}</button>
     </div>
+    {% include "learning_unit/components/modal_modification_ask_to_report.html" %}
 </form>

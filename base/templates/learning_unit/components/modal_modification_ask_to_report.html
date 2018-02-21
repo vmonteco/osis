@@ -25,16 +25,29 @@
 {% endcomment %}
 
 <div class="modal fade" id="modalReport" tabindex="-1" role="dialog" aria-labelledby="modalReport">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-body">
-        {% trans "ask_to_report_modification" %}
-      </div>
-      <div class="modal-footer">
-          <button type="submit" class="btn btn-primary" formaction="{% url "edit_learning_unit" learning_unit_year_id=learning_unit_year.id %}">{% trans 'no' %}</button>
-          <button type="submit" class="btn btn-primary" formaction="{% url "edit_learning_unit_with_report" learning_unit_year_id=learning_unit_year.id %}">{% trans 'yes' %}</button>
-          <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "cancel" %}</button>
-      </div>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <input type="hidden" value=1 name="postponement" id="id_postponement">
+
+            <div class="modal-body">
+                {% trans "ask_to_report_modification" %}
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" onclick="disable_postponement();">{% trans 'no' %}</button>
+                <button type="submit" class="btn btn-primary" onclick="enable_postponement();">{% trans 'yes' %}</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "cancel" %}</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
+
+<script>
+function enable_postponement(){
+    $("#id_postponement").val(1);
+    $('form').submit()
+}
+function disable_postponement(){
+    $("#id_postponement").val(0);
+    $('form').submit()
+}
+</script>
