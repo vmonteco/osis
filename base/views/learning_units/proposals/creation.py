@@ -62,7 +62,6 @@ def proposal_learning_unit_add(request):
     proposal_form = LearningUnitProposalForm(request.POST)
     if learning_unit_form.is_valid() and proposal_form.is_valid():
         data_learning_unit = learning_unit_form.cleaned_data
-        data_proposal = proposal_form.cleaned_data
         year = data_learning_unit['academic_year'].year
         status = data_learning_unit['status']
         additional_requirement_entity_1 = data_learning_unit.get('additional_requirement_entity_1')
@@ -77,7 +76,7 @@ def proposal_learning_unit_add(request):
                                                      allocation_entity_version, data_learning_unit,
                                                      new_learning_container, new_learning_unit,
                                                      requirement_entity_version, status, academic_year, campus)
-        create_proposal_structure(data_proposal, luy_created, person)
+        create_proposal_structure(proposal_form.cleaned_data, luy_created, person)
         show_success_learning_unit_year_creation_message(request, luy_created,
                                                          'proposal_learning_unit_successfuly_created')
         return redirect('learning_units')
