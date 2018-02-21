@@ -79,7 +79,7 @@ def proposal_learning_unit_add(request):
                                                      requirement_entity_version, status, academic_year, campus)
         create_proposal_structure(data_proposal, luy_created, person)
         show_success_learning_unit_year_creation_message(request, luy_created,
-                                                              'proposal_learning_unit_successfuly_created')
+                                                         'proposal_learning_unit_successfuly_created')
         return redirect('learning_units')
     return layout.render(request, "proposal/creation.html", {'learning_unit_form': learning_unit_form,
                                                              'proposal_form': proposal_form, 'person': person})
