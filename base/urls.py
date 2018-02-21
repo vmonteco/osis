@@ -91,7 +91,7 @@ urlpatterns = [
                 name="learning_unit_create"),
             url(r'^learning_unit_year_add/$', learning_unit.learning_unit_year_add, name='learning_unit_year_add'),
             url(r'^proposal/academic_year_id=(?P<academic_year>[0-9]+)$',
-                proposals.creation.proposal_learning_unit_creation_form,
+                proposals.creation.get_proposal_learning_unit_creation_form,
                 name="proposal_learning_unit_creation_form"),
             url(r'^proposal_learning_unit_add/$', proposals.creation.proposal_learning_unit_add,
                 name='proposal_learning_unit_add'),

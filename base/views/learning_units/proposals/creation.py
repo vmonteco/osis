@@ -37,17 +37,15 @@ from base.models.learning_container import LearningContainer
 from base.models.person import Person
 from base.views import layout
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
-from reference.models import language
 
 
 @login_required
 @permission_required('base.can_create_learningunit', raise_exception=True)
-def proposal_learning_unit_creation_form(request, academic_year):
+def get_proposal_learning_unit_creation_form(request, academic_year):
     person = get_object_or_404(Person, user=request.user)
     learning_unit_form = LearningUnitProposalCreationForm(person, initial={'academic_year': academic_year,
                                                                            'subtype': learning_unit_year_subtypes.FULL,
-                                                                           "container_type": BLANK_CHOICE_DASH,
-                                                                           'language': language.find_by_code('FR')})
+                                                                           "container_type": BLANK_CHOICE_DASH})
     proposal_form = LearningUnitProposalForm()
     return layout.render(request, "learning_unit/proposal/creation.html", {'learning_unit_form': learning_unit_form,
                                                                            'proposal_form': proposal_form,
@@ -80,8 +78,9 @@ def proposal_learning_unit_add(request):
         show_success_learning_unit_year_creation_message(request, luy_created,
                                                          'proposal_learning_unit_successfuly_created')
         return redirect('learning_units')
-    return layout.render(request, "proposal/creation.html", {'learning_unit_form': learning_unit_form,
-                                                             'proposal_form': proposal_form, 'person': person})
+    return layout.render(request, "learning_unit/proposal/creation.html", {'learning_unit_form': learning_unit_form,
+                                                                           'proposal_form': proposal_form,
+                                                                           'person': person})
 
 
 def create_proposal_structure(data_proposal, luy_created, person):

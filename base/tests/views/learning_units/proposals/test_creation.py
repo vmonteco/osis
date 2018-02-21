@@ -1,0 +1,94 @@
+##############################################################################
+#
+#    OSIS stands for Open Student Information System. It's an application
+#    designed to manage the core business of higher education institutions,
+#    such as universities, faculties, institutes and professional schools.
+#    The core business involves the administration of students, teachers,
+#    courses, programs and so on.
+#
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    A copy of this license - GNU General Public License - is available
+#    at the root of the source code of this program.  If not,
+#    see http://www.gnu.org/licenses/.
+#
+##############################################################################
+import datetime
+from django.http import HttpResponse
+from django.test import TestCase
+from django.urls import reverse
+
+from base.forms.proposal import creation
+from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, organization_type, \
+    entity_type, learning_unit_periodicity
+from base.models.learning_unit_year import LearningUnitYear
+from base.tests.factories import academic_year as academic_year_factory, campus as campus_factory, \
+    organization as organization_factory, person as factory_person, user as factory_user
+from base.tests.factories.entity import EntityFactory
+from base.tests.factories.entity_version import EntityVersionFactory
+from reference.tests.factories.language import LanguageFactory
+
+
+class LearningUnitViewTestCase(TestCase):
+    def setUp(self):
+        today = datetime.date.today()
+        self.a_superuser = factory_user.SuperUserFactory()
+        self.person = factory_person.PersonFactory(user=self.a_superuser)
+        self.client.force_login(self.person.user)
+        self.current_academic_year = academic_year_factory.create_current_academic_year()
+        self.language = LanguageFactory(code='FR')
+        self.organization = organization_factory.OrganizationFactory(type=organization_type.MAIN)
+        self.campus = campus_factory.CampusFactory(organization=self.organization, is_administration=True)
+        self.entity = EntityFactory(organization=self.organization)
+        self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL,
+                                                   start_date=today - datetime.timedelta(days=1),
+                                                   end_date=today.replace(year=today.year + 1))
+        self.url = reverse('proposal_learning_unit_creation_form', args=[self.current_academic_year.id])
+
+    def get_valid_learning_unit_data(self):
+        return {
+            'first_letter': 'L',
+            'acronym': 'TAU2000',
+            "subtype": learning_unit_year_subtypes.FULL,
+            "container_type": learning_container_year_types.COURSE,
+            "academic_year": self.current_academic_year.id,
+            "status": True,
+            "credits": "5",
+            "campus": self.campus.id,
+            "common_title": "Common UE title",
+            "requirement_entity": self.entity_version.id,
+            "allocation_entity": self.entity_version.id,
+            "language": self.language.id,
+            "periodicity": learning_unit_periodicity.ANNUAL,
+            "folder_entity": self.entity_version.id,
+            "folder_id": 1
+        }
+
+    def test_get_proposal_learning_unit_creation_form(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'learning_unit/proposal/creation.html')
+        self.assertIsInstance(response.context['learning_unit_form'], creation.LearningUnitProposalCreationForm)
+        self.assertIsInstance(response.context['proposal_form'], creation.LearningUnitProposalForm)
+
+    def test_proposal_learning_unit_add(self):
+        learning_unit_form = creation.LearningUnitProposalCreationForm(person=self.person,
+                                                                       data=self.get_valid_learning_unit_data())
+        proposal_form = creation.LearningUnitProposalForm(data=self.get_valid_learning_unit_data())
+        self.assertTrue(learning_unit_form.is_valid(), learning_unit_form.errors)
+        self.assertTrue(proposal_form.is_valid(), proposal_form.errors)
+        url = reverse('proposal_learning_unit_add')
+        response = self.client.post(url, data=self.get_valid_learning_unit_data())
+        self.assertEqual(response.status_code, 302)
+        count_learning_unit_year = LearningUnitYear.objects.all().count()
+        self.assertEqual(count_learning_unit_year, 1)
