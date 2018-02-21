@@ -49,6 +49,7 @@ NO_ERROR_CODE = 200
 ERROR_403_NOT_AUTORIZED=403
 MAXIMUM_IN_REQUEST=50
 
+
 class DissertationViewTestCase(TestCase):
 
     def setUp(self):
@@ -71,11 +72,9 @@ class DissertationViewTestCase(TestCase):
         FacultyAdviserFactory(adviser=self.manager, offer=self.offer1)
         self.manager2 = AdviserManagerFactory()
         FacultyAdviserFactory(adviser=self.manager, offer=self.offer2)
-
-
         roles = ['PROMOTEUR', 'CO_PROMOTEUR', 'READER', 'PROMOTEUR', 'ACCOMPANIST', 'PRESIDENT']
         status = ['DRAFT', 'COM_SUBMIT', 'EVA_SUBMIT', 'TO_RECEIVE', 'DIR_SUBMIT', 'DIR_SUBMIT']
-
+        self.dissertations_list = list()
         for x in range(0, 6):
             proposition_dissertation = PropositionDissertationFactory(author=self.teacher,
                                                                       creator=a_person_teacher,
@@ -84,7 +83,7 @@ class DissertationViewTestCase(TestCase):
             PropositionOfferFactory(proposition_dissertation=proposition_dissertation,
                                     offer_proposition=self.offer_proposition1)
 
-            DissertationFactory(author=student,
+            self.dissertations_list.append(DissertationFactory(author=student,
                                 title='Dissertation {}'.format(x),
                                 offer_year_start=self.offer_year_start1,
                                 proposition_dissertation=proposition_dissertation,
@@ -92,7 +91,7 @@ class DissertationViewTestCase(TestCase):
                                 active=True,
                                 dissertation_role__adviser=self.teacher,
                                 dissertation_role__status=roles[x]
-                                )
+                                ))
         self.dissertation_1 = DissertationFactory\
             (author=student,
             title='Dissertation 2017',
@@ -102,7 +101,6 @@ class DissertationViewTestCase(TestCase):
             active=True,
             dissertation_role__adviser=self.teacher2,
             dissertation_role__status='PROMOTEUR')
-
 
     def test_get_dissertations_list_for_teacher(self):
         self.client.force_login(self.teacher.person.user)
@@ -120,56 +118,89 @@ class DissertationViewTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.context[-1]['dissertations'].count(), 7)
 
-    def test_search_dissertations_for_manager(self):
+    def test_search_dissertations_for_manager_1(self):
         self.client.force_login(self.manager.person.user)
         url = reverse('manager_dissertations_search')
-
         response = self.client.get(url, data={"search": "no result search"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 0)
-
+        self.assertEqual
+        
+    def test_search_dissertations_for_manager_2(self):
+        self.client.force_login(self.manager.person.user)
+        url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "Dissertation 2"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 2)
 
+    def test_search_dissertations_for_manager_3(self):
+        self.client.force_login(self.manager.person.user)
+        url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "Proposition 3"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 1)
 
+    def test_search_dissertations_for_manager_4(self):
+        self.client.force_login(self.manager.person.user)
+        url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "Dissertation"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 7)
 
+    def test_search_dissertations_for_manager_5(self):
+        self.client.force_login(self.manager.person.user)
+        url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "Dissertation",
                                               "offer_prop_search": self.offer_proposition1.id})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 7)
 
+    def test_search_dissertations_for_manager_6(self):
+        self.client.force_login(self.manager.person.user)
+        url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "Dissertation",
                                               "offer_prop_search": self.offer_proposition2.id})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 0)
 
+    def test_search_dissertations_for_manager_7(self):
+        self.client.force_login(self.manager.person.user)
+        url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"academic_year": self.academic_year1.id})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 7)
 
+    def test_search_dissertations_for_manager_8(self):
+        self.client.force_login(self.manager.person.user)
+        url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"academic_year": self.academic_year2.id})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 0)
 
+    def test_search_dissertations_for_manager_9(self):
+        self.client.force_login(self.manager.person.user)
+        url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"status_search": "COM_SUBMIT"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 2)
 
+    def test_search_dissertations_for_manager_10(self):
+        self.client.force_login(self.manager.person.user)
+        url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "test_offer"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 7)
 
+    def test_search_dissertations_for_manager_11(self):
+        self.client.force_login(self.manager.person.user)
+        url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "Durant"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 7)
 
+    def test_search_dissertations_for_manager_12(self):
+        self.client.force_login(self.manager.person.user)
+        url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "Dupont"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 7)
