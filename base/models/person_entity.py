@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -28,11 +28,12 @@ from django.contrib import admin
 
 from base.models import entity
 from base.models import entity_version
+from base.models import person
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class PersonEntityAdmin(admin.ModelAdmin):
+class PersonEntityAdmin(OsisModelAdmin):
     list_display = ('person', 'entity', 'latest_entity_version_name', 'with_child')
-    fieldsets = ((None, {'fields': ('person', 'entity', 'with_child')}),)
     search_fields = ['person__first_name', 'person__last_name']
     raw_id_fields = ('person', 'entity',)
 
@@ -68,3 +69,8 @@ def find_entities_by_person(person):
         entity_with_find_descendants = entity.find_descendants(entity_with_child, with_entities=True)
         entities |= set(entity_with_find_descendants) if entity_with_find_descendants else set()
     return list(entities)
+
+
+def find_entities_by_user(user):
+    pers = person.find_by_user(user=user)
+    return find_entities_by_person(pers) if pers else []

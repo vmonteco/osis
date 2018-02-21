@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -25,38 +25,47 @@
 ##############################################################################
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.http import QueryDict
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
-from django.core.exceptions import PermissionDenied
 
-
-from base.business.learning_unit_proposal import compute_form_initial_data, compute_proposal_type, \
-    is_eligible_for_modification_proposal, is_eligible_for_cancel_of_proposal, reinitialize_data_before_proposal, \
+from base.business.learning_unit_proposal import compute_proposal_type, reinitialize_data_before_proposal, \
     delete_learning_unit_proposal
+from base.views.learning_units import perms
+from base.views.learning_unit import compute_form_initial_data
+from base.views.learning_unit import get_last_academic_years
+from base.views.learning_unit import check_if_display_message
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.models.enums import proposal_state
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
+from base.views import layout
+from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
+from base.forms.common import TooManyResultsException
+from base import models as mdl
+
+
+PROPOSAL_SEARCH = 3
 
 
 @login_required
+@perms.can_perform_modification_proposal
 @permission_required('base.can_propose_learningunit', raise_exception=True)
 def propose_modification_of_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
     user_person = get_object_or_404(Person, user=request.user)
-
-    if not is_eligible_for_modification_proposal(learning_unit_year, user_person):
-        raise PermissionDenied("Learning unit year not eligible for proposal or user has not sufficient rights.")
-
     initial_data = compute_form_initial_data(learning_unit_year)
 
     if request.method == 'POST':
         modified_post_data = request.POST.copy()
-        modified_post_data["academic_year"] = str(learning_unit_year.academic_year.id)
-        form = LearningUnitProposalModificationForm(modified_post_data, initial=initial_data)
+        post_data_merged = QueryDict('', mutable=True)
+        post_data_merged.update(initial_data)
+        post_data_merged.update(modified_post_data)
+
+        form = LearningUnitProposalModificationForm(post_data_merged, initial=initial_data)
         if form.is_valid():
-            type_proposal = compute_proposal_type(form.initial, form.cleaned_data)
+            type_proposal = compute_proposal_type(initial_data, modified_post_data)
             form.save(learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name)
             messages.add_message(request, messages.SUCCESS,
                                  _("success_modification_proposal")
@@ -72,17 +81,41 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
 
 
 @login_required
+@perms.can_perform_cancel_proposal
 @permission_required('base.can_propose_learningunit', raise_exception=True)
 def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
-    user_person = get_object_or_404(Person, user=request.user)
     learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learning_unit_year)
-
-    if not is_eligible_for_cancel_of_proposal(learning_unit_proposal, user_person):
-        raise PermissionDenied("Learning unit proposal cannot be cancelled.")
-
     reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year)
     delete_learning_unit_proposal(learning_unit_proposal)
     messages.add_message(request, messages.SUCCESS,
                          _("success_cancel_proposal").format(learning_unit_year.acronym))
     return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+def learning_units_proposal_search(request):
+    form = LearningUnitProposalForm(request.GET or None)
+    found_learning_units = []
+    proposals = []
+    try:
+        if form.is_valid():
+            data = form._get_proposal_learning_units()
+            found_learning_units = data.get('learning_units')
+            proposals = data.get('proposals')
+            check_if_display_message(request, proposals)
+    except TooManyResultsException:
+        messages.add_message(request, messages.ERROR, _('too_many_results'))
+
+    context = {
+        'form': form,
+        'academic_years': get_last_academic_years(),
+        'current_academic_year': mdl.academic_year.current_academic_year(),
+        'experimental_phase': True,
+        'search_type': PROPOSAL_SEARCH,
+        'proposals': proposals,
+        'learning_units': found_learning_units
+    }
+
+    return layout.render(request, "learning_units.html", context)

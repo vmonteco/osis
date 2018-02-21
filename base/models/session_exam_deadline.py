@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -28,13 +28,12 @@ from django.db import models
 from django.contrib import admin
 from base.models.enums import number_session
 from base.signals.publisher import compute_student_score_encoding_deadline
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class SessionExamDeadlineAdmin(admin.ModelAdmin):
+class SessionExamDeadlineAdmin(OsisModelAdmin):
     list_display = ('offer_enrollment', 'deadline', 'deadline_tutor', 'number_session', 'changed')
     list_filter = ('number_session',)
-    fieldsets = ((None, {'fields': ('deliberation_date', 'deadline', 'deadline_tutor', 'number_session',
-                                    'offer_enrollment',)}),)
     raw_id_fields = ('offer_enrollment',)
     search_fields = ['offer_enrollment__student__person__first_name', 'offer_enrollment__student__person__last_name',
                      'offer_enrollment__student__registration_id', 'offer_enrollment__offer_year__acronym']

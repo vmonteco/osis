@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -55,8 +55,11 @@ class Entity(SerializableModel):
 
     @property
     def most_recent_acronym(self):
-        most_recent_entity_version = self.entityversion_set.filter(entity_id=self.id).latest('start_date')
-        return most_recent_entity_version.acronym
+        try:
+            most_recent_entity_version = self.entityversion_set.filter(entity_id=self.id).latest('start_date')
+            return most_recent_entity_version.acronym
+        except ObjectDoesNotExist:
+            return None
 
     class Meta:
         verbose_name_plural = "entities"
@@ -65,7 +68,7 @@ class Entity(SerializableModel):
         return self.location and self.postal_code and self.city
 
     def __str__(self):
-        return "{0} - {1}".format(self.id, self.external_id)
+        return "{0} - {1}".format(self.most_recent_acronym, self.external_id)
 
 
 def search(**kwargs):

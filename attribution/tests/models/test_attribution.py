@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -35,9 +35,11 @@ from base.tests.models.test_person import create_person_with_user
 from base.models.enums import component_type
 
 
-def create_attribution(tutor, learning_unit_year, score_responsible=False):
-    an_attribution = attribution.Attribution(tutor=tutor, learning_unit_year=learning_unit_year,
-                                             score_responsible=score_responsible)
+def create_attribution(tutor, learning_unit_year, score_responsible=False, summary_responsible=False):
+    an_attribution = attribution.Attribution(tutor=tutor,
+                                             learning_unit_year=learning_unit_year,
+                                             score_responsible=score_responsible,
+                                             summary_responsible=summary_responsible)
     an_attribution.save()
     return an_attribution
 

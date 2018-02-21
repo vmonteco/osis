@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,11 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.core.urlresolvers import reverse_lazy
 import os
-
-from django.utils.translation import ugettext_lazy as _
 import sys
+
+from django.core.urlresolvers import reverse_lazy
+from django.utils.translation import ugettext_lazy as _
 
 BASE_DIR = os.path.dirname((os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
@@ -67,6 +67,7 @@ INSTALLED_APPS = (
     'statici18n',
     'rest_framework',
     'rest_framework.authtoken',
+    'bootstrap3'
 )
 
 MIDDLEWARE = (
@@ -135,6 +136,8 @@ LANGUAGES = [
     ('fr-be', _('French')),
     ('en', _('English')),
 ]
+LANGUAGE_CODE_FR = 'fr-be'
+LANGUAGE_CODE_EN = 'en'
 # You can change default values for internalizations settings in your .env file
 USE_I18N = os.environ.get('USE_I18N', 'True').lower() == 'true'
 USE_L10N = os.environ.get('USE_L10N', 'True').lower() == 'true'
@@ -293,8 +296,14 @@ REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }
 
-#ESB Configuration
+# ESB Configuration
 ESB_AUTHORIZATION = os.environ.get('ESB_AUTHORIZATION')
 ESB_STUDENT_API = os.environ.get('ESB_STUDENT_API')
 
 RELEASE_TAG = os.environ.get('RELEASE_TAG')
+
+# BOOTSTRAP3 Configuration
+BOOTSTRAP3 = {
+    'set_placeholder': False,
+    'success_css_class': ''
+}

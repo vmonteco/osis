@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,14 +24,14 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
+from base.models.osis_model_admin import OsisModelAdmin
+from base.models import entity
 
 
-class ProposalFolderAdmin(admin.ModelAdmin):
+class ProposalFolderAdmin(OsisModelAdmin):
     list_display = ('entity', 'folder_id', )
-    fieldsets = ((None, {'fields': ('entity', 'folder_id', )}), )
 
     search_fields = ['folder_id']
     raw_id_fields = ('entity', )
@@ -57,6 +57,6 @@ def find_by_entity_and_folder_id(an_entity, a_folder_id):
         return None
 
 
-
-
-
+def find_distinct_folder_entities():
+    entities = ProposalFolder.objects.distinct('entity').values_list('entity__id', flat=True)
+    return entity.Entity.objects.filter(pk__in=entities)
