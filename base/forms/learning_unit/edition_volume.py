@@ -25,11 +25,15 @@
 ##############################################################################
 from django import forms
 from django.db import transaction
+from django.db.models import Prefetch
 from django.forms import formset_factory
 from django.utils.translation import ugettext_lazy as _
 
+from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type as entity_types
 from base.models.enums.component_type import PRACTICAL_EXERCISES, LECTURING
+from base.models.learning_component_year import LearningComponentYear
+from base.models.learning_unit_component import LearningUnitComponent
 
 ENTITY_TYPES_VOLUME = [
     entity_types.REQUIREMENT_ENTITY,
@@ -125,7 +129,6 @@ class VolumeEditionForm(forms.Form):
             self.add_error('volume_total_requirement_entities', _('vol_tot_req_entities_not_equal_to_vol_tot_mult_cp'))
 
     def validate_parent_partim_component(self, parent_data):
-        self._post_errors = []
         self._parent_data = parent_data
 
         self._compare('volume_total', 'vol_tot_full_must_be_greater_than_partim', lower_or_equal=True)
@@ -136,11 +139,11 @@ class VolumeEditionForm(forms.Form):
         self._compare_additional_entities(self.additional_requirement_entity_1_key)
         self._compare_additional_entities(self.additional_requirement_entity_2_key)
 
-        return self._post_errors
+        return self.errors
 
     def _compare_additional_entities(self, key):
         # Verify if we have additional_requirement entity
-        if key in self._parent_data and key in self.initial:
+        if key in self._parent_data and key in self.cleaned_data:
             self._compare(key, 'entity_requirement_full_must_be_greater_or_equal_to_partim')
 
     def _compare(self, key, msg, lower_or_equal=False):
@@ -152,14 +155,18 @@ class VolumeEditionForm(forms.Form):
             condition = self._parent_data[key] < partim_data[key]
 
         if condition:
-            self._post_errors.append("{}".format(_(msg)))
+            self.add_error(key, _(msg))
 
     def save(self):
         if self.changed_data:
-            self.component.hourly_volume_partial = self.cleaned_data['volume_q1']
-            self.component.planned_classes = self.cleaned_data['planned_classes']
-            self.component.save()
-            self._save_requirement_entities(self.component.entity_components_year)
+            for component in self._find_gte_learning_components_year():
+                self._save(component)
+
+    def _save(self, component):
+        component.hourly_volume_partial = self.cleaned_data['volume_q1']
+        component.planned_classes = self.cleaned_data['planned_classes']
+        component.save()
+        self._save_requirement_entities(component.entity_components_year)
 
     def _save_requirement_entities(self, entity_components_year):
         for ecy in entity_components_year:
@@ -171,6 +178,20 @@ class VolumeEditionForm(forms.Form):
 
             ecy.repartition_volume = repartition_volume
             ecy.save()
+
+    def _find_gte_learning_components_year(self):
+        gt_learning_units = self.learning_unit_year.find_gte_learning_units_year()
+        prefetch = Prefetch(
+            'learning_component_year__entitycomponentyear_set',
+            queryset=EntityComponentYear.objects.all(),
+            to_attr='entity_components_year'
+        )
+        return [
+            luc.learning_component_year
+            for luc in LearningUnitComponent.objects.filter(
+                learning_unit_year__in=gt_learning_units).prefetch_related(prefetch)
+            if luc.learning_component_year.type == self.component.type
+        ]
 
 
 class VolumeEditionBaseFormset(forms.BaseFormSet):
@@ -209,14 +230,6 @@ class VolumeEditionBaseFormset(forms.BaseFormSet):
 
         errors = partim_form.validate_parent_partim_component(parent_form.cleaned_data or parent_form.initial)
 
-        for error in errors:
-            # Prefix with acronym learning unit + acronym component
-            partim_form.add_error(
-                None,
-                "{} {} / {} {}: {}".format(parent_form.learning_unit_year.acronym, parent_form.component.acronym,
-                                           partim_form.learning_unit_year.acronym, partim_form.component.acronym,
-                                           error)
-            )
         return not errors
 
     def get_form_by_type(self, component_type):
@@ -266,3 +279,18 @@ class VolumeEditionFormsetContainer:
         with transaction.atomic():
             for formset in self.formsets.values():
                 formset.save()
+
+    @property
+    def errors(self):
+        errors = {}
+        for formset in self.formsets.values():
+            errors.update(self._get_formset_errors(formset))
+        return errors
+
+    @staticmethod
+    def _get_formset_errors(formset):
+        errors = {}
+        for i, form_errors in enumerate(formset.errors):
+            for name, error in form_errors.items():
+                errors["{}-{}-{}".format(formset.prefix, i, name)] = error
+        return errors

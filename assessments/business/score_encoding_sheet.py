@@ -32,6 +32,7 @@ from assessments.business.score_encoding_list import sort_encodings
 from assessments.models import score_sheet_address
 from assessments.models.enums.score_sheet_address_choices import *
 from base.business import entity_version as entity_version_business
+from base.models.enums.person_address_type import PersonAddressType
 
 
 def get_score_sheet_address(off_year):
@@ -124,7 +125,8 @@ def scores_sheet_data(exam_enrollments, tutor=None):
         person = None
         if scores_responsible:
             person = scores_responsible.person
-            scores_responsible_address = person_address.find_by_person_label(scores_responsible.person, 'PROFESSIONAL')
+            scores_responsible_address = person_address.get_by_label(scores_responsible.person,
+                                                                     PersonAddressType.PROFESSIONAL.value)
 
         learn_unit_year_dict['academic_year'] = str(learning_unit_yr.academic_year)
 

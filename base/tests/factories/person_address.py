@@ -34,7 +34,6 @@ class PersonAddressFactory(factory.DjangoModelFactory):
 
 
     person = factory.SubFactory(PersonFactory)
-    label = factory.Faker('text', max_nb_chars=20)
     location = factory.Faker('street_address')
     postal_code = factory.Faker('zipcode')
     city = factory.Faker('city')
