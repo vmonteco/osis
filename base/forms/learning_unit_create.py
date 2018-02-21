@@ -80,6 +80,7 @@ class MaxStrictlyValueValidator(BaseValidator):
 
 
 class LearningUnitYearForm(BootstrapForm):
+    first_letter = forms.ChoiceField(choices=lazy(_create_first_letter_choices, tuple), required=True)
     acronym = forms.CharField(widget=forms.TextInput(attrs={'maxlength': "15", 'required': True}))
     academic_year = forms.ModelChoiceField(queryset=mdl.academic_year.find_academic_years(), required=True)
     status = forms.BooleanField(required=False, initial=True)
@@ -95,7 +96,6 @@ class LearningUnitYearForm(BootstrapForm):
     session = forms.ChoiceField(add_blank(mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION),
                                 required=False)
     subtype = forms.CharField(widget=forms.HiddenInput())
-    first_letter = forms.ChoiceField(choices=lazy(_create_first_letter_choices, tuple), required=True)
     container_type = forms.ChoiceField(choices=lazy(_create_learning_container_year_type_list, tuple),
                                        widget=forms.Select(attrs={'onchange': 'showInternshipSubtype()'}))
     faculty_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
@@ -132,22 +132,24 @@ class LearningUnitYearForm(BootstrapForm):
                                                                  widget=forms.Select(attrs={'disable': 'disable'}))
     language = forms.ModelChoiceField(find_all_languages(), empty_label=None)
 
-    acronym_regex = LEARNING_UNIT_ACRONYM_REGEX_FULL
-
     def clean(self):
-        super().clean()
-        merge_first_letter_acronym = self.cleaned_data.get('first_letter', "") + self.cleaned_data.get('acronym', "")
-        self.cleaned_data["acronym"] = merge_first_letter_acronym.upper()
+        cleaned_data = super().clean()
         if 'internship_subtype' in self.fields \
-                and self.cleaned_data["container_type"] == INTERNSHIP \
-                and not (self.cleaned_data['internship_subtype']):
+                and cleaned_data.get("container_type") == INTERNSHIP \
+                and not (cleaned_data['internship_subtype']):
             self.add_error('internship_subtype', _('field_is_required'))
-        elif not re.match(self.acronym_regex, self.cleaned_data['acronym']):
+        return cleaned_data
+
+    def clean_acronym(self):
+        merge_first_letter_acronym = self.cleaned_data.get('first_letter', "") + self.cleaned_data.get('acronym', "")
+        acronym = merge_first_letter_acronym.upper()
+        if not re.match(LEARNING_UNIT_ACRONYM_REGEX_FULL, acronym):
             self.add_error('acronym', _('invalid_acronym'))
-        return self.cleaned_data
+        return acronym
 
 
 class CreateLearningUnitYearForm(LearningUnitYearForm):
+
     def __init__(self, person, *args, **kwargs):
         super(CreateLearningUnitYearForm, self).__init__(*args, **kwargs)
         # When we create a learning unit, we can only select requirement entity which are attached to the person
@@ -156,21 +158,24 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
             self.fields["container_type"].choices = create_faculty_learning_container_type_list()
             self.fields.pop('internship_subtype')
 
-    def is_valid(self):
-        if not super().is_valid():
-            return False
+    def clean(self):
+        cleaned_data = super().clean()
+        if 'acronym' in cleaned_data and 'academic_year' in cleaned_data:
+            acronym = cleaned_data['acronym']
+            academic_year = cleaned_data['academic_year']
+            learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym)
+            learning_unit_years_list = [learning_unit_year.acronym for learning_unit_year in learning_unit_years]
+            if acronym in learning_unit_years_list:
+                self.add_error('acronym', _('existing_acronym'))
+        return cleaned_data
+
+    def clean_academic_year(self):
+        academic_year = self.cleaned_data['academic_year']
         academic_year_max = learning_unit.compute_max_academic_year_adjournment()
-        learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(self.cleaned_data['academic_year'],
-                                                                           self.cleaned_data['acronym'])
-        learning_unit_years_list = [learning_unit_year.acronym for learning_unit_year in learning_unit_years]
-        if self.cleaned_data['acronym'] in learning_unit_years_list:
-            self.add_error('acronym', _('existing_acronym'))
-            return False
-        elif self.cleaned_data['academic_year'].year > academic_year_max:
-            error_msg = _('learning_unit_creation_academic_year_max_error').format(academic_year_max)
-            self._errors['academic_year'] = error_msg
-            return False
-        return True
+        if academic_year.year > academic_year_max:
+            self.add_error('academic_year',
+                           _('learning_unit_creation_academic_year_max_error').format(academic_year_max))
+        return academic_year
 
 
 class CreatePartimForm(CreateLearningUnitYearForm):
@@ -180,7 +185,6 @@ class CreatePartimForm(CreateLearningUnitYearForm):
                                                                      'maxlength': "1",
                                                                      'id': 'hdn_partim_character',
                                                                      'onchange': 'validate_acronym()'}))
-    acronym_regex = LEARNING_UNIT_ACRONYM_REGEX_PARTIM
 
     def __init__(self, learning_unit_year_parent, *args, **kwargs):
         self.learning_unit_year_parent = learning_unit_year_parent
@@ -195,7 +199,9 @@ class CreatePartimForm(CreateLearningUnitYearForm):
             if self.fields.get(field):
                 self.fields[field].widget.attrs[READONLY_ATTR] = READONLY_ATTR
 
-    def clean(self):
-        super().clean()
-        self.cleaned_data["acronym"] += self.cleaned_data.get('partim_character', "").upper()
-        return self.cleaned_data
+    def clean_acronym(self):
+        acronym = super().clean_acronym()
+        acronym += self.data['partim_character'].upper()
+        if not re.match(LEARNING_UNIT_ACRONYM_REGEX_PARTIM, acronym):
+            self.add_error('acronym', _('invalid_acronym'))
+        return acronym

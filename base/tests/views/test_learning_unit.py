@@ -767,7 +767,7 @@ class LearningUnitViewTestCase(TestCase):
     def test_create_learning_unit_year_requirement_entity_not_allowed(self):
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_faulty_requirement_entity())
         self.assertFalse(form.is_valid())
-        self.assertEqual(len(form.errors), 1)
+        self.assertEqual(len(form.errors), 1, form.errors)
         self.assertTrue('requirement_entity' in form.errors)
 
     def test_learning_unit_creation_form_with_valid_data(self):
@@ -1277,9 +1277,9 @@ class LearningUnitCreate(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'learning_unit/creation.html')
+        self.assertTemplateUsed(response, 'learning_unit/simple/creation.html')
 
-        self.assertIsInstance(response.context['form'], CreateLearningUnitYearForm)
+        self.assertIsInstance(response.context['learning_unit_form'], CreateLearningUnitYearForm)
 
 
 class LearningUnitYearAdd(TestCase):
@@ -1319,9 +1319,9 @@ class LearningUnitYearAdd(TestCase):
         response = self.client.post(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'learning_unit/creation.html')
+        self.assertTemplateUsed(response, 'learning_unit/simple/creation.html')
 
-        self.assertIsInstance(response.context['form'], CreateLearningUnitYearForm)
+        self.assertIsInstance(response.context['learning_unit_form'], CreateLearningUnitYearForm)
 
     def test_when_valid_form_data(self):
         today = datetime.date.today()
