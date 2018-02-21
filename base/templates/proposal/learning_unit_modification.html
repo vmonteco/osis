@@ -46,7 +46,7 @@
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active">
                 <br/>
-                <form method="post" id="LearningUnitYearForm" data-validate-url="{% url 'check_acronym'%}">
+                <form method="post" id="LearningUnitYearForm" data-validate-url="{% url 'check_acronym' type=learning_unit_year.subtype %}">
                   {% csrf_token %}
                   <div class="row">
                       <div class="col-md-8">
@@ -124,15 +124,15 @@
                                   <br>
 
                                   <div class="form-group">
-                                    <label for="{{ form.title.id_for_label }}">{% trans 'title_official' %}</label>
-                                    {{ form.title }}
-                                      <span class="error">{{ form.title.errors }}</span>
+                                    <label for="{{ form.common_title.id_for_label }}">{% trans 'common_official_title' %}</label>
+                                    {{ form.common_title }}
+                                      <span class="error">{{ form.common_title.errors }}</span>
                                   </div>
 
                                   <div class="form-group">
-                                    <label for="{{ form.title_english.id_for_label }}">{% trans 'title_in_english' %}</label>
-                                    {{ form.title_english }}
-                                      <span class="error">{{ form.title_english.errors }}</span>
+                                    <label for="{{ form.common_title_english.id_for_label }}">{% trans 'official_english_title_proper_to_UE' %}</label>
+                                    {{ form.common_title_english }}
+                                      <span class="error">{{ form.common_title_english.errors }}</span>
                                   </div>
 
                                   <div class="row">
@@ -189,15 +189,15 @@
                                   </div>
 
                                   <div class="form-group">
-                                      <label for="{{ form.additional_entity_1.id_for_label }}">{% trans 'additional_requirement_entity' %} 1</label>
-                                      {{ form.additional_entity_1 }}
-                                      <span class="error">{{ form.additional_entity_1.errors }}</span>
+                                      <label for="{{ form.additional_requirement_entity_1.id_for_label }}">{% trans 'additional_requirement_entity' %} 1</label>
+                                      {{ form.additional_requirement_entity_1 }}
+                                      <span class="error">{{ form.additional_requirement_entity_1.errors }}</span>
                                   </div>
 
                                   <div class="form-group">
-                                      <label for="{{ form.additional_entity_2.id_for_label }}">{% trans 'additional_requirement_entity' %} 2</label>
-                                      {{ form.additional_entity_2 }}
-                                      <span class="error">{{ form.additional_entity_2.errors }}</span>
+                                      <label for="{{ form.additional_requirement_entity_2.id_for_label }}">{% trans 'additional_requirement_entity' %} 2</label>
+                                      {{ form.additional_requirement_entity_2 }}
+                                      <span class="error">{{ form.additional_requirement_entity_2.errors }}</span>
                                   </div>
 
                                   <div class="form-group">

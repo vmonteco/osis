@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -33,6 +33,9 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 from base.models.enums import person_source_type
 from django.db.models import Value
 from django.db.models.functions import Concat, Lower
+
+CENTRAL_MANAGER_GROUP = "central_managers"
+FACULTY_MANAGER_GROUP = "faculty_managers"
 
 
 class PersonAdmin(SerializableModelAdmin):
@@ -93,6 +96,12 @@ class Person(SerializableModel):
         else:
             return "-"
 
+    def is_central_manager(self):
+        return self.user.groups.filter(name=CENTRAL_MANAGER_GROUP).exists()
+
+    def is_faculty_manager(self):
+        return self.user.groups.filter(name=FACULTY_MANAGER_GROUP).exists()
+
     def __str__(self):
         first_name = ""
         middle_name = ""
@@ -115,7 +124,10 @@ class Person(SerializableModel):
 
 
 def find_by_id(person_id):
-    return Person.objects.get(id=person_id)
+    try:
+        return Person.objects.get(id=person_id)
+    except Person.DoesNotExist:
+        return None
 
 
 def find_by_user(user):

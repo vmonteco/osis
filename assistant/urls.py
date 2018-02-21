@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ from assistant.views import mandates_list, reviewer_mandates_list, reviewer_revi
 from assistant.utils import get_persons
 from assistant.views import messages, phd_supervisor_assistants_list
 from assistant.views import assistant_mandate_reviews
-from assistant.utils import send_email, import_xls_file_data
+from assistant.utils import send_email, import_xls_file_data, export_utils_pdf
 
 urlpatterns = [
     url(r'^$', home.assistant_home, name='assistants_home'),
@@ -99,6 +99,7 @@ urlpatterns = [
             url(r'^load/$', mandate.load_mandates, name='load_mandates'),
             url(r'^upload/$', import_xls_file_data.upload_mandates_file, name='upload_mandates_file'),
             url(r'^export/$', mandate.export_mandates, name='export_mandates'),
+            url(r'^export_pdf/$', export_utils_pdf.export_mandates, name='export_mandates_pdf'),
         ])),
         url(r'^messages/', include([
             url(r'^history/$', messages.show_history, name='messages_history'),

@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ class TestSendMessage(TestCase):
 
         self.academic_year = test_academic_year.create_academic_year()
         self.learning_unit_year = LearningUnitYearFactory(acronym="TEST",
-                                                          title="Cours de test",
+                                                          specific_title="Cours de test",
                                                           academic_year=self.academic_year)
 
         self.offer_year = test_offer_year.create_offer_year("SINF2MA", "Master en Sciences Informatique",

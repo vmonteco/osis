@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -44,3 +44,10 @@ def academic_years(start_year, end_year):
             return "{} {}-{} ({})".format(_('from'), start_year, str(start_year+1)[-2:], _('not_end_year'))
         else:
             return "-"
+
+
+@register.filter
+def academic_year(year):
+    if year:
+        return "{}-{}".format(year, str(year+1)[-2:])
+    return "-"

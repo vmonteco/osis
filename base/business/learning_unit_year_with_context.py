@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -45,7 +45,6 @@ def get_with_context(**learning_unit_year_data):
         queryset=mdl.entity_container_year.search(
             link_type=[
                 entity_types.REQUIREMENT_ENTITY,
-                entity_types.ALLOCATION_ENTITY,
                 entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1,
                 entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2
             ]
@@ -138,7 +137,7 @@ def _get_requirement_entities_volumes(entity_components_year):
         entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2
     ]
     return {
-        entity_type: _get_floated_only_element_of_list([ecy.hourly_volume_total for ecy in entity_components_year
+        entity_type: _get_floated_only_element_of_list([ecy.repartition_volume for ecy in entity_components_year
                                                         if ecy.entity_container_year.type == entity_type], default=0)
         for entity_type in needed_entity_types
     }
@@ -161,7 +160,7 @@ def volume_learning_component_year(learning_component_year, entity_components_ye
     volume_total_charge = vol_req_entity + vol_add_req_entity_1 + vol_add_req_entity_2
     volume_partial = learning_component_year.hourly_volume_partial
     planned_classes = learning_component_year.planned_classes or 1
-    volume_total = Decimal(volume_total_charge / planned_classes)
+    volume_total = round(Decimal(volume_total_charge / planned_classes), 2)
     distribution = component_volume_distribution(volume_total, volume_partial)
 
     if distribution is None:

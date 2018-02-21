@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -36,22 +36,11 @@ from base.models.enums import offer_year_entity_type
 from base.models.enums import education_group_categories
 from base.models.exceptions import MaximumOneParentAllowedException
 from base.models.group_element_year import GroupElementYear
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class EducationGroupYearAdmin(admin.ModelAdmin):
+class EducationGroupYearAdmin(OsisModelAdmin):
     list_display = ('acronym', 'title', 'academic_year', 'education_group_type', 'changed')
-    fieldsets = ((None, {'fields': ('academic_year', 'acronym', 'partial_acronym', 'title', 'education_group_type',
-                                    'education_group', 'active', 'partial_deliberation', 'admission_exam',
-                                    'credits', 'funding', 'funding_direction', 'funding_cud', 'funding_direction_cud',
-                                    'academic_type', 'university_certificate', 'fee_type', 'enrollment_campus',
-                                    'main_teaching_campus', 'dissertation', 'internship',
-                                    'schedule_type', 'english_activities', 'other_language_activities',
-                                    'other_campus_activities', 'professional_title', 'joint_diploma',
-                                    'diploma_printing_orientation', 'diploma_printing_title',
-                                    'inter_organization_information', 'inter_university_french_community',
-                                    'inter_university_belgium', 'inter_university_abroad', 'primary_language',
-                                    'language_association', 'keywords', 'duration', 'duration_unit', 'title_english',
-                                    'enrollment_enabled', 'remark', 'remark_english')}),)
     list_filter = ('academic_year', 'education_group_type')
     raw_id_fields = ('education_group_type', 'academic_year', 'education_group', 'enrollment_campus',
                      'main_teaching_campus', 'primary_language')

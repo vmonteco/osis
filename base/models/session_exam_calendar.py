@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -29,12 +29,12 @@ from django.db import models
 from django.contrib import admin
 from base.models.enums import number_session, academic_calendar_type
 from base.models import offer_year_calendar, academic_year
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class SessionExamCalendarAdmin(admin.ModelAdmin):
+class SessionExamCalendarAdmin(OsisModelAdmin):
     list_display = ('academic_calendar', 'number_session', 'changed')
     list_filter = ('academic_calendar__academic_year', 'number_session', 'academic_calendar__reference')
-    fieldsets = ((None, {'fields': ('number_session', 'academic_calendar')}),)
     raw_id_fields = ('academic_calendar',)
     search_fields = ['academic_calendar__title']
 
