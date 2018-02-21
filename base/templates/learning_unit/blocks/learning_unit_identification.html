@@ -1,28 +1,71 @@
 
-<div class="row">
+<div class="panel panel-default">
+    <div class="panel-body">
 
-    {% block acronym %}
-        {% include "learning_unit/blocks/acronym.html" %}
-    {% endblock %}
+        <div class="row">
 
-    {% block partims %}
-        {% include "learning_unit/blocks/partims.html" %}
-    {% endblock %}
+            {% block acronym %}
+                {% include "learning_unit/blocks/acronym.html" %}
+            {% endblock acronym %}
 
-    {% block type %}
-        {% include "learning_unit/blocks/type.html" %}
-    {% endblock %}
+            {% block partims %}
+                {% include "learning_unit/blocks/partims.html" %}
+            {% endblock partims %}
 
-</div>
+            {% block type %}
+                {% include "learning_unit/blocks/type.html" %}
+            {% endblock type %}
 
-<div class="row" style="margin-top:10px;">
+            {% block status %}
+                {% include "learning_unit/blocks/status.html" %}
+            {% endblock status %}
 
-    {% block nominal_credits %}
-        {% include "learning_unit/blocks/nominal_credits.html" %}
-    {% endblock %}
+        </div>
 
-    {% block language %}
-        {% include "learning_unit/blocks/language.html" %}
-    {% endblock %}
+        <br>
 
+        <div class="row">
+
+            {% block internship_subtype %}
+                {% include "learning_unit/blocks/internship_subtype.html" %}
+            {% endblock internship_subtype %}
+
+            {% block nominal_credits %}
+                {% include "learning_unit/blocks/nominal_credits.html" %}
+            {% endblock nominal_credits %}
+
+            {% block language %}
+                {% include "learning_unit/blocks/language.html" %}
+            {% endblock language %}
+
+        </div>
+
+        <div class="row">
+
+            {% block periodicity %}
+            {% endblock periodicity %}
+
+            {% block quadrimester %}
+                {% include "learning_unit/blocks/quadrimester.html" %}
+            {% endblock quadrimester %}
+
+            {% block quadrimester_session_title %}
+            {% endblock quadrimester_session_title %}
+
+        </div>
+
+        <br>
+
+        <div>
+            {% block common_official_titles %}
+                {% include "learning_unit/blocks/common_official_titles.html" %}
+            {% endblock common_official_titles %}
+        </div>
+
+        <div>
+            {% block official_titles %}
+            {% endblock official_titles %}
+        </div>
+
+    </div>
 </div>

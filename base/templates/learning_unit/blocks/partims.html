@@ -1,11 +1,16 @@
 
-<label>{% trans 'partims' %}</label>
+{% load bootstrap3 %}
+{% load i18n %}
 
-<div>
-    {% for partim in learning_container_year_partims %}
-        {% if forloop.counter > 1 %}
-            ,
-        {% endif%}
-        {{ partim.subdivision}}
-    {% endfor %}
+<div class="col-md-3">
+    <label>{% trans 'partims' %}</label>
+
+    <div>
+        {% for partim in learning_container_year_partims %}
+            {% if forloop.counter > 1 %}
+                ,
+            {% endif%}
+            {{ partim.subdivision}}
+        {% endfor %}
+    </div>
 </div>

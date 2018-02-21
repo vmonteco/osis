@@ -1,14 +1,13 @@
 
+{% load bootstrap3 %}
+{% load i18n %}
 
 <div class="form_group col-md-3">
-    {% block institution %}
-    <label for="{{ form.container_type.id_for_label }}">{% trans 'type' %}</label>
+    <label for="{{ form.container_type.id_for_label }}">
+        {% trans 'type' %}
+    </label>
     {{ form.container_type }}
-    <span class="error">{{ form.container_type.errors }}</span>
-</div>
-
-<div class="col-md-3">
-    <label for="{{ form.internship_subtype.id_for_label }}">{% trans 'internship_subtype' %}</label>
-    {{ form.internship_subtype }}
-    <span class="error">{{ form.internship_subtype.errors }}</span>
+    <span class="error">
+        {{ form.container_type.errors }}
+    </span>
 </div>

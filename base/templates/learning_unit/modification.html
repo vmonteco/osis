@@ -49,8 +49,12 @@
                   {% csrf_token %}
                   <div class="row">
                       <div class="col-md-8">
+
+
                           <div class="panel panel-default">
                               <div class="panel-body">
+
+
                                   <div class="row">
 
                                       <div class="col-md-3" style="padding-left:0;">
@@ -90,32 +94,26 @@
                                           <span class="error">{{ form.container_type.errors }}</span>
                                       </div>
 
-                                      <div class="col-md-3">
-                                          <label for="{{ form.internship_subtype.id_for_label }}">{% trans 'internship_subtype' %}</label>
-                                          {{ form.internship_subtype }}
-                                          <span class="error">{{ form.internship_subtype.errors }}</span>
+                                      <div class="form-group col-md-3">
+                                          <label for="{{ form.status.id_for_label }}">{% trans 'active_title' %}</label>
+                                          {{ form.status }}
+                                          <span class="error">{{ form.status.errors }}</span>
                                       </div>
 
                                   </div>
 
                                   <div class="row" style="margin-top:10px;">
 
+                                      <div class="col-md-6">
+                                          <label for="{{ form.internship_subtype.id_for_label }}">{% trans 'internship_subtype' %}</label>
+                                          {{ form.internship_subtype }}
+                                          <span class="error">{{ form.internship_subtype.errors }}</span>
+                                      </div>
+
                                       <div class="from-group col-md-3">
                                           <label for="{{ form.credits.id_for_label }}">{% trans 'nominal_credits' %}</label>
                                           {{ form.credits }}
                                           <span class="error">{{ form.credits.errors }}</span>
-                                      </div>
-
-                                      <div class="form-group col-md-3">
-                                          <label for="{{ form.periodicity.id_for_label }}">{% trans 'periodicity' %}</label>
-                                          {{ form.periodicity }}
-                                          <span class="error">{{ form.periodicity.errors }}</span>
-                                      </div>
-
-                                      <div class="form-group col-md-3">
-                                          <label for="{{ form.status.id_for_label }}">{% trans 'active_title' %}</label>
-                                          {{ form.status }}
-                                          <span class="error">{{ form.status.errors }}</span>
                                       </div>
 
                                        <div class="form-group col-md-3">
@@ -127,6 +125,12 @@
                                   </div>
 
                                   <div class="row">
+
+                                      <div class="form-group col-md-3">
+                                          <label for="{{ form.periodicity.id_for_label }}">{% trans 'periodicity' %}</label>
+                                          {{ form.periodicity }}
+                                          <span class="error">{{ form.periodicity.errors }}</span>
+                                      </div>
 
                                     <div class="col-md-3">
                                         <label for="{{ form.quadrimester.id_for_label }}">{% trans 'quadrimester' %}</label>
@@ -142,8 +146,6 @@
 
                                   </div>
 
-                                  <br>
-
                                   <div class="form-group">
                                     <label for="{{ form.common_title.id_for_label }}">{% trans 'common_official_title' %}</label>
                                     {{ form.common_title }}
@@ -155,8 +157,6 @@
                                     {{ form.partial_title }}
                                       <span class="error">{{ form.partial_title.errors }}</span>
                                   </div>
-
-                                  <br>
 
                                   <div class="form-group">
                                     <label for="{{ form.common_title_english.id_for_label }}">{% trans 'common_official_english_title' %}</label>

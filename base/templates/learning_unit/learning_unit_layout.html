@@ -4,29 +4,7 @@
 {% load bootstrap3 %}
 {% load i18n %}
 
-{% comment "License" %}
-* OSIS stands for Open Student Information System. It's an application
-* designed to manage the core business of higher education institutions,
-* such as universities, faculties, institutes and professional schools.
-* The core business involves the administration of students, teachers,
-* courses, programs and so on.
-*
-* Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* A copy of this license - GNU General Public License - is available
-* at the root of the source code of this program.  If not,
-* see http://www.gnu.org/licenses/.
-{% endcomment %}
+{% load learning_unit %}
 
 {% block breadcrumb %}
 <li><a href="{% url 'catalog' %}" id="lnk_catalog">{% trans 'formation_catalogue' %}</a></li>
@@ -36,68 +14,66 @@
 {% endblock %}
 
 {% block header %}
+{% endblock header %}
+
+{% block content %}
 
     {% with disabled_nav=True %}
       {% include "learning_unit/header.html" %}
     {% endwith %}
 
-{% endblock %}
-
-
-{% block content %}
-
 <div class="panel panel-default" >
     <div class="panel-body" id="tabs" >
 
-    {% block tabs %}
-    {% endblock %}
+        {% block tabs %}
+        {% endblock tabs %}
 
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active">
-                <br/>
 
                 {% block form %}
-                    {% csrf_token %}
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="panel panel-default">
-                                <div class="panel-body">
+                    <form method="post" id="LearningUnitYearForm" data-validate-url="{% url 'check_acronym' type=learning_unit_year.subtype %}">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-8">
 
-                                    {% block learning_unit_identification %}
-                                        {% include "learning_unit/blocks/learning_unit_identification.html" %}
-                                    {% endblock %}
+                                {% block learning_unit_identification %}
+                                    {% include "learning_unit/blocks/learning_unit_identification.html" %}
+                                {% endblock %}
 
+                                {% block components %}
+                                {% endblock components %}
 
+                                {% block partim_attributes %}
+                                {% endblock partim_attributes %}
 
+                            </div>
 
                             <div class="col-md-4">
                                 {% block institution %}
-                                    <div class="panel panel-default">
-                                        <div class="panel-body">
-                                            {% block institution %}
-                                                {% include "learning_unit/blocks/institution.html" %}
-                                            {% endblock %}
-                                        </div>
-                                    </div>
+                                    {% include "learning_unit/blocks/institution.html" %}
                                 {% endblock %}
+
+                                {% block proposal_management %}
+                                    {% include "learning_unit/blocks/proposal_management.html" %}
+                                {% endblock proposal_management%}
                             </div>
+                        </div>
 
-            {% block proposal_management %}
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        {% block institution %}
-                            {% include "learning_unit/blocks/proposal_management.html" %}
-                        {% endblock %}
-                    </div>
-                </div>
-            {% endblock %}
+                        <div class="row">
+                            {% block submit %}
+                                {% include "learning_unit/blocks/save_cancel_buttons.html" %}
+                            {% endblock submit %}
+                        </div>
+                    </form>
+                {% endblock form %}
+
+            </div>
         </div>
+    </div>
+</div>
 
-        {% block submit %}
-        {% endblock %}
-
-    {% endblock %}
-{% endblock %}
+{% endblock content %}
 
 {% block script %}
-{% endblock %}
+{% endblock script %}
