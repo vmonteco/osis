@@ -53,6 +53,7 @@ MAXIMUM_IN_REQUEST=50
 class DissertationViewTestCase(TestCase):
 
     def setUp(self):
+        self.maxDiff = None
         self.manager = AdviserManagerFactory()
         a_person_teacher = PersonFactory.create(first_name='Pierre', last_name='Dupont')
         self.teacher = AdviserTeacherFactory(person=a_person_teacher)
@@ -117,21 +118,24 @@ class DissertationViewTestCase(TestCase):
         url = reverse('manager_dissertations_list')
         response = self.client.get(url)
         self.assertEqual(response.context[-1]['dissertations'].count(), 7)
+        self.assertCountEqual(response.context[-1]['dissertations'],[self.dissertation_1]+self.dissertations_list)
 
     def test_search_dissertations_for_manager_1(self):
         self.client.force_login(self.manager.person.user)
         url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "no result search"})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context[-1]['dissertations'].count(), 0)
-        self.assertEqual
-        
+
     def test_search_dissertations_for_manager_2(self):
         self.client.force_login(self.manager.person.user)
         url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "Dissertation 2"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 2)
+        self.assertCountEqual(
+            response.context[-1]['dissertations'],
+            [self.dissertation_1, self.dissertations_list[2]]
+        )
 
     def test_search_dissertations_for_manager_3(self):
         self.client.force_login(self.manager.person.user)
@@ -139,6 +143,10 @@ class DissertationViewTestCase(TestCase):
         response = self.client.get(url, data={"search": "Proposition 3"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[-1]['dissertations'].count(), 1)
+        self.assertCountEqual(
+            response.context[-1]['dissertations'],
+            [self.dissertations_list[3]]
+        )
 
     def test_search_dissertations_for_manager_4(self):
         self.client.force_login(self.manager.person.user)
