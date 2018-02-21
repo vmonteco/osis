@@ -246,6 +246,10 @@ class GenerateContainer:
             ).entity for _ in range(4)
         ]
 
+    def __iter__(self):
+        for generated_container_year in self.generated_container_years:
+            yield generated_container_year
+
 
 class GenerateContainerYear:
 

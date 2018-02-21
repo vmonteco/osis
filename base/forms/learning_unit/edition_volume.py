@@ -25,11 +25,15 @@
 ##############################################################################
 from django import forms
 from django.db import transaction
+from django.db.models import Prefetch
 from django.forms import formset_factory
 from django.utils.translation import ugettext_lazy as _
 
+from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type as entity_types
 from base.models.enums.component_type import PRACTICAL_EXERCISES, LECTURING
+from base.models.learning_component_year import LearningComponentYear
+from base.models.learning_unit_component import LearningUnitComponent
 
 ENTITY_TYPES_VOLUME = [
     entity_types.REQUIREMENT_ENTITY,
@@ -155,10 +159,14 @@ class VolumeEditionForm(forms.Form):
 
     def save(self):
         if self.changed_data:
-            self.component.hourly_volume_partial = self.cleaned_data['volume_q1']
-            self.component.planned_classes = self.cleaned_data['planned_classes']
-            self.component.save()
-            self._save_requirement_entities(self.component.entity_components_year)
+            for component in self._find_gte_learning_components_year():
+                self._save(component)
+
+    def _save(self, component):
+        component.hourly_volume_partial = self.cleaned_data['volume_q1']
+        component.planned_classes = self.cleaned_data['planned_classes']
+        component.save()
+        self._save_requirement_entities(component.entity_components_year)
 
     def _save_requirement_entities(self, entity_components_year):
         for ecy in entity_components_year:
@@ -170,6 +178,20 @@ class VolumeEditionForm(forms.Form):
 
             ecy.repartition_volume = repartition_volume
             ecy.save()
+
+    def _find_gte_learning_components_year(self):
+        gt_learning_units = self.learning_unit_year.find_gte_learning_units_year()
+        prefetch = Prefetch(
+            'learning_component_year__entitycomponentyear_set',
+            queryset=EntityComponentYear.objects.all(),
+            to_attr='entity_components_year'
+        )
+        return [
+            luc.learning_component_year
+            for luc in LearningUnitComponent.objects.filter(
+                learning_unit_year__in=gt_learning_units).prefetch_related(prefetch)
+            if luc.learning_component_year.type == self.component.type
+        ]
 
 
 class VolumeEditionBaseFormset(forms.BaseFormSet):

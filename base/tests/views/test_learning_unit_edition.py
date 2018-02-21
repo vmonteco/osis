@@ -36,10 +36,12 @@ from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from base.business.learning_unit import compute_max_academic_year_adjournment
+from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import learning_unit_periodicity, learning_container_year_types, learning_unit_year_subtypes, \
     entity_container_year_link_type, vacant_declaration_type, attribution_procedure, entity_type, organization_type
-from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
-from base.tests.factories.business.learning_units import LearningUnitsMixin, GenerateContainer
+from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory, get_current_year
+from base.tests.factories.business.learning_units import LearningUnitsMixin, GenerateContainer, GenerateAcademicYear
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
@@ -308,8 +310,8 @@ class TestEditLearningUnit(TestCase):
 
 class TestLearningUnitVolumesManagement(TestCase):
     def setUp(self):
-        self.generate_container = GenerateContainer(start_year=create_current_academic_year().year,
-                                                    end_year=create_current_academic_year().year)
+        self.academic_years = GenerateAcademicYear(start_year=get_current_year(), end_year=get_current_year()+10)
+        self.generate_container = GenerateContainer(start_year=get_current_year(), end_year=get_current_year()+10)
         self.generated_container_year = self.generate_container.generated_container_years[0]
 
         self.container_year = self.generated_container_year.learning_container_year
@@ -372,6 +374,19 @@ class TestLearningUnitVolumesManagement(TestCase):
         msg = [m.message for m in get_messages(request)]
         self.assertEqual(len(msg), 1)
         self.assertIn(messages.SUCCESS, msg_level)
+
+        for generated_container_year in self.generate_container:
+            learning_component_year = generated_container_year.learning_component_cm_full
+            self.check_postponement(learning_component_year)
+
+    def check_postponement(self, learning_component_year):
+        learning_component_year.refresh_from_db()
+        self.assertEqual(learning_component_year.planned_classes, 1)
+        self.assertEqual(learning_component_year.hourly_volume_partial, 0)
+        self.assertEqual(EntityComponentYear.objects.get(
+            learning_component_year=learning_component_year,
+            entity_container_year__type=entity_container_year_link_type.REQUIREMENT_ENTITY
+        ).repartition_volume, 1)
 
     @mock.patch('base.models.program_manager.is_program_manager')
     @mock.patch('base.views.layout.render')
