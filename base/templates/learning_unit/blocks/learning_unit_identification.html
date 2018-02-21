@@ -1,6 +1,4 @@
 
-<div class="panel panel-default">
-    <div class="panel-body">
 
         <div class="row">
 
@@ -39,33 +37,3 @@
             {% endblock language %}
 
         </div>
-
-        <div class="row">
-
-            {% block periodicity %}
-            {% endblock periodicity %}
-
-            {% block quadrimester %}
-                {% include "learning_unit/blocks/quadrimester.html" %}
-            {% endblock quadrimester %}
-
-            {% block quadrimester_session_title %}
-            {% endblock quadrimester_session_title %}
-
-        </div>
-
-        <br>
-
-        <div>
-            {% block common_official_titles %}
-                {% include "learning_unit/blocks/common_official_titles.html" %}
-            {% endblock common_official_titles %}
-        </div>
-
-        <div>
-            {% block official_titles %}
-            {% endblock official_titles %}
-        </div>
-
-    </div>
-</div>

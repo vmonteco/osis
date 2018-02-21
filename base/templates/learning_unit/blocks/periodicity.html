@@ -1,0 +1,13 @@
+
+{% load bootstrap3 %}
+{% load i18n %}
+
+<div class="form-group col-md-3">
+    <label for="{{ form.periodicity.id_for_label }}">
+        {% trans 'periodicity' %}
+    </label>
+    {{ form.periodicity }}
+    <span class="error">
+        {{ form.periodicity.errors }}
+    </span>
+</div>
