@@ -24,9 +24,11 @@
 #
 ##############################################################################
 import datetime
+
 from django.http import HttpResponse
 from django.test import TestCase
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 
 from base.forms.proposal import creation
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, organization_type, \
@@ -55,7 +57,7 @@ class LearningUnitViewTestCase(TestCase):
                                                    end_date=today.replace(year=today.year + 1))
         self.url = reverse('proposal_learning_unit_creation_form', args=[self.current_academic_year.id])
 
-    def get_valid_learning_unit_data(self):
+    def get_valid_data(self):
         return {
             'first_letter': 'L',
             'acronym': 'TAU2000',
@@ -81,14 +83,37 @@ class LearningUnitViewTestCase(TestCase):
         self.assertIsInstance(response.context['learning_unit_form'], creation.LearningUnitProposalCreationForm)
         self.assertIsInstance(response.context['proposal_form'], creation.LearningUnitProposalForm)
 
-    def test_proposal_learning_unit_add(self):
+    def test_proposal_learning_unit_add_with_valid_data(self):
         learning_unit_form = creation.LearningUnitProposalCreationForm(person=self.person,
-                                                                       data=self.get_valid_learning_unit_data())
-        proposal_form = creation.LearningUnitProposalForm(data=self.get_valid_learning_unit_data())
+                                                                       data=self.get_valid_data())
+        proposal_form = creation.LearningUnitProposalForm(data=self.get_valid_data())
         self.assertTrue(learning_unit_form.is_valid(), learning_unit_form.errors)
         self.assertTrue(proposal_form.is_valid(), proposal_form.errors)
         url = reverse('proposal_learning_unit_add')
-        response = self.client.post(url, data=self.get_valid_learning_unit_data())
+        response = self.client.post(url, data=self.get_valid_data())
         self.assertEqual(response.status_code, 302)
         count_learning_unit_year = LearningUnitYear.objects.all().count()
         self.assertEqual(count_learning_unit_year, 1)
+
+    def get_empty_required_fields(self):
+        faultydict = dict(self.get_valid_data())
+        faultydict["acronym"] = ""
+        faultydict["container_type"] = ""
+        faultydict["campus"] = ""
+        faultydict["periodicity"] = ""
+        faultydict["language"] = ""
+        faultydict["common_title"] = None
+        return faultydict
+
+    def test_proposal_learning_unit_form_with_empty_fields(self):
+        learning_unit_form = creation.LearningUnitProposalCreationForm(person=self.person,
+                                                                       data=self.get_empty_required_fields())
+        proposal_form = creation.LearningUnitProposalForm(data=self.get_empty_required_fields())
+        self.assertTrue(proposal_form.is_valid(), proposal_form.errors)
+        self.assertFalse(learning_unit_form.is_valid(), learning_unit_form.errors)
+        self.assertEqual(learning_unit_form.errors['acronym'], [_('field_is_required')])
+        self.assertEqual(learning_unit_form.errors['container_type'], [_('field_is_required')])
+        self.assertEqual(learning_unit_form.errors['campus'], [_('field_is_required')])
+        self.assertEqual(learning_unit_form.errors['periodicity'], [_('field_is_required')])
+        self.assertEqual(learning_unit_form.errors['language'], [_('field_is_required')])
+        self.assertEqual(learning_unit_form.errors['common_title'], [_('field_is_required')])
