@@ -2587,3 +2587,6 @@ msgstr "N° dossier"
 
 msgid "ask_to_report_modification"
 msgstr "Voulez-vous reporter les modifications faites pour les années suivantes ?"
+
+msgid "proposal_creation"
+msgstr "Proposition de création"
