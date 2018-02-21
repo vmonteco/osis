@@ -171,67 +171,6 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         list_of_learning_unit_years = _get_list_years_learning_unit(learning_unit_full_annual)
         self.assertEqual(list_of_learning_unit_years, list_of_expected_learning_unit_years)
 
-    def test_edit_learning_unit_full_odd_end_date_gt_old_end_date_with_start_date_lt_now(self):
-        start_year = self.current_academic_year.year - 2
-        end_year = self.current_academic_year.year + 2
-        expected_end_year_full = end_year + 2
-
-        learning_unit_full_annual = self.setup_learning_unit(
-            start_year=start_year,
-            end_year=end_year,
-            periodicity=learning_unit_periodicity.BIENNIAL_ODD
-        )
-
-        self.setup_list_of_learning_unit_years_full(
-            list_of_academic_years=self.list_of_academic_years,
-            learning_unit_full=learning_unit_full_annual
-        )
-
-        list_of_expected_learning_unit_years = []
-        for learning_unit_year in list(LearningUnitYear.objects.all()):
-            list_of_expected_learning_unit_years.append(learning_unit_year.academic_year.year)
-        if self.current_academic_year.year % 2:
-            list_of_expected_learning_unit_years.append(learning_unit_full_annual.end_year + 2)
-        else:
-            list_of_expected_learning_unit_years.append(learning_unit_full_annual.end_year + 1)
-
-        academic_year_of_new_end_date = academic_year.find_academic_year_by_year(expected_end_year_full)
-
-        edit_learning_unit_end_date(learning_unit_full_annual, academic_year_of_new_end_date)
-
-        list_of_learning_unit_years = _get_list_years_learning_unit(learning_unit_full_annual)
-        self.assertEqual(list_of_learning_unit_years, sorted(list_of_expected_learning_unit_years))
-
-    def test_edit_learning_unit_full_even_end_date_gt_old_end_date_with_start_date_lt_now(self):
-        start_year = self.current_academic_year.year - 2
-        end_year = self.current_academic_year.year + 2
-        expected_end_year = end_year + 2
-        learning_unit_full_annual = self.setup_learning_unit(
-            start_year=start_year,
-            end_year=end_year,
-            periodicity=learning_unit_periodicity.BIENNIAL_EVEN
-        )
-
-        self.setup_list_of_learning_unit_years_full(
-            list_of_academic_years=self.list_of_academic_years,
-            learning_unit_full=learning_unit_full_annual
-        )
-
-        list_of_expected_learning_unit_years = []
-        for learning_unit_year in list(LearningUnitYear.objects.all()):
-            list_of_expected_learning_unit_years.append(learning_unit_year.academic_year.year)
-        if self.current_academic_year.year % 2:
-            list_of_expected_learning_unit_years.append(learning_unit_full_annual.end_year + 1)
-        else:
-            list_of_expected_learning_unit_years.append(learning_unit_full_annual.end_year + 2)
-
-        academic_year_of_new_end_date = academic_year.find_academic_year_by_year(expected_end_year)
-
-        edit_learning_unit_end_date(learning_unit_full_annual, academic_year_of_new_end_date)
-
-        list_of_learning_unit_years = _get_list_years_learning_unit(learning_unit_full_annual)
-        self.assertEqual(list_of_learning_unit_years, sorted(list_of_expected_learning_unit_years))
-
     def test_edit_learning_unit_partim_annual_end_gt_old_end_date_date_with_start_date_lt_now(self):
         start_year_full = self.current_academic_year.year - 1
         end_year_full = self.current_academic_year.year + 3
@@ -580,9 +519,9 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
 
         self.assertEqual(str(context.exception),
                          _('parent_greater_than_partim') % {
-                             'partim_end_year': academic_year.find_academic_year_by_year(max_end_year+1),
+                             'partim_end_year': academic_year.find_academic_year_by_year(max_end_year + 1),
                              'lu_parent': learning_unit_full_annual.acronym
-        })
+                         })
 
     def test_shorten_and_extend_learning_unit_partim_end_year_to_none(self):
         start_year_full = self.current_academic_year.year
@@ -647,7 +586,6 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
     def _assert_entity_component_year_correctly_duplicated(self, expected_entities, duplicated_container):
         for entity_component_year in EntityComponentYear.objects.filter(
                 entity_container_year__learning_container_year=duplicated_container):
-
             self.assertIn(entity_component_year.entity_container_year.entity, expected_entities)
 
     def test_shorten_and_extend_learning_unit(self):
@@ -785,166 +723,167 @@ def _get_list_years_learning_unit(learning_unit):
 
 
 class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
-     def setUp(self):
-         super().setUp()
-         self.setup_academic_years()
-         self.learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
-         self.learning_unit_year = LearningUnitYearFactory(learning_container_year=self.learning_container_year,
-                                                           subtype=learning_unit_year_subtypes.FULL)
-         self.other_language = LanguageFactory()
-         self.other_campus = CampusFactory()
+    def setUp(self):
+        super().setUp()
+        self.setup_academic_years()
+        self.learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
+        self.learning_unit_year = LearningUnitYearFactory(learning_container_year=self.learning_container_year,
+                                                          subtype=learning_unit_year_subtypes.FULL)
+        self.other_language = LanguageFactory()
+        self.other_campus = CampusFactory()
 
-     def test_with_no_fields_to_update(self):
-         old_luy_values = model_to_dict(self.learning_unit_year)
-         old_lc_values = model_to_dict(self.learning_container_year)
+    def test_with_no_fields_to_update(self):
+        old_luy_values = model_to_dict(self.learning_unit_year)
+        old_lc_values = model_to_dict(self.learning_container_year)
 
-         update_learning_unit_year_with_report(self.learning_unit_year, {})
+        update_learning_unit_year_with_report(self.learning_unit_year, {})
 
-         self.learning_unit_year.refresh_from_db()
-         self.learning_container_year.refresh_from_db()
-         new_luy_values = model_to_dict(self.learning_unit_year)
-         new_lc_values = model_to_dict(self.learning_container_year)
+        self.learning_unit_year.refresh_from_db()
+        self.learning_container_year.refresh_from_db()
+        new_luy_values = model_to_dict(self.learning_unit_year)
+        new_lc_values = model_to_dict(self.learning_container_year)
 
-         self.assertDictEqual(old_luy_values, new_luy_values)
-         self.assertDictEqual(old_lc_values, new_lc_values)
+        self.assertDictEqual(old_luy_values, new_luy_values)
+        self.assertDictEqual(old_lc_values, new_lc_values)
 
-     def test_with_learning_unit_fields_to_update(self):
-         fields_to_update = {
-             "periodicity": learning_unit_periodicity.BIENNIAL_EVEN,
-             "faculty_remark": "Faculty remark",
-             "other_remark": "Other remark"
-         }
-         update_learning_unit_year_with_report(self.learning_unit_year, fields_to_update)
+    def test_with_learning_unit_fields_to_update(self):
+        fields_to_update = {
+            "periodicity": learning_unit_periodicity.BIENNIAL_EVEN,
+            "faculty_remark": "Faculty remark",
+            "other_remark": "Other remark"
+        }
+        update_learning_unit_year_with_report(self.learning_unit_year, fields_to_update)
 
-         self.assert_fields_updated(self.learning_unit_year.learning_unit, fields_to_update)
+        self.assert_fields_updated(self.learning_unit_year.learning_unit, fields_to_update)
 
-     def test_with_learning_unit_year_fields_to_update(self):
-         fields_to_update = {
-             "specific_title": "Mon cours",
-             "specific_title_english": "My course",
-             "credits": 45,
-             "internship_subtype": internship_subtypes.PROFESSIONAL_INTERNSHIP,
-             "status": False,
-             "session": learning_unit_year_session.SESSION_123,
-             "quadrimester": learning_unit_year_quadrimesters.Q2,
-             "attribution_procedure": attribution_procedure.EXTERNAL
-         }
+    def test_with_learning_unit_year_fields_to_update(self):
+        fields_to_update = {
+            "specific_title": "Mon cours",
+            "specific_title_english": "My course",
+            "credits": 45,
+            "internship_subtype": internship_subtypes.PROFESSIONAL_INTERNSHIP,
+            "status": False,
+            "session": learning_unit_year_session.SESSION_123,
+            "quadrimester": learning_unit_year_quadrimesters.Q2,
+            "attribution_procedure": attribution_procedure.EXTERNAL
+        }
 
-         update_learning_unit_year_with_report(self.learning_unit_year, fields_to_update)
+        update_learning_unit_year_with_report(self.learning_unit_year, fields_to_update)
 
-         self.assert_fields_updated(self.learning_unit_year, fields_to_update)
+        self.assert_fields_updated(self.learning_unit_year, fields_to_update)
 
+    def test_with_learning_container_year_fields_to_update(self):
+        fields_to_update = {
+            "common_title": "Mon common",
+            "common_title_english": "My common",
+            "language": self.other_language,
+            "campus": self.other_campus,
+            "team": True,
+            "is_vacant": True,
+            "type_declaration_vacant": vacant_declaration_type.VACANT_NOT_PUBLISH
+        }
 
-     def test_with_learning_container_year_fields_to_update(self):
-         fields_to_update = {
-             "common_title": "Mon common",
-             "common_title_english": "My common",
-             "language": self.other_language,
-             "campus": self.other_campus,
-             "team": True,
-             "is_vacant": True,
-             "type_declaration_vacant": vacant_declaration_type.VACANT_NOT_PUBLISH
-         }
+        update_learning_unit_year_with_report(self.learning_unit_year, fields_to_update)
+        self.learning_container_year.refresh_from_db()
 
-         update_learning_unit_year_with_report(self.learning_unit_year, fields_to_update)
-         self.learning_container_year.refresh_from_db()
+        new_lcy_values = model_to_dict(self.learning_container_year, fields=fields_to_update.keys())
+        expected_model_dict_values = fields_to_update
+        expected_model_dict_values["language"] = fields_to_update["language"].id
+        expected_model_dict_values["campus"] = fields_to_update["campus"].id
 
-         new_lcy_values = model_to_dict(self.learning_container_year, fields=fields_to_update.keys())
-         expected_model_dict_values = fields_to_update
-         expected_model_dict_values["language"] = fields_to_update["language"].id
-         expected_model_dict_values["campus"] = fields_to_update["campus"].id
+        self.assertDictEqual(expected_model_dict_values, new_lcy_values)
 
-         self.assertDictEqual(expected_model_dict_values, new_lcy_values)
+    def test_apply_updates_on_next_learning_unit_years(self):
+        a_learning_unit = self.setup_learning_unit(self.current_academic_year.year)
+        learning_unit_years = self.setup_list_of_learning_unit_years_full(self.list_of_academic_years_after_now,
+                                                                          a_learning_unit)
 
-     def test_apply_updates_on_next_learning_unit_years(self):
-         a_learning_unit = self.setup_learning_unit(self.current_academic_year.year)
-         learning_unit_years = self.setup_list_of_learning_unit_years_full(self.list_of_academic_years_after_now,
-                                                                           a_learning_unit)
+        learning_unit_fields_to_update = {
+            "faculty_remark": "Faculty remark"
+        }
+        learning_unit_year_fields_to_update = {
+            "specific_title_english": "My course",
+            "credits": 45,
+            "attribution_procedure": attribution_procedure.EXTERNAL
+        }
+        learning_container_year_fields_to_update = {
+            "team": True,
+            "is_vacant": True,
+            "type_declaration_vacant": vacant_declaration_type.VACANT_NOT_PUBLISH
+        }
 
-         learning_unit_fields_to_update = {
-             "faculty_remark": "Faculty remark"
-         }
-         learning_unit_year_fields_to_update = {
-             "specific_title_english": "My course",
-             "credits": 45,
-             "attribution_procedure": attribution_procedure.EXTERNAL
-         }
-         learning_container_year_fields_to_update = {
-             "team": True,
-             "is_vacant": True,
-             "type_declaration_vacant": vacant_declaration_type.VACANT_NOT_PUBLISH
-         }
+        fields_to_update = dict()
+        fields_to_update.update(learning_unit_fields_to_update)
+        fields_to_update.update(learning_unit_year_fields_to_update)
+        fields_to_update.update(learning_container_year_fields_to_update)
 
-         fields_to_update = dict()
-         fields_to_update.update(learning_unit_fields_to_update)
-         fields_to_update.update(learning_unit_year_fields_to_update)
-         fields_to_update.update(learning_container_year_fields_to_update)
+        update_learning_unit_year_with_report(learning_unit_years[1], fields_to_update)
 
-         update_learning_unit_year_with_report(learning_unit_years[1], fields_to_update)
+        self.assert_fields_not_updated(learning_unit_years[0])
+        self.assert_fields_not_updated(learning_unit_years[0].learning_container_year)
 
-         self.assert_fields_not_updated(learning_unit_years[0])
-         self.assert_fields_not_updated(learning_unit_years[0].learning_container_year)
-
-         for index, luy in enumerate(learning_unit_years[1:]):
-             self.assert_fields_updated(luy.learning_unit, learning_unit_fields_to_update)
-             if index == 0:
-                 self.assert_fields_updated(luy, learning_unit_year_fields_to_update)
-                 self.assert_fields_updated(luy.learning_container_year, learning_container_year_fields_to_update)
-             else:
+        for index, luy in enumerate(learning_unit_years[1:]):
+            self.assert_fields_updated(luy.learning_unit, learning_unit_fields_to_update)
+            if index == 0:
+                self.assert_fields_updated(luy, learning_unit_year_fields_to_update)
+                self.assert_fields_updated(luy.learning_container_year, learning_container_year_fields_to_update)
+            else:
                 self.assert_fields_updated(luy.learning_container_year, learning_container_year_fields_to_update,
                                            exclude=["is_vacant", "type_declaration_vacant"])
                 self.assert_fields_not_updated(luy.learning_container_year, fields=["team"])
                 self.assert_fields_updated(luy, learning_unit_year_fields_to_update, exclude=["attribution_procedure"])
                 self.assert_fields_not_updated(luy, fields=["attribution_procedure"])
 
-     def test_when_not_reporting(self):
-         a_learning_unit = self.setup_learning_unit(self.current_academic_year.year)
-         learning_unit_years = self.setup_list_of_learning_unit_years_full(self.list_of_academic_years_after_now,
-                                                                           a_learning_unit)
+    def test_when_not_reporting(self):
+        a_learning_unit = self.setup_learning_unit(self.current_academic_year.year)
+        learning_unit_years = self.setup_list_of_learning_unit_years_full(self.list_of_academic_years_after_now,
+                                                                          a_learning_unit)
 
-         learning_unit_fields_to_update = {
-             "faculty_remark": "Faculty remark"
-         }
-         learning_unit_year_fields_to_update = {
-             "specific_title_english": "My course",
-             "credits": 45,
-             "attribution_procedure": attribution_procedure.EXTERNAL
-         }
-         learning_container_year_fields_to_update = {
-             "team": True,
-             "is_vacant": True,
-             "type_declaration_vacant": vacant_declaration_type.VACANT_NOT_PUBLISH
-         }
+        learning_unit_fields_to_update = {
+            "faculty_remark": "Faculty remark"
+        }
+        learning_unit_year_fields_to_update = {
+            "specific_title_english": "My course",
+            "credits": 45,
+            "attribution_procedure": attribution_procedure.EXTERNAL
+        }
+        learning_container_year_fields_to_update = {
+            "team": True,
+            "is_vacant": True,
+            "type_declaration_vacant": vacant_declaration_type.VACANT_NOT_PUBLISH
+        }
 
-         fields_to_update = dict()
-         fields_to_update.update(learning_unit_fields_to_update)
-         fields_to_update.update(learning_unit_year_fields_to_update)
-         fields_to_update.update(learning_container_year_fields_to_update)
+        fields_to_update = dict()
+        fields_to_update.update(learning_unit_fields_to_update)
+        fields_to_update.update(learning_unit_year_fields_to_update)
+        fields_to_update.update(learning_container_year_fields_to_update)
 
-         update_learning_unit_year_with_report(learning_unit_years[0], fields_to_update, with_report=False)
+        update_learning_unit_year_with_report(learning_unit_years[0], fields_to_update, with_report=False)
 
-         self.assert_fields_updated(learning_unit_years[0].learning_unit, learning_unit_fields_to_update)
-         self.assert_fields_updated(learning_unit_years[0], learning_unit_year_fields_to_update)
-         self.assert_fields_updated(learning_unit_years[0].learning_container_year,
-                                    learning_container_year_fields_to_update)
+        self.assert_fields_updated(learning_unit_years[0].learning_unit, learning_unit_fields_to_update)
+        self.assert_fields_updated(learning_unit_years[0], learning_unit_year_fields_to_update)
+        self.assert_fields_updated(learning_unit_years[0].learning_container_year,
+                                   learning_container_year_fields_to_update)
 
-         for luy in learning_unit_years[1:]:
-             self.assert_fields_not_updated(luy)
-             self.assert_fields_not_updated(luy.learning_container_year)
+        for luy in learning_unit_years[1:]:
+            self.assert_fields_not_updated(luy)
+            self.assert_fields_not_updated(luy.learning_container_year)
 
-     def assert_fields_updated(self, instance, fields_value, exclude=[]):
-         instance.refresh_from_db()
+    def assert_fields_updated(self, instance, fields_value, exclude=None):
+        if exclude is None:
+            exclude = []
+        instance.refresh_from_db()
 
-         instance_values = model_to_dict(instance, fields=fields_value.keys(), exclude=exclude)
-         fields_value_without_excluded = {field: value for field, value in fields_value.items() if field not in exclude}
-         self.assertDictEqual(fields_value_without_excluded, instance_values)
+        instance_values = model_to_dict(instance, fields=fields_value.keys(), exclude=exclude)
+        fields_value_without_excluded = {field: value for field, value in fields_value.items() if field not in exclude}
+        self.assertDictEqual(fields_value_without_excluded, instance_values)
 
-     def assert_fields_not_updated(self, instance, fields=None):
-         past_instance_values = model_to_dict(instance, fields=fields)
+    def assert_fields_not_updated(self, instance, fields=None):
+        past_instance_values = model_to_dict(instance, fields=fields)
 
-         instance.refresh_from_db()
-         new_instance_values = model_to_dict(instance, fields=fields)
-         self.assertDictEqual(past_instance_values, new_instance_values)
+        instance.refresh_from_db()
+        new_instance_values = model_to_dict(instance, fields=fields)
+        self.assertDictEqual(past_instance_values, new_instance_values)
 
 
 class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
@@ -1072,7 +1011,6 @@ class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
             entity_container_luy = EntityContainerYear.objects.get(
                 learning_container_year=luy.learning_container_year)
             self.assert_entity_has_not_changed(entity_container_luy)
-
 
     def assert_entity_has_not_changed(self, entity_container):
         past_entity = entity_container.entity
