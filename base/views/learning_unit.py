@@ -332,7 +332,7 @@ def learning_unit_year_add(request):
                                                          additional_requirement_entity_2, allocation_entity_version,
                                                          data, new_learning_container, new_learning_unit,
                                                          requirement_entity_version, status, academic_year, campus)
-            _show_success_learning_unit_year_creation_message(request, luy_created)
+            _show_success_learning_unit_year_creation_message(request, luy_created, 'learning_unit_successfuly_created')
             year += 1
         return redirect('learning_units')
     return layout.render(request, "learning_unit/simple/creation.html", {'learning_unit_form': learning_unit_form})
@@ -531,15 +531,14 @@ def _create_partim_process(request, learning_unit_year_parent, form):
             'status': data['status'],
             'academic_year': academic_year
         })
-        _show_success_learning_unit_year_creation_message(request, luy_created)
+        _show_success_learning_unit_year_creation_message(request, luy_created, 'learning_unit_successfuly_created')
         year += 1
 
 
-def _show_success_learning_unit_year_creation_message(request, learning_unit_year_created):
+def _show_success_learning_unit_year_creation_message(request, learning_unit_year_created, message):
     link = reverse("learning_unit", kwargs={'learning_unit_year_id': learning_unit_year_created.id})
-    success_msg = _('learning_unit_successfuly_created') % {'link': link,
-                                                            'acronym': learning_unit_year_created.acronym,
-                                                            'academic_year': learning_unit_year_created.academic_year}
+    success_msg = _(message) % {'link': link, 'acronym': learning_unit_year_created.acronym,
+                                'academic_year': learning_unit_year_created.academic_year}
     messages.add_message(request, messages.SUCCESS, success_msg, extra_tags='safe')
 
 

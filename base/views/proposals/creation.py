@@ -39,6 +39,7 @@ from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_container import LearningContainer
 from base.models.person import Person
 from base.views import layout
+from base.views.learning_unit import _show_success_learning_unit_year_creation_message
 from reference.models import language
 
 
@@ -82,16 +83,9 @@ def proposal_learning_unit_add(request):
         folder_entity = data_proposal.get('folder_entity').entity
         folder_id = data_proposal.get('folder_id')
         create_proposal(folder_entity, folder_id, luy_created, person)
-        _show_success_proposal_learning_unit_creation_message(request, luy_created)
+        _show_success_learning_unit_year_creation_message(request, luy_created,
+                                                              'proposal_learning_unit_successfuly_created')
         return redirect('learning_units')
     return layout.render(request, "proposal/creation.html", {'learning_unit_form': learning_unit_form,
                                                                   'proposal_form': proposal_form,
                                                                   'person': person})
-
-
-def _show_success_proposal_learning_unit_creation_message(request, learning_unit_year_created):
-    link = reverse("learning_unit", kwargs={'learning_unit_year_id': learning_unit_year_created.id})
-    success_msg = _('proposal_learning_unit_successfuly_created') % {'link': link,
-                                                                     'acronym': learning_unit_year_created.acronym,
-                                                                     'academic_year': learning_unit_year_created.academic_year}
-    messages.add_message(request, messages.SUCCESS, success_msg, extra_tags='safe')
