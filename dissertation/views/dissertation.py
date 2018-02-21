@@ -23,7 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import time, json
+import time
+import json
 from django.http import HttpResponse,JsonResponse
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
@@ -82,7 +83,7 @@ def dissertations(request):
             form = AdviserForm(request.POST)
             if form.is_valid():
                 adv = adviser.Adviser(person=person, available_by_email=False, available_by_phone=False,
-                              available_at_office=False)
+                                      available_at_office=False)
                 adv.save()
                 adv = adviser.search_by_person(person)
                 count_advisers_pro_request = dissertation_role.count_by_adviser(adv, 'PROMOTEUR', 'DIR_SUBMIT')
@@ -447,9 +448,9 @@ def manager_dissertations_search(request):
         offer_prop=offer_proposition.find_by_id(offer_prop_search)
         disserts = disserts.filter(offer_year_start__offer=offer_prop.offer)
     if academic_year_search!='':
-        academic_year_search=int(academic_year_search)
-        disserts = disserts.filter(offer_year_start__academic_year=\
-                   academic_year.find_academic_year_by_id(academic_year_search))
+        academic_year_search = int(academic_year_search)
+        disserts = disserts.filter(offer_year_start__academic_year=
+                                  academic_year.find_academic_year_by_id(academic_year_search))
     if status_search!='':
         disserts = disserts.filter(status=status_search)
     offer_props = offer_proposition.search_by_offer(offers)
