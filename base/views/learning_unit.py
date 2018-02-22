@@ -637,8 +637,7 @@ def _get_difference_of_entity_proposal(learning_container_yr, learning_unit_yr_p
         entity_cont_yr = mdl_base.entity_container_year \
             .find_by_learning_container_year_and_linktype_with_entity_versions(learning_container_yr,
                                                                                entity_type)
-        if entity_cont_yr:
-            if _has_changed_entity(entity_cont_yr, entity_id):
+        if entity_cont_yr and _has_changed_entity(entity_cont_yr, entity_id):
                 old_value = mdl_base.entity.Entity.objects.get(pk=entity_id)
                 differences.update({entity_type: "{} : {}".format(_('value_before_proposal'),
                                                                   old_value.most_recent_acronym)})
