@@ -81,7 +81,8 @@ from base.tests.factories.user import SuperUserFactory, UserFactory
 from base.views.learning_unit import compute_partim_form_initial_data, _get_post_data_without_read_only_field, \
     learning_unit_components, learning_class_year_edit, _compare_model_with_initial_value, _check_differences, \
     _get_the_old_value, _is_foreign_key, END_FOREIGN_KEY_NAME, VALUES_WHICH_NEED_TRANSLATION, _translation_needed, \
-    NO_PREVIOUS_VALUE, _get_str_representing_old_data_from_foreign_key, LABEL_VALUE_BEFORE_PROPROSAL
+    NO_PREVIOUS_VALUE, _get_str_representing_old_data_from_foreign_key, LABEL_VALUE_BEFORE_PROPROSAL, \
+    _get_entity_titles
 from cms.enums import entity_name
 from cms.tests.factories.text_label import TextLabelFactory
 from cms.tests.factories.translated_text import TranslatedTextFactory
@@ -1588,3 +1589,4 @@ class TestLearningUnitProposalDisplay(TestCase):
     def test_get_str_representing_old_data_from_foreign_key(self):
         differences = _get_str_representing_old_data_from_foreign_key('campus', self.campus.id)
         self.assertEqual(differences.get('campus'), "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL,  self.campus))
+
