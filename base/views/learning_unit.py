@@ -613,10 +613,8 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
 
     learning_unit_yr_proposal = mdl_base.proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
 
-    differences_detail = _get_difference_of_proposal(learning_unit_yr_proposal)
-    context['differences'] = differences_detail.get('differences')
-    for title_key, title_value in differences_detail.get('entity_titles').items():
-        context[title_key] = title_value
+    context['differences'] = _get_difference_of_proposal(learning_unit_yr_proposal)
+
     return context
 
 
@@ -628,13 +626,10 @@ def _get_difference_of_proposal(learning_unit_yr_proposal):
         learning_container_yr = mdl_base.learning_container_year\
             .find_by_id(learning_unit_yr_proposal.initial_data.get('learning_container_year').get('id'))
         if learning_container_yr:
-            dict_entity = _get_difference_of_entity_proposal(learning_container_yr,
-                                               learning_unit_yr_proposal)
-            differences.update(dict_entity.get('differences'))
-            entity_titles = dict_entity.get('entity_titles')
+            differences.update(_get_difference_of_entity_proposal(learning_container_yr, learning_unit_yr_proposal))
 
-    return {'differences':  differences,
-            'entity_titles': entity_titles}
+    return differences
+
 
 
 def _get_difference_of_entity_proposal(learning_container_yr, learning_unit_yr_proposal):
@@ -645,15 +640,12 @@ def _get_difference_of_entity_proposal(learning_container_yr, learning_unit_yr_p
             .find_by_learning_container_year_and_linktype_with_entity_versions(learning_container_yr,
                                                                                entity_type)
         if entity_cont_yr:
-            differences.update({entity_type: "-"})
             if _has_changed_entity(entity_cont_yr, entity_id):
+                print('has changed {}'.format(entity_type))
                 old_value = mdl_base.entity.Entity.objects.get(pk=entity_id)
                 differences.update({entity_type: "{} : {}".format(_('value_before_proposal'),
                                                                   old_value.most_recent_acronym)})
-            else:
-                entity_titles.update(_get_entity_titles(entity_cont_yr, entity_type))
-    return {'differences':  differences,
-            'entity_titles': entity_titles}
+    return differences
 
 
 def _has_changed_entity(entity_cont_yr, entity_id):
@@ -720,12 +712,6 @@ def _compare_initial_actual_data(actual_data, initial_data):
     return differences
 
 
-def _translation_needed(key, initial_value):
-    if key in VALUES_WHICH_NEED_TRANSLATION and initial_value != NO_PREVIOUS_VALUE:
-        return True
-    return False
-
-
 def _get_the_old_value(key, actual_data, initial_data):
     differences = {}
 
@@ -736,7 +722,7 @@ def _get_the_old_value(key, actual_data, initial_data):
     if _is_foreign_key(key, actual_data):
         differences.update(_get_str_representing_old_data_from_foreign_key(key, initial_value))
     else:
-        if _translation_needed(key, initial_value):
+        if key in VALUES_WHICH_NEED_TRANSLATION and initial_value != NO_PREVIOUS_VALUE:
             differences.update({key: "{} : {}".format(_('value_before_proposal'), _(initial_value))})
         else:
             differences.update({key: "{} : {}".format(_('value_before_proposal'), initial_value)})

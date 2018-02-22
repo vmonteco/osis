@@ -25,7 +25,7 @@
 ##############################################################################
 from django.test import TestCase
 
-from base.templatetags.learning_unit import get_css
+from base.templatetags.learning_unit import get_difference_css
 
 
 class LearningUnitTagTest(TestCase):
@@ -37,11 +37,9 @@ class LearningUnitTagTest(TestCase):
         differences = {key_parameter_1: tooltip_parameter1,
                        'parameter2': 'tooltip2'}
 
-        self.assertEqual(get_css(differences, key_parameter_1),
+        self.assertEqual(get_difference_css(differences, key_parameter_1),
                          " data-toggle=tooltip title='{}' class={} ".format(tooltip_parameter1, "proposal_value"))
-
 
     def test_get_not_css(self):
         differences = {'parameter1': 'tooltip1'}
-
-        self.assertEqual(get_css(differences, 'parameter_10'), '')
+        self.assertIsNone(get_difference_css(differences, 'parameter_10'))

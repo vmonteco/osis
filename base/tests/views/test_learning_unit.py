@@ -79,9 +79,9 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
 from base.views.learning_unit import compute_partim_form_initial_data, _get_post_data_without_read_only_field, \
-    learning_unit_components, learning_class_year_edit, _compare_model_with_initial_value, _check_differences, \
-    _get_the_old_value, _is_foreign_key, END_FOREIGN_KEY_NAME, VALUES_WHICH_NEED_TRANSLATION, _translation_needed, \
-    NO_PREVIOUS_VALUE, _get_str_representing_old_data_from_foreign_key, LABEL_VALUE_BEFORE_PROPROSAL, \
+    learning_unit_components, learning_class_year_edit, _compare_model_with_initial_value, \
+    _get_the_old_value, _is_foreign_key, END_FOREIGN_KEY_NAME, VALUES_WHICH_NEED_TRANSLATION, \
+    _get_str_representing_old_data_from_foreign_key, LABEL_VALUE_BEFORE_PROPROSAL, \
     _replace_key_of_foreign_key, _check_differences, _get_difference_of_proposal
 from cms.enums import entity_name
 from cms.tests.factories.text_label import TextLabelFactory
@@ -91,6 +91,7 @@ from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from django.apps import apps
+
 
 class LearningUnitViewTestCase(TestCase):
     def setUp(self):
@@ -1515,17 +1516,6 @@ class TestLearningUnitProposalDisplay(TestCase):
         actual_data = {"language{}".format(END_FOREIGN_KEY_NAME): self.language_it.id}
         self.assertTrue(_is_foreign_key("language", actual_data))
 
-    def test_translation_needed(self):
-        key = VALUES_WHICH_NEED_TRANSLATION[0]
-        self.assertTrue(_translation_needed(key, learning_unit_periodicity.ANNUAL))
-
-    def test_translation_not_needed(self):
-        key = VALUES_WHICH_NEED_TRANSLATION[0]
-        self.assertFalse(_translation_needed(key, NO_PREVIOUS_VALUE))
-
-        key = "not_{}".format(VALUES_WHICH_NEED_TRANSLATION[0])
-        self.assertFalse(_translation_needed(key, 'Portnowoauk'))
-
     def test_is_not_foreign_key(self):
         actual_data = {"credits": self.language_it.id}
         self.assertFalse(_is_foreign_key("credits", actual_data))
@@ -1546,7 +1536,8 @@ class TestLearningUnitProposalDisplay(TestCase):
         differences = _get_the_old_value('credits',
                                          {"credits": self.initial_credits + 1},
                                          {'credits': self.initial_credits})
-        self.assertEqual(differences.get('credits'), "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL, self.initial_credits))
+        self.assertEqual(differences.get('credits'), "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL,
+                                                                      self.initial_credits))
 
     def test_get_the_old_value_for_foreign_key(self):
         initial_data_learning_container_year = {'language': self.language_pt.id}
@@ -1570,7 +1561,8 @@ class TestLearningUnitProposalDisplay(TestCase):
         initial_data = {cle: learning_unit_periodicity.ANNUAL}
         actual_data = {cle: learning_unit_periodicity.BIENNIAL_EVEN}
         differences = _get_the_old_value(cle, actual_data, initial_data)
-        self.assertEqual(differences.get(cle), "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL, _(learning_unit_periodicity.ANNUAL)))
+        self.assertEqual(differences.get(cle), "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL,
+                                                                _(learning_unit_periodicity.ANNUAL)))
 
     def test_compare_model_with_initial_value(self):
         differences = _compare_model_with_initial_value(self.proposal_learning_unit.learning_unit_year.id,
@@ -1591,18 +1583,18 @@ class TestLearningUnitProposalDisplay(TestCase):
         self.assertEqual(differences.get('campus'), "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL,  self.campus))
 
     def test_replace_key_of_foreign_key(self):
-        changed_dict = _replace_key_of_foreign_key({'key1{}'.format(END_FOREIGN_KEY_NAME):1, 'key2':2})
-        self.assertEqual(changed_dict, {'key1':1, 'key2':2})
+        changed_dict = _replace_key_of_foreign_key({'key1{}'.format(END_FOREIGN_KEY_NAME): 1, 'key2': 2})
+        self.assertEqual(changed_dict, {'key1': 1, 'key2': 2})
 
     def test_check_differences_none(self):
         self.assertEqual(_check_differences({}, {}), {})
-        self.assertEqual(_check_differences({'key1':1, 'key2':2}, {'key1':1, 'key2':2}), {})
-        self.assertEqual(_check_differences({'key1':1, 'key2':2}, {'key1_id':1, 'key2':2}), {})
+        self.assertEqual(_check_differences({'key1': 1, 'key2': 2}, {'key1': 1, 'key2': 2}), {})
+        self.assertEqual(_check_differences({'key1': 1, 'key2': 2}, {'key1_id': 1, 'key2': 2}), {})
 
     def test_check_differences(self):
-        self.assertEqual(len(_check_differences({'key1': 1, 'key2':2}, {'key1_id':1, 'key2': 9999999999999})), 1)
-        result = _check_differences({'key1': 1, 'key2':'new_value'}, {'key1':1, 'key2': 'old_value'})
-        self.assertEqual(result.get('key2'), "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL,  'new_value') )
+        self.assertEqual(len(_check_differences({'key1': 1, 'key2': 2}, {'key1_id': 1, 'key2': 9999999999999})), 1)
+        result = _check_differences({'key1': 1, 'key2': 'new_value'}, {'key1': 1, 'key2': 'old_value'})
+        self.assertEqual(result.get('key2'), "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL,  'new_value'))
 
     def test_get_difference_of_proposal(self):
-        self.assertEqual(_get_difference_of_proposal(None), {'differences' : {}, 'entity_titles' : {}})
+        self.assertEqual(_get_difference_of_proposal(None), {})
