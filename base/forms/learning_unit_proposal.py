@@ -27,6 +27,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
+from base.business.learning_units.proposal.creation import create_learning_unit_proposal
 from base.forms.learning_unit_create import EntitiesVersionChoiceField, LearningUnitYearForm
 from base.models import proposal_folder, proposal_learning_unit, entity_container_year
 from base.models.entity_version import find_main_entities_version
@@ -86,8 +87,8 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
         folder_entity = self.cleaned_data['folder_entity'].entity
         folder_id = self.cleaned_data['folder_id']
 
-        _create_learning_unit_proposal(a_person, folder_entity, folder_id, initial_data, learning_unit_year,
-                                       state_proposal, type_proposal)
+        create_learning_unit_proposal(a_person, folder_entity, folder_id, learning_unit_year, state_proposal,
+                                      type_proposal, initial_data)
 
 
 def _copy_learning_unit_data(learning_unit_year):
@@ -119,15 +120,6 @@ def _update_entity(entity_version, learning_container_year, type_entity):
     entity_container_year.EntityContainerYear.objects.update_or_create(type=type_entity,
                                                                        learning_container_year=learning_container_year,
                                                                        defaults={"entity": entity_version.entity})
-
-
-def _create_learning_unit_proposal(a_person, folder_entity, folder_id, initial_data, learning_unit_year,
-                                   state_proposal, type_proposal):
-    folder, created = proposal_folder.ProposalFolder.objects.get_or_create(entity=folder_entity, folder_id=folder_id)
-
-    proposal_learning_unit.ProposalLearningUnit.objects.create(folder=folder, learning_unit_year=learning_unit_year,
-                                                               type=type_proposal, state=state_proposal,
-                                                               initial_data=initial_data, author=a_person)
 
 
 def _set_attributes_from_dict(obj, attributes_values):

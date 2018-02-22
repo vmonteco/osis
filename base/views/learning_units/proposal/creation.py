@@ -30,9 +30,11 @@ from django.shortcuts import redirect, get_object_or_404
 
 from base import models as mdl_base
 from base.business.learning_unit import create_learning_unit, create_learning_unit_structure
-from base.business.learning_units.proposal.creation import create_proposal
+from base.business.learning_units.proposal.creation import create_learning_unit_proposal
 from base.forms.learning_unit.proposal.creation import LearningUnitProposalCreationForm, LearningUnitProposalForm
 from base.models.enums import learning_unit_year_subtypes
+from base.models.enums.proposal_state import ProposalState
+from base.models.enums.proposal_type import ProposalType
 from base.views import layout
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
 
@@ -80,7 +82,7 @@ def proposal_learning_unit_add(request):
                          {'learning_unit_form': learning_unit_form, 'proposal_form': proposal_form, 'person': person})
 
 
-def create_proposal_structure(data_proposal, luy_created, person):
+def create_proposal_structure(data_proposal, learning_unit_year, person):
     folder_entity = data_proposal.get('folder_entity').entity
     folder_id = data_proposal.get('folder_id')
-    create_proposal(folder_entity, folder_id, luy_created, person)
+    create_learning_unit_proposal(person, folder_entity, folder_id, learning_unit_year, ProposalState, ProposalType, {})
