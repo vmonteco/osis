@@ -230,7 +230,7 @@ class TestVolumeEditionFormsetContainer(TestCase):
 
         self.assertTrue(volume_edition_formset_container.is_valid())
 
-        volume_edition_formset_container.save()
+        volume_edition_formset_container.save(1)
 
     def test_post_volume_edition_formset_container_wrong_vol_tot_full_must_be_greater_than_partim(self):
         request_factory = RequestFactory()

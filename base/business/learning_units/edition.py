@@ -251,8 +251,7 @@ def _get_new_end_year(new_academic_year):
 
 def _get_next_academic_years(learning_unit_to_edit, year):
     range_years = list(range(learning_unit_to_edit.end_year + 1, year + 1))
-    queryset = AcademicYear.objects.filter(year__in=range_years).order_by('year')
-    return filter_biennial(queryset, learning_unit_to_edit.periodicity)
+    return AcademicYear.objects.filter(year__in=range_years).order_by('year')
 
 
 def filter_biennial(queryset, periodicity):
