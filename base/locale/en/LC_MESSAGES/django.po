@@ -2583,3 +2583,7 @@ msgstr "Do you want to report the modifications done to the next years ?"
 
 msgid "proposal_creation"
 msgstr "Proposal of creation"
+
+msgid "proposal_update"
+msgstr "Proposal update"
+
