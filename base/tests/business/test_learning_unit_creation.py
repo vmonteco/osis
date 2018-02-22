@@ -24,13 +24,13 @@
 #
 ##############################################################################
 from django.test import TestCase
+
+from base.models.enums import entity_container_year_link_type
 from base.tests.factories.academic_year import create_current_academic_year
 from base.business import learning_unit
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_container import LearningContainerFactory
 from base.tests.factories.entity_version import EntityVersionFactory
-from reference.tests.factories.language import LanguageFactory
-from base.tests.factories.campus import CampusFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from decimal import Decimal
@@ -112,6 +112,24 @@ class LearningUnitCreationTest(TestCase):
         self.assertEqual(mdl_base.learning_unit_year.LearningUnitYear.objects.all().count(), 1)
         self.assertEqual(mdl_base.learning_unit_component.LearningUnitComponent.objects.all().count(), 1)
 
+    def test_create_with_untyped_component_multiple_requirements_entities(self):
+        data_dict = self.get_data_dict(learning_container_year_types.OTHER_COLLECTIVE)
+        data_dict['requirement_entity_containers'].append(
+            EntityContainerYearFactory(learning_container_year=data_dict['new_learning_container_year'],
+                                       type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
+        )
+
+        learning_unit.create_with_untyped_component(data_dict)
+        self.assertEqual(mdl_base.learning_component_year.LearningComponentYear.objects.all().count(), 1)
+        self.assertEqual(mdl_base.learning_component_year.LearningComponentYear.objects
+                         .filter(acronym=learning_unit.UNTYPED_ACRONYM).count(), 1)
+        self.assertEqual(mdl_base.learning_component_year.LearningComponentYear.objects
+                         .filter(type__isnull=True).count(), 1)
+        # We should have two entity component year [Requirement + 1 additional]
+        self.assertEqual(mdl_base.entity_component_year.EntityComponentYear.objects.all().count(), 2)
+        self.assertEqual(mdl_base.learning_unit_year.LearningUnitYear.objects.all().count(), 1)
+        self.assertEqual(mdl_base.learning_unit_component.LearningUnitComponent.objects.all().count(), 1)
+
     @mock.patch("base.business.learning_unit.create_with_lecturing_and_practical_components")
     def test_create_learning_unit_content_create_with_lecturing_and_practical_components(self, mock):
         container_type_with_default_component = [learning_container_year_types.COURSE,
@@ -138,25 +156,30 @@ class LearningUnitCreationTest(TestCase):
         learning_container_yr = LearningContainerYearFactory(academic_year=self.current_academic_year,
                                                              learning_container=learning_container)
         entity_version = EntityVersionFactory()
-        langue = LanguageFactory()
-        campus = CampusFactory()
         a_learning_unit = LearningUnitFactory()
-        entity_container_yr = EntityContainerYearFactory(learning_container_year=learning_container_yr)
-        data_dict = {'new_learning_container_year': learning_container_yr,
-                     'data': {'quadrimester': '',
-                              'acronym': 'LTATO1200',
-                              'subtype': 'FULL',
-                              'allocation_entity': entity_version,
-                              'additional_requirement_entity_2': None,
-                              'status': True,
-                              'academic_year': self.current_academic_year,
-                              'requirement_entity': entity_version,
-                              'credits': Decimal('15'),
-                              'container_type': container_type,
-                              'session': '',
-                              'additional_requirement_entity_1': None},
-                     'new_learning_unit': a_learning_unit,
-                     'new_requirement_entity': entity_container_yr,
-                     'status': True,
-                     'academic_year': self.current_academic_year}
-        return data_dict
+        requirement_entity_container_yr = EntityContainerYearFactory(
+            learning_container_year=learning_container_yr,
+            type=entity_container_year_link_type.REQUIREMENT_ENTITY
+        )
+
+        return {
+            'new_learning_container_year': learning_container_yr,
+            'data': {
+                'quadrimester': '',
+                'acronym': 'LTATO1200',
+                'subtype': 'FULL',
+                'allocation_entity': entity_version,
+                'additional_requirement_entity_2': None,
+                'status': True,
+                'academic_year': self.current_academic_year,
+                'requirement_entity': entity_version,
+                'credits': Decimal('15'),
+                'container_type': container_type,
+                'session': '',
+                'additional_requirement_entity_1': None
+            },
+            'new_learning_unit': a_learning_unit,
+            'requirement_entity_containers': [requirement_entity_container_yr],
+            'status': True,
+            'academic_year': self.current_academic_year
+        }
