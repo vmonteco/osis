@@ -33,10 +33,6 @@ from base.models.entity_version import find_main_entities_version
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_PROPOSAL_FACULTY
 
 
-def create_faculty_proposal_learning_container_type_list():
-    return add_blank(LEARNING_CONTAINER_YEAR_TYPES_FOR_PROPOSAL_FACULTY)
-
-
 class LearningUnitProposalForm(BootstrapForm):
     folder_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
@@ -48,4 +44,4 @@ class LearningUnitProposalCreationForm(LearningUnitYearForm):
         # When we submit a proposal, we can select all requirement entity available
         self.fields["requirement_entity"].queryset = find_main_entities_version()
         if person.user.groups.filter(name='faculty_managers').exists():
-            self.fields["container_type"].choices = create_faculty_proposal_learning_container_type_list()
+            self.fields["container_type"].choices = add_blank(LEARNING_CONTAINER_YEAR_TYPES_FOR_PROPOSAL_FACULTY)

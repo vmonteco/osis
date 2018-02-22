@@ -30,7 +30,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.proposal import creation
+from base.forms.learning_unit.proposal import creation
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, organization_type, \
     entity_type, learning_unit_periodicity
 from base.models.learning_unit_year import LearningUnitYear
