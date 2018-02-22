@@ -213,35 +213,37 @@ def create_learning_unit_structure(additional_requirement_entity_1, additional_r
                                                                      common_title=data['common_title'],
                                                                      acronym=data['acronym'].upper(),
                                                                      container_type=data['container_type'],
-                                                                     language=data['language'],
-                                                                     campus=campus,
+                                                                     language=data['language'], campus=campus,
                                                                      common_title_english=data['common_title_english'])
-    new_requirement_entity = create_entity_container_year(requirement_entity_version, new_learning_container_yr,
-                                                          entity_container_year_link_type.REQUIREMENT_ENTITY)
-    if allocation_entity_version:
-        create_entity_container_year(allocation_entity_version, new_learning_container_yr,
-                                     entity_container_year_link_type.ALLOCATION_ENTITY)
+    # Create Allocation Entity container
+    create_entity_container_year(allocation_entity_version, new_learning_container_yr,
+                                 entity_container_year_link_type.ALLOCATION_ENTITY)
+
+    # Create All Requirements Entity Container [Min 1, Max 3]
+    requirement_entity_containers = [create_entity_container_year(requirement_entity_version, new_learning_container_yr,
+                                                                  entity_container_year_link_type.REQUIREMENT_ENTITY)]
     if additional_requirement_entity_1:
-        create_entity_container_year(additional_requirement_entity_1, new_learning_container_yr,
-                                     entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
+        requirement_entity_containers.append(create_entity_container_year(
+            additional_requirement_entity_1, new_learning_container_yr,
+            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1))
     if additional_requirement_entity_2:
-        create_entity_container_year(additional_requirement_entity_2, new_learning_container_yr,
-                                     entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
-    return create_learning_unit_content({'academic_year': academic_year,
-                                         'data': data,
+        requirement_entity_containers.append(create_entity_container_year(
+            additional_requirement_entity_2, new_learning_container_yr,
+            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2))
+
+    return create_learning_unit_content({'academic_year': academic_year, 'data': data, 'status': status,
                                          'new_learning_container_year': new_learning_container_yr,
                                          'new_learning_unit': new_learning_unit,
-                                         'new_requirement_entity': new_requirement_entity,
-                                         'status': status})
+                                         'requirement_entity_containers': requirement_entity_containers})
 
 
 def create_with_untyped_component(data_dict):
     new_learning_container_year = data_dict.get('new_learning_container_year', None)
-    new_requirement_entity = data_dict.get('new_requirement_entity', None)
-    new_learning_component_year = create_learning_component_year(new_learning_container_year,
-                                                                 UNTYPED_ACRONYM, None)
-    EntityComponentYear.objects.create(entity_container_year=new_requirement_entity,
-                                       learning_component_year=new_learning_component_year)
+    requirement_entity_containers = data_dict.get('requirement_entity_containers', [])
+    new_learning_component_year = create_learning_component_year(new_learning_container_year, UNTYPED_ACRONYM, None)
+    for requirement_entity_container in requirement_entity_containers:
+        EntityComponentYear.objects.create(entity_container_year=requirement_entity_container,
+                                           learning_component_year=new_learning_component_year)
     new_learning_unit_year = create_learning_unit_year(data_dict)
     create_learning_unit_component(new_learning_unit_year, new_learning_component_year, None)
     return new_learning_unit_year
@@ -249,7 +251,7 @@ def create_with_untyped_component(data_dict):
 
 def create_with_lecturing_and_practical_components(data_dict):
     new_learning_container_year = data_dict.get('new_learning_container_year', None)
-    new_requirement_entity = data_dict.get('new_requirement_entity', None)
+    requirement_entity_containers = data_dict.get('requirement_entity_containers', [])
 
     new_lecturing = create_learning_component_year(new_learning_container_year,
                                                    DEFAULT_ACRONYM_LECTURING_COMPONENT,
@@ -257,10 +259,13 @@ def create_with_lecturing_and_practical_components(data_dict):
     new_practical_exercise = create_learning_component_year(new_learning_container_year,
                                                             DEFAULT_ACRONYM_PRACTICAL_COMPONENT,
                                                             learning_component_year_type.PRACTICAL_EXERCISES)
-    EntityComponentYear.objects.create(entity_container_year=new_requirement_entity,
-                                       learning_component_year=new_lecturing)
-    EntityComponentYear.objects.create(entity_container_year=new_requirement_entity,
-                                       learning_component_year=new_practical_exercise)
+
+    for requirement_entity_container in requirement_entity_containers:
+        EntityComponentYear.objects.create(entity_container_year=requirement_entity_container,
+                                           learning_component_year=new_lecturing)
+        EntityComponentYear.objects.create(entity_container_year=requirement_entity_container,
+                                           learning_component_year=new_practical_exercise)
+
     new_learning_unit_year = create_learning_unit_year(data_dict)
     create_learning_unit_component(new_learning_unit_year, new_lecturing,
                                    learning_component_year_type.LECTURING)
@@ -370,17 +375,18 @@ def create_partim(data_dict, new_learning_container_year):
     status = data_dict.get('status', None)
     academic_year = data_dict.get('academic_year', None)
 
-    # Get entity_container_year [Link betwen entity AND learning container year]
-    entity_container_yr = entity_container_year.find_by_learning_container_year(
-        a_learning_container_year=new_learning_container_year,
-        a_entity_container_year_link_type=entity_container_year_link_type.REQUIREMENT_ENTITY
-    ).get()
+    # Get all requirement entity containers [Min 1 - Max 3]
+    requirement_entity_containers = list(entity_container_year.search(
+        learning_container_year=new_learning_container_year,
+        link_type=[entity_container_year_link_type.REQUIREMENT_ENTITY,
+                   entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
+                   entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2]))
 
     return create_learning_unit_content({'academic_year': academic_year,
                                          'data': data,
                                          'new_learning_container_year': new_learning_container_year,
                                          'new_learning_unit': new_learning_unit,
-                                         'new_requirement_entity': entity_container_yr,
+                                         'requirement_entity_containers': requirement_entity_containers,
                                          'status': status})
 
 
