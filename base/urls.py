@@ -112,8 +112,6 @@ urlpatterns = [
             ])),
             url(r'^edit/$', edition.learning_unit_edition, name="learning_unit_edition"),
             url(r'^modify/$', edition.modify_learning_unit, name="edit_learning_unit"),
-            url(r'^modify_with_report/$', edition.modify_learning_unit, {"with_report": True},
-                name="edit_learning_unit_with_report"),
             url(r'^specifications/$', learning_unit.learning_unit_specifications, name="learning_unit_specifications"),
             url(r'^specifications/edit/$', learning_unit.learning_unit_specifications_edit,
                 name="learning_unit_specifications_edit"),

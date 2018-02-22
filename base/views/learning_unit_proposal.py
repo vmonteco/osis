@@ -74,10 +74,11 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
     else:
         form = LearningUnitProposalModificationForm(initial=initial_data)
 
-    return render(request, 'proposal/learning_unit_modification.html', {'learning_unit_year': learning_unit_year,
-                                                                        'person': user_person,
-                                                                        'form': form,
-                                                                        'experimental_phase': True})
+    return render(request, 'learning_unit/proposal/update.html', {
+        'learning_unit_year': learning_unit_year,
+        'person': user_person,
+        'form': form,
+        'experimental_phase': True})
 
 
 @login_required

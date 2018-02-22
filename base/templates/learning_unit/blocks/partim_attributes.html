@@ -1,0 +1,49 @@
+
+{% load bootstrap3 %}
+{% load i18n %}
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="row">
+
+            <div class="col-md-2">
+                <label for="{{ form.is_vacant.id_for_label }}">
+                    {{ form.is_vacant }} {% trans 'vacant' %}
+                </label>
+                <span class="error">
+                    {{ form.is_vacant.errors }}
+                </span>
+            </div>
+
+            <div class="col-md-2">
+                <label for="{{ form.team.id_for_label }}">
+                    {{ form.team }} {% trans 'team_management' %}
+                </label>
+                <span class="error">
+                    {{ form.team.errors }}
+                </span>
+            </div>
+
+            <div class="col-md-4">
+                <label for="{{ form.type_declaration_vacant.id_for_label }}">
+                    {% trans 'type_declaration_vacant' %}
+                </label>
+                {{ form.type_declaration_vacant }}
+                <span class="error">
+                    {{ form.type_declaration_vacant.errors }}
+                </span>
+            </div>
+
+            <div class="col-md-3">
+                <label for="{{ form.attribution_procedure.id_for_label }}">
+                    {% trans 'procedure' %}
+                </label>
+                {{ form.attribution_procedure }}
+                <span class="error">
+                    {{ form.attribution_procedure.errors }}
+                </span>
+            </div>
+
+        </div>
+    </div>
+</div>
