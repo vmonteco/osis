@@ -625,21 +625,33 @@ def _get_difference_of_proposal(learning_unit_yr_proposal):
     entity_titles = {}
     if learning_unit_yr_proposal:
         differences.update(_get_differences_in_learning_unit_data(learning_unit_yr_proposal))
-        learning_container_yr = mdl_base.learning_container_year.find_by_id(learning_unit_yr_proposal.initial_data.get('learning_container_year').get('id'))
+        learning_container_yr = mdl_base.learning_container_year\
+            .find_by_id(learning_unit_yr_proposal.initial_data.get('learning_container_year').get('id'))
         if learning_container_yr:
-            for entity_type, entity_id in learning_unit_yr_proposal.initial_data.get('entities').items():
-                entity_cont_yr = mdl_base.entity_container_year \
-                    .find_by_learning_container_year_and_linktype_with_entity_versions(learning_container_yr,
-                                                                                       entity_type)
-                if entity_cont_yr:
-                    differences.update({entity_type: "-"})
-                    if _has_changed_entity(entity_cont_yr, entity_id):
-                        old_value = mdl_base.entity.Entity.objects.get(pk=entity_id)
-                        differences.update({entity_type: "{} : {}".format(_('value_before_proposal'),
-                                                                          old_value.most_recent_acronym)})
-                    else:
-                        entity_titles.update(_get_entity_titles(entity_cont_yr, entity_type))
+            dict_entity = _get_difference_of_entity_proposal(learning_container_yr,
+                                               learning_unit_yr_proposal)
+            differences.update(dict_entity.get('differences'))
+            entity_titles = dict_entity.get('entity_titles')
 
+    return {'differences':  differences,
+            'entity_titles': entity_titles}
+
+
+def _get_difference_of_entity_proposal(learning_container_yr, learning_unit_yr_proposal):
+    differences = {}
+    entity_titles = {}
+    for entity_type, entity_id in learning_unit_yr_proposal.initial_data.get('entities').items():
+        entity_cont_yr = mdl_base.entity_container_year \
+            .find_by_learning_container_year_and_linktype_with_entity_versions(learning_container_yr,
+                                                                               entity_type)
+        if entity_cont_yr:
+            differences.update({entity_type: "-"})
+            if _has_changed_entity(entity_cont_yr, entity_id):
+                old_value = mdl_base.entity.Entity.objects.get(pk=entity_id)
+                differences.update({entity_type: "{} : {}".format(_('value_before_proposal'),
+                                                                  old_value.most_recent_acronym)})
+            else:
+                entity_titles.update(_get_entity_titles(entity_cont_yr, entity_type))
     return {'differences':  differences,
             'entity_titles': entity_titles}
 
@@ -694,12 +706,17 @@ def _replace_key_of_foreign_key(data):
 
 
 def _check_differences(initial_data, actual_data):
+    if initial_data:
+        return _compare_initial_actual_data(actual_data, initial_data)
+    return {}
+
+
+def _compare_initial_actual_data(actual_data, initial_data):
     corrected_dict = _replace_key_of_foreign_key(actual_data)
     differences = {}
-    if initial_data:
-        for attribute, initial_value in initial_data.items():
-            if attribute in corrected_dict and initial_data.get(attribute, None) != corrected_dict.get(attribute):
-                differences.update(_get_the_old_value(attribute, actual_data, initial_data))
+    for attribute, initial_value in initial_data.items():
+        if attribute in corrected_dict and initial_data.get(attribute, None) != corrected_dict.get(attribute):
+            differences.update(_get_the_old_value(attribute, actual_data, initial_data))
     return differences
 
 

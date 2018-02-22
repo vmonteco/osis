@@ -82,7 +82,7 @@ from base.views.learning_unit import compute_partim_form_initial_data, _get_post
     learning_unit_components, learning_class_year_edit, _compare_model_with_initial_value, _check_differences, \
     _get_the_old_value, _is_foreign_key, END_FOREIGN_KEY_NAME, VALUES_WHICH_NEED_TRANSLATION, _translation_needed, \
     NO_PREVIOUS_VALUE, _get_str_representing_old_data_from_foreign_key, LABEL_VALUE_BEFORE_PROPROSAL, \
-    _replace_key_of_foreign_key, _check_differences
+    _replace_key_of_foreign_key, _check_differences, _get_difference_of_proposal
 from cms.enums import entity_name
 from cms.tests.factories.text_label import TextLabelFactory
 from cms.tests.factories.translated_text import TranslatedTextFactory
@@ -1590,7 +1590,6 @@ class TestLearningUnitProposalDisplay(TestCase):
         differences = _get_str_representing_old_data_from_foreign_key('campus', self.campus.id)
         self.assertEqual(differences.get('campus'), "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL,  self.campus))
 
-
     def test_replace_key_of_foreign_key(self):
         changed_dict = _replace_key_of_foreign_key({'key1{}'.format(END_FOREIGN_KEY_NAME):1, 'key2':2})
         self.assertEqual(changed_dict, {'key1':1, 'key2':2})
@@ -1605,3 +1604,5 @@ class TestLearningUnitProposalDisplay(TestCase):
         result = _check_differences({'key1': 1, 'key2':'new_value'}, {'key1':1, 'key2': 'old_value'})
         self.assertEqual(result.get('key2'), "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL,  'new_value') )
 
+    def test_get_difference_of_proposal(self):
+        self.assertEqual(_get_difference_of_proposal(None), {'differences' : {}, 'entity_titles' : {}})
