@@ -613,14 +613,14 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
 
     learning_unit_yr_proposal = mdl_base.proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
 
-    differences_detail = get_difference_of_proposal(learning_unit_yr_proposal)
+    differences_detail = _get_difference_of_proposal(learning_unit_yr_proposal)
     context['differences'] = differences_detail.get('differences')
     for title_key, title_value in differences_detail.get('entity_titles').items():
         context[title_key] = title_value
     return context
 
 
-def get_difference_of_proposal(learning_unit_yr_proposal):
+def _get_difference_of_proposal(learning_unit_yr_proposal):
     differences = {}
     entity_titles = {}
     if learning_unit_yr_proposal:
@@ -629,20 +629,9 @@ def get_difference_of_proposal(learning_unit_yr_proposal):
         initial_learning_container_yr_id = learning_container_yr_initial_data.get('id')
         learning_unit_initial_data = learning_unit_yr_proposal.initial_data.get('learning_unit')
 
-        differences.update(_compare_model_with_initial_value(learning_unit_yr_proposal.learning_unit_year.id,
-                                                             learning_unit_yr_initial_data,
-                                                             apps.get_model(app_label=APP_BASE_LABEL,
-                                                                            model_name="LearningUnitYear")))
-
-        differences.update(_compare_model_with_initial_value(initial_learning_container_yr_id,
-                                                             learning_container_yr_initial_data,
-                                                             apps.get_model(app_label=APP_BASE_LABEL,
-                                                                            model_name="LearningContainerYear")))
-
-        differences.update(_compare_model_with_initial_value(learning_unit_initial_data.get('id'),
-                                                             learning_unit_initial_data,
-                                                             apps.get_model(app_label=APP_BASE_LABEL,
-                                                                            model_name="LearningUnit")))
+        differences.update(_get_differences_in_learning_unit_data( initial_learning_container_yr_id,
+                                               learning_container_yr_initial_data, learning_unit_initial_data,
+                                               learning_unit_yr_initial_data, learning_unit_yr_proposal))
 
         learning_container_yr = mdl_base.learning_container_year.find_by_id(initial_learning_container_yr_id)
         if learning_container_yr:
@@ -651,20 +640,45 @@ def get_difference_of_proposal(learning_unit_yr_proposal):
                     .find_by_learning_container_year_and_linktype_with_entity_versions(learning_container_yr,
                                                                                        entity_type)
                 if entity_cont_yr:
-                    if entity_cont_yr.entity.id != entity_id:
-                        differences.update({entity_type: "-"})
-                        if entity_id:
-                            old_value = mdl_base.entity.Entity.objects.get(pk=entity_id)
-                            differences.update({entity_type: "{} : {}".format(_('value_before_proposal'),
-                                                                              old_value.most_recent_acronym)})
+                    differences.update({entity_type: "-"})
+                    if entity_cont_yr.entity.id != entity_id and entity_id:
+                        old_value = mdl_base.entity.Entity.objects.get(pk=entity_id)
+                        differences.update({entity_type: "{} : {}".format(_('value_before_proposal'),
+                                                                          old_value.most_recent_acronym)})
                     else:
-                        entity_title_key = '{}_title'.format(entity_type)
-                        entity_titles.update({entity_title_key: '-'})
-                        if entity_cont_yr.get_latest_entity_version():
-                            entity_titles.update({entity_title_key: entity_cont_yr.get_latest_entity_version().title})
+                        entity_titles.update(_get_entity_titles(entity_cont_yr, entity_type))
 
     return {'differences':  differences,
             'entity_titles': entity_titles}
+
+
+def _get_differences_in_learning_unit_data(initial_learning_container_yr_id,
+                                           learning_container_yr_initial_data,
+                                           learning_unit_initial_data,
+                                           learning_unit_yr_initial_data,
+                                           learning_unit_yr_proposal):
+    differences = {}
+    differences.update(_compare_model_with_initial_value(learning_unit_yr_proposal.learning_unit_year.id,
+                                                         learning_unit_yr_initial_data,
+                                                         apps.get_model(app_label=APP_BASE_LABEL,
+                                                                        model_name="LearningUnitYear")))
+    differences.update(_compare_model_with_initial_value(initial_learning_container_yr_id,
+                                                         learning_container_yr_initial_data,
+                                                         apps.get_model(app_label=APP_BASE_LABEL,
+                                                                        model_name="LearningContainerYear")))
+    differences.update(_compare_model_with_initial_value(learning_unit_initial_data.get('id'),
+                                                         learning_unit_initial_data,
+                                                         apps.get_model(app_label=APP_BASE_LABEL,
+                                                                        model_name="LearningUnit")))
+    return differences
+
+
+def _get_entity_titles(entity_cont_yr, entity_type):
+    entity_title_key = '{}_title'.format(entity_type)
+    if entity_cont_yr.get_latest_entity_version():
+        return {entity_title_key: entity_cont_yr.get_latest_entity_version().title}
+    return {entity_title_key: '-'}
+
 
 
 def _compare_model_with_initial_value(an_id, model_initial_data, mymodel):
