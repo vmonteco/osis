@@ -23,23 +23,26 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.utils.translation import ugettext_lazy as _
+import json
+
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 
-from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
-from base.views.learning_unit import get_learning_unit_identification_context, compute_learning_unit_form_initial_data
-from base.business.learning_units.edition import edit_learning_unit_end_date, update_learning_unit_year, \
-    update_learning_unit_year_entities
-from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm, \
-    FULL_READ_ONLY_FIELDS
+from base.business import learning_unit_year_with_context
+from base.business.learning_units.edition import edit_learning_unit_end_date, update_learning_unit_year_with_report, \
+    update_learning_unit_year_entities_with_report
+from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
+from base.forms.learning_unit.edition_volume import VolumeEditionFormsetContainer
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
 from base.views.common import display_error_messages, display_success_messages
+from base.views.learning_unit import get_learning_unit_identification_context, \
+    compute_learning_unit_form_initial_data, get_common_context_learning_unit_year, learning_unit_components
 from base.views.learning_units import perms
 
 
@@ -74,21 +77,27 @@ def learning_unit_edition(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_edit_learningunit', raise_exception=True)
 @perms.can_perform_learning_unit_modification
-def modify_learning_unit(request, learning_unit_year_id):
+def modify_learning_unit(request, learning_unit_year_id, with_report=False):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     person = get_object_or_404(Person, user=request.user)
     initial_data = compute_learning_unit_modification_form_initial_data(learning_unit_year)
-    form = LearningUnitModificationForm(request.POST or None, person=person, initial=initial_data)
+    form = LearningUnitModificationForm(request.POST or None, parent=learning_unit_year.parent, person=person,
+                                        initial=initial_data)
     if form.is_valid():
-        entities_data = extract_entities_data_from_form_data(form.cleaned_data)
-        lu_type_full_data = extract_learning_unit_of_type_full_data_from_form_data(form.cleaned_data)
+        entities_data = form.get_entities_data()
+        lu_type_full_data = form.get_data_for_learning_unit()
 
-        update_learning_unit_year(learning_unit_year, lu_type_full_data)
-        update_learning_unit_year_entities(learning_unit_year, entities_data)
+        try:
+            update_learning_unit_year_with_report(learning_unit_year, lu_type_full_data, with_report)
+            update_learning_unit_year_entities_with_report(learning_unit_year, entities_data, with_report)
 
-        display_success_messages(request, _("success_modification_learning_unit"))
+            display_success_messages(request, _("success_modification_learning_unit"))
 
-        return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
+            return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
+
+        except IntegrityError:
+            display_error_messages(request, _("error_modification_learning_unit"))
+
     context = {
         "learning_unit_year": learning_unit_year,
         "form": form
@@ -96,24 +105,10 @@ def modify_learning_unit(request, learning_unit_year_id):
     return layout.render(request, 'learning_unit/modification.html', context)
 
 
-def extract_learning_unit_of_type_full_data_from_form_data(form_data):
-    data_without_entities = {field: value for field, value in form_data.items()
-                             if field.upper() not in ENTITY_TYPE_LIST}
-    lu_full_data = {field: value for field, value in data_without_entities.items()
-                    if field not in FULL_READ_ONLY_FIELDS}
-    return lu_full_data
-
-
-def extract_entities_data_from_form_data(form_data):
-    return {entity_type.upper(): entity_version.entity if entity_version else None
-            for entity_type, entity_version in form_data.items()
-            if entity_type.upper() in ENTITY_TYPE_LIST}
-
-
 def compute_learning_unit_modification_form_initial_data(learning_unit_year):
     other_fields_dict = {
-        "partial_title": learning_unit_year.specific_title,
-        "partial_english_title": learning_unit_year.specific_title_english,
+        "specific_title": learning_unit_year.specific_title,
+        "specific_title_english": learning_unit_year.specific_title_english,
         "first_letter": learning_unit_year.acronym[0],
         "acronym": learning_unit_year.acronym[1:]
     }
@@ -133,3 +128,37 @@ def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year
     else:
         result = learning_unit_year_id
     return result
+
+
+@login_required
+@permission_required('base.can_edit_learningunit', raise_exception=True)
+@perms.can_perform_learning_unit_modification
+def learning_unit_volumes_management(request, learning_unit_year_id):
+    context = get_common_context_learning_unit_year(
+        learning_unit_year_id,
+        get_object_or_404(Person, user=request.user)
+    )
+
+    context['learning_units'] = learning_unit_year_with_context.get_with_context(
+        learning_container_year_id=context['learning_unit_year'].learning_container_year_id
+    )
+
+    volume_edition_formset_container = VolumeEditionFormsetContainer(request, context['learning_units'])
+
+    if volume_edition_formset_container.is_valid() and not request.is_ajax():
+        try:
+            volume_edition_formset_container.save()
+            display_success_messages(request, _('success_modification_learning_unit'))
+            return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
+
+        except IntegrityError:
+            display_error_messages(request, _("error_modification_learning_unit"))
+
+    context['formsets'] = volume_edition_formset_container.formsets
+    context['tab_active'] = 'components'
+    context['experimental_phase'] = True
+
+    if request.is_ajax():
+        return JsonResponse({'errors': volume_edition_formset_container.errors})
+
+    return layout.render(request, "learning_unit/volumes_management.html", context)

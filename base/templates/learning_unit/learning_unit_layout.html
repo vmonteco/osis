@@ -32,6 +32,7 @@
             <div role="tabpanel" class="tab-pane active">
 
                 {% block form %}
+
                     <form method="post" id="LearningUnitYearForm"
                           data-validate-url="{% url 'check_acronym' type=learning_unit_year.subtype %}">
                         {% csrf_token %}
@@ -97,6 +98,10 @@
                             {% endblock submit %}
                         </div>
                     </form>
+
+                    {% block modal %}
+                    {% endblock modal %}
+
                 {% endblock form %}
 
             </div>

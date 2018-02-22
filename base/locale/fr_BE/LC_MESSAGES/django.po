@@ -2550,13 +2550,43 @@ msgid "requirement_entity_end_date_too_short"
 msgstr "La durée de vie de l'entité responsable cahier de charges est trop courte."
 
 msgid "requirement_and_allocation_entities_cannot_be_different"
-msgstr "L'entité responsable cahier de charges et celle d'attribution ne peuvent pas être différentes."
+msgstr "L'entité responsable cahier de charges et celle d'attribution ne peuvent pas être différentes pour ce type d'unite d'enseignement."
 
 msgid "success_modification_learning_unit"
 msgstr "L'unité d'enseignement a été modifiée."
+
+msgid "error_modification_learning_unit"
+msgstr "Erreur lors de la modification de l'unité d'enseignement."
 
 msgid "cannot_set_internship_subtype_for_type_other_than_internship"
 msgstr "Le sous-type de stage ne peut pas être séléctionnné pour un type d'unité d'enseignement autre que stage."
 
 msgid "%(subtype)s %(acronym)s is in proposal"
 msgstr "%(subtype)s %(acronym)s est en proposition"
+
+msgid "volume_have_more_than_2_decimal_places"
+msgstr "Le volume a plus de 2 décimales"
+
+msgid "Site"
+msgstr "Site"
+
+msgid "proposal_type"
+msgstr "Type proposition"
+
+msgid "proposal_status"
+msgstr "Etat proposition"
+
+msgid "folder_entity"
+msgstr "Sigle dossier"
+
+msgid "proposals_search"
+msgstr "Recherche - Propositions"
+
+msgid "folder_num"
+msgstr "N° dossier"
+
+msgid "ask_to_report_modification"
+msgstr "Voulez-vous reporter les modifications faites pour les années suivantes ?"
+
+msgid "proposal_creation"
+msgstr "Proposition de création"

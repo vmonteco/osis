@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% load staticfiles %}
 {% load i18n %}
+{% load bootstrap3 %}
 
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
@@ -32,23 +33,33 @@
 {% endblock %}
 
 {% block content %}
+{% if request.GET.academic_year_id and request.GET.academic_year_id != '0' %}
+    {% url 'learning_unit_create' academic_year=request.GET.academic_year_id as create_url%}
+{% else %}
+    {% url 'learning_unit_create' academic_year=current_academic_year.id as create_url%}
+{% endif %}
+
 {% include "template_messages.html" %}
 
 <div class="page-header">
     <div class="row">
-        <div class="col-md-11">
+        <div class="col-md-10">
             <h2>{% trans 'learning_units' %}</h2>
         </div>
-        <div class="col-md-1" style="margin-top:20px;">
-            {% if request.GET.academic_year_id and request.GET.academic_year_id != '0' %}
-                <a href="{% url 'learning_unit_create' academic_year=request.GET.academic_year_id %}"
-                   id="lnk_learning_unit_create" class="btn btn-default pull-right" role="button" title="{% trans 'new_learning_unit' %}">
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
-            {% else %}
-                <a href="{% url 'learning_unit_create' academic_year=current_academic_year.id %}"
-                   id="lnk_learning_unit_create" class="btn btn-default pull-right" role="button" title="{% trans 'new_learning_unit' %}">
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
-            {% endif %}
+        <div class="col-md-2" style="margin-top:20px;">
+            <div class="btn-group pull-right">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {% trans 'action' %} <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a href="{{ create_url }}" id="lnk_learning_unit_create">{% trans 'new_learning_unit' %}</a>
+                    </li>
+                    <li>
+                        <a href="#">{% trans 'proposal_creation' %}</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>
@@ -64,9 +75,17 @@
             {% trans 'service_course_search'%}
         </a>
     </li>
+    <li role="presentation" {% if search_type == 3 %} class="active" {% endif %}>
+        <a href="{% url 'learning_units_proposal'%}" role="tab" id="lnk_proposal_search">
+            {% trans 'proposals_search'%}
+        </a>
+    </li>
 </ul>
+{% if search_type == 3 %}
+    {% include 'learning_unit/by_proposal.html' %}
+{% else %}
     {% include 'learning_unit/by_activity.html' %}
-
+{% endif %}
 {% endblock %}
 
 {% block script %}

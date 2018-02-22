@@ -40,16 +40,14 @@ from django.utils.translation import ugettext_lazy as _
 
 import base.business.learning_unit
 from base.business import learning_unit as learning_unit_business
-from base.business.learning_unit_year_with_context import _get_requirement_entities_volumes
-from base.forms import learning_units
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
+from base.forms.learning_unit_search import SearchForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import learning_unit_component
 from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear
-from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type, active_status
 from base.models.enums import internship_subtypes
 from base.models.enums import learning_container_year_types, organization_type, entity_type
@@ -82,7 +80,6 @@ from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
 from base.views.learning_unit import compute_partim_form_initial_data, _get_post_data_without_read_only_field, \
     learning_unit_components, learning_class_year_edit
-from base.views.learning_unit import learning_unit_volumes_management
 from cms.enums import entity_name
 from cms.tests.factories.text_label import TextLabelFactory
 from cms.tests.factories.translated_text import TranslatedTextFactory
@@ -689,7 +686,7 @@ class LearningUnitViewTestCase(TestCase):
     def get_base_partim_form_data(self, original_learning_unit_year):
         data = self.get_common_data()
         data.update(self.get_partim_data(original_learning_unit_year))
-        data['partial_title'] = "Partim partial title"
+        data['specific_title'] = "Partim partial title"
         return data
 
     def get_common_data(self):
@@ -884,100 +881,19 @@ class LearningUnitViewTestCase(TestCase):
             data['PLANNED_CLASSES_{}_{}'.format(learning_unit_year.id, self.learning_component_yr.id)] = [2]
         return data
 
-    @mock.patch('base.views.layout.render')
-    @mock.patch('base.models.program_manager.is_program_manager')
-    def test_get_learning_unit_volumes_management_get(self, mock_program_manager, mock_render):
-        mock_program_manager.return_value = True
-
-        generated_container_year = GenerateContainer(
-            start_year=self.current_academic_year.year,
-            end_year=self.current_academic_year.year
-        ).generated_container_years[0]
-
-        learning_unit_year = generated_container_year.learning_unit_year_full
-        partim = generated_container_year.learning_unit_year_partim
-
-        request_factory = RequestFactory()
-        request_factory.user = self.a_superuser
-        url = reverse("learning_unit_volumes_management", args=[learning_unit_year.id])
-
-        request = request_factory.get(url)
-        request.user = self.a_superuser
-        learning_unit_volumes_management(request, learning_unit_year.id)
-        self.assertTrue(mock_render.called)
-
-        request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'learning_unit/volumes_management.html')
-        self.assertEqual(context['tab_active'], 'components')
-        self.assertEqual(context['current_academic_year'], self.current_academic_year)
-        self.assertEqual(context['learning_unit_year'], learning_unit_year)
-        self.assertEqual(context['learning_units'], [learning_unit_year, partim])
-
-        learning_full = context['learning_units'][0]
-        self.assertEqual(list(learning_full.components.keys()), [
-            generated_container_year.learning_component_cm_full,
-            generated_container_year.learning_component_tp_full
-        ])
-
-        planned_classes = generated_container_year.learning_component_cm_full.planned_classes
-        self.assertEqual(
-            learning_full.components[generated_container_year.learning_component_cm_full]['PLANNED_CLASSES'],
-            planned_classes
-        )
-
-        ecy = EntityComponentYear.objects.filter(
-            learning_component_year=generated_container_year.learning_component_cm_full
-        )
-        volumes_tot = sum(_get_requirement_entities_volumes(ecy).values())/planned_classes
-
-        self.assertAlmostEqual(learning_full.components[generated_container_year.learning_component_cm_full]['VOLUME_TOTAL'],
-                         volumes_tot)
-
-        learning_partim = context['learning_units'][1]
-        self.assertEqual(list(learning_partim.components.keys()), [
-            generated_container_year.learning_component_cm_partim,
-            generated_container_year.learning_component_tp_partim
-        ])
-
-    @mock.patch('base.views.layout.render')
-    @mock.patch('base.models.program_manager.is_program_manager')
-    def test_get_learning_unit_volumes_management_post(self, mock_program_manager, mock_render):
-        mock_program_manager.return_value = True
-
-        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
-                                                     learning_container_year=self.learning_container_yr)
-        learning_unit_year.save()
-
-        request_factory = RequestFactory()
-        request_factory.user = self.a_superuser
-        url = reverse("learning_unit_volumes_management", args=[learning_unit_year.id])
-
-        request = request_factory.post(url, self._get_volumes_data([learning_unit_year]))
-        request.user = self.a_superuser
-        learning_unit_volumes_management(request, learning_unit_year.id)
-        self.assertTrue(mock_render.called)
-
-    def test_volumes_validation(self):
-        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
-                                                     learning_container_year=self.learning_container_yr)
-        learning_unit_year.save()
-
-        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
-        url = reverse("volumes_validation", args=[learning_unit_year.id])
-
-        data = self._get_volumes_data(learning_unit_year)
-        # TODO inject wrong data
-        response = self.client.get(url, data, **kwargs)
-        self.assertEqual(response.status_code, 200)
-        self.assertJSONEqual(
-            str(response.content, encoding='utf8'),
-            {'errors': [],
-             }
-        )
+    @staticmethod
+    def _get_volumes_wrong_data(learning_unit_year, learning_component_year):
+        return {
+            'VOLUME_TOTAL_REQUIREMENT_ENTITIES_{}_{}'.format(learning_unit_year.id, learning_component_year.id): [60],
+            'VOLUME_Q1_{}_{}'.format(learning_unit_year.id, learning_component_year.id): [15],
+            'VOLUME_Q2_{}_{}'.format(learning_unit_year.id, learning_component_year.id): [20],
+            'VOLUME_TOTAL_{}_{}'.format(learning_unit_year.id, learning_component_year.id): [30],
+            'PLANNED_CLASSES_{}_{}'.format(learning_unit_year.id, learning_component_year.id): [2]
+        }
 
     @mock.patch("base.models.learning_unit_year.count_search_results")
     def test_error_message_case_too_many_results_to_show(self, mock_count):
-        mock_count.return_value = learning_units.MAX_RECORDS + 1
+        mock_count.return_value = SearchForm.MAX_RECORDS + 1
         response = self.client.get(reverse('learning_units'), {'academic_year_id': self.academic_year_1.id})
         messages = list(response.context['messages'])
         self.assertEqual(messages[0].message, _('too_many_results'))
@@ -1559,5 +1475,3 @@ class TestLearningUnitComponents(TestCase):
             volumes = component['volumes']
             self.assertEqual(volumes['VOLUME_Q1'], None)
             self.assertEqual(volumes['VOLUME_Q2'], None)
-
-
