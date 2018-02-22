@@ -33,6 +33,12 @@ from base import models as mdl
 from base.business import entity_version as business_entity_version
 from base.models.enums import entity_container_year_link_type as entity_types
 
+ENTITY_TYPES_VOLUME = [
+    entity_types.REQUIREMENT_ENTITY,
+    entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1,
+    entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2
+]
+
 
 class LearningUnitYearWithContext:
     def __init__(self, **kwargs):
@@ -43,11 +49,7 @@ def get_with_context(**learning_unit_year_data):
     entity_container_prefetch = models.Prefetch(
         'learning_container_year__entitycontaineryear_set',
         queryset=mdl.entity_container_year.search(
-            link_type=[
-                entity_types.REQUIREMENT_ENTITY,
-                entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1,
-                entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2
-            ]
+            link_type=ENTITY_TYPES_VOLUME
         ).prefetch_related(
             models.Prefetch('entity__entityversion_set', to_attr='entity_versions')
         ),

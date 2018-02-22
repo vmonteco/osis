@@ -77,7 +77,7 @@ def learning_unit_edition(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_edit_learningunit', raise_exception=True)
 @perms.can_perform_learning_unit_modification
-def modify_learning_unit(request, learning_unit_year_id, with_report=False):
+def modify_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     person = get_object_or_404(Person, user=request.user)
     initial_data = compute_learning_unit_modification_form_initial_data(learning_unit_year)
@@ -88,8 +88,10 @@ def modify_learning_unit(request, learning_unit_year_id, with_report=False):
         lu_type_full_data = form.get_data_for_learning_unit()
 
         try:
-            update_learning_unit_year_with_report(learning_unit_year, lu_type_full_data, with_report)
-            update_learning_unit_year_entities_with_report(learning_unit_year, entities_data, with_report)
+            postponement = bool(int(request.POST.get('postponement', 1)))
+
+            update_learning_unit_year_with_report(learning_unit_year, lu_type_full_data, postponement)
+            update_learning_unit_year_entities_with_report(learning_unit_year, entities_data, postponement)
 
             display_success_messages(request, _("success_modification_learning_unit"))
 
@@ -147,7 +149,8 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
 
     if volume_edition_formset_container.is_valid() and not request.is_ajax():
         try:
-            volume_edition_formset_container.save()
+            postponement = int(request.POST.get('postponement', 1))
+            volume_edition_formset_container.save(postponement)
             display_success_messages(request, _('success_modification_learning_unit'))
             return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
 
