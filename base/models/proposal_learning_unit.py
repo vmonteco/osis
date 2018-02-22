@@ -59,6 +59,7 @@ class ProposalLearningUnit(models.Model):
             ("can_edit_learning_unit_proposal", "Can edit learning unit proposal"),
         )
 
+
 def find_by_learning_unit_year(a_learning_unit_year):
     try:
         return ProposalLearningUnit.objects.get(learning_unit_year=a_learning_unit_year)
