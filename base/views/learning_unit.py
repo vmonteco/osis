@@ -613,7 +613,16 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
 
     learning_unit_yr_proposal = mdl_base.proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
 
+    differences_detail = get_difference_of_proposal(learning_unit_yr_proposal)
+    context['differences'] = differences_detail.get('differences')
+    for title_key, title_value in differences_detail.get('entity_titles').items():
+        context[title_key] = title_value
+    return context
+
+
+def get_difference_of_proposal(learning_unit_yr_proposal):
     differences = {}
+    entity_titles = {}
     if learning_unit_yr_proposal:
         learning_unit_yr_initial_data = learning_unit_yr_proposal.initial_data.get('learning_unit_year')
         learning_container_yr_initial_data = learning_unit_yr_proposal.initial_data.get('learning_container_year')
@@ -638,24 +647,24 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
         learning_container_yr = mdl_base.learning_container_year.find_by_id(initial_learning_container_yr_id)
         if learning_container_yr:
             for entity_type, entity_id in learning_unit_yr_proposal.initial_data.get('entities').items():
-                entity_cont_yr = mdl_base.entity_container_year\
+                entity_cont_yr = mdl_base.entity_container_year \
                     .find_by_learning_container_year_and_linktype_with_entity_versions(learning_container_yr,
                                                                                        entity_type)
                 if entity_cont_yr:
                     if entity_cont_yr.entity.id != entity_id:
+                        differences.update({entity_type: "-"})
                         if entity_id:
                             old_value = mdl_base.entity.Entity.objects.get(pk=entity_id)
                             differences.update({entity_type: "{} : {}".format(_('value_before_proposal'),
                                                                               old_value.most_recent_acronym)})
-                        else:
-                            differences.update({entity_type: "-"})
                     else:
+                        entity_title_key = '{}_title'.format(entity_type)
+                        entity_titles.update({entity_title_key: '-'})
                         if entity_cont_yr.get_latest_entity_version():
-                            context['{}_title'.format(entity_type)] = entity_cont_yr.get_latest_entity_version().title
-                        else:
-                            context['{}_title'.format(entity_type)] = "?,,,,,,,,,,,,,,,,"
-    context['differences'] = differences
-    return context
+                            entity_titles.update({entity_title_key: entity_cont_yr.get_latest_entity_version().title})
+
+    return {'differences':  differences,
+            'entity_titles': entity_titles}
 
 
 def _compare_model_with_initial_value(an_id, model_initial_data, mymodel):
@@ -673,9 +682,8 @@ def _check_differences(initial_data, actual_data):
     differences = {}
     if initial_data:
         for attribute, initial_value in initial_data.items():
-            if attribute in corrected_dict:
-                if initial_data.get(attribute, None) != corrected_dict.get(attribute):
-                    differences.update(_get_the_old_value(attribute, actual_data, initial_data))
+            if attribute in corrected_dict and initial_data.get(attribute, None) != corrected_dict.get(attribute):
+                differences.update(_get_the_old_value(attribute, actual_data, initial_data))
     return differences
 
 

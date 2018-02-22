@@ -139,8 +139,10 @@ def get_all_attributions(learning_unit_year):
 
         attributions['requirement_entity'] = all_attributions.get(entity_container_year_link_type.REQUIREMENT_ENTITY)
         attributions['allocation_entity'] = all_attributions.get(entity_container_year_link_type.ALLOCATION_ENTITY)
-        attributions['additional_requirement_entity_1']=all_attributions.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
-        attributions['additional_requirement_entity_2']=all_attributions.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
+        attributions['additional_requirement_entity_1'] = \
+            all_attributions.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
+        attributions['additional_requirement_entity_2'] = \
+            all_attributions.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
     return attributions
 
 
