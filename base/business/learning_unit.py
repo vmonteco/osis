@@ -231,11 +231,10 @@ def create_learning_unit_structure(additional_requirement_entity_1, additional_r
             additional_requirement_entity_2, new_learning_container_yr,
             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2))
 
-    return create_learning_unit_content({'academic_year': academic_year, 'data': data,
+    return create_learning_unit_content({'academic_year': academic_year, 'data': data, 'status': status,
                                          'new_learning_container_year': new_learning_container_yr,
                                          'new_learning_unit': new_learning_unit,
-                                         'requirement_entity_containers': requirement_entity_containers,
-                                         'status': status})
+                                         'requirement_entity_containers': requirement_entity_containers})
 
 
 def create_with_untyped_component(data_dict):
