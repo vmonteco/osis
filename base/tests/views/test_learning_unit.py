@@ -82,7 +82,8 @@ from base.views.learning_unit import compute_partim_form_initial_data, _get_post
     learning_unit_components, learning_class_year_edit, _compare_model_with_initial_value, \
     _get_the_old_value, _is_foreign_key, END_FOREIGN_KEY_NAME, VALUES_WHICH_NEED_TRANSLATION, \
     _get_str_representing_old_data_from_foreign_key, LABEL_VALUE_BEFORE_PROPROSAL, \
-    _replace_key_of_foreign_key, _check_differences, _get_difference_of_proposal
+    _replace_key_of_foreign_key, _check_differences, _get_difference_of_proposal, _get_old_value_of_foreign_key, \
+    NO_PREVIOUS_VALUE, _has_changed_entity
 from cms.enums import entity_name
 from cms.tests.factories.text_label import TextLabelFactory
 from cms.tests.factories.translated_text import TranslatedTextFactory
@@ -1582,6 +1583,10 @@ class TestLearningUnitProposalDisplay(TestCase):
         differences = _get_str_representing_old_data_from_foreign_key('campus', self.campus.id)
         self.assertEqual(differences.get('campus'), "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL,  self.campus))
 
+    def test_get_str_representing_old_data_from_foreign_key_equals_no_value(self):
+        differences = _get_str_representing_old_data_from_foreign_key('campus', NO_PREVIOUS_VALUE)
+        self.assertEqual(differences.get('campus'), "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL, NO_PREVIOUS_VALUE))
+
     def test_replace_key_of_foreign_key(self):
         changed_dict = _replace_key_of_foreign_key({'key1{}'.format(END_FOREIGN_KEY_NAME): 1, 'key2': 2})
         self.assertEqual(changed_dict, {'key1': 1, 'key2': 2})
@@ -1598,3 +1603,25 @@ class TestLearningUnitProposalDisplay(TestCase):
 
     def test_get_difference_of_proposal(self):
         self.assertEqual(_get_difference_of_proposal(None), {})
+
+    def test_get_old_value_of_foreign_key_for_campus(self):
+        differences = _get_old_value_of_foreign_key('campus', self.campus.id)
+        self.assertEqual(differences.get('campus'), "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL,
+                                                                     self.campus))
+
+    def test_get_old_value_of_foreign_key_for_language(self):
+        differences = _get_old_value_of_foreign_key('language', self.language_it.id)
+        self.assertEqual(differences.get('language'), "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL,
+                                                                       self.language_it))
+
+    def test_has_changed_entity(self):
+        an_entity = EntityFactory()
+        an_entity_container_year = EntityContainerYearFactory(entity=an_entity)
+
+        an_other_entity = EntityFactory()
+
+        self.assertTrue(_has_changed_entity(an_entity_container_year, an_other_entity.id ))
+        self.assertFalse(_has_changed_entity(an_entity_container_year, an_entity.id ))
+
+
+

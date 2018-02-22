@@ -617,7 +617,6 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
 
 def _get_difference_of_proposal(learning_unit_yr_proposal):
     differences = {}
-    entity_titles = {}
     if learning_unit_yr_proposal:
         differences.update(_get_differences_in_learning_unit_data(learning_unit_yr_proposal))
         learning_container_yr = mdl_base.learning_container_year\
@@ -667,13 +666,6 @@ def _get_differences_in_learning_unit_data(learning_unit_yr_proposal):
                                                          apps.get_model(app_label=APP_BASE_LABEL,
                                                                         model_name="LearningUnit")))
     return differences
-
-
-def _get_entity_titles(entity_container_yr, entity_type):
-    entity_title_key = '{}_title'.format(entity_type)
-    if entity_container_yr and entity_container_yr.get_latest_entity_version():
-        return {entity_title_key: entity_container_yr.get_latest_entity_version().title}
-    return {entity_title_key: '-'}
 
 
 def _compare_model_with_initial_value(an_id, model_initial_data, mymodel):
