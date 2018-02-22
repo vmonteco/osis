@@ -1511,7 +1511,11 @@ class TestLearningUnitProposalDisplay(TestCase):
         cls.initial_data_learning_unit_year = {'credits': cls.initial_credits,
                                                'quadrimester': cls.initial_quadrimester}
 
-        cls.intitial_language_en = cls.language_it
+        cls.initial_language_en = cls.language_it
+        cls.generator_learning_container = GenerateContainer(start_year=cls.academic_year.year,
+                                                         end_year=cls.academic_year.year + 1 )
+        cls.l_container_year_with_entities = cls.generator_learning_container.generated_container_years[0]
+
 
     def test_is_foreign_key(self):
         actual_data = {"language{}".format(END_FOREIGN_KEY_NAME): self.language_it.id}
@@ -1631,11 +1635,8 @@ class TestLearningUnitProposalDisplay(TestCase):
         self.assertFalse(_has_changed_entity(an_entity_container_year, an_entity.id ))
 
     def test_get_difference_of_entity_proposal_no_difference(self):
-        generator_learning_container = GenerateContainer(start_year=self.academic_year.year,
-                                                         end_year=self.academic_year.year + 1 )
-
-        l_container_year = generator_learning_container.generated_container_years[0]
-        requirement_entity = generator_learning_container.generated_container_years[0].requirement_entity_container_year.entity
+        l_container_year = self.l_container_year_with_entities
+        requirement_entity = self.generator_learning_container.generated_container_years[0].requirement_entity_container_year.entity
         learning_unit_proposal = ProposalLearningUnitFactory(
             learning_unit_year= l_container_year.learning_unit_year_full,
             initial_data={"entities":
@@ -1647,12 +1648,10 @@ class TestLearningUnitProposalDisplay(TestCase):
     def test_get_difference_of_entity_proposal_with_difference(self):
         an_entity = EntityFactory()
 
-        generator_learning_container = GenerateContainer(start_year=self.academic_year.year,
-                                                         end_year=self.academic_year.year + 1 )
-        l_container_year = generator_learning_container.generated_container_years[0]
+        l_container_year = self.l_container_year_with_entities
 
         learning_unit_proposal = ProposalLearningUnitFactory(
-            learning_unit_year= l_container_year.learning_unit_year_full,
+            learning_unit_year= self.l_container_year_with_entities.learning_unit_year_full,
             initial_data={"entities": {entity_container_year_link_type.REQUIREMENT_ENTITY : an_entity.id}})
 
         differences = _get_difference_of_entity_proposal(l_container_year.learning_container_year, learning_unit_proposal)
