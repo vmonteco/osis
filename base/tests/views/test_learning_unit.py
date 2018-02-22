@@ -83,7 +83,7 @@ from base.views.learning_unit import compute_partim_form_initial_data, _get_post
     _get_the_old_value, _is_foreign_key, END_FOREIGN_KEY_NAME, VALUES_WHICH_NEED_TRANSLATION, \
     _get_str_representing_old_data_from_foreign_key, LABEL_VALUE_BEFORE_PROPROSAL, \
     _replace_key_of_foreign_key, _check_differences, _get_difference_of_proposal, _get_old_value_of_foreign_key, \
-    NO_PREVIOUS_VALUE, _has_changed_entity
+    NO_PREVIOUS_VALUE, _has_changed_entity, _get_difference_of_entity_proposal
 from cms.enums import entity_name
 from cms.tests.factories.text_label import TextLabelFactory
 from cms.tests.factories.translated_text import TranslatedTextFactory
@@ -1632,3 +1632,32 @@ class TestLearningUnitProposalDisplay(TestCase):
 
 
 
+
+    def test_get_difference_of_entity_proposal_no_difference(self):
+        generator_learning_container = GenerateContainer(start_year=self.academic_year.year,
+                                                         end_year=self.academic_year.year + 1 )
+
+        l_container_year = generator_learning_container.generated_container_years[0]
+        requirement_entity = generator_learning_container.generated_container_years[0].requirement_entity_container_year.entity
+        learning_unit_proposal = ProposalLearningUnitFactory(
+            learning_unit_year= l_container_year.learning_unit_year_full,
+            initial_data={"entities":
+                              {entity_container_year_link_type.REQUIREMENT_ENTITY : requirement_entity.id}})
+
+        differences = _get_difference_of_entity_proposal(l_container_year.learning_container_year, learning_unit_proposal)
+        self.assertEqual(differences, {})
+
+
+    def test_get_difference_of_entity_proposal_with_difference(self):
+        an_entity = EntityFactory()
+
+        generator_learning_container = GenerateContainer(start_year=self.academic_year.year,
+                                                         end_year=self.academic_year.year + 1 )
+        l_container_year = generator_learning_container.generated_container_years[0]
+
+        learning_unit_proposal = ProposalLearningUnitFactory(
+            learning_unit_year= l_container_year.learning_unit_year_full,
+            initial_data={"entities": {entity_container_year_link_type.REQUIREMENT_ENTITY : an_entity.id}})
+
+        differences = _get_difference_of_entity_proposal(l_container_year.learning_container_year, learning_unit_proposal)
+        self.assertEqual(len(differences), 1)
