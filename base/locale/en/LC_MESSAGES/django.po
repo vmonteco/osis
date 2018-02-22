@@ -2581,5 +2581,8 @@ msgstr "Folder num."
 msgid "ask_to_report_modification"
 msgstr "Do you want to report the modifications done to the next years ?"
 
+msgid "proposal_creation"
+msgstr "Proposal of creation"
+
 msgid "value_before_proposal"
 msgstr "Value before proposal"
