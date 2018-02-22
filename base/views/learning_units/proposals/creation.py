@@ -78,8 +78,8 @@ def proposal_learning_unit_add(request):
         show_success_learning_unit_year_creation_message(request, luy_created,
                                                          'proposal_learning_unit_successfuly_created')
         return redirect('learning_units')
-    return layout.render(request, "learning_unit/proposal/creation.html", {'learning_unit_form': learning_unit_form,
-                                                             'proposal_form': proposal_form, 'person': person})
+    return layout.render(request, "learning_unit/proposal/creation.html",
+                         {'learning_unit_form': learning_unit_form, 'proposal_form': proposal_form, 'person': person})
 
 
 def create_proposal_structure(data_proposal, luy_created, person):
