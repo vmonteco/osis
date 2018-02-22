@@ -312,10 +312,10 @@ def _create_entity_component_year_if_not_exists(an_entity_container):
        learning_container_year=an_entity_container.learning_container_year
     )
     for learning_component_yr in learning_component_yr_list:
-       entity_component_year.EntityComponentYear.objects.get_or_create(
-           entity_container_year=an_entity_container,
-           learning_component_year= learning_component_yr
-       )
+        entity_component_year.EntityComponentYear.objects.get_or_create(
+            entity_container_year=an_entity_container,
+            learning_component_year=learning_component_yr
+        )
 
 
 def _delete_entity_container_year(learning_container_year, type_entity):
