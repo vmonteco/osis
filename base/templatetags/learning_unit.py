@@ -55,10 +55,6 @@ def academic_year(year):
 
 @register.filter
 def get_difference_css(differences, parameter):
-    print('get_css {}'.format(parameter))
     if differences.get(parameter, None):
-        print('if {} '.format(differences.get(parameter)))
         return " data-toggle=tooltip title='{}' class={} ".format(differences.get(parameter), "proposal_value")
-    else:
-        print('else {}'.format(parameter))
     return None

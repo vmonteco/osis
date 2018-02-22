@@ -610,11 +610,8 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context['proposal_folder_entity_version'] = mdl_base.entity_version.get_by_entity_and_date(
         context['proposal'].folder.entity, None) if context['proposal'] else None
     context['can_delete'] = learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year)
-
     learning_unit_yr_proposal = mdl_base.proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
-
     context['differences'] = _get_difference_of_proposal(learning_unit_yr_proposal)
-
     return context
 
 
