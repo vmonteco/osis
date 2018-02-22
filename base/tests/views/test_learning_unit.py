@@ -1630,9 +1630,6 @@ class TestLearningUnitProposalDisplay(TestCase):
         self.assertTrue(_has_changed_entity(an_entity_container_year, an_other_entity.id ))
         self.assertFalse(_has_changed_entity(an_entity_container_year, an_entity.id ))
 
-
-
-
     def test_get_difference_of_entity_proposal_no_difference(self):
         generator_learning_container = GenerateContainer(start_year=self.academic_year.year,
                                                          end_year=self.academic_year.year + 1 )
@@ -1646,7 +1643,6 @@ class TestLearningUnitProposalDisplay(TestCase):
 
         differences = _get_difference_of_entity_proposal(l_container_year.learning_container_year, learning_unit_proposal)
         self.assertEqual(differences, {})
-
 
     def test_get_difference_of_entity_proposal_with_difference(self):
         an_entity = EntityFactory()
