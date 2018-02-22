@@ -36,6 +36,7 @@ from base.models.enums import learning_unit_year_subtypes, learning_container_ye
     entity_type, learning_unit_periodicity
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import FACULTY_MANAGER_GROUP
+from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories import academic_year as academic_year_factory, campus as campus_factory, \
     organization as organization_factory, person as factory_person, user as factory_user
 from base.tests.factories.entity import EntityFactory
@@ -101,6 +102,9 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
         count_learning_unit_year = LearningUnitYear.objects.all().count()
         self.assertEqual(count_learning_unit_year, 1)
+        count_proposition_by_author = ProposalLearningUnit.objects.filter(author=self.person).count()
+        self.assertEqual(count_proposition_by_author, 1)
+
 
     def get_invalid_data(self):
         faultydict = dict(self.get_valid_data())
@@ -120,6 +124,8 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         count_learning_unit_year = LearningUnitYear.objects.all().count()
         self.assertEqual(count_learning_unit_year, 0)
+        count_proposition_by_author = ProposalLearningUnit.objects.filter(author=self.person).count()
+        self.assertEqual(count_proposition_by_author, 0)
 
     def get_empty_required_fields(self):
         faultydict = dict(self.get_valid_data())
@@ -156,3 +162,5 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
         count_learning_unit_year = LearningUnitYear.objects.all().count()
         self.assertEqual(count_learning_unit_year, 1)
+        count_proposition_by_author = ProposalLearningUnit.objects.filter(author=self.faculty_person).count()
+        self.assertEqual(count_proposition_by_author, 1)
