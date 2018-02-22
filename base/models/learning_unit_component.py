@@ -40,6 +40,7 @@ class LearningUnitComponentAdmin(AuditableSerializableModelAdmin):
 
 class LearningUnitComponent(AuditableSerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
+    changed = models.DateTimeField(null=True, auto_now=True)
     learning_unit_year = models.ForeignKey('LearningUnitYear')
     learning_component_year = models.ForeignKey('LearningComponentYear')
     type = models.CharField(max_length=25, blank=True, null=True, choices=component_type.COMPONENT_TYPES, db_index=True)
