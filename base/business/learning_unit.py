@@ -213,33 +213,25 @@ def create_learning_unit_structure(additional_requirement_entity_1, additional_r
                                                                      common_title=data['common_title'],
                                                                      acronym=data['acronym'].upper(),
                                                                      container_type=data['container_type'],
-                                                                     language=data['language'],
-                                                                     campus=campus,
+                                                                     language=data['language'], campus=campus,
                                                                      common_title_english=data['common_title_english'])
-
     # Create Allocation Entity container
     create_entity_container_year(allocation_entity_version, new_learning_container_yr,
                                  entity_container_year_link_type.ALLOCATION_ENTITY)
 
     # Create All Requirements Entity Container [Min 1, Max 3]
-    requirement_entity_containers = [
-        create_entity_container_year(requirement_entity_version, new_learning_container_yr,
-                                     entity_container_year_link_type.REQUIREMENT_ENTITY)
-    ]
+    requirement_entity_containers = [create_entity_container_year(requirement_entity_version, new_learning_container_yr,
+                                                                  entity_container_year_link_type.REQUIREMENT_ENTITY)]
     if additional_requirement_entity_1:
-        additional_entity_container_1 = create_entity_container_year(
+        requirement_entity_containers.append(create_entity_container_year(
             additional_requirement_entity_1, new_learning_container_yr,
-            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
-        requirement_entity_containers.append(additional_entity_container_1)
-
+            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1))
     if additional_requirement_entity_2:
-        additional_entity_container_2 = create_entity_container_year(
+        requirement_entity_containers.append(create_entity_container_year(
             additional_requirement_entity_2, new_learning_container_yr,
-            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
-        requirement_entity_containers.append(additional_entity_container_2)
+            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2))
 
-    return create_learning_unit_content({'academic_year': academic_year,
-                                         'data': data,
+    return create_learning_unit_content({'academic_year': academic_year, 'data': data,
                                          'new_learning_container_year': new_learning_container_yr,
                                          'new_learning_unit': new_learning_unit,
                                          'requirement_entity_containers': requirement_entity_containers,
