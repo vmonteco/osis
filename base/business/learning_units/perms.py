@@ -72,6 +72,10 @@ def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
     return is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_proposal.learning_unit_year, a_person)
 
 
+def is_eligible_for_edit_of_proposal(a_person):
+    return a_person.user.groups.filter(name='central_managers').exists()
+
+
 def is_eligible_for_modification_end_date(learn_unit_year, a_person):
     if is_old_learning_unit(learn_unit_year.learning_unit):
         return False
