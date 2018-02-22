@@ -34,6 +34,7 @@ from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_unit_deletion import delete_from_given_learning_unit_year, \
     check_learning_unit_year_deletion
 from base.business.utils.model import update_instance_model_from_data
+from base.models import entity_component_year
 from base.models import entity_container_year, learning_component_year, learning_class_year, learning_unit_component
 from base.models.academic_year import AcademicYear
 from base.models.entity_component_year import EntityComponentYear
@@ -292,16 +293,38 @@ def _update_learning_unit_year(luy_to_update, fields_to_update, fields_to_exclud
 def _update_learning_unit_year_entities(luy, entities_by_type_to_update):
     for entity_link_type, entity, in entities_by_type_to_update.items():
         if entity:
-            _update_entity_container_year(entity, luy.learning_container_year, entity_link_type)
+            entity_container_yr = _update_entity_container_year(entity, luy.learning_container_year, entity_link_type)
+            _create_entity_component_year_if_not_exists(entity_container_yr)
         else:
+            _delete_entity_component_year(luy.learning_container_year, entity_link_type)
             _delete_entity_container_year(luy.learning_container_year, entity_link_type)
 
 
 def _update_entity_container_year(an_entity, learning_container_year, type_entity):
-    entity_container_year.EntityContainerYear.objects.update_or_create(
+    entity_container_yr, created = entity_container_year.EntityContainerYear.objects.update_or_create(
         type=type_entity, learning_container_year=learning_container_year, defaults={"entity": an_entity})
+    return entity_container_yr
+
+
+def _create_entity_component_year_if_not_exists(an_entity_container):
+    """We must create an entity component year for each component (Full+Partim)"""
+    learning_component_yr_list = learning_component_year.find_by_learning_container_year(
+       learning_container_year=an_entity_container.learning_container_year
+    )
+    for learning_component_yr in learning_component_yr_list:
+       entity_component_year.EntityComponentYear.objects.get_or_create(
+           entity_container_year=an_entity_container,
+           learning_component_year= learning_component_yr
+       )
 
 
 def _delete_entity_container_year(learning_container_year, type_entity):
     entity_container_year.EntityContainerYear.objects.filter(
         type=type_entity, learning_container_year=learning_container_year).delete()
+
+
+def _delete_entity_component_year(learning_container_year, type_entity):
+    entity_component_year.EntityComponentYear.objects.filter(
+        entity_container_year__learning_container_year=learning_container_year,
+        entity_container_year__type=type_entity
+    ).delete()

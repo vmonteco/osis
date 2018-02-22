@@ -37,6 +37,7 @@ from base.business.learning_units.edition import edit_learning_unit_end_date, up
 from base.models import academic_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
+from base.models.enums import learning_component_year_type
 from base.models.enums import learning_unit_year_subtypes, learning_unit_periodicity, learning_container_year_types, \
     attribution_procedure, internship_subtypes, learning_unit_year_session, learning_unit_year_quadrimesters, \
     vacant_declaration_type, entity_container_year_link_type
@@ -51,6 +52,7 @@ from base.tests.factories.entity_component_year import EntityComponentYearFactor
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_class_year import LearningClassYearFactory
+from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
@@ -898,22 +900,34 @@ class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
             academic_year=self.current_academic_year,
             subtype=learning_unit_year_subtypes.FULL,
             attribution_procedure=attribution_procedure.INTERNAL_TEAM)
+        self.learning_component_year = LearningComponentYearFactory(
+            learning_container_year=self.learning_container_year,
+            acronym="CM",
+            type=learning_component_year_type.LECTURING)
 
         self.requirement_entity_container = EntityContainerYearFactory(
             learning_container_year=self.learning_container_year,
             type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+        EntityComponentYearFactory(entity_container_year=self.requirement_entity_container,
+                                   learning_component_year=self.learning_component_year)
 
         self.allocation_entity_container = EntityContainerYearFactory(
             learning_container_year=self.learning_container_year,
             type=entity_container_year_link_type.ALLOCATION_ENTITY)
+        EntityComponentYearFactory(entity_container_year=self.allocation_entity_container,
+                                   learning_component_year=self.learning_component_year)
 
         self.additional_entity_container_1 = EntityContainerYearFactory(
             learning_container_year=self.learning_container_year,
             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
+        EntityComponentYearFactory(entity_container_year=self.additional_entity_container_1,
+                                   learning_component_year=self.learning_component_year)
 
         self.additional_entity_container_2 = EntityContainerYearFactory(
             learning_container_year=self.learning_container_year,
             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
+        EntityComponentYearFactory(entity_container_year=self.additional_entity_container_2,
+                                   learning_component_year=self.learning_component_year)
 
     def test_with_no_entities_to_update(self):
         update_learning_unit_year_entities_with_report(self.learning_unit_year, {})
@@ -959,8 +973,27 @@ class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
         self.assert_entity_has_not_changed(self.allocation_entity_container)
         self.assert_entity_has_not_changed(self.additional_entity_container_1)
 
+        id_obj_deleted = self.additional_entity_container_2.id
         with self.assertRaises(ObjectDoesNotExist):
-            EntityContainerYear.objects.get(id=self.additional_entity_container_2.id)
+            EntityComponentYear.objects.filter(entity_container_year=id_obj_deleted,
+                                               learning_component_year=self.learning_component_year.id).get()
+        with self.assertRaises(ObjectDoesNotExist):
+            EntityContainerYear.objects.get(id=id_obj_deleted)
+
+    def test_with_entity_none_and_full_in(self):
+        EntityComponentYear.objects.filter(entity_container_year=self.additional_entity_container_2.id,
+                                           learning_component_year=self.learning_component_year.id).delete()
+        self.additional_entity_container_2.delete()
+
+        a_new_additional_requirement_entity = EntityFactory()
+        entities_to_update = {
+            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: a_new_additional_requirement_entity
+        }
+        update_learning_unit_year_entities_with_report(self.learning_unit_year, entities_to_update)
+
+        self.assertTrue(EntityComponentYear.objects.filter(
+            entity_container_year__entity=a_new_additional_requirement_entity,
+            learning_component_year=self.learning_component_year.id).count())
 
     def test_apply_changes_to_next_learning_unit_year(self):
         a_learning_unit = self.setup_learning_unit(self.current_academic_year.year)
