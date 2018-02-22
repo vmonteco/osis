@@ -25,6 +25,7 @@
 ##############################################################################
 import datetime
 
+from django.contrib.auth.models import Group, Permission
 from django.http import HttpResponse
 from django.test import TestCase
 from django.urls import reverse
@@ -34,6 +35,7 @@ from base.forms.learning_unit.proposal import creation
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, organization_type, \
     entity_type, learning_unit_periodicity
 from base.models.learning_unit_year import LearningUnitYear
+from base.models.person import FACULTY_MANAGER_GROUP
 from base.tests.factories import academic_year as academic_year_factory, campus as campus_factory, \
     organization as organization_factory, person as factory_person, user as factory_user
 from base.tests.factories.entity import EntityFactory
@@ -44,9 +46,12 @@ from reference.tests.factories.language import LanguageFactory
 class LearningUnitViewTestCase(TestCase):
     def setUp(self):
         today = datetime.date.today()
-        self.a_superuser = factory_user.SuperUserFactory()
-        self.person = factory_person.PersonFactory(user=self.a_superuser)
-        self.client.force_login(self.person.user)
+        self.faculty_user = factory_user.UserFactory()
+        self.faculty_user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
+        self.faculty_person = factory_person.PersonFactory(user=self.faculty_user)
+        self.faculty_user.user_permissions.add(Permission.objects.get(name='Can propose learning unit '))
+        self.super_user = factory_user.SuperUserFactory()
+        self.person = factory_person.PersonFactory(user=self.super_user)
         self.current_academic_year = academic_year_factory.create_current_academic_year()
         self.language = LanguageFactory(code='FR')
         self.organization = organization_factory.OrganizationFactory(type=organization_type.MAIN)
@@ -55,7 +60,6 @@ class LearningUnitViewTestCase(TestCase):
         self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL,
                                                    start_date=today - datetime.timedelta(days=1),
                                                    end_date=today.replace(year=today.year + 1))
-        self.url = reverse('proposal_learning_unit_creation_form', args=[self.current_academic_year.id])
 
     def get_valid_data(self):
         return {
@@ -77,7 +81,9 @@ class LearningUnitViewTestCase(TestCase):
         }
 
     def test_get_proposal_learning_unit_creation_form(self):
-        response = self.client.get(self.url)
+        self.client.force_login(self.person.user)
+        url = reverse('proposal_learning_unit_creation_form', args=[self.current_academic_year.id])
+        response = self.client.get(url)
         self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, 'learning_unit/proposal/creation.html')
         self.assertIsInstance(response.context['learning_unit_form'], creation.LearningUnitProposalCreationForm)
@@ -89,11 +95,31 @@ class LearningUnitViewTestCase(TestCase):
         proposal_form = creation.LearningUnitProposalForm(data=self.get_valid_data())
         self.assertTrue(learning_unit_form.is_valid(), learning_unit_form.errors)
         self.assertTrue(proposal_form.is_valid(), proposal_form.errors)
+        self.client.force_login(self.person.user)
         url = reverse('proposal_learning_unit_add')
         response = self.client.post(url, data=self.get_valid_data())
         self.assertEqual(response.status_code, 302)
         count_learning_unit_year = LearningUnitYear.objects.all().count()
         self.assertEqual(count_learning_unit_year, 1)
+
+    def get_invalid_data(self):
+        faultydict = dict(self.get_valid_data())
+        faultydict["acronym"] = "T2"
+        faultydict["first_letter"] = "A"
+        return faultydict
+
+    def test_proposal_learning_unit_add_with_invalid_data(self):
+        learning_unit_form = creation.LearningUnitProposalCreationForm(person=self.person,
+                                                                       data=self.get_invalid_data())
+        proposal_form = creation.LearningUnitProposalForm(data=self.get_valid_data())
+        self.assertFalse(learning_unit_form.is_valid(), learning_unit_form.errors)
+        self.assertTrue(proposal_form.is_valid(), proposal_form.errors)
+        self.client.force_login(self.person.user)
+        url = reverse('proposal_learning_unit_add')
+        response = self.client.post(url, data=self.get_invalid_data())
+        self.assertEqual(response.status_code, 200)
+        count_learning_unit_year = LearningUnitYear.objects.all().count()
+        self.assertEqual(count_learning_unit_year, 0)
 
     def get_empty_required_fields(self):
         faultydict = dict(self.get_valid_data())
@@ -117,3 +143,16 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(learning_unit_form.errors['periodicity'], [_('field_is_required')])
         self.assertEqual(learning_unit_form.errors['language'], [_('field_is_required')])
         self.assertEqual(learning_unit_form.errors['common_title'], [_('field_is_required')])
+
+    def test_proposal_learning_unit_add_with_valid_data_for_faculty_manager(self):
+        learning_unit_form = creation.LearningUnitProposalCreationForm(person=self.person,
+                                                                       data=self.get_valid_data())
+        proposal_form = creation.LearningUnitProposalForm(data=self.get_valid_data())
+        self.assertTrue(learning_unit_form.is_valid(), learning_unit_form.errors)
+        self.assertTrue(proposal_form.is_valid(), proposal_form.errors)
+        self.client.force_login(self.faculty_person.user)
+        url = reverse('proposal_learning_unit_add')
+        response = self.client.post(url, data=self.get_valid_data())
+        self.assertEqual(response.status_code, 302)
+        count_learning_unit_year = LearningUnitYear.objects.all().count()
+        self.assertEqual(count_learning_unit_year, 1)
