@@ -29,17 +29,12 @@ from django.db.models import Prefetch
 from django.forms import formset_factory
 from django.utils.translation import ugettext_lazy as _
 
+from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type as entity_types
 from base.models.enums.component_type import PRACTICAL_EXERCISES, LECTURING
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_component import LearningUnitComponent
-
-ENTITY_TYPES_VOLUME = [
-    entity_types.REQUIREMENT_ENTITY,
-    entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1,
-    entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2
-]
 
 
 class EmptyField(forms.CharField):
@@ -84,14 +79,18 @@ class VolumeEditionForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # Append dynamic fields
-        for key, entity in self.entities.items():
-            self.fields['volume_' + key.lower()] = VolumeField(
-                label=entity.acronym, help_text=entity.title)
+        for key in ENTITY_TYPES_VOLUME:
+            self._add_entity_fields(key)
 
         self.fields['equal_field_3'] = EmptyField(label='=')
 
         self.fields['volume_total_requirement_entities'] = VolumeField(
             label=_('vol_charge'), help_text=_('total_volume_charge'))
+
+    def _add_entity_fields(self, key):
+        if key in self.entities:
+            entity = self.entities[key]
+            self.fields["volume_"+key.lower()] = VolumeField(label=entity.acronym, help_text=entity.title)
 
     def clean(self):
         cleaned_data = super().clean().copy()
@@ -157,10 +156,15 @@ class VolumeEditionForm(forms.Form):
         if condition:
             self.add_error(key, _(msg))
 
-    def save(self):
-        if self.changed_data:
+    def save(self, postponement):
+        if not self.changed_data:
+            return None
+
+        if postponement:
             for component in self._find_gte_learning_components_year():
                 self._save(component)
+        else:
+            self._save(self.component)
 
     def _save(self, component):
         component.hourly_volume_partial = self.cleaned_data['volume_q1']
@@ -235,9 +239,9 @@ class VolumeEditionBaseFormset(forms.BaseFormSet):
     def get_form_by_type(self, component_type):
         return next(form for form in self.forms if form.component.type == component_type)
 
-    def save(self):
+    def save(self, postponement):
         for form in self.forms:
-            form.save()
+            form.save(postponement)
 
 
 class VolumeEditionFormsetContainer:
@@ -275,10 +279,10 @@ class VolumeEditionFormsetContainer:
         return all(self.formsets[luy].validate_parent_partim(self.formsets[self.parent]) for luy in self.formsets
                    if luy != self.parent)
 
-    def save(self):
+    def save(self, postponement):
         with transaction.atomic():
             for formset in self.formsets.values():
-                formset.save()
+                formset.save(postponement)
 
     @property
     def errors(self):
