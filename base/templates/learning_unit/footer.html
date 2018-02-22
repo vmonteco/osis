@@ -39,6 +39,11 @@
                     {% trans 'Put in proposal' %}
                 </a>
             </li>
+            <li class="disabled">
+                <a {% if can_propose %} href="" {% endif %}>
+                    {% trans 'proposal_update' %}
+                </a>
+            </li>
             <li {% if not can_cancel_proposal %}class="disabled"{% endif %}>
                 <a {% if can_cancel_proposal %}  href="#" data-toggle="modal" data-target="#modalCancelProposal" {% endif %}>
                     {% trans 'cancel_proposal' %}
