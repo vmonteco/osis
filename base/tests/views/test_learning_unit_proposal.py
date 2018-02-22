@@ -161,7 +161,7 @@ class TestLearningUnitModificationProposal(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
+        self.assertTemplateUsed(response, 'learning_unit/proposal/update.html')
         self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
         self.assertEqual(response.context['experimental_phase'], True)
         self.assertEqual(response.context['person'], self.person)
@@ -189,7 +189,7 @@ class TestLearningUnitModificationProposal(TestCase):
         response = self.client.post(self.url, data={})
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
+        self.assertTemplateUsed(response, 'learning_unit/proposal/update.html')
         self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
         self.assertEqual(response.context['experimental_phase'], True)
         self.assertEqual(response.context['person'], self.person)
@@ -257,7 +257,7 @@ class TestLearningUnitModificationProposal(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
+        self.assertTemplateUsed(response, 'learning_unit/proposal/update.html')
 
     def test_learning_unit_of_type_dissertation(self):
         self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.DISSERTATION
@@ -266,7 +266,7 @@ class TestLearningUnitModificationProposal(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
+        self.assertTemplateUsed(response, 'learning_unit/proposal/update.html')
 
     def test_learning_unit_of_other_types(self):
         self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.OTHER_COLLECTIVE
@@ -335,7 +335,7 @@ class TestLearningUnitModificationProposal(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'proposal/learning_unit_modification.html')
+        self.assertTemplateUsed(response, 'learning_unit/proposal/update.html')
 
     def test_linked_to_child_entity(self):
         today = datetime.date.today()
