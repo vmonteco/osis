@@ -1539,6 +1539,12 @@ class TestLearningUnitProposalDisplay(TestCase):
                                          {'credits': self.initial_credits})
         self.assertEqual(differences.get('credits'), "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL,
                                                                       self.initial_credits))
+    def test_get_the_old_value_no_initial_value(self):
+        differences = _get_the_old_value('credits',
+                                         {"credits": self.initial_credits + 1},
+                                         {})
+        self.assertEqual(differences.get('credits'), "{} : {}".format(LABEL_VALUE_BEFORE_PROPROSAL,
+                                                                      NO_PREVIOUS_VALUE))
 
     def test_get_the_old_value_for_foreign_key(self):
         initial_data_learning_container_year = {'language': self.language_pt.id}
@@ -1593,6 +1599,7 @@ class TestLearningUnitProposalDisplay(TestCase):
 
     def test_check_differences_none(self):
         self.assertEqual(_check_differences({}, {}), {})
+        self.assertEqual(_check_differences(None, {}), {})
         self.assertEqual(_check_differences({'key1': 1, 'key2': 2}, {'key1': 1, 'key2': 2}), {})
         self.assertEqual(_check_differences({'key1': 1, 'key2': 2}, {'key1_id': 1, 'key2': 2}), {})
 

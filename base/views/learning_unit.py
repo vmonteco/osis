@@ -671,15 +671,14 @@ def _get_differences_in_learning_unit_data(learning_unit_yr_proposal):
 def _compare_model_with_initial_value(an_id, model_initial_data, mymodel):
     differences = {}
     qs = (mymodel.objects.filter(pk=an_id).values())
-    if qs:
+    if len(qs) > 0:
         differences.update(_check_differences(model_initial_data,
                                               qs[0]))
     return differences
 
 
 def _replace_key_of_foreign_key(data):
-    return {key_name.replace(END_FOREIGN_KEY_NAME, ''): data[key_name]
-            for key_name in data.keys()}
+    return {key_name.replace(END_FOREIGN_KEY_NAME, ''): data[key_name] for key_name in data.keys()}
 
 
 def _check_differences(initial_data, actual_data):
