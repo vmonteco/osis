@@ -75,7 +75,7 @@ def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
 def is_eligible_to_edit_proposal(proposal, a_person):
     if not proposal:
         return False
-    return a_person.user.has_perm('can_edit_learning_unit_proposal')
+    return a_person.user.has_perm('base.can_edit_learning_unit_proposal')
 
 
 def is_eligible_for_modification_end_date(learn_unit_year, a_person):

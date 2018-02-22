@@ -24,22 +24,26 @@
 #
 ##############################################################################
 import datetime
+from unittest import mock
 
+from django.contrib import messages
 from django.contrib.auth.models import Permission
 from django.contrib.messages import get_messages
+from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.http import HttpResponseNotFound, HttpResponse, HttpResponseForbidden
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
+from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalStateModelForm
 from base.models import entity_container_year
 from base.models import proposal_folder, proposal_learning_unit
 from base.models.enums import organization_type, entity_type, entity_container_year_link_type, \
     learning_unit_year_subtypes, proposal_type, learning_container_year_types, proposal_state
-from base.models.person import CENTRAL_MANAGER_GROUP
+from base.models.enums.proposal_state import ProposalState
 from base.tests.factories.academic_year import AcademicYearFakerFactory, create_current_academic_year, get_current_year
 from base.tests.factories.business.learning_units import GenerateAcademicYear, GenerateContainer
 from base.tests.factories.campus import CampusFactory
@@ -51,11 +55,10 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
-from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.proposal_folder import ProposalFolderFactory
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
+from base.views.learning_unit_proposal import PROPOSAL_SEARCH, edit_learning_unit_proposal
 from reference.tests.factories.language import LanguageFactory
-from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
-from base.views.learning_unit_proposal import PROPOSAL_SEARCH
 
 
 class TestLearningUnitModificationProposal(TestCase):
@@ -593,15 +596,77 @@ class TestEditProposal(TestCase):
         self.generated_container = GenerateContainer(start_year, end_year)
         self.generated_container_first_year = self.generated_container.generated_container_years[0]
         self.learning_unit_year = self.generated_container_first_year.learning_unit_year_full
-        self.proposal = ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year)
+        self.proposal = ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year,
+                                                    state=ProposalState.FACULTY)
 
         self.person = PersonFactory()
         self.permission = Permission.objects.get(codename="can_edit_learning_unit_proposal")
         self.person.user.user_permissions.add(self.permission)
+        self.client.force_login(self.person.user)
 
+        self.url = reverse(edit_learning_unit_proposal, args=[self.learning_unit_year.id])
 
-    def test_edit_proposal_get(self):
-        pass
+    def test_edit_proposal_get_no_permission(self):
+        self.person.user.user_permissions.remove(self.permission)
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, 'access_denied.html')
+
+    @mock.patch('base.views.layout.render')
+    def test_edit_proposal_get(self, mock_render):
+        request_factory = RequestFactory()
+
+        request = request_factory.get(self.url)
+
+        request.user = self.person.user
+        edit_learning_unit_proposal(request, self.learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        self.assertEqual(template, 'learning_unit/proposal/edition_proposal_state.html')
+        self.assertIsInstance(context['form'], ProposalStateModelForm)
+
+    def test_edit_proposal_post(self):
+        request_factory = RequestFactory()
+        request = request_factory.post(self.url, data={'state': "CENTRAL"})
+
+        request.user = self.person.user
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        edit_learning_unit_proposal(request, self.learning_unit_year.id)
+
+        msg = [m.message for m in get_messages(request)]
+        msg_level = [m.level for m in get_messages(request)]
+        self.assertEqual(len(msg), 1)
+        self.assertIn(messages.SUCCESS, msg_level)
+
+        self.proposal.refresh_from_db()
+        self.assertEqual(self.proposal.state, ProposalState.CENTRAL.value)
+
+    @mock.patch('base.views.layout.render')
+    def test_edit_proposal_post_wrong_data(self, mock_render):
+        request_factory = RequestFactory()
+        request = request_factory.post(self.url, data={'state': "Not_good_value"})
+
+        request.user = self.person.user
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        edit_learning_unit_proposal(request, self.learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        self.assertEqual(template, 'learning_unit/proposal/edition_proposal_state.html')
+        self.assertIsInstance(context['form'], ProposalStateModelForm)
+
+        form = context['form']
+        self.assertEqual(len(form.errors), 1)
+
+        self.proposal.refresh_from_db()
+        self.assertEqual(self.proposal.state, 'ProposalState.FACULTY')
+
 
 
 

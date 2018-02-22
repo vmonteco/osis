@@ -126,16 +126,15 @@ def learning_units_proposal_search(request):
 
 
 @login_required
-@permission_required('base.can_edit_learningunit', raise_exception=True)
 @perms.can_edit_learning_unit_proposal
-def edit_proposal(request, learning_unit_year_id):
+def edit_learning_unit_proposal(request, learning_unit_year_id):
     user_person = get_object_or_404(Person, user=request.user)
 
     context = get_learning_unit_identification_context(learning_unit_year_id, user_person)
     proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year_id)
 
     proposal_form = ProposalStateModelForm(request.POST or None, instance=proposal)
-    if request.POST:
+    if proposal_form.is_valid():
         try:
             proposal_form.save()
             display_success_messages(request, _("Proposal edited successfully"))
