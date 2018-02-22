@@ -23,9 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 from base.models.enums import proposal_type, proposal_state
 from base.models.osis_model_admin import OsisModelAdmin
@@ -47,12 +48,16 @@ class ProposalLearningUnit(models.Model):
     date = models.DateTimeField(auto_now=True)
     learning_unit_year = models.ForeignKey('LearningUnitYear')
     type = models.CharField(max_length=50, choices=proposal_type.CHOICES)
-    state = models.CharField(max_length=50, choices=proposal_state.CHOICES)
+    state = models.CharField(max_length=50, choices=proposal_state.CHOICES, verbose_name=_("state"))
     initial_data = JSONField(default={})
 
     def __str__(self):
         return "{} - {}".format(self.folder, self.learning_unit_year)
 
+    class Meta:
+        permissions = (
+            ("can_edit_learning_unit_proposal", "Can edit learning unit proposal"),
+        )
 
 def find_by_learning_unit_year(a_learning_unit_year):
     try:

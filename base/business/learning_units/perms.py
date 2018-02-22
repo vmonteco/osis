@@ -44,7 +44,7 @@ def is_person_linked_to_entity_in_charge_of_learning_unit(a_learning_unit_year, 
     return filter_by_attached_entities(a_person, entity_containers_year).exists()
 
 
-def is_eligible_for_modification_proposal(learn_unit_year, a_person):
+def is_eligible_to_create_modification_proposal(learn_unit_year, a_person):
     if _learning_unit_year_is_past(learn_unit_year) or \
             learn_unit_year.subtype == learning_unit_year_subtypes.PARTIM:
         return False
@@ -72,8 +72,10 @@ def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
     return is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_proposal.learning_unit_year, a_person)
 
 
-def is_eligible_for_edit_of_proposal(a_person):
-    return a_person.user.groups.filter(name='central_managers').exists()
+def is_eligible_to_edit_proposal(proposal, a_person):
+    if not proposal:
+        return False
+    return a_person.user.has_perm('can_edit_learning_unit_proposal')
 
 
 def is_eligible_for_modification_end_date(learn_unit_year, a_person):

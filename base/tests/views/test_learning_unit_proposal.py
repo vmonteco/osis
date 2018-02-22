@@ -39,7 +39,9 @@ from base.models import entity_container_year
 from base.models import proposal_folder, proposal_learning_unit
 from base.models.enums import organization_type, entity_type, entity_container_year_link_type, \
     learning_unit_year_subtypes, proposal_type, learning_container_year_types, proposal_state
-from base.tests.factories.academic_year import AcademicYearFakerFactory, create_current_academic_year
+from base.models.person import CENTRAL_MANAGER_GROUP
+from base.tests.factories.academic_year import AcademicYearFakerFactory, create_current_academic_year, get_current_year
+from base.tests.factories.business.learning_units import GenerateAcademicYear, GenerateContainer
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -579,3 +581,31 @@ def _modify_entities_linked_to_learning_container_year(a_learning_container_year
     a_new_entity = EntityFactory()
     entity_container_year.search(learning_container_year=a_learning_container_year). \
         update(entity=a_new_entity)
+
+
+class TestEditProposal(TestCase):
+
+    def setUp(self):
+        start_year = get_current_year()
+        end_year = start_year + 10
+        self.academic_years = GenerateAcademicYear(start_year, end_year).academic_years
+
+        self.generated_container = GenerateContainer(start_year, end_year)
+        self.generated_container_first_year = self.generated_container.generated_container_years[0]
+        self.learning_unit_year = self.generated_container_first_year.learning_unit_year_full
+        self.proposal = ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year)
+
+        self.person = PersonFactory()
+        self.permission = Permission.objects.get(codename="can_edit_learning_unit_proposal")
+        self.person.user.user_permissions.add(self.permission)
+
+
+    def test_edit_proposal_get(self):
+        pass
+
+
+
+
+
+
+

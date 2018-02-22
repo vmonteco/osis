@@ -25,32 +25,35 @@
 ##############################################################################
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.http import QueryDict
+from django.db import IntegrityError
+from django.http import QueryDict, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from base import models as mdl
 from base.business.learning_unit_proposal import compute_proposal_type, reinitialize_data_before_proposal, \
     delete_learning_unit_proposal
-from base.views.learning_units import perms
-from base.views.learning_unit import compute_form_initial_data
-from base.views.learning_unit import get_last_academic_years
-from base.views.learning_unit import check_if_display_message
+from base.forms.common import TooManyResultsException
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
+from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalStateModelForm
+from base.models import proposal_learning_unit
 from base.models.enums import proposal_state
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views import layout
-from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
-from base.forms.common import TooManyResultsException
-from base import models as mdl
-
+from base.views.common import display_success_messages, display_error_messages
+from base.views.learning_unit import check_if_display_message
+from base.views.learning_unit import compute_form_initial_data, get_learning_unit_identification_context
+from base.views.learning_unit import get_last_academic_years
+from base.views.learning_units import perms
 
 PROPOSAL_SEARCH = 3
 
 
 @login_required
-@perms.can_perform_modification_proposal
+@perms.can_create_modification_proposal
 @permission_required('base.can_propose_learningunit', raise_exception=True)
 def propose_modification_of_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
@@ -120,3 +123,26 @@ def learning_units_proposal_search(request):
     }
 
     return layout.render(request, "learning_units.html", context)
+
+
+@login_required
+@permission_required('base.can_edit_learningunit', raise_exception=True)
+@perms.can_edit_learning_unit_proposal
+def edit_proposal(request, learning_unit_year_id):
+    user_person = get_object_or_404(Person, user=request.user)
+
+    context = get_learning_unit_identification_context(learning_unit_year_id, user_person)
+    proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year_id)
+
+    proposal_form = ProposalStateModelForm(request.POST or None, instance=proposal)
+    if request.POST:
+        try:
+            proposal_form.save()
+            display_success_messages(request, _("Proposal edited successfully"))
+            return HttpResponseRedirect(reverse('learning_unit', args=[learning_unit_year_id]))
+
+        except (IntegrityError, ValueError) as e:
+            display_error_messages(request, e.args[0])
+
+    context['form'] = proposal_form
+    return layout.render(request, 'learning_unit/proposal/edition_proposal_state.html', context)
