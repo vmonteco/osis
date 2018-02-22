@@ -2587,5 +2587,5 @@ msgstr "Proposal learning unit <a href='%(link)s'> %(acronym)s (%(academic_year)
 msgid "new_learning_unit_proposal"
 msgstr "New learning unit proposal"
 
-msgid "create_learning_unit_proposal"
-msgstr "Create learning unit proposal"
+msgid "proposal_creation"
+msgstr "Proposal of creation"

@@ -2594,5 +2594,5 @@ msgstr "Proposition d'unité d'enseignement <a href='%(link)s'> %(acronym)s (%(a
 msgid "new_learning_unit_proposal"
 msgstr "Nouvelle proposition d'unité d'enseignement"
 
-msgid "create_learning_unit_proposal"
-msgstr "Création d'une proposition d'unité d'enseignement"
+msgid "proposal_creation"
+msgstr "Proposition de création"
