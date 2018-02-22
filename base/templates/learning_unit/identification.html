@@ -126,13 +126,13 @@
                                 <label title="{% trans 'title_official_1' %}">{% trans 'common_official_title' %}</label><br>
                                 <span {{ differences|get_difference_css:'common_title'|safe  }}>{{ learning_unit_year.learning_container_year.common_title | default_if_none:'' }}</span>
                                 <br><br>
-                                <label title="{% trans 'title_official_2' %}">{% trans 'official_title_proper_to_UE' %}</label><br>                             
+                                <label title="{% trans 'title_official_2' %}">{% trans 'official_title_proper_to_UE' %}</label><br>
                                     <span {{ differences|get_difference_css:'specific_title'|safe  }}>{{learning_unit_year.specific_title | default_if_none:''}}</span>
                                 <br><br>
                                 <label title="{% trans 'title_in_english' %} {% trans 'title_in_english_1' %}">{% trans 'common_official_english_title' %}</label><br>
                                 <span {{ differences|get_difference_css:'common_title_english'|safe  }}>{{learning_unit_year.learning_container_year.common_title_english | default_if_none:'' }}</span>
                                 <br><br>
-                                <label title="{% trans 'title_in_english' %} {% trans 'title_in_english_2' %}">{% trans 'official_english_title_proper_to_UE' %}</label><br>                             
+                                <label title="{% trans 'title_in_english' %} {% trans 'title_in_english_2' %}">{% trans 'official_english_title_proper_to_UE' %}</label><br>
                                     <span {{ differences|get_difference_css:'specific_title_english'|safe  }}>{{learning_unit_year.common_title_english | default_if_none:'' }}</span>
                                 <br>
                             </div>
@@ -198,8 +198,8 @@
                                  {% endif %}
                                 <br>
                                 <label style="margin-top:10px;">{% trans 'requirement_entity'%}</label><br>
-                                <a href="{% url 'entity_read' entity_version_id=requirement_entity.id %}"
                                 {% if requirement_entity %}
+                                    <a href="{% url 'entity_read' entity_version_id=requirement_entity.id %}"
                                     {% if differences|get_difference_css:'REQUIREMENT_ENTITY' %}
                                         {{ differences|get_difference_css:'REQUIREMENT_ENTITY'|safe }}
                                     {% else %}
