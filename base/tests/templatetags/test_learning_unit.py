@@ -24,8 +24,11 @@
 #
 ##############################################################################
 from django.test import TestCase
-
+from django.utils.translation import ugettext_lazy as _
 from base.templatetags.learning_unit import get_difference_css
+
+
+LABEL_VALUE_BEFORE_PROPROSAL = _('value_before_proposal')
 
 
 class LearningUnitTagTest(TestCase):
@@ -38,7 +41,9 @@ class LearningUnitTagTest(TestCase):
                        'parameter2': 'tooltip2'}
 
         self.assertEqual(get_difference_css(differences, key_parameter_1),
-                         " data-toggle=tooltip title='{}' class={} ".format(tooltip_parameter1, "proposal_value"))
+                         " data-toggle=tooltip title='{} : {}' class={} ".format(LABEL_VALUE_BEFORE_PROPROSAL,
+                                                                                 tooltip_parameter1,
+                                                                                 "proposal_value"))
 
     def test_get_not_css(self):
         differences = {'parameter1': 'tooltip1'}

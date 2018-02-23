@@ -37,7 +37,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.models import entity_container_year
 from base.models import proposal_folder, proposal_learning_unit
-from base.models.enums import organization_type, entity_type, entity_container_year_link_type, \
+from base.models.enums import organization_type, entity_type, \
     learning_unit_year_subtypes, proposal_type, learning_container_year_types, proposal_state
 from base.tests.factories.academic_year import AcademicYearFakerFactory, create_current_academic_year
 from base.tests.factories.campus import CampusFactory
@@ -49,11 +49,24 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
-from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.proposal_folder import ProposalFolderFactory
 from reference.tests.factories.language import LanguageFactory
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
 from base.views.learning_unit_proposal import PROPOSAL_SEARCH
+from base.business.learning_unit_proposal import _compare_model_with_initial_value, \
+    _get_the_old_value, _is_foreign_key, END_FOREIGN_KEY_NAME, VALUES_WHICH_NEED_TRANSLATION, \
+    _get_str_representing_old_data_from_foreign_key, \
+    _replace_key_of_foreign_key, _check_differences, _get_difference_of_proposal, _get_old_value_of_foreign_key, \
+    NO_PREVIOUS_VALUE, _has_changed_entity, _get_difference_of_entity_proposal
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
+from django.apps import apps
+from base.tests.factories.learning_unit import LearningUnitFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.business.learning_units import GenerateContainer
+from base.models.enums import learning_unit_periodicity
+from base.models.enums import entity_container_year_link_type
+
+LABEL_VALUE_BEFORE_PROPROSAL = _('value_before_proposal')
 
 
 class TestLearningUnitModificationProposal(TestCase):
@@ -579,3 +592,173 @@ def _modify_entities_linked_to_learning_container_year(a_learning_container_year
     a_new_entity = EntityFactory()
     entity_container_year.search(learning_container_year=a_learning_container_year). \
         update(entity=a_new_entity)
+
+
+class TestLearningUnitProposalDisplay(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.language_pt = LanguageFactory(code='PT')
+        cls.language_it = LanguageFactory(code='IT')
+        cls.campus = CampusFactory()
+        cls.academic_year = create_current_academic_year()
+        cls.l_container_year = LearningContainerYearFactory(acronym="LBIR1212",
+                                                            academic_year=cls.academic_year,
+                                                            language=cls.language_pt,
+                                                            campus=cls.campus)
+        cls.learning_unit = LearningUnitFactory(learning_container=cls.l_container_year.learning_container)
+        cls.learning_unit_yr = LearningUnitYearFactory(acronym="LBIR1212",
+                                                       learning_unit=cls.learning_unit,
+                                                       learning_container_year=cls.l_container_year,
+                                                       academic_year=cls.academic_year,
+                                                       subtype=learning_unit_year_subtypes.FULL,
+                                                       status=True,
+                                                       quadrimester="Q3",
+                                                       credits=4)
+
+        cls.proposal_learning_unit = ProposalLearningUnitFactory(learning_unit_year=cls.learning_unit_yr)
+        cls.initial_credits = 3.0
+        cls.initial_quadrimester = 'Q1'
+        cls.initial_language = cls.language_it.id
+        cls.initial_data_learning_unit_year = {'credits': cls.initial_credits,
+                                               'quadrimester': cls.initial_quadrimester}
+
+        cls.initial_language_en = cls.language_it
+        cls.generator_learning_container = GenerateContainer(start_year=cls.academic_year.year,
+                                                             end_year=cls.academic_year.year + 1)
+        cls.l_container_year_with_entities = cls.generator_learning_container.generated_container_years[0]
+
+    def test_is_foreign_key(self):
+        actual_data = {"language{}".format(END_FOREIGN_KEY_NAME): self.language_it.id}
+        self.assertTrue(_is_foreign_key("language", actual_data))
+
+    def test_is_not_foreign_key(self):
+        actual_data = {"credits": self.language_it.id}
+        self.assertFalse(_is_foreign_key("credits", actual_data))
+
+    def test_check_differences(self):
+        initial_data_learning_unit_year = {'credits': self.initial_credits,
+                                           'quadrimester': self.initial_quadrimester}
+        actual_data = {"credits": self.learning_unit_yr.credits, 'quadrimester': 'Q3'}
+
+        differences = _check_differences(initial_data_learning_unit_year, actual_data)
+
+        self.assertEqual(differences.get('credits'),
+                         "{}".format(self.initial_credits))
+        self.assertEqual(differences.get('quadrimester'), "{}".format(self.initial_quadrimester))
+
+    def test_get_the_old_value(self):
+        differences = _get_the_old_value('credits',
+                                         {"credits": self.initial_credits + 1},
+                                         {'credits': self.initial_credits})
+        self.assertEqual(differences.get('credits'), "{}".format(self.initial_credits))
+
+    def test_get_the_old_value_no_initial_value(self):
+        differences = _get_the_old_value('credits',
+                                         {"credits": self.initial_credits + 1},
+                                         {})
+        self.assertEqual(differences.get('credits'), "{}".format(NO_PREVIOUS_VALUE))
+
+    def test_get_the_old_value_for_foreign_key(self):
+        initial_data_learning_container_year = {'language': self.language_pt.id}
+        actual_data = {"language_id": self.language_it.id}
+        differences = _get_the_old_value('language', actual_data, initial_data_learning_container_year)
+        self.assertEqual(differences.get('language'), "{}".format(self.language_pt))
+
+    def test_get_the_old_value_for_foreign_key_no_previous_value(self):
+        initial_data = {"language": None}
+        actual_data = {"language_id": self.language_it.id}
+
+        differences = _get_the_old_value('language', actual_data, initial_data)
+        self.assertEqual(differences.get('language'), NO_PREVIOUS_VALUE)
+
+        initial_data = {}
+        differences = _get_the_old_value('language', actual_data, initial_data)
+        self.assertEqual(differences.get('language'), NO_PREVIOUS_VALUE)
+
+    def test_get_the_old_value_with_translation(self):
+        cle = VALUES_WHICH_NEED_TRANSLATION[0]
+        initial_data = {cle: learning_unit_periodicity.ANNUAL}
+        actual_data = {cle: learning_unit_periodicity.BIENNIAL_EVEN}
+        differences = _get_the_old_value(cle, actual_data, initial_data)
+        self.assertEqual(differences.get(cle), "{}".format(_(learning_unit_periodicity.ANNUAL)))
+
+    def test_compare_model_with_initial_value(self):
+        differences = _compare_model_with_initial_value(self.proposal_learning_unit.learning_unit_year.id,
+                                                        {"credits": self.initial_credits,
+                                                         'quadrimester': self.initial_quadrimester},
+                                                        apps.get_model(app_label='base', model_name="LearningUnitYear"))
+        self.assertEqual(differences.get('credits'), "{}".format(self.initial_credits))
+
+    def test_compare_model_with_initial_value_not_found_id(self):
+        differences = _compare_model_with_initial_value(-1,
+                                                        None,
+                                                        apps.get_model(app_label='base', model_name="LearningUnitYear"))
+        self.assertEqual(differences, {})
+
+    def test_get_str_representing_old_data_from_foreign_key(self):
+        differences = _get_str_representing_old_data_from_foreign_key('campus', self.campus.id)
+        self.assertEqual(differences.get('campus'), "{}".format(self.campus))
+
+    def test_get_str_representing_old_data_from_foreign_key_equals_no_value(self):
+        differences = _get_str_representing_old_data_from_foreign_key('campus', NO_PREVIOUS_VALUE)
+        self.assertEqual(differences.get('campus'), "{}".format(NO_PREVIOUS_VALUE))
+
+    def test_replace_key_of_foreign_key(self):
+        changed_dict = _replace_key_of_foreign_key({'key1{}'.format(END_FOREIGN_KEY_NAME): 1, 'key2': 2})
+        self.assertEqual(changed_dict, {'key1': 1, 'key2': 2})
+
+    def test_check_differences_none(self):
+        self.assertEqual(_check_differences({}, {}), {})
+        self.assertEqual(_check_differences(None, {}), {})
+        self.assertEqual(_check_differences({'key1': 1, 'key2': 2}, {'key1': 1, 'key2': 2}), {})
+        self.assertEqual(_check_differences({'key1': 1, 'key2': 2}, {'key1_id': 1, 'key2': 2}), {})
+
+    def test_check_differences_new_value(self):
+        self.assertEqual(len(_check_differences({'key1': 1, 'key2': 2}, {'key1_id': 1, 'key2': 9999999999999})), 1)
+        result = _check_differences({'key1': 1, 'key2': 'new_value'}, {'key1': 1, 'key2': 'old_value'})
+        self.assertEqual(result.get('key2'), "{}".format('new_value'))
+
+    def test_get_difference_of_proposal(self):
+        self.assertEqual(_get_difference_of_proposal(None), {})
+
+    def test_get_old_value_of_foreign_key_for_campus(self):
+        differences = _get_old_value_of_foreign_key('campus', self.campus.id)
+        self.assertEqual(differences.get('campus'), "{}".format(self.campus))
+
+    def test_get_old_value_of_foreign_key_for_language(self):
+        differences = _get_old_value_of_foreign_key('language', self.language_it.id)
+        self.assertEqual(differences.get('language'), "{}".format(self.language_it))
+
+    def test_has_changed_entity(self):
+        an_entity = EntityFactory()
+        an_entity_container_year = EntityContainerYearFactory(entity=an_entity)
+
+        an_other_entity = EntityFactory()
+
+        self.assertTrue(_has_changed_entity(an_entity_container_year, an_other_entity.id))
+        self.assertFalse(_has_changed_entity(an_entity_container_year, an_entity.id))
+
+    def test_get_difference_of_entity_proposal_no_difference(self):
+        l_container_year = self.l_container_year_with_entities
+        requirement_entity = self.generator_learning_container.generated_container_years[0]\
+            .requirement_entity_container_year.entity
+        learning_unit_proposal = ProposalLearningUnitFactory(
+            learning_unit_year=l_container_year.learning_unit_year_full,
+            initial_data={"entities": {entity_container_year_link_type.REQUIREMENT_ENTITY: requirement_entity.id}})
+
+        differences = _get_difference_of_entity_proposal(l_container_year.learning_container_year,
+                                                         learning_unit_proposal)
+        self.assertEqual(differences, {})
+
+    def test_get_difference_of_entity_proposal_with_difference(self):
+        an_entity = EntityFactory()
+
+        l_container_year = self.l_container_year_with_entities
+
+        learning_unit_proposal = ProposalLearningUnitFactory(
+            learning_unit_year=self.l_container_year_with_entities.learning_unit_year_full,
+            initial_data={"entities": {entity_container_year_link_type.REQUIREMENT_ENTITY: an_entity.id}})
+
+        differences = _get_difference_of_entity_proposal(l_container_year.learning_container_year,
+                                                         learning_unit_proposal)
+        self.assertEqual(len(differences), 1)

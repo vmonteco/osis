@@ -25,7 +25,7 @@
 ##############################################################################
 from django import template
 from django.utils.translation import ugettext_lazy as _
-
+from django.utils.safestring import mark_safe
 register = template.Library()
 
 
@@ -56,5 +56,7 @@ def academic_year(year):
 @register.filter
 def get_difference_css(differences, parameter):
     if differences.get(parameter, None):
-        return " data-toggle=tooltip title='{}' class={} ".format(differences.get(parameter), "proposal_value")
+        return mark_safe(" data-toggle=tooltip title='{} : {}' class={} ".format(_("value_before_proposal"),
+                                                                       differences.get(parameter),
+                                                                       "proposal_value"))
     return None
