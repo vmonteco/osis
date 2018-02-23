@@ -35,6 +35,7 @@ from base.models.entity_version import find_main_entities_version
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_PROPOSAL_FACULTY
 from base.models.person import FACULTY_MANAGER_GROUP
 
+MAX_ACADEMIC_YEAR_FACULTY = datetime.datetime.now().year+4
 
 class LearningUnitProposalForm(BootstrapForm):
     folder_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
@@ -50,4 +51,4 @@ class LearningUnitProposalCreationForm(LearningUnitYearForm):
             self.fields["container_type"].choices = add_blank(LEARNING_CONTAINER_YEAR_TYPES_FOR_PROPOSAL_FACULTY)
             self.fields["academic_year"].queryset = AcademicYear.objects\
                 .filter(year__gt=datetime.datetime.now().year)\
-                .filter(year__lte=datetime.datetime.now().year+4)
+                .filter(year__lte=MAX_ACADEMIC_YEAR_FACULTY)
