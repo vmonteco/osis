@@ -66,7 +66,8 @@ from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import proposal_learning_unit, entity_container_year
-from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
+from base.models.enums import learning_container_year_types, learning_unit_year_subtypes, \
+    entity_container_year_link_type
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.learning_container import LearningContainer
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, LEARNING_UNIT_ACRONYM_REGEX_FULL
@@ -77,6 +78,8 @@ from base.views.learning_units.common import show_success_learning_unit_year_cre
 from cms.models import text_label
 from reference.models import language
 from . import layout
+from django.apps import apps
+from base.business.learning_unit_proposal import _get_difference_of_proposal
 
 
 @login_required
@@ -590,4 +593,6 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context['proposal_folder_entity_version'] = mdl_base.entity_version.get_by_entity_and_date(
         context['proposal'].folder.entity, None) if context['proposal'] else None
     context['can_delete'] = learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year)
+    learning_unit_yr_proposal = mdl_base.proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
+    context['differences'] = _get_difference_of_proposal(learning_unit_yr_proposal)
     return context
