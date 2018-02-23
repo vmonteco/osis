@@ -51,7 +51,8 @@ def create_learning_unit_year_structure(data, new_learning_container, new_learni
                                   entity_container_year_link_type.ALLOCATION_ENTITY)
 
     # Create All Requirements Entity Container [Min 1, Max 3]
-    requirement_entity_containers = [_create_entity_container_year(data['requirement_entity'], new_learning_container_yr,
+    requirement_entity_containers = [_create_entity_container_year(data['requirement_entity'],
+                                                                   new_learning_container_yr,
                                                                    entity_container_year_link_type.REQUIREMENT_ENTITY)]
     if data['additional_requirement_entity_1']:
         requirement_entity_containers.append(_create_entity_container_year(
