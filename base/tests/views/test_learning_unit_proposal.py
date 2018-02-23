@@ -61,6 +61,15 @@ from base.views.learning_unit_proposal import edit_learning_unit_proposal
 from reference.tests.factories.language import LanguageFactory
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
 from base.views.learning_unit_proposal import PROPOSAL_SEARCH
+from base.tests.factories.learning_unit import LearningUnitFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.models.enums import entity_container_year_link_type, learning_unit_periodicity
+from base.business.learning_unit_proposal import _is_foreign_key, _check_differences, \
+    _replace_key_of_foreign_key, END_FOREIGN_KEY_NAME, NO_PREVIOUS_VALUE, VALUES_WHICH_NEED_TRANSLATION, \
+    APP_BASE_LABEL, _has_changed_entity, _get_the_old_value, _get_str_representing_old_data_from_foreign_key, \
+    _get_old_value_of_foreign_key, _get_difference_of_proposal, _get_difference_of_entity_proposal, \
+    _compare_model_with_initial_value
+from django.apps import apps
 
 
 LABEL_VALUE_BEFORE_PROPROSAL = _('value_before_proposal')

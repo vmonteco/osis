@@ -111,7 +111,7 @@ def delete_learning_unit_proposal(learning_unit_proposal):
 
 def _get_difference_of_proposal(learning_unit_yr_proposal):
     differences = {}
-    if learning_unit_yr_proposal:
+    if learning_unit_yr_proposal and learning_unit_yr_proposal.initial_data.get('learning_container_year'):
         differences.update(_get_differences_in_learning_unit_data(learning_unit_yr_proposal))
         learning_container_yr = mdl_base.learning_container_year \
             .find_by_id(learning_unit_yr_proposal.initial_data.get('learning_container_year').get('id'))
@@ -152,7 +152,10 @@ def _has_changed_entity(entity_cont_yr, entity_id):
 def _get_differences_in_learning_unit_data(learning_unit_yr_proposal):
     learning_unit_yr_initial_data = learning_unit_yr_proposal.initial_data.get('learning_unit_year')
     learning_container_yr_initial_data = learning_unit_yr_proposal.initial_data.get('learning_container_year')
-    initial_learning_container_yr_id = learning_container_yr_initial_data.get('id')
+    initial_learning_container_yr_id = None
+    if learning_container_yr_initial_data:
+        initial_learning_container_yr_id = learning_container_yr_initial_data.get('id')
+
     learning_unit_initial_data = learning_unit_yr_proposal.initial_data.get('learning_unit')
 
     differences = {}
@@ -160,14 +163,16 @@ def _get_differences_in_learning_unit_data(learning_unit_yr_proposal):
                                                          learning_unit_yr_initial_data,
                                                          apps.get_model(app_label=APP_BASE_LABEL,
                                                                         model_name="LearningUnitYear")))
-    differences.update(_compare_model_with_initial_value(initial_learning_container_yr_id,
-                                                         learning_container_yr_initial_data,
-                                                         apps.get_model(app_label=APP_BASE_LABEL,
-                                                                        model_name="LearningContainerYear")))
-    differences.update(_compare_model_with_initial_value(learning_unit_initial_data.get('id'),
-                                                         learning_unit_initial_data,
-                                                         apps.get_model(app_label=APP_BASE_LABEL,
-                                                                        model_name="LearningUnit")))
+    if initial_learning_container_yr_id:
+        differences.update(_compare_model_with_initial_value(initial_learning_container_yr_id,
+                                                             learning_container_yr_initial_data,
+                                                             apps.get_model(app_label=APP_BASE_LABEL,
+                                                                            model_name="LearningContainerYear")))
+    if learning_unit_initial_data:
+        differences.update(_compare_model_with_initial_value(learning_unit_initial_data.get('id'),
+                                                             learning_unit_initial_data,
+                                                             apps.get_model(app_label=APP_BASE_LABEL,
+                                                                            model_name="LearningUnit")))
     return differences
 
 
