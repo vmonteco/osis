@@ -24,34 +24,25 @@
 #
 ##############################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django import forms
 
-COURSE = "COURSE"
-INTERNSHIP = "INTERNSHIP"
-DISSERTATION = "DISSERTATION"
-OTHER_COLLECTIVE = "OTHER_COLLECTIVE"
-OTHER_INDIVIDUAL = "OTHER_INDIVIDUAL"
-MASTER_THESIS = "MASTER_THESIS"
-EXTERNAL = "EXTERNAL"
+from base.forms.bootstrap import BootstrapForm
+from base.forms.learning_unit_create import EntitiesVersionChoiceField, LearningUnitYearForm
+from base.forms.utils.choice_field import add_blank
+from base.models.entity_version import find_main_entities_version
+from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_PROPOSAL_FACULTY
+from base.models.person import FACULTY_MANAGER_GROUP
 
-LEARNING_CONTAINER_YEAR_TYPES = (
-    (COURSE, _(COURSE)),
-    (INTERNSHIP, _(INTERNSHIP)),
-    (DISSERTATION, _(DISSERTATION)),
-    (OTHER_COLLECTIVE, _(OTHER_COLLECTIVE)),
-    (OTHER_INDIVIDUAL, _(OTHER_INDIVIDUAL)),
-    (MASTER_THESIS, _(MASTER_THESIS)),
-    (EXTERNAL, _(EXTERNAL)),
-)
 
-LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY = (
-    (OTHER_COLLECTIVE, _(OTHER_COLLECTIVE)),
-    (OTHER_INDIVIDUAL, _(OTHER_INDIVIDUAL)),
-    (MASTER_THESIS, _(MASTER_THESIS)),
-)
+class LearningUnitProposalForm(BootstrapForm):
+    folder_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
+    folder_id = forms.IntegerField(min_value=0)
 
-LEARNING_CONTAINER_YEAR_TYPES_FOR_PROPOSAL_FACULTY = (
-    (COURSE, _(COURSE)),
-    (INTERNSHIP, _(INTERNSHIP)),
-    (DISSERTATION, _(DISSERTATION)),
-)
+
+class LearningUnitProposalCreationForm(LearningUnitYearForm):
+    def __init__(self, person, *args, **kwargs):
+        super(LearningUnitProposalCreationForm, self).__init__(*args, **kwargs)
+        # When we submit a proposal, we can select all requirement entity available
+        self.fields["requirement_entity"].queryset = find_main_entities_version()
+        if person.user.groups.filter(name=FACULTY_MANAGER_GROUP).exists():
+            self.fields["container_type"].choices = add_blank(LEARNING_CONTAINER_YEAR_TYPES_FOR_PROPOSAL_FACULTY)

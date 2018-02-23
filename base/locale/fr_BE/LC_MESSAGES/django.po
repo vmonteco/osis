@@ -2593,6 +2593,12 @@ msgstr "N° dossier"
 msgid "ask_to_report_modification"
 msgstr "Voulez-vous reporter les modifications faites pour les années suivantes ?"
 
+msgid "proposal_learning_unit_successfuly_created"
+msgstr "Proposition d'unité d'enseignement <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> créée avec succès."
+
+msgid "new_learning_unit_proposal"
+msgstr "Nouvelle proposition d'unité d'enseignement"
+
 msgid "proposal_creation"
 msgstr "Proposition de création"
 

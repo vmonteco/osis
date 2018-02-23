@@ -2587,6 +2587,12 @@ msgstr "Folder num."
 msgid "ask_to_report_modification"
 msgstr "Do you want to report the modifications done to the next years ?"
 
+msgid "proposal_learning_unit_successfuly_created"
+msgstr "Proposal learning unit <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
+
+msgid "new_learning_unit_proposal"
+msgstr "New learning unit proposal"
+
 msgid "proposal_creation"
 msgstr "Proposal of creation"
 

@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,21 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
+
+from django.contrib import messages
+from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 
 
-class UserFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = 'auth.User'
-
-    username = factory.Sequence(lambda n: 'username_{0}'.format(n))
-
-
-class SuperUserFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = 'auth.User'
-
-    username = factory.Sequence(lambda n: 'superusername_{0}'.format(n))
-    is_superuser = True
-    is_staff = True
-    is_active = True
+def show_success_learning_unit_year_creation_message(request, learning_unit_year_created, translation_key):
+    link = reverse("learning_unit", kwargs={'learning_unit_year_id': learning_unit_year_created.id})
+    success_msg = _(translation_key) % {'link': link, 'acronym': learning_unit_year_created.acronym,
+                                        'academic_year': learning_unit_year_created.academic_year}
+    messages.add_message(request, messages.SUCCESS, success_msg, extra_tags='safe')

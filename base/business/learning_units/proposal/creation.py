@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,21 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
+from base.models import proposal_folder, proposal_learning_unit
 
 
-class UserFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = 'auth.User'
+def create_learning_unit_proposal(person, folder_entity, folder_id, learning_unit_year, state_proposal,
+                                  type_proposal, initial_data):
+    folder, created = proposal_folder.ProposalFolder.objects.get_or_create(entity=folder_entity, folder_id=folder_id)
 
-    username = factory.Sequence(lambda n: 'username_{0}'.format(n))
-
-
-class SuperUserFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = 'auth.User'
-
-    username = factory.Sequence(lambda n: 'superusername_{0}'.format(n))
-    is_superuser = True
-    is_staff = True
-    is_active = True
+    proposal_learning_unit.ProposalLearningUnit.objects.create(folder=folder, learning_unit_year=learning_unit_year,
+                                                               type=type_proposal, state=state_proposal,
+                                                               initial_data=initial_data, author=person)
