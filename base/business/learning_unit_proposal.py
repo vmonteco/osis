@@ -234,11 +234,11 @@ def _is_foreign_key(key, current_data):
 
 
 def _get_entity_previous_value(entity_id, entity_type):
-    old_value = entity.find_by_id(entity_id)
-    if old_value:
-        return {entity_type: old_value.most_recent_acronym}
-    else:
-        return {entity_type: _('entity_not_found')}
+    if entity_id:
+        old_value = entity.find_by_id(entity_id)
+        if old_value:
+            return {entity_type: old_value.most_recent_acronym}
+    return {entity_type: _('entity_not_found')}
 
 
 def _get_data_dict(key, initial_data):
