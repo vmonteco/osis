@@ -133,3 +133,12 @@ def find_versions_from_entites(entities, date):
                entityversion__start_date__lte=date).\
         annotate(acronym=F('entityversion__acronym')).annotate(title=F('entityversion__title')).\
         annotate(entity_type=F('entityversion__entity_type')).order_by(preserved)
+
+
+def find_by_id(an_id):
+    if an_id is None:
+        return
+    try:
+        return Entity.objects.get(pk=an_id)
+    except Entity.DoesNotExist:
+        return None
