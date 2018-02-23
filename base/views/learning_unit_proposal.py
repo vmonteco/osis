@@ -31,12 +31,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from base import models as mdl
 from base.business.learning_unit_proposal import compute_proposal_type, reinitialize_data_before_proposal, \
     delete_learning_unit_proposal
-from base.forms.common import TooManyResultsException
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
-from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalStateModelForm
+from base.forms.proposal.learning_unit_proposal import ProposalStateModelForm
 from base.models import proposal_learning_unit
 from base.models.enums import proposal_state
 from base.models.learning_unit_year import LearningUnitYear
@@ -44,12 +42,8 @@ from base.models.person import Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views import layout
 from base.views.common import display_success_messages, display_error_messages
-from base.views.learning_unit import check_if_display_message
 from base.views.learning_unit import compute_form_initial_data, get_learning_unit_identification_context
-from base.views.learning_unit import get_last_academic_years
 from base.views.learning_units import perms
-
-PROPOSAL_SEARCH = 3
 
 
 @login_required
@@ -95,34 +89,6 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
     messages.add_message(request, messages.SUCCESS,
                          _("success_cancel_proposal").format(learning_unit_year.acronym))
     return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def learning_units_proposal_search(request):
-    form = LearningUnitProposalForm(request.GET or None)
-    found_learning_units = []
-    proposals = []
-    try:
-        if form.is_valid():
-            data = form._get_proposal_learning_units()
-            found_learning_units = data.get('learning_units')
-            proposals = data.get('proposals')
-            check_if_display_message(request, proposals)
-    except TooManyResultsException:
-        messages.add_message(request, messages.ERROR, _('too_many_results'))
-
-    context = {
-        'form': form,
-        'academic_years': get_last_academic_years(),
-        'current_academic_year': mdl.academic_year.current_academic_year(),
-        'experimental_phase': True,
-        'search_type': PROPOSAL_SEARCH,
-        'proposals': proposals,
-        'learning_units': found_learning_units
-    }
-
-    return layout.render(request, "learning_units.html", context)
 
 
 @login_required

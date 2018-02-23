@@ -154,7 +154,7 @@ class LearningUnitViewTestCase(TestCase):
         request = request_factory.get(reverse('learning_units'))
         request.user = self.a_superuser
 
-        from base.views.learning_unit import learning_units
+        from base.views.learning_units.search import learning_units
 
         learning_units(request)
 
@@ -171,7 +171,7 @@ class LearningUnitViewTestCase(TestCase):
         request = request_factory.get(reverse('learning_units'))
         request.user = self.a_superuser
 
-        from base.views.learning_unit import learning_units
+        from base.views.learning_units.search import learning_units
 
         learning_units(request)
 
@@ -201,7 +201,7 @@ class LearningUnitViewTestCase(TestCase):
         request = request_factory.get(reverse('learning_units'), data=filter_data)
         request.user = self.a_superuser
 
-        from base.views.learning_unit import learning_units
+        from base.views.learning_units.search import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -219,7 +219,7 @@ class LearningUnitViewTestCase(TestCase):
         request = request_factory.get(reverse('learning_units'), data=filter_data)
         request.user = self.a_superuser
 
-        from base.views.learning_unit import learning_units
+        from base.views.learning_units.search import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -238,7 +238,7 @@ class LearningUnitViewTestCase(TestCase):
         request = request_factory.get(reverse('learning_units'), data=filter_data)
         request.user = self.a_superuser
 
-        from base.views.learning_unit import learning_units
+        from base.views.learning_units.search import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -256,7 +256,7 @@ class LearningUnitViewTestCase(TestCase):
         request = request_factory.get(reverse('learning_units'), data=filter_data)
         request.user = self.a_superuser
 
-        from base.views.learning_unit import learning_units
+        from base.views.learning_units.search import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -275,7 +275,7 @@ class LearningUnitViewTestCase(TestCase):
         request = request_factory.get(reverse('learning_units'), data=filter_data)
         request.user = self.a_superuser
 
-        from base.views.learning_unit import learning_units
+        from base.views.learning_units.search import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]

@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
 import re
 
 from django.conf import settings
@@ -49,44 +48,31 @@ from base.business import learning_unit_deletion
 from base.business.learning_unit import create_learning_unit, create_learning_unit_structure, get_cms_label_data, \
     get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
-    get_all_attributions, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, is_summary_submission_opened, \
+    get_all_attributions, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, is_summary_submission_opened, \
     find_language_in_settings, \
     initialize_learning_unit_pedagogy_form, compute_max_academic_year_adjournment, \
-    create_learning_unit_partim_structure, can_access_summary, get_last_academic_years, CMS_LABEL_SPECIFICATIONS, \
+    create_learning_unit_partim_structure, can_access_summary, CMS_LABEL_SPECIFICATIONS, \
     CMS_LABEL_PEDAGOGY, CMS_LABEL_SUMMARY
 from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import is_eligible_to_edit_proposal
-from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
     PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
-from base.forms.learning_units import LearningUnitYearForm
 from base.models import proposal_learning_unit, entity_container_year
-from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
+from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.learning_container import LearningContainer
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, LEARNING_UNIT_ACRONYM_REGEX_FULL
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views.learning_units import perms
+from base.views.learning_units.search import _learning_units_search
 from cms.models import text_label
 from reference.models import language
 from . import layout
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def learning_units(request):
-    return _learning_units_search(request, SIMPLE_SEARCH)
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def learning_units_service_course(request):
-    return _learning_units_search(request, SERVICE_COURSES_SEARCH)
 
 
 @login_required
@@ -378,42 +364,6 @@ def learning_units_activity(request):
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units_service_course(request):
     return _learning_units_search(request, SERVICE_COURSES_SEARCH)
-
-
-def _learning_units_search(request, search_type):
-    service_course_search = search_type == SERVICE_COURSES_SEARCH
-
-    form = LearningUnitYearForm(request.GET or None, service_course_search=service_course_search)
-
-    found_learning_units = []
-    try:
-        if form.is_valid():
-            found_learning_units = form.get_activity_learning_units()
-
-            check_if_display_message(request, found_learning_units)
-    except TooManyResultsException:
-        messages.add_message(request, messages.ERROR, _('too_many_results'))
-
-    if request.GET.get('xls_status') == "xls":
-        return create_xls(request.user, found_learning_units)
-
-    context = {
-        'form': form,
-        'academic_years': get_last_academic_years(),
-        'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
-        'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
-        'learning_units': found_learning_units,
-        'current_academic_year': mdl.academic_year.current_academic_year(),
-        'experimental_phase': True,
-        'search_type': search_type
-    }
-    return layout.render(request, "learning_units.html", context)
-
-
-def check_if_display_message(request, results):
-    if not results:
-        messages.add_message(request, messages.WARNING, _('no_result'))
-    return True
 
 
 @login_required
