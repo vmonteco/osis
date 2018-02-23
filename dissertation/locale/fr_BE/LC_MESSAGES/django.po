@@ -23,7 +23,7 @@ msgid "accepted_by_director"
 msgstr "Accepté par le promoteur"
 
 msgid "accepted_by_first_year_evaluation"
-msgstr "Évaluation de première année réussie"
+msgstr "Éval première année ok"
 
 msgid "ACCOMPANIST"
 msgstr "Accompagnateur"
@@ -380,7 +380,7 @@ msgid "error"
 msgstr "Erreur"
 
 msgid "evaluation_first_year"
-msgstr "Évaluation de fin de première année"
+msgstr "Éval fin de 1ère année"
 
 msgid "export_search_as_xls"
 msgstr "Exporter la recherche en XLS"
@@ -542,10 +542,10 @@ msgid "manager_dissertations_to_dir_submit"
 msgstr "Soumettre au promoteur"
 
 msgid "manager_evaluation_accept"
-msgstr "Évaluation de première année réussie"
+msgstr "Éval 1ère année réussie"
 
 msgid "manager_evaluation_refuse"
-msgstr "Évaluation de première année échouée"
+msgstr "Éval de 1ère année échouée"
 
 msgid "manager_informations_add"
 msgstr "Ajouter un enseignant"
@@ -887,7 +887,7 @@ msgid "submitted_to_director"
 msgstr "Soumis au promoteur"
 
 msgid "submitted_to_first_year_evaluation"
-msgstr "Soumis à l'évaluation de fin de 1è année"
+msgstr "Soumis à l'éval fin de 1ère"
 
 msgid "taken_places"
 msgstr "Places occupées"
@@ -991,8 +991,10 @@ msgstr "oui"
 msgid "yes,no"
 msgstr "oui,non"
 
+msgid "year_start"
+msgstr "Année de début"
+
 msgid "you_have"
 msgstr "Vous avez"
 
-msgid "year_start"
-msgstr "année de début"
+

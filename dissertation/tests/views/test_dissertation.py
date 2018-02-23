@@ -24,14 +24,10 @@
 #
 ##############################################################################
 
-from base.tests.factories.academic_year import AcademicYearFactory
-from dissertation.models import adviser
-from dissertation.models.dissertation_role import count_by_dissertation, search_by_dissertation_and_role
-from dissertation.tests.models.test_faculty_adviser import create_faculty_adviser
-from dissertation.views.dissertation import adviser_can_manage
 import json
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.offer_year import OfferYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.offer import OfferFactory
@@ -42,10 +38,14 @@ from dissertation.tests.factories.faculty_adviser import FacultyAdviserFactory
 from dissertation.tests.factories.offer_proposition import OfferPropositionFactory
 from dissertation.tests.factories.proposition_dissertation import PropositionDissertationFactory
 from dissertation.tests.factories.proposition_offer import PropositionOfferFactory
+from dissertation.models import adviser
+from dissertation.models import dissertation_role
+from dissertation.tests.models.test_faculty_adviser import create_faculty_adviser
+from dissertation.views.dissertation import adviser_can_manage
 
 ERROR_405_BAD_REQUEST=405
 ERROR_404_PAGE_NO_FOUND = 404
-NO_ERROR_CODE = 200
+HTTP_OK = 200
 ERROR_403_NOT_AUTORIZED=403
 MAXIMUM_IN_REQUEST=50
 
@@ -125,6 +125,7 @@ class DissertationViewTestCase(TestCase):
         url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "no result search"})
         self.assertEqual(response.status_code, 200)
+
 
     def test_search_dissertations_for_manager_2(self):
         self.client.force_login(self.manager.person.user)
@@ -249,29 +250,29 @@ class DissertationViewTestCase(TestCase):
         self.assertEqual(res.count(), 4)
 
     def test_find_by_last_name_or_email(self):
-        res = adviser.find_advisers_last_name_email('Dupont',MAXIMUM_IN_REQUEST)
+        res = adviser.find_advisers_last_name_email('Dupont', MAXIMUM_IN_REQUEST)
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0].person.last_name, 'Dupont')
-        res = adviser.find_advisers_last_name_email(None,MAXIMUM_IN_REQUEST)
+        res = adviser.find_advisers_last_name_email(None, MAXIMUM_IN_REQUEST)
         self.assertEqual(len(res), 0)
 
     def test_get_adviser_list_json(self):
         self.client.force_login(self.manager.person.user)
         response = self.client.get('/dissertation/find_adviser_list/', {'term': 'Dupont'})
-        self.assertEqual(response.status_code, NO_ERROR_CODE)
+        self.assertEqual(response.status_code, HTTP_OK)
         data_json = response.json()
         self.assertNotEqual(len(data_json), 0)
         for data in data_json:
             self.assertEqual(data['last_name'], 'Dupont')
 
-    def test_manager_dissertations_jury_by_ajax(self):
+    def test_manager_dissert_jury_new_by_ajax1(self):
         self.client.force_login(self.manager.person.user)
-        dissert_role_count = count_by_dissertation(self.dissertation_1)
+        dissert_role_count = dissertation_role.count_by_dissertation(self.dissertation_1)
         response = self.client.post('/dissertation/manager_dissertations_jury_new_ajax/',
                                     {'pk_dissertation': str(self.dissertation_1.id)})
         self.assertEqual(response.status_code, ERROR_405_BAD_REQUEST)
-        response = self.client.get('/dissertation/manager_dissertations_jury_new_ajax/',
-                                    {'pk_dissertation': str(self.dissertation_1.id)})
+        response = self.client.get('/dissertation/manager_dissertations_jury_new_ajax/', {
+            'pk_dissertation': str(self.dissertation_1.id)})
         self.assertEqual(response.status_code, ERROR_405_BAD_REQUEST)
         response = self.client.post('/dissertation/manager_dissertations_jury_new_ajax/',
                                     {'pk_dissertation': str(self.dissertation_1.id), 'status_choice': 'READER'})
@@ -280,27 +281,41 @@ class DissertationViewTestCase(TestCase):
                                     {'pk_dissertation': str(self.dissertation_1.id),
                                      'status_choice': 'READER',
                                      'adviser_pk': str(self.teacher.id)})
-        self.assertEqual(response.status_code, NO_ERROR_CODE)
-        self.assertEqual(dissert_role_count + 1, count_by_dissertation(self.dissertation_1))
-        liste_dissert_roles = search_by_dissertation_and_role(self.dissertation_1, 'READER')
+        self.assertEqual(response.status_code, HTTP_OK)
+        self.assertEqual(dissert_role_count + 1, dissertation_role.count_by_dissertation(self.dissertation_1))
+
+    def test_manager_dissert_jury_del_by_ajax(self):
+        self.client.force_login(self.manager.person.user)
+        response = self.client.post('/dissertation/manager_dissertations_jury_new_ajax/',
+                                    {'pk_dissertation': str(self.dissertation_1.id),
+                                     'status_choice': 'READER',
+                                     'adviser_pk': str(self.teacher.id)})
+        self.assertEqual(response.status_code, HTTP_OK)
+        liste_dissert_roles = dissertation_role.search_by_dissertation_and_role(self.dissertation_1, 'READER')
+        self.assertNotEqual(len(liste_dissert_roles),0)
         for element in liste_dissert_roles:
-            dissert_role_count = count_by_dissertation(self.dissertation_1)
+            dissert_role_count = dissertation_role.count_by_dissertation(self.dissertation_1)
             url = "/dissertation/manager_dissertations_role_delete_by_ajax/{role}"
-            response2 = self.client.get(url.format(role = str(element.id)))
-            self.assertEqual(response2.status_code, NO_ERROR_CODE)
-            self.assertEqual(count_by_dissertation(self.dissertation_1), dissert_role_count-1)
+            response2 = self.client.get(url.format(role=str(element.id)))
+            self.assertEqual(response2.status_code, HTTP_OK)
+            self.assertEqual(dissertation_role.count_by_dissertation(self.dissertation_1), dissert_role_count-1)
+
+    def test_manager_dissert_wait_comm_jsonlist(self):
+        self.client.force_login(self.manager.person.user)
         response = self.client.post('/dissertation/manager_dissertations_wait_comm_json_list', )
         response_data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(response.status_code, NO_ERROR_CODE)
+        self.assertEqual(response.status_code, HTTP_OK)
         self.assertEqual(len(response_data), 2)
+
+    def test_manager_dissert_jury_security_ajax(self):
         self.client.force_login(self.manager2.person.user)
         response = self.client.post('/dissertation/manager_dissertations_jury_new_ajax/',
                                     {'pk_dissertation': str(self.dissertation_1.id),
                                      'status_choice': 'READER',
                                      'adviser_pk': str(self.teacher.id)})
         self.assertEqual(response.status_code, ERROR_403_NOT_AUTORIZED)
-        liste_dissert_roles = search_by_dissertation_and_role(self.dissertation_1, 'READER')
+        liste_dissert_roles = dissertation_role.search_by_dissertation_and_role(self.dissertation_1, 'READER')
         for element in liste_dissert_roles:
             url = "/dissertation/manager_dissertations_role_delete_by_ajax/{role}"
-            response = self.client.get(url.format(role = str(element.id)))
+            response = self.client.get(url.format(role=str(element.id)))
             self.assertEqual(response.status_code, ERROR_403_NOT_AUTORIZED)

@@ -23,17 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
-from base.tests.factories.academic_year import AcademicYearFactory
 import json
 from django.test import TestCase
-from base.tests.factories.offer_year import OfferYearFactory
 from base.tests.factories.person import PersonFactory
-from base.tests.factories.offer import OfferFactory
-from base.tests.factories.student import StudentFactory
 from dissertation.tests.factories.adviser import AdviserManagerFactory, AdviserTeacherFactory
-from dissertation.tests.factories.faculty_adviser import FacultyAdviserFactory
-from dissertation.tests.factories.offer_proposition import OfferPropositionFactory
+
 
 ERROR_405_BAD_REQUEST=405
 ERROR_404_PAGE_NO_FOUND = 404
