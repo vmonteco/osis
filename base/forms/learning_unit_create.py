@@ -134,7 +134,7 @@ class LearningUnitYearForm(BootstrapForm):
     )
     additional_requirement_entity_2 = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
                                                                  widget=forms.Select(attrs={'disable': 'disable'}))
-    language = forms.ModelChoiceField(find_all_languages(), empty_label=None,  initial=find_by_code("FR"))
+    language = forms.ModelChoiceField(find_all_languages(), empty_label=None)
 
     def clean(self):
         cleaned_data = super().clean()

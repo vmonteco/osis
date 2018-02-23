@@ -55,10 +55,7 @@ def find_by_id(language_id):
 
 
 def find_by_code(code):
-    try:
-        return Language.objects.get(code=code)
-    except ObjectDoesNotExist:
-        return None
+    return Language.objects.get(code=code)
 
 
 def serialize_list(list_languages):
