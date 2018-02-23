@@ -66,7 +66,8 @@ def proposal_learning_unit_add(request):
                                                                      new_learning_unit, academic_year)
         data_proposal = proposal_form.cleaned_data
         create_learning_unit_proposal(person, data_proposal['folder_entity'].entity, data_proposal['folder_id'],
-                                      new_learning_unit_year, ProposalState, ProposalType, {})
+                                      new_learning_unit_year, ProposalState.FACULTY.name,
+                                      ProposalType.CREATION.name, {})
         show_success_learning_unit_year_creation_message(request, new_learning_unit_year,
                                                          'proposal_learning_unit_successfuly_created')
         return redirect('learning_units')
