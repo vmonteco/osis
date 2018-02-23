@@ -198,3 +198,16 @@ def find_advisers_last_name_email(term, maximum_in_request):
     else:
         return Adviser.objects.filter(Q(person__email__icontains=term) |
                                       Q(person__last_name__icontains=term))[:maximum_in_request]
+
+
+def convert_advisers_to_array(advisers):
+    return_data = [
+        {
+            'value': "{p.last_name}, {p.first_name} ({p.email})".format(p=adviser.person),
+            'first_name': adviser.person.first_name,
+            'last_name': adviser.person.last_name,
+            'id': adviser.id
+        }
+        for adviser in advisers
+        ]
+    return return_data

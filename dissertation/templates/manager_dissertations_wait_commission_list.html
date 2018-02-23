@@ -114,6 +114,7 @@
 <script type="text/javascript" src="{% static 'js/dataTables.bootstrap.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/jquery-ui.js' %}"></script>
 <script>
+
     function format_row_child(list_dissert_roles,dissert)
     {
         var pk ='';
@@ -348,7 +349,7 @@
 
     $(function(){
         $("#search_advisers").autocomplete({
-        source: "/dissertation/find_adviser_list/",
+        source: {{all_advisers_array | safe}},
         minLength: 3,
         delay: 100,
         error: function (response) {

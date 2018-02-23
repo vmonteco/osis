@@ -449,8 +449,9 @@ def manager_dissertations_search(request):
         disserts = disserts.filter(offer_year_start__offer=offer_prop.offer)
     if academic_year_search!='':
         academic_year_search = int(academic_year_search)
-        disserts = disserts.filter(offer_year_start__academic_year=
-                                  academic_year.find_academic_year_by_id(academic_year_search))
+        disserts = disserts.filter(
+            offer_year_start__academic_year=academic_year.find_academic_year_by_id(academic_year_search)
+        )
     if status_search!='':
         disserts = disserts.filter(status=status_search)
     offer_props = offer_proposition.search_by_offer(offers)
@@ -706,12 +707,14 @@ def manager_dissertations_wait_comm_list(request):
     adv = adviser.search_by_person(person)
     offers = faculty_adviser.search_by_adviser(adv)
     offer_props = offer_proposition.search_by_offer(offers)
+    all_advisers_array = str(adviser.convert_advisers_to_array(adviser.find_all_advisers()))
     show_validation_commission = offer_proposition.show_validation_commission(offer_props)
     show_evaluation_first_year = offer_proposition.show_evaluation_first_year(offer_props)
     return layout.render(request, 'manager_dissertations_wait_commission_list.html',
                          {'show_validation_commission': show_validation_commission,
                           'STATUS_CHOICES': STATUS_CHOICES,
-                          'show_evaluation_first_year': show_evaluation_first_year})
+                          'show_evaluation_first_year': show_evaluation_first_year,
+                          'all_advisers_array': all_advisers_array})
 
 
 @login_required

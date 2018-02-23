@@ -57,13 +57,5 @@ def get_students_list_in_offer_year(request, offer_year_start_id):
 def find_adviser_list_json(request):
     term_search = request.GET.get('term')
     advisers = adviser.find_advisers_last_name_email(term_search, MAX_RETURN)
-    response_data = [
-            {
-                'value': "{p.last_name}, {p.first_name} ({p.email})".format(p=adviser.person),
-                'first_name': adviser.person.first_name,
-                'last_name': adviser.person.last_name,
-                'id': adviser.id
-            }
-            for adviser in advisers
-        ]
+    response_data = adviser.convert_advisers_to_array(advisers)
     return JsonResponse(response_data, safe=False)
