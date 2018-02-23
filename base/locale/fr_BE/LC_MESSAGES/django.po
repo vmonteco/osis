@@ -2365,6 +2365,8 @@ msgstr "Refusé"
 msgid "success_modification_proposal"
 msgstr "Une proposition de modification de type {} a été faite pour l'unité d'enseignement {}."
 
+msgid "proposal_edited_successfully"
+msgstr "Proposition modifiée avec succès"
 
 msgid "content"
 msgstr "Contenu"
