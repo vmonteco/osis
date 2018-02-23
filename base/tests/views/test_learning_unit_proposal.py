@@ -38,7 +38,7 @@ from django.test import TestCase, RequestFactory
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
-from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalStateModelForm
+from base.forms.proposal.learning_unit_proposal import ProposalStateModelForm
 from base.models import entity_container_year
 from base.models import proposal_folder, proposal_learning_unit
 from base.models.enums import organization_type, entity_type, \
@@ -57,7 +57,7 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_folder import ProposalFolderFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
-from base.views.learning_unit_proposal import PROPOSAL_SEARCH, edit_learning_unit_proposal
+from base.views.learning_unit_proposal import edit_learning_unit_proposal
 from reference.tests.factories.language import LanguageFactory
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
 from base.views.learning_unit_proposal import PROPOSAL_SEARCH
