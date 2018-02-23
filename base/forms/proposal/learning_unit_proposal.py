@@ -35,6 +35,7 @@ from base.models.enums import entity_container_year_link_type, proposal_type, pr
 from base.forms import learning_units as learning_units_form
 from base.forms.common import get_clean_data, TooManyResultsException
 from base.forms.learning_unit_search import SearchForm
+from base.models.proposal_learning_unit import ProposalLearningUnit
 
 
 def _get_entity_folder_id_ordered_by_acronym():
@@ -120,3 +121,10 @@ class LearningUnitProposalForm(SearchForm):
         learning_units = \
             [append_latest_entities(learning_unit_proposal.learning_unit_year, None) for learning_unit_proposal in res]
         return {'proposals': res, 'learning_units': learning_units}
+
+
+class ProposalStateModelForm(forms.ModelForm):
+
+    class Meta:
+        model = ProposalLearningUnit
+        fields = ['state']

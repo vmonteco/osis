@@ -27,6 +27,8 @@
 {% if "base" in perms %}
 <div class="panel-footer text-right">
     <!-- Dropdown to select actions to apply on learning unit -->
+    {% url "edit_proposal" learning_unit_year_id=learning_unit_year.id as url_edit_proposal %}
+
     <div class="dropdown dropup">
         <button id="dLabel" class="btn btn-default" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> {% trans 'actions' %}
@@ -37,6 +39,11 @@
             <li {% if not can_propose %}class="disabled"{% endif %}>
                 <a {% if can_propose %} href="{% url "learning_unit_modification_proposal" learning_unit_year_id=learning_unit_year.id %}" {% endif %}>
                     {% trans 'Put in proposal' %}
+                </a>
+            </li>
+            <li {% if not can_edit_learning_unit_proposal %}class="disabled"{% endif %}>
+                <a {% if can_edit_learning_unit_proposal %} href="{{ url_edit_proposal }}" {% endif %}>
+                    {% trans 'Edit proposal' %}
                 </a>
             </li>
             <li {% if not can_cancel_proposal %}class="disabled"{% endif %}>

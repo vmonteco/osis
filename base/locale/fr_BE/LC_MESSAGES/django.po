@@ -2591,5 +2591,8 @@ msgstr "Voulez-vous reporter les modifications faites pour les années suivantes
 msgid "proposal_creation"
 msgstr "Proposition de création"
 
+msgid "proposal_update"
+msgstr "Modification de proposition"
+
 msgid "value_before_proposal"
 msgstr "Valeur avant proposition"
