@@ -137,7 +137,7 @@ def find_versions_from_entites(entities, date):
 
 def find_by_id(an_id):
     if an_id is None:
-        return
+        return None
     try:
         return Entity.objects.get(pk=an_id)
     except Entity.DoesNotExist:
