@@ -33,7 +33,7 @@ LABEL_VALUE_BEFORE_PROPROSAL = _('value_before_proposal')
 
 class LearningUnitTagTest(TestCase):
 
-    def test_get_css(self):
+    def test_get_difference_css(self):
         key_parameter_1 = 'parameter1'
         tooltip_parameter1 = 'tooltip1'
 
@@ -45,6 +45,6 @@ class LearningUnitTagTest(TestCase):
                                                                                  tooltip_parameter1,
                                                                                  "proposal_value"))
 
-    def test_get_not_css(self):
+    def test_get_no_differences_css(self):
         differences = {'parameter1': 'tooltip1'}
         self.assertIsNone(get_difference_css(differences, 'parameter_10'))
