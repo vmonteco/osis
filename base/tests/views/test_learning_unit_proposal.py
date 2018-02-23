@@ -762,11 +762,11 @@ class TestLearningUnitProposalDisplay(TestCase):
         self.assertEqual(differences.get('language'), proposal_business.NO_PREVIOUS_VALUE)
 
     def test_get_the_old_value_with_translation(self):
-        cle = proposal_business.VALUES_WHICH_NEED_TRANSLATION[0]
-        initial_data = {cle: learning_unit_periodicity.ANNUAL}
-        current_data = {cle: learning_unit_periodicity.BIENNIAL_EVEN}
-        differences = proposal_business._get_the_old_value(cle, current_data, initial_data)
-        self.assertEqual(differences.get(cle), _(learning_unit_periodicity.ANNUAL))
+        key = proposal_business.VALUES_WHICH_NEED_TRANSLATION[0]
+        initial_data = {key: learning_unit_periodicity.ANNUAL}
+        current_data = {key: learning_unit_periodicity.BIENNIAL_EVEN}
+        differences = proposal_business._get_the_old_value(key, current_data, initial_data)
+        self.assertEqual(differences.get(key), _(learning_unit_periodicity.ANNUAL))
 
     def test_compare_model_with_initial_value(self):
         differences = proposal_business._compare_model_with_initial_value(
@@ -867,7 +867,7 @@ class TestLearningUnitProposalDisplay(TestCase):
         wrong_id = -1
 
         self.assertEqual(proposal_business._get_entity_previous_value(wrong_id,
-                                                               entity_container_year_link_type.REQUIREMENT_ENTITY),
+                                                                      entity_container_year_link_type.REQUIREMENT_ENTITY),
                          {entity_container_year_link_type.REQUIREMENT_ENTITY: _('entity_not_found')})
 
     def test_get_entity_previous_value(self):
@@ -876,7 +876,7 @@ class TestLearningUnitProposalDisplay(TestCase):
             .requirement_entity_container_year.entity
 
         self.assertEqual(proposal_business._get_entity_previous_value(requirement_entity.id,
-                                                               entity_container_year_link_type.REQUIREMENT_ENTITY),
+                                                                      entity_container_year_link_type.REQUIREMENT_ENTITY),
                          {entity_container_year_link_type.REQUIREMENT_ENTITY: _('entity_not_found')})
 
     def get_an_entity_version(self):

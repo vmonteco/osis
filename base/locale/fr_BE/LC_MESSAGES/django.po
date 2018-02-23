@@ -2598,4 +2598,4 @@ msgid "value_before_proposal"
 msgstr "Valeur avant proposition"
 
 msgid "entity_not_found"
-msgstr "Entityé non-trouvée.  Il y a peut-être une erreur dans les données"
+msgstr "Entité non-trouvée.  Il y a peut-être une erreur dans les données"

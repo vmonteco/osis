@@ -146,16 +146,10 @@ def _has_changed_entity(entity_cont_yr, entity_id):
 
 
 def _get_differences_in_learning_unit_data(proposal):
-    learning_unit_yr_initial_data = \
-        proposal.initial_data.get('learning_unit_year') if proposal.initial_data.get('learning_unit_year') else None
-    learning_container_yr_initial_data = \
-        proposal.initial_data.get('learning_container_year') if proposal.initial_data.get(
-            'learning_container_year') else None
-    initial_learning_container_yr_id = \
-        learning_container_yr_initial_data.get('id') if learning_container_yr_initial_data else None
-
-    learning_unit_initial_data = proposal.initial_data.get('learning_unit') if proposal.initial_data.get(
-        'learning_unit') else None
+    learning_unit_yr_initial_data = _get_data_dict('learning_unit_year', proposal.initial_data)
+    learning_container_yr_initial_data = _get_data_dict('learning_container_year', proposal.initial_data)
+    initial_learning_container_yr_id = _get_data_dict('id', learning_container_yr_initial_data)
+    learning_unit_initial_data = _get_data_dict('learning_unit', proposal.initial_data)
 
     differences = {}
     differences.update(_compare_model_with_initial_value(proposal.learning_unit_year.id,
@@ -225,20 +219,18 @@ def _get_str_representing_old_data_from_foreign_key(key, initial_value):
         return {key: NO_PREVIOUS_VALUE}
 
 
-def _get_old_value_of_foreign_key(cle, initial_value):
+def _get_old_value_of_foreign_key(key, initial_value):
     differences = {}
-    if cle == 'campus':
-        differences.update({cle: str(mdl_base.campus.find_by_id(initial_value))})
+    if key == 'campus':
+        differences.update({key: str(mdl_base.campus.find_by_id(initial_value))})
 
-    if cle == 'language':
-        differences.update({cle: str(language.find_by_id(initial_value))})
+    if key == 'language':
+        differences.update({key: str(language.find_by_id(initial_value))})
     return differences
 
 
 def _is_foreign_key(key, current_data):
-    if "{}{}".format(key, END_FOREIGN_KEY_NAME) in current_data:
-        return True
-    return False
+    return "{}{}".format(key, END_FOREIGN_KEY_NAME) in current_data
 
 
 def _get_entity_previous_value(entity_id, entity_type):
@@ -248,3 +240,8 @@ def _get_entity_previous_value(entity_id, entity_type):
     else:
         return {entity_type: _('entity_not_found')}
 
+
+def _get_data_dict(key, initial_data):
+    if initial_data:
+        return initial_data.get(key) if initial_data.get(key) else None
+    return None
