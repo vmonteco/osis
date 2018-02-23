@@ -189,29 +189,29 @@ def _replace_key_of_foreign_key(data):
     return {key_name.replace(END_FOREIGN_KEY_NAME, ''): data[key_name] for key_name in data.keys()}
 
 
-def _check_differences(initial_data, actual_data):
+def _check_differences(initial_data, current_data):
     if initial_data:
-        return _compare_initial_actual_data(actual_data, initial_data)
+        return _compare_initial_current_data(current_data, initial_data)
     return {}
 
 
-def _compare_initial_actual_data(actual_data, initial_data):
-    corrected_dict = _replace_key_of_foreign_key(actual_data)
+def _compare_initial_current_data(current_data, initial_data):
+    corrected_dict = _replace_key_of_foreign_key(current_data)
     differences = {}
     for attribute, initial_value in initial_data.items():
         if attribute in corrected_dict and initial_data.get(attribute, None) != corrected_dict.get(attribute):
-            differences.update(_get_the_old_value(attribute, actual_data, initial_data))
+            differences.update(_get_the_old_value(attribute, current_data, initial_data))
     return differences
 
 
-def _get_the_old_value(key, actual_data, initial_data):
+def _get_the_old_value(key, current_data, initial_data):
     differences = {}
 
     initial_value = NO_PREVIOUS_VALUE
     if initial_data.get(key):
         initial_value = initial_data.get(key)
 
-    if _is_foreign_key(key, actual_data):
+    if _is_foreign_key(key, current_data):
         differences.update(_get_str_representing_old_data_from_foreign_key(key, initial_value))
     else:
         if key in VALUES_WHICH_NEED_TRANSLATION and initial_value != NO_PREVIOUS_VALUE:
@@ -237,7 +237,7 @@ def _get_old_value_of_foreign_key(cle, initial_value):
     return differences
 
 
-def _is_foreign_key(cle, actual_data):
-    if "{}{}".format(cle, END_FOREIGN_KEY_NAME) in actual_data:
+def _is_foreign_key(cle, current_data):
+    if "{}{}".format(cle, END_FOREIGN_KEY_NAME) in current_data:
         return True
     return False

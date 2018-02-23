@@ -716,19 +716,19 @@ class TestLearningUnitProposalDisplay(TestCase):
         cls.l_container_year_with_entities = cls.generator_learning_container.generated_container_years[0]
 
     def test_is_foreign_key(self):
-        actual_data = {"language{}".format(END_FOREIGN_KEY_NAME): self.language_it.id}
-        self.assertTrue(_is_foreign_key("language", actual_data))
+        current_data = {"language{}".format(END_FOREIGN_KEY_NAME): self.language_it.id}
+        self.assertTrue(_is_foreign_key("language", current_data))
 
     def test_is_not_foreign_key(self):
-        actual_data = {"credits": self.language_it.id}
-        self.assertFalse(_is_foreign_key("credits", actual_data))
+        current_data = {"credits": self.language_it.id}
+        self.assertFalse(_is_foreign_key("credits", current_data))
 
     def test_check_differences(self):
         initial_data_learning_unit_year = {'credits': self.initial_credits,
                                            'quadrimester': self.initial_quadrimester}
-        actual_data = {"credits": self.learning_unit_yr.credits, 'quadrimester': 'Q3'}
+        current_data = {"credits": self.learning_unit_yr.credits, 'quadrimester': 'Q3'}
 
-        differences = _check_differences(initial_data_learning_unit_year, actual_data)
+        differences = _check_differences(initial_data_learning_unit_year, current_data)
 
         self.assertEqual(differences.get('credits'),
                          "{}".format(self.initial_credits))
@@ -748,26 +748,26 @@ class TestLearningUnitProposalDisplay(TestCase):
 
     def test_get_the_old_value_for_foreign_key(self):
         initial_data_learning_container_year = {'language': self.language_pt.id}
-        actual_data = {"language_id": self.language_it.id}
-        differences = _get_the_old_value('language', actual_data, initial_data_learning_container_year)
+        current_data = {"language_id": self.language_it.id}
+        differences = _get_the_old_value('language', current_data, initial_data_learning_container_year)
         self.assertEqual(differences.get('language'), "{}".format(self.language_pt))
 
     def test_get_the_old_value_for_foreign_key_no_previous_value(self):
         initial_data = {"language": None}
-        actual_data = {"language_id": self.language_it.id}
+        current_data = {"language_id": self.language_it.id}
 
-        differences = _get_the_old_value('language', actual_data, initial_data)
+        differences = _get_the_old_value('language', current_data, initial_data)
         self.assertEqual(differences.get('language'), NO_PREVIOUS_VALUE)
 
         initial_data = {}
-        differences = _get_the_old_value('language', actual_data, initial_data)
+        differences = _get_the_old_value('language', current_data, initial_data)
         self.assertEqual(differences.get('language'), NO_PREVIOUS_VALUE)
 
     def test_get_the_old_value_with_translation(self):
         cle = VALUES_WHICH_NEED_TRANSLATION[0]
         initial_data = {cle: learning_unit_periodicity.ANNUAL}
-        actual_data = {cle: learning_unit_periodicity.BIENNIAL_EVEN}
-        differences = _get_the_old_value(cle, actual_data, initial_data)
+        current_data = {cle: learning_unit_periodicity.BIENNIAL_EVEN}
+        differences = _get_the_old_value(cle, current_data, initial_data)
         self.assertEqual(differences.get(cle), "{}".format(_(learning_unit_periodicity.ANNUAL)))
 
     def test_compare_model_with_initial_value(self):
