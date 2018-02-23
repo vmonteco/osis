@@ -37,6 +37,7 @@ DEFAULT_ACRONYM_LECTURING_COMPONENT = "CM1"
 DEFAULT_ACRONYM_PRACTICAL_COMPONENT = "TP1"
 UNTYPED_ACRONYM = "NT1"
 
+
 def create_learning_unit_year_structure(data, new_learning_container, new_learning_unit, academic_year):
     new_learning_container_yr = LearningContainerYear.objects.create(academic_year=academic_year,
                                                                      learning_container=new_learning_container,
@@ -55,18 +56,24 @@ def create_learning_unit_year_structure(data, new_learning_container, new_learni
                                                                    new_learning_container_yr,
                                                                    entity_container_year_link_type.REQUIREMENT_ENTITY)]
     if data['additional_requirement_entity_1']:
-        requirement_entity_containers.append(_create_entity_container_year(
-            data['additional_requirement_entity_1'], new_learning_container_yr,
-            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1))
+        _append_requirement_entity_container(data['additional_requirement_entity_1'], new_learning_container_yr,
+                                             requirement_entity_containers,
+                                             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
     if data['additional_requirement_entity_2']:
-        requirement_entity_containers.append(_create_entity_container_year(
-            data['additional_requirement_entity_2'], new_learning_container_yr,
-            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2))
+        _append_requirement_entity_container(data['additional_requirement_entity_2'], new_learning_container_yr,
+                                             requirement_entity_containers,
+                                             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
 
     return create_learning_unit_content({'academic_year': academic_year, 'data': data, 'status': data['status'],
                                          'new_learning_container_year': new_learning_container_yr,
                                          'new_learning_unit': new_learning_unit,
                                          'requirement_entity_containers': requirement_entity_containers})
+
+
+def _append_requirement_entity_container(additional_requirement_entity, new_learning_container_yr,
+                                         requirement_entity_containers, link_type):
+    requirement_entity_containers.append(_create_entity_container_year(
+        additional_requirement_entity, new_learning_container_yr, link_type))
 
 
 def create_learning_unit(data, learning_container, year, end_year=None):
