@@ -29,12 +29,12 @@
 {% block breadcrumb %}
 <li><a href="{% url 'catalog' %}" id="lnk_catalog">{% trans 'formation_catalogue'%}</a></li>
 <li><a href="{% url 'learning_units' %}" id="lnk_learning_units">{% trans 'learning_units'%}</a></li>
-<li id="lnk_learning_unit">{% trans 'new_learning_unit_proposal' %}</li>
+<li id="lnk_learning_unit">{% trans 'proposal_creation' %}</li>
 {% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h2>{% trans 'new_learning_unit_proposal' %}</h2>
+    <h2>{% trans 'proposal_creation' %}</h2>
 </div>
 <div class="panel panel-default">
     <div class="panel-body">
@@ -58,22 +58,10 @@
                             {{ proposal_form.folder_id }}
                             <span class="error">{{ proposal_form.folder_id.errors }}</span>
                         </div>
-                        <div class="col-md-4">
-                            <b>{% trans 'introduced_by' %}</b>
-                        </div>
-                        <div class="col-md-8">
-                            {{ person|default_if_none:request.user }}
-                        </div>
-                        <div class="col-md-4">
-                            <b>{% trans 'the' %}</b>
-                        </div>
-                        <div class="col-md-8">
-                            {% now "d/m/Y" %}
-                        </div>
                     </div>
                 </div>
             </div>
-            {% include "learning_unit/components/create_form_learning_unit.html" %}
+            {% include "learning_unit/blocks/create_form_learning_unit.html" %}
             <div class="panel-body">
                 <button type="button" id="learning_unit_year_add" class="btn btn-primary"
                         title="{% trans 'add' %}">{%trans 'save' %}</button>
@@ -113,6 +101,8 @@
     const trans_existing_acronym = "{% trans 'existing_acronym' %}";
     const trans_invalid_acronym = "{% trans 'invalid_acronym' %}";
     const trans_field_required = "{% trans 'field_is_required' %}";
+    const trans_field_min = "{% trans 'min_for_field' %}";
+    const trans_field_max = "{% trans 'max_for_field' %}";
 </script>
 <script type="text/javascript" src="{% static 'js/learning_unit_creation.js' %}"></script>
 {% endblock %}

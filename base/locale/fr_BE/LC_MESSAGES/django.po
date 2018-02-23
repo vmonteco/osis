@@ -2610,3 +2610,9 @@ msgstr "Valeur avant proposition"
 
 msgid "entity_not_found"
 msgstr "Entité non-trouvée.  Il y a peut-être une erreur dans les données"
+
+msgid "min_for_field"
+msgstr "Veuillez entrer une valeur supérieure ou égale à 0."
+
+msgid "max_for_field"
+msgstr "Veuillez entrer une valeur inférieur ou égale à 500."
