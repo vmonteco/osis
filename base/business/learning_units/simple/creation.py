@@ -46,24 +46,26 @@ def create_learning_unit_year_structure(data, new_learning_container, new_learni
                                                                      language=data['language'],
                                                                      campus=data['campus'],
                                                                      common_title_english=data['common_title_english'])
-    new_requirement_entity = create_entity_container_year(data['requirement_entity'],
-                                                          new_learning_container_yr,
-                                                          entity_container_year_link_type.REQUIREMENT_ENTITY)
-    if data['allocation_entity']:
-        create_entity_container_year(data['allocation_entity'], new_learning_container_yr,
-                                     entity_container_year_link_type.ALLOCATION_ENTITY)
+    # Create Allocation Entity container
+    _create_entity_container_year(data['allocation_entity'], new_learning_container_yr,
+                                  entity_container_year_link_type.ALLOCATION_ENTITY)
+
+    # Create All Requirements Entity Container [Min 1, Max 3]
+    requirement_entity_containers = [_create_entity_container_year(data['requirement_entity'], new_learning_container_yr,
+                                                                   entity_container_year_link_type.REQUIREMENT_ENTITY)]
     if data['additional_requirement_entity_1']:
-        create_entity_container_year(data.get('additional_requirement_entity_1'), new_learning_container_yr,
-                                     entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
+        requirement_entity_containers.append(_create_entity_container_year(
+            data['additional_requirement_entity_1'], new_learning_container_yr,
+            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1))
     if data['additional_requirement_entity_2']:
-        create_entity_container_year(data['additional_requirement_entity_2'], new_learning_container_yr,
-                                     entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
-    return create_learning_unit_content({'academic_year': academic_year,
-                                         'data': data,
+        requirement_entity_containers.append(_create_entity_container_year(
+            data['additional_requirement_entity_2'], new_learning_container_yr,
+            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2))
+
+    return create_learning_unit_content({'academic_year': academic_year, 'data': data, 'status': data['status'],
                                          'new_learning_container_year': new_learning_container_yr,
                                          'new_learning_unit': new_learning_unit,
-                                         'new_requirement_entity': new_requirement_entity,
-                                         'status': data.get('status')})
+                                         'requirement_entity_containers': requirement_entity_containers})
 
 
 def create_learning_unit(data, learning_container, year, end_year=None):
@@ -73,7 +75,7 @@ def create_learning_unit(data, learning_container, year, end_year=None):
                                        end_year=end_year)
 
 
-def create_entity_container_year(entity_version, learning_container_year, type_entity_container_year):
+def _create_entity_container_year(entity_version, learning_container_year, type_entity_container_year):
     return EntityContainerYear.objects.create(entity=entity_version.entity,
                                               learning_container_year=learning_container_year,
                                               type=type_entity_container_year)
@@ -98,35 +100,35 @@ def create_learning_unit_content(data_dict):
 
 def create_with_lecturing_and_practical_components(data_dict):
     new_learning_container_year = data_dict.get('new_learning_container_year', None)
-    new_requirement_entity = data_dict.get('new_requirement_entity', None)
-
+    requirement_entity_containers = data_dict.get('requirement_entity_containers', [])
     new_lecturing = create_learning_component_year(new_learning_container_year,
                                                    DEFAULT_ACRONYM_LECTURING_COMPONENT,
                                                    learning_component_year_type.LECTURING)
     new_practical_exercise = create_learning_component_year(new_learning_container_year,
                                                             DEFAULT_ACRONYM_PRACTICAL_COMPONENT,
                                                             learning_component_year_type.PRACTICAL_EXERCISES)
-    EntityComponentYear.objects.create(entity_container_year=new_requirement_entity,
-                                       learning_component_year=new_lecturing)
-    EntityComponentYear.objects.create(entity_container_year=new_requirement_entity,
-                                       learning_component_year=new_practical_exercise)
+    for requirement_entity_container in requirement_entity_containers:
+        EntityComponentYear.objects.create(entity_container_year=requirement_entity_container,
+                                           learning_component_year=new_lecturing)
+        EntityComponentYear.objects.create(entity_container_year=requirement_entity_container,
+                                           learning_component_year=new_practical_exercise)
     new_learning_unit_year = create_learning_unit_year(data_dict)
-    create_learning_unit_component(new_learning_unit_year, new_lecturing,
-                                   learning_component_year_type.LECTURING)
-    create_learning_unit_component(new_learning_unit_year, new_practical_exercise,
-                                   learning_component_year_type.PRACTICAL_EXERCISES)
+    _create_learning_unit_component(new_learning_unit_year, new_lecturing,
+                                    learning_component_year_type.LECTURING)
+    _create_learning_unit_component(new_learning_unit_year, new_practical_exercise,
+                                    learning_component_year_type.PRACTICAL_EXERCISES)
     return new_learning_unit_year
 
 
 def create_with_untyped_component(data_dict):
     new_learning_container_year = data_dict.get('new_learning_container_year', None)
-    new_requirement_entity = data_dict.get('new_requirement_entity', None)
-    new_learning_component_year = create_learning_component_year(new_learning_container_year,
-                                                                 UNTYPED_ACRONYM, None)
-    EntityComponentYear.objects.create(entity_container_year=new_requirement_entity,
-                                       learning_component_year=new_learning_component_year)
+    requirement_entity_containers = data_dict.get('requirement_entity_containers', [])
+    new_learning_component_year = create_learning_component_year(new_learning_container_year, UNTYPED_ACRONYM, None)
+    for requirement_entity_container in requirement_entity_containers:
+        EntityComponentYear.objects.create(entity_container_year=requirement_entity_container,
+                                           learning_component_year=new_learning_component_year)
     new_learning_unit_year = create_learning_unit_year(data_dict)
-    create_learning_unit_component(new_learning_unit_year, new_learning_component_year, None)
+    _create_learning_unit_component(new_learning_unit_year, new_learning_component_year, None)
     return new_learning_unit_year
 
 
@@ -152,7 +154,7 @@ def create_learning_unit_year(data_dict):
                                            quadrimester=data['quadrimester'])
 
 
-def create_learning_unit_component(learning_unit_year, learning_component_year, type_learning_unit_component):
+def _create_learning_unit_component(learning_unit_year, learning_component_year, type_learning_unit_component):
     return LearningUnitComponent.objects.create(learning_unit_year=learning_unit_year,
                                                 learning_component_year=learning_component_year,
                                                 type=type_learning_unit_component)

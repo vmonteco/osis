@@ -55,6 +55,7 @@ from base.business.learning_unit import get_cms_label_data, \
     create_learning_unit_partim_structure, can_access_summary, get_last_academic_years, CMS_LABEL_SPECIFICATIONS, \
     CMS_LABEL_PEDAGOGY, CMS_LABEL_SUMMARY
 from base.business.learning_units import perms as business_perms
+from base.business.learning_units.perms import is_eligible_to_edit_proposal
 from base.business.learning_units.simple.creation import create_learning_unit_year_structure, create_learning_unit
 from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
@@ -577,12 +578,13 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context['show_subtype'] = show_subtype(learning_unit_year)
     context.update(get_all_attributions(learning_unit_year))
     context['components'] = get_components_identification(learning_unit_year)
-    context['can_propose'] = business_perms.is_eligible_for_modification_proposal(learning_unit_year, person)
+    context['can_propose'] = business_perms.is_eligible_to_create_modification_proposal(learning_unit_year, person)
     context['can_edit_date'] = business_perms.is_eligible_for_modification_end_date(learning_unit_year, person)
     context['can_edit'] = business_perms.is_eligible_for_modification(learning_unit_year, person)
     context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
     context['can_cancel_proposal'] = business_perms. \
         is_eligible_for_cancel_of_proposal(context['proposal'], person) if context['proposal'] else False
+    context['can_edit_learning_unit_proposal'] = is_eligible_to_edit_proposal(context['proposal'], person)
     context['proposal_folder_entity_version'] = mdl_base.entity_version.get_by_entity_and_date(
         context['proposal'].folder.entity, None) if context['proposal'] else None
     context['can_delete'] = learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year)

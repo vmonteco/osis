@@ -253,17 +253,18 @@ def create_partim(data_dict, new_learning_container_year):
     status = data_dict.get('status', None)
     academic_year = data_dict.get('academic_year', None)
 
-    # Get entity_container_year [Link betwen entity AND learning container year]
-    entity_container_yr = entity_container_year.find_by_learning_container_year(
-        a_learning_container_year=new_learning_container_year,
-        a_entity_container_year_link_type=entity_container_year_link_type.REQUIREMENT_ENTITY
-    ).get()
+    # Get all requirement entity containers [Min 1 - Max 3]
+    requirement_entity_containers = list(entity_container_year.search(
+        learning_container_year=new_learning_container_year,
+        link_type=[entity_container_year_link_type.REQUIREMENT_ENTITY,
+                   entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
+                   entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2]))
 
     return create_learning_unit_content({'academic_year': academic_year,
                                          'data': data,
                                          'new_learning_container_year': new_learning_container_year,
                                          'new_learning_unit': new_learning_unit,
-                                         'new_requirement_entity': entity_container_yr,
+                                         'requirement_entity_containers': requirement_entity_containers,
                                          'status': status})
 
 

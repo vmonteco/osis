@@ -2455,6 +2455,9 @@ msgstr "The proposal for {} was cancelled."
 msgid "cancel_proposal"
 msgstr "Cancel proposal"
 
+msgid "edit_proposal"
+msgstr "Edit proposal"
+
 msgid "msg_confirm_cancel_proposal"
 msgstr "Are you certain that you want to cancel the learning unit proposal ?"
 
@@ -2589,3 +2592,7 @@ msgstr "New learning unit proposal"
 
 msgid "proposal_creation"
 msgstr "Proposal of creation"
+
+msgid "proposal_update"
+msgstr "Proposal update"
+
