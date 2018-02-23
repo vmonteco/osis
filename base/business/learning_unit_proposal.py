@@ -127,13 +127,19 @@ def _get_difference_of_entity_proposal(learning_container_yr, learning_unit_yr_p
         entity_cont_yr = mdl_base.entity_container_year \
             .find_by_learning_container_year_and_linktype(learning_container_yr, entity_type)
         if entity_cont_yr:
-            if _has_changed_entity(entity_cont_yr, entity_id):
-                old_value = mdl_base.entity.Entity.objects.get(pk=entity_id)
-                differences.update({entity_type: "{}".format(old_value.most_recent_acronym)})
-            else:
-                if entity_type in (entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
-                                   entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2):
-                    differences.update({entity_type: "{}".format(NO_PREVIOUS_VALUE)})
+            differences.update(_get_entity_old_value(entity_cont_yr, entity_id, entity_type))
+    return differences
+
+
+def _get_entity_old_value(entity_cont_yr, entity_id, entity_type):
+    differences= {}
+    if _has_changed_entity(entity_cont_yr, entity_id):
+        old_value = mdl_base.entity.Entity.objects.get(pk=entity_id)
+        differences.update({entity_type: "{}".format(old_value.most_recent_acronym)})
+    else:
+        if entity_type in (entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
+                           entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2):
+            differences.update({entity_type: "{}".format(NO_PREVIOUS_VALUE)})
     return differences
 
 

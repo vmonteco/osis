@@ -64,7 +64,8 @@ from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import proposal_learning_unit, entity_container_year
-from base.models.enums import learning_container_year_types, learning_unit_year_subtypes, entity_container_year_link_type
+from base.models.enums import learning_container_year_types, learning_unit_year_subtypes, \
+    entity_container_year_link_type
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.learning_container import LearningContainer
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, LEARNING_UNIT_ACRONYM_REGEX_FULL
