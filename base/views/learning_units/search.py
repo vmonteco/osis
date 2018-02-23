@@ -31,7 +31,8 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.learning_unit import SERVICE_COURSES_SEARCH, create_xls, get_last_academic_years, SIMPLE_SEARCH
 from base.forms.common import TooManyResultsException
 from base.forms.learning_units import LearningUnitYearForm
-from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalRowForm, ProposalListFormset
+from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalRowForm, ProposalListFormset, \
+    ProposalStateModelForm
 from base.models.academic_year import current_academic_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.views import layout
@@ -95,9 +96,7 @@ def learning_units_proposal_search(request):
     except TooManyResultsException:
         display_error_messages(request, 'too_many_results')
 
-    if proposals:
-        ListProposalFormSet = formset_factory(form=ProposalRowForm, formset=ProposalListFormset, extra=len(proposals))
-        proposals = ListProposalFormSet (request.POST or None, list_proposal_learning=proposals)
+    proposals = _proposal_management(request, proposals)
 
     context = {
         'form': form,
@@ -105,7 +104,20 @@ def learning_units_proposal_search(request):
         'current_academic_year': current_academic_year(),
         'experimental_phase': True,
         'search_type': PROPOSAL_SEARCH,
-        'proposals': proposals,
+        'proposals': proposals
     }
 
     return layout.render(request, "learning_units.html", context)
+
+
+def _proposal_management(request, proposals):
+    if not proposals:
+        return []
+
+    list_proposal_formset = formset_factory(form=ProposalRowForm, formset=ProposalListFormset, extra=len(proposals))
+    formset = list_proposal_formset(request.POST or None, list_proposal_learning=proposals)
+    if formset.is_valid():
+        formset.save()
+        formset = list_proposal_formset(request.POST or None, list_proposal_learning=proposals)
+
+    return formset

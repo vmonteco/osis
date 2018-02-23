@@ -126,15 +126,15 @@ class LearningUnitProposalForm(SearchForm):
 
 
 class ProposalStateModelForm(forms.ModelForm):
-
     class Meta:
         model = ProposalLearningUnit
         fields = ['state']
 
 
-class ProposalRowForm(forms.Form):
-    check = forms.BooleanField()
+class ProposalRowForm(ProposalStateModelForm):
+    check = forms.BooleanField(required=False)
 
+    #columns
     folder = ''
     acronym = ''
     validity = ''
@@ -145,29 +145,36 @@ class ProposalRowForm(forms.Form):
     proposal_state = ''
 
     def __init__(self, *args, **kwargs):
-        self.proposal = kwargs.pop("proposal_learning")
         super().__init__(*args, **kwargs)
+        self.id = self.instance.id
 
-        self.id = self.proposal.id
-        last_entity = entity_version.get_last_version(self.proposal.folder.entity)
+        last_entity = entity_version.get_last_version(self.instance.folder.entity)
         if last_entity:
             self.folder = last_entity.acronym
 
-        self.folder += str(self.proposal.folder.pk)
-        self.acronym = self.proposal.learning_unit_year.acronym
-        self.validity = self.proposal.learning_unit_year.academic_year
-        if self.proposal.learning_unit_year.complete_title:
-            self.title = self.proposal.learning_unit_year.complete_title
+        self.folder += str(self.instance.folder.pk)
+        self.acronym = self.instance.learning_unit_year.acronym
+        self.validity = self.instance.learning_unit_year.academic_year
 
-        if self.proposal.learning_unit_year.learning_container_year.container_type:
-            self.container_type = self.proposal.learning_unit_year.learning_container_year.container_type
+        if self.instance.learning_unit_year.complete_title:
+            self.title = self.instance.learning_unit_year.complete_title
 
-        requirement_entity = self.proposal.learning_unit_year.entities.get('REQUIREMENT_ENTITY', '')
+        if self.instance.learning_unit_year.learning_container_year.container_type:
+            self.container_type = self.instance.learning_unit_year.learning_container_year.container_type
+
+        requirement_entity = self.instance.learning_unit_year.entities.get('REQUIREMENT_ENTITY', '')
         if requirement_entity:
             self.requirement_entity = requirement_entity.acronym
 
-        self.proposal_type = _(self.proposal.type)
-        self.proposal_state = _(self.proposal.state)
+        self.proposal_type = _(self.instance.type)
+        self.proposal_state = _(self.instance.state)
+
+    def save(self, commit=True):
+        print(self.cleaned_data)
+        if self.cleaned_data.get('check'):
+            super().save(commit)
+            #self.instance.refresh_from_db()
+            #self.proposal_state = _(self.instance.state)
 
 
 class ProposalListFormset(forms.BaseFormSet):
@@ -178,5 +185,9 @@ class ProposalListFormset(forms.BaseFormSet):
 
     def get_form_kwargs(self, index):
         kwargs = super().get_form_kwargs(index)
-        kwargs['proposal_learning'] = self.list_proposal_learning[index]
+        kwargs['instance'] = self.list_proposal_learning[index]
         return kwargs
+
+    def save(self):
+        for form in self.forms:
+            form.save()
