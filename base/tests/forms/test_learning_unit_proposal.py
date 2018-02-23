@@ -234,6 +234,7 @@ class TestSave(TestCase):
                 "internship_subtype": self.learning_unit_year.internship_subtype,
                 "credits": self.learning_unit_year.credits,
                 "quadrimester": self.learning_unit_year.quadrimester,
+                "status": self.learning_unit_year.status
             },
             "learning_unit": {
                 "id": self.learning_unit_year.learning_unit.id,
@@ -264,3 +265,4 @@ class TestSave(TestCase):
 
         self.assertFalse(form.is_valid())
         self.assertIn(_("learning_unit_type_is_not_internship"), form.errors["internship_subtype"])
+

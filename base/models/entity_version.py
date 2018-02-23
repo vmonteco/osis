@@ -308,7 +308,10 @@ def search_entities(acronym=None, title=None, type=None, with_entity=None):
 def find_by_id(entity_version_id):
     if entity_version_id is None:
         return
-    return EntityVersion.objects.get(pk=entity_version_id)
+    try:
+        return EntityVersion.objects.get(pk=entity_version_id)
+    except EntityVersion.DoesNotExist:
+        return None
 
 
 def count_identical_versions(same_entity, version):
