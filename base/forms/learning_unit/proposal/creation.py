@@ -31,6 +31,7 @@ from base.forms.learning_unit_create import EntitiesVersionChoiceField, Learning
 from base.forms.utils.choice_field import add_blank
 from base.models.entity_version import find_main_entities_version
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_PROPOSAL_FACULTY
+from base.models.person import FACULTY_MANAGER_GROUP
 
 
 class LearningUnitProposalForm(BootstrapForm):
@@ -43,5 +44,5 @@ class LearningUnitProposalCreationForm(LearningUnitYearForm):
         super(LearningUnitProposalCreationForm, self).__init__(*args, **kwargs)
         # When we submit a proposal, we can select all requirement entity available
         self.fields["requirement_entity"].queryset = find_main_entities_version()
-        if person.user.groups.filter(name='faculty_managers').exists():
+        if person.user.groups.filter(name=FACULTY_MANAGER_GROUP).exists():
             self.fields["container_type"].choices = add_blank(LEARNING_CONTAINER_YEAR_TYPES_FOR_PROPOSAL_FACULTY)

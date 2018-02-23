@@ -50,7 +50,7 @@ class LearningUnitViewTestCase(TestCase):
         self.faculty_user = factory_user.UserFactory()
         self.faculty_user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
         self.faculty_person = factory_person.PersonFactory(user=self.faculty_user)
-        self.faculty_user.user_permissions.add(Permission.objects.get(name='Can propose learning unit '))
+        self.faculty_user.user_permissions.add(Permission.objects.get(codename='can_propose_learningunit'))
         self.super_user = factory_user.SuperUserFactory()
         self.person = factory_person.PersonFactory(user=self.super_user)
         self.current_academic_year = academic_year_factory.create_current_academic_year()

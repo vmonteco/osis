@@ -29,8 +29,8 @@ from django.db.models import BLANK_CHOICE_DASH
 from django.shortcuts import redirect, get_object_or_404
 
 from base import models as mdl_base
-from base.business.learning_unit import create_learning_unit, create_learning_unit_structure
 from base.business.learning_units.proposal.creation import create_learning_unit_proposal
+from base.business.learning_units.simple.creation import create_learning_unit_year_structure, create_learning_unit
 from base.forms.learning_unit.proposal.creation import LearningUnitProposalCreationForm, LearningUnitProposalForm
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.proposal_state import ProposalState
@@ -47,9 +47,7 @@ def get_proposal_learning_unit_creation_form(request, academic_year):
                                                                            'subtype': learning_unit_year_subtypes.FULL,
                                                                            "container_type": BLANK_CHOICE_DASH})
     proposal_form = LearningUnitProposalForm()
-    return layout.render(request, "learning_unit/proposal/creation.html", {'learning_unit_form': learning_unit_form,
-                                                                           'proposal_form': proposal_form,
-                                                                           'person': person})
+    return layout.render(request, "learning_unit/proposal/creation.html", locals())
 
 
 @login_required
@@ -61,28 +59,16 @@ def proposal_learning_unit_add(request):
     if learning_unit_form.is_valid() and proposal_form.is_valid():
         data_learning_unit = learning_unit_form.cleaned_data
         year = data_learning_unit['academic_year'].year
-        status = data_learning_unit['status']
-        additional_requirement_entity_1 = data_learning_unit.get('additional_requirement_entity_1')
-        additional_requirement_entity_2 = data_learning_unit.get('additional_requirement_entity_2')
-        allocation_entity_version = data_learning_unit.get('allocation_entity')
-        requirement_entity_version = data_learning_unit.get('requirement_entity')
-        campus = data_learning_unit.get('campus')
         new_learning_container = mdl_base.learning_container.LearningContainer.objects.create()
         new_learning_unit = create_learning_unit(data_learning_unit, new_learning_container, year)
         academic_year = mdl_base.academic_year.find_academic_year_by_year(year)
-        luy_created = create_learning_unit_structure(additional_requirement_entity_1, additional_requirement_entity_2,
-                                                     allocation_entity_version, data_learning_unit,
-                                                     new_learning_container, new_learning_unit,
-                                                     requirement_entity_version, status, academic_year, campus)
-        create_proposal_structure(proposal_form.cleaned_data, luy_created, person)
-        show_success_learning_unit_year_creation_message(request, luy_created,
+        new_learning_unit_year = create_learning_unit_year_structure(data_learning_unit, new_learning_container,
+                                                                     new_learning_unit, academic_year)
+        data_proposal = proposal_form.cleaned_data
+        create_learning_unit_proposal(person, data_proposal['folder_entity'].entity, data_proposal['folder_id'],
+                                      new_learning_unit_year, ProposalState, ProposalType, {})
+        show_success_learning_unit_year_creation_message(request, new_learning_unit_year,
                                                          'proposal_learning_unit_successfuly_created')
         return redirect('learning_units')
     return layout.render(request, "learning_unit/proposal/creation.html",
                          {'learning_unit_form': learning_unit_form, 'proposal_form': proposal_form, 'person': person})
-
-
-def create_proposal_structure(data_proposal, learning_unit_year, person):
-    folder_entity = data_proposal.get('folder_entity').entity
-    folder_id = data_proposal.get('folder_id')
-    create_learning_unit_proposal(person, folder_entity, folder_id, learning_unit_year, ProposalState, ProposalType, {})

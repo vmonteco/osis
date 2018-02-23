@@ -46,7 +46,7 @@ from attribution.business import attribution_charge_new
 from base import models as mdl
 from base import models as mdl_base
 from base.business import learning_unit_deletion
-from base.business.learning_unit import create_learning_unit, create_learning_unit_structure, get_cms_label_data, \
+from base.business.learning_unit import get_cms_label_data, \
     get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, create_xls, is_summary_submission_opened, \
@@ -55,6 +55,7 @@ from base.business.learning_unit import create_learning_unit, create_learning_un
     create_learning_unit_partim_structure, can_access_summary, get_last_academic_years, CMS_LABEL_SPECIFICATIONS, \
     CMS_LABEL_PEDAGOGY, CMS_LABEL_SUMMARY
 from base.business.learning_units import perms as business_perms
+from base.business.learning_units.simple.creation import create_learning_unit_year_structure, create_learning_unit
 from base.forms.common import TooManyResultsException
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
@@ -318,22 +319,12 @@ def learning_unit_year_add(request):
     if learning_unit_form.is_valid():
         data = learning_unit_form.cleaned_data
         year = data['academic_year'].year
-        status = data['status']
-        additional_requirement_entity_1 = data.get('additional_requirement_entity_1')
-        additional_requirement_entity_2 = data.get('additional_requirement_entity_2')
-        allocation_entity_version = data.get('allocation_entity')
-        requirement_entity_version = data.get('requirement_entity')
-        campus = data.get('campus')
-
         new_learning_container = LearningContainer.objects.create()
         new_learning_unit = create_learning_unit(data, new_learning_container, year)
         while year <= compute_max_academic_year_adjournment():
             academic_year = mdl.academic_year.find_academic_year_by_year(year)
-            luy_created = create_learning_unit_structure(additional_requirement_entity_1,
-                                                         additional_requirement_entity_2, allocation_entity_version,
-                                                         data, new_learning_container, new_learning_unit,
-                                                         requirement_entity_version, status, academic_year, campus)
-            show_success_learning_unit_year_creation_message(request, luy_created, 'learning_unit_successfuly_created')
+            new_learning_unit_year = create_learning_unit_year_structure(data, new_learning_container, new_learning_unit, academic_year)
+            show_success_learning_unit_year_creation_message(request, new_learning_unit_year, 'learning_unit_successfuly_created')
             year += 1
         return redirect('learning_units')
     return layout.render(request, "learning_unit/simple/creation.html", {'learning_unit_form': learning_unit_form})
