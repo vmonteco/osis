@@ -43,9 +43,10 @@ from base.models.enums.learning_unit_management_sites import LearningUnitManagem
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_FULL, LEARNING_UNIT_ACRONYM_REGEX_PARTIM
-from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
-from reference.models.language import find_all_languages
+from reference.models.language import find_all_languages, find_by_code
 
+MINIMUM_CREDITS = 0
+MAXIMUM_CREDITS = 500
 MAX_RECORDS = 1000
 READONLY_ATTR = "disabled"
 PARTIM_FORM_READ_ONLY_FIELD = {'first_letter', 'acronym', 'common_title', 'common_title_english', 'requirement_entity',
@@ -87,8 +88,11 @@ class LearningUnitYearForm(BootstrapForm):
     internship_subtype = forms.TypedChoiceField(
         choices=add_blank(mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES),
         required=False, empty_value=None)
-    credits = forms.DecimalField(decimal_places=2, validators=[MinValueValidator(MINIMUM_CREDITS),
-                                                               MaxValueValidator(MAXIMUM_CREDITS)])
+    credits = forms.DecimalField(decimal_places=2,
+                                 validators=[MinValueValidator(0),
+                                             MaxValueValidator(MAXIMUM_CREDITS)],
+                                 widget=forms.TextInput(attrs={'min': MINIMUM_CREDITS,
+                                                               'max': MAXIMUM_CREDITS}))
     common_title = forms.CharField()
     common_title_english = forms.CharField(required=False, widget=forms.TextInput())
     specific_title = forms.CharField(required=False)
@@ -130,7 +134,7 @@ class LearningUnitYearForm(BootstrapForm):
     )
     additional_requirement_entity_2 = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
                                                                  widget=forms.Select(attrs={'disable': 'disable'}))
-    language = forms.ModelChoiceField(find_all_languages(), empty_label=None)
+    language = forms.ModelChoiceField(find_all_languages(), empty_label=None,  initial=find_by_code("FR"))
 
     def clean(self):
         cleaned_data = super().clean()

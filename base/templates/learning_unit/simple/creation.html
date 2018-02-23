@@ -41,7 +41,7 @@
         <form method="post" action="{% url 'learning_unit_year_add' %}" id="LearningUnitYearForm"
         data-validate-url="{% url 'check_acronym' type='FULL' %}">
             {% csrf_token %}
-            {% include "learning_unit/components/create_form_learning_unit.html" %}
+            {% include "learning_unit/blocks/create_form_learning_unit.html" %}
             <div class="panel-body">
                 <button type="button" id="learning_unit_year_add" class="btn btn-primary" title="{% trans 'add' %}">{% trans 'save' %}</button>
             </div>
@@ -76,6 +76,8 @@
         const trans_existing_acronym = "{% trans 'existing_acronym' %}";
         const trans_invalid_acronym = "{% trans 'invalid_acronym' %}";
         const trans_field_required = "{% trans 'field_is_required' %}";
+        const trans_field_min = "{% trans 'min_for_field' %}";
+        const trans_field_max = "{% trans 'max_for_field' %}";
     </script>
     <script type="text/javascript" src="{% static 'js/learning_unit_creation.js' %}"></script>
 {% endblock %}

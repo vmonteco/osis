@@ -23,12 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
 
 from django import forms
 
 from base.forms.bootstrap import BootstrapForm
 from base.forms.learning_unit_create import EntitiesVersionChoiceField, LearningUnitYearForm
 from base.forms.utils.choice_field import add_blank
+from base.models.academic_year import AcademicYear
 from base.models.entity_version import find_main_entities_version
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_PROPOSAL_FACULTY
 from base.models.person import FACULTY_MANAGER_GROUP
@@ -46,3 +48,6 @@ class LearningUnitProposalCreationForm(LearningUnitYearForm):
         self.fields["requirement_entity"].queryset = find_main_entities_version()
         if person.user.groups.filter(name=FACULTY_MANAGER_GROUP).exists():
             self.fields["container_type"].choices = add_blank(LEARNING_CONTAINER_YEAR_TYPES_FOR_PROPOSAL_FACULTY)
+            self.fields["academic_year"].queryset = AcademicYear.objects\
+                .filter(year__gt=datetime.datetime.now().year)\
+                .filter(year__lte=datetime.datetime.now().year+4)

@@ -2604,3 +2604,9 @@ msgstr "Proposition de création"
 
 msgid "proposal_update"
 msgstr "Modification de proposition"
+
+msgid "min_for_field"
+msgstr "Veuillez entrer une valeur supérieure ou égale à 0."
+
+msgid "max_for_field"
+msgstr "Veuillez entrer une valeur inférieur ou égale à 500."
