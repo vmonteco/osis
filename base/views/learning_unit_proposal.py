@@ -137,7 +137,7 @@ def edit_learning_unit_proposal(request, learning_unit_year_id):
     if proposal_form.is_valid():
         try:
             proposal_form.save()
-            display_success_messages(request, _("Proposal edited successfully"))
+            display_success_messages(request, _("proposal_edited_successfully"))
             return HttpResponseRedirect(reverse('learning_unit', args=[learning_unit_year_id]))
 
         except (IntegrityError, ValueError) as e:
