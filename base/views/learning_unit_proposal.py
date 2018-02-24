@@ -55,14 +55,9 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
     initial_data = compute_form_initial_data(learning_unit_year)
 
     if request.method == 'POST':
-        modified_post_data = request.POST.copy()
-        post_data_merged = QueryDict('', mutable=True)
-        post_data_merged.update(initial_data)
-        post_data_merged.update(modified_post_data)
-
-        form = LearningUnitProposalModificationForm(post_data_merged, initial=initial_data)
+        form = LearningUnitProposalModificationForm(request.POST, initial=initial_data)
         if form.is_valid():
-            type_proposal = compute_proposal_type(initial_data, modified_post_data)
+            type_proposal = compute_proposal_type(initial_data, request.POST)
             form.save(learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name)
             messages.add_message(request, messages.SUCCESS,
                                  _("success_modification_proposal")
@@ -103,7 +98,7 @@ def edit_learning_unit_proposal(request, learning_unit_year_id):
     if proposal_form.is_valid():
         try:
             proposal_form.save()
-            display_success_messages(request, _("Proposal edited successfully"))
+            display_success_messages(request, _("proposal_edited_successfully"))
             return HttpResponseRedirect(reverse('learning_unit', args=[learning_unit_year_id]))
 
         except (IntegrityError, ValueError) as e:

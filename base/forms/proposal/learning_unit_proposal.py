@@ -26,6 +26,7 @@
 
 from django import forms
 from django.db.models import Prefetch
+from django.urls import reverse
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
@@ -147,6 +148,7 @@ class ProposalRowForm(ProposalStateModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.id = self.instance.id
+        self.url = reverse('learning_unit', self.instance.learning_unit_year.id)
 
         last_entity = entity_version.get_last_version(self.instance.folder.entity)
         if last_entity:

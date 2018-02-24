@@ -34,9 +34,11 @@
 
 {% block content %}
 {% if request.GET.academic_year_id and request.GET.academic_year_id != '0' %}
-    {% url 'learning_unit_create' academic_year=request.GET.academic_year_id as create_url%}
+    {% url 'learning_unit_create' academic_year=request.GET.academic_year_id as create_learning_unit_url%}
+    {% url 'proposal_learning_unit_creation_form' academic_year=request.GET.academic_year_id as create_proposal_url%}
 {% else %}
-    {% url 'learning_unit_create' academic_year=current_academic_year.id as create_url%}
+    {% url 'learning_unit_create' academic_year=current_academic_year.id as create_learning_unit_url%}
+    {% url 'proposal_learning_unit_creation_form' academic_year=current_academic_year.id as create_proposal_url%}
 {% endif %}
 
 {% include "template_messages.html" %}
@@ -53,10 +55,10 @@
                 </button>
                 <ul class="dropdown-menu">
                     <li>
-                        <a href="{{ create_url }}" id="lnk_learning_unit_create">{% trans 'new_learning_unit' %}</a>
+                        <a href="{{ create_learning_unit_url }}" id="lnk_learning_unit_create">{% trans 'new_learning_unit' %}</a>
                     </li>
                     <li>
-                        <a href="#">{% trans 'proposal_creation' %}</a>
+                        <a href="{{ create_proposal_url }}" id="lnk_create_proposal_url">{% trans 'proposal_creation' %}</a>
                     </li>
                 </ul>
             </div>

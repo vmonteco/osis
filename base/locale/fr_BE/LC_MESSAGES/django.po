@@ -2365,6 +2365,8 @@ msgstr "Refusé"
 msgid "success_modification_proposal"
 msgstr "Une proposition de modification de type {} a été faite pour l'unité d'enseignement {}."
 
+msgid "proposal_edited_successfully"
+msgstr "Proposition modifiée avec succès"
 
 msgid "content"
 msgstr "Contenu"
@@ -2461,6 +2463,9 @@ msgstr "La proposition pour {} a été annulée."
 
 msgid "cancel_proposal"
 msgstr "Annuler proposition"
+
+msgid "edit_proposal"
+msgstr "Editer proposition"
 
 msgid "msg_confirm_cancel_proposal"
 msgstr "Etes-vous certain de vouloir annuler la proposition ?"
@@ -2588,8 +2593,26 @@ msgstr "N° dossier"
 msgid "ask_to_report_modification"
 msgstr "Voulez-vous reporter les modifications faites pour les années suivantes ?"
 
+msgid "proposal_learning_unit_successfuly_created"
+msgstr "Proposition d'unité d'enseignement <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> créée avec succès."
+
+msgid "new_learning_unit_proposal"
+msgstr "Nouvelle proposition d'unité d'enseignement"
+
 msgid "proposal_creation"
 msgstr "Proposition de création"
 
 msgid "proposal_update"
 msgstr "Modification de proposition"
+
+msgid "value_before_proposal"
+msgstr "Valeur avant proposition"
+
+msgid "entity_not_found"
+msgstr "Entité non-trouvée.  Il y a peut-être une erreur dans les données"
+
+msgid "min_for_field"
+msgstr "Veuillez entrer une valeur supérieure ou égale à 0."
+
+msgid "max_for_field"
+msgstr "Veuillez entrer une valeur inférieur ou égale à 500."

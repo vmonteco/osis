@@ -23,11 +23,19 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models import entity_container_year
-from base.models import campus, entity
-from base.models.enums import proposal_type
+from base.models import entity_container_year, campus, entity, entity_version
+from base.models.enums import proposal_type, entity_container_year_link_type
 from base.models.proposal_learning_unit import find_by_folder
 from reference.models import language
+from django.utils.translation import ugettext_lazy as _
+from base import models as mdl_base
+from django.apps import apps
+
+
+APP_BASE_LABEL = 'base'
+END_FOREIGN_KEY_NAME = "_id"
+NO_PREVIOUS_VALUE = '-'
+VALUES_WHICH_NEED_TRANSLATION = ["periodicity", "container_type", "internship_subtype"]
 
 
 def compute_proposal_type(initial_data, current_data):
@@ -98,3 +106,142 @@ def delete_learning_unit_proposal(learning_unit_proposal):
     learning_unit_proposal.delete()
     if not find_by_folder(proposal_folder).exists():
         proposal_folder.delete()
+
+
+def _get_difference_of_proposal(learning_unit_yr_proposal):
+    differences = {}
+    if learning_unit_yr_proposal and learning_unit_yr_proposal.initial_data.get('learning_container_year'):
+        differences.update(_get_differences_in_learning_unit_data(learning_unit_yr_proposal))
+        learning_container_yr = mdl_base.learning_container_year \
+            .find_by_id(learning_unit_yr_proposal.initial_data.get('learning_container_year').get('id'))
+        if learning_container_yr:
+            differences.update(_get_difference_of_entity_proposal(learning_container_yr, learning_unit_yr_proposal))
+
+    return differences
+
+
+def _get_difference_of_entity_proposal(learning_container_yr, learning_unit_yr_proposal):
+    differences = {}
+    for entity_type, entity_id in learning_unit_yr_proposal.initial_data.get('entities').items():
+        entity_cont_yr = mdl_base.entity_container_year \
+            .find_by_learning_container_year_and_linktype(learning_container_yr, entity_type)
+        if entity_cont_yr:
+            differences.update(_get_entity_old_value(entity_cont_yr, entity_id, entity_type))
+    return differences
+
+
+def _get_entity_old_value(entity_cont_yr, entity_id, entity_type):
+    differences = {}
+    if _has_changed_entity(entity_cont_yr, entity_id):
+        differences.update(_get_entity_previous_value(entity_id, entity_type))
+    else:
+        if entity_type in (entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
+                           entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2):
+            differences.update({entity_type: NO_PREVIOUS_VALUE})
+    return differences
+
+
+def _has_changed_entity(entity_cont_yr, entity_id):
+    return entity_id and entity_cont_yr.entity.id != entity_id
+
+
+def _get_differences_in_learning_unit_data(proposal):
+    learning_unit_yr_initial_data = _get_data_dict('learning_unit_year', proposal.initial_data)
+    learning_container_yr_initial_data = _get_data_dict('learning_container_year', proposal.initial_data)
+    initial_learning_container_yr_id = _get_data_dict('id', learning_container_yr_initial_data)
+    learning_unit_initial_data = _get_data_dict('learning_unit', proposal.initial_data)
+
+    differences = {}
+    differences.update(_compare_model_with_initial_value(proposal.learning_unit_year.id,
+                                                         learning_unit_yr_initial_data,
+                                                         apps.get_model(app_label=APP_BASE_LABEL,
+                                                                        model_name="LearningUnitYear")))
+    if initial_learning_container_yr_id:
+        differences.update(_compare_model_with_initial_value(initial_learning_container_yr_id,
+                                                             learning_container_yr_initial_data,
+                                                             apps.get_model(app_label=APP_BASE_LABEL,
+                                                                            model_name="LearningContainerYear")))
+    if learning_unit_initial_data:
+        differences.update(_compare_model_with_initial_value(learning_unit_initial_data.get('id'),
+                                                             learning_unit_initial_data,
+                                                             apps.get_model(app_label=APP_BASE_LABEL,
+                                                                            model_name="LearningUnit")))
+    return differences
+
+
+def _compare_model_with_initial_value(an_id, model_initial_data, mymodel):
+    differences = {}
+    qs = mymodel.objects.filter(pk=an_id).values()
+    if len(qs) > 0:
+        differences.update(_check_differences(model_initial_data,
+                                              qs[0]))
+    return differences
+
+
+def _replace_key_of_foreign_key(data):
+    return {key_name.replace(END_FOREIGN_KEY_NAME, ''): data[key_name] for key_name in data.keys()}
+
+
+def _check_differences(initial_data, current_data):
+    if initial_data:
+        return _compare_initial_current_data(current_data, initial_data)
+    return {}
+
+
+def _compare_initial_current_data(current_data, initial_data):
+    corrected_dict = _replace_key_of_foreign_key(current_data)
+    differences = {}
+    for attribute, initial_value in initial_data.items():
+        if attribute in corrected_dict and initial_data.get(attribute, None) != corrected_dict.get(attribute):
+            differences.update(_get_the_old_value(attribute, current_data, initial_data))
+    return differences
+
+
+def _get_the_old_value(key, current_data, initial_data):
+    differences = {}
+
+    initial_value = initial_data.get(key) or NO_PREVIOUS_VALUE
+
+    if _is_foreign_key(key, current_data):
+        differences.update(_get_str_representing_old_data_from_foreign_key(key, initial_value))
+    else:
+        if key in VALUES_WHICH_NEED_TRANSLATION and initial_value != NO_PREVIOUS_VALUE:
+            differences.update({key: "{}".format(_(initial_value))})
+        else:
+            differences.update({key: "{}".format(initial_value)})
+    return differences
+
+
+def _get_str_representing_old_data_from_foreign_key(key, initial_value):
+    if initial_value != NO_PREVIOUS_VALUE:
+        return _get_old_value_of_foreign_key(key, initial_value)
+    else:
+        return {key: NO_PREVIOUS_VALUE}
+
+
+def _get_old_value_of_foreign_key(key, initial_value):
+    differences = {}
+    if key == 'campus':
+        differences.update({key: str(mdl_base.campus.find_by_id(initial_value))})
+
+    if key == 'language':
+        differences.update({key: str(language.find_by_id(initial_value))})
+    return differences
+
+
+def _is_foreign_key(key, current_data):
+    return "{}{}".format(key, END_FOREIGN_KEY_NAME) in current_data
+
+
+def _get_entity_previous_value(entity_id, entity_type):
+    if entity_id:
+        old_value = entity.find_by_id(entity_id)
+        if old_value:
+            return {entity_type: old_value.most_recent_acronym}
+    return {entity_type: _('entity_not_found')}
+
+
+def _get_data_dict(key, initial_data):
+    if initial_data:
+        return initial_data.get(key) if initial_data.get(key) else None
+    return None

@@ -2359,6 +2359,9 @@ msgstr "Refused"
 msgid "success_modification_proposal"
 msgstr "You proposed a modification of type {} for the learning unit {}."
 
+msgid "proposal_edited_successfully"
+msgstr "Proposal edited successfully"
+
 msgid "content"
 msgstr "Content"
 
@@ -2454,6 +2457,9 @@ msgstr "The proposal for {} was cancelled."
 
 msgid "cancel_proposal"
 msgstr "Cancel proposal"
+
+msgid "edit_proposal"
+msgstr "Edit proposal"
 
 msgid "msg_confirm_cancel_proposal"
 msgstr "Are you certain that you want to cancel the learning unit proposal ?"
@@ -2581,9 +2587,26 @@ msgstr "Folder num."
 msgid "ask_to_report_modification"
 msgstr "Do you want to report the modifications done to the next years ?"
 
+msgid "proposal_learning_unit_successfuly_created"
+msgstr "Proposal learning unit <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
+
+msgid "new_learning_unit_proposal"
+msgstr "New learning unit proposal"
+
 msgid "proposal_creation"
 msgstr "Proposal of creation"
 
 msgid "proposal_update"
 msgstr "Proposal update"
 
+msgid "value_before_proposal"
+msgstr "Value before proposal"
+
+msgid "entity_not_found"
+msgstr "Entity not found.  Pershaps an error in the data"
+
+msgid "min_for_field"
+msgstr "Please enter a value greater than or equal to 0."
+
+msgid "max_for_field"
+msgstr "Please enter a value less than or equal to 500."
