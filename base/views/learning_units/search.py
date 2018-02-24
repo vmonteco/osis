@@ -31,8 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.learning_unit import SERVICE_COURSES_SEARCH, create_xls, get_last_academic_years, SIMPLE_SEARCH
 from base.forms.common import TooManyResultsException
 from base.forms.learning_units import LearningUnitYearForm
-from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalRowForm, ProposalListFormset, \
-    ProposalStateModelForm
+from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalRowForm, ProposalListFormset
 from base.models.academic_year import current_academic_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.views import layout

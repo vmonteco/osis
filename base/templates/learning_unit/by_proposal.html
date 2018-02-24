@@ -1,4 +1,4 @@
-{% load i18n bootstrap3%}
+{% load i18n bootstrap3 %}
 {% comment "License" %}
     * OSIS stands for Open Student Information System. It's an application
     * designed to manage the core business of higher education institutions,
@@ -32,10 +32,10 @@
         {% csrf_token %}
         <div style="margin-top:10px;">
             {% if proposals %}
-                {% bootstrap_formset_errors proposals layout='inline' %}
                  <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modalReport">
                     {% trans 'force_state' %}
                  </button>
+                {% bootstrap_formset_errors proposals %}
                 {{ proposals.management_form }}
                 <table id="table_learning_units" class="table table-striped table-hover">
                 <thead>
@@ -67,9 +67,9 @@
                 {% endfor %}
                 </tbody>
             </table>
+            {% include "learning_unit/blocks/modal/modal_force_state.html" %}
         {% endif %}
         </div>
-        {% include "learning_unit/blocks/modal/modal_force_state.html" %}
     </form>
 </div>
 {% endblock %}

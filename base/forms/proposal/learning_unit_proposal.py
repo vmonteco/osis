@@ -135,44 +135,51 @@ class ProposalStateModelForm(forms.ModelForm):
 class ProposalRowForm(ProposalStateModelForm):
     check = forms.BooleanField(required=False)
 
-    #columns
-    folder = ''
-    acronym = ''
-    validity = ''
-    title = ''
-    container_type = ''
-    requirement_entity = ''
-    proposal_type = ''
-    proposal_state = ''
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.id = self.instance.id
-        self.url = reverse('learning_unit', self.instance.learning_unit_year.id)
+        self.url = reverse('learning_unit', args=[self.instance.learning_unit_year.id])
 
+    @property
+    def folder(self):
         last_entity = entity_version.get_last_version(self.instance.folder.entity)
-        if last_entity:
-            self.folder = last_entity.acronym
+        folder = last_entity.acronym if last_entity else ''
+        folder += str(self.instance.folder.pk)
 
-        self.folder += str(self.instance.folder.pk)
-        self.acronym = self.instance.learning_unit_year.acronym
-        self.validity = self.instance.learning_unit_year.academic_year
+        return folder
 
-        if self.instance.learning_unit_year.complete_title:
-            self.title = self.instance.learning_unit_year.complete_title
+    @property
+    def acronym(self):
+        return self.instance.learning_unit_year.acronym
 
-        if self.instance.learning_unit_year.learning_container_year.container_type:
-            self.container_type = self.instance.learning_unit_year.learning_container_year.container_type
+    @property
+    def validity(self):
+        return self.instance.learning_unit_year.academic_year
 
+    @property
+    def title(self):
+        return self.instance.learning_unit_year.complete_title
+
+    @property
+    def container_type(self):
+        container = self.instance.learning_unit_year.learning_container_year
+        return container.container_type if container.container_type else ''
+
+    @property
+    def requirement_entity(self):
         requirement_entity = self.instance.learning_unit_year.entities.get('REQUIREMENT_ENTITY', '')
-        if requirement_entity:
-            self.requirement_entity = requirement_entity.acronym
+        return requirement_entity.acronym if requirement_entity else ''
 
-        self.proposal_type = _(self.instance.type)
-        self.proposal_state = _(self.instance.state)
+    @property
+    def proposal_type(self):
+        return _(self.instance.type)
+
+    @property
+    def proposal_state(self):
+        return _(self.instance.state)
 
     def save(self, commit=True):
-        print(self.cleaned_data)
         if self.cleaned_data.get('check'):
             super().save(commit)
             #self.instance.refresh_from_db()
