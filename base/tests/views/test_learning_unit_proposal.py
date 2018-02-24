@@ -58,9 +58,9 @@ from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_folder import ProposalFolderFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.views.learning_unit_proposal import edit_learning_unit_proposal
+from base.views.learning_units.search import PROPOSAL_SEARCH
 from reference.tests.factories.language import LanguageFactory
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
-from base.views.learning_unit_proposal import PROPOSAL_SEARCH
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.models.enums import entity_container_year_link_type, learning_unit_periodicity
@@ -370,11 +370,14 @@ class TestLearningUnitModificationProposal(TestCase):
 
     def test_learning_units_proposal_search(self):
         a_learning_unit_proposal = _create_proposal_learning_unit()
-        data = {}
-        data["acronym"] = a_learning_unit_proposal.learning_unit_year.acronym
+        data = {"acronym": a_learning_unit_proposal.learning_unit_year.acronym}
         url = reverse('learning_unit_proposal_search')
         response = self.client.get(url, data={'acronym': a_learning_unit_proposal.learning_unit_year.acronym})
-        self.assertCountEqual(response.context['proposals'], [a_learning_unit_proposal])
+        formset = response.context['proposals']
+
+        for form in formset:
+            self.assertEqual(form.instance, a_learning_unit_proposal)
+
         self.assertIsInstance(response.context['form'], LearningUnitProposalForm)
         self.assertEqual(response.context['search_type'], PROPOSAL_SEARCH)
 

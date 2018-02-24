@@ -25,6 +25,7 @@
 ##############################################################################
 
 from django import forms
+from django.db import transaction
 from django.db.models import Prefetch
 from django.urls import reverse
 from django.utils.functional import lazy
@@ -179,11 +180,15 @@ class ProposalRowForm(ProposalStateModelForm):
     def proposal_state(self):
         return _(self.instance.state)
 
+    def clean(self):
+        cleaned_data = super().clean()
+        if not cleaned_data.get('check'):
+            del cleaned_data['state']
+        return cleaned_data
+
     def save(self, commit=True):
         if self.cleaned_data.get('check'):
             super().save(commit)
-            #self.instance.refresh_from_db()
-            #self.proposal_state = _(self.instance.state)
 
 
 class ProposalListFormset(forms.BaseFormSet):
@@ -198,5 +203,6 @@ class ProposalListFormset(forms.BaseFormSet):
         return kwargs
 
     def save(self):
-        for form in self.forms:
-            form.save()
+        with transaction.atomic():
+            for form in self.forms:
+                form.save()

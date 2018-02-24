@@ -25,6 +25,7 @@
 ##############################################################################
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.db import IntegrityError
 from django.forms import formset_factory
 from django.utils.translation import ugettext_lazy as _
 
@@ -85,11 +86,11 @@ def learning_units_service_course(request):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units_proposal_search(request):
-    form = LearningUnitProposalForm(request.GET or None)
+    search_form = LearningUnitProposalForm(request.GET or None)
     proposals = []
     try:
-        if form.is_valid():
-            proposals = form.get_proposal_learning_units()
+        if search_form.is_valid():
+            proposals = search_form.get_proposal_learning_units()
             check_if_display_message(request, proposals)
 
     except TooManyResultsException:
@@ -98,7 +99,7 @@ def learning_units_proposal_search(request):
     proposals = _proposal_management(request, proposals)
 
     context = {
-        'form': form,
+        'form': search_form,
         'academic_years': get_last_academic_years(),
         'current_academic_year': current_academic_year(),
         'experimental_phase': True,
@@ -116,7 +117,9 @@ def _proposal_management(request, proposals):
     list_proposal_formset = formset_factory(form=ProposalRowForm, formset=ProposalListFormset, extra=len(proposals))
     formset = list_proposal_formset(request.POST or None, list_proposal_learning=proposals)
     if formset.is_valid():
-        formset.save()
-        formset = list_proposal_formset(request.POST or None, list_proposal_learning=proposals)
+        try:
+            formset.save()
+        except IntegrityError:
+            display_error_messages(request, _("error_modification_learning_unit"))
 
     return formset
