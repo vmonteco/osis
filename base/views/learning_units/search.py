@@ -97,7 +97,8 @@ def learning_units_proposal_search(request):
     except TooManyResultsException:
         display_error_messages(request, 'too_many_results')
 
-    proposals = _proposal_management(request, proposals)
+    if proposals:
+        proposals = _proposal_management(request, proposals)
 
     context = {
         'form': search_form,
@@ -112,13 +113,8 @@ def learning_units_proposal_search(request):
 
 
 def _proposal_management(request, proposals):
-    if not proposals:
-        return []
-
-    print(proposals)
     list_proposal_formset = formset_factory(form=ProposalRowForm, formset=ProposalListFormset,
                                             extra=len(proposals), max_num=MAX_RECORDS)
-    print("request.POST", request.POST)
 
     formset = list_proposal_formset(request.POST or None, list_proposal_learning=proposals)
     if formset.is_valid():
