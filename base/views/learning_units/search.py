@@ -37,7 +37,7 @@ from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm,
 from base.models.academic_year import current_academic_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.views import layout
-from base.views.common import check_if_display_message, display_error_messages
+from base.views.common import check_if_display_message, display_error_messages, display_success_messages
 
 PROPOSAL_SEARCH = 3
 
@@ -120,6 +120,7 @@ def _proposal_management(request, proposals):
     if formset.is_valid():
         try:
             formset.save()
+            display_success_messages(request, _("proposal_edited_successfully"))
         except IntegrityError:
             display_error_messages(request, _("error_modification_learning_unit"))
 
