@@ -36,6 +36,8 @@ APP_BASE_LABEL = 'base'
 END_FOREIGN_KEY_NAME = "_id"
 NO_PREVIOUS_VALUE = '-'
 VALUES_WHICH_NEED_TRANSLATION = ["periodicity", "container_type", "internship_subtype"]
+LABEL_ACTIVE = _('active')
+LABEL_INACTIVE = _('inactive')
 
 
 def compute_proposal_type(initial_data, current_data):
@@ -122,18 +124,20 @@ def _get_difference_of_proposal(learning_unit_yr_proposal):
 
 def _get_difference_of_entity_proposal(learning_container_yr, learning_unit_yr_proposal):
     differences = {}
-    for entity_type, entity_id in learning_unit_yr_proposal.initial_data.get('entities').items():
+    for entity_type, initial_entity_id in learning_unit_yr_proposal.initial_data.get('entities').items():
         entity_cont_yr = mdl_base.entity_container_year \
             .find_by_learning_container_year_and_linktype(learning_container_yr, entity_type)
         if entity_cont_yr:
-            differences.update(_get_entity_old_value(entity_cont_yr, entity_id, entity_type))
+            differences.update(_get_entity_old_value(entity_cont_yr, initial_entity_id, entity_type))
+        elif initial_entity_id:
+            differences.update(_get_entity_previous_value(initial_entity_id, entity_type))
     return differences
 
 
-def _get_entity_old_value(entity_cont_yr, entity_id, entity_type):
+def _get_entity_old_value(entity_cont_yr, initial_entity_id, entity_type):
     differences = {}
-    if _has_changed_entity(entity_cont_yr, entity_id):
-        differences.update(_get_entity_previous_value(entity_id, entity_type))
+    if _has_changed_entity(entity_cont_yr, initial_entity_id):
+        differences.update(_get_entity_previous_value(initial_entity_id, entity_type))
     else:
         if entity_type in (entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
                            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2):
@@ -198,18 +202,13 @@ def _compare_initial_current_data(current_data, initial_data):
 
 
 def _get_the_old_value(key, current_data, initial_data):
-    differences = {}
-
     initial_value = initial_data.get(key) or NO_PREVIOUS_VALUE
 
     if _is_foreign_key(key, current_data):
-        differences.update(_get_str_representing_old_data_from_foreign_key(key, initial_value))
+        return _get_str_representing_old_data_from_foreign_key(key, initial_value)
     else:
-        if key in VALUES_WHICH_NEED_TRANSLATION and initial_value != NO_PREVIOUS_VALUE:
-            differences.update({key: "{}".format(_(initial_value))})
-        else:
-            differences.update({key: "{}".format(initial_value)})
-    return differences
+        return _get_old_value_when_not_foreign_key(initial_value, key)
+    return {}
 
 
 def _get_str_representing_old_data_from_foreign_key(key, initial_value):
@@ -245,3 +244,16 @@ def _get_data_dict(key, initial_data):
     if initial_data:
         return initial_data.get(key) if initial_data.get(key) else None
     return None
+
+
+def _get_status_initial_value(initial_value, key):
+    return {key: LABEL_ACTIVE} if initial_value else {key: LABEL_INACTIVE}
+
+
+def _get_old_value_when_not_foreign_key(initial_value, key):
+    if key in VALUES_WHICH_NEED_TRANSLATION and initial_value != NO_PREVIOUS_VALUE:
+        return {key: "{}".format(_(initial_value))}
+    elif key == 'status':
+        return _get_status_initial_value(initial_value, key)
+    else:
+        return {key: "{}".format(initial_value)}

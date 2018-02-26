@@ -2613,3 +2613,6 @@ msgstr "Please enter a value less than or equal to 500."
 
 msgid "force_state"
 msgstr "Force state"
+
+msgid "are_you_sure_to_change_state_from"
+msgstr "Are you sure to change the state from"

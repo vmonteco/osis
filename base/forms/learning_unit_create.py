@@ -42,7 +42,8 @@ from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_Y
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
-from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_FULL, LEARNING_UNIT_ACRONYM_REGEX_PARTIM
+from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_FULL, LEARNING_UNIT_ACRONYM_REGEX_PARTIM, \
+    LEARNING_UNIT_ACRONYM_REGEX_ALL
 from reference.models.language import find_all_languages, find_by_code
 
 MINIMUM_CREDITS = 0
@@ -63,8 +64,17 @@ def _create_learning_container_year_type_list():
     return add_blank(LEARNING_CONTAINER_YEAR_TYPES)
 
 
-def create_faculty_learning_container_type_list():
+def _create_faculty_learning_container_type_list():
     return add_blank(LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY)
+
+
+def _merge_first_letter_and_acronym(first_letter, acronym):
+    merge_first_letter_acronym = (first_letter + acronym).upper()
+    return merge_first_letter_acronym
+
+
+def _check_regex_match_acronym(acronym, regex):
+    return re.match(regex, acronym)
 
 
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
@@ -91,8 +101,8 @@ class LearningUnitYearForm(BootstrapForm):
     credits = forms.DecimalField(decimal_places=2,
                                  validators=[MinValueValidator(0),
                                              MaxValueValidator(MAXIMUM_CREDITS)],
-                                 widget=forms.TextInput(attrs={'min': MINIMUM_CREDITS,
-                                                               'max': MAXIMUM_CREDITS}))
+                                 widget=forms.NumberInput(attrs={'min': MINIMUM_CREDITS,
+                                                                 'max': MAXIMUM_CREDITS}))
     common_title = forms.CharField()
     common_title_english = forms.CharField(required=False, widget=forms.TextInput())
     specific_title = forms.CharField(required=False)
@@ -145,9 +155,9 @@ class LearningUnitYearForm(BootstrapForm):
         return cleaned_data
 
     def clean_acronym(self):
-        merge_first_letter_acronym = self.cleaned_data.get('first_letter', "") + self.cleaned_data.get('acronym', "")
-        acronym = merge_first_letter_acronym.upper()
-        if not re.match(LEARNING_UNIT_ACRONYM_REGEX_FULL, acronym):
+        acronym = _merge_first_letter_and_acronym(self.cleaned_data.get('first_letter', ""),
+                                                  self.cleaned_data.get('acronym', ""))
+        if not _check_regex_match_acronym(acronym, LEARNING_UNIT_ACRONYM_REGEX_ALL):
             self.add_error('acronym', _('invalid_acronym'))
         return acronym
 
@@ -159,7 +169,7 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
         # When we create a learning unit, we can only select requirement entity which are attached to the person
         self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
         if person.user.groups.filter(name='faculty_managers').exists():
-            self.fields["container_type"].choices = create_faculty_learning_container_type_list()
+            self.fields["container_type"].choices = _create_faculty_learning_container_type_list()
             self.fields.pop('internship_subtype')
 
     def clean(self):
@@ -180,6 +190,13 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
             self.add_error('academic_year',
                            _('learning_unit_creation_academic_year_max_error').format(academic_year_max))
         return academic_year
+
+    def clean_acronym(self):
+        acronym = _merge_first_letter_and_acronym(self.cleaned_data.get('first_letter', ""),
+                                                  self.cleaned_data.get('acronym', ""))
+        if not _check_regex_match_acronym(acronym, LEARNING_UNIT_ACRONYM_REGEX_FULL):
+            self.add_error('acronym', _('invalid_acronym'))
+        return acronym
 
 
 class CreatePartimForm(CreateLearningUnitYearForm):
