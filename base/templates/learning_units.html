@@ -118,9 +118,14 @@
 
     $("#btn_produce_xls").click(function(e) {
         e.preventDefault();
-        $("#xls_status").val('xls');
+        var status = $("#xls_status");
+        status.val('xls');
         $("#search_form").submit();
-        $("#xls_status").val('');
+        status.val('');
+    });
+
+    $("#id_check_all").click(function(){
+        $('input:checkbox').not(this).prop('checked', this.checked);
     });
 
 </script>

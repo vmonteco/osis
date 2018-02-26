@@ -2617,5 +2617,8 @@ msgstr "Veuillez entrer une valeur supérieure ou égale à 0."
 msgid "max_for_field"
 msgstr "Veuillez entrer une valeur inférieur ou égale à 500."
 
+msgid "force_state"
+msgstr "Forcer l'état"
+
 msgid "are_you_sure_to_change_state_from"
 msgstr "Êtes-vous sûr de vouloir changer l'état de"
