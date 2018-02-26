@@ -2604,3 +2604,21 @@ msgstr "Proposition de création"
 
 msgid "proposal_update"
 msgstr "Modification de proposition"
+
+msgid "value_before_proposal"
+msgstr "Valeur avant proposition"
+
+msgid "entity_not_found"
+msgstr "Entité non-trouvée.  Il y a peut-être une erreur dans les données"
+
+msgid "min_for_field"
+msgstr "Veuillez entrer une valeur supérieure ou égale à 0."
+
+msgid "max_for_field"
+msgstr "Veuillez entrer une valeur inférieur ou égale à 500."
+
+msgid "force_state"
+msgstr "Forcer l'état"
+
+msgid "are_you_sure_to_change_state_from"
+msgstr "Êtes-vous sûr de vouloir changer l'état de"

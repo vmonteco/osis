@@ -128,7 +128,9 @@ $(document).ready(function() {
         $('#LearningUnitYearForm').validate();
     });
     $.extend($.validator.messages, {
-        required: trans_field_required
+        required: trans_field_required,
+        min: trans_field_min,
+        max: trans_field_max
     });
 
     showInternshipSubtype();

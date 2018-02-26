@@ -26,11 +26,13 @@
 import datetime
 from decimal import Decimal
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.models import proposal_folder, proposal_learning_unit, entity_container_year
+from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import organization_type, proposal_type, proposal_state, entity_type, \
     learning_container_year_types, learning_unit_year_quadrimesters, entity_container_year_link_type, \
     learning_unit_periodicity, internship_subtypes, learning_unit_year_subtypes
@@ -234,6 +236,7 @@ class TestSave(TestCase):
                 "internship_subtype": self.learning_unit_year.internship_subtype,
                 "credits": self.learning_unit_year.credits,
                 "quadrimester": self.learning_unit_year.quadrimester,
+                "status": self.learning_unit_year.status
             },
             "learning_unit": {
                 "id": self.learning_unit_year.learning_unit.id,
@@ -258,9 +261,26 @@ class TestSave(TestCase):
 
         self.assertDictEqual(a_proposal_learning_unt.initial_data, initial_data_expected)
 
+    def test_when_setting_additional_entity_to_none(self):
+        EntityContainerYearFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year,
+            type=entity_container_year_link_type.ALLOCATION_ENTITY
+        )
+        EntityContainerYearFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year,
+            type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1
+        )
+        form = LearningUnitProposalModificationForm(self.form_data)
+        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
+
+        with self.assertRaises(ObjectDoesNotExist):
+            EntityContainerYear.objects.get(learning_container_year=self.learning_unit_year.learning_container_year,
+                                            type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
+
     def test_internship_subtype(self):
         self.form_data["internship_subtype"] = internship_subtypes.TEACHING_INTERNSHIP
         form = LearningUnitProposalModificationForm(self.form_data)
 
         self.assertFalse(form.is_valid())
         self.assertIn(_("learning_unit_type_is_not_internship"), form.errors["internship_subtype"])
+

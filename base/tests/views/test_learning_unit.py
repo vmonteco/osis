@@ -80,6 +80,7 @@ from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
 from base.views.learning_unit import compute_partim_form_initial_data, _get_post_data_without_read_only_field, \
     learning_unit_components, learning_class_year_edit
+from base.views.learning_units.search import learning_units_service_course
 from cms.enums import entity_name
 from cms.tests.factories.text_label import TextLabelFactory
 from cms.tests.factories.translated_text import TranslatedTextFactory
@@ -154,7 +155,7 @@ class LearningUnitViewTestCase(TestCase):
         request = request_factory.get(reverse('learning_units'))
         request.user = self.a_superuser
 
-        from base.views.learning_unit import learning_units
+        from base.views.learning_units.search import learning_units
 
         learning_units(request)
 
@@ -171,7 +172,7 @@ class LearningUnitViewTestCase(TestCase):
         request = request_factory.get(reverse('learning_units'))
         request.user = self.a_superuser
 
-        from base.views.learning_unit import learning_units
+        from base.views.learning_units.search import learning_units
 
         learning_units(request)
 
@@ -201,7 +202,7 @@ class LearningUnitViewTestCase(TestCase):
         request = request_factory.get(reverse('learning_units'), data=filter_data)
         request.user = self.a_superuser
 
-        from base.views.learning_unit import learning_units
+        from base.views.learning_units.search import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -219,7 +220,7 @@ class LearningUnitViewTestCase(TestCase):
         request = request_factory.get(reverse('learning_units'), data=filter_data)
         request.user = self.a_superuser
 
-        from base.views.learning_unit import learning_units
+        from base.views.learning_units.search import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -238,7 +239,7 @@ class LearningUnitViewTestCase(TestCase):
         request = request_factory.get(reverse('learning_units'), data=filter_data)
         request.user = self.a_superuser
 
-        from base.views.learning_unit import learning_units
+        from base.views.learning_units.search import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -256,7 +257,7 @@ class LearningUnitViewTestCase(TestCase):
         request = request_factory.get(reverse('learning_units'), data=filter_data)
         request.user = self.a_superuser
 
-        from base.views.learning_unit import learning_units
+        from base.views.learning_units.search import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -275,7 +276,7 @@ class LearningUnitViewTestCase(TestCase):
         request = request_factory.get(reverse('learning_units'), data=filter_data)
         request.user = self.a_superuser
 
-        from base.views.learning_unit import learning_units
+        from base.views.learning_units.search import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -291,7 +292,6 @@ class LearningUnitViewTestCase(TestCase):
             'requirement_entity_acronym': 'AGRO',
             'with_entity_subordinated': True
         }
-        from base.views.learning_unit import learning_units_service_course
 
         request = request_factory.get(reverse(learning_units_service_course), data=filter_data)
         request.user = self.a_superuser
@@ -634,7 +634,7 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_yr = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                    learning_container_year=self.learning_container_yr)
         LearningUnitComponentFactory(learning_unit_year=learning_unit_yr,
-                                                            learning_component_year=self.learning_component_yr)
+                                     learning_component_year=self.learning_component_yr)
         learning_class_yr = LearningClassYearFactory(learning_component_year=self.learning_component_yr)
 
         response = self.client.post('{}?{}&{}'.format(reverse(learning_class_year_edit, args=[learning_unit_yr.id]),

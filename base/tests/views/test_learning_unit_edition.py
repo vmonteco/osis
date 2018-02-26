@@ -36,7 +36,6 @@ from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import learning_unit_periodicity, learning_container_year_types, learning_unit_year_subtypes, \
     entity_container_year_link_type, vacant_declaration_type, attribution_procedure, entity_type, organization_type
