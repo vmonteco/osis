@@ -134,16 +134,14 @@ def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year
 @permission_required('base.can_edit_learningunit', raise_exception=True)
 @perms.can_perform_learning_unit_modification
 def learning_unit_volumes_management(request, learning_unit_year_id):
-    context = get_common_context_learning_unit_year(
-        learning_unit_year_id,
-        get_object_or_404(Person, user=request.user)
-    )
+    person = get_object_or_404(Person, user=request.user)
+    context = get_common_context_learning_unit_year(learning_unit_year_id, person)
 
     context['learning_units'] = learning_unit_year_with_context.get_with_context(
         learning_container_year_id=context['learning_unit_year'].learning_container_year_id
     )
 
-    volume_edition_formset_container = VolumeEditionFormsetContainer(request, context['learning_units'])
+    volume_edition_formset_container = VolumeEditionFormsetContainer(request, context['learning_units'], person)
 
     if volume_edition_formset_container.is_valid() and not request.is_ajax():
         try:
