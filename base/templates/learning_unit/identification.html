@@ -199,7 +199,7 @@
                                  {% endif %}
                                 <br>
                                 <label style="margin-top:10px;" {% if differences|get_difference_css:'REQUIREMENT_ENTITY'%}{{ differences|get_difference_css:'REQUIREMENT_ENTITY' }} {% endif %}>{% trans 'requirement_entity'%}</label><br>
-                                    <a href="{% url 'entity_read' entity_version_id=requirement_entity.id %}"
+                                    <a {% if requirement_entity %}href="{% url 'entity_read' entity_version_id=requirement_entity.id %}"{% endif %}
                                     {% if differences|get_difference_css:'REQUIREMENT_ENTITY' %}
                                         {{ differences|get_difference_css:'REQUIREMENT_ENTITY' }}
                                     {% else %}
@@ -207,7 +207,7 @@
                                     {% endif %}>{{ requirement_entity.acronym }}</a>
                                 <br>
                                 <label style="margin-top:10px;" {% if differences|get_difference_css:'ALLOCATION_ENTITY' %}{{ differences|get_difference_css:'ALLOCATION_ENTITY' }}{% endif %}>{% trans 'allocation_entity'%}</label><br>
-                                <a href="{% url 'entity_read' entity_version_id=allocation_entity.id %}"
+                                <a {% if allocation_entity %}href="{% url 'entity_read' entity_version_id=allocation_entity.id %}"{% endif %}
                                          {% if differences|get_difference_css:'ALLOCATION_ENTITY' %}
                                              {{ differences|get_difference_css:'ALLOCATION_ENTITY' }}
                                          {% else %}
