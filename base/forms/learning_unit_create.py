@@ -67,6 +67,9 @@ def _create_learning_container_year_type_list():
 def create_faculty_learning_container_type_list():
     return add_blank(LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY)
 
+def _does_acronym_match_regex(acronym, regex):
+    return not re.match(regex, acronym)
+
 
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
@@ -146,9 +149,8 @@ class LearningUnitYearForm(BootstrapForm):
         return cleaned_data
 
     def clean_acronym(self):
-        merge_first_letter_acronym = self.cleaned_data.get('first_letter', "") + self.cleaned_data.get('acronym', "")
-        acronym = merge_first_letter_acronym.upper()
-        if not re.match(LEARNING_UNIT_ACRONYM_REGEX_ALL, acronym):
+        acronym = (self.cleaned_data.get('first_letter', "") + self.cleaned_data.get('acronym', "")).upper()
+        if not _does_acronym_match_regex(acronym, LEARNING_UNIT_ACRONYM_REGEX_ALL):
             self.add_error('acronym', _('invalid_acronym'))
         return acronym
 
@@ -183,9 +185,8 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
         return academic_year
 
     def clean_acronym(self):
-        merge_first_letter_acronym = self.cleaned_data.get('first_letter', "") + self.cleaned_data.get('acronym', "")
-        acronym = merge_first_letter_acronym.upper()
-        if not re.match(LEARNING_UNIT_ACRONYM_REGEX_FULL, acronym):
+        acronym = (self.cleaned_data.get('first_letter', "") + self.cleaned_data.get('acronym', "")).upper()
+        if not _does_acronym_match_regex(acronym, LEARNING_UNIT_ACRONYM_REGEX_FULL):
             self.add_error('acronym', _('invalid_acronym'))
         return acronym
 
