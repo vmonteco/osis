@@ -91,8 +91,8 @@ class LearningUnitYearForm(BootstrapForm):
     credits = forms.DecimalField(decimal_places=2,
                                  validators=[MinValueValidator(0),
                                              MaxValueValidator(MAXIMUM_CREDITS)],
-                                 widget=forms.TextInput(attrs={'min': MINIMUM_CREDITS,
-                                                               'max': MAXIMUM_CREDITS}))
+                                 widget=forms.NumberInput(attrs={'min': MINIMUM_CREDITS,
+                                                                 'max': MAXIMUM_CREDITS}))
     common_title = forms.CharField()
     common_title_english = forms.CharField(required=False, widget=forms.TextInput())
     specific_title = forms.CharField(required=False)
