@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
 from base.models import entity_container_year, campus, entity, entity_version
 from base.models.enums import proposal_type, entity_container_year_link_type
 from base.models.proposal_learning_unit import find_by_folder
@@ -93,9 +94,8 @@ def _reinitialize_entities_before_proposal(learning_container_year, initial_enti
     for type_entity, id_entity in initial_entities_by_type.items():
         initial_entity = entity.get_by_internal_id(id_entity)
         if initial_entity:
-            entity_container_year.EntityContainerYear.objects.update_or_create(
-                learning_container_year=learning_container_year,
-                type=type_entity, defaults={"entity": initial_entity})
+            update_or_create_entity_container_year_with_components(initial_entity, learning_container_year,
+                                                                  type_entity)
         else:
             current_entity_container_year = entity_container_year.find_by_learning_container_year_and_linktype(
                 learning_container_year, type_entity)
