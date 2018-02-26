@@ -73,10 +73,6 @@ def _merge_first_letter_and_acronym(first_letter, acronym):
     return merge_first_letter_acronym
 
 
-def _check_regex_match_acronym(acronym, regex):
-    return re.match(regex, acronym)
-
-
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.acronym
@@ -154,10 +150,10 @@ class LearningUnitYearForm(BootstrapForm):
             self.add_error('internship_subtype', _('field_is_required'))
         return cleaned_data
 
-    def clean_acronym(self):
+    def clean_acronym(self, regex=LEARNING_UNIT_ACRONYM_REGEX_ALL):
         acronym = _merge_first_letter_and_acronym(self.cleaned_data.get('first_letter', ""),
                                                   self.cleaned_data.get('acronym', ""))
-        if not _check_regex_match_acronym(acronym, LEARNING_UNIT_ACRONYM_REGEX_ALL):
+        if not re.match(regex, acronym):
             self.add_error('acronym', _('invalid_acronym'))
         return acronym
 
@@ -191,12 +187,8 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
                            _('learning_unit_creation_academic_year_max_error').format(academic_year_max))
         return academic_year
 
-    def clean_acronym(self):
-        acronym = _merge_first_letter_and_acronym(self.cleaned_data.get('first_letter', ""),
-                                                  self.cleaned_data.get('acronym', ""))
-        if not _check_regex_match_acronym(acronym, LEARNING_UNIT_ACRONYM_REGEX_FULL):
-            self.add_error('acronym', _('invalid_acronym'))
-        return acronym
+    def clean_acronym(self, regex=LEARNING_UNIT_ACRONYM_REGEX_FULL):
+        return super().clean_acronym(regex)
 
 
 class CreatePartimForm(CreateLearningUnitYearForm):
@@ -220,9 +212,9 @@ class CreatePartimForm(CreateLearningUnitYearForm):
             if self.fields.get(field):
                 self.fields[field].widget.attrs[READONLY_ATTR] = READONLY_ATTR
 
-    def clean_acronym(self):
+    def clean_acronym(self, regex=LEARNING_UNIT_ACRONYM_REGEX_PARTIM):
         acronym = super().clean_acronym()
         acronym += self.data['partim_character'].upper()
-        if not re.match(LEARNING_UNIT_ACRONYM_REGEX_PARTIM, acronym):
+        if not re.match(regex, acronym):
             self.add_error('acronym', _('invalid_acronym'))
         return acronym
