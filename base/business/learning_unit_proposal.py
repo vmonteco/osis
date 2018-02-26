@@ -94,8 +94,7 @@ def _reinitialize_entities_before_proposal(learning_container_year, initial_enti
     for type_entity, id_entity in initial_entities_by_type.items():
         initial_entity = entity.get_by_internal_id(id_entity)
         if initial_entity:
-            update_or_create_entity_container_year_with_components(initial_entity, learning_container_year,
-                                                                  type_entity)
+            update_or_create_entity_container_year_with_components(initial_entity, learning_container_year, type_entity)
         else:
             current_entity_container_year = entity_container_year.find_by_learning_container_year_and_linktype(
                 learning_container_year, type_entity)
@@ -139,8 +138,8 @@ def _get_entity_old_value(entity_cont_yr, initial_entity_id, entity_type):
     if _has_changed_entity(entity_cont_yr, initial_entity_id):
         differences.update(_get_entity_previous_value(initial_entity_id, entity_type))
     else:
-        if not initial_entity_id and  entity_type in (entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
-                                                      entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2):
+        if not initial_entity_id and entity_type in (entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
+                                                     entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2):
             differences.update({entity_type: NO_PREVIOUS_VALUE})
     return differences
 
