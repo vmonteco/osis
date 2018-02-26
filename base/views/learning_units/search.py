@@ -31,6 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import SERVICE_COURSES_SEARCH, create_xls, get_last_academic_years, SIMPLE_SEARCH
 from base.forms.common import TooManyResultsException
+from base.forms.learning_unit_create import MAX_RECORDS
 from base.forms.learning_units import LearningUnitYearForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalRowForm, ProposalListFormset
 from base.models.academic_year import current_academic_year
@@ -114,7 +115,11 @@ def _proposal_management(request, proposals):
     if not proposals:
         return []
 
-    list_proposal_formset = formset_factory(form=ProposalRowForm, formset=ProposalListFormset, extra=len(proposals))
+    print(proposals)
+    list_proposal_formset = formset_factory(form=ProposalRowForm, formset=ProposalListFormset,
+                                            extra=len(proposals), max_num=MAX_RECORDS)
+    print("request.POST", request.POST)
+
     formset = list_proposal_formset(request.POST or None, list_proposal_learning=proposals)
     if formset.is_valid():
         try:
