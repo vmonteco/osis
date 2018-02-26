@@ -77,12 +77,12 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
         _update_model_object(learning_container_year, self.cleaned_data, ["acronym", "title", "language", "campus",
                                                                           "container_type"])
 
-        _update_entity(self.cleaned_data["requirement_entity"], learning_container_year, REQUIREMENT_ENTITY)
-        _update_entity(self.cleaned_data["allocation_entity"], learning_container_year, ALLOCATION_ENTITY)
-        _update_entity(self.cleaned_data["additional_requirement_entity_1"], learning_container_year,
-                       ADDITIONAL_REQUIREMENT_ENTITY_1)
-        _update_entity(self.cleaned_data["additional_requirement_entity_2"], learning_container_year,
-                       ADDITIONAL_REQUIREMENT_ENTITY_2)
+        _update_or_delete_entity_container(self.cleaned_data["requirement_entity"], learning_container_year, REQUIREMENT_ENTITY)
+        _update_or_delete_entity_container(self.cleaned_data["allocation_entity"], learning_container_year, ALLOCATION_ENTITY)
+        _update_or_delete_entity_container(self.cleaned_data["additional_requirement_entity_1"], learning_container_year,
+                                           ADDITIONAL_REQUIREMENT_ENTITY_1)
+        _update_or_delete_entity_container(self.cleaned_data["additional_requirement_entity_2"], learning_container_year,
+                                           ADDITIONAL_REQUIREMENT_ENTITY_2)
 
         folder_entity = self.cleaned_data['folder_entity'].entity
         folder_id = self.cleaned_data['folder_id']
@@ -115,7 +115,7 @@ def _update_model_object(obj, data_values, fields_to_update):
     obj.save()
 
 
-def _update_entity(entity_version, learning_container_year, type_entity):
+def _update_or_delete_entity_container(entity_version, learning_container_year, type_entity):
     if not entity_version:
         _delete_entity(learning_container_year, type_entity)
     else:
