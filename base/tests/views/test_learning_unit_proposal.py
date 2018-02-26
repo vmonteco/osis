@@ -862,9 +862,6 @@ class TestLearningUnitProposalDisplay(TestCase):
                          an_entity.most_recent_acronym)
 
     def test_get_entity_previous_value_wrong_id_in_initial_data(self):
-        l_container_year = self.l_container_year_with_entities
-        requirement_entity = self.generator_learning_container.generated_container_years[0] \
-            .requirement_entity_container_year.entity
         wrong_id = -1
 
         self.assertEqual(proposal_business.
@@ -873,7 +870,6 @@ class TestLearningUnitProposalDisplay(TestCase):
                          {entity_container_year_link_type.REQUIREMENT_ENTITY: _('entity_not_found')})
 
     def test_get_entity_previous_value(self):
-        l_container_year = self.l_container_year_with_entities
         requirement_entity = self.generator_learning_container.generated_container_years[0] \
             .requirement_entity_container_year.entity
 
@@ -882,8 +878,14 @@ class TestLearningUnitProposalDisplay(TestCase):
                                                     entity_container_year_link_type.REQUIREMENT_ENTITY),
                          {entity_container_year_link_type.REQUIREMENT_ENTITY: requirement_entity.most_recent_acronym})
 
+    def test_get_status_initial_value(self):
+        key = 'status'
+        self.assertEqual(proposal_business._get_status_initial_value(True, key),
+                         {key: proposal_business.LABEL_ACTIVE})
+        self.assertEqual(proposal_business._get_status_initial_value(False, key),
+                         {key: proposal_business.LABEL_INACTIVE})
+
     def get_an_entity_version(self):
         other_entity = self.generator_learning_container.generated_container_years[0] \
             .allocation_entity_container_year.entity
         return entity_version.get_last_version(other_entity)
-
