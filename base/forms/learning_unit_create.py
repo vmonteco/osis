@@ -42,7 +42,8 @@ from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_Y
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
-from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_FULL, LEARNING_UNIT_ACRONYM_REGEX_PARTIM
+from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_FULL, LEARNING_UNIT_ACRONYM_REGEX_PARTIM, \
+    LEARNING_UNIT_ACRONYM_REGEX_ALL
 from reference.models.language import find_all_languages, find_by_code
 
 MINIMUM_CREDITS = 0
@@ -147,7 +148,7 @@ class LearningUnitYearForm(BootstrapForm):
     def clean_acronym(self):
         merge_first_letter_acronym = self.cleaned_data.get('first_letter', "") + self.cleaned_data.get('acronym', "")
         acronym = merge_first_letter_acronym.upper()
-        if not re.match(LEARNING_UNIT_ACRONYM_REGEX_FULL, acronym):
+        if not re.match(LEARNING_UNIT_ACRONYM_REGEX_ALL, acronym):
             self.add_error('acronym', _('invalid_acronym'))
         return acronym
 
@@ -180,6 +181,13 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
             self.add_error('academic_year',
                            _('learning_unit_creation_academic_year_max_error').format(academic_year_max))
         return academic_year
+
+    def clean_acronym(self):
+        merge_first_letter_acronym = self.cleaned_data.get('first_letter', "") + self.cleaned_data.get('acronym', "")
+        acronym = merge_first_letter_acronym.upper()
+        if not re.match(LEARNING_UNIT_ACRONYM_REGEX_FULL, acronym):
+            self.add_error('acronym', _('invalid_acronym'))
+        return acronym
 
 
 class CreatePartimForm(CreateLearningUnitYearForm):
