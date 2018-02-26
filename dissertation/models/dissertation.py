@@ -23,18 +23,18 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from dissertation.utils import emails_dissert
-from dissertation.models.dissertation_role import get_promoteur_by_dissertation
+
 from django.core.exceptions import ObjectDoesNotExist
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
-from base.models import offer_year, student
+from base.models import offer_year, student, academic_year
 from . import proposition_dissertation
 from . import offer_proposition
 from . import dissertation_location
-
+from dissertation.utils import emails_dissert
+from dissertation.models.dissertation_role import get_promoteur_by_dissertation
 
 class DissertationAdmin(SerializableModelAdmin):
     list_display = ('uuid', 'title', 'author', 'status', 'active', 'proposition_dissertation', 'modification_date')
@@ -175,8 +175,10 @@ def search_by_offer_and_status(offers, status):
 
 
 def count_by_proposition(prop_dissert):
+    current_academic_year = academic_year.starting_academic_year()
     return Dissertation.objects.filter(active=True) \
         .filter(proposition_dissertation=prop_dissert) \
+        .filter(offer_year_start__academic_year = current_academic_year) \
         .exclude(status='DRAFT') \
         .count()
 
