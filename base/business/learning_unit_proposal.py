@@ -202,20 +202,13 @@ def _compare_initial_current_data(current_data, initial_data):
 
 
 def _get_the_old_value(key, current_data, initial_data):
-    differences = {}
-
     initial_value = initial_data.get(key) or NO_PREVIOUS_VALUE
 
     if _is_foreign_key(key, current_data):
-        differences.update(_get_str_representing_old_data_from_foreign_key(key, initial_value))
+        return _get_str_representing_old_data_from_foreign_key(key, initial_value)
     else:
-        if key in VALUES_WHICH_NEED_TRANSLATION and initial_value != NO_PREVIOUS_VALUE:
-            differences.update({key: "{}".format(_(initial_value))})
-        elif key == 'status':
-            differences.update(_get_status_initial_value(initial_value, key))
-        else:
-            differences.update({key: "{}".format(initial_value)})
-    return differences
+        return _get_old_value_when_not_foreign_key(initial_value, key)
+    return {}
 
 
 def _get_str_representing_old_data_from_foreign_key(key, initial_value):
@@ -254,4 +247,13 @@ def _get_data_dict(key, initial_data):
 
 
 def _get_status_initial_value(initial_value, key):
-    return {key: "{}".format(LABEL_ACTIVE)} if initial_value else {key: "{}".format(LABEL_INACTIVE)}
+    return {key: LABEL_ACTIVE} if initial_value else {key: LABEL_INACTIVE}
+
+
+def _get_old_value_when_not_foreign_key(initial_value, key):
+    if key in VALUES_WHICH_NEED_TRANSLATION and initial_value != NO_PREVIOUS_VALUE:
+        return {key: "{}".format(_(initial_value))}
+    elif key == 'status':
+        return _get_status_initial_value(initial_value, key)
+    else:
+        return {key: "{}".format(initial_value)}
