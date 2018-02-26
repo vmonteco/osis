@@ -64,11 +64,17 @@ def _create_learning_container_year_type_list():
     return add_blank(LEARNING_CONTAINER_YEAR_TYPES)
 
 
-def create_faculty_learning_container_type_list():
+def _create_faculty_learning_container_type_list():
     return add_blank(LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY)
 
-def _does_acronym_match_regex(acronym, regex):
-    return not re.match(regex, acronym)
+
+def _clean_acronym(first_letter, acronym):
+    merge_first_letter_acronym = (first_letter + acronym).upper()
+    return merge_first_letter_acronym
+
+
+def _check_regex_match_acronym(acronym, regex):
+    return re.match(regex, acronym)
 
 
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
@@ -149,8 +155,8 @@ class LearningUnitYearForm(BootstrapForm):
         return cleaned_data
 
     def clean_acronym(self):
-        acronym = (self.cleaned_data.get('first_letter', "") + self.cleaned_data.get('acronym', "")).upper()
-        if not _does_acronym_match_regex(acronym, LEARNING_UNIT_ACRONYM_REGEX_ALL):
+        acronym = _clean_acronym(self.cleaned_data.get('first_letter', ""), self.cleaned_data.get('acronym', ""))
+        if not _check_regex_match_acronym(acronym, LEARNING_UNIT_ACRONYM_REGEX_ALL):
             self.add_error('acronym', _('invalid_acronym'))
         return acronym
 
@@ -162,7 +168,7 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
         # When we create a learning unit, we can only select requirement entity which are attached to the person
         self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
         if person.user.groups.filter(name='faculty_managers').exists():
-            self.fields["container_type"].choices = create_faculty_learning_container_type_list()
+            self.fields["container_type"].choices = _create_faculty_learning_container_type_list()
             self.fields.pop('internship_subtype')
 
     def clean(self):
@@ -185,8 +191,8 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
         return academic_year
 
     def clean_acronym(self):
-        acronym = (self.cleaned_data.get('first_letter', "") + self.cleaned_data.get('acronym', "")).upper()
-        if not _does_acronym_match_regex(acronym, LEARNING_UNIT_ACRONYM_REGEX_FULL):
+        acronym = _clean_acronym(self.cleaned_data.get('first_letter', ""), self.cleaned_data.get('acronym', ""))
+        if not _check_regex_match_acronym(acronym, LEARNING_UNIT_ACRONYM_REGEX_FULL):
             self.add_error('acronym', _('invalid_acronym'))
         return acronym
 
