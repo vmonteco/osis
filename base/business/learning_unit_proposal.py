@@ -129,9 +129,8 @@ def _get_difference_of_entity_proposal(learning_container_yr, learning_unit_yr_p
             .find_by_learning_container_year_and_linktype(learning_container_yr, entity_type)
         if entity_cont_yr:
             differences.update(_get_entity_old_value(entity_cont_yr, initial_entity_id, entity_type))
-        else:
-            if initial_entity_id:
-                differences.update(_get_entity_previous_value(initial_entity_id, entity_type))
+        elif initial_entity_id:
+            differences.update(_get_entity_previous_value(initial_entity_id, entity_type))
     return differences
 
 
@@ -212,11 +211,10 @@ def _get_the_old_value(key, current_data, initial_data):
     else:
         if key in VALUES_WHICH_NEED_TRANSLATION and initial_value != NO_PREVIOUS_VALUE:
             differences.update({key: "{}".format(_(initial_value))})
+        elif key == 'status':
+            differences.update(_get_status_initial_value(initial_value, key))
         else:
-            if key == 'status':
-                differences.update(_get_status_initial_value(initial_value, key))
-            else:
-                differences.update({key: "{}".format(initial_value)})
+            differences.update({key: "{}".format(initial_value)})
     return differences
 
 
