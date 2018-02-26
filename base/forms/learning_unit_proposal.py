@@ -117,10 +117,19 @@ def _update_model_object(obj, data_values, fields_to_update):
 
 def _update_entity(entity_version, learning_container_year, type_entity):
     if not entity_version:
-        return
-    entity_container_year.EntityContainerYear.objects.update_or_create(type=type_entity,
-                                                                       learning_container_year=learning_container_year,
-                                                                       defaults={"entity": entity_version.entity})
+        _delete_entity(learning_container_year, type_entity)
+    else:
+        entity_container_year.\
+            EntityContainerYear.objects.update_or_create(type=type_entity,
+                                                         learning_container_year=learning_container_year,
+                                                         defaults={"entity": entity_version.entity})
+
+
+def _delete_entity(learning_container_year, type_entity):
+    an_entity_container_year = entity_container_year.\
+        find_by_learning_container_year_and_linktype(learning_container_year, type_entity)
+    if an_entity_container_year:
+        an_entity_container_year.delete()
 
 
 def _set_attributes_from_dict(obj, attributes_values):
