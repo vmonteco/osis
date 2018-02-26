@@ -155,7 +155,8 @@ class LearningUnitYearForm(BootstrapForm):
         return cleaned_data
 
     def clean_acronym(self):
-        acronym = _merge_first_letter_and_acronym(self.cleaned_data.get('first_letter', ""), self.cleaned_data.get('acronym', ""))
+        acronym = _merge_first_letter_and_acronym(self.cleaned_data.get('first_letter', ""),
+                                                  self.cleaned_data.get('acronym', ""))
         if not _check_regex_match_acronym(acronym, LEARNING_UNIT_ACRONYM_REGEX_ALL):
             self.add_error('acronym', _('invalid_acronym'))
         return acronym
@@ -191,7 +192,8 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
         return academic_year
 
     def clean_acronym(self):
-        acronym = _merge_first_letter_and_acronym(self.cleaned_data.get('first_letter', ""), self.cleaned_data.get('acronym', ""))
+        acronym = _merge_first_letter_and_acronym(self.cleaned_data.get('first_letter', ""),
+                                                  self.cleaned_data.get('acronym', ""))
         if not _check_regex_match_acronym(acronym, LEARNING_UNIT_ACRONYM_REGEX_FULL):
             self.add_error('acronym', _('invalid_acronym'))
         return acronym
