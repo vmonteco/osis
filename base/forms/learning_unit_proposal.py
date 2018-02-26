@@ -27,6 +27,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
+from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
 from base.business.learning_units.proposal.creation import create_learning_unit_proposal
 from base.forms.learning_unit_create import EntitiesVersionChoiceField, LearningUnitYearForm
 from base.models import proposal_folder, proposal_learning_unit, entity_container_year
@@ -119,10 +120,8 @@ def _update_or_delete_entity_container(entity_version, learning_container_year, 
     if not entity_version:
         _delete_entity(learning_container_year, type_entity)
     else:
-        entity_container_year.\
-            EntityContainerYear.objects.update_or_create(type=type_entity,
-                                                         learning_container_year=learning_container_year,
-                                                         defaults={"entity": entity_version.entity})
+        update_or_create_entity_container_year_with_components(entity_version.entity, learning_container_year,
+                                                               type_entity)
 
 
 def _delete_entity(learning_container_year, type_entity):
