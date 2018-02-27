@@ -91,7 +91,7 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
 
 class LearningUnitProposalUpdateForm(LearningUnitProposalModificationForm):
     state = forms.ChoiceField(choices=proposal_state.CHOICES)
-    type = forms.ChoiceField(choices=proposal_type.CHOICES)
+    type = forms.ChoiceField(choices=proposal_type.CHOICES, required=False)
 
     def __init__(self, *args, **kwargs):
         super(LearningUnitProposalUpdateForm, self).__init__(*args, **kwargs)

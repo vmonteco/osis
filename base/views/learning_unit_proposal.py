@@ -92,6 +92,7 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
 @login_required
 @perms.can_edit_learning_unit_proposal
 def edit_learning_unit_proposal(request, learning_unit_year_id):
+    print('edit_learning_unit_proposal')
     user_person = get_object_or_404(Person, user=request.user)
 
     proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year_id)
@@ -101,17 +102,29 @@ def edit_learning_unit_proposal(request, learning_unit_year_id):
                          "folder_entity": find_latest_version_by_entity(proposal.folder.entity.id,
                                                                         datetime.date.today()),
                          "state": proposal.state})
-    proposal_form = LearningUnitProposalUpdateForm(request.POST or None, initial=initial_data)
+
 
     if request.POST:
+        # , learning_unit_year, a_person, type_proposal, state_proposal
+
+        proposal_form = LearningUnitProposalUpdateForm(request.POST or None)
+
+        print('post')
         if proposal_form.is_valid():
             try:
-                proposal_form.save()
+                type_proposal = compute_proposal_type(initial_data, request.POST)
+                proposal_form.save(proposal.learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name)
                 display_success_messages(request, _("proposal_edited_successfully"))
                 return HttpResponseRedirect(reverse('learning_unit', args=[learning_unit_year_id]))
 
             except (IntegrityError, ValueError) as e:
                 display_error_messages(request, e.args[0])
+        else:
+            for e in proposal_form.errors:
+                print(e)
+    else:
+        proposal_form = LearningUnitProposalUpdateForm(request.POST or None,
+                                                       initial=initial_data)
 
     return layout.render(request, 'learning_unit/proposal/edition.html',  {
         'learning_unit_year': proposal.learning_unit_year,

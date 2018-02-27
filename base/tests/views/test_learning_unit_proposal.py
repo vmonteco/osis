@@ -37,8 +37,7 @@ from django.http import HttpResponseNotFound, HttpResponse, HttpResponseForbidde
 from django.test import TestCase, RequestFactory
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
-from base.forms.proposal.learning_unit_proposal import ProposalStateModelForm
+from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, LearningUnitProposalUpdateForm
 from base.models import entity_container_year, entity_version
 from base.models import proposal_folder, proposal_learning_unit
 from base.models.enums import organization_type, entity_type, \
@@ -773,8 +772,8 @@ class TestEditProposal(TestCase):
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'learning_unit/proposal/edition_proposal_state.html')
-        self.assertIsInstance(context['form'], ProposalStateModelForm)
+        self.assertEqual(template, 'learning_unit/proposal/edition.html')
+        self.assertIsInstance(context['form'], LearningUnitProposalUpdateForm)
 
     def test_edit_proposal_post(self):
         request_factory = RequestFactory()
@@ -807,8 +806,8 @@ class TestEditProposal(TestCase):
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'learning_unit/proposal/edition_proposal_state.html')
-        self.assertIsInstance(context['form'], ProposalStateModelForm)
+        self.assertEqual(template, 'learning_unit/proposal/edition.html')
+        self.assertIsInstance(context['form'], LearningUnitProposalUpdateForm)
 
         form = context['form']
         self.assertEqual(len(form.errors), 1)
