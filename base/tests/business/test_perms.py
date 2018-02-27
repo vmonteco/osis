@@ -103,9 +103,9 @@ class PermsTestCase(TestCase):
     def test_access_edit_learning_unit_proposal_as_faculty_manager(self):
         generated_container = GenerateContainer(start_year=self.academic_yr.year,
                                                 end_year=self.academic_yr.year)
-        an_requirement_entity = generated_container.generated_container_years[0] \
-            .requirement_entity_container_year.entity
         generated_container_first_year = generated_container.generated_container_years[0]
+        an_requirement_entity = generated_container_first_year.requirement_entity_container_year.entity
+
         luy = generated_container_first_year.learning_unit_year_full
         a_person = self.get_person(FACULTY_MANAGER_GROUP)
         self.assertFalse(perms.is_eligible_to_edit_proposal(None, a_person))
