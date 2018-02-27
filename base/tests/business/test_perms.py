@@ -27,12 +27,18 @@ from django.test import TestCase
 from base.tests.factories.academic_year import AcademicYearFactory
 
 from base.business.learning_units import perms
-from base.models.enums import learning_container_year_types
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from django.utils import timezone
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
-
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
+from base.tests.factories.person import PersonFactory
+from base.models.enums import proposal_state, proposal_type, learning_container_year_types
+from base.tests.factories.user import UserFactory
+from base.tests.factories.person_entity import PersonEntityFactory
+from django.contrib.auth.models import Permission, Group
+from base.models.person import FACULTY_MANAGER_GROUP, CENTRAL_MANAGER_GROUP
+from base.tests.factories.business.learning_units import GenerateContainer
 
 TYPES_PROPOSAL_NEEDED_TO_EDIT = (learning_container_year_types.COURSE,
                                  learning_container_year_types.DISSERTATION,
@@ -70,7 +76,6 @@ class PermsTestCase(TestCase):
 
             self.assertTrue(perms._can_faculty_manager_modify_end_date(luy))
 
-
     def test_cannot_faculty_manager_modify_end_date_full(self):
         for proposal_needed_container_type in TYPES_PROPOSAL_NEEDED_TO_EDIT:
             lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_yr,
@@ -85,3 +90,50 @@ class PermsTestCase(TestCase):
         luy = LearningUnitYearFactory(academic_year=self.academic_yr,
                                       learning_container_year=None)
         self.assertFalse(perms._can_faculty_manager_modify_end_date(luy))
+
+    def test_access_edit_learning_unit_proposal_as_central_manager(self):
+        luy = LearningUnitYearFactory(academic_year=self.academic_yr)
+        a_person = self.get_person(CENTRAL_MANAGER_GROUP)
+
+        self.assertFalse(perms.is_eligible_to_edit_proposal(None, a_person))
+
+        a_proposal = ProposalLearningUnitFactory(learning_unit_year=luy)
+        self.assertTrue(perms.is_eligible_to_edit_proposal(a_proposal, a_person))
+
+    def test_access_edit_learning_unit_proposal_as_faculty_manager(self):
+        generated_container = GenerateContainer(start_year=self.academic_yr.year,
+                                                end_year=self.academic_yr.year)
+        generated_container_first_year = generated_container.generated_container_years[0]
+        an_requirement_entity = generated_container_first_year.requirement_entity_container_year.entity
+
+        luy = generated_container_first_year.learning_unit_year_full
+        a_person = self.get_person(FACULTY_MANAGER_GROUP)
+        self.assertFalse(perms.is_eligible_to_edit_proposal(None, a_person))
+
+        a_proposal = ProposalLearningUnitFactory(state=proposal_state.ProposalState.CENTRAL.name,
+                                                 type=proposal_type.ProposalType.SUPPRESSION.name,
+                                                 learning_unit_year=luy)
+
+        self.assertFalse(perms.is_eligible_to_edit_proposal(a_proposal, a_person))
+
+        a_proposal.state = proposal_state.ProposalState.FACULTY.name
+        a_proposal.save()
+        self.assertFalse(perms.is_eligible_to_edit_proposal(a_proposal, a_person))
+
+        PersonEntityFactory(entity=an_requirement_entity, person=a_person)
+        self.assertFalse(perms.is_eligible_to_edit_proposal(a_proposal, a_person))
+
+        for a_type in perms.PROPOSAL_TYPE_ACCEPTED_FOR_UPDATE:
+            a_proposal.type = a_type
+            a_proposal.save()
+            self.assertTrue(perms.is_eligible_to_edit_proposal(a_proposal, a_person))
+
+
+    def get_person(self, group_name):
+        a_user = UserFactory()
+        permission = Permission.objects.get(codename='can_edit_learning_unit_proposal')
+        a_user.user_permissions.add(permission)
+        a_person = PersonFactory(user=a_user)
+        a_person.user.groups.add(Group.objects.get(name=group_name))
+        return a_person
+
