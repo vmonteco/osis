@@ -214,6 +214,14 @@ class TestLearningUnitModificationForm(TestCase):
                                             initial=self.initial_data)
         self.assertEqual(form.fields["credits"].min_value, self.learning_unit_year_partim_2.credits)
 
+    def test_do_not_set_minimum_credits_for_full_learning_unit_year_if_no_partims(self):
+        learning_unit_year_with_no_partims = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                                     learning_unit__periodicity=ANNUAL,
+                                                                     subtype=FULL)
+        form = LearningUnitModificationForm(parent=None, person=None, instance=learning_unit_year_with_no_partims,
+                                            initial=self.initial_data)
+        self.assertEqual(form.fields["credits"].min_value, None)
+
     def test_entity_does_not_exist_for_lifetime_of_learning_unit_with_no_planned_end(self):
         an_other_entity = EntityFactory(organization=self.organization)
         an_other_entity_version = EntityVersionFactory(
