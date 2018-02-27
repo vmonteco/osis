@@ -52,7 +52,7 @@ class SearchForm(forms.Form):
     acronym = forms.CharField(
         max_length=15,
         required=False,
-        label=_('acronym')
+        label=_('code')
     )
 
     def __init__(self, *args, **kwargs):

@@ -42,7 +42,8 @@ from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_Y
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
-from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_FULL, LEARNING_UNIT_ACRONYM_REGEX_PARTIM
+from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_FULL, LEARNING_UNIT_ACRONYM_REGEX_PARTIM, \
+    LEARNING_UNIT_ACRONYM_REGEX_ALL
 from reference.models.language import find_all_languages, find_by_code
 
 MINIMUM_CREDITS = 0
@@ -63,8 +64,13 @@ def _create_learning_container_year_type_list():
     return add_blank(LEARNING_CONTAINER_YEAR_TYPES)
 
 
-def create_faculty_learning_container_type_list():
+def _create_faculty_learning_container_type_list():
     return add_blank(LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY)
+
+
+def _merge_first_letter_and_acronym(first_letter, acronym):
+    merge_first_letter_acronym = (first_letter + acronym).upper()
+    return merge_first_letter_acronym
 
 
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
@@ -144,10 +150,10 @@ class LearningUnitYearForm(BootstrapForm):
             self.add_error('internship_subtype', _('field_is_required'))
         return cleaned_data
 
-    def clean_acronym(self):
-        merge_first_letter_acronym = self.cleaned_data.get('first_letter', "") + self.cleaned_data.get('acronym', "")
-        acronym = merge_first_letter_acronym.upper()
-        if not re.match(LEARNING_UNIT_ACRONYM_REGEX_FULL, acronym):
+    def clean_acronym(self, regex=LEARNING_UNIT_ACRONYM_REGEX_ALL):
+        acronym = _merge_first_letter_and_acronym(self.cleaned_data.get('first_letter', ""),
+                                                  self.cleaned_data.get('acronym', ""))
+        if not re.match(regex, acronym):
             self.add_error('acronym', _('invalid_acronym'))
         return acronym
 
@@ -159,7 +165,7 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
         # When we create a learning unit, we can only select requirement entity which are attached to the person
         self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
         if person.user.groups.filter(name='faculty_managers').exists():
-            self.fields["container_type"].choices = create_faculty_learning_container_type_list()
+            self.fields["container_type"].choices = _create_faculty_learning_container_type_list()
             self.fields.pop('internship_subtype')
 
     def clean(self):
@@ -180,6 +186,9 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
             self.add_error('academic_year',
                            _('learning_unit_creation_academic_year_max_error').format(academic_year_max))
         return academic_year
+
+    def clean_acronym(self, regex=LEARNING_UNIT_ACRONYM_REGEX_FULL):
+        return super().clean_acronym(regex)
 
 
 class CreatePartimForm(CreateLearningUnitYearForm):
@@ -203,9 +212,9 @@ class CreatePartimForm(CreateLearningUnitYearForm):
             if self.fields.get(field):
                 self.fields[field].widget.attrs[READONLY_ATTR] = READONLY_ATTR
 
-    def clean_acronym(self):
+    def clean_acronym(self, regex=LEARNING_UNIT_ACRONYM_REGEX_PARTIM):
         acronym = super().clean_acronym()
         acronym += self.data['partim_character'].upper()
-        if not re.match(LEARNING_UNIT_ACRONYM_REGEX_PARTIM, acronym):
+        if not re.match(regex, acronym):
             self.add_error('acronym', _('invalid_acronym'))
         return acronym
