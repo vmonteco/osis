@@ -120,12 +120,13 @@ class PermsTestCase(TestCase):
         a_proposal.save()
         self.assertFalse(perms.is_eligible_to_edit_proposal(a_proposal, a_person))
 
-        a_proposal.type = proposal_type.ProposalType.MODIFICATION.name
-        a_proposal.save()
+        PersonEntityFactory(entity=an_requirement_entity, person=a_person)
         self.assertFalse(perms.is_eligible_to_edit_proposal(a_proposal, a_person))
 
-        PersonEntityFactory(entity=an_requirement_entity, person=a_person)
-        self.assertTrue(perms.is_eligible_to_edit_proposal(a_proposal, a_person))
+        for a_type in perms.PROPOSAL_TYPE_ACCEPTED_FOR_UPDATE:
+            a_proposal.type = a_type
+            a_proposal.save()
+            self.assertTrue(perms.is_eligible_to_edit_proposal(a_proposal, a_person))
 
 
     def get_person(self, group_name):
