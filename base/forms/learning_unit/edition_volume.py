@@ -95,7 +95,7 @@ class VolumeEditionForm(forms.Form):
 
     def _disable_central_manager_fields(self):
         for key, field in self.fields.items():
-            if not key in self._faculty_manager_fields:
+            if key not in self._faculty_manager_fields:
                 field.disabled = True
 
     def _add_entity_fields(self, key):
