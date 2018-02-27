@@ -181,17 +181,17 @@ class LearningUnitYearTest(TestCase):
         self.assertEqual(learning_unit_year.search(title=a_specific_title)[0], luy)
 
 
-    def test_find_min_credits_of_partims(self):
+    def test_find_max_credits_of_partims(self):
         self.partim_1 = LearningUnitYearFactory(academic_year=self.academic_year,
                                                 learning_container_year=self.learning_unit_year.learning_container_year,
                                                 subtype=learning_unit_year_subtypes.PARTIM, credits=15)
         self.partim_2 = LearningUnitYearFactory(academic_year=self.academic_year,
                                                 learning_container_year=self.learning_unit_year.learning_container_year,
                                                 subtype=learning_unit_year_subtypes.PARTIM, credits=20)
-        min_credits = find_max_credits_of_related_partims(self.learning_unit_year)
-        self.assertEqual(min_credits, 20)
+        max_credits = find_max_credits_of_related_partims(self.learning_unit_year)
+        self.assertEqual(max_credits, 20)
 
-    def test_find_min_credits_of_partims_when_no_partims_related(self):
-        min_credits = find_max_credits_of_related_partims(self.learning_unit_year)
-        self.assertEqual(min_credits, None)
+    def test_find_max_credits_of_partims_when_no_partims_related(self):
+        max_credits = find_max_credits_of_related_partims(self.learning_unit_year)
+        self.assertEqual(max_credits, None)
 
