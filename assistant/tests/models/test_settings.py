@@ -24,18 +24,15 @@
 #
 ##############################################################################
 import factory
+from django.test import TestCase
+from assistant.tests.factories import review
+from assistant.models.enums import review_advice_choices
+from assistant.models.review import find_by_reviewer_for_mandate
 
-from base.tests.factories.person import PersonFactory
-from base.tests.factories.entity import EntityFactory
-from assistant.models.enums import reviewer_role
+class TestReviewFactory(TestCase):
 
+    def setUp(self):
+        self.review = review.ReviewFactory()
 
-class ReviewerFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = 'assistant.Reviewer'
-        django_get_or_create = ('entity',)
-
-    role = factory.Iterator(reviewer_role.ROLE_CHOICES, getter=lambda c: c[0])
-    person = factory.SubFactory(PersonFactory, first_name=factory.Sequence(lambda n: 'revfirstname{0}'.format(n)),
-                                last_name=factory.Sequence(lambda n: 'revlastname{0}'.format(n)))
-    entity = factory.SubFactory(EntityFactory)
+    def test_review_by_reviewer_for_mandate(self):
+        self.assertEqual(self.review, find_by_reviewer_for_mandate(self.review.reviewer, self.review.mandate))
