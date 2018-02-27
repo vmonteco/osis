@@ -214,7 +214,7 @@ class TestLearningUnitModificationForm(TestCase):
     def test_set_minimum_credits_for_full_learning_unit_year(self):
         form = LearningUnitModificationForm(person=None, learning_unit_year_instance=self.learning_unit_year,
                                             initial=self.initial_data)
-        self.assertEqual(form.fields["credits"].min_value, self.learning_unit_year_partim_2.credits)
+        self.assertEqual(form.fields["credits"].min_value, self.learning_unit_year_partim_1.credits)
 
     def test_do_not_set_minimum_credits_for_full_learning_unit_year_if_no_partims(self):
         learning_unit_year_with_no_partims = LearningUnitYearFactory(academic_year=self.current_academic_year,
