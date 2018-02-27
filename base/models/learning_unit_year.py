@@ -231,5 +231,6 @@ def check_if_acronym_regex_is_valid(acronym):
     if isinstance(acronym, str):
         return re.fullmatch(REGEX_ACRONYM_CHARSET, acronym.upper())
 
+
 def find_min_credits_between_related_partims(a_learning_unit_year):
-    return  a_learning_unit_year.get_partims_related().aggregate(min_credits=models.Min("credits"))["min_credits"]
+    return a_learning_unit_year.get_partims_related().aggregate(min_credits=models.Min("credits"))["min_credits"]

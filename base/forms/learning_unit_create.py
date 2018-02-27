@@ -85,6 +85,7 @@ class MaxStrictlyValueValidator(BaseValidator):
     def compare(self, a, b):
         return a >= b
 
+
 class MinStrictlyValueValidator(BaseValidator):
     message = _('Ensure this value is greater than %(limit_value)s.')
     code = 'min_strictly_value'
