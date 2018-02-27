@@ -35,7 +35,7 @@
     <div class="panel panel-default">
         <div class="panel-body">
         {% url 'learning_unit_summary_edit' learning_unit_year_id=learning_unit_year.id as post_url%}
-        {% include "learning_unit/components/panel_educational_informations.html" with can_edit_information=True %}
+        {% include "learning_unit/blocks/panel_educational_informations.html" with can_edit_information=True %}
         </div>
     </div>
     <div class="modal fade" id="pedagogy_edit" role="dialog" data-backdrop="static"></div>

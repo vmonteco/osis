@@ -27,14 +27,16 @@ from base.models import entity_container_year, proposal_learning_unit, entity, p
 from base.models.academic_year import current_academic_year
 from base.models.enums import entity_container_year_link_type, learning_unit_year_subtypes, proposal_state, \
     proposal_type, learning_container_year_types
-from base.models.enums.learning_container_year_types import COURSE, DISSERTATION, INTERNSHIP
 from base.models.enums.learning_unit_year_subtypes import PARTIM
 from base.models.learning_unit import is_old_learning_unit
 from base.models.utils.person_entity_filter import filter_by_attached_entities
 
-AUTHORIZED_TYPE_FOR_MODIFICATION_PROPOSAL = (learning_container_year_types.COURSE,
-                                             learning_container_year_types.DISSERTATION,
-                                             learning_container_year_types.INTERNSHIP)
+TYPES_PROPOSAL_NEEDED_TO_EDIT = (learning_container_year_types.COURSE,
+                                 learning_container_year_types.DISSERTATION,
+                                 learning_container_year_types.INTERNSHIP)
+PROPOSAL_TYPE_ACCEPTED_FOR_UPDATE = (proposal_type.ProposalType.CREATION.name,
+                                     proposal_type.ProposalType.MODIFICATION.name,
+                                     proposal_type.ProposalType.TRANSFORMATION.name)
 
 
 def is_person_linked_to_entity_in_charge_of_learning_unit(a_learning_unit_year, a_person):
@@ -45,17 +47,14 @@ def is_person_linked_to_entity_in_charge_of_learning_unit(a_learning_unit_year, 
     return filter_by_attached_entities(a_person, entity_containers_year).exists()
 
 
-def is_eligible_for_modification_proposal(learn_unit_year, a_person):
-    proposal = proposal_learning_unit.find_by_learning_unit_year(learn_unit_year)
-    current_year = current_academic_year().year
-
-    if learn_unit_year.academic_year.year < current_year or \
+def is_eligible_to_create_modification_proposal(learn_unit_year, a_person):
+    if _learning_unit_year_is_past(learn_unit_year) or \
             learn_unit_year.subtype == learning_unit_year_subtypes.PARTIM:
         return False
     if learn_unit_year.learning_container_year and \
-            learn_unit_year.learning_container_year.container_type not in AUTHORIZED_TYPE_FOR_MODIFICATION_PROPOSAL:
+            learn_unit_year.learning_container_year.container_type not in TYPES_PROPOSAL_NEEDED_TO_EDIT:
         return False
-    if proposal:
+    if _learning_unit_year_is_on_proposal(learn_unit_year):
         return False
     return is_person_linked_to_entity_in_charge_of_learning_unit(learn_unit_year, a_person)
 
@@ -76,6 +75,17 @@ def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
     return is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_proposal.learning_unit_year, a_person)
 
 
+def is_eligible_to_edit_proposal(proposal, a_person):
+    if not proposal:
+        return False
+    if a_person.is_faculty_manager() and \
+            (proposal.state != proposal_state.ProposalState.FACULTY.name or
+             proposal.type not in PROPOSAL_TYPE_ACCEPTED_FOR_UPDATE or
+             not is_person_linked_to_entity_in_charge_of_learning_unit(proposal.learning_unit_year, a_person)):
+            return False
+    return a_person.user.has_perm('base.can_edit_learning_unit_proposal')
+
+
 def is_eligible_for_modification_end_date(learn_unit_year, a_person):
     if is_old_learning_unit(learn_unit_year.learning_unit):
         return False
@@ -86,7 +96,27 @@ def is_eligible_for_modification_end_date(learn_unit_year, a_person):
     return is_person_linked_to_entity_in_charge_of_learning_unit(learn_unit_year, a_person)
 
 
+def is_eligible_for_modification(learn_unit_year, pers):
+    if _learning_unit_year_is_past(learn_unit_year):
+        return False
+    if _learning_unit_year_is_on_proposal(learn_unit_year):
+        return False
+    return is_person_linked_to_entity_in_charge_of_learning_unit(learn_unit_year, pers)
+
+
 def _can_faculty_manager_modify_end_date(learning_unit_year):
-    if learning_unit_year.learning_container_year.container_type == COURSE and learning_unit_year.subtype == PARTIM:
-        return True
-    return learning_unit_year.learning_container_year.container_type not in [COURSE, DISSERTATION, INTERNSHIP]
+    if learning_unit_year.learning_container_year:
+        if learning_unit_year.subtype == PARTIM:
+            return True
+        return learning_unit_year.learning_container_year.container_type not in TYPES_PROPOSAL_NEEDED_TO_EDIT
+    return False
+
+
+def _learning_unit_year_is_past(learn_unit_year):
+    current_year = current_academic_year().year
+    return learn_unit_year.academic_year.year < current_year
+
+
+def _learning_unit_year_is_on_proposal(learn_unit_year):
+    proposal = proposal_learning_unit.find_by_learning_unit_year(learn_unit_year)
+    return proposal is not None

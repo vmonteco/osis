@@ -1,0 +1,13 @@
+
+{% load bootstrap3 %}
+{% load i18n %}
+
+<div class="col-md-3">
+    <label for="{{ form.session.id_for_label }}">
+        {% trans 'session_title' %}
+    </label>
+    {{ form.session }}
+    <span class="error">
+        {{ form.session.errors }}
+    </span>
+</div>

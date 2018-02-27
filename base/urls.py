@@ -28,10 +28,13 @@ from django.conf.urls import url, include
 from django.conf.urls.static import static
 
 import base.views.learning_unit_deletion
+import base.views.learning_units.edition
+import base.views.learning_units.search
 from attribution.views import attribution, tutor_application
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group, learning_unit_proposal
 from base.views.learning_units import edition
+from base.views.learning_units.proposal import creation
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -81,13 +84,21 @@ urlpatterns = [
     ])),
 
     url(r'^learning_units/', include([
-        url(r'^$', learning_unit.learning_units, name='learning_units'),
-        url(r'^by_activity/', learning_unit.learning_units, name='learning_units_activity'),
-        url(r'^by_service_course/', learning_unit.learning_units_service_course, name='learning_units_service_course'),
+        url(r'^$', base.views.learning_units.search.learning_units, name='learning_units'),
+        url(r'^by_activity/', base.views.learning_units.search.learning_units, name='learning_units_activity'),
+        url(r'^by_service_course/', base.views.learning_units.search.learning_units_service_course,
+            name='learning_units_service_course'),
+        url(r'^by_proposal/', base.views.learning_units.search.learning_units_proposal_search,
+            name='learning_units_proposal'),
         url(r'^new/', include([
             url(r'^academic_year_id=(?P<academic_year>[0-9]+)$', learning_unit.learning_unit_create,
                 name="learning_unit_create"),
             url(r'^learning_unit_year_add/$', learning_unit.learning_unit_year_add, name='learning_unit_year_add'),
+            url(r'^proposal/academic_year_id=(?P<academic_year>[0-9]+)$',
+                creation.get_proposal_learning_unit_creation_form,
+                name="proposal_learning_unit_creation_form"),
+            url(r'^proposal_learning_unit_add/$', creation.proposal_learning_unit_add,
+                name='proposal_learning_unit_add'),
         ])),
         url(r'^(?P<learning_unit_year_id>[0-9]+)/', include([
             url(r'^$', learning_unit.learning_unit_identification, name='learning_unit'),
@@ -100,18 +111,19 @@ urlpatterns = [
             url(r'^proposal/', include([
                 url(r'^modification/$', learning_unit_proposal.propose_modification_of_learning_unit,
                     name="learning_unit_modification_proposal"),
+                url(r'^edit/$', learning_unit_proposal.edit_learning_unit_proposal, name="edit_proposal"),
                 url(r'^cancel/$', learning_unit_proposal.cancel_proposal_of_learning_unit,
-                    name="learning_unit_cancel_proposal")
+                    name="learning_unit_cancel_proposal"),
             ])),
             url(r'^edit/$', edition.learning_unit_edition, name="learning_unit_edition"),
+            url(r'^modify/$', edition.modify_learning_unit, name="edit_learning_unit"),
             url(r'^specifications/$', learning_unit.learning_unit_specifications, name="learning_unit_specifications"),
             url(r'^specifications/edit/$', learning_unit.learning_unit_specifications_edit,
                 name="learning_unit_specifications_edit"),
             url(r'^component/edit/$', learning_unit.learning_unit_component_edit, name="learning_unit_component_edit"),
             url(r'^class/edit/$', learning_unit.learning_class_year_edit, name="learning_class_year_edit"),
-            url(r'^volumes/', include([
-                url(u'^$', learning_unit.learning_unit_volumes_management, name="learning_unit_volumes_management"),
-                url(u'^validation/$', learning_unit.volumes_validation, name="volumes_validation")])),
+            url(r'^volumes/', base.views.learning_units.edition.learning_unit_volumes_management,
+                name="learning_unit_volumes_management"),
             url(r'^delete/$', base.views.learning_unit_deletion.delete_from_given_learning_unit_year,
                 name="learning_unit_delete"),
             url(r'^delete_full/$', base.views.learning_unit_deletion.delete_all_learning_units_year,
@@ -123,9 +135,11 @@ urlpatterns = [
                 url(r'^add/$', learning_unit.learning_unit_year_partim_add, name='learning_unit_year_partim_add')
             ])),
         ])),
-        url(r'^check/$', learning_unit.check_acronym, name="check_acronym"),
+        url(r'^check/(?P<type>[A-Z]+)$', learning_unit.check_acronym, name="check_acronym"),
         url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
     ])),
+    url(r'^proposals/search/$', base.views.learning_units.search.learning_units_proposal_search,
+        name="learning_unit_proposal_search"),
 
     url(r'^my_osis/', include([
         url(r'^$', my_osis.my_osis_index, name="my_osis"),
@@ -215,4 +229,4 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns +=  static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

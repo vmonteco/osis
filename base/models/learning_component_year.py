@@ -25,10 +25,10 @@
 ##############################################################################
 from django.db import models
 
-from attribution.models.attribution_charge_new import AttributionChargeNew
-from base.models.enums import learning_component_year_type, learning_container_year_types
 from base.models import learning_class_year
+from base.models.enums import learning_component_year_type, learning_container_year_types
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
+
 
 class LearningComponentYearAdmin(AuditableSerializableModelAdmin):
     list_display = ('learning_container_year', 'title', 'acronym', 'type', 'comment')
@@ -41,6 +41,7 @@ class LearningComponentYearAdmin(AuditableSerializableModelAdmin):
 
 class LearningComponentYear(AuditableSerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
+    changed = models.DateTimeField(null=True, auto_now=True)
     learning_container_year = models.ForeignKey('LearningContainerYear')
     title = models.CharField(max_length=255, blank=True, null=True)
     acronym = models.CharField(max_length=4, blank=True, null=True)
@@ -74,9 +75,6 @@ class LearningComponentYear(AuditableSerializableModel):
     @property
     def real_classes(self):
         return len(learning_class_year.find_by_learning_component_year(self))
-
-    def get_attributions_charge(self):
-        return AttributionChargeNew.objects.filter(learning_component_year=self).select_related('attribution__tutor')
 
 
 def find_by_id(learning_component_year_id):

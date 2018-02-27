@@ -27,6 +27,8 @@
 {% if "base" in perms %}
 <div class="panel-footer text-right">
     <!-- Dropdown to select actions to apply on learning unit -->
+    {% url "edit_proposal" learning_unit_year_id=learning_unit_year.id as url_edit_proposal %}
+
     <div class="dropdown dropup">
         <button id="dLabel" class="btn btn-default" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> {% trans 'actions' %}
@@ -39,11 +41,24 @@
                     {% trans 'Put in proposal' %}
                 </a>
             </li>
+            <li {% if not can_edit_learning_unit_proposal %}class="disabled"{% endif %}>
+                <a {% if can_edit_learning_unit_proposal %} href="{{ url_edit_proposal }}" {% endif %}>
+                    {% trans 'edit_proposal' %}
+                </a>
+            </li>
             <li {% if not can_cancel_proposal %}class="disabled"{% endif %}>
                 <a {% if can_cancel_proposal %}  href="#" data-toggle="modal" data-target="#modalCancelProposal" {% endif %}>
                     {% trans 'cancel_proposal' %}
                 </a>
             </li>
+            {% endif %}
+            {% if "base.can_edit_learningunit" in perms %}
+                <li class="divider"></li>
+                <li {% if not can_edit %}class="disabled"{% endif %}>
+                    <a {% if can_edit%} href="{% url "edit_learning_unit" learning_unit_year_id=learning_unit_year.id %}" {% endif %}>
+                        {% trans 'edit_learning_unit' %}
+                    </a>
+                </li>
             {% endif %}
             {% if "base.can_edit_learningunit_date" in perms %}
                 <li class="divider"></li>
@@ -62,10 +77,10 @@
                     <a  {% if can_delete %} href="{% url 'learning_unit_delete_all' learning_unit_year_id=learning_unit_year.id %}" {% endif %}>{% trans 'Delete all the learning unit' %}</a>
                 </li>
             {% endif %}
-            {% if "base.can_create_learningunit" in perms and learning_unit_year.subtype == 'FULL' and is_person_linked_to_entity %}
+            {% if "base.can_create_learningunit" in perms and learning_unit_year.subtype == 'FULL' %}
                 <li class="divider"></li>
-                <li>
-                    <a href="{% url 'learning_unit_create_partim' learning_unit_year_id=learning_unit_year.id %}">{% trans 'new_partim' %}</a>
+                <li {% if not is_person_linked_to_entity %}class="disabled"{% endif %}>
+                    <a {% if is_person_linked_to_entity %} href="{% url 'learning_unit_create_partim' learning_unit_year_id=learning_unit_year.id %}" {% endif %}>{% trans 'new_partim' %}</a>
                 </li>
             {% endif %}
         </ul>

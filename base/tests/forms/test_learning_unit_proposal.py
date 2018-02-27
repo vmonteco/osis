@@ -24,28 +24,29 @@
 #
 ##############################################################################
 import datetime
-
 from decimal import Decimal
+
+from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
-from base.tests.factories.academic_year import create_current_academic_year
 
-from base.tests.factories.campus import CampusFactory
-from base.tests.factories.learning_container_year import LearningContainerYearFactory
-from base.tests.factories.person import PersonFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
-from base.tests.factories.entity_version import EntityVersionFactory
-from base.tests.factories.entity import EntityFactory
-from base.tests.factories.organization import OrganizationFactory
-from base.tests.factories.entity_container_year import EntityContainerYearFactory
-from base.tests.factories.proposal_folder import ProposalFolderFactory
+from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
+from base.models import proposal_folder, proposal_learning_unit, entity_container_year
+from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import organization_type, proposal_type, proposal_state, entity_type, \
     learning_container_year_types, learning_unit_year_quadrimesters, entity_container_year_link_type, \
     learning_unit_periodicity, internship_subtypes, learning_unit_year_subtypes
-from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
+from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.campus import CampusFactory
+from base.tests.factories.entity import EntityFactory
+from base.tests.factories.entity_container_year import EntityContainerYearFactory
+from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
+from base.tests.factories.organization import OrganizationFactory
+from base.tests.factories.person import PersonFactory
+from base.tests.factories.proposal_folder import ProposalFolderFactory
 from reference.tests.factories.language import LanguageFactory
-from base.models import proposal_folder, proposal_learning_unit, entity_container_year
-
 
 PROPOSAL_TYPE = proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name
 PROPOSAL_STATE = proposal_state.ProposalState.FACULTY.name
@@ -130,10 +131,10 @@ class TestSave(TestCase):
                          "{}{}".format(self.form_data['first_letter'], self.form_data['acronym']))
 
     def _assert_common_titles_stored_in_container(self):
-        self.assertNotEqual(self.learning_unit_year.title, self.form_data['common_title'])
-        self.assertNotEqual(self.learning_unit_year.title_english, self.form_data['common_title_english'])
-        self.assertEqual(self.learning_unit_year.learning_container_year.title, self.form_data['common_title'])
-        self.assertEqual(self.learning_unit_year.learning_container_year.title_english,
+        self.assertNotEqual(self.learning_unit_year.specific_title, self.form_data['common_title'])
+        self.assertNotEqual(self.learning_unit_year.specific_title_english, self.form_data['common_title_english'])
+        self.assertEqual(self.learning_unit_year.learning_container_year.common_title, self.form_data['common_title'])
+        self.assertEqual(self.learning_unit_year.learning_container_year.common_title_english,
                          self.form_data['common_title_english'])
 
     def test_learning_container_update(self):
@@ -145,8 +146,8 @@ class TestSave(TestCase):
 
         self.assertEqual(learning_container_year.acronym,
                          "{}{}".format(self.form_data['first_letter'], self.form_data['acronym']))
-        self.assertEqual(learning_container_year.title, self.form_data['common_title'])
-        self.assertEqual(learning_container_year.title_english, self.form_data['common_title_english'])
+        self.assertEqual(learning_container_year.common_title, self.form_data['common_title'])
+        self.assertEqual(learning_container_year.common_title_english, self.form_data['common_title_english'])
         self.assertEqual(learning_container_year.language, self.language)
         self.assertEqual(learning_container_year.campus, self.campus)
 
@@ -220,8 +221,8 @@ class TestSave(TestCase):
             "learning_container_year": {
                 "id": self.learning_unit_year.learning_container_year.id,
                 "acronym": self.learning_unit_year.acronym,
-                "title": self.learning_unit_year.learning_container_year.title,
-                "title_english": self.learning_unit_year.learning_container_year.title_english,
+                "common_title": self.learning_unit_year.learning_container_year.common_title,
+                "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
                 "container_type": self.learning_unit_year.learning_container_year.container_type,
                 "campus": self.learning_unit_year.learning_container_year.campus.id,
                 "language": self.learning_unit_year.learning_container_year.language.id,
@@ -230,11 +231,12 @@ class TestSave(TestCase):
             "learning_unit_year": {
                 "id": self.learning_unit_year.id,
                 "acronym": self.learning_unit_year.acronym,
-                "title": self.learning_unit_year.title,
-                "title_english": self.learning_unit_year.title_english,
+                "specific_title": self.learning_unit_year.specific_title,
+                "specific_title_english": self.learning_unit_year.specific_title_english,
                 "internship_subtype": self.learning_unit_year.internship_subtype,
                 "credits": self.learning_unit_year.credits,
                 "quadrimester": self.learning_unit_year.quadrimester,
+                "status": self.learning_unit_year.status
             },
             "learning_unit": {
                 "id": self.learning_unit_year.learning_unit.id,
@@ -259,9 +261,26 @@ class TestSave(TestCase):
 
         self.assertDictEqual(a_proposal_learning_unt.initial_data, initial_data_expected)
 
+    def test_when_setting_additional_entity_to_none(self):
+        EntityContainerYearFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year,
+            type=entity_container_year_link_type.ALLOCATION_ENTITY
+        )
+        EntityContainerYearFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year,
+            type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1
+        )
+        form = LearningUnitProposalModificationForm(self.form_data)
+        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
+
+        with self.assertRaises(ObjectDoesNotExist):
+            EntityContainerYear.objects.get(learning_container_year=self.learning_unit_year.learning_container_year,
+                                            type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
+
     def test_internship_subtype(self):
         self.form_data["internship_subtype"] = internship_subtypes.TEACHING_INTERNSHIP
         form = LearningUnitProposalModificationForm(self.form_data)
 
         self.assertFalse(form.is_valid())
         self.assertIn(_("learning_unit_type_is_not_internship"), form.errors["internship_subtype"])
+
