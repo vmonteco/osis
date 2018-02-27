@@ -31,6 +31,7 @@ from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUn
 from base.models.enums import learning_unit_periodicity, learning_unit_year_subtypes, learning_container_year_types, \
     organization_type, entity_type, internship_subtypes
 from base.models.enums.learning_unit_periodicity import ANNUAL
+from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import LearningUnitsMixin
 from base.tests.factories.campus import CampusFactory
@@ -102,7 +103,18 @@ class TestLearningUnitModificationForm(TestCase):
         cls.learning_unit_year = LearningUnitYearFactory(academic_year=cls.current_academic_year,
                                                          learning_container_year=cls.learning_container_year,
                                                          learning_unit__periodicity=ANNUAL,
+                                                         subtype=FULL,
                                                          credits=25, status=False)
+        cls.learning_unit_year_partim_1 = LearningUnitYearFactory(academic_year=cls.current_academic_year,
+                                                                learning_container_year=cls.learning_container_year,
+                                                                learning_unit__periodicity=ANNUAL,
+                                                                subtype=PARTIM,
+                                                                credits=20, status=False)
+        cls.learning_unit_year_partim_2 = LearningUnitYearFactory(academic_year=cls.current_academic_year,
+                                                                  learning_container_year=cls.learning_container_year,
+                                                                  learning_unit__periodicity=ANNUAL,
+                                                                  subtype=PARTIM,
+                                                                  credits=18, status=False)
 
         cls.organization = OrganizationFactory(type=organization_type.MAIN)
         a_campus = CampusFactory(organization=cls.organization)
@@ -182,20 +194,35 @@ class TestLearningUnitModificationForm(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_set_max_credits(self):
-        form = LearningUnitModificationForm(parent=self.learning_unit_year, person=None, initial=self.initial_data)
+        form = LearningUnitModificationForm(learning_unit_year_instance=self.learning_unit_year_partim_1, person=None,
+                                            initial=self.initial_data)
         self.assertEqual(form.fields["credits"].max_value, self.learning_unit_year.credits)
 
     def test_set_status_value(self):
-        form = LearningUnitModificationForm(parent=self.learning_unit_year, person=None, initial=self.initial_data)
+        form = LearningUnitModificationForm(learning_unit_year_instance=self.learning_unit_year_partim_1, person=None,
+                                            initial=self.initial_data)
         self.assertEqual(form.fields["status"].initial, False)
         self.assertTrue(form.fields["status"].disabled)
 
     def test_partim_can_modify_periodicity(self):
         initial_data_with_subtype_partim = self.initial_data.copy()
         initial_data_with_subtype_partim["subtype"] = learning_unit_year_subtypes.PARTIM
-        form = LearningUnitModificationForm(parent=self.learning_unit_year, person=None,
+        form = LearningUnitModificationForm(learning_unit_year_instance=self.learning_unit_year_partim_1, person=None,
                                             initial=initial_data_with_subtype_partim)
         self.assertFalse(form.fields["periodicity"].disabled)
+
+    def test_set_minimum_credits_for_full_learning_unit_year(self):
+        form = LearningUnitModificationForm(person=None, learning_unit_year_instance=self.learning_unit_year,
+                                            initial=self.initial_data)
+        self.assertEqual(form.fields["credits"].min_value, self.learning_unit_year_partim_1.credits)
+
+    def test_do_not_set_minimum_credits_for_full_learning_unit_year_if_no_partims(self):
+        learning_unit_year_with_no_partims = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                                     learning_unit__periodicity=ANNUAL,
+                                                                     subtype=FULL)
+        form = LearningUnitModificationForm(person=None, learning_unit_year_instance=learning_unit_year_with_no_partims,
+                                            initial=self.initial_data)
+        self.assertEqual(form.fields["credits"].min_value, None)
 
     def test_entity_does_not_exist_for_lifetime_of_learning_unit_with_no_planned_end(self):
         an_other_entity = EntityFactory(organization=self.organization)

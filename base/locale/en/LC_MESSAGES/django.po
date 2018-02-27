@@ -2539,6 +2539,9 @@ msgstr "Remark in english"
 msgid "Ensure this value is less than %(limit_value)s."
 msgstr "Ensure this value is less than %(limit_value)s."
 
+msgid "Ensure this value is greater than %(limit_value)s."
+msgstr "Ensure this value is greater than %(limit_value)s."
+
 msgid "Entity_not_exist"
 msgstr "The entity %(entity_acronym)s does not exist for the selected academic year %(academic_year)s"
 
@@ -2613,6 +2616,9 @@ msgstr "Please enter a value less than or equal to 500."
 
 msgid "force_state"
 msgstr "Force state"
+
+msgid "do_you_want_change_status_proposals"
+msgstr "Do you want to change the status of this proposals?"
 
 msgid "are_you_sure_to_change_state_from"
 msgstr "Are you sure to change the state from"

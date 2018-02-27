@@ -26,8 +26,10 @@
 from django.test import TestCase
 from django.utils import timezone
 from attribution.models import attribution
+
 from base.models import learning_unit_year
 from base.models.enums import learning_unit_year_subtypes
+from base.models.learning_unit_year import find_max_credits_of_related_partims
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.academic_year import AcademicYearFactory
@@ -41,7 +43,8 @@ class LearningUnitYearTest(TestCase):
         self.academic_year = AcademicYearFactory(year=timezone.now().year)
         self.learning_unit_year = LearningUnitYearFactory(acronym="LDROI1004",
                                                           specific_title="Juridic law courses",
-                                                          academic_year=self.academic_year)
+                                                          academic_year=self.academic_year,
+                                                          subtype=learning_unit_year_subtypes.FULL)
 
     def test_find_by_tutor_with_none_argument(self):
         self.assertEquals(attribution.find_by_tutor(None), None)
@@ -161,7 +164,6 @@ class LearningUnitYearTest(TestCase):
                                       learning_container_year=None)
         self.assertIsNone(luy.complete_title)
 
-
     def test_search_by_title(self):
         common_part = "commun"
         a_common_title = "Titre {}".format(common_part)
@@ -177,3 +179,19 @@ class LearningUnitYearTest(TestCase):
         self.assertEqual(learning_unit_year.search(title=a_common_title)[0], luy)
         self.assertEqual(learning_unit_year.search(title=common_part)[0], luy)
         self.assertEqual(learning_unit_year.search(title=a_specific_title)[0], luy)
+
+
+    def test_find_max_credits_of_partims(self):
+        self.partim_1 = LearningUnitYearFactory(academic_year=self.academic_year,
+                                                learning_container_year=self.learning_unit_year.learning_container_year,
+                                                subtype=learning_unit_year_subtypes.PARTIM, credits=15)
+        self.partim_2 = LearningUnitYearFactory(academic_year=self.academic_year,
+                                                learning_container_year=self.learning_unit_year.learning_container_year,
+                                                subtype=learning_unit_year_subtypes.PARTIM, credits=20)
+        max_credits = find_max_credits_of_related_partims(self.learning_unit_year)
+        self.assertEqual(max_credits, 20)
+
+    def test_find_max_credits_of_partims_when_no_partims_related(self):
+        max_credits = find_max_credits_of_related_partims(self.learning_unit_year)
+        self.assertEqual(max_credits, None)
+

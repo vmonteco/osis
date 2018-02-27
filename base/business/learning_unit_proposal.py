@@ -176,7 +176,7 @@ def _compare_model_with_initial_value(an_id, model_initial_data, mymodel):
     qs = mymodel.objects.filter(pk=an_id).values()
     if len(qs) > 0:
         differences.update(_check_differences(model_initial_data,
-                                              qs[0]))
+                                              _get_rid_of_blank_value(qs[0])))
     return differences
 
 
@@ -206,7 +206,6 @@ def _get_the_old_value(key, current_data, initial_data):
         return _get_str_representing_old_data_from_foreign_key(key, initial_value)
     else:
         return _get_old_value_when_not_foreign_key(initial_value, key)
-    return {}
 
 
 def _get_str_representing_old_data_from_foreign_key(key, initial_value):
@@ -255,3 +254,10 @@ def _get_old_value_when_not_foreign_key(initial_value, key):
         return _get_status_initial_value(initial_value, key)
     else:
         return {key: "{}".format(initial_value)}
+
+
+def _get_rid_of_blank_value(data):
+    clean_data = {}
+    for k, v in data.items():
+        clean_data.update({k: None}) if v == '' else clean_data.update({k: v})
+    return clean_data
