@@ -2614,5 +2614,8 @@ msgstr "Please enter a value less than or equal to 500."
 msgid "force_state"
 msgstr "Force state"
 
+msgid "do_you_want_change_status_proposals"
+msgstr "Do you want to change the status of this proposals?"
+
 msgid "are_you_sure_to_change_state_from"
 msgstr "Are you sure to change the state from"
