@@ -32,6 +32,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from base.models import academic_year, entity_version
 from base.models.enums import entity_type
+from assistant.business.mandate_entity import get_entities_for_mandate
 from assistant.forms import ReviewForm
 from assistant.models import assistant_mandate, review, tutoring_learning_unit_year, mandate_entity
 from assistant.models import settings, assistant_document_file
@@ -40,18 +41,17 @@ from assistant.models.enums import assistant_mandate_renewal
 
 
 def user_is_phd_supervisor_and_procedure_is_open(user):
-    try:
-        if user.is_authenticated() and settings.access_to_procedure_is_open():
-            return assistant_mandate.find_for_supervisor_for_academic_year(user.person,
-                                                                           academic_year.current_academic_year())
-        else:
-            return False
-    except ObjectDoesNotExist:
+    if user.is_authenticated() \
+            and settings.access_to_procedure_is_open() \
+            and len(assistant_mandate.find_for_supervisor_for_academic_year(
+                user.person, academic_year.current_academic_year())) > 0:
+        return True
+    else:
         return False
 
 
-@require_http_methods(["POST"])
 @user_passes_test(user_is_phd_supervisor_and_procedure_is_open, login_url='access_denied')
+@require_http_methods(["POST"])
 def review_view(request):
     mandate_id = request.POST.get("mandate_id")
     mandate = assistant_mandate.find_mandate_by_id(mandate_id)
@@ -74,9 +74,8 @@ def review_view(request):
                                                 'year': mandate.academic_year.year + 1
                                                 })
 
-
-@require_http_methods(["POST"])
 @user_passes_test(user_is_phd_supervisor_and_procedure_is_open, login_url='access_denied')
+@require_http_methods(["POST"])
 def review_edit(request):
     mandate_id = request.POST.get("mandate_id")
     mandate = assistant_mandate.find_mandate_by_id(mandate_id)
@@ -115,8 +114,8 @@ def review_edit(request):
                                                 'form': form})
 
 
-@require_http_methods(["POST"])
 @user_passes_test(user_is_phd_supervisor_and_procedure_is_open, login_url='access_denied')
+@require_http_methods(["POST"])
 def review_save(request):
     mandate_id = request.POST.get("mandate_id")
     review_id = request.POST.get("review_id")
@@ -129,16 +128,7 @@ def review_save(request):
     if form.is_valid():
         current_review = form.save(commit=False)
         if 'validate_and_submit' in request.POST:
-            current_review.status = review_status.DONE
-            current_review.save()
-            if mandate_entity.find_by_mandate_and_type(mandate, entity_type.INSTITUTE):
-                mandate.state = assistant_mandate_state.RESEARCH
-            elif mandate_entity.find_by_mandate_and_type(mandate, entity_type.POLE):
-                mandate.state = assistant_mandate_state.RESEARCH
-            else:
-                mandate.state = assistant_mandate_state.SUPERVISION
-            mandate.save()
-            return HttpResponseRedirect(reverse("phd_supervisor_assistants_list"))
+            validate_review_and_update_mandate(current_review, mandate)
         elif 'save' in request.POST:
             current_review.status = review_status.IN_PROGRESS
             current_review.save()
@@ -158,8 +148,21 @@ def review_save(request):
                                                     'form': form})
 
 
-@require_http_methods(["POST"])
+def validate_review_and_update_mandate(review, mandate):
+    review.status = review_status.DONE
+    review.save()
+    if mandate_entity.find_by_mandate_and_type(mandate, entity_type.INSTITUTE):
+        mandate.state = assistant_mandate_state.RESEARCH
+    elif mandate_entity.find_by_mandate_and_type(mandate, entity_type.POLE):
+        mandate.state = assistant_mandate_state.RESEARCH
+    else:
+        mandate.state = assistant_mandate_state.SUPERVISION
+    mandate.save()
+    return HttpResponseRedirect(reverse("phd_supervisor_assistants_list"))
+
+
 @user_passes_test(user_is_phd_supervisor_and_procedure_is_open, login_url='access_denied')
+@require_http_methods(["POST"])
 def pst_form_view(request):
     mandate_id = request.POST.get("mandate_id")
     mandate = assistant_mandate.find_mandate_by_id(mandate_id)
@@ -167,14 +170,7 @@ def pst_form_view(request):
     current_person = request.user.person
     learning_units = tutoring_learning_unit_year.find_by_mandate(mandate)
     assistant = mandate.assistant
-    entities = []
-    entities_id = mandate.mandateentity_set.all().order_by('id')
-    for this_entity in entities_id:
-        current_entityversion = entity_version.get_by_entity_and_date(
-            this_entity.entity, academic_year.current_academic_year().start_date)[0]
-        if current_entityversion is None:
-            current_entityversion = entity_version.get_last_version(this_entity.entity)
-        entities.append(current_entityversion)
+    entities = get_entities_for_mandate(mandate)
     phd_files = assistant_document_file.find_by_assistant_mandate_and_description(mandate,
                                                                                   document_type.PHD_DOCUMENT)
     research_files = assistant_document_file.find_by_assistant_mandate_and_description(mandate,

@@ -24,21 +24,15 @@
 #
 ##############################################################################
 import datetime
-from unittest import mock
-from django.test import TestCase, RequestFactory, Client
-from django.core.urlresolvers import reverse
 from django.contrib import auth
+from django.test import TestCase, RequestFactory, Client
 
 from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.person import PersonFactory
 from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.person import PersonFactory
 from base.models.enums import entity_type
-from base.tests.factories.entity import EntityFactory
-from reference.tests.factories.country import CountryFactory
 
 
-from assistant.views.phd_supervisor_review import generate_phd_supervisor_menu_tabs
-from assistant.views.phd_supervisor_review import user_is_phd_supervisor_and_procedure_is_open
 from assistant.tests.factories.review import ReviewFactory
 from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 from assistant.tests.factories.mandate_entity import MandateEntityFactory
@@ -46,6 +40,9 @@ from assistant.tests.factories.reviewer import ReviewerFactory
 from assistant.tests.factories.academic_assistant import AcademicAssistantFactory
 from assistant.tests.factories.settings import SettingsFactory
 from assistant.models.enums import assistant_mandate_state, review_status, reviewer_role
+from assistant.views.reviewer_review import user_is_reviewer_and_procedure_is_open
+from assistant.views.reviewer_review import validate_review_and_update_mandate
+from assistant.views.reviewer_review import generate_reviewer_menu_tabs
 
 
 class ReviewerReviewViewTestCase(TestCase):
@@ -59,37 +56,58 @@ class ReviewerReviewViewTestCase(TestCase):
         self.current_academic_year = AcademicYearFactory(start_date=today,
                                                          end_date=today.replace(year=today.year + 1),
                                                          year=today.year)
-        self.assistant = AcademicAssistantFactory()
+        self.current_academic_year.save()
+        self.phd_supervisor = PersonFactory()
+        self.assistant = AcademicAssistantFactory(supervisor=self.phd_supervisor)
+
         self.assistant_mandate = AssistantMandateFactory(academic_year=self.current_academic_year,
                                                          assistant=self.assistant,
                                                          state=assistant_mandate_state.RESEARCH)
+        self.assistant_mandate2 = AssistantMandateFactory(academic_year=self.current_academic_year,
+                                                         assistant=self.assistant,
+                                                         state=assistant_mandate_state.RESEARCH)
+        self.phd_supervisor_review = ReviewFactory(reviewer=None, mandate=self.assistant_mandate,
+                                                     status=review_status.DONE)
         self.entity_version = EntityVersionFactory(entity_type=entity_type.INSTITUTE)
-        self.entity = self.entity_version.entity
         self.entity_mandate = MandateEntityFactory(assistant_mandate=self.assistant_mandate,
-                                                   entity=self.entity)
+                                                   entity=self.entity_version.entity)
+        self.entity_mandate2 = MandateEntityFactory(assistant_mandate=self.assistant_mandate2,
+                                                   entity=self.entity_version.entity)
         self.reviewer = ReviewerFactory(role=reviewer_role.RESEARCH,
-                                        entity=self.entity)
+                                        entity=self.entity_version.entity)
         self.review = ReviewFactory(reviewer=self.reviewer, mandate=self.assistant_mandate,
                                     status=review_status.IN_PROGRESS)
+        self.entity_version2 = EntityVersionFactory(entity_type=entity_type.FACULTY)
+        self.entity_mandate2 = MandateEntityFactory(assistant_mandate=self.assistant_mandate,
+                                                   entity=self.entity_version2.entity)
+        self.reviewer2 = ReviewerFactory(role=reviewer_role.SUPERVISION,
+                                        entity=self.entity_version2.entity)
+        self.entity_version3 = EntityVersionFactory(entity_type=entity_type.SECTOR)
+        self.entity_mandate3 = MandateEntityFactory(assistant_mandate=self.assistant_mandate,
+                                                   entity=self.entity_version3.entity)
+        self.reviewer3 = ReviewerFactory(role=reviewer_role.VICE_RECTOR,
+                                        entity=self.entity_version3.entity)
+
+
+    def test_user_is_reviewer_and_procedure_is_open(self):
+        auth.signals.user_logged_in.disconnect(auth.models.update_last_login)
+        self.client.force_login(self.reviewer)
+        self.assertEquals(user_is_reviewer_and_procedure_is_open(self.reviewer.person.user), True)
+
+    def test_user_is_not_reviewer_and_procedure_is_open(self):
+        auth.signals.user_logged_in.disconnect(auth.models.update_last_login)
+        self.client.force_login(self.assistant)
+        self.assertEquals(user_is_reviewer_and_procedure_is_open(self.assistant.person.user), False)
 
     def test_pst_form_view(self):
         self.client.force_login(self.reviewer.person.user)
         response = self.client.post('/assistants/reviewer/pst_form/', {'mandate_id': self.assistant_mandate.id})
         self.assertEqual(response.status_code, 200)
 
-    def test_review_view(self):
-        self.client.force_login(self.reviewer.person.user)
-        response = self.client.post('/assistants/reviewer/review/view/', {'mandate_id': self.assistant_mandate.id})
-        self.assertEqual(response.status_code, 200)
-
     def test_review_edit(self):
         self.client.force_login(self.reviewer.person.user)
-        response = self.client.post('/assistants/reviewer/review/edit/', {'mandate_id': self.assistant_mandate.id})
+        response = self.client.post('/assistants/reviewer/review/edit/', {'mandate_id': self.assistant_mandate2.id})
         self.assertEqual(response.status_code, 200)
-        self.review.status = review_status.DONE
-        self.review.save()
-        response = self.client.post('/assistants/reviewer/review/edit/',{'mandate_id': self.assistant_mandate.id})
-        self.assertEqual(response.status_code, 302)
 
     def test_review_save(self):
         self.client.force_login(self.reviewer.person.user)
@@ -97,3 +115,50 @@ class ReviewerReviewViewTestCase(TestCase):
                                                                           'review_id': self.review.id
                                                                           })
         self.assertEqual(response.status_code, 200)
+
+    def test_validate_review_and_update_mandate(self):
+        validate_review_and_update_mandate(self.review, self.assistant_mandate)
+        self.assertEqual(self.review.status, review_status.DONE)
+        self.assertEqual(self.assistant_mandate.state, assistant_mandate_state.SUPERVISION)
+        self.review2 = ReviewFactory(reviewer=self.reviewer2, mandate=self.assistant_mandate,
+                                    status=review_status.IN_PROGRESS)
+        validate_review_and_update_mandate(self.review2, self.assistant_mandate)
+        self.assertEqual(self.review2.status, review_status.DONE)
+        self.assertEqual(self.assistant_mandate.state, assistant_mandate_state.VICE_RECTOR)
+        self.review3 = ReviewFactory(reviewer=self.reviewer3, mandate=self.assistant_mandate,
+                                     status=review_status.IN_PROGRESS)
+        validate_review_and_update_mandate(self.review3, self.assistant_mandate)
+        self.assertEqual(self.review3.status, review_status.DONE)
+        self.assertEqual(self.assistant_mandate.state, assistant_mandate_state.DONE)
+
+
+    def test_review_view(self):
+        self.client.force_login(self.reviewer.person.user)
+        response = self.client.post('/assistants/reviewer/review/view/', {'mandate_id': self.assistant_mandate.id,
+                                                                          'role': reviewer_role.PHD_SUPERVISOR})
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post('/assistants/reviewer/review/view/', {'mandate_id': self.assistant_mandate.id,
+                                                                          'role': reviewer_role.RESEARCH})
+        self.assertEqual(response.status_code, 200)
+
+    def test_generate_phd_supervisor_menu_tabs(self):
+        self.client.force_login(self.reviewer)
+        self.assertEqual([{'action': 'view', 'class': '', 'item': 'PHD_SUPERVISOR'},
+                          {'item': 'RESEARCH', 'class': '', 'action': 'edit'}],
+                         generate_reviewer_menu_tabs(reviewer_role.RESEARCH, self.assistant_mandate, None))
+        self.review.status = review_status.DONE
+        self.review.save()
+        self.assistant_mandate.state = assistant_mandate_state.SUPERVISION
+        self.assistant_mandate.save()
+        self.review2 = ReviewFactory(reviewer=self.reviewer2, mandate=self.assistant_mandate,
+                                    status=review_status.IN_PROGRESS)
+        self.assertEqual([{'action': 'view', 'class': '', 'item': 'PHD_SUPERVISOR'},
+                          {'item': 'RESEARCH', 'class': 'active', 'action': 'view'}],
+                         generate_reviewer_menu_tabs(reviewer_role.RESEARCH, self.assistant_mandate,
+                                                     assistant_mandate_state.RESEARCH))
+        self.assertEqual([{'action': 'view', 'class': '', 'item': 'PHD_SUPERVISOR'},
+                          {'item': 'RESEARCH', 'class': '', 'action': 'view'},
+                          {'item': 'SUPERVISION', 'class': '', 'action': 'edit'}],
+                         generate_reviewer_menu_tabs(reviewer_role.SUPERVISION, self.assistant_mandate, None))
+
+

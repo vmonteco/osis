@@ -23,16 +23,20 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
+from django.utils import timezone
 from django.test import TestCase
-from assistant.tests.factories import review
-from assistant.models.enums import review_advice_choices
-from assistant.models.review import find_by_reviewer_for_mandate
+from assistant.tests.factories.settings import SettingsFactory
+from assistant.models.settings import access_to_procedure_is_open
 
-class TestReviewFactory(TestCase):
-
+class TestSettingsFactory(TestCase):
     def setUp(self):
-        self.review = review.ReviewFactory()
+        self.settings = SettingsFactory()
 
-    def test_review_by_reviewer_for_mandate(self):
-        self.assertEqual(self.review, find_by_reviewer_for_mandate(self.review.reviewer, self.review.mandate))
+    def test_access_to_procedure_is_open(self):
+        self.assertEqual(access_to_procedure_is_open(), True)
+
+    def test_access_to_procedure_is_not_open(self):
+        self.settings.starting_date = timezone.now() + timezone.timedelta(days=10)
+        self.settings.ending_date = timezone.now() + timezone.timedelta(days=50)
+        self.settings.save()
+        self.assertEqual(access_to_procedure_is_open(), False)

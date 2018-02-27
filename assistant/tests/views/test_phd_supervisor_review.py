@@ -27,16 +27,23 @@ import datetime
 from unittest import mock
 from django.test import TestCase, RequestFactory, Client
 from django.core.urlresolvers import reverse
+from django.contrib import auth
 
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.person import PersonFactory
+from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.entity import EntityFactory
+from base.models.enums import entity_type
 
 from assistant.views.phd_supervisor_review import generate_phd_supervisor_menu_tabs
+from assistant.views.phd_supervisor_review import user_is_phd_supervisor_and_procedure_is_open
+from assistant.views.phd_supervisor_review import validate_review_and_update_mandate
 from assistant.tests.factories.review import ReviewFactory
 from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
+from assistant.tests.factories.mandate_entity import MandateEntityFactory
 from assistant.tests.factories.academic_assistant import AcademicAssistantFactory
 from assistant.tests.factories.settings import SettingsFactory
-from assistant.models.enums import assistant_mandate_state, review_status
+from assistant.models.enums import assistant_mandate_state, review_status, review_advice_choices
 
 
 class PhdSupervisorReviewViewTestCase(TestCase):
@@ -57,6 +64,20 @@ class PhdSupervisorReviewViewTestCase(TestCase):
         self.assistant_mandate.save()
         self.review = ReviewFactory(reviewer=None, mandate=self.assistant_mandate,
                                     status=review_status.IN_PROGRESS)
+        self.entity1 = EntityFactory()
+        self.entity_version1 = EntityVersionFactory(entity=self.entity1, entity_type=entity_type.INSTITUTE)
+        self.mandate_entity = MandateEntityFactory(assistant_mandate=self.assistant_mandate, entity=self.entity1)
+
+
+    def test_user_is_phd_supervisor_and_procedure_is_open(self):
+        auth.signals.user_logged_in.disconnect(auth.models.update_last_login)
+        self.client.force_login(self.phd_supervisor)
+        self.assertEquals(user_is_phd_supervisor_and_procedure_is_open(self.phd_supervisor.user), True)
+
+    def test_user_is_not_phd_supervisor_and_procedure_is_open(self):
+        auth.signals.user_logged_in.disconnect(auth.models.update_last_login)
+        self.client.force_login(self.assistant)
+        self.assertEquals(user_is_phd_supervisor_and_procedure_is_open(self.assistant.person.user), False)
 
     def test_generate_phd_supervisor_menu_tabs(self):
         self.client.force_login(self.phd_supervisor)
@@ -81,8 +102,41 @@ class PhdSupervisorReviewViewTestCase(TestCase):
                          [{'item': assistant_mandate_state.PHD_SUPERVISOR, 'class': 'active',
                            'action': 'view'}])
 
-    def test_review_view(self):
+    def test_pst_form_view(self):
         self.client.force_login(self.phd_supervisor.user)
         response = self.client.post('/assistants/phd_supervisor/pst_form/', {'mandate_id': self.assistant_mandate.id})
         self.assertEqual(response.status_code, 200)
 
+    def test_review_view(self):
+        self.client.force_login(self.phd_supervisor.user)
+        response = self.client.post('/assistants/phd_supervisor/review/view/', {'mandate_id': self.assistant_mandate.id})
+        self.assertEqual(response.status_code, 200)
+
+    def test_review_edit(self):
+        self.client.force_login(self.phd_supervisor.user)
+        response = self.client.post('/assistants/phd_supervisor/review/edit/', {'mandate_id': self.assistant_mandate.id})
+        self.assertEqual(response.status_code, 200)
+        self.review.status = review_status.DONE
+        self.review.save()
+        response = self.client.post('/assistants/phd_supervisor/review/edit/',{'mandate_id': self.assistant_mandate.id})
+        self.assertEqual(response.status_code, 302)
+
+    def test_review_save(self):
+        self.client.force_login(self.phd_supervisor.user)
+        response = self.client.post('/assistants/phd_supervisor/review/save/', {'mandate_id': self.assistant_mandate.id,
+                                                                                'review_id': self.review.id
+                                                                                })
+        self.assertEqual(response.status_code, 200)
+
+    def test_validate_review_and_update_mandate(self):
+        validate_review_and_update_mandate(self.review, self.assistant_mandate)
+        self.assertEqual(self.review.status, review_status.DONE)
+        self.assertEqual(self.assistant_mandate.state, assistant_mandate_state.RESEARCH)
+        self.entity_version1.entity_type = entity_type.POLE
+        self.entity_version1.save()
+        validate_review_and_update_mandate(self.review, self.assistant_mandate)
+        self.assertEqual(self.assistant_mandate.state, assistant_mandate_state.RESEARCH)
+        self.entity_version1.entity_type = entity_type.FACULTY
+        self.entity_version1.save()
+        validate_review_and_update_mandate(self.review, self.assistant_mandate)
+        self.assertEqual(self.assistant_mandate.state, assistant_mandate_state.SUPERVISION)

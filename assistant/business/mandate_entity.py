@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,16 +23,17 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
-from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
-from base.tests.factories.entity import EntityFactory
+from base.models import academic_year
+from base.models import entity_version
 
 
-class MandateEntityFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = 'assistant.MandateEntity'
-        django_get_or_create = ('entity',)
-
-    assistant_mandate = factory.SubFactory(AssistantMandateFactory)
-    entity = factory.SubFactory(EntityFactory)
+def get_entities_for_mandate(mandate):
+    entities = []
+    entities_id = mandate.mandateentity_set.all().order_by('id')
+    for this_entity in entities_id:
+        current_entity_versions = entity_version.get_by_entity_and_date(
+            this_entity.entity, academic_year.current_academic_year().start_date)
+        current_entity_version = current_entity_versions[0] if current_entity_versions \
+            else entity_version.get_last_version(this_entity.entity)
+        entities.append(current_entity_version)
+    return entities
