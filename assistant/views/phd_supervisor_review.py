@@ -179,7 +179,7 @@ def pst_form_view(request):
     tutoring_files = assistant_document_file.find_by_assistant_mandate_and_description(mandate,
                                                                                        document_type.TUTORING_DOCUMENT)
     menu = generate_phd_supervisor_menu_tabs(mandate, None)
-    return render(request, 'pst_form_view.html', {'menu': menu, 'mandate_id': mandate.id,'assistant': assistant,
+    return render(request, 'pst_form_view.html', {'menu': menu, 'mandate_id': mandate.id, 'assistant': assistant,
                                                   'mandate': mandate, 'learning_units': learning_units,
                                                   'current_person': current_person, 'phd_files': phd_files,
                                                   'entities': entities, 'research_files': research_files,
