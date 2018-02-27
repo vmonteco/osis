@@ -23,13 +23,17 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.contrib.auth.models import Group
 from django.test import TestCase, RequestFactory
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_year_with_context import get_with_context
 from base.forms.learning_unit.edition_volume import VolumeEditionForm, VolumeEditionBaseFormset, ENTITY_TYPES_VOLUME, \
     VolumeEditionFormsetContainer
+from base.models.person import CENTRAL_MANAGER_GROUP, FACULTY_MANAGER_GROUP
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
+from base.tests.factories.business.person import PersonGenerator
+from base.tests.factories.person import PersonFactory
 
 
 class TestVolumeEditionForm(TestCase):
@@ -201,12 +205,17 @@ class TestVolumeEditionFormsetContainer(TestCase):
 
         self.learning_unit_year_full = self.generated_container_year.learning_unit_year_full
         self.learning_unit_year_partim = self.generated_container_year.learning_unit_year_partim
+        self.central_manager = PersonFactory()
+        self.central_manager.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
+        self.faculty_manager = PersonFactory()
+        self.faculty_manager.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
 
     def test_get_volume_edition_formset_container(self):
         request_factory = RequestFactory()
 
         volume_edition_formset_container = VolumeEditionFormsetContainer(request_factory.get(None),
-                                                                         self.learning_units_with_context)
+                                                                         self.learning_units_with_context,
+                                                                         self.central_manager)
 
         self.assertEqual(len(volume_edition_formset_container.formsets), 2)
         self.assertCountEqual(list(volume_edition_formset_container.formsets.keys()),
@@ -226,7 +235,7 @@ class TestVolumeEditionFormsetContainer(TestCase):
 
         volume_edition_formset_container = VolumeEditionFormsetContainer(
             request_factory.post(None, data=data_forms),
-            self.learning_units_with_context)
+            self.learning_units_with_context, self.central_manager)
 
         self.assertTrue(volume_edition_formset_container.is_valid())
 
@@ -240,13 +249,39 @@ class TestVolumeEditionFormsetContainer(TestCase):
 
         volume_edition_formset_container = VolumeEditionFormsetContainer(
             request_factory.post(None, data=data_forms),
-            self.learning_units_with_context)
+            self.learning_units_with_context, self.central_manager)
 
         self.assertFalse(volume_edition_formset_container.is_valid())
         self.assertEqual(
             volume_edition_formset_container.formsets[self.learning_unit_year_partim].errors[0],
             {'volume_total': [_('vol_tot_full_must_be_greater_than_partim')]}
         )
+
+    def test_get_volume_edition_formset_container_as_faculty_manager(self):
+        request_factory = RequestFactory()
+
+        volume_edition_formset_container = VolumeEditionFormsetContainer(request_factory.get(None),
+                                                                         self.learning_units_with_context,
+                                                                         self.faculty_manager)
+
+        self.assertEqual(len(volume_edition_formset_container.formsets), 2)
+        self.assertCountEqual(list(volume_edition_formset_container.formsets.keys()),
+                         [self.learning_unit_year_full,
+                          self.learning_unit_year_partim])
+
+        first_formset = volume_edition_formset_container.formsets[self.learning_unit_year_full]
+        first_form = first_formset.forms[0]
+
+        self.assertEqual(len(first_formset.forms), 2)
+        self.assertEqual(first_form.learning_unit_year, self.learning_unit_year_full)
+
+        fields = first_form.fields
+        for key, field in fields.items():
+            if key in first_form._faculty_manager_fields:
+                self.assertFalse(field.disabled)
+            else:
+                self.assertTrue(field.disabled)
+
 
 
 def get_valid_formset_data(prefix, is_partim=False):
