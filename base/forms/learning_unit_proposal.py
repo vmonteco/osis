@@ -27,6 +27,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
+from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
 from base.business.learning_units.proposal.creation import create_learning_unit_proposal
 from base.forms.learning_unit_create import EntitiesVersionChoiceField, LearningUnitYearForm
 from base.models import proposal_folder, proposal_learning_unit, entity_container_year
@@ -77,12 +78,9 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
         _update_model_object(learning_container_year, self.cleaned_data, ["acronym", "title", "language", "campus",
                                                                           "container_type"])
 
-        _update_entity(self.cleaned_data["requirement_entity"], learning_container_year, REQUIREMENT_ENTITY)
-        _update_entity(self.cleaned_data["allocation_entity"], learning_container_year, ALLOCATION_ENTITY)
-        _update_entity(self.cleaned_data["additional_requirement_entity_1"], learning_container_year,
-                       ADDITIONAL_REQUIREMENT_ENTITY_1)
-        _update_entity(self.cleaned_data["additional_requirement_entity_2"], learning_container_year,
-                       ADDITIONAL_REQUIREMENT_ENTITY_2)
+        for entity_type in ENTITY_TYPE_LIST:
+            _update_or_delete_entity_container(self.cleaned_data[entity_type.lower()], learning_container_year,
+                                               entity_type)
 
         folder_entity = self.cleaned_data['folder_entity'].entity
         folder_id = self.cleaned_data['folder_id']
@@ -115,12 +113,19 @@ def _update_model_object(obj, data_values, fields_to_update):
     obj.save()
 
 
-def _update_entity(entity_version, learning_container_year, type_entity):
+def _update_or_delete_entity_container(entity_version, learning_container_year, type_entity):
     if not entity_version:
-        return
-    entity_container_year.EntityContainerYear.objects.update_or_create(type=type_entity,
-                                                                       learning_container_year=learning_container_year,
-                                                                       defaults={"entity": entity_version.entity})
+        _delete_entity(learning_container_year, type_entity)
+    else:
+        update_or_create_entity_container_year_with_components(entity_version.entity, learning_container_year,
+                                                               type_entity)
+
+
+def _delete_entity(learning_container_year, type_entity):
+    an_entity_container_year = entity_container_year.\
+        find_by_learning_container_year_and_linktype(learning_container_year, type_entity)
+    if an_entity_container_year:
+        an_entity_container_year.delete()
 
 
 def _set_attributes_from_dict(obj, attributes_values):

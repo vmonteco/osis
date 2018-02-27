@@ -58,9 +58,9 @@ from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_folder import ProposalFolderFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.views.learning_unit_proposal import edit_learning_unit_proposal
+from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search
 from reference.tests.factories.language import LanguageFactory
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
-from base.views.learning_unit_proposal import PROPOSAL_SEARCH
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.models.enums import entity_container_year_link_type, learning_unit_periodicity
@@ -368,15 +368,154 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
 
+
+class TestLearningUnitProposalSearch(TestCase):
+    def setUp(self):
+        self.person = PersonFactory()
+        self.permission = Permission.objects.get(codename="can_propose_learningunit")
+        self.person.user.user_permissions.add(self.permission)
+
+        self.permission_2 = Permission.objects.get(codename="can_access_learningunit")
+        self.person.user.user_permissions.add(self.permission_2)
+
+        an_entity = EntityFactory()
+        self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
+                                                   start_date=create_current_academic_year().start_date,
+                                                   end_date=create_current_academic_year().end_date)
+        self.person_entity = PersonEntityFactory(person=self.person, entity=an_entity, with_child=True)
+
+        self.client.force_login(self.person.user)
+
+        self.proposals = [_create_proposal_learning_unit() for _ in range(3)]
+
+
     def test_learning_units_proposal_search(self):
-        a_learning_unit_proposal = _create_proposal_learning_unit()
-        data = {}
-        data["acronym"] = a_learning_unit_proposal.learning_unit_year.acronym
-        url = reverse('learning_unit_proposal_search')
-        response = self.client.get(url, data={'acronym': a_learning_unit_proposal.learning_unit_year.acronym})
-        self.assertCountEqual(response.context['proposals'], [a_learning_unit_proposal])
+        url = reverse(learning_units_proposal_search)
+        response = self.client.get(url, data={'acronym': self.proposals[0].learning_unit_year.acronym})
+        formset = response.context['proposals']
+
+        for form in formset:
+            self.assertIn(form.instance, self.proposals)
+
         self.assertIsInstance(response.context['form'], LearningUnitProposalForm)
         self.assertEqual(response.context['search_type'], PROPOSAL_SEARCH)
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_units_proposal_search_post(self, mock_render):
+        proposals = [_create_proposal_learning_unit() for _ in range(3)]
+
+        url = reverse(learning_units_proposal_search) + '?acronym=' + proposals[0].learning_unit_year.acronym
+
+        request_factory = RequestFactory()
+        data = {
+            'form-TOTAL_FORMS': ['3'],
+            'form-INITIAL_FORMS': ['0'],
+            'form-MIN_NUM_FORMS': ['0'],
+            'form-MAX_NUM_FORMS': ['1000'],
+            'form-0-check': ['on'],
+            'form-2-check': ['on'],
+            'form-0-state': ['SUSPENDED'],
+            'form-1-state': ['SUSPENDED'],
+            'form-2-state': ['SUSPENDED']
+         }
+        request = request_factory.post(url, data=data)
+
+        request.user = self.person.user
+
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        learning_units_proposal_search(request)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        formset = context['proposals']
+
+        for i, form in enumerate(formset):
+            self.assertEqual(len(form.errors), 0)
+
+            old_proposal_state = form.instance.state
+            form.instance.refresh_from_db()
+            new_proposal_state = form.instance.state
+            if i == 1:
+                self.assertEqual(new_proposal_state, old_proposal_state)
+            else:
+                self.assertEqual(new_proposal_state, "SUSPENDED")
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_units_proposal_search_post_wrong_data(self, mock_render):
+        url = reverse(learning_units_proposal_search) + '?acronym=' + self.proposals[0].learning_unit_year.acronym
+
+        request_factory = RequestFactory()
+        data = {
+            'form-TOTAL_FORMS': ['3'],
+            'form-INITIAL_FORMS': ['0'],
+            'form-MIN_NUM_FORMS': ['0'],
+            'form-MAX_NUM_FORMS': ['1000'],
+            'form-0-check': ['on'],
+            'form-2-check': ['on'],
+            'form-0-state': ['NOT_VALID'],
+            'form-1-state': ['SUSPENDED'],
+            'form-2-state': ['SUSPENDED']
+         }
+        request = request_factory.post(url, data=data)
+
+        request.user = self.person.user
+
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        learning_units_proposal_search(request)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        formset = context['proposals']
+        self.assertEqual(len(formset[0].errors), 1)
+
+        for proposal in self.proposals:
+            old_proposal_state = proposal.state
+            proposal.refresh_from_db()
+            new_proposal_state = proposal.state
+            self.assertEqual(new_proposal_state, old_proposal_state)
+
+    @mock.patch('base.models.proposal_learning_unit.ProposalLearningUnit.save', side_effect=IntegrityError)
+    @mock.patch('base.views.layout.render')
+    def test_learning_units_proposal_search_post_integrity_error(self, mock_render, save):
+
+        url = reverse(learning_units_proposal_search) + '?acronym=' + self.proposals[0].learning_unit_year.acronym
+
+        request_factory = RequestFactory()
+        data = {
+            'form-TOTAL_FORMS': ['3'],
+            'form-INITIAL_FORMS': ['0'],
+            'form-MIN_NUM_FORMS': ['0'],
+            'form-MAX_NUM_FORMS': ['1000'],
+            'form-0-check': ['on'],
+            'form-2-check': ['on'],
+            'form-0-state': ['SUSPENDED'],
+            'form-1-state': ['SUSPENDED'],
+            'form-2-state': ['SUSPENDED']
+         }
+        request = request_factory.post(url, data=data)
+        request.user = self.person.user
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        learning_units_proposal_search(request)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        msg_level = [m.level for m in get_messages(request)]
+        msg = [m.message for m in get_messages(request)]
+        self.assertEqual(len(msg), 1)
+        self.assertIn(messages.ERROR, msg_level)
+
+        for proposal in self.proposals:
+            old_proposal_state = proposal.state
+            proposal.refresh_from_db()
+            new_proposal_state = proposal.state
+            self.assertEqual(new_proposal_state, old_proposal_state)
 
 
 class TestLearningUnitProposalCancellation(TestCase):

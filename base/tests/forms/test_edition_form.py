@@ -209,7 +209,7 @@ class TestVolumeEditionFormsetContainer(TestCase):
                                                                          self.learning_units_with_context)
 
         self.assertEqual(len(volume_edition_formset_container.formsets), 2)
-        self.assertEqual(list(volume_edition_formset_container.formsets.keys()),
+        self.assertCountEqual(list(volume_edition_formset_container.formsets.keys()),
                          [self.learning_unit_year_full,
                           self.learning_unit_year_partim])
 
