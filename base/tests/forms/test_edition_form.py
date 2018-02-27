@@ -32,7 +32,6 @@ from base.forms.learning_unit.edition_volume import VolumeEditionForm, VolumeEdi
     VolumeEditionFormsetContainer
 from base.models.person import CENTRAL_MANAGER_GROUP, FACULTY_MANAGER_GROUP
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
-from base.tests.factories.business.person import PersonGenerator
 from base.tests.factories.person import PersonFactory
 
 
@@ -281,7 +280,6 @@ class TestVolumeEditionFormsetContainer(TestCase):
                 self.assertFalse(field.disabled)
             else:
                 self.assertTrue(field.disabled)
-
 
 
 def get_valid_formset_data(prefix, is_partim=False):

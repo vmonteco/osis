@@ -29,7 +29,7 @@ from django.test import TestCase
 
 from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
 from base.models.enums import learning_unit_periodicity, learning_unit_year_subtypes, learning_container_year_types, \
-    organization_type, entity_type, internship_subtypes
+    organization_type, entity_type
 from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import LearningUnitsMixin
