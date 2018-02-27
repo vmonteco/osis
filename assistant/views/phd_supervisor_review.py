@@ -129,6 +129,7 @@ def review_save(request):
         current_review = form.save(commit=False)
         if 'validate_and_submit' in request.POST:
             validate_review_and_update_mandate(current_review, mandate)
+            return HttpResponseRedirect(reverse("phd_supervisor_assistants_list"))
         elif 'save' in request.POST:
             current_review.status = review_status.IN_PROGRESS
             current_review.save()
@@ -158,7 +159,6 @@ def validate_review_and_update_mandate(review, mandate):
     else:
         mandate.state = assistant_mandate_state.SUPERVISION
     mandate.save()
-    return HttpResponseRedirect(reverse("phd_supervisor_assistants_list"))
 
 
 @user_passes_test(user_is_phd_supervisor_and_procedure_is_open, login_url='access_denied')

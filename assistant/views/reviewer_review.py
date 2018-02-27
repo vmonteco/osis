@@ -142,6 +142,7 @@ def review_save(request):
         current_review = form.save(commit=False)
         if 'validate_and_submit' in request.POST:
             validate_review_and_update_mandate(current_review, mandate)
+            return HttpResponseRedirect(reverse("reviewer_mandates_list_todo"))
         elif 'save' in request.POST:
             current_review.status = review_status.IN_PROGRESS
             current_review.save()
@@ -171,7 +172,6 @@ def validate_review_and_update_mandate(review, mandate):
     elif mandate.state == assistant_mandate_state.VICE_RECTOR:
         mandate.state = assistant_mandate_state.DONE
     mandate.save()
-    return HttpResponseRedirect(reverse("reviewer_mandates_list_todo"))
 
 
 @require_http_methods(["POST"])
