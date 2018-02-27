@@ -113,10 +113,12 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     type_declaration_vacant = forms.ChoiceField(required=False, choices=_create_type_declaration_vacant_list())
     attribution_procedure = forms.ChoiceField(required=False, choices=_create_attribution_procedure_list())
 
-    def __init__(self, *args, parent=None, person=None, instance=None, **kwargs):
+    def __init__(self, *args, person=None, learning_unit_year_instance=None, **kwargs):
         initial = kwargs.get("initial", None)
         learning_unit_year_subtype = initial.get("subtype") if initial else None
         learning_container_type = initial.get("container_type") if initial else None
+        parent = learning_unit_year_instance.parent if learning_unit_year_instance else None
+
         self.learning_unit_end_date = kwargs.pop("end_date", None)
 
         super().__init__(*args, **kwargs)
@@ -130,8 +132,8 @@ class LearningUnitModificationForm(LearningUnitYearForm):
             self._set_max_credits(parent)
             self._set_status_value(parent)
             self._enabled_periodicity(parent)
-        elif instance:
-            self._set_min_credits(instance)
+        elif learning_unit_year_instance:
+            self._set_min_credits(learning_unit_year_instance)
 
     def is_valid(self):
         if not BootstrapForm.is_valid(self):
