@@ -233,4 +233,4 @@ def check_if_acronym_regex_is_valid(acronym):
 
 
 def find_max_credits_of_related_partims(a_learning_unit_year):
-    return a_learning_unit_year.get_partims_related().aggregate(min_credits=models.Max("credits"))["min_credits"]
+    return a_learning_unit_year.get_partims_related().aggregate(max_credits=models.Max("credits"))["max_credits"]
