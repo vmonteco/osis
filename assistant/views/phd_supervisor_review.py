@@ -50,8 +50,8 @@ def user_is_phd_supervisor_and_procedure_is_open(user):
         return False
 
 
-@user_passes_test(user_is_phd_supervisor_and_procedure_is_open, login_url='access_denied')
 @require_http_methods(["POST"])
+@user_passes_test(user_is_phd_supervisor_and_procedure_is_open, login_url='access_denied')
 def review_view(request):
     mandate_id = request.POST.get("mandate_id")
     mandate = assistant_mandate.find_mandate_by_id(mandate_id)
@@ -74,8 +74,9 @@ def review_view(request):
                                                 'year': mandate.academic_year.year + 1
                                                 })
 
-@user_passes_test(user_is_phd_supervisor_and_procedure_is_open, login_url='access_denied')
+
 @require_http_methods(["POST"])
+@user_passes_test(user_is_phd_supervisor_and_procedure_is_open, login_url='access_denied')
 def review_edit(request):
     mandate_id = request.POST.get("mandate_id")
     mandate = assistant_mandate.find_mandate_by_id(mandate_id)
@@ -114,8 +115,8 @@ def review_edit(request):
                                                 'form': form})
 
 
-@user_passes_test(user_is_phd_supervisor_and_procedure_is_open, login_url='access_denied')
 @require_http_methods(["POST"])
+@user_passes_test(user_is_phd_supervisor_and_procedure_is_open, login_url='access_denied')
 def review_save(request):
     mandate_id = request.POST.get("mandate_id")
     review_id = request.POST.get("review_id")
@@ -161,8 +162,8 @@ def validate_review_and_update_mandate(review, mandate):
     mandate.save()
 
 
-@user_passes_test(user_is_phd_supervisor_and_procedure_is_open, login_url='access_denied')
 @require_http_methods(["POST"])
+@user_passes_test(user_is_phd_supervisor_and_procedure_is_open, login_url='access_denied')
 def pst_form_view(request):
     mandate_id = request.POST.get("mandate_id")
     mandate = assistant_mandate.find_mandate_by_id(mandate_id)
@@ -178,16 +179,11 @@ def pst_form_view(request):
     tutoring_files = assistant_document_file.find_by_assistant_mandate_and_description(mandate,
                                                                                        document_type.TUTORING_DOCUMENT)
     menu = generate_phd_supervisor_menu_tabs(mandate, None)
-    return render(request, 'pst_form_view.html', {'menu': menu,
-                                                  'mandate_id': mandate.id,
-                                                  'assistant': assistant, 'mandate': mandate,
-                                                  'learning_units': learning_units,
-                                                  'current_person': current_person,
-                                                  'phd_files': phd_files,
-                                                  'entities': entities,
-                                                  'research_files': research_files,
-                                                  'tutoring_files': tutoring_files,
-                                                  'role': current_role,
+    return render(request, 'pst_form_view.html', {'menu': menu, 'mandate_id': mandate.id,'assistant': assistant,
+                                                  'mandate': mandate, 'learning_units': learning_units,
+                                                  'current_person': current_person, 'phd_files': phd_files,
+                                                  'entities': entities, 'research_files': research_files,
+                                                  'tutoring_files': tutoring_files, 'role': current_role,
                                                   'assistant_mandate_renewal': assistant_mandate_renewal,
                                                   'menu_type': 'phd_supervisor_menu',
                                                   'year': mandate.academic_year.year + 1})
