@@ -2616,3 +2616,6 @@ msgstr "Force state"
 
 msgid "are_you_sure_to_change_state_from"
 msgstr "Are you sure to change the state from"
+
+msgid "by"
+msgstr "By"

@@ -1,0 +1,22 @@
+
+{% load bootstrap3 %}
+{% load i18n %}
+
+<div class="row">
+    <div class="col-md-3">
+        <label>{% trans 'type' %}</label>
+    </div>
+    <div class="col-md-9">
+        {{ form.type }}
+    </div>
+</div>
+<br>
+<div class="row">
+    <div class="col-md-3">
+        <label>{% trans 'state' %}</label>
+    </div>
+    <div class="col-md-9">
+        {{ form.state }}
+        <span class="error">{{ form.state.errors }}</span>
+    </div>
+</div>
