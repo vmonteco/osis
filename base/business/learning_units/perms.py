@@ -34,6 +34,9 @@ from base.models.utils.person_entity_filter import filter_by_attached_entities
 TYPES_PROPOSAL_NEEDED_TO_EDIT = (learning_container_year_types.COURSE,
                                  learning_container_year_types.DISSERTATION,
                                  learning_container_year_types.INTERNSHIP)
+PROPOSAL_TYPE_ACCEPTED_FOR_UPDATE = (proposal_type.ProposalType.CREATION.name,
+                                     proposal_type.ProposalType.MODIFICATION.name,
+                                     proposal_type.ProposalType.TRANSFORMATION.name)
 
 
 def is_person_linked_to_entity_in_charge_of_learning_unit(a_learning_unit_year, a_person):
@@ -75,6 +78,11 @@ def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
 def is_eligible_to_edit_proposal(proposal, a_person):
     if not proposal:
         return False
+    if a_person.is_faculty_manager() and \
+            (proposal.state != proposal_state.ProposalState.FACULTY.name or
+             proposal.type not in PROPOSAL_TYPE_ACCEPTED_FOR_UPDATE or
+             not is_person_linked_to_entity_in_charge_of_learning_unit(proposal.learning_unit_year, a_person)):
+            return False
     return a_person.user.has_perm('base.can_edit_learning_unit_proposal')
 
 
