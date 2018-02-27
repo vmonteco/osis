@@ -85,6 +85,13 @@ class MaxStrictlyValueValidator(BaseValidator):
     def compare(self, a, b):
         return a >= b
 
+class MinStrictlyValueValidator(BaseValidator):
+    message = _('Ensure this value is greater than %(limit_value)s.')
+    code = 'min_strictly_value'
+
+    def compare(self, a, b):
+        return a <= b
+
 
 class LearningUnitYearForm(BootstrapForm):
     first_letter = forms.ChoiceField(choices=lazy(_create_first_letter_choices, tuple), required=True)

@@ -23,13 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import operator
+
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_units.edition import filter_biennial
 from base.forms.bootstrap import BootstrapForm
-from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_READ_ONLY_FIELD, MaxStrictlyValueValidator
+from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_READ_ONLY_FIELD, \
+    MaxStrictlyValueValidator, MinStrictlyValueValidator
 from base.forms.utils.choice_field import add_blank
 from base.models import academic_year
 from base.models.academic_year import AcademicYear
@@ -109,7 +112,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     type_declaration_vacant = forms.ChoiceField(required=False, choices=_create_type_declaration_vacant_list())
     attribution_procedure = forms.ChoiceField(required=False, choices=_create_attribution_procedure_list())
 
-    def __init__(self, *args, parent=None, person=None, **kwargs):
+    def __init__(self, *args, parent=None, person=None, instance=None, **kwargs):
         initial = kwargs.get("initial", None)
         learning_unit_year_subtype = initial.get("subtype") if initial else None
         learning_container_type = initial.get("container_type") if initial else None
@@ -126,6 +129,8 @@ class LearningUnitModificationForm(LearningUnitYearForm):
             self._set_max_credits(parent)
             self._set_status_value(parent)
             self._enabled_periodicity(parent)
+        elif instance:
+            self._set_min_credits(instance)
 
     def is_valid(self):
         if not BootstrapForm.is_valid(self):
@@ -181,6 +186,14 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         max_credits = parent.credits
         self.fields["credits"].max_value = max_credits
         self.fields['credits'].validators.append(MaxStrictlyValueValidator(max_credits))
+
+    def _set_min_credits(self, instance):
+        partims = instance.get_partims_related()
+        partims_credits = map(operator.attrgetter("credits"), partims)
+        min_credits = min(partims_credits, default=None)
+        if min_credits is not None:
+            self.fields["credits"].min_value = min_credits
+            self.fields['credits'].validators.append(MinStrictlyValueValidator(min_credits))
 
     def _set_status_value(self, parent):
         if parent.status is False:
