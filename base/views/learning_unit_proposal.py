@@ -92,15 +92,15 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
 @login_required
 @perms.can_edit_learning_unit_proposal
 def edit_learning_unit_proposal(request, learning_unit_year_id):
-    print('edit_learning_unit_proposal')
     user_person = get_object_or_404(Person, user=request.user)
 
     proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year_id)
     initial_data = compute_form_initial_data(proposal.learning_unit_year)
 
-    initial_data.update({"folder_id": proposal.folder.id,
+    initial_data.update({"folder_id": proposal.folder.folder_id,
                          "folder_entity": find_latest_version_by_entity(proposal.folder.entity.id,
                                                                         datetime.date.today()),
+                         "type": proposal.type,
                          "state": proposal.state})
 
 
@@ -109,7 +109,6 @@ def edit_learning_unit_proposal(request, learning_unit_year_id):
 
         proposal_form = LearningUnitProposalUpdateForm(request.POST or None)
 
-        print('post')
         if proposal_form.is_valid():
             try:
                 type_proposal = compute_proposal_type(initial_data, request.POST)
@@ -119,9 +118,6 @@ def edit_learning_unit_proposal(request, learning_unit_year_id):
 
             except (IntegrityError, ValueError) as e:
                 display_error_messages(request, e.args[0])
-        else:
-            for e in proposal_form.errors:
-                print(e)
     else:
         proposal_form = LearningUnitProposalUpdateForm(request.POST or None,
                                                        initial=initial_data)
