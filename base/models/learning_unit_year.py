@@ -127,6 +127,7 @@ class LearningUnitYear(AuditableSerializableModel):
     def get_partims_related(self):
         if self.subtype == learning_unit_year_subtypes.FULL and self.learning_container_year:
             return self.learning_container_year.get_partims_related()
+        return LearningUnitYear.objects.none()
 
     def find_list_group_element_year(self):
         return GroupElementYear.objects.filter(child_leaf=self).select_related('parent')
@@ -229,3 +230,7 @@ def find_lt_year_acronym(academic_yr, acronym):
 def check_if_acronym_regex_is_valid(acronym):
     if isinstance(acronym, str):
         return re.fullmatch(REGEX_ACRONYM_CHARSET, acronym.upper())
+
+
+def find_min_credits_between_related_partims(a_learning_unit_year):
+    return a_learning_unit_year.get_partims_related().aggregate(min_credits=models.Min("credits"))["min_credits"]

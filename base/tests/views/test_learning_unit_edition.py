@@ -136,12 +136,14 @@ class TestEditLearningUnit(TestCase):
                                                          acronym="LOSIS4512",
                                                          academic_year=an_academic_year,
                                                          subtype=learning_unit_year_subtypes.FULL,
-                                                         attribution_procedure=attribution_procedure.INTERNAL_TEAM)
+                                                         attribution_procedure=attribution_procedure.INTERNAL_TEAM,
+                                                         credits=15)
 
         cls.partim_learning_unit = LearningUnitYearFactory(learning_container_year=learning_container_year,
                                                            acronym="LOSIS4512A",
                                                            academic_year=an_academic_year,
-                                                           subtype=learning_unit_year_subtypes.PARTIM)
+                                                           subtype=learning_unit_year_subtypes.PARTIM,
+                                                           credits=10)
 
         cls.requirement_entity_container = EntityContainerYearFactory(
             learning_container_year=learning_container_year, type=entity_container_year_link_type.REQUIREMENT_ENTITY)

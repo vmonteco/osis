@@ -2545,6 +2545,9 @@ msgstr "Remarque en anglais"
 msgid "Ensure this value is less than %(limit_value)s."
 msgstr "Assurez-vous que cette valeur est inférieure à %(limit_value)s."
 
+msgid "Ensure this value is greater than %(limit_value)s."
+msgstr "Assurez-vous que cette valeur est supérieure à %(limit_value)s."
+
 msgid "Entity_not_exist"
 msgstr "L'entité %(entity_acronym)s n'existe pas pour l'année académique sélectionnée %(academic_year)s"
 
