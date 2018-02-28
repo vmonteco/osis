@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,16 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
-from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
-from base.tests.factories.entity import EntityFactory
+from base.models import academic_year
+
+from assistant.models import assistant_mandate, reviewer, settings
 
 
-class MandateEntityFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = 'assistant.MandateEntity'
-        django_get_or_create = ('entity',)
+def user_is_reviewer_and_procedure_is_open(user):
+    return user.is_authenticated() and settings.access_to_procedure_is_open() and reviewer.find_by_person(user.person)
 
-    assistant_mandate = factory.SubFactory(AssistantMandateFactory)
-    entity = factory.SubFactory(EntityFactory)
+
+def user_is_phd_supervisor_and_procedure_is_open(user):
+    return user.is_authenticated() and settings.access_to_procedure_is_open() and \
+           assistant_mandate.find_for_supervisor_for_academic_year(
+                user.person, academic_year.current_academic_year()).exists()

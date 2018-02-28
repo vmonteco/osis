@@ -23,16 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
-from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
-from base.tests.factories.entity import EntityFactory
+from django.utils import timezone
+from django.test import TestCase
 
+from assistant.tests.factories.settings import SettingsFactory
+from assistant.models.settings import access_to_procedure_is_open
 
-class MandateEntityFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = 'assistant.MandateEntity'
-        django_get_or_create = ('entity',)
+class TestSettingsFactory(TestCase):
+    def setUp(self):
+        self.settings = SettingsFactory()
 
-    assistant_mandate = factory.SubFactory(AssistantMandateFactory)
-    entity = factory.SubFactory(EntityFactory)
+    def test_access_to_procedure_is_open(self):
+        self.assertEqual(access_to_procedure_is_open(), True)
+
+    def test_access_to_procedure_is_not_open(self):
+        self.settings.starting_date = timezone.now() + timezone.timedelta(days=10)
+        self.settings.ending_date = timezone.now() + timezone.timedelta(days=50)
+        self.settings.save()
+        self.assertFalse(access_to_procedure_is_open())
