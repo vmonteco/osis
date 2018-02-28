@@ -28,6 +28,8 @@ from django.utils import timezone
 import factory
 import factory.fuzzy
 import datetime
+
+import base.models.person
 from base.models import entity_version
 from base.models.enums import organization_type
 from base.tests.factories.entity import EntityFactory
@@ -336,7 +338,7 @@ class EntityVersionTest(TestCase):
         entity_not_attached = EntityFactory(organization=self.organization)
         EntityVersionFactory(entity=entity_not_attached, entity_type="SECTOR", parent=None, end_date=None)
         PersonEntityFactory(person=person, entity=entity_attached)
-        entity_list = list(entity_version.find_main_entities_version_filtered_by_person(person))
+        entity_list = list(person.find_main_entities_version)
         self.assertTrue(entity_list)
         self.assertEqual(len(entity_list), 1)
         self.assertEqual(entity_list[0], entity_version_attached)

@@ -27,10 +27,13 @@ from datetime import date
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import User
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
 from base.business.learning_units.perms import is_person_linked_to_entity_in_charge_of_learning_unit
+from base.models.entity_version import find_main_entities_version
+from base.models.utils.person_entity_filter import filter_by_attached_entities
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from base.models.enums import person_source_type
 from django.db.models import Value
@@ -134,6 +137,10 @@ class Person(SerializableModel):
             # the result is cached in a dictionary
             self._link_to_luy[learning_unit_year.pk] = result
         return result
+
+    @cached_property
+    def find_main_entities_version(self):
+        return filter_by_attached_entities(self, find_main_entities_version())
 
 
 def find_by_id(person_id):

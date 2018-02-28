@@ -35,7 +35,7 @@ from base.business import learning_unit
 from base.forms.bootstrap import BootstrapForm
 from base.forms.utils.choice_field import add_blank
 from base.models.campus import find_main_campuses
-from base.models.entity_version import find_main_entities_version, find_main_entities_version_filtered_by_person
+from base.models.entity_version import find_main_entities_version
 from base.models.enums import entity_container_year_link_type
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
@@ -44,7 +44,7 @@ from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_FULL, LEARNING_UNIT_ACRONYM_REGEX_PARTIM, \
     LEARNING_UNIT_ACRONYM_REGEX_ALL
-from reference.models.language import find_all_languages, find_by_code
+from reference.models.language import find_all_languages
 
 MINIMUM_CREDITS = 0
 MAXIMUM_CREDITS = 500
@@ -171,7 +171,7 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
     def __init__(self, person, *args, **kwargs):
         super(CreateLearningUnitYearForm, self).__init__(*args, **kwargs)
         # When we create a learning unit, we can only select requirement entity which are attached to the person
-        self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
+        self.fields["requirement_entity"].queryset = person.find_main_entities_version
         if person.user.groups.filter(name='faculty_managers').exists():
             self.fields["container_type"].choices = _create_faculty_learning_container_type_list()
             self.fields.pop('internship_subtype')
