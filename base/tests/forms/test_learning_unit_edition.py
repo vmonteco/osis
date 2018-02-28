@@ -40,6 +40,7 @@ from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.organization import OrganizationFactory
+from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from reference.tests.factories.language import LanguageFactory
 
@@ -150,7 +151,8 @@ class TestLearningUnitModificationForm(TestCase):
         }
 
     def test_disabled_fields_in_case_of_learning_unit_of_type_full(self):
-        form = LearningUnitModificationForm(person=None, initial=self.initial_data)
+
+        form = LearningUnitModificationForm(person=self.person, initial=self.initial_data)
         disabled_fields = ("first_letter", "acronym", "academic_year", "container_type", "subtype")
         for field in disabled_fields:
             self.assertTrue(form.fields[field].disabled)
@@ -158,7 +160,7 @@ class TestLearningUnitModificationForm(TestCase):
     def test_disabled_fields_in_case_of_learning_unit_of_type_partim(self):
         initial_data_with_subtype_partim = self.initial_data.copy()
         initial_data_with_subtype_partim["subtype"] = learning_unit_year_subtypes.PARTIM
-        form = LearningUnitModificationForm(person=None, initial=initial_data_with_subtype_partim)
+        form = LearningUnitModificationForm(person=self.person, initial=initial_data_with_subtype_partim)
         disabled_fields = ('first_letter', 'acronym', 'common_title', 'common_title_english', 'requirement_entity',
                            'allocation_entity', 'language', 'periodicity', 'campus', 'container_type', "academic_year",
                            'internship_subtype', 'additional_requirement_entity_1', 'additional_requirement_entity_2',
@@ -167,17 +169,16 @@ class TestLearningUnitModificationForm(TestCase):
             self.assertTrue(form.fields[field].disabled)
 
     def test_disabled_internship_subtype_in_case_of_container_type_different_than_internship(self):
-        form = LearningUnitModificationForm(person=None, initial=self.initial_data)
+        form = LearningUnitModificationForm(person=self.person, initial=self.initial_data)
 
         self.assertTrue(form.fields["internship_subtype"].disabled)
 
         initial_data_with_internship_container_type = self.form_data.copy()
         initial_data_with_internship_container_type["container_type"] = learning_container_year_types.INTERNSHIP
 
-        form = LearningUnitModificationForm(person=None, initial=initial_data_with_internship_container_type)
+        form = LearningUnitModificationForm(person=self.person, initial=initial_data_with_internship_container_type)
 
         self.assertFalse(form.fields["internship_subtype"].disabled)
-
 
     def test_entity_does_not_exist_for_lifetime_of_learning_unit(self):
         an_other_entity = EntityFactory(organization=self.organization)
@@ -194,12 +195,14 @@ class TestLearningUnitModificationForm(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_set_max_credits(self):
-        form = LearningUnitModificationForm(learning_unit_year_instance=self.learning_unit_year_partim_1, person=None,
+        form = LearningUnitModificationForm(learning_unit_year_instance=self.learning_unit_year_partim_1,
+                                            person=self.person,
                                             initial=self.initial_data)
         self.assertEqual(form.fields["credits"].max_value, self.learning_unit_year.credits)
 
     def test_set_status_value(self):
-        form = LearningUnitModificationForm(learning_unit_year_instance=self.learning_unit_year_partim_1, person=None,
+        form = LearningUnitModificationForm(learning_unit_year_instance=self.learning_unit_year_partim_1,
+                                            person=self.person,
                                             initial=self.initial_data)
         self.assertEqual(form.fields["status"].initial, False)
         self.assertTrue(form.fields["status"].disabled)
@@ -207,12 +210,13 @@ class TestLearningUnitModificationForm(TestCase):
     def test_partim_can_modify_periodicity(self):
         initial_data_with_subtype_partim = self.initial_data.copy()
         initial_data_with_subtype_partim["subtype"] = learning_unit_year_subtypes.PARTIM
-        form = LearningUnitModificationForm(learning_unit_year_instance=self.learning_unit_year_partim_1, person=None,
+        form = LearningUnitModificationForm(learning_unit_year_instance=self.learning_unit_year_partim_1,
+                                            person=self.person,
                                             initial=initial_data_with_subtype_partim)
         self.assertFalse(form.fields["periodicity"].disabled)
 
     def test_set_minimum_credits_for_full_learning_unit_year(self):
-        form = LearningUnitModificationForm(person=None, learning_unit_year_instance=self.learning_unit_year,
+        form = LearningUnitModificationForm(person=self.person, learning_unit_year_instance=self.learning_unit_year,
                                             initial=self.initial_data)
         self.assertEqual(form.fields["credits"].min_value, self.learning_unit_year_partim_1.credits)
 
@@ -220,7 +224,8 @@ class TestLearningUnitModificationForm(TestCase):
         learning_unit_year_with_no_partims = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                                      learning_unit__periodicity=ANNUAL,
                                                                      subtype=FULL)
-        form = LearningUnitModificationForm(person=None, learning_unit_year_instance=learning_unit_year_with_no_partims,
+        form = LearningUnitModificationForm(person=self.person,
+                                            learning_unit_year_instance=learning_unit_year_with_no_partims,
                                             initial=self.initial_data)
         self.assertEqual(form.fields["credits"].min_value, None)
 

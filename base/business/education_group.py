@@ -26,9 +26,8 @@
 from django.core.exceptions import PermissionDenied
 
 from base.models import offer_year_entity
-from base.models import person_entity
 from base.models.enums import offer_year_entity_type
-from base.models.person import CENTRAL_MANAGER_GROUP
+from base.models.person import Person
 from base.models.program_manager import is_program_manager
 
 
@@ -41,19 +40,19 @@ def can_user_edit_administrative_data(a_user, an_education_group_year):
     if not a_user.has_perm("base.can_edit_education_group_administrative_data"):
         return False
 
-    if a_user.groups.filter(name=CENTRAL_MANAGER_GROUP).exists() and \
-       _is_management_entity_linked_to_user(a_user, an_education_group_year):
+    person = Person.objects.get(user=a_user)
+    if person.is_central_manager() and _is_management_entity_linked_to_user(person, an_education_group_year):
         return True
 
     return is_program_manager(a_user, education_group=an_education_group_year.education_group)
 
 
-def _is_management_entity_linked_to_user(a_user, an_education_group_year):
+def _is_management_entity_linked_to_user(person, an_education_group_year):
     management_entity_ids = list(offer_year_entity.find_by_education_group_year(
         education_group_yr=an_education_group_year,
         typ=offer_year_entity_type.ENTITY_MANAGEMENT).values_list('entity', flat=True))
-    entities_linked = person_entity.find_entities_by_user(a_user)
-    return any(entity.id in management_entity_ids for entity in entities_linked)
+
+    return any(entity.id in management_entity_ids for entity in person.entities)
 
 
 def assert_category_of_education_group_year(education_group_year, authorized_categories):
