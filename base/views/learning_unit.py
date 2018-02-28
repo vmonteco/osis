@@ -309,14 +309,17 @@ def learning_unit_year_add(request):
         year = data['academic_year'].year
         new_learning_container = LearningContainer.objects.create()
         new_learning_unit = create_learning_unit(data, new_learning_container, year)
+        first_learning_unit_year_id = None
         while year <= compute_max_academic_year_adjournment():
             academic_year = mdl.academic_year.find_academic_year_by_year(year)
             new_learning_unit_year = create_learning_unit_year_structure(data, new_learning_container,
                                                                          new_learning_unit, academic_year)
+            if not first_learning_unit_year_id:
+                first_learning_unit_year_id = new_learning_unit_year.id
             show_success_learning_unit_year_creation_message(request, new_learning_unit_year,
                                                              'learning_unit_successfuly_created')
             year += 1
-        return redirect('learning_units')
+        return redirect('learning_unit', learning_unit_year_id=first_learning_unit_year_id)
     return layout.render(request, "learning_unit/simple/creation.html", {'learning_unit_form': learning_unit_form})
 
 
