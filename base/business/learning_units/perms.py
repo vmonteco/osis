@@ -23,12 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models import entity_container_year, proposal_learning_unit, entity, person_entity
+from base.models import entity_container_year, proposal_learning_unit, entity
 from base.models.academic_year import current_academic_year
-from base.models.enums import entity_container_year_link_type, learning_unit_year_subtypes, proposal_state, \
-    proposal_type, learning_container_year_types
+from base.models.enums import learning_unit_year_subtypes, proposal_type, learning_container_year_types
+from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
 from base.models.enums.learning_unit_year_subtypes import PARTIM
 from base.models.enums.proposal_state import ProposalState
+from base.models.enums.proposal_type import ProposalType
 from base.models.learning_unit import is_old_learning_unit
 from base.models.utils.person_entity_filter import filter_by_attached_entities
 
@@ -43,7 +44,7 @@ PROPOSAL_TYPE_ACCEPTED_FOR_UPDATE = (proposal_type.ProposalType.CREATION.name,
 def is_person_linked_to_entity_in_charge_of_learning_unit(a_person, a_learning_unit_year):
     entity_containers_year = entity_container_year.search(
         learning_container_year=a_learning_unit_year.learning_container_year,
-        link_type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+        link_type=REQUIREMENT_ENTITY)
 
     return filter_by_attached_entities(a_person, entity_containers_year).exists()
 
@@ -62,20 +63,23 @@ def is_eligible_to_create_modification_proposal(learn_unit_year, person):
 
 
 def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
-    if not learning_unit_proposal:
+    if not learning_unit_proposal or learning_unit_proposal.state != ProposalState.FACULTY.name:
         return False
-    if learning_unit_proposal.state != proposal_state.ProposalState.FACULTY.name:
-        return False
-    valid_type = [proposal_type.ProposalType.MODIFICATION.name, proposal_type.ProposalType.TRANSFORMATION.name,
-                  proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name]
+
+    valid_type = [
+        ProposalType.MODIFICATION.name,
+        ProposalType.TRANSFORMATION.name,
+        ProposalType.TRANSFORMATION_AND_MODIFICATION.name
+    ]
+
     if learning_unit_proposal.type not in valid_type:
         return False
 
-    initial_entity_requirement_id = \
-        learning_unit_proposal.initial_data["entities"][entity_container_year_link_type.REQUIREMENT_ENTITY]
+    initial_entity_requirement_id = learning_unit_proposal.initial_data["entities"][REQUIREMENT_ENTITY]
     an_entity = entity.get_by_internal_id(initial_entity_requirement_id)
-    if an_entity in person_entity.find_entities_by_person(a_person):
+    if an_entity in a_person.entities:
         return True
+
     return a_person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_proposal.learning_unit_year)
 
 
@@ -87,9 +91,9 @@ def is_eligible_to_edit_proposal(proposal, a_person):
         proposal.learning_unit_year)
 
     if a_person.is_faculty_manager():
-        if (proposal.state != ProposalState.FACULTY.name
-                or proposal.type not in PROPOSAL_TYPE_ACCEPTED_FOR_UPDATE
-                or not is_person_linked_to_entity):
+        if (proposal.state != ProposalState.FACULTY.name or
+                proposal.type not in PROPOSAL_TYPE_ACCEPTED_FOR_UPDATE or
+                not is_person_linked_to_entity):
             return False
 
     return a_person.user.has_perm('base.can_edit_learning_unit_proposal')
