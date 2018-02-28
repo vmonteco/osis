@@ -31,6 +31,7 @@ import datetime
 
 import base.models.person
 from base.models import entity_version
+from base.models.entity_version import EntityVersion
 from base.models.enums import organization_type
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
@@ -219,8 +220,7 @@ class EntityVersionTest(TestCase):
         self.assertEqual(self.parent_entity_version.count_direct_children(date=self.date_in_2015), 3)
 
     def test_version_direct_children_out_dates(self):
-        self.assertCountEqual(self.parent_entity_version.find_direct_children(date=self.date_in_2017),
-                              [])
+        self.assertFalse(self.parent_entity_version.find_direct_children(date=self.date_in_2017).exists())
         self.assertEqual(self.parent_entity_version.count_direct_children(date=self.date_in_2017), 0)
 
     def test_version_direct_children_with_null_end(self):
