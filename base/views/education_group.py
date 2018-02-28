@@ -38,6 +38,7 @@ from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
 from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataFormset
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
+from base.models.person import Person
 
 from . import layout
 from cms.enums import entity_name

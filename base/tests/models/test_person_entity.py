@@ -30,6 +30,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.test import TestCase
 
+import base.models.person
 from base.models import person_entity
 from base.models.person_entity import PersonEntity
 from base.models.utils import person_entity_filter
@@ -108,14 +109,15 @@ class PersonEntityTest(TestCase):
 
     def test_find_entities_by_user_with_no_person(self):
         user = UserFactory()
-        entities = person_entity.find_entities_by_user(user)
+        person = PersonFactory(user=user)
+        entities = person.entities
         self.assertIsInstance(entities, list)
         self.assertFalse(entities)
 
     def test_find_entities_by_user_with_person_attached_no_entities_attached(self):
         user = UserFactory()
-        PersonFactory(user=user)
-        entities = person_entity.find_entities_by_user(user)
+        person = PersonFactory(user=user)
+        entities = person.entities
         self.assertIsInstance(entities, list)
         self.assertFalse(entities)
 
@@ -123,7 +125,7 @@ class PersonEntityTest(TestCase):
         user = UserFactory()
         person = PersonFactory(user=user)
         PersonEntityFactory(person=person, entity=self.root_entity, with_child=False)
-        entities = person_entity.find_entities_by_user(user)
+        entities = person.entities
         self.assertIsInstance(entities, list)
         self.assertEqual(len(entities), 1)
 

@@ -33,6 +33,7 @@ from django.conf import settings
 
 from base.business.learning_units.perms import is_person_linked_to_entity_in_charge_of_learning_unit
 from base.models.entity_version import find_main_entities_version
+from base.models.person_entity import find_entities_by_person
 from base.models.utils.person_entity_filter import filter_by_attached_entities
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from base.models.enums import person_source_type
@@ -141,6 +142,10 @@ class Person(SerializableModel):
     @cached_property
     def find_main_entities_version(self):
         return filter_by_attached_entities(self, find_main_entities_version())
+
+    @cached_property
+    def entities(self):
+        return find_entities_by_person(self)
 
 
 def find_by_id(person_id):
