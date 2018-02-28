@@ -27,9 +27,9 @@ from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
-from base.business.education_group import can_user_edit_administrative_data, CENTRAL_MANAGER_GROUP
+from base.business.education_group import can_user_edit_administrative_data
 from base.models.enums import offer_year_entity_type
-from base.models.person import Person
+from base.models.person import Person, CENTRAL_MANAGER_GROUP
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
@@ -70,7 +70,7 @@ class EducationGroupTestCase(TestCase):
 
     def test_can_user_edit_administrative_data_with_permission_and_pgrm_manager(self):
         """With permission and program manager of education group ==> Allowed"""
-        ProgramManagerFactory(person=self.person,education_group=self.education_group_year.education_group)
+        ProgramManagerFactory(person=self.person, education_group=self.education_group_year.education_group)
         self.assertTrue(can_user_edit_administrative_data(self.user, self.education_group_year))
 
     def test_can_user_edit_administartive_data_group_central_manager_no_entity_linked(self):

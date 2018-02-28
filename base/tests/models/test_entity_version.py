@@ -23,23 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.test import TestCase
-from django.utils import timezone
-import factory
-import factory.fuzzy
 import datetime
 
-import base.models.person
+import factory
+import factory.fuzzy
+from django.test import TestCase
+
 from base.models import entity_version
-from base.models.entity_version import EntityVersion
 from base.models.enums import organization_type
+from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from reference.tests.factories.country import CountryFactory
-from base.tests.factories.academic_year import AcademicYearFactory
 
 now = datetime.datetime.now()
 

@@ -23,14 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from unittest import mock
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.test import TestCase
 
-import base.models.person
 from base.models import person_entity
 from base.models.person_entity import PersonEntity
 from base.models.utils import person_entity_filter

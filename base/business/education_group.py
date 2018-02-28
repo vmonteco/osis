@@ -25,11 +25,9 @@
 ##############################################################################
 from django.core.exceptions import PermissionDenied
 
-import base.models.person
 from base.models import offer_year_entity
-from base.models import person_entity
 from base.models.enums import offer_year_entity_type
-from base.models.person import CENTRAL_MANAGER_GROUP, Person
+from base.models.person import Person
 from base.models.program_manager import is_program_manager
 
 
@@ -53,8 +51,8 @@ def _is_management_entity_linked_to_user(person, an_education_group_year):
     management_entity_ids = list(offer_year_entity.find_by_education_group_year(
         education_group_yr=an_education_group_year,
         typ=offer_year_entity_type.ENTITY_MANAGEMENT).values_list('entity', flat=True))
-    entities_linked = person.entities
-    return any(entity.id in management_entity_ids for entity in entities_linked)
+
+    return any(entity.id in management_entity_ids for entity in person.entities)
 
 
 def assert_category_of_education_group_year(education_group_year, authorized_categories):
