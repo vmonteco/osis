@@ -72,7 +72,7 @@ def find_by_id(reviewer_id):
 def find_by_person(person):
     try:
         return Reviewer.objects.get(person=person)
-    except ObjectDoesNotExist:
+    except Reviewer.DoesNotExist:
         return False
 
 
