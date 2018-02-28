@@ -45,6 +45,7 @@ from assistant.tests.factories.academic_assistant import AcademicAssistantFactor
 from assistant.tests.factories.settings import SettingsFactory
 from assistant.models.enums import assistant_mandate_state, review_status, review_advice_choices
 
+HTTP_OK = 200
 
 class PhdSupervisorReviewViewTestCase(TestCase):
 
@@ -68,16 +69,6 @@ class PhdSupervisorReviewViewTestCase(TestCase):
         self.entity_version1 = EntityVersionFactory(entity=self.entity1, entity_type=entity_type.INSTITUTE)
         self.mandate_entity = MandateEntityFactory(assistant_mandate=self.assistant_mandate, entity=self.entity1)
 
-
-    def test_user_is_phd_supervisor_and_procedure_is_open(self):
-        auth.signals.user_logged_in.disconnect(auth.models.update_last_login)
-        self.client.force_login(self.phd_supervisor)
-        self.assertEquals(user_is_phd_supervisor_and_procedure_is_open(self.phd_supervisor.user), True)
-
-    def test_user_is_not_phd_supervisor_and_procedure_is_open(self):
-        auth.signals.user_logged_in.disconnect(auth.models.update_last_login)
-        self.client.force_login(self.assistant)
-        self.assertEquals(user_is_phd_supervisor_and_procedure_is_open(self.assistant.person.user), False)
 
     def test_generate_phd_supervisor_menu_tabs(self):
         self.client.force_login(self.phd_supervisor)
@@ -105,17 +96,17 @@ class PhdSupervisorReviewViewTestCase(TestCase):
     def test_pst_form_view(self):
         self.client.force_login(self.phd_supervisor.user)
         response = self.client.post('/assistants/phd_supervisor/pst_form/', {'mandate_id': self.assistant_mandate.id})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
 
     def test_review_view(self):
         self.client.force_login(self.phd_supervisor.user)
         response = self.client.post('/assistants/phd_supervisor/review/view/', {'mandate_id': self.assistant_mandate.id})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
 
     def test_review_edit(self):
         self.client.force_login(self.phd_supervisor.user)
         response = self.client.post('/assistants/phd_supervisor/review/edit/', {'mandate_id': self.assistant_mandate.id})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
         self.review.status = review_status.DONE
         self.review.save()
         response = self.client.post('/assistants/phd_supervisor/review/edit/',{'mandate_id': self.assistant_mandate.id})
@@ -126,7 +117,7 @@ class PhdSupervisorReviewViewTestCase(TestCase):
         response = self.client.post('/assistants/phd_supervisor/review/save/', {'mandate_id': self.assistant_mandate.id,
                                                                                 'review_id': self.review.id
                                                                                 })
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
 
     def test_validate_review_and_update_mandate(self):
         validate_review_and_update_mandate(self.review, self.assistant_mandate)

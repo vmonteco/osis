@@ -34,6 +34,8 @@ from django.utils import timezone
 
 from base.models import person, entity_version, academic_year
 from base.models.enums import entity_type
+
+from assistant.business.users_access import user_is_reviewer_and_procedure_is_open
 from assistant.business.mandate_entity import get_entities_for_mandate
 from assistant.forms import ReviewForm
 from assistant.models import assistant_mandate, review, mandate_entity, tutoring_learning_unit_year
@@ -41,7 +43,7 @@ from assistant.models import reviewer, settings, assistant_document_file
 from assistant.models.enums import review_status, assistant_mandate_state, reviewer_role, document_type
 from assistant.models.enums import assistant_mandate_renewal
 
-
+""""
 def user_is_reviewer_and_procedure_is_open(user):
     try:
         if user.is_authenticated() and settings.access_to_procedure_is_open() and reviewer.find_by_person(user.person):
@@ -50,7 +52,7 @@ def user_is_reviewer_and_procedure_is_open(user):
             return False
     except ObjectDoesNotExist:
         return False
-
+"""
 
 @require_http_methods(["POST"])
 @user_passes_test(user_is_reviewer_and_procedure_is_open, login_url='access_denied')

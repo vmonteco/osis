@@ -24,26 +24,27 @@
 #
 ##############################################################################
 import datetime
-from django.contrib import auth
+
 from django.test import TestCase, RequestFactory, Client
 
+from base.models.enums import entity_type
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.person import PersonFactory
-from base.models.enums import entity_type
 
 
-from assistant.tests.factories.review import ReviewFactory
+from assistant.models.enums import assistant_mandate_state, review_status, reviewer_role
+from assistant.tests.factories.academic_assistant import AcademicAssistantFactory
 from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 from assistant.tests.factories.mandate_entity import MandateEntityFactory
+from assistant.tests.factories.review import ReviewFactory
 from assistant.tests.factories.reviewer import ReviewerFactory
-from assistant.tests.factories.academic_assistant import AcademicAssistantFactory
 from assistant.tests.factories.settings import SettingsFactory
-from assistant.models.enums import assistant_mandate_state, review_status, reviewer_role
+from assistant.views.reviewer_review import generate_reviewer_menu_tabs
 from assistant.views.reviewer_review import user_is_reviewer_and_procedure_is_open
 from assistant.views.reviewer_review import validate_review_and_update_mandate
-from assistant.views.reviewer_review import generate_reviewer_menu_tabs
 
+HTTP_OK = 200
 
 class ReviewerReviewViewTestCase(TestCase):
 
@@ -88,33 +89,22 @@ class ReviewerReviewViewTestCase(TestCase):
         self.reviewer3 = ReviewerFactory(role=reviewer_role.VICE_RECTOR,
                                         entity=self.entity_version3.entity)
 
-
-    def test_user_is_reviewer_and_procedure_is_open(self):
-        auth.signals.user_logged_in.disconnect(auth.models.update_last_login)
-        self.client.force_login(self.reviewer)
-        self.assertEquals(user_is_reviewer_and_procedure_is_open(self.reviewer.person.user), True)
-
-    def test_user_is_not_reviewer_and_procedure_is_open(self):
-        auth.signals.user_logged_in.disconnect(auth.models.update_last_login)
-        self.client.force_login(self.assistant)
-        self.assertEquals(user_is_reviewer_and_procedure_is_open(self.assistant.person.user), False)
-
     def test_pst_form_view(self):
         self.client.force_login(self.reviewer.person.user)
         response = self.client.post('/assistants/reviewer/pst_form/', {'mandate_id': self.assistant_mandate.id})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
 
     def test_review_edit(self):
         self.client.force_login(self.reviewer.person.user)
         response = self.client.post('/assistants/reviewer/review/edit/', {'mandate_id': self.assistant_mandate2.id})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
 
     def test_review_save(self):
         self.client.force_login(self.reviewer.person.user)
         response = self.client.post('/assistants/reviewer/review/save/', {'mandate_id': self.assistant_mandate.id,
                                                                           'review_id': self.review.id
                                                                           })
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
 
     def test_validate_review_and_update_mandate(self):
         validate_review_and_update_mandate(self.review, self.assistant_mandate)
@@ -136,10 +126,10 @@ class ReviewerReviewViewTestCase(TestCase):
         self.client.force_login(self.reviewer.person.user)
         response = self.client.post('/assistants/reviewer/review/view/', {'mandate_id': self.assistant_mandate.id,
                                                                           'role': reviewer_role.PHD_SUPERVISOR})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
         response = self.client.post('/assistants/reviewer/review/view/', {'mandate_id': self.assistant_mandate.id,
                                                                           'role': reviewer_role.RESEARCH})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
 
     def test_generate_phd_supervisor_menu_tabs(self):
         self.client.force_login(self.reviewer)

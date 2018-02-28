@@ -33,6 +33,8 @@ from django.utils.translation import ugettext as _
 from django.views.generic import ListView
 
 from base.models import academic_year, person, entity, entity_version
+
+from assistant.business.users_access import user_is_reviewer_and_procedure_is_open
 from assistant.forms import ReviewerDelegationForm
 from assistant.models import assistant_mandate
 from assistant.models import reviewer
@@ -49,12 +51,8 @@ class StructuresListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     is_supervisor = False
 
     def test_func(self):
-        try:
-            if settings.access_to_procedure_is_open():
-                return reviewer.can_delegate(reviewer.find_by_person(self.request.user.person))
-        except ObjectDoesNotExist:
-            return False
-    
+        return user_is_reviewer_and_procedure_is_open(self.request.user)
+
     def get_login_url(self):
         return reverse('access_denied')
 

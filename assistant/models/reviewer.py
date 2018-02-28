@@ -24,11 +24,11 @@
 #
 ##############################################################################
 from django.contrib import admin
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 from base.models import entity_version
 from base.models.enums import entity_type
-from assistant.models import assistant_mandate, mandate_entity
 from assistant.models.enums import reviewer_role
 
 
@@ -70,7 +70,11 @@ def find_by_id(reviewer_id):
 
 
 def find_by_person(person):
-    return Reviewer.objects.get(person=person)
+    try:
+        return Reviewer.objects.get(person=person)
+    except ObjectDoesNotExist:
+        return False
+
 
 
 def find_by_role(role):

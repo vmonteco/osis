@@ -25,29 +25,27 @@
 ##############################################################################
 from django.contrib.auth.decorators import user_passes_test
 from django.core.exceptions import ObjectDoesNotExist
-from django.views.decorators.http import require_http_methods
 from django.core.urlresolvers import reverse
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils import timezone
-from base.models import academic_year, entity_version
+from django.views.decorators.http import require_http_methods
+
 from base.models.enums import entity_type
+
 from assistant.business.mandate_entity import get_entities_for_mandate
+from assistant.business.users_access import user_is_phd_supervisor_and_procedure_is_open
 from assistant.forms import ReviewForm
-from assistant.models import assistant_mandate, review, tutoring_learning_unit_year, mandate_entity
-from assistant.models import settings, assistant_document_file
-from assistant.models.enums import review_status, assistant_mandate_state, reviewer_role, document_type
+from assistant.models import assistant_document_file
+from assistant.models import assistant_mandate
+from assistant.models import mandate_entity
+from assistant.models import review
+from assistant.models import tutoring_learning_unit_year
 from assistant.models.enums import assistant_mandate_renewal
-
-
-def user_is_phd_supervisor_and_procedure_is_open(user):
-    if user.is_authenticated() \
-            and settings.access_to_procedure_is_open() \
-            and len(assistant_mandate.find_for_supervisor_for_academic_year(
-                user.person, academic_year.current_academic_year())) > 0:
-        return True
-    else:
-        return False
+from assistant.models.enums import assistant_mandate_state
+from assistant.models.enums import document_type
+from assistant.models.enums import review_status
+from assistant.models.enums import reviewer_role
 
 
 @require_http_methods(["POST"])

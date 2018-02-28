@@ -28,6 +28,7 @@ from django.test import TestCase
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.models.enums import entity_type
+
 from assistant.models import reviewer
 from assistant.models.enums import reviewer_role
 from assistant.tests.factories.reviewer import ReviewerFactory
@@ -53,24 +54,25 @@ class TestReviewerFactory(TestCase):
         self.assertEqual(self.reviewer1, reviewer.find_by_person(self.reviewer1.person))
 
     def test_find_reviewers(self):
-        reviewers_sorted_list = sorted([self.reviewer2, self.reviewer1, self.reviewer3],
-                                       key=lambda reviewer: reviewer.person.last_name)
-        self.assertListEqual([rev for rev in reviewer.find_reviewers()], reviewers_sorted_list)
+        self.assertCountEqual(
+            [rev for rev in reviewer.find_reviewers()],
+            [self.reviewer2, self.reviewer1, self.reviewer3]
+        )
 
     def test_find_by_id(self):
         self.assertEqual(self.reviewer1, reviewer.find_by_id(self.reviewer1.id))
 
     def test_find_by_role(self):
-        self.assertListEqual(
-            sorted([self.reviewer2, self.reviewer3], key=lambda reviewer: reviewer.person.last_name),
-            sorted([rev for rev in reviewer.find_by_role(reviewer_role.SUPERVISION)],
-                   key=lambda reviewer: reviewer.person.last_name))
+        self.assertCountEqual(
+            [self.reviewer2, self.reviewer3],
+            [rev for rev in reviewer.find_by_role(reviewer_role.SUPERVISION)]
+        )
 
     def test_find_by_entity_and_role(self):
-        self.assertListEqual(
-            sorted([self.reviewer2], key=lambda reviewer: reviewer.person.last_name),
-            sorted([rev for rev in reviewer.find_by_entity_and_role(self.entity2, reviewer_role.SUPERVISION)],
-                   key=lambda reviewer: reviewer.person.last_name))
+        self.assertCountEqual(
+            [self.reviewer2],
+            [rev for rev in reviewer.find_by_entity_and_role(self.entity2, reviewer_role.SUPERVISION)]
+        )
 
     def test_can_delegate(self):
         self.assertFalse(reviewer.can_delegate(self.reviewer1))

@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,21 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.utils import timezone
-from django.test import TestCase
+from base.models import academic_year
 
-from assistant.tests.factories.settings import SettingsFactory
-from assistant.models.settings import access_to_procedure_is_open
+from assistant.models import assistant_mandate, reviewer, settings
 
-class TestSettingsFactory(TestCase):
-    def setUp(self):
-        self.settings = SettingsFactory()
 
-    def test_access_to_procedure_is_open(self):
-        self.assertEqual(access_to_procedure_is_open(), True)
+def user_is_reviewer_and_procedure_is_open(user):
+    return user.is_authenticated() and settings.access_to_procedure_is_open() and reviewer.find_by_person(user.person)
 
-    def test_access_to_procedure_is_not_open(self):
-        self.settings.starting_date = timezone.now() + timezone.timedelta(days=10)
-        self.settings.ending_date = timezone.now() + timezone.timedelta(days=50)
-        self.settings.save()
-        self.assertFalse(access_to_procedure_is_open())
+def user_is_phd_supervisor_and_procedure_is_open(user):
+    return user.is_authenticated() and settings.access_to_procedure_is_open() and \
+           len(assistant_mandate.find_for_supervisor_for_academic_year(
+                user.person, academic_year.current_academic_year())) > 0
