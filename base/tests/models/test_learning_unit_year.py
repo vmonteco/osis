@@ -195,3 +195,6 @@ class LearningUnitYearTest(TestCase):
         max_credits = find_max_credits_of_related_partims(self.learning_unit_year)
         self.assertEqual(max_credits, None)
 
+
+    def test_common_title_property(self):
+        self.assertEqual(self.learning_unit_year.common_title, self.learning_unit_year.learning_container_year.common_title)
