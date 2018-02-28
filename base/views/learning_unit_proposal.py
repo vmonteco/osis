@@ -93,35 +93,23 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
 @perms.can_edit_learning_unit_proposal
 def edit_learning_unit_proposal(request, learning_unit_year_id):
     user_person = get_object_or_404(Person, user=request.user)
-
     proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year_id)
     initial_data = compute_form_initial_data(proposal.learning_unit_year)
-
     initial_data.update({"folder_id": proposal.folder.folder_id,
                          "folder_entity": find_latest_version_by_entity(proposal.folder.entity.id,
                                                                         datetime.date.today()),
                          "type": proposal.type,
                          "state": proposal.state})
-
-
-    if request.POST:
-        # , learning_unit_year, a_person, type_proposal, state_proposal
-
-        proposal_form = LearningUnitProposalUpdateForm(request.POST or None)
-
-        if proposal_form.is_valid():
-            try:
-                type_proposal = compute_proposal_type(initial_data, request.POST)
-                proposal_form.save(proposal.learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name)
-                display_success_messages(request, _("proposal_edited_successfully"))
-                return HttpResponseRedirect(reverse('learning_unit', args=[learning_unit_year_id]))
-
-            except (IntegrityError, ValueError) as e:
-                display_error_messages(request, e.args[0])
-    else:
-        proposal_form = LearningUnitProposalUpdateForm(request.POST or None,
-                                                       initial=initial_data)
-
+    proposal_form = LearningUnitProposalUpdateForm(request.POST or None, initial=initial_data)
+    if proposal_form.is_valid():
+        try:
+            type_proposal = compute_proposal_type(initial_data, request.POST)
+            proposal_form.save(proposal.learning_unit_year, user_person, type_proposal,
+                               proposal_form.cleaned_data.get("state"))
+            display_success_messages(request, _("proposal_edited_successfully"))
+            return HttpResponseRedirect(reverse('learning_unit', args=[learning_unit_year_id]))
+        except (IntegrityError, ValueError) as e:
+            display_error_messages(request, e.args[0])
     return layout.render(request, 'learning_unit/proposal/edition.html',  {
         'learning_unit_year': proposal.learning_unit_year,
         'person': user_person,

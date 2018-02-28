@@ -37,10 +37,6 @@ from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums import proposal_state, proposal_type
 
 
-def add_none_choice(choices):
-    return ((None, "-----"),) + choices
-
-
 class LearningUnitProposalModificationForm(LearningUnitYearForm):
     folder_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
@@ -91,11 +87,10 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
 
 class LearningUnitProposalUpdateForm(LearningUnitProposalModificationForm):
     state = forms.ChoiceField(choices=proposal_state.CHOICES)
-    type = forms.ChoiceField(choices=proposal_type.CHOICES, required=False)
+    type = forms.ChoiceField(choices=proposal_type.CHOICES, required=False, disabled=True)
 
     def __init__(self, *args, **kwargs):
         super(LearningUnitProposalUpdateForm, self).__init__(*args, **kwargs)
-        self.fields['type'].widget.attrs['disabled'] = 'disabled'
 
 
 def _copy_learning_unit_data(learning_unit_year):
