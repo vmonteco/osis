@@ -30,6 +30,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
+import base.business.learning_units.perms
 from assistant.models.tutoring_learning_unit_year import TutoringLearningUnitYear
 from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 from attribution.tests.factories.attribution import AttributionNewFactory
@@ -353,19 +354,23 @@ class LearningUnitYearDeletion(TestCase):
                                                      academic_year=self.academic_year,
                                                      learning_container_year=l_containeryear,
                                                      subtype=learning_unit_year_subtypes.FULL)
+
         # Can remove FULL COURSE
-        self.assertFalse(learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year))
+        self.assertFalse(
+            base.business.learning_units.perms.can_delete_learning_unit_year(learning_unit_year, person))
 
         # Can remove PARTIM COURSE
         learning_unit_year.subtype = learning_unit_year_subtypes.PARTIM
         learning_unit_year.save()
-        self.assertTrue(learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year))
+        self.assertTrue(
+            base.business.learning_units.perms.can_delete_learning_unit_year(learning_unit_year, person))
 
         # With both role, greatest is taken
         add_to_group(person.user, CENTRAL_MANAGER_GROUP)
         learning_unit_year.subtype = learning_unit_year_subtypes.FULL
         learning_unit_year.save()
-        self.assertTrue(learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year))
+        self.assertTrue(
+            base.business.learning_units.perms.can_delete_learning_unit_year(learning_unit_year, person))
 
 
 def add_to_group(user, group_name):
