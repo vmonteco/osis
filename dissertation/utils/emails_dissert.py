@@ -95,9 +95,10 @@ def generate_receivers(receivers):
 
 def send_email_to_jury_members(dissert):
     receivers = [diss_role.adviser for diss_role in dissertation_role.search_by_dissertation(dissert)]
-    send_email(dissert, 'dissertation_to_commission_list', receivers)
+    result_send_mail = send_email(dissert, 'dissertation_to_commission_list', receivers)
 
 
 def send_email_to_all_promoteurs(dissert, template):
     receivers = [diss_role.adviser for diss_role in dissertation_role.find_all_promoteur_by_dissertation(dissert)]
-    send_email(dissert, template, receivers)
+    result_send_mail = send_email(dissert, template, receivers)
+

@@ -50,6 +50,16 @@ def create_current_academic_year():
                                     )
 
 
+def get_current_year():
+    now = datetime.datetime.now()
+    ref_date = datetime.datetime(now.year, 9, 15)
+    if now < ref_date:
+        start_date = datetime.date(now.year-1, 9, 15)
+    else:
+        start_date = datetime.date(now.year, 9, 15)
+    return start_date.year
+
+
 class AcademicYearFactory(DjangoModelFactory):
     class Meta:
         model = "base.AcademicYear"

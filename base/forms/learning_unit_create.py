@@ -37,16 +37,16 @@ from base.forms.utils.choice_field import add_blank
 from base.models.campus import find_main_campuses
 from base.models.entity_version import find_main_entities_version, find_main_entities_version_filtered_by_person
 from base.models.enums import entity_container_year_link_type
-from base.models.enums import learning_container_year_types
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_FULL, LEARNING_UNIT_ACRONYM_REGEX_PARTIM
-from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
-from reference.models.language import find_all_languages
+from reference.models.language import find_all_languages, find_by_code
 
+MINIMUM_CREDITS = 0
+MAXIMUM_CREDITS = 500
 MAX_RECORDS = 1000
 READONLY_ATTR = "disabled"
 PARTIM_FORM_READ_ONLY_FIELD = {'first_letter', 'acronym', 'common_title', 'common_title_english', 'requirement_entity',
@@ -81,22 +81,25 @@ class MaxStrictlyValueValidator(BaseValidator):
 
 
 class LearningUnitYearForm(BootstrapForm):
+    first_letter = forms.ChoiceField(choices=lazy(_create_first_letter_choices, tuple), required=True)
     acronym = forms.CharField(widget=forms.TextInput(attrs={'maxlength': "15", 'required': True}))
-    academic_year = forms.ModelChoiceField(queryset=mdl.academic_year.find_academic_years(), required=True,
-                                           empty_label=_('all_label'))
+    academic_year = forms.ModelChoiceField(queryset=mdl.academic_year.find_academic_years(), required=True)
     status = forms.BooleanField(required=False, initial=True)
-    internship_subtype = forms.ChoiceField(choices=add_blank(mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES),
-                                           required=False)
-    credits = forms.DecimalField(decimal_places=2, validators=[MinValueValidator(MINIMUM_CREDITS),
-                                                               MaxValueValidator(MAXIMUM_CREDITS)])
+    internship_subtype = forms.TypedChoiceField(
+        choices=add_blank(mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES),
+        required=False, empty_value=None)
+    credits = forms.DecimalField(decimal_places=2,
+                                 validators=[MinValueValidator(0),
+                                             MaxValueValidator(MAXIMUM_CREDITS)],
+                                 widget=forms.TextInput(attrs={'min': MINIMUM_CREDITS,
+                                                               'max': MAXIMUM_CREDITS}))
     common_title = forms.CharField()
     common_title_english = forms.CharField(required=False, widget=forms.TextInput())
-    partial_title = forms.CharField(required=False)
-    partial_english_title = forms.CharField(required=False, widget=forms.TextInput())
+    specific_title = forms.CharField(required=False)
+    specific_title_english = forms.CharField(required=False, widget=forms.TextInput())
     session = forms.ChoiceField(add_blank(mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION),
                                 required=False)
     subtype = forms.CharField(widget=forms.HiddenInput())
-    first_letter = forms.ChoiceField(choices=lazy(_create_first_letter_choices, tuple), required=True)
     container_type = forms.ChoiceField(choices=lazy(_create_learning_container_year_type_list, tuple),
                                        widget=forms.Select(attrs={'onchange': 'showInternshipSubtype()'}))
     faculty_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
@@ -133,23 +136,20 @@ class LearningUnitYearForm(BootstrapForm):
                                                                  widget=forms.Select(attrs={'disable': 'disable'}))
     language = forms.ModelChoiceField(find_all_languages(), empty_label=None)
 
-    acronym_regex = LEARNING_UNIT_ACRONYM_REGEX_FULL
+    def clean(self):
+        cleaned_data = super().clean()
+        if 'internship_subtype' in self.fields \
+                and cleaned_data.get("container_type") == INTERNSHIP \
+                and not (cleaned_data['internship_subtype']):
+            self.add_error('internship_subtype', _('field_is_required'))
+        return cleaned_data
 
     def clean_acronym(self):
-        data_cleaned = self.data.get('first_letter', "") + self.cleaned_data.get('acronym')
-        return data_cleaned.upper()
-
-    def is_valid(self):
-        if not super().is_valid():
-            return False
-        elif not re.match(self.acronym_regex, self.cleaned_data['acronym']):
+        merge_first_letter_acronym = self.cleaned_data.get('first_letter', "") + self.cleaned_data.get('acronym', "")
+        acronym = merge_first_letter_acronym.upper()
+        if not re.match(LEARNING_UNIT_ACRONYM_REGEX_FULL, acronym):
             self.add_error('acronym', _('invalid_acronym'))
-        elif 'internship_subtype' in self.fields \
-                and self.cleaned_data["container_type"] == INTERNSHIP \
-                and not (self.cleaned_data['internship_subtype']):
-            self.add_error('internship_subtype', _('field_is_required'))
-        else:
-            return True
+        return acronym
 
 
 class CreateLearningUnitYearForm(LearningUnitYearForm):
@@ -162,21 +162,24 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
             self.fields["container_type"].choices = create_faculty_learning_container_type_list()
             self.fields.pop('internship_subtype')
 
-    def is_valid(self):
-        if not super().is_valid():
-            return False
+    def clean(self):
+        cleaned_data = super().clean()
+        if 'acronym' in cleaned_data and 'academic_year' in cleaned_data:
+            acronym = cleaned_data['acronym']
+            academic_year = cleaned_data['academic_year']
+            learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym)
+            learning_unit_years_list = [learning_unit_year.acronym for learning_unit_year in learning_unit_years]
+            if acronym in learning_unit_years_list:
+                self.add_error('acronym', _('existing_acronym'))
+        return cleaned_data
+
+    def clean_academic_year(self):
+        academic_year = self.cleaned_data['academic_year']
         academic_year_max = learning_unit.compute_max_academic_year_adjournment()
-        learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(self.cleaned_data['academic_year'],
-                                                                           self.cleaned_data['acronym'])
-        learning_unit_years_list = [learning_unit_year.acronym for learning_unit_year in learning_unit_years]
-        if self.cleaned_data['acronym'] in learning_unit_years_list:
-            self.add_error('acronym', _('existing_acronym'))
-            return False
-        elif self.cleaned_data['academic_year'].year > academic_year_max:
-            error_msg = _('learning_unit_creation_academic_year_max_error').format(academic_year_max)
-            self._errors['academic_year'] = error_msg
-            return False
-        return True
+        if academic_year.year > academic_year_max:
+            self.add_error('academic_year',
+                           _('learning_unit_creation_academic_year_max_error').format(academic_year_max))
+        return academic_year
 
 
 class CreatePartimForm(CreateLearningUnitYearForm):
@@ -186,7 +189,6 @@ class CreatePartimForm(CreateLearningUnitYearForm):
                                                                      'maxlength': "1",
                                                                      'id': 'hdn_partim_character',
                                                                      'onchange': 'validate_acronym()'}))
-    acronym_regex = LEARNING_UNIT_ACRONYM_REGEX_PARTIM
 
     def __init__(self, learning_unit_year_parent, *args, **kwargs):
         self.learning_unit_year_parent = learning_unit_year_parent
@@ -202,4 +204,8 @@ class CreatePartimForm(CreateLearningUnitYearForm):
                 self.fields[field].widget.attrs[READONLY_ATTR] = READONLY_ATTR
 
     def clean_acronym(self):
-        return super(CreatePartimForm, self).clean_acronym() + self.data.get('partim_character', [])[0].upper()
+        acronym = super().clean_acronym()
+        acronym += self.data['partim_character'].upper()
+        if not re.match(LEARNING_UNIT_ACRONYM_REGEX_PARTIM, acronym):
+            self.add_error('acronym', _('invalid_acronym'))
+        return acronym

@@ -98,6 +98,26 @@ class LearningUnitYearTest(TestCase):
                                                                                              flat=True))
         self.assertEqual(result, [2017])
 
+    def test_find_gt_learning_unit_year(self):
+        learning_unit = LearningUnitFactory()
+        dict_learning_unit_year = create_learning_units_year(2000, 2017, learning_unit)
+
+        selected_learning_unit_year = dict_learning_unit_year[2007]
+
+        result = list(selected_learning_unit_year.find_gt_learning_units_year().values_list('academic_year__year',
+                                                                                             flat=True))
+        self.assertListEqual(result, list(range(2008, 2018)))
+
+    def test_find_gt_learning_units_year_case_no_future(self):
+        learning_unit = LearningUnitFactory()
+        dict_learning_unit_year = create_learning_units_year(2000, 2017, learning_unit)
+
+        selected_learning_unit_year = dict_learning_unit_year[2017]
+
+        result = list(selected_learning_unit_year.find_gt_learning_units_year().values_list('academic_year__year',
+                                                                                             flat=True))
+        self.assertEqual(result, [])
+
     def test_get_learning_unit_parent(self):
         lunit_container_year = LearningContainerYearFactory(academic_year=self.academic_year, acronym='LBIR1230')
         luy_parent = LearningUnitYearFactory(academic_year=self.academic_year, acronym='LBIR1230',
@@ -128,7 +148,6 @@ class LearningUnitYearTest(TestCase):
     def test_complete_title_only_common_title(self):
         a_common_title = "Titre commun"
 
-
         lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_year,
                                                           common_title=a_common_title)
         luy = LearningUnitYearFactory(academic_year=self.academic_year,
@@ -141,3 +160,20 @@ class LearningUnitYearTest(TestCase):
                                       specific_title=None,
                                       learning_container_year=None)
         self.assertIsNone(luy.complete_title)
+
+
+    def test_search_by_title(self):
+        common_part = "commun"
+        a_common_title = "Titre {}".format(common_part)
+        a_specific_title = "Specific title {}".format(common_part)
+        lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_year,
+                                                          common_title=a_common_title)
+        luy = LearningUnitYearFactory(academic_year=self.academic_year,
+                                      specific_title=a_specific_title,
+                                      learning_container_year=lunit_container_yr)
+
+
+        self.assertEqual(learning_unit_year.search(title="{} en plus".format(a_common_title)).count(), 0)
+        self.assertEqual(learning_unit_year.search(title=a_common_title)[0], luy)
+        self.assertEqual(learning_unit_year.search(title=common_part)[0], luy)
+        self.assertEqual(learning_unit_year.search(title=a_specific_title)[0], luy)

@@ -23,13 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.utils.translation import ugettext_lazy as _
+
 
 ACTIVE = "ACTIVE"
 INACTIVE = "INACTIVE"
 RE_REGISTRATION = "RE_REGISTRATION"
 
 ACTIVE_STATUS_LIST = (
-    (ACTIVE, ACTIVE),
-    (INACTIVE, INACTIVE),
-    (RE_REGISTRATION, RE_REGISTRATION)
+    (ACTIVE, _(ACTIVE)),
+    (INACTIVE, _(INACTIVE)),
+    (RE_REGISTRATION, _(RE_REGISTRATION))
 )

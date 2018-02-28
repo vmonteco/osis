@@ -39,7 +39,7 @@
 <div class="panel panel-default">
     <div class="panel-body">
         <form method="post" action="{% url 'learning_unit_year_partim_add' learning_unit_year_id=request.resolver_match.kwargs.learning_unit_year_id %}"
-              data-validate-url="{% url 'check_acronym'%}"
+              data-validate-url="{% url 'check_acronym'  type='PARTIM' %}"
               id="LearningUnitYearForm">
             {% csrf_token %}
             <div class="panel panel-default">
@@ -175,12 +175,12 @@
                             </label>
                         </div>
                         <div class="col-md-6">
-                            <label {% if form.errors.partial_title %}style="color:red;"{% endif %}>
+                            <label {% if form.errors.specific_title %}style="color:red;"{% endif %}>
                                 {% trans 'official_title_proper_to_UE' %}
                             </label>
-                            {{ form.partial_title }}
-                            <label {% if form.errors.partial_title %}style="color:red;"{% endif %}>
-                                {{ form.errors.partial_title| striptags }}
+                            {{ form.specific_title }}
+                            <label {% if form.errors.specific_title %}style="color:red;"{% endif %}>
+                                {{ form.errors.specific_title | striptags }}
                             </label>
                         </div>
                     </div>
@@ -191,7 +191,7 @@
                         </div>
                         <div class="col-md-6">
                             <label>{% trans 'official_english_title_proper_to_UE' %}</label>
-                            {{ form.partial_english_title }}
+                            {{ form.specific_title_english }}
                         </div>
                     </div>
                 </div>
@@ -212,7 +212,7 @@
                             </label>
                         </div>
                         <div class="col-md-6">
-                            <label>{% trans 'allocation_entity' %}</label>
+                            <label>{% trans 'allocation_entity' %}*</label>
                             {{ form.allocation_entity }}
                         </div>
                     </div>
@@ -260,6 +260,8 @@
         const trans_invalid_acronym = "{% trans 'invalid_acronym' %}";
         const trans_existing_acronym = "{% trans 'existing_acronym' %}";
         const trans_field_required = "{% trans 'field_is_required' %}";
+        const trans_field_min = "{% trans 'min_for_field' %}";
+        const trans_field_max = "{% trans 'max_for_field' %}";
         const trans_invalid_partim_character = "{% trans 'invalid_partim_character' %}";
         const currentAcronym = "";
     </script>

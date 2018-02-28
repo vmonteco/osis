@@ -24,10 +24,10 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 from base.models.osis_model_admin import OsisModelAdmin
+from base.models import entity
 
 
 class ProposalFolderAdmin(OsisModelAdmin):
@@ -57,6 +57,6 @@ def find_by_entity_and_folder_id(an_entity, a_folder_id):
         return None
 
 
-
-
-
+def find_distinct_folder_entities():
+    entities = ProposalFolder.objects.distinct('entity').values_list('entity__id', flat=True)
+    return entity.Entity.objects.filter(pk__in=entities)
