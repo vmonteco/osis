@@ -76,7 +76,6 @@ def find_by_person(person):
         return False
 
 
-
 def find_by_role(role):
     return Reviewer.objects.filter(role=role)
 

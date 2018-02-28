@@ -43,16 +43,6 @@ from assistant.models import reviewer, settings, assistant_document_file
 from assistant.models.enums import review_status, assistant_mandate_state, reviewer_role, document_type
 from assistant.models.enums import assistant_mandate_renewal
 
-""""
-def user_is_reviewer_and_procedure_is_open(user):
-    try:
-        if user.is_authenticated() and settings.access_to_procedure_is_open() and reviewer.find_by_person(user.person):
-            return True
-        else:
-            return False
-    except ObjectDoesNotExist:
-        return False
-"""
 
 @require_http_methods(["POST"])
 @user_passes_test(user_is_reviewer_and_procedure_is_open, login_url='access_denied')
