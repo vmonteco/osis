@@ -355,7 +355,7 @@ class LearningUnitYearDeletion(TestCase):
                                                      learning_container_year=l_containeryear,
                                                      subtype=learning_unit_year_subtypes.FULL)
 
-        # Can remove FULL COURSE
+        # Cannot remove FULL COURSE
         self.assertFalse(
             base.business.learning_units.perms.can_delete_learning_unit_year(learning_unit_year, person))
 

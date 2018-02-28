@@ -39,6 +39,9 @@ TYPES_PROPOSAL_NEEDED_TO_EDIT = (learning_container_year_types.COURSE,
 PROPOSAL_TYPE_ACCEPTED_FOR_UPDATE = (proposal_type.ProposalType.CREATION.name,
                                      proposal_type.ProposalType.MODIFICATION.name,
                                      proposal_type.ProposalType.TRANSFORMATION.name)
+CANCELLABLE_PROPOSAL_TYPES = (ProposalType.MODIFICATION.name,
+                              ProposalType.TRANSFORMATION.name,
+                              ProposalType.TRANSFORMATION_AND_MODIFICATION.name)
 
 
 def is_person_linked_to_entity_in_charge_of_learning_unit(a_person, a_learning_unit_year):
@@ -66,13 +69,7 @@ def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
     if not learning_unit_proposal or learning_unit_proposal.state != ProposalState.FACULTY.name:
         return False
 
-    valid_type = [
-        ProposalType.MODIFICATION.name,
-        ProposalType.TRANSFORMATION.name,
-        ProposalType.TRANSFORMATION_AND_MODIFICATION.name
-    ]
-
-    if learning_unit_proposal.type not in valid_type:
+    if learning_unit_proposal.type not in CANCELLABLE_PROPOSAL_TYPES:
         return False
 
     initial_entity_requirement_id = learning_unit_proposal.initial_data["entities"][REQUIREMENT_ENTITY]
@@ -136,14 +133,12 @@ def _learning_unit_year_is_on_proposal(learn_unit_year):
 
 
 def can_delete_learning_unit_year(learning_unit_year, person):
-    # Check person_entity linked
     if not person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year):
         return False
     return _can_delete_learning_unit_year_according_type(learning_unit_year, person)
 
 
 def _can_delete_learning_unit_year_according_type(learning_unit_year, person):
-    # Faculty manager can only delete other type than COURSE/INTERNSHIP/DISSERTATION
     if not person.is_central_manager() and person.is_faculty_manager():
         container_type = learning_unit_year.learning_container_year.container_type
         subtype = learning_unit_year.subtype
