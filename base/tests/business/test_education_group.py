@@ -27,9 +27,9 @@ from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
-from base.business.education_group import can_user_edit_administrative_data, CENTRAL_MANAGER_GROUP
+from base.business.education_group import can_user_edit_administrative_data
 from base.models.enums import offer_year_entity_type
-from base.models.person import Person
+from base.models.person import Person, CENTRAL_MANAGER_GROUP
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
@@ -49,6 +49,7 @@ class EducationGroupTestCase(TestCase):
             codename="can_edit_education_group_administrative_data",
             content_type=content_type)
         self.user = UserFactory()
+        self.person = PersonFactory(user=self.user)
         self.user.user_permissions.add(permission)
         # Create structure
         self._create_basic_entity_structure()
@@ -69,8 +70,7 @@ class EducationGroupTestCase(TestCase):
 
     def test_can_user_edit_administrative_data_with_permission_and_pgrm_manager(self):
         """With permission and program manager of education group ==> Allowed"""
-        person = PersonFactory(user=self.user)
-        ProgramManagerFactory(person=person,education_group=self.education_group_year.education_group)
+        ProgramManagerFactory(person=self.person, education_group=self.education_group_year.education_group)
         self.assertTrue(can_user_edit_administrative_data(self.user, self.education_group_year))
 
     def test_can_user_edit_administartive_data_group_central_manager_no_entity_linked(self):
@@ -81,30 +81,26 @@ class EducationGroupTestCase(TestCase):
     def test_can_user_edit_administartive_data_group_central_manager_entity_linked(self):
         """With permission + Group central manager + Linked to the right entity ==> Allowed """
         _add_to_group(self.user, CENTRAL_MANAGER_GROUP)
-        person = PersonFactory(user=self.user)
-        PersonEntityFactory(person=person, entity=self.chim_entity, with_child=False)
+        PersonEntityFactory(person=self.person, entity=self.chim_entity, with_child=False)
         self.assertTrue(can_user_edit_administrative_data(self.user, self.education_group_year))
 
     def test_can_user_edit_administartive_data_group_central_manager_parent_entity_linked_with_child(self):
         """With permission + Group central manager + Linked to the parent entity (with child TRUE) ==> Allowed """
         _add_to_group(self.user, CENTRAL_MANAGER_GROUP)
-        person = PersonFactory(user=self.user)
-        PersonEntityFactory(person=person, entity=self.root_entity, with_child=True)
+        PersonEntityFactory(person=self.person, entity=self.root_entity, with_child=True)
         self.assertTrue(can_user_edit_administrative_data(self.user, self.education_group_year))
 
     def test_can_user_edit_administartive_data_group_central_manager_parent_entity_linked_no_child(self):
         """With permission + Group central manager + Linked to the parent entity (with child FALSE) ==> Refused """
         _add_to_group(self.user, CENTRAL_MANAGER_GROUP)
-        person = PersonFactory(user=self.user)
-        PersonEntityFactory(person=person, entity=self.root_entity, with_child=False)
+        PersonEntityFactory(person=self.person, entity=self.root_entity, with_child=False)
         self.assertFalse(can_user_edit_administrative_data(self.user, self.education_group_year))
 
     def test_can_user_edit_administartive_data_group_central_manager_no_entity_linked_but_program_manager(self):
         """With permission + Group central manager + Linked to the parent entity (with_child FALSE) + IS program manager ==> Allowed """
         _add_to_group(self.user, CENTRAL_MANAGER_GROUP)
-        person = PersonFactory(user=self.user)
-        PersonEntityFactory(person=person, entity=self.root_entity, with_child=False)
-        ProgramManagerFactory(person=person, education_group=self.education_group_year.education_group)
+        PersonEntityFactory(person=self.person, entity=self.root_entity, with_child=False)
+        ProgramManagerFactory(person=self.person, education_group=self.education_group_year.education_group)
         self.assertTrue(can_user_edit_administrative_data(self.user, self.education_group_year))
 
     def _create_basic_entity_structure(self):

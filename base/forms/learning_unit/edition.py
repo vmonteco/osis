@@ -36,7 +36,6 @@ from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_RE
 from base.forms.utils.choice_field import add_blank
 from base.models import academic_year
 from base.models.academic_year import AcademicYear
-from base.models.entity_version import find_main_entities_version_filtered_by_person
 from base.models.enums.attribution_procedure import AttributionProcedures
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums.learning_container_year_types import INTERNSHIP, DISSERTATION
@@ -113,8 +112,8 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     type_declaration_vacant = forms.ChoiceField(required=False, choices=_create_type_declaration_vacant_list())
     attribution_procedure = forms.ChoiceField(required=False, choices=_create_attribution_procedure_list())
 
-    def __init__(self, *args, person=None, learning_unit_year_instance=None, **kwargs):
-        initial = kwargs.get("initial", None)
+    def __init__(self, *args, person, learning_unit_year_instance=None, **kwargs):
+        initial = kwargs.get("initial")
         learning_unit_year_subtype = initial.get("subtype") if initial else None
         learning_container_type = initial.get("container_type") if initial else None
         parent = learning_unit_year_instance.parent if learning_unit_year_instance else None
@@ -123,7 +122,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
 
         super().__init__(*args, **kwargs)
 
-        self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
+        self.fields["requirement_entity"].queryset = person.find_main_entities_version
 
         self._disabled_fields_base_on_learning_unit_year_subtype(learning_unit_year_subtype)
         self._disabled_internship_subtype_field_if_not_internship_container_type(learning_container_type)

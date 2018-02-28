@@ -23,22 +23,22 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.contrib.auth.models import Permission, Group
 from django.test import TestCase
-from base.tests.factories.academic_year import AcademicYearFactory
+from django.utils import timezone
 
 from base.business.learning_units import perms
-from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
-from django.utils import timezone
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory
-from base.tests.factories.learning_container_year import LearningContainerYearFactory
-from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
-from base.tests.factories.person import PersonFactory
 from base.models.enums import proposal_state, proposal_type, learning_container_year_types
-from base.tests.factories.user import UserFactory
-from base.tests.factories.person_entity import PersonEntityFactory
-from django.contrib.auth.models import Permission, Group
+from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.person import FACULTY_MANAGER_GROUP, CENTRAL_MANAGER_GROUP
+from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.business.learning_units import GenerateContainer
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.person import PersonFactory
+from base.tests.factories.person_entity import PersonEntityFactory
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
+from base.tests.factories.user import UserFactory
 
 TYPES_PROPOSAL_NEEDED_TO_EDIT = (learning_container_year_types.COURSE,
                                  learning_container_year_types.DISSERTATION,
@@ -108,6 +108,7 @@ class PermsTestCase(TestCase):
 
         luy = generated_container_first_year.learning_unit_year_full
         a_person = self.get_person(FACULTY_MANAGER_GROUP)
+
         self.assertFalse(perms.is_eligible_to_edit_proposal(None, a_person))
 
         a_proposal = ProposalLearningUnitFactory(state=proposal_state.ProposalState.CENTRAL.name,
@@ -128,8 +129,8 @@ class PermsTestCase(TestCase):
             a_proposal.save()
             self.assertTrue(perms.is_eligible_to_edit_proposal(a_proposal, a_person))
 
-
-    def get_person(self, group_name):
+    @staticmethod
+    def get_person(group_name):
         a_user = UserFactory()
         permission = Permission.objects.get(codename='can_edit_learning_unit_proposal')
         a_user.user_permissions.add(permission)

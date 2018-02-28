@@ -41,7 +41,6 @@ def filter_by_attached_entities(person, queryset):
     entities_attached = person_entity.find_entities_by_person(person)
     field_path = MAP_ENTITY_FIELD.get(queryset.model)
     if not field_path:
-       raise ObjectDoesNotExist
+        raise ObjectDoesNotExist
     field_filter = "{}__in".format(field_path)
     return queryset.filter(**{field_filter: entities_attached})
-
