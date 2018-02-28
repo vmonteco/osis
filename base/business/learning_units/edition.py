@@ -33,6 +33,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_unit_deletion import delete_from_given_learning_unit_year, \
     check_learning_unit_year_deletion
+from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.utils.model import update_instance_model_from_data
 from base.models import entity_component_year
 from base.models import entity_container_year, learning_component_year, learning_class_year, learning_unit_component
@@ -302,7 +303,9 @@ def _update_learning_unit_year_entities(luy, entities_by_type_to_update):
 
 def update_or_create_entity_container_year_with_components(an_entity, learning_container_year, type_entity):
     an_entity_container_year = _update_entity_container_year(an_entity, learning_container_year, type_entity)
-    _create_entity_component_year_if_not_exists(an_entity_container_year)
+    if type_entity in ENTITY_TYPES_VOLUME:
+        # Only entity with volume can have entity_component_year
+        _create_entity_component_year_if_not_exists(an_entity_container_year)
 
 
 def _update_entity_container_year(an_entity, learning_container_year, type_entity):
