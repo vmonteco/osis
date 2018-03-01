@@ -199,3 +199,8 @@ class LearningUnitYearTest(TestCase):
     def test_common_title_property(self):
         self.assertEqual(self.learning_unit_year.container_common_title,
                          self.learning_unit_year.learning_container_year.common_title)
+
+
+    def test_common_title_property_no_container(self):
+        self.learning_unit_year.learning_container_year = None
+        self.assertEqual(self.learning_unit_year.container_common_title, '')
