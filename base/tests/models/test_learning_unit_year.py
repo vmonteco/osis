@@ -29,12 +29,13 @@ from attribution.models import attribution
 
 from base.models import learning_unit_year
 from base.models.enums import learning_unit_year_subtypes
-from base.models.learning_unit_year import find_max_credits_of_related_partims
+from base.models.learning_unit_year import find_max_credits_of_related_partims, get_proposal
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory, create_learning_units_year
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 
 
 class LearningUnitYearTest(TestCase):
@@ -195,3 +196,8 @@ class LearningUnitYearTest(TestCase):
         max_credits = find_max_credits_of_related_partims(self.learning_unit_year)
         self.assertEqual(max_credits, None)
 
+    def test_has_proposal(self):
+        luy = LearningUnitYearFactory()
+        self.assertFalse(get_proposal(luy))
+        proposal_learning_unit = ProposalLearningUnitFactory(learning_unit_year=luy)
+        self.assertTrue(get_proposal(luy))
