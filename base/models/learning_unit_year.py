@@ -29,6 +29,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from base.models import entity_container_year
+from base.models import proposal_learning_unit
 from base.models.enums import active_status
 from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
@@ -123,6 +124,12 @@ class LearningUnitYear(AuditableSerializableModel):
         if self.specific_title and common_tit:
             return "{} {}".format(common_tit, self.specific_title)
         return common_tit
+
+    @property
+    def has_proposal(self):
+        if proposal_learning_unit.find_by_learning_unit_year(self):
+            return True
+        return False
 
     def get_partims_related(self):
         if self.subtype == learning_unit_year_subtypes.FULL and self.learning_container_year:
