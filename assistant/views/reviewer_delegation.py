@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from itertools import chain
+
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ObjectDoesNotExist
@@ -62,7 +64,7 @@ class StructuresListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             self.is_supervisor = True
         rev = reviewer.find_by_person(self.request.user.person)
         main_entity_version = entity_version.get_last_version(rev.entity)
-        queryset = entity_version.EntityVersion.find_direct_children(main_entity_version, None)
+        queryset = list(main_entity_version.find_direct_children())
         queryset.insert(0, main_entity_version)
         return queryset
 
