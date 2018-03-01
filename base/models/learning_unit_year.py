@@ -242,6 +242,4 @@ def find_max_credits_of_related_partims(a_learning_unit_year):
 
 
 def get_proposal(luy):
-    if proposal_learning_unit.find_by_learning_unit_year(luy):
-        return True
-    return False
+    return proposal_learning_unit.find_by_learning_unit_year(luy)
