@@ -39,7 +39,8 @@
         </ul>
     </div>
     <div class="col-md-10">
-         <h2>{{ header_title|default_if_none:'' }}</h2>
+        <h3>{{ acronym|default_if_none:'' }} &mdash; {{ current_yr|default_if_none:'' }}</h3>
+        <h3 style="margin-top: 0;">{{ common_title|default_if_none:'' }} &mdash; {{ specific_title|default_if_none:'' }}</h3>
     </div>
     <div class="col-md-1">
         <ul class="pager">
