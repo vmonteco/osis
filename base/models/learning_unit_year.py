@@ -125,7 +125,7 @@ class LearningUnitYear(AuditableSerializableModel):
         return common_tit
 
     @property
-    def common_title(self):
+    def container_common_title(self):
         if self.learning_container_year:
             return self.learning_container_year.common_title
         return ''
