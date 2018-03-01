@@ -29,11 +29,9 @@ from assistant.models import tutoring_learning_unit_year
 from attribution.models.attribution import Attribution
 from attribution.models.attribution_charge_new import AttributionChargeNew
 from attribution.models.attribution_new import AttributionNew
-from base.models import entity_container_year, proposal_learning_unit
+from base.models import proposal_learning_unit
 from base.models import learning_unit_enrollment, learning_unit_component, learning_class_year, \
     learning_unit_year as learn_unit_year_model
-from base.models import person_entity
-from base.models.enums import learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes
 from base.business.learning_unit import CMS_LABEL_SPECIFICATIONS, CMS_LABEL_PEDAGOGY, CMS_LABEL_SUMMARY
 from cms.models import translated_text
@@ -159,29 +157,6 @@ def _check_related_partims_deletion(learning_container_year):
         msg.update(check_learning_unit_year_deletion(partim))
 
     return msg
-
-
-def can_delete_learning_unit_year(person, learning_unit_year):
-    # Check person_entity linked
-    requirement_entity_version = entity_container_year.find_requirement_entity(
-        learning_unit_year.learning_container_year)
-    entities_linked = person_entity.find_entities_by_person(person)
-    if not requirement_entity_version or requirement_entity_version.entity not in entities_linked:
-        return False
-    return _can_delete_learning_unit_year_according_type(person.user, learning_unit_year)
-
-
-def _can_delete_learning_unit_year_according_type(user, learning_unit_year):
-    # Faculty manager can only delete other type than COURSE/INTERNSHIP/DISSERTATION
-    if not user.person.is_central_manager() and user.person.is_faculty_manager():
-        container_type = learning_unit_year.learning_container_year.container_type
-        subtype = learning_unit_year.subtype
-
-        return not (
-                container_type == learning_container_year_types.COURSE and subtype == learning_unit_year_subtypes.FULL
-        ) and container_type not in [learning_container_year_types.DISSERTATION,
-                                     learning_container_year_types.INTERNSHIP]
-    return True
 
 
 def delete_learning_unit(learning_unit):

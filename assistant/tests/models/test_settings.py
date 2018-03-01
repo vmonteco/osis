@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,24 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
+from django.test import TestCase
 
-from base.models import person_entity
-from base.models.entity_version import EntityVersion
-from base.models.person_entity import PersonEntity
-from base.models.entity_container_year import EntityContainerYear
+from assistant.tests.factories.settings import SettingsFactory
+from assistant.models.settings import access_to_procedure_is_open
 
-MAP_ENTITY_FIELD = {
-    EntityVersion: 'entity',
-    PersonEntity: 'entity',
-    EntityContainerYear: 'entity'
-}
+class TestSettingsFactory(TestCase):
+    def setUp(self):
+        self.settings = SettingsFactory()
 
+    def test_access_to_procedure_is_open(self):
+        self.assertEqual(access_to_procedure_is_open(), True)
 
-def filter_by_attached_entities(person, queryset):
-    entities_attached = person_entity.find_entities_by_person(person)
-    field_path = MAP_ENTITY_FIELD.get(queryset.model)
-    if not field_path:
-        raise ObjectDoesNotExist
-    field_filter = "{}__in".format(field_path)
-    return queryset.filter(**{field_filter: entities_attached})
+    def test_access_to_procedure_is_not_open(self):
+        self.settings.starting_date = timezone.now() + timezone.timedelta(days=10)
+        self.settings.ending_date = timezone.now() + timezone.timedelta(days=50)
+        self.settings.save()
+        self.assertFalse(access_to_procedure_is_open())

@@ -40,7 +40,7 @@ class ReviewFactory(factory.DjangoModelFactory):
     mandate =  factory.SubFactory(AssistantMandateFactory)
     advice = factory.Iterator(review_advice_choices.REVIEW_ADVICE_CHOICES, getter=lambda c: c[0])
     status = review_status.DONE
-    if advice == review_advice_choices.CONDITIONAL:
+    if advice != review_advice_choices.FAVORABLE:
         justification = factory.Faker('text', max_nb_chars=50)
     changed = datetime.date.today()
     confidential = factory.Faker('text', max_nb_chars=50)

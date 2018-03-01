@@ -36,7 +36,7 @@ def can_create_partim(view_func):
     def f_can_create_partim(request, learning_unit_year_id):
         learn_unit_year = get_object_or_404(learning_unit_year.LearningUnitYear, pk=learning_unit_year_id)
         pers = get_object_or_404(person.Person, user=request.user)
-        if not business_perms.is_person_linked_to_entity_in_charge_of_learning_unit(learn_unit_year, pers):
+        if not business_perms.is_person_linked_to_entity_in_charge_of_learning_unit(pers, learn_unit_year):
             raise PermissionDenied
         return view_func(request, learning_unit_year_id)
     return f_can_create_partim
@@ -56,6 +56,7 @@ def can_edit_learning_unit_proposal(view_func):
     def f_can_edit_learning_unit_proposal(request, learning_unit_year_id):
         proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year_id)
         pers = get_object_or_404(person.Person, user=request.user)
+
         if not business_perms.is_eligible_to_edit_proposal(proposal, pers):
             raise PermissionDenied(
                 "User has not sufficient rights to edit proposal."

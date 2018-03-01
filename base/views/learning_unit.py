@@ -44,7 +44,6 @@ from django.views.decorators.http import require_http_methods, require_POST, req
 from attribution.business import attribution_charge_new
 from base import models as mdl
 from base import models as mdl_base
-from base.business import learning_unit_deletion
 from base.business.learning_unit import get_cms_label_data, \
     get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
@@ -55,7 +54,10 @@ from base.business.learning_unit import get_cms_label_data, \
     CMS_LABEL_PEDAGOGY, CMS_LABEL_SUMMARY
 from base.business.learning_unit_proposal import _get_difference_of_proposal
 from base.business.learning_units import perms as business_perms
-from base.business.learning_units.perms import is_eligible_to_edit_proposal
+from base.business.learning_units.perms import is_eligible_to_edit_proposal, \
+    is_person_linked_to_entity_in_charge_of_learning_unit, is_eligible_to_create_modification_proposal, \
+    is_eligible_for_modification_end_date, is_eligible_for_modification, is_eligible_for_cancel_of_proposal, \
+    can_delete_learning_unit_year
 from base.business.learning_units.simple.creation import create_learning_unit_year_structure, create_learning_unit
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
@@ -87,13 +89,11 @@ def learning_unit_identification(request, learning_unit_year_id):
 
 
 def get_common_context_learning_unit_year(learning_unit_year_id, person):
-    learning_unit_year = mdl_base.learning_unit_year.get_by_id(learning_unit_year_id)
-    is_person_linked_to_entity = business_perms. \
-        is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, person)
+    learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     return {
         'learning_unit_year': learning_unit_year,
         'current_academic_year': mdl_base.academic_year.current_academic_year(),
-        'is_person_linked_to_entity': is_person_linked_to_entity
+        'is_person_linked_to_entity': person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
     }
 
 
@@ -305,19 +305,27 @@ def learning_unit_year_add(request):
     person = get_object_or_404(Person, user=request.user)
     learning_unit_form = CreateLearningUnitYearForm(person, request.POST)
     if learning_unit_form.is_valid():
-        data = learning_unit_form.cleaned_data
-        year = data['academic_year'].year
-        new_learning_container = LearningContainer.objects.create()
-        new_learning_unit = create_learning_unit(data, new_learning_container, year)
-        while year <= compute_max_academic_year_adjournment():
-            academic_year = mdl.academic_year.find_academic_year_by_year(year)
-            new_learning_unit_year = create_learning_unit_year_structure(data, new_learning_container,
-                                                                         new_learning_unit, academic_year)
-            show_success_learning_unit_year_creation_message(request, new_learning_unit_year,
-                                                             'learning_unit_successfuly_created')
-            year += 1
-        return redirect('learning_units')
+        first_learning_unit_year_id = _create_learning_unit_years_process(learning_unit_form, request)
+        return redirect('learning_unit', learning_unit_year_id=first_learning_unit_year_id)
     return layout.render(request, "learning_unit/simple/creation.html", {'learning_unit_form': learning_unit_form})
+
+
+def _create_learning_unit_years_process(learning_unit_form, request):
+    data = learning_unit_form.cleaned_data
+    year = data['academic_year'].year
+    new_learning_container = LearningContainer.objects.create()
+    new_learning_unit = create_learning_unit(data, new_learning_container, year)
+    first_learning_unit_year_id = None
+    while year <= compute_max_academic_year_adjournment():
+        academic_year = mdl.academic_year.find_academic_year_by_year(year)
+        new_learning_unit_year = create_learning_unit_year_structure(data, new_learning_container,
+                                                                     new_learning_unit, academic_year)
+        if not first_learning_unit_year_id:
+            first_learning_unit_year_id = new_learning_unit_year.id
+        show_success_learning_unit_year_creation_message(request, new_learning_unit_year,
+                                                         'learning_unit_successfuly_created')
+        year += 1
+    return first_learning_unit_year_id
 
 
 @login_required
@@ -523,7 +531,10 @@ def get_attributions_of_learning_unit_year(learning_unit_year):
 
 def get_learning_unit_identification_context(learning_unit_year_id, person):
     context = get_common_context_learning_unit_year(learning_unit_year_id, person)
+
     learning_unit_year = context['learning_unit_year']
+    proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
+
     context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
     context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
     context['campus'] = get_campus_from_learning_unit_year(learning_unit_year)
@@ -531,16 +542,19 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context['show_subtype'] = show_subtype(learning_unit_year)
     context.update(get_all_attributions(learning_unit_year))
     context['components'] = get_components_identification(learning_unit_year)
-    context['can_propose'] = business_perms.is_eligible_to_create_modification_proposal(learning_unit_year, person)
-    context['can_edit_date'] = business_perms.is_eligible_for_modification_end_date(learning_unit_year, person)
-    context['can_edit'] = business_perms.is_eligible_for_modification(learning_unit_year, person)
-    context['proposal'] = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
-    context['can_cancel_proposal'] = business_perms. \
-        is_eligible_for_cancel_of_proposal(context['proposal'], person) if context['proposal'] else False
-    context['can_edit_learning_unit_proposal'] = is_eligible_to_edit_proposal(context['proposal'], person)
+    context['proposal'] = proposal
     context['proposal_folder_entity_version'] = mdl_base.entity_version.get_by_entity_and_date(
-        context['proposal'].folder.entity, None) if context['proposal'] else None
-    context['can_delete'] = learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year)
-    learning_unit_yr_proposal = mdl_base.proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
-    context['differences'] = _get_difference_of_proposal(learning_unit_yr_proposal)
+        proposal.folder.entity, None) if proposal else None
+    context['differences'] = _get_difference_of_proposal(proposal)
+
+    # perms learning unit
+    context['can_propose'] = is_eligible_to_create_modification_proposal(learning_unit_year, person)
+    context['can_edit_date'] = is_eligible_for_modification_end_date(learning_unit_year, person)
+    context['can_edit'] = is_eligible_for_modification(learning_unit_year, person)
+    context['can_delete'] = can_delete_learning_unit_year(learning_unit_year, person)
+
+    # perms proposal
+    context['can_cancel_proposal'] = is_eligible_for_cancel_of_proposal(proposal, person)
+    context['can_edit_learning_unit_proposal'] = is_eligible_to_edit_proposal(proposal, person)
+
     return context
