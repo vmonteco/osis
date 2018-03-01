@@ -77,6 +77,9 @@ class LearningUnitProposalForm(SearchForm):
     )
 
     def is_valid(self):
+        if not super().is_valid():
+            return False
+
         if not self._has_criteria():
             self.add_error(None, _('minimum_one_criteria'))
             return False
