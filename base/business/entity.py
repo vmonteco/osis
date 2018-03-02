@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -36,5 +36,3 @@ def get_entities_ids(requirement_entity_acronym, with_entity_subordinated):
             all_descendants = entity_version.find_descendants(entity_version.start_date)
             entities_ids |= {descendant.entity.id for descendant in all_descendants}
     return list(entities_ids)
-
-

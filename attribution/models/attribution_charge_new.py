@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ class AttributionChargeNew(AuditableModel):
     allocation_charge = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
 
     def __str__(self):
-        return u"%s" % str(self.attribution)
+        return u"%s" % self.attribution
 
 
 def search(*args, **kwargs):

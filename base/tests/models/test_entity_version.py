@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,20 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.test import TestCase
-from django.utils import timezone
+import datetime
+
 import factory
 import factory.fuzzy
-import datetime
+from django.test import TestCase
+
 from base.models import entity_version
 from base.models.enums import organization_type
+from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from reference.tests.factories.country import CountryFactory
-from base.tests.factories.academic_year import AcademicYearFactory
 
 now = datetime.datetime.now()
 
@@ -217,8 +218,7 @@ class EntityVersionTest(TestCase):
         self.assertEqual(self.parent_entity_version.count_direct_children(date=self.date_in_2015), 3)
 
     def test_version_direct_children_out_dates(self):
-        self.assertCountEqual(self.parent_entity_version.find_direct_children(date=self.date_in_2017),
-                              [])
+        self.assertFalse(self.parent_entity_version.find_direct_children(date=self.date_in_2017).exists())
         self.assertEqual(self.parent_entity_version.count_direct_children(date=self.date_in_2017), 0)
 
     def test_version_direct_children_with_null_end(self):
@@ -275,7 +275,7 @@ class EntityVersionTest(TestCase):
             end_date=end_date
         )
 
-        self.assertEqual(entity_school_version_level2.find_parent_faculty_version(ac_yr),
+        self.assertEqual(entity_school_version_level2.find_faculty_version(ac_yr),
                          entity_faculty_version)
 
     def test_find_parent_faculty_version_no_parent(self):
@@ -296,7 +296,7 @@ class EntityVersionTest(TestCase):
             end_date=end_date
         )
 
-        self.assertIsNone(entity_school_version_no_parent.find_parent_faculty_version(ac_yr))
+        self.assertIsNone(entity_school_version_no_parent.find_faculty_version(ac_yr))
 
     def test_find_parent_faculty_version_no_faculty_parent(self):
 
@@ -325,7 +325,7 @@ class EntityVersionTest(TestCase):
             start_date=start_date,
             end_date=end_date
         )
-        self.assertIsNone(entity_school_version_level1.find_parent_faculty_version(ac_yr))
+        self.assertIsNone(entity_school_version_level1.find_faculty_version(ac_yr))
 
     def test_find_main_entities_version_filtered_by_person(self):
         person = PersonFactory()
@@ -336,7 +336,7 @@ class EntityVersionTest(TestCase):
         entity_not_attached = EntityFactory(organization=self.organization)
         EntityVersionFactory(entity=entity_not_attached, entity_type="SECTOR", parent=None, end_date=None)
         PersonEntityFactory(person=person, entity=entity_attached)
-        entity_list = list(entity_version.find_main_entities_version_filtered_by_person(person))
+        entity_list = list(person.find_main_entities_version)
         self.assertTrue(entity_list)
         self.assertEqual(len(entity_list), 1)
         self.assertEqual(entity_list[0], entity_version_attached)

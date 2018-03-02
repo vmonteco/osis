@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ def send_mail_after_scores_submission(persons, learning_unit_name, submitted_enr
                           'encoding_status':    _('encoding_status_ended') if all_encoded
                           else _('encoding_status_notended')
                           }
-    header_txt = ['acronym', 'sessionn', 'registration_number', 'lastname', 'firstname', 'score', 'documentation']
+    header_txt = ['acronym', 'session_title', 'registration_number', 'lastname', 'firstname', 'score', 'documentation']
     submitted_enrollments_data = [
         (
             enrollment.learning_unit_enrollment.offer_enrollment.offer_year.acronym,
@@ -70,33 +70,6 @@ def send_mail_after_scores_submission(persons, learning_unit_name, submitted_enr
 
     message_content = message_config.create_message_content(html_template_ref, txt_template_ref, [table], receivers,
                                                             template_base_data, suject_data)
-    return message_service.send_messages(message_content)
-
-
-def send_mail_after_academic_calendar_changes(academic_calendar, offer_year_calendar, programm_managers):
-    """
-    Send an email to all the programme manager after changes has been made on a offer_year_calendar with customized
-    = True
-    :param academic_calendar:
-    :param offer_year_calendar:
-    :param programm_managers:
-    :return un error message if the template does not exists.
-    """
-
-    html_template_ref = 'academic_calendar_changes_html'
-    txt_template_ref = 'academic_calendar_changes_txt'
-    receivers = [message_config.create_receiver(manager.person.id, manager.person.email, manager.person.language)
-                 for manager in programm_managers]
-    suject_data = {'offer_year':            str(offer_year_calendar.offer_year.acronym),
-                   'academic_calendar':     str(academic_calendar)}
-    template_base_data = {
-        'offer_year_title': offer_year_calendar.offer_year.title,
-        'offer_year_acronym': offer_year_calendar.offer_year.acronym,
-        'academic_calendar': str(academic_calendar),
-    }
-    message_content = message_config.create_message_content(html_template_ref, txt_template_ref,
-                                                            None, receivers, template_base_data, suject_data)
-
     return message_service.send_messages(message_content)
 
 
@@ -160,7 +133,7 @@ def send_message_after_all_encoded_by_manager(persons, enrollments, learning_uni
         ) for enrollment in enrollments]
     enrollments_headers = (
         'acronym',
-        'sessionn',
+        'session_title',
         'registration_number',
         'lastname',
         'firstname',

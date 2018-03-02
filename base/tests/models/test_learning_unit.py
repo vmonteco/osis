@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,14 +23,18 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
+
 from django.test import TestCase
+from django.utils.translation import ugettext_lazy as _
+
 from base.models import learning_unit
+from base.models.enums import learning_unit_year_subtypes
+from base.templatetags.learning_unit import academic_years, academic_year
 from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
-from base.tests.factories.learning_container_year import LearningContainerYearFactory
-from base.models.enums import learning_unit_year_subtypes
-import datetime
 
 
 def create_learning_unit(acronym, title):
@@ -86,3 +90,13 @@ class LearningUnitTest(TestCase):
         self.assertEqual(len(all_partims_container_year_1), 2)
         all_partims_container_year_2 = l_container_year_2.get_partims_related()
         self.assertEqual(len(all_partims_container_year_2), 0)
+
+    def test_academic_years_tags(self):
+        self.assertEqual(academic_years(2017, 2018), _('from').title()+" 2017-18 "+_('to').lower()+" 2018-19")
+        self.assertEqual(academic_years(None, 2018), "-")
+        self.assertEqual(academic_years(2017, None), _('from').title()+" 2017-18 ("+_('not_end_year').lower()+")")
+        self.assertEqual(academic_years(None, None), "-")
+
+    def test_academic_year_tags(self):
+        self.assertEqual(academic_year(2017), "2017-18")
+        self.assertEqual(academic_year(None), "-")

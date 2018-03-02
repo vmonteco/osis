@@ -1,0 +1,48 @@
+
+{% load bootstrap3 %}
+{% load i18n %}
+
+<div class="panel panel-default">
+    <div class="panel-body">
+
+        <p>{% trans 'proposal_management' %}</p>
+
+        <div class="row">
+
+            <div class="col-md-4">
+                <label for="{{ form.folder_id.id_for_label }}">{% trans 'folder' %}</label>
+            </div>
+
+            <div class="col-md-4">
+                {{ form.folder_entity }}
+                <span class="error">{{ form.folder_entity.errors }}</span>
+            </div>
+
+            <div class="col-md-4">
+                {{ form.folder_id }}
+                <span class="error">{{ form.folder_id.errors }}</span>
+            </div>
+
+            <br><br>
+
+            <div class="col-md-4">
+                <b>{% trans 'introduced_by' %}</b>
+            </div>
+
+            <div class="col-md-8">
+                {{ person|default_if_none:request.user }}
+            </div>
+
+            <br><br>
+
+            <div class="col-md-4">
+                <b>{% trans 'the' %}</b>
+            </div>
+
+            <div class="col-md-8">
+                {% now "d/m/Y" %}
+            </div>
+
+        </div>
+    </div>
+</div>

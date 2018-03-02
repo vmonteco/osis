@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -41,7 +41,6 @@ def filter_by_attached_entities(person, queryset):
     entities_attached = person_entity.find_entities_by_person(person)
     field_path = MAP_ENTITY_FIELD.get(queryset.model)
     if not field_path:
-       raise ObjectDoesNotExist
+        raise ObjectDoesNotExist
     field_filter = "{}__in".format(field_path)
     return queryset.filter(**{field_filter: entities_attached})
-

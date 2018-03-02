@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -33,6 +33,8 @@ from django.utils.translation import ugettext as _
 from django.views.generic import ListView
 
 from base.models import academic_year, person, entity, entity_version
+
+from assistant.business.users_access import user_is_reviewer_and_procedure_is_open
 from assistant.forms import ReviewerDelegationForm
 from assistant.models import assistant_mandate
 from assistant.models import reviewer
@@ -49,12 +51,8 @@ class StructuresListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     is_supervisor = False
 
     def test_func(self):
-        try:
-            if settings.access_to_procedure_is_open():
-                return reviewer.can_delegate(reviewer.find_by_person(self.request.user.person))
-        except ObjectDoesNotExist:
-            return False
-    
+        return user_is_reviewer_and_procedure_is_open(self.request.user)
+
     def get_login_url(self):
         return reverse('access_denied')
 
@@ -64,7 +62,7 @@ class StructuresListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             self.is_supervisor = True
         rev = reviewer.find_by_person(self.request.user.person)
         main_entity_version = entity_version.get_last_version(rev.entity)
-        queryset = entity_version.EntityVersion.find_direct_children(main_entity_version, None)
+        queryset = list(main_entity_version.find_direct_children())
         queryset.insert(0, main_entity_version)
         return queryset
 

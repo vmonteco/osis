@@ -8,7 +8,7 @@
 * The core business involves the administration of students, teachers,
 * courses, programs and so on.
 *
-* Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+* Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,8 @@
 {% if "base" in perms %}
 <div class="panel-footer text-right">
     <!-- Dropdown to select actions to apply on learning unit -->
+    {% url "edit_proposal" learning_unit_year_id=learning_unit_year.id as url_edit_proposal %}
+
     <div class="dropdown dropup">
         <button id="dLabel" class="btn btn-default" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> {% trans 'actions' %}
@@ -39,11 +41,32 @@
                     {% trans 'Put in proposal' %}
                 </a>
             </li>
+            <li {% if not can_edit_learning_unit_proposal %}class="disabled"{% endif %}>
+                <a {% if can_edit_learning_unit_proposal %} href="{{ url_edit_proposal }}" {% endif %}>
+                    {% trans 'edit_proposal' %}
+                </a>
+            </li>
             <li {% if not can_cancel_proposal %}class="disabled"{% endif %}>
                 <a {% if can_cancel_proposal %}  href="#" data-toggle="modal" data-target="#modalCancelProposal" {% endif %}>
                     {% trans 'cancel_proposal' %}
                 </a>
             </li>
+            {% endif %}
+            {% if "base.can_edit_learningunit" in perms %}
+                <li class="divider"></li>
+                <li {% if not can_edit %}class="disabled"{% endif %}>
+                    <a {% if can_edit %} href="{% url "edit_learning_unit" learning_unit_year_id=learning_unit_year.id %}" {% endif %}>
+                        {% trans 'edit_learning_unit' %}
+                    </a>
+                </li>
+            {% endif %}
+            {% if "base.can_edit_learningunit_date" in perms %}
+                <li class="divider"></li>
+                <li {% if not can_edit_date %}class="disabled"{% endif %}>
+                    <a {% if can_edit_date %} href="{% url "learning_unit_edition" learning_unit_year_id=learning_unit_year.id %}" {% endif %}>
+                        {% trans 'edit_learning_unit_end_date' %}
+                    </a>
+                </li>
             {% endif %}
             {% if "base.can_delete_learningunit" in perms %}
                 <li class="divider"></li>
@@ -52,6 +75,12 @@
                 </li>
                 <li {% if not can_delete %}class="disabled"{% endif %}>
                     <a  {% if can_delete %} href="{% url 'learning_unit_delete_all' learning_unit_year_id=learning_unit_year.id %}" {% endif %}>{% trans 'Delete all the learning unit' %}</a>
+                </li>
+            {% endif %}
+            {% if "base.can_create_learningunit" in perms and learning_unit_year.subtype == 'FULL' %}
+                <li class="divider"></li>
+                <li {% if not is_person_linked_to_entity %}class="disabled"{% endif %}>
+                    <a {% if is_person_linked_to_entity %} href="{% url 'learning_unit_create_partim' learning_unit_year_id=learning_unit_year.id %}" {% endif %}>{% trans 'new_partim' %}</a>
                 </li>
             {% endif %}
         </ul>

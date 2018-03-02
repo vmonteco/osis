@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,19 +24,21 @@
 #
 ##############################################################################
 from django.db import models
-from base.models import learning_unit_year, learning_component_year
+
+from attribution.models.attribution_new import AttributionNew
+from base.models import learning_unit_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types
 from base.models.enums import vacant_declaration_type
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 
 
 class LearningContainerYearAdmin(AuditableSerializableModelAdmin):
-    list_display = ('learning_container', 'academic_year', 'container_type', 'acronym', 'title')
-    fieldsets = ((None, {'fields': ('learning_container', 'academic_year', 'container_type', 'acronym', 'title',
-                                    'title_english', 'language', 'is_vacant', 'type_declaration_vacant',
-                                    'team', 'in_charge')}),)
+    list_display = ('learning_container', 'academic_year', 'container_type', 'acronym', 'common_title')
+    fieldsets = ((None, {'fields': ('academic_year', 'learning_container',  'container_type', 'acronym', 'common_title',
+                                    'common_title_english', 'language', 'campus', 'is_vacant',
+                                    'type_declaration_vacant', 'team', 'in_charge')}),)
     search_fields = ['acronym']
-    raw_id_fields = ('learning_container',)
+    raw_id_fields = ('learning_container', 'campus', )
     list_filter = ('academic_year', 'in_charge', 'is_vacant',)
 
 
@@ -46,8 +48,8 @@ class LearningContainerYear(AuditableSerializableModel):
     learning_container = models.ForeignKey('LearningContainer')
     container_type = models.CharField(max_length=20, blank=True, null=True,
                                       choices=learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES)
-    title = models.CharField(max_length=255)
-    title_english = models.CharField(max_length=250, blank=True, null=True)
+    common_title = models.CharField(max_length=255)
+    common_title_english = models.CharField(max_length=250, blank=True, null=True)
     acronym = models.CharField(max_length=10)
     changed = models.DateTimeField(null=True, auto_now=True)
     language = models.ForeignKey('reference.Language', blank=True, null=True)
@@ -59,9 +61,10 @@ class LearningContainerYear(AuditableSerializableModel):
     in_charge = models.BooleanField(default=False)
 
     def __str__(self):
-        return u"%s - %s" % (self.acronym, self.title)
+        return u"%s - %s" % (self.acronym, self.common_title)
 
     class Meta:
+        unique_together = ("learning_container", "academic_year", "deleted", )
         permissions = (
             ("can_access_learningcontaineryear", "Can access learning container year"),
         )
@@ -70,6 +73,20 @@ class LearningContainerYear(AuditableSerializableModel):
         return learning_unit_year.search(learning_container_year_id=self,
                                          subtype=learning_unit_year_subtypes.PARTIM).order_by('acronym')
 
+    def get_attributions(self):
+        return AttributionNew.objects.filter(learning_container_year=self).select_related('tutor')
+
 
 def find_by_id(learning_container_year_id):
     return LearningContainerYear.objects.get(pk=learning_container_year_id)
+
+
+def search(an_academic_year=None, a_learning_container=None):
+    queryset = LearningContainerYear.objects
+
+    if an_academic_year:
+        queryset = queryset.filter(academic_year=an_academic_year)
+    if a_learning_container:
+        queryset = queryset.filter(learning_container=a_learning_container)
+
+    return queryset

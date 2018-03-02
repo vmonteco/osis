@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -122,18 +122,16 @@ def reviewer_replace(request):
             reviewer_to_replace = reviewer.find_by_id(form.cleaned_data.get('id'))
             if request.POST.get('person_id'):
                 this_person = person.find_by_id(request.POST.get('person_id'))
-                try:
-                    reviewer.find_by_person(this_person)
+                if reviewer.find_by_person(this_person):
                     msg = _("person_already_reviewer_msg")
                     form.add_error(None, msg)
                     return render(request, "manager_replace_reviewer.html", {'form': form,
                                                                              'reviewer': reviewer_to_replace,
                                                                              'year': year})
-                except ObjectDoesNotExist:
-                    pass
-                reviewer_to_replace.person = this_person
-                reviewer_to_replace.save()
-                return redirect('reviewers_list')
+                else:
+                    reviewer_to_replace.person = this_person
+                    reviewer_to_replace.save()
+                    return redirect('reviewers_list')
         else:
             return render(request, "manager_replace_reviewer.html", {'form': form, 'year': year})
     else:
@@ -149,16 +147,14 @@ def reviewer_add(request):
             new_reviewer = form.save(commit=False)
             if request.POST.get('person_id'):
                 this_person = person.find_by_id(request.POST.get('person_id'))
-                try:
-                    reviewer.find_by_person(this_person)
+                if reviewer.find_by_person(this_person):
                     msg = _("person_already_reviewer_msg")
                     form.add_error(None, msg)
                     return render(request, "manager_add_reviewer.html", {'form': form, 'year': year})
-                except ObjectDoesNotExist:
-                    pass
-                new_reviewer.person = this_person
-                new_reviewer.save()
-                return redirect('reviewers_list')
+                else:
+                    new_reviewer.person = this_person
+                    new_reviewer.save()
+                    return redirect('reviewers_list')
         else:
             return render(request, "manager_add_reviewer.html", {'form': form, 'year': year})
     else:

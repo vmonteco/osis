@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,14 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.views.generic import ListView
-from django.core.urlresolvers import reverse
-from django.views.generic.edit import FormMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse
+from django.views.generic import ListView
+from django.views.generic.edit import FormMixin
 
 from base.models import academic_year, entity_version
-from assistant.models import settings, assistant_mandate
+
+from assistant.business.users_access import user_is_reviewer_and_procedure_is_open
+from assistant.models import assistant_mandate
 from assistant.models import reviewer, mandate_entity
 from assistant.forms import MandatesArchivesForm
 
@@ -43,11 +44,7 @@ class MandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMi
     is_supervisor = False
 
     def test_func(self):
-        if settings.access_to_procedure_is_open():
-            try:
-                return reviewer.find_by_person(self.request.user.person)
-            except ObjectDoesNotExist:
-                return False
+        return user_is_reviewer_and_procedure_is_open(self.request.user)
 
     def get_login_url(self):
         return reverse('access_denied')

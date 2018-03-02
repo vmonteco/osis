@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -32,22 +32,16 @@ from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils import timezone
 
-from base.models import person, entity_version
+from base.models import person, entity_version, academic_year
 from base.models.enums import entity_type
+
+from assistant.business.users_access import user_is_reviewer_and_procedure_is_open
+from assistant.business.mandate_entity import get_entities_for_mandate
 from assistant.forms import ReviewForm
 from assistant.models import assistant_mandate, review, mandate_entity, tutoring_learning_unit_year
 from assistant.models import reviewer, settings, assistant_document_file
 from assistant.models.enums import review_status, assistant_mandate_state, reviewer_role, document_type
-
-
-def user_is_reviewer_and_procedure_is_open(user):
-    try:
-        if user.is_authenticated() and settings.access_to_procedure_is_open():
-            return reviewer.find_by_person(user.person)
-        else:
-            return False
-    except ObjectDoesNotExist:
-        return False
+from assistant.models.enums import assistant_mandate_renewal
 
 
 @require_http_methods(["POST"])
@@ -86,9 +80,7 @@ def review_view(request):
 def review_edit(request):
     mandate_id = request.POST.get("mandate_id")
     mandate = assistant_mandate.find_mandate_by_id(mandate_id)
-    current_reviewer = reviewer.can_edit_review(
-        reviewer.find_by_person(person.find_by_user(request.user)).id, mandate_id
-    )
+    current_reviewer = reviewer.find_by_person(request.user.person)
     entity = entity_version.get_last_version(current_reviewer.entity)
     delegate_role = current_reviewer.role + "_ASSISTANT"
     existing_review = review.find_review_for_mandate_by_role(mandate, delegate_role)
@@ -132,8 +124,7 @@ def review_save(request):
     review_id = request.POST.get("review_id")
     rev = review.find_by_id(review_id)
     mandate = assistant_mandate.find_mandate_by_id(mandate_id)
-    current_reviewer = reviewer.can_edit_review(reviewer.find_by_person(person.find_by_user(request.user)).id,
-                                                mandate_id)
+    current_reviewer = reviewer.find_by_person(request.user.person)
     form = ReviewForm(data=request.POST, instance=rev, prefix='rev')
     previous_mandates = assistant_mandate.find_before_year_for_assistant(mandate.academic_year.year, mandate.assistant)
     role = current_reviewer.role
@@ -142,15 +133,7 @@ def review_save(request):
     if form.is_valid():
         current_review = form.save(commit=False)
         if 'validate_and_submit' in request.POST:
-            current_review.status = review_status.DONE
-            current_review.save()
-            if mandate.state == assistant_mandate_state.RESEARCH:
-                mandate.state = assistant_mandate_state.SUPERVISION
-            elif mandate.state == assistant_mandate_state.SUPERVISION:
-                mandate.state = assistant_mandate_state.VICE_RECTOR
-            elif mandate.state == assistant_mandate_state.VICE_RECTOR:
-                mandate.state = assistant_mandate_state.DONE
-            mandate.save()
+            validate_review_and_update_mandate(current_review, mandate)
             return HttpResponseRedirect(reverse("reviewer_mandates_list_todo"))
         elif 'save' in request.POST:
             current_review.status = review_status.IN_PROGRESS
@@ -171,6 +154,18 @@ def review_save(request):
                                                     'form': form})
 
 
+def validate_review_and_update_mandate(review, mandate):
+    review.status = review_status.DONE
+    review.save()
+    if mandate.state == assistant_mandate_state.RESEARCH:
+        mandate.state = assistant_mandate_state.SUPERVISION
+    elif mandate.state == assistant_mandate_state.SUPERVISION:
+        mandate.state = assistant_mandate_state.VICE_RECTOR
+    elif mandate.state == assistant_mandate_state.VICE_RECTOR:
+        mandate.state = assistant_mandate_state.DONE
+    mandate.save()
+
+
 @require_http_methods(["POST"])
 @user_passes_test(user_is_reviewer_and_procedure_is_open, login_url='access_denied')
 def pst_form_view(request):
@@ -179,6 +174,7 @@ def pst_form_view(request):
     current_reviewer = reviewer.find_by_person(request.user.person)
     current_role = current_reviewer.role
     entity = entity_version.get_last_version(current_reviewer.entity)
+    entities = get_entities_for_mandate(mandate)
     learning_units = tutoring_learning_unit_year.find_by_mandate(mandate)
     phd_files = assistant_document_file.find_by_assistant_mandate_and_description(mandate,
                                                                                   document_type.PHD_DOCUMENT)
@@ -194,7 +190,9 @@ def pst_form_view(request):
                                                   'assistant': assistant, 'mandate': mandate,
                                                   'learning_units': learning_units,
                                                   'entity': entity,
+                                                  'entities': entities,
                                                   'phd_files': phd_files,
+                                                  'assistant_mandate_renewal': assistant_mandate_renewal,
                                                   'research_files': research_files,
                                                   'tutoring_files': tutoring_files,
                                                   'current_reviewer': current_reviewer,

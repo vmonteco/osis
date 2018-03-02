@@ -1071,9 +1071,6 @@ msgstr "Une erreur innatendue s'est produite"
 msgid "server_error_message"
 msgstr "Nous mettons tout en oeuvre pour résoudre ce problème."
 
-msgid "sessionn"
-msgstr "Session"
-
 msgid "short_title"
 msgstr "Titre abrégé"
 
@@ -1612,8 +1609,20 @@ msgstr "Cette fonctionnalité est en phase expérimentale"
 msgid "title_official_1"
 msgstr "Intitulé officiel (partie 1 commune aux partims)"
 
+msgid "common_official_title"
+msgstr "Intitulé officiel commun"
+
+msgid "common_official_english_title"
+msgstr "Intitulé officiel commun en anglais"
+
 msgid "title_official_2"
 msgstr "Intitulé officiel (partie 2 propre au partim)"
+
+msgid "official_title_proper_to_UE"
+msgstr "Intitulé officiel propre à l'UE"
+
+msgid "official_english_title_proper_to_UE"
+msgstr "Intitulé officiel en anglais propre à l'UE"
 
 msgid "title_in_english"
 msgstr "Intitulé en anglais"
@@ -1796,7 +1805,7 @@ msgid "existed_acronym"
 msgstr "Sigle a déjà existé pour "
 
 msgid "existing_acronym"
-msgstr "Sigle déja existant"
+msgstr "Sigle déja existant en "
 
 msgid "invalid_acronym"
 msgstr "Sigle non valide"
@@ -1894,10 +1903,10 @@ msgid "remarks_title"
 msgstr "Remarques"
 
 msgid "faculty_remark"
-msgstr "Faculté"
+msgstr "Remarque de faculté"
 
 msgid "other_remark"
-msgstr "Autre"
+msgstr "Autre remarque"
 
 msgid "new_learning_unit"
 msgstr "Nouvelle unité d'enseignement"
@@ -2215,7 +2224,7 @@ msgstr "%(subtype)s %(acronym)s est attribué(e) à %(tutor)s l’année %(year)
 msgid "%(subtype)s %(acronym)s is assigned to the assistant %(assistant)s for the year %(year)s"
 msgstr "%(subtype)s %(acronym)s est attribué(e) à l'assistant %(assistant)s l'année %(year)s"
 
-msgid "%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s"
+msgid "lu_included_in_group"
 msgstr "%(subtype)s %(acronym)s est repris dans le groupement %(group)s du programme %(program)s l’année %(year)s"
 
 msgid "The learning unit %(acronym)s is related to the internship speciality %(speciality)s"
@@ -2312,7 +2321,7 @@ msgid "scores_diffusion"
 msgstr "Diffusion des notes"
 
 msgid "session"
-msgstr "Session"
+msgstr "session"
 
 msgid "at"
 msgstr "à"
@@ -2356,6 +2365,8 @@ msgstr "Refusé"
 msgid "success_modification_proposal"
 msgstr "Une proposition de modification de type {} a été faite pour l'unité d'enseignement {}."
 
+msgid "proposal_edited_successfully"
+msgstr "Proposition modifiée avec succès"
 
 msgid "content"
 msgstr "Contenu"
@@ -2453,9 +2464,167 @@ msgstr "La proposition pour {} a été annulée."
 msgid "cancel_proposal"
 msgstr "Annuler proposition"
 
+msgid "edit_proposal"
+msgstr "Editer proposition"
+
 msgid "msg_confirm_cancel_proposal"
 msgstr "Etes-vous certain de vouloir annuler la proposition ?"
 
 msgid "The administrative data has been successfully modified"
 msgstr "Les données administratives ont été sauvées avec succès"
 
+msgid "vacant"
+msgstr "Vacant"
+
+msgid "team_management"
+msgstr "Gestion par équipe"
+
+msgid "type_declaration_vacant"
+msgstr "Décision"
+
+msgid "procedure"
+msgstr "Procédure"
+
+msgid "educational_information_management"
+msgstr "Gestion des informations pédagogiques"
+
+msgid "resume_edit"
+msgstr "Editer le résumé de cours"
+
+msgid "SUMMARY_COURSE_SUBMISSION"
+msgstr "Soumission des résumés de cours"
+
+msgid "INTERNAL_TEAM"
+msgstr "Interne/Equipe"
+
+msgid "substitute"
+msgstr "Suppléé"
+
+msgid "not_end_year"
+msgstr "pas de fin prévue"
+
+msgid "edit_learning_unit_end_date"
+msgstr "Modifier la date de fin l'unité d'enseignement"
+
+msgid "new_partim"
+msgstr "Créer un nouveau partim"
+
+msgid "partim"
+msgstr "Partim"
+
+msgid "partim_character_rules"
+msgstr "Lettre ou chiffre obligatoire"
+
+msgid "invalid_partim_character"
+msgstr "Caractère déjà utilisé"
+
+msgid "learning_unit_successfuly_created"
+msgstr "Unité d'enseignement <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> créée avec succès."
+
+msgid "learning_unit_creation_academic_year_max_error"
+msgstr "Impossible de créer une UE dont l'année académique est supérieure à {}."
+
+msgid "parent_greater_than_partim"
+msgstr "L'année de fin selectionnée (%(partim_end_year)s) est plus grande que l'année de fin du parent %(lu_parent)s"
+
+msgid "learning_unit_created"
+msgstr "L'unité d'enseignement %(learning_unit)s créée pour l'année academique %(academic_year)s"
+
+msgid "learning_unit_updated"
+msgstr "L'unité d'enseignement %(learning_unit)s a été mise à jour avec succès"
+
+msgid "partim_greater_than_parent"
+msgstr "L'unité d'enseignement %(learning_unit)s a un partim %(partim)s avec une année de fin plus grande que %(year)s"
+
+msgid "remark"
+msgstr "Remarque"
+
+msgid "remark_english"
+msgstr "Remarque en anglais"
+
+msgid "Ensure this value is less than %(limit_value)s."
+msgstr "Assurez-vous que cette valeur est inférieure à %(limit_value)s."
+
+msgid "Ensure this value is greater than %(limit_value)s."
+msgstr "Assurez-vous que cette valeur est supérieure à %(limit_value)s."
+
+msgid "Entity_not_exist"
+msgstr "L'entité %(entity_acronym)s n'existe pas pour l'année académique sélectionnée %(academic_year)s"
+
+msgid "edit_learning_unit"
+msgstr "Modifier l'unité d'enseignement"
+
+msgid "requirement_entity_end_date_too_short"
+msgstr "La durée de vie de l'entité responsable cahier de charges est trop courte."
+
+msgid "requirement_and_allocation_entities_cannot_be_different"
+msgstr "L'entité responsable cahier de charges et celle d'attribution ne peuvent pas être différentes pour ce type d'unite d'enseignement."
+
+msgid "success_modification_learning_unit"
+msgstr "L'unité d'enseignement a été modifiée."
+
+msgid "error_modification_learning_unit"
+msgstr "Erreur lors de la modification de l'unité d'enseignement."
+
+msgid "cannot_set_internship_subtype_for_type_other_than_internship"
+msgstr "Le sous-type de stage ne peut pas être séléctionnné pour un type d'unité d'enseignement autre que stage."
+
+msgid "%(subtype)s %(acronym)s is in proposal"
+msgstr "%(subtype)s %(acronym)s est en proposition"
+
+msgid "volume_have_more_than_2_decimal_places"
+msgstr "Le volume a plus de 2 décimales"
+
+msgid "Site"
+msgstr "Site"
+
+msgid "proposal_type"
+msgstr "Type proposition"
+
+msgid "proposal_status"
+msgstr "Etat proposition"
+
+msgid "folder_entity"
+msgstr "Sigle dossier"
+
+msgid "proposals_search"
+msgstr "Recherche - Propositions"
+
+msgid "folder_num"
+msgstr "N° dossier"
+
+msgid "ask_to_report_modification"
+msgstr "Voulez-vous reporter les modifications faites pour les années suivantes ?"
+
+msgid "proposal_learning_unit_successfuly_created"
+msgstr "Proposition d'unité d'enseignement <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> créée avec succès."
+
+msgid "new_learning_unit_proposal"
+msgstr "Nouvelle proposition d'unité d'enseignement"
+
+msgid "proposal_creation"
+msgstr "Proposition de création"
+
+msgid "proposal_update"
+msgstr "Modification de proposition"
+
+msgid "value_before_proposal"
+msgstr "Valeur avant proposition"
+
+msgid "entity_not_found"
+msgstr "Entité non-trouvée.  Il y a peut-être une erreur dans les données"
+
+msgid "min_for_field"
+msgstr "Veuillez entrer une valeur supérieure ou égale à 0."
+
+msgid "max_for_field"
+msgstr "Veuillez entrer une valeur inférieur ou égale à 500."
+
+msgid "force_state"
+msgstr "Forcer l'état"
+
+msgid "do_you_want_change_status_proposals"
+msgstr "Voulez-vous changer le statut de ces propositions?"
+
+msgid "are_you_sure_to_change_state_from"
+msgstr "Êtes-vous sûr de vouloir changer l'état de"

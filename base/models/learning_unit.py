@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -25,15 +25,24 @@
 ##############################################################################
 from django.db import models
 
-from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
+from base.models import academic_year
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
+from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
+
+
+LEARNING_UNIT_ACRONYM_REGEX_BASE = "^[BLMW][A-Z]{2,4}\d{4}"
+LETTER_OR_DIGIT = "[A-Z0-9]"
+STRING_END = "$"
+LEARNING_UNIT_ACRONYM_REGEX_ALL = LEARNING_UNIT_ACRONYM_REGEX_BASE + LETTER_OR_DIGIT + "{0,1}" + STRING_END
+LEARNING_UNIT_ACRONYM_REGEX_FULL = LEARNING_UNIT_ACRONYM_REGEX_BASE + STRING_END
+LEARNING_UNIT_ACRONYM_REGEX_PARTIM = LEARNING_UNIT_ACRONYM_REGEX_BASE + LETTER_OR_DIGIT + STRING_END
 
 
 class LearningUnitAdmin(AuditableSerializableModelAdmin):
     list_display = ('learning_container', 'acronym', 'title', 'start_year', 'end_year', 'changed')
     fieldsets = ((None, {
                     'fields': ('learning_container', 'acronym', 'title', 'start_year', 'end_year',
-                               'faculty_remark', 'other_remark')
+                               'periodicity', 'faculty_remark', 'other_remark')
                  }),)
     raw_id_fields = ('learning_container',)
     search_fields = ['acronym', 'title', 'learning_container__external_id']
@@ -64,6 +73,8 @@ class LearningUnit(AuditableSerializableModel):
     class Meta:
         permissions = (
             ("can_access_learningunit", "Can access learning unit"),
+            ("can_edit_learningunit_date", "Can edit learning unit date"),
+            ("can_edit_learningunit", "Can edit learning unit"),
             ("can_edit_learningunit_pedagogy", "Can edit learning unit pedagogy"),
             ("can_edit_learningunit_specification", "Can edit learning unit specification"),
             ("can_delete_learningunit", "Can delete learning unit"),
@@ -87,3 +98,8 @@ def search(acronym=None):
         queryset = queryset.filter(acronym=acronym)
 
     return queryset
+
+
+def is_old_learning_unit(learning_unit):
+    current_academic_year = academic_year.current_academic_year()
+    return learning_unit.end_year and current_academic_year.year > learning_unit.end_year

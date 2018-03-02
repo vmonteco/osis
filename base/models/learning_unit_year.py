@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,25 +24,32 @@
 #
 ##############################################################################
 import re
+
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
+from base.models import entity_container_year
+from base.models.enums import active_status
+from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
+    learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 from base.models.group_element_year import GroupElementYear
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
-
-from base.models import entity_container_year
-from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, internship_subtypes, \
-    learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters
+from django.db.models import Q
 
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
+MINIMUM_CREDITS = 0.0
+MAXIMUM_CREDITS = 500
 
 
 class LearningUnitYearAdmin(AuditableSerializableModelAdmin):
-    list_display = ('external_id', 'acronym', 'title', 'academic_year', 'credits', 'changed', 'structure', 'status')
-    fieldsets = ((None, {'fields': ('academic_year', 'learning_unit', 'acronym', 'title', 'title_english', 'credits',
-                                    'decimal_scores', 'structure', 'learning_container_year',
-                                    'subtype', 'status', 'internship_subtype', 'session', 'quadrimester')}),)
+    list_display = ('external_id', 'acronym', 'specific_title', 'academic_year', 'credits', 'changed', 'structure',
+                    'status')
+    fieldsets = ((None, {'fields': ('academic_year', 'learning_unit', 'learning_container_year', 'acronym',
+                                    'specific_title', 'specific_title_english', 'subtype', 'credits', 'decimal_scores',
+                                    'structure', 'internship_subtype', 'status', 'session',
+                                    'quadrimester', 'attribution_procedure')}),)
     list_filter = ('academic_year', 'decimal_scores')
     raw_id_fields = ('learning_unit', 'learning_container_year', 'structure')
     search_fields = ['acronym', 'structure__acronym', 'external_id']
@@ -55,11 +62,11 @@ class LearningUnitYear(AuditableSerializableModel):
     learning_container_year = models.ForeignKey('LearningContainerYear', blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     acronym = models.CharField(max_length=15, db_index=True)
-    title = models.CharField(max_length=255)
-    title_english = models.CharField(max_length=250, blank=True, null=True)
-    subtype = models.CharField(max_length=50, blank=True, null=True,
-                               choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES)
-    credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    specific_title = models.CharField(max_length=255, blank=True, null=True)
+    specific_title_english = models.CharField(max_length=250, blank=True, null=True)
+    subtype = models.CharField(max_length=50, choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES)
+    credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True,
+                                  validators=[MinValueValidator(MINIMUM_CREDITS), MaxValueValidator(MAXIMUM_CREDITS)])
     decimal_scores = models.BooleanField(default=False)
     structure = models.ForeignKey('Structure', blank=True, null=True)
     internship_subtype = models.CharField(max_length=250, blank=True, null=True,
@@ -69,7 +76,11 @@ class LearningUnitYear(AuditableSerializableModel):
                                choices=learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION)
     quadrimester = models.CharField(max_length=4, blank=True, null=True,
                                     choices=learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
+    attribution_procedure = models.CharField(max_length=20, blank=True, null=True,
+                                             choices=attribution_procedure.ATTRIBUTION_PROCEDURES)
 
+    class Meta:
+        unique_together = ('learning_unit', 'academic_year', 'deleted')
 
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
@@ -82,13 +93,11 @@ class LearningUnitYear(AuditableSerializableModel):
 
     @property
     def parent(self):
-        if self.subdivision:
+        if self.subdivision and self.subtype == learning_unit_year_subtypes.PARTIM:
             return LearningUnitYear.objects.filter(
                 subtype=learning_unit_year_subtypes.FULL,
                 learning_container_year=self.learning_container_year,
-                learning_container_year__acronym=self.learning_container_year.acronym,
-                learning_container_year__container_type=learning_container_year_types.COURSE
-            ).first()
+            ).get()
         return None
 
     @property
@@ -105,9 +114,20 @@ class LearningUnitYear(AuditableSerializableModel):
         ).first()
         return entity_container_yr.entity if entity_container_yr else None
 
+    @property
+    def complete_title(self):
+        common_tit = None
+        if self.learning_container_year:
+            common_tit = self.learning_container_year.common_title
+
+        if self.specific_title and common_tit:
+            return "{} {}".format(common_tit, self.specific_title)
+        return common_tit
+
     def get_partims_related(self):
         if self.subtype == learning_unit_year_subtypes.FULL and self.learning_container_year:
             return self.learning_container_year.get_partims_related()
+        return LearningUnitYear.objects.none()
 
     def find_list_group_element_year(self):
         return GroupElementYear.objects.filter(child_leaf=self).select_related('parent')
@@ -115,7 +135,7 @@ class LearningUnitYear(AuditableSerializableModel):
     def get_learning_unit_next_year(self):
         try:
             return LearningUnitYear.objects.get(learning_unit=self.learning_unit,
-                                                academic_year__year=(self.academic_year.year+1))
+                                                academic_year__year=(self.academic_year.year + 1))
         except LearningUnitYear.DoesNotExist:
             return None
 
@@ -128,15 +148,19 @@ class LearningUnitYear(AuditableSerializableModel):
                                                academic_year__year__gte=self.academic_year.year) \
             .order_by('academic_year__year')
 
+    def find_gt_learning_units_year(self):
+        return LearningUnitYear.objects.filter(learning_unit=self.learning_unit,
+                                               academic_year__year__gt=self.academic_year.year) \
+            .order_by('academic_year__year')
+
 
 def get_by_id(learning_unit_year_id):
-    return LearningUnitYear.objects.select_related('learning_container_year__learning_container')\
-                                   .get(pk=learning_unit_year_id)
+    return LearningUnitYear.objects.select_related('learning_container_year__learning_container') \
+        .get(pk=learning_unit_year_id)
 
 
 def find_by_acronym(acronym):
-    return LearningUnitYear.objects.filter(acronym=acronym) \
-        .select_related('learning_container_year')
+    return LearningUnitYear.objects.filter(acronym=acronym).select_related('learning_container_year')
 
 
 def _is_regex(acronym):
@@ -166,18 +190,27 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
         queryset = queryset.filter(learning_unit=learning_unit)
 
     if title:
-        queryset = queryset.filter(title__icontains=title)
+        queryset = queryset.\
+            filter(Q(specific_title__icontains=title) | Q(learning_container_year__common_title__icontains=title))
 
     if subtype:
         queryset = queryset.filter(subtype=subtype)
 
     if status:
-        queryset = queryset.filter(status=status)
+        queryset = queryset.filter(status=_convert_status_bool(status))
 
     if container_type:
         queryset = queryset.filter(learning_container_year__container_type=container_type)
 
-    return queryset.select_related('learning_container_year')
+    return queryset.select_related('learning_container_year', 'academic_year')
+
+
+def _convert_status_bool(status):
+    if status in (active_status.ACTIVE, active_status.INACTIVE):
+        boolean = status == active_status.ACTIVE
+    else:
+        boolean = status
+    return boolean
 
 
 def count_search_results(**kwargs):
@@ -198,3 +231,6 @@ def check_if_acronym_regex_is_valid(acronym):
     if isinstance(acronym, str):
         return re.fullmatch(REGEX_ACRONYM_CHARSET, acronym.upper())
 
+
+def find_max_credits_of_related_partims(a_learning_unit_year):
+    return a_learning_unit_year.get_partims_related().aggregate(max_credits=models.Max("credits"))["max_credits"]

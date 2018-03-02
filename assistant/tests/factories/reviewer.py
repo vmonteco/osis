@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -25,14 +25,16 @@
 ##############################################################################
 import factory
 
-from assistant.models.enums import reviewer_role
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.entity import EntityFactory
+
+from assistant.models.enums import reviewer_role
 
 
 class ReviewerFactory(factory.DjangoModelFactory):
     class Meta:
         model = 'assistant.Reviewer'
+        django_get_or_create = ('entity',)
 
     role = factory.Iterator(reviewer_role.ROLE_CHOICES, getter=lambda c: c[0])
     person = factory.SubFactory(PersonFactory, first_name=factory.Sequence(lambda n: 'revfirstname{0}'.format(n)),
