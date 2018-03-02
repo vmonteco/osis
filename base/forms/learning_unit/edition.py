@@ -138,7 +138,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         elif learning_unit_year_instance:
             self._set_min_credits(learning_unit_year_instance)
 
-        if person.user.groups.filter(name='faculty_managers').exists():
+        if person.is_faculty_manager():
             if initial.get("container_type") in [COURSE, INTERNSHIP, DISSERTATION]:
                 self._disabled_fields(FACULTY_READ_ONLY_FIELDS)
 
