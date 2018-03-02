@@ -49,8 +49,8 @@ class LearningUnitYearAdmin(AuditableSerializableModelAdmin):
     fieldsets = ((None, {'fields': ('academic_year', 'learning_unit', 'learning_container_year', 'acronym',
                                     'specific_title', 'specific_title_english', 'subtype', 'credits', 'decimal_scores',
                                     'structure', 'internship_subtype', 'status', 'session',
-                                    'quadrimester', 'attribution_procedure')}),)
-    list_filter = ('academic_year', 'decimal_scores')
+                                    'quadrimester', 'attribution_procedure', 'summary_editable')}),)
+    list_filter = ('academic_year', 'decimal_scores', 'summary_editable')
     raw_id_fields = ('learning_unit', 'learning_container_year', 'structure')
     search_fields = ['acronym', 'structure__acronym', 'external_id']
 
