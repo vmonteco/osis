@@ -36,7 +36,6 @@ from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory, create_learning_units_year
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
-from base.business.learning_unit_proposal import get_proposal
 
 
 class LearningUnitYearTest(TestCase):
@@ -197,10 +196,3 @@ class LearningUnitYearTest(TestCase):
         max_credits = find_max_credits_of_related_partims(self.learning_unit_year)
         self.assertEqual(max_credits, None)
 
-    def test_has_proposal(self):
-        luy = LearningUnitYearFactory()
-        self.assertFalse(get_proposal(luy))
-        self.assertFalse(luy.has_proposal)
-        proposal_learning_unit = ProposalLearningUnitFactory(learning_unit_year=luy)
-        self.assertTrue(get_proposal(luy))
-        self.assertTrue(luy.has_proposal)

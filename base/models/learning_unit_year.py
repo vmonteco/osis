@@ -35,7 +35,6 @@ from base.models.enums import learning_unit_year_subtypes, internship_subtypes, 
 from base.models.group_element_year import GroupElementYear
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 from django.db.models import Q
-from base.business.learning_unit_proposal import get_proposal
 
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
@@ -124,10 +123,6 @@ class LearningUnitYear(AuditableSerializableModel):
         if self.specific_title and common_tit:
             return "{} {}".format(common_tit, self.specific_title)
         return common_tit
-
-    @property
-    def has_proposal(self):
-        return get_proposal(self)
 
     def get_partims_related(self):
         if self.subtype == learning_unit_year_subtypes.FULL and self.learning_container_year:

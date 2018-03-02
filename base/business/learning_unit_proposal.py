@@ -26,7 +26,7 @@
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
 from base.models import entity_container_year, campus, entity, entity_version
 from base.models.enums import proposal_type, entity_container_year_link_type
-from base.models.proposal_learning_unit import find_by_folder, find_by_learning_unit_year
+from base.models.proposal_learning_unit import find_by_folder
 from reference.models import language
 from django.utils.translation import ugettext_lazy as _
 from base import models as mdl_base
@@ -261,7 +261,3 @@ def _get_rid_of_blank_value(data):
     for k, v in data.items():
         clean_data.update({k: None}) if v == '' else clean_data.update({k: v})
     return clean_data
-
-
-def get_proposal(luy):
-    return find_by_learning_unit_year(luy)
