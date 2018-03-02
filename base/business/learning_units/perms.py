@@ -128,14 +128,13 @@ def _learning_unit_year_is_past(learn_unit_year):
 
 
 def _learning_unit_year_is_on_proposal(learn_unit_year):
-    proposal = proposal_learning_unit.find_by_learning_unit_year(learn_unit_year)
-    return proposal is not None
+    return proposal_learning_unit.have_a_proposal(learn_unit_year)
 
 
 def can_delete_learning_unit_year(learning_unit_year, person):
-    if not person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year):
+    if not _can_delete_learning_unit_year_according_type(learning_unit_year, person):
         return False
-    return _can_delete_learning_unit_year_according_type(learning_unit_year, person)
+    return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
 
 
 def _can_delete_learning_unit_year_according_type(learning_unit_year, person):
