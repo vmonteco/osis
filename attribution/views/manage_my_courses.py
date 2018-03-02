@@ -48,12 +48,14 @@ def view_educational_information(request, attribution_id):
     learning_unit_year = attribution.learning_unit_year
     user_language = person.get_user_interface_language(request.user)
     context = {
-        "learning_unit_year": learning_unit_year,
+        'attribution': attribution,
+        'learning_unit_year': learning_unit_year,
         'cms_labels_translated': get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language),
         'form_french': initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_FR),
         'form_english': initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_EN)
     }
     return layout.render(request, 'manage_my_courses/educational_information.html', context)
+
 
 @login_required
 def edit_educational_information(request, attribution_id):
