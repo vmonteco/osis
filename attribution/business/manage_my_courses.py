@@ -26,7 +26,7 @@
 from attribution.models import attribution
 
 
-def find_learning_unit_years_summary_to_update(tutor):
+def find_learning_unit_years_summary_editable(tutor):
     attributions = attribution.search(tutor=tutor)\
         .filter(summary_responsible=True, learning_unit_year__summary_editable=True)\
         .order_by('learning_unit_year__academic_year__year', 'learning_unit_year__acronym')
