@@ -67,4 +67,3 @@ def edit_educational_information(request, attribution_id):
     learning_unit_year = attribution.learning_unit_year
     redirect_url = reverse("view_educational_information", kwargs={'attribution_id': attribution.id})
     return edit_learning_unit_pedagogy(request, learning_unit_year.id, redirect_url)
-
