@@ -26,10 +26,10 @@
 from datetime import timedelta, datetime
 
 from django.test import TestCase
+from unittest import mock
 
 from assessments.business import scores_encodings_deadline
 from base.models.session_exam_deadline import SessionExamDeadline
-from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
@@ -38,7 +38,7 @@ from base.tests.factories.offer_year import OfferYearFactory
 from base.tests.factories.offer_year_calendar import OfferYearCalendarFactory
 from base.tests.factories.session_exam_calendar import SessionExamCalendarFactory
 from base.tests.factories.session_exam_deadline import SessionExamDeadlineFactory
-from base.models.enums import number_session
+from base.models.enums import number_session, academic_calendar_type
 from base.tests.factories.student import StudentFactory
 
 
@@ -161,6 +161,7 @@ class ComputeScoresEncodingsDeadlinesTest(TestCase):
         self.assertFalse(scores_encodings_deadline._compute_delta_deadline_tutor(today, None))
 
     def test_case_only_global_scores_encoding_end_date_is_set(self):
+        self.offer_year_calendar_deliberation.delete()
         OfferYearCalendarFactory(academic_calendar=self.ac_score_exam_submission, start_date=None, end_date=None, offer_year=self.off_year)
         self._assert_date_equal(self._get_persistent_session_exam_deadline().deadline, self.ac_score_exam_submission.end_date)
         self._assert_date_equal(self._get_persistent_session_exam_deadline().deadline_tutor_computed, self.ac_score_exam_submission.end_date)
@@ -260,3 +261,33 @@ class ComputeScoresEncodingsDeadlinesTest(TestCase):
         persistent_session_exams = SessionExamDeadline.objects.filter(pk__in=[obj.id for obj in session_exam_deadlines])
         for obj in persistent_session_exams:
             self._assert_date_equal(obj.deadline, scores_encodings_deadline._one_day_before(new_global_submission_date))
+
+    def test_get_oyc_by_reference_when_education_group_year_is_null(self):
+        ac_cal = AcademicCalendarFactory(reference=academic_calendar_type.DELIBERATION)
+        SessionExamCalendarFactory(academic_calendar=ac_cal)
+        OfferYearCalendarFactory(academic_calendar=ac_cal, education_group_year=None)
+        off_year_cal_expected = OfferYearCalendarFactory(academic_calendar=ac_cal, education_group_year=None)
+        oyc = scores_encodings_deadline._get_oyc_by_reference(off_year_cal_expected,
+                                                              academic_calendar_type.DELIBERATION)
+        self.assertEqual(oyc, off_year_cal_expected)
+
+    def test_get_oyc_by_reference_when_no_matching_result(self):
+        ac_cal = AcademicCalendarFactory(reference=academic_calendar_type.DELIBERATION)
+        SessionExamCalendarFactory(academic_calendar=ac_cal)
+        off_year_cal = OfferYearCalendarFactory(academic_calendar=ac_cal)
+        oyc = scores_encodings_deadline._get_oyc_by_reference(off_year_cal, academic_calendar_type.COURSE_ENROLLMENT)
+        self.assertIsNone(oyc)
+
+    @mock.patch("assessments.business.scores_encodings_deadline.compute_deadline")
+    def test_recompute_all_deadlines_when_not_impact_scores_encodings_deadlines(self, mock_compute_deadline):
+        OfferYearCalendarFactory(
+            academic_calendar=AcademicCalendarFactory(reference=academic_calendar_type.DELIBERATION)
+        )
+        self.assertFalse(mock_compute_deadline.called)
+
+    @mock.patch("assessments.business.scores_encodings_deadline.compute_deadline")
+    def test_recompute_all_deadlines_when_not_impact_scores_encodings_deadlines(self, mock_compute_deadline):
+        OfferYearCalendarFactory(
+            academic_calendar=AcademicCalendarFactory(reference=academic_calendar_type.SCORES_EXAM_SUBMISSION)
+        )
+        self.assertTrue(mock_compute_deadline.called)
