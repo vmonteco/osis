@@ -27,6 +27,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from attribution.tests.factories.attribution import AttributionFactory
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 from base.models.tutor import Tutor
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.tutor import TutorFactory
@@ -75,9 +76,14 @@ class TestEditEducationalInformation(TestCase):
         response = self.client.get(self.url)
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
 
-
     def test_template_used(self):
         response = self.client.get(self.url)
+
         self.assertTemplateUsed(response, "manage_my_courses/educational_information.html")
+
         context = response.context
-        self.assertEqual(context["attribution"], self.attribution)
+        self.assertEqual(context["learning_unit_year"], self.attribution.learning_unit_year)
+        self.assertTrue(context["cms_labels_translated"])
+        self.assertIsInstance(context["form_french"], LearningUnitPedagogyForm)
+        self.assertIsInstance(context["form_english"], LearningUnitPedagogyForm)
+

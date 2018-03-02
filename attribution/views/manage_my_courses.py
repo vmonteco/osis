@@ -23,10 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 
 from attribution.models.attribution import Attribution
+from base.business.learning_unit import get_cms_label_data, initialize_learning_unit_pedagogy_form, CMS_LABEL_SUMMARY
+from base.models import person
 from base.models.tutor import is_tutor
 from base.views import layout
 
@@ -41,4 +44,11 @@ def list_my_attributions(request):
 @login_required
 def manage_educational_information(request, attribution_id):
     attribution = Attribution.objects.get(pk=attribution_id)
-    return layout.render(request, 'manage_my_courses/educational_information.html', {"attribution": attribution})
+    learning_unit_year = attribution.learning_unit_year
+    user_language = person.get_user_interface_language(request.user)
+    return layout.render(request, 'manage_my_courses/educational_information.html', {
+        "learning_unit_year": learning_unit_year,
+        'cms_labels_translated': get_cms_label_data(CMS_LABEL_SUMMARY, user_language),
+        'form_french': initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_FR),
+        'form_english': initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_EN)
+    })
