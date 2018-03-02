@@ -26,12 +26,12 @@
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
 from base.models import entity_container_year, campus, entity, entity_version
 from base.models.enums import proposal_type, entity_container_year_link_type
-from base.models.proposal_learning_unit import find_by_folder
+from base.models.proposal_learning_unit import find_by_folder, ProposalLearningUnit
 from reference.models import language
 from django.utils.translation import ugettext_lazy as _
 from base import models as mdl_base
 from django.apps import apps
-
+from django.shortcuts import get_object_or_404
 
 APP_BASE_LABEL = 'base'
 END_FOREIGN_KEY_NAME = "_id"
@@ -103,6 +103,7 @@ def _reinitialize_entities_before_proposal(learning_container_year, initial_enti
 
 
 def delete_learning_unit_proposal(learning_unit_proposal):
+    print('delete_learning_unit_proposal')
     proposal_folder = learning_unit_proposal.folder
     learning_unit_proposal.delete()
     if not find_by_folder(proposal_folder).exists():
@@ -261,3 +262,25 @@ def _get_rid_of_blank_value(data):
     for k, v in data.items():
         clean_data.update({k: None}) if v == '' else clean_data.update({k: v})
     return clean_data
+
+
+def check_valid_for_initial(proposals_to_cancel):
+    for f in proposals_to_cancel:
+        if f.type != proposal_type.ProposalType.SUPPRESSION.name:
+            return False
+    return True
+
+
+def get_valid_proposal_for_cancellation(proposals):
+    valid_proposal_to_cancel = []
+    for f in proposals:
+
+        if f.type == proposal_type.ProposalType.SUPPRESSION.name:
+            valid_proposal_to_cancel.append(f)
+    return valid_proposal_to_cancel
+
+
+def cancel_proposal(learning_unit_year):
+    learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learning_unit_year)
+    reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year)
+    delete_learning_unit_proposal(learning_unit_proposal)

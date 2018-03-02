@@ -128,6 +128,8 @@ class LearningUnitProposalForm(SearchForm):
 
 
 class ProposalStateModelForm(forms.ModelForm):
+    action = forms.CharField(max_length=50, required=False)
+
     class Meta:
         model = ProposalLearningUnit
         fields = ['state']
@@ -189,6 +191,14 @@ class ProposalRowForm(ProposalStateModelForm):
     def save(self, commit=True):
         if self.cleaned_data.get('check'):
             super().save(commit)
+
+    @staticmethod
+    def get_checked_proposals(form):
+        selected_proposals = []
+        for f in form:
+            if f.cleaned_data.get('check'):
+                selected_proposals.append(f.instance)
+        return selected_proposals
 
 
 class ProposalListFormset(forms.BaseFormSet):

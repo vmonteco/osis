@@ -38,6 +38,9 @@ from base.models.academic_year import current_academic_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.views import layout
 from base.views.common import check_if_display_message, display_error_messages, display_success_messages
+from base.business.learning_unit_proposal import check_valid_for_initial, get_valid_proposal_for_cancellation, \
+    cancel_proposal
+
 
 PROPOSAL_SEARCH = 3
 
@@ -118,10 +121,32 @@ def _proposal_management(request, proposals):
 
     formset = list_proposal_formset(request.POST or None, list_proposal_learning=proposals)
     if formset.is_valid():
-        try:
-            formset.save()
-            display_success_messages(request, _("proposal_edited_successfully"))
-        except IntegrityError:
-            display_error_messages(request, _("error_modification_learning_unit"))
+        if is_initial_get_back_action(formset):
+            proposals_candidate_to_cancellation = ProposalRowForm.get_checked_proposals(formset)
+            if not check_valid_for_initial(proposals_candidate_to_cancellation):
+                display_error_messages(request, _("error_proposal_suppression_to_initial"))
+            else:
+                proposal_to_cancel = get_valid_proposal_for_cancellation(proposals_candidate_to_cancellation)
+                if proposal_to_cancel:
+                    for p in proposal_to_cancel:
+                        cancel_proposal(p.learning_unit_year)
+                    display_success_messages(request, _("proposal_edited_successfully"))
+                    return None
+                else:
+                    display_error_messages(request, _("error_proposal_no_data"))
+        else:
+            try:
+                formset.save()
+                display_success_messages(request, _("proposal_edited_successfully"))
+            except IntegrityError:
+                display_error_messages(request, _("error_modification_learning_unit"))
 
     return formset
+
+
+def is_initial_get_back_action(formset):
+    for f in formset:
+        print(f.cleaned_data.get('action'))
+        if f.cleaned_data.get('action') == 'back_to_initial':
+            return True
+    return False
