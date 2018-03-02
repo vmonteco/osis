@@ -23,25 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.conf.urls import url, include
+from django.contrib.auth.decorators import login_required, user_passes_test
 
-from attribution.views import summary_responsible, manage_my_courses
-
-urlpatterns = [
-
-    url(r'^summary_responsible_manager/', include([
-        url(r'^$', summary_responsible.search,
-            name='summary_responsible'),
-        url(r'^edit/$', summary_responsible.edit,
-            name='summary_responsible_edit'),
-        url(r'^update/(?P<pk>[0-9]+)/$', summary_responsible.update,
-            name='summary_responsible_update')
-    ])),
-
-    url(r'^manage_my_courses/', include([
-        url(r'^$', manage_my_courses.list_my_attributions,
-            name='list_my_attributions'),
-    ])),
+from base.models.tutor import is_tutor
+from base.views import layout
 
 
-]
+@login_required
+@user_passes_test(is_tutor)
+def list_my_attributions(request):
+    context = {}
+    return layout.render(request, 'manage_my_courses/list_my_attributions.html', context)
