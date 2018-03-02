@@ -86,7 +86,7 @@ class LearningUnitEndDateForm(BootstrapForm):
         if self.learning_unit.start_year > min_year:
             min_year = self.learning_unit.start_year
 
-        if is_old_learning_unit(self.learning_unit):
+        if self.learning_unit.is_past():
             raise ValueError(
                 'Learning_unit.end_year {} cannot be less than the current academic_year {}'.format(
                     self.learning_unit.end_year, current_academic_year)

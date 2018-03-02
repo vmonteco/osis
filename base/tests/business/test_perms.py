@@ -64,7 +64,7 @@ class PermsTestCase(TestCase):
                                           learning_container_year=lunit_container_yr,
                                           subtype=PARTIM)
 
-            self.assertTrue(perms._can_faculty_manager_modify_end_date(luy))
+            self.assertTrue(perms._can_faculty_manager_modify_learning_unit_year(luy))
 
     def test_can_faculty_manager_modify_end_date_full(self):
         for direct_edit_permitted_container_type in TYPES_DIRECT_EDIT_PERMITTED:
@@ -74,7 +74,7 @@ class PermsTestCase(TestCase):
                                           learning_container_year=lunit_container_yr,
                                           subtype=FULL)
 
-            self.assertTrue(perms._can_faculty_manager_modify_end_date(luy))
+            self.assertTrue(perms._can_faculty_manager_modify_learning_unit_year(luy))
 
     def test_cannot_faculty_manager_modify_end_date_full(self):
         for proposal_needed_container_type in TYPES_PROPOSAL_NEEDED_TO_EDIT:
@@ -84,12 +84,12 @@ class PermsTestCase(TestCase):
                                           learning_container_year=lunit_container_yr,
                                           subtype=FULL)
 
-            self.assertFalse(perms._can_faculty_manager_modify_end_date(luy))
+            self.assertFalse(perms._can_faculty_manager_modify_learning_unit_year(luy))
 
     def test_cannot_faculty_manager_modify_end_date_no_container(self):
         luy = LearningUnitYearFactory(academic_year=self.academic_yr,
                                       learning_container_year=None)
-        self.assertFalse(perms._can_faculty_manager_modify_end_date(luy))
+        self.assertFalse(perms._can_faculty_manager_modify_learning_unit_year(luy))
 
     def test_access_edit_learning_unit_proposal_as_central_manager(self):
         luy = LearningUnitYearFactory(academic_year=self.academic_yr)
