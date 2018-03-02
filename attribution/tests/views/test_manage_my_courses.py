@@ -23,10 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
+
 from django.test import TestCase
 from django.urls import reverse
 
+from attribution.tests.factories.attribution import AttributionFactory
+from attribution.views.manage_my_courses import list_my_attributions_summary_updatable
 from base.models.tutor import Tutor
+from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.tutor import TutorFactory
 
@@ -36,9 +42,18 @@ class ManageMyCoursesViewTestCase(TestCase):
         self.person = PersonFactory()
         self.user = self.person.user
         self.tutor = TutorFactory(person=self.person)
+        self.academic_year = AcademicYearFactory(year=datetime.date.today().year,
+                                                 start_date=datetime.date.today())
+
+        self.learning_unit_years = [LearningUnitYearFactory(summary_editable=True)
+                                    for i in range(4)]
+        self.attributions = [AttributionFactory(tutor=self.tutor,
+                                                summary_responsible=True,
+                                                learning_unit_year=self.learning_unit_years[i])
+                             for i in range(4)]
 
     def test_list_my_attributions_user_not_logged(self):
-        url = reverse("list_my_attributions")
+        url = reverse(list_my_attributions_summary_updatable)
         self.client.logout()
         response = self.client.get(url)
         self.assertRedirects(response, '/login/?next={}'.format(url))
@@ -48,12 +63,69 @@ class ManageMyCoursesViewTestCase(TestCase):
         tutors.delete()
 
         self.client.force_login(self.user)
-        url = reverse("list_my_attributions")
+        url = reverse(list_my_attributions_summary_updatable)
         response = self.client.get(url, follow=True)
         self.assertRedirects(response, '/login/?next={}'.format(url))
 
-    def test_list_my_attributions(self):
+    def test_list_my_attributions_summary_editable(self):
         self.client.force_login(self.user)
-        url = reverse("list_my_attributions")
+        url = reverse(list_my_attributions_summary_updatable)
         response = self.client.get(url)
         self.assertTemplateUsed(response, "manage_my_courses/list_my_attributions.html")
+
+        context = response.context[-1]
+        self.assertCountEqual(context['learning_unit_years_summary_to_update'], self.learning_unit_years)
+
+
+    def test_list_my_attributions_summary_editable_false_for_some(self):
+        self.client.force_login(self.user)
+
+        self.learning_unit_years[0].summary_editable = False
+        self.learning_unit_years[0].save()
+        self.learning_unit_years[2].summary_editable = False
+        self.learning_unit_years[2].save()
+
+        url = reverse(list_my_attributions_summary_updatable)
+        response = self.client.get(url)
+        self.assertTemplateUsed(response, "manage_my_courses/list_my_attributions.html")
+
+        context = response.context[-1]
+        self.assertCountEqual(context['learning_unit_years_summary_to_update'],
+                              [self.learning_unit_years[1], self.learning_unit_years[3]])
+
+    def test_list_my_attributions_summary_responsible_false_for_some(self):
+        self.client.force_login(self.user)
+
+        self.attributions[0].summary_responsible = False
+        self.attributions[0].save()
+        self.attributions[2].summary_responsible = False
+        self.attributions[2].save()
+
+        url = reverse(list_my_attributions_summary_updatable)
+        response = self.client.get(url)
+        self.assertTemplateUsed(response, "manage_my_courses/list_my_attributions.html")
+
+        context = response.context[-1]
+        self.assertCountEqual(context['learning_unit_years_summary_to_update'],
+                              [self.learning_unit_years[1], self.learning_unit_years[3]])
+
+    def test_list_my_attributions_summary_responsible_and_summary_editable_false_for_some(self):
+        self.client.force_login(self.user)
+
+        self.attributions[0].summary_responsible = False
+        self.attributions[0].save()
+        self.attributions[2].summary_responsible = False
+        self.attributions[2].save()
+
+        self.attributions[0].summary_responsible = False
+        self.attributions[0].save()
+        self.attributions[2].summary_responsible = False
+        self.attributions[2].save()
+
+        url = reverse(list_my_attributions_summary_updatable)
+        response = self.client.get(url)
+        self.assertTemplateUsed(response, "manage_my_courses/list_my_attributions.html")
+
+        context = response.context[-1]
+        self.assertCountEqual(context['learning_unit_years_summary_to_update'],
+                              [self.learning_unit_years[1], self.learning_unit_years[3]])

@@ -39,8 +39,8 @@ urlpatterns = [
     ])),
 
     url(r'^manage_my_courses/', include([
-        url(r'^$', manage_my_courses.list_my_attributions,
-            name='list_my_attributions'),
+        url(r'^$', manage_my_courses.list_my_attributions_summary_updatable,
+            name='list_my_attributions_summary_updatable'),
     ])),
 
 
