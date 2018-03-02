@@ -199,5 +199,7 @@ class LearningUnitYearTest(TestCase):
     def test_has_proposal(self):
         luy = LearningUnitYearFactory()
         self.assertFalse(get_proposal(luy))
+        self.assertFalse(luy.has_proposal)
         proposal_learning_unit = ProposalLearningUnitFactory(learning_unit_year=luy)
         self.assertTrue(get_proposal(luy))
+        self.assertTrue(luy.has_proposal)
