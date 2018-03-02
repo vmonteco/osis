@@ -53,6 +53,7 @@ FACULTY_READ_ONLY_FIELDS = {"common_title", "common_title_english", "specific_ti
                             "requirement_entity", "allocation_entity", "additional_requirement_entity_2", "is_vacant",
                             "type_declaration_vacant", "attribution_procedure", "subtype"}
 
+
 class LearningUnitEndDateForm(BootstrapForm):
     academic_year = forms.ModelChoiceField(required=False,
                                            queryset=AcademicYear.objects.none(),
