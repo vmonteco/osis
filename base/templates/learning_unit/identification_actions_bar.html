@@ -25,7 +25,6 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 {% if "base" in perms %}
-<div class="panel-footer text-right">
     <!-- Dropdown to select actions to apply on learning unit -->
     {% url "edit_proposal" learning_unit_year_id=learning_unit_year.id as url_edit_proposal %}
 
@@ -102,5 +101,4 @@
       </div>
     </div>
     {% endif %}
-</div>
 {% endif %}
