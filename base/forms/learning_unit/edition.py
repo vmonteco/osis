@@ -37,7 +37,7 @@ from base.models import academic_year
 from base.models.academic_year import AcademicYear
 from base.models.enums.attribution_procedure import AttributionProcedures
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
-from base.models.enums.learning_container_year_types import INTERNSHIP, DISSERTATION
+from base.models.enums.learning_container_year_types import INTERNSHIP, DISSERTATION, COURSE
 from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.enums.learning_unit_year_subtypes import PARTIM
 from base.models.enums.vacant_declaration_type import VacantDeclarationType
@@ -46,6 +46,10 @@ from base.models.learning_unit_year import find_max_credits_of_related_partims
 FULL_READ_ONLY_FIELDS = {"first_letter", "acronym", "academic_year", "container_type", "subtype"}
 PARTIM_READ_ONLY_FIELDS = PARTIM_FORM_READ_ONLY_FIELD | {"is_vacant", "team", "type_declaration_vacant",
                                                          "attribution_procedure", "subtype"}
+FACULTY_READ_ONLY_FIELDS = {"common_title", "common_title_english", "specific_title", "specific_title_english",
+                            "faculty_remark", "other_remark", "campus", "status", "credits", "language",
+                            "requirement_entity", "allocation_entity", "additional_requirement_entity_2", "is_vacant",
+                            "type_declaration_vacant", "attribution_procedure", "subtype"}
 
 
 class LearningUnitEndDateForm(BootstrapForm):
@@ -131,6 +135,10 @@ class LearningUnitModificationForm(LearningUnitYearForm):
             self._enabled_periodicity(parent)
         elif learning_unit_year_instance:
             self._set_min_credits(learning_unit_year_instance)
+
+        if person.is_faculty_manager():
+            if initial.get("container_type") in [COURSE, INTERNSHIP, DISSERTATION]:
+                self._disabled_fields(FACULTY_READ_ONLY_FIELDS)
 
     def is_valid(self):
         if not BootstrapForm.is_valid(self):

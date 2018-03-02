@@ -2631,3 +2631,6 @@ msgstr "Êtes-vous sûr de vouloir changer l'état de"
 
 msgid "learning_unit_in_proposal_cannot_save"
 msgstr "L'unité d'enseignement %(luy)s est en proposition, impossible de sauvegarder le changement à partir de l'année %(academic_year)s"
+
+msgid "in_proposal"
+msgstr "En proposition"
