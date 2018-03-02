@@ -37,6 +37,7 @@ from base.tests.factories.tutor import TutorFactory
 from attribution.tests.factories.attribution import AttributionFactory
 from attribution.views.manage_my_courses import list_my_attributions_summary_editable
 
+
 HTTP_NOT_FOUND = 404
 
 
