@@ -37,6 +37,8 @@ from base.tests.factories.tutor import TutorFactory
 from attribution.tests.factories.attribution import AttributionFactory
 from attribution.views.manage_my_courses import list_my_attributions_summary_editable
 
+HTTP_NOT_FOUND = 404
+
 
 class ManageMyCoursesViewTestCase(TestCase):
     def setUp(self):
@@ -66,7 +68,7 @@ class ManageMyCoursesViewTestCase(TestCase):
         self.client.force_login(self.user)
         url = reverse(list_my_attributions_summary_editable)
         response = self.client.get(url, follow=True)
-        self.assertRedirects(response, '/login/?next={}'.format(url))
+        self.assertEquals(response.status_code, HTTP_NOT_FOUND)
 
     def test_list_my_attributions_summary_editable(self):
         self.client.force_login(self.user)

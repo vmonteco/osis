@@ -23,19 +23,18 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 
-from base import models as mdl
+from base.models.tutor import Tutor
 from base.views import layout
 
 from attribution.business.manage_my_courses import find_learning_unit_years_summary_to_update
 
 
 @login_required
-@user_passes_test(mdl.tutor.is_tutor)
 def list_my_attributions_summary_editable(request):
-    person = mdl.person.find_by_user(request.user)
-    tutor = mdl.tutor.find_by_person(person)
+    tutor = get_object_or_404(Tutor, person__user=request.user)
     learning_unit_years_summary_to_update = find_learning_unit_years_summary_to_update(tutor)
     return layout.render(request,
                          'manage_my_courses/list_my_attributions.html',
