@@ -26,6 +26,7 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 
+from attribution.models.attribution import Attribution
 from base.models.tutor import is_tutor
 from base.views import layout
 
@@ -39,4 +40,5 @@ def list_my_attributions(request):
 
 @login_required
 def manage_educational_information(request, attribution_id):
-    return layout.render(request, 'manage_my_courses/educational_information.html', {})
+    attribution = Attribution.objects.get(pk=attribution_id)
+    return layout.render(request, 'manage_my_courses/educational_information.html', {"attribution": attribution})

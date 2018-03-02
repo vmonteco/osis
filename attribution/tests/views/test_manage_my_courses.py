@@ -79,3 +79,5 @@ class TestEditEducationalInformation(TestCase):
     def test_template_used(self):
         response = self.client.get(self.url)
         self.assertTemplateUsed(response, "manage_my_courses/educational_information.html")
+        context = response.context
+        self.assertEqual(context["attribution"], self.attribution)
