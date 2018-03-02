@@ -29,13 +29,14 @@ from attribution.models import attribution
 
 from base.models import learning_unit_year
 from base.models.enums import learning_unit_year_subtypes
-from base.models.learning_unit_year import find_max_credits_of_related_partims, get_proposal
+from base.models.learning_unit_year import find_max_credits_of_related_partims
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory, create_learning_units_year
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
+from base.business.learning_unit_proposal import get_proposal
 
 
 class LearningUnitYearTest(TestCase):
