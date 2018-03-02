@@ -24,8 +24,15 @@
 #
 ##############################################################################
 from django.test import TestCase
+from django.urls import reverse
 
 
 class ManageMyCoursesViewTestCase(TestCase):
     def setUp(self):
         pass
+
+    def test_manage_my_courses_user_not_logged(self):
+        url = reverse("list_my_attributions")
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertRedirects(response, '/login/?next={}'.format(url))
