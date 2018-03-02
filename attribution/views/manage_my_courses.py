@@ -29,13 +29,13 @@ from django.shortcuts import get_object_or_404
 from base.models.tutor import Tutor
 from base.views import layout
 
-from attribution.business.manage_my_courses import find_learning_unit_years_summary_to_update
+from attribution.business.manage_my_courses import find_learning_unit_years_summary_editable
 
 
 @login_required
 def list_my_attributions_summary_editable(request):
     tutor = get_object_or_404(Tutor, person__user=request.user)
-    learning_unit_years_summary_to_update = find_learning_unit_years_summary_to_update(tutor)
+    learning_unit_years_summary_editable = find_learning_unit_years_summary_editable(tutor)
     return layout.render(request,
                          'manage_my_courses/list_my_courses_summary_editable.html',
-                         {'learning_unit_years_summary_to_update': learning_unit_years_summary_to_update})
+                         {'learning_unit_years_summary_editable': learning_unit_years_summary_editable})

@@ -78,7 +78,7 @@ class ManageMyCoursesViewTestCase(TestCase):
         self.assertTemplateUsed(response, "manage_my_courses/list_my_courses_summary_editable.html")
 
         context = response.context[-1]
-        self.assertCountEqual(context['learning_unit_years_summary_to_update'], self.learning_unit_years)
+        self.assertCountEqual(context['learning_unit_years_summary_editable'], self.learning_unit_years)
 
 
     def test_list_my_attributions_summary_editable_false_for_some(self):
@@ -94,7 +94,7 @@ class ManageMyCoursesViewTestCase(TestCase):
         self.assertTemplateUsed(response, "manage_my_courses/list_my_courses_summary_editable.html")
 
         context = response.context[-1]
-        self.assertCountEqual(context['learning_unit_years_summary_to_update'],
+        self.assertCountEqual(context['learning_unit_years_summary_editable'],
                               [self.learning_unit_years[1], self.learning_unit_years[3]])
 
     def test_list_my_attributions_summary_responsible_false_for_some(self):
@@ -110,7 +110,7 @@ class ManageMyCoursesViewTestCase(TestCase):
         self.assertTemplateUsed(response, "manage_my_courses/list_my_courses_summary_editable.html")
 
         context = response.context[-1]
-        self.assertCountEqual(context['learning_unit_years_summary_to_update'],
+        self.assertCountEqual(context['learning_unit_years_summary_editable'],
                               [self.learning_unit_years[1], self.learning_unit_years[3]])
 
     def test_list_my_attributions_summary_responsible_and_summary_editable_false_for_some(self):
@@ -131,5 +131,5 @@ class ManageMyCoursesViewTestCase(TestCase):
         self.assertTemplateUsed(response, "manage_my_courses/list_my_courses_summary_editable.html")
 
         context = response.context[-1]
-        self.assertCountEqual(context['learning_unit_years_summary_to_update'],
+        self.assertCountEqual(context['learning_unit_years_summary_editable'],
                               [self.learning_unit_years[1], self.learning_unit_years[3]])
