@@ -102,7 +102,3 @@ def search(acronym=None):
         queryset = queryset.filter(acronym=acronym)
 
     return queryset
-
-
-def is_old_learning_unit(learning_unit):
-    pass
