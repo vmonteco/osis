@@ -66,7 +66,7 @@ class TestEditEducationalInformation(TestCase):
     def setUpTestData(cls):
         cls.tutor = TutorFactory()
         cls.attribution = AttributionFactory(tutor=cls.tutor, summary_responsible=True)
-        cls.url = reverse("manage_educational_information", args=[cls.attribution.learning_unit_year.id])
+        cls.url = reverse("manage_educational_information", args=[cls.attribution.id])
 
     def setUp(self):
         self.client.force_login(self.tutor.person.user)

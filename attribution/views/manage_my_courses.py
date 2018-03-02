@@ -41,8 +41,8 @@ def list_my_attributions(request):
 
 
 @login_required
-def manage_educational_information(request, learning_unit_year_id):
-    attribution = Attribution.objects.get(tutor__person__user=request.user, learning_unit_year_id=learning_unit_year_id)
+def manage_educational_information(request, attribution_id):
+    attribution = Attribution.objects.get(pk=attribution_id)
     learning_unit_year = attribution.learning_unit_year
     user_language = person.get_user_interface_language(request.user)
     context = {
