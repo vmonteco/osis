@@ -53,13 +53,13 @@ class ManageMyCoursesViewTestCase(TestCase):
                                                 learning_unit_year=self.learning_unit_years[i])
                              for i in range(4)]
 
-    def test_list_my_attributions_user_not_logged(self):
+    def test_list_my_attributions_summary_editable_user_not_logged(self):
         url = reverse(list_my_attributions_summary_editable)
         self.client.logout()
         response = self.client.get(url)
         self.assertRedirects(response, '/login/?next={}'.format(url))
 
-    def test_list_my_attributions_user_not_tutor(self):
+    def test_list_my_attributions_summary_editable_user_not_tutor(self):
         tutors = Tutor.objects.filter(person__user=self.user)
         tutors.delete()
 
