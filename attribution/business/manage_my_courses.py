@@ -23,31 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.conf.urls import url, include
-
-from attribution.views import summary_responsible, manage_my_courses
-
-urlpatterns = [
-
-    url(r'^summary_responsible_manager/', include([
-        url(r'^$', summary_responsible.search,
-            name='summary_responsible'),
-        url(r'^edit/$', summary_responsible.edit,
-            name='summary_responsible_edit'),
-        url(r'^update/(?P<pk>[0-9]+)/$', summary_responsible.update,
-            name='summary_responsible_update')
-    ])),
-
-    url(r'^manage_my_courses/', include([
-        url(r'^$', manage_my_courses.list_my_attributions_summary_editable,
-            name='list_my_attributions_summary_editable'),
-        url(r'^(?P<attribution_id>[0-9]+)/educational_information$',
-            manage_my_courses.view_educational_information,
-            name='view_educational_information'),
-        url(r'^(?P<attribution_id>[0-9]+)/edit_educational_information$',
-            manage_my_courses.edit_educational_information,
-            name='tutor_edit_educational_information'),
-    ])),
+from attribution.models import attribution
 
 
-]
+def find_learning_unit_years_summary_to_update(tutor):
+    attributions = attribution.search(tutor=tutor)\
+        .filter(summary_responsible=True, learning_unit_year__summary_editable=True)\
+        .order_by('learning_unit_year__academic_year__year', 'learning_unit_year__acronym')
+    return [attrib.learning_unit_year for attrib in attributions]

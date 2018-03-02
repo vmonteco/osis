@@ -24,22 +24,28 @@
 #
 ##############################################################################
 from django.conf import settings
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
+from attribution.business.manage_my_courses import find_learning_unit_years_summary_to_update
 from attribution.models.attribution import Attribution
 from base.business.learning_unit import get_cms_label_data, initialize_learning_unit_pedagogy_form, CMS_LABEL_PEDAGOGY
 from base.models import person
+from base.models.tutor import Tutor
 from base.models.tutor import is_tutor
 from base.views import layout
 from base.views.learning_unit import edit_learning_unit_pedagogy
 
 
 @login_required
-@user_passes_test(is_tutor)
-def list_my_attributions(request):
-    context = {}
-    return layout.render(request, 'manage_my_courses/list_my_attributions.html', context)
+def list_my_attributions_summary_editable(request):
+    tutor = get_object_or_404(Tutor, person__user=request.user)
+    learning_unit_years_summary_to_update = find_learning_unit_years_summary_to_update(tutor)
+    return layout.render(request,
+                         'manage_my_courses/list_my_courses_summary_editable.html',
+                         {'learning_unit_years_summary_to_update': learning_unit_years_summary_to_update})
 
 
 @login_required
@@ -63,3 +69,4 @@ def edit_educational_information(request, attribution_id):
     learning_unit_year = attribution.learning_unit_year
     redirect_url = reverse("view_educational_information", kwargs={'attribution_id': attribution.id})
     return edit_learning_unit_pedagogy(request, learning_unit_year.id, redirect_url)
+
