@@ -32,6 +32,7 @@ from attribution.business.manage_my_courses import find_learning_unit_years_summ
 from attribution.models.attribution import Attribution
 from base.business.learning_unit import get_cms_label_data, initialize_learning_unit_pedagogy_form, CMS_LABEL_PEDAGOGY
 from base.models import person
+from base.models.learning_unit_year import LearningUnitYear
 from base.models.tutor import Tutor
 from base.views import layout
 from base.views.learning_unit import edit_learning_unit_pedagogy
@@ -47,12 +48,10 @@ def list_my_attributions_summary_editable(request):
 
 
 @login_required
-def view_educational_information(request, attribution_id):
-    attribution = Attribution.objects.get(pk=attribution_id)
-    learning_unit_year = attribution.learning_unit_year
+def view_educational_information(request, learning_unit_year_id):
+    learning_unit_year = LearningUnitYear.objects.get(pk=learning_unit_year_id)
     user_language = person.get_user_interface_language(request.user)
     context = {
-        'attribution': attribution,
         'learning_unit_year': learning_unit_year,
         'cms_labels_translated': get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language),
         'form_french': initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_FR),
@@ -62,8 +61,6 @@ def view_educational_information(request, attribution_id):
 
 
 @login_required
-def edit_educational_information(request, attribution_id):
-    attribution = Attribution.objects.get(pk=attribution_id)
-    learning_unit_year = attribution.learning_unit_year
-    redirect_url = reverse("view_educational_information", kwargs={'attribution_id': attribution.id})
-    return edit_learning_unit_pedagogy(request, learning_unit_year.id, redirect_url)
+def edit_educational_information(request, learning_unit_year_id):
+    redirect_url = reverse("view_educational_information", kwargs={'learning_unit_year_id': learning_unit_year_id})
+    return edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url)

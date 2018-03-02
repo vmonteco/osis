@@ -143,7 +143,7 @@ class TestViewEducationalInformation(TestCase):
     def setUpTestData(cls):
         cls.tutor = TutorFactory()
         cls.attribution = AttributionFactory(tutor=cls.tutor, summary_responsible=True)
-        cls.url = reverse("view_educational_information", args=[cls.attribution.id])
+        cls.url = reverse("view_educational_information", args=[cls.attribution.learning_unit_year.id])
 
     def setUp(self):
         self.client.force_login(self.tutor.person.user)
@@ -170,7 +170,7 @@ class TestManageEducationalInformation(TestCase):
     def setUpTestData(cls):
         cls.tutor = TutorFactory()
         cls.attribution = AttributionFactory(tutor=cls.tutor, summary_responsible=True)
-        cls.url = reverse("tutor_edit_educational_information", args=[cls.attribution.id])
+        cls.url = reverse("tutor_edit_educational_information", args=[cls.attribution.learning_unit_year.id])
 
     def setUp(self):
         self.client.force_login(self.tutor.person.user)

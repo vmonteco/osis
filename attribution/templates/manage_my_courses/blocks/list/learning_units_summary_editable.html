@@ -15,7 +15,7 @@
                 <td>{{ luy.academic_year }}</td>
                 <td>{{ luy.acronym }}</td>
                 <td>{{ luy.complete_title|default_if_none:'' }}</td>
-                <td><a href="#">#</a></td>
+                <td><a href="{% url "view_educational_information" learning_unit_year_id=luy.id %}">#</a></td>
             </tr>
         {% endfor %}
     </tbody>
