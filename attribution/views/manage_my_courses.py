@@ -25,9 +25,10 @@
 ##############################################################################
 from django.contrib.auth.decorators import login_required, user_passes_test
 
-from attribution.business.manage_my_courses import find_learning_unit_years_summary_to_update
 from base import models as mdl
 from base.views import layout
+
+from attribution.business.manage_my_courses import find_learning_unit_years_summary_to_update
 
 
 @login_required

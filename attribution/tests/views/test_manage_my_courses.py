@@ -28,13 +28,14 @@ import datetime
 from django.test import TestCase
 from django.urls import reverse
 
-from attribution.tests.factories.attribution import AttributionFactory
-from attribution.views.manage_my_courses import list_my_attributions_summary_editable
 from base.models.tutor import Tutor
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.tutor import TutorFactory
+
+from attribution.tests.factories.attribution import AttributionFactory
+from attribution.views.manage_my_courses import list_my_attributions_summary_editable
 
 
 class ManageMyCoursesViewTestCase(TestCase):
