@@ -26,13 +26,34 @@
 from django.test import TestCase
 from django.urls import reverse
 
+from base.models.tutor import Tutor
+from base.tests.factories.person import PersonFactory
+from base.tests.factories.tutor import TutorFactory
+
 
 class ManageMyCoursesViewTestCase(TestCase):
     def setUp(self):
-        pass
+        self.person = PersonFactory()
+        self.user = self.person.user
+        self.tutor = TutorFactory(person=self.person)
 
-    def test_manage_my_courses_user_not_logged(self):
+    def test_list_my_attributions_user_not_logged(self):
         url = reverse("list_my_attributions")
         self.client.logout()
         response = self.client.get(url)
         self.assertRedirects(response, '/login/?next={}'.format(url))
+
+    def test_list_my_attributions_user_not_tutor(self):
+        tutors = Tutor.objects.filter(person__user=self.user)
+        tutors.delete()
+
+        self.client.force_login(self.user)
+        url = reverse("list_my_attributions")
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(response, '/login/?next={}'.format(url))
+
+    def test_list_my_attributions(self):
+        self.client.force_login(self.user)
+        url = reverse("list_my_attributions")
+        response = self.client.get(url)
+        self.assertTemplateUsed(response, "manage_my_courses/list_my_attributions.html")

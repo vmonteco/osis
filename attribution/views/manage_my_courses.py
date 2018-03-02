@@ -23,9 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+
+from base.models.tutor import is_tutor
+from base.views import layout
 
 
 @login_required
+@user_passes_test(is_tutor)
 def list_my_attributions(request):
-    pass
+    context = {}
+    return layout.render(request, 'manage_my_courses/list_my_attributions.html', context)
