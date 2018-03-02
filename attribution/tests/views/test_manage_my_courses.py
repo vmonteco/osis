@@ -75,7 +75,7 @@ class ManageMyCoursesViewTestCase(TestCase):
         self.client.force_login(self.user)
         url = reverse(list_my_attributions_summary_editable)
         response = self.client.get(url)
-        self.assertTemplateUsed(response, "manage_my_courses/list_my_attributions.html")
+        self.assertTemplateUsed(response, "manage_my_courses/list_my_courses_summary_editable.html")
 
         context = response.context[-1]
         self.assertCountEqual(context['learning_unit_years_summary_to_update'], self.learning_unit_years)
@@ -91,7 +91,7 @@ class ManageMyCoursesViewTestCase(TestCase):
 
         url = reverse(list_my_attributions_summary_editable)
         response = self.client.get(url)
-        self.assertTemplateUsed(response, "manage_my_courses/list_my_attributions.html")
+        self.assertTemplateUsed(response, "manage_my_courses/list_my_courses_summary_editable.html")
 
         context = response.context[-1]
         self.assertCountEqual(context['learning_unit_years_summary_to_update'],
@@ -107,7 +107,7 @@ class ManageMyCoursesViewTestCase(TestCase):
 
         url = reverse(list_my_attributions_summary_editable)
         response = self.client.get(url)
-        self.assertTemplateUsed(response, "manage_my_courses/list_my_attributions.html")
+        self.assertTemplateUsed(response, "manage_my_courses/list_my_courses_summary_editable.html")
 
         context = response.context[-1]
         self.assertCountEqual(context['learning_unit_years_summary_to_update'],
@@ -128,7 +128,7 @@ class ManageMyCoursesViewTestCase(TestCase):
 
         url = reverse(list_my_attributions_summary_editable)
         response = self.client.get(url)
-        self.assertTemplateUsed(response, "manage_my_courses/list_my_attributions.html")
+        self.assertTemplateUsed(response, "manage_my_courses/list_my_courses_summary_editable.html")
 
         context = response.context[-1]
         self.assertCountEqual(context['learning_unit_years_summary_to_update'],
