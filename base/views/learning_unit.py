@@ -390,12 +390,12 @@ def learning_unit_summary(request, learning_unit_year_id):
 @login_required
 @require_http_methods(["GET", "POST"])
 def summary_edit(request, learning_unit_year_id):
-    if not is_summary_submission_opened():
-        return redirect(reverse_lazy("outside_summary_submission_period"))
+    # if not is_summary_submission_opened():
+    #     return redirect(reverse_lazy("outside_summary_submission_period"))
 
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
-    if not can_access_summary(request.user, learning_unit_year):
-        raise PermissionDenied("User is not summary responsible")
+    # if not can_access_summary(request.user, learning_unit_year):
+    #     raise PermissionDenied("User is not summary responsible")
 
     if request.method == 'POST':
         form = LearningUnitPedagogyEditForm(request.POST)
