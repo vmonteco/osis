@@ -50,8 +50,7 @@ PARTIM_READ_ONLY_FIELDS = PARTIM_FORM_READ_ONLY_FIELD | {"is_vacant", "team", "t
                                                          "attribution_procedure", "subtype"}
 FACULTY_READ_ONLY_FIELDS = {"common_title", "common_title_english", "specific_title", "specific_title_english",
                             "faculty_remark", "other_remark", "campus", "status", "credits", "language",
-                            "requirement_entity", "allocation_entity",
-                            "additional_requirement_entity_2", "credits", "language", "is_vacant",
+                            "requirement_entity", "allocation_entity", "additional_requirement_entity_2", "is_vacant",
                             "type_declaration_vacant", "attribution_procedure", "subtype"}
 
 class LearningUnitEndDateForm(BootstrapForm):
