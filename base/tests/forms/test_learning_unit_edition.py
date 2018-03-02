@@ -273,6 +273,10 @@ class TestLearningUnitModificationForm(TestCase):
         form = LearningUnitModificationForm(self.form_data, initial=self.initial_data, person=self.person)
         self.assertTrue(form.is_valid())
 
+    def test_valid_form_with_faculty_manager(self):
+        form = LearningUnitModificationForm(self.form_data, initial=self.initial_data, person=self.person)
+        self.assertTrue(form.is_valid())
+
     def test_deactivated_fields_in_learning_unit_modification_form(self):
         form = LearningUnitModificationForm(person=self.person, initial=self.initial_data)
         self.assertFalse(form.fields["common_title"].disabled)
@@ -312,7 +316,3 @@ class TestLearningUnitModificationForm(TestCase):
         self.assertTrue(form.fields["type_declaration_vacant"].disabled)
         self.assertTrue(form.fields["attribution_procedure"].disabled)
         self.assertTrue(form.fields["subtype"].disabled)
-
-    def test_valid_form_with_faculty_manager(self):
-        form = LearningUnitModificationForm(self.form_data, initial=self.initial_data, person=self.person)
-        self.assertTrue(form.is_valid())
