@@ -35,6 +35,7 @@ from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory, create_learning_units_year
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 
 
 class LearningUnitYearTest(TestCase):

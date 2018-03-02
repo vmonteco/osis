@@ -26,6 +26,7 @@
 from django import template
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
+from base.models.proposal_learning_unit import ProposalLearningUnit
 register = template.Library()
 
 
@@ -60,3 +61,8 @@ def get_difference_css(differences, parameter):
                                                                                  differences.get(parameter),
                                                                                  "proposal_value"))
     return None
+
+
+@register.filter
+def has_proposal(luy):
+    return ProposalLearningUnit.objects.filter(learning_unit_year=luy).exists()
