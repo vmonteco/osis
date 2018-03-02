@@ -115,7 +115,7 @@ urlpatterns = [
                 url(r'^cancel/$', learning_unit_proposal.cancel_proposal_of_learning_unit,
                     name="learning_unit_cancel_proposal"),
             ])),
-            url(r'^edit/$', edition.learning_unit_edition, name="learning_unit_edition"),
+            url(r'^edit/$', edition.learning_unit_edition_end_date, name="learning_unit_edition"),
             url(r'^modify/$', edition.modify_learning_unit, name="edit_learning_unit"),
             url(r'^specifications/$', learning_unit.learning_unit_specifications, name="learning_unit_specifications"),
             url(r'^specifications/edit/$', learning_unit.learning_unit_specifications_edit,
