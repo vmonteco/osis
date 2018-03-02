@@ -39,4 +39,4 @@ def list_my_attributions(request):
 
 @login_required
 def manage_educational_information(request, attribution_id):
-    return HttpResponse()
+    return layout.render(request, 'manage_my_courses/educational_information.html', {})
