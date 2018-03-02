@@ -25,7 +25,6 @@
 ##############################################################################
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
@@ -34,7 +33,6 @@ from attribution.models.attribution import Attribution
 from base.business.learning_unit import get_cms_label_data, initialize_learning_unit_pedagogy_form, CMS_LABEL_PEDAGOGY
 from base.models import person
 from base.models.tutor import Tutor
-from base.models.tutor import is_tutor
 from base.views import layout
 from base.views.learning_unit import edit_learning_unit_pedagogy
 
