@@ -51,8 +51,7 @@ def is_person_linked_to_entity_in_charge_of_learning_unit(a_learning_unit_year, 
 
 
 def is_eligible_to_create_modification_proposal(learn_unit_year, person):
-    if learn_unit_year.is_past() or \
-            learn_unit_year.subtype == PARTIM:
+    if learn_unit_year.is_past() or learn_unit_year.subtype == PARTIM:
         return False
     if learn_unit_year.learning_container_year and \
             learn_unit_year.learning_container_year.container_type not in TYPES_PROPOSAL_NEEDED_TO_EDIT:
