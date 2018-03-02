@@ -23,6 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from unittest import mock
+
+from django.http import HttpResponseRedirect
 from django.test import TestCase
 from django.urls import reverse
 
@@ -61,12 +64,12 @@ class ManageMyCoursesViewTestCase(TestCase):
         self.assertTemplateUsed(response, "manage_my_courses/list_my_attributions.html")
 
 
-class TestEditEducationalInformation(TestCase):
+class TestViewEducationalInformation(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.tutor = TutorFactory()
         cls.attribution = AttributionFactory(tutor=cls.tutor, summary_responsible=True)
-        cls.url = reverse("manage_educational_information", args=[cls.attribution.id])
+        cls.url = reverse("view_educational_information", args=[cls.attribution.id])
 
     def setUp(self):
         self.client.force_login(self.tutor.person.user)
@@ -86,3 +89,24 @@ class TestEditEducationalInformation(TestCase):
         self.assertTrue(context["cms_labels_translated"])
         self.assertIsInstance(context["form_french"], LearningUnitPedagogyForm)
         self.assertIsInstance(context["form_english"], LearningUnitPedagogyForm)
+
+
+class TestManageEducationalInformation(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.tutor = TutorFactory()
+        cls.attribution = AttributionFactory(tutor=cls.tutor, summary_responsible=True)
+        cls.url = reverse("tutor_edit_educational_information", args=[cls.attribution.id])
+
+    def setUp(self):
+        self.client.force_login(self.tutor.person.user)
+
+    def test_user_not_logged(self):
+        self.client.logout()
+        response = self.client.get(self.url)
+        self.assertRedirects(response, '/login/?next={}'.format(self.url))
+
+    @mock.patch("base.views.learning_unit.edit_learning_unit_pedagogy", side_effect=lambda req, luy_id, url: HttpResponseRedirect())
+    def test_use_edit_learning_unit_pedagogy_method(self, mock_edit_learning_unit_pedagogy):
+        response = self.client.get(self.url)
+        self.assertTrue(mock_edit_learning_unit_pedagogy.called)

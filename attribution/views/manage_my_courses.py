@@ -25,12 +25,14 @@
 ##############################################################################
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.urls import reverse
 
 from attribution.models.attribution import Attribution
 from base.business.learning_unit import get_cms_label_data, initialize_learning_unit_pedagogy_form, CMS_LABEL_PEDAGOGY
 from base.models import person
 from base.models.tutor import is_tutor
 from base.views import layout
+from base.views.learning_unit import edit_learning_unit_pedagogy
 
 
 @login_required
@@ -41,7 +43,7 @@ def list_my_attributions(request):
 
 
 @login_required
-def manage_educational_information(request, attribution_id):
+def view_educational_information(request, attribution_id):
     attribution = Attribution.objects.get(pk=attribution_id)
     learning_unit_year = attribution.learning_unit_year
     user_language = person.get_user_interface_language(request.user)
@@ -52,3 +54,10 @@ def manage_educational_information(request, attribution_id):
         'form_english': initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_EN)
     }
     return layout.render(request, 'manage_my_courses/educational_information.html', context)
+
+@login_required
+def edit_educational_information(request, attribution_id):
+    attribution = Attribution.objects.get(pk=attribution_id)
+    learning_unit_year = attribution.learning_unit_year
+    redirect_url = reverse("view_educational_information", kwargs={'attribution_id': attribution.id})
+    return edit_learning_unit_pedagogy(request, learning_unit_year.id, redirect_url)

@@ -138,13 +138,16 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
 @permission_required('base.can_edit_learningunit_pedagogy', raise_exception=True)
 @require_http_methods(["GET", "POST"])
 def learning_unit_pedagogy_edit(request, learning_unit_year_id):
+    redirect_url = reverse("learning_unit_pedagogy", kwargs={'learning_unit_year_id': learning_unit_year_id})
+    return edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url)
+
+
+def edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url):
     if request.method == 'POST':
         form = LearningUnitPedagogyEditForm(request.POST)
         if form.is_valid():
             form.save()
-        return HttpResponseRedirect(reverse("learning_unit_pedagogy",
-                                            kwargs={'learning_unit_year_id': learning_unit_year_id}))
-
+        return redirect(redirect_url)
     context = get_common_context_learning_unit_year(learning_unit_year_id,
                                                     get_object_or_404(Person, user=request.user))
     label_name = request.GET.get('label')
@@ -157,7 +160,6 @@ def learning_unit_pedagogy_edit(request, learning_unit_year_id):
     })
     form.load_initial()  # Load data from database
     context['form'] = form
-
     user_language = mdl.person.get_user_interface_language(request.user)
     context['text_label_translated'] = next((txt for txt in text_lb.translated_text_labels
                                              if txt.language == user_language), None)
