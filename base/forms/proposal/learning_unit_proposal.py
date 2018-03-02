@@ -128,9 +128,6 @@ class LearningUnitProposalForm(SearchForm):
 
 
 class ProposalStateModelForm(forms.ModelForm):
-    @property
-    def proposal_type(self):
-        return _(self.instance.type)
 
     class Meta:
         model = ProposalLearningUnit
@@ -139,6 +136,10 @@ class ProposalStateModelForm(forms.ModelForm):
 
 class ProposalRowForm(ProposalStateModelForm):
     check = forms.BooleanField(required=False)
+
+    @property
+    def proposal_type(self):
+        return _(self.instance.type)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
