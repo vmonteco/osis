@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.http import HttpResponse
 
 from base.models.tutor import is_tutor
 from base.views import layout
@@ -34,3 +35,8 @@ from base.views import layout
 def list_my_attributions(request):
     context = {}
     return layout.render(request, 'manage_my_courses/list_my_attributions.html', context)
+
+
+@login_required
+def manage_educational_information(request, attribution_id):
+    return HttpResponse()

@@ -41,6 +41,8 @@ urlpatterns = [
     url(r'^manage_my_courses/', include([
         url(r'^$', manage_my_courses.list_my_attributions,
             name='list_my_attributions'),
+        url(r'^(?P<attribution_id>[0-9]+)/educational_information$', manage_my_courses.manage_educational_information,
+            name='manage_educational_information'),
     ])),
 
 

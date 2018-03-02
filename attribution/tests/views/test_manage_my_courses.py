@@ -26,6 +26,7 @@
 from django.test import TestCase
 from django.urls import reverse
 
+from attribution.tests.factories.attribution import AttributionFactory
 from base.models.tutor import Tutor
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.tutor import TutorFactory
@@ -57,3 +58,19 @@ class ManageMyCoursesViewTestCase(TestCase):
         url = reverse("list_my_attributions")
         response = self.client.get(url)
         self.assertTemplateUsed(response, "manage_my_courses/list_my_attributions.html")
+
+
+class TestEditEducationalInformation(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.tutor = TutorFactory()
+        cls.attribution = AttributionFactory(tutor=cls.tutor, summary_responsible=True)
+        cls.url = reverse("manage_educational_information", args=[cls.attribution.id])
+
+    def setUp(self):
+        self.client.force_login(self.tutor.person.user)
+
+    def test_user_not_logged(self):
+        self.client.logout()
+        response = self.client.get(self.url)
+        self.assertRedirects(response, '/login/?next={}'.format(self.url))
