@@ -23,19 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.decorators import login_required, user_passes_test
-
-from attribution.business.manage_my_courses import learning_unit_years_summary_to_update
-from base import models as mdl
-from base.views import layout
+from attribution.models import attribution
 
 
-@login_required
-@user_passes_test(mdl.tutor.is_tutor)
-def list_my_attributions(request):
-    context = {}
-    person = mdl.person.find_by_user(request.user)
-    tutor = mdl.tutor.find_by_person(person)
-    learning_unit_years = learning_unit_years_summary_to_update(tutor)
-    context.update(learning_unit_years=learning_unit_years)
-    return layout.render(request, 'manage_my_courses/list_my_attributions.html', context)
+def learning_unit_years_summary_to_update(tutor):
+    attributions = attribution.search(tutor=tutor)\
+        .filter(summary_responsible=True)\
+        .filter(learning_unit_year__summary_editable=True)
+    return [attrib.learning_unit_year for attrib in attributions]
