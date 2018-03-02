@@ -29,7 +29,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from attribution.tests.factories.attribution import AttributionFactory
-from attribution.views.manage_my_courses import list_my_attributions_summary_updatable
+from attribution.views.manage_my_courses import list_my_attributions_summary_editable
 from base.models.tutor import Tutor
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
@@ -53,7 +53,7 @@ class ManageMyCoursesViewTestCase(TestCase):
                              for i in range(4)]
 
     def test_list_my_attributions_user_not_logged(self):
-        url = reverse(list_my_attributions_summary_updatable)
+        url = reverse(list_my_attributions_summary_editable)
         self.client.logout()
         response = self.client.get(url)
         self.assertRedirects(response, '/login/?next={}'.format(url))
@@ -63,13 +63,13 @@ class ManageMyCoursesViewTestCase(TestCase):
         tutors.delete()
 
         self.client.force_login(self.user)
-        url = reverse(list_my_attributions_summary_updatable)
+        url = reverse(list_my_attributions_summary_editable)
         response = self.client.get(url, follow=True)
         self.assertRedirects(response, '/login/?next={}'.format(url))
 
     def test_list_my_attributions_summary_editable(self):
         self.client.force_login(self.user)
-        url = reverse(list_my_attributions_summary_updatable)
+        url = reverse(list_my_attributions_summary_editable)
         response = self.client.get(url)
         self.assertTemplateUsed(response, "manage_my_courses/list_my_attributions.html")
 
@@ -85,7 +85,7 @@ class ManageMyCoursesViewTestCase(TestCase):
         self.learning_unit_years[2].summary_editable = False
         self.learning_unit_years[2].save()
 
-        url = reverse(list_my_attributions_summary_updatable)
+        url = reverse(list_my_attributions_summary_editable)
         response = self.client.get(url)
         self.assertTemplateUsed(response, "manage_my_courses/list_my_attributions.html")
 
@@ -101,7 +101,7 @@ class ManageMyCoursesViewTestCase(TestCase):
         self.attributions[2].summary_responsible = False
         self.attributions[2].save()
 
-        url = reverse(list_my_attributions_summary_updatable)
+        url = reverse(list_my_attributions_summary_editable)
         response = self.client.get(url)
         self.assertTemplateUsed(response, "manage_my_courses/list_my_attributions.html")
 
@@ -122,7 +122,7 @@ class ManageMyCoursesViewTestCase(TestCase):
         self.attributions[2].summary_responsible = False
         self.attributions[2].save()
 
-        url = reverse(list_my_attributions_summary_updatable)
+        url = reverse(list_my_attributions_summary_editable)
         response = self.client.get(url)
         self.assertTemplateUsed(response, "manage_my_courses/list_my_attributions.html")
 
