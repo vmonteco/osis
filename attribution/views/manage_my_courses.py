@@ -33,9 +33,9 @@ from base.views import layout
 @login_required
 @user_passes_test(mdl.tutor.is_tutor)
 def list_my_attributions_summary_updatable(request):
-    context = {}
     person = mdl.person.find_by_user(request.user)
     tutor = mdl.tutor.find_by_person(person)
     learning_unit_years_summary_to_update = find_learning_unit_years_summary_to_update(tutor)
-    context.update(learning_unit_years_summary_to_update=learning_unit_years_summary_to_update)
-    return layout.render(request, 'manage_my_courses/list_my_attributions.html', context)
+    return layout.render(request,
+                         'manage_my_courses/list_my_attributions.html',
+                         {'learning_unit_years_summary_to_update': learning_unit_years_summary_to_update})
