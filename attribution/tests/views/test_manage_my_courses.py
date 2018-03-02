@@ -25,7 +25,7 @@
 ##############################################################################
 from unittest import mock
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.test import TestCase
 from django.urls import reverse
 
@@ -106,7 +106,7 @@ class TestManageEducationalInformation(TestCase):
         response = self.client.get(self.url)
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
 
-    @mock.patch("base.views.learning_unit.edit_learning_unit_pedagogy", side_effect=lambda req, luy_id, url: HttpResponseRedirect())
+    @mock.patch("attribution.views.manage_my_courses.edit_learning_unit_pedagogy", side_effect=lambda req, luy_id, url: HttpResponse())
     def test_use_edit_learning_unit_pedagogy_method(self, mock_edit_learning_unit_pedagogy):
         response = self.client.get(self.url)
         self.assertTrue(mock_edit_learning_unit_pedagogy.called)
