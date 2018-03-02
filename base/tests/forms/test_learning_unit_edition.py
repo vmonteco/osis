@@ -273,6 +273,26 @@ class TestLearningUnitModificationForm(TestCase):
         form = LearningUnitModificationForm(self.form_data, initial=self.initial_data, person=self.person)
         self.assertTrue(form.is_valid())
 
+    def test_deactivated_fields_in_learning_unit_modification_form(self):
+        form = LearningUnitModificationForm(person=self.person, initial=self.initial_data)
+        self.assertFalse(form.fields["common_title"].disabled)
+        self.assertFalse(form.fields["common_title_english"].disabled)
+        self.assertFalse(form.fields["specific_title"].disabled)
+        self.assertFalse(form.fields["specific_title_english"].disabled)
+        self.assertFalse(form.fields["faculty_remark"].disabled)
+        self.assertFalse(form.fields["other_remark"].disabled)
+        self.assertFalse(form.fields["campus"].disabled)
+        self.assertFalse(form.fields["status"].disabled)
+        self.assertFalse(form.fields["credits"].disabled)
+        self.assertFalse(form.fields["language"].disabled)
+        self.assertFalse(form.fields["requirement_entity"].disabled)
+        self.assertFalse(form.fields["allocation_entity"].disabled)
+        self.assertFalse(form.fields["additional_requirement_entity_2"].disabled)
+        self.assertFalse(form.fields["is_vacant"].disabled)
+        self.assertFalse(form.fields["type_declaration_vacant"].disabled)
+        self.assertFalse(form.fields["attribution_procedure"].disabled)
+        self.assertTrue(form.fields["subtype"].disabled)
+
     def test_deactivated_fields_in_learning_unit_modification_form_with_faculty_manager(self):
         form = LearningUnitModificationForm(person=self.faculty_person, initial=self.initial_data)
         self.assertTrue(form.fields["common_title"].disabled)
