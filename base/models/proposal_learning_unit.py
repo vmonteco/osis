@@ -106,4 +106,3 @@ def search(academic_year_id=None, acronym=None, entity_folder_id=None, folder_id
 
 def count_search_results(**kwargs):
     return search(**kwargs).count()
-

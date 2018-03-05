@@ -264,12 +264,11 @@ def _get_rid_of_blank_value(data):
 
 
 def check_proposals_valid_to_get_back_to_initial(proposals_to_cancel):
-    if proposals_to_cancel:
-        for proposal in proposals_to_cancel:
-            if proposal.type != proposal_type.ProposalType.SUPPRESSION.name:
-                return False
-        return True
-    return False
+    for proposal in proposals_to_cancel:
+        if proposal.type != proposal_type.ProposalType.SUPPRESSION.name:
+            return False
+    return True
+
 
 
 def get_valid_proposal_for_cancellation(proposals):

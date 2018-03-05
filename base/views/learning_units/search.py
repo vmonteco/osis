@@ -38,8 +38,8 @@ from base.models.academic_year import current_academic_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.views import layout
 from base.views.common import check_if_display_message, display_error_messages, display_success_messages
-from base.business.learning_unit_proposal import check_proposals_valid_to_get_back_to_initial, get_valid_proposal_for_cancellation, \
-    cancel_proposals
+from base.business.learning_unit_proposal import check_proposals_valid_to_get_back_to_initial, \
+    get_valid_proposal_for_cancellation, cancel_proposals
 
 PROPOSAL_SEARCH = 3
 
@@ -121,23 +121,9 @@ def _proposal_management(request, proposals):
     formset = list_proposal_formset(request.POST or None, list_proposal_learning=proposals)
     if formset.is_valid():
         if is_get_back_to_initial_action(formset):
-            proposals_candidate_to_cancellation = ProposalRowForm.get_checked_proposals(formset)
-            if not check_proposals_valid_to_get_back_to_initial(proposals_candidate_to_cancellation):
-                display_error_messages(request, _("error_proposal_suppression_to_initial"))
-            else:
-                proposals_to_cancel = get_valid_proposal_for_cancellation(proposals_candidate_to_cancellation)
-                if proposals_to_cancel:
-                    cancel_proposals(proposals_to_cancel)
-                    display_success_messages(request, _("proposal_edited_successfully"))
-                    return None
-                else:
-                    display_error_messages(request, _("error_proposal_no_data"))
+            formset = _go_back_to_initial_data(formset, request)
         else:
-            try:
-                formset.save()
-                display_success_messages(request, _("proposal_edited_successfully"))
-            except IntegrityError:
-                display_error_messages(request, _("error_modification_learning_unit"))
+            _force_state(formset, request)
 
     return formset
 
@@ -147,3 +133,33 @@ def is_get_back_to_initial_action(formset):
         if f.cleaned_data.get('action') == 'back_to_initial':
             return True
     return False
+
+
+def _go_back_to_initial_data(formset, request):
+    proposals_candidate_to_cancellation = ProposalRowForm.get_checked_proposals(formset)
+    if proposals_candidate_to_cancellation:
+        if not check_proposals_valid_to_get_back_to_initial(proposals_candidate_to_cancellation):
+            display_error_messages(request, _("error_proposal_suppression_to_initial"))
+        else:
+            proposals_to_cancel = get_valid_proposal_for_cancellation(proposals_candidate_to_cancellation)
+            if proposals_to_cancel:
+                cancel_proposals(proposals_to_cancel)
+                display_success_messages(request, _("proposal_edited_successfully"))
+                return None
+            else:
+                _build_no_data_error_message(request)
+    else:
+        _build_no_data_error_message(request)
+    return formset
+
+
+def _build_no_data_error_message(request):
+    display_error_messages(request, _("error_proposal_no_data"))
+
+
+def _force_state(formset, request):
+    try:
+        formset.save()
+        display_success_messages(request, _("proposal_edited_successfully"))
+    except IntegrityError:
+        display_error_messages(request, _("error_modification_learning_unit"))
