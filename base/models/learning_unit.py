@@ -26,6 +26,7 @@
 from django.db import models
 
 from base.models import academic_year
+from base.models.academic_year import current_academic_year
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 
@@ -70,6 +71,9 @@ class LearningUnit(AuditableSerializableModel):
             raise AttributeError("Start date should be before the end date")
         super(LearningUnit, self).save(*args, **kwargs)
 
+    def is_past(self):
+        return self.end_year and current_academic_year().year > self.end_year
+
     class Meta:
         permissions = (
             ("can_access_learningunit", "Can access learning unit"),
@@ -98,8 +102,3 @@ def search(acronym=None):
         queryset = queryset.filter(acronym=acronym)
 
     return queryset
-
-
-def is_old_learning_unit(learning_unit):
-    current_academic_year = academic_year.current_academic_year()
-    return learning_unit.end_year and current_academic_year.year > learning_unit.end_year

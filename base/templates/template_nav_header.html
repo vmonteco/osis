@@ -28,7 +28,7 @@
 {% if disabled_nav %}
     <h2 style="margin:40px 0 40px;">{{ header_title|default_if_none:'' }}</h2>
     {% else %}
-<div class="row page-header" style="margin-top:25px;">
+<div class="row" style="margin:0 -15px 5px; padding:0;">
     <div class="col-md-1">
         <ul class="pager">
             <li class="previous disabled" >
@@ -39,7 +39,9 @@
         </ul>
     </div>
     <div class="col-md-10">
-         <h2>{{ header_title|default_if_none:'' }}</h2>
+        <h2>{{ acronym|default_if_none:'' }} &mdash; {{ current_yr|default_if_none:'' }}</h2>
+        <h4 style="margin-top: 0;">{{ common_title|default_if_none:'' }}</h4>
+        <h4 style="margin-top: 0;">{{ specific_title|default_if_none:'' }}</h4>
     </div>
     <div class="col-md-1">
         <ul class="pager">
