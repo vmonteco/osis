@@ -31,10 +31,12 @@ from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from base.models import entity_container_year
+from base.models.academic_year import current_academic_year
 from base.models.enums import active_status
 from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 from base.models.group_element_year import GroupElementYear
+from base.models.proposal_learning_unit import ProposalLearningUnit
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
@@ -150,6 +152,9 @@ class LearningUnitYear(AuditableSerializableModel):
     def in_charge(self):
         return self.learning_container_year and self.learning_container_year.in_charge
 
+    def is_in_proposal(self):
+        return ProposalLearningUnit.objects.filter(learning_unit_year=self).exists()
+
     def find_gte_learning_units_year(self):
         return LearningUnitYear.objects.filter(learning_unit=self.learning_unit,
                                                academic_year__year__gte=self.academic_year.year) \
@@ -159,6 +164,9 @@ class LearningUnitYear(AuditableSerializableModel):
         return LearningUnitYear.objects.filter(learning_unit=self.learning_unit,
                                                academic_year__year__gt=self.academic_year.year) \
             .order_by('academic_year__year')
+
+    def is_past(self):
+        return self.academic_year.year < current_academic_year().year
 
 
 def get_by_id(learning_unit_year_id):
