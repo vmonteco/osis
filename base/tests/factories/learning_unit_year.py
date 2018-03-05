@@ -70,6 +70,7 @@ class LearningUnitYearFactory(DjangoModelFactory):
     quadrimester = factory.Iterator(learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS,
                                     getter=operator.itemgetter(0))
     attribution_procedure = None
+    summary_editable = True
 
 
 class LearningUnitYearFakerFactory(DjangoModelFactory):
