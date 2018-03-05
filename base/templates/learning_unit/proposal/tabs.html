@@ -25,6 +25,7 @@
 {% endcomment %}
 
 {% url 'learning_unit_modification_proposal' learning_unit_year_id=learning_unit_year.id as url_proposal_identification %}
+{% url 'edit_proposal' learning_unit_year_id=learning_unit_year.id as url_proposal_edit %}
 {% url 'learning_unit_formations' learning_unit_year_id=learning_unit_year.id as url_formations %}
 {% url 'learning_unit_components' learning_unit_year_id=learning_unit_year.id as url_components %}
 {% url 'learning_unit_pedagogy' learning_unit_year_id=learning_unit_year.id as url_pedagogy %}
@@ -34,7 +35,7 @@
 
 
 <ul class="nav nav-tabs" role="tablist" id="learningUnitNav">
-    <li role="presentation" {% if request.path == url_proposal_identification %} class="active" {% endif %} data-toggle="tab">
+    <li role="presentation" {% if request.path == url_proposal_identification or request.path == url_proposal_edit %} class="active" {% endif %} data-toggle="tab">
         <a href="{{url_identification}}" role="tab">
 		        {% trans 'identification'%}
 	     </a>
