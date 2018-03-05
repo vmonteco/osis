@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import operator
 
 from django import forms
 from django.utils.translation import ugettext_lazy as _

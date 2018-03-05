@@ -27,11 +27,10 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.conf import settings
 from base.views import common
-from django.views.i18n import javascript_catalog
+from django.views.i18n import JavaScriptCatalog
 
 js_info_dict = {
-    'domain': 'djangojs',
-    'packages': ('assessments',),
+    'packages': ('assessments', 'base'),
 }
 
 urlpatterns = (
@@ -41,7 +40,7 @@ urlpatterns = (
 
     url(r'^' + settings.ADMIN_URL, admin.site.urls),
     url(r'', include('base.urls')),
-    url(r'^jsi18n/$', javascript_catalog, js_info_dict, name='javascript-catalog'),
+    url(r'^jsi18n/$', JavaScriptCatalog.as_view(**js_info_dict), name='javascript-catalog'),
 )
 
 if 'assistant' in settings.INSTALLED_APPS:

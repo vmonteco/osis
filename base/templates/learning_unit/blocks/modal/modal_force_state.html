@@ -44,7 +44,9 @@
     <button type="button" class="btn btn-primary" onclick="submit_form();">{% trans 'yes' %}</button>
     <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "cancel" %}</button>
 
+<script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
 <script>
+
     // FIXME use javascript catalog !
     const REFUSED = "{% trans 'REFUSED' %}";
     const ACCEPTED = "{% trans 'ACCEPTED' %}";
@@ -58,6 +60,9 @@
 
     $("#id_form-0-state").change(function(){
         showWarningIfInconsistentState()
+        console.log(
+        gettext('REFUSED')
+    );
     });
 
     function submit_form(){
@@ -68,6 +73,7 @@
     }
 
     function showWarningIfInconsistentState () {
+
         var alert_node = $('#alert_warning');
         remove_alert_msg(alert_node);
         var new_state = $( "#id_form-0-state" ).children("select option:selected").text();
