@@ -23,25 +23,19 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.conf.urls import url, include
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 
-from attribution.views import summary_responsible, manage_my_courses
+from base.models.tutor import Tutor
+from base.views import layout
 
-urlpatterns = [
-
-    url(r'^summary_responsible_manager/', include([
-        url(r'^$', summary_responsible.search,
-            name='summary_responsible'),
-        url(r'^edit/$', summary_responsible.edit,
-            name='summary_responsible_edit'),
-        url(r'^update/(?P<pk>[0-9]+)/$', summary_responsible.update,
-            name='summary_responsible_update')
-    ])),
-
-    url(r'^manage_my_courses/', include([
-        url(r'^$', manage_my_courses.list_my_attributions_summary_editable,
-            name='list_my_attributions_summary_editable'),
-    ])),
+from attribution.business.manage_my_courses import find_learning_unit_years_summary_editable
 
 
-]
+@login_required
+def list_my_attributions_summary_editable(request):
+    tutor = get_object_or_404(Tutor, person__user=request.user)
+    learning_unit_years_summary_editable = find_learning_unit_years_summary_editable(tutor)
+    return layout.render(request,
+                         'manage_my_courses/list_my_courses_summary_editable.html',
+                         {'learning_unit_years_summary_editable': learning_unit_years_summary_editable})

@@ -1,0 +1,52 @@
+{% extends "learning_unit/learning_unit_layout.html" %}
+
+{% block tabs %}
+    {% include "learning_unit/proposal/tabs.html" %}
+{% endblock tabs %}
+
+{% block periodicity %}
+    {% include "learning_unit/blocks/periodicity.html" %}
+{% endblock periodicity %}
+
+{% block quadrimester %}
+    {% include "learning_unit/blocks/quadrimester.html" %}
+{% endblock quadrimester %}
+
+{% block components %}
+    {% if components %}
+        {% include "learning_unit/components_identification.html" %}
+    {% endif %}
+{% endblock components %}
+
+{% block proposal_management %}
+    {% include "learning_unit/blocks/proposal_management_update.html" %}
+{% endblock proposal_management%}
+
+{% block script %}
+    <script>
+        function showWarningIfInconsistentState(){
+            var idSelect = '{{ form.state.auto_id }}';
+            var initialState='{{form.state.value}}';
+            var toState = $('#'+idSelect).val();
+
+            if (( initialState==='CENTRAL' && toState==='FACULTY' ) ||
+                    ( initialState==='REFUSED' && toState==='ACCEPTED')) {
+                var modal = $('#modalWarningStateModification');
+                // Initial State
+                var initialStateStr = getTextFromSelect(idSelect, initialState);
+                modal.find('#initialState').html(initialStateStr);
+                // To State
+                var toStateStr = getTextFromSelect(idSelect, toState);
+                modal.find('#toState').html(toStateStr);
+                modal.modal("show");
+                return false; // Prevent form submission
+            }else{
+                $('form').submit();
+            }
+        }
+
+        function getTextFromSelect(idSelect, value) {
+            return $('#' + idSelect +' option[value=' +  value + ']').text()
+        }
+    </script>
+{% endblock %}

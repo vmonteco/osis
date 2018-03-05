@@ -65,7 +65,7 @@ class OfferScoreSheetTabViewTest(TestCase):
         score_sheet.offer_score_encoding_tab(request, self.offer_year.id)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertEquals(template, 'offer/score_sheet_address_tab.html')
+        self.assertEqual(template, 'offer/score_sheet_address_tab.html')
         context_keys = self.COMMON_CONTEXT_KEYS + ['entity_id_selected', 'form']
         self.assert_list_contains(list(context.keys()), context_keys)
         self.assertEqual(context['offer_year'], self.offer_year)
@@ -101,6 +101,6 @@ class OfferScoreSheetTabViewTest(TestCase):
         self.assertTrue(mock_render.called)
 
         request, template, context = mock_render.call_args[0]
-        self.assertEquals(template, 'offer/score_sheet_address_tab.html')
+        self.assertEqual(template, 'offer/score_sheet_address_tab.html')
         self.assert_list_contains(list(context.keys()), self.COMMON_CONTEXT_KEYS + ['form'])
 
