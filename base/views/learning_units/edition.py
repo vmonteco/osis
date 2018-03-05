@@ -47,11 +47,11 @@ from base.views.learning_units import perms
 @login_required
 @permission_required('base.can_edit_learningunit_date', raise_exception=True)
 @perms.can_perform_end_date_modification
-def learning_unit_edition(request, learning_unit_year_id):
+def learning_unit_edition_end_date(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
-    user_person = get_object_or_404(Person, user=request.user)
+    person = get_object_or_404(Person, user=request.user)
 
-    context = get_learning_unit_identification_context(learning_unit_year_id, user_person)
+    context = get_learning_unit_identification_context(learning_unit_year_id, person)
 
     learning_unit_to_edit = learning_unit_year.learning_unit
     form = LearningUnitEndDateForm(request.POST or None, learning_unit=learning_unit_to_edit)

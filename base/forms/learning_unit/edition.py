@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import operator
 
 from django import forms
 from django.utils.translation import ugettext_lazy as _
@@ -42,7 +41,6 @@ from base.models.enums.learning_container_year_types import INTERNSHIP, DISSERTA
 from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.enums.learning_unit_year_subtypes import PARTIM
 from base.models.enums.vacant_declaration_type import VacantDeclarationType
-from base.models.learning_unit import is_old_learning_unit
 from base.models.learning_unit_year import find_max_credits_of_related_partims
 
 FULL_READ_ONLY_FIELDS = {"first_letter", "acronym", "academic_year", "container_type", "subtype"}
@@ -90,7 +88,7 @@ class LearningUnitEndDateForm(BootstrapForm):
         if self.learning_unit.start_year > min_year:
             min_year = self.learning_unit.start_year
 
-        if is_old_learning_unit(self.learning_unit):
+        if self.learning_unit.is_past():
             raise ValueError(
                 'Learning_unit.end_year {} cannot be less than the current academic_year {}'.format(
                     self.learning_unit.end_year, current_academic_year)

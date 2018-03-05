@@ -54,10 +54,6 @@ from base.business.learning_unit import get_cms_label_data, \
     CMS_LABEL_PEDAGOGY, CMS_LABEL_SUMMARY
 from base.business.learning_unit_proposal import _get_difference_of_proposal
 from base.business.learning_units import perms as business_perms
-from base.business.learning_units.perms import is_eligible_to_edit_proposal, \
-    is_person_linked_to_entity_in_charge_of_learning_unit, is_eligible_to_create_modification_proposal, \
-    is_eligible_for_modification_end_date, is_eligible_for_modification, is_eligible_for_cancel_of_proposal, \
-    can_delete_learning_unit_year
 from base.business.learning_units.simple.creation import create_learning_unit_year_structure, create_learning_unit
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
@@ -74,6 +70,7 @@ from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views.learning_units import perms
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
+from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
 from base.views.learning_units.search import _learning_units_search
 from cms.models import text_label
 from reference.models import language
@@ -500,14 +497,8 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
         proposal.folder.entity, None) if proposal else None
     context['differences'] = _get_difference_of_proposal(proposal)
 
-    # perms learning unit
-    context['can_propose'] = is_eligible_to_create_modification_proposal(learning_unit_year, person)
-    context['can_edit_date'] = is_eligible_for_modification_end_date(learning_unit_year, person)
-    context['can_edit'] = is_eligible_for_modification(learning_unit_year, person)
-    context['can_delete'] = can_delete_learning_unit_year(learning_unit_year, person)
-
-    # perms proposal
-    context['can_cancel_proposal'] = is_eligible_for_cancel_of_proposal(proposal, person)
-    context['can_edit_learning_unit_proposal'] = is_eligible_to_edit_proposal(proposal, person)
+    # append permissions
+    context.update(learning_unit_year_permissions(learning_unit_year, person))
+    context.update(learning_unit_proposal_permissions(proposal, person))
 
     return context
