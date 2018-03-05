@@ -27,6 +27,8 @@ import re
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.db.models import Q
+from django.utils.translation import ugettext_lazy as _
 
 from base.models import entity_container_year
 from base.models.enums import active_status
@@ -34,8 +36,6 @@ from base.models.enums import learning_unit_year_subtypes, internship_subtypes, 
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 from base.models.group_element_year import GroupElementYear
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
-from django.db.models import Q
-
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
@@ -49,8 +49,8 @@ class LearningUnitYearAdmin(AuditableSerializableModelAdmin):
     fieldsets = ((None, {'fields': ('academic_year', 'learning_unit', 'learning_container_year', 'acronym',
                                     'specific_title', 'specific_title_english', 'subtype', 'credits', 'decimal_scores',
                                     'structure', 'internship_subtype', 'status', 'session',
-                                    'quadrimester', 'attribution_procedure')}),)
-    list_filter = ('academic_year', 'decimal_scores')
+                                    'quadrimester', 'attribution_procedure', 'summary_editable')}),)
+    list_filter = ('academic_year', 'decimal_scores', 'summary_editable')
     raw_id_fields = ('learning_unit', 'learning_container_year', 'structure')
     search_fields = ['acronym', 'structure__acronym', 'external_id']
 
@@ -78,6 +78,7 @@ class LearningUnitYear(AuditableSerializableModel):
                                     choices=learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
     attribution_procedure = models.CharField(max_length=20, blank=True, null=True,
                                              choices=attribution_procedure.ATTRIBUTION_PROCEDURES)
+    summary_editable = models.BooleanField(default=True, verbose_name=_("summary_editable"))
 
     class Meta:
         unique_together = ('learning_unit', 'academic_year', 'deleted')

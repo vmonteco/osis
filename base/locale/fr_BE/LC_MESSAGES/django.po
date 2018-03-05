@@ -2634,3 +2634,6 @@ msgstr "Par"
 
 msgid "in_proposal"
 msgstr "En proposition"
+
+msgid "summary_editable"
+msgstr "informations pédagogiques modifiables"

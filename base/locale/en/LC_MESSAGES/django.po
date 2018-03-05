@@ -2628,3 +2628,6 @@ msgstr "By"
 
 msgid "in_proposal"
 msgstr "Existing proposal"
+
+msgid "summary_editable"
+msgstr "educational information editable"
