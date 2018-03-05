@@ -57,7 +57,7 @@
                     <th>{% trans 'requirement_entity_small'%}</th>
                     <th>{% trans 'allocation_entity_small'%}</th>
                     <th>{% trans 'credits'%}</th>
-                    <th>{% trans 'active'|title%}</th>
+                    <th>{% trans 'status'|title%}</th>
                 </tr>
             </thead>
                 {% for learning_unit in learning_units %}
@@ -81,14 +81,18 @@
                     <td>{{learning_unit.entities.REQUIREMENT_ENTITY.acronym|default_if_none:'-'}}</td>
                     <td>{{learning_unit.entities.ALLOCATION_ENTITY.acronym|default_if_none:'-'}}</td>
                     <td>{% if learning_unit.credits %}{{ learning_unit.credits }}{% endif %}</td>
-                    <td>{% if learning_unit.status %}
+                    <td>
+                        {% if learning_unit.status %}
                             <span class="glyphicon glyphicon-ok-circle" aria-hidden="true" style="color:green;"
                                   title="{% trans  'active' %}"></span>
-                        <div style="display:none;">1</div>
+                            <div style="display:none;">1</div>
                         {% else %}
                             <span class="glyphicon glyphicon-ok-circle" aria-hidden="true" style="color:gray;"
                                   title="{% trans  'inactive' %}"></span>
-                        <div style="display:none;">0</div>
+                            <div style="display:none;">0</div>
+                        {% endif %}
+                        {% if learning_unit|has_proposal %}
+                            <i class="fa fa-flag warning" data-toggle="tooltip" data-placement="right" title="{% trans 'in_proposal' %}"></i>
                         {% endif %}
                     </td>
                 </tr>
