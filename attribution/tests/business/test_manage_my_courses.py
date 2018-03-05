@@ -30,20 +30,37 @@ from attribution.tests.factories.attribution import AttributionFactory
 
 
 class TestUserCanEditEducationalInformation(TestCase):
+    def test_when_learning_unit_year_does_not_exist(self):
+        an_attribution = AttributionFactory(summary_responsible=True, learning_unit_year__summary_editable=True)
+
+        can_edit_educational_information = can_user_edit_educational_information(an_attribution.tutor.person.user,
+                                                                                 an_attribution.learning_unit_year.id+1)
+        self.assertFalse(can_edit_educational_information)
+
+    def test_when_not_attributed_to_the_learning_unit_year(self):
+        an_attribution = AttributionFactory(summary_responsible=True, learning_unit_year__summary_editable=True)
+        an_other_attribution = AttributionFactory(summary_responsible=True, learning_unit_year__summary_editable=True)
+        can_edit_educational_information = can_user_edit_educational_information(an_other_attribution.tutor.person.user,
+                                                                                 an_attribution.learning_unit_year.id)
+        self.assertFalse(can_edit_educational_information)
+
     def test_when_not_summary_responsible(self):
-        can_edit_educational_information = self.meth(False, True)
+        can_edit_educational_information = \
+            self.create_attribution_and_check_if_user_can_edit_educational_information(False, True)
         self.assertFalse(can_edit_educational_information)
 
     def test_when_summary_responsible_but_learning_unit_year_educational_information_cannot_be_edited(self):
-        can_edit_educational_information = self.meth(True, False)
+        can_edit_educational_information =\
+            self.create_attribution_and_check_if_user_can_edit_educational_information(True, False)
         self.assertFalse(can_edit_educational_information)
 
     def test_when_summary_responsible_and_learning_unit_year_educational_information_can_be_edited(self):
-        can_edit_educational_information = self.meth(True, True)
+        can_edit_educational_information = \
+            self.create_attribution_and_check_if_user_can_edit_educational_information(True, True)
         self.assertTrue(can_edit_educational_information)
 
     @staticmethod
-    def meth(summary_responsible, summary_editable):
+    def create_attribution_and_check_if_user_can_edit_educational_information(summary_responsible, summary_editable):
         an_attribution = AttributionFactory(summary_responsible=summary_responsible,
                                             learning_unit_year__summary_editable=summary_editable)
         return can_user_edit_educational_information(an_attribution.tutor.person.user,
