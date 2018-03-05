@@ -270,7 +270,6 @@ def check_proposals_valid_to_get_back_to_initial(proposals_to_cancel):
     return True
 
 
-
 def get_valid_proposal_for_cancellation(proposals):
     valid_proposal_to_cancel = []
     for proposal in proposals:

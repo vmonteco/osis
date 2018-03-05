@@ -142,12 +142,17 @@ def _go_back_to_initial_data(formset, request):
             display_error_messages(request, _("error_proposal_suppression_to_initial"))
         else:
             proposals_to_cancel = get_valid_proposal_for_cancellation(proposals_candidate_to_cancellation)
-            if proposals_to_cancel:
-                cancel_proposals(proposals_to_cancel)
-                display_success_messages(request, _("proposal_edited_successfully"))
-                return None
-            else:
-                _build_no_data_error_message(request)
+            formset = cancel_list_of_proposal(formset, proposals_to_cancel, request)
+    else:
+        _build_no_data_error_message(request)
+    return formset
+
+
+def cancel_list_of_proposal(formset, proposals_to_cancel, request):
+    if proposals_to_cancel:
+        cancel_proposals(proposals_to_cancel)
+        display_success_messages(request, _("proposal_edited_successfully"))
+        formset = None
     else:
         _build_no_data_error_message(request)
     return formset
