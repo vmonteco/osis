@@ -123,8 +123,8 @@ def _can_faculty_manager_modify_learning_unit_year(learning_unit_year):
 def _learning_unit_year_is_not_illegible_academic_year(learn_unit_year):
     current_year = current_academic_year().year
     year = learn_unit_year.academic_year.year
-    return year == current_year or\
-           (learn_unit_year.learning_unit.periodicity == ANNUAL and year <= current_year+1) or\
+    return year == current_year or \
+           (learn_unit_year.learning_unit.periodicity == ANNUAL and year <= current_year+1) or \
            (learn_unit_year.learning_unit.periodicity != ANNUAL and year <= current_year+2)
 
 
