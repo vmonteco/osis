@@ -109,8 +109,8 @@ def is_eligible_for_modification(learn_unit_year, person):
         return False
     if learn_unit_year.is_in_proposal():
         return False
-    if person.is_faculty_manager() and (not _can_faculty_manager_modify_learning_unit_year(learn_unit_year) or
-                                        not _learning_unit_year_is_not_illegible_academic_year(learn_unit_year)):
+    if person.is_faculty_manager() and not (_can_faculty_manager_modify_learning_unit_year(learn_unit_year) or
+                                            _learning_unit_year_is_not_illegible_academic_year(learn_unit_year)):
         return False
     return person.is_linked_to_entity_in_charge_of_learning_unit_year(learn_unit_year)
 
@@ -119,6 +119,7 @@ def _can_faculty_manager_modify_learning_unit_year(learning_unit_year):
     if not learning_unit_year.learning_container_year:
         return False
     return True
+
 
 def _learning_unit_year_is_not_illegible_academic_year(learn_unit_year):
     current_year = current_academic_year().year
