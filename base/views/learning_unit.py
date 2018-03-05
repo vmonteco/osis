@@ -70,7 +70,7 @@ from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views.learning_units import perms
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
-from base.business.learning_units.perms import permission_learning_unit, permission_proposal
+from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
 from base.views.learning_units.search import _learning_units_search
 from cms.models import text_label
 from reference.models import language
@@ -545,7 +545,7 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context['differences'] = _get_difference_of_proposal(proposal)
 
     # append permissions
-    context.update(permission_learning_unit(learning_unit_year, person))
-    context.update(permission_proposal(proposal, person))
+    context.update(learning_unit_year_permissions(learning_unit_year, person))
+    context.update(learning_unit_proposal_permissions(proposal, person))
 
     return context
