@@ -33,7 +33,7 @@
 {% block modal_body %}
     {% trans 'do_you_want_to_get_back_to_initial' %}
     {% for proposal in proposals %}
-        <input type="hidden" id="id_form-{{ forloop.counter0}}-action" name="form-{{ forloop.counter0  }}-action"
+        <input type="hidden" id="id_form-{{ forloop.counter0 }}-action" name="form-{{ forloop.counter0 }}-action"
                class="hidden-action">
     {% endfor %}
 {% endblock %}

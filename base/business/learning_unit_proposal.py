@@ -103,7 +103,6 @@ def _reinitialize_entities_before_proposal(learning_container_year, initial_enti
 
 
 def delete_learning_unit_proposal(learning_unit_proposal):
-    print('delete_learning_unit_proposal')
     proposal_folder = learning_unit_proposal.folder
     learning_unit_proposal.delete()
     if not find_by_folder(proposal_folder).exists():
@@ -264,19 +263,20 @@ def _get_rid_of_blank_value(data):
     return clean_data
 
 
-def check_valid_for_initial(proposals_to_cancel):
-    for f in proposals_to_cancel:
-        if f.type != proposal_type.ProposalType.SUPPRESSION.name:
-            return False
-    return True
+def check_proposals_valid_to_get_back_to_initial(proposals_to_cancel):
+    if proposals_to_cancel:
+        for proposal in proposals_to_cancel:
+            if proposal.type != proposal_type.ProposalType.SUPPRESSION.name:
+                return False
+        return True
+    return False
 
 
 def get_valid_proposal_for_cancellation(proposals):
     valid_proposal_to_cancel = []
-    for f in proposals:
-
-        if f.type == proposal_type.ProposalType.SUPPRESSION.name:
-            valid_proposal_to_cancel.append(f)
+    for proposal in proposals:
+        if proposal.type == proposal_type.ProposalType.SUPPRESSION.name:
+            valid_proposal_to_cancel.append(proposal)
     return valid_proposal_to_cancel
 
 

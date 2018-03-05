@@ -38,7 +38,7 @@ from base.models.academic_year import current_academic_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.views import layout
 from base.views.common import check_if_display_message, display_error_messages, display_success_messages
-from base.business.learning_unit_proposal import check_valid_for_initial, get_valid_proposal_for_cancellation, \
+from base.business.learning_unit_proposal import check_proposals_valid_to_get_back_to_initial, get_valid_proposal_for_cancellation, \
     cancel_proposals
 
 PROPOSAL_SEARCH = 3
@@ -122,7 +122,7 @@ def _proposal_management(request, proposals):
     if formset.is_valid():
         if is_get_back_to_initial_action(formset):
             proposals_candidate_to_cancellation = ProposalRowForm.get_checked_proposals(formset)
-            if not check_valid_for_initial(proposals_candidate_to_cancellation):
+            if not check_proposals_valid_to_get_back_to_initial(proposals_candidate_to_cancellation):
                 display_error_messages(request, _("error_proposal_suppression_to_initial"))
             else:
                 proposals_to_cancel = get_valid_proposal_for_cancellation(proposals_candidate_to_cancellation)
