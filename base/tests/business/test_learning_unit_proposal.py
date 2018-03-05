@@ -48,6 +48,14 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.tests.factories.organization import OrganizationFactory
 
 
+class TestLearningUnitProposal(TestCase):
+
+    def test_get_data_dict(self):
+        self.assertIsNone(lu_proposal_business._get_data_dict('key1', None))
+        self.assertIsNone(lu_proposal_business._get_data_dict('key1', {'key2': 'nothing serious'}))
+        self.assertEqual(lu_proposal_business._get_data_dict('key1', {'key1': 'nothing serious'}), 'nothing serious')
+
+
 class TestLearningUnitProposalChecks(TestCase):
 
     def setUp(self):
@@ -114,6 +122,12 @@ class TestLearningUnitProposalCancel(TestCase):
         self.assertCountEqual(list(mdl_base.proposal_learning_unit.ProposalLearningUnit.objects
                                    .filter(learning_unit_year=self.learning_unit_year)), [])
 
+    def test_cancel_proposals(self):
+        proposal = self._create_proposal()
+        lu_proposal_business.cancel_proposals([proposal])
+        self.assertCountEqual(list(mdl_base.proposal_learning_unit.ProposalLearningUnit.objects
+                                   .filter(learning_unit_year=self.learning_unit_year)), [])
+
     def _create_proposal(self):
         initial_data_expected = {
             "learning_container_year": {
@@ -147,5 +161,5 @@ class TestLearningUnitProposalCancel(TestCase):
                 entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: None
             }
         }
-        ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year,
-                                    initial_data=initial_data_expected)
+        return ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year,
+                                           initial_data=initial_data_expected)

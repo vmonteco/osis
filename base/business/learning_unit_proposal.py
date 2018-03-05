@@ -285,5 +285,5 @@ def cancel_proposal(learning_unit_year):
 
 
 def cancel_proposals(proposal_to_cancel):
-    for p in proposal_to_cancel:
-        cancel_proposal(p.learning_unit_year)
+    for proposal in proposal_to_cancel:
+        cancel_proposal(proposal.learning_unit_year)
