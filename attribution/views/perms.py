@@ -34,4 +34,3 @@ def tutor_can_edit_educational_information(view_func):
             raise PermissionDenied("User cannot edit educational information")
         return view_func(request, learning_unit_year_id)
     return f_tutor_can_edit_educational_information
-
