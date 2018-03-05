@@ -138,7 +138,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
 
         if person.is_faculty_manager():
             if initial.get("container_type") in [COURSE, INTERNSHIP, DISSERTATION]\
-                    and learning_unit_year_subtype=="FULL":
+                    and learning_unit_year_subtype == "FULL":
                 self._disabled_fields(FACULTY_READ_ONLY_FIELDS)
 
     def is_valid(self):
