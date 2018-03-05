@@ -2488,9 +2488,6 @@ msgstr "Procédure"
 msgid "educational_information_management"
 msgstr "Gestion des informations pédagogiques"
 
-msgid "resume_edit"
-msgstr "Editer le résumé de cours"
-
 msgid "SUMMARY_COURSE_SUBMISSION"
 msgstr "Soumission des résumés de cours"
 
@@ -2569,8 +2566,8 @@ msgstr "Erreur lors de la modification de l'unité d'enseignement."
 msgid "cannot_set_internship_subtype_for_type_other_than_internship"
 msgstr "Le sous-type de stage ne peut pas être séléctionnné pour un type d'unité d'enseignement autre que stage."
 
-msgid "%(subtype)s %(acronym)s is in proposal"
-msgstr "%(subtype)s %(acronym)s est en proposition"
+msgid "%(subtype)s %(acronym)s is in proposal for the year %(year)s"
+msgstr "%(subtype)s %(acronym)s est en proposition pour l'année %(year)s"
 
 msgid "volume_have_more_than_2_decimal_places"
 msgstr "Le volume a plus de 2 décimales"
