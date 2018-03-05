@@ -1163,7 +1163,7 @@ class LearningUnitViewTestCase(TestCase):
     @override_settings(LANGUAGES=[('fr-be', 'French'), ('en', 'English'), ])
     def test_find_language_in_settings(self):
         existing_language_code = 'en'
-        self.assertEquals(learning_unit_business.find_language_in_settings(existing_language_code), ('en', 'English'))
+        self.assertEqual(learning_unit_business.find_language_in_settings(existing_language_code), ('en', 'English'))
 
     @mock.patch('base.views.layout.render')
     def test_learning_unit_pedagogy(self, mock_render):
