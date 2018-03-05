@@ -125,6 +125,12 @@ class LearningUnitYear(AuditableSerializableModel):
             return "{} {}".format(common_tit, self.specific_title)
         return common_tit
 
+    @property
+    def container_common_title(self):
+        if self.learning_container_year:
+            return self.learning_container_year.common_title
+        return ''
+
     def get_partims_related(self):
         if self.subtype == learning_unit_year_subtypes.FULL and self.learning_container_year:
             return self.learning_container_year.get_partims_related()
