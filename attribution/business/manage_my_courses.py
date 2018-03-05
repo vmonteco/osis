@@ -33,9 +33,6 @@ def find_learning_unit_years_summary_editable(tutor):
 
 
 def can_user_edit_educational_information(user, learning_unit_year_id):
-    luy = LearningUnitYear.objects.filter(pk=learning_unit_year_id,
-                                          summary_editable=True,
-                                          attribution__summary_responsible=True,
-                                          attribution__tutor__person__user=user)
-
-    return luy.exists()
+    return LearningUnitYear.objects.filter(pk=learning_unit_year_id, summary_editable=True,
+                                           attribution__summary_responsible=True,
+                                           attribution__tutor__person__user=user).exists()
