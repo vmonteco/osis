@@ -29,9 +29,7 @@ from django.conf import settings
 from base.views import common
 from django.views.i18n import JavaScriptCatalog
 
-js_info_dict = {
-    'packages': ('assessments', 'base'),
-}
+packages = ('assessments', 'base')
 
 urlpatterns = (
     url(r'^login/$', common.login, name='login'),
@@ -40,7 +38,7 @@ urlpatterns = (
 
     url(r'^' + settings.ADMIN_URL, admin.site.urls),
     url(r'', include('base.urls')),
-    url(r'^jsi18n/$', JavaScriptCatalog.as_view(**js_info_dict), name='javascript-catalog'),
+    url(r'^jsi18n/$', JavaScriptCatalog.as_view(packages=packages), name='javascript-catalog'),
 )
 
 if 'assistant' in settings.INSTALLED_APPS:
@@ -67,4 +65,3 @@ if settings.DEBUG and 'debug_toolbar' in settings.INSTALLED_APPS:
     import debug_toolbar
 
     urlpatterns += (url(r'^__debug__/', include(debug_toolbar.urls)),)
-
