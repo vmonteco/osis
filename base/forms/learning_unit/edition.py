@@ -137,7 +137,8 @@ class LearningUnitModificationForm(LearningUnitYearForm):
             self._set_min_credits(learning_unit_year_instance)
 
         if person.is_faculty_manager():
-            if initial.get("container_type") in [COURSE, INTERNSHIP, DISSERTATION]:
+            if initial.get("container_type") in [COURSE, INTERNSHIP, DISSERTATION] and\
+                    learning_unit_year_subtype=="FULL":
                 self._disabled_fields(FACULTY_READ_ONLY_FIELDS)
 
     def is_valid(self):

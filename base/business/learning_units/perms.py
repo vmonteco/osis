@@ -118,7 +118,7 @@ def _can_faculty_manager_modify_learning_unit_year(learning_unit_year):
         return True
     if not learning_unit_year.learning_container_year:
         return False
-    return learning_unit_year.learning_container_year.container_type not in FACULTY_UPDATABLE_CONTAINER_TYPES
+    return True
 
 
 def _learning_unit_year_is_not_illegible_academic_year(learn_unit_year):
