@@ -27,6 +27,7 @@ from base.models import entity_container_year, proposal_learning_unit, entity
 from base.models.academic_year import current_academic_year
 from base.models.enums import learning_unit_year_subtypes, proposal_type, learning_container_year_types
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
+from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.enums.learning_unit_year_subtypes import PARTIM
 from base.models.enums.proposal_state import ProposalState
 from base.models.enums.proposal_type import ProposalType
@@ -111,6 +112,8 @@ def is_eligible_for_modification(learn_unit_year, person):
         return False
     if _learning_unit_year_is_on_proposal(learn_unit_year):
         return False
+    if person.is_faculty_manager() and not _learning_unit_year_is_not_illegible_academic_year(learn_unit_year):
+        return False
     return person.is_linked_to_entity_in_charge_of_learning_unit_year(learn_unit_year)
 
 
@@ -130,6 +133,13 @@ def _learning_unit_year_is_past(learn_unit_year):
 def _learning_unit_year_is_on_proposal(learn_unit_year):
     proposal = proposal_learning_unit.find_by_learning_unit_year(learn_unit_year)
     return proposal is not None
+
+
+def _learning_unit_year_is_not_illegible_academic_year(learn_unit_year):
+    current_year = current_academic_year().year
+    year = learn_unit_year.academic_year.year
+    return year == current_year or (learn_unit_year.learning_unit.periodicity == ANNUAL and year == current_year+1) or\
+           (learn_unit_year.learning_unit.periodicity != ANNUAL and year == current_year+2)
 
 
 def can_delete_learning_unit_year(learning_unit_year, person):

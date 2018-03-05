@@ -35,6 +35,8 @@ from base.business.learning_units.edition import edit_learning_unit_end_date, up
     update_learning_unit_year_entities_with_report
 from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
 from base.forms.learning_unit.edition_volume import VolumeEditionFormsetContainer
+from base.models.academic_year import current_academic_year
+from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
@@ -77,33 +79,34 @@ def learning_unit_edition(request, learning_unit_year_id):
 @perms.can_perform_learning_unit_modification
 def modify_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
-    person = get_object_or_404(Person, user=request.user)
-    initial_data = compute_learning_unit_modification_form_initial_data(learning_unit_year)
-    form = LearningUnitModificationForm(request.POST or None, learning_unit_year_instance=learning_unit_year,
-                                        person=person, initial=initial_data)
-    if form.is_valid():
-        entities_data = form.get_entities_data()
-        lu_type_full_data = form.get_data_for_learning_unit()
+    if learning_unit_year.academic_year == current_academic_year() or (learning_unit_year.learning_unit.periodicity == ANNUAL and learning_unit_year.academic_year == current_academic_year()+1) or (learning_unit_year.learning_unit.periodicity != ANNUAL and learning_unit_year.academic_year == current_academic_year()+2):
+        person = get_object_or_404(Person, user=request.user)
+        initial_data = compute_learning_unit_modification_form_initial_data(learning_unit_year)
+        form = LearningUnitModificationForm(request.POST or None, learning_unit_year_instance=learning_unit_year,
+                                            person=person, initial=initial_data)
+        if form.is_valid():
+            entities_data = form.get_entities_data()
+            lu_type_full_data = form.get_data_for_learning_unit()
 
-        try:
-            postponement = bool(int(request.POST.get('postponement', 1)))
+            try:
+                postponement = bool(int(request.POST.get('postponement', 1)))
 
-            update_learning_unit_year_with_report(learning_unit_year, lu_type_full_data, postponement)
-            update_learning_unit_year_entities_with_report(learning_unit_year, entities_data, postponement)
+                update_learning_unit_year_with_report(learning_unit_year, lu_type_full_data, postponement)
+                update_learning_unit_year_entities_with_report(learning_unit_year, entities_data, postponement)
 
-            display_success_messages(request, _("success_modification_learning_unit"))
+                display_success_messages(request, _("success_modification_learning_unit"))
 
-            return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
+                return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
 
-        except IntegrityError:
-            display_error_messages(request, _("error_modification_learning_unit"))
-
-    context = {
-        "learning_unit_year": learning_unit_year,
-        "form": form
-    }
-    return layout.render(request, 'learning_unit/modification.html', context)
-
+            except IntegrityError:
+                display_error_messages(request, _("error_modification_learning_unit"))
+        context = {
+            "learning_unit_year": learning_unit_year,
+            "form": form
+        }
+        return layout.render(request, 'learning_unit/modification.html', context)
+    else:
+        return HttpResponseRedirect(reverse('learning_unit', args=[learning_unit_year_id]))
 
 def compute_learning_unit_modification_form_initial_data(learning_unit_year):
     other_fields_dict = {
