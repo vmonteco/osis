@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
 from django.contrib.auth.models import Permission, Group
 from django.test import TestCase
 from django.utils import timezone
@@ -54,7 +55,10 @@ ALL_TYPES = TYPES_PROPOSAL_NEEDED_TO_EDIT + TYPES_DIRECT_EDIT_PERMITTED
 
 class PermsTestCase(TestCase):
     def setUp(self):
-        self.academic_yr = AcademicYearFactory(year=timezone.now().year)
+        today = datetime.date.today()
+        self.academic_yr = AcademicYearFactory(start_date=today,
+                                               end_date=today.replace(year=today.year + 1),
+                                               year=today.year)
 
     def test_can_faculty_manager_modify_end_date_partim(self):
         for container_type in ALL_TYPES:
@@ -84,7 +88,7 @@ class PermsTestCase(TestCase):
                                           learning_container_year=lunit_container_yr,
                                           subtype=FULL)
 
-            self.assertFalse(perms._can_faculty_manager_modify_learning_unit_year(luy))
+            self.assertFalse(perms.is_eligible_for_modification_end_date(luy, self.get_person(FACULTY_MANAGER_GROUP)))
 
     def test_cannot_faculty_manager_modify_end_date_no_container(self):
         luy = LearningUnitYearFactory(academic_year=self.academic_yr,

@@ -98,7 +98,10 @@ def is_eligible_to_edit_proposal(proposal, a_person):
 def is_eligible_for_modification_end_date(learn_unit_year, person):
     if learn_unit_year.learning_unit.is_past():
         return False
-    return is_eligible_for_modification(learn_unit_year, person)
+    if not is_eligible_for_modification(learn_unit_year, person):
+        return False
+    return learn_unit_year.learning_container_year.container_type not in FACULTY_UPDATABLE_CONTAINER_TYPES or \
+           learn_unit_year.subtype == PARTIM
 
 
 def is_eligible_for_modification(learn_unit_year, person):
@@ -113,19 +116,16 @@ def is_eligible_for_modification(learn_unit_year, person):
 
 
 def _can_faculty_manager_modify_learning_unit_year(learning_unit_year):
-    if learning_unit_year.subtype == PARTIM:
-        return True
     if not learning_unit_year.learning_container_year:
         return False
     return True
 
-
 def _learning_unit_year_is_not_illegible_academic_year(learn_unit_year):
     current_year = current_academic_year().year
     year = learn_unit_year.academic_year.year
-    return (learn_unit_year.learning_unit.periodicity == ANNUAL and year <= current_year+1) or \
-           (learn_unit_year.learning_unit.periodicity != ANNUAL and year <= current_year+2) or \
-           year == current_year
+    return year == current_year or \
+           (learn_unit_year.learning_unit.periodicity == ANNUAL and year <= current_year+1) or \
+           (learn_unit_year.learning_unit.periodicity != ANNUAL and year <= current_year+2)
 
 
 def can_delete_learning_unit_year(learning_unit_year, person):
