@@ -124,8 +124,6 @@ urlpatterns = [
             url(r'^class/edit/$', learning_unit.learning_class_year_edit, name="learning_class_year_edit"),
             url(r'^volumes/', base.views.learning_units.edition.learning_unit_volumes_management,
                 name="learning_unit_volumes_management"),
-            url(r'^delete/$', base.views.learning_unit_deletion.delete_from_given_learning_unit_year,
-                name="learning_unit_delete"),
             url(r'^delete_full/$', base.views.learning_unit_deletion.delete_all_learning_units_year,
                 name="learning_unit_delete_all"),
             url(r'^summary/$', learning_unit.learning_unit_summary, name="learning_unit_summary"),
