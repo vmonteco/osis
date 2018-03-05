@@ -33,19 +33,21 @@
 {% block modal_body %}
     {% trans 'do_you_want_to_get_back_to_initial' %}
     {% for proposal in proposals %}
-        <input type="hidden" id="{{ proposal.state.auto_id }}" name="{{ proposal.state.html_name }}"
-               class="hidden-state" value={{ proposal.state.value }}>
-
-        <input type="hidden" id="id_form-{{ forloop.counter0  }}-action" name="form-{{ forloop.counter0  }}-action"
-               class="hidden-action" value='back_to_initial'>
+        <input type="hidden" id="id_form-{{ forloop.counter0}}-action" name="form-{{ forloop.counter0  }}-action"
+               class="hidden-action">
     {% endfor %}
-
-
 {% endblock %}
 
 {% block modal_footer %}
-    <button type="button" class="btn btn-primary" onclick="submit_form();">{% trans 'yes' %}</button>
+    <button type="button" class="btn btn-primary" onclick="submit_form_back();">{% trans 'yes' %}</button>
     <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "cancel" %}</button>
+
+    <script>
+        function submit_form_back(){
+            $(".hidden-action").val('back_to_initial');
+            $('form').submit()
+        }
+    </script>
 {% endblock %}
 
 

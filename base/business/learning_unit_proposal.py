@@ -284,3 +284,8 @@ def cancel_proposal(learning_unit_year):
     learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learning_unit_year)
     reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year)
     delete_learning_unit_proposal(learning_unit_proposal)
+
+
+def cancel_proposals(proposal_to_cancel):
+    for p in proposal_to_cancel:
+        cancel_proposal(p.learning_unit_year)
