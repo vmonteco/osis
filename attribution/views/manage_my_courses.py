@@ -29,6 +29,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
 from attribution.business.manage_my_courses import find_learning_unit_years_summary_editable
+from attribution.views.perms import tutor_can_edit_educational_information
 from base.business.learning_unit import get_cms_label_data, initialize_learning_unit_pedagogy_form, CMS_LABEL_PEDAGOGY
 from base.models import person
 from base.models.learning_unit_year import LearningUnitYear
@@ -47,6 +48,7 @@ def list_my_attributions_summary_editable(request):
 
 
 @login_required
+@tutor_can_edit_educational_information
 def view_educational_information(request, learning_unit_year_id):
     learning_unit_year = LearningUnitYear.objects.get(pk=learning_unit_year_id)
     user_language = person.get_user_interface_language(request.user)
@@ -60,6 +62,7 @@ def view_educational_information(request, learning_unit_year_id):
 
 
 @login_required
+@tutor_can_edit_educational_information
 def edit_educational_information(request, learning_unit_year_id):
     redirect_url = reverse("view_educational_information", kwargs={'learning_unit_year_id': learning_unit_year_id})
     return edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url)

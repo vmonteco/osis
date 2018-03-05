@@ -153,6 +153,13 @@ class TestViewEducationalInformation(TestCase):
         response = self.client.get(self.url)
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
 
+    @mock.patch("attribution.business.manage_my_courses.can_user_edit_educational_information",
+                side_effect=lambda req, luy: False)
+    def test_check_if_user_can_view_educational_information(self, mock_perm):
+        response = self.client.get(self.url)
+        self.assertTrue(mock_perm.called)
+        self.assertTemplateUsed(response, "access_denied.html")
+
     def test_template_used(self):
         response = self.client.get(self.url)
 
@@ -180,7 +187,14 @@ class TestManageEducationalInformation(TestCase):
         response = self.client.get(self.url)
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
 
+    @mock.patch("attribution.business.manage_my_courses.can_user_edit_educational_information",
+                side_effect=lambda req, luy: False)
+    def test_check_if_user_can_view_educational_information(self, mock_perm):
+        response = self.client.get(self.url)
+        self.assertTrue(mock_perm.called)
+        self.assertTemplateUsed(response, "access_denied.html")
+
     @mock.patch("attribution.views.manage_my_courses.edit_learning_unit_pedagogy", side_effect=lambda req, luy_id, url: HttpResponse())
     def test_use_edit_learning_unit_pedagogy_method(self, mock_edit_learning_unit_pedagogy):
-        response = self.client.get(self.url)
+        self.client.get(self.url)
         self.assertTrue(mock_edit_learning_unit_pedagogy.called)
