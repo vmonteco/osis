@@ -78,7 +78,7 @@ class LearningUnitYear(AuditableSerializableModel):
                                     choices=learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
     attribution_procedure = models.CharField(max_length=20, blank=True, null=True,
                                              choices=attribution_procedure.ATTRIBUTION_PROCEDURES)
-    summary_editable = models.BooleanField(default=True)
+    summary_editable = models.BooleanField(default=True, verbose_name=_("summary_editable"))
 
     class Meta:
         unique_together = ('learning_unit', 'academic_year', 'deleted')
