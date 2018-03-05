@@ -1047,6 +1047,10 @@ class TestLearningUnitProposalDisplay(TestCase):
                          _get_entity_previous_value(wrong_id,
                                                     entity_container_year_link_type.REQUIREMENT_ENTITY),
                          {entity_container_year_link_type.REQUIREMENT_ENTITY: _('entity_not_found')})
+        self.assertEqual(proposal_business.
+                         _get_entity_previous_value(None,
+                                                    entity_container_year_link_type.REQUIREMENT_ENTITY),
+                         {entity_container_year_link_type.REQUIREMENT_ENTITY: _('entity_not_found')})
 
     def test_get_entity_previous_value(self):
         requirement_entity = self.generator_learning_container.generated_container_years[0] \
