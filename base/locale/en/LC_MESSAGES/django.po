@@ -2625,3 +2625,6 @@ msgstr "Are you sure to change the state from"
 
 msgid "by"
 msgstr "By"
+
+msgid "in_proposal"
+msgstr "Existing proposal"

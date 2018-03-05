@@ -2631,3 +2631,6 @@ msgstr "Êtes-vous sûr de vouloir changer l'état de"
 
 msgid "by"
 msgstr "Par"
+
+msgid "in_proposal"
+msgstr "En proposition"
