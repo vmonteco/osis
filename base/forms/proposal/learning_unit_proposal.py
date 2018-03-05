@@ -196,8 +196,7 @@ class ProposalRowForm(ProposalStateModelForm):
     def get_checked_proposals(form):
         selected_proposals = []
         for f in form:
-            if f.cleaned_data.get('check'):
-                selected_proposals.append(f.instance)
+            selected_proposals.append(f.instance) if f.cleaned_data.get('check') else None
         return selected_proposals
 
 
