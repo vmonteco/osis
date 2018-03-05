@@ -44,7 +44,8 @@ def pass_view_func_to_tutor_can_edit_educational_information():
 
 
 class TestTutorCanEditEducationalInformation(SimpleTestCase):
-    @mock.patch("attribution.views.perms.can_user_edit_educational_information", side_effect=lambda req, luy_id: False)
+    @mock.patch("attribution.business.perms.can_user_edit_educational_information",
+                side_effect=lambda req, luy_id: False)
     def test_when_cannot_edit(self, mock_can_user_edit_educational_information):
         perm_f = pass_view_func_to_tutor_can_edit_educational_information()
         with self.assertRaises(PermissionDenied):
@@ -52,7 +53,8 @@ class TestTutorCanEditEducationalInformation(SimpleTestCase):
             perm_f(req_object, 45)
         self.assertTrue(mock_can_user_edit_educational_information.called)
 
-    @mock.patch("attribution.views.perms.can_user_edit_educational_information", side_effect=lambda req, luy_id: True)
+    @mock.patch("attribution.business.perms.can_user_edit_educational_information",
+                side_effect=lambda req, luy_id: True)
     def test_when_can_edit(self, mock_can_user_edit_educational_information):
         perm_f = pass_view_func_to_tutor_can_edit_educational_information()
         req_object = create_request_object_with_none_user()

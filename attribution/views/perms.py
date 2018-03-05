@@ -25,12 +25,13 @@
 ##############################################################################
 from django.core.exceptions import PermissionDenied
 
-from attribution.business import manage_my_courses
+import attribution.business.perms
 
 
 def tutor_can_edit_educational_information(view_func):
     def f_tutor_can_edit_educational_information(request, learning_unit_year_id):
-        if not manage_my_courses.can_user_edit_educational_information(request.user, learning_unit_year_id):
+        if not attribution.business.perms.can_user_edit_educational_information(request.user, learning_unit_year_id):
             raise PermissionDenied("User cannot edit educational information")
         return view_func(request, learning_unit_year_id)
     return f_tutor_can_edit_educational_information
+
