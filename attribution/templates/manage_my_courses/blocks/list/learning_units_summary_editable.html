@@ -20,7 +20,7 @@
                     {% endif %}
                     <td>{{ luy.acronym }}</td>
                     <td>{{ luy.complete_title|default_if_none:'' }}</td>
-                    <td><a href="{% url "view_educational_information" learning_unit_year_id=luy.id %}">#</a></td>
+                    <td><a href="{% url "view_educational_information" learning_unit_year_id=luy.id %}"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></a></td>
                 </tr>
             {% endfor %}
         </tbody>
