@@ -68,6 +68,7 @@ from base.views.learning_unit_proposal import edit_learning_unit_proposal
 from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search, \
     is_get_back_to_initial_action, cancel_list_of_proposal
 from reference.tests.factories.language import LanguageFactory
+from base.forms.proposal.learning_unit_proposal import ProposalRowForm
 
 LABEL_VALUE_BEFORE_PROPROSAL = _('value_before_proposal')
 
@@ -506,14 +507,24 @@ class TestLearningUnitProposalSearch(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
 
-        formset = context['proposals']
+        msg_level = [m.level for m in get_messages(request)]
+        msg = [m.message for m in get_messages(request)]
+        self.assertEqual(len(msg), 1)
+        self.assertIn(messages.ERROR, msg_level)
+
+        for proposal in self.proposals:
+            old_proposal_state = proposal.state
+            proposal.refresh_from_db()
+            new_proposal_state = proposal.state
+            self.assertEqual(new_proposal_state, old_proposal_state)
 
     @mock.patch('base.views.layout.render')
     def test_is_get_back_to_initial_action(self, mock_render):
+        data = self.get_data('back_to_initial')
         url = reverse(learning_units_proposal_search) + '?acronym=' + self.proposals[0].learning_unit_year.acronym
 
         request_factory = RequestFactory()
-        data = self.get_data('back_to_initial')
+
         request = request_factory.post(url, data=data)
         request.user = self.person.user
         setattr(request, 'session', 'session')
@@ -529,10 +540,11 @@ class TestLearningUnitProposalSearch(TestCase):
 
     @mock.patch('base.views.layout.render')
     def test_is_forced_state_action(self, mock_render):
+        data = self.get_data('forced_state')
         url = reverse(learning_units_proposal_search) + '?acronym=' + self.proposals[0].learning_unit_year.acronym
 
         request_factory = RequestFactory()
-        data = self.get_data('forced_state')
+
         request = request_factory.post(url, data=data)
         request.user = self.person.user
         setattr(request, 'session', 'session')
@@ -548,10 +560,11 @@ class TestLearningUnitProposalSearch(TestCase):
 
     @mock.patch('base.views.layout.render')
     def test_cancel_list_of_proposal(self, mock_render):
+        data = self.get_data('forced_state')
         url = reverse(learning_units_proposal_search) + '?acronym=' + self.proposals[0].learning_unit_year.acronym
 
         request_factory = RequestFactory()
-        data = self.get_data('forced_state')
+
         request = request_factory.post(url, data=data)
         request.user = self.person.user
         setattr(request, 'session', 'session')
@@ -565,7 +578,51 @@ class TestLearningUnitProposalSearch(TestCase):
         setattr(request, '_messages', FallbackStorage(request))
         self.assertEqual(cancel_list_of_proposal(formset, None, request), formset)
 
-    def get_data(self, action):
+    @mock.patch('base.views.layout.render')
+    def test_get_checked_proposals(self, mock_render):
+        data = self.get_data()
+        url = reverse(learning_units_proposal_search) + '?acronym=' + self.proposals[0].learning_unit_year.acronym
+
+        request_factory = RequestFactory()
+
+        request = request_factory.post(url, data=data)
+        request.user = self.person.user
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        learning_units_proposal_search(request)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        formset = context['proposals']
+        setattr(request, '_messages', FallbackStorage(request))
+
+        proposals_candidate_to_cancellation = ProposalRowForm.get_checked_proposals(formset)
+        self.assertEqual(len(proposals_candidate_to_cancellation), 2)
+
+    @mock.patch('base.views.layout.render')
+    def test_get_no_checked_proposals(self, mock_render):
+        data = self.get_data_not_checked()
+        url = reverse(learning_units_proposal_search) + '?acronym=' + self.proposals[0].learning_unit_year.acronym
+
+        request_factory = RequestFactory()
+
+        request = request_factory.post(url, data=data)
+        request.user = self.person.user
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        learning_units_proposal_search(request)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        formset = context['proposals']
+        setattr(request, '_messages', FallbackStorage(request))
+
+        proposals_candidate_to_cancellation = ProposalRowForm.get_checked_proposals(formset)
+        self.assertEqual(len(proposals_candidate_to_cancellation), 0)
+
+    def get_data(self, action=None):
         data = {
             'form-TOTAL_FORMS': ['3'],
             'form-INITIAL_FORMS': ['0'],
@@ -573,6 +630,21 @@ class TestLearningUnitProposalSearch(TestCase):
             'form-MAX_NUM_FORMS': ['1000'],
             'form-0-check': ['on'],
             'form-2-check': ['on'],
+            'form-0-state': ['SUSPENDED'],
+            'form-1-state': ['SUSPENDED'],
+            'form-2-state': ['SUSPENDED'],
+            'form-0-action': [action],
+            'form-1-action': [action],
+            'form-2-action': [action],
+        }
+        return data
+
+    def get_data_not_checked(self, action=None):
+        data = {
+            'form-TOTAL_FORMS': ['3'],
+            'form-INITIAL_FORMS': ['0'],
+            'form-MIN_NUM_FORMS': ['0'],
+            'form-MAX_NUM_FORMS': ['1000'],
             'form-0-state': ['SUSPENDED'],
             'form-1-state': ['SUSPENDED'],
             'form-2-state': ['SUSPENDED'],
