@@ -1,0 +1,14 @@
+msgid "REFUSED"
+msgstr "Refusé"
+
+msgid "ACCEPTED"
+msgstr "Accepté"
+
+msgid "CENTRAL"
+msgstr "central"
+
+msgid "FACULTY"
+msgstr "Faculté"
+
+msgid "You will pass the proposal %(proposal)s from state %(old_state)s to %(new_state)s"
+msgstr "Vous allez passer la proposition %(proposal) de l'état %(old_state)s à %(new_state)s"
