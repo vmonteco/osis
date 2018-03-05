@@ -23,11 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from attribution.models import attribution
+from base.models.learning_unit_year import LearningUnitYear
 
 
 def find_learning_unit_years_summary_editable(tutor):
-    attributions = attribution.search(tutor=tutor)\
-        .filter(summary_responsible=True, learning_unit_year__summary_editable=True)\
-        .order_by('learning_unit_year__academic_year__year', 'learning_unit_year__acronym')
-    return [attrib.learning_unit_year for attrib in attributions]
+    return LearningUnitYear.objects.filter(summary_editable=True,
+                                           attribution__summary_responsible=True,
+                                           attribution__tutor=tutor).order_by('academic_year__year', 'acronym')
