@@ -29,7 +29,6 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
 from attribution.business.manage_my_courses import find_learning_unit_years_summary_editable
-from attribution.models.attribution import Attribution
 from base.business.learning_unit import get_cms_label_data, initialize_learning_unit_pedagogy_form, CMS_LABEL_PEDAGOGY
 from base.models import person
 from base.models.learning_unit_year import LearningUnitYear
