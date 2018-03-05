@@ -128,6 +128,7 @@ class LearningUnitProposalForm(SearchForm):
 
 
 class ProposalStateModelForm(forms.ModelForm):
+
     class Meta:
         model = ProposalLearningUnit
         fields = ['state']
@@ -135,6 +136,10 @@ class ProposalStateModelForm(forms.ModelForm):
 
 class ProposalRowForm(ProposalStateModelForm):
     check = forms.BooleanField(required=False)
+
+    @property
+    def proposal_type(self):
+        return _(self.instance.type)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -171,10 +176,6 @@ class ProposalRowForm(ProposalStateModelForm):
     def requirement_entity(self):
         requirement_entity = self.instance.learning_unit_year.entities.get('REQUIREMENT_ENTITY', '')
         return requirement_entity.acronym if requirement_entity else ''
-
-    @property
-    def proposal_type(self):
-        return _(self.instance.type)
 
     @property
     def proposal_state(self):

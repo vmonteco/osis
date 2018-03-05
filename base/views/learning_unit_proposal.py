@@ -23,26 +23,29 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
-from django.http import QueryDict, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_proposal import compute_proposal_type, reinitialize_data_before_proposal, \
     delete_learning_unit_proposal
-from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
+from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, LearningUnitProposalUpdateForm
 from base.forms.proposal.learning_unit_proposal import ProposalStateModelForm
 from base.models import proposal_learning_unit
 from base.models.enums import proposal_state
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
+from base.models.entity_version import find_latest_version_by_entity
 from base.views import layout
 from base.views.common import display_success_messages, display_error_messages
-from base.views.learning_unit import compute_form_initial_data, get_learning_unit_identification_context
+from base.views.learning_unit import compute_form_initial_data
 from base.views.learning_units import perms
 
 
@@ -90,19 +93,25 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
 @perms.can_edit_learning_unit_proposal
 def edit_learning_unit_proposal(request, learning_unit_year_id):
     user_person = get_object_or_404(Person, user=request.user)
-
-    context = get_learning_unit_identification_context(learning_unit_year_id, user_person)
     proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year_id)
-
-    proposal_form = ProposalStateModelForm(request.POST or None, instance=proposal)
+    initial_data = compute_form_initial_data(proposal.learning_unit_year)
+    initial_data.update({"folder_id": proposal.folder.folder_id,
+                         "folder_entity": find_latest_version_by_entity(proposal.folder.entity.id,
+                                                                        datetime.date.today()),
+                         "type": proposal.type,
+                         "state": proposal.state})
+    proposal_form = LearningUnitProposalUpdateForm(request.POST or None, initial=initial_data)
     if proposal_form.is_valid():
         try:
-            proposal_form.save()
+            type_proposal = compute_proposal_type(initial_data, request.POST)
+            proposal_form.save(proposal.learning_unit_year, user_person, type_proposal,
+                               proposal_form.cleaned_data.get("state"))
             display_success_messages(request, _("proposal_edited_successfully"))
             return HttpResponseRedirect(reverse('learning_unit', args=[learning_unit_year_id]))
-
         except (IntegrityError, ValueError) as e:
             display_error_messages(request, e.args[0])
-
-    context['form'] = proposal_form
-    return layout.render(request, 'learning_unit/proposal/edition_proposal_state.html', context)
+    return layout.render(request, 'learning_unit/proposal/edition.html',  {
+        'learning_unit_year': proposal.learning_unit_year,
+        'person': user_person,
+        'form': proposal_form,
+        'experimental_phase': True})
