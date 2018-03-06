@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,15 +24,14 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
 
 from base.models import entity
 from base.models import entity_version
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class PersonEntityAdmin(admin.ModelAdmin):
+class PersonEntityAdmin(OsisModelAdmin):
     list_display = ('person', 'entity', 'latest_entity_version_name', 'with_child')
-    fieldsets = ((None, {'fields': ('person', 'entity', 'with_child')}),)
     search_fields = ['person__first_name', 'person__last_name']
     raw_id_fields = ('person', 'entity',)
 

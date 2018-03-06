@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -28,11 +28,11 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from base.models.enums import offer_year_entity_type
 from django.db import models
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class OfferYearEntityAdmin(admin.ModelAdmin):
+class OfferYearEntityAdmin(OsisModelAdmin):
     list_display = ('offer_year', 'entity', 'type', 'education_group_year')
-    fieldsets = ((None, {'fields': ('offer_year', 'entity', 'type', 'education_group_year')}),)
     search_fields = ['type', 'entity__entityversion__acronym', 'offer_year__acronym', 'education_group_year__acronym']
     list_filter = ('type', 'offer_year__academic_year',)
     raw_id_fields = ('offer_year', 'entity', 'education_group_year')

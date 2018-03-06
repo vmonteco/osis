@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from unittest import mock
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
@@ -38,6 +37,7 @@ from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
+from base.tests.factories.user import UserFactory
 
 
 class PersonEntityTest(TestCase):
@@ -104,6 +104,28 @@ class PersonEntityTest(TestCase):
         queryset = User.objects.all()
         with self.assertRaises(ObjectDoesNotExist):
             person_entity_filter.filter_by_attached_entities(person_2, queryset)
+
+    def test_find_entities_by_user_with_no_person(self):
+        user = UserFactory()
+        person = PersonFactory(user=user)
+        entities = person.entities
+        self.assertIsInstance(entities, list)
+        self.assertFalse(entities)
+
+    def test_find_entities_by_user_with_person_attached_no_entities_attached(self):
+        user = UserFactory()
+        person = PersonFactory(user=user)
+        entities = person.entities
+        self.assertIsInstance(entities, list)
+        self.assertFalse(entities)
+
+    def test_find_entities_by_user_with_person_attached_with_entities_attached(self):
+        user = UserFactory()
+        person = PersonFactory(user=user)
+        PersonEntityFactory(person=person, entity=self.root_entity, with_child=False)
+        entities = person.entities
+        self.assertIsInstance(entities, list)
+        self.assertEqual(len(entities), 1)
 
     def _create_entity_structure(self):
         self.organization = OrganizationFactory(name="Université catholique de Louvain", acronym="UCL")

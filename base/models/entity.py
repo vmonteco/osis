@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 
 class EntityAdmin(SerializableModelAdmin):
-    list_display = ('id', 'external_id', 'organization', 'location', 'postal_code', 'phone')
+    list_display = ('most_recent_acronym', 'external_id', 'organization', 'location', 'postal_code', 'phone')
     search_fields = ['external_id', 'entityversion__acronym', 'organization__acronym', 'organization__name']
     readonly_fields = ('organization', 'external_id')
 
@@ -53,6 +53,14 @@ class Entity(SerializableModel):
     fax = models.CharField(max_length=255, blank=True, null=True)
     website = models.CharField(max_length=255, blank=True, null=True)
 
+    @property
+    def most_recent_acronym(self):
+        try:
+            most_recent_entity_version = self.entityversion_set.filter(entity_id=self.id).latest('start_date')
+            return most_recent_entity_version.acronym
+        except ObjectDoesNotExist:
+            return None
+
     class Meta:
         verbose_name_plural = "entities"
 
@@ -60,7 +68,7 @@ class Entity(SerializableModel):
         return self.location and self.postal_code and self.city
 
     def __str__(self):
-        return "{0} - {1}".format(self.id, self.external_id)
+        return "{0} - {1}".format(self.most_recent_acronym, self.external_id)
 
 
 def search(**kwargs):
@@ -125,3 +133,10 @@ def find_versions_from_entites(entities, date):
                entityversion__start_date__lte=date).\
         annotate(acronym=F('entityversion__acronym')).annotate(title=F('entityversion__title')).\
         annotate(entity_type=F('entityversion__entity_type')).order_by(preserved)
+
+
+def find_by_id(an_id):
+    try:
+        return Entity.objects.get(pk=an_id)
+    except Entity.DoesNotExist:
+        return None

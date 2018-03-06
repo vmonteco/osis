@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,25 +23,30 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models.deletion import ProtectedError
 from django.http import HttpResponseForbidden
 from django.shortcuts import redirect, get_object_or_404
+from django.utils.translation import ugettext_lazy as _
+
+import base.business.learning_units.perms
 from base import models as mdl
 from base.business import learning_unit_deletion
+from base.business.learning_units.perms import can_delete_learning_unit_year
+from base.models import learning_unit_year as learning_unit_year_mdl
 from base.models.person import Person
 from base.utils.send_mail import send_mail_after_the_learning_unit_year_deletion
-from django.contrib import messages
-from django.utils.translation import ugettext_lazy as _
 from base.views import layout
-from base.models import learning_unit_year as learning_unit_year_mdl
+
 
 @login_required
 @permission_required('base.can_delete_learningunit', raise_exception=True)
 def delete_from_given_learning_unit_year(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
     learning_unit_year = mdl.learning_unit_year.get_by_id(learning_unit_year_id)
-    if not learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year):
+
+    if not can_delete_learning_unit_year(learning_unit_year, person):
         return HttpResponseForbidden()
 
     messages_deletion = learning_unit_deletion.check_learning_unit_year_deletion(learning_unit_year)
@@ -84,7 +89,8 @@ def delete_from_given_learning_unit_year(request, learning_unit_year_id):
 def delete_all_learning_units_year(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
     learning_unit_year = mdl.learning_unit_year.get_by_id(learning_unit_year_id)
-    if not learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year):
+
+    if not can_delete_learning_unit_year(learning_unit_year, person):
         return HttpResponseForbidden()
 
     learning_unit = learning_unit_year.learning_unit

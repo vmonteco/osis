@@ -1,0 +1,27 @@
+
+{% load bootstrap3 %}
+{% load i18n %}
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div>
+            <label for="{{ form.faculty_remarks.id_for_label }}">
+                {% trans 'faculty_remark' %}
+            </label><br>
+            {{ form.faculty_remark }}
+            <span class="error">
+                {{ form.faculty.errors }}
+            </span>
+        </div>
+        <br>
+        <div>
+            <label for="{{ form.other_remark.id_for_label }}">
+                {% trans 'other_remark' %}
+            </label><br>
+            {{ form.other_remark }}
+            <span class="error">
+                {{ form.other_remark.errors }}
+            </span>
+        </div>
+    </div>
+</div>

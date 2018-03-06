@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -29,11 +29,13 @@ from osis_common.models.auditable_model import AuditableModel, AuditableModelAdm
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums import sessions_derogation
 
+
 class GroupElementYearAdmin(AuditableModelAdmin):
     list_display = ('parent', 'child_branch', 'child_leaf',)
     fieldsets = ((None, {'fields': ('parent', 'child_branch', 'child_leaf', 'absolute_credits','relative_credits',
                                     'min_credits', 'max_credits', 'is_mandatory', 'block', 'current_order',
-                                    'own_comment', 'sessions_derogation')}),)
+                                    'own_comment', 'sessions_derogation','minor_access', 'comment',
+                                    'comment_english',)}),)
     raw_id_fields = ('parent', 'child_branch', 'child_leaf',)
 
 
@@ -50,6 +52,9 @@ class GroupElementYear(AuditableModel):
     is_mandatory = models.BooleanField(default=False)
     block = models.CharField(max_length=7, blank=True, null=True)
     current_order = models.IntegerField(blank=True, null=True)
+    minor_access = models.BooleanField(default=False)
+    comment = models.CharField(max_length=500, blank=True, null=True)
+    comment_english = models.CharField(max_length=500, blank=True, null=True)
     own_comment = models.CharField(max_length=500, blank=True, null=True)
     sessions_derogation = models.CharField(max_length=65,
                                            choices=sessions_derogation.SessionsDerogationTypes.choices(),

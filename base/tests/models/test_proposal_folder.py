@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -26,21 +26,34 @@
 from django.test import TestCase
 from django.db.utils import IntegrityError
 from base.tests.factories.proposal_folder import ProposalFolderFactory
-from base.models import proposal_folder
+from base.tests.factories.entity import EntityFactory
+from base.tests.factories.entity_version import EntityVersionFactory
+from base.models import proposal_folder, proposal_learning_unit
 
 
 class TestSearch(TestCase):
     def setUp(self):
-        self.proposal_folder = ProposalFolderFactory()
+        self.entity_1 = EntityFactory()
+        self.entity_version_1 = EntityVersionFactory(entity=self.entity_1)
+        self.entity_2 = EntityFactory()
+        self.entity_version_2 = EntityVersionFactory(entity=self.entity_2)
+        self.proposal_folder = ProposalFolderFactory(entity=self.entity_1)
 
     def test_unique_together(self):
         with self.assertRaises(IntegrityError):
             proposal_folder.ProposalFolder.objects.create(entity=self.proposal_folder.entity,
                                                           folder_id=self.proposal_folder.folder_id)
 
-    def test_find_by_entiy_and_folder_id(self):
+    def test_find_by_entity_and_folder_id(self):
         ProposalFolderFactory()
         a_proposal_folder = proposal_folder.find_by_entity_and_folder_id(self.proposal_folder.entity,
                                                                          self.proposal_folder.folder_id)
 
         self.assertEqual(a_proposal_folder, self.proposal_folder)
+
+    def test_find_distinct_folder_entities(self):
+        ProposalFolderFactory(entity=self.entity_2)
+
+        entities_result = proposal_folder.find_distinct_folder_entities()
+        self.assertEqual(entities_result.count(), 2)
+        self.assertCountEqual(entities_result, [self.entity_1, self.entity_2])

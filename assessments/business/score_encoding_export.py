@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ from base import models as mdl
 from base.models.enums import exam_enrollment_justification_type
 
 HEADER = [str(_('academic_year')),
-          str(_('sessionn')),
+          str(_('session_title')),
           str(_('learning_unit')),
           str(_('program')),
           str(_('registration_number')),

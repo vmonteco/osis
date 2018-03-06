@@ -10,7 +10,7 @@
 * The core business involves the administration of students, teachers,
 * courses, programs and so on.
 *
-* Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+* Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@
     <link rel="stylesheet" href="{% static 'css/osis.css' %}?version={{ js }}">
     <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/tree.css' %}">
-    <link rel="stylesheet" href="{% static 'css/jquery.treeview.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jstree.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap.min.css' %}">
     {% block header %}
     <noscript>
@@ -274,7 +274,7 @@
     <script type="text/javascript" src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery-validation/jquery.validate.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/diacritics-sort.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/jquery.treeview.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jstree.min.js' %}"></script>
     {% block script %}
     {% endblock %}
     {% analytical_body_bottom %}

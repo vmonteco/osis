@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -30,9 +30,9 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from base.models.exam_enrollment import ExamEnrollment
+from base.tests.factories.academic_calendar import AcademicCalendarFactory
 
 from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.models.test_academic_calendar import create_academic_calendar
 from base.tests.factories.session_exam_calendar import SessionExamCalendarFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.student import StudentFactory
@@ -71,9 +71,10 @@ class TestUploadXls(TestCase):
 
         tutor = TutorFactory()
 
-        an_academic_calendar = create_academic_calendar(an_academic_year, start_date=today - twenty_days,
-                                                        end_date=today + twenty_days,
-                                                        reference=academic_calendar_type.SCORES_EXAM_SUBMISSION)
+        an_academic_calendar = AcademicCalendarFactory(academic_year=an_academic_year,
+                                                       start_date=today - twenty_days,
+                                                       end_date=today + twenty_days,
+                                                       reference=academic_calendar_type.SCORES_EXAM_SUBMISSION)
         SessionExamCalendarFactory(number_session=number_session.ONE,
                                    academic_calendar=an_academic_calendar)
         AttributionFactory(learning_unit_year=a_learning_unit_year,

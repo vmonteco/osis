@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ class EntityContainerYear(AuditableSerializableModel):
     type = models.CharField(max_length=35, choices=entity_container_year_link_type.ENTITY_CONTAINER_YEAR_LINK_TYPES)
 
     class Meta:
-        unique_together = ('entity', 'learning_container_year', 'type',)
+        unique_together = ('entity', 'learning_container_year', 'type', 'deleted')
 
     def __str__(self):
         return u"%s - %s - %s" % (self.entity, self.learning_container_year, self.type)
@@ -129,5 +129,14 @@ def find_entities_grouped_by_linktype(a_learning_container_year):
 def find_by_learning_container_year_and_linktype(a_learning_container_year, linktype):
     try:
         return EntityContainerYear.objects.get(learning_container_year=a_learning_container_year, type=linktype)
+    except ObjectDoesNotExist:
+        return None
+
+
+def get_entity_container_year(an_entity_version, a_learning_container_year, a_type_entity_container_year):
+    try:
+        return EntityContainerYear.objects.get(entity=an_entity_version,
+                                               learning_container_year=a_learning_container_year,
+                                               type=a_type_entity_container_year)
     except ObjectDoesNotExist:
         return None
