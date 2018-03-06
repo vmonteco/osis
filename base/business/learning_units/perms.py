@@ -29,7 +29,7 @@ from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
 from base.models.enums.learning_unit_year_subtypes import PARTIM, FULL
 from base.models.enums.proposal_state import ProposalState
 from base.models.enums.proposal_type import ProposalType
-from base.models.utils.person_entity_filter import is_attached_entities
+from base.models.person_entity import is_attached_entities
 
 FACULTY_UPDATABLE_CONTAINER_TYPES = (learning_container_year_types.COURSE,
                                      learning_container_year_types.DISSERTATION,
