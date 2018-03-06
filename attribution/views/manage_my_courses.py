@@ -35,7 +35,7 @@ from base.models import person
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.tutor import Tutor
 from base.views import layout
-from base.views import learning_unit  as view_learning_unit
+from base.views import learning_unit as view_learning_unit
 
 
 @login_required
