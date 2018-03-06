@@ -78,22 +78,6 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
         return obj.acronym
 
 
-class MaxStrictlyValueValidator(BaseValidator):
-    message = _('Ensure this value is less than %(limit_value)s.')
-    code = 'max_strictly_value'
-
-    def compare(self, a, b):
-        return a >= b
-
-
-class MinStrictlyValueValidator(BaseValidator):
-    message = _('Ensure this value is greater than %(limit_value)s.')
-    code = 'min_strictly_value'
-
-    def compare(self, a, b):
-        return a <= b
-
-
 class LearningUnitYearForm(BootstrapForm):
     first_letter = forms.ChoiceField(choices=lazy(_create_first_letter_choices, tuple), required=True)
     acronym = forms.CharField(widget=forms.TextInput(attrs={'maxlength': "15", 'required': True}))
@@ -212,7 +196,6 @@ class CreatePartimForm(CreateLearningUnitYearForm):
         super(CreatePartimForm, self).__init__(*args, **kwargs)
         self.fields['container_type'].choices = _create_learning_container_year_type_list()
         # The credit of LUY partim cannot be greater than credit of full LUY
-        self.fields['credits'].validators.append(MaxStrictlyValueValidator(learning_unit_year_parent.credits))
         self.set_read_only_fields()
 
     def set_read_only_fields(self):
