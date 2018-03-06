@@ -201,7 +201,10 @@ def delete_from_given_learning_unit_year(learning_unit_year):
                   'acronym': learning_unit_year.acronym,
                   'year': learning_unit_year.academic_year})
 
-    _update_end_year_learning_unit(learning_unit_year.learning_unit, learning_unit_year.academic_year.year - 1)
+    new_end_year = learning_unit_year.academic_year.year - 1
+    l_unit = learning_unit_year.learning_unit
+    if l_unit.end_year is None or new_end_year >= l_unit.end_year:
+        _update_end_year_learning_unit(l_unit, new_end_year)
 
     return msg
 
