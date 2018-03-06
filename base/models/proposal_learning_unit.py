@@ -46,7 +46,7 @@ class ProposalLearningUnit(models.Model):
     folder = models.ForeignKey('ProposalFolder')
     author = models.ForeignKey('Person', null=True)
     date = models.DateTimeField(auto_now=True)
-    learning_unit_year = models.OneToOneField('LearningUnitYear', on_delete=models.CASCADE)
+    learning_unit_year = models.ForeignKey('LearningUnitYear')
     type = models.CharField(max_length=50, choices=proposal_type.CHOICES)
     state = models.CharField(max_length=50, choices=proposal_state.CHOICES, verbose_name=_("state"),
                              default=proposal_state.ProposalState.FACULTY)
