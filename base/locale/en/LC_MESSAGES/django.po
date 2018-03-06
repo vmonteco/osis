@@ -2631,3 +2631,6 @@ msgstr "Existing proposal"
 
 msgid "summary_editable"
 msgstr "educational information editable"
+
+msgid "msg_confirm_delete_luy"
+msgstr "Are you certain that you want to delete the learning unit ?"
