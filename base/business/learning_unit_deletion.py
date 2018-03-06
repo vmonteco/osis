@@ -50,12 +50,7 @@ def check_learning_unit_deletion(learning_unit):
 def check_learning_unit_year_deletion(learning_unit_year):
     msg = {}
 
-    proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
-    if proposal:
-        msg[proposal] = _("%(subtype)s %(acronym)s is in proposal") \
-                        % {'subtype': _str_partim_or_full(learning_unit_year),
-                           'acronym': learning_unit_year.acronym}
-
+    msg.update(_check_learning_unit_proposal(learning_unit_year))
     enrollment_count = len(learning_unit_enrollment.find_by_learning_unit_year(learning_unit_year))
     if enrollment_count > 0:
         msg[learning_unit_year] = _("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s") \
@@ -147,6 +142,18 @@ def _check_learning_unit_component_deletion(l_unit_component):
             'tutor': attribution.tutor,
             'year': l_unit_component.learning_unit_year.academic_year}
 
+    return msg
+
+
+def _check_learning_unit_proposal(learning_unit_year):
+    msg = {}
+
+    proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
+    if proposal:
+        error_proposal = "%(subtype)s %(acronym)s is in proposal for the year %(year)s"
+        msg[proposal] = _(error_proposal) % {'subtype': _str_partim_or_full(proposal.learning_unit_year),
+                                             'acronym': proposal.learning_unit_year.acronym,
+                                             'year': proposal.learning_unit_year.academic_year}
     return msg
 
 

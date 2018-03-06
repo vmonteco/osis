@@ -156,4 +156,3 @@ class PermsTestCase(TestCase):
         a_person = PersonFactory(user=a_user)
         a_person.user.groups.add(Group.objects.get(name=group_name))
         return a_person
-

@@ -56,7 +56,7 @@ class MultipleSynchronizationTest(TestCase):
 
     def test_find_last_synchronization_date(self):
         sync = synchronization.Synchronization.objects.get(pk=self.latest_sync_id)
-        self.assertEquals(sync.date, synchronization.find_last_synchronization_date())
+        self.assertEqual(sync.date, synchronization.find_last_synchronization_date())
 
 
 class InexistingSynchronizationTest(TestCase):

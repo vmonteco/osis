@@ -24,10 +24,8 @@
 #
 ##############################################################################
 from base.models import entity_container_year, entity
-from base.models.academic_year import current_academic_year
-from base.models.enums import proposal_type, learning_container_year_types
+from base.models.enums import learning_container_year_types
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
-from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.enums.learning_unit_year_subtypes import PARTIM, FULL
 from base.models.enums.proposal_state import ProposalState
 from base.models.enums.proposal_type import ProposalType
@@ -36,9 +34,10 @@ from base.models.utils.person_entity_filter import filter_by_attached_entities
 FACULTY_UPDATABLE_CONTAINER_TYPES = (learning_container_year_types.COURSE,
                                      learning_container_year_types.DISSERTATION,
                                      learning_container_year_types.INTERNSHIP)
-PROPOSAL_TYPE_ACCEPTED_FOR_UPDATE = (proposal_type.ProposalType.CREATION.name,
-                                     proposal_type.ProposalType.MODIFICATION.name,
-                                     proposal_type.ProposalType.TRANSFORMATION.name)
+PROPOSAL_TYPE_ACCEPTED_FOR_UPDATE = (ProposalType.CREATION.name,
+                                     ProposalType.MODIFICATION.name,
+                                     ProposalType.TRANSFORMATION.name,
+                                     ProposalType.TRANSFORMATION_AND_MODIFICATION.name)
 CANCELLABLE_PROPOSAL_TYPES = (ProposalType.MODIFICATION.name,
                               ProposalType.TRANSFORMATION.name,
                               ProposalType.TRANSFORMATION_AND_MODIFICATION.name)
@@ -115,9 +114,9 @@ def is_eligible_for_modification(learn_unit_year, person):
 
 
 def can_delete_learning_unit_year(learning_unit_year, person):
-    if not person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year):
+    if not _can_delete_learning_unit_year_according_type(learning_unit_year, person):
         return False
-    return _can_delete_learning_unit_year_according_type(learning_unit_year, person)
+    return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
 
 
 def _can_delete_learning_unit_year_according_type(learning_unit_year, person):
