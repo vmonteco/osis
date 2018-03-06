@@ -76,7 +76,7 @@ def is_attached_entities(person, entity_queryset):
 
     qs = PersonEntity.objects.filter(person=person)
     if qs.filter(entity__in=admissible_entities).exists():
-       return True
+        return True
     elif qs.filter(entity__in=entity_ancestors(entity_queryset), with_child=True):
         return True
     else:
