@@ -25,7 +25,8 @@
 ##############################################################################
 from django.core.exceptions import ObjectDoesNotExist
 
-from base.models import person_entity
+from base.models import person_entity, entity_version, entity
+from base.models.entity import Entity
 from base.models.entity_version import EntityVersion
 from base.models.person_entity import PersonEntity
 from base.models.entity_container_year import EntityContainerYear
@@ -37,10 +38,34 @@ MAP_ENTITY_FIELD = {
 }
 
 
-def filter_by_attached_entities(person, queryset):
+def is_attached_entities(person, entity_queryset):
+    admissible_entities = list(entity_queryset.values_list('pk', flat=True))
+
+    qs = PersonEntity.objects.filter(person=person)
+    if qs.filter(entity__in=admissible_entities).exists():
+       return True
+    elif qs.filter(entity__in=entity_ancestors(entity_queryset), with_child=True):
+        return True
+    else:
+        return False
+
+
+def filter_by_attached_entities(person, entity_queryset):
+
     entities_attached = person_entity.find_entities_by_person(person)
-    field_path = MAP_ENTITY_FIELD.get(queryset.model)
+    field_path = MAP_ENTITY_FIELD.get(entity_queryset.model)
     if not field_path:
         raise ObjectDoesNotExist
     field_filter = "{}__in".format(field_path)
-    return queryset.filter(**{field_filter: entities_attached})
+    return entity_queryset.filter(**{field_filter: entities_attached})
+
+
+def entity_ancestors(entity_list):
+    ancestors = list(EntityVersion.objects.filter(entity__in=entity_list).exclude(parent__isnull=True)
+                     .values_list('parent', flat=True))
+
+    parents = Entity.objects.filter(pk__in=ancestors)
+    if parents.exists():
+        ancestors.extend(entity_ancestors(parents))
+
+    return ancestors or []
