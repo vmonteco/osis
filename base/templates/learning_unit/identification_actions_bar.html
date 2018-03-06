@@ -69,7 +69,7 @@
             {% if "base.can_delete_learningunit" in perms %}
                 <li class="divider"></li>
                 <li {% if not can_delete %}class="disabled"{% endif %}>
-                    <a  {% if can_delete %} href="{% url 'learning_unit_delete_all' learning_unit_year_id=learning_unit_year.id %}" {% endif %}>{% trans 'Delete all the learning unit' %}</a>
+                    <a  {% if can_delete %} href="#" data-toggle="modal" data-target="#modalDeleteLuy" {% endif %}>{% trans 'Delete all the learning unit' %}</a>
                 </li>
             {% endif %}
             {% if "base.can_create_learningunit" in perms and learning_unit_year.subtype == 'FULL' %}
@@ -93,6 +93,26 @@
             <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "close" %}</button>
             <a href="{% url "learning_unit_cancel_proposal" learning_unit_year_id=learning_unit_year.id %}" role="button" class="btn btn-danger">{% trans "confirm" %}</a>
           </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if can_delete %}
+    <!-- Modal to remove fully UE-->
+    <div class="modal fade" id="modalDeleteLuy" tabindex="-1" role="dialog" aria-labelledby="modalDeleteLuy">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <form method="POST" action="{% url 'learning_unit_delete_all' learning_unit_year_id=learning_unit_year.id %}">
+             {% csrf_token %}
+             <div class="modal-body">
+                {% trans "msg_confirm_delete_luy" %}
+             </div>
+             <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "close" %}</button>
+                <button type="submit" class="btn btn-danger">{% trans "confirm" %}</button>
+             </div>
+          </form>
         </div>
       </div>
     </div>
