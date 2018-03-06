@@ -108,7 +108,7 @@ def is_eligible_for_modification(learn_unit_year, person):
         return False
     if learn_unit_year.is_in_proposal():
         return False
-    if person.is_faculty_manager() and not (learn_unit_year.can_update_by_faculty_manager()):
+    if person.is_faculty_manager() and not learn_unit_year.can_update_by_faculty_manager():
         return False
     return person.is_linked_to_entity_in_charge_of_learning_unit_year(learn_unit_year)
 
