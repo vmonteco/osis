@@ -45,7 +45,7 @@ from base.models.enums.vacant_declaration_type import VacantDeclarationType
 FULL_READ_ONLY_FIELDS = {"first_letter", "acronym", "academic_year", "container_type", "subtype"}
 PARTIM_READ_ONLY_FIELDS = PARTIM_FORM_READ_ONLY_FIELD | {"is_vacant", "team", "type_declaration_vacant",
                                                          "attribution_procedure", "subtype"}
-FACULTY_READ_ONLY_FIELDS = {"common_title", "common_title_english", "specific_title", "specific_title_english",
+FACULTY_READ_ONLY_FIELDS = {"periodicity", "common_title", "common_title_english", "specific_title", "specific_title_english",
                             "faculty_remark", "other_remark", "campus", "status", "credits", "language",
                             "requirement_entity", "allocation_entity", "additional_requirement_entity_2", "is_vacant",
                             "type_declaration_vacant", "attribution_procedure", "subtype"}
