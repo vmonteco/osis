@@ -26,7 +26,7 @@
 import re
 
 from django import forms
-from django.core.validators import MinValueValidator, MaxValueValidator, BaseValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
