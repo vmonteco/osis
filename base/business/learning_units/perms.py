@@ -100,8 +100,8 @@ def is_eligible_for_modification_end_date(learn_unit_year, person):
         return False
     if not is_eligible_for_modification(learn_unit_year, person):
         return False
-    return learn_unit_year.learning_container_year.container_type not in FACULTY_UPDATABLE_CONTAINER_TYPES \
-           or learn_unit_year.subtype == PARTIM
+    container_type = learn_unit_year.learning_container_year.container_type
+    return container_type not in FACULTY_UPDATABLE_CONTAINER_TYPES or learn_unit_year.subtype == PARTIM
 
 
 def is_eligible_for_modification(learn_unit_year, person):

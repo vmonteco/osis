@@ -170,13 +170,19 @@ class LearningUnitYear(AuditableSerializableModel):
         return self.academic_year.year < current_academic_year().year
 
     def can_update_by_faculty_manager(self):
+        result = False
+
         if not self.learning_container_year:
-            return False
+            return result
+
         current_year = current_academic_year().year
         year = self.academic_year.year
-        return year == current_year \
-               or (self.learning_unit.periodicity == ANNUAL and year <= current_year + 1) \
-               or (self.learning_unit.periodicity != ANNUAL and year <= current_year + 2)
+
+        if self.learning_unit.periodicity == ANNUAL and year <= current_year + 1:
+            result = True
+        elif self.learning_unit.periodicity != ANNUAL and year <= current_year + 2:
+            result = True
+        return result
 
 
 def get_by_id(learning_unit_year_id):
