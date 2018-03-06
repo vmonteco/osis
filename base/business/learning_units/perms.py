@@ -100,8 +100,8 @@ def is_eligible_for_modification_end_date(learn_unit_year, person):
         return False
     if not is_eligible_for_modification(learn_unit_year, person):
         return False
-    return learn_unit_year.learning_container_year.container_type not in FACULTY_UPDATABLE_CONTAINER_TYPES or \
-           learn_unit_year.subtype == PARTIM
+    return learn_unit_year.learning_container_year.container_type not in FACULTY_UPDATABLE_CONTAINER_TYPES \
+           or learn_unit_year.subtype == PARTIM
 
 
 def is_eligible_for_modification(learn_unit_year, person):
@@ -109,24 +109,9 @@ def is_eligible_for_modification(learn_unit_year, person):
         return False
     if learn_unit_year.is_in_proposal():
         return False
-    if person.is_faculty_manager() and not (_can_faculty_manager_modify_learning_unit_year(learn_unit_year) or
-                                            _learning_unit_year_is_not_illegible_academic_year(learn_unit_year)):
+    if person.is_faculty_manager() and not (learn_unit_year.can_update_by_faculty_manager()):
         return False
     return person.is_linked_to_entity_in_charge_of_learning_unit_year(learn_unit_year)
-
-
-def _can_faculty_manager_modify_learning_unit_year(learning_unit_year):
-    if not learning_unit_year.learning_container_year:
-        return False
-    return True
-
-
-def _learning_unit_year_is_not_illegible_academic_year(learn_unit_year):
-    current_year = current_academic_year().year
-    year = learn_unit_year.academic_year.year
-    return year == current_year or \
-           (learn_unit_year.learning_unit.periodicity == ANNUAL and year <= current_year+1) or \
-           (learn_unit_year.learning_unit.periodicity != ANNUAL and year <= current_year+2)
 
 
 def can_delete_learning_unit_year(learning_unit_year, person):
