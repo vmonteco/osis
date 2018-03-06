@@ -35,7 +35,7 @@ from base.models import person
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.tutor import Tutor
 from base.views import layout
-from base.views.learning_unit import edit_learning_unit_pedagogy
+from base.views import learning_unit  as view_learning_unit
 
 
 @login_required
@@ -65,4 +65,4 @@ def view_educational_information(request, learning_unit_year_id):
 @tutor_can_edit_educational_information
 def edit_educational_information(request, learning_unit_year_id):
     redirect_url = reverse("view_educational_information", kwargs={'learning_unit_year_id': learning_unit_year_id})
-    return edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url)
+    return view_learning_unit.edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url)

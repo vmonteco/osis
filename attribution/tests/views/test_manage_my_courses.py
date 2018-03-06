@@ -194,7 +194,7 @@ class TestManageEducationalInformation(TestCase):
         self.assertTrue(mock_perm.called)
         self.assertTemplateUsed(response, "access_denied.html")
 
-    @mock.patch("attribution.views.manage_my_courses.edit_learning_unit_pedagogy",
+    @mock.patch("base.views.learning_unit.edit_learning_unit_pedagogy",
                 side_effect=lambda req, luy_id, url: HttpResponse())
     def test_use_edit_learning_unit_pedagogy_method(self, mock_edit_learning_unit_pedagogy):
         self.client.get(self.url)
