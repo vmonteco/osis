@@ -77,18 +77,18 @@ def is_attached_entities(person, entity_queryset):
     qs = PersonEntity.objects.filter(person=person)
     if qs.filter(entity__in=admissible_entities).exists():
         return True
-    elif qs.filter(entity__in=entity_ancestors(entity_queryset), with_child=True):
+    elif qs.filter(entity__in=_entity_ancestors(entity_queryset), with_child=True).exists():
         return True
     else:
         return False
 
 
-def entity_ancestors(entity_list):
+def _entity_ancestors(entity_list):
     ancestors = list(EntityVersion.objects.filter(entity__in=entity_list).exclude(parent__isnull=True)
                      .values_list('parent', flat=True))
 
     parents = Entity.objects.filter(pk__in=ancestors)
     if parents.exists():
-        ancestors.extend(entity_ancestors(parents))
+        ancestors.extend(_entity_ancestors(parents))
 
     return ancestors or []

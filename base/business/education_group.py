@@ -29,7 +29,7 @@ from base.models.entity import Entity
 from base.models.enums import offer_year_entity_type
 from base.models.person import Person
 from base.models.program_manager import is_program_manager
-from base.models.person_entity import is_attached_entities
+from base.models import person_entity
 
 
 def can_user_edit_administrative_data(a_user, an_education_group_year):
@@ -52,7 +52,7 @@ def _is_management_entity_linked_to_user(person, an_education_group_year):
     entities = Entity.objects.filter(offeryearentity__education_group_year=an_education_group_year,
                                      offeryearentity__type=offer_year_entity_type.ENTITY_MANAGEMENT)
 
-    return is_attached_entities(person, entities)
+    return person_entity.is_attached_entities(person, entities)
 
 
 def assert_category_of_education_group_year(education_group_year, authorized_categories):
