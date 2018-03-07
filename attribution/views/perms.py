@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,31 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.conf.urls import url, include
+from django.core.exceptions import PermissionDenied
 
-from attribution.views import summary_responsible, manage_my_courses
-
-urlpatterns = [
-
-    url(r'^summary_responsible_manager/', include([
-        url(r'^$', summary_responsible.search,
-            name='summary_responsible'),
-        url(r'^edit/$', summary_responsible.edit,
-            name='summary_responsible_edit'),
-        url(r'^update/(?P<pk>[0-9]+)/$', summary_responsible.update,
-            name='summary_responsible_update')
-    ])),
-
-    url(r'^manage_my_courses/', include([
-        url(r'^$', manage_my_courses.list_my_attributions_summary_editable,
-            name='list_my_attributions_summary_editable'),
-        url(r'^(?P<learning_unit_year_id>[0-9]+)/educational_information$',
-            manage_my_courses.view_educational_information,
-            name='view_educational_information'),
-        url(r'^(?P<learning_unit_year_id>[0-9]+)/edit_educational_information$',
-            manage_my_courses.edit_educational_information,
-            name='tutor_edit_educational_information'),
-    ])),
+import attribution.business.perms
 
 
-]
+def tutor_can_edit_educational_information(view_func):
+    def f_tutor_can_edit_educational_information(request, learning_unit_year_id):
+        if not attribution.business.perms.can_user_edit_educational_information(request.user, learning_unit_year_id):
+            raise PermissionDenied("User cannot edit educational information")
+        return view_func(request, learning_unit_year_id)
+    return f_tutor_can_edit_educational_information

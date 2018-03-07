@@ -135,13 +135,16 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
 @permission_required('base.can_edit_learningunit_pedagogy', raise_exception=True)
 @require_http_methods(["GET", "POST"])
 def learning_unit_pedagogy_edit(request, learning_unit_year_id):
+    redirect_url = reverse("learning_unit_pedagogy", kwargs={'learning_unit_year_id': learning_unit_year_id})
+    return edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url)
+
+
+def edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url):
     if request.method == 'POST':
         form = LearningUnitPedagogyEditForm(request.POST)
         if form.is_valid():
             form.save()
-        return HttpResponseRedirect(reverse("learning_unit_pedagogy",
-                                            kwargs={'learning_unit_year_id': learning_unit_year_id}))
-
+        return redirect(redirect_url)
     context = get_common_context_learning_unit_year(learning_unit_year_id,
                                                     get_object_or_404(Person, user=request.user))
     label_name = request.GET.get('label')
@@ -154,7 +157,6 @@ def learning_unit_pedagogy_edit(request, learning_unit_year_id):
     })
     form.load_initial()  # Load data from database
     context['form'] = form
-
     user_language = mdl.person.get_user_interface_language(request.user)
     context['text_label_translated'] = next((txt for txt in text_lb.translated_text_labels
                                              if txt.language == user_language), None)
@@ -364,55 +366,6 @@ def learning_units_activity(request):
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units_service_course(request):
     return _learning_units_search(request, SERVICE_COURSES_SEARCH)
-
-
-@login_required
-def learning_unit_summary(request, learning_unit_year_id):
-    if not is_summary_submission_opened():
-        return redirect(reverse_lazy('outside_summary_submission_period'))
-
-    learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
-    if not can_access_summary(request.user, learning_unit_year):
-        raise PermissionDenied("User is not summary responsible")
-
-    user_language = mdl.person.get_user_interface_language(request.user)
-    return layout.render(request, "my_osis/educational_information.html", {
-        'learning_unit_year': learning_unit_year,
-        'cms_labels_translated': get_cms_label_data(CMS_LABEL_SUMMARY, user_language),
-        'form_french': initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_FR),
-        'form_english': initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_EN)
-    })
-
-
-@login_required
-@require_http_methods(["GET", "POST"])
-def summary_edit(request, learning_unit_year_id):
-    if not is_summary_submission_opened():
-        return redirect(reverse_lazy("outside_summary_submission_period"))
-
-    learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
-    if not can_access_summary(request.user, learning_unit_year):
-        raise PermissionDenied("User is not summary responsible")
-
-    if request.method == 'POST':
-        form = LearningUnitPedagogyEditForm(request.POST)
-        if form.is_valid():
-            form.save()
-        return redirect("learning_unit_summary", learning_unit_year_id=learning_unit_year_id)
-    label_name = request.GET.get('label')
-    lang = request.GET.get('language')
-    text_lb = text_label.find_root_by_name(label_name)
-    form = LearningUnitPedagogyEditForm(**{'learning_unit_year': learning_unit_year, 'language': lang,
-                                           'text_label': text_lb})
-    form.load_initial()
-    user_language = mdl.person.get_user_interface_language(request.user)
-    text_label_translated = next((txt for txt in text_lb.translated_text_labels if txt.language == user_language), None)
-    return layout.render(request, "my_osis/educational_information_edit.html", {
-        "learning_unit_year": learning_unit_year,
-        "form": form,
-        "language_translated": find_language_in_settings(lang),
-        "text_label_translated": text_label_translated
-    })
 
 
 @login_required

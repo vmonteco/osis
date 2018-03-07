@@ -21,12 +21,13 @@
                         {% endif %}
                         <td>{{ luy.acronym }}</td>
                         <td>{{ luy.complete_title|default_if_none:'' }}</td>
-                        <td><a href="#">#</a></td>
+                        <td><a href="{% url "view_educational_information" learning_unit_year_id=luy.id %}"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></a></td>
                     </tr>
                 {% endfor %}
             </tbody>
         {% endfor %}
     </table>
+
 {% else %}
     <div id="no_attribution_warning_message" class="alert alert-warning" role="alert">
         {% trans 'no_attribution_summary_editable' %}
