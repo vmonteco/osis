@@ -49,11 +49,11 @@ class DissertationUtilsTestCase(TestCase):
         self.manager = AdviserManagerFactory()
         a_person_teacher = PersonFactory.create(first_name='Pierre',
                                                 last_name='Dupont',
-                                                email='laurent.dermine@uclouvain.be')
+                                                email='pd@uclouvain.be')
         self.teacher = AdviserTeacherFactory(person=a_person_teacher)
         a_person_teacher2 = PersonFactory.create(first_name='Marco',
                                                  last_name='Millet',
-                                                 email='laurent.dermine@uclouvain.be')
+                                                 email='mm@uclouvain.be')
         self.teacher2 = AdviserTeacherFactory(person=a_person_teacher2)
         a_person_student = PersonFactory.create(last_name="Durant",
                                                 user=None,
@@ -97,7 +97,5 @@ class DissertationUtilsTestCase(TestCase):
 
     def test_generate_receivers(self):
         tab_reslut = emails_dissert.generate_receivers([self.teacher] + [self.teacher2])
-        self.assertCountEqual(
-            [{'receiver_email': 'laurent.dermine@uclouvain.be', 'receiver_id': 10, 'receiver_lang': 'en'},
-             {'receiver_email': 'laurent.dermine@uclouvain.be', 'receiver_id': 11, 'receiver_lang': 'fr-be'}]
-            , tab_reslut)
+        self.assertIn("pd@uclouvain.be", str(tab_reslut))
+        self.assertIn("mm@uclouvain.be", str(tab_reslut))
