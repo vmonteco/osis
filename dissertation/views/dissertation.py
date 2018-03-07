@@ -794,6 +794,12 @@ def manager_dissertations_wait_recep_list(request):
                           'show_evaluation_first_year': show_evaluation_first_year})
 
 
+@login_required
+@user_passes_test(adviser.is_manager)
+def manager_students_list(request):
+    return layout.render(request, 'manager_students_list.html', {})
+
+
 ###########################
 #      TEACHER VIEWS      #
 ###########################

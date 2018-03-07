@@ -289,6 +289,9 @@ msgstr "Paramétrage de la plateforme"
 msgid "desc_lnk_manager_proposition_dissertations"
 msgstr "Sujets de mémoire proposés par les enseignants"
 
+msgid "desc_lnk_manager_students_list"
+msgstr "Liste des étudiants"
+
 msgid "desc_lnk_propositions_dissertations"
 msgstr "Sujets de mémoire proposés par moi-même et par les autres enseignants"
 
