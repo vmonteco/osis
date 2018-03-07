@@ -1,5 +1,5 @@
-{% extends 'blocks/modal/generic_modal.html' %}
-{% load i18n bootstrap3 %}
+{% load staticfiles %}
+{% load i18n %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -24,17 +24,12 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-{% block modal_id %}modalDeleteLuy{% endblock %}
+{% url 'view_educational_information' learning_unit_year_id=learning_unit_year.id as url_educational_information %}
 
-{% block modal_content %}
-    <form method="POST" action="{% url 'learning_unit_delete_all' learning_unit_year_id=learning_unit_year.id %}">
-        {% csrf_token %}
-        <div class="modal-body">
-            {% trans "msg_confirm_delete_luy" %}
-         </div>
-         <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "cancel" %}</button>
-            <button type="submit" class="btn btn-danger">{% trans "confirm" %}</button>
-         </div>
-    </form>
-{% endblock %}
+<ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" {% if request.path == url_educational_information %} class="active" {% endif %}>
+        <a href="{{url_educational_information}}" role="tab">
+		        {% trans 'educational_information'%}
+	     </a>
+    </li>
+</ul>
