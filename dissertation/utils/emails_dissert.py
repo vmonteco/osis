@@ -23,9 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
+from django.utils import translation
 from osis_common.messaging import message_config, send_message as message_service
 from dissertation.models import dissertation_role
+
+LANGUAGE_DEFAULT = 'fr_BE'
+
+
+def translating(string, language=LANGUAGE_DEFAULT):
+    cur_language = translation.get_language()
+    try:
+        translation.activate(language)
+        text = translation.ugettext(string)
+    finally:
+        translation.activate(cur_language)
+    return text
 
 
 def get_base_template(dissert):
@@ -45,8 +57,9 @@ def create_string_list_promotors(dissert):
 
 def create_string_list_commission_reading(dissert):
     commission_to_read = dissertation_role.search_by_dissertation(dissert)
-    return ' - '.join(['{adv.first_name} {adv.last_name} {status}'.format(adv=member_commission.adviser.person,
-                                                                          status=member_commission.status)
+    return ' - '.join(
+        ['{adv.first_name} {adv.last_name} ({status})'.format(adv=member_commission.adviser.person,
+                                                              status=translating(member_commission.status))
                        for member_commission in commission_to_read])
 
 

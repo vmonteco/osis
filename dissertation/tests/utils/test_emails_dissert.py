@@ -99,3 +99,10 @@ class DissertationUtilsTestCase(TestCase):
         tab_reslut = emails_dissert.generate_receivers([self.teacher] + [self.teacher2])
         self.assertIn("pd@uclouvain.be", str(tab_reslut))
         self.assertIn("mm@uclouvain.be", str(tab_reslut))
+
+    def test_translating(self):
+        str1='READER'
+        str2='PROMOTEUR'
+        self.assertEqual('Lecteur', emails_dissert.translating(str1))
+        self.assertEqual('Promoteur', emails_dissert.translating(str2))
+        self.assertEqual('Promotor', emails_dissert.translating(str2,'en'))
