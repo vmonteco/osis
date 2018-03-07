@@ -2222,7 +2222,7 @@ msgid "The learning unit %(acronym)s is related to the internship speciality %(s
 msgstr ""
 
 msgid "lu_included_in_group"
-msgstr "%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s"
+msgstr "%(subtype)s %(acronym)s is included in the group %(group)s for the year %(year)s"
 
 msgid "%(subtype)s %(acronym)s has been deleted for the year %(year)s"
 msgstr ""

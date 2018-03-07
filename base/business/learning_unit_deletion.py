@@ -101,7 +101,6 @@ def _check_group_element_year_deletion(group_element_year):
         'subtype': _str_partim_or_full(group_element_year.child_leaf),
         'acronym': group_element_year.child_leaf.acronym,
         'group': group_element_year.parent.partial_acronym,
-        'program': group_element_year.parent.education_group_type,
         'year': group_element_year.child_leaf.academic_year
     }
             }
