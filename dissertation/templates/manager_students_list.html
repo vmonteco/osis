@@ -26,11 +26,94 @@
  * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap.min.css' %}">
+{% endblock %}
+
 {% block breadcrumb %}
   <li><a href="{% url 'studies' %}" id="lnk_studies">{% trans 'student_path' %}</a></li>
   <li><a href="{% url 'dissertations' %}" id="lnk_dissertations">{% trans 'dissertations' %}</a></li>
-  <li class="active">{% trans 'students' as student_title %}{{ student_title|title }}</li>
+  <li class="active">{% trans 'students' as students_title %}{{ students_title|title }}</li>
 {% endblock %}
+
 {% block content %}
-  STUDENT_LIST
+    <div class="page-header">
+        <h2>{% trans 'students' as students_title %}{{ students_title|title }}</h2>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <table class="table table-hover" id="students-list">
+                <thead>
+                    <tr>
+                        <th>{{ students_title|title }}</th>
+                        <th>{% trans 'offer_propositions' %}</th>
+                        <th>{% trans 'dissertations' %}</th>
+                    </tr>
+                </thead>
+                    {% for student in students %}
+                        <tr>
+                            <td>{{ student }}</td>
+                            <td>{{ student.offerenrollment_set.last.offer_year}}</td>
+                            <td>
+                                {% for dissertation in  student.dissertation_set.all %}
+                                    - {{ dissertation }} ({{ dissertation.offer_year_start.acronym }})<br>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/dataTables.bootstrap.min.js' %}"></script>
+<script>
+    $(document).ready(function()
+    {
+        $('#students-list').DataTable(
+        {
+            "pageLength": 100,
+            "paging" : true,
+            "ordering" : true,
+            "info"  : false,
+            "searching" : true,
+            "language": {
+                "sProcessing":     "{% trans 'datatable_processing'%}",
+                "sSearch":         "{% trans 'datatable_search'%}",
+                "sLengthMenu":     "&nbsp;&nbsp;&nbsp;_MENU_ &eacute;l&eacute;ments",
+                "sInfo":           "{% trans 'datatable_info'%}",
+                "sInfoEmpty":      "{% trans 'datatable_infoempty'%}",
+                "sInfoFiltered":   "{% trans 'datatable_infofiltered'%}",
+                "sInfoPostFix":    "{% trans 'datatable_infopostfix'%}",
+                "sLoadingRecords": "{% trans 'datatable_loadingrecords'%}",
+                "sZeroRecords":    "{% trans 'datatable_zerorecords'%}",
+                "sEmptyTable":     "{% trans 'datatable_emptytable'%}",
+                "oPaginate": {
+                    "sFirst":      "{% trans 'datatable_first'%}",
+                    "sPrevious":   "{% trans 'datatable_previous'%}",
+                    "sNext":       "{% trans 'datatable_next'%}",
+                    "sLast":       "{% trans 'datatable_last'%}"
+                },
+                "oAria": {
+                    "sSortAscending":  "{% trans 'datatable_sortascending'%}",
+                    "sSortDescending": "{% trans 'datatable_sortdescending'%}",
+                }
+            },
+            "columns":[
+                null,
+                {"orderable":false},
+                null
+            ]
+        });
+    });
+
+</script>
 {% endblock %}
