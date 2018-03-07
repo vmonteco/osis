@@ -334,7 +334,7 @@ class DissertationViewTestCase(TestCase):
             find_my_messages(self.dissertation_test_email.author.person.id).count()
         count_message_history_result_promotor = len(message_history.find_my_messages(
             self.teacher.person.id))
-        self.dissertation_test_email.status = 'COM_SUBMIT'
+        self.dissertation_test_email.status = 'COM_KO'
         self.dissertation_test_email.manager_accept()
         message_history_result_author_after_change = message_history.find_my_messages(
             self.dissertation_test_email.author.person.id)

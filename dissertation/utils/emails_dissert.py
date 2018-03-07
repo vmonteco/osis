@@ -45,14 +45,9 @@ def create_string_list_promotors(dissert):
 
 def create_string_list_commission_reading(dissert):
     commission_to_read = dissertation_role.search_by_dissertation(dissert)
-    list_commission_string = ''
-    if commission_to_read:
-        list_commission_string = ' - '.join(['{} {} ({})'.
-                                            format(member_commission.adviser.person.first_name,
-                                                   member_commission.adviser.person.last_name,
-                                                   member_commission.status)
-                                             for member_commission in commission_to_read])
-    return list_commission_string
+    return ' - '.join(['{adv.first_name} {adv.last_name} {status}'.format(adv=member_commission.adviser.person,
+                                                                          status=member_commission.status)
+                       for member_commission in commission_to_read])
 
 
 def get_commission_template(dissert):
