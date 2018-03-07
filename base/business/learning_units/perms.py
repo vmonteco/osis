@@ -23,13 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models import entity_container_year, entity
+from base.models.entity import Entity
 from base.models.enums import learning_container_year_types
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
 from base.models.enums.learning_unit_year_subtypes import PARTIM, FULL
 from base.models.enums.proposal_state import ProposalState
 from base.models.enums.proposal_type import ProposalType
-from base.models.utils.person_entity_filter import filter_by_attached_entities
+from base.models.person_entity import is_attached_entities
 
 FACULTY_UPDATABLE_CONTAINER_TYPES = (learning_container_year_types.COURSE,
                                      learning_container_year_types.DISSERTATION,
@@ -44,11 +44,11 @@ CANCELLABLE_PROPOSAL_TYPES = (ProposalType.MODIFICATION.name,
 
 
 def is_person_linked_to_entity_in_charge_of_learning_unit(a_learning_unit_year, a_person):
-    entity_containers_year = entity_container_year.search(
-        learning_container_year=a_learning_unit_year.learning_container_year,
-        link_type=REQUIREMENT_ENTITY)
+    entity = Entity.objects.filter(
+        entitycontaineryear__learning_container_year=a_learning_unit_year.learning_container_year,
+        entitycontaineryear__type=REQUIREMENT_ENTITY)
 
-    return filter_by_attached_entities(a_person, entity_containers_year).exists()
+    return is_attached_entities(a_person, entity)
 
 
 def is_eligible_to_create_modification_proposal(learn_unit_year, person):
@@ -71,8 +71,7 @@ def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
         return False
 
     initial_entity_requirement_id = learning_unit_proposal.initial_data["entities"][REQUIREMENT_ENTITY]
-    an_entity = entity.get_by_internal_id(initial_entity_requirement_id)
-    if an_entity in a_person.entities:
+    if is_attached_entities(a_person, Entity.objects.filter(pk=initial_entity_requirement_id)):
         return True
 
     return a_person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_proposal.learning_unit_year)

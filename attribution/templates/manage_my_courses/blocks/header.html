@@ -24,32 +24,10 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-<div class="modal-dialog" role="document" style="width:850px;">
-    <div class="modal-content">
-        <form class="pedagogy-form" role="form" method="POST"
-              action="{{ request.path }}">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">×</button>
-                <h4>{{text_label_translated.label}} - {{language_translated.1}}</h4>
-            </div>
-            <div class="modal-body">
-                {% csrf_token %}
-                {{ form.trans_text }}
-                {{ form.cms_id }}
-            </div>
-            <div class="modal-footer">
-               <button class="btn btn-primary" type="submit">{% trans 'save' %}</button>
-               <button type="submit" class="btn" data-dismiss="modal">{% trans 'cancel' %} </button>
-          </div>
-        </form>
+<div class="row">
+    <div class="col-md-8 col-md-offset-1">
+        <h2>{{ learning_unit_year.acronym|default_if_none:'' }} &mdash; {{ learning_unit_year.academic_year|default_if_none:'' }}</h2>
+        <h4 style="margin-top: 0;">{{ learning_unit_year.common_title|default_if_none:'' }}</h4>
+        <h4 style="margin-top: 0;">{{ learning_unit_year.specific_title|default_if_none:'' }}</h4>
     </div>
 </div>
-
-<script>
-    $(function() {
-        var richText = $('#id_trans_text');
-        // Get configuration of rich text field
-        var config = richText.data('config')
-        CKEDITOR.replace('id_trans_text', config)
-    });
-</script>

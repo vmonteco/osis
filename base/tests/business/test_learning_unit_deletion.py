@@ -131,14 +131,14 @@ class LearningUnitYearDeletion(TestCase):
         self.assertIn(msg_delete_offer_type
                       % {'subtype': _('The partim'),
                          'acronym': l_unit_2.acronym,
-                         'group': group_1.parent.acronym,
+                         'group': group_1.parent.partial_acronym,
                          'program': group_1.parent.education_group_type,
                          'year': l_unit_2.academic_year},
                       msg)
         self.assertIn(msg_delete_offer_type
                       % {'subtype': _('The partim'),
                          'acronym': l_unit_2.acronym,
-                         'group': group_2.parent.acronym,
+                         'group': group_2.parent.partial_acronym,
                          'program': group_2.parent.education_group_type,
                          'year': l_unit_2.academic_year},
                       msg)
