@@ -76,6 +76,8 @@ class DissertationViewTestCase(TestCase):
         self.academic_year2 = AcademicYearFactory(year=self.academic_year1.year - 1)
         self.offer_year_start1 = OfferYearFactory(acronym="test_offer1", offer=self.offer1,
                                                   academic_year=self.academic_year1)
+        self.offer_year_start2 = OfferYearFactory(acronym="test_offer2", offer=self.offer2,
+                                                  academic_year=self.academic_year1)
         self.offer_proposition1 = OfferPropositionFactory(offer=self.offer1, global_email_to_commission=True)
         self.offer_proposition2 = OfferPropositionFactory(offer=self.offer2, global_email_to_commission=False)
         self.proposition_dissertation = PropositionDissertationFactory(author=self.teacher,
@@ -116,7 +118,7 @@ class DissertationViewTestCase(TestCase):
                 active=True,
                 dissertation_role__adviser=self.teacher,
                 dissertation_role__status=roles[x]
-                                ))
+            ))
         self.dissertation_1 = DissertationFactory(author=self.student,
                                                   title='Dissertation 2017',
                                                   offer_year_start=self.offer_year_start1,
@@ -142,20 +144,19 @@ class DissertationViewTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.context[-1]['dissertations'].count(), 8)
         self.assertCountEqual(response.context[-1]['dissertations'], [self.dissertation_1] +
-                              [self.dissertation_test_email] +
-                              self.dissertations_list)
+                              [self.dissertation_test_email] + self.dissertations_list)
 
     def test_search_dissertations_for_manager_1(self):
         self.client.force_login(self.manager.person.user)
         url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "no result search"})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
 
     def test_search_dissertations_for_manager_2(self):
         self.client.force_login(self.manager.person.user)
         url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "Dissertation 2"})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
         self.assertEqual(response.context[-1]['dissertations'].count(), 2)
         self.assertCountEqual(
             response.context[-1]['dissertations'],
@@ -166,7 +167,7 @@ class DissertationViewTestCase(TestCase):
         self.client.force_login(self.manager.person.user)
         url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "Proposition 3"})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
         self.assertEqual(response.context[-1]['dissertations'].count(), 1)
         self.assertCountEqual(
             response.context[-1]['dissertations'],
@@ -177,66 +178,78 @@ class DissertationViewTestCase(TestCase):
         self.client.force_login(self.manager.person.user)
         url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "Dissertation"})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
         self.assertEqual(response.context[-1]['dissertations'].count(), 8)
+        self.assertCountEqual(response.context[-1]['dissertations'], [self.dissertation_1] +
+                              [self.dissertation_test_email] + self.dissertations_list)
 
     def test_search_dissertations_for_manager_5(self):
         self.client.force_login(self.manager.person.user)
         url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "Dissertation",
                                               "offer_prop_search": self.offer_proposition1.id})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
         self.assertEqual(response.context[-1]['dissertations'].count(), 8)
+        self.assertCountEqual(response.context[-1]['dissertations'], [self.dissertation_1] +
+                              [self.dissertation_test_email] + self.dissertations_list)
 
     def test_search_dissertations_for_manager_6(self):
         self.client.force_login(self.manager.person.user)
         url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "Dissertation",
                                               "offer_prop_search": self.offer_proposition2.id})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
         self.assertEqual(response.context[-1]['dissertations'].count(), 0)
 
     def test_search_dissertations_for_manager_7(self):
         self.client.force_login(self.manager.person.user)
         url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"academic_year": self.academic_year1.id})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
         self.assertEqual(response.context[-1]['dissertations'].count(), 8)
+        self.assertCountEqual(response.context[-1]['dissertations'], [self.dissertation_1] +
+                              [self.dissertation_test_email] + self.dissertations_list)
 
     def test_search_dissertations_for_manager_8(self):
         self.client.force_login(self.manager.person.user)
         url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"academic_year": self.academic_year2.id})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
         self.assertEqual(response.context[-1]['dissertations'].count(), 0)
 
     def test_search_dissertations_for_manager_9(self):
         self.client.force_login(self.manager.person.user)
         url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"status_search": "COM_SUBMIT"})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
         self.assertEqual(response.context[-1]['dissertations'].count(), 2)
 
     def test_search_dissertations_for_manager_10(self):
         self.client.force_login(self.manager.person.user)
         url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "test_offer"})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
         self.assertEqual(response.context[-1]['dissertations'].count(), 8)
+        self.assertCountEqual(response.context[-1]['dissertations'], [self.dissertation_1] +
+                              [self.dissertation_test_email] + self.dissertations_list)
 
     def test_search_dissertations_for_manager_11(self):
         self.client.force_login(self.manager.person.user)
         url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "Durant"})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
         self.assertEqual(response.context[-1]['dissertations'].count(), 8)
+        self.assertCountEqual(response.context[-1]['dissertations'], [self.dissertation_1] +
+                              [self.dissertation_test_email] + self.dissertations_list)
 
     def test_search_dissertations_for_manager_12(self):
         self.client.force_login(self.manager.person.user)
         url = reverse('manager_dissertations_search')
         response = self.client.get(url, data={"search": "Dupont"})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTP_OK)
         self.assertEqual(response.context[-1]['dissertations'].count(), 8)
+        self.assertCountEqual(response.context[-1]['dissertations'], [self.dissertation_1] +
+                              [self.dissertation_test_email] + self.dissertations_list)
 
     def test_adviser_can_manage_dissertation(self):
         manager = AdviserManagerFactory()
@@ -268,91 +281,103 @@ class DissertationViewTestCase(TestCase):
         self.assertEqual(adviser_can_manage(dissertation, manager2), False)
         self.assertEqual(adviser_can_manage(dissertation, teacher), False)
 
-    def test_email_dissert(self):
-        # Order is important for keep good Dissertation.status
-        self.t_email_new_dissert()
-        self.t_email_new_dissert_refuse()
-        self.t_email_new_dissert_accept()
-        self.t_email_dissert_commission_refuse()
-        self.t_email_dissert_commission_accept()
-        self.t_email_dissert_acknowledgement()
-
-    def t_email_new_dissert(self):
+    def test_email_new_dissert(self):
         self.client.force_login(self.manager.person.user)
-        count_messages_before_status_change = len(message_history.find_my_messages(self.teacher.person.id))
+        count_messages_before_status_change = message_history.find_my_messages(self.teacher.person.id).count()
+        self.dissertation_test_email.status = 'DRAFT'
         self.dissertation_test_email.go_forward()
         message_history_result = message_history.find_my_messages(self.teacher.person.id)
         self.assertEqual(count_messages_before_status_change + 1, len(message_history_result))
-        self.assertNotEqual(
-            message_template.find_by_reference('dissertation_adviser_new_project_dissertation_txt'),
-            None)
-        self.assertNotEqual(
-            message_template.find_by_reference('dissertation_adviser_new_project_dissertation_html'),
-            None)
-        assert 'Vous avez reçu une demande d\'encadrement de mémoire' in message_history_result.last().subject
+        self.assertIsNotNone(message_template.find_by_reference('dissertation_adviser_new_project_dissertation_txt'))
+        self.assertIsNotNone(message_template.find_by_reference('dissertation_adviser_new_project_dissertation_html'))
+        self.assertIn('Vous avez reçu une demande d\'encadrement de mémoire', message_history_result.last().subject)
 
-    def t_email_new_dissert_refuse(self):
-        count_messages_before_status_change = len(
-            message_history.find_my_messages(self.dissertation_test_email.author.person.id))
+    def test_email_new_dissert_refuse(self):
+        count_messages_before_status_change = message_history.find_my_messages(
+                                            self.dissertation_test_email.author.person.id).count()
+        self.dissertation_test_email.status = 'DIR_SUBMIT'
         self.dissertation_test_email.refuse()
         message_history_result = message_history.find_my_messages(self.dissertation_test_email.author.person.id)
         self.assertEqual(count_messages_before_status_change + 1, len(message_history_result))
-        assert 'Votre projet de mémoire n\'a pas été validé par votre promoteur' in \
-               message_history_result.last().subject
+        self.assertIn('Votre projet de mémoire n\'a pas été validé par votre promoteur',
+                      message_history_result.last().subject)
 
-    def t_email_new_dissert_accept(self):
-        count_messages_before_status_change = len(
-            message_history.find_my_messages(self.dissertation_test_email.author.person.id))
+    def test_email_new_dissert_accept(self):
+        count_messages_before_status_change = message_history.find_my_messages(
+            self.dissertation_test_email.author.person.id).count()
+        self.dissertation_test_email.status = 'DIR_SUBMIT'
         self.dissertation_test_email.go_forward()
         self.dissertation_test_email.manager_accept()
         message_history_result_after = message_history.find_my_messages(self.dissertation_test_email.author.person.id)
-        assert 'Votre projet de mémoire est validé par votre promoteur' in message_history_result_after.last().subject
+        self.assertIn('Votre projet de mémoire est validé par votre promoteur', message_history_result_after.last().subject)
         self.assertEqual(count_messages_before_status_change + 1, len(message_history_result_after))
 
-    def t_email_dissert_commission_refuse(self):
-        count_message_history_result_author = len(
-            message_history.find_my_messages(self.dissertation_test_email.author.person.id))
-        count_message_history_result_promoteur = len(message_history.find_my_messages(
+    def test_email_dissert_commission_refuse(self):
+        count_message_history_result_author = message_history.\
+            find_my_messages(self.dissertation_test_email.author.person.id).count()
+        count_message_history_result_promotor = len(message_history.find_my_messages(
             self.teacher.person.id))
+        self.dissertation_test_email.status = 'COM_SUBMIT'
         self.dissertation_test_email.refuse()
         message_history_result_author_after_change = message_history.find_my_messages(
             self.dissertation_test_email.author.person.id)
-        message_history_result_promoteur_after_change = message_history.find_my_messages(self.teacher.person.id)
+        message_history_result_promotor_after_change = message_history.find_my_messages(self.teacher.person.id)
         self.assertEqual(count_message_history_result_author + 1, len(message_history_result_author_after_change))
-        self.assertEqual(count_message_history_result_promoteur + 1, len(message_history_result_promoteur_after_change))
-        assert 'La commission Mémoires n\'a pas validé le projet de mémoire' in \
-               message_history_result_promoteur_after_change.last().subject
-        assert 'La commission Mémoires n\'a pas validé votre projet de mémoire' in \
-               message_history_result_author_after_change.last().subject
+        self.assertEqual(count_message_history_result_promotor + 1, len(message_history_result_promotor_after_change))
+        self.assertIn('La commission Mémoires n\'a pas validé le projet de mémoire',
+                      message_history_result_promotor_after_change.last().subject)
+        self.assertIn('La commission Mémoires n\'a pas validé votre projet de mémoire',
+                      message_history_result_author_after_change.last().subject)
 
-    def t_email_dissert_commission_accept(self):
-        count_message_history_result_author = len(
-            message_history.find_my_messages(self.dissertation_test_email.author.person.id))
-        count_message_history_result_promoteur = len(message_history.find_my_messages(
+    def test_email_dissert_commission_accept_1(self):
+        count_message_history_result_author = message_history.\
+            find_my_messages(self.dissertation_test_email.author.person.id).count()
+        count_message_history_result_promotor = len(message_history.find_my_messages(
             self.teacher.person.id))
+        self.dissertation_test_email.status = 'COM_SUBMIT'
         self.dissertation_test_email.manager_accept()
-        self.offer_proposition1.global_email_to_commission = False
         message_history_result_author_after_change = message_history.find_my_messages(
             self.dissertation_test_email.author.person.id)
-        message_history_result_promoteur_after_change = message_history.find_my_messages(self.teacher.person.id)
+        message_history_result_promotor_after_change = message_history.find_my_messages(self.teacher.person.id)
         self.assertEqual(count_message_history_result_author + 1, len(message_history_result_author_after_change))
-        self.assertEqual(count_message_history_result_promoteur + 1, len(message_history_result_promoteur_after_change))
-        assert 'La commission Mémoires a accepté le projet de Mémoire :' in \
-               message_history_result_promoteur_after_change.last().subject
-        assert 'La commission Mémoires a accepté votre projet de mémoire' in \
-               message_history_result_author_after_change.last().subject
+        self.assertEqual(count_message_history_result_promotor + 1, len(message_history_result_promotor_after_change))
+        self.assertIn('La commission Mémoires a accepté le projet de Mémoire :',
+                      message_history_result_promotor_after_change.last().subject)
+        self.assertIn('La commission Mémoires a accepté votre projet de mémoire',
+                      message_history_result_author_after_change.last().subject)
 
-    def t_email_dissert_acknowledgement(self):
-        count_message_history_author = len(
-            message_history.find_my_messages(self.dissertation_test_email.author.person.id))
+    def test_email_dissert_commission_accept_2(self):
+        dissert = DissertationFactory(author=self.student,
+                                      title='Dissertation_test_email',
+                                      offer_year_start=self.offer_year_start2,
+                                      proposition_dissertation=self.proposition_dissertation,
+                                      status='COM_SUBMIT',
+                                      active=True,
+                                      dissertation_role__adviser=self.teacher,
+                                      dissertation_role__status='PROMOTEUR')
+        count_message_history_result_author = \
+            message_history.find_my_messages(dissert.author.person.id).count()
+        count_message_history_result_promotor = \
+            message_history.find_my_messages(self.teacher.person.id).count()
+        dissert.manager_accept()
+        message_history_result_author_after_change = message_history.find_my_messages(
+            dissert.author.person.id)
+        message_history_result_promotor_after_change = message_history.find_my_messages(self.teacher.person.id)
+        self.assertEqual(count_message_history_result_author + 1, len(message_history_result_author_after_change))
+        self.assertEqual(count_message_history_result_promotor, len(message_history_result_promotor_after_change))
+        self.assertIn('La commission Mémoires a accepté votre projet de mémoire',
+                      message_history_result_author_after_change.last().subject)
+
+    def test_email_dissert_acknowledgement(self):
+        count_message_history_author = message_history.\
+            find_my_messages(self.dissertation_test_email.author.person.id).count()
         self.dissertation_test_email.status = 'TO_RECEIVE'
         self.dissertation_test_email.go_forward()
         message_history_result_author_after_change = message_history.find_my_messages(
             self.dissertation_test_email.author.person.id)
         count_message_history_result_author = len(message_history_result_author_after_change)
         self.assertEqual(count_message_history_author + 1, count_message_history_result_author)
-        assert 'bien été réceptionné' in \
-               message_history_result_author_after_change.last().subject
+        self.assertIn('bien été réceptionné', message_history_result_author_after_change.last().subject)
 
     def test_get_all_advisers(self):
         res = adviser.find_all_advisers()
@@ -407,7 +432,7 @@ class DissertationViewTestCase(TestCase):
             url = "/dissertation/manager_dissertations_role_delete_by_ajax/{role}"
             response2 = self.client.get(url.format(role=str(element.id)))
             self.assertEqual(response2.status_code, HTTP_OK)
-            self.assertEqual(dissertation_role.count_by_dissertation(self.dissertation_1), dissert_role_count-1)
+            self.assertEqual(dissertation_role.count_by_dissertation(self.dissertation_1), dissert_role_count - 1)
 
     def test_manager_dissert_wait_comm_jsonlist(self):
         self.client.force_login(self.manager.person.user)

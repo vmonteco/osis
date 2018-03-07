@@ -101,7 +101,7 @@ class Dissertation(SerializableModel):
         if self.status == 'TO_RECEIVE' and next_status == 'TO_DEFEND':
             emails_dissert.send_email(self, 'dissertation_acknowledgement', [self.author])
         if (self.status == 'DRAFT' or self.status == 'DIR_KO') and next_status == 'DIR_SUBMIT':
-            emails_dissert.send_email_to_all_promoteurs(self,'dissertation_adviser_new_project_dissertation')
+            emails_dissert.send_email_to_all_promotors(self, 'dissertation_adviser_new_project_dissertation')
 
         self.set_status(next_status)
 
@@ -111,7 +111,7 @@ class Dissertation(SerializableModel):
         elif self.status == 'COM_SUBMIT' or self.status == 'COM_KO':
             next_status = get_next_status(self, "accept")
             emails_dissert.send_email(self, 'dissertation_accepted_by_com', [self.author])
-            if offer_proposition.get_by_offer(self.offer_year_start.offer).global_email_to_commission:
+            if offer_proposition.get_by_offer(self.offer_year_start.offer).global_email_to_commission is True:
                 emails_dissert.send_email_to_jury_members(self)
             self.set_status(next_status)
         elif self.status == 'EVA_SUBMIT' or self.status == 'EVA_KO' or self.status == 'DEFENDED':
@@ -130,7 +130,7 @@ class Dissertation(SerializableModel):
             emails_dissert.send_email(self, 'dissertation_refused_by_teacher', [self.author])
         if self.status == 'COM_SUBMIT':
             emails_dissert.send_email(self, 'dissertation_refused_by_com_to_student', [self.author])
-            emails_dissert.send_email_to_all_promoteurs(self, 'dissertation_refused_by_com_to_teacher')
+            emails_dissert.send_email_to_all_promotors(self, 'dissertation_refused_by_com_to_teacher')
         self.set_status(next_status)
 
     class Meta:

@@ -176,12 +176,8 @@ def get_promoteur_by_dissertation(dissert):
         return 'none'
 
 
-def find_all_promoteur_by_dissertation(dissert):
-    promoteurs = search_by_dissertation_and_role(dissert, 'PROMOTEUR')
-    returned = None
-    if promoteurs:
-        returned = promoteurs
-    return returned
+def find_all_promotor_by_dissertation(dissert):
+    return search_by_dissertation_and_role(dissert, 'PROMOTEUR')
 
 
 def get_copromoteur_by_dissertation(dissert):
