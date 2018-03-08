@@ -23,10 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
+
 from django.forms import formset_factory
 from django.test import RequestFactory, TestCase, Client
 
+from base.models import academic_year
 from assistant.forms import ReviewersFormset
+from base.tests.factories.academic_year import AcademicYearFactory
 from assistant.tests.factories.manager import ManagerFactory
 from assistant.tests.factories.reviewer import ReviewerFactory
 from assistant.views.reviewers_management import reviewer_delete
@@ -42,6 +46,10 @@ class ReviewersManagementViewTestCase(TestCase):
         self.reviewer = ReviewerFactory()
         self.reviewer2 = ReviewerFactory()
         self.formset = formset_factory(ReviewersFormset)
+        today = datetime.date.today()
+        self.current_academic_year = AcademicYearFactory(start_date=today,
+                                                         end_date=today.replace(year=today.year + 1),
+                                                         year=today.year)
 
     def test_reviewer_delete(self):
         self.person = self.reviewer.person
@@ -53,6 +61,17 @@ class ReviewersManagementViewTestCase(TestCase):
         self.assertFalse(find_by_person(self.person))
         self.assertTrue(find_by_person(self.reviewer2.person))
         #self.assertEqual(response.status_code, HTTP_OK)
+
+    def test_reviewer_add(self):
+        self.person = self.manager.person
+        self.client.force_login(self.person.user)
+        response = self.client.post('/assistants/manager/reviewers/add/', {'entity': self.reviewer.entity,
+                                                                          'role': self.reviewer.role,
+                                                                          'person_id': 25
+                                                                          })
+        self.assertEqual(response.status_code, HTTP_OK)
+
+
 
 
 
