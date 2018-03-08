@@ -554,7 +554,7 @@ class TestLearningUnitProposalSearch(TestCase):
         formset = context['proposals']
         setattr(request, '_messages', FallbackStorage(request))
 
-        proposals_candidate_to_cancellation = ProposalRowForm.get_checked_proposals(formset)
+        proposals_candidate_to_cancellation = formset.get_checked_proposals()
         self.assertEqual(len(proposals_candidate_to_cancellation), 2)
 
     @mock.patch('base.views.layout.render')
@@ -565,7 +565,7 @@ class TestLearningUnitProposalSearch(TestCase):
         formset = context['proposals']
         setattr(request, '_messages', FallbackStorage(request))
 
-        proposals_candidate_to_cancellation = ProposalRowForm.get_checked_proposals(formset)
+        proposals_candidate_to_cancellation = formset.get_checked_proposals()
         self.assertEqual(len(proposals_candidate_to_cancellation), 0)
 
     def get_data(self, action=None):

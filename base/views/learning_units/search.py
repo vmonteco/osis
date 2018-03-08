@@ -135,7 +135,7 @@ def is_get_back_to_initial_action(formset):
 
 
 def _go_back_to_initial_data(formset, request):
-    proposals_candidate_to_cancellation = ProposalRowForm.get_checked_proposals(formset)
+    proposals_candidate_to_cancellation = formset.get_checked_proposals()
     if proposals_candidate_to_cancellation:
         if not check_proposals_valid_to_get_back_to_initial(proposals_candidate_to_cancellation):
             display_error_messages(request, _("error_proposal_suppression_to_initial"))
