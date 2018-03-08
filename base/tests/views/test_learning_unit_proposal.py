@@ -66,9 +66,8 @@ from base.tests.factories.proposal_folder import ProposalFolderFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.views.learning_unit_proposal import edit_learning_unit_proposal
 from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search, \
-    is_get_back_to_initial_action, cancel_list_of_proposal
+    is_get_back_to_initial_action, _cancel_list_of_proposal
 from reference.tests.factories.language import LanguageFactory
-from base.forms.proposal.learning_unit_proposal import ProposalRowForm
 
 LABEL_VALUE_BEFORE_PROPROSAL = _('value_before_proposal')
 
@@ -524,7 +523,6 @@ class TestLearningUnitProposalSearch(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         formset = context['proposals']
-
         self.assertTrue(is_get_back_to_initial_action(formset))
 
     @mock.patch('base.views.layout.render')
@@ -538,17 +536,17 @@ class TestLearningUnitProposalSearch(TestCase):
 
     @mock.patch('base.views.layout.render')
     def test_cancel_list_of_proposal(self, mock_render):
-        request = self.get_request(self.get_data('forced_state'))
+        self.get_request(self.get_data('forced_state'))
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         formset = context['proposals']
         setattr(request, '_messages', FallbackStorage(request))
-        self.assertEqual(cancel_list_of_proposal(formset, None, request), formset)
+        self.assertEqual(_cancel_list_of_proposal(formset, None, request), formset)
 
     @mock.patch('base.views.layout.render')
     def test_get_checked_proposals(self, mock_render):
-        request = self.get_request(self.get_data())
+        self.get_request(self.get_data())
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         formset = context['proposals']
@@ -559,7 +557,7 @@ class TestLearningUnitProposalSearch(TestCase):
 
     @mock.patch('base.views.layout.render')
     def test_get_no_checked_proposals(self, mock_render):
-        request = self.get_request(self.get_data_not_checked())
+        self.get_request(self.get_data_not_checked())
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         formset = context['proposals']
@@ -756,8 +754,8 @@ def _test_entities_equal(learning_container_year, entities_values_dict):
             learning_container_year, type_entity)
         if entities_values_dict[type_entity] is None and linked_entity_container is not None:
             return False
-        if entities_values_dict[type_entity] is not None and \
-                        linked_entity_container.entity.id != entities_values_dict[type_entity]:
+        if entities_values_dict[type_entity] is not None \
+                and linked_entity_container.entity.id != entities_values_dict[type_entity]:
             return False
     return True
 

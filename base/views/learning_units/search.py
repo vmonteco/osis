@@ -38,7 +38,7 @@ from base.models.academic_year import current_academic_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.views import layout
 from base.views.common import check_if_display_message, display_error_messages, display_success_messages
-from base.business.learning_unit_proposal import check_proposals_valid_to_get_back_to_initial, cancel_proposals
+from base.business import learning_unit_proposal as proposal_business
 
 PROPOSAL_SEARCH = 3
 
@@ -134,18 +134,18 @@ def is_get_back_to_initial_action(formset):
 def _go_back_to_initial_data(formset, request):
     proposals_candidate_to_cancellation = formset.get_checked_proposals()
     if proposals_candidate_to_cancellation:
-        if not check_proposals_valid_to_get_back_to_initial(proposals_candidate_to_cancellation):
+        if not proposal_business.check_proposals_valid_to_get_back_to_initial(proposals_candidate_to_cancellation):
             display_error_messages(request, _("error_proposal_suppression_to_initial"))
         else:
-            formset = cancel_list_of_proposal(formset, proposals_candidate_to_cancellation, request)
+            formset = _cancel_list_of_proposal(formset, proposals_candidate_to_cancellation, request)
     else:
         _build_no_data_error_message(request)
     return formset
 
 
-def cancel_list_of_proposal(formset, proposals_to_cancel, request):
+def _cancel_list_of_proposal(formset, proposals_to_cancel, request):
     if proposals_to_cancel:
-        cancel_proposals(proposals_to_cancel)
+        proposal_business.cancel_proposals(proposals_to_cancel)
         display_success_messages(request, _("proposal_edited_successfully"))
         formset = None
     else:

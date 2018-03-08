@@ -25,8 +25,6 @@
 ##############################################################################
 import datetime
 
-from django.test import TestCase
-
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory

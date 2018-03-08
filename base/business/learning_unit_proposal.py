@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
-from base.models import entity_container_year, campus, entity, entity_version
+from base.models import entity_container_year, campus, entity
 from base.models.enums import proposal_type, entity_container_year_link_type
 from base.models.enums.proposal_type import ProposalType
 from base.models.proposal_learning_unit import find_by_folder, ProposalLearningUnit
@@ -266,7 +266,7 @@ def _get_rid_of_blank_value(data):
 
 
 def check_proposals_valid_to_get_back_to_initial(proposals_to_cancel):
-    return all(proposal.type != ProposalType.SUPPRESSION.name for proposal in proposals_to_cancel)
+    return all(proposal if proposal.type == ProposalType.SUPPRESSION.name else None for proposal in proposals_to_cancel)
 
 
 def cancel_proposal(learning_unit_year):
