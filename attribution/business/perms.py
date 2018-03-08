@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,30 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import uuid
-from copy import copy
+from base.models.learning_unit_year import LearningUnitYear
 
 
-def update_instance_model_from_data(instance, fields_to_update, exclude=()):
-    fields_to_update_without_excluded = {field: value for field, value in fields_to_update.items()
-                                         if field not in exclude}
-    for field, value in fields_to_update_without_excluded.items():
-        if hasattr(instance.__class__, field):
-            setattr(instance, field, value)
-    instance.save()
-
-
-def update_related_object(obj, attribute_name, new_value):
-    duplicated_obj = duplicate_object(obj)
-    setattr(duplicated_obj, attribute_name, new_value)
-    duplicated_obj.save()
-    return duplicated_obj
-
-
-def duplicate_object(obj):
-    new_obj = copy(obj)
-    new_obj.pk = None
-    new_obj.external_id = None
-    new_obj.uuid = uuid.uuid4()
-    new_obj.copied_from = obj
-    return new_obj
+def can_user_edit_educational_information(user, learning_unit_year_id):
+    return LearningUnitYear.objects.filter(pk=learning_unit_year_id, summary_editable=True,
+                                           attribution__summary_responsible=True,
+                                           attribution__tutor__person__user=user).exists()

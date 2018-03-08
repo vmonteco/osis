@@ -102,7 +102,7 @@ class TestSearchCases(TestCase):
         results = proposal_learning_unit.search(folder_id=self.a_proposal_folder.folder_id)
         self.check_search_result(results)
 
-    def test_search_by_proposal_state(self):
+    def test_search_by_entity_folder(self):
         results = proposal_learning_unit.search(entity_folder_id=self.a_proposal_folder.entity.id)
         self.check_search_result(results)
 

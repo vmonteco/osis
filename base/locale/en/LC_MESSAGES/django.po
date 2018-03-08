@@ -2222,7 +2222,7 @@ msgid "The learning unit %(acronym)s is related to the internship speciality %(s
 msgstr ""
 
 msgid "lu_included_in_group"
-msgstr "%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s"
+msgstr "%(subtype)s %(acronym)s is included in the group %(group)s for the year %(year)s"
 
 msgid "%(subtype)s %(acronym)s has been deleted for the year %(year)s"
 msgstr ""
@@ -2482,9 +2482,6 @@ msgstr "Procedure"
 msgid "educational_information_management"
 msgstr "Management of educational information"
 
-msgid "resume_edit"
-msgstr "Edit course summary"
-
 msgid "SUMMARY_COURSE_SUBMISSION"
 msgstr "Summary course submission"
 
@@ -2563,7 +2560,7 @@ msgstr "An error occured when updating the learning unit."
 msgid "cannot_set_internship_subtype_for_type_other_than_internship"
 msgstr "Internship subtype cannot bet set for learning unit type other than internship."
 
-msgid "%(subtype)s %(acronym)s is in proposal"
+msgid "%(subtype)s %(acronym)s is in proposal for the year %(year)s"
 msgstr ""
 
 msgid "volume_have_more_than_2_decimal_places"
@@ -2623,6 +2620,9 @@ msgstr "Do you want to change the status of this proposals?"
 msgid "are_you_sure_to_change_state_from"
 msgstr "Are you sure to change the state from"
 
+msgid "learning_unit_in_proposal_cannot_save"
+msgstr "The learning unit %(luy)s is in proposal, can not save the change from the year %(academic_year)s"
+
 msgid "by"
 msgstr "By"
 
@@ -2643,3 +2643,6 @@ msgstr "An error occured when getting back to initial state one of the selected 
 
 msgid "error_proposal_no_data"
 msgstr "An error occured when getting back to initial state. No valid data to submit"
+
+msgid "msg_confirm_delete_luy"
+msgstr "Are you certain that you want to delete the learning unit ?"

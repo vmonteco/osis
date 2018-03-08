@@ -35,6 +35,7 @@ from base.models.academic_year import current_academic_year
 from base.models.enums import active_status
 from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
+from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.group_element_year import GroupElementYear
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
@@ -96,7 +97,7 @@ class LearningUnitYear(AuditableSerializableModel):
 
     @property
     def parent(self):
-        if self.subdivision and self.subtype == learning_unit_year_subtypes.PARTIM:
+        if self.subdivision and self.is_partim():
             return LearningUnitYear.objects.filter(
                 subtype=learning_unit_year_subtypes.FULL,
                 learning_container_year=self.learning_container_year,
@@ -134,7 +135,7 @@ class LearningUnitYear(AuditableSerializableModel):
         return ''
 
     def get_partims_related(self):
-        if self.subtype == learning_unit_year_subtypes.FULL and self.learning_container_year:
+        if self.is_full() and self.learning_container_year:
             return self.learning_container_year.get_partims_related()
         return LearningUnitYear.objects.none()
 
@@ -167,6 +168,27 @@ class LearningUnitYear(AuditableSerializableModel):
 
     def is_past(self):
         return self.academic_year.year < current_academic_year().year
+
+    def can_update_by_faculty_manager(self):
+        result = False
+
+        if not self.learning_container_year:
+            return result
+
+        current_year = current_academic_year().year
+        year = self.academic_year.year
+
+        if self.learning_unit.periodicity == ANNUAL and year <= current_year + 1:
+            result = True
+        elif self.learning_unit.periodicity != ANNUAL and year <= current_year + 2:
+            result = True
+        return result
+
+    def is_full(self):
+        return self.subtype == learning_unit_year_subtypes.FULL
+
+    def is_partim(self):
+        return self.subtype == learning_unit_year_subtypes.PARTIM
 
 
 def get_by_id(learning_unit_year_id):

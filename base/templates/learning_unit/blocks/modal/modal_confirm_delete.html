@@ -1,6 +1,5 @@
-{% extends "layout.html" %}
-{% load staticfiles %}
-{% load i18n %}
+{% extends 'blocks/modal/generic_modal.html' %}
+{% load i18n bootstrap3 %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -25,21 +24,17 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-{% block breadcrumb %}
-<li><a href="{% url 'my_osis' %}" id="lnk_my_osis">{% trans 'my_osis' %}</a></li>
-    <li ><a href="{% url 'profile' %}" id="lnk_profile">{% trans 'profile' %}</a></li>
-    <li class="active">{% trans 'educational_information' %}</li>
-{% endblock %}
+{% block modal_id %}modalDeleteLuy{% endblock %}
 
-{% block content %}
-    <div class="panel panel-default">
-        <div class="panel-body">
-        {% url 'learning_unit_summary_edit' learning_unit_year_id=learning_unit_year.id as post_url%}
-        {% include "learning_unit/blocks/panel_educational_informations.html" with can_edit_information=True %}
-        </div>
-    </div>
-    <div class="modal fade" id="pedagogy_edit" role="dialog" data-backdrop="static"></div>
-{% endblock %}
-{% block script %}
-    <script src="{% static 'js/pedagogy_modal.js' %}"></script>
+{% block modal_content %}
+    <form method="POST" action="{% url 'learning_unit_delete_all' learning_unit_year_id=learning_unit_year.id %}">
+        {% csrf_token %}
+        <div class="modal-body">
+            {% trans "msg_confirm_delete_luy" %}
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "cancel" %}</button>
+            <button type="submit" class="btn btn-danger">{% trans "confirm" %}</button>
+         </div>
+    </form>
 {% endblock %}
