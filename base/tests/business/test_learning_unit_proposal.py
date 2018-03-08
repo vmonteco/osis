@@ -84,12 +84,6 @@ class TestLearningUnitProposalChecks(TestCase):
         self.assertFalse(lu_proposal_business.check_proposals_valid_to_get_back_to_initial([self.proposal_modification,
                                                                                             self.proposal_creation]))
 
-    def test_get_valid_proposal_for_cancellation(self):
-        self.assertEqual(len(lu_proposal_business.get_valid_proposal_for_cancellation([self.proposal_suppression])), 1)
-        self.assertCountEqual(lu_proposal_business.get_valid_proposal_for_cancellation([self.proposal_suppression]),
-                              [self.proposal_suppression])
-        self.assertEqual(len(lu_proposal_business.get_valid_proposal_for_cancellation([self.proposal_creation])), 0)
-
 
 class TestLearningUnitProposalCancel(TestCase):
     def setUp(self):

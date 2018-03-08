@@ -38,8 +38,7 @@ from base.models.academic_year import current_academic_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.views import layout
 from base.views.common import check_if_display_message, display_error_messages, display_success_messages
-from base.business.learning_unit_proposal import check_proposals_valid_to_get_back_to_initial, \
-    get_valid_proposal_for_cancellation, cancel_proposals
+from base.business.learning_unit_proposal import check_proposals_valid_to_get_back_to_initial, cancel_proposals
 
 PROPOSAL_SEARCH = 3
 
@@ -141,8 +140,7 @@ def _go_back_to_initial_data(formset, request):
         if not check_proposals_valid_to_get_back_to_initial(proposals_candidate_to_cancellation):
             display_error_messages(request, _("error_proposal_suppression_to_initial"))
         else:
-            proposals_to_cancel = get_valid_proposal_for_cancellation(proposals_candidate_to_cancellation)
-            formset = cancel_list_of_proposal(formset, proposals_to_cancel, request)
+            formset = cancel_list_of_proposal(formset, proposals_candidate_to_cancellation, request)
     else:
         _build_no_data_error_message(request)
     return formset

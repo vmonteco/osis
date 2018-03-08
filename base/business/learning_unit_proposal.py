@@ -270,14 +270,6 @@ def check_proposals_valid_to_get_back_to_initial(proposals_to_cancel):
     return True
 
 
-def get_valid_proposal_for_cancellation(proposals):
-    valid_proposal_to_cancel = []
-    for proposal in proposals:
-        if proposal.type == proposal_type.ProposalType.SUPPRESSION.name:
-            valid_proposal_to_cancel.append(proposal)
-    return valid_proposal_to_cancel
-
-
 def cancel_proposal(learning_unit_year):
     learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learning_unit_year)
     reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year)
