@@ -59,7 +59,7 @@ from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
     PARTIM_FORM_READ_ONLY_FIELD
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, SummaryEditableModelForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import proposal_learning_unit, entity_container_year
 from base.models.enums import learning_unit_year_subtypes
@@ -68,6 +68,7 @@ from base.models.learning_container import LearningContainer
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, LEARNING_UNIT_ACRONYM_REGEX_FULL
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
+from base.views.common import display_success_messages, display_error_messages
 from base.views.learning_units import perms
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
@@ -128,6 +129,18 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
     context['form_french'] = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_FR)
     context['form_english'] = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_EN)
     context['experimental_phase'] = True
+
+    summary_editable_form = SummaryEditableModelForm(request.POST or None, instance=learning_unit_year)
+    if summary_editable_form.is_valid():
+        try:
+            summary_editable_form.save()
+            display_success_messages(request, _("Summary editable updated"))
+            return HttpResponseRedirect(reverse('learning_unit_pedagogy', args=[learning_unit_year_id]))
+
+        except ValueError as e:
+            display_error_messages(request, e.args[0])
+
+    context['summary_editable_form'] = summary_editable_form
     return layout.render(request, "learning_unit/pedagogy.html", context)
 
 
