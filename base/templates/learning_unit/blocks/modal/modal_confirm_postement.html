@@ -1,6 +1,5 @@
-{% extends "layout.html" %}
-{% load staticfiles %}
-{% load i18n %}
+{% extends 'blocks/modal/generic_modal.html' %}
+{% load i18n bootstrap3 %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -25,21 +24,22 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-{% block breadcrumb %}
-{% include "learning_unit/breadcrumb.html" %}
+{% block modal_id %}modalPostponementLuy{% endblock %}
+
+{% block modal_header %}
+
 {% endblock %}
 
-{% block content %}
+{% block modal_body %}
+        {% csrf_token %}
+        <div class="modal-body">
+            {% trans "msg_confirm_delete_luy" %}
+         </div>
+{% endblock modal_body %}
+{% block modal_footer %}
+    <form method="POST" id="id_form" action="{% url 'learning_unit_delete_all' learning_unit_year_id=learning_unit_year.id %}">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "cancel" %}</button>
+        {% bootstrap_button _("confirm") button_type="submit" button_class="btn-danger" %}
+    </form>
 
-{% include "learning_unit/blocks/header.html" %}
-<div class="panel panel-default" >
-    <div class="panel-body" id="tabs" >
-        {% include "learning_unit/blocks/tabs.html" %}
-
-        <div class="tab-content" id="tab_content">
-            <div role="tabpanel" class="tab-pane active" id="formations">
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
+{% endblock modal_footer %}

@@ -52,7 +52,7 @@ from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.user import UserFactory, SuperUserFactory
 from base.tests.forms.test_edition_form import get_valid_formset_data
-from base.views.learning_units.edition import learning_unit_edition_end_date, learning_unit_volumes_management
+from base.views.learning_units.update import learning_unit_edition_end_date, learning_unit_volumes_management
 
 
 class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
@@ -82,7 +82,7 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         self.a_superperson = PersonFactory(user=self.a_superuser)
 
     def test_view_learning_unit_edition_permission_denied(self):
-        from base.views.learning_units.edition import learning_unit_edition_end_date
+        from base.views.learning_units.update import learning_unit_edition_end_date
 
         response = self.client.get(reverse(learning_unit_edition_end_date, args=[self.learning_unit_year.id]))
         self.assertEqual(response.status_code, 403)

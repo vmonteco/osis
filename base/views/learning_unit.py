@@ -41,7 +41,6 @@ from django.views.decorators.http import require_http_methods, require_POST, req
 
 from attribution.business import attribution_charge_new
 from base import models as mdl
-from base import models as mdl_base
 from base.business.learning_unit import get_cms_label_data, \
     get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
@@ -86,7 +85,7 @@ def get_common_context_learning_unit_year(learning_unit_year_id, person):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     return {
         'learning_unit_year': learning_unit_year,
-        'current_academic_year': mdl_base.academic_year.current_academic_year(),
+        'current_academic_year': mdl.academic_year.current_academic_year(),
         'is_person_linked_to_entity': person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
     }
 

@@ -83,7 +83,7 @@ def delete_from_given_learning_unit_year(request, learning_unit_year_id):
             context = {'title': _("msg_warning_delete_learning_unit") % learning_unit_year,
                        'learning_units_to_delete': learning_units_to_delete}
 
-        return layout.render(request, "learning_unit/deletion.html", context)
+        return layout.render(request, "learning_unit/confirm_delete.html", context)
 
 
 @login_required
