@@ -60,7 +60,7 @@ def create_string_list_commission_reading(dissert):
     return ' - '.join(
         ['{adv.first_name} {adv.last_name} ({status})'.format(adv=member_commission.adviser.person,
                                                               status=translating(member_commission.status))
-                       for member_commission in commission_to_read])
+         for member_commission in commission_to_read])
 
 
 def get_commission_template(dissert):

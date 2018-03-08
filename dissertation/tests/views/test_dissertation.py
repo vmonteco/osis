@@ -347,6 +347,23 @@ class DissertationViewTestCase(TestCase):
                       message_history_result_author_after_change.last().subject)
 
     def test_email_dissert_commission_accept_2(self):
+        count_message_history_result_author = message_history.\
+            find_my_messages(self.dissertation_test_email.author.person.id).count()
+        count_message_history_result_promotor = len(message_history.find_my_messages(
+            self.teacher.person.id))
+        self.dissertation_test_email.status = 'COM_SUBMIT'
+        self.dissertation_test_email.manager_accept()
+        message_history_result_author_after_change = message_history.find_my_messages(
+            self.dissertation_test_email.author.person.id)
+        message_history_result_promotor_after_change = message_history.find_my_messages(self.teacher.person.id)
+        self.assertEqual(count_message_history_result_author + 1, len(message_history_result_author_after_change))
+        self.assertEqual(count_message_history_result_promotor + 1, len(message_history_result_promotor_after_change))
+        self.assertIn('La commission Mémoires a accepté le projet de Mémoire :',
+                      message_history_result_promotor_after_change.last().subject)
+        self.assertIn('La commission Mémoires a accepté votre projet de mémoire',
+                      message_history_result_author_after_change.last().subject)
+
+    def test_email_dissert_commission_accept_3(self):
         dissert = DissertationFactory(author=self.student,
                                       title='Dissertation_test_email',
                                       offer_year_start=self.offer_year_start2,
