@@ -128,10 +128,7 @@ def _proposal_management(request, proposals):
 
 
 def is_get_back_to_initial_action(formset):
-    for f in formset:
-        if f.cleaned_data.get('action') == 'back_to_initial':
-            return True
-    return False
+    return any(form.cleaned_data.get('action') == 'back_to_initial' for form in formset)
 
 
 def _go_back_to_initial_data(formset, request):
