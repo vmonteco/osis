@@ -37,7 +37,8 @@ from base.models import academic_year
 from base.models.academic_year import AcademicYear
 from base.models.enums.attribution_procedure import AttributionProcedures
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
-from base.models.enums.learning_container_year_types import INTERNSHIP, DISSERTATION
+from base.models.enums.learning_container_year_types import INTERNSHIP, DISSERTATION, MASTER_THESIS, \
+    LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
 from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.enums.learning_unit_year_subtypes import PARTIM
 from base.models.enums.vacant_declaration_type import VacantDeclarationType
@@ -171,7 +172,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         return self.cleaned_data["requirement_entity"] == self.cleaned_data["allocation_entity"]
 
     def _can_requirement_and_allocation_entities_be_different(self):
-        return self.cleaned_data["container_type"] not in [INTERNSHIP, DISSERTATION]
+        return self.cleaned_data["container_type"] not in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
 
     def _disabled_fields_base_on_learning_unit_year_subtype(self, subtype):
         if subtype == PARTIM:
