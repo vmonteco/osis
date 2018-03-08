@@ -127,6 +127,9 @@ msgstr "Choice"
 msgid "choose_person_as_reviewer_for"
 msgstr "Choose a person as reviewer for"
 
+msgid "columns_title_error"
+msgstr "The cols title are wrong."
+
 msgid "comment"
 msgstr "Comment"
 
@@ -192,6 +195,9 @@ msgstr "Dashboard"
 
 msgid "data_not_saved"
 msgstr "A problem occured, data have not been saved"
+
+msgid "date_format_error"
+msgstr "A date is invalid in the file"
 
 msgid "date_of_first_nomination"
 msgstr "Date of first nomination"
@@ -388,6 +394,9 @@ msgstr "The \"Teaching Units\" must be completed"
 
 msgid "learning_units_description"
 msgstr "Exercises, workshops, seminars - associated with hours of volume 2, which you personally assume"
+
+msgid "line_nbr"
+msgstr " at line number : "
 
 msgid "mandate"
 msgstr "Mandate"
