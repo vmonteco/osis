@@ -195,3 +195,30 @@ class LearningUnitYearTest(TestCase):
         max_credits = find_max_credits_of_related_partims(self.learning_unit_year)
         self.assertEqual(max_credits, None)
 
+    def test_ccomplete_title_when_no_learning_container_year(self):
+        specific_title = 'part 1: Vertebrate'
+
+        luy = LearningUnitYearFactory(specific_title=specific_title, learning_container_year=None)
+        self.assertEqual(luy.complete_title, specific_title)
+
+    def test_complete_title_property_case_common_title_is_empty(self):
+        specific_title = 'part 1: Vertebrate'
+
+        luy = LearningUnitYearFactory(specific_title=specific_title, learning_container_year__common_title='')
+        self.assertEqual(luy.complete_title, specific_title)
+
+    def test_complete_title_property_case_specific_title_is_none(self):
+        common_title = 'Zoology'
+
+        luy = LearningUnitYearFactory(specific_title=None, learning_container_year__common_title=common_title)
+        self.assertEqual(luy.complete_title, common_title)
+
+        luy = LearningUnitYearFactory(specific_title='', learning_container_year__common_title=common_title)
+        self.assertEqual(luy.complete_title, common_title)
+
+    def test_complete_title_property_case_common_and_specific_title_are_set(self):
+        specific_title = 'part 1: Vertebrate'
+        common_title = 'Zoology'
+
+        luy = LearningUnitYearFactory(specific_title=specific_title, learning_container_year__common_title=common_title)
+        self.assertEqual(luy.complete_title, '{} {}'.format(common_title, specific_title))
