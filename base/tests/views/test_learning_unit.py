@@ -1410,7 +1410,7 @@ class TestCreateXls(TestCase):
         found_learning_units = a_form.get_activity_learning_units()
         learning_unit_business.create_xls(self.user, found_learning_units)
         xls_data = [[self.learning_unit_year.academic_year.name, self.learning_unit_year.acronym,
-                     self.learning_unit_year.specific_title,
+                     self.learning_unit_year.complete_title,
                      xls_build.translate(self.learning_unit_year.learning_container_year.container_type),
                      xls_build.translate(self.learning_unit_year.subtype), None, None, self.learning_unit_year.credits,
                      xls_build.translate(self.learning_unit_year.status)]]
