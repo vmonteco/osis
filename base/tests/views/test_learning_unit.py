@@ -28,6 +28,7 @@ from decimal import Decimal
 from unittest import mock
 
 import factory.fuzzy
+from django.contrib import messages
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
@@ -41,7 +42,7 @@ from django.utils.translation import ugettext_lazy as _
 import base.business.learning_unit
 from base.business import learning_unit as learning_unit_business
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, SummaryEditableModelForm
 from base.forms.learning_unit_search import SearchForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_units import LearningUnitYearForm
@@ -60,6 +61,7 @@ from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import FACULTY_MANAGER_GROUP
+from base.models.person_entity import PersonEntity
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
 from base.tests.factories.campus import CampusFactory
@@ -79,7 +81,7 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
 from base.views.learning_unit import compute_partim_form_initial_data, _get_post_data_without_read_only_field, \
-    learning_unit_components, learning_class_year_edit
+    learning_unit_components, learning_class_year_edit, learning_unit_pedagogy
 from base.views.learning_units.search import learning_units_service_course
 from cms.enums import entity_name
 from cms.tests.factories.text_label import TextLabelFactory
@@ -1140,6 +1142,93 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_unit/pedagogy.html')
         self.assertIsInstance(context['form_french'], LearningUnitPedagogyForm)
         self.assertIsInstance(context['form_english'], LearningUnitPedagogyForm)
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_unit_pedagogy_summary_editable_form_present(self, mock_render):
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=self.learning_container_yr,
+                                                     summary_editable=True)
+
+        request = self.create_learning_unit_request(learning_unit_year)
+
+        from base.views.learning_unit import learning_unit_pedagogy
+        learning_unit_pedagogy(request, learning_unit_year.id)
+
+        request, template, context = mock_render.call_args[0]
+        self.assertIsInstance(context['summary_editable_form'], SummaryEditableModelForm)
+
+    @mock.patch('base.models.person.Person.is_faculty_manager')
+    def test_learning_unit_pedagogy_summary_editable_update_ok(self, mock_faculty_manager):
+        mock_faculty_manager.return_value = True
+
+        self.client.logout()
+        fac_manager_user = self.a_superuser
+        fac_manager_user.is_staff = False
+        fac_manager_user.is_superuser = False
+        fac_manager_user.refresh_from_db()
+        self.client.force_login(fac_manager_user)
+
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=self.learning_container_yr,
+                                                     summary_editable=True)
+        url = reverse(learning_unit_pedagogy, args=[learning_unit_year.id])
+        request_factory = RequestFactory()
+        request = request_factory.post(url, data={'summary_editable': False})
+
+        request.user = fac_manager_user
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        learning_unit_pedagogy(request, learning_unit_year.id)
+
+        msg = [m.message for m in messages.get_messages(request)]
+        msg_level = [m.level for m in messages.get_messages(request)]
+        self.assertEqual(len(msg), 1)
+        self.assertIn(messages.SUCCESS, msg_level)
+
+        learning_unit_year.refresh_from_db()
+        self.assertFalse(learning_unit_year.summary_editable)
+
+    @mock.patch('base.models.person.Person.is_faculty_manager')
+    def test_learning_unit_pedagogy_summary_editable_cannot_update_entity_not_linked(self, mock_faculty_manager):
+        mock_faculty_manager.return_value = True
+        PersonEntity.objects.filter(person=self.person).delete()
+
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=self.learning_container_yr,
+                                                     summary_editable=True)
+        url = reverse(learning_unit_pedagogy, args=[learning_unit_year.id])
+        request_factory = RequestFactory()
+        request = request_factory.post(url, data={'summary_editable': False})
+
+        request.user = self.a_superuser
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        learning_unit_pedagogy(request, learning_unit_year.id)
+
+        learning_unit_year.refresh_from_db()
+        self.assertTrue(learning_unit_year.summary_editable)
+
+    @mock.patch('base.models.person.Person.is_faculty_manager')
+    def test_learning_unit_pedagogy_summary_editable_cannot_update_not_faculty_manager(self, mock_faculty_manager):
+        mock_faculty_manager.return_value = False
+
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=self.learning_container_yr,
+                                                     summary_editable=True)
+        url = reverse(learning_unit_pedagogy, args=[learning_unit_year.id])
+        request_factory = RequestFactory()
+        request = request_factory.post(url, data={'summary_editable': False})
+
+        request.user = self.a_superuser
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        learning_unit_pedagogy(request, learning_unit_year.id)
+
+        learning_unit_year.refresh_from_db()
+        self.assertTrue(learning_unit_year.summary_editable)
 
     @mock.patch('base.views.layout.render')
     def test_learning_unit_specification(self, mock_render):
