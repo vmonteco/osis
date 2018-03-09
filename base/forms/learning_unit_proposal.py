@@ -84,8 +84,13 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
         folder_entity = self.cleaned_data['folder_entity'].entity
         folder_id = self.cleaned_data['folder_id']
 
-        update_learning_unit_proposal(a_person, folder_entity, folder_id, learning_unit_year, state_proposal,
-                                      type_proposal, initial_data)
+        update_learning_unit_proposal({'person': a_person,
+                                       'folder_entity': folder_entity,
+                                       'folder_id': folder_id,
+                                       'learning_unit_year':learning_unit_year,
+                                       'state_proposal': state_proposal,
+                                       'type_proposal':type_proposal,
+                                       'initial_data': initial_data})
 
 
 class LearningUnitProposalUpdateForm(LearningUnitProposalModificationForm):

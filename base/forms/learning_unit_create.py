@@ -138,15 +138,7 @@ class LearningUnitYearForm(BootstrapForm):
         if 'acronym' in cleaned_data and 'academic_year' in cleaned_data:
             acronym = cleaned_data['acronym']
             academic_year = cleaned_data['academic_year']
-            learning_unit_years = []
-            if academic_year:
-                if self.learning_unit:
-                    learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym)\
-                        .exclude(learning_unit=self.learning_unit)
-                else:
-                    learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym)
-
-            learning_unit_years_list = [learning_unit_year.acronym for learning_unit_year in learning_unit_years]
+            learning_unit_years_list = self.get_existing_acronym_list(academic_year, acronym)
             if acronym in learning_unit_years_list:
                 self.add_error('acronym', _('already_existing_acronym'))
 
@@ -166,6 +158,16 @@ class LearningUnitYearForm(BootstrapForm):
     def __init__(self, *args, **kwargs):
         self.learning_unit = kwargs.pop('learning_unit', None)
         super(LearningUnitYearForm, self).__init__(*args, **kwargs)
+
+    def get_existing_acronym_list(self, academic_year, acronym):
+        learning_unit_years = []
+        if academic_year:
+            if self.learning_unit:
+                learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym) \
+                    .exclude(learning_unit=self.learning_unit)
+            else:
+                learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym)
+        return [learning_unit_year.acronym for learning_unit_year in learning_unit_years]
 
 
 class CreateLearningUnitYearForm(LearningUnitYearForm):

@@ -26,8 +26,15 @@
 from base.models import proposal_folder, proposal_learning_unit
 
 
-def update_learning_unit_proposal(person, folder_entity, folder_id, learning_unit_year, state_proposal,
-                                  type_proposal, initial_data):
+def update_learning_unit_proposal(data):
+    person = data.get('person')
+    folder_entity = data.get('folder_entity')
+    folder_id = data.get('folder_id')
+    learning_unit_year = data.get('learning_unit_year')
+    state_proposal = data.get('state_proposal')
+    type_proposal = data.get('type_proposal')
+    initial_data = data.get('initial_data')
+
     folder, created = proposal_folder.ProposalFolder.objects.get_or_create(entity=folder_entity, folder_id=folder_id)
     data = {"type": type_proposal, "state": state_proposal, "author": person}
     if initial_data:
