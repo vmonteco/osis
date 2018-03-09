@@ -81,15 +81,12 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
             _update_or_delete_entity_container(self.cleaned_data[entity_type.lower()], learning_container_year,
                                                entity_type)
 
-        folder_entity = self.cleaned_data['folder_entity'].entity
-        folder_id = self.cleaned_data['folder_id']
-
         update_learning_unit_proposal({'person': a_person,
-                                       'folder_entity': folder_entity,
-                                       'folder_id': folder_id,
-                                       'learning_unit_year':learning_unit_year,
+                                       'folder_entity': self.cleaned_data['folder_entity'].entity,
+                                       'folder_id': self.cleaned_data['folder_id'],
+                                       'learning_unit_year': learning_unit_year,
                                        'state_proposal': state_proposal,
-                                       'type_proposal':type_proposal,
+                                       'type_proposal': type_proposal,
                                        'initial_data': initial_data})
 
 
