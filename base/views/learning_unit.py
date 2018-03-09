@@ -57,8 +57,7 @@ from base.business.learning_units import perms as business_perms
 from base.business.learning_units.simple.creation import create_learning_unit_year_structure, create_learning_unit
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
-from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
-    PARTIM_FORM_READ_ONLY_FIELD
+from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import proposal_learning_unit, entity_container_year

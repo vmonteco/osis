@@ -36,7 +36,6 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.learning_unit_proposal import compute_proposal_type, reinitialize_data_before_proposal, \
     delete_learning_unit_proposal
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, LearningUnitProposalUpdateForm
-from base.forms.proposal.learning_unit_proposal import ProposalStateModelForm
 from base.models import proposal_learning_unit
 from base.models.enums import proposal_state
 from base.models.learning_unit_year import LearningUnitYear
@@ -57,17 +56,19 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
     user_person = get_object_or_404(Person, user=request.user)
     initial_data = compute_form_initial_data(learning_unit_year)
 
-    if request.method == 'POST':
-        form = LearningUnitProposalModificationForm(request.POST, initial=initial_data)
-        if form.is_valid():
-            type_proposal = compute_proposal_type(initial_data, request.POST)
-            form.save(learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name)
-            messages.add_message(request, messages.SUCCESS,
-                                 _("success_modification_proposal")
-                                 .format(_(type_proposal), learning_unit_year.acronym))
-            return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
+    form = LearningUnitProposalModificationForm(request.POST,
+                                                initial=initial_data,
+                                                learning_unit=learning_unit_year.learning_unit)
+    if form.is_valid():
+        type_proposal = compute_proposal_type(initial_data, request.POST)
+        form.save(learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name, False)
+        messages.add_message(request, messages.SUCCESS,
+                             _("success_modification_proposal")
+                             .format(_(type_proposal), learning_unit_year.acronym))
+        return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
     else:
-        form = LearningUnitProposalModificationForm(initial=initial_data)
+        form = LearningUnitProposalModificationForm(initial=initial_data,
+                                                    learning_unit=learning_unit_year.learning_unit)
 
     return render(request, 'learning_unit/proposal/update.html', {
         'learning_unit_year': learning_unit_year,
@@ -100,12 +101,14 @@ def edit_learning_unit_proposal(request, learning_unit_year_id):
                                                                         datetime.date.today()),
                          "type": proposal.type,
                          "state": proposal.state})
-    proposal_form = LearningUnitProposalUpdateForm(request.POST or None, initial=initial_data)
+    proposal_form = LearningUnitProposalUpdateForm(request.POST or None, initial=initial_data,
+                                                   learning_unit=proposal.learning_unit_year.learning_unit)
+
     if proposal_form.is_valid():
         try:
             type_proposal = compute_proposal_type(initial_data, request.POST)
             proposal_form.save(proposal.learning_unit_year, user_person, type_proposal,
-                               proposal_form.cleaned_data.get("state"))
+                               proposal_form.cleaned_data.get("state"), True)
             display_success_messages(request, _("proposal_edited_successfully"))
             return HttpResponseRedirect(reverse('learning_unit', args=[learning_unit_year_id]))
         except (IntegrityError, ValueError) as e:

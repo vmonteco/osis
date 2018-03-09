@@ -28,7 +28,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
-from base.business.learning_units.proposal.creation import create_learning_unit_proposal
+from base.business.learning_units.proposal.edition import update_learning_unit_proposal
 from base.forms.learning_unit_create import EntitiesVersionChoiceField, LearningUnitYearForm
 from base.models import entity_container_year
 from base.models.entity_version import find_main_entities_version
@@ -58,11 +58,14 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
 
         return cleaned_data
 
-    def save(self, learning_unit_year, a_person, type_proposal, state_proposal):
+    def save(self, learning_unit_year, a_person, type_proposal, state_proposal, update_action):
         if not self.is_valid():
             raise ValueError("Form is invalid.")
 
-        initial_data = _copy_learning_unit_data(learning_unit_year)
+        if update_action:
+            initial_data = None
+        else:
+            initial_data = _copy_learning_unit_data(learning_unit_year)
 
         learning_container_year = learning_unit_year.learning_container_year
 
@@ -81,7 +84,7 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
         folder_entity = self.cleaned_data['folder_entity'].entity
         folder_id = self.cleaned_data['folder_id']
 
-        create_learning_unit_proposal(a_person, folder_entity, folder_id, learning_unit_year, state_proposal,
+        update_learning_unit_proposal(a_person, folder_entity, folder_id, learning_unit_year, state_proposal,
                                       type_proposal, initial_data)
 
 

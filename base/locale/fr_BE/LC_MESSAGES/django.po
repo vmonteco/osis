@@ -2640,3 +2640,6 @@ msgstr "informations pédagogiques modifiables"
 
 msgid "msg_confirm_delete_luy"
 msgstr "Etes-vous certain de vouloir supprimer définitivement cette unité d'enseignement ?"
+
+msgid "already_existing_acronym"
+msgstr "Sigle déjà existant"
