@@ -49,7 +49,7 @@ from base.business.learning_unit import get_cms_label_data, \
     get_all_attributions, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, find_language_in_settings, \
     initialize_learning_unit_pedagogy_form, compute_max_academic_year_adjournment, \
     create_learning_unit_partim_structure, CMS_LABEL_SPECIFICATIONS, \
-    CMS_LABEL_PEDAGOGY
+    CMS_LABEL_PEDAGOGY, can_edit_summary_editable_field
 from base.business.learning_unit_proposal import _get_difference_of_proposal
 from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
@@ -128,12 +128,13 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
     context['form_english'] = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_EN)
     context['experimental_phase'] = True
 
-    can_edit_summary_editable_field = user_person.is_faculty_manager() and context['is_person_linked_to_entity']
+    can_user_edit_summary_editable_field = can_edit_summary_editable_field(user_person,
+                                                                           context['is_person_linked_to_entity'])
     summary_editable_form = SummaryEditableModelForm(request.POST or None, instance=learning_unit_year)
-    summary_editable_form.fields['summary_editable'].disabled = not can_edit_summary_editable_field
+    summary_editable_form.fields['summary_editable'].disabled = not can_user_edit_summary_editable_field
 
     if summary_editable_form.is_valid():
-        if not can_edit_summary_editable_field:
+        if not can_user_edit_summary_editable_field:
             raise PermissionDenied
         try:
             summary_editable_form.save()
@@ -144,7 +145,7 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
             display_error_messages(request, e.args[0])
 
     context['summary_editable_form'] = summary_editable_form
-    context['can_edit_summary_editable_field'] = can_edit_summary_editable_field
+    context['can_edit_summary_editable_field'] = can_user_edit_summary_editable_field
     return layout.render(request, "learning_unit/pedagogy.html", context)
 
 
