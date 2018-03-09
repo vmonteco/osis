@@ -28,6 +28,7 @@ import re
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db.models import BLANK_CHOICE_DASH
 from django.forms import model_to_dict
@@ -131,7 +132,9 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
     summary_editable_form = SummaryEditableModelForm(request.POST or None, instance=learning_unit_year)
     summary_editable_form.fields['summary_editable'].disabled = not can_edit_summary_editable_field
 
-    if can_edit_summary_editable_field and summary_editable_form.is_valid():
+    if summary_editable_form.is_valid():
+        if not can_edit_summary_editable_field:
+            raise PermissionDenied
         try:
             summary_editable_form.save()
             display_success_messages(request, _("Summary editable updated"))

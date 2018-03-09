@@ -32,7 +32,7 @@ from django.contrib import messages
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseForbidden
 from django.test import TestCase, RequestFactory
@@ -1205,7 +1205,8 @@ class LearningUnitViewTestCase(TestCase):
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
-        learning_unit_pedagogy(request, learning_unit_year.id)
+        with self.assertRaises(PermissionDenied):
+            learning_unit_pedagogy(request, learning_unit_year.id)
 
         learning_unit_year.refresh_from_db()
         self.assertTrue(learning_unit_year.summary_editable)
@@ -1225,7 +1226,8 @@ class LearningUnitViewTestCase(TestCase):
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
-        learning_unit_pedagogy(request, learning_unit_year.id)
+        with self.assertRaises(PermissionDenied):
+            learning_unit_pedagogy(request, learning_unit_year.id)
 
         learning_unit_year.refresh_from_db()
         self.assertTrue(learning_unit_year.summary_editable)
