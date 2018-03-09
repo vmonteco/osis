@@ -59,16 +59,17 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
     form = LearningUnitProposalModificationForm(request.POST,
                                                 initial=initial_data,
                                                 learning_unit=learning_unit_year.learning_unit)
-    if form.is_valid():
-        type_proposal = compute_proposal_type(initial_data, request.POST)
-        form.save(learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name, False)
-        messages.add_message(request, messages.SUCCESS,
-                             _("success_modification_proposal")
-                             .format(_(type_proposal), learning_unit_year.acronym))
-        return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
-    else:
-        form = LearningUnitProposalModificationForm(initial=initial_data,
-                                                    learning_unit=learning_unit_year.learning_unit)
+    if request.method == 'POST':
+        if form.is_valid():
+            type_proposal = compute_proposal_type(initial_data, request.POST)
+            form.save(learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name, False)
+            messages.add_message(request, messages.SUCCESS,
+                                 _("success_modification_proposal")
+                                 .format(_(type_proposal), learning_unit_year.acronym))
+            return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
+
+    form = LearningUnitProposalModificationForm(initial=initial_data,
+                                                learning_unit=learning_unit_year.learning_unit)
 
     return render(request, 'learning_unit/proposal/update.html', {
         'learning_unit_year': learning_unit_year,
