@@ -135,8 +135,8 @@ class LearningUnitYearForm(BootstrapForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if 'acronym' in cleaned_data and 'academic_year' in cleaned_data:
-            self._check_if_acronym_already_exists(cleaned_data)
+        # if 'acronym' in cleaned_data and 'academic_year' in cleaned_data:
+        self._check_if_acronym_already_exists(cleaned_data)
 
         if 'internship_subtype' in self.fields \
                 and cleaned_data.get("container_type") == INTERNSHIP \
@@ -164,12 +164,11 @@ class LearningUnitYearForm(BootstrapForm):
 
     def _get_existing_acronym_list(self, academic_year, acronym):
         learning_unit_years = []
-        if academic_year:
-            if self.learning_unit:
-                learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym) \
-                    .exclude(learning_unit=self.learning_unit)
-            else:
-                learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym)
+        if self.learning_unit:
+            learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym) \
+                .exclude(learning_unit=self.learning_unit)
+        else:
+            learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym)
         return [learning_unit_year.acronym for learning_unit_year in learning_unit_years]
 
 
