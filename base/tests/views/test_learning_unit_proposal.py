@@ -38,7 +38,7 @@ from django.http import HttpResponseNotFound, HttpResponse, HttpResponseForbidde
 from django.test import TestCase, RequestFactory
 from django.utils.translation import ugettext_lazy as _
 
-from attribution.tests.factories.attribution_new import AttributionNewFactory
+from attribution.tests.factories.attribution import AttributionFactory
 from base.business import learning_unit_proposal as proposal_business
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, LearningUnitProposalUpdateForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
@@ -50,8 +50,7 @@ from base.models.enums import organization_type, entity_type, \
 from base.models.enums.proposal_state import ProposalState
 from base.tests.factories import academic_year as academic_year_factory, campus as campus_factory, \
     organization as organization_factory
-from base.tests.factories.academic_year import AcademicYearFakerFactory, create_current_academic_year, get_current_year, \
-    AcademicYearFactory
+from base.tests.factories.academic_year import AcademicYearFakerFactory, create_current_academic_year, get_current_year
 from base.tests.factories.business.learning_units import GenerateAcademicYear, GenerateContainer
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
@@ -70,7 +69,6 @@ from base.tests.factories.tutor import TutorFactory
 from base.views.learning_unit_proposal import edit_learning_unit_proposal
 from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search
 from reference.tests.factories.language import LanguageFactory
-from django.utils import timezone
 
 LABEL_VALUE_BEFORE_PROPROSAL = _('value_before_proposal')
 
@@ -375,32 +373,17 @@ class TestLearningUnitModificationProposal(TestCase):
 
 class TestLearningUnitProposalSearch(TestCase):
     def setUp(self):
-        self.academic_year = AcademicYearFactory(year=timezone.now().year)
         self.person = PersonFactory()
-        self.tutor = TutorFactory(person=self.person)
         self.permission = Permission.objects.get(codename="can_propose_learningunit")
         self.person.user.user_permissions.add(self.permission)
-
         self.permission_2 = Permission.objects.get(codename="can_access_learningunit")
         self.person.user.user_permissions.add(self.permission_2)
-
-        an_entity = EntityFactory()
-        self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
+        self.an_entity = EntityFactory()
+        self.entity_version = EntityVersionFactory(entity=self.an_entity, entity_type=entity_type.SCHOOL,
                                                    start_date=create_current_academic_year().start_date,
                                                    end_date=create_current_academic_year().end_date)
-        self.person_entity = PersonEntityFactory(person=self.person, entity=an_entity, with_child=True)
-
+        self.person_entity = PersonEntityFactory(person=self.person, entity=self.an_entity, with_child=True)
         self.client.force_login(self.person.user)
-        self.learning_container_year = LearningContainerYearFactory(academic_year=self.academic_year)
-        self.learning_unit_year = LearningUnitYearFactory(learning_container_year=self.learning_container_year,
-                                                          academic_year=self.academic_year)
-        self.attribution = AttributionNewFactory(tutor=self.tutor,
-                                                 learning_container_year=self.learning_container_year)
-        ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year,
-                                    type=proposal_type.ProposalType.MODIFICATION.name,
-                                    state=proposal_state.ProposalState.FACULTY.name,
-                                    folder=ProposalFolderFactory(entity=an_entity))
-
         self.proposals = [_create_proposal_learning_unit() for _ in range(3)]
 
 
@@ -417,15 +400,16 @@ class TestLearningUnitProposalSearch(TestCase):
 
 
     def test_learning_units_proposal_search_by_tutor(self):
+        proposal = _create_proposal_learning_unit()
+        tutor = TutorFactory(person=self.person)
+        AttributionFactory(tutor=tutor,
+                              learning_unit_year=proposal.learning_unit_year)
         url = reverse(learning_units_proposal_search)
-        response = self.client.get(url, data={'tutor': self.tutor.person.first_name})
+        response = self.client.get(url, data={'tutor': self.person.first_name})
         formset = response.context['proposals']
-
         for form in formset:
-            self.assertIn(form.instance, self.proposals)
+            self.assertEqual(form.instance, proposal)
 
-        self.assertIsInstance(response.context['form'], LearningUnitProposalForm)
-        self.assertEqual(response.context['search_type'], PROPOSAL_SEARCH)
 
     @mock.patch('base.views.layout.render')
     def test_learning_units_proposal_search_post(self, mock_render):
