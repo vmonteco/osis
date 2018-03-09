@@ -97,7 +97,7 @@ class LearningUnitYear(AuditableSerializableModel):
 
     @property
     def parent(self):
-        if self.subdivision and self.subtype == learning_unit_year_subtypes.PARTIM:
+        if self.subdivision and self.is_partim():
             return LearningUnitYear.objects.filter(
                 subtype=learning_unit_year_subtypes.FULL,
                 learning_container_year=self.learning_container_year,
@@ -135,7 +135,7 @@ class LearningUnitYear(AuditableSerializableModel):
         return ''
 
     def get_partims_related(self):
-        if self.subtype == learning_unit_year_subtypes.FULL and self.learning_container_year:
+        if self.is_full() and self.learning_container_year:
             return self.learning_container_year.get_partims_related()
         return LearningUnitYear.objects.none()
 
@@ -183,6 +183,12 @@ class LearningUnitYear(AuditableSerializableModel):
         elif self.learning_unit.periodicity != ANNUAL and year <= current_year + 2:
             result = True
         return result
+
+    def is_full(self):
+        return self.subtype == learning_unit_year_subtypes.FULL
+
+    def is_partim(self):
+        return self.subtype == learning_unit_year_subtypes.PARTIM
 
 
 def get_by_id(learning_unit_year_id):
