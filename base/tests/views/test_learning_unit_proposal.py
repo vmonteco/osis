@@ -404,7 +404,7 @@ class TestLearningUnitProposalSearch(TestCase):
         proposal = _create_proposal_learning_unit()
         tutor = TutorFactory(person=self.person)
         AttributionNewFactory(tutor=tutor,
-                              learning_unit_container=proposal.learning_unit_year.learning_unit_container)
+                              learning_container_year=proposal.learning_unit_year.learning_container_year)
         url = reverse(learning_units_proposal_search)
         response = self.client.get(url, data={'tutor': self.person.first_name})
         formset = response.context['proposals']
