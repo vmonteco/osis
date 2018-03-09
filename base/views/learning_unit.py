@@ -137,7 +137,7 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
             raise PermissionDenied
         try:
             summary_editable_form.save()
-            display_success_messages(request, _("Summary editable updated"))
+            display_success_messages(request, _("summary_editable_field_successfuly_updated"))
             return HttpResponseRedirect(reverse('learning_unit_pedagogy', args=[learning_unit_year_id]))
 
         except ValueError as e:
