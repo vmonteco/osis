@@ -130,8 +130,9 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
 
     can_user_edit_summary_editable_field = can_edit_summary_editable_field(user_person,
                                                                            context['is_person_linked_to_entity'])
-    summary_editable_form = SummaryEditableModelForm(request.POST or None, instance=learning_unit_year)
-    summary_editable_form.fields['summary_editable'].disabled = not can_user_edit_summary_editable_field
+    summary_editable_form = build_summary_editable_form(request,
+                                                        learning_unit_year,
+                                                        can_user_edit_summary_editable_field)
 
     if summary_editable_form.is_valid():
         if not can_user_edit_summary_editable_field:
@@ -147,6 +148,12 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
     context['summary_editable_form'] = summary_editable_form
     context['can_edit_summary_editable_field'] = can_user_edit_summary_editable_field
     return layout.render(request, "learning_unit/pedagogy.html", context)
+
+
+def build_summary_editable_form(request, learning_unit_year, can_user_edit_summary_editable_field):
+    summary_editable_form = SummaryEditableModelForm(request.POST or None, instance=learning_unit_year)
+    summary_editable_form.fields['summary_editable'].disabled = not can_user_edit_summary_editable_field
+    return summary_editable_form
 
 
 @login_required
