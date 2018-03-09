@@ -116,13 +116,10 @@ class LearningUnitYear(AuditableSerializableModel):
 
     @property
     def complete_title(self):
-        common_tit = None
+        complete_title = self.specific_title
         if self.learning_container_year:
-            common_tit = self.learning_container_year.common_title
-
-        if self.specific_title and common_tit:
-            return "{} {}".format(common_tit, self.specific_title)
-        return common_tit
+            complete_title = ' '.join(filter(None, [self.learning_container_year.common_title, self.specific_title]))
+        return complete_title
 
     def get_partims_related(self):
         if self.subtype == learning_unit_year_subtypes.FULL and self.learning_container_year:
