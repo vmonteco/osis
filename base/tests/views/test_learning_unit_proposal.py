@@ -407,8 +407,7 @@ class TestLearningUnitProposalSearch(TestCase):
         url = reverse(learning_units_proposal_search)
         response = self.client.get(url, data={'tutor': self.person.first_name})
         formset = response.context['proposals']
-        for form in formset:
-            self.assertEqual(form.instance, proposal)
+        self.assertEqual(len(formset), 1)
 
 
     @mock.patch('base.views.layout.render')
