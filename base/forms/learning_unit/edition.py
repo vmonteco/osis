@@ -119,6 +119,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         learning_unit_year_subtype = initial.get("subtype") if initial else None
         learning_container_type = initial.get("container_type") if initial else None
         parent = learning_unit_year_instance.parent if learning_unit_year_instance else None
+        self.learning_unit = learning_unit_year_instance.learning_unit if learning_unit_year_instance else None
 
         self.learning_unit_end_date = kwargs.pop("end_date", None)
 
