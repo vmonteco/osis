@@ -120,8 +120,8 @@ def learning_unit_components(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_pedagogy(request, learning_unit_year_id):
-    context = get_common_context_learning_unit_year(learning_unit_year_id,
-                                                    get_object_or_404(Person, user=request.user))
+    user_person = get_object_or_404(Person, user=request.user)
+    context = get_common_context_learning_unit_year(learning_unit_year_id, user_person)
     learning_unit_year = context['learning_unit_year']
     user_language = mdl.person.get_user_interface_language(request.user)
     context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language)
@@ -130,8 +130,11 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
     context['form_english'] = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_EN)
     context['experimental_phase'] = True
 
+    can_edit_summary_editable_field = user_person.is_faculty_manager() and context['is_person_linked_to_entity']
     summary_editable_form = SummaryEditableModelForm(request.POST or None, instance=learning_unit_year)
-    if summary_editable_form.is_valid():
+    summary_editable_form.fields['summary_editable'].disabled = not can_edit_summary_editable_field
+
+    if can_edit_summary_editable_field and summary_editable_form.is_valid():
         try:
             summary_editable_form.save()
             display_success_messages(request, _("Summary editable updated"))
@@ -141,6 +144,7 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
             display_error_messages(request, e.args[0])
 
     context['summary_editable_form'] = summary_editable_form
+    context['can_edit_summary_editable_field'] = can_edit_summary_editable_field
     return layout.render(request, "learning_unit/pedagogy.html", context)
 
 
