@@ -125,6 +125,8 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         self.learning_unit_end_date = kwargs.pop("end_date", None)
 
         super().__init__(*args, **kwargs, initial=self.compute_learning_unit_modification_form_initial_data())
+        self.postponement = bool(int(self.data.get('postponement', 1)))
+
 
         if self.initial:
             self.learning_unit_year_subtype = self.initial.get("subtype")
@@ -213,11 +215,11 @@ class LearningUnitModificationForm(LearningUnitYearForm):
                 for entity_type, entity_version in self.cleaned_data.items()
                 if entity_type.upper() in ENTITY_TYPE_LIST}
 
-    def save(self,  postponement):
+    def save(self):
         entities_data = self.get_entities_data()
         lu_type_full_data = self.get_data_for_learning_unit()
-        update_learning_unit_year_with_report(self.instance, lu_type_full_data, postponement)
-        update_learning_unit_year_entities_with_report(self.instance, entities_data, postponement)
+        update_learning_unit_year_with_report(self.instance, lu_type_full_data, self.postponement)
+        update_learning_unit_year_entities_with_report(self.instance, entities_data, self.postponement)
 
     def compute_learning_unit_modification_form_initial_data(self):
         other_fields_dict = {
