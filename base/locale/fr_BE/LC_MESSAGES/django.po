@@ -2658,3 +2658,6 @@ msgstr "Etes-vous certain de vouloir supprimer définitivement cette unité d'en
 
 msgid "already_existing_acronym"
 msgstr "Sigle déjà existant"
+
+msgid "The value of field '%(field)s' is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s"
+msgstr "La valeur du champ '%(field)s' différe entre l'année %(year)s - %(value)s et l'année %(next_year)s - %(next_value)s"
