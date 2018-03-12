@@ -72,10 +72,10 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
 
         _update_model_object(learning_unit_year.learning_unit, self.cleaned_data, ["periodicity"])
         _update_model_object(learning_unit_year, self.cleaned_data, ["acronym", "status", "quadrimester",
+                                                                     "specific_title", "specific_english_title",
                                                                      "internship_subtype", "credits"])
-        learning_container_year.common_title = self.cleaned_data['common_title']
-        learning_container_year.common_title_english = self.cleaned_data.get('common_title_english')
         _update_model_object(learning_container_year, self.cleaned_data, ["acronym", "title", "language", "campus",
+                                                                          "common_title", "common_title_english",
                                                                           "container_type"])
 
         for entity_type in ENTITY_TYPE_LIST:
