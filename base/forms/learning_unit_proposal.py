@@ -90,7 +90,8 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
         if self.proposal:
             edition.update_learning_unit_proposal(data, self.proposal, folder)
         else:
-            creation.create_learning_unit_proposal(data.update({'initial_data': initial_data}), folder)
+            data.update({'initial_data': initial_data})
+            creation.create_learning_unit_proposal(data, folder)
 
 
 def _copy_learning_unit_data(learning_unit_year):

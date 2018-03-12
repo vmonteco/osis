@@ -27,12 +27,13 @@ from base.models import proposal_learning_unit
 
 
 def create_learning_unit_proposal(data_param, folder):
-    data = {"type": data_param.get('type_proposal'),
-            "state": data_param.get('state_proposal'),
-            "author": data_param.get('person'),
-            "initial_data": data_param.get('initial_data')}
+    if data_param:
+        data = {"type": data_param.get('type_proposal'),
+                "state": data_param.get('state_proposal'),
+                "author": data_param.get('person'),
+                "initial_data": data_param.get('initial_data')}
 
-    proposal_learning_unit.ProposalLearningUnit.objects.update_or_create(
-        folder=folder,
-        learning_unit_year=data_param.get('learning_unit_year'),
-        defaults=data)
+        proposal_learning_unit.ProposalLearningUnit.objects.update_or_create(
+            folder=folder,
+            learning_unit_year=data_param.get('learning_unit_year'),
+            defaults=data)
