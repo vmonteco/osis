@@ -135,10 +135,7 @@ def process_formset(formset, request):
 def _go_back_to_initial_data(formset, request):
     proposals_candidate_to_cancellation = formset.get_checked_proposals()
     if proposals_candidate_to_cancellation:
-        if not proposal_business.check_proposals_valid_to_get_back_to_initial(proposals_candidate_to_cancellation):
-            display_error_messages(request, _("error_proposal_suppression_to_initial"))
-        else:
-            formset = _cancel_list_of_proposal(formset, proposals_candidate_to_cancellation, request)
+        formset = _cancel_list_of_proposal(formset, proposals_candidate_to_cancellation, request)
     else:
         _build_no_data_error_message(request)
     return formset

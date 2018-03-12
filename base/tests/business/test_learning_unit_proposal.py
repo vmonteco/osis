@@ -73,15 +73,6 @@ class TestLearningUnitProposalChecks(TestCase):
         self.proposal_modification = ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year_3,
                                                                  type=proposal_type.ProposalType.MODIFICATION.name)
 
-    def test_check_proposals_valid_to_get_back_to_initial(self):
-        self.assertTrue(lu_proposal_business.check_proposals_valid_to_get_back_to_initial([self.proposal_suppression]))
-
-    def test_check_proposals_invalid_to_get_back_to_initial(self):
-        self.assertFalse(lu_proposal_business.check_proposals_valid_to_get_back_to_initial([self.proposal_suppression,
-                                                                                            self.proposal_creation]))
-        self.assertFalse(lu_proposal_business.check_proposals_valid_to_get_back_to_initial([self.proposal_modification,
-                                                                                            self.proposal_creation]))
-
 
 class TestLearningUnitProposalCancel(TestCase):
     def setUp(self):

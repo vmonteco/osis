@@ -265,10 +265,6 @@ def _get_rid_of_blank_value(data):
     return clean_data
 
 
-def check_proposals_valid_to_get_back_to_initial(proposals_to_cancel):
-    return all(proposal if proposal.type == ProposalType.SUPPRESSION.name else None for proposal in proposals_to_cancel)
-
-
 def cancel_proposal(learning_unit_year):
     learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learning_unit_year)
     reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year)
