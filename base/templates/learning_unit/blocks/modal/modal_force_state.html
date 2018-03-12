@@ -38,6 +38,7 @@
                    class="hidden-state" value={{ proposal.state.value }}>
         {% endif %}
     {% endfor %}
+    <input type="hidden" id="action" name="action" class="action">
 {% endblock %}
 
 {% block modal_footer %}
@@ -64,6 +65,7 @@
         // one field to rule them all
         var forced_state = $( "#id_form-0-state" ).val();
         $(".hidden-state").val(forced_state);
+        $(".action").val('force_state');
         $('form').submit()
     }
 
