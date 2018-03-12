@@ -355,7 +355,7 @@ def _check_postponement_conflict_on_learning_container_year(lcy, next_lcy):
 
 
 def _get_differences(obj1, obj2, fields_to_compare):
-    field_diff = filter(lambda field: getattr(obj1, field, None) != getattr(obj2, field, None), fields_to_compare)
+    field_diff = filter(lambda field: _is_different_value(obj1, obj2, field), fields_to_compare)
     error_list = []
     for field_name in field_diff:
         current_value = getattr(obj1, field_name, None)
@@ -374,7 +374,8 @@ def _get_differences(obj1, obj2, fields_to_compare):
 def _check_postponement_conflict_on_entity_container_year(lcy, next_lcy):
     current_entities = entity_container_year.find_entities_grouped_by_linktype(lcy)
     next_year_entities = entity_container_year.find_entities_grouped_by_linktype(next_lcy)
-    entity_type_diff = filter(lambda type: current_entities.get(type) != next_year_entities.get(type), ENTITY_TYPE_LIST)
+    entity_type_diff = filter(lambda type: _is_different_value(current_entities, next_year_entities, type),
+                              ENTITY_TYPE_LIST)
     error_list = []
     for entity_type in entity_type_diff:
         current_entity = current_entities.get(entity_type)
@@ -388,3 +389,9 @@ def _check_postponement_conflict_on_entity_container_year(lcy, next_lcy):
             'next_value': next_year_entity.most_recent_acronym if next_year_entity else _('no_data')
         })
     return error_list
+
+
+def _is_different_value(obj1, obj2, field):
+    value_obj1 = obj1.get(field) if isinstance(obj1, dict) else getattr(obj1, field, None)
+    value_obj2 = obj2.get(field) if isinstance(obj2, dict) else getattr(obj2, field, None)
+    return value_obj1 != value_obj2
