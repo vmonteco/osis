@@ -48,6 +48,7 @@ from base.models.enums import entity_container_year_link_type, learning_unit_per
 from base.models.enums import organization_type, entity_type, \
     learning_unit_year_subtypes, proposal_type, learning_container_year_types, proposal_state
 from base.models.enums.proposal_state import ProposalState
+from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories import academic_year as academic_year_factory, campus as campus_factory, \
     organization as organization_factory
 from base.tests.factories.academic_year import AcademicYearFakerFactory, create_current_academic_year, get_current_year
@@ -67,8 +68,7 @@ from base.tests.factories.proposal_folder import ProposalFolderFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.tutor import TutorFactory
 from base.views.learning_unit_proposal import edit_learning_unit_proposal
-from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search, \
-    is_get_back_to_initial_action, _cancel_list_of_proposal
+from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search, _cancel_list_of_proposal
 from reference.tests.factories.language import LanguageFactory
 
 LABEL_VALUE_BEFORE_PROPROSAL = _('value_before_proposal')
@@ -528,21 +528,23 @@ class TestLearningUnitProposalSearch(TestCase):
             self.assertEqual(new_proposal_state, old_proposal_state)
 
     @mock.patch('base.views.layout.render')
-    def test_is_get_back_to_initial_action(self, mock_render):
-        self.get_request(self.get_data('back_to_initial'))
+    def test_back_to_initial_on_2_proposals(self, mock_render):
+        self._update_proposals_type(prop_type=proposal_type.ProposalType.SUPPRESSION.name)
+        self.get_request(self.get_data(action='back_to_initial'))
         self.assertTrue(mock_render.called)
-        request, template, context = mock_render.call_args[0]
-        formset = context['proposals']
-        self.assertTrue(is_get_back_to_initial_action(formset))
+        self.assertEquals(ProposalLearningUnit.objects.count(), 1)
 
     @mock.patch('base.views.layout.render')
-    def test_is_forced_state_action(self, mock_render):
-        self.get_request(self.get_data('forced_state'))
+    def test_force_state_does_not_delete_proposals(self, mock_render):
+        self._update_proposals_type(prop_type=proposal_type.ProposalType.SUPPRESSION.name)
+        self.get_request(self.get_data(action='forced_state'))
         self.assertTrue(mock_render.called)
-        request, template, context = mock_render.call_args[0]
-        formset = context['proposals']
+        self.assertEquals(ProposalLearningUnit.objects.count(), 3)
 
-        self.assertFalse(is_get_back_to_initial_action(formset))
+    def _update_proposals_type(self, prop_type):
+        for proposal in self.proposals:
+            proposal.type = prop_type
+            proposal.save()
 
     @mock.patch('base.views.layout.render')
     def test_cancel_list_of_proposal(self, mock_render):
@@ -587,9 +589,7 @@ class TestLearningUnitProposalSearch(TestCase):
             'form-0-state': ['SUSPENDED'],
             'form-1-state': ['SUSPENDED'],
             'form-2-state': ['SUSPENDED'],
-            'form-0-action': [action],
-            'form-1-action': [action],
-            'form-2-action': [action],
+            'action': action,
         }
         return data
 
@@ -602,9 +602,7 @@ class TestLearningUnitProposalSearch(TestCase):
             'form-0-state': ['SUSPENDED'],
             'form-1-state': ['SUSPENDED'],
             'form-2-state': ['SUSPENDED'],
-            'form-0-action': [action],
-            'form-1-action': [action],
-            'form-2-action': [action],
+            'action': action,
         }
         return data
 
