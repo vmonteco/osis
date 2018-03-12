@@ -2650,3 +2650,6 @@ msgstr "The possibility to edit educational information has been correctly updat
 
 msgid "msg_confirm_delete_luy"
 msgstr "Are you certain that you want to delete the learning unit ?"
+
+msgid "already_existing_acronym"
+msgstr "Existing acronym"

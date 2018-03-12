@@ -119,6 +119,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         learning_unit_year_subtype = initial.get("subtype") if initial else None
         learning_container_type = initial.get("container_type") if initial else None
         parent = learning_unit_year_instance.parent if learning_unit_year_instance else None
+        self.learning_unit = learning_unit_year_instance.learning_unit if learning_unit_year_instance else None
 
         self.learning_unit_end_date = kwargs.pop("end_date", None)
 
@@ -137,6 +138,9 @@ class LearningUnitModificationForm(LearningUnitYearForm):
             if initial.get("container_type") in FACULTY_UPDATABLE_CONTAINER_TYPES\
                     and learning_unit_year_subtype == "FULL":
                 self._disabled_fields(FACULTY_READ_ONLY_FIELDS)
+
+        if learning_unit_year_instance:
+            self.learning_unit = learning_unit_year_instance.learning_unit
 
     def is_valid(self):
         if not BootstrapForm.is_valid(self):
