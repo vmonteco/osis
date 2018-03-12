@@ -33,7 +33,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_units.edition import edit_learning_unit_end_date, update_learning_unit_year_with_report, \
-    update_learning_unit_year_entities_with_report, PostponementError
+    update_learning_unit_year_entities_with_report
 from base.models import academic_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -867,7 +867,7 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
             'academic_year': luy_in_proposal.academic_year
         }
 
-        with self.assertRaisesMessage(PostponementError, error_msg):
+        with self.assertRaisesMessage(IntegrityError, error_msg):
             update_learning_unit_year_with_report(learning_unit_years[1], fields_to_update)
 
         for index, luy in enumerate(learning_unit_years[1:-3]):

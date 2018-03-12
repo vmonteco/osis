@@ -286,8 +286,8 @@ class TestEditLearningUnit(TestCase):
         }
         self.assertDictEqual(initial_data, expected_initial)
 
-    @mock.patch("base.views.learning_units.update.update_learning_unit_year_with_report", side_effect=None)
-    @mock.patch("base.views.learning_units.update.update_learning_unit_year_entities_with_report", side_effect=None)
+    @mock.patch("base.business.learning_units.edition.update_learning_unit_year_with_report", side_effect=None)
+    @mock.patch("base.business.learning_units.edition.update_learning_unit_year_entities_with_report", side_effect=None)
     def test_valid_post_request(self, mock_update_learning_unit_year, mock_update_entities):
         form_data = {
             "acronym": self.learning_unit_year.acronym[1:],
