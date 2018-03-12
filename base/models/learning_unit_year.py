@@ -62,7 +62,7 @@ class LearningUnitYear(AuditableSerializableModel):
     learning_container_year = models.ForeignKey('LearningContainerYear', blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     acronym = models.CharField(max_length=15, db_index=True)
-    specific_title = models.CharField(max_length=255, default="")
+    specific_title = models.CharField(max_length=255)
     specific_title_english = models.CharField(max_length=250, blank=True, null=True)
     subtype = models.CharField(max_length=50, choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES)
     credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True,
