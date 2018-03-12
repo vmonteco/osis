@@ -33,10 +33,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.learning_unit_proposal import compute_proposal_type, cancel_proposal
-from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, LearningUnitProposalUpdateForm
-from base.business.learning_unit_proposal import compute_proposal_type, reinitialize_data_before_proposal, \
-    delete_learning_unit_proposal
+from base.business.learning_unit_proposal import cancel_proposal
+from base.business.learning_unit_proposal import compute_proposal_type
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.models import proposal_learning_unit
 from base.models.enums import proposal_state
