@@ -120,12 +120,15 @@ def _proposal_management(request, proposals):
     formset = list_proposal_formset(request.POST or None,
                                     list_proposal_learning=proposals,
                                     action=request.POST.get('action') if request.POST else None)
+    return process_formset(formset, request)
+
+
+def process_formset(formset, request):
     if formset.is_valid():
         if formset.action == 'back_to_initial':
             formset = _go_back_to_initial_data(formset, request)
         else:
             _force_state(formset, request)
-
     return formset
 
 
