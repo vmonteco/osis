@@ -144,13 +144,12 @@ class LearningUnitYearForm(BootstrapForm):
         return cleaned_data
 
     def _check_if_acronym_already_exists(self, cleaned_data):
-        if 'acronym' in cleaned_data and 'academic_year' in cleaned_data:
+        if 'acronym' in cleaned_data and 'academic_year' in cleaned_data and cleaned_data['academic_year']:
             acronym = cleaned_data['acronym']
             academic_year = cleaned_data['academic_year']
-            if academic_year:
-                learning_unit_years_list = self._get_existing_acronym_list(academic_year, acronym)
-                if acronym in learning_unit_years_list:
-                    self.add_error('acronym', _('already_existing_acronym'))
+            learning_unit_years_list = self._get_existing_acronym_list(academic_year, acronym)
+            if acronym in learning_unit_years_list:
+                self.add_error('acronym', _('already_existing_acronym'))
 
     def clean_acronym(self, regex=LEARNING_UNIT_ACRONYM_REGEX_ALL):
         acronym = _merge_first_letter_and_acronym(self.cleaned_data.get('first_letter', ""),

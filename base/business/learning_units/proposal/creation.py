@@ -23,12 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models import proposal_folder, proposal_learning_unit
+from base.models import proposal_learning_unit
 
 
-def create_learning_unit_proposal(data_param):
-    folder, created = proposal_folder.ProposalFolder.objects.get_or_create(entity=data_param.get('folder_entity'),
-                                                                           folder_id=data_param.get('folder_id'))
+def create_learning_unit_proposal(data_param, folder):
     data = {"type": data_param.get('type_proposal'),
             "state": data_param.get('state_proposal'),
             "author": data_param.get('person'),

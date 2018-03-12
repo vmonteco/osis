@@ -35,6 +35,7 @@ from base.models.entity_version import find_main_entities_version
 from base.models.enums import learning_container_year_types
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums import proposal_state, proposal_type
+from base.models import proposal_folder
 
 
 class LearningUnitProposalModificationForm(LearningUnitYearForm):
@@ -79,21 +80,22 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
         for entity_type in ENTITY_TYPE_LIST:
             _update_or_delete_entity_container(self.cleaned_data[entity_type.lower()], learning_container_year,
                                                entity_type)
+
+        folder, created = proposal_folder.ProposalFolder.objects.get_or_create(entity=self.cleaned_data['folder_entity'].entity,
+                                                                      folder_id=self.cleaned_data['folder_id'])
         if self.proposal:
             edition.update_learning_unit_proposal({'person': a_person,
-                                                   'folder_entity': self.cleaned_data['folder_entity'].entity,
-                                                   'folder_id': self.cleaned_data['folder_id'],
                                                    'learning_unit_year': learning_unit_year,
                                                    'state_proposal': state_proposal,
-                                                   'type_proposal': type_proposal}, self.proposal)
+                                                   'type_proposal': type_proposal},
+                                                  self.proposal, folder)
         else:
             creation.create_learning_unit_proposal({'person': a_person,
-                                                    'folder_entity': self.cleaned_data['folder_entity'].entity,
-                                                    'folder_id': self.cleaned_data['folder_id'],
                                                     'learning_unit_year': learning_unit_year,
                                                     'state_proposal': state_proposal,
                                                     'type_proposal': type_proposal,
-                                                    'initial_data': initial_data})
+                                                    'initial_data': initial_data},
+                                                   folder)
 
 
 def _copy_learning_unit_data(learning_unit_year):
