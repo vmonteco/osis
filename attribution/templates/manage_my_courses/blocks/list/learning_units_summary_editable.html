@@ -18,7 +18,11 @@
                         {% if forloop.first %}
                             <td rowspan="{{ anac.list|length }}">{{ anac.grouper }}</td>
                         {% endif %}
-                        <td><a href="{% url "view_educational_information" learning_unit_year_id=luy.id %}">{{ luy.acronym }}</a></td>
+                        <td>
+                            <a href="{% url "view_educational_information" learning_unit_year_id=luy.id %}" title="{% trans 'manage_educational_information' %}">
+                                {{ luy.acronym }}
+                            </a>
+                        </td>
                         <td>{{ luy.complete_title|default_if_none:'' }}</td>
                     </tr>
                 {% endfor %}
