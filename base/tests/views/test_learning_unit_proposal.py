@@ -40,7 +40,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from attribution.tests.factories.attribution import AttributionFactory
 from base.business import learning_unit_proposal as proposal_business
-from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, LearningUnitProposalUpdateForm
+from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
 from base.models import entity_container_year, entity_version
 from base.models import proposal_folder, proposal_learning_unit
@@ -145,6 +145,7 @@ class TestLearningUnitModificationProposal(TestCase):
             "additional_requirement_entity_2": self.entity_version.id,
             "folder_entity": self.entity_version.id,
             "folder_id": "1",
+            "state": proposal_state.ProposalState.FACULTY.name
         }
 
     def test_user_not_logged(self):
@@ -232,7 +233,6 @@ class TestLearningUnitModificationProposal(TestCase):
     def test_transformation_proposal_request(self):
         self.form_data["acronym"] = "OSIS1452"
         self.client.post(self.url, data=self.form_data)
-
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
         self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.TRANSFORMATION.name)
 
@@ -386,7 +386,6 @@ class TestLearningUnitProposalSearch(TestCase):
         self.client.force_login(self.person.user)
         self.proposals = [_create_proposal_learning_unit() for _ in range(3)]
 
-
     def test_learning_units_proposal_search(self):
         url = reverse(learning_units_proposal_search)
         response = self.client.get(url, data={'acronym': self.proposals[0].learning_unit_year.acronym})
@@ -427,7 +426,7 @@ class TestLearningUnitProposalSearch(TestCase):
             'form-0-state': ['SUSPENDED'],
             'form-1-state': ['SUSPENDED'],
             'form-2-state': ['SUSPENDED']
-         }
+        }
         request = request_factory.post(url, data=data)
 
         request.user = self.person.user
@@ -467,7 +466,7 @@ class TestLearningUnitProposalSearch(TestCase):
             'form-0-state': ['NOT_VALID'],
             'form-1-state': ['SUSPENDED'],
             'form-2-state': ['SUSPENDED']
-         }
+        }
         request = request_factory.post(url, data=data)
 
         request.user = self.person.user
@@ -505,7 +504,7 @@ class TestLearningUnitProposalSearch(TestCase):
             'form-0-state': ['SUSPENDED'],
             'form-1-state': ['SUSPENDED'],
             'form-2-state': ['SUSPENDED']
-         }
+        }
         request = request_factory.post(url, data=data)
         request.user = self.person.user
         setattr(request, 'session', 'session')
@@ -795,7 +794,7 @@ class TestEditProposal(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_unit/proposal/edition.html')
-        self.assertIsInstance(context['form'], LearningUnitProposalUpdateForm)
+        self.assertIsInstance(context['form'], LearningUnitProposalModificationForm)
 
     def get_valid_data(self):
         return {
@@ -858,7 +857,7 @@ class TestEditProposal(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_unit/proposal/edition.html')
-        self.assertIsInstance(context['form'], LearningUnitProposalUpdateForm)
+        self.assertIsInstance(context['form'], LearningUnitProposalModificationForm)
 
         form = context['form']
         self.assertEqual(len(form.errors), 1)

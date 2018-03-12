@@ -801,7 +801,7 @@ class LearningUnitViewTestCase(TestCase):
         LearningUnitYearFactory(acronym="LDRT2018", academic_year=self.current_academic_year)
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_existing_acronym())
         self.assertFalse(form.is_valid(), form.errors)
-        self.assertEqual(form.errors['acronym'], [_('existing_acronym')])
+        self.assertEqual(form.errors['acronym'], [_('already_existing_acronym')])
 
     def test_learning_unit_creation_form_with_field_is_required_empty(self):
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_empty_internship_subtype())
