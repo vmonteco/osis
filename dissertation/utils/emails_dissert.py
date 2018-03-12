@@ -49,6 +49,13 @@ def get_base_template(dissert):
     return template_base_data
 
 
+def get_subject_template(dissert):
+    template_base_data = {'author': dissert.author,
+                          'title': dissert.title,
+                          }
+    return template_base_data
+
+
 def create_string_list_promotors(dissert):
     promotors = dissertation_role.find_all_promotor_by_dissertation(dissert)
     return ','.join(['{adv.first_name} {adv.last_name}'.format(adv=dissrole.adviser.person)
@@ -77,11 +84,12 @@ def send_email(dissert, template_ref, receivers):
     receivers = generate_receivers(receivers)
     html_template_ref = template_ref + '_html'
     txt_template_ref = template_ref + '_txt'
-    suject_data = None
     if template_ref is not 'dissertation_to_commission_list':
         template_base_data = get_base_template(dissert)
+        suject_data = None
     else:
         template_base_data = get_commission_template(dissert)
+        suject_data = get_subject_template(dissert)
     tables = None
     message_content = message_config.create_message_content(html_template_ref, txt_template_ref, tables, receivers,
                                                             template_base_data, suject_data)

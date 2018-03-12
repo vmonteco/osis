@@ -101,8 +101,13 @@ class DissertationUtilsTestCase(TestCase):
         self.assertIn("mm@uclouvain.be", str(tab_reslut))
 
     def test_translating(self):
-        str1='READER'
-        str2='PROMOTEUR'
+        str1 = 'READER'
+        str2 = 'PROMOTEUR'
         self.assertEqual('Lecteur', emails_dissert.translating(str1))
         self.assertEqual('Promoteur', emails_dissert.translating(str2))
-        self.assertEqual('Promotor', emails_dissert.translating(str2,'en'))
+        self.assertEqual('Promotor', emails_dissert.translating(str2, 'en'))
+
+    def test_get_subject_template(self):
+        result = emails_dissert.get_subject_template(self.dissertation_1)
+        self.assertEqual(result['title'], 'Dissertation_test_email')
+        self.assertEqual('Durant', result['author'].person.last_name)
