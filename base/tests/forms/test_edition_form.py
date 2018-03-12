@@ -128,7 +128,6 @@ class TestVolumeEditionForm(TestCase):
                 component=component,
                 entities=self.learning_unit_with_context.entities)
             self.assertTrue(form.is_valid())
-            print(form.errors)
             parent_data = _get_valid_data()
             errors = form.validate_parent_partim_component(parent_data)
             self.assertEqual(len(errors), 7)
