@@ -42,10 +42,9 @@ def assistant_home(request):
             manager.find_by_person(person=request.user.person)
             return HttpResponseRedirect(reverse('manager_home'))
         except manager.Manager.DoesNotExist:
-            try:
-                reviewer.find_by_person(person=request.user.person)
+            if reviewer.find_by_person(person=request.user.person):
                 return HttpResponseRedirect(reverse('reviewer_mandates_list_todo'))
-            except reviewer.Reviewer.DoesNotExist:
+            else:
                 return HttpResponseRedirect(reverse('access_denied'))
 
 
