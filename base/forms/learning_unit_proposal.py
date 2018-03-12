@@ -28,7 +28,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
-from base.business.learning_units.proposal import edition
+from base.business.learning_units.proposal import edition, creation
 from base.forms.learning_unit_create import EntitiesVersionChoiceField, LearningUnitYearForm
 from base.models import entity_container_year
 from base.models.entity_version import find_main_entities_version
@@ -40,9 +40,16 @@ from base.models.enums import proposal_state, proposal_type
 class LearningUnitProposalModificationForm(LearningUnitYearForm):
     folder_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
+    state = forms.ChoiceField(choices=proposal_state.CHOICES)
+    type = forms.ChoiceField(choices=proposal_type.CHOICES, required=False, disabled=True)
 
     def __init__(self, *args, **kwargs):
-        super(LearningUnitProposalModificationForm, self).__init__(*args, **kwargs)
+        self.proposal = kwargs.pop('instance', None)
+        lu = None
+        if self.proposal:
+            lu = self.proposal.learning_unit_year.learning_unit
+        super(LearningUnitProposalModificationForm, self).__init__(learning_unit=lu,
+            *args, **kwargs)
         self.fields["academic_year"].disabled = True
         self.fields["academic_year"].required = False
         self.fields["subtype"].required = False
@@ -58,14 +65,12 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
 
         return cleaned_data
 
-    def save(self, learning_unit_year, a_person, type_proposal, state_proposal, update_action):
+    def save(self, learning_unit_year, a_person, type_proposal, state_proposal):
         if not self.is_valid():
+            print(self.errors)
             raise ValueError("Form is invalid.")
 
-        if update_action:
-            initial_data = None
-        else:
-            initial_data = _copy_learning_unit_data(learning_unit_year)
+        initial_data = _copy_learning_unit_data(learning_unit_year)
 
         learning_container_year = learning_unit_year.learning_container_year
 
@@ -80,14 +85,24 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
         for entity_type in ENTITY_TYPE_LIST:
             _update_or_delete_entity_container(self.cleaned_data[entity_type.lower()], learning_container_year,
                                                entity_type)
+        if self.proposal:
+            print('editioon')
+            edition.update_learning_unit_proposal({'person': a_person,
+                                                   'folder_entity': self.cleaned_data['folder_entity'].entity,
+                                                   'folder_id': self.cleaned_data['folder_id'],
+                                                   'learning_unit_year': learning_unit_year,
+                                                   'state_proposal': state_proposal,
+                                                   'type_proposal': type_proposal}, self.proposal)
 
-        edition.update_learning_unit_proposal({'person': a_person,
-                                               'folder_entity': self.cleaned_data['folder_entity'].entity,
-                                               'folder_id': self.cleaned_data['folder_id'],
-                                               'learning_unit_year': learning_unit_year,
-                                               'state_proposal': state_proposal,
-                                               'type_proposal': type_proposal,
-                                               'initial_data': initial_data})
+        else:
+            print('createion')
+            creation.create_learning_unit_proposal({'person': a_person,
+                                                   'folder_entity': self.cleaned_data['folder_entity'].entity,
+                                                   'folder_id': self.cleaned_data['folder_id'],
+                                                   'learning_unit_year': learning_unit_year,
+                                                   'state_proposal': state_proposal,
+                                                   'type_proposal': type_proposal,
+                                                   'initial_data': initial_data})
 
 
 class LearningUnitProposalUpdateForm(LearningUnitProposalModificationForm):
@@ -95,7 +110,11 @@ class LearningUnitProposalUpdateForm(LearningUnitProposalModificationForm):
     type = forms.ChoiceField(choices=proposal_type.CHOICES, required=False, disabled=True)
 
     def __init__(self, *args, **kwargs):
-        super(LearningUnitProposalUpdateForm, self).__init__(*args, **kwargs)
+        self.proposal = kwargs.pop('proposal')
+        super(LearningUnitProposalUpdateForm, self).__init__(
+            learning_unit=self.proposal.learning_unit_year.learning_unit,
+            *args,
+            **kwargs)
 
 
 def _copy_learning_unit_data(learning_unit_year):

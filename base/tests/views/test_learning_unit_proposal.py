@@ -39,7 +39,7 @@ from django.test import TestCase, RequestFactory
 from django.utils.translation import ugettext_lazy as _
 
 from base.business import learning_unit_proposal as proposal_business
-from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, LearningUnitProposalUpdateForm
+from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
 from base.models import entity_container_year, entity_version
 from base.models import proposal_folder, proposal_learning_unit
@@ -143,6 +143,7 @@ class TestLearningUnitModificationProposal(TestCase):
             "additional_requirement_entity_2": self.entity_version.id,
             "folder_entity": self.entity_version.id,
             "folder_id": "1",
+            "state": proposal_state.ProposalState.FACULTY.name
         }
 
     def test_user_not_logged(self):
@@ -228,6 +229,7 @@ class TestLearningUnitModificationProposal(TestCase):
                       list(messages))
 
     def test_transformation_proposal_request(self):
+        print('********************************************************************test_transformation_proposal_request************************************')
         self.form_data["acronym"] = "OSIS1452"
         self.client.post(self.url, data=self.form_data)
 
@@ -785,7 +787,7 @@ class TestEditProposal(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_unit/proposal/edition.html')
-        self.assertIsInstance(context['form'], LearningUnitProposalUpdateForm)
+        self.assertIsInstance(context['form'], LearningUnitProposalModificationForm)
 
     def get_valid_data(self):
         return {
@@ -848,7 +850,7 @@ class TestEditProposal(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_unit/proposal/edition.html')
-        self.assertIsInstance(context['form'], LearningUnitProposalUpdateForm)
+        self.assertIsInstance(context['form'], LearningUnitProposalModificationForm)
 
         form = context['form']
         self.assertEqual(len(form.errors), 1)
