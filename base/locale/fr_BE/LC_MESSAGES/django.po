@@ -2638,5 +2638,8 @@ msgstr "Par"
 msgid "summary_editable"
 msgstr "informations pédagogiques modifiables"
 
+msgid "summary_editable_field_successfuly_updated"
+msgstr "La possibilité de modifier les informations pédagogiques a été correctement mise à jour."
+
 msgid "msg_confirm_delete_luy"
 msgstr "Etes-vous certain de vouloir supprimer définitivement cette unité d'enseignement ?"

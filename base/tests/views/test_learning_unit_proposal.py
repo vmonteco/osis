@@ -38,6 +38,7 @@ from django.http import HttpResponseNotFound, HttpResponse, HttpResponseForbidde
 from django.test import TestCase, RequestFactory
 from django.utils.translation import ugettext_lazy as _
 
+from attribution.tests.factories.attribution import AttributionFactory
 from base.business import learning_unit_proposal as proposal_business
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, LearningUnitProposalUpdateForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
@@ -64,6 +65,7 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_folder import ProposalFolderFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
+from base.tests.factories.tutor import TutorFactory
 from base.views.learning_unit_proposal import edit_learning_unit_proposal
 from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search
 from reference.tests.factories.language import LanguageFactory
@@ -374,18 +376,14 @@ class TestLearningUnitProposalSearch(TestCase):
         self.person = PersonFactory()
         self.permission = Permission.objects.get(codename="can_propose_learningunit")
         self.person.user.user_permissions.add(self.permission)
-
         self.permission_2 = Permission.objects.get(codename="can_access_learningunit")
         self.person.user.user_permissions.add(self.permission_2)
-
-        an_entity = EntityFactory()
-        self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
+        self.an_entity = EntityFactory()
+        self.entity_version = EntityVersionFactory(entity=self.an_entity, entity_type=entity_type.SCHOOL,
                                                    start_date=create_current_academic_year().start_date,
                                                    end_date=create_current_academic_year().end_date)
-        self.person_entity = PersonEntityFactory(person=self.person, entity=an_entity, with_child=True)
-
+        self.person_entity = PersonEntityFactory(person=self.person, entity=self.an_entity, with_child=True)
         self.client.force_login(self.person.user)
-
         self.proposals = [_create_proposal_learning_unit() for _ in range(3)]
 
 
@@ -399,6 +397,18 @@ class TestLearningUnitProposalSearch(TestCase):
 
         self.assertIsInstance(response.context['form'], LearningUnitProposalForm)
         self.assertEqual(response.context['search_type'], PROPOSAL_SEARCH)
+
+
+    def test_learning_units_proposal_search_by_tutor(self):
+        proposal = _create_proposal_learning_unit()
+        tutor = TutorFactory(person=self.person)
+        AttributionFactory(tutor=tutor,
+                              learning_unit_year=proposal.learning_unit_year)
+        url = reverse(learning_units_proposal_search)
+        response = self.client.get(url, data={'tutor': self.person.first_name})
+        formset = response.context['proposals']
+        self.assertEqual(len(formset), 1)
+
 
     @mock.patch('base.views.layout.render')
     def test_learning_units_proposal_search_post(self, mock_render):
