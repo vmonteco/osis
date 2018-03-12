@@ -38,8 +38,9 @@ from django.http import HttpResponseNotFound, HttpResponse, HttpResponseForbidde
 from django.test import TestCase, RequestFactory
 from django.utils.translation import ugettext_lazy as _
 
+from attribution.tests.factories.attribution import AttributionFactory
 from base.business import learning_unit_proposal as proposal_business
-from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, LearningUnitProposalUpdateForm
+from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
 from base.models import entity_container_year, entity_version
 from base.models import proposal_folder, proposal_learning_unit
@@ -64,6 +65,7 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_folder import ProposalFolderFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
+from base.tests.factories.tutor import TutorFactory
 from base.views.learning_units.proposal.update import edit_learning_unit_proposal
 from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search
 from reference.tests.factories.language import LanguageFactory
@@ -143,6 +145,7 @@ class TestLearningUnitModificationProposal(TestCase):
             "additional_requirement_entity_2": self.entity_version.id,
             "folder_entity": self.entity_version.id,
             "folder_id": "1",
+            "state": proposal_state.ProposalState.FACULTY.name
         }
 
     def test_user_not_logged(self):
@@ -230,7 +233,6 @@ class TestLearningUnitModificationProposal(TestCase):
     def test_transformation_proposal_request(self):
         self.form_data["acronym"] = "OSIS1452"
         self.client.post(self.url, data=self.form_data)
-
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
         self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.TRANSFORMATION.name)
 
@@ -374,20 +376,15 @@ class TestLearningUnitProposalSearch(TestCase):
         self.person = PersonFactory()
         self.permission = Permission.objects.get(codename="can_propose_learningunit")
         self.person.user.user_permissions.add(self.permission)
-
         self.permission_2 = Permission.objects.get(codename="can_access_learningunit")
         self.person.user.user_permissions.add(self.permission_2)
-
-        an_entity = EntityFactory()
-        self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
+        self.an_entity = EntityFactory()
+        self.entity_version = EntityVersionFactory(entity=self.an_entity, entity_type=entity_type.SCHOOL,
                                                    start_date=create_current_academic_year().start_date,
                                                    end_date=create_current_academic_year().end_date)
-        self.person_entity = PersonEntityFactory(person=self.person, entity=an_entity, with_child=True)
-
+        self.person_entity = PersonEntityFactory(person=self.person, entity=self.an_entity, with_child=True)
         self.client.force_login(self.person.user)
-
         self.proposals = [_create_proposal_learning_unit() for _ in range(3)]
-
 
     def test_learning_units_proposal_search(self):
         url = reverse(learning_units_proposal_search)
@@ -399,6 +396,18 @@ class TestLearningUnitProposalSearch(TestCase):
 
         self.assertIsInstance(response.context['form'], LearningUnitProposalForm)
         self.assertEqual(response.context['search_type'], PROPOSAL_SEARCH)
+
+
+    def test_learning_units_proposal_search_by_tutor(self):
+        proposal = _create_proposal_learning_unit()
+        tutor = TutorFactory(person=self.person)
+        AttributionFactory(tutor=tutor,
+                              learning_unit_year=proposal.learning_unit_year)
+        url = reverse(learning_units_proposal_search)
+        response = self.client.get(url, data={'tutor': self.person.first_name})
+        formset = response.context['proposals']
+        self.assertEqual(len(formset), 1)
+
 
     @mock.patch('base.views.layout.render')
     def test_learning_units_proposal_search_post(self, mock_render):
@@ -417,7 +426,7 @@ class TestLearningUnitProposalSearch(TestCase):
             'form-0-state': ['SUSPENDED'],
             'form-1-state': ['SUSPENDED'],
             'form-2-state': ['SUSPENDED']
-         }
+        }
         request = request_factory.post(url, data=data)
 
         request.user = self.person.user
@@ -457,7 +466,7 @@ class TestLearningUnitProposalSearch(TestCase):
             'form-0-state': ['NOT_VALID'],
             'form-1-state': ['SUSPENDED'],
             'form-2-state': ['SUSPENDED']
-         }
+        }
         request = request_factory.post(url, data=data)
 
         request.user = self.person.user
@@ -495,7 +504,7 @@ class TestLearningUnitProposalSearch(TestCase):
             'form-0-state': ['SUSPENDED'],
             'form-1-state': ['SUSPENDED'],
             'form-2-state': ['SUSPENDED']
-         }
+        }
         request = request_factory.post(url, data=data)
         request.user = self.person.user
         setattr(request, 'session', 'session')
@@ -785,7 +794,7 @@ class TestEditProposal(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_unit/proposal/edition.html')
-        self.assertIsInstance(context['form'], LearningUnitProposalUpdateForm)
+        self.assertIsInstance(context['form'], LearningUnitProposalModificationForm)
 
     def get_valid_data(self):
         return {
@@ -848,7 +857,7 @@ class TestEditProposal(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_unit/proposal/edition.html')
-        self.assertIsInstance(context['form'], LearningUnitProposalUpdateForm)
+        self.assertIsInstance(context['form'], LearningUnitProposalModificationForm)
 
         form = context['form']
         self.assertEqual(len(form.errors), 1)

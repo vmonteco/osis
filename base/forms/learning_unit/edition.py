@@ -146,6 +146,9 @@ class LearningUnitModificationForm(LearningUnitYearForm):
                     self.learning_unit_year_subtype == "FULL":
                 self._disabled_fields(FACULTY_READ_ONLY_FIELDS)
 
+        if learning_unit_year_instance:
+            self.learning_unit = learning_unit_year_instance.learning_unit
+
     def clean(self):
         cleaned_data = super().clean()
         if self.errors:
