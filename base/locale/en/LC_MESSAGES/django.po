@@ -2622,3 +2622,6 @@ msgstr "Do you want to change the status of this proposals?"
 
 msgid "are_you_sure_to_change_state_from"
 msgstr "Are you sure to change the state from"
+
+msgid "must_set_common_title_or_specific_title"
+msgstr "You must either set the common title or the specific title"
