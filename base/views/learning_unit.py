@@ -30,7 +30,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
 from django.db.models import BLANK_CHOICE_DASH
-from django.forms import model_to_dict
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.http import QueryDict
@@ -53,12 +52,13 @@ from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
 from base.business.learning_units.simple.creation import create_learning_unit_year_structure, create_learning_unit
 from base.forms.learning_class import LearningClassEditForm
+from base.forms.learning_unit.edition import compute_learning_unit_form_initial_data
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
     PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
-from base.models import proposal_learning_unit, entity_container_year
+from base.models import proposal_learning_unit
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.learning_container import LearningContainer
@@ -457,24 +457,6 @@ def compute_form_initial_data(learning_unit_year):
     return compute_learning_unit_form_initial_data(other_fields_dict, learning_unit_year, fields)
 
 
-def compute_learning_unit_form_initial_data(base_dict, learning_unit_year, fields):
-    initial_data = base_dict.copy()
-    initial_data.update(model_to_dict(learning_unit_year, fields=fields["learning_unit_year"]))
-    initial_data.update(model_to_dict(learning_unit_year.learning_container_year,
-                                      fields=fields["learning_container_year"]))
-    initial_data.update(model_to_dict(learning_unit_year.learning_unit,
-                                      fields=fields["learning_unit"]))
-    initial_data.update(get_attributions_of_learning_unit_year(learning_unit_year))
-    return {key: value for key, value in initial_data.items() if value is not None}
-
-
-def get_attributions_of_learning_unit_year(learning_unit_year):
-    attributions = entity_container_year.find_last_entity_version_grouped_by_linktypes(
-        learning_unit_year.learning_container_year
-    )
-    return {k.lower(): v.id for k, v in attributions.items() if v is not None}
-
-
 def get_learning_unit_identification_context(learning_unit_year_id, person):
     context = get_common_context_learning_unit_year(learning_unit_year_id, person)
 
@@ -489,7 +471,7 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context.update(get_all_attributions(learning_unit_year))
     context['components'] = get_components_identification(learning_unit_year)
     context['proposal'] = proposal
-    context['proposal_folder_entity_version'] = mdl_base.entity_version.get_by_entity_and_date(
+    context['proposal_folder_entity_version'] = mdl.entity_version.get_by_entity_and_date(
         proposal.folder.entity, None) if proposal else None
     context['differences'] = _get_difference_of_proposal(proposal)
 

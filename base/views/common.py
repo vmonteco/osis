@@ -205,3 +205,8 @@ def check_if_display_message(request, results):
     if not results:
         messages.add_message(request, messages.WARNING, _('no_result'))
     return True
+
+
+def clean_session(request, fields):
+    for field in fields:
+        del request.session[field]

@@ -25,22 +25,23 @@
 ##############################################################################
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
-from django.http import HttpResponseRedirect, JsonResponse
+from django.forms import formset_factory
+from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from base.business import learning_unit_year_with_context
-from base.business.learning_units.edition import edit_learning_unit_end_date, update_learning_unit_year_with_report, \
-    update_learning_unit_year_entities_with_report
-from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
+from base.business.learning_units.edition import edit_learning_unit_end_date
+from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm, \
+    KeepOrOverwriteFormSet, KeepOrOverwriteForm
 from base.forms.learning_unit.edition_volume import VolumeEditionFormsetContainer
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
-from base.views.common import display_error_messages, display_success_messages
+from base.views.common import display_error_messages, display_success_messages, clean_session
 from base.views.learning_unit import get_learning_unit_identification_context, \
-    compute_learning_unit_form_initial_data, get_common_context_learning_unit_year, learning_unit_components
+    get_common_context_learning_unit_year, learning_unit_components
 from base.views.learning_units import perms
 
 
@@ -72,55 +73,67 @@ def learning_unit_edition_end_date(request, learning_unit_year_id):
     return layout.render(request, 'learning_unit/edition.html', context)
 
 
+def check_postponement_conflict(learning_unit_year):
+    return ['tout', 'va', 'bien', 'merci']
+
+
 @login_required
 @permission_required('base.can_edit_learningunit', raise_exception=True)
 @perms.can_perform_learning_unit_modification
 def modify_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     person = get_object_or_404(Person, user=request.user)
-    initial_data = compute_learning_unit_modification_form_initial_data(learning_unit_year)
-    form = LearningUnitModificationForm(request.POST or None, learning_unit_year_instance=learning_unit_year,
-                                        person=person, initial=initial_data)
+    form = LearningUnitModificationForm(
+        request.POST or None, learning_unit_year_instance=learning_unit_year, person=person)
+
     if form.is_valid():
-        entities_data = form.get_entities_data()
-        lu_type_full_data = form.get_data_for_learning_unit()
+        postponement = bool(int(request.POST.get('postponement', 1)))
+
+        warnings = check_postponement_conflict(learning_unit_year)
+        if warnings:
+            request.session['warnings'] = warnings
+            request.session['update_form'] = request.POST
+            return redirect("confirm_postponement", learning_unit_year_id=learning_unit_year_id)
 
         try:
-            postponement = bool(int(request.POST.get('postponement', 1)))
-
-            update_learning_unit_year_with_report(learning_unit_year, lu_type_full_data, postponement)
-            update_learning_unit_year_entities_with_report(learning_unit_year, entities_data, postponement)
-
+            form.save(postponement)
             display_success_messages(request, _("success_modification_learning_unit"))
 
         except IntegrityError as e:
-            msg = "{} : {}".format(_("error_modification_learning_unit"),  e.args[0])
+            msg = "{} : {}".format(_("error_modification_learning_unit"), e.args[0])
             display_error_messages(request, msg)
 
         return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
 
-    context = {
-        "learning_unit_year": learning_unit_year,
-        "form": form
-    }
+    context = {"learning_unit_year": learning_unit_year, "form": form}
     return layout.render(request, 'learning_unit/modification.html', context)
 
 
-def compute_learning_unit_modification_form_initial_data(learning_unit_year):
-    other_fields_dict = {
-        "specific_title": learning_unit_year.specific_title,
-        "specific_title_english": learning_unit_year.specific_title_english,
-        "first_letter": learning_unit_year.acronym[0],
-        "acronym": learning_unit_year.acronym[1:]
-    }
-    fields = {
-        "learning_unit_year": ("academic_year", "status", "credits", "session", "subtype", "quadrimester",
-                               "attribution_procedure"),
-        "learning_container_year": ("common_title", "common_title_english", "container_type", "campus", "language",
-                                    "is_vacant", "team", "type_declaration_vacant"),
-        "learning_unit": ("faculty_remark", "other_remark", "periodicity")
-    }
-    return compute_learning_unit_form_initial_data(other_fields_dict, learning_unit_year, fields)
+def confirm_postponement(request, learning_unit_year_id):
+    """ In case of a postponement, we need to ask to the user if he wants to keep or overwrite the data """
+    learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+    person = get_object_or_404(Person, user=request.user)
+
+    warnings = request.session.get('warnings', None)
+    if not warnings:
+        raise Http404()
+
+    KeepOrOverwriteFormset = formset_factory(
+        form=KeepOrOverwriteForm, formset=KeepOrOverwriteFormSet, extra=len(warnings))
+    formset = KeepOrOverwriteFormset(warnings, request.POST or None)
+    form = LearningUnitModificationForm(
+        request.session['update_form'], learning_unit_year_instance=learning_unit_year, person=person)
+
+    if formset.is_valid() and form.is_valid():
+        form.save(postponement=True)
+
+        clean_session(request, ['warnings', 'update_form'])
+
+        display_success_messages(request, _("success_modification_learning_unit"))
+        return redirect("learning_unit", learning_unit_year_id=learning_unit_year_id)
+
+    context = {'formset': formset, 'learning_unit': learning_unit_year_id}
+    return layout.render(request, 'learning_unit/confirm_postponement.html', context)
 
 
 def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id):

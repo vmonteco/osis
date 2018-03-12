@@ -28,14 +28,13 @@ from django.conf.urls import url, include
 from django.conf.urls.static import static
 
 import base.views.learning_units.delete
-import base.views.learning_units.update
 import base.views.learning_units.search
+import base.views.learning_units.update
 from attribution.views import attribution, tutor_application
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group
-from base.views.learning_units import update
 from base.views.learning_units.proposal import create, update
-from base.views.learning_units.update import modify_learning_unit, learning_unit_edition_end_date
+from base.views.learning_units.update import modify_learning_unit, learning_unit_edition_end_date, confirm_postponement
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -118,6 +117,7 @@ urlpatterns = [
             ])),
             url(r'^edit/$', learning_unit_edition_end_date, name="learning_unit_edition"),
             url(r'^modify/$', modify_learning_unit, name="edit_learning_unit"),
+            url(r'^modify/confirm_postponement$', confirm_postponement, name="confirm_postponement"),
             url(r'^specifications/$', learning_unit.learning_unit_specifications, name="learning_unit_specifications"),
             url(r'^specifications/edit/$', learning_unit.learning_unit_specifications_edit,
                 name="learning_unit_specifications_edit"),
