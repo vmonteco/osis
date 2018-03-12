@@ -936,6 +936,13 @@ class LearningUnitViewTestCase(TestCase):
         self.assertFalse(form.is_valid(), form.errors)
         self.assertTrue(form.errors['allocation_entity'])
 
+    def test_learning_unit_form_without_common_and_specific_title(self):
+        faultydata = dict(self.get_valid_data())
+        faultydata["specific_title"] = ""
+        form = CreateLearningUnitYearForm(person=self.person, data=faultydata)
+        self.assertFalse(form.is_valid())
+        self.assertTrue(form.errors["common_title"])
+
     def test_expected_partim_creation_on_6_years(self):
         # Create container + container year for N+6
         a_learning_container = LearningContainerFactory()

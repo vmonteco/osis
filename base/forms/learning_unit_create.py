@@ -109,7 +109,7 @@ class LearningUnitYearForm(BootstrapForm):
                                                                  'max': MAXIMUM_CREDITS}))
     common_title = forms.CharField(required=False)
     common_title_english = forms.CharField(required=False, widget=forms.TextInput())
-    specific_title = forms.CharField()
+    specific_title = forms.CharField(required=False)
     specific_title_english = forms.CharField(required=False, widget=forms.TextInput())
     session = forms.ChoiceField(add_blank(mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION),
                                 required=False)
@@ -156,6 +156,8 @@ class LearningUnitYearForm(BootstrapForm):
                 and cleaned_data.get("container_type") == INTERNSHIP \
                 and not (cleaned_data['internship_subtype']):
             self.add_error('internship_subtype', _('field_is_required'))
+        if not cleaned_data["common_title"] and not cleaned_data["specific_title"]:
+            self.add_error("common_title", _("must_set_common_title_or_specific_title"))
         return cleaned_data
 
     def clean_acronym(self, regex=LEARNING_UNIT_ACRONYM_REGEX_ALL):

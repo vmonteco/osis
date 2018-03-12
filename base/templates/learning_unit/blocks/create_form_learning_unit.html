@@ -137,13 +137,26 @@
     </div>
     <div class="panel-body">
         <div>
+            <label {% if learning_unit_form.errors.common_title%}style="color:red;" {% endif %}>
+                {% trans 'common_official_title' %}
+            </label>
+            {{ learning_unit_form.common_title }}
+            <label {% if learning_unit_form.errors.common_title%}style="color:red;" {% endif %}>
+                {{ learning_unit_form.errors.common_title| striptags }}
+            </label>
+        </div>
+        <div>
             <label {% if learning_unit_form.errors.specific_title%}style="color:red;" {% endif %}>
-                {% trans 'official_title_proper_to_UE' %}*
+                {% trans 'official_title_proper_to_UE' %}
             </label>
             {{ learning_unit_form.specific_title }}
             <label {% if learning_unit_form.errors.specific_title%}style="color:red;" {% endif %}>
                 {{ learning_unit_form.errors.specific_title| striptags }}
             </label>
+        </div>
+        <div>
+            <label>{% trans 'common_official_english_title' %}</label>
+            {{ learning_unit_form.common_title_english }}
         </div>
         <div>
             <label>{% trans 'official_english_title_proper_to_UE' %}</label>
