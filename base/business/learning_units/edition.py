@@ -28,6 +28,7 @@ from django.db import IntegrityError, transaction
 from django.db.models import F
 from django.utils.translation import ugettext_lazy as _
 
+from base.business import learning_unit_year_with_context
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_unit_deletion import delete_from_given_learning_unit_year, \
     check_learning_unit_year_deletion
@@ -35,11 +36,13 @@ from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.utils.model import update_instance_model_from_data, update_related_object
 from base.models import entity_component_year
 from base.models import entity_container_year, learning_component_year, learning_class_year, learning_unit_component
+from base.models import learning_unit_year
 from base.models.academic_year import AcademicYear
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import EntityVersion
 from base.models.enums import learning_unit_periodicity, learning_unit_year_subtypes
+from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit_year import LearningUnitYear
 
@@ -324,3 +327,66 @@ def _delete_entity_component_year(learning_container_year, type_entity):
         entity_container_year__learning_container_year=learning_container_year,
         entity_container_year__type=type_entity
     ).delete()
+
+
+def check_postponement_conflict(luy):
+    error_list = []
+
+    next_luy = luy.get_learning_unit_next_year()
+    if next_luy:
+        lcy = luy.learning_container_year
+        next_lcy = next_luy.learning_container_year
+        error_list.extend(_check_postponement_conflict_on_learning_unit_year(luy, next_luy))
+        error_list.extend(_check_postponement_conflict_on_learning_container_year(lcy, next_lcy))
+        error_list.extend(_check_postponement_conflict_on_entity_container_year(lcy, next_lcy))
+    return error_list
+
+
+def _check_postponement_conflict_on_learning_unit_year(luy, next_luy):
+    fields_to_compare = 'acronym', 'specific_title', 'specific_title_english', 'subtype', 'credits', \
+                        'decimal_scores', 'internship_subtype', 'status', 'session', 'quadrimester',
+    return _get_differences(luy, next_luy, fields_to_compare)
+
+
+def _check_postponement_conflict_on_learning_container_year(lcy, next_lcy):
+    fields_to_compare = 'container_type', 'common_title', 'common_title_english', 'acronym', 'language', \
+                        'campus', 'team',
+    return _get_differences(lcy, next_lcy, fields_to_compare)
+
+
+def _get_differences(obj1, obj2, fields_to_compare):
+    error = "The value of field '%(field)s' is different between year %(year)s - %(value)s " \
+            "and year %(next_year)s - %(next_value)s"
+    field_diff = filter(lambda field: getattr(obj1, field, None) != getattr(obj2, field, None), fields_to_compare)
+    error_list = []
+    for field_name in field_diff:
+        current_value = getattr(obj1, field_name, None)
+        next_year_value = getattr(obj2, field_name, None)
+        error_list.append(_(error) % {
+            'field': _(field_name),
+            'year': obj1.academic_year,
+            'value': current_value if current_value else _('no_data'),
+            'next_year': obj2.academic_year,
+            'next_value': next_year_value if next_year_value else _('no_data')
+        })
+    return error_list
+
+
+def _check_postponement_conflict_on_entity_container_year(lcy, next_lcy):
+    error = "The value of field '%(field)s' is different between year %(year)s - %(value)s " \
+            "and year %(next_year)s - %(next_value)s"
+    current_entities = entity_container_year.find_entities_grouped_by_linktype(lcy)
+    next_year_entities = entity_container_year.find_entities_grouped_by_linktype(next_lcy)
+    entity_type_diff = filter(lambda type: current_entities.get(type) != next_year_entities.get(type), ENTITY_TYPE_LIST)
+    error_list = []
+    for entity_type in entity_type_diff:
+        current_entity = current_entities.get(entity_type)
+        next_year_entity = next_year_entities.get(entity_type)
+        error_list.append(_(error) % {
+            'field': _(entity_type),
+            'year': lcy.academic_year,
+            'value': current_entity.most_recent_acronym if current_entity else _('no_data'),
+            'next_year': next_lcy.academic_year,
+            'next_value': next_year_entity.most_recent_acronym if next_year_entity else _('no_data')
+        })
+    return error_list

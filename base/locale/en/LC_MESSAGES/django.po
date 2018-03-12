@@ -2635,6 +2635,8 @@ msgstr "educational information editable"
 msgid "summary_editable_field_successfuly_updated"
 msgstr "The possibility to edit educational information has been correctly updated."
 
-
 msgid "msg_confirm_delete_luy"
 msgstr "Are you certain that you want to delete the learning unit ?"
+
+msgid "The value of field '%(field)s' is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s"
+msgstr ""
