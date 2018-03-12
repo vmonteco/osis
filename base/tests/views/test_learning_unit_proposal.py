@@ -537,7 +537,7 @@ class TestLearningUnitProposalSearch(TestCase):
     @mock.patch('base.views.layout.render')
     def test_force_state_does_not_delete_proposals(self, mock_render):
         self._update_proposals_type(prop_type=proposal_type.ProposalType.SUPPRESSION.name)
-        self.get_request(self.get_data(action='forced_state'))
+        self.get_request(self.get_data(action='force_state'))
         self.assertTrue(mock_render.called)
         self.assertEquals(ProposalLearningUnit.objects.count(), 3)
 
@@ -548,7 +548,7 @@ class TestLearningUnitProposalSearch(TestCase):
 
     @mock.patch('base.views.layout.render')
     def test_cancel_list_of_proposal(self, mock_render):
-        self.get_request(self.get_data('forced_state'))
+        self.get_request(self.get_data(action='force_state'))
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
