@@ -23,9 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.business.learning_units.proposal import business
+from base.business.learning_units.proposal import common
 
 
 def update_learning_unit_proposal(data, proposal, folder):
-    proposal = business.proposal_common_populate(data, folder, proposal)
+    proposal = common.proposal_common_populate(data, folder, proposal)
     proposal.save()
