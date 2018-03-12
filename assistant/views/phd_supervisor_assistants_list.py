@@ -24,7 +24,6 @@
 #
 ##############################################################################
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.forms import forms
 from django.views.generic import ListView
@@ -48,12 +47,7 @@ class AssistantsListView(LoginRequiredMixin, UserPassesTestMixin, ListView, Form
         return reverse('access_denied')
 
     def get_queryset(self):
-        try:
-            self.reviewer = reviewer.find_by_person(self.request.user.person)
-            self.is_reviewer = True
-        except ObjectDoesNotExist:
-            self.is_reviewer = False
-            self.reviewer = None
+        self.reviewer = reviewer.find_by_person(self.request.user.person)
         return assistant_mandate.find_for_supervisor_for_academic_year(self.request.user.person,
                                                                        academic_year.current_academic_year())
 
@@ -68,7 +62,7 @@ class AssistantsListView(LoginRequiredMixin, UserPassesTestMixin, ListView, Form
         else:
             entity = None
         context['entity'] = entity
-        if self.is_reviewer:
+        if self.reviewer:
             can_delegate = reviewer.can_delegate(reviewer.find_by_person(self.request.user.person))
             context['can_delegate'] = can_delegate
         else:

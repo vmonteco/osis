@@ -39,7 +39,7 @@
             {{ entity.acronym }}</h6>
     {% endif %}
     <h3>{% trans 'assistant_mandates_renewals' %} {{ year|add:1 }}</h3>
-    {% if is_reviewer %}
+    {% if current_reviewer %}
         <ul class="nav nav-tabs">
             <li><a href="{% url 'reviewer_mandates_list' %}">{% trans 'reviewer_mandates_list' %}</a></li>
             <li><a href="{% url 'reviewer_mandates_list_todo' %}">{% trans 'reviewer_todo' %}</a></li>
