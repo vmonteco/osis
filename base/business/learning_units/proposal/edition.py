@@ -24,6 +24,7 @@
 #
 ##############################################################################
 
+
 def update_learning_unit_proposal(data, proposal, folder):
     proposal.folder = folder
     proposal.learning_unit_year = data.get('learning_unit_year')

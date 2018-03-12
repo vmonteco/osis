@@ -81,8 +81,9 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
             _update_or_delete_entity_container(self.cleaned_data[entity_type.lower()], learning_container_year,
                                                entity_type)
 
-        folder, created = proposal_folder.ProposalFolder.objects.get_or_create(entity=self.cleaned_data['folder_entity'].entity,
-                                                                      folder_id=self.cleaned_data['folder_id'])
+        folder, created = proposal_folder.ProposalFolder.objects.get_or_create(
+            entity=self.cleaned_data['folder_entity'].entity,
+            folder_id=self.cleaned_data['folder_id'])
         if self.proposal:
             edition.update_learning_unit_proposal({'person': a_person,
                                                    'learning_unit_year': learning_unit_year,
