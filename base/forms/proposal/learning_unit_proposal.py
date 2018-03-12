@@ -197,6 +197,7 @@ class ProposalListFormset(forms.BaseFormSet):
 
     def __init__(self, *args, **kwargs):
         self.list_proposal_learning = kwargs.pop("list_proposal_learning")
+        self.action = kwargs.pop("action")
         super().__init__(*args, **kwargs)
 
     def get_form_kwargs(self, index):

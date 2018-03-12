@@ -117,18 +117,16 @@ def _proposal_management(request, proposals):
     list_proposal_formset = formset_factory(form=ProposalRowForm, formset=ProposalListFormset,
                                             extra=len(proposals), max_num=MAX_RECORDS)
 
-    formset = list_proposal_formset(request.POST or None, list_proposal_learning=proposals)
+    formset = list_proposal_formset(request.POST or None,
+                                    list_proposal_learning=proposals,
+                                    action=request.POST.get('action') if request.POST else None)
     if formset.is_valid():
-        if is_get_back_to_initial_action(formset):
+        if formset.action == 'back_to_initial':
             formset = _go_back_to_initial_data(formset, request)
         else:
             _force_state(formset, request)
 
     return formset
-
-
-def is_get_back_to_initial_action(formset):
-    return any(form.cleaned_data.get('action') == 'back_to_initial' for form in formset)
 
 
 def _go_back_to_initial_data(formset, request):
