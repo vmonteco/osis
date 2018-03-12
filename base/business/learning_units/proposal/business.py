@@ -23,11 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models import proposal_learning_unit
-from base.business.learning_units.proposal import business
 
 
-def create_learning_unit_proposal(data, folder):
-    proposal = business.proposal_common_populate(data, folder, proposal_learning_unit.ProposalLearningUnit())
-    proposal.initial_data = data.get('initial_data')
-    proposal.save()
+def proposal_common_populate(data, folder, proposal_param):
+    proposal = proposal_param
+    proposal.folder = folder
+    proposal.learning_unit_year = data.get('learning_unit_year')
+    proposal.type = data.get('type_proposal')
+    proposal.state = data.get('state_proposal')
+    proposal.author = data.get('person')
+    return proposal

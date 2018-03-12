@@ -23,12 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from base.business.learning_units.proposal import business
 
 
 def update_learning_unit_proposal(data, proposal, folder):
-    proposal.folder = folder
-    proposal.learning_unit_year = data.get('learning_unit_year')
-    proposal.type = data.get('type_proposal')
-    proposal.state = data.get('state_proposal')
-    proposal.author = data.get('person')
+    proposal = business.proposal_common_populate(data, folder, proposal)
     proposal.save()
