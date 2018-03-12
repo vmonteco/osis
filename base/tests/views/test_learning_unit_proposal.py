@@ -229,10 +229,8 @@ class TestLearningUnitModificationProposal(TestCase):
                       list(messages))
 
     def test_transformation_proposal_request(self):
-        print('********************************************************************test_transformation_proposal_request************************************')
         self.form_data["acronym"] = "OSIS1452"
         self.client.post(self.url, data=self.form_data)
-
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
         self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.TRANSFORMATION.name)
 
@@ -390,7 +388,6 @@ class TestLearningUnitProposalSearch(TestCase):
 
         self.proposals = [_create_proposal_learning_unit() for _ in range(3)]
 
-
     def test_learning_units_proposal_search(self):
         url = reverse(learning_units_proposal_search)
         response = self.client.get(url, data={'acronym': self.proposals[0].learning_unit_year.acronym})
@@ -419,7 +416,7 @@ class TestLearningUnitProposalSearch(TestCase):
             'form-0-state': ['SUSPENDED'],
             'form-1-state': ['SUSPENDED'],
             'form-2-state': ['SUSPENDED']
-         }
+        }
         request = request_factory.post(url, data=data)
 
         request.user = self.person.user
@@ -459,7 +456,7 @@ class TestLearningUnitProposalSearch(TestCase):
             'form-0-state': ['NOT_VALID'],
             'form-1-state': ['SUSPENDED'],
             'form-2-state': ['SUSPENDED']
-         }
+        }
         request = request_factory.post(url, data=data)
 
         request.user = self.person.user
@@ -497,7 +494,7 @@ class TestLearningUnitProposalSearch(TestCase):
             'form-0-state': ['SUSPENDED'],
             'form-1-state': ['SUSPENDED'],
             'form-2-state': ['SUSPENDED']
-         }
+        }
         request = request_factory.post(url, data=data)
         request.user = self.person.user
         setattr(request, 'session', 'session')

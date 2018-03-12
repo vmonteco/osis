@@ -45,11 +45,7 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
 
     def __init__(self, *args, **kwargs):
         self.proposal = kwargs.pop('instance', None)
-        lu = None
-        if self.proposal:
-            lu = self.proposal.learning_unit_year.learning_unit
-        super(LearningUnitProposalModificationForm, self).__init__(learning_unit=lu,
-            *args, **kwargs)
+        super(LearningUnitProposalModificationForm, self).__init__(*args, **kwargs)
         self.fields["academic_year"].disabled = True
         self.fields["academic_year"].required = False
         self.fields["subtype"].required = False
@@ -67,11 +63,9 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
 
     def save(self, learning_unit_year, a_person, type_proposal, state_proposal):
         if not self.is_valid():
-            print(self.errors)
             raise ValueError("Form is invalid.")
 
         initial_data = _copy_learning_unit_data(learning_unit_year)
-
         learning_container_year = learning_unit_year.learning_container_year
 
         _update_model_object(learning_unit_year.learning_unit, self.cleaned_data, ["periodicity"])
@@ -86,35 +80,20 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
             _update_or_delete_entity_container(self.cleaned_data[entity_type.lower()], learning_container_year,
                                                entity_type)
         if self.proposal:
-            print('editioon')
             edition.update_learning_unit_proposal({'person': a_person,
                                                    'folder_entity': self.cleaned_data['folder_entity'].entity,
                                                    'folder_id': self.cleaned_data['folder_id'],
                                                    'learning_unit_year': learning_unit_year,
                                                    'state_proposal': state_proposal,
                                                    'type_proposal': type_proposal}, self.proposal)
-
         else:
-            print('createion')
             creation.create_learning_unit_proposal({'person': a_person,
-                                                   'folder_entity': self.cleaned_data['folder_entity'].entity,
-                                                   'folder_id': self.cleaned_data['folder_id'],
-                                                   'learning_unit_year': learning_unit_year,
-                                                   'state_proposal': state_proposal,
-                                                   'type_proposal': type_proposal,
-                                                   'initial_data': initial_data})
-
-
-class LearningUnitProposalUpdateForm(LearningUnitProposalModificationForm):
-    state = forms.ChoiceField(choices=proposal_state.CHOICES)
-    type = forms.ChoiceField(choices=proposal_type.CHOICES, required=False, disabled=True)
-
-    def __init__(self, *args, **kwargs):
-        self.proposal = kwargs.pop('proposal')
-        super(LearningUnitProposalUpdateForm, self).__init__(
-            learning_unit=self.proposal.learning_unit_year.learning_unit,
-            *args,
-            **kwargs)
+                                                    'folder_entity': self.cleaned_data['folder_entity'].entity,
+                                                    'folder_id': self.cleaned_data['folder_id'],
+                                                    'learning_unit_year': learning_unit_year,
+                                                    'state_proposal': state_proposal,
+                                                    'type_proposal': type_proposal,
+                                                    'initial_data': initial_data})
 
 
 def _copy_learning_unit_data(learning_unit_year):

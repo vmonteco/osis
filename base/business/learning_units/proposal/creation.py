@@ -26,15 +26,15 @@
 from base.models import proposal_folder, proposal_learning_unit
 
 
-def create_learning_unit_proposal(data):
-    folder, created = proposal_folder.ProposalFolder.objects.get_or_create(entity=data.get('folder_entity'),
-                                                                           folder_id=data.get('folder_id'))
-    data = {"type": data.get('type_proposal'),
-            "state": data.get('state_proposal'),
-            "author": data.get('person'),
-            "initial_data": data.get('initial_data')}
+def create_learning_unit_proposal(data_param):
+    folder, created = proposal_folder.ProposalFolder.objects.get_or_create(entity=data_param.get('folder_entity'),
+                                                                           folder_id=data_param.get('folder_id'))
+    data = {"type": data_param.get('type_proposal'),
+            "state": data_param.get('state_proposal'),
+            "author": data_param.get('person'),
+            "initial_data": data_param.get('initial_data')}
 
     proposal_learning_unit.ProposalLearningUnit.objects.update_or_create(
         folder=folder,
-        learning_unit_year=data.get('learning_unit_year'),
+        learning_unit_year=data_param.get('learning_unit_year'),
         defaults=data)
