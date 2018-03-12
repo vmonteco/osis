@@ -355,14 +355,13 @@ def _check_postponement_conflict_on_learning_container_year(lcy, next_lcy):
 
 
 def _get_differences(obj1, obj2, fields_to_compare):
-    error = "The value of field '%(field)s' is different between year %(year)s - %(value)s " \
-            "and year %(next_year)s - %(next_value)s"
     field_diff = filter(lambda field: getattr(obj1, field, None) != getattr(obj2, field, None), fields_to_compare)
     error_list = []
     for field_name in field_diff:
         current_value = getattr(obj1, field_name, None)
         next_year_value = getattr(obj2, field_name, None)
-        error_list.append(_(error) % {
+        error_list.append(_("The value of field '%(field)s' is different between year %(year)s - %(value)s "
+                            "and year %(next_year)s - %(next_value)s") % {
             'field': _(field_name),
             'year': obj1.academic_year,
             'value': current_value if current_value else _('no_data'),
@@ -373,8 +372,6 @@ def _get_differences(obj1, obj2, fields_to_compare):
 
 
 def _check_postponement_conflict_on_entity_container_year(lcy, next_lcy):
-    error = "The value of field '%(field)s' is different between year %(year)s - %(value)s " \
-            "and year %(next_year)s - %(next_value)s"
     current_entities = entity_container_year.find_entities_grouped_by_linktype(lcy)
     next_year_entities = entity_container_year.find_entities_grouped_by_linktype(next_lcy)
     entity_type_diff = filter(lambda type: current_entities.get(type) != next_year_entities.get(type), ENTITY_TYPE_LIST)
@@ -382,8 +379,9 @@ def _check_postponement_conflict_on_entity_container_year(lcy, next_lcy):
     for entity_type in entity_type_diff:
         current_entity = current_entities.get(entity_type)
         next_year_entity = next_year_entities.get(entity_type)
-        error_list.append(_(error) % {
-            'field': _(entity_type),
+        error_list.append(_("The value of field '%(field)s' is different between year %(year)s - %(value)s "
+                            "and year %(next_year)s - %(next_value)s") % {
+            'field': _(entity_type.lower()),
             'year': lcy.academic_year,
             'value': current_entity.most_recent_acronym if current_entity else _('no_data'),
             'next_year': next_lcy.academic_year,

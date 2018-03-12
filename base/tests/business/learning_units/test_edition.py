@@ -265,7 +265,7 @@ class LearningUnitEditionTestCase(TestCase):
                         "and year %(next_year)s - %(next_value)s"
         # Error : Requirement entity diff
         error_requirement_entity = _(generic_error) % {
-            'field': _(entity_container_year_link_type.REQUIREMENT_ENTITY),
+            'field': _(entity_container_year_link_type.REQUIREMENT_ENTITY.lower()),
             'year': self.learning_container_year.academic_year,
             'value': self.requirement_entity.entity.most_recent_acronym,
             'next_year': another_learning_container_year.academic_year,
@@ -275,7 +275,7 @@ class LearningUnitEditionTestCase(TestCase):
 
         # Error : Additional requirement entity diff
         error_requirement_entity = _(generic_error) % {
-            'field': _(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1),
+            'field': _(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1.lower()),
             'year': self.learning_container_year.academic_year,
             'value': self.add_requirement_entity_1.entity.most_recent_acronym,
             'next_year': another_learning_container_year.academic_year,
