@@ -128,8 +128,6 @@ class LearningUnitProposalForm(SearchForm):
 
 
 class ProposalStateModelForm(forms.ModelForm):
-    action = forms.CharField(max_length=50, required=False)
-
     class Meta:
         model = ProposalLearningUnit
         fields = ['state']
