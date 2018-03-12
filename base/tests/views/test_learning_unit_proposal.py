@@ -48,6 +48,7 @@ from base.models.enums import entity_container_year_link_type, learning_unit_per
 from base.models.enums import organization_type, entity_type, \
     learning_unit_year_subtypes, proposal_type, learning_container_year_types, proposal_state
 from base.models.enums.proposal_state import ProposalState
+from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories import academic_year as academic_year_factory, campus as campus_factory, \
     organization as organization_factory
 from base.tests.factories.academic_year import AcademicYearFakerFactory, create_current_academic_year, get_current_year
@@ -67,7 +68,7 @@ from base.tests.factories.proposal_folder import ProposalFolderFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.tutor import TutorFactory
 from base.views.learning_units.proposal.update import edit_learning_unit_proposal
-from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search
+from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search, _cancel_list_of_proposal
 from reference.tests.factories.language import LanguageFactory
 
 LABEL_VALUE_BEFORE_PROPROSAL = _('value_before_proposal')
@@ -526,6 +527,95 @@ class TestLearningUnitProposalSearch(TestCase):
             new_proposal_state = proposal.state
             self.assertEqual(new_proposal_state, old_proposal_state)
 
+    @mock.patch('base.views.layout.render')
+    def test_back_to_initial_on_2_proposals(self, mock_render):
+        self._update_proposals_type(prop_type=proposal_type.ProposalType.SUPPRESSION.name)
+        self.get_request(self.get_data(action='back_to_initial'))
+        self.assertTrue(mock_render.called)
+        self.assertEquals(ProposalLearningUnit.objects.count(), 1)
+
+    @mock.patch('base.views.layout.render')
+    def test_force_state_does_not_delete_proposals(self, mock_render):
+        self._update_proposals_type(prop_type=proposal_type.ProposalType.SUPPRESSION.name)
+        self.get_request(self.get_data(action='force_state'))
+        self.assertTrue(mock_render.called)
+        self.assertEquals(ProposalLearningUnit.objects.count(), 3)
+
+    def _update_proposals_type(self, prop_type):
+        for proposal in self.proposals:
+            proposal.type = prop_type
+            proposal.save()
+
+    @mock.patch('base.views.layout.render')
+    def test_cancel_list_of_proposal(self, mock_render):
+        self.get_request(self.get_data(action='force_state'))
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        formset = context['proposals']
+        setattr(request, '_messages', FallbackStorage(request))
+        self.assertEqual(_cancel_list_of_proposal(formset, None, request), formset)
+
+    @mock.patch('base.views.layout.render')
+    def test_get_checked_proposals(self, mock_render):
+        self.get_request(self.get_data())
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        formset = context['proposals']
+        setattr(request, '_messages', FallbackStorage(request))
+
+        proposals_candidate_to_cancellation = formset.get_checked_proposals()
+        self.assertEqual(len(proposals_candidate_to_cancellation), 2)
+
+    @mock.patch('base.views.layout.render')
+    def test_get_no_checked_proposals(self, mock_render):
+        self.get_request(self.get_data_not_checked())
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        formset = context['proposals']
+        setattr(request, '_messages', FallbackStorage(request))
+
+        proposals_candidate_to_cancellation = formset.get_checked_proposals()
+        self.assertEqual(len(proposals_candidate_to_cancellation), 0)
+
+    def get_data(self, action=None):
+        data = {
+            'form-TOTAL_FORMS': ['3'],
+            'form-INITIAL_FORMS': ['0'],
+            'form-MIN_NUM_FORMS': ['0'],
+            'form-MAX_NUM_FORMS': ['1000'],
+            'form-0-check': ['on'],
+            'form-2-check': ['on'],
+            'form-0-state': ['SUSPENDED'],
+            'form-1-state': ['SUSPENDED'],
+            'form-2-state': ['SUSPENDED'],
+            'action': action,
+        }
+        return data
+
+    def get_data_not_checked(self, action=None):
+        data = {
+            'form-TOTAL_FORMS': ['3'],
+            'form-INITIAL_FORMS': ['0'],
+            'form-MIN_NUM_FORMS': ['0'],
+            'form-MAX_NUM_FORMS': ['1000'],
+            'form-0-state': ['SUSPENDED'],
+            'form-1-state': ['SUSPENDED'],
+            'form-2-state': ['SUSPENDED'],
+            'action': action,
+        }
+        return data
+
+    def get_request(self, data):
+        url = reverse(learning_units_proposal_search) + '?acronym=' + self.proposals[0].learning_unit_year.acronym
+        request_factory = RequestFactory()
+        request = request_factory.post(url, data=data)
+        request.user = self.person.user
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+        learning_units_proposal_search(request)
+        return request
+
 
 class TestLearningUnitProposalCancellation(TestCase):
     def setUp(self):
@@ -672,8 +762,8 @@ def _test_entities_equal(learning_container_year, entities_values_dict):
             learning_container_year, type_entity)
         if entities_values_dict[type_entity] is None and linked_entity_container is not None:
             return False
-        if entities_values_dict[type_entity] is not None and \
-                        linked_entity_container.entity.id != entities_values_dict[type_entity]:
+        if entities_values_dict[type_entity] is not None \
+                and linked_entity_container.entity.id != entities_values_dict[type_entity]:
             return False
     return True
 
@@ -1054,6 +1144,10 @@ class TestLearningUnitProposalDisplay(TestCase):
 
         self.assertEqual(proposal_business.
                          _get_entity_previous_value(wrong_id,
+                                                    entity_container_year_link_type.REQUIREMENT_ENTITY),
+                         {entity_container_year_link_type.REQUIREMENT_ENTITY: _('entity_not_found')})
+        self.assertEqual(proposal_business.
+                         _get_entity_previous_value(None,
                                                     entity_container_year_link_type.REQUIREMENT_ENTITY),
                          {entity_container_year_link_type.REQUIREMENT_ENTITY: _('entity_not_found')})
 
