@@ -72,7 +72,7 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
 
         _update_model_object(learning_unit_year.learning_unit, self.cleaned_data, ["periodicity"])
         _update_model_object(learning_unit_year, self.cleaned_data, ["acronym", "status", "quadrimester",
-                                                                     "specific_title", "specific_english_title",
+                                                                     "specific_title", "specific_title_english",
                                                                      "internship_subtype", "credits"])
         _update_model_object(learning_container_year, self.cleaned_data, ["acronym", "title", "language", "campus",
                                                                           "common_title", "common_title_english",
