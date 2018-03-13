@@ -34,7 +34,6 @@
     <div class="page-header">
         <h2>{% trans 'my_messages' %}</h2>
     </div>
-    {% include "template_messages.html" %}
     {% if my_messages_formset and my_message_action_form %}
         <form action="{% url 'my_messages_action' %}" method="post">
             {% csrf_token %}
