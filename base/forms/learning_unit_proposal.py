@@ -77,9 +77,7 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
                                                                           "common_title", "common_title_english",
                                                                           "container_type"])
 
-        for entity_type in ENTITY_TYPE_LIST:
-            _update_or_delete_entity_container(self.cleaned_data[entity_type.lower()], learning_container_year,
-                                               entity_type)
+        self._updates_entities(learning_container_year)
 
         folder, created = proposal_folder.ProposalFolder.objects.get_or_create(
             entity=self.cleaned_data['folder_entity'].entity, folder_id=self.cleaned_data['folder_id'])
@@ -94,6 +92,11 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
         else:
             data.update({'initial_data': initial_data})
             creation.create_learning_unit_proposal(data, folder)
+
+    def _updates_entities(self, learning_container_year):
+        for entity_type in ENTITY_TYPE_LIST:
+            _update_or_delete_entity_container(self.cleaned_data[entity_type.lower()], learning_container_year,
+                                               entity_type)
 
 
 def _copy_learning_unit_data(learning_unit_year):
