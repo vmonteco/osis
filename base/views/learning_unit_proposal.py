@@ -41,6 +41,7 @@ from base.models.enums import proposal_state
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.models.entity_version import find_latest_version_by_entity
+from base.utils.send_mail import send_mail_after_the_learning_unit_proposal_cancellation
 from base.views import layout
 from base.views.common import display_success_messages, display_error_messages
 from base.views.learning_unit import compute_form_initial_data
@@ -84,9 +85,10 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
 @permission_required('base.can_propose_learningunit', raise_exception=True)
 def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
-    cancel_proposal(learning_unit_year)
+    proposal_as_list = [cancel_proposal(learning_unit_year)]
     messages.add_message(request, messages.SUCCESS,
                          _("success_cancel_proposal").format(learning_unit_year.acronym))
+    send_mail_after_the_learning_unit_proposal_cancellation([], proposal_as_list)
     return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
 
