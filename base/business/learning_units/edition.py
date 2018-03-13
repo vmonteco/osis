@@ -24,7 +24,7 @@
 #
 ##############################################################################
 
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, transaction, Error
 from django.db.models import F
 from django.utils.translation import ugettext_lazy as _
 
@@ -247,44 +247,31 @@ def filter_biennial(queryset, periodicity):
 
 
 def update_learning_unit_year_with_report(luy_to_update, fields_to_update, with_report=True):
-
-    _update_learning_unit_year(luy_to_update, fields_to_update)
-
-    if with_report:
-        fields_not_to_report = ("is_vacant", "type_declaration_vacant", "attribution_procedure")
-        _apply_report(_update_learning_unit_year, luy_to_update, fields_to_update,
-                      fields_to_exclude=fields_not_to_report)
+    _apply_report(_update_learning_unit_year, luy_to_update, fields_to_update, with_report=with_report)
 
 
 def update_learning_unit_year_entities_with_report(luy_to_update, entities_by_type_to_update, with_report=True):
-    _update_learning_unit_year_entities(luy_to_update, entities_by_type_to_update)
-
-    if with_report:
-        _apply_report(_update_learning_unit_year_entities, luy_to_update, entities_by_type_to_update)
+    _apply_report(_update_learning_unit_year_entities, luy_to_update, entities_by_type_to_update, with_report=with_report)
 
 
 def _apply_report(method_of_update, base_luy, *args, **kwargs):
-    for luy in base_luy.find_gt_learning_units_year():
+    with_report = kwargs.pop('with_report')
+    for luy in base_luy.find_gte_learning_units_year():
         warnings = check_postponement_conflict(luy)
         if warnings:
-            raise ConsistencyError(error_list=warnings, learning_unit_year=luy)
+            raise ConsistencyError(_('error_modification_learning_unit'), error_list=warnings, learning_unit_year=luy)
+
         method_of_update(luy, *args, **kwargs)
 
-
-class ConsistencyError(Exception):
-    def __init__(self, error_list, learning_unit_year, *args):
-        super().__init__(*args)
-        self.learning_unit_year = learning_unit_year
-        self.error_list = error_list
+        if not with_report:
+            break
 
 
-def _update_learning_unit_year(luy_to_update, fields_to_update, fields_to_exclude=()):
-    if luy_to_update.is_in_proposal():
-        raise IntegrityError(
-            _("learning_unit_in_proposal_cannot_save") % {
-                'luy': luy_to_update.acronym,
-                'academic_year': luy_to_update.academic_year
-            })
+def _update_learning_unit_year(luy_to_update, fields_to_update, with_report):
+    fields_to_exclude = ()
+    if with_report:
+        fields_to_exclude = ("is_vacant", "type_declaration_vacant", "attribution_procedure")
+
     update_instance_model_from_data(luy_to_update.learning_unit, fields_to_update)
     update_instance_model_from_data(luy_to_update.learning_container_year, fields_to_update, exclude=fields_to_exclude)
     update_instance_model_from_data(luy_to_update, fields_to_update, exclude=fields_to_exclude)
@@ -347,6 +334,7 @@ def check_postponement_conflict(luy):
         error_list.extend(_check_postponement_conflict_on_learning_unit_year(luy, next_luy))
         error_list.extend(_check_postponement_conflict_on_learning_container_year(lcy, next_lcy))
         error_list.extend(_check_postponement_conflict_on_entity_container_year(lcy, next_lcy))
+        error_list.extend(_check_postponement_learning_unit_year_proposal_state(next_luy))
     return error_list
 
 
@@ -354,6 +342,12 @@ def _check_postponement_conflict_on_learning_unit_year(luy, next_luy):
     fields_to_compare = 'acronym', 'specific_title', 'specific_title_english', 'subtype', 'credits', \
                         'decimal_scores', 'internship_subtype', 'status', 'session', 'quadrimester',
     return _get_differences(luy, next_luy, fields_to_compare)
+
+
+def _check_postponement_learning_unit_year_proposal_state(nex_luy):
+    error_msg = _("learning_unit_in_proposal_cannot_save") % {'luy': nex_luy.acronym,
+                                                              'academic_year': nex_luy.academic_year}
+    return [error_msg] if nex_luy.is_in_proposal() else []
 
 
 def _check_postponement_conflict_on_learning_container_year(lcy, next_lcy):
@@ -403,3 +397,10 @@ def _is_different_value(obj1, obj2, field):
     value_obj1 = obj1.get(field) if isinstance(obj1, dict) else getattr(obj1, field, None)
     value_obj2 = obj2.get(field) if isinstance(obj2, dict) else getattr(obj2, field, None)
     return value_obj1 != value_obj2
+
+
+class ConsistencyError(Error):
+    def __init__(self, *args, **kwargs):
+        self.learning_unit_year = kwargs.pop('learning_unit_year')
+        self.error_list = kwargs.pop('error_list')
+        super().__init__(*args, **kwargs)

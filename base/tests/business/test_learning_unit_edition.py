@@ -33,7 +33,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_units.edition import edit_learning_unit_end_date, update_learning_unit_year_with_report, \
-    update_learning_unit_year_entities_with_report
+    update_learning_unit_year_entities_with_report, ConsistencyError
 from base.models import academic_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -840,7 +840,7 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
         learning_unit_years = self.setup_list_of_learning_unit_years_full(
             self.list_of_academic_years_after_now, a_learning_unit)
 
-        luy_in_proposal = learning_unit_years[-2]
+        luy_in_proposal = learning_unit_years[2]
         ProposalLearningUnitFactory(learning_unit_year=luy_in_proposal)
 
         learning_unit_fields_to_update = {
@@ -867,8 +867,10 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
             'academic_year': luy_in_proposal.academic_year
         }
 
-        with self.assertRaisesMessage(IntegrityError, error_msg):
+        with self.assertRaises(ConsistencyError) as context:
             update_learning_unit_year_with_report(learning_unit_years[1], fields_to_update)
+
+        self.assertIn(error_msg, context.exception.error_list)
 
         for index, luy in enumerate(learning_unit_years[1:-3]):
             self.assert_fields_updated(luy.learning_unit, learning_unit_fields_to_update)

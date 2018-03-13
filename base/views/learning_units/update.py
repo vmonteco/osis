@@ -25,7 +25,7 @@
 ##############################################################################
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
-from django.http import HttpResponseRedirect, JsonResponse, Http404
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -37,7 +37,7 @@ from base.forms.learning_unit.edition_volume import VolumeEditionFormsetContaine
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
-from base.views.common import display_error_messages, display_success_messages, clean_session
+from base.views.common import display_error_messages, display_success_messages
 from base.views.learning_unit import get_learning_unit_identification_context, \
     get_common_context_learning_unit_year, learning_unit_components
 from base.views.learning_units import perms
@@ -74,62 +74,24 @@ def learning_unit_edition_end_date(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_edit_learningunit', raise_exception=True)
 @perms.can_perform_learning_unit_modification
-def modify_learning_unit(request, learning_unit_year_id):
+def update_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     person = get_object_or_404(Person, user=request.user)
     form = LearningUnitModificationForm(
         request.POST or None, learning_unit_year_instance=learning_unit_year, person=person)
 
     if form.is_valid():
-        return _save_update_learning_unit_form(form, learning_unit_year, request)
+        try:
+            form.save()
+            display_success_messages(request, _("success_modification_learning_unit"))
+
+        except ConsistencyError as e:
+            display_error_messages(request, e.error_list)
+
+        return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
 
     context = {"learning_unit_year": learning_unit_year, "form": form}
     return layout.render(request, 'learning_unit/modification.html', context)
-
-
-def _save_update_learning_unit_form(form, learning_unit_year, request, commit=True):
-    try:
-        form.save(commit)
-        display_success_messages(request, _("success_modification_learning_unit"))
-
-    except IntegrityError as e:
-        msg = "{} : {}".format(_("error_modification_learning_unit"), e.args[0])
-        display_error_messages(request, msg)
-
-    except ConsistencyError as e:
-        request.session['warnings'] = e.error_list
-        request.session['update_form'] = request.POST
-        request.session['learning_unit_to_update_id'] = e.learning_unit_year.id
-
-        return redirect("confirm_postponement", learning_unit_year_id=learning_unit_year.id)
-
-    clean_session(request, ['warnings', 'update_form', 'learning_unit_to_update_id'])
-    return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
-
-
-def confirm_postponement(request, learning_unit_year_id):
-    """ In case of a postponement, we need to ask to the user if he wants to keep or overwrite the data """
-    learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
-    person = get_object_or_404(Person, user=request.user)
-
-    warnings = request.session.get('warnings', None)
-    if not warnings:
-        raise Http404()
-
-    if request.POST:
-        commit = bool(int(request.POST.get('action', '0')))
-        luy_id = request.session['learning_unit_to_update_id']
-        learning_unit_year_to_update = get_object_or_404(LearningUnitYear, pk=luy_id)
-
-        update_form = LearningUnitModificationForm(
-            request.session['update_form'], learning_unit_year_instance=learning_unit_year_to_update, person=person)
-
-        if update_form.is_valid():
-            result = _save_update_learning_unit_form(update_form, learning_unit_year, request, commit=commit)
-            return result
-
-    context = {'warnings': warnings, 'learning_unit': learning_unit_year_id, 'title': 'no title'}
-    return layout.render(request, 'learning_unit/confirm_postponement.html', context)
 
 
 def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id):

@@ -214,9 +214,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
                 for entity_type, entity_version in self.cleaned_data.items()
                 if entity_type.upper() in ENTITY_TYPE_LIST}
 
-    def save(self, commit=True):
-        if not commit:
-            return
+    def save(self):
         entities_data = self.get_entities_data()
         lu_type_full_data = self.get_data_for_learning_unit()
         update_learning_unit_year_with_report(self.instance, lu_type_full_data, self.postponement)

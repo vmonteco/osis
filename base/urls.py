@@ -34,7 +34,7 @@ from attribution.views import attribution, tutor_application
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group
 from base.views.learning_units.proposal import create, update
-from base.views.learning_units.update import modify_learning_unit, learning_unit_edition_end_date, confirm_postponement
+from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -115,9 +115,8 @@ urlpatterns = [
                 url(r'^cancel/$', update.cancel_proposal_of_learning_unit,
                     name="learning_unit_cancel_proposal"),
             ])),
-            url(r'^edit/$', learning_unit_edition_end_date, name="learning_unit_edition"),
-            url(r'^update/$', modify_learning_unit, name="edit_learning_unit"),
-            url(r'^update/confirm_postponement$', confirm_postponement, name="confirm_postponement"),
+            url(r'^update_end_date/$', learning_unit_edition_end_date, name="learning_unit_edition"),
+            url(r'^update/$', update_learning_unit, name="edit_learning_unit"),
             url(r'^specifications/$', learning_unit.learning_unit_specifications, name="learning_unit_specifications"),
             url(r'^specifications/edit/$', learning_unit.learning_unit_specifications_edit,
                 name="learning_unit_specifications_edit"),
