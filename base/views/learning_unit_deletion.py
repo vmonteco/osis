@@ -56,13 +56,9 @@ def delete_from_given_learning_unit_year(request, learning_unit_year_id):
 
     else:
         if messages_deletion:
-            context = {'title': _("cannot_delete_learning_unit_year")
-                                % {'learning_unit': learning_unit_year.acronym,
-                                   'year': learning_unit_year.academic_year},
-                       'messages_deletion': sorted(messages_deletion.values())}
+            context = get_messages_deletion_context(learning_unit_year, messages_deletion)
         else:
             learning_units_to_delete = learning_unit_year.find_gte_learning_units_year()
-
             context = {'title': _("msg_warning_delete_learning_unit") % learning_unit_year,
                        'learning_units_to_delete': learning_units_to_delete}
 
@@ -115,3 +111,10 @@ def delete_learning_unit_years(learning_unit_year, request):
 
     except ProtectedError as e:
         messages.add_message(request, messages.ERROR, str(e))
+
+
+def get_messages_deletion_context(learning_unit_year, messages_deletion):
+    return {'title': _("cannot_delete_learning_unit_year")
+                     % {'learning_unit': learning_unit_year.acronym,
+                        'year': learning_unit_year.academic_year},
+            'messages_deletion': sorted(messages_deletion.values())}

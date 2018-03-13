@@ -53,7 +53,8 @@ from base.business.learning_unit_deletion import check_other_than_proposal
 from base.models.enums import learning_unit_year_subtypes
 from base.views.learning_unit_deletion import delete_learning_unit_years
 from base.business.learning_unit_proposal import delete_learning_unit_proposal, reinitialize_data_before_proposal
-
+from base.views.learning_unit import get_learning_unit_identification_context
+from base.views.learning_unit_deletion import get_messages_deletion_context
 
 @login_required
 @perms.can_create_modification_proposal
@@ -92,8 +93,6 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
 @permission_required('base.can_propose_learningunit', raise_exception=True)
 def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
-    messages.add_message(request, messages.SUCCESS,
-                         _("success_cancel_proposal").format(learning_unit_year.acronym))
     return cancel_creation_proposal(learning_unit_year, request)
 
 
