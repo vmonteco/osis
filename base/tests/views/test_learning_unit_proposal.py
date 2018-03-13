@@ -737,7 +737,7 @@ class TestLearningUnitProposalCancellation(TestCase):
         folder.refresh_from_db()
         self.assertTrue(folder)
 
-    def test_delete_proposal_creation_get_no_permission(self):
+    def test_faculty_manager_cannot_cancel_creation_proposal_for_course_full(self):
         self.person.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
 
         self.learning_unit_proposal.type = proposal_type.ProposalType.CREATION.name
