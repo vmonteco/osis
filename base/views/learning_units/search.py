@@ -36,6 +36,7 @@ from base.forms.learning_units import LearningUnitYearForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalRowForm, ProposalListFormset
 from base.models.academic_year import current_academic_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
+from base.utils.send_mail import send_mail_after_the_learning_unit_proposal_cancellation
 from base.views import layout
 from base.views.common import check_if_display_message, display_error_messages, display_success_messages
 from base.business import learning_unit_proposal as proposal_business
@@ -144,7 +145,8 @@ def _go_back_to_initial_data(formset, request):
 def _cancel_list_of_proposal(formset, proposals_to_cancel, request):
     if proposals_to_cancel:
         proposal_business.cancel_proposals(proposals_to_cancel)
-        display_success_messages(request, _("proposal_edited_successfully"))
+        display_success_messages(request, _("success_cancel_proposal"))
+        send_mail_after_the_learning_unit_proposal_cancellation([],proposals_to_cancel)
         formset = None
     else:
         _build_no_data_error_message(request)
