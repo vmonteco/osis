@@ -82,13 +82,10 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
                                                entity_type)
 
         folder, created = proposal_folder.ProposalFolder.objects.get_or_create(
-            entity=self.cleaned_data['folder_entity'].entity,
-            folder_id=self.cleaned_data['folder_id'])
+            entity=self.cleaned_data['folder_entity'].entity, folder_id=self.cleaned_data['folder_id'])
 
-
-
-        data = {'person': a_person, 'learning_unit_year': learning_unit_year,
-                'state_proposal': state_proposal, 'type_proposal': type_proposal}
+        data = {'person': a_person, 'learning_unit_year': learning_unit_year, 'state_proposal': state_proposal,
+                'type_proposal': type_proposal}
         if self.proposal:
             if self.proposal.type in \
                     (proposal_type.ProposalType.CREATION.value, proposal_type.ProposalType.SUPPRESSION.value):

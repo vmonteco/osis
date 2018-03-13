@@ -69,15 +69,12 @@ def proposal_learning_unit_add(request):
                                                                      new_learning_unit, academic_year)
         data_proposal = proposal_form.cleaned_data
         folder, created = proposal_folder.ProposalFolder.objects.get_or_create(
-            entity=data_proposal['folder_entity'].entity,
-            folder_id=data_proposal['folder_id'])
-        creation.create_learning_unit_proposal({'person': person,
-                                                'folder_entity': data_proposal['folder_entity'].entity,
-                                                'folder_id': data_proposal['folder_id'],
-                                                'learning_unit_year': new_learning_unit_year,
-                                                'state_proposal': ProposalState.FACULTY.name,
-                                                'type_proposal': ProposalType.CREATION.name,
-                                                'initial_data': {}}, folder)
+            entity=data_proposal['folder_entity'].entity, folder_id=data_proposal['folder_id'])
+        creation.create_learning_unit_proposal(
+            {'person': person, 'folder_entity': data_proposal['folder_entity'].entity,
+             'folder_id': data_proposal['folder_id'], 'learning_unit_year': new_learning_unit_year,
+             'state_proposal': ProposalState.FACULTY.name, 'type_proposal': ProposalType.CREATION.name,
+             'initial_data': {}}, folder)
         show_success_learning_unit_year_creation_message(request, new_learning_unit_year,
                                                          'proposal_learning_unit_successfuly_created')
         return redirect('learning_units')
