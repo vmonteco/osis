@@ -48,13 +48,6 @@ class TestSearch(TestCase):
         )
         self.assertEqual(a_proposal_learning_unit, self.proposal_learning_unit)
 
-    def test_have_a_proposal(self):
-        a_learning_unit_year = self.proposal_learning_unit.learning_unit_year
-        self.assertTrue(proposal_learning_unit.have_a_proposal(a_learning_unit_year))
-
-        self.proposal_learning_unit.delete()
-        self.assertFalse(proposal_learning_unit.have_a_proposal(a_learning_unit_year))
-
     def test_find_by_folder(self):
         folder = self.proposal_learning_unit.folder
         self.assertTrue(proposal_learning_unit.find_by_folder(folder))
@@ -109,7 +102,7 @@ class TestSearchCases(TestCase):
         results = proposal_learning_unit.search(folder_id=self.a_proposal_folder.folder_id)
         self.check_search_result(results)
 
-    def test_search_by_proposal_state(self):
+    def test_search_by_entity_folder(self):
         results = proposal_learning_unit.search(entity_folder_id=self.a_proposal_folder.entity.id)
         self.check_search_result(results)
 

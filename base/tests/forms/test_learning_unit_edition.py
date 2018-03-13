@@ -25,13 +25,17 @@
 ##############################################################################
 import datetime
 
+from django.http import HttpResponse
 from django.test import TestCase
+from django.contrib.auth.models import Group, Permission
+from django.urls import reverse
 
 from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
 from base.models.enums import learning_unit_periodicity, learning_unit_year_subtypes, learning_container_year_types, \
     organization_type, entity_type
 from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
+from base.models.person import FACULTY_MANAGER_GROUP
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import LearningUnitsMixin
 from base.tests.factories.campus import CampusFactory
@@ -42,6 +46,7 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
+from base.tests.factories.user import UserFactory
 from reference.tests.factories.language import LanguageFactory
 
 
@@ -150,6 +155,12 @@ class TestLearningUnitModificationForm(TestCase):
             "status": True
         }
 
+        cls.faculty_user = UserFactory()
+        cls.faculty_user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
+        cls.faculty_person = PersonFactory(user=cls.faculty_user)
+        cls.faculty_user.user_permissions.add(Permission.objects.get(codename='can_propose_learningunit'))
+        PersonEntityFactory(entity=an_entity, person=cls.faculty_person)
+
     def test_disabled_fields_in_case_of_learning_unit_of_type_full(self):
 
         form = LearningUnitModificationForm(person=self.person, initial=self.initial_data)
@@ -194,12 +205,6 @@ class TestLearningUnitModificationForm(TestCase):
                                             person=self.person, end_date=self.current_academic_year.end_date)
         self.assertFalse(form.is_valid())
 
-    def test_set_max_credits(self):
-        form = LearningUnitModificationForm(learning_unit_year_instance=self.learning_unit_year_partim_1,
-                                            person=self.person,
-                                            initial=self.initial_data)
-        self.assertEqual(form.fields["credits"].max_value, self.learning_unit_year.credits)
-
     def test_set_status_value(self):
         form = LearningUnitModificationForm(learning_unit_year_instance=self.learning_unit_year_partim_1,
                                             person=self.person,
@@ -214,11 +219,6 @@ class TestLearningUnitModificationForm(TestCase):
                                             person=self.person,
                                             initial=initial_data_with_subtype_partim)
         self.assertFalse(form.fields["periodicity"].disabled)
-
-    def test_set_minimum_credits_for_full_learning_unit_year(self):
-        form = LearningUnitModificationForm(person=self.person, learning_unit_year_instance=self.learning_unit_year,
-                                            initial=self.initial_data)
-        self.assertEqual(form.fields["credits"].min_value, self.learning_unit_year_partim_1.credits)
 
     def test_do_not_set_minimum_credits_for_full_learning_unit_year_if_no_partims(self):
         learning_unit_year_with_no_partims = LearningUnitYearFactory(academic_year=self.current_academic_year,
@@ -261,3 +261,47 @@ class TestLearningUnitModificationForm(TestCase):
     def test_valid_form(self):
         form = LearningUnitModificationForm(self.form_data, initial=self.initial_data, person=self.person)
         self.assertTrue(form.is_valid())
+
+    def test_valid_form_with_faculty_manager(self):
+        form = LearningUnitModificationForm(self.form_data, initial=self.initial_data, person=self.person)
+        self.assertTrue(form.is_valid())
+
+    def test_deactivated_fields_in_learning_unit_modification_form(self):
+        form = LearningUnitModificationForm(person=self.person, initial=self.initial_data)
+        self.assertFalse(form.fields["common_title"].disabled)
+        self.assertFalse(form.fields["common_title_english"].disabled)
+        self.assertFalse(form.fields["specific_title"].disabled)
+        self.assertFalse(form.fields["specific_title_english"].disabled)
+        self.assertFalse(form.fields["faculty_remark"].disabled)
+        self.assertFalse(form.fields["other_remark"].disabled)
+        self.assertFalse(form.fields["campus"].disabled)
+        self.assertFalse(form.fields["status"].disabled)
+        self.assertFalse(form.fields["credits"].disabled)
+        self.assertFalse(form.fields["language"].disabled)
+        self.assertFalse(form.fields["requirement_entity"].disabled)
+        self.assertFalse(form.fields["allocation_entity"].disabled)
+        self.assertFalse(form.fields["additional_requirement_entity_2"].disabled)
+        self.assertFalse(form.fields["is_vacant"].disabled)
+        self.assertFalse(form.fields["type_declaration_vacant"].disabled)
+        self.assertFalse(form.fields["attribution_procedure"].disabled)
+        self.assertTrue(form.fields["subtype"].disabled)
+
+    def test_deactivated_fields_in_learning_unit_modification_form_with_faculty_manager(self):
+        form = LearningUnitModificationForm(person=self.faculty_person, initial=self.initial_data)
+        self.assertTrue(form.fields["common_title"].disabled)
+        self.assertTrue(form.fields["common_title_english"].disabled)
+        self.assertTrue(form.fields["specific_title"].disabled)
+        self.assertTrue(form.fields["specific_title_english"].disabled)
+        self.assertFalse(form.fields["faculty_remark"].disabled)
+        self.assertFalse(form.fields["other_remark"].disabled)
+        self.assertTrue(form.fields["campus"].disabled)
+        self.assertTrue(form.fields["status"].disabled)
+        self.assertTrue(form.fields["credits"].disabled)
+        self.assertTrue(form.fields["language"].disabled)
+        self.assertTrue(form.fields["requirement_entity"].disabled)
+        self.assertTrue(form.fields["allocation_entity"].disabled)
+        self.assertTrue(form.fields["additional_requirement_entity_2"].disabled)
+        self.assertTrue(form.fields["is_vacant"].disabled)
+        self.assertTrue(form.fields["type_declaration_vacant"].disabled)
+        self.assertTrue(form.fields["attribution_procedure"].disabled)
+        self.assertTrue(form.fields["subtype"].disabled)

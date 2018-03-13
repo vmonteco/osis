@@ -65,10 +65,10 @@ class OfferYearCalendarDisplayTagTest(TestCase):
         css_style = offer_year_calendar_display_tag\
             .offer_year_calendar_display(self.a_current_offer_yr_calendar.start_date,
                                          self.a_current_offer_yr_calendar.end_date)
-        self.assertEquals(css_style, offer_year_calendar_display_tag.CURRENT_EVENT_CSS_STYLE)
+        self.assertEqual(css_style, offer_year_calendar_display_tag.CURRENT_EVENT_CSS_STYLE)
 
     def test_not_current_offer_year_calendar_display_style(self):
         css_style = offer_year_calendar_display_tag\
             .offer_year_calendar_display(self.a_previous_offer_yr_calendar.start_date,
                                          self.a_previous_offer_yr_calendar.end_date)
-        self.assertEquals(css_style, offer_year_calendar_display_tag.NOT_CURRENT_EVENT_CSS_STYLE)
+        self.assertEqual(css_style, offer_year_calendar_display_tag.NOT_CURRENT_EVENT_CSS_STYLE)
