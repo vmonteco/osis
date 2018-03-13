@@ -44,6 +44,8 @@ from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit_year import LearningUnitYear
 
+FIELDS_TO_EXCLUDE_WITH_REPORT = ("is_vacant", "type_declaration_vacant", "attribution_procedure")
+
 
 def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year):
     result = []
@@ -246,31 +248,28 @@ def filter_biennial(queryset, periodicity):
     return result
 
 
-def update_learning_unit_year_with_report(luy_to_update, fields_to_update, with_report=True):
-    _apply_report(_update_learning_unit_year, luy_to_update, fields_to_update, with_report=with_report)
+def update_learning_unit_year_with_report(luy_to_update, fields_to_update, entities_by_type_to_update, with_report=True,
+                                          force_value=False):
 
+    for index, luy in enumerate(luy_to_update.find_gte_learning_units_year()):
 
-def update_learning_unit_year_entities_with_report(luy_to_update, entities_by_type_to_update, with_report=True):
-    _apply_report(_update_learning_unit_year_entities, luy_to_update, entities_by_type_to_update, with_report=with_report)
-
-
-def _apply_report(method_of_update, base_luy, *args, **kwargs):
-    with_report = kwargs.pop('with_report')
-    for luy in base_luy.find_gte_learning_units_year():
-        warnings = check_postponement_conflict(luy)
-        if warnings:
-            raise ConsistencyError(_('error_modification_learning_unit'), error_list=warnings, learning_unit_year=luy)
-
-        method_of_update(luy, *args, **kwargs)
+        _update_learning_unit_year(luy, fields_to_update, with_report if index != 0 else False)
+        _update_learning_unit_year_entities(luy, entities_by_type_to_update)
 
         if not with_report:
             break
+
+        warnings = check_postponement_conflict(luy)
+        if warnings and not force_value:
+            raise ConsistencyError(
+                _('error_modification_learning_unit'), error_list=warnings, learning_unit_year=luy
+            )
 
 
 def _update_learning_unit_year(luy_to_update, fields_to_update, with_report):
     fields_to_exclude = ()
     if with_report:
-        fields_to_exclude = ("is_vacant", "type_declaration_vacant", "attribution_procedure")
+        fields_to_exclude = FIELDS_TO_EXCLUDE_WITH_REPORT
 
     update_instance_model_from_data(luy_to_update.learning_unit, fields_to_update)
     update_instance_model_from_data(luy_to_update.learning_container_year, fields_to_update, exclude=fields_to_exclude)

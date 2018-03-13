@@ -29,8 +29,7 @@ from django.forms import model_to_dict
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import compute_max_academic_year_adjournment
-from base.business.learning_units.edition import filter_biennial, update_learning_unit_year_with_report, \
-    update_learning_unit_year_entities_with_report
+from base.business.learning_units.edition import filter_biennial, update_learning_unit_year_with_report
 from base.business.learning_units.perms import FACULTY_UPDATABLE_CONTAINER_TYPES
 from base.forms.bootstrap import BootstrapForm
 from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_READ_ONLY_FIELD
@@ -217,8 +216,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     def save(self):
         entities_data = self.get_entities_data()
         lu_type_full_data = self.get_data_for_learning_unit()
-        update_learning_unit_year_with_report(self.instance, lu_type_full_data, self.postponement)
-        update_learning_unit_year_entities_with_report(self.instance, entities_data, self.postponement)
+        update_learning_unit_year_with_report(self.instance, lu_type_full_data, entities_data, self.postponement)
 
     def compute_learning_unit_modification_form_initial_data(self):
         other_fields_dict = {
