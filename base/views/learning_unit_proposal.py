@@ -127,6 +127,7 @@ def edit_learning_unit_proposal(request, learning_unit_year_id):
         'form': proposal_form,
         'experimental_phase': True})
 
+
 @login_required
 def delete_proposal_creation(request, learning_unit_proposal):
     person = get_object_or_404(Person, user=request.user)
@@ -152,6 +153,7 @@ def _cancel_creation_proposal(learning_unit_proposal, request):
     messages.add_message(request, messages.SUCCESS,
                          _("success_cancel_proposal").format(learning_unit_year.acronym))
     return redirect('learning_unit_proposal_search')
+
 
 def cancel_creation_proposal(learning_unit_year, request):
     learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learning_unit_year)
