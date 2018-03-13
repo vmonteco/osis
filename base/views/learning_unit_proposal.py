@@ -56,6 +56,7 @@ from base.business.learning_unit_proposal import delete_learning_unit_proposal, 
 from base.views.learning_unit import get_learning_unit_identification_context
 from base.views.learning_unit_deletion import get_messages_deletion_context
 
+
 @login_required
 @perms.can_create_modification_proposal
 @permission_required('base.can_propose_learningunit', raise_exception=True)
