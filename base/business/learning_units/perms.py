@@ -76,7 +76,7 @@ def is_eligible_for_cancel_of_proposal(learning_unit_proposal, a_person):
 
 
 def _is_attached_to_initial_entity(learning_unit_proposal, a_person):
-    if not learning_unit_proposal.initial_data.get("entitites") or \
+    if not learning_unit_proposal.initial_data.get("entities") or \
             not learning_unit_proposal.initial_data["entities"].get(REQUIREMENT_ENTITY):
         return False
     initial_entity_requirement_id = learning_unit_proposal.initial_data["entities"][REQUIREMENT_ENTITY]
