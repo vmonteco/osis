@@ -146,7 +146,7 @@ def _cancel_list_of_proposal(formset, proposals_to_cancel, request):
     if proposals_to_cancel:
         proposal_business.cancel_proposals(proposals_to_cancel)
         display_success_messages(request, _("success_cancel_proposal"))
-        send_mail_after_the_learning_unit_proposal_cancellation([],proposals_to_cancel)
+        send_mail_after_the_learning_unit_proposal_cancellation([], proposals_to_cancel)
         formset = None
     else:
         _build_no_data_error_message(request)

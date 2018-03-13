@@ -274,4 +274,3 @@ def cancel_proposal(learning_unit_year):
 
 def cancel_proposals(proposals_to_cancel):
     return [cancel_proposal(proposal.learning_unit_year) for proposal in proposals_to_cancel]
-
