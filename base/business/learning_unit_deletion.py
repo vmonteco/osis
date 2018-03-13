@@ -243,7 +243,7 @@ def check_other_than_proposal(learning_unit_year):
                                      'acronym': learning_unit_year.acronym,
                                      'year': learning_unit_year.academic_year,
                                      'count': enrollment_count}
-    if learning_unit_year.subtype == learning_unit_year_subtypes.FULL and learning_unit_year.learning_container_year:
+    if learning_unit_year.is_full() and learning_unit_year.learning_container_year:
         msg.update(_check_related_partims_deletion(learning_unit_year.learning_container_year))
     msg.update(_check_attribution_deletion(learning_unit_year))
     for component in learning_unit_component.find_by_learning_unit_year(learning_unit_year):
