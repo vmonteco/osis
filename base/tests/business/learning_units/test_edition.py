@@ -31,12 +31,9 @@ from uuid import uuid4
 from django.test import TestCase
 
 from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
-from base.business.learning_units.edition import update_or_create_entity_container_year_with_components, \
-    _check_postponement_conflict_on_learning_unit_year, _check_postponement_conflict_on_learning_container_year, \
-    _check_postponement_conflict_on_entity_container_year, check_postponement_conflict
+from base.business.learning_units import edition as business_edition
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
-from base.models.entity_version import EntityVersion
 from base.models.enums import entity_container_year_link_type
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
@@ -92,7 +89,7 @@ class LearningUnitEditionTestCase(TestCase):
         LearningComponentYearFactory(acronym="TP", learning_container_year=a_learning_container_year)
         link_type = random.choice(ENTITY_TYPES_VOLUME)
 
-        update_or_create_entity_container_year_with_components(an_entity, a_learning_container_year, link_type)
+        business_edition.update_or_create_entity_container_year_with_components(an_entity, a_learning_container_year, link_type)
         self.assertEqual(EntityContainerYear.objects.filter(
             learning_container_year=a_learning_container_year).count(), 1)
         self.assertEqual(EntityComponentYear.objects.all().count(), 2)
@@ -106,7 +103,7 @@ class LearningUnitEditionTestCase(TestCase):
         LearningComponentYearFactory(acronym="TP", learning_container_year=a_learning_container_year)
         link_type = entity_container_year_link_type.ALLOCATION_ENTITY
 
-        update_or_create_entity_container_year_with_components(an_entity, a_learning_container_year, link_type)
+        business_edition.update_or_create_entity_container_year_with_components(an_entity, a_learning_container_year, link_type)
         self.assertEqual(EntityContainerYear.objects.filter(
             learning_container_year=a_learning_container_year).count(), 1)
         self.assertEqual(EntityComponentYear.objects.all().count(), 0)
@@ -117,8 +114,8 @@ class LearningUnitEditionTestCase(TestCase):
         another_learning_unit_year.academic_year = self.next_academic_year
         another_learning_unit_year.save()
 
-        error_list = _check_postponement_conflict_on_learning_unit_year(self.learning_unit_year,
-                                                                        another_learning_unit_year)
+        error_list = business_edition._check_postponement_conflict_on_learning_unit_year(self.learning_unit_year,
+                                                                                         another_learning_unit_year)
         self.assertIsInstance(error_list, list)
         self.assertFalse(error_list)
 
@@ -130,8 +127,8 @@ class LearningUnitEditionTestCase(TestCase):
         another_learning_unit_year.specific_title_english = None  # Remove value
         another_learning_unit_year.save()
 
-        error_list = _check_postponement_conflict_on_learning_unit_year(self.learning_unit_year,
-                                                                        another_learning_unit_year)
+        error_list = business_edition._check_postponement_conflict_on_learning_unit_year(self.learning_unit_year,
+                                                                                         another_learning_unit_year)
         self.assertIsInstance(error_list, list)
         self.assertEqual(len(error_list), 2)
         generic_error = "The value of field '%(field)s' is different between year %(year)s - %(value)s " \
@@ -161,64 +158,87 @@ class LearningUnitEditionTestCase(TestCase):
         another_learning_container_year.academic_year = self.next_academic_year
         another_learning_container_year.save()
         # No diff found
-        error_list = _check_postponement_conflict_on_learning_container_year(self.learning_container_year,
-                                                                             another_learning_container_year)
+        error_list = business_edition._check_postponement_conflict_on_learning_container_year(
+            self.learning_container_year,
+            another_learning_container_year
+        )
         self.assertIsInstance(error_list, list)
         self.assertFalse(error_list)
 
-    def test_check_postponement_conflict_learning_container_year_differences_found(self):
-        # Copy the same container + change academic year + language + campus + common title
+    def test_check_postponement_conflict_learning_container_year_case_language_diff(self):
+        # Copy the same container + change academic year, language
         another_learning_container_year = _build_copy(self.learning_container_year)
         another_learning_container_year.academic_year = self.next_academic_year
         another_learning_container_year.language = LanguageFactory(code='FR', name='French')
-        another_learning_container_year.campus = CampusFactory(name='Paris')
+        another_learning_container_year.save()
+
+        error_list = business_edition._check_postponement_conflict_on_learning_container_year(
+            self.learning_container_year, another_learning_container_year
+        )
+        self.assertIsInstance(error_list, list)
+        self.assertEqual(len(error_list), 1)
+        generic_error = "The value of field '%(field)s' is different between year %(year)s - %(value)s " \
+                        "and year %(next_year)s - %(next_value)s"
+
+        # Error : Language diff
+        error_language = _(generic_error) % {
+            'field': _('language'),
+            'year': self.learning_container_year.academic_year,
+            'value': getattr(self.learning_container_year, 'language'),
+            'next_year': another_learning_container_year.academic_year,
+            'next_value': getattr(another_learning_container_year, 'language')
+        }
+        self.assertIn(error_language, error_list)
+
+    def test_check_postponement_conflict_learning_container_year_case_common_title_diff(self):
+        # Copy the same container + change academic year,common title
+        another_learning_container_year = _build_copy(self.learning_container_year)
+        another_learning_container_year.academic_year = self.next_academic_year
         another_learning_container_year.common_title = 'Another common title'
         another_learning_container_year.save()
 
-        error_list = _check_postponement_conflict_on_learning_container_year(self.learning_container_year,
-                                                                             another_learning_container_year)
+        error_list = business_edition._check_postponement_conflict_on_learning_container_year(
+            self.learning_container_year, another_learning_container_year
+        )
         self.assertIsInstance(error_list, list)
-        self.assertEqual(len(error_list), 3)
+        self.assertEqual(len(error_list), 1)
         generic_error = "The value of field '%(field)s' is different between year %(year)s - %(value)s " \
                         "and year %(next_year)s - %(next_value)s"
-        # Error : Language diff
-        error_language = _(generic_error) % {
-            'field': _('language'),
-            'year': self.learning_container_year.academic_year,
-            'value': getattr(self.learning_container_year, 'language'),
-            'next_year': another_learning_container_year.academic_year,
-            'next_value': getattr(another_learning_container_year, 'language')
-        }
-        self.assertIn(error_language, error_list)
-        # Error : Language diff
-        error_language = _(generic_error) % {
-            'field': _('language'),
-            'year': self.learning_container_year.academic_year,
-            'value': getattr(self.learning_container_year, 'language'),
-            'next_year': another_learning_container_year.academic_year,
-            'next_value': getattr(another_learning_container_year, 'language')
-        }
-        self.assertIn(error_language, error_list)
-
-        # Error : Campus diff
-        error_language = _(generic_error) % {
-            'field': _('campus'),
-            'year': self.learning_container_year.academic_year,
-            'value': getattr(self.learning_container_year, 'campus'),
-            'next_year': another_learning_container_year.academic_year,
-            'next_value': getattr(another_learning_container_year, 'campus')
-        }
-        self.assertIn(error_language, error_list)
 
         # Error : Common title diff
-        error_language = _(generic_error) % {
+        error_common_title = _(generic_error) % {
             'field': _('common_title'),
             'year': self.learning_container_year.academic_year,
             'value': getattr(self.learning_container_year, 'common_title'),
             'next_year': another_learning_container_year.academic_year,
             'next_value': getattr(another_learning_container_year, 'common_title')
         }
-        self.assertIn(error_language, error_list)
+        self.assertIn(error_common_title, error_list)
+
+    def test_check_postponement_conflict_learning_container_year_case_camp_diff(self):
+        # Copy the same container + change academic year + campus
+        another_learning_container_year = _build_copy(self.learning_container_year)
+        another_learning_container_year.academic_year = self.next_academic_year
+        another_learning_container_year.campus = CampusFactory(name='Paris')
+        another_learning_container_year.save()
+
+        error_list = business_edition._check_postponement_conflict_on_learning_container_year(
+            self.learning_container_year, another_learning_container_year
+        )
+        self.assertIsInstance(error_list, list)
+        self.assertEqual(len(error_list), 1)
+        generic_error = "The value of field '%(field)s' is different between year %(year)s - %(value)s " \
+                        "and year %(next_year)s - %(next_value)s"
+
+        # Error : Campus diff
+        error_campus = _(generic_error) % {
+            'field': _('campus'),
+            'year': self.learning_container_year.academic_year,
+            'value': getattr(self.learning_container_year, 'campus'),
+            'next_year': another_learning_container_year.academic_year,
+            'next_value': getattr(another_learning_container_year, 'campus')
+        }
+        self.assertIn(error_campus, error_list)
 
     def test_check_postponement_conflict_entity_container_year_no_difference_found(self):
         # Copy the same container + change academic year
@@ -234,8 +254,9 @@ class LearningUnitEditionTestCase(TestCase):
             entity_copied.save()
 
         # No diff found
-        error_list = _check_postponement_conflict_on_entity_container_year(self.learning_container_year,
-                                                                           another_learning_container_year)
+        error_list = business_edition._check_postponement_conflict_on_entity_container_year(
+            self.learning_container_year,another_learning_container_year
+        )
         self.assertIsInstance(error_list, list)
         self.assertFalse(error_list)
 
@@ -257,8 +278,8 @@ class LearningUnitEditionTestCase(TestCase):
                                                         type=entity_container_year_link_type.REQUIREMENT_ENTITY,
                                                         entity=an_entity)
 
-        error_list = _check_postponement_conflict_on_entity_container_year(self.learning_container_year,
-                                                                           another_learning_container_year)
+        error_list = business_edition._check_postponement_conflict_on_entity_container_year(
+            self.learning_container_year, another_learning_container_year)
         self.assertIsInstance(error_list, list)
         self.assertEqual(len(error_list), 2)
         generic_error = "The value of field '%(field)s' is different between year %(year)s - %(value)s " \
@@ -307,7 +328,7 @@ class LearningUnitEditionTestCase(TestCase):
                                    type=entity_container_year_link_type.REQUIREMENT_ENTITY,
                                    entity=an_entity)
 
-        error_list = check_postponement_conflict(self.learning_unit_year)
+        error_list = business_edition.check_postponement_conflict(self.learning_unit_year)
         self.assertIsInstance(error_list, list)
         self.assertEqual(len(error_list), 4)
 
