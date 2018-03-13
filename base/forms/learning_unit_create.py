@@ -90,7 +90,7 @@ class LearningUnitYearForm(BootstrapForm):
                                              MaxValueValidator(MAXIMUM_CREDITS)],
                                  widget=forms.NumberInput(attrs={'min': MINIMUM_CREDITS,
                                                                  'max': MAXIMUM_CREDITS}))
-    common_title = forms.CharField()
+    common_title = forms.CharField(required=False)
     common_title_english = forms.CharField(required=False, widget=forms.TextInput())
     specific_title = forms.CharField(required=False)
     specific_title_english = forms.CharField(required=False, widget=forms.TextInput())
@@ -141,6 +141,8 @@ class LearningUnitYearForm(BootstrapForm):
                 and cleaned_data.get("container_type") == INTERNSHIP \
                 and not (cleaned_data['internship_subtype']):
             self.add_error('internship_subtype', _('field_is_required'))
+        if not cleaned_data["common_title"] and not cleaned_data["specific_title"]:
+            self.add_error("common_title", _("must_set_common_title_or_specific_title"))
         return cleaned_data
 
     def _check_if_acronym_already_exists(self, cleaned_data):

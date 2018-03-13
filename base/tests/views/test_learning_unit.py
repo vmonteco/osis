@@ -699,8 +699,8 @@ class LearningUnitViewTestCase(TestCase):
             "periodicity": learning_unit_periodicity.ANNUAL,
             "credits": "5",
             "campus": self.campus.id,
-            "common_title": "Common UE title",
-            "common_title_english": "Common English UUE title",
+            "specific_title": "Specific UE title",
+            "specific_title_english": "Specific English UUE title",
             "requirement_entity": self.entity_version.id,
             "allocation_entity": self.entity_version.id,
             "additional_requirement_entity_1": self.entity_version.id,
@@ -937,6 +937,13 @@ class LearningUnitViewTestCase(TestCase):
         form = CreateLearningUnitYearForm(person=self.person, data=faultydict)
         self.assertFalse(form.is_valid(), form.errors)
         self.assertTrue(form.errors['allocation_entity'])
+
+    def test_learning_unit_form_without_common_and_specific_title(self):
+        faultydata = dict(self.get_valid_data())
+        faultydata["specific_title"] = ""
+        form = CreateLearningUnitYearForm(person=self.person, data=faultydata)
+        self.assertFalse(form.is_valid())
+        self.assertTrue(form.errors["common_title"])
 
     def test_expected_partim_creation_on_6_years(self):
         # Create container + container year for N+6
@@ -1459,7 +1466,7 @@ class TestCreateXls(TestCase):
         found_learning_units = a_form.get_activity_learning_units()
         learning_unit_business.create_xls(self.user, found_learning_units)
         xls_data = [[self.learning_unit_year.academic_year.name, self.learning_unit_year.acronym,
-                     self.learning_unit_year.specific_title,
+                     self.learning_unit_year.complete_title,
                      xls_build.translate(self.learning_unit_year.learning_container_year.container_type),
                      xls_build.translate(self.learning_unit_year.subtype), None, None, self.learning_unit_year.credits,
                      xls_build.translate(self.learning_unit_year.status)]]
