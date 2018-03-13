@@ -41,7 +41,7 @@ from base.models import proposal_folder
 class LearningUnitProposalModificationForm(LearningUnitYearForm):
     folder_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
-    state = forms.ChoiceField(choices=proposal_state.CHOICES)
+    state = forms.ChoiceField(choices=proposal_state.CHOICES, required=False)
     type = forms.ChoiceField(choices=proposal_type.CHOICES, required=False, disabled=True)
 
     def __init__(self, *args, **kwargs):
