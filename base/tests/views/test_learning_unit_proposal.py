@@ -742,13 +742,9 @@ def _test_attributes_equal(obj, attribute_values_dict):
         if key == "credits":
             if float(getattr(obj, key)) != float(value):
                 return False
-            else:
-                continue
         elif key in ["campus", "language"]:
             if getattr(obj, key).id != value:
                 return False
-            else:
-                continue
         elif getattr(obj, key) != value:
             return False
     return True
