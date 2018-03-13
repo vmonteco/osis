@@ -31,6 +31,7 @@ from django.test import TestCase
 from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
 from base.models.enums import learning_unit_periodicity, learning_unit_year_subtypes, learning_container_year_types, \
     organization_type, entity_type
+from base.models.enums.learning_container_year_types import COURSE
 from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.person import FACULTY_MANAGER_GROUP
@@ -144,7 +145,8 @@ class TestLearningUnitModificationForm(TestCase):
         PersonEntityFactory(entity=an_entity, person=cls.faculty_person)
 
     def setUp(self):
-        self.learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
+        self.learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year,
+                                                                    container_type=COURSE)
         self.learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                           learning_container_year=self.learning_container_year,
                                                           learning_unit__periodicity=ANNUAL,
@@ -173,11 +175,14 @@ class TestLearningUnitModificationForm(TestCase):
         form = LearningUnitModificationForm(person=self.person,
                                             learning_unit_year_instance=self.learning_unit_year_partim_1)
         disabled_fields = ('first_letter', 'acronym', 'common_title', 'common_title_english', 'requirement_entity',
-                           'allocation_entity', 'language', 'periodicity', 'campus', 'container_type', "academic_year",
+                           'allocation_entity', 'language', 'campus', 'container_type', "academic_year",
                            'internship_subtype', 'additional_requirement_entity_1', 'additional_requirement_entity_2',
-                           'is_vacant', 'team', 'type_declaration_vacant', 'attribution_procedure', "subtype")
-        for field in disabled_fields:
-            self.assertTrue(form.fields[field].disabled, field)
+                           'is_vacant', 'team', 'type_declaration_vacant', 'attribution_procedure', "subtype", "status")
+        for field in form.fields:
+            if field in disabled_fields:
+                self.assertTrue(form.fields[field].disabled, field)
+            else:
+                self.assertFalse(form.fields[field].disabled, field)
 
     def test_disabled_internship_subtype_in_case_of_container_type_different_than_internship(self):
         form = LearningUnitModificationForm(person=self.person, learning_unit_year_instance=self.learning_unit_year)
@@ -243,20 +248,21 @@ class TestLearningUnitModificationForm(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_when_requirement_and_attribution_entities_are_different_for_disseration_and_internship_subtype(self):
-        an_other_entity = EntityFactory(organization=self.organization)
-        an_other_entity_version = EntityVersionFactory(entity=an_other_entity, entity_type=entity_type.SCHOOL,
+        an_other_entity_version = EntityVersionFactory(entity__organization=self.organization,
+                                                       entity_type=entity_type.SCHOOL,
                                                        parent=None, end_date=None,
                                                        start_date=datetime.date.today() - datetime.timedelta(days=5))
         form_data_with_different_allocation_entity = self.form_data.copy()
         form_data_with_different_allocation_entity["allocation_entity"] = str(an_other_entity_version.id)
 
         for container_type in (learning_container_year_types.DISSERTATION, learning_container_year_types.INTERNSHIP):
-            initial_data_with_specific_container_type = self.initial_data.copy()
-            initial_data_with_specific_container_type["container_type"] = container_type
+            self.learning_container_year.container_type = container_type
+            self.learning_container_year.save()
+
             form = LearningUnitModificationForm(form_data_with_different_allocation_entity,
                                                 person=self.person,
                                                 learning_unit_year_instance=self.learning_unit_year)
-            self.assertFalse(form.is_valid())
+            self.assertFalse(form.is_valid(), container_type)
 
     def test_valid_form(self):
         form = LearningUnitModificationForm(self.form_data, person=self.person,

@@ -127,7 +127,6 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         super().__init__(*args, **kwargs, initial=self.compute_learning_unit_modification_form_initial_data())
         self.postponement = bool(int(self.data.get('postponement', 1)))
 
-
         if self.initial:
             self.learning_unit_year_subtype = self.initial.get("subtype")
             self.learning_container_type = self.initial.get("container_type")

@@ -26,6 +26,7 @@
 import re
 
 from django import forms
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
@@ -155,7 +156,7 @@ class LearningUnitYearForm(BootstrapForm):
         acronym = _merge_first_letter_and_acronym(self.cleaned_data.get('first_letter', ""),
                                                   self.cleaned_data.get('acronym', ""))
         if not re.match(regex, acronym):
-            self.add_error('acronym', _('invalid_acronym'))
+            raise ValidationError(_('invalid_acronym'))
         return acronym
 
     def __init__(self, *args, **kwargs):
@@ -217,5 +218,5 @@ class CreatePartimForm(CreateLearningUnitYearForm):
         acronym = super().clean_acronym()
         acronym += self.data['partim_character'].upper()
         if not re.match(regex, acronym):
-            self.add_error('acronym', _('invalid_acronym'))
+            raise ValidationError(_('invalid_acronym'))
         return acronym
