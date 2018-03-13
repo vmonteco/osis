@@ -214,7 +214,9 @@ class LearningUnitModificationForm(LearningUnitYearForm):
                 for entity_type, entity_version in self.cleaned_data.items()
                 if entity_type.upper() in ENTITY_TYPE_LIST}
 
-    def save(self):
+    def save(self, commit=True):
+        if not commit:
+            return
         entities_data = self.get_entities_data()
         lu_type_full_data = self.get_data_for_learning_unit()
         update_learning_unit_year_with_report(self.instance, lu_type_full_data, self.postponement)
@@ -235,27 +237,6 @@ class LearningUnitModificationForm(LearningUnitYearForm):
             "learning_unit": ("faculty_remark", "other_remark", "periodicity")
         }
         return compute_learning_unit_form_initial_data(other_fields_dict, self.instance, fields)
-
-
-class KeepOrOverwriteFormSet(forms.BaseFormSet):
-    def __init__(self, warnings, *args, **kwargs):
-        self.warnings = warnings
-        super().__init__(*args, **kwargs)
-
-    def get_form_kwargs(self, index):
-        kwargs = super().get_form_kwargs(index)
-        kwargs['warning'] = self.warnings[index]
-        return kwargs
-
-
-class KeepOrOverwriteForm(forms.Form):
-    keep = forms.ChoiceField(choices=add_blank([(0, 'Change'), (1, 'Keep')]), required=True)
-
-    def __init__(self, *args, **kwargs):
-        self.warning = kwargs.pop('warning')
-        super().__init__(*args, **kwargs)
-        self.fields['keep'].label = self.warning
-        self.empty_permitted = False
 
 
 def compute_learning_unit_form_initial_data(base_dict, learning_unit_year, fields):

@@ -34,19 +34,23 @@
             {{ title | safe }}
         </h2>
     </div>
-    <form method="post" style="display: inline;">
 
-        <div class="panel-body">
+    <div class="panel-body">
+        {% for warning in  warnings %}
+            <div class="alert alert-warning" role="alert">
+                {{ warning }}
+            </div>
+        {% endfor %}
+    </div>
+    <div class="panel-footer">
+        <form method="post">
             {% csrf_token %}
-            {% bootstrap_formset formset %}
-            {% trans 'are_you_sure' %}
-        </div>
-        <div class="panel-footer">
-                <a href="{% url 'learning_unit' learning_unit_year_id=learning_unit %}" class="btn btn-default">
-                    {% trans 'cancel' %}
-                </a>
-                {% bootstrap_button _("i_confirm") button_type="submit" button_class="btn-primary" %}
-        </div>
-    </form>
+            <a href="{% url 'edit_learning_unit' learning_unit_year_id=learning_unit %}" class="btn btn-default">
+                {% trans 'cancel' %}
+            </a>
+            <button type="submit" name="action" value="0" class="btn btn-danger">{% trans 'Keep' %}</button>
+            <button type="submit" name="action" value="1" class="btn btn-primary">{% trans 'Overwrite' %}</button>
+        </form>
+    </div>
 </div>
 {% endblock %}

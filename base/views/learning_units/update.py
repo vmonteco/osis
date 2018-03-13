@@ -25,16 +25,14 @@
 ##############################################################################
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
-from django.forms import formset_factory
 from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from base.business import learning_unit_year_with_context
-from base.business.learning_units.edition import edit_learning_unit_end_date, check_postponement_conflict
-from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm, \
-    KeepOrOverwriteFormSet, KeepOrOverwriteForm
+from base.business.learning_units.edition import edit_learning_unit_end_date, ConsistencyError
+from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
 from base.forms.learning_unit.edition_volume import VolumeEditionFormsetContainer
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
@@ -83,28 +81,29 @@ def modify_learning_unit(request, learning_unit_year_id):
         request.POST or None, learning_unit_year_instance=learning_unit_year, person=person)
 
     if form.is_valid():
-
-        warnings = check_postponement_conflict(learning_unit_year)
-        if warnings:
-            request.session['warnings'] = warnings
-            request.session['update_form'] = request.POST
-            return redirect("confirm_postponement", learning_unit_year_id=learning_unit_year_id)
-
         return _save_update_learning_unit_form(form, learning_unit_year, request)
 
     context = {"learning_unit_year": learning_unit_year, "form": form}
     return layout.render(request, 'learning_unit/modification.html', context)
 
 
-def _save_update_learning_unit_form(form, learning_unit_year, request):
+def _save_update_learning_unit_form(form, learning_unit_year, request, commit=True):
     try:
-        form.save()
+        form.save(commit)
         display_success_messages(request, _("success_modification_learning_unit"))
 
     except IntegrityError as e:
         msg = "{} : {}".format(_("error_modification_learning_unit"), e.args[0])
         display_error_messages(request, msg)
 
+    except ConsistencyError as e:
+        request.session['warnings'] = e.error_list
+        request.session['update_form'] = request.POST
+        request.session['learning_unit_to_update_id'] = e.learning_unit_year.id
+
+        return redirect("confirm_postponement", learning_unit_year_id=learning_unit_year.id)
+
+    clean_session(request, ['warnings', 'update_form', 'learning_unit_to_update_id'])
     return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
 
 
@@ -117,18 +116,19 @@ def confirm_postponement(request, learning_unit_year_id):
     if not warnings:
         raise Http404()
 
-    KeepOrOverwriteFormset = formset_factory(
-        form=KeepOrOverwriteForm, formset=KeepOrOverwriteFormSet, extra=len(warnings))
-    formset = KeepOrOverwriteFormset(warnings, request.POST or None)
-    form = LearningUnitModificationForm(
-        request.session['update_form'], learning_unit_year_instance=learning_unit_year, person=person)
+    if request.POST:
+        commit = bool(int(request.POST.get('action', '0')))
+        luy_id = request.session['learning_unit_to_update_id']
+        learning_unit_year_to_update = get_object_or_404(LearningUnitYear, pk=luy_id)
 
-    if formset.is_valid() and form.is_valid():
-        result =  _save_update_learning_unit_form(form, learning_unit_year, request)
-        clean_session(request, ['warnings', 'update_form'])
-        return result
+        update_form = LearningUnitModificationForm(
+            request.session['update_form'], learning_unit_year_instance=learning_unit_year_to_update, person=person)
 
-    context = {'formset': formset, 'learning_unit': learning_unit_year_id}
+        if update_form.is_valid():
+            result = _save_update_learning_unit_form(update_form, learning_unit_year, request, commit=commit)
+            return result
+
+    context = {'warnings': warnings, 'learning_unit': learning_unit_year_id, 'title': 'no title'}
     return layout.render(request, 'learning_unit/confirm_postponement.html', context)
 
 

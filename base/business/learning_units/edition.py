@@ -267,7 +267,17 @@ def update_learning_unit_year_entities_with_report(luy_to_update, entities_by_ty
 
 def _apply_report(method_of_update, base_luy, *args, **kwargs):
     for luy in base_luy.find_gt_learning_units_year():
+        warnings = check_postponement_conflict(luy)
+        if warnings:
+            raise ConsistencyError(error_list=warnings, learning_unit_year=luy)
         method_of_update(luy, *args, **kwargs)
+
+
+class ConsistencyError(Exception):
+    def __init__(self, error_list, learning_unit_year, *args):
+        super().__init__(*args)
+        self.learning_unit_year = learning_unit_year
+        self.error_list = error_list
 
 
 def _update_learning_unit_year(luy_to_update, fields_to_update, fields_to_exclude=()):
