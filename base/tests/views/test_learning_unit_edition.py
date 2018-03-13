@@ -286,11 +286,11 @@ class TestEditLearningUnit(TestCase):
         }
         self.assertDictEqual(initial_data, expected_initial)
 
-    @mock.patch("base.business.learning_units.edition.update_learning_unit_year_with_report", side_effect=None)
-    def test_valid_post_request(self, mock_update_learning_unit_year, mock_update_entities):
+    def test_valid_post_request(self):
+        credits = 18
         form_data = {
             "acronym": self.learning_unit_year.acronym[1:],
-            "credits": str(self.learning_unit_year.credits + 1),
+            "credits": str(credits),
             "common_title": self.learning_unit_year.learning_container_year.common_title,
             "first_letter": self.learning_unit_year.acronym[0],
             "periodicity": learning_unit_periodicity.ANNUAL,
@@ -301,11 +301,11 @@ class TestEditLearningUnit(TestCase):
         }
         response = self.client.post(self.url, data=form_data)
 
-        self.assertTrue(mock_update_learning_unit_year.called)
-        self.assertTrue(mock_update_entities.called)
-
         expected_redirection = reverse("learning_unit", args=[self.learning_unit_year.id])
         self.assertRedirects(response, expected_redirection)
+
+        self.learning_unit_year.refresh_from_db()
+        self.assertEqual(self.learning_unit_year.credits, credits)
 
 
 class TestLearningUnitVolumesManagement(TestCase):
