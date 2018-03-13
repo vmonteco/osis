@@ -39,6 +39,7 @@ from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.group_element_year import GroupElementYear
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
+from django.utils.functional import cached_property
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
@@ -110,13 +111,13 @@ class LearningUnitYear(AuditableSerializableModel):
             learning_container_year=self.learning_container_year
         ).order_by('acronym')
 
-    @property
+    @cached_property
     def allocation_entity(self):
-        entity_container_yr = entity_container_year.search(
-            link_type=entity_container_year_link_type.ALLOCATION_ENTITY,
-            learning_container_year=self.learning_container_year
-        ).first()
-        return entity_container_yr.entity if entity_container_yr else None
+        return self.get_entity(entity_container_year_link_type.ALLOCATION_ENTITY)
+
+    @cached_property
+    def requirement_entity(self):
+        return self.get_entity(entity_container_year_link_type.REQUIREMENT_ENTITY)
 
     @property
     def complete_title(self):
@@ -189,6 +190,13 @@ class LearningUnitYear(AuditableSerializableModel):
 
     def is_partim(self):
         return self.subtype == learning_unit_year_subtypes.PARTIM
+
+    def get_entity(self, entity_type):
+        entity_container_yr = entity_container_year.search(
+            link_type=entity_type,
+            learning_container_year=self.learning_container_year
+        ).first()
+        return entity_container_yr.entity if entity_container_yr else None
 
 
 def get_by_id(learning_unit_year_id):
@@ -276,3 +284,7 @@ def check_if_acronym_regex_is_valid(acronym):
 
 def find_max_credits_of_related_partims(a_learning_unit_year):
     return a_learning_unit_year.get_partims_related().aggregate(max_credits=models.Max("credits"))["max_credits"]
+
+
+def find_by_learning_unit(a_learning_unit):
+    return LearningUnitYear.objects.filter(learning_unit=a_learning_unit)
