@@ -137,7 +137,6 @@ def cancel_proposal_of_type_creation(request, learning_unit_proposal):
     messages_deletion = check_other_than_proposal(learning_unit_year)
     if not messages_deletion:
         _delete_learning_unit_proposal_of_type_creation(learning_unit_proposal, request)
-        messages.add_message(request, messages.SUCCESS, _("success_cancel_proposal").format(learning_unit_year.acronym))
         return redirect('learning_unit_proposal_search')
     else:
         context = get_learning_unit_identification_context(learning_unit_year.id, person)
@@ -151,6 +150,7 @@ def _delete_learning_unit_proposal_of_type_creation(learning_unit_proposal, requ
     learning_unit_year = learning_unit_proposal.learning_unit_year
     delete_learning_unit_years(learning_unit_year, request)
     delete_learning_unit_proposal(learning_unit_proposal)
+    messages.add_message(request, messages.SUCCESS, _("success_cancel_proposal").format(learning_unit_year.acronym))
 
 
 def cancel_creation_proposal(learning_unit_year, request):
@@ -160,4 +160,5 @@ def cancel_creation_proposal(learning_unit_year, request):
     else:
         reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year)
         delete_learning_unit_proposal(learning_unit_proposal)
+        messages.add_message(request, messages.SUCCESS, _("success_cancel_proposal").format(learning_unit_year.acronym))
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
