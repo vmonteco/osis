@@ -69,7 +69,7 @@
             {% for learning_unit in object_list %}
                 <td>{{ learning_unit.learning_unit_year.academic_year }}</td>
                 <td>{{ learning_unit.learning_unit_year.acronym }}</td>
-                <td>{{ learning_unit.learning_unit_year.specific_title }}</td>
+                <td>{{ learning_unit.learning_unit_year.complete_title}}</td>
                 <td><a href="{% url 'tutoring_learning_unit_edit' learning_unit.id %}">
                     <button type="button" class="btn btn-link btn-lg" title="{% trans 'edit'%}"
                             id="bt_learning_unit_edit">
