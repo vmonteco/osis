@@ -95,7 +95,7 @@ class PermsTestCase(TestCase):
                                           learning_container_year=lunit_container_yr,
                                           subtype=FULL)
 
-            self.assertFalse(perms.is_eligible_for_modification_end_date(luy, self.get_person(FACULTY_MANAGER_GROUP)))
+            self.assertFalse(perms.is_eligible_for_modification_end_date(luy, self.create_person_with_permission_to_edit_proposal(FACULTY_MANAGER_GROUP)))
 
     def test_cannot_faculty_manager_modify_full(self):
         for proposal_needed_container_type in TYPES_PROPOSAL_NEEDED_TO_EDIT:
@@ -105,7 +105,7 @@ class PermsTestCase(TestCase):
                                           learning_container_year=lunit_container_yr,
                                           subtype=FULL)
 
-            self.assertFalse(perms.is_eligible_for_modification(luy, self.get_person(FACULTY_MANAGER_GROUP)))
+            self.assertFalse(perms.is_eligible_for_modification(luy, self.create_person_with_permission_to_edit_proposal(FACULTY_MANAGER_GROUP)))
 
     def test_cannot_faculty_manager_modify_end_date_no_container(self):
         luy = LearningUnitYearFactory(academic_year=self.academic_yr,
@@ -114,7 +114,7 @@ class PermsTestCase(TestCase):
 
     def test_access_edit_learning_unit_proposal_as_central_manager(self):
         luy = LearningUnitYearFactory(academic_year=self.academic_yr)
-        a_person = self.get_person(CENTRAL_MANAGER_GROUP)
+        a_person = self.create_person_with_permission_to_edit_proposal(CENTRAL_MANAGER_GROUP)
 
         self.assertFalse(perms.is_eligible_to_edit_proposal(None, a_person))
 
@@ -128,7 +128,7 @@ class PermsTestCase(TestCase):
         an_requirement_entity = generated_container_first_year.requirement_entity_container_year.entity
 
         luy = generated_container_first_year.learning_unit_year_full
-        a_person = self.get_person(FACULTY_MANAGER_GROUP)
+        a_person = self.create_person_with_permission_to_edit_proposal(FACULTY_MANAGER_GROUP)
 
         self.assertFalse(perms.is_eligible_to_edit_proposal(None, a_person))
 
@@ -156,7 +156,7 @@ class PermsTestCase(TestCase):
             learning_container_year=luy.learning_container_year,
             type=entity_container_year_link_type.REQUIREMENT_ENTITY
         )
-        a_person = self.get_person()
+        a_person = self.create_person_with_permission_to_edit_proposal()
         self.assertFalse(perms.is_eligible_for_cancel_of_proposal(None, a_person))
         a_proposal = ProposalLearningUnitFactory(
             learning_unit_year=luy,
@@ -182,7 +182,7 @@ class PermsTestCase(TestCase):
         an_requirement_entity = generated_container_first_year.requirement_entity_container_year.entity
 
         luy = generated_container_first_year.learning_unit_year_full
-        a_person = self.get_person()
+        a_person = self.create_person_with_permission_to_edit_proposal()
 
         a_proposal = ProposalLearningUnitFactory(learning_unit_year=luy,
                                                  type=proposal_type.ProposalType.CREATION.name,
@@ -198,7 +198,7 @@ class PermsTestCase(TestCase):
         an_requirement_entity = generated_container_first_year.requirement_entity_container_year.entity
 
         luy = generated_container_first_year.learning_unit_year_full
-        a_person = self.get_person()
+        a_person = self.create_person_with_permission_to_edit_proposal()
 
         a_proposal = ProposalLearningUnitFactory(
             learning_unit_year=luy,
@@ -214,7 +214,7 @@ class PermsTestCase(TestCase):
         self.assertTrue(perms.is_eligible_for_cancel_of_proposal(a_proposal, a_person))
 
     @staticmethod
-    def get_person(group_name=None):
+    def create_person_with_permission_to_edit_proposal(group_name=None):
         a_user = UserFactory()
         permission = Permission.objects.get(codename='can_edit_learning_unit_proposal')
         a_user.user_permissions.add(permission)
