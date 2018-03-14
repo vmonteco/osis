@@ -1,6 +1,5 @@
-{% extends "layout.html" %}
-{% load staticfiles %}
-{% load i18n %}
+{% extends 'blocks/modal/generic_modal.html' %}
+{% load i18n bootstrap3 %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -24,22 +23,28 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
+{% block modal_id %}modalBackToInitial{% endblock %}
 
-{% block breadcrumb %}
-<li><a href="{% url 'my_osis' %}" id="lnk_my_osis">{% trans 'my_osis' %}</a></li>
-    <li ><a href="{% url 'profile' %}" id="lnk_profile">{% trans 'profile' %}</a></li>
-    <li class="active">{% trans 'educational_information' %}</li>
+{% block modal_header %}
+    <h3>{% trans 'do_you_want_to_get_back_to_initial' %}</h3>
+    <div class='alert alert-warning' id="alert_warning" style="display: none;"></div>
 {% endblock %}
 
-{% block content %}
-    <div class="panel panel-default">
-        <div class="panel-body">
-        {% url 'learning_unit_summary_edit' learning_unit_year_id=learning_unit_year.id as post_url%}
-        {% include "learning_unit/blocks/panel_educational_informations.html" with can_edit_information=True %}
-        </div>
-    </div>
-    <div class="modal fade" id="pedagogy_edit" role="dialog" data-backdrop="static"></div>
+{% block modal_body %}
+    {% trans 'do_you_want_to_get_back_to_initial' %}
+    <input type="hidden" id="action" name="action" class="action">
 {% endblock %}
-{% block script %}
-    <script src="{% static 'js/pedagogy_modal.js' %}"></script>
+
+{% block modal_footer %}
+    <button type="button" class="btn btn-primary" onclick="submit_form_back();">{% trans 'yes' %}</button>
+    <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "cancel" %}</button>
+
+    <script>
+        function submit_form_back(){
+            $(".action").val('back_to_initial');
+            $('form').submit()
+        }
+    </script>
 {% endblock %}
+
+

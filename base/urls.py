@@ -115,7 +115,7 @@ urlpatterns = [
                 url(r'^cancel/$', learning_unit_proposal.cancel_proposal_of_learning_unit,
                     name="learning_unit_cancel_proposal"),
             ])),
-            url(r'^edit/$', edition.learning_unit_edition, name="learning_unit_edition"),
+            url(r'^edit/$', edition.learning_unit_edition_end_date, name="learning_unit_edition"),
             url(r'^modify/$', edition.modify_learning_unit, name="edit_learning_unit"),
             url(r'^specifications/$', learning_unit.learning_unit_specifications, name="learning_unit_specifications"),
             url(r'^specifications/edit/$', learning_unit.learning_unit_specifications_edit,
@@ -128,8 +128,6 @@ urlpatterns = [
                 name="learning_unit_delete"),
             url(r'^delete_full/$', base.views.learning_unit_deletion.delete_all_learning_units_year,
                 name="learning_unit_delete_all"),
-            url(r'^summary/$', learning_unit.learning_unit_summary, name="learning_unit_summary"),
-            url(r'^summary/edit/$', learning_unit.summary_edit, name="learning_unit_summary_edit"),
             url(r'^partim/', include([
                 url(r'^new/$', learning_unit.get_partim_creation_form, name="learning_unit_create_partim"),
                 url(r'^add/$', learning_unit.learning_unit_year_partim_add, name='learning_unit_year_partim_add')

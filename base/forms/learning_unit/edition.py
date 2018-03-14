@@ -29,26 +29,25 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_units.edition import filter_biennial
+from base.business.learning_units.perms import FACULTY_UPDATABLE_CONTAINER_TYPES
 from base.forms.bootstrap import BootstrapForm
-from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_READ_ONLY_FIELD, \
-    MaxStrictlyValueValidator, MinStrictlyValueValidator
+from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.utils.choice_field import add_blank
 from base.models import academic_year
 from base.models.academic_year import AcademicYear
 from base.models.enums.attribution_procedure import AttributionProcedures
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
-from base.models.enums.learning_container_year_types import INTERNSHIP, DISSERTATION, COURSE
+from base.models.enums.learning_container_year_types import INTERNSHIP, DISSERTATION, MASTER_THESIS, \
+    LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
 from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.enums.learning_unit_year_subtypes import PARTIM
 from base.models.enums.vacant_declaration_type import VacantDeclarationType
-from base.models.learning_unit import is_old_learning_unit
-from base.models.learning_unit_year import find_max_credits_of_related_partims
 
 FULL_READ_ONLY_FIELDS = {"first_letter", "acronym", "academic_year", "container_type", "subtype"}
 PARTIM_READ_ONLY_FIELDS = PARTIM_FORM_READ_ONLY_FIELD | {"is_vacant", "team", "type_declaration_vacant",
                                                          "attribution_procedure", "subtype"}
-FACULTY_READ_ONLY_FIELDS = {"common_title", "common_title_english", "specific_title", "specific_title_english",
-                            "faculty_remark", "other_remark", "campus", "status", "credits", "language",
+FACULTY_READ_ONLY_FIELDS = {"periodicity", "common_title", "common_title_english", "specific_title",
+                            "specific_title_english", "campus", "status", "credits", "language",
                             "requirement_entity", "allocation_entity", "additional_requirement_entity_2", "is_vacant",
                             "type_declaration_vacant", "attribution_procedure", "subtype"}
 
@@ -89,7 +88,7 @@ class LearningUnitEndDateForm(BootstrapForm):
         if self.learning_unit.start_year > min_year:
             min_year = self.learning_unit.start_year
 
-        if is_old_learning_unit(self.learning_unit):
+        if self.learning_unit.is_past():
             raise ValueError(
                 'Learning_unit.end_year {} cannot be less than the current academic_year {}'.format(
                     self.learning_unit.end_year, current_academic_year)
@@ -120,6 +119,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         learning_unit_year_subtype = initial.get("subtype") if initial else None
         learning_container_type = initial.get("container_type") if initial else None
         parent = learning_unit_year_instance.parent if learning_unit_year_instance else None
+        self.learning_unit = learning_unit_year_instance.learning_unit if learning_unit_year_instance else None
 
         self.learning_unit_end_date = kwargs.pop("end_date", None)
 
@@ -131,15 +131,16 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         self._disabled_internship_subtype_field_if_not_internship_container_type(learning_container_type)
 
         if parent:
-            self._set_max_credits(parent)
             self._set_status_value(parent)
             self._enabled_periodicity(parent)
-        elif learning_unit_year_instance:
-            self._set_min_credits(learning_unit_year_instance)
 
         if person.is_faculty_manager():
-            if initial.get("container_type") in [COURSE, INTERNSHIP, DISSERTATION]:
+            if initial.get("container_type") in FACULTY_UPDATABLE_CONTAINER_TYPES\
+                    and learning_unit_year_subtype == "FULL":
                 self._disabled_fields(FACULTY_READ_ONLY_FIELDS)
+
+        if learning_unit_year_instance:
+            self.learning_unit = learning_unit_year_instance.learning_unit
 
     def is_valid(self):
         if not BootstrapForm.is_valid(self):
@@ -175,7 +176,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         return self.cleaned_data["requirement_entity"] == self.cleaned_data["allocation_entity"]
 
     def _can_requirement_and_allocation_entities_be_different(self):
-        return self.cleaned_data["container_type"] not in [INTERNSHIP, DISSERTATION]
+        return self.cleaned_data["container_type"] not in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
 
     def _disabled_fields_base_on_learning_unit_year_subtype(self, subtype):
         if subtype == PARTIM:
@@ -190,17 +191,6 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     def _disabled_fields(self, fields_to_disable):
         for field in fields_to_disable:
             self.fields[field].disabled = True
-
-    def _set_max_credits(self, parent):
-        max_credits = parent.credits
-        self.fields["credits"].max_value = max_credits
-        self.fields['credits'].validators.append(MaxStrictlyValueValidator(max_credits))
-
-    def _set_min_credits(self, instance):
-        min_credits = find_max_credits_of_related_partims(instance)
-        if min_credits is not None:
-            self.fields["credits"].min_value = min_credits
-            self.fields['credits'].validators.append(MinStrictlyValueValidator(min_credits))
 
     def _set_status_value(self, parent):
         if parent.status is False:

@@ -197,7 +197,7 @@ def prepare_xls_content(found_learning_units):
 
 
 def _extract_xls_data_from_learning_unit(learning_unit_yr):
-    return [learning_unit_yr.academic_year.name, learning_unit_yr.acronym, learning_unit_yr.specific_title,
+    return [learning_unit_yr.academic_year.name, learning_unit_yr.acronym, learning_unit_yr.complete_title,
             xls_build.translate(learning_unit_yr.learning_container_year.container_type),
             xls_build.translate(learning_unit_yr.subtype),
             _get_entity_acronym(learning_unit_yr.entities.get('REQUIREMENT_ENTITY')),
@@ -289,3 +289,7 @@ def initialize_learning_unit_pedagogy_form(learning_unit_year, language_code):
 
 def find_language_in_settings(language_code):
     return next((lang for lang in settings.LANGUAGES if lang[0] == language_code), None)
+
+
+def can_edit_summary_editable_field(person, is_person_linked_to_entity):
+    return person.is_faculty_manager() and is_person_linked_to_entity
