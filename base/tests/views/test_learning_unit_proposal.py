@@ -67,7 +67,7 @@ from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_folder import ProposalFolderFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.tutor import TutorFactory
-from base.views.learning_unit_proposal import edit_learning_unit_proposal, _delete_learning_unit_proposal_of_type_creation
+from base.views.learning_units.proposal.update import edit_learning_unit_proposal, _delete_learning_unit_proposal_of_type_creation
 from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search, _cancel_list_of_proposal
 from reference.tests.factories.language import LanguageFactory
 from base.tests.factories.user import UserFactory

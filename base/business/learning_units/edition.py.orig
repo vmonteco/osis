@@ -28,7 +28,6 @@ from django.db import IntegrityError, transaction, Error
 from django.db.models import F
 from django.utils.translation import ugettext_lazy as _
 
-from base.business import learning_unit_year_with_context
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_unit_deletion import delete_from_given_learning_unit_year, \
     check_learning_unit_year_deletion
@@ -331,11 +330,15 @@ def check_postponement_conflict(luy):
         error_list.extend(_check_postponement_conflict_on_learning_unit_year(luy, next_luy))
         error_list.extend(_check_postponement_conflict_on_learning_container_year(lcy, next_lcy))
         error_list.extend(_check_postponement_conflict_on_entity_container_year(lcy, next_lcy))
-        error_list.extend(_check_postponement_learning_unit_year_proposal_state(next_luy))
+<<<<<<< HEAD
         error_list.extend(_check_postponement_conflict_on_volumes(lcy, next_lcy))
+    return error_list
+=======
+        error_list.extend(_check_postponement_learning_unit_year_proposal_state(next_luy))
 
     if error_list:
         raise ConsistencyError(_('error_modification_learning_unit'), error_list=error_list)
+>>>>>>> 0fbc4df44b9c1130b95b8312395681834c3dcffc
 
 
 def _check_postponement_conflict_on_learning_unit_year(luy, next_luy):
@@ -399,6 +402,7 @@ def _is_different_value(obj1, obj2, field):
     return value_obj1 != value_obj2
 
 
+<<<<<<< HEAD
 def _check_postponement_conflict_on_volumes(lcy, next_lcy):
     current_learning_units = learning_unit_year_with_context.get_with_context(learning_container_year_id=lcy.id)
     next_year_learning_units = learning_unit_year_with_context.get_with_context(learning_container_year_id=next_lcy.id)
@@ -406,8 +410,8 @@ def _check_postponement_conflict_on_volumes(lcy, next_lcy):
     error_list = []
     for luy_with_components in current_learning_units:
         try:
-            next_luy_with_components = next(luy for luy in next_year_learning_units if
-                                             luy.learning_unit == luy_with_components.learning_unit)
+            next_luy_with_components = next((luy for luy in next_year_learning_units if
+                                             luy.learning_unit == luy_with_components.learning_unit))
             error_list.extend(_check_postponement_conflict_on_components(
                 luy_with_components,
                 next_luy_with_components)
@@ -426,22 +430,22 @@ def _check_postponement_conflict_on_components(luy_with_components, next_luy_wit
     current_components = getattr(luy_with_components, 'components', {})
     next_year_components = getattr(next_luy_with_components, 'components', {})
     for component, volumes_computed in current_components.items():
-        try:
-            # Get the same component for next year (Key: component type)
-            next_year_component = next(next_year_component for next_year_component in next_year_components
-                                       if next_year_component.type == component.type)
+        # Get the same component for next year (Key: component type)
+        next_year_component = next((next_year_component for next_year_component in
+                                    next_year_components.keys() if next_year_component.type == component.type), None)
+        if not next_year_component:
+            # Case current year have component which doesn't exist on next year
+            error = _get_error_component_not_found(luy_with_components.acronym, component.type,
+                                                   luy_with_components.academic_year,
+                                                   next_luy_with_components.academic_year)
+            error_list.append(error)
+        else:
             error_list.extend(_check_postponement_conflict_on_volumes_data(
                 component, next_year_component,
                 volumes_computed, next_year_components[next_year_component]
             ))
             # Pop the values when validation done
             next_year_components.pop(next_year_component)
-        except StopIteration:
-            # Case current year have component which doesn't exist on next year
-            error = _get_error_component_not_found(luy_with_components.acronym, component.type,
-                                                   luy_with_components.academic_year,
-                                                   next_luy_with_components.academic_year)
-            error_list.append(error)
 
     if next_year_components:
         # Case next year have component which doesn't exist on current year
@@ -456,7 +460,7 @@ def _check_postponement_conflict_on_volumes_data(current_component, next_year_co
                                                  current_volumes_data, next_year_volumes_data):
     error_list = []
     volumes_diff = filter(lambda data: _is_different_value(current_volumes_data, next_year_volumes_data, data),
-                          current_volumes_data)
+                          current_volumes_data.keys())
     for volume_diff in volumes_diff:
         current_volume_data = current_volumes_data.get(volume_diff)
         next_year_volume_data = next_year_volumes_data.get(volume_diff)
@@ -482,10 +486,9 @@ def _get_error_component_not_found(acronym, component_type, existing_academic_ye
         'year': not_found_academic_year,
         'existing_year': existing_academic_year
     }
-
-
+=======
 class ConsistencyError(Error):
     def __init__(self, *args, **kwargs):
         self.error_list = kwargs.pop('error_list')
         super().__init__(*args, **kwargs)
-
+>>>>>>> 0fbc4df44b9c1130b95b8312395681834c3dcffc

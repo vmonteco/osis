@@ -32,6 +32,7 @@ from django.test import TestCase
 
 from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.learning_units import edition as business_edition
+from base.business.learning_units.edition import ConsistencyError
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import entity_container_year_link_type
@@ -63,7 +64,7 @@ class LearningUnitEditionTestCase(TestCase):
                                                                     campus=CampusFactory(name='MIT'))
         self.learning_unit_year = _create_learning_unit_year_with_components(self.learning_container_year,
                                                                              create_lecturing_component=True,
-                                                                             create_pratical_exercice=True)
+                                                                             create_pratical_component=True)
 
         an_entity = EntityFactory()
         EntityVersionFactory(entity=an_entity, parent=None, end_date=None, acronym="DRT")
@@ -322,7 +323,7 @@ class LearningUnitEditionTestCase(TestCase):
 
         # Create LUY with components LECTURING / PRACTICAL EXERCICES + link to the same learning unit
         another_learning_unit_year = _create_learning_unit_year_with_components(another_learning_container_year,
-                                                                                create_pratical_exercice=True,
+                                                                                create_pratical_component=True,
                                                                                 create_lecturing_component=True)
         another_learning_unit_year.learning_unit = self.learning_unit_year.learning_unit
         another_learning_unit_year.save()
@@ -354,7 +355,7 @@ class LearningUnitEditionTestCase(TestCase):
 
         # Create LUY with components LECTURING / PRACTICAL EXERCICES + link to the same learning unit
         another_learning_unit_year = _create_learning_unit_year_with_components(another_learning_container_year,
-                                                                                create_pratical_exercice=True,
+                                                                                create_pratical_component=True,
                                                                                 create_lecturing_component=True)
         another_learning_unit_year.learning_unit = self.learning_unit_year.learning_unit
         another_learning_unit_year.save()
@@ -402,7 +403,7 @@ class LearningUnitEditionTestCase(TestCase):
 
         # Create LUY with components PRACTICAL EXERCICES + link to the same learning unit
         another_learning_unit_year = _create_learning_unit_year_with_components(another_learning_container_year,
-                                                                                create_pratical_exercice=True,
+                                                                                create_pratical_component=True,
                                                                                 create_lecturing_component=False)
         another_learning_unit_year.learning_unit = self.learning_unit_year.learning_unit
         another_learning_unit_year.save()
@@ -443,7 +444,7 @@ class LearningUnitEditionTestCase(TestCase):
 
         # Create LUY with components LECTURING / PRACTICAL EXERCISES + link to the same learning unit
         another_learning_unit_year = _create_learning_unit_year_with_components(another_learning_container_year,
-                                                                                create_pratical_exercice=True,
+                                                                                create_pratical_component=True,
                                                                                 create_lecturing_component=True)
         another_learning_unit_year.learning_unit = self.learning_unit_year.learning_unit
         another_learning_unit_year.save()
@@ -502,12 +503,14 @@ class LearningUnitEditionTestCase(TestCase):
                                    type=entity_container_year_link_type.REQUIREMENT_ENTITY,
                                    entity=an_entity)
 
-        error_list = business_edition.check_postponement_conflict(self.learning_unit_year)
+        with self.assertRaises(ConsistencyError) as ctx:
+            business_edition.check_postponement_conflict(self.learning_unit_year)
+        error_list = ctx.exception.error_list
         self.assertIsInstance(error_list, list)
         self.assertEqual(len(error_list), 6)
 
 
-def _create_learning_unit_year_with_components(l_container, create_lecturing_component=True, create_pratical_exercice=True):
+def _create_learning_unit_year_with_components(l_container, create_lecturing_component=True, create_pratical_component=True):
     a_learning_unit_year = LearningUnitYearFactory(learning_container_year=l_container,
                                                    acronym=l_container.acronym,
                                                    academic_year=l_container.academic_year)
@@ -520,7 +523,7 @@ def _create_learning_unit_year_with_components(l_container, create_lecturing_com
         )
         LearningUnitComponentFactory(learning_unit_year=a_learning_unit_year, learning_component_year=a_component)
 
-    if create_pratical_exercice:
+    if create_pratical_component:
         a_component = LearningComponentYearFactory(
             learning_container_year=l_container,
             type=learning_component_year_type.PRACTICAL_EXERCISES,
@@ -557,12 +560,8 @@ def _create_entity_component_year(luy, component_type, entity_container_year, re
 
 
 def _delete_components(luy, component_type):
-    all_learning_unit_component_linked = LearningUnitComponent.objects.filter(
-        learning_unit_year=luy,
-        learning_component_year__type=component_type)
-
-    for l_unit_component in all_learning_unit_component_linked:
-        l_unit_component.delete()
+    LearningUnitComponent.objects.filter(learning_unit_year=luy,learning_component_year__type=component_type)\
+                                 .delete()
 
 
 def _build_copy(instance):
