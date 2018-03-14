@@ -25,3 +25,22 @@ msgstr "Faculty"
 
 msgid "You will pass the proposal %(proposal)s from state %(old_state)s to %(new_state)s"
 msgstr ""
+
+msgid "existed_acronym"
+msgstr "Existed acronym for "
+
+msgid "existing_acronym"
+msgstr "Existing acronym in "
+
+msgid "invalid_acronym"
+msgstr "Invalid acronym"
+
+msgid "field_is_required"
+msgstr "This field is required"
+
+msgid "min_for_field"
+msgstr "Please enter a value greater than or equal to 0."
+
+msgid "max_for_field"
+msgstr "Please enter a value less than or equal to 500."
+
