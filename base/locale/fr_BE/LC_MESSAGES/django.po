@@ -2626,6 +2626,9 @@ msgstr "Voulez-vous changer le statut de ces propositions?"
 msgid "are_you_sure_to_change_state_from"
 msgstr "Êtes-vous sûr de vouloir changer l'état de"
 
+msgid "must_set_common_title_or_specific_title"
+msgstr "L'intitulé officiel ou l'intitulé commun est requis."
+
 msgid "learning_unit_in_proposal_cannot_save"
 msgstr "L'unité d'enseignement %(luy)s est en proposition, impossible de sauvegarder le changement à partir de l'année %(academic_year)s"
 

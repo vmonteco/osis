@@ -120,7 +120,7 @@ class TestLearningUnitModificationForm(TestCase):
             "subtype": str(learning_unit_year_subtypes.FULL),
             "acronym": "OSIS1452",
             "credits": "45",
-            "common_title": "OSIS",
+            "specific_title": "OSIS",
             "first_letter": "L",
             "periodicity": learning_unit_periodicity.ANNUAL,
             "campus": str(a_campus.id),

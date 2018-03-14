@@ -291,7 +291,7 @@ class TestEditLearningUnit(TestCase):
         form_data = {
             "acronym": self.learning_unit_year.acronym[1:],
             "credits": str(credits),
-            "common_title": self.learning_unit_year.learning_container_year.common_title,
+            "specific_title": self.learning_unit_year.specific_title,
             "first_letter": self.learning_unit_year.acronym[0],
             "periodicity": learning_unit_periodicity.ANNUAL,
             "campus": str(self.learning_unit_year.learning_container_year.campus.id),
