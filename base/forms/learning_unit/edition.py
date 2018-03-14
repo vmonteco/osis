@@ -123,7 +123,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         self.instance = learning_unit_year_instance
         self.learning_unit_end_date = kwargs.pop("end_date", None)
 
-        super().__init__(*args, **kwargs, initial=self.compute_learning_unit_modification_form_initial_data())
+        super().__init__(*args, initial=self.compute_learning_unit_modification_form_initial_data(), **kwargs)
         self.postponement = bool(int(self.data.get('postponement', 1)))
 
         if self.initial:
