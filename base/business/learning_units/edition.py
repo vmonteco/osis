@@ -259,11 +259,8 @@ def update_learning_unit_year_with_report(luy_to_update, fields_to_update, entit
         if not with_report:
             break
 
-        warnings = check_postponement_conflict(luy)
-        if warnings and not force_value:
-            raise ConsistencyError(
-                _('error_modification_learning_unit'), error_list=warnings, learning_unit_year=luy
-            )
+        if not force_value:
+            check_postponement_conflict(luy)
 
 
 def _update_learning_unit_year(luy_to_update, fields_to_update, with_report):
@@ -334,7 +331,11 @@ def check_postponement_conflict(luy):
         error_list.extend(_check_postponement_conflict_on_learning_container_year(lcy, next_lcy))
         error_list.extend(_check_postponement_conflict_on_entity_container_year(lcy, next_lcy))
         error_list.extend(_check_postponement_learning_unit_year_proposal_state(next_luy))
-    return error_list
+
+    if error_list:
+        raise ConsistencyError(
+            _('error_modification_learning_unit'), error_list=error_list, learning_unit_year=luy
+        )
 
 
 def _check_postponement_conflict_on_learning_unit_year(luy, next_luy):

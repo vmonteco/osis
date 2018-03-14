@@ -69,7 +69,7 @@
                     <td>{{ learning_unit.complete_title|default_if_none:'' }}</td>
                     <td>
                         {% with learning_unit.learning_container_year.container_type|default_if_none:'-' as type %}
-                       submit {% trans type %}
+                        {% trans type %}
                         {% endwith %}
                     </td>
                     <td>

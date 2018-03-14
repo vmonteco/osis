@@ -37,6 +37,7 @@ MAP_ENTITY_FIELD = {
     EntityContainerYear: 'entity'
 }
 
+
 @deprecated
 def filter_by_attached_entities(person, entity_queryset):
     entities_attached = person_entity.find_entities_by_person(person)
