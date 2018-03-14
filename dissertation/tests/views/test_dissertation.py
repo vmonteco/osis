@@ -309,7 +309,8 @@ class DissertationViewTestCase(TestCase):
         self.dissertation_test_email.go_forward()
         self.dissertation_test_email.manager_accept()
         message_history_result_after = message_history.find_my_messages(self.dissertation_test_email.author.person.id)
-        self.assertIn('Votre projet de mémoire est validé par votre promoteur', message_history_result_after.last().subject)
+        self.assertIn('Votre projet de mémoire est validé par votre promoteur',
+                      message_history_result_after.last().subject)
         self.assertEqual(count_messages_before_status_change + 1, len(message_history_result_after))
 
     def test_email_dissert_commission_refuse(self):
