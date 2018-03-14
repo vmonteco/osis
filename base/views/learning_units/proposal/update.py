@@ -28,33 +28,30 @@ import datetime
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
+from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.learning_unit_proposal import cancel_proposal
+from base.business.learning_unit_deletion import check_other_than_proposal
 from base.business.learning_unit_proposal import compute_proposal_type
+from base.business.learning_unit_proposal import delete_learning_unit_proposal, reinitialize_data_before_proposal
+from base.business.learning_units.perms import can_delete_learning_unit_year
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.models import proposal_learning_unit
+from base.models.entity_version import find_latest_version_by_entity
 from base.models.enums import proposal_state
+from base.models.enums import proposal_type
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
-from base.models.entity_version import find_latest_version_by_entity
+from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views import layout
 from base.views.common import display_success_messages, display_error_messages
 from base.views.learning_unit import compute_form_initial_data
-from base.views.learning_units import perms
-from base.models.proposal_learning_unit import find_by_folder, ProposalLearningUnit
-from base.models.enums import proposal_type
-from base.business.learning_units.perms import can_delete_learning_unit_year
-from django.http import HttpResponseForbidden
-from base.business.learning_unit_deletion import check_other_than_proposal
-from base.models.enums import learning_unit_year_subtypes
-from base.views.learning_unit_deletion import delete_learning_unit_years
-from base.business.learning_unit_proposal import delete_learning_unit_proposal, reinitialize_data_before_proposal
 from base.views.learning_unit import get_learning_unit_identification_context
-from base.views.learning_unit_deletion import get_messages_deletion_context
+from base.views.learning_units import perms
+from base.views.learning_units.delete import get_messages_deletion_context, delete_learning_unit_years
 
 
 @login_required
