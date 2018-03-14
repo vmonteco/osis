@@ -253,20 +253,22 @@ def update_learning_unit_year_with_report(luy_to_update, fields_to_update, entit
     with_report = kwargs.get('with_report', True)
     force_value = kwargs.get('force_value', False)
 
-    for luy in luy_to_update.find_gte_learning_units_year():
-        _update_learning_unit_year(luy, fields_to_update, with_report, luy_to_update)
+    _update_learning_unit_year(luy_to_update, fields_to_update, with_report=False)
+    _update_learning_unit_year_entities(luy_to_update, entities_by_type_to_update)
+
+    if not with_report:
+        return None
+
+    for luy in luy_to_update.find_gt_learning_units_year():
+        if not force_value:
+            check_postponement_conflict(luy_to_update, luy)
+        _update_learning_unit_year(luy, fields_to_update, with_report=True)
         _update_learning_unit_year_entities(luy, entities_by_type_to_update)
 
-        if not with_report:
-            break
 
-        if not force_value:
-            check_postponement_conflict(luy)
-
-
-def _update_learning_unit_year(luy_to_update, fields_to_update, with_report, first_luy):
+def _update_learning_unit_year(luy_to_update, fields_to_update, with_report):
     fields_to_exclude = ()
-    if with_report and luy_to_update != first_luy:
+    if with_report:
         fields_to_exclude = FIELDS_TO_EXCLUDE_WITH_REPORT
 
     update_instance_model_from_data(luy_to_update.learning_unit, fields_to_update)
@@ -321,18 +323,15 @@ def _delete_entity_component_year(learning_container_year, type_entity):
     ).delete()
 
 
-def check_postponement_conflict(luy):
+def check_postponement_conflict(luy, next_luy):
     error_list = []
-
-    next_luy = luy.get_learning_unit_next_year()
-    if next_luy:
-        lcy = luy.learning_container_year
-        next_lcy = next_luy.learning_container_year
-        error_list.extend(_check_postponement_conflict_on_learning_unit_year(luy, next_luy))
-        error_list.extend(_check_postponement_conflict_on_learning_container_year(lcy, next_lcy))
-        error_list.extend(_check_postponement_conflict_on_entity_container_year(lcy, next_lcy))
-        error_list.extend(_check_postponement_learning_unit_year_proposal_state(next_luy))
-        error_list.extend(_check_postponement_conflict_on_volumes(lcy, next_lcy))
+    lcy = luy.learning_container_year
+    next_lcy = next_luy.learning_container_year
+    error_list.extend(_check_postponement_conflict_on_learning_unit_year(luy, next_luy))
+    error_list.extend(_check_postponement_conflict_on_learning_container_year(lcy, next_lcy))
+    error_list.extend(_check_postponement_conflict_on_entity_container_year(lcy, next_lcy))
+    error_list.extend(_check_postponement_learning_unit_year_proposal_state(next_luy))
+    error_list.extend(_check_postponement_conflict_on_volumes(lcy, next_lcy))
 
     if error_list:
         raise ConsistencyError(_('error_modification_learning_unit'), error_list=error_list)
