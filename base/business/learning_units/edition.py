@@ -407,7 +407,7 @@ def _check_postponement_conflict_on_volumes(lcy, next_lcy):
     for luy_with_components in current_learning_units:
         try:
             next_luy_with_components = next(luy for luy in next_year_learning_units if
-                                             luy.learning_unit == luy_with_components.learning_unit)
+                                            luy.learning_unit == luy_with_components.learning_unit)
             error_list.extend(_check_postponement_conflict_on_components(
                 luy_with_components,
                 next_luy_with_components)
@@ -488,4 +488,3 @@ class ConsistencyError(Error):
     def __init__(self, *args, **kwargs):
         self.error_list = kwargs.pop('error_list')
         super().__init__(*args, **kwargs)
-
