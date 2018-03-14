@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import redirect, get_object_or_404
@@ -45,33 +46,16 @@ def delete_from_given_learning_unit_year(request, learning_unit_year_id):
 
     messages_deletion = learning_unit_deletion.check_learning_unit_year_deletion(learning_unit_year)
     if not messages_deletion and request.method == 'POST':
-        try:
-            result = learning_unit_deletion.delete_from_given_learning_unit_year(learning_unit_year)
-            success_msg = _("You asked the deletion of the learning unit %(acronym)s from the year %(year)s") % {
-                'acronym': learning_unit_year.acronym,
-                'year': learning_unit_year.academic_year}
-
-            display_success_messages(request, success_msg)
-            display_success_messages(request, sorted(result))
-
-            send_mail_after_the_learning_unit_year_deletion([], learning_unit_year.acronym,
-                                                            learning_unit_year.academic_year, result)
-
-        except ProtectedError as e:
-            display_error_messages(request, str(e))
-
+        delete_learning_unit_years(learning_unit_year, request)
         return redirect('learning_units')
 
-    if messages_deletion:
-        context = {'title': _("cannot_delete_learning_unit_year") % {
-            'learning_unit': learning_unit_year.acronym,
-            'year': learning_unit_year.academic_year},
-                   'messages_deletion': sorted(messages_deletion.values())}
     else:
-        learning_units_to_delete = learning_unit_year.find_gte_learning_units_year()
-
-        context = {'title': _("msg_warning_delete_learning_unit") % learning_unit_year,
-                   'learning_units_to_delete': learning_units_to_delete}
+        if messages_deletion:
+            context = get_messages_deletion_context(learning_unit_year, messages_deletion)
+        else:
+            learning_units_to_delete = learning_unit_year.find_gte_learning_units_year()
+            context = {'title': _("msg_warning_delete_learning_unit") % learning_unit_year,
+                       'learning_units_to_delete': learning_units_to_delete}
 
     return layout.render(request, "learning_unit/confirm_delete.html", context)
 
@@ -100,3 +84,27 @@ def delete_all_learning_units_year(request, learning_unit_year_id):
     except ProtectedError as e:
         display_error_messages(request, str(e))
     return redirect('learning_units')
+
+
+def delete_learning_unit_years(learning_unit_year, request):
+    try:
+        result = learning_unit_deletion.delete_from_given_learning_unit_year(learning_unit_year)
+        success_msg = _("You asked the deletion of the learning unit %(acronym)s from the year %(year)s") \
+                      % {'acronym': learning_unit_year.acronym,
+                         'year': learning_unit_year.academic_year}
+        messages.add_message(request, messages.SUCCESS, success_msg)
+
+        display_success_messages(request, sorted(result))
+
+        send_mail_after_the_learning_unit_year_deletion([], learning_unit_year.acronym,
+                                                        learning_unit_year.academic_year, result)
+
+    except ProtectedError as e:
+        messages.add_message(request, messages.ERROR, str(e))
+
+
+def get_messages_deletion_context(learning_unit_year, messages_deletion):
+    return {'title': _("cannot_delete_learning_unit_year")
+                     % {'learning_unit': learning_unit_year.acronym,
+                        'year': learning_unit_year.academic_year},
+            'messages_deletion': sorted(messages_deletion.values())}
