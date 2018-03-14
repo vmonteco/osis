@@ -83,20 +83,20 @@ def _is_attached_to_initial_entity(learning_unit_proposal, a_person):
     return is_attached_entities(a_person, Entity.objects.filter(pk=initial_entity_requirement_id))
 
 
-def is_eligible_to_edit_proposal(proposal, a_person):
+def is_eligible_to_edit_proposal(proposal, person):
     if not proposal:
         return False
 
-    is_person_linked_to_entity = a_person.is_linked_to_entity_in_charge_of_learning_unit_year(
+    is_person_linked_to_entity = person.is_linked_to_entity_in_charge_of_learning_unit_year(
         proposal.learning_unit_year)
 
-    if a_person.is_faculty_manager():
+    if person.is_faculty_manager():
         if (proposal.state != ProposalState.FACULTY.name or
                 proposal.type not in PROPOSAL_TYPE_ACCEPTED_FOR_UPDATE or
                 not is_person_linked_to_entity):
             return False
 
-    return a_person.user.has_perm('base.can_edit_learning_unit_proposal')
+    return person.user.has_perm('base.can_edit_learning_unit_proposal')
 
 
 def is_eligible_for_modification_end_date(learning_unit_year, person):
