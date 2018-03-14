@@ -504,7 +504,7 @@ class LearningUnitEditionTestCase(TestCase):
                                    entity=an_entity)
 
         with self.assertRaises(ConsistencyError) as ctx:
-            business_edition.check_postponement_conflict(self.learning_unit_year)
+            business_edition.check_postponement_conflict(self.learning_unit_year, another_learning_unit_year)
         error_list = ctx.exception.error_list
         self.assertIsInstance(error_list, list)
         self.assertEqual(len(error_list), 6)
