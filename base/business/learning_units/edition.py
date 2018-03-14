@@ -339,6 +339,7 @@ def check_postponement_conflict(luy):
         error_list.extend(_check_postponement_conflict_on_learning_unit_year(luy, next_luy))
         error_list.extend(_check_postponement_conflict_on_learning_container_year(lcy, next_lcy))
         error_list.extend(_check_postponement_conflict_on_entity_container_year(lcy, next_lcy))
+        error_list.extend(_check_postponement_conflict_on_volumes(lcy, next_lcy))
     return error_list
 
 
@@ -395,3 +396,88 @@ def _is_different_value(obj1, obj2, field):
     value_obj1 = obj1.get(field) if isinstance(obj1, dict) else getattr(obj1, field, None)
     value_obj2 = obj2.get(field) if isinstance(obj2, dict) else getattr(obj2, field, None)
     return value_obj1 != value_obj2
+
+
+def _check_postponement_conflict_on_volumes(lcy, next_lcy):
+    current_learning_units = learning_unit_year_with_context.get_with_context(learning_container_year_id=lcy.id)
+    next_year_learning_units = learning_unit_year_with_context.get_with_context(learning_container_year_id=next_lcy.id)
+
+    error_list = []
+    for luy_with_components in current_learning_units:
+        try:
+            next_luy_with_components = next((luy for luy in next_year_learning_units if
+                                         luy.learning_unit == luy_with_components.learning_unit))
+            error_list.extend(_check_postponement_conflict_on_components(
+                luy_with_components,
+                next_luy_with_components)
+            )
+        except StopIteration:
+            error_list.append(_("There is not the learning unit %(acronym)s - %(next_year)s") % {
+                'acronym': next_lcy.acronym,
+                'next_year': next_lcy.academic_year
+            })
+    return error_list
+
+
+def _check_postponement_conflict_on_components(luy_with_components, next_luy_with_components):
+    error_list = []
+
+    current_components = getattr(luy_with_components,'components', {})
+    next_year_components = getattr(next_luy_with_components,'components', {})
+    for component, volumes_computed in current_components.items():
+        # Get the same component for next year (Key: component type)
+        next_year_component = next((next_year_component for next_year_component in
+                                    next_year_components.keys() if next_year_component.type == component.type), None)
+        if not next_year_component:
+            # Case current year have component which doesn't exist on next year
+            error = _get_error_component_not_found(luy_with_components.acronym, component.type,
+                                                   luy_with_components.academic_year,
+                                                   next_luy_with_components.academic_year)
+            error_list.append(error)
+        else:
+            error_list.extend(_check_postponement_conflict_on_volumes_data(
+                luy_with_components, next_luy_with_components, volumes_computed,
+                next_year_components[next_year_component],component.type
+            ))
+            # Pop the values when validation done
+            next_year_components.pop(next_year_component)
+
+    if next_year_components:
+        # Case next year have component which doesn't exist on current year
+        for component in next_year_components.keys():
+            error_list.append(_get_error_component_not_found(luy_with_components.acronym, component.type,
+                                                             next_luy_with_components.academic_year,
+                                                             luy_with_components.academic_year))
+    return error_list
+
+
+def _check_postponement_conflict_on_volumes_data(current_luy, next_luy, current_volumes_data, next_year_volumes_data,
+                                                 component_type):
+    error_list = []
+    volumes_diff = filter(lambda data: _is_different_value(current_volumes_data, next_year_volumes_data, data),
+                          current_volumes_data.keys())
+    for volume_diff in volumes_diff:
+        current_volume_data = current_volumes_data.get(volume_diff)
+        next_year_volume_data = next_year_volumes_data.get(volume_diff)
+        error_list.append(_("The value of field '%(field)s' for the learning unit %(acronym)s (%(component_type)s) "
+                            "is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s") %
+                          {
+                              'field': _(volume_diff.lower()),
+                              'acronym': current_luy.acronym,
+                              'component_type': _(component_type),
+                              'year': current_luy.academic_year,
+                              'value': current_volume_data if current_volume_data else _('no_data'),
+                              'next_year': next_luy.academic_year,
+                              'next_value': next_year_volume_data if next_year_volume_data else _('no_data')
+                          })
+    return error_list
+
+
+def _get_error_component_not_found(acronym, component_type, existing_academic_year, not_found_academic_year):
+    return _("There is not %(component_type)s for the learning unit %(acronym)s - %(year)s but exist in"
+             " %(existing_year)s") % {
+        'component_type': _(component_type),
+        'acronym': acronym,
+        'year': not_found_academic_year,
+        'existing_year': existing_academic_year
+    }

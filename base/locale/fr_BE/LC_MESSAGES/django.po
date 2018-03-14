@@ -2664,3 +2664,12 @@ msgstr "Sigle déjà existant"
 
 msgid "The value of field '%(field)s' is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s"
 msgstr "La valeur du champ '%(field)s' différe entre l'année %(year)s - %(value)s et l'année %(next_year)s - %(next_value)s"
+
+msgid "There is not the learning unit %(acronym)s - %(next_year)s"
+msgstr "Il n'existe pas d'unité d'enseigmenent %(acronym)s - %(next_year)s"
+
+msgid "The value of field '%(field)s' for the learning unit %(acronym)s (%(component_type)s) is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s"
+msgstr "La valeur du champ '%(field)s'de l'unité d'enseignement %(acronym)s (%(component_type)s) différe entre l'année %(year)s - %(value)s et l'année %(next_year)s - %(next_value)s"
+
+msgid "There is not %(component_type)s for the learning unit %(acronym)s - %(year)s but exist in %(existing_year)s"
+msgstr "Il n'y a pas de %(component_type)s pour l'unité d'enseignement %(acronym)s - %(year)s mais existe en %(existing_year)s"
