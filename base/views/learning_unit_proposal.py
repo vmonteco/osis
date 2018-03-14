@@ -55,10 +55,14 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
     user_person = get_object_or_404(Person, user=request.user)
     initial_data = compute_form_initial_data(learning_unit_year)
     proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
-    form = LearningUnitProposalModificationForm(request.POST,
-                                                initial=initial_data,
-                                                instance=proposal,
-                                                learning_unit=learning_unit_year.learning_unit)
+
+    form = LearningUnitProposalModificationForm(
+        request.POST or None,
+        initial=initial_data,
+        instance=proposal,
+        learning_unit=learning_unit_year.learning_unit
+    )
+
     if request.method == 'POST':
         if form.is_valid():
             type_proposal = compute_proposal_type(initial_data, request.POST)
@@ -67,10 +71,6 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
                                  _("success_modification_proposal")
                                  .format(_(type_proposal), learning_unit_year.acronym))
             return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
-
-    form = LearningUnitProposalModificationForm(initial=initial_data,
-                                                instance=proposal,
-                                                learning_unit=learning_unit_year.learning_unit)
 
     return render(request, 'learning_unit/proposal/update.html', {
         'learning_unit_year': learning_unit_year,
@@ -101,9 +101,13 @@ def edit_learning_unit_proposal(request, learning_unit_year_id):
                                                                         datetime.date.today()),
                          "type": proposal.type,
                          "state": proposal.state})
-    proposal_form = LearningUnitProposalModificationForm(request.POST or None, initial=initial_data,
-                                                         instance=proposal,
-                                                         learning_unit=proposal.learning_unit_year.learning_unit)
+
+    proposal_form = LearningUnitProposalModificationForm(
+        request.POST or None,
+        initial=initial_data,
+        instance=proposal,
+        learning_unit=proposal.learning_unit_year.learning_unit
+    )
 
     if proposal_form.is_valid():
         try:
