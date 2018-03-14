@@ -32,6 +32,7 @@ from django.test import TestCase
 
 from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.learning_units import edition as business_edition
+from base.business.learning_units.edition import ConsistencyError
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import entity_container_year_link_type
@@ -328,7 +329,9 @@ class LearningUnitEditionTestCase(TestCase):
                                    type=entity_container_year_link_type.REQUIREMENT_ENTITY,
                                    entity=an_entity)
 
-        error_list = business_edition.check_postponement_conflict(self.learning_unit_year)
+        with self.assertRaises(ConsistencyError) as ctx:
+            business_edition.check_postponement_conflict(self.learning_unit_year)
+        error_list = ctx.exception.error_list
         self.assertIsInstance(error_list, list)
         self.assertEqual(len(error_list), 4)
 
