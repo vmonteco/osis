@@ -50,6 +50,16 @@ function showInternshipSubtype(){
     }
 }
 
+function updateAdditionalEntityEditability(elem, id, disable_only){
+    var empty_element = elem === "";
+    if (empty_element){
+        $('#'.concat(id))[0].selectedIndex = 0;
+        document.getElementById(id).disabled = true;
+    }
+    else if (!disable_only){
+        document.getElementById(id).disabled = false;
+    }
+}
 
 function validate_acronym() {
     cleanErrorMessage();
@@ -116,7 +126,6 @@ function validateAcronymAjax(url, acronym, year_id, callback) {
     /**
     * This function will check if the acronym exist or have already existed
     **/
-    console.log('coucou', acronym);
     queryString = "?acronym=" + acronym + "&year_id=" + year_id;
     $.ajax({
        url: url + queryString
