@@ -173,8 +173,8 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         return requirement_entity.end_date >= self.learning_unit_end_date
 
     def _are_requirement_and_allocation_entities_valid(self, requirement_entity, allocation_entity, container_type):
-        if not (requirement_entity == allocation_entity or
-               container_type not in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES):
+        if requirement_entity != allocation_entity and \
+                container_type in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES:
             self.add_error("allocation_entity", _("requirement_and_allocation_entities_cannot_be_different"))
 
     def _disabled_fields_base_on_learning_unit_year_subtype(self, subtype):
@@ -215,7 +215,8 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     def save(self):
         entities_data = self.get_entities_data()
         lu_type_full_data = self.get_data_for_learning_unit()
-        update_learning_unit_year_with_report(self.instance, lu_type_full_data, entities_data, self.postponement)
+        update_learning_unit_year_with_report(self.instance, lu_type_full_data, entities_data,
+                                              with_report=self.postponement)
 
     def compute_learning_unit_modification_form_initial_data(self):
         other_fields_dict = {

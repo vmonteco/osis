@@ -27,16 +27,13 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models.deletion import ProtectedError
 from django.http import HttpResponseForbidden
-from django.http import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_POST
 
-import base.business.learning_units.perms
 from base import models as mdl
 from base.business import learning_unit_deletion
 from base.business.learning_units.perms import can_delete_learning_unit_year
-from base.models import learning_unit_year as learning_unit_year_mdl
 from base.models.person import Person
 from base.utils.send_mail import send_mail_after_the_learning_unit_year_deletion
 from base.views import layout
@@ -55,9 +52,9 @@ def delete_from_given_learning_unit_year(request, learning_unit_year_id):
     if not messages_deletion and request.method == 'POST':
         try:
             result = learning_unit_deletion.delete_from_given_learning_unit_year(learning_unit_year)
-            success_msg = _("You asked the deletion of the learning unit %(acronym)s from the year %(year)s") \
-                          % {'acronym': learning_unit_year.acronym,
-                             'year': learning_unit_year.academic_year}
+            success_msg = _("You asked the deletion of the learning unit %(acronym)s from the year %(year)s") % {
+                'acronym': learning_unit_year.acronym,
+                'year': learning_unit_year.academic_year}
             messages.add_message(request, messages.SUCCESS, success_msg)
 
             for msg in sorted(result):
@@ -73,9 +70,9 @@ def delete_from_given_learning_unit_year(request, learning_unit_year_id):
 
     else:
         if messages_deletion:
-            context = {'title': _("cannot_delete_learning_unit_year")
-                                % {'learning_unit': learning_unit_year.acronym,
-                                   'year': learning_unit_year.academic_year},
+            context = {'title': _("cannot_delete_learning_unit_year") % {
+                'learning_unit': learning_unit_year.acronym,
+                'year': learning_unit_year.academic_year},
                        'messages_deletion': sorted(messages_deletion.values())}
         else:
             learning_units_to_delete = learning_unit_year.find_gte_learning_units_year()

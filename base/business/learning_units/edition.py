@@ -248,8 +248,9 @@ def filter_biennial(queryset, periodicity):
     return result
 
 
-def update_learning_unit_year_with_report(luy_to_update, fields_to_update, entities_by_type_to_update, with_report=True,
-                                          force_value=False):
+def update_learning_unit_year_with_report(luy_to_update, fields_to_update, entities_by_type_to_update, **kwargs):
+    with_report = kwargs.get('with_report', True)
+    force_value = kwargs.get('force_value', False)
 
     for index, luy in enumerate(luy_to_update.find_gte_learning_units_year()):
 
@@ -333,9 +334,7 @@ def check_postponement_conflict(luy):
         error_list.extend(_check_postponement_learning_unit_year_proposal_state(next_luy))
 
     if error_list:
-        raise ConsistencyError(
-            _('error_modification_learning_unit'), error_list=error_list, learning_unit_year=luy
-        )
+        raise ConsistencyError(_('error_modification_learning_unit'), error_list=error_list)
 
 
 def _check_postponement_conflict_on_learning_unit_year(luy, next_luy):
@@ -401,6 +400,5 @@ def _is_different_value(obj1, obj2, field):
 
 class ConsistencyError(Error):
     def __init__(self, *args, **kwargs):
-        self.learning_unit_year = kwargs.pop('learning_unit_year')
         self.error_list = kwargs.pop('error_list')
         super().__init__(*args, **kwargs)
