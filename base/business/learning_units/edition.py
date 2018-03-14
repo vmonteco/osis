@@ -406,7 +406,7 @@ def _check_postponement_conflict_on_volumes(lcy, next_lcy):
     for luy_with_components in current_learning_units:
         try:
             next_luy_with_components = next((luy for luy in next_year_learning_units if
-                                         luy.learning_unit == luy_with_components.learning_unit))
+                                             luy.learning_unit == luy_with_components.learning_unit))
             error_list.extend(_check_postponement_conflict_on_components(
                 luy_with_components,
                 next_luy_with_components)
@@ -422,8 +422,8 @@ def _check_postponement_conflict_on_volumes(lcy, next_lcy):
 def _check_postponement_conflict_on_components(luy_with_components, next_luy_with_components):
     error_list = []
 
-    current_components = getattr(luy_with_components,'components', {})
-    next_year_components = getattr(next_luy_with_components,'components', {})
+    current_components = getattr(luy_with_components, 'components', {})
+    next_year_components = getattr(next_luy_with_components, 'components', {})
     for component, volumes_computed in current_components.items():
         # Get the same component for next year (Key: component type)
         next_year_component = next((next_year_component for next_year_component in
@@ -436,8 +436,8 @@ def _check_postponement_conflict_on_components(luy_with_components, next_luy_wit
             error_list.append(error)
         else:
             error_list.extend(_check_postponement_conflict_on_volumes_data(
-                luy_with_components, next_luy_with_components, volumes_computed,
-                next_year_components[next_year_component],component.type
+                component, next_year_component,
+                volumes_computed, next_year_components[next_year_component]
             ))
             # Pop the values when validation done
             next_year_components.pop(next_year_component)
@@ -451,8 +451,8 @@ def _check_postponement_conflict_on_components(luy_with_components, next_luy_wit
     return error_list
 
 
-def _check_postponement_conflict_on_volumes_data(current_luy, next_luy, current_volumes_data, next_year_volumes_data,
-                                                 component_type):
+def _check_postponement_conflict_on_volumes_data(current_component, next_year_component,
+                                                 current_volumes_data, next_year_volumes_data):
     error_list = []
     volumes_diff = filter(lambda data: _is_different_value(current_volumes_data, next_year_volumes_data, data),
                           current_volumes_data.keys())
@@ -463,11 +463,11 @@ def _check_postponement_conflict_on_volumes_data(current_luy, next_luy, current_
                             "is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s") %
                           {
                               'field': _(volume_diff.lower()),
-                              'acronym': current_luy.acronym,
-                              'component_type': _(component_type),
-                              'year': current_luy.academic_year,
+                              'acronym': current_component.learning_container_year.acronym,
+                              'component_type': _(current_component.type),
+                              'year': current_component.learning_container_year.academic_year,
                               'value': current_volume_data if current_volume_data else _('no_data'),
-                              'next_year': next_luy.academic_year,
+                              'next_year': next_year_component.learning_container_year.academic_year,
                               'next_value': next_year_volume_data if next_year_volume_data else _('no_data')
                           })
     return error_list
