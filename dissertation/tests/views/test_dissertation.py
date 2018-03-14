@@ -78,7 +78,9 @@ class DissertationViewTestCase(TestCase):
                                                   academic_year=self.academic_year1)
         self.offer_year_start2 = OfferYearFactory(acronym="test_offer2", offer=self.offer2,
                                                   academic_year=self.academic_year1)
-        self.offer_proposition1 = OfferPropositionFactory(offer=self.offer1, global_email_to_commission=True)
+        self.offer_proposition1 = OfferPropositionFactory(offer=self.offer1,
+                                                          global_email_to_commission=True,
+                                                          evaluation_first_year=True)
         self.offer_proposition2 = OfferPropositionFactory(offer=self.offer2, global_email_to_commission=False)
         self.proposition_dissertation = PropositionDissertationFactory(author=self.teacher,
                                                                        creator=a_person_teacher,
@@ -251,6 +253,20 @@ class DissertationViewTestCase(TestCase):
         self.assertCountEqual(response.context[-1]['dissertations'], [self.dissertation_1] +
                               [self.dissertation_test_email] + self.dissertations_list)
 
+    def test_manager_accept(self):
+        self.dissertation_test_email.status = 'EVA_SUBMIT'
+        self.dissertation_test_email.manager_accept()
+        self.assertEqual(self.dissertation_test_email.status, 'TO_RECEIVE')
+        self.dissertation_test_email.status = 'EVA_KO'
+        self.dissertation_test_email.manager_accept()
+        self.assertEqual(self.dissertation_test_email.status, 'TO_RECEIVE')
+        self.dissertation_test_email.status = 'DEFENDED'
+        self.dissertation_test_email.manager_accept()
+        self.assertEqual(self.dissertation_test_email.status, 'ENDED_WIN')
+        self.dissertation_test_email.status = 'DRAFT'
+        self.dissertation_test_email.manager_accept()
+        self.assertEqual(self.dissertation_test_email.status, 'DRAFT')
+
     def test_adviser_can_manage_dissertation(self):
         manager = AdviserManagerFactory()
         manager2 = AdviserManagerFactory()
@@ -294,7 +310,7 @@ class DissertationViewTestCase(TestCase):
 
     def test_email_new_dissert_refuse(self):
         count_messages_before_status_change = message_history.find_my_messages(
-                                            self.dissertation_test_email.author.person.id).count()
+            self.dissertation_test_email.author.person.id).count()
         self.dissertation_test_email.status = 'DIR_SUBMIT'
         self.dissertation_test_email.refuse()
         message_history_result = message_history.find_my_messages(self.dissertation_test_email.author.person.id)
@@ -314,7 +330,7 @@ class DissertationViewTestCase(TestCase):
         self.assertEqual(count_messages_before_status_change + 1, len(message_history_result_after))
 
     def test_email_dissert_commission_refuse(self):
-        count_message_history_result_author = message_history.\
+        count_message_history_result_author = message_history. \
             find_my_messages(self.dissertation_test_email.author.person.id).count()
         count_message_history_result_promotor = len(message_history.find_my_messages(
             self.teacher.person.id))
@@ -331,7 +347,7 @@ class DissertationViewTestCase(TestCase):
                       message_history_result_author_after_change.last().subject)
 
     def test_email_dissert_commission_accept_1(self):
-        count_message_history_result_author = message_history.\
+        count_message_history_result_author = message_history. \
             find_my_messages(self.dissertation_test_email.author.person.id).count()
         count_message_history_result_promotor = len(message_history.find_my_messages(
             self.teacher.person.id))
@@ -348,7 +364,7 @@ class DissertationViewTestCase(TestCase):
                       message_history_result_author_after_change.last().subject)
 
     def test_email_dissert_commission_accept_2(self):
-        count_message_history_result_author = message_history.\
+        count_message_history_result_author = message_history. \
             find_my_messages(self.dissertation_test_email.author.person.id).count()
         count_message_history_result_promotor = len(message_history.find_my_messages(
             self.teacher.person.id))
@@ -387,7 +403,7 @@ class DissertationViewTestCase(TestCase):
                       message_history_result_author_after_change.last().subject)
 
     def test_email_dissert_acknowledgement(self):
-        count_message_history_author = message_history.\
+        count_message_history_author = message_history. \
             find_my_messages(self.dissertation_test_email.author.person.id).count()
         self.dissertation_test_email.status = 'TO_RECEIVE'
         self.dissertation_test_email.go_forward()
