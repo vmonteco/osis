@@ -29,7 +29,6 @@ from django.shortcuts import redirect, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
 
-from base import models as mdl
 from base.business import learning_unit_deletion
 from base.models.learning_unit_year import LearningUnitYear
 from base.utils.send_mail import send_mail_after_the_learning_unit_year_deletion
@@ -42,7 +41,7 @@ from base.views.learning_units.perms import can_delete_learning_unit_year
 @permission_required('base.can_delete_learningunit', raise_exception=True)
 @can_delete_learning_unit_year
 def delete_from_given_learning_unit_year(request, learning_unit_year_id):
-    learning_unit_year = get_object_or_404(LearningUnitYear, learning_unit_year_id)
+    learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
 
     messages_deletion = learning_unit_deletion.check_learning_unit_year_deletion(learning_unit_year)
     if not messages_deletion and request.method == 'POST':
@@ -82,7 +81,7 @@ def delete_from_given_learning_unit_year(request, learning_unit_year_id):
 @require_POST
 @can_delete_learning_unit_year
 def delete_all_learning_units_year(request, learning_unit_year_id):
-    learning_unit_year = mdl.learning_unit_year.get_by_id(learning_unit_year_id)
+    learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
 
     learning_unit = learning_unit_year.learning_unit
     messages_deletion = learning_unit_deletion.check_learning_unit_deletion(learning_unit)
