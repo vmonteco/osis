@@ -149,8 +149,6 @@ class ScoresResponsibleViewTestCase(TestCase):
         self.entity_manager.entity = EntityVersionFactory(parent=None, end_date=None).entity
         self.entity_manager.save()
         url = reverse('scores_responsible_management')
-        # Remove all entity container year
-        # EntityContainerYear.objects.all().delete()
         data = {
             'learning_unit_year': "learning_unit_year_{}".format(self.learning_unit_year.id)
         }
