@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 
 from attribution import models as mdl_attr
 from attribution.models.attribution import search_by_learning_unit_this_year
@@ -41,7 +41,11 @@ def get_learning_unit_year_managed_by_user_from_id(user, learning_unit_year_id):
 def _is_user_manager_of_entity_allocation_of_learning_unit_year(user, a_learning_unit_year):
     entities_manager = mdl_base.entity_manager.find_by_user(user)
     entities_with_descendants = find_entities_with_descendants_from_entity_managers(entities_manager)
-    return a_learning_unit_year.allocation_entity in entities_with_descendants
+    try:
+        allocation_entity = a_learning_unit_year.allocation_entity
+    except ObjectDoesNotExist:
+        return False
+    return allocation_entity in entities_with_descendants
 
 
 def search_attributions(**criteria):
