@@ -252,9 +252,8 @@ def update_learning_unit_year_with_report(luy_to_update, fields_to_update, entit
     with_report = kwargs.get('with_report', True)
     force_value = kwargs.get('force_value', False)
 
-    for index, luy in enumerate(luy_to_update.find_gte_learning_units_year()):
-
-        _update_learning_unit_year(luy, fields_to_update, with_report if index != 0 else False)
+    for luy in luy_to_update.find_gte_learning_units_year():
+        _update_learning_unit_year(luy, fields_to_update, with_report, luy_to_update)
         _update_learning_unit_year_entities(luy, entities_by_type_to_update)
 
         if not with_report:
@@ -264,9 +263,9 @@ def update_learning_unit_year_with_report(luy_to_update, fields_to_update, entit
             check_postponement_conflict(luy)
 
 
-def _update_learning_unit_year(luy_to_update, fields_to_update, with_report):
+def _update_learning_unit_year(luy_to_update, fields_to_update, with_report, first_luy):
     fields_to_exclude = ()
-    if with_report:
+    if with_report and luy_to_update != first_luy:
         fields_to_exclude = FIELDS_TO_EXCLUDE_WITH_REPORT
 
     update_instance_model_from_data(luy_to_update.learning_unit, fields_to_update)
