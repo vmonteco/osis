@@ -31,7 +31,7 @@ from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.api import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.test import TestCase, RequestFactory
@@ -101,7 +101,7 @@ class LearningUnitDelete(TestCase):
     def test_delete_from_given_learning_unit_year_case_success(self, mock_render):
         learning_unit_years = self.learning_unit_year_list
 
-        from base.views.learning_unit_deletion import delete_from_given_learning_unit_year
+        from base.views.learning_units.delete import delete_from_given_learning_unit_year
 
         request_factory = RequestFactory()
 
@@ -142,7 +142,7 @@ class LearningUnitDelete(TestCase):
     def test_delete_all_learning_units_year_method_not_allowed(self):
         learning_unit_years = self.learning_unit_year_list
 
-        from base.views.learning_unit_deletion import delete_all_learning_units_year
+        from base.views.learning_units.delete import delete_all_learning_units_year
 
         request_factory = RequestFactory()
         request = request_factory.get(reverse(delete_all_learning_units_year, args=[learning_unit_years[1].id]))
@@ -154,7 +154,7 @@ class LearningUnitDelete(TestCase):
     def test_delete_all_learning_units_year_case_success(self):
         learning_unit_years = self.learning_unit_year_list
 
-        from base.views.learning_unit_deletion import delete_all_learning_units_year
+        from base.views.learning_units.delete import delete_all_learning_units_year
 
         request_factory = RequestFactory()
 
@@ -183,7 +183,7 @@ class LearningUnitDelete(TestCase):
         ly1 = learning_unit_years[1]
         LearningUnitEnrollmentFactory(learning_unit_year=ly1)
 
-        from base.views.learning_unit_deletion import delete_from_given_learning_unit_year
+        from base.views.learning_units.delete import delete_from_given_learning_unit_year
 
         request_factory = RequestFactory()
 
@@ -218,7 +218,7 @@ class LearningUnitDelete(TestCase):
         ly1 = learning_unit_years[1]
         LearningUnitEnrollmentFactory(learning_unit_year=ly1)
 
-        from base.views.learning_unit_deletion import delete_all_learning_units_year
+        from base.views.learning_units.delete import delete_all_learning_units_year
 
         request_factory = RequestFactory()
 
@@ -258,7 +258,7 @@ class LearningUnitDelete(TestCase):
         ly1 = learning_unit_years[1]
         LearningUnitEnrollmentFactory(learning_unit_year=ly1)
 
-        from base.views.learning_unit_deletion import delete_from_given_learning_unit_year
+        from base.views.learning_units.delete import delete_from_given_learning_unit_year
 
         request_factory = RequestFactory()
 
@@ -289,7 +289,7 @@ class LearningUnitDelete(TestCase):
         self.assertIsNotNone(LearningUnitYear.objects.get(id=ly1.id))
 
     def test_delete_from_given_learning_unit_year_case_error_not_attached_to_entity(self):
-        from base.views.learning_unit_deletion import delete_from_given_learning_unit_year
+        from base.views.learning_units.delete import delete_from_given_learning_unit_year
 
         l_unit_year_to_delete = self.learning_unit_year_list[0]
         PersonEntity.objects.all().delete()  # Remove all link person entity
@@ -298,12 +298,12 @@ class LearningUnitDelete(TestCase):
         request = request_factory.get(reverse(delete_from_given_learning_unit_year, args=[l_unit_year_to_delete.id]))
         request.user = self.user
 
-        response = delete_from_given_learning_unit_year(request, l_unit_year_to_delete.id)
-        self.assertEqual(response.status_code, 403)  # Forbidden
+        with self.assertRaises(PermissionDenied):
+            delete_from_given_learning_unit_year(request, l_unit_year_to_delete.id)
 
     def test_delete_from_given_learning_unit_year_faculty_manager_role(self):
         """A Faculty manager can only remove container_type other than COURSE/INTERNSHIP/DISSERTATION"""
-        from base.views.learning_unit_deletion import delete_from_given_learning_unit_year
+        from base.views.learning_units.delete import delete_from_given_learning_unit_year
 
         add_to_group(self.user, person.FACULTY_MANAGER_GROUP)
         l_unit_year_to_delete = self.learning_unit_year_list[0]
@@ -324,7 +324,7 @@ class LearningUnitDelete(TestCase):
 
     def test_delete_from_given_learning_unit_year_case_error_faculty_manager(self):
         """A Faculty manager can only remove container_type other than COURSE/INTERNSHIP/DISSERTATION"""
-        from base.views.learning_unit_deletion import delete_from_given_learning_unit_year
+        from base.views.learning_units.delete import delete_from_given_learning_unit_year
 
         add_to_group(self.user, person.FACULTY_MANAGER_GROUP)
         l_unit_year_to_delete = self.learning_unit_year_list[0]
@@ -338,24 +338,26 @@ class LearningUnitDelete(TestCase):
         l_unit_year_to_delete.save()
         request = request_factory.get(reverse(delete_from_given_learning_unit_year, args=[l_unit_year_to_delete.id]))
         request.user = self.user
-        response = delete_from_given_learning_unit_year(request, l_unit_year_to_delete.id)
-        self.assertEqual(response.status_code, 403)  # Forbidden
+
+        with self.assertRaises(PermissionDenied):
+            delete_from_given_learning_unit_year(request, l_unit_year_to_delete.id)
 
         # Internship
         l_container_year.container_type = learning_container_year_types.INTERNSHIP
         l_container_year.save()
         request = request_factory.get(reverse(delete_from_given_learning_unit_year, args=[l_unit_year_to_delete.id]))
         request.user = self.user
-        response = delete_from_given_learning_unit_year(request, l_unit_year_to_delete.id)
-        self.assertEqual(response.status_code, 403)  # Forbidden
+        with self.assertRaises(PermissionDenied):
+            delete_from_given_learning_unit_year(request, l_unit_year_to_delete.id)
 
         # Dissertation
         l_container_year.container_type = learning_container_year_types.DISSERTATION
         l_container_year.save()
         request = request_factory.get(reverse(delete_from_given_learning_unit_year, args=[l_unit_year_to_delete.id]))
         request.user = self.user
-        response = delete_from_given_learning_unit_year(request, l_unit_year_to_delete.id)
-        self.assertEqual(response.status_code, 403)  # Forbidden
+
+        with self.assertRaises(PermissionDenied):
+            delete_from_given_learning_unit_year(request, l_unit_year_to_delete.id)
 
 
 def add_to_group(user, group_name):

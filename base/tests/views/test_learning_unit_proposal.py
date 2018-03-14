@@ -67,8 +67,9 @@ from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_folder import ProposalFolderFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.tutor import TutorFactory
-from base.views.learning_unit_proposal import edit_learning_unit_proposal
-from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search, _cancel_proposals
+from base.views.learning_units.search import _cancel_proposals
+from base.views.learning_units.proposal.update import edit_learning_unit_proposal
+from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search
 from reference.tests.factories.language import LanguageFactory
 from base.tests.factories.user import UserFactory
 from django.contrib.auth.models import Group
