@@ -51,7 +51,7 @@ def check_learning_unit_year_deletion(learning_unit_year):
     msg = {}
 
     msg.update(_check_learning_unit_proposal(learning_unit_year))
-    msg.update(check_ignoring_proposal_validation(learning_unit_year))
+    msg.update(check_can_delete_ignoring_proposal_validation(learning_unit_year))
     return msg
 
 
@@ -234,7 +234,7 @@ def _delete_cms_data(learning_unit_year):
         learning_unit_cms_data.delete()
 
 
-def check_ignoring_proposal_validation(learning_unit_year):
+def check_can_delete_ignoring_proposal_validation(learning_unit_year):
     msg = {}
     enrollment_count = len(learning_unit_enrollment.find_by_learning_unit_year(learning_unit_year))
     if enrollment_count > 0:

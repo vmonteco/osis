@@ -1172,32 +1172,12 @@ class TestCreationProposalCancel(TestCase):
         a_user_central.user_permissions.add(permission)
         a_user_central.user_permissions.add(Permission.objects.get(codename='can_access_learningunit'))
         self.a_person_central_manager = PersonFactory(user=a_user_central)
-
         self.a_person_central_manager.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
-
-        # a_user_fac = UserFactory()
-        # permission = Permission.objects.get(codename='can_edit_learning_unit_proposal')
-        # a_user_fac.user_permissions.add(permission)
-        # self.a_person_fac = PersonFactory(user=a_user_fac)
-        #
-        # self.a_person_fac.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
-
-        # OrganizationFactory(type=organization_type.MAIN)
-        # self.current_academic_year = create_current_academic_year()
-        # self.learning_container_year = LearningContainerYearFactory(
-        #     academic_year=self.current_academic_year,
-        #     container_type=learning_container_year_types.COURSE
-        # )
-
         self.client.force_login(self.a_person_central_manager.user)
 
     @mock.patch('base.views.learning_units.perms.business_perms.is_eligible_for_cancel_of_proposal', side_effect=lambda *args: True)
     @mock.patch('base.utils.send_mail.send_mail_after_the_learning_unit_proposal_cancellation')
     def test_cancel_proposal_of_learning_unit(self, mock_send_mail, mock_perms):
-        # luy = LearningUnitYearFakerFactory(acronym="LOSIS1212",
-        #                                    academic_year=self.current_academic_year,
-        #                                    learning_container_year=self.learning_container_year)
-        # a_proposal = ProposalLearningUnitFactory(learning_unit_year=luy, type=proposal_type.ProposalType.MODIFICATION)
         a_proposal = _create_proposal_learning_unit()
         url = reverse('learning_unit_cancel_proposal', args=[a_proposal.learning_unit_year.id])
 

@@ -27,10 +27,8 @@ from base.business.learning_units.edition import update_or_create_entity_contain
 from base.business import learning_unit_deletion as business_deletion
 from base.models import entity_container_year, campus, entity
 from base.models.enums import proposal_type, entity_container_year_link_type
-from base.models.enums.proposal_type import ProposalType
-from base.models.proposal_learning_unit import find_by_folder, ProposalLearningUnit
+from base.models.proposal_learning_unit import find_by_folder
 from base.utils import send_mail as send_mail_util
-import copy
 from reference.models import language
 from django.utils.translation import ugettext_lazy as _
 from base import models as mdl_base
@@ -275,7 +273,7 @@ def cancel_proposal(learning_unit_proposal, author, send_mail=True):
     success_messages = []
     if learning_unit_proposal.type == proposal_type.ProposalType.CREATION.name:
         learning_unit_year = learning_unit_proposal.learning_unit_year
-        error_messages.extend(business_deletion.check_ignoring_proposal_validation(learning_unit_year))
+        error_messages.extend(business_deletion.check_can_delete_ignoring_proposal_validation(learning_unit_year))
         if not error_messages:
             success_messages.extend(business_deletion.delete_from_given_learning_unit_year(learning_unit_year))
     else:
