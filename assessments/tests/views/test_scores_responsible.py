@@ -38,6 +38,7 @@ from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.business.entities import create_entities_hierarchy
 from base.tests.factories.business.learning_units import create_learning_unit_with_context
 from base.tests.factories.entity_manager import EntityManagerFactory
+from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.models.test_person import create_person_with_user
 
@@ -145,11 +146,13 @@ class ScoresResponsibleViewTestCase(TestCase):
 
     def test_scores_responsible_management_with_wrong_learning_unit_year(self):
         self.client.force_login(self.user)
+        self.entity_manager.entity = EntityVersionFactory(parent=None, end_date=None).entity
+        self.entity_manager.save()
         url = reverse('scores_responsible_management')
         # Remove all entity container year
-        EntityContainerYear.objects.all().delete()
+        # EntityContainerYear.objects.all().delete()
         data = {
-            'learning_unit_year': "learning_unit_year_%d" % self.learning_unit_year.id
+            'learning_unit_year': "learning_unit_year_{}".format(self.learning_unit_year.id)
         }
         response = self.client.get(url, data=data)
         self.assertEqual(response.status_code, 403)
