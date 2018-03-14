@@ -24,6 +24,8 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
+{% block modal_id %}modal_force_state{% endblock %}
+
 {% block modal_header %}
     <h3>{% trans 'do_you_want_change_status_proposals' %}</h3>
     <div class='alert alert-warning' id="alert_warning" style="display: none;"></div>
@@ -45,15 +47,15 @@
     <button type="button" class="btn btn-primary" onclick="submit_form();">{% trans 'yes' %}</button>
     <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "cancel" %}</button>
 
+<script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
 <script>
-    // FIXME use javascript catalog !
-    const REFUSED = "{% trans 'REFUSED' %}";
-    const ACCEPTED = "{% trans 'ACCEPTED' %}";
-    const CENTRAL = "{% trans 'CENTRAL' %}";
-    const FACULTY = "{% trans 'FACULTY' %}";
+    const REFUSED = gettext('REFUSED');
+    const ACCEPTED = gettext('ACCEPTED');
+    const CENTRAL = gettext('CENTRAL');
+    const FACULTY = gettext('FACULTY');
 
     // trigger events
-    $('#modalReport').on('show.bs.modal', function (event) {
+    $('#modal_force_state').on('show.bs.modal', function () {
         showWarningIfInconsistentState()
     });
 
@@ -70,6 +72,7 @@
     }
 
     function showWarningIfInconsistentState () {
+
         var alert_node = $('#alert_warning');
         remove_alert_msg(alert_node);
         var new_state = $( "#id_form-0-state" ).children("select option:selected").text();
@@ -91,8 +94,13 @@
 
     function add_warning(alert_node, proposal, old_state, new_state) {
         alert_node.show();
-        // TODO Translate this message
-        var text = "You will pass the proposal " + proposal + " from state " + old_state + " to " + new_state;
+        var text = interpolate(
+            gettext("You will pass the proposal %(proposal)s from state %(old_state)s to %(new_state)s"),
+            {
+                'proposal': proposal,
+                'old_state': old_state,
+                'new_state': new_state
+            }, true);
         alert_node.append("<p>"+text+"</p>");
     }
 

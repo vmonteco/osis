@@ -46,6 +46,16 @@ from base.views import layout
 from base.views.common import display_success_messages, display_error_messages
 from base.views.learning_unit import compute_form_initial_data
 from base.views.learning_units import perms
+from base.models.proposal_learning_unit import find_by_folder, ProposalLearningUnit
+from base.models.enums import proposal_type
+from base.business.learning_units.perms import can_delete_learning_unit_year
+from django.http import HttpResponseForbidden
+from base.business.learning_unit_deletion import check_other_than_proposal
+from base.models.enums import learning_unit_year_subtypes
+from base.views.learning_unit_deletion import delete_learning_unit_years
+from base.business.learning_unit_proposal import delete_learning_unit_proposal, reinitialize_data_before_proposal
+from base.views.learning_unit import get_learning_unit_identification_context
+from base.views.learning_unit_deletion import get_messages_deletion_context
 
 
 @login_required
@@ -90,7 +100,7 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
     messages.add_message(request, messages.SUCCESS,
                          _("success_cancel_proposal").format(learning_unit_year.acronym))
     send_mail_after_the_learning_unit_proposal_cancellation([user_person], proposal_as_list)
-    return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
+    return cancel_creation_proposal(learning_unit_year, request)
 
 
 @login_required
@@ -122,3 +132,39 @@ def edit_learning_unit_proposal(request, learning_unit_year_id):
         'person': user_person,
         'form': proposal_form,
         'experimental_phase': True})
+
+
+def cancel_proposal_of_type_creation(request, learning_unit_proposal):
+    person = get_object_or_404(Person, user=request.user)
+    learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_proposal.learning_unit_year.id)
+    if not can_delete_learning_unit_year(learning_unit_year, person):
+        return HttpResponseForbidden()
+
+    messages_deletion = check_other_than_proposal(learning_unit_year)
+    if not messages_deletion:
+        _delete_learning_unit_proposal_of_type_creation(learning_unit_proposal, request)
+        return redirect('learning_unit_proposal_search')
+    else:
+        context = get_learning_unit_identification_context(learning_unit_year.id, person)
+        if messages_deletion:
+            context.update(get_messages_deletion_context(learning_unit_year, messages_deletion))
+
+        return layout.render(request, "learning_unit/identification.html", context)
+
+
+def _delete_learning_unit_proposal_of_type_creation(learning_unit_proposal, request):
+    learning_unit_year = learning_unit_proposal.learning_unit_year
+    delete_learning_unit_years(learning_unit_year, request)
+    delete_learning_unit_proposal(learning_unit_proposal)
+    messages.add_message(request, messages.SUCCESS, _("success_cancel_proposal").format(learning_unit_year.acronym))
+
+
+def cancel_creation_proposal(learning_unit_year, request):
+    learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learning_unit_year)
+    if learning_unit_proposal.type == proposal_type.ProposalType.CREATION.name:
+        return cancel_proposal_of_type_creation(request, learning_unit_proposal)
+    else:
+        reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year)
+        delete_learning_unit_proposal(learning_unit_proposal)
+        messages.add_message(request, messages.SUCCESS, _("success_cancel_proposal").format(learning_unit_year.acronym))
+        return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
