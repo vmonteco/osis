@@ -28,13 +28,19 @@ import datetime
 from django.forms import formset_factory
 from django.test import RequestFactory, TestCase, Client
 
+from assistant.models.enums import reviewer_role
 from base.models import academic_year
 from assistant.forms import ReviewersFormset
+from base.models.entity import find_versions_from_entites
+from base.models.enums import entity_type
 from base.tests.factories.academic_year import AcademicYearFactory
 from assistant.tests.factories.manager import ManagerFactory
 from assistant.tests.factories.reviewer import ReviewerFactory
 from assistant.views.reviewers_management import reviewer_delete
 from assistant.models.reviewer import find_by_person
+from base.tests.factories.entity import EntityFactory
+from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.person import PersonFactory
 
 HTTP_OK = 200
 
@@ -42,8 +48,14 @@ class ReviewersManagementViewTestCase(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
+        self.person2 = PersonFactory()
         self.manager = ManagerFactory()
-        self.reviewer = ReviewerFactory()
+        self.entity_factory = EntityFactory()
+        self.entity_version = EntityVersionFactory(entity_type=entity_type.INSTITUTE,
+                                                   end_date=None,
+                                                   entity=self.entity_factory)
+        self.reviewer = ReviewerFactory(role=reviewer_role.RESEARCH,
+                                        entity=self.entity_version.entity)
         self.reviewer2 = ReviewerFactory()
         self.formset = formset_factory(ReviewersFormset)
         today = datetime.date.today()
@@ -60,14 +72,15 @@ class ReviewersManagementViewTestCase(TestCase):
 
         self.assertFalse(find_by_person(self.person))
         self.assertTrue(find_by_person(self.reviewer2.person))
-        #self.assertEqual(response.status_code, HTTP_OK)
+        self.assertEqual(response.status_code, HTTP_OK)
 
     def test_reviewer_add(self):
         self.person = self.manager.person
         self.client.force_login(self.person.user)
-        response = self.client.post('/assistants/manager/reviewers/add/', {'entity': self.reviewer.entity,
+        this_entity = find_versions_from_entites([self.entity_factory.id], date=None) [0]
+        response = self.client.post('/assistants/manager/reviewers/add/', {'entity': this_entity.id,
                                                                           'role': self.reviewer.role,
-                                                                          'person_id': 25
+                                                                          'person_id': self.person2.id,
                                                                           })
         self.assertEqual(response.status_code, HTTP_OK)
 

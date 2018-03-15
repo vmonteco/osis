@@ -25,20 +25,25 @@
 ##############################################################################
 from django.test import TestCase
 
+from assistant.models.enums import reviewer_role
+from base.models.entity import find_versions_from_entites
+
 from assistant.forms import ReviewerForm
 from assistant.tests.factories.reviewer import ReviewerFactory
+from base.models.enums import entity_type
+from base.tests.factories.entity import EntityFactory
+from base.tests.factories.entity_version import EntityVersionFactory
+
 
 class TestReviewerForm (TestCase):
 
     def setUp(self):
-        self.reviewer = ReviewerFactory()
-
-    def test_with_valid_data(self):
-        form = ReviewerForm(data={
-         'entity' : self.reviewer.entity,
-         'role' : self.reviewer.role,
-        }, instance=self.reviewer)
-        self.assertTrue(form.is_valid())
+        self.entity_factory = EntityFactory()
+        self.entity_version = EntityVersionFactory(entity_type=entity_type.INSTITUTE,
+                                                   end_date=None,
+                                                   entity=self.entity_factory)
+        self.reviewer = ReviewerFactory(role=reviewer_role.RESEARCH,
+                                        entity=self.entity_version.entity)
 
     def test_without_entity(self):
         form = ReviewerForm(data={
@@ -49,7 +54,16 @@ class TestReviewerForm (TestCase):
 
     def test_without_role(self):
         form = ReviewerForm(data={
-            'entity': self.reviewer.entity,
+            'entity': find_versions_from_entites([self.entity_factory.id], date=None),
             'role': None,
         }, instance=self.reviewer)
         self.assertFalse(form.is_valid())
+
+    def test_with_valid_data(self):
+        form = ReviewerForm(data={
+         'entity' : find_versions_from_entites([self.entity_factory.id], date=None),
+         'role' : self.reviewer.role,
+        }, instance=self.reviewer)
+        self.assertTrue(form.is_valid())
+
+
