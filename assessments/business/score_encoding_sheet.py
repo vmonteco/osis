@@ -142,7 +142,7 @@ def scores_sheet_data(exam_enrollments, tutor=None):
                                                                  if scores_responsible_address else ''}
         learn_unit_year_dict['session_number'] = exam_enrollments[0].session_exam.number_session
         learn_unit_year_dict['acronym'] = learning_unit_yr.acronym
-        learn_unit_year_dict['title'] = learning_unit_yr.specific_title
+        learn_unit_year_dict['title'] = learning_unit_yr.complete_title
         learn_unit_year_dict['decimal_scores'] = learning_unit_yr.decimal_scores
 
         programs = []
