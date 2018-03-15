@@ -239,6 +239,7 @@
                 <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {% trans 'experimental_phase' %}.
             </div>
         {% endif %}
+        {% include "template_messages.html" %}
         {% block content %}
         {% endblock %}
         <br>
@@ -275,6 +276,7 @@
     <script type="text/javascript" src="{% static 'js/jquery-validation/jquery.validate.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/diacritics-sort.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jstree.min.js' %}"></script>
+    <script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
     {% block script %}
     {% endblock %}
     {% analytical_body_bottom %}

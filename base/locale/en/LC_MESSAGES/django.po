@@ -2659,3 +2659,11 @@ msgstr "Existing acronym"
 msgid "The value of field '%(field)s' is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s"
 msgstr ""
 
+msgid "There is not the learning unit %(acronym)s - %(next_year)s"
+msgstr ""
+
+msgid "The value of field '%(field)s' for the learning unit %(acronym)s (%(component_type)s) is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s"
+msgstr ""
+
+msgid "There is not %(component_type)s for the learning unit %(acronym)s - %(year)s but exist in %(existing_year)s"
+msgstr ""
