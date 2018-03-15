@@ -2368,6 +2368,9 @@ msgstr "Une proposition de modification de type {} a été faite pour l'unité d
 msgid "proposal_edited_successfully"
 msgstr "Proposition modifiée avec succès"
 
+msgid "proposals_cancelled_successfully"
+msgstr "Propositions annulées avec succès"
+
 msgid "content"
 msgstr "Contenu"
 
