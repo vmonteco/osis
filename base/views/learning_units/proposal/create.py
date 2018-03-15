@@ -29,7 +29,7 @@ from django.db.models import BLANK_CHOICE_DASH
 from django.shortcuts import redirect, get_object_or_404
 
 from base import models as mdl_base
-from base.business.learning_units.proposal.creation import create_learning_unit_proposal
+from base.business.learning_units.proposal import creation
 from base.business.learning_units.simple.creation import create_learning_unit_year_structure, create_learning_unit
 from base.forms.learning_unit.proposal.creation import LearningUnitProposalCreationForm, LearningUnitProposalForm
 from base.models.enums import learning_unit_year_subtypes
@@ -38,6 +38,7 @@ from base.models.enums.proposal_type import ProposalType
 from base.views import layout
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
 from reference.models.language import find_by_code
+from base.models import proposal_folder
 
 
 @login_required
@@ -67,11 +68,23 @@ def proposal_learning_unit_add(request):
         new_learning_unit_year = create_learning_unit_year_structure(data_learning_unit, new_learning_container,
                                                                      new_learning_unit, academic_year)
         data_proposal = proposal_form.cleaned_data
-        create_learning_unit_proposal(person, data_proposal['folder_entity'].entity, data_proposal['folder_id'],
-                                      new_learning_unit_year, ProposalState.FACULTY.name,
-                                      ProposalType.CREATION.name, {})
+        _proposal_create(data_proposal, new_learning_unit_year, person)
         show_success_learning_unit_year_creation_message(request, new_learning_unit_year,
                                                          'proposal_learning_unit_successfuly_created')
         return redirect('learning_units')
     return layout.render(request, "learning_unit/proposal/creation.html",
                          {'learning_unit_form': learning_unit_form, 'proposal_form': proposal_form, 'person': person})
+
+
+def _proposal_create(data_proposal, new_learning_unit_year, person):
+    folder, created = proposal_folder.ProposalFolder.objects.get_or_create(
+        entity=data_proposal['folder_entity'].entity,
+        folder_id=data_proposal['folder_id'])
+    creation.create_learning_unit_proposal({'person': person,
+                                            'folder_entity': data_proposal['folder_entity'].entity,
+                                            'folder_id': data_proposal['folder_id'],
+                                            'learning_unit_year': new_learning_unit_year,
+                                            'state_proposal': ProposalState.FACULTY.name,
+                                            'type_proposal': ProposalType.CREATION.name,
+                                            'initial_data': {}},
+                                           folder)

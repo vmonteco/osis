@@ -1,6 +1,8 @@
-{% extends "layout.html" %}
-{% load staticfiles %}
+{% extends "learning_unit/identification.html" %}
 {% load i18n %}
+{% load format %}
+{% load learning_unit %}
+{% load bootstrap3 %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -24,22 +26,19 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
+{% block edit_academic_year %}
+    <label style="margin-top:10px;">{% trans 'academic_start_year'%}</label><br>
+    {{ learning_unit_year.learning_unit.start_year|academic_year }}
+    <br>
+    <form method="post" style="display: inline;">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        {% buttons %}
 
-{% block breadcrumb %}
-<li><a href="{% url 'my_osis' %}" id="lnk_my_osis">{% trans 'my_osis' %}</a></li>
-    <li ><a href="{% url 'profile' %}" id="lnk_profile">{% trans 'profile' %}</a></li>
-    <li class="active">{% trans 'educational_information' %}</li>
-{% endblock %}
-
-{% block content %}
-    <div class="panel panel-default">
-        <div class="panel-body">
-        {% url 'learning_unit_summary_edit' learning_unit_year_id=learning_unit_year.id as post_url%}
-        {% include "learning_unit/blocks/panel_educational_informations.html" with can_edit_information=True %}
-        </div>
-    </div>
-    <div class="modal fade" id="pedagogy_edit" role="dialog" data-backdrop="static"></div>
-{% endblock %}
-{% block script %}
-    <script src="{% static 'js/pedagogy_modal.js' %}"></script>
+        <a href="{% url 'learning_unit' learning_unit_year_id=learning_unit_year.id %}" class="btn btn-default">
+            {% trans 'cancel' %}
+        </a>
+        <button type="submit" class="btn btn-danger">{% trans 'i_confirm' %}</button>
+        {% endbuttons %}
+    </form>
 {% endblock %}

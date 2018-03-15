@@ -52,8 +52,13 @@ class SearchForm(forms.Form):
     acronym = forms.CharField(
         max_length=15,
         required=False,
-        label=_('acronym')
+        label=_('code')
     )
+
+    tutor = forms.CharField(
+        max_length=20,
+        required=False,
+        label=_('tutor'))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

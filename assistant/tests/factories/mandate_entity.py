@@ -32,5 +32,7 @@ from base.tests.factories.entity import EntityFactory
 class MandateEntityFactory(factory.DjangoModelFactory):
     class Meta:
         model = 'assistant.MandateEntity'
+        django_get_or_create = ('entity',)
+
     assistant_mandate = factory.SubFactory(AssistantMandateFactory)
     entity = factory.SubFactory(EntityFactory)

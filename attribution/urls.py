@@ -25,7 +25,7 @@
 ##############################################################################
 from django.conf.urls import url, include
 
-from attribution.views import summary_responsible
+from attribution.views import summary_responsible, manage_my_courses
 
 urlpatterns = [
 
@@ -37,5 +37,17 @@ urlpatterns = [
         url(r'^update/(?P<pk>[0-9]+)/$', summary_responsible.update,
             name='summary_responsible_update')
     ])),
+
+    url(r'^manage_my_courses/', include([
+        url(r'^$', manage_my_courses.list_my_attributions_summary_editable,
+            name='list_my_attributions_summary_editable'),
+        url(r'^(?P<learning_unit_year_id>[0-9]+)/educational_information$',
+            manage_my_courses.view_educational_information,
+            name='view_educational_information'),
+        url(r'^(?P<learning_unit_year_id>[0-9]+)/edit_educational_information$',
+            manage_my_courses.edit_educational_information,
+            name='tutor_edit_educational_information'),
+    ])),
+
 
 ]

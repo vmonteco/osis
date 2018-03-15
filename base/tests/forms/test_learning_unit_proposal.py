@@ -26,11 +26,13 @@
 import datetime
 from decimal import Decimal
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.models import proposal_folder, proposal_learning_unit, entity_container_year
+from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import organization_type, proposal_type, proposal_state, entity_type, \
     learning_container_year_types, learning_unit_year_quadrimesters, entity_container_year_link_type, \
     learning_unit_periodicity, internship_subtypes, learning_unit_year_subtypes
@@ -83,8 +85,10 @@ class TestSave(TestCase):
             "academic_year": self.learning_unit_year.academic_year.id,
             "first_letter": "L",
             "acronym": "OSIS1245",
-            "common_title": "New title",
-            "common_title_english": "New title english",
+            "common_title": "New common title",
+            "common_title_english": "New common title english",
+            "specific_title": "New title",
+            "specific_title_english": "New title english",
             "container_type": self.learning_unit_year.learning_container_year.container_type,
             "internship_subtype": "",
             "credits": "4",
@@ -97,6 +101,7 @@ class TestSave(TestCase):
             "allocation_entity": self.entity_version.id,
             "folder_entity": self.entity_version.id,
             "folder_id": "1",
+            "state": proposal_state.ProposalState.CENTRAL.name
         }
 
     def test_invalid_form(self):
@@ -123,6 +128,8 @@ class TestSave(TestCase):
         self.assertFalse(self.learning_unit_year.status)
         self.assertEqual(self.learning_unit_year.credits, Decimal(self.form_data['credits']))
         self.assertEqual(self.learning_unit_year.quadrimester, self.form_data['quadrimester'])
+        self.assertEqual(self.learning_unit_year.specific_title, self.form_data["specific_title"])
+        self.assertEqual(self.learning_unit_year.specific_title_english, self.form_data["specific_title_english"])
 
     def _assert_acronym_has_changed_in_proposal(self):
         self.assertEqual(self.learning_unit_year.acronym,
@@ -258,6 +265,22 @@ class TestSave(TestCase):
         self.assertEqual(a_proposal_learning_unt.author, self.person)
 
         self.assertDictEqual(a_proposal_learning_unt.initial_data, initial_data_expected)
+
+    def test_when_setting_additional_entity_to_none(self):
+        EntityContainerYearFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year,
+            type=entity_container_year_link_type.ALLOCATION_ENTITY
+        )
+        EntityContainerYearFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year,
+            type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1
+        )
+        form = LearningUnitProposalModificationForm(self.form_data)
+        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
+
+        with self.assertRaises(ObjectDoesNotExist):
+            EntityContainerYear.objects.get(learning_container_year=self.learning_unit_year.learning_container_year,
+                                            type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
 
     def test_internship_subtype(self):
         self.form_data["internship_subtype"] = internship_subtypes.TEACHING_INTERNSHIP

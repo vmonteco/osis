@@ -41,8 +41,6 @@
     {% url 'proposal_learning_unit_creation_form' academic_year=current_academic_year.id as create_proposal_url%}
 {% endif %}
 
-{% include "template_messages.html" %}
-
 <div class="page-header">
     <div class="row">
         <div class="col-md-10">
@@ -51,9 +49,10 @@
         <div class="col-md-2" style="margin-top:20px;">
             <div class="btn-group pull-right">
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    {% trans 'action' %} <span class="caret"></span>
+                    <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> {% trans 'actions' %}
+                    <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu">
+                <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
                     <li>
                         <a href="{{ create_learning_unit_url }}" id="lnk_learning_unit_create">{% trans 'new_learning_unit' %}</a>
                     </li>
@@ -118,9 +117,14 @@
 
     $("#btn_produce_xls").click(function(e) {
         e.preventDefault();
-        $("#xls_status").val('xls');
+        var status = $("#xls_status");
+        status.val('xls');
         $("#search_form").submit();
-        $("#xls_status").val('');
+        status.val('');
+    });
+
+    $("#id_check_all").click(function(){
+        $('input:checkbox').not(this).prop('checked', this.checked);
     });
 
 </script>

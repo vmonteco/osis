@@ -199,3 +199,9 @@ def display_messages(request, messages_to_display, level):
 
     for msg in messages_to_display:
         messages.add_message(request, level, _(msg))
+
+
+def check_if_display_message(request, results):
+    if not results:
+        messages.add_message(request, messages.WARNING, _('no_result'))
+    return True

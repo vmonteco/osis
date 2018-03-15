@@ -36,7 +36,6 @@ from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import learning_unit_periodicity, learning_container_year_types, learning_unit_year_subtypes, \
     entity_container_year_link_type, vacant_declaration_type, attribution_procedure, entity_type, organization_type
@@ -53,7 +52,7 @@ from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.user import UserFactory, SuperUserFactory
 from base.tests.forms.test_edition_form import get_valid_formset_data
-from base.views.learning_units.edition import learning_unit_edition, learning_unit_volumes_management
+from base.views.learning_units.update import learning_unit_edition_end_date, learning_unit_volumes_management
 
 
 class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
@@ -83,9 +82,9 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         self.a_superperson = PersonFactory(user=self.a_superuser)
 
     def test_view_learning_unit_edition_permission_denied(self):
-        from base.views.learning_units.edition import learning_unit_edition
+        from base.views.learning_units.update import learning_unit_edition_end_date
 
-        response = self.client.get(reverse(learning_unit_edition, args=[self.learning_unit_year.id]))
+        response = self.client.get(reverse(learning_unit_edition_end_date, args=[self.learning_unit_year.id]))
         self.assertEqual(response.status_code, 403)
 
     @mock.patch('base.business.learning_units.perms.is_eligible_for_modification_end_date')
@@ -97,7 +96,7 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         request = request_factory.get(reverse('learning_unit_edition', args=[self.learning_unit_year.id]))
         request.user = self.a_superuser
 
-        learning_unit_edition(request, self.learning_unit_year.id)
+        learning_unit_edition_end_date(request, self.learning_unit_year.id)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -116,7 +115,7 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
-        learning_unit_edition(request, self.learning_unit_year.id)
+        learning_unit_edition_end_date(request, self.learning_unit_year.id)
 
         msg_level = [m.level for m in get_messages(request)]
         msg = [m.message for m in get_messages(request)]
@@ -137,12 +136,14 @@ class TestEditLearningUnit(TestCase):
                                                          acronym="LOSIS4512",
                                                          academic_year=an_academic_year,
                                                          subtype=learning_unit_year_subtypes.FULL,
-                                                         attribution_procedure=attribution_procedure.INTERNAL_TEAM)
+                                                         attribution_procedure=attribution_procedure.INTERNAL_TEAM,
+                                                         credits=15)
 
         cls.partim_learning_unit = LearningUnitYearFactory(learning_container_year=learning_container_year,
                                                            acronym="LOSIS4512A",
                                                            academic_year=an_academic_year,
-                                                           subtype=learning_unit_year_subtypes.PARTIM)
+                                                           subtype=learning_unit_year_subtypes.PARTIM,
+                                                           credits=10)
 
         cls.requirement_entity_container = EntityContainerYearFactory(
             learning_container_year=learning_container_year, type=entity_container_year_link_type.REQUIREMENT_ENTITY)
@@ -285,13 +286,12 @@ class TestEditLearningUnit(TestCase):
         }
         self.assertDictEqual(initial_data, expected_initial)
 
-    @mock.patch("base.views.learning_units.edition.update_learning_unit_year_with_report", side_effect=None)
-    @mock.patch("base.views.learning_units.edition.update_learning_unit_year_entities_with_report", side_effect=None)
-    def test_valid_post_request(self, mock_update_learning_unit_year, mock_update_entities):
+    def test_valid_post_request(self):
+        credits = 18
         form_data = {
             "acronym": self.learning_unit_year.acronym[1:],
-            "credits": str(self.learning_unit_year.credits + 1),
-            "common_title": self.learning_unit_year.learning_container_year.common_title,
+            "credits": str(credits),
+            "specific_title": self.learning_unit_year.specific_title,
             "first_letter": self.learning_unit_year.acronym[0],
             "periodicity": learning_unit_periodicity.ANNUAL,
             "campus": str(self.learning_unit_year.learning_container_year.campus.id),
@@ -301,11 +301,11 @@ class TestEditLearningUnit(TestCase):
         }
         response = self.client.post(self.url, data=form_data)
 
-        self.assertTrue(mock_update_learning_unit_year.called)
-        self.assertTrue(mock_update_entities.called)
-
         expected_redirection = reverse("learning_unit", args=[self.learning_unit_year.id])
         self.assertRedirects(response, expected_redirection)
+
+        self.learning_unit_year.refresh_from_db()
+        self.assertEqual(self.learning_unit_year.credits, credits)
 
 
 class TestLearningUnitVolumesManagement(TestCase):

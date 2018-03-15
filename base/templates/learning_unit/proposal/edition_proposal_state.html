@@ -1,8 +1,5 @@
 {% extends "learning_unit/identification.html" %}
-{% load i18n %}
-{% load format %}
-{% load learning_unit %}
-{% load bootstrap3 %}
+{% load i18n format bootstrap3 %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -31,10 +28,40 @@
         {% csrf_token %}
         {% bootstrap_form form %}
         {% buttons %}
-            {% bootstrap_button _("save") button_type="submit" button_class="btn-primary" %}
+            <button type="button" class="btn btn-primary" onclick="showWarningIfInconsistentState()">{% trans 'save' %}</button>
             <a href="{% url 'learning_unit' learning_unit_year_id=learning_unit_year.id %}" class="btn btn-default">
                 {% trans 'cancel' %}
             </a>
         {% endbuttons %}
     </form>
+    {% include "learning_unit/proposal/modal_warning_state_modification.html" %}
+{% endblock %}
+
+{% block script %}
+    <script>
+    function showWarningIfInconsistentState(){
+        var idSelect = '{{ form.state.auto_id }}';
+        var initialState='{{form.state.value}}';
+        var toState = $('#'+idSelect).val();
+
+        if (( initialState==='CENTRAL' && toState==='FACULTY' ) ||
+               ( initialState==='REFUSED' && toState==='ACCEPTED')) {
+            var modal = $('#modalWarningStateModification');
+            // Initial State
+            var initialStateStr = getTextFromSelect(idSelect, initialState);
+            modal.find('#initialState').html(initialStateStr);
+            // To State
+            var toStateStr = getTextFromSelect(idSelect, toState);
+            modal.find('#toState').html(toStateStr);
+            modal.modal("show");
+            return false; // Prevent form submission
+        }else{
+            $('form').submit();
+        }
+    }
+
+    function getTextFromSelect(idSelect, value) {
+        return $('#' + idSelect +' option[value=' +  value + ']').text()
+    }
+    </script>
 {% endblock %}

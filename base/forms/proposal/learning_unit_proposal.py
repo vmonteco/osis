@@ -25,16 +25,19 @@
 ##############################################################################
 
 from django import forms
+from django.db import transaction
 from django.db.models import Prefetch
+from django.urls import reverse
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
 from base.business.learning_unit_year_with_context import append_latest_entities
-from base.models.enums import entity_container_year_link_type, proposal_type, proposal_state
 from base.forms import learning_units as learning_units_form
 from base.forms.common import get_clean_data, TooManyResultsException
 from base.forms.learning_unit_search import SearchForm
+from base.models import entity_version
+from base.models.enums import entity_container_year_link_type, proposal_type, proposal_state
 from base.models.proposal_learning_unit import ProposalLearningUnit
 
 
@@ -96,35 +99,114 @@ class LearningUnitProposalForm(SearchForm):
             raise TooManyResultsException
         return get_clean_data(self.cleaned_data)
 
-    def _get_proposal_learning_units(self):
+    def get_proposal_learning_units(self):
         clean_data = self.cleaned_data
-        parent_version_prefetch = Prefetch('parent__entityversion_set',
+
+        entity_version_prefetch = Prefetch('entity__entityversion_set',
                                            queryset=mdl.entity_version.search(),
                                            to_attr='entity_versions')
 
-        entity_version_prefetch = Prefetch('entity__entityversion_set',
-                                           queryset=mdl.entity_version.search()
-                                           .prefetch_related(parent_version_prefetch),
-                                           to_attr='entity_versions')
         entity_container_prefetch = Prefetch('learning_unit_year__learning_container_year__entitycontaineryear_set',
                                              queryset=mdl.entity_container_year.search(
                                                  link_type=[entity_container_year_link_type.ALLOCATION_ENTITY,
                                                             entity_container_year_link_type.REQUIREMENT_ENTITY])
                                              .prefetch_related(entity_version_prefetch),
                                              to_attr='entity_containers_year')
+
         clean_data['learning_container_year_id'] = learning_units_form.get_filter_learning_container_ids(clean_data)
-        res = mdl.proposal_learning_unit.search(**clean_data) \
+
+        proposal = mdl.proposal_learning_unit.search(**clean_data) \
             .select_related('learning_unit_year__academic_year', 'learning_unit_year__learning_container_year',
                             'learning_unit_year__learning_container_year__academic_year') \
             .prefetch_related(entity_container_prefetch) \
             .order_by('learning_unit_year__academic_year__year', 'learning_unit_year__acronym')
-        learning_units = \
-            [append_latest_entities(learning_unit_proposal.learning_unit_year, None) for learning_unit_proposal in res]
-        return {'proposals': res, 'learning_units': learning_units}
+
+        for learning_unit_proposal in proposal:
+            append_latest_entities(learning_unit_proposal.learning_unit_year, None)
+
+        return proposal
 
 
 class ProposalStateModelForm(forms.ModelForm):
-
     class Meta:
         model = ProposalLearningUnit
         fields = ['state']
+
+
+class ProposalRowForm(ProposalStateModelForm):
+    check = forms.BooleanField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.id = self.instance.id
+        self.url = reverse('learning_unit', args=[self.instance.learning_unit_year.id])
+
+    @property
+    def folder(self):
+        last_entity = entity_version.get_last_version(self.instance.folder.entity)
+        folder = last_entity.acronym if last_entity else ''
+        folder += str(self.instance.folder.pk)
+
+        return folder
+
+    @property
+    def acronym(self):
+        return self.instance.learning_unit_year.acronym
+
+    @property
+    def validity(self):
+        return self.instance.learning_unit_year.academic_year
+
+    @property
+    def title(self):
+        return self.instance.learning_unit_year.complete_title
+
+    @property
+    def container_type(self):
+        container = self.instance.learning_unit_year.learning_container_year
+        return container.container_type if container.container_type else ''
+
+    @property
+    def requirement_entity(self):
+        requirement_entity = self.instance.learning_unit_year.entities.get('REQUIREMENT_ENTITY', '')
+        return requirement_entity.acronym if requirement_entity else ''
+
+    @property
+    def proposal_type(self):
+        return _(self.instance.type)
+
+    @property
+    def proposal_state(self):
+        return _(self.instance.state)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if not cleaned_data.get('check'):
+            del cleaned_data['state']
+        return cleaned_data
+
+    def save(self, commit=True):
+        if self.cleaned_data.get('check'):
+            super().save(commit)
+
+
+class ProposalListFormset(forms.BaseFormSet):
+
+    def __init__(self, *args, **kwargs):
+        self.list_proposal_learning = kwargs.pop("list_proposal_learning")
+        self.action = kwargs.pop("action")
+        super().__init__(*args, **kwargs)
+
+    def get_form_kwargs(self, index):
+        kwargs = super().get_form_kwargs(index)
+        kwargs['instance'] = self.list_proposal_learning[index]
+        return kwargs
+
+    def save(self):
+        with transaction.atomic():
+            for form in self.forms:
+                form.save()
+
+    def get_checked_proposals(self):
+        return [form.instance for form in self.forms if form.cleaned_data.get('check')]

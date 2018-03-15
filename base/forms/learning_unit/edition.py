@@ -23,28 +23,34 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+
 from django import forms
+from django.forms import model_to_dict
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import compute_max_academic_year_adjournment
-from base.business.learning_units.edition import filter_biennial
+from base.business.learning_units.edition import filter_biennial, update_learning_unit_year_with_report
+from base.business.learning_units.perms import FACULTY_UPDATABLE_CONTAINER_TYPES
 from base.forms.bootstrap import BootstrapForm
-from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_READ_ONLY_FIELD, MaxStrictlyValueValidator
+from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.utils.choice_field import add_blank
-from base.models import academic_year
+from base.models import academic_year, entity_container_year
 from base.models.academic_year import AcademicYear
-from base.models.entity_version import find_main_entities_version_filtered_by_person
 from base.models.enums.attribution_procedure import AttributionProcedures
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
-from base.models.enums.learning_container_year_types import INTERNSHIP, DISSERTATION
+from base.models.enums.learning_container_year_types import INTERNSHIP, \
+    LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
 from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.enums.learning_unit_year_subtypes import PARTIM
 from base.models.enums.vacant_declaration_type import VacantDeclarationType
-from base.models.learning_unit import is_old_learning_unit
 
 FULL_READ_ONLY_FIELDS = {"first_letter", "acronym", "academic_year", "container_type", "subtype"}
 PARTIM_READ_ONLY_FIELDS = PARTIM_FORM_READ_ONLY_FIELD | {"is_vacant", "team", "type_declaration_vacant",
                                                          "attribution_procedure", "subtype"}
+FACULTY_READ_ONLY_FIELDS = {"periodicity", "common_title", "common_title_english", "specific_title",
+                            "specific_title_english", "campus", "status", "credits", "language",
+                            "requirement_entity", "allocation_entity", "additional_requirement_entity_2", "is_vacant",
+                            "type_declaration_vacant", "attribution_procedure", "subtype"}
 
 
 class LearningUnitEndDateForm(BootstrapForm):
@@ -83,7 +89,7 @@ class LearningUnitEndDateForm(BootstrapForm):
         if self.learning_unit.start_year > min_year:
             min_year = self.learning_unit.start_year
 
-        if is_old_learning_unit(self.learning_unit):
+        if self.learning_unit.is_past():
             raise ValueError(
                 'Learning_unit.end_year {} cannot be less than the current academic_year {}'.format(
                     self.learning_unit.end_year, current_academic_year)
@@ -109,59 +115,67 @@ class LearningUnitModificationForm(LearningUnitYearForm):
     type_declaration_vacant = forms.ChoiceField(required=False, choices=_create_type_declaration_vacant_list())
     attribution_procedure = forms.ChoiceField(required=False, choices=_create_attribution_procedure_list())
 
-    def __init__(self, *args, parent=None, person=None, **kwargs):
-        initial = kwargs.get("initial", None)
-        learning_unit_year_subtype = initial.get("subtype") if initial else None
-        learning_container_type = initial.get("container_type") if initial else None
+    learning_unit_year_subtype = None
+    learning_container_type = None
+    parent = None
+
+    def __init__(self, *args, person, learning_unit_year_instance, **kwargs):
+        self.instance = learning_unit_year_instance
         self.learning_unit_end_date = kwargs.pop("end_date", None)
 
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, initial=self.compute_learning_unit_modification_form_initial_data(), **kwargs)
+        self.postponement = bool(int(self.data.get('postponement', 1)))
 
-        self.fields["requirement_entity"].queryset = find_main_entities_version_filtered_by_person(person)
+        if self.initial:
+            self.learning_unit_year_subtype = self.initial.get("subtype")
+            self.learning_container_type = self.initial.get("container_type")
 
-        self._disabled_fields_base_on_learning_unit_year_subtype(learning_unit_year_subtype)
-        self._disabled_internship_subtype_field_if_not_internship_container_type(learning_container_type)
+        self.parent = self.instance.parent
 
-        if parent:
-            self._set_max_credits(parent)
-            self._set_status_value(parent)
-            self._enabled_periodicity(parent)
+        self.fields["requirement_entity"].queryset = person.find_main_entities_version
 
-    def is_valid(self):
-        if not BootstrapForm.is_valid(self):
-            return False
-        # Use a list of errors because when adding an error for a specific field with add_error, it is removed
-        # from cleaned_data.
-        errors_list = []
-        if not self._is_requirement_entity_end_date_valid():
-            errors_list.append(("requirement_entity",
-                                _("requirement_entity_end_date_too_short")))
-        if not self._are_requirement_and_allocation_entities_valid():
-            errors_list.append(("allocation_entity",
-                                _("requirement_and_allocation_entities_cannot_be_different")))
-        self.add_errors(errors_list)
-        return not self.errors
+        self._disabled_fields_base_on_learning_unit_year_subtype(self.learning_unit_year_subtype)
+        self._disabled_internship_subtype_field_if_not_internship_container_type(self.learning_container_type)
 
-    def add_errors(self, list_errors):
-        for field, error_msg in list_errors:
-            self.add_error(field, error_msg)
+        if self.parent:
+            self._set_status_value()
+            self._enabled_periodicity()
 
-    def _is_requirement_entity_end_date_valid(self):
-        if self.cleaned_data["requirement_entity"].end_date is None:
+        if person.is_faculty_manager():
+            if self.learning_container_type in FACULTY_UPDATABLE_CONTAINER_TYPES and\
+                    self.learning_unit_year_subtype == "FULL":
+                self._disabled_fields(FACULTY_READ_ONLY_FIELDS)
+
+        if learning_unit_year_instance:
+            self.learning_unit = learning_unit_year_instance.learning_unit
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if self.errors:
+            return cleaned_data
+
+        requirement_entity = cleaned_data["requirement_entity"]
+        allocation_entity = cleaned_data["allocation_entity"]
+        container_type = cleaned_data["container_type"]
+
+        if not self._is_requirement_entity_end_date_valid(requirement_entity):
+            self.add_error("requirement_entity", _("requirement_entity_end_date_too_short"))
+
+        self._are_requirement_and_allocation_entities_valid(requirement_entity, allocation_entity, container_type)
+
+        return cleaned_data
+
+    def _is_requirement_entity_end_date_valid(self, requirement_entity):
+        if requirement_entity.end_date is None:
             return True
         if self.learning_unit_end_date is None:
             return False
-        return self.cleaned_data["requirement_entity"].end_date >= self.learning_unit_end_date
+        return requirement_entity.end_date >= self.learning_unit_end_date
 
-    def _are_requirement_and_allocation_entities_valid(self):
-        return self._are_requirement_and_allocation_entities_the_same() or \
-               self._can_requirement_and_allocation_entities_be_different()
-
-    def _are_requirement_and_allocation_entities_the_same(self):
-        return self.cleaned_data["requirement_entity"] == self.cleaned_data["allocation_entity"]
-
-    def _can_requirement_and_allocation_entities_be_different(self):
-        return self.cleaned_data["container_type"] not in [INTERNSHIP, DISSERTATION]
+    def _are_requirement_and_allocation_entities_valid(self, requirement_entity, allocation_entity, container_type):
+        if requirement_entity != allocation_entity and \
+                container_type in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES:
+            self.add_error("allocation_entity", _("requirement_and_allocation_entities_cannot_be_different"))
 
     def _disabled_fields_base_on_learning_unit_year_subtype(self, subtype):
         if subtype == PARTIM:
@@ -177,18 +191,13 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         for field in fields_to_disable:
             self.fields[field].disabled = True
 
-    def _set_max_credits(self, parent):
-        max_credits = parent.credits
-        self.fields["credits"].max_value = max_credits
-        self.fields['credits'].validators.append(MaxStrictlyValueValidator(max_credits))
-
-    def _set_status_value(self, parent):
-        if parent.status is False:
-            self.fields["status"].initial = parent.status
+    def _set_status_value(self):
+        if self.parent.status is False:
+            self.fields["status"].initial = self.parent.status
             self.fields["status"].disabled = True
 
-    def _enabled_periodicity(self, parent):
-        can_modify_periodicity = parent.learning_unit.periodicity == ANNUAL
+    def _enabled_periodicity(self):
+        can_modify_periodicity = self.parent.learning_unit.periodicity == ANNUAL
         self.fields["periodicity"].disabled = not can_modify_periodicity
 
     def get_data_for_learning_unit(self):
@@ -202,3 +211,43 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         return {entity_type.upper(): entity_version.entity if entity_version else None
                 for entity_type, entity_version in self.cleaned_data.items()
                 if entity_type.upper() in ENTITY_TYPE_LIST}
+
+    def save(self):
+        entities_data = self.get_entities_data()
+        lu_type_full_data = self.get_data_for_learning_unit()
+        update_learning_unit_year_with_report(self.instance, lu_type_full_data, entities_data,
+                                              with_report=self.postponement)
+
+    def compute_learning_unit_modification_form_initial_data(self):
+        other_fields_dict = {
+            "specific_title": self.instance.specific_title,
+            "specific_title_english": self.instance.specific_title_english,
+            "first_letter": self.instance.acronym[0],
+            "acronym": self.instance.acronym[1:]
+        }
+        fields = {
+            "learning_unit_year": ("academic_year", "status", "credits", "session", "subtype", "quadrimester",
+                                   "attribution_procedure"),
+            "learning_container_year": ("common_title", "common_title_english", "container_type", "campus", "language",
+                                        "is_vacant", "team", "type_declaration_vacant"),
+            "learning_unit": ("faculty_remark", "other_remark", "periodicity")
+        }
+        return compute_learning_unit_form_initial_data(other_fields_dict, self.instance, fields)
+
+
+def compute_learning_unit_form_initial_data(base_dict, learning_unit_year, fields):
+    initial_data = base_dict.copy()
+    initial_data.update(model_to_dict(learning_unit_year, fields=fields["learning_unit_year"]))
+    initial_data.update(model_to_dict(learning_unit_year.learning_container_year,
+                                      fields=fields["learning_container_year"]))
+    initial_data.update(model_to_dict(learning_unit_year.learning_unit,
+                                      fields=fields["learning_unit"]))
+    initial_data.update(_get_attributions_of_learning_unit_year(learning_unit_year))
+    return {key: value for key, value in initial_data.items() if value is not None}
+
+
+def _get_attributions_of_learning_unit_year(learning_unit_year):
+    attributions = entity_container_year.find_last_entity_version_grouped_by_linktypes(
+        learning_unit_year.learning_container_year
+    )
+    return {k.lower(): v.id for k, v in attributions.items() if v is not None}

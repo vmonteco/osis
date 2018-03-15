@@ -74,9 +74,6 @@ class AttributionNew(AuditableModel):
             return (self.end_year - self.start_year) + 1
         return None
 
-    class Meta:
-        unique_together = ('learning_container_year', 'tutor', 'function', 'deleted', )
-
 
 def search(*args, **kwargs):
     qs = AttributionNew.objects.all()

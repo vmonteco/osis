@@ -19,7 +19,7 @@
 {% block content %}
 
 {% with disabled_nav=True %}
-  {% include "learning_unit/header.html" %}
+  {% include "learning_unit/blocks/header.html" %}
 {% endwith %}
 
 <div class="panel panel-default" >
@@ -27,7 +27,7 @@
 
         {% block tabs %}
         {% endblock tabs %}
-
+        <br>
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active">
 
@@ -59,13 +59,9 @@
                                             </div>
 
                                             <br>
-
-                                            {% block common_official_titles %}
-                                                {% include "learning_unit/blocks/common_official_titles.html" %}
-                                            {% endblock common_official_titles %}
-
-                                            {% block official_titles %}
-                                            {% endblock official_titles %}
+                                            {% block titles %}
+                                                 {% include "learning_unit/blocks/titles.html" %}
+                                            {% endblock titles %}
                                         </div>
                                     </div>
 
@@ -97,13 +93,12 @@
                                 {% include "learning_unit/blocks/save_cancel_buttons.html" %}
                             {% endblock submit %}
                         </div>
+
+                        {% block modal %}
+                        {% endblock modal %}
+
                     </form>
-
-                    {% block modal %}
-                    {% endblock modal %}
-
                 {% endblock form %}
-
             </div>
         </div>
     </div>
@@ -113,12 +108,7 @@
 
 {% block script %}
     <script type="text/javascript">
-        const trans_existed_acronym = "{% trans 'existed_acronym' %}";
-        const trans_invalid_acronym = "{% trans 'invalid_acronym' %}";
-        const trans_field_required = "{% trans 'field_is_required' %}";
-        const trans_field_min = "{% trans 'min_for_field' %}";
-        const trans_field_max = "{% trans 'max_for_field' %}";
-        const form_acronym_regex = /{{ form.acronym_regex }}/;
+        const form_acronym_regex = "{{ form.acronym_regex }}";
         const currentAcronym = "{{ learning_unit_year.acronym }}";
         const learning_unit_current_subtype = "{{ learning_unit_year.subtype }}";
     </script>
