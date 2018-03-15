@@ -477,7 +477,7 @@ def compute_form_initial_data(learning_unit_year):
     fields = {
         "learning_unit_year":
             ("academic_year", "status", "credits", "session", "quadrimester", "subtype", "internship_subtype",
-             "specific_title", "specific_english_title"),
+             "specific_title", "specific_title_english"),
         "learning_container_year":
             ("common_title", "common_title_english", "container_type", "campus", "language"),
         "learning_unit":

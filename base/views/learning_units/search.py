@@ -147,6 +147,7 @@ def _cancel_proposals(formset, proposals_to_cancel, request):
     if proposals_to_cancel:
         user_person = get_object_or_404(Person, user=request.user)
         proposal_business.cancel_proposals(proposals_to_cancel, user_person)
+        display_success_messages(request, _("proposals_cancelled_successfully"))
         formset = None
     else:
         _build_no_data_error_message(request)
