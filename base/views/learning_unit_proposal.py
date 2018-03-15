@@ -96,11 +96,7 @@ def edit_learning_unit_proposal(request, learning_unit_year_id):
     user_person = get_object_or_404(Person, user=request.user)
     proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year_id)
     initial_data = compute_form_initial_data(proposal.learning_unit_year)
-    initial_data.update({"folder_id": proposal.folder.folder_id,
-                         "folder_entity": find_latest_version_by_entity(proposal.folder.entity.id,
-                                                                        datetime.date.today()),
-                         "type": proposal.type,
-                         "state": proposal.state})
+    initial_data.update(_build_proposal_data(proposal))
 
     proposal_form = LearningUnitProposalModificationForm(
         request.POST or None,
@@ -123,3 +119,11 @@ def edit_learning_unit_proposal(request, learning_unit_year_id):
         'person': user_person,
         'form': proposal_form,
         'experimental_phase': True})
+
+
+def _build_proposal_data(proposal):
+    return {"folder_id": proposal.folder.folder_id,
+            "folder_entity": find_latest_version_by_entity(proposal.folder.entity.id,
+                                                           datetime.date.today()),
+            "type": proposal.type,
+            "state": proposal.state}
