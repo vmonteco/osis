@@ -36,7 +36,7 @@ from base.models.osis_model_admin import OsisModelAdmin
 class ProposalLearningUnitAdmin(OsisModelAdmin):
     list_display = ('learning_unit_year', 'folder', 'type', 'state', )
 
-    search_fields = ['folder__folder_id', 'folder_entity', 'learning_unit_year__acronym']
+    search_fields = ['folder__folder_id', 'learning_unit_year__acronym']
     list_filter = ('type', 'state')
     raw_id_fields = ('learning_unit_year', 'folder', 'author')
 
