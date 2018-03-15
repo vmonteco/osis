@@ -342,7 +342,8 @@ def _match_dates(osis_date, esb_date):
 
 def find_main_entities_version():
     now = datetime.datetime.now(get_tzinfo())
-    return find_latest_version(date=now).filter(entity_type__in=MAIN_ENTITY_TYPE, entity__organization__type=MAIN)
+    return find_latest_version(date=now).filter(
+        entity_type__in=MAIN_ENTITY_TYPE, entity__organization__type=MAIN).order_by('acronym')
 
 
 def find_latest_version_by_entity(entity, date):
