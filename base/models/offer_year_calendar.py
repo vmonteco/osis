@@ -50,8 +50,6 @@ class OfferYearCalendar(AbstractCalendar):
 
     def clean(self):
         super().clean()
-        if not hasattr(self, 'academic_calendar'):
-            return None
 
         self._check_is_in_calendar_range(self.start_date)
         self._check_is_in_calendar_range(self.end_date)
