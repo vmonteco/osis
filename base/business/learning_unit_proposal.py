@@ -27,7 +27,6 @@ from base.business.learning_units.edition import update_or_create_entity_contain
 from base.business import learning_unit_deletion as business_deletion
 from base.models import entity_container_year, campus, entity
 from base.models.enums import proposal_type, entity_container_year_link_type
-from base.models.proposal_learning_unit import find_by_folder
 from base.utils import send_mail as send_mail_util
 from reference.models import language
 from django.utils.translation import ugettext_lazy as _
@@ -106,10 +105,7 @@ def _reinitialize_entities_before_proposal(learning_container_year, initial_enti
 
 
 def delete_learning_unit_proposal(learning_unit_proposal):
-    proposal_folder = learning_unit_proposal.folder
     learning_unit_proposal.delete()
-    if not find_by_folder(proposal_folder).exists():
-        proposal_folder.delete()
 
 
 def _get_difference_of_proposal(learning_unit_yr_proposal):
