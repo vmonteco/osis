@@ -103,24 +103,24 @@ class ExportImportXlsFile(TestCase):
 
 
     def test_upload_mandates_file(self):
-        file = File(open('assistant/tests/utils/assistants_ok.xlsx', 'rb'))
+        file = File(open('assistant/tests/resources/assistants_ok.xlsx', 'rb'))
         response = self.client.post('/assistants/manager/mandates/upload/', {'file': file})
         self.assertEqual(response.status_code, HTTP_OK)
-        file2 = File(open('assistant/tests/utils/test_import_xls_file_data.py', 'rb'))
+        file2 = File(open('assistant/tests/resources/bad_file_format.txt', 'rb'))
         response2 = self.client.post('/assistants/manager/mandates/upload/', {'file': file2})
         self.assertEqual(response2.status_code, HTTP_OK)
 
 
     def test_read_xls_mandates(self):
-        file = File(open('assistant/tests/utils/assistants_bad_date.xlsx', 'rb'))
+        file = File(open('assistant/tests/resources/assistants_bad_date.xlsx', 'rb'))
         uploaded_file = SimpleUploadedFile('new_excel.xlsx', file.read(),
                                            content_type='vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         self.assertFalse(read_xls_mandates(self.request, uploaded_file))
-        file2 = File(open('assistant/tests/utils/assistants_ok.xlsx', 'rb'))
+        file2 = File(open('assistant/tests/resources/assistants_ok.xlsx', 'rb'))
         uploaded_file2 = SimpleUploadedFile('new_excel.xlsx', file2.read(),
                                            content_type='vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         self.assertTrue(read_xls_mandates(self.request, uploaded_file2))
-        file3 = File(open('assistant/tests/utils/assistants_bad_column.xlsx', 'rb'))
+        file3 = File(open('assistant/tests/resources/assistants_bad_column.xlsx', 'rb'))
         uploaded_file3 = SimpleUploadedFile('new_excel.xlsx', file3.read(),
                                            content_type='vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         self.assertFalse(read_xls_mandates(self.request, uploaded_file3))
