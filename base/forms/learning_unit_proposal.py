@@ -79,7 +79,8 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
         self._updates_entities(learning_container_year)
 
         data = {'person': a_person, 'learning_unit_year': learning_unit_year, 'state_proposal': state_proposal,
-                'type_proposal': type_proposal, 'folder_entity': self.cleaned_data['folder_entity'], 'folder_id': self.cleaned_data['folder_id']}
+                'type_proposal': type_proposal, 'folder_entity': self.cleaned_data['folder_entity'],
+                'folder_id': self.cleaned_data['folder_id']}
         if self.proposal:
             if self.proposal.type in \
                     (proposal_type.ProposalType.CREATION.value, proposal_type.ProposalType.SUPPRESSION.value):
