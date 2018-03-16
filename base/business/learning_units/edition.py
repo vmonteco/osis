@@ -24,7 +24,7 @@
 #
 ##############################################################################
 
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, transaction, Error
 from django.db.models import F
 from django.utils.translation import ugettext_lazy as _
 
@@ -36,7 +36,6 @@ from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.utils.model import update_instance_model_from_data, update_related_object
 from base.models import entity_component_year
 from base.models import entity_container_year, learning_component_year, learning_class_year, learning_unit_component
-from base.models import learning_unit_year
 from base.models.academic_year import AcademicYear
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -45,6 +44,8 @@ from base.models.enums import learning_unit_periodicity, learning_unit_year_subt
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit_year import LearningUnitYear
+
+FIELDS_TO_EXCLUDE_WITH_REPORT = ("is_vacant", "type_declaration_vacant", "attribution_procedure")
 
 
 def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year):
@@ -248,35 +249,28 @@ def filter_biennial(queryset, periodicity):
     return result
 
 
-def update_learning_unit_year_with_report(luy_to_update, fields_to_update, with_report=True):
+def update_learning_unit_year_with_report(luy_to_update, fields_to_update, entities_by_type_to_update, **kwargs):
+    with_report = kwargs.get('with_report', True)
+    force_value = kwargs.get('force_value', False)
 
-    _update_learning_unit_year(luy_to_update, fields_to_update)
-
-    if with_report:
-        fields_not_to_report = ("is_vacant", "type_declaration_vacant", "attribution_procedure")
-        _apply_report(_update_learning_unit_year, luy_to_update, fields_to_update,
-                      fields_to_exclude=fields_not_to_report)
-
-
-def update_learning_unit_year_entities_with_report(luy_to_update, entities_by_type_to_update, with_report=True):
+    _update_learning_unit_year(luy_to_update, fields_to_update, with_report=False)
     _update_learning_unit_year_entities(luy_to_update, entities_by_type_to_update)
 
+    if not with_report:
+        return None
+
+    for luy in luy_to_update.find_gt_learning_units_year():
+        if not force_value:
+            check_postponement_conflict(luy_to_update, luy)
+        _update_learning_unit_year(luy, fields_to_update, with_report=True)
+        _update_learning_unit_year_entities(luy, entities_by_type_to_update)
+
+
+def _update_learning_unit_year(luy_to_update, fields_to_update, with_report):
+    fields_to_exclude = ()
     if with_report:
-        _apply_report(_update_learning_unit_year_entities, luy_to_update, entities_by_type_to_update)
+        fields_to_exclude = FIELDS_TO_EXCLUDE_WITH_REPORT
 
-
-def _apply_report(method_of_update, base_luy, *args, **kwargs):
-    for luy in base_luy.find_gt_learning_units_year():
-        method_of_update(luy, *args, **kwargs)
-
-
-def _update_learning_unit_year(luy_to_update, fields_to_update, fields_to_exclude=()):
-    if luy_to_update.is_in_proposal():
-        raise IntegrityError(
-            _("learning_unit_in_proposal_cannot_save") % {
-                'luy': luy_to_update.acronym,
-                'academic_year': luy_to_update.academic_year
-            })
     update_instance_model_from_data(luy_to_update.learning_unit, fields_to_update)
     update_instance_model_from_data(luy_to_update.learning_container_year, fields_to_update, exclude=fields_to_exclude)
     update_instance_model_from_data(luy_to_update, fields_to_update, exclude=fields_to_exclude)
@@ -329,23 +323,30 @@ def _delete_entity_component_year(learning_container_year, type_entity):
     ).delete()
 
 
-def check_postponement_conflict(luy):
+def check_postponement_conflict(luy, next_luy):
     error_list = []
+    lcy = luy.learning_container_year
+    next_lcy = next_luy.learning_container_year
+    error_list.extend(_check_postponement_conflict_on_learning_unit_year(luy, next_luy))
+    error_list.extend(_check_postponement_conflict_on_learning_container_year(lcy, next_lcy))
+    error_list.extend(_check_postponement_conflict_on_entity_container_year(lcy, next_lcy))
+    error_list.extend(_check_postponement_learning_unit_year_proposal_state(next_luy))
+    error_list.extend(_check_postponement_conflict_on_volumes(lcy, next_lcy))
 
-    next_luy = luy.get_learning_unit_next_year()
-    if next_luy:
-        lcy = luy.learning_container_year
-        next_lcy = next_luy.learning_container_year
-        error_list.extend(_check_postponement_conflict_on_learning_unit_year(luy, next_luy))
-        error_list.extend(_check_postponement_conflict_on_learning_container_year(lcy, next_lcy))
-        error_list.extend(_check_postponement_conflict_on_entity_container_year(lcy, next_lcy))
-    return error_list
+    if error_list:
+        raise ConsistencyError(_('error_modification_learning_unit'), error_list=error_list)
 
 
 def _check_postponement_conflict_on_learning_unit_year(luy, next_luy):
     fields_to_compare = 'acronym', 'specific_title', 'specific_title_english', 'subtype', 'credits', \
                         'decimal_scores', 'internship_subtype', 'status', 'session', 'quadrimester',
     return _get_differences(luy, next_luy, fields_to_compare)
+
+
+def _check_postponement_learning_unit_year_proposal_state(nex_luy):
+    error_msg = _("learning_unit_in_proposal_cannot_save") % {'luy': nex_luy.acronym,
+                                                              'academic_year': nex_luy.academic_year}
+    return [error_msg] if nex_luy.is_in_proposal() else []
 
 
 def _check_postponement_conflict_on_learning_container_year(lcy, next_lcy):
@@ -395,3 +396,106 @@ def _is_different_value(obj1, obj2, field):
     value_obj1 = obj1.get(field) if isinstance(obj1, dict) else getattr(obj1, field, None)
     value_obj2 = obj2.get(field) if isinstance(obj2, dict) else getattr(obj2, field, None)
     return value_obj1 != value_obj2
+
+
+def _check_postponement_conflict_on_volumes(lcy, next_lcy):
+    current_learning_units = learning_unit_year_with_context.get_with_context(learning_container_year_id=lcy.id)
+    next_year_learning_units = learning_unit_year_with_context.get_with_context(learning_container_year_id=next_lcy.id)
+
+    error_list = []
+    for luy_with_components in current_learning_units:
+        try:
+            next_luy_with_components = _get_next_luy_with_components(luy_with_components, next_year_learning_units)
+            error_list.extend(_check_postponement_conflict_on_components(
+                luy_with_components,
+                next_luy_with_components)
+            )
+        except StopIteration:
+            error_list.append(_("There is not the learning unit %(acronym)s - %(next_year)s") % {
+                'acronym': next_lcy.acronym,
+                'next_year': next_lcy.academic_year
+            })
+    return error_list
+
+
+def _get_next_luy_with_components(luy_with_components, next_year_learning_units):
+    return next(luy for luy in next_year_learning_units if
+                luy.learning_unit == luy_with_components.learning_unit)
+
+
+def _check_postponement_conflict_on_components(luy_with_components, next_luy_with_components):
+    error_list = []
+
+    current_components = getattr(luy_with_components, 'components', {})
+    next_year_components = getattr(next_luy_with_components, 'components', {})
+    for component, volumes_computed in current_components.items():
+        try:
+            # Get the same component for next year (Key: component type)
+            next_year_component = _get_next_year_component(next_year_components, component.type)
+            error_list.extend(_check_postponement_conflict_on_volumes_data(
+                component, next_year_component,
+                volumes_computed, next_year_components[next_year_component]
+            ))
+            # Pop the values when validation done
+            next_year_components.pop(next_year_component)
+        except StopIteration:
+            # Case current year have component which doesn't exist on next year
+            error = _get_error_component_not_found(luy_with_components.acronym, component.type,
+                                                   luy_with_components.academic_year,
+                                                   next_luy_with_components.academic_year)
+            error_list.append(error)
+
+    if next_year_components:
+        # Case next year have component which doesn't exist on current year
+        for component in next_year_components.keys():
+            error_list.append(_get_error_component_not_found(luy_with_components.acronym, component.type,
+                                                             next_luy_with_components.academic_year,
+                                                             luy_with_components.academic_year))
+    return error_list
+
+
+def _get_next_year_component(next_year_components, component_type):
+    return next(next_year_component for next_year_component in next_year_components
+                if next_year_component.type == component_type)
+
+
+def _check_postponement_conflict_on_volumes_data(current_component, next_year_component,
+                                                 current_volumes_data, next_year_volumes_data):
+    error_list = []
+    volumes_diff = _get_volumes_diff(current_volumes_data, next_year_volumes_data)
+    for volume_diff in volumes_diff:
+        current_volume_data = current_volumes_data.get(volume_diff)
+        next_year_volume_data = next_year_volumes_data.get(volume_diff)
+        error_list.append(_("The value of field '%(field)s' for the learning unit %(acronym)s (%(component_type)s) "
+                            "is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s") %
+                          {
+                              'field': _(volume_diff.lower()),
+                              'acronym': current_component.learning_container_year.acronym,
+                              'component_type': _(current_component.type),
+                              'year': current_component.learning_container_year.academic_year,
+                              'value': current_volume_data or _('no_data'),
+                              'next_year': next_year_component.learning_container_year.academic_year,
+                              'next_value': next_year_volume_data or _('no_data')
+                          })
+    return error_list
+
+
+def _get_volumes_diff(current_volumes_data, next_year_volumes_data):
+    return filter(lambda data: _is_different_value(current_volumes_data, next_year_volumes_data, data),
+                  current_volumes_data)
+
+
+def _get_error_component_not_found(acronym, component_type, existing_academic_year, not_found_academic_year):
+    return _("There is not %(component_type)s for the learning unit %(acronym)s - %(year)s but exist in"
+             " %(existing_year)s") % {
+        'component_type': _(component_type),
+        'acronym': acronym,
+        'year': not_found_academic_year,
+        'existing_year': existing_academic_year
+    }
+
+
+class ConsistencyError(Error):
+    def __init__(self, *args, **kwargs):
+        self.error_list = kwargs.pop('error_list')
+        super().__init__(*args, **kwargs)

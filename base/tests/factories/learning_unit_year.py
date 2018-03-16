@@ -27,7 +27,6 @@ import datetime
 import operator
 import string
 
-import factory
 import factory.fuzzy
 from factory.django import DjangoModelFactory
 from faker import Faker
@@ -37,8 +36,8 @@ from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
 from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.learning_unit import LearningUnitFactory, LearningUnitFakerFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.learning_unit import LearningUnitFactory, LearningUnitFakerFactory
 from osis_common.utils.datetime import get_tzinfo
 
 fake = Faker()
@@ -59,7 +58,7 @@ class LearningUnitYearFactory(DjangoModelFactory):
     learning_container_year = factory.SubFactory(LearningContainerYearFactory)
     changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    acronym = factory.Sequence(lambda n: 'LUY-%d' % n)
+    acronym = factory.Sequence(lambda n: 'LFAC%04d' % n)
     specific_title = factory.Sequence(lambda n: 'Learning unit year - %d' % n)
     specific_title_english = factory.Sequence(lambda n: 'Learning unit year english - %d' % n)
     subtype = factory.Iterator(learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, getter=operator.itemgetter(0))

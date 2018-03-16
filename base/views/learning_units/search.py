@@ -144,7 +144,7 @@ def _go_back_to_initial_data(formset, request):
 def _cancel_list_of_proposal(formset, proposals_to_cancel, request):
     if proposals_to_cancel:
         proposal_business.cancel_proposals(proposals_to_cancel)
-        display_success_messages(request, _("proposal_edited_successfully"))
+        display_success_messages(request, _("proposals_cancelled_successfully"))
         formset = None
     else:
         _build_no_data_error_message(request)
