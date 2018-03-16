@@ -536,14 +536,14 @@ class TestLearningUnitProposalSearch(TestCase):
         self._update_proposals_type(prop_type=proposal_type.ProposalType.SUPPRESSION.name)
         self.get_request(self.get_data(action='back_to_initial'))
         self.assertTrue(mock_render.called)
-        self.assertEquals(ProposalLearningUnit.objects.count(), 1)
+        self.assertEqual(ProposalLearningUnit.objects.count(), 1)
 
     @mock.patch('base.views.layout.render')
     def test_force_state_does_not_delete_proposals(self, mock_render):
         self._update_proposals_type(prop_type=proposal_type.ProposalType.SUPPRESSION.name)
         self.get_request(self.get_data(action='force_state'))
         self.assertTrue(mock_render.called)
-        self.assertEquals(ProposalLearningUnit.objects.count(), 3)
+        self.assertEqual(ProposalLearningUnit.objects.count(), 3)
 
     def _update_proposals_type(self, prop_type):
         for proposal in self.proposals:
@@ -627,6 +627,7 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.person = PersonFactory()
         self.permission = Permission.objects.get(codename="can_propose_learningunit")
         self.person.user.user_permissions.add(self.permission)
+        self.person.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
 
         self.learning_unit_proposal = _create_proposal_learning_unit()
         self.learning_unit_year = self.learning_unit_proposal.learning_unit_year
