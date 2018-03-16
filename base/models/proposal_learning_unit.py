@@ -103,21 +103,16 @@ def search(academic_year_id=None, acronym=None, entity_folder_id=None, folder_id
             queryset = queryset.filter(learning_unit_year__learning_container_year=learning_container_year_id)
 
     if tutor:
-        filter_by_first_name = {
-            '{0}__{1}__{2}__{3}__{4}__{5}__{6}__{7}__{8}'.format('learning_unit_year', 'learningunitcomponent',
-                                                                 'learning_component_year', 'attributionchargenew',
-                                                                 'attribution', 'tutor', 'person', 'first_name',
-                                                                 'icontains'): tutor
-        }
-        filter_by_last_name = {
-            '{0}__{1}__{2}__{3}__{4}__{5}__{6}__{7}__{8}'.format('learning_unit_year', 'learningunitcomponent',
-                                                                 'learning_component_year', 'attributionchargenew',
-                                                                 'attribution', 'tutor', 'person', 'last_name',
-                                                                 'icontains'): tutor
-        }
+        filter_by_first_name = {_build_tutor_filter(name_type='first_name'): tutor}
+        filter_by_last_name = {_build_tutor_filter(name_type='last_name'): tutor}
         queryset = queryset.filter(Q(**filter_by_first_name) | Q(**filter_by_last_name)).distinct()
 
     return queryset.select_related('learning_unit_year')
+
+
+def _build_tutor_filter(name_type):
+    return '__'.join(['learning_unit_year', 'learningunitcomponent', 'learning_component_year', 'attributionchargenew',
+                      'attribution', 'tutor', 'person', name_type, 'icontains'])
 
 
 def count_search_results(**kwargs):
