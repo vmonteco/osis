@@ -272,8 +272,8 @@ def update_learning_unit_year_with_report(luy_to_update, fields_to_update, entit
 def get_conflict_report(luy_start, override_report_consistency=False):
     result = {'luy_without_conflict': []}
     for luy in luy_start.find_gt_learning_units_year():
-        error_list = check_postponement_conflict(luy_start, luy) if not override_report_consistency else []
-        if error_list:
+        error_list = check_postponement_conflict(luy_start, luy)
+        if error_list and not override_report_consistency:
             result['errors'] = error_list
             return result
         result['luy_without_conflict'].append(luy)

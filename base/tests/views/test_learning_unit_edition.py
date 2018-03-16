@@ -425,7 +425,7 @@ class TestLearningUnitVolumesManagement(TestCase):
 
         request = request_factory.post(reverse(learning_unit_volumes_management,
                                                args=[self.learning_unit_year.id]),
-                                       data=data, 
+                                       data=data,
                                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         request.user = self.user
@@ -441,6 +441,7 @@ class TestLearningUnitVolumesManagement(TestCase):
     @mock.patch('base.models.learning_component_year.LearningComponentYear.save', side_effect=IntegrityError)
     @mock.patch('base.models.program_manager.is_program_manager')
     def test_learning_unit_volumes_management_post_wrong_save(self, mock_program_manager, save):
+        """In this test, we ensure that en Intergrity Error will be displayed on user"""
         mock_program_manager.return_value = True
 
         request_factory = RequestFactory()
