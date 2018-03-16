@@ -29,9 +29,9 @@ from django.forms import model_to_dict
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import compute_max_academic_year_adjournment
-from base.business.learning_units.edition import filter_biennial, update_learning_unit_year_with_report
+from base.business.learning_units.edition import filter_biennial, update_learning_unit_year_with_report, \
+    edit_learning_unit_end_date
 from base.business.learning_units.perms import FACULTY_UPDATABLE_CONTAINER_TYPES
-from base.forms.bootstrap import BootstrapForm
 from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.utils.choice_field import add_blank
 from base.models import academic_year, entity_container_year
@@ -53,7 +53,7 @@ FACULTY_READ_ONLY_FIELDS = {"periodicity", "common_title", "common_title_english
                             "type_declaration_vacant", "attribution_procedure", "subtype"}
 
 
-class LearningUnitEndDateForm(BootstrapForm):
+class LearningUnitEndDateForm(forms.Form):
     academic_year = forms.ModelChoiceField(required=False,
                                            queryset=AcademicYear.objects.none(),
                                            empty_label=_('not_end_year'),
@@ -99,6 +99,9 @@ class LearningUnitEndDateForm(BootstrapForm):
             raise ValueError('Learning_unit {} cannot be modify'.format(self.learning_unit))
 
         return academic_year.find_academic_years(start_year=min_year, end_year=max_year)
+
+    def save(self):
+        return edit_learning_unit_end_date(self.learning_unit, self.cleaned_data['academic_year'])
 
 
 def _create_type_declaration_vacant_list():

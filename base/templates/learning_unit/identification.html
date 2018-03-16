@@ -39,7 +39,7 @@
 {% endif %}
 <div class="panel panel-default">
     <div class="panel-heading text-right">
-        {% include "learning_unit/identification_actions_bar.html" with dropdirection="dropdown"%}
+        {% include "learning_unit/blocks/dropdown/identification_actions_bar.html" with dropdirection="dropdown"%}
     </div>
     <div class="panel-body" id="tabs" >
         {% include "learning_unit/blocks/tabs.html" %}
@@ -235,40 +235,16 @@
                                 {% endblock %}
                             </div>
                         </div>
-                        {% if proposal %}
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    {% trans 'proposal' %}
-                                </div>
-                                <div class="panel-body">
-                                    <label style="margin-top:10px;">{% trans 'folder' %}</label><br>
-                                        {{ proposal_folder_entity_version.0.acronym}} - {{ proposal.folder.folder_id }}
-                                    <br>
-                                    <label style="margin-top:10px;">{% trans 'type' %}</label><br>
-                                        {% trans proposal.type %}
-                                    <br>
-                                    <div style="margin-top:10px;">
-                                        {% block proposal_state %}
-                                            <label >{% trans 'state' %}</label><br>
-                                            {% trans proposal.state %}
-                                        {% endblock proposal_state %}
-                                    </div>
-                                    <br>
-                                      <label style="margin-top:10px;">{% trans 'introduced_by' %}</label><br>
-                                      {{ proposal.author }}
-                                      <br>
-                                       <label style="margin-top:10px;">{% trans 'the' %}</label><br>
-                                      {{ proposal.date }}
-                                </div>
-                            </div>
-                        {% endif %}
+                        {% block panel_proposal %}
+                            {% include 'learning_unit/blocks/panel/panel_proposal.html' %}
+                        {% endblock %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="panel-footer text-right">
-        {% include "learning_unit/identification_actions_bar.html"  with dropdirection="dropup" %}
+        {% include "learning_unit/blocks/dropdown/identification_actions_bar.html"  with dropdirection="dropup" %}
     </div>
 </div>
 {% endblock %}
