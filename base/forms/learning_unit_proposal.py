@@ -42,15 +42,18 @@ from base.models.proposal_learning_unit import ProposalLearningUnit
 class ProposalLearningUnitForm(forms.ModelForm):
     folder_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
 
-    def __init__(self, data, learning_unit, *args, **kwargs):
+    def __init__(self, data, learning_unit, type_proposal, state_proposal, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
         self.learning_unit = learning_unit
+        self.type_proposal = type_proposal
+        self.state_proposal = state_proposal
 
     class Meta:
         model = ProposalLearningUnit
         fields = '__all__'
 
 
+# FIXME Split LearningUnitYearForm and ProposalLearningUnit
 class LearningUnitProposalModificationForm(LearningUnitYearForm):
     folder_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
@@ -68,7 +71,7 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
 
     def clean(self):
         cleaned_data = super().clean()
-
+        # TODO Move this section in clean_internship_subtype
         if cleaned_data.get("internship_subtype") and cleaned_data.get("internship_subtype") != 'None' and \
            cleaned_data["container_type"] != learning_container_year_types.INTERNSHIP:
             self.add_error("internship_subtype", _("learning_unit_type_is_not_internship"))
@@ -76,6 +79,7 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
         return cleaned_data
 
     def save(self, learning_unit_year, a_person, type_proposal, state_proposal):
+        # FIXME is_valid already called in the view
         if not self.is_valid():
             raise ValueError("Form is invalid.")
 
@@ -92,6 +96,7 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
 
         self._updates_entities(learning_container_year)
 
+        # TODO Move this section in ProposalLearningUnitForm
         data = {'person': a_person, 'learning_unit_year': learning_unit_year, 'state_proposal': state_proposal,
                 'type_proposal': type_proposal, 'folder_entity': self.cleaned_data['folder_entity'],
                 'folder_id': self.cleaned_data['folder_id']}
