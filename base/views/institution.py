@@ -34,7 +34,7 @@ from base.forms.entity_calendar import EntityCalendarEducationalInformationForm
 from base.models import entity_version as entity_version_mdl
 from base.models.academic_calendar import get_by_reference_and_academic_year
 from base.models.academic_year import current_academic_year
-from base.models.entity_calendar import EntityCalendar, find_by_reference_for_current_academic_year
+from base.models.entity_calendar import EntityCalendar, find_by_entity_and_reference_for_current_academic_year
 from base.models.enums import entity_type, academic_calendar_type
 from . import layout
 
@@ -79,7 +79,8 @@ def entity_read(request, entity_version_id):
     entity_parent = entity_version.get_parent_version()
     descendants = entity_version.descendants
 
-    entity_calendar_instance = find_by_reference_for_current_academic_year(academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+    entity_calendar_instance = find_by_entity_and_reference_for_current_academic_year(
+        entity_version.entity.id, academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
     form = EntityCalendarEducationalInformationForm(request.POST or None, instance=entity_calendar_instance)
     if form.is_valid():
         academic_calendar =  get_by_reference_and_academic_year(academic_calendar_type.SUMMARY_COURSE_SUBMISSION,

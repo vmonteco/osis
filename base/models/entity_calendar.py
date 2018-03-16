@@ -47,9 +47,10 @@ class EntityCalendar(AbstractCalendar):
         return "{} - {}".format(self.academic_calendar, self.entity)
 
 
-def find_by_reference_for_current_academic_year(reference):
+def find_by_entity_and_reference_for_current_academic_year(entity_id, reference):
     try:
-        return EntityCalendar.objects.get(academic_calendar__academic_year=current_academic_year(),
+        return EntityCalendar.objects.get(entity_id=entity_id,
+                                          academic_calendar__academic_year=current_academic_year(),
                                           academic_calendar__reference=reference)
     except ObjectDoesNotExist:
         return None

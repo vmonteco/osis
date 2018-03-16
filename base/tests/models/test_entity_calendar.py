@@ -25,7 +25,7 @@
 ##############################################################################
 from django.test import TestCase
 
-from base.models.entity_calendar import find_by_reference_for_current_academic_year
+from base.models.entity_calendar import find_by_entity_and_reference_for_current_academic_year
 from base.models.enums.academic_calendar_type import SUMMARY_COURSE_SUBMISSION, EXAM_ENROLLMENTS
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.entity_calendar import EntityCalendarFactory
@@ -44,11 +44,13 @@ class TestFindByReferenceForCurrentAcademicYear(TestCase):
                                                          entity=cls.current_entity_calendar.entity)
 
     def test_when_no_data_match_criteria(self):
-        entity_calendar_obj = find_by_reference_for_current_academic_year(EXAM_ENROLLMENTS)
+        entity_calendar_obj = find_by_entity_and_reference_for_current_academic_year(
+            self.current_entity_calendar.entity.id, EXAM_ENROLLMENTS)
         self.assertIsNone(entity_calendar_obj)
 
     def test_find_for_current_academic_year(self):
-        entity_calendar_obj = find_by_reference_for_current_academic_year(SUMMARY_COURSE_SUBMISSION)
+        entity_calendar_obj = find_by_entity_and_reference_for_current_academic_year(
+            self.current_entity_calendar.entity.id, SUMMARY_COURSE_SUBMISSION)
         self.assertEqual(entity_calendar_obj, self.current_entity_calendar)
 
 
