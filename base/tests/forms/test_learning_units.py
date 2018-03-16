@@ -27,10 +27,12 @@ from django.test import TestCase
 from django.utils import timezone
 from unittest.mock import patch
 
-from attribution.tests.factories.attribution import AttributionFactory
+from attribution.tests.factories.attribution import AttributionFactory, AttributionNewFactory
+from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
 from base.business.learning_unit_year_with_context import is_service_course
 from base.forms.common import TooManyResultsException
 from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -57,8 +59,11 @@ class TestLearningUnitForm(TestCase):
             self.list_entity_version,
             self.list_learning_unit_container_year)
         self.tutor = TutorFactory()
-        self.attribution = AttributionFactory(tutor=self.tutor,
-                                              learning_unit_year = self.list_learning_unit_year[0])
+        self.attribution = AttributionNewFactory(tutor=self.tutor)
+        self.learning_unit_component = LearningUnitComponentFactory(learning_unit_year=self.list_learning_unit_year[0])
+        self.attribution_charge_new = \
+            AttributionChargeNewFactory(attribution=self.attribution,
+                                        learning_component_year=self.learning_unit_component.learning_component_year)
 
     def _create_list_containers(self, number_of_containers):
         list_lu_container_year = [
