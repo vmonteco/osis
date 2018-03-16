@@ -31,14 +31,12 @@ from django.contrib import messages
 from django.contrib.auth.models import Permission
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.http import HttpResponseNotFound, HttpResponse, HttpResponseForbidden
 from django.test import TestCase, RequestFactory
 from django.utils.translation import ugettext_lazy as _
 
-from attribution.tests.factories.attribution import AttributionFactory
 from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
 from attribution.tests.factories.attribution_new import AttributionNewFactory
 from base.business import learning_unit_proposal as proposal_business
@@ -584,6 +582,11 @@ class TestLearningUnitProposalSearch(TestCase):
         proposals_candidate_to_cancellation = formset.get_checked_proposals()
         self.assertEqual(len(proposals_candidate_to_cancellation), 0)
 
+    def test_has_mininum_of_one_criteria(self):
+        form = LearningUnitProposalForm({"non_existing_field": 'nothing_interestings'})
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertIn(_("minimum_one_criteria"), form.errors['__all__'])
+
     def get_data(self, action=None):
         data = {
             'form-TOTAL_FORMS': ['3'],
@@ -714,6 +717,7 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.assertTrue(_test_attributes_equal(self.learning_unit_year.learning_container_year,
                                                initial_data["learning_container_year"]))
         self.assertTrue(_test_entities_equal(self.learning_unit_year.learning_container_year, initial_data["entities"]))
+
 
 def _test_attributes_equal(obj, attribute_values_dict):
     for key, value in attribute_values_dict.items():

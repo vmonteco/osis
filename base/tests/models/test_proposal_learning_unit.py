@@ -109,8 +109,7 @@ class TestSearchCases(TestCase):
         self.check_search_result(proposal_learning_unit.search(learning_container_year_id=[self.learning_container_yr.id]))
 
     def check_search_result(self, results):
-        self.assertEqual(results.count(), 1)
-        self.assertEqual(results[0].id, self.a_proposal_learning_unit.id)
+        self.assertCountEqual(results, [self.a_proposal_learning_unit])
 
     def test_find_distinct_folder_entities(self):
         entity_2 = EntityFactory()
