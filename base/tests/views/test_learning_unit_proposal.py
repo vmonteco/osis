@@ -626,6 +626,7 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.person = PersonFactory()
         self.permission = Permission.objects.get(codename="can_propose_learningunit")
         self.person.user.user_permissions.add(self.permission)
+        self.person.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
 
         self.learning_unit_proposal = _create_proposal_learning_unit()
         self.learning_unit_year = self.learning_unit_proposal.learning_unit_year
@@ -730,8 +731,6 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.assertTrue(folder)
 
     def test_faculty_manager_cannot_cancel_creation_proposal_for_course_full(self):
-        self.person.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
-
         self.learning_unit_proposal.type = proposal_type.ProposalType.CREATION.name
         self.learning_unit_proposal.save()
 
