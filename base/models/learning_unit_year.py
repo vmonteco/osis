@@ -28,6 +28,7 @@ import re
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import Q
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from base.models import entity_container_year
@@ -39,7 +40,6 @@ from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.group_element_year import GroupElementYear
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
-from django.utils.functional import cached_property
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"

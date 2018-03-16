@@ -24,7 +24,7 @@
 #
 ##############################################################################
 import string
-import factory
+
 import factory.fuzzy
 
 from attribution.tests.factories.attribution_new import AttributionNewFactory

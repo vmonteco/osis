@@ -29,7 +29,6 @@ from django.db import models
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
-from base.models import learning_unit_year
 from base.models.enums import proposal_type, proposal_state
 from base.models.osis_model_admin import OsisModelAdmin
 
