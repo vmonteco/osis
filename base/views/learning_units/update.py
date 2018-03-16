@@ -119,9 +119,12 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
         try:
             postponement = int(request.POST.get('postponement', 1))
             volume_edition_formset_container.save(postponement)
-            display_success_messages(request, _('success_modification_learning_unit'))
-            return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
+            if volume_edition_formset_container.conflict_errors:
+                display_error_messages(request, volume_edition_formset_container.conflict_errors)
+            else:
+                display_success_messages(request, _('success_modification_learning_unit'))
 
+            return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
         except IntegrityError:
             display_error_messages(request, _("error_modification_learning_unit"))
 

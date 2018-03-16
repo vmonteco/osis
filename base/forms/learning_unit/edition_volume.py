@@ -32,6 +32,8 @@ from django.forms import formset_factory
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
+from base.business.learning_units import edition
+from base.business.learning_units.edition import ConsistencyError
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type as entity_types
 from base.models.enums.component_type import PRACTICAL_EXERCISES, LECTURING
@@ -171,11 +173,17 @@ class VolumeEditionForm(forms.Form):
         if not self.changed_data:
             return None
 
+        luy_to_update_list = [self.learning_unit_year]
+        conflict_report = {}
         if postponement:
-            for component in self._find_gte_learning_components_year():
-                self._save(component)
-        else:
-            self._save(self.component)
+            conflict_report = edition.get_conflict_report(self.learning_unit_year)
+            luy_to_update_list.extend(conflict_report['luy_without_conflict'])
+
+        for component in self._find_learning_components_year(luy_to_update_list):
+            self._save(component)
+
+        if conflict_report.get('errors'):
+            raise ConsistencyError(_('error_modification_learning_unit'), error_list=conflict_report.get('errors'))
 
     def _save(self, component):
         component.hourly_volume_partial = self.cleaned_data['volume_q1']
@@ -194,8 +202,7 @@ class VolumeEditionForm(forms.Form):
             ecy.repartition_volume = repartition_volume
             ecy.save()
 
-    def _find_gte_learning_components_year(self):
-        gt_learning_units = self.learning_unit_year.find_gte_learning_units_year()
+    def _find_learning_components_year(self, luy_to_update_list):
         prefetch = Prefetch(
             'learning_component_year__entitycomponentyear_set',
             queryset=EntityComponentYear.objects.all(),
@@ -204,7 +211,7 @@ class VolumeEditionForm(forms.Form):
         return [
             luc.learning_component_year
             for luc in LearningUnitComponent.objects.filter(
-                learning_unit_year__in=gt_learning_units).prefetch_related(prefetch)
+                learning_unit_year__in=luy_to_update_list).prefetch_related(prefetch)
             if luc.learning_component_year.type == self.component.type
         ]
 
@@ -216,6 +223,7 @@ class VolumeEditionBaseFormset(forms.BaseFormSet):
         self.components = list(self.learning_unit_year.components.keys())
         self.components_values = list(self.learning_unit_year.components.values())
         self.is_faculty_manager = kwargs.pop('is_faculty_manager')
+        self.conflict_errors = []
 
         super().__init__(*args, **kwargs)
 
@@ -253,8 +261,11 @@ class VolumeEditionBaseFormset(forms.BaseFormSet):
         return next(form for form in self.forms if form.component.type == component_type)
 
     def save(self, postponement):
-        for form in self.forms:
-            form.save(postponement)
+        try:
+            for form in self.forms:
+                form.save(postponement)
+        except ConsistencyError as e:
+            self.conflict_errors = e.error_list
 
 
 class VolumeEditionFormsetContainer:
@@ -301,6 +312,13 @@ class VolumeEditionFormsetContainer:
         with transaction.atomic():
             for formset in self.formsets.values():
                 formset.save(postponement)
+
+    @property
+    def conflict_errors(self):
+        conflict_errors = []
+        for formset in self.formsets.values():
+            conflict_errors.extend(formset.conflict_errors)
+        return conflict_errors
 
     @property
     def errors(self):
