@@ -27,13 +27,11 @@ from base.business.learning_units.edition import update_or_create_entity_contain
 from base.business import learning_unit_deletion as business_deletion
 from base.models import entity_container_year, campus, entity
 from base.models.enums import proposal_type, entity_container_year_link_type
-from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.utils import send_mail as send_mail_util
 from reference.models import language
 from django.utils.translation import ugettext_lazy as _
 from base import models as mdl_base
 from django.apps import apps
-from django.shortcuts import get_object_or_404
 from django.contrib.messages import ERROR, SUCCESS
 
 APP_BASE_LABEL = 'base'
