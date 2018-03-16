@@ -1,6 +1,5 @@
 {% load staticfiles %}
 {% load i18n %}
-{% load bootstrap3 %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -25,18 +24,6 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-
-<form method="post">
-    {% csrf_token %}
-    <div class="row">
-       <div class="col-md-3">
-            {% bootstrap_field form.start_date field_class="datepicker" %}
-        </div>
-        <div class="col-md-3">
-            {% bootstrap_field form.end_date field_class="datepicker" %}
-        </div>
-        <div class="col-md-3">
-            {% bootstrap_button _("Save") button_type="submit" button_class="btn-primary" %}
-        </div>
-    </div>
-</form>
+<link rel="stylesheet" href="{% static 'css/bootstrap-datetimepicker.min.css' %}" type='text/css'>
+<link rel="stylesheet" href="{% static 'css/bootstrap-datepicker3.min.css' %}" type='text/css'>
+<link rel="stylesheet" href="{% static 'css/daterangepicker.css' %}" type='text/css'>

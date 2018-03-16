@@ -23,13 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.forms import ModelForm
 from django.utils.translation import ugettext as _
 
+from base.forms import bootstrap
 from base.models.entity_calendar import EntityCalendar
 
 
-class EntityCalendarEducationalInformationForm(ModelForm):
+class EntityCalendarEducationalInformationForm(bootstrap.BootstrapModelForm):
     class Meta:
         model = EntityCalendar
         fields = ["start_date", "end_date"]

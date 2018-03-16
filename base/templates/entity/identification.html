@@ -25,6 +25,10 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
+{% block style %}
+    {% include "education_group/blocks/datetimepicker_css.html" %}
+{% endblock style %}
+
 {% block breadcrumb %}
 {% include "entity/breadcrumb.html" %}
 {% endblock %}
@@ -116,3 +120,7 @@
     </div>
 </div>
 {% endblock %}
+
+{% block script %}
+    {% include "education_group/blocks/datetimepicker_js.html" %}
+{% endblock script %}
