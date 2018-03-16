@@ -10,7 +10,7 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('base', '0239_remove_proposallearningunit_learning_unit_year'),
+        ('base', '0241_remove_proposallearningunit_learning_unit_year'),
     ]
 
     operations = [
