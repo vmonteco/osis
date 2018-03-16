@@ -23,11 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.utils import formats
 from django.utils.translation import ugettext as _
+
+from base.models.abstracts.abstract_calendar import AbstractCalendar
 from osis_common.utils.datetime import is_in_chronological_order
 from base.signals.publisher import compute_scores_encodings_deadlines
 from base.models.osis_model_admin import OsisModelAdmin
@@ -40,26 +41,15 @@ class OfferYearCalendarAdmin(OsisModelAdmin):
     list_filter = ('academic_calendar__academic_year', 'academic_calendar__reference',)
 
 
-class OfferYearCalendar(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    academic_calendar = models.ForeignKey('AcademicCalendar')
+class OfferYearCalendar(AbstractCalendar):
     offer_year = models.ForeignKey('OfferYear')
-    start_date = models.DateTimeField(blank=True, null=True, db_index=True)
-    end_date = models.DateTimeField(blank=True, null=True, db_index=True)
     education_group_year = models.ForeignKey('EducationGroupYear', blank=True, null=True)
 
     class Meta:
         unique_together = ('academic_calendar', 'education_group_year')
 
     def clean(self):
-        try:
-            self.end_start_dates_validation()
-        except AttributeError as e:
-            raise ValidationError(e)
-
-        if not hasattr(self, 'academic_calendar'):
-            return None
+        super().clean()
 
         self._check_is_in_calendar_range(self.start_date)
         self._check_is_in_calendar_range(self.end_date)
@@ -77,10 +67,6 @@ class OfferYearCalendar(models.Model):
         self.end_start_dates_validation()
         super(OfferYearCalendar, self).save(*args, **kwargs)
         compute_scores_encodings_deadlines.send(sender=self.__class__, offer_year_calendar=self)
-
-    def end_start_dates_validation(self):
-        if self._dates_are_set() and not is_in_chronological_order(self.start_date, self.end_date):
-            raise AttributeError(_('end_start_date_error'))
 
     def _dates_are_set(self):
         return bool(self.start_date and self.end_date)
