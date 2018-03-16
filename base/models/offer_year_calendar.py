@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.utils import formats
@@ -53,10 +52,7 @@ class OfferYearCalendar(models.Model):
         unique_together = ('academic_calendar', 'education_group_year')
 
     def clean(self):
-        try:
-            self.end_start_dates_validation()
-        except AttributeError as e:
-            raise ValidationError(e)
+        super.clean()
 
         if not hasattr(self, 'academic_calendar'):
             return None
