@@ -4899,7 +4899,9 @@
     "fields": {
         "name": "administrative_managers",
         "permissions": [
-            199
+            320,
+            199,
+            331
         ]
     }
 }
