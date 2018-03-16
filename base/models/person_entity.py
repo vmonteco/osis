@@ -59,22 +59,35 @@ class PersonEntity(models.Model):
         return u"%s" % self.person
 
 
+def search(**kwargs):
+    queryset = PersonEntity.objects
+    if 'person' in kwargs:
+        queryset = queryset.filter(person=kwargs['person'])
+    return queryset
+
+
 def find_entities_by_person(person):
-    person_entities = PersonEntity.objects.filter(person=person).select_related('entity')
+    person_entities = search(person=person).select_related('entity')
 
     entities = set()
     entities |= {pers_ent.entity for pers_ent in person_entities if not pers_ent.with_child }
-    entity_with_child = [pers_ent.entity for pers_ent in person_entities if pers_ent.with_child]
-    if entity_with_child:
-        entity_with_find_descendants = entity.find_descendants(entity_with_child, with_entities=True)
-        entities |= set(entity_with_find_descendants) if entity_with_find_descendants else set()
+    entities_with_child = [pers_ent.entity for pers_ent in person_entities if pers_ent.with_child]
+    entities_data = entity_version.build_current_entity_version_structure_in_memory()
+    for entity_with_child in entities_with_child:
+        entities.add(entity_with_child)
+        entity_data = entities_data.get(entity_with_child.id)
+        if entity_data:
+            entities |= set(entity_data['all_children'])
+    # if entities_with_child:
+        # entity_with_find_descendants = entity.find_descendants(entities_with_child, with_entities=True)
+        # entities |= set(entity_with_find_descendants) if entity_with_find_descendants else set()
     return list(entities)
 
 
 def is_attached_entities(person, entity_queryset):
     admissible_entities = list(entity_queryset.values_list('pk', flat=True))
 
-    qs = PersonEntity.objects.filter(person=person)
+    qs = search(person=person)
     if qs.filter(entity__in=admissible_entities).exists():
         return True
     elif qs.filter(entity__in=_entity_ancestors(entity_queryset), with_child=True).exists():

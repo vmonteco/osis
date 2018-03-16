@@ -38,7 +38,6 @@ MAP_ENTITY_FIELD = {
 }
 
 
-@deprecated
 def filter_by_attached_entities(person, entity_queryset):
     entities_attached = person_entity.find_entities_by_person(person)
     field_path = MAP_ENTITY_FIELD.get(entity_queryset.model)
