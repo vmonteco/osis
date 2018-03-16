@@ -243,9 +243,17 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
         queryset = queryset.filter(learning_container_year__container_type=container_type)
 
     if tutor:
-        queryset = queryset.\
-            filter(Q(learningunitcomponent__learning_component_year__attributionchargenew__attribution__tutor__person__first_name__icontains=tutor) |
-                   Q(learningunitcomponent__learning_component_year__attributionchargenew__attribution__tutor__person__last_name__icontains=tutor)).distinct()
+        filter_by_first_name = {
+            '{0}__{1}__{2}__{3}__{4}__{5}__{6}__{7}'.format('learningunitcomponent', 'learning_component_year',
+                                                            'attributionchargenew', 'attribution', 'tutor', 'person',
+                                                            'first_name', 'icontains'): tutor
+        }
+        filter_by_last_name = {
+            '{0}__{1}__{2}__{3}__{4}__{5}__{6}__{7}'.format('learningunitcomponent', 'learning_component_year',
+                                                            'attributionchargenew', 'attribution', 'tutor', 'person',
+                                                            'last_name', 'icontains'): tutor
+        }
+        queryset = queryset.filter(Q(**filter_by_first_name) | Q(**filter_by_last_name)).distinct()
 
     return queryset.select_related('learning_container_year', 'academic_year')
 
