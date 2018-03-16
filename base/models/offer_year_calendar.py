@@ -49,7 +49,7 @@ class OfferYearCalendar(AbstractCalendar):
         unique_together = ('academic_calendar', 'education_group_year')
 
     def clean(self):
-        super.clean()
+        super().clean()
         if not hasattr(self, 'academic_calendar'):
             return None
 
