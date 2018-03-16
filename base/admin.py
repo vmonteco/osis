@@ -153,9 +153,6 @@ admin.site.register(person_entity.PersonEntity,
 admin.site.register(program_manager.ProgramManager,
                     program_manager.ProgramManagerAdmin)
 
-admin.site.register(proposal_folder.ProposalFolder,
-                    proposal_folder.ProposalFolderAdmin)
-
 admin.site.register(proposal_learning_unit.ProposalLearningUnit,
                     proposal_learning_unit.ProposalLearningUnitAdmin)
 

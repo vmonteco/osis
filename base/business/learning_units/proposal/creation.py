@@ -27,7 +27,7 @@ from base.models import proposal_learning_unit
 from base.business.learning_units.proposal import common
 
 
-def create_learning_unit_proposal(data, folder):
-    proposal = common.proposal_common_populate(data, folder, proposal_learning_unit.ProposalLearningUnit())
+def create_learning_unit_proposal(data):
+    proposal = common.proposal_common_populate(data, proposal_learning_unit.ProposalLearningUnit())
     proposal.initial_data = data.get('initial_data')
     proposal.save()
