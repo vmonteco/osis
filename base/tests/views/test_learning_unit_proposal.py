@@ -536,14 +536,14 @@ class TestLearningUnitProposalSearch(TestCase):
         self._update_proposals_type(prop_type=proposal_type.ProposalType.SUPPRESSION.name)
         self.get_request(self.get_data(action='back_to_initial'))
         self.assertTrue(mock_render.called)
-        self.assertEquals(ProposalLearningUnit.objects.count(), 1)
+        self.assertEqual(ProposalLearningUnit.objects.count(), 1)
 
     @mock.patch('base.views.layout.render')
     def test_force_state_does_not_delete_proposals(self, mock_render):
         self._update_proposals_type(prop_type=proposal_type.ProposalType.SUPPRESSION.name)
         self.get_request(self.get_data(action='force_state'))
         self.assertTrue(mock_render.called)
-        self.assertEquals(ProposalLearningUnit.objects.count(), 3)
+        self.assertEqual(ProposalLearningUnit.objects.count(), 3)
 
     def _update_proposals_type(self, prop_type):
         for proposal in self.proposals:
@@ -730,18 +730,6 @@ class TestLearningUnitProposalCancellation(TestCase):
 
         folder.refresh_from_db()
         self.assertTrue(folder)
-
-    def test_faculty_manager_cannot_cancel_creation_proposal_for_course_full(self):
-        self.learning_unit_proposal.type = proposal_type.ProposalType.CREATION.name
-        self.learning_unit_proposal.save()
-
-        self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.COURSE
-        self.learning_unit_year.subtype = learning_unit_year_subtypes.FULL
-        self.learning_unit_year.save()
-        self.learning_unit_year.learning_container_year.save()
-
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
 
 
 def _test_attributes_equal(obj, attribute_values_dict):
