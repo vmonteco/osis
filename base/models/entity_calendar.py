@@ -31,8 +31,8 @@ from base.models.osis_model_admin import OsisModelAdmin
 
 class EntityCalendarAdmin(OsisModelAdmin):
     list_display = ('academic_calendar', 'entity', 'start_date', 'end_date', 'changed')
-    raw_id_fields = ('entity',)
-    list_filter = ('academic_calendar__academic_year', 'academic_calendar__reference',)
+    raw_id_fields = ('entity', )
+    list_filter = ('academic_calendar__academic_year', 'academic_calendar__reference')
 
 
 class EntityCalendar(AbstractCalendar):
