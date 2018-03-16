@@ -43,7 +43,7 @@ from base.business import learning_unit_proposal as proposal_business
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
 from base.models import entity_container_year, entity_version
-from base.models import proposal_folder, proposal_learning_unit
+from base.models import proposal_learning_unit
 from base.models.enums import entity_container_year_link_type, learning_unit_periodicity
 from base.models.enums import organization_type, entity_type, \
     learning_unit_year_subtypes, proposal_type, learning_container_year_types, proposal_state
@@ -64,7 +64,6 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
-from base.tests.factories.proposal_folder import ProposalFolderFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.tutor import TutorFactory
 from base.views.learning_units.proposal.update import edit_learning_unit_proposal, _delete_learning_unit_proposal_of_type_creation
@@ -225,9 +224,7 @@ class TestLearningUnitModificationProposal(TestCase):
         redirected_url = reverse('learning_unit', args=[self.learning_unit_year.id])
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
 
-        folder = proposal_folder.find_by_entity_and_folder_id(self.entity_version.entity, 1)
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
-        self.assertTrue(folder)
         self.assertTrue(a_proposal_learning_unit)
         self.assertEqual(a_proposal_learning_unit.author, self.person)
 
@@ -711,24 +708,6 @@ class TestLearningUnitProposalCancellation(TestCase):
                                                initial_data["learning_container_year"]))
         self.assertTrue(_test_entities_equal(self.learning_unit_year.learning_container_year, initial_data["entities"]))
 
-    def test_removal_of_proposal_and_folder(self):
-        self.client.get(self.url)
-
-        with self.assertRaises(ObjectDoesNotExist):
-            self.learning_unit_proposal.refresh_from_db()
-
-        with self.assertRaises(ObjectDoesNotExist):
-            self.learning_unit_proposal.folder.refresh_from_db()
-
-    def test_when_multiple_proposal_linked_to_folder(self):
-        folder = self.learning_unit_proposal.folder
-        ProposalLearningUnitFactory(folder=folder)
-
-        self.client.get(self.url)
-
-        folder.refresh_from_db()
-        self.assertTrue(folder)
-
     def test_faculty_manager_cannot_cancel_creation_proposal_for_course_full(self):
         self.person.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
 
@@ -817,7 +796,7 @@ def _create_proposal_learning_unit():
                                        type=proposal_type.ProposalType.MODIFICATION.name,
                                        state=proposal_state.ProposalState.FACULTY.name,
                                        initial_data=initial_data,
-                                       folder=ProposalFolderFactory(entity=an_entity))
+                                       entity=an_entity)
 
 
 def _modify_learning_unit_year_data(a_learning_unit_year):
@@ -858,9 +837,10 @@ class TestEditProposal(TestCase):
         self.generated_container = GenerateContainer(start_year, end_year)
         self.generated_container_first_year = self.generated_container.generated_container_years[0]
         self.learning_unit_year = self.generated_container_first_year.learning_unit_year_full
-        self.folder = ProposalFolderFactory(folder_id=1, entity=self.entity)
         self.proposal = ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year,
-                                                    state=ProposalState.FACULTY, folder=self.folder)
+                                                    state=ProposalState.FACULTY,
+                                                    folder_id=1,
+                                                    entity=self.entity)
 
         self.person = PersonFactory()
         self.person_entity = PersonEntityFactory(person=self.person, entity=self.entity)

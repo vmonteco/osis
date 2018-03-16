@@ -26,8 +26,7 @@
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
 from base.models import entity_container_year, campus, entity
 from base.models.enums import proposal_type, entity_container_year_link_type
-from base.models.enums.proposal_type import ProposalType
-from base.models.proposal_learning_unit import find_by_folder, ProposalLearningUnit
+from base.models.proposal_learning_unit import ProposalLearningUnit
 from reference.models import language
 from django.utils.translation import ugettext_lazy as _
 from base import models as mdl_base
@@ -104,10 +103,7 @@ def _reinitialize_entities_before_proposal(learning_container_year, initial_enti
 
 
 def delete_learning_unit_proposal(learning_unit_proposal):
-    proposal_folder = learning_unit_proposal.folder
     learning_unit_proposal.delete()
-    if not find_by_folder(proposal_folder).exists():
-        proposal_folder.delete()
 
 
 def _get_difference_of_proposal(learning_unit_yr_proposal):

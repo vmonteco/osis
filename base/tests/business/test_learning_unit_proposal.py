@@ -53,6 +53,11 @@ class TestLearningUnitProposal(TestCase):
         self.assertIsNone(lu_proposal_business._get_data_dict('key1', {'key2': 'nothing serious'}))
         self.assertEqual(lu_proposal_business._get_data_dict('key1', {'key1': 'nothing serious'}), 'nothing serious')
 
+    def test_get_data_dict(self):
+        data = {'key1': 'thing', 'key2': ''}
+        self.assertEqual(lu_proposal_business._get_rid_of_blank_value(data),
+                         {'key1': 'thing', 'key2': None})
+
 
 class TestLearningUnitProposalCancel(TestCase):
     def setUp(self):
