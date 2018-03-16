@@ -25,13 +25,11 @@
 ##############################################################################
 import json
 import datetime
-from django.test import TestCase, RequestFactory
-from django.core.urlresolvers import reverse
+from django.test import TestCase, RequestFactory, Client
 
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 
-from assistant.views.assistant_form import form_part4_edit
 from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 from assistant.tests.factories.settings import SettingsFactory
 from assistant.models.enums import assistant_mandate_state
@@ -42,6 +40,7 @@ class AssistantFormViewTestCase(TestCase):
 
     def setUp(self):
         self.factory = RequestFactory()
+        self.client = Client()
         self.settings = SettingsFactory()
         today = datetime.date.today()
         self.current_academic_year = AcademicYearFactory(start_date=today,
