@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.forms import ModelForm
+from django.utils.translation import ugettext as _
 
 from base.models.entity_calendar import EntityCalendar
 
@@ -32,3 +33,7 @@ class EntityCalendarEducationalInformationForm(ModelForm):
     class Meta:
         model = EntityCalendar
         fields = ["start_date", "end_date"]
+        labels = {
+            "start_date": _("Educational information opening"),
+            "end_date": _("Educational information ending")
+        }
