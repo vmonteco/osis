@@ -50,7 +50,7 @@ class TestSearch(TestCase):
     def test_str(self):
         expected_str = "{} - {}".format(self.proposal_learning_unit.folder_id,
                                         self.proposal_learning_unit.learning_unit_year)
-        self.assertEqual(self.proposal_learning_unit.__str__(), expected_str)
+        self.assertEqual(str(self.proposal_learning_unit), expected_str)
 
 
 class TestSearchCases(TestCase):
@@ -106,9 +106,7 @@ class TestSearchCases(TestCase):
         self.check_search_result(results)
 
     def test_search_by_proposal_list_learning_container_yr(self):
-        print('test_search_by_proposal_list_learning_container_yr')
-        results = proposal_learning_unit.search(learning_container_year_id=[self.learning_container_yr.id])
-        self.check_search_result(results)
+        self.check_search_result(proposal_learning_unit.search(learning_container_year_id=[self.learning_container_yr.id]))
 
     def check_search_result(self, results):
         self.assertEqual(results.count(), 1)
@@ -119,5 +117,4 @@ class TestSearchCases(TestCase):
         ProposalLearningUnitFactory(entity=entity_2)
 
         entities_result = proposal_learning_unit.find_distinct_folder_entities()
-        self.assertEqual(entities_result.count(), 2)
-        self.assertCountEqual(entities_result, [self.entity_1,entity_2])
+        self.assertCountEqual(entities_result, [self.entity_1, entity_2])
