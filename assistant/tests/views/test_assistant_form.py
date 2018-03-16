@@ -36,6 +36,7 @@ from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 from assistant.tests.factories.settings import SettingsFactory
 from assistant.models.enums import assistant_mandate_state
 
+HTTP_OK = 200
 
 class AssistantFormViewTestCase(TestCase):
 
@@ -52,14 +53,10 @@ class AssistantFormViewTestCase(TestCase):
         LearningUnitYearFactory(academic_year=self.current_academic_year, acronym="LBIR1210")
         LearningUnitYearFactory(academic_year=self.current_academic_year, acronym="LBIR1211")
 
-
     def test_assistant_form_part4_edit_view_basic(self):
         self.client.force_login(self.assistant_mandate.assistant.person.user)
-        request = self.factory.get(reverse('form_part4_edit'))
-        request.user = self.assistant_mandate.assistant.person.user
-        with self.assertTemplateUsed('assistant_form_part4.html'):
-            response = form_part4_edit(request)
-            self.assertEqual(response.status_code, 200)
+        response = self.client.get('/assistants/assistant/form/part4/edit/')
+        self.assertEqual(response.status_code, HTTP_OK)
 
     def test_get_learning_units_year(self):
         self.client.force_login(self.assistant_mandate.assistant.person.user)

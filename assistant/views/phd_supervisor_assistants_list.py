@@ -29,16 +29,17 @@ from django.forms import forms
 from django.views.generic import ListView
 from django.views.generic.edit import FormMixin
 
+from base.models import academic_year, entity_version
+from base.models.entity import find_versions_from_entites
+
 from assistant.business.users_access import user_is_phd_supervisor_and_procedure_is_open
 from assistant.models import assistant_mandate, reviewer
-from base.models import academic_year, entity_version
 
 
 class AssistantsListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMixin):
     context_object_name = 'phd_supervisor_assistants_list'
     template_name = 'phd_supervisor_assistants_list.html'
     form_class = forms.Form
-    is_reviewer = False
 
     def test_func(self):
         return user_is_phd_supervisor_and_procedure_is_open(self.request.user)
@@ -54,26 +55,13 @@ class AssistantsListView(LoginRequiredMixin, UserPassesTestMixin, ListView, Form
     def get_context_data(self, **kwargs):
         context = super(AssistantsListView, self).get_context_data(**kwargs)
         context['year'] = academic_year.current_academic_year().year
-        start_date = academic_year.current_academic_year().start_date
-        context['is_reviewer'] = self.is_reviewer
         context['current_reviewer'] = self.reviewer
-        if self.reviewer:
-            entity = entity_version.get_last_version(self.reviewer.entity)
-        else:
-            entity = None
-        context['entity'] = entity
         if self.reviewer:
             can_delegate = reviewer.can_delegate(reviewer.find_by_person(self.request.user.person))
             context['can_delegate'] = can_delegate
         else:
             context['can_delegate'] = False
         for mandate in context['object_list']:
-            entities = []
-            entities_id = mandate.mandateentity_set.all().order_by('id')
-            for entity in entities_id:
-                current_entityversion = entity_version.get_by_entity_and_date(entity.entity, start_date)[0]
-                if current_entityversion is None:
-                    current_entityversion = entity_version.get_last_version(entity.entity)
-                entities.append(current_entityversion)
-            mandate.entities = entities
+            entities_id = mandate.mandateentity_set.all().order_by('id').values_list('entity', flat=True)
+            mandate.entities = find_versions_from_entites(entities_id, None)
         return context
