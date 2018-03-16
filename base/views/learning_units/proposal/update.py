@@ -154,8 +154,8 @@ def edit_learning_unit_proposal(request, learning_unit_year_id):
 
 
 def _build_proposal_data(proposal):
-    return {"folder_id": proposal.folder.folder_id,
-            "folder_entity": find_latest_version_by_entity(proposal.folder.entity.id,
+    return {"folder_id": proposal.folder_id,
+            "folder_entity": find_latest_version_by_entity(proposal.entity.id,
                                                            datetime.date.today()),
             "type": proposal.type,
             "state": proposal.state}
