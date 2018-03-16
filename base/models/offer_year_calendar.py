@@ -27,6 +27,8 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.utils import formats
 from django.utils.translation import ugettext as _
+
+from base.models.abstracts.abstract_calendar import AbstractCalendar
 from osis_common.utils.datetime import is_in_chronological_order
 from base.signals.publisher import compute_scores_encodings_deadlines
 from base.models.osis_model_admin import OsisModelAdmin
@@ -39,21 +41,14 @@ class OfferYearCalendarAdmin(OsisModelAdmin):
     list_filter = ('academic_calendar__academic_year', 'academic_calendar__reference',)
 
 
-class OfferYearCalendar(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    academic_calendar = models.ForeignKey('AcademicCalendar')
+class OfferYearCalendar(AbstractCalendar):
     offer_year = models.ForeignKey('OfferYear')
-    start_date = models.DateTimeField(blank=True, null=True, db_index=True)
-    end_date = models.DateTimeField(blank=True, null=True, db_index=True)
     education_group_year = models.ForeignKey('EducationGroupYear', blank=True, null=True)
 
     class Meta:
         unique_together = ('academic_calendar', 'education_group_year')
 
     def clean(self):
-        super.clean()
-
         if not hasattr(self, 'academic_calendar'):
             return None
 
