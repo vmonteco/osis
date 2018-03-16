@@ -41,7 +41,7 @@ class ProposalFolder(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     entity = models.ForeignKey('Entity')
-    folder_id = models.IntegerField()
+    folder_id = models.PositiveIntegerField()
 
     class Meta:
         unique_together = ('entity', 'folder_id', )

@@ -36,6 +36,19 @@ from base.models.enums import learning_container_year_types
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums import proposal_state, proposal_type
 from base.models import proposal_folder
+from base.models.proposal_learning_unit import ProposalLearningUnit
+
+
+class ProposalLearningUnitForm(forms.ModelForm):
+    folder_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
+
+    def __init__(self, data, learning_unit, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+        self.learning_unit = learning_unit
+
+    class Meta:
+        model = ProposalLearningUnit
+        fields = '__all__'
 
 
 class LearningUnitProposalModificationForm(LearningUnitYearForm):

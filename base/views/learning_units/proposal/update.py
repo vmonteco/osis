@@ -34,7 +34,8 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from base.business import learning_unit_proposal as business_proposal
-from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
+from base.forms.learning_unit.edition import LearningUnitEndDateForm
+from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, ProposalLearningUnitForm
 from base.models import proposal_learning_unit
 from base.models.entity_version import find_latest_version_by_entity
 from base.models.enums import proposal_state
@@ -42,7 +43,7 @@ from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
 from base.views.common import display_success_messages, display_error_messages
-from base.views.learning_unit import compute_form_initial_data
+from base.views.learning_unit import compute_form_initial_data, get_learning_unit_identification_context
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views.learning_units import perms
 
@@ -63,51 +64,49 @@ def learning_unit_modification_proposal(request, learning_unit_year_id):
         learning_unit=learning_unit_year.learning_unit
     )
 
-    if request.method == 'POST':
-        if form.is_valid():
-            type_proposal = business_proposal.compute_proposal_type(initial_data, request.POST)
-            form.save(learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name)
-            messages.add_message(request, messages.SUCCESS,
-                                 _("success_modification_proposal")
-                                 .format(_(type_proposal), learning_unit_year.acronym))
-            return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
+    if form.is_valid():
+        type_proposal = business_proposal.compute_proposal_type(initial_data, request.POST)
+        form.save(learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name)
+        messages.add_message(request, messages.SUCCESS,
+                             _("success_modification_proposal")
+                             .format(_(type_proposal), learning_unit_year.acronym))
+        return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
-    return render(request, 'learning_unit/proposal/update.html', {
+    return render(request, 'learning_unit/proposal/create_modification_proposal.html', {
         'learning_unit_year': learning_unit_year,
         'person': user_person,
         'form': form,
         'experimental_phase': True})
+
 
 @login_required
 @perms.can_create_modification_proposal
 @permission_required('base.can_propose_learningunit', raise_exception=True)
 def learning_unit_suppression_proposal(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
+    learning_unit = learning_unit_year.learning_unit
     user_person = get_object_or_404(Person, user=request.user)
+    context = get_learning_unit_identification_context(learning_unit_year_id, user_person)
     initial_data = compute_form_initial_data(learning_unit_year)
-    proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
 
-    form = LearningUnitProposalModificationForm(
-        request.POST or None,
-        initial=initial_data,
-        instance=proposal,
-        learning_unit=learning_unit_year.learning_unit
-    )
+    form_end_date = LearningUnitEndDateForm(request.POST or None, learning_unit=learning_unit)
+    form_proposal = ProposalLearningUnitForm(request.POST or None, learning_unit=learning_unit)
 
-    if request.method == 'POST':
-        if form.is_valid():
-            type_proposal = business_proposal.compute_proposal_type(initial_data, request.POST)
-            form.save(learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name)
-            messages.add_message(request, messages.SUCCESS,
-                                 _("success_modification_proposal")
-                                 .format(_(type_proposal), learning_unit_year.acronym))
-            return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
+    if form_end_date.is_valid() and form_proposal.is_valid():
+        type_proposal = business_proposal.compute_proposal_type(initial_data, request.POST)
+        form_proposal.save(learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name)
+        messages.add_message(request, messages.SUCCESS,
+                             _("success_modification_proposal")
+                             .format(_(type_proposal), learning_unit_year.acronym))
+        return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
-    return render(request, 'learning_unit/proposal/update.html', {
-        'learning_unit_year': learning_unit_year,
-        'person': user_person,
-        'form': form,
-        'experimental_phase': True})
+    context.update({
+            'learning_unit_year': learning_unit_year,
+            'person': user_person,
+            'form_end_date': form_end_date,
+            'form_proposal': form_proposal,
+            'experimental_phase': True})
+    return render(request, 'learning_unit/proposal/create_suppression_proposal.html', context)
 
 
 @login_required
