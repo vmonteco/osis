@@ -70,10 +70,6 @@ class OfferYearCalendar(AbstractCalendar):
         super(OfferYearCalendar, self).save(*args, **kwargs)
         compute_scores_encodings_deadlines.send(sender=self.__class__, offer_year_calendar=self)
 
-    def end_start_dates_validation(self):
-        if self._dates_are_set() and not is_in_chronological_order(self.start_date, self.end_date):
-            raise AttributeError(_('end_start_date_error'))
-
     def _dates_are_set(self):
         return bool(self.start_date and self.end_date)
 
