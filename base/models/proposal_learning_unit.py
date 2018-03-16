@@ -104,9 +104,10 @@ def search(academic_year_id=None, acronym=None, entity_folder_id=None, folder_id
             queryset = queryset.filter(learning_unit_year__learning_container_year=learning_container_year_id)
 
     if tutor:
-        learning_units_list = learning_unit_year.search(tutor=tutor)
         queryset = queryset.\
-            filter(learning_unit_year__in=learning_units_list)
+            filter(Q(learning_unit_year__learningunitcomponent__learning_component_year__attributionchargenew__attribution__tutor__person__first_name__icontains=tutor) |
+                   Q(learning_unit_year__learningunitcomponent__learning_component_year__attributionchargenew__attribution__tutor__person__last_name__icontains=tutor))\
+            .distinct()
 
     return queryset.select_related('learning_unit_year')
 

@@ -241,8 +241,9 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
 
     if tutor:
         queryset = queryset.\
-            filter(Q(attribution__tutor__person__first_name__icontains=tutor) |
-                   Q(attribution__tutor__person__last_name__icontains=tutor))
+            filter(Q(learningunitcomponent__learning_component_year__attributionchargenew__attribution__tutor__person__first_name__icontains=tutor) |
+                   Q(learningunitcomponent__learning_component_year__attributionchargenew__attribution__tutor__person__last_name__icontains=tutor)).distinct()
+
 
     return queryset.select_related('learning_container_year', 'academic_year')
 

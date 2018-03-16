@@ -39,6 +39,7 @@ from django.test import TestCase, RequestFactory
 from django.utils.translation import ugettext_lazy as _
 
 from attribution.tests.factories.attribution import AttributionFactory
+from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
 from attribution.tests.factories.attribution_new import AttributionNewFactory
 from base.business import learning_unit_proposal as proposal_business
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, LearningUnitProposalUpdateForm
@@ -59,6 +60,7 @@ from base.tests.factories.entity_container_year import EntityContainerYearFactor
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
+from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.tests.factories.organization import OrganizationFactory
@@ -403,8 +405,10 @@ class TestLearningUnitProposalSearch(TestCase):
     def test_learning_units_proposal_search_by_tutor(self):
         proposal = _create_proposal_learning_unit()
         tutor = TutorFactory(person=self.person)
-        AttributionNewFactory(tutor=tutor,
-                              learning_container_year=proposal.learning_unit_year.learning_container_year)
+        attribution = AttributionNewFactory(tutor=tutor)
+        learning_unit_component = LearningUnitComponentFactory(learning_unit_year=proposal.learning_unit_year)
+        AttributionChargeNewFactory(attribution= attribution,
+                                    learning_component_year=learning_unit_component.learning_component_year)
         url = reverse(learning_units_proposal_search)
         response = self.client.get(url, data={'tutor': self.person.first_name})
         formset = response.context['proposals']
