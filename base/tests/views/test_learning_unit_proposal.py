@@ -42,7 +42,7 @@ from attribution.tests.factories.attribution import AttributionFactory
 from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
 from attribution.tests.factories.attribution_new import AttributionNewFactory
 from base.business import learning_unit_proposal as proposal_business
-from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, LearningUnitProposalUpdateForm
+from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
 from base.models import entity_container_year, entity_version
 from base.models import proposal_folder, proposal_learning_unit
@@ -50,6 +50,7 @@ from base.models.enums import entity_container_year_link_type, learning_unit_per
 from base.models.enums import organization_type, entity_type, \
     learning_unit_year_subtypes, proposal_type, learning_container_year_types, proposal_state
 from base.models.enums.proposal_state import ProposalState
+from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories import academic_year as academic_year_factory, campus as campus_factory, \
     organization as organization_factory
 from base.tests.factories.academic_year import AcademicYearFakerFactory, create_current_academic_year, get_current_year
@@ -69,9 +70,13 @@ from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_folder import ProposalFolderFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.tutor import TutorFactory
-from base.views.learning_unit_proposal import edit_learning_unit_proposal
+from base.views.learning_units.search import _cancel_proposals
+from base.views.learning_units.proposal.update import edit_learning_unit_proposal
 from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search
 from reference.tests.factories.language import LanguageFactory
+from base.tests.factories.user import UserFactory
+from django.contrib.auth.models import Group
+from base.models.person import CENTRAL_MANAGER_GROUP, FACULTY_MANAGER_GROUP
 
 LABEL_VALUE_BEFORE_PROPROSAL = _('value_before_proposal')
 
@@ -133,6 +138,8 @@ class TestLearningUnitModificationProposal(TestCase):
             "acronym": self.learning_unit_year.acronym[1:],
             "common_title": self.learning_unit_year.learning_container_year.common_title,
             "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
+            "specific_title": self.learning_unit_year.specific_title,
+            "specific_title_english": self.learning_unit_year.specific_title_english,
             "container_type": self.learning_unit_year.learning_container_year.container_type,
             "internship_subtype": "",
             "credits": self.learning_unit_year.credits,
@@ -148,6 +155,7 @@ class TestLearningUnitModificationProposal(TestCase):
             "additional_requirement_entity_2": self.entity_version.id,
             "folder_entity": self.entity_version.id,
             "folder_id": "1",
+            "state": proposal_state.ProposalState.FACULTY.name
         }
 
     def test_user_not_logged(self):
@@ -191,7 +199,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(form_initial['academic_year'], self.learning_unit_year.academic_year.id)
         self.assertEqual(form_initial['first_letter'], self.learning_unit_year.acronym[0])
         self.assertEqual(form_initial['acronym'], self.learning_unit_year.acronym[1:])
-        self.assertEqual(form_initial['common_title'], self.learning_unit_year.learning_container_year.common_title)
+        self.assertEqual(form_initial['specific_title'], self.learning_unit_year.specific_title)
         self.assertEqual(form_initial['container_type'], self.learning_unit_year.
                          learning_container_year.container_type)
         self.assertEqual(form_initial['subtype'], self.learning_unit_year.subtype)
@@ -235,13 +243,12 @@ class TestLearningUnitModificationProposal(TestCase):
     def test_transformation_proposal_request(self):
         self.form_data["acronym"] = "OSIS1452"
         self.client.post(self.url, data=self.form_data)
-
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
         self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.TRANSFORMATION.name)
 
     def test_modification_proposal_request(self):
-        self.form_data["common_title"] = "New title"
-        self.form_data["common_title_english"] = "New english title"
+        self.form_data["specific_title"] = "New title"
+        self.form_data["specific_title_english"] = "New english title"
         self.client.post(self.url, data=self.form_data)
 
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
@@ -249,8 +256,8 @@ class TestLearningUnitModificationProposal(TestCase):
 
     def test_transformation_and_modification_proposal_request(self):
         self.form_data["acronym"] = "OSIS1452"
-        self.form_data["common_title"] = "New title"
-        self.form_data["common_title_english"] = "New english title"
+        self.form_data["specific_title"] = "New title"
+        self.form_data["specific_title_english"] = "New english title"
         self.client.post(self.url, data=self.form_data)
 
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
@@ -389,7 +396,6 @@ class TestLearningUnitProposalSearch(TestCase):
         self.client.force_login(self.person.user)
         self.proposals = [_create_proposal_learning_unit() for _ in range(3)]
 
-
     def test_learning_units_proposal_search(self):
         url = reverse(learning_units_proposal_search)
         response = self.client.get(url, data={'acronym': self.proposals[0].learning_unit_year.acronym})
@@ -400,7 +406,6 @@ class TestLearningUnitProposalSearch(TestCase):
 
         self.assertIsInstance(response.context['form'], LearningUnitProposalForm)
         self.assertEqual(response.context['search_type'], PROPOSAL_SEARCH)
-
 
     def test_learning_units_proposal_search_by_tutor(self):
         proposal = _create_proposal_learning_unit()
@@ -413,7 +418,6 @@ class TestLearningUnitProposalSearch(TestCase):
         response = self.client.get(url, data={'tutor': self.person.first_name})
         formset = response.context['proposals']
         self.assertEqual(len(formset), 1)
-
 
     @mock.patch('base.views.layout.render')
     def test_learning_units_proposal_search_post(self, mock_render):
@@ -432,7 +436,7 @@ class TestLearningUnitProposalSearch(TestCase):
             'form-0-state': ['SUSPENDED'],
             'form-1-state': ['SUSPENDED'],
             'form-2-state': ['SUSPENDED']
-         }
+        }
         request = request_factory.post(url, data=data)
 
         request.user = self.person.user
@@ -472,7 +476,7 @@ class TestLearningUnitProposalSearch(TestCase):
             'form-0-state': ['NOT_VALID'],
             'form-1-state': ['SUSPENDED'],
             'form-2-state': ['SUSPENDED']
-         }
+        }
         request = request_factory.post(url, data=data)
 
         request.user = self.person.user
@@ -510,7 +514,7 @@ class TestLearningUnitProposalSearch(TestCase):
             'form-0-state': ['SUSPENDED'],
             'form-1-state': ['SUSPENDED'],
             'form-2-state': ['SUSPENDED']
-         }
+        }
         request = request_factory.post(url, data=data)
         request.user = self.person.user
         setattr(request, 'session', 'session')
@@ -532,6 +536,95 @@ class TestLearningUnitProposalSearch(TestCase):
             new_proposal_state = proposal.state
             self.assertEqual(new_proposal_state, old_proposal_state)
 
+    @mock.patch('base.views.layout.render')
+    def test_back_to_initial_on_2_proposals(self, mock_render):
+        self._update_proposals_type(prop_type=proposal_type.ProposalType.SUPPRESSION.name)
+        self.get_request(self.get_data(action='back_to_initial'))
+        self.assertTrue(mock_render.called)
+        self.assertEqual(ProposalLearningUnit.objects.count(), 1)
+
+    @mock.patch('base.views.layout.render')
+    def test_force_state_does_not_delete_proposals(self, mock_render):
+        self._update_proposals_type(prop_type=proposal_type.ProposalType.SUPPRESSION.name)
+        self.get_request(self.get_data(action='force_state'))
+        self.assertTrue(mock_render.called)
+        self.assertEqual(ProposalLearningUnit.objects.count(), 3)
+
+    def _update_proposals_type(self, prop_type):
+        for proposal in self.proposals:
+            proposal.type = prop_type
+            proposal.save()
+
+    @mock.patch('base.views.layout.render')
+    def test_cancel_list_of_proposal(self, mock_render):
+        self.get_request(self.get_data(action='force_state'))
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        formset = context['proposals']
+        setattr(request, '_messages', FallbackStorage(request))
+        self.assertEqual(_cancel_proposals(formset, None, request), formset)
+
+    @mock.patch('base.views.layout.render')
+    def test_get_checked_proposals(self, mock_render):
+        self.get_request(self.get_data())
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        formset = context['proposals']
+        setattr(request, '_messages', FallbackStorage(request))
+
+        proposals_candidate_to_cancellation = formset.get_checked_proposals()
+        self.assertEqual(len(proposals_candidate_to_cancellation), 2)
+
+    @mock.patch('base.views.layout.render')
+    def test_get_no_checked_proposals(self, mock_render):
+        self.get_request(self.get_data_not_checked())
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        formset = context['proposals']
+        setattr(request, '_messages', FallbackStorage(request))
+
+        proposals_candidate_to_cancellation = formset.get_checked_proposals()
+        self.assertEqual(len(proposals_candidate_to_cancellation), 0)
+
+    def get_data(self, action=None):
+        data = {
+            'form-TOTAL_FORMS': ['3'],
+            'form-INITIAL_FORMS': ['0'],
+            'form-MIN_NUM_FORMS': ['0'],
+            'form-MAX_NUM_FORMS': ['1000'],
+            'form-0-check': ['on'],
+            'form-2-check': ['on'],
+            'form-0-state': ['SUSPENDED'],
+            'form-1-state': ['SUSPENDED'],
+            'form-2-state': ['SUSPENDED'],
+            'action': action,
+        }
+        return data
+
+    def get_data_not_checked(self, action=None):
+        data = {
+            'form-TOTAL_FORMS': ['3'],
+            'form-INITIAL_FORMS': ['0'],
+            'form-MIN_NUM_FORMS': ['0'],
+            'form-MAX_NUM_FORMS': ['1000'],
+            'form-0-state': ['SUSPENDED'],
+            'form-1-state': ['SUSPENDED'],
+            'form-2-state': ['SUSPENDED'],
+            'action': action,
+        }
+        return data
+
+    def get_request(self, data):
+        url = reverse(learning_units_proposal_search) + '?acronym=' + self.proposals[0].learning_unit_year.acronym
+        request_factory = RequestFactory()
+        request = request_factory.post(url, data=data)
+        request.user = self.person.user
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+        learning_units_proposal_search(request)
+        return request
+
 
 class TestLearningUnitProposalCancellation(TestCase):
     def setUp(self):
@@ -539,6 +632,7 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.person = PersonFactory()
         self.permission = Permission.objects.get(codename="can_propose_learningunit")
         self.person.user.user_permissions.add(self.permission)
+        self.person.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
 
         self.learning_unit_proposal = _create_proposal_learning_unit()
         self.learning_unit_year = self.learning_unit_proposal.learning_unit_year
@@ -588,14 +682,6 @@ class TestLearningUnitProposalCancellation(TestCase):
 
     def test_with_proposal_of_state_different_than_faculty(self):
         self.learning_unit_proposal.state = proposal_state.ProposalState.CENTRAL.name
-        self.learning_unit_proposal.save()
-        response = self.client.get(self.url)
-
-        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
-        self.assertTemplateUsed(response, "access_denied.html")
-
-    def test_with_proposal_of_type_different_than_modification_or_transformation(self):
-        self.learning_unit_proposal.type = proposal_type.ProposalType.CREATION.name
         self.learning_unit_proposal.save()
         response = self.client.get(self.url)
 
@@ -656,13 +742,9 @@ def _test_attributes_equal(obj, attribute_values_dict):
         if key == "credits":
             if float(getattr(obj, key)) != float(value):
                 return False
-            else:
-                continue
         elif key in ["campus", "language"]:
             if getattr(obj, key).id != value:
                 return False
-            else:
-                continue
         elif getattr(obj, key) != value:
             return False
     return True
@@ -678,8 +760,8 @@ def _test_entities_equal(learning_container_year, entities_values_dict):
             learning_container_year, type_entity)
         if entities_values_dict[type_entity] is None and linked_entity_container is not None:
             return False
-        if entities_values_dict[type_entity] is not None and \
-                        linked_entity_container.entity.id != entities_values_dict[type_entity]:
+        if entities_values_dict[type_entity] is not None \
+                and linked_entity_container.entity.id != entities_values_dict[type_entity]:
             return False
     return True
 
@@ -800,7 +882,7 @@ class TestEditProposal(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_unit/proposal/edition.html')
-        self.assertIsInstance(context['form'], LearningUnitProposalUpdateForm)
+        self.assertIsInstance(context['form'], LearningUnitProposalModificationForm)
 
     def get_valid_data(self):
         return {
@@ -863,7 +945,7 @@ class TestEditProposal(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_unit/proposal/edition.html')
-        self.assertIsInstance(context['form'], LearningUnitProposalUpdateForm)
+        self.assertIsInstance(context['form'], LearningUnitProposalModificationForm)
 
         form = context['form']
         self.assertEqual(len(form.errors), 1)
@@ -1062,6 +1144,10 @@ class TestLearningUnitProposalDisplay(TestCase):
                          _get_entity_previous_value(wrong_id,
                                                     entity_container_year_link_type.REQUIREMENT_ENTITY),
                          {entity_container_year_link_type.REQUIREMENT_ENTITY: _('entity_not_found')})
+        self.assertEqual(proposal_business.
+                         _get_entity_previous_value(None,
+                                                    entity_container_year_link_type.REQUIREMENT_ENTITY),
+                         {entity_container_year_link_type.REQUIREMENT_ENTITY: _('entity_not_found')})
 
     def test_get_entity_previous_value(self):
         requirement_entity = self.generator_learning_container.generated_container_years[0] \
@@ -1083,3 +1169,31 @@ class TestLearningUnitProposalDisplay(TestCase):
         other_entity = self.generator_learning_container.generated_container_years[0] \
             .allocation_entity_container_year.entity
         return entity_version.get_last_version(other_entity)
+
+
+class TestCreationProposalCancel(TestCase):
+
+    def setUp(self):
+        a_user_central = UserFactory()
+        permission = Permission.objects.get(codename='can_propose_learningunit')
+        a_user_central.user_permissions.add(permission)
+        a_user_central.user_permissions.add(Permission.objects.get(codename='can_access_learningunit'))
+        self.a_person_central_manager = PersonFactory(user=a_user_central)
+        self.a_person_central_manager.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
+        self.client.force_login(self.a_person_central_manager.user)
+
+    @mock.patch('base.views.learning_units.perms.business_perms.is_eligible_for_cancel_of_proposal', side_effect=lambda *args: True)
+    @mock.patch('base.utils.send_mail.send_mail_after_the_learning_unit_proposal_cancellation')
+    def test_cancel_proposal_of_learning_unit(self, mock_send_mail, mock_perms):
+        a_proposal = _create_proposal_learning_unit()
+        url = reverse('learning_unit_cancel_proposal', args=[a_proposal.learning_unit_year.id])
+
+        response = self.client.post(url, data={})
+
+        redirected_url = reverse('learning_unit', args=[a_proposal.learning_unit_year.id])
+        msgs = [str(message) for message in get_messages(response.wsgi_request)]
+
+        self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
+        self.assertEqual(len(msgs), 1) # Only 1 proposal deleted
+        self.assertTrue(mock_send_mail.called)
+        self.assertTrue(mock_perms.called)

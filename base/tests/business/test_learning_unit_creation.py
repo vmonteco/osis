@@ -176,7 +176,8 @@ class LearningUnitCreationTest(TestCase):
                 'credits': Decimal('15'),
                 'container_type': container_type,
                 'session': '',
-                'additional_requirement_entity_1': None
+                'additional_requirement_entity_1': None,
+                'specific_title': "Title"
             },
             'new_learning_unit': a_learning_unit,
             'requirement_entity_containers': [requirement_entity_container_yr],

@@ -27,14 +27,14 @@ from django.conf import settings
 from django.conf.urls import url, include
 from django.conf.urls.static import static
 
-import base.views.learning_unit_deletion
-import base.views.learning_units.edition
+import base.views.learning_units.delete
 import base.views.learning_units.search
+import base.views.learning_units.update
 from attribution.views import attribution, tutor_application
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
-    my_osis, entity, student, education_group, learning_unit_proposal
-from base.views.learning_units import edition
-from base.views.learning_units.proposal import creation
+    my_osis, entity, student, education_group
+from base.views.learning_units.proposal import create, update
+from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -95,9 +95,9 @@ urlpatterns = [
                 name="learning_unit_create"),
             url(r'^learning_unit_year_add/$', learning_unit.learning_unit_year_add, name='learning_unit_year_add'),
             url(r'^proposal/academic_year_id=(?P<academic_year>[0-9]+)$',
-                creation.get_proposal_learning_unit_creation_form,
+                create.get_proposal_learning_unit_creation_form,
                 name="proposal_learning_unit_creation_form"),
-            url(r'^proposal_learning_unit_add/$', creation.proposal_learning_unit_add,
+            url(r'^proposal_learning_unit_add/$', create.proposal_learning_unit_add,
                 name='proposal_learning_unit_add'),
         ])),
         url(r'^(?P<learning_unit_year_id>[0-9]+)/', include([
@@ -109,24 +109,24 @@ urlpatterns = [
             url(r'^attributions/$', learning_unit.learning_unit_attributions,
                 name="learning_unit_attributions"),
             url(r'^proposal/', include([
-                url(r'^modification/$', learning_unit_proposal.propose_modification_of_learning_unit,
+                url(r'^modification/$', update.propose_modification_of_learning_unit,
                     name="learning_unit_modification_proposal"),
-                url(r'^edit/$', learning_unit_proposal.edit_learning_unit_proposal, name="edit_proposal"),
-                url(r'^cancel/$', learning_unit_proposal.cancel_proposal_of_learning_unit,
+                url(r'^edit/$', update.edit_learning_unit_proposal, name="edit_proposal"),
+                url(r'^cancel/$', update.cancel_proposal_of_learning_unit,
                     name="learning_unit_cancel_proposal"),
             ])),
-            url(r'^edit/$', edition.learning_unit_edition_end_date, name="learning_unit_edition"),
-            url(r'^modify/$', edition.modify_learning_unit, name="edit_learning_unit"),
+            url(r'^update_end_date/$', learning_unit_edition_end_date, name="learning_unit_edition"),
+            url(r'^update/$', update_learning_unit, name="edit_learning_unit"),
             url(r'^specifications/$', learning_unit.learning_unit_specifications, name="learning_unit_specifications"),
             url(r'^specifications/edit/$', learning_unit.learning_unit_specifications_edit,
                 name="learning_unit_specifications_edit"),
             url(r'^component/edit/$', learning_unit.learning_unit_component_edit, name="learning_unit_component_edit"),
             url(r'^class/edit/$', learning_unit.learning_class_year_edit, name="learning_class_year_edit"),
-            url(r'^volumes/', base.views.learning_units.edition.learning_unit_volumes_management,
+            url(r'^volumes/', base.views.learning_units.update.learning_unit_volumes_management,
                 name="learning_unit_volumes_management"),
-            url(r'^delete/$', base.views.learning_unit_deletion.delete_from_given_learning_unit_year,
+            url(r'^delete/$', base.views.learning_units.delete.delete_from_given_learning_unit_year,
                 name="learning_unit_delete"),
-            url(r'^delete_full/$', base.views.learning_unit_deletion.delete_all_learning_units_year,
+            url(r'^delete_full/$', base.views.learning_units.delete.delete_all_learning_units_year,
                 name="learning_unit_delete_all"),
             url(r'^partim/', include([
                 url(r'^new/$', learning_unit.get_partim_creation_form, name="learning_unit_create_partim"),

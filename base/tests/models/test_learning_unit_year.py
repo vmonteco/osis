@@ -139,32 +139,6 @@ class LearningUnitYearTest(TestCase):
                                              subtype=learning_unit_year_subtypes.FULL)
         self.assertIsNone(luy_parent.parent)
 
-    def test_complete_title_concatenation_of_two_titles(self):
-        a_common_title = "Titre commun"
-        a_specific_title = "Titre spécifique"
-        lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_year,
-                                                          common_title=a_common_title)
-        luy = LearningUnitYearFactory(academic_year=self.academic_year,
-                                      specific_title=a_specific_title,
-                                      learning_container_year=lunit_container_yr)
-        self.assertEqual(luy.complete_title, "{} {}".format(a_common_title, a_specific_title))
-
-    def test_complete_title_only_common_title(self):
-        a_common_title = "Titre commun"
-
-        lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_year,
-                                                          common_title=a_common_title)
-        luy = LearningUnitYearFactory(academic_year=self.academic_year,
-                                      specific_title=None,
-                                      learning_container_year=lunit_container_yr)
-        self.assertEqual(luy.complete_title, "{}".format(a_common_title))
-
-    def test_complete_title_no_title(self):
-        luy = LearningUnitYearFactory(academic_year=self.academic_year,
-                                      specific_title=None,
-                                      learning_container_year=None)
-        self.assertIsNone(luy.complete_title)
-
     def test_search_by_title(self):
         common_part = "commun"
         a_common_title = "Titre {}".format(common_part)
@@ -196,11 +170,31 @@ class LearningUnitYearTest(TestCase):
         max_credits = find_max_credits_of_related_partims(self.learning_unit_year)
         self.assertEqual(max_credits, None)
 
+    def test_ccomplete_title_when_no_learning_container_year(self):
+        specific_title = 'part 1: Vertebrate'
+
+        luy = LearningUnitYearFactory(specific_title=specific_title, learning_container_year=None)
+        self.assertEqual(luy.complete_title, specific_title)
+
+    def test_complete_title_property_case_common_title_is_empty(self):
+        specific_title = 'part 1: Vertebrate'
+
+        luy = LearningUnitYearFactory(specific_title=specific_title, learning_container_year__common_title="")
+        self.assertEqual(luy.complete_title, specific_title)
+
+        luy = LearningUnitYearFactory(specific_title=specific_title, learning_container_year__common_title=None)
+        self.assertEqual(luy.complete_title, specific_title)
+
+    def test_complete_title_property_case_common_and_specific_title_are_set(self):
+        specific_title = 'part 1: Vertebrate'
+        common_title = 'Zoology'
+
+        luy = LearningUnitYearFactory(specific_title=specific_title, learning_container_year__common_title=common_title)
+        self.assertEqual(luy.complete_title, '{} {}'.format(common_title, specific_title))
 
     def test_common_title_property(self):
         self.assertEqual(self.learning_unit_year.container_common_title,
                          self.learning_unit_year.learning_container_year.common_title)
-
 
     def test_common_title_property_no_container(self):
         self.learning_unit_year.learning_container_year = None

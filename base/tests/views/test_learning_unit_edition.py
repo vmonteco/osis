@@ -52,7 +52,7 @@ from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.user import UserFactory, SuperUserFactory
 from base.tests.forms.test_edition_form import get_valid_formset_data
-from base.views.learning_units.edition import learning_unit_edition_end_date, learning_unit_volumes_management
+from base.views.learning_units.update import learning_unit_edition_end_date, learning_unit_volumes_management
 
 
 class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
@@ -82,7 +82,7 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         self.a_superperson = PersonFactory(user=self.a_superuser)
 
     def test_view_learning_unit_edition_permission_denied(self):
-        from base.views.learning_units.edition import learning_unit_edition_end_date
+        from base.views.learning_units.update import learning_unit_edition_end_date
 
         response = self.client.get(reverse(learning_unit_edition_end_date, args=[self.learning_unit_year.id]))
         self.assertEqual(response.status_code, 403)
@@ -286,13 +286,12 @@ class TestEditLearningUnit(TestCase):
         }
         self.assertDictEqual(initial_data, expected_initial)
 
-    @mock.patch("base.views.learning_units.edition.update_learning_unit_year_with_report", side_effect=None)
-    @mock.patch("base.views.learning_units.edition.update_learning_unit_year_entities_with_report", side_effect=None)
-    def test_valid_post_request(self, mock_update_learning_unit_year, mock_update_entities):
+    def test_valid_post_request(self):
+        credits = 18
         form_data = {
             "acronym": self.learning_unit_year.acronym[1:],
-            "credits": str(self.learning_unit_year.credits + 1),
-            "common_title": self.learning_unit_year.learning_container_year.common_title,
+            "credits": str(credits),
+            "specific_title": self.learning_unit_year.specific_title,
             "first_letter": self.learning_unit_year.acronym[0],
             "periodicity": learning_unit_periodicity.ANNUAL,
             "campus": str(self.learning_unit_year.learning_container_year.campus.id),
@@ -302,11 +301,11 @@ class TestEditLearningUnit(TestCase):
         }
         response = self.client.post(self.url, data=form_data)
 
-        self.assertTrue(mock_update_learning_unit_year.called)
-        self.assertTrue(mock_update_entities.called)
-
         expected_redirection = reverse("learning_unit", args=[self.learning_unit_year.id])
         self.assertRedirects(response, expected_redirection)
+
+        self.learning_unit_year.refresh_from_db()
+        self.assertEqual(self.learning_unit_year.credits, credits)
 
 
 class TestLearningUnitVolumesManagement(TestCase):

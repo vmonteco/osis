@@ -85,8 +85,10 @@ class TestSave(TestCase):
             "academic_year": self.learning_unit_year.academic_year.id,
             "first_letter": "L",
             "acronym": "OSIS1245",
-            "common_title": "New title",
-            "common_title_english": "New title english",
+            "common_title": "New common title",
+            "common_title_english": "New common title english",
+            "specific_title": "New title",
+            "specific_title_english": "New title english",
             "container_type": self.learning_unit_year.learning_container_year.container_type,
             "internship_subtype": "",
             "credits": "4",
@@ -99,6 +101,7 @@ class TestSave(TestCase):
             "allocation_entity": self.entity_version.id,
             "folder_entity": self.entity_version.id,
             "folder_id": "1",
+            "state": proposal_state.ProposalState.CENTRAL.name
         }
 
     def test_invalid_form(self):
@@ -125,6 +128,8 @@ class TestSave(TestCase):
         self.assertFalse(self.learning_unit_year.status)
         self.assertEqual(self.learning_unit_year.credits, Decimal(self.form_data['credits']))
         self.assertEqual(self.learning_unit_year.quadrimester, self.form_data['quadrimester'])
+        self.assertEqual(self.learning_unit_year.specific_title, self.form_data["specific_title"])
+        self.assertEqual(self.learning_unit_year.specific_title_english, self.form_data["specific_title_english"])
 
     def _assert_acronym_has_changed_in_proposal(self):
         self.assertEqual(self.learning_unit_year.acronym,
