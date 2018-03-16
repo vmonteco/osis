@@ -67,8 +67,9 @@ from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_folder import ProposalFolderFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.tutor import TutorFactory
-from base.views.learning_units.proposal.update import edit_learning_unit_proposal, _delete_learning_unit_proposal_of_type_creation
-from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search, _cancel_list_of_proposal
+from base.views.learning_units.search import _cancel_proposals
+from base.views.learning_units.proposal.update import edit_learning_unit_proposal
+from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search
 from reference.tests.factories.language import LanguageFactory
 from base.tests.factories.user import UserFactory
 from django.contrib.auth.models import Group
@@ -557,7 +558,7 @@ class TestLearningUnitProposalSearch(TestCase):
         request, template, context = mock_render.call_args[0]
         formset = context['proposals']
         setattr(request, '_messages', FallbackStorage(request))
-        self.assertEqual(_cancel_list_of_proposal(formset, None, request), formset)
+        self.assertEqual(_cancel_proposals(formset, None, request), formset)
 
     @mock.patch('base.views.layout.render')
     def test_get_checked_proposals(self, mock_render):
@@ -1181,43 +1182,25 @@ class TestCreationProposalCancel(TestCase):
 
     def setUp(self):
         a_user_central = UserFactory()
-        permission = Permission.objects.get(codename='can_edit_learning_unit_proposal')
+        permission = Permission.objects.get(codename='can_propose_learningunit')
         a_user_central.user_permissions.add(permission)
+        a_user_central.user_permissions.add(Permission.objects.get(codename='can_access_learningunit'))
         self.a_person_central_manager = PersonFactory(user=a_user_central)
-
         self.a_person_central_manager.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
-
-        a_user_fac = UserFactory()
-        permission = Permission.objects.get(codename='can_edit_learning_unit_proposal')
-        a_user_fac.user_permissions.add(permission)
-        self.a_person_fac = PersonFactory(user=a_user_fac)
-
-        self.a_person_fac.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
-
-        OrganizationFactory(type=organization_type.MAIN)
-        self.current_academic_year = create_current_academic_year()
-        self.learning_container_year = LearningContainerYearFactory(
-            academic_year=self.current_academic_year,
-            container_type=learning_container_year_types.COURSE
-        )
-
         self.client.force_login(self.a_person_central_manager.user)
 
-    @mock.patch('base.views.layout.render')
-    def test_cancel_creation_proposal(self, mock_render):
-        luy = LearningUnitYearFakerFactory(acronym="LOSIS1212",
-                                           academic_year=self.current_academic_year,
-                                           learning_container_year=self.learning_container_year)
-        a_proposal = ProposalLearningUnitFactory(learning_unit_year=luy)
-        url = reverse('learning_units_proposal')
+    @mock.patch('base.views.learning_units.perms.business_perms.is_eligible_for_cancel_of_proposal', side_effect=lambda *args: True)
+    @mock.patch('base.utils.send_mail.send_mail_after_the_learning_unit_proposal_cancellation')
+    def test_cancel_proposal_of_learning_unit(self, mock_send_mail, mock_perms):
+        a_proposal = _create_proposal_learning_unit()
+        url = reverse('learning_unit_cancel_proposal', args=[a_proposal.learning_unit_year.id])
 
-        request_factory = RequestFactory()
-        request = request_factory.post(url)
-        request.user = self.a_person_central_manager.user
+        response = self.client.post(url, data={})
 
-        setattr(request, 'session', 'session')
-        msg = FallbackStorage(request)
-        setattr(request, '_messages', msg)
-        _delete_learning_unit_proposal_of_type_creation(a_proposal, request)
-        messages = [str(message) for message in msg]
-        self.assertIn(_("success_cancel_proposal").format(luy.acronym), list(messages))
+        redirected_url = reverse('learning_unit', args=[a_proposal.learning_unit_year.id])
+        msgs = [str(message) for message in get_messages(response.wsgi_request)]
+
+        self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
+        self.assertEqual(len(msgs), 1) # Only 1 proposal deleted
+        self.assertTrue(mock_send_mail.called)
+        self.assertTrue(mock_perms.called)
