@@ -23,17 +23,19 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django import forms
 from django.utils.translation import ugettext as _
 
 from base.forms import bootstrap
+from base.forms.utils.datefield import DatePickerInput, DATE_FORMAT
 from base.models.entity_calendar import EntityCalendar
 
 
 class EntityCalendarEducationalInformationForm(bootstrap.BootstrapModelForm):
+    start_date = forms.DateTimeField(widget=DatePickerInput(format=DATE_FORMAT), input_formats=[DATE_FORMAT, ],
+                                     label=_("Educational information opening"))
+    end_date = forms.DateTimeField(widget=DatePickerInput(format=DATE_FORMAT), input_formats=[DATE_FORMAT, ],
+                                     label=_("Educational information ending"))
     class Meta:
         model = EntityCalendar
         fields = ["start_date", "end_date"]
-        labels = {
-            "start_date": _("Educational information opening"),
-            "end_date": _("Educational information ending")
-        }
