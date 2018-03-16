@@ -24,10 +24,9 @@
 #
 ##############################################################################
 import datetime
-
+from unittest.mock import patch
+from base.tests.factories.person import PersonFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
-from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.business import learning_unit_proposal as lu_proposal_business
 from base import models as mdl_base
 
@@ -84,19 +83,35 @@ class TestLearningUnitProposalCancel(TestCase):
         self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL, start_date=today,
                                                    end_date=today.replace(year=today.year + 1))
 
-    def test_cancel_proposal_of_type_suppression(self):
-        self._create_proposal(prop_type=proposal_type.ProposalType.SUPPRESSION.name,
-                              prop_state=proposal_state.ProposalState.FACULTY.name)
-        lu_proposal_business.cancel_proposal(self.learning_unit_year)
+    def test_cancel_proposal_of_type_suppression_case_success(self):
+        proposal = self._create_proposal(prop_type=proposal_type.ProposalType.SUPPRESSION.name,
+                                         prop_state=proposal_state.ProposalState.FACULTY.name)
+        lu_proposal_business.cancel_proposal(proposal, PersonFactory(), send_mail=False)
         self.assertCountEqual(list(mdl_base.proposal_learning_unit.ProposalLearningUnit.objects
                                    .filter(learning_unit_year=self.learning_unit_year)), [])
 
-    def test_cancel_proposals_of_type_suppression(self):
-        proposal = self._create_proposal(prop_type=proposal_type.ProposalType.SUPPRESSION.name,
+    def test_cancel_proposal_of_type_creation_case_success(self):
+        proposal = self._create_proposal(prop_type=proposal_type.ProposalType.CREATION.name,
                                          prop_state=proposal_state.ProposalState.FACULTY.name)
-        lu_proposal_business.cancel_proposals([proposal])
+        lu_proposal_business.cancel_proposal(proposal, PersonFactory(), send_mail=False)
         self.assertCountEqual(list(mdl_base.proposal_learning_unit.ProposalLearningUnit.objects
                                    .filter(learning_unit_year=self.learning_unit_year)), [])
+
+    @patch('base.utils.send_mail.send_mail_after_the_learning_unit_proposal_cancellation')
+    def test_cancel_proposals_of_type_suppression(self, mock_send_mail):
+        proposal = self._create_proposal(prop_type=proposal_type.ProposalType.SUPPRESSION.name,
+                                         prop_state=proposal_state.ProposalState.FACULTY.name)
+        lu_proposal_business.cancel_proposals([proposal], PersonFactory())
+        self.assertCountEqual(list(mdl_base.proposal_learning_unit.ProposalLearningUnit.objects
+                                   .filter(learning_unit_year=self.learning_unit_year)), [])
+        self.assertTrue(mock_send_mail.called)
+
+    @patch('base.utils.send_mail.send_mail_after_the_learning_unit_proposal_cancellation')
+    def test_send_mail_after_proposal_cancellation(self, mock_send_mail):
+        proposal = self._create_proposal(prop_type=proposal_type.ProposalType.SUPPRESSION.name,
+                                         prop_state=proposal_state.ProposalState.FACULTY.name)
+        lu_proposal_business.cancel_proposal(proposal, PersonFactory())
+        self.assertTrue(mock_send_mail.called)
 
     def _create_proposal(self, prop_type, prop_state):
         initial_data_expected = {
