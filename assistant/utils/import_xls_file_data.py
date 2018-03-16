@@ -23,7 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import  datetime, re
+import datetime
+import re
 
 from openpyxl import load_workbook
 
@@ -95,7 +96,7 @@ def read_xls_mandates(request, file_name):
             current_record = xls_row_to_dict(row, titles_row)
             end_date = check_date_format(current_record.get('END_DATE'))
             entry_date = check_date_format(current_record.get('ENTRY_DATE'))
-            if  end_date is False or entry_date is False:
+            if end_date is False or entry_date is False:
                 messages.add_message(request, messages.ERROR, _('date_format_error') + _('line_nbr') + str(current_row))
                 return False
             assistant = create_academic_assistant_if_not_exists(current_record)
@@ -127,6 +128,7 @@ def read_xls_mandates(request, file_name):
                     link_mandate_to_entity(mandate, pole)
         current_row += 1
     return True
+
 
 def search_entity_by_acronym_and_type(acronym, type):
     if not acronym:
