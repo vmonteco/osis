@@ -4892,5 +4892,17 @@
             195
         ]
     }
+},
+{
+    "model": "auth.group",
+    "pk": 17,
+    "fields": {
+        "name": "administrative_managers",
+        "permissions": [
+            320,
+            199,
+            331
+        ]
+    }
 }
 ]
