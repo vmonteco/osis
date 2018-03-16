@@ -173,8 +173,8 @@ class VolumeEditionForm(forms.Form):
         if not self.changed_data:
             return None
 
-        luy_to_update_list = [self.learning_unit_year]
         conflict_report = {}
+        luy_to_update_list = [self.learning_unit_year]
         if postponement:
             conflict_report = edition.get_conflict_report(self.learning_unit_year)
             luy_to_update_list.extend(conflict_report['luy_without_conflict'])
