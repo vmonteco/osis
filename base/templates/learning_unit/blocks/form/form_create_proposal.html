@@ -2,9 +2,10 @@
 {% load i18n %}
 
 <div class="panel panel-default">
+    <div class="panel-heading">
+        {% trans 'proposal_management' %}
+    </div>
     <div class="panel-body">
-
-        <p>{% trans 'proposal_management' %}</p>
         {% include 'learning_unit/blocks/proposal_folder.html' %}
         <br>
         {% include 'learning_unit/blocks/proposal_user.html' %}

@@ -27,6 +27,7 @@ from base.models import proposal_learning_unit
 from base.business.learning_units.proposal import common
 
 
+# TODO This method must move to the form save method
 def create_learning_unit_proposal(data):
     proposal = common.proposal_common_populate(data, proposal_learning_unit.ProposalLearningUnit())
     proposal.initial_data = data.get('initial_data')

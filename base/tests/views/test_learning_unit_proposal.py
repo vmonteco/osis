@@ -150,7 +150,7 @@ class TestLearningUnitModificationProposal(TestCase):
             "allocation_entity": self.entity_version.id,
             "additional_requirement_entity_1": self.entity_version.id,
             "additional_requirement_entity_2": self.entity_version.id,
-            "folder_entity": self.entity_version.id,
+            "entity": self.entity_version.id,
             "folder_id": "1",
             "state": proposal_state.ProposalState.FACULTY.name
         }
@@ -186,7 +186,7 @@ class TestLearningUnitModificationProposal(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'learning_unit/proposal/update.html')
+        self.assertTemplateUsed(response, 'learning_unit/proposal/create_modification_proposal.html')
         self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
         self.assertEqual(response.context['experimental_phase'], True)
         self.assertEqual(response.context['person'], self.person)
@@ -214,7 +214,7 @@ class TestLearningUnitModificationProposal(TestCase):
         response = self.client.post(self.url, data={})
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'learning_unit/proposal/update.html')
+        self.assertTemplateUsed(response, 'learning_unit/proposal/create_modification_proposal.html')
         self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
         self.assertEqual(response.context['experimental_phase'], True)
         self.assertEqual(response.context['person'], self.person)
@@ -279,7 +279,7 @@ class TestLearningUnitModificationProposal(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'learning_unit/proposal/update.html')
+        self.assertTemplateUsed(response, 'learning_unit/proposal/create_modification_proposal.html')
 
     def test_learning_unit_of_type_dissertation(self):
         self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.DISSERTATION
@@ -288,7 +288,7 @@ class TestLearningUnitModificationProposal(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'learning_unit/proposal/update.html')
+        self.assertTemplateUsed(response, 'learning_unit/proposal/create_modification_proposal.html')
 
     def test_learning_unit_of_other_types(self):
         self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.OTHER_COLLECTIVE
@@ -357,7 +357,7 @@ class TestLearningUnitModificationProposal(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'learning_unit/proposal/update.html')
+        self.assertTemplateUsed(response, 'learning_unit/proposal/create_modification_proposal.html')
 
     def test_linked_to_child_entity(self):
         today = datetime.date.today()
@@ -882,7 +882,7 @@ class TestEditProposal(TestCase):
             "allocation_entity": self.entity_version.id,
             "language": self.language.id,
             "periodicity": learning_unit_periodicity.ANNUAL,
-            "folder_entity": self.entity_version.id,
+            "entity": self.entity_version.id,
             "folder_id": 1
         }
 

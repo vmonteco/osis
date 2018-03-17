@@ -77,7 +77,7 @@ def proposal_learning_unit_add(request):
 
 def _proposal_create(data_proposal, new_learning_unit_year, person):
     creation.create_learning_unit_proposal({'person': person,
-                                            'folder_entity': data_proposal['folder_entity'].entity,
+                                            'entity': data_proposal['entity'].entity,
                                             'folder_id': data_proposal['folder_id'],
                                             'learning_unit_year': new_learning_unit_year,
                                             'state_proposal': ProposalState.FACULTY.name,

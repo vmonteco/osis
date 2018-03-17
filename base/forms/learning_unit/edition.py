@@ -53,6 +53,7 @@ FACULTY_READ_ONLY_FIELDS = {"periodicity", "common_title", "common_title_english
                             "type_declaration_vacant", "attribution_procedure", "subtype"}
 
 
+# TODO Convert it in ModelForm
 class LearningUnitEndDateForm(forms.Form):
     academic_year = forms.ModelChoiceField(required=False,
                                            queryset=AcademicYear.objects.none(),

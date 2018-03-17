@@ -98,7 +98,7 @@ class TestSave(TestCase):
             "campus": self.campus.id,
             "requirement_entity": self.entity_version.id,
             "allocation_entity": self.entity_version.id,
-            "folder_entity": self.entity_version.id,
+            "entity": self.entity_version.id,
             "folder_id": "1",
             "state": proposal_state.ProposalState.CENTRAL.name
         }

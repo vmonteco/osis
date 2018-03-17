@@ -27,7 +27,7 @@ import datetime
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
@@ -42,10 +42,10 @@ from base.models.enums.proposal_state import ProposalState
 from base.models.enums.proposal_type import ProposalType
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
+from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views import layout
 from base.views.common import display_success_messages, display_error_messages
 from base.views.learning_unit import compute_form_initial_data, get_learning_unit_identification_context
-from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views.learning_units import perms
 
 
@@ -85,28 +85,25 @@ def learning_unit_modification_proposal(request, learning_unit_year_id):
 @permission_required('base.can_propose_learningunit', raise_exception=True)
 def learning_unit_suppression_proposal(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
-    learning_unit = learning_unit_year.learning_unit
     user_person = get_object_or_404(Person, user=request.user)
-    context = get_learning_unit_identification_context(learning_unit_year_id, user_person)
+    type_proposal = ProposalType.SUPPRESSION.name
 
-    type_proposal = ProposalType.SUPPRESSION
-    form_end_date = LearningUnitEndDateForm(request.POST or None, learning_unit=learning_unit)
-
-    form_proposal = ProposalLearningUnitForm(request.POST or None, learning_unit, type_proposal,
-                                             ProposalState.FACULTY.name)
+    form_end_date = LearningUnitEndDateForm(request.POST or None, learning_unit=learning_unit_year.learning_unit)
+    form_proposal = ProposalLearningUnitForm(request.POST or None, learning_unit_year, type_proposal,
+                                             ProposalState.FACULTY.name, user_person)
 
     if form_end_date.is_valid() and form_proposal.is_valid():
-        with transaction.atomic():
-            form_proposal.save()
-            form_end_date.save()
+        academic_year = form_end_date.cleaned_data['academic_year']
+        end_year = academic_year.year if academic_year else None
+        form_proposal.save(True, end_year=end_year)
 
         display_success_messages(
             request, _("success_modification_proposal").format(_(type_proposal), learning_unit_year.acronym))
 
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
+    context = get_learning_unit_identification_context(learning_unit_year_id, user_person)
     context.update({
-            'learning_unit_year': learning_unit_year,
             'person': user_person,
             'form_end_date': form_end_date,
             'form_proposal': form_proposal,
@@ -161,7 +158,7 @@ def edit_learning_unit_proposal(request, learning_unit_year_id):
 
 def _build_proposal_data(proposal):
     return {"folder_id": proposal.folder_id,
-            "folder_entity": find_latest_version_by_entity(proposal.entity.id,
-                                                           datetime.date.today()),
+            "entity": find_latest_version_by_entity(proposal.entity.id,
+                                                    datetime.date.today()),
             "type": proposal.type,
             "state": proposal.state}

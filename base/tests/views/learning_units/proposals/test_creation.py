@@ -77,7 +77,7 @@ class LearningUnitViewTestCase(TestCase):
             "allocation_entity": self.entity_version.id,
             "language": self.language.id,
             "periodicity": learning_unit_periodicity.ANNUAL,
-            "folder_entity": self.entity_version.id,
+            "entity": self.entity_version.id,
             "folder_id": 1
         }
 
