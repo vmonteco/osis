@@ -30,7 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_units.edition import filter_biennial, update_learning_unit_year_with_report, \
-    edit_learning_unit_end_date
+    edit_learning_unit_end_date, get_new_end_year
 from base.business.learning_units.perms import FACULTY_UPDATABLE_CONTAINER_TYPES
 from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.utils.choice_field import add_blank
@@ -63,13 +63,14 @@ class LearningUnitEndDateForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.learning_unit = kwargs.pop('learning_unit')
+        only_reduce = kwargs.pop('only_reduce', False)
         super().__init__(*args, **kwargs)
         end_year = self.learning_unit.end_year
 
         self._set_initial_value(end_year)
 
         try:
-            queryset = self._get_academic_years()
+            queryset = self._get_academic_years(end_year, only_reduce)
 
             periodicity = self.learning_unit.periodicity
             self.fields['academic_year'].queryset = filter_biennial(queryset, periodicity)
@@ -82,10 +83,13 @@ class LearningUnitEndDateForm(forms.Form):
         except (AcademicYear.DoesNotExist, AcademicYear.MultipleObjectsReturned):
             self.fields['academic_year'].initial = None
 
-    def _get_academic_years(self):
+    def _get_academic_years(self, end_year, only_reduce):
         current_academic_year = academic_year.current_academic_year()
         min_year = current_academic_year.year
-        max_year = compute_max_academic_year_adjournment()
+        if only_reduce and end_year:
+            max_year = end_year
+        else:
+            max_year = compute_max_academic_year_adjournment()
 
         if self.learning_unit.start_year > min_year:
             min_year = self.learning_unit.start_year
@@ -101,8 +105,13 @@ class LearningUnitEndDateForm(forms.Form):
 
         return academic_year.find_academic_years(start_year=min_year, end_year=max_year)
 
-    def save(self):
-        return edit_learning_unit_end_date(self.learning_unit, self.cleaned_data['academic_year'])
+    def save(self, update_learning_unit_year=True):
+        academic_year = self.cleaned_data['academic_year']
+        if update_learning_unit_year:
+            return edit_learning_unit_end_date(self.learning_unit, academic_year)
+        else:
+            self.learning_unit.end_year = get_new_end_year(academic_year)
+            self.learning_unit.save()
 
 
 def _create_type_declaration_vacant_list():

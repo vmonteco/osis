@@ -233,8 +233,8 @@
                                         {{ learning_unit_year.learning_unit.start_year|academic_years:learning_unit_year.learning_unit.end_year }}
                                     {% endif %}
                                                                     <div>
-                                    <label {{ differences|get_difference_css:'end_year' }}>{% trans 'other_remark' %}</label><br>
-                                    <span {{ differences|get_difference_css:'other_remark' }}>{{ learning_unit_year.learning_unit.other_remark | default_if_none:'' }}</span>
+                                    <label {{ differences|get_difference_css:'end_year' }}>{% trans 'end_year' %}</label><br>
+                                    <span {{ differences|get_difference_css:'end_year' }}>{{ learning_unit_year.learning_unit.end_year }}</span>
                                 </div>
 
 

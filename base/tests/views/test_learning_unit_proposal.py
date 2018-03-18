@@ -1072,7 +1072,7 @@ class TestLearningUnitProposalDisplay(TestCase):
         self.assertEqual(result.get('key2'), 'new_value')
 
     def test_get_difference_of_proposal(self):
-        self.assertEqual(proposal_business._get_difference_of_proposal(None), {})
+        self.assertEqual(proposal_business.get_difference_of_proposal(None), {})
 
     def test_get_old_value_of_foreign_key_for_campus(self):
         differences = proposal_business._get_old_value_of_foreign_key('campus', self.campus.id)

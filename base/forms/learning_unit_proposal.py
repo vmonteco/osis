@@ -56,15 +56,9 @@ class ProposalLearningUnitForm(forms.ModelForm):
         model = ProposalLearningUnit
         fields = ['entity', 'folder_id']
 
-    def save(self, commit=True, **learning_unit_update):
-        with transaction.atomic():
-            # Save the initial data in JSON field
-            self.instance.initial_data = _copy_learning_unit_data(self.instance.learning_unit_year)
-            for key, value in learning_unit_update.items():
-                setattr(self.instance.learning_unit_year, key, value)
-            self.instance.learning_unit_year.save()
-
-            super().save(commit)
+    def save(self, commit=True):
+        self.instance.initial_data = _copy_learning_unit_data(self.instance.learning_unit_year)
+        super().save(commit)
 
 
 # FIXME Split LearningUnitYearForm and ProposalLearningUnit
