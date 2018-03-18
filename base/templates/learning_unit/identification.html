@@ -52,6 +52,7 @@
                             <div class="panel-body">
                                 <div class="row">
                                     <div class="col-md-3">
+                                        {# FIXME Use dl_tooltip for all label/span #}
                                         <label {{ differences|get_difference_css:'acronym' }}>{% trans 'code'%}</label><br>
                                         {% if learning_unit_year.parent %}
                                             <a href="{% url 'learning_unit' learning_unit_year.parent.id%}" {{ differences|get_difference_css:'acronym'  }}>{{ learning_unit_year.learning_container_year.acronym }}</a>{{learning_unit_year.subdivision}}
@@ -189,55 +190,20 @@
                     <div class="col-md-4">
                         <div class="panel panel-default">
                             <div class="panel-body">
-                                <label>{% trans 'institution'%}</label><br>
-                                 {% if organization %}
-                                    <a href="{% url 'organization_read' organization_id=organization.id %}">
-                                        {{ organization.name }}
-                                    </a>
-                                 {% endif %}
-                                <br>
-                                <label style="margin-top:10px;" {{ differences|get_difference_css:'campus' }}>{% trans 'learning_location'%}</label><br>
-                                 {% if campus %}
-                                    <span  {{ differences|get_difference_css:'campus' }}>{{ campus.name }}</span>
-                                 {% endif %}
-                                <br>
-                                <label style="margin-top:10px;" {% if differences|get_difference_css:'REQUIREMENT_ENTITY'%}{{ differences|get_difference_css:'REQUIREMENT_ENTITY' }} {% endif %}>{% trans 'requirement_entity'%}</label><br>
-                                    <a {% if requirement_entity %}href="{% url 'entity_read' entity_version_id=requirement_entity.id %}"{% endif %}
-                                    {% if differences|get_difference_css:'REQUIREMENT_ENTITY' %}
-                                        {{ differences|get_difference_css:'REQUIREMENT_ENTITY' }}
-                                    {% else %}
-                                        title="{{ requirement_entity.title | default_if_none:'' }}"
-                                    {% endif %}>{{ requirement_entity.acronym }}</a>
-                                <br>
-                                <label style="margin-top:10px;" {% if differences|get_difference_css:'ALLOCATION_ENTITY' %}{{ differences|get_difference_css:'ALLOCATION_ENTITY' }}{% endif %}>{% trans 'allocation_entity'%}</label><br>
-                                <a {% if allocation_entity %}href="{% url 'entity_read' entity_version_id=allocation_entity.id %}"{% endif %}
-                                         {% if differences|get_difference_css:'ALLOCATION_ENTITY' %}
-                                             {{ differences|get_difference_css:'ALLOCATION_ENTITY' }}
-                                         {% else %}
-                                             title="{{ allocation_entity.title | default_if_none:'' }}"
-                                         {% endif %}>{{ allocation_entity.acronym }}</a>
 
-                                <br>
-                                <span {{ differences|get_difference_css:'ADDITIONAL_REQUIREMENT_ENTITY_1' }}>
-                                    <label style="margin-top:10px;">{% trans 'additional_requirement_entity'%} 1</label><br>
-                                    <span> {{ additional_requirement_entity_1.acronym }}</span><br>
-                                </span>
-                                <span {{ differences|get_difference_css:'ADDITIONAL_REQUIREMENT_ENTITY_2' }}>
-                                    <label style="margin-top:10px;">{% trans 'additional_requirement_entity'%} 2</label><br>
-                                    <span {{ differences|get_difference_css:'ADDITIONAL_REQUIREMENT_ENTITY_2' }}>{{ additional_requirement_entity_2.acronym }}</span><br>
-                                </span>
+                                {% url 'organization_read' organization_id=organization.id as url_organization%}
+                                {% dl_tooltip differences 'institution' value=organization.name url=url_organization %}
+                                {% dl_tooltip differences 'campus' label_text='learning_location'  value=campus.name %}
+
+                                {% url 'entity_read' entity_version_id=requirement_entity.id as url_entity_requirement %}
+                                {% url 'entity_read' entity_version_id=allocation_entity.id as url_entity_allocation %}
+
+                                {% dl_tooltip differences 'REQUIREMENT_ENTITY' value=requirement_entity.acronym title=requirement_entity.title url=url_entity_requirement %}
+                                {% dl_tooltip differences 'ADDITIONAL_REQUIREMENT_ENTITY_2' value=additional_requirement_entity_2.acronym %}
 
                                 {% block edit_academic_year %}
-                                    <label style="margin-top:10px;">{% trans 'academic_years'%}</label><br>
-                                    {% if learning_unit_year.learning_container_year.learning_container %}
-                                        {{ learning_unit_year.learning_unit.start_year|academic_years:learning_unit_year.learning_unit.end_year }}
-                                    {% endif %}
-                                                                    <div>
-                                    <label {{ differences|get_difference_css:'end_year' }}>{% trans 'end_year' %}</label><br>
-                                    <span {{ differences|get_difference_css:'end_year' }}>{{ learning_unit_year.learning_unit.end_year }}</span>
-                                </div>
-
-
+                                    {% dl_tooltip differences 'academic_years' value=learning_unit_year.learning_unit.start_year|academic_years:learning_unit_year.learning_unit.end_year %}
+                                    {% dl_tooltip differences 'end_year' value=learning_unit_year.learning_unit.end_year %}
                                 {% endblock %}
                             </div>
                         </div>

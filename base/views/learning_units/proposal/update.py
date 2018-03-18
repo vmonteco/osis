@@ -27,7 +27,7 @@ import datetime
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
@@ -94,13 +94,14 @@ def learning_unit_suppression_proposal(request, learning_unit_year_id):
                                              ProposalState.FACULTY.name, user_person)
 
     if form_end_date.is_valid() and form_proposal.is_valid():
-        form_proposal.save()
+        with transaction.atomic():
+            form_proposal.save()
 
-        # For the proposal, we do not update learning_unit_year
-        form_end_date.save(update_learning_unit_year=False)
+            # For the proposal, we do not update learning_unit_year
+            form_end_date.save(update_learning_unit_year=False)
 
-        display_success_messages(
-            request, _("success_modification_proposal").format(_(type_proposal), learning_unit_year.acronym))
+            display_success_messages(
+                request, _("success_modification_proposal").format(_(type_proposal), learning_unit_year.acronym))
 
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 

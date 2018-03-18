@@ -1693,6 +1693,12 @@ msgstr "Avec ent. subord."
 msgid "additional_requirement_entity"
 msgstr "Entité resp. cahier de charges complémentaire"
 
+msgid "additional_requirement_entity_1"
+msgstr "Entité resp. cahier de charges complémentaire 1"
+
+msgid "additional_requirement_entity_2"
+msgstr "Entité resp. cahier de charges complémentaire 2"
+
 msgid "academic_end_year"
 msgstr "Anac de fin"
 

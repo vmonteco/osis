@@ -66,3 +66,16 @@ def get_difference_css(differences, parameter):
 @register.filter
 def has_proposal(luy):
     return ProposalLearningUnit.objects.filter(learning_unit_year=luy).exists()
+
+
+@register.simple_tag
+def dl_tooltip(differences, key, title='', label_text='', value='', url=''):
+    if not label_text:
+        label_text = key.lower()
+
+    difference = get_difference_css(differences, key) or 'title="{}"'.format(_(title))
+    if url:
+        value = "<a href='{url}'>{value}</a>".format(value=value, url=url)
+
+    return mark_safe("<dl><dt {difference}>{label_text}</dt><dd {difference}>{value}</dd></dl>".format(
+        difference=difference, label_text=_(label_text), value=value))
