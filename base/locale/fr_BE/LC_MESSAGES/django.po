@@ -2685,3 +2685,9 @@ msgstr "La valeur du champ '%(field)s'de l'unité d'enseignement %(acronym)s (%(
 
 msgid "There is not %(component_type)s for the learning unit %(acronym)s - %(year)s but exist in %(existing_year)s"
 msgstr "Il n'y a pas de %(component_type)s pour l'unité d'enseignement %(acronym)s - %(year)s mais existe en %(existing_year)s"
+
+msgid "Educational information opening"
+msgstr "Ouverture informations pédagoqiques"
+
+msgid "Educational information ending"
+msgstr "Fermeture informations pédagoqiques"

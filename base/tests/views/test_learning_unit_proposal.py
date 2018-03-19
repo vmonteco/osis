@@ -432,28 +432,8 @@ class TestLearningUnitSuppressionProposal(TestCase):
 
         self.form_data = {
             "academic_year": self.learning_unit_year.academic_year.id,
-            "first_letter": self.learning_unit_year.acronym[0],
-            "acronym": self.learning_unit_year.acronym[1:],
-            "common_title": self.learning_unit_year.learning_container_year.common_title,
-            "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
-            "specific_title": self.learning_unit_year.specific_title,
-            "specific_title_english": self.learning_unit_year.specific_title_english,
-            "container_type": self.learning_unit_year.learning_container_year.container_type,
-            "internship_subtype": "",
-            "credits": self.learning_unit_year.credits,
-            "periodicity": self.learning_unit_year.learning_unit.periodicity,
-            "status": self.learning_unit_year.status,
-            "language": self.learning_unit_year.learning_container_year.language.id,
-            "quadrimester": "",
-            "campus": self.learning_unit_year.learning_container_year.campus.id,
-            "session": self.learning_unit_year.session,
-            "requirement_entity": self.entity_version.id,
-            "allocation_entity": self.entity_version.id,
-            "additional_requirement_entity_1": self.entity_version.id,
-            "additional_requirement_entity_2": self.entity_version.id,
             "entity": self.entity_version.id,
             "folder_id": "1",
-            "state": proposal_state.ProposalState.FACULTY.name
         }
 
     def test_get_request(self):
@@ -813,7 +793,7 @@ class TestLearningUnitProposalCancellation(TestCase):
     def test_context_after_valid_get_request(self):
         response = self.client.get(self.url)
 
-        redirected_url = reverse('learning_unit', args=[self.learning_unit_year.id])
+        redirected_url = reverse('learning_units_proposal')
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
 
         messages = [str(message) for message in get_messages(response.wsgi_request)]
@@ -1288,7 +1268,7 @@ class TestCreationProposalCancel(TestCase):
 
         response = self.client.post(url, data={})
 
-        redirected_url = reverse('learning_unit', args=[a_proposal.learning_unit_year.id])
+        redirected_url = reverse('learning_units_proposal')
         msgs = [str(message) for message in get_messages(response.wsgi_request)]
 
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)

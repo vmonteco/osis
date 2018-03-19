@@ -2679,3 +2679,9 @@ msgstr ""
 
 msgid "There is not %(component_type)s for the learning unit %(acronym)s - %(year)s but exist in %(existing_year)s"
 msgstr ""
+
+msgid "Educational information opening"
+msgstr ""
+
+msgid "Educational information ending"
+msgstr ""
