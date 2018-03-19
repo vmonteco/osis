@@ -48,20 +48,23 @@ from base.models.learning_unit_year import LearningUnitYear
 FIELDS_TO_EXCLUDE_WITH_REPORT = ("is_vacant", "type_declaration_vacant", "attribution_procedure")
 
 
-def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year, update_learning_unit_year=True):
+def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year, propagate_end_date_to_luy=True):
     result = []
-
     new_end_year = get_new_end_year(new_academic_year)
-    if update_learning_unit_year:
-        end_year = _get_actual_end_year(learning_unit_to_edit)
 
-        if new_end_year is None or new_end_year > end_year:
-            result.extend(extend_learning_unit(learning_unit_to_edit, new_academic_year))
-        elif new_end_year < end_year:
-            result.extend(shorten_learning_unit(learning_unit_to_edit, new_academic_year))
+    if propagate_end_date_to_luy:
+        result.extend(_update_learning_unit_year_end_date(learning_unit_to_edit, new_academic_year, new_end_year))
 
     result.append(_update_end_year_field(learning_unit_to_edit, new_end_year))
     return result
+
+
+def _update_learning_unit_year_end_date(learning_unit_to_edit, new_academic_year, new_end_year):
+    end_year = _get_actual_end_year(learning_unit_to_edit)
+    if new_end_year is None or new_end_year > end_year:
+        return extend_learning_unit(learning_unit_to_edit, new_academic_year)
+    elif new_end_year < end_year:
+        return shorten_learning_unit(learning_unit_to_edit, new_academic_year)
 
 
 def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
@@ -358,38 +361,54 @@ def check_postponement_conflict(luy, next_luy):
 
 
 def _check_postponement_conflict_on_learning_unit_year(luy, next_luy):
-    fields_to_compare = 'acronym', 'specific_title', 'specific_title_english', 'subtype', 'credits', \
-                        'decimal_scores', 'internship_subtype', 'status', 'session', 'quadrimester',
+    fields_to_compare = {
+        'acronym': _('acronym'),
+        'specific_title': _('official_title_proper_to_UE'),
+        'specific_title_english': _('official_english_title_proper_to_UE'),
+        'subtype': _('subtype'),
+        'credits': _('credits'),
+        'internship_subtype': _('internship_subtype'),
+        'status': _('status'),
+        'session': _('session'),
+        'quadrimester': _('quadrimester')
+    }
     return _get_differences(luy, next_luy, fields_to_compare)
 
 
-def _check_postponement_learning_unit_year_proposal_state(nex_luy):
-    error_msg = _("learning_unit_in_proposal_cannot_save") % {'luy': nex_luy.acronym,
-                                                              'academic_year': nex_luy.academic_year}
-    return [error_msg] if nex_luy.is_in_proposal() else []
-
-
 def _check_postponement_conflict_on_learning_container_year(lcy, next_lcy):
-    fields_to_compare = 'container_type', 'common_title', 'common_title_english', 'acronym', 'language', \
-                        'campus', 'team',
+    fields_to_compare = {
+        'container_type': _('type'),
+        'common_title': _('common_official_title'),
+        'common_title_english': _('common_official_english_title'),
+        'acronym': _('acronym'),
+        'language': _('language'),
+        'campus': _('campus'),
+        'team': _('team_management')
+    }
     return _get_differences(lcy, next_lcy, fields_to_compare)
 
 
 def _get_differences(obj1, obj2, fields_to_compare):
-    field_diff = filter(lambda field: _is_different_value(obj1, obj2, field), fields_to_compare)
+    field_diff = filter(lambda field: _is_different_value(obj1, obj2, field), fields_to_compare.keys())
     error_list = []
     for field_name in field_diff:
         current_value = getattr(obj1, field_name, None)
         next_year_value = getattr(obj2, field_name, None)
         error_list.append(_("The value of field '%(field)s' is different between year %(year)s - %(value)s "
                             "and year %(next_year)s - %(next_value)s") % {
-            'field': _(field_name),
+            'field': fields_to_compare[field_name],
             'year': obj1.academic_year,
             'value': current_value if current_value else _('no_data'),
             'next_year': obj2.academic_year,
             'next_value': next_year_value if next_year_value else _('no_data')
         })
     return error_list
+
+
+def _check_postponement_learning_unit_year_proposal_state(nex_luy):
+    error_msg = _("learning_unit_in_proposal_cannot_save") % {'luy': nex_luy.acronym,
+                                                              'academic_year': nex_luy.academic_year}
+    return [error_msg] if nex_luy.is_in_proposal() else []
 
 
 def _check_postponement_conflict_on_entity_container_year(lcy, next_lcy):

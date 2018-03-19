@@ -25,12 +25,13 @@
 ##############################################################################
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import ugettext as _
+
+from base.models.enums import academic_calendar_type
+from base.models.exceptions import StartDateHigherThanEndDateException
+from base.models.utils.admin_extentions import remove_delete_action
 from base.signals.publisher import compute_all_scores_encodings_deadlines
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
-from base.models.exceptions import StartDateHigherThanEndDateException
-from base.models.enums import academic_calendar_type
-from django.utils.translation import ugettext as _
-from base.models.utils.admin_extentions import remove_delete_action
 
 
 class AcademicCalendarAdmin(SerializableModelAdmin):
