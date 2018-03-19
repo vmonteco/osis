@@ -88,8 +88,7 @@ def learning_unit_suppression_proposal(request, learning_unit_year_id):
     user_person = get_object_or_404(Person, user=request.user)
     type_proposal = ProposalType.SUPPRESSION.name
 
-    form_end_date = LearningUnitEndDateForm(request.POST or None, learning_unit=learning_unit_year.learning_unit,
-                                            only_shorten=True)
+    form_end_date = LearningUnitEndDateForm(request.POST or None, learning_unit_year.learning_unit, only_shorten=True)
     form_proposal = ProposalLearningUnitForm(request.POST or None, learning_unit_year, type_proposal,
                                              ProposalState.FACULTY.name, user_person)
 

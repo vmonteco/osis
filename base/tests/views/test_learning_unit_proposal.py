@@ -52,7 +52,8 @@ from base.models.enums.proposal_state import ProposalState
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories import academic_year as academic_year_factory, campus as campus_factory, \
     organization as organization_factory
-from base.tests.factories.academic_year import AcademicYearFakerFactory, create_current_academic_year, get_current_year
+from base.tests.factories.academic_year import AcademicYearFakerFactory, create_current_academic_year, get_current_year, \
+    AcademicYearFactory
 from base.tests.factories.business.learning_units import GenerateAcademicYear, GenerateContainer
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
@@ -389,6 +390,9 @@ class TestLearningUnitSuppressionProposal(TestCase):
         self.person.user.user_permissions.add(self.permission_2)
         an_organization = OrganizationFactory(type=organization_type.MAIN)
         current_academic_year = create_current_academic_year()
+
+        self.next_academic_year = AcademicYearFactory(year=current_academic_year.year+1)
+
         learning_container_year = LearningContainerYearFactory(
             academic_year=current_academic_year,
             container_type=learning_container_year_types.COURSE,
@@ -431,7 +435,7 @@ class TestLearningUnitSuppressionProposal(TestCase):
         self.url = reverse(learning_unit_suppression_proposal, args=[self.learning_unit_year.id])
 
         self.form_data = {
-            "academic_year": self.learning_unit_year.academic_year.id,
+            "academic_year": self.next_academic_year.id,
             "entity": self.entity_version.id,
             "folder_id": "1",
         }
@@ -458,6 +462,8 @@ class TestLearningUnitSuppressionProposal(TestCase):
     def test_post_request(self):
         response = self.client.post(self.url, data=self.form_data)
 
+        form_end_date = response.context['form_end_date']
+        print(form_end_date.errors)
         redirected_url = reverse(learning_unit_identification, args=[self.learning_unit_year.id])
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
 

@@ -69,7 +69,12 @@ def has_proposal(luy):
 
 
 @register.simple_tag
-def dl_tooltip(differences, key, title='', label_text='', value='', url=''):
+def dl_tooltip(differences, key, **kwargs):
+    title = kwargs.get('title', '')
+    label_text = kwargs.get('label_text', '')
+    value = kwargs.get('value', '')
+    url = kwargs.get('url', '')
+
     if not label_text:
         label_text = key.lower()
 
