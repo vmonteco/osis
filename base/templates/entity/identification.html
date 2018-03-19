@@ -25,9 +25,11 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-{% block style %}
-    {% include "education_group/blocks/datetimepicker_css.html" %}
-{% endblock style %}
+{% if can_user_post %}
+    {% block style %}
+        {% include "education_group/blocks/datetimepicker_css.html" %}
+    {% endblock style %}
+ {% endif %}
 
 {% block breadcrumb %}
 {% include "entity/breadcrumb.html" %}
@@ -76,7 +78,12 @@
                     {% endif %}
                 </div>
                 <br>
-                {% include "entity/blocks/educational_summary_calendar_widget.html" %}
+
+                {% if can_user_post %}
+                    {% include "entity/blocks/educational_summary_calendar_widget.html" %}
+                {% else %}
+                    {% include "entity/blocks/educational_summary_calendar_informations.html" %}
+                {% endif %}
 
                 {% if descendants %}
                 <br>
@@ -121,6 +128,8 @@
 </div>
 {% endblock %}
 
-{% block script %}
-    {% include "education_group/blocks/datetimepicker_js.html" %}
-{% endblock script %}
+{% if can_user_post %}
+    {% block script %}
+        {% include "education_group/blocks/datetimepicker_js.html" %}
+    {% endblock script %}
+{% endif %}
