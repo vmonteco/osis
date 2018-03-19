@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from django import forms
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from base.forms import bootstrap
 from base.forms.utils.datefield import DatePickerInput, DATE_FORMAT
