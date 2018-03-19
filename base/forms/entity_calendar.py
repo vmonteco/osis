@@ -38,7 +38,8 @@ class EntityCalendarEducationalInformationForm(bootstrap.BootstrapModelForm):
     start_date = forms.DateTimeField(widget=DatePickerInput(format=DATE_FORMAT), input_formats=[DATE_FORMAT, ],
                                      label=_("Educational information opening"))
     end_date = forms.DateTimeField(widget=DatePickerInput(format=DATE_FORMAT), input_formats=[DATE_FORMAT, ],
-                                     label=_("Educational information ending"))
+                                   label=_("Educational information ending"))
+
     class Meta:
         model = EntityCalendar
         fields = ["start_date", "end_date"]
@@ -48,4 +49,3 @@ class EntityCalendarEducationalInformationForm(bootstrap.BootstrapModelForm):
         self.instance.academic_calendar = get_by_reference_and_academic_year(
             academic_calendar_type.SUMMARY_COURSE_SUBMISSION, current_academic_year())
         return self.save(*args, **kwargs)
-
