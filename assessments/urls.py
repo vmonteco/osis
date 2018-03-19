@@ -25,7 +25,7 @@
 ##############################################################################
 from django.conf.urls import url, include
 from assessments.views import score_encoding, upload_xls_utils, pgm_manager_administration, score_sheet
-from django.views.i18n import javascript_catalog
+from django.views.i18n import javascript_catalog, JavaScriptCatalog
 
 from assessments.views import scores_responsible
 

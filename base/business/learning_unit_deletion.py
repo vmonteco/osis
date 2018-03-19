@@ -29,13 +29,13 @@ from assistant.models import tutoring_learning_unit_year
 from attribution.models.attribution import Attribution
 from attribution.models.attribution_charge_new import AttributionChargeNew
 from attribution.models.attribution_new import AttributionNew
-from base.models import proposal_learning_unit
+from base.business.learning_unit import CMS_LABEL_SPECIFICATIONS, CMS_LABEL_PEDAGOGY, CMS_LABEL_SUMMARY
 from base.models import learning_unit_enrollment, learning_unit_component, learning_class_year, \
     learning_unit_year as learn_unit_year_model
-from base.models.enums import learning_unit_year_subtypes
-from base.business.learning_unit import CMS_LABEL_SPECIFICATIONS, CMS_LABEL_PEDAGOGY, CMS_LABEL_SUMMARY
-from cms.models import translated_text
+from base.models import proposal_learning_unit
 from cms.enums import entity_name
+from cms.models import translated_text
+from base.models.enums import learning_unit_year_subtypes
 
 
 def check_learning_unit_deletion(learning_unit):
@@ -50,37 +50,8 @@ def check_learning_unit_deletion(learning_unit):
 def check_learning_unit_year_deletion(learning_unit_year):
     msg = {}
 
-    proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
-    if proposal:
-        msg[proposal] = _("%(subtype)s %(acronym)s is in proposal") \
-                        % {'subtype': _str_partim_or_full(learning_unit_year),
-                           'acronym': learning_unit_year.acronym}
-
-    enrollment_count = len(learning_unit_enrollment.find_by_learning_unit_year(learning_unit_year))
-    if enrollment_count > 0:
-        msg[learning_unit_year] = _("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s") \
-                                  % {'subtype': _str_partim_or_full(learning_unit_year),
-                                     'acronym': learning_unit_year.acronym,
-                                     'year': learning_unit_year.academic_year,
-                                     'count': enrollment_count}
-
-    if learning_unit_year.subtype == learning_unit_year_subtypes.FULL and learning_unit_year.learning_container_year:
-        msg.update(_check_related_partims_deletion(learning_unit_year.learning_container_year))
-
-    msg.update(_check_attribution_deletion(learning_unit_year))
-    for component in learning_unit_component.find_by_learning_unit_year(learning_unit_year):
-        msg.update(_check_learning_unit_component_deletion(component))
-
-    for group_element_year in learning_unit_year.find_list_group_element_year():
-        msg.update(_check_group_element_year_deletion(group_element_year))
-
-    for tutoring in tutoring_learning_unit_year.find_learning_unit_year(learning_unit_year=learning_unit_year):
-        msg.update(_check_tutoring_learning_unit_year(tutoring))
-
-    next_year = learning_unit_year.get_learning_unit_next_year()
-    if next_year:
-        msg.update(check_learning_unit_year_deletion(next_year))
-
+    msg.update(_check_learning_unit_proposal(learning_unit_year))
+    msg.update(check_can_delete_ignoring_proposal_validation(learning_unit_year))
     return msg
 
 
@@ -105,8 +76,7 @@ def _check_group_element_year_deletion(group_element_year):
     return {group_element_year: _('lu_included_in_group') % {
         'subtype': _str_partim_or_full(group_element_year.child_leaf),
         'acronym': group_element_year.child_leaf.acronym,
-        'group': group_element_year.parent.acronym,
-        'program': group_element_year.parent.education_group_type,
+        'group': group_element_year.parent.partial_acronym,
         'year': group_element_year.child_leaf.academic_year
     }
             }
@@ -150,6 +120,18 @@ def _check_learning_unit_component_deletion(l_unit_component):
     return msg
 
 
+def _check_learning_unit_proposal(learning_unit_year):
+    msg = {}
+
+    proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
+    if proposal:
+        error_proposal = "%(subtype)s %(acronym)s is in proposal for the year %(year)s"
+        msg[proposal] = _(error_proposal) % {'subtype': _str_partim_or_full(proposal.learning_unit_year),
+                                             'acronym': proposal.learning_unit_year.acronym,
+                                             'year': proposal.learning_unit_year.academic_year}
+    return msg
+
+
 def _check_related_partims_deletion(learning_container_year):
     msg = {}
 
@@ -179,7 +161,7 @@ def delete_from_given_learning_unit_year(learning_unit_year):
     if next_year:
         msg.extend(delete_from_given_learning_unit_year(next_year))
 
-    if learning_unit_year.learning_container_year and learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
+    if learning_unit_year.learning_container_year and learning_unit_year.is_full():
         msg.extend(_delete_learning_container_year(learning_unit_year.learning_container_year))
 
     for component in learning_unit_component.find_by_learning_unit_year(learning_unit_year):
@@ -187,21 +169,25 @@ def delete_from_given_learning_unit_year(learning_unit_year):
 
     _delete_cms_data(learning_unit_year)
 
+    _decrement_end_year_learning_unit(learning_unit_year)
+
     learning_unit_year.delete()
 
     msg.append(_("%(subtype)s %(acronym)s has been deleted for the year %(year)s")
                % {'subtype': _str_partim_or_full(learning_unit_year),
                   'acronym': learning_unit_year.acronym,
                   'year': learning_unit_year.academic_year})
-
-    _update_end_year_learning_unit(learning_unit_year.learning_unit, learning_unit_year.academic_year.year - 1)
-
     return msg
 
 
-def _update_end_year_learning_unit(learning_unit_to_edit, new_year):
-    learning_unit_to_edit.end_year = new_year
-    return learning_unit_to_edit.save()
+def _decrement_end_year_learning_unit(learning_unit_year):
+    learning_unit_to_edit = learning_unit_year.learning_unit
+
+    start_year = learning_unit_to_edit.start_year
+    new_end_year = learning_unit_year.academic_year.year - 1
+    if new_end_year >= start_year:
+        learning_unit_to_edit.end_year = new_end_year
+        learning_unit_to_edit.save()
 
 
 def _delete_learning_container_year(learning_unit_container):
@@ -237,8 +223,7 @@ def _delete_learning_component_year(learning_component_year):
 
 
 def _str_partim_or_full(learning_unit_year):
-    return _('The partim') if learning_unit_year.subtype == learning_unit_year_subtypes.PARTIM else _(
-        'The learning unit')
+    return _('The partim') if learning_unit_year.is_partim() else _('The learning unit')
 
 
 def _delete_cms_data(learning_unit_year):
@@ -247,3 +232,33 @@ def _delete_cms_data(learning_unit_year):
                                                          reference=learning_unit_year.id,
                                                          text_labels_name=text_label_names):
         learning_unit_cms_data.delete()
+
+
+def check_can_delete_ignoring_proposal_validation(learning_unit_year):
+    msg = {}
+    enrollment_count = len(learning_unit_enrollment.find_by_learning_unit_year(learning_unit_year))
+    if enrollment_count > 0:
+        msg[learning_unit_year] = _("There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s") \
+                                  % {'subtype': _str_partim_or_full(learning_unit_year),
+                                     'acronym': learning_unit_year.acronym,
+                                     'year': learning_unit_year.academic_year,
+                                     'count': enrollment_count}
+    if learning_unit_year.is_full() and learning_unit_year.learning_container_year:
+        msg.update(_check_related_partims_deletion(learning_unit_year.learning_container_year))
+    msg.update(_check_attribution_deletion(learning_unit_year))
+    for component in learning_unit_component.find_by_learning_unit_year(learning_unit_year):
+        msg.update(_check_learning_unit_component_deletion(component))
+    for group_element_year in learning_unit_year.find_list_group_element_year():
+        msg.update(_check_group_element_year_deletion(group_element_year))
+    msg.update(check_tutorings_deletion(learning_unit_year))
+    next_year = learning_unit_year.get_learning_unit_next_year()
+    if next_year:
+        msg.update(check_learning_unit_year_deletion(next_year))
+    return msg
+
+
+def check_tutorings_deletion(learning_unit_year):
+    msg = {}
+    for tutoring in tutoring_learning_unit_year.find_learning_unit_year(learning_unit_year=learning_unit_year):
+            msg.update(_check_tutoring_learning_unit_year(tutoring))
+    return msg

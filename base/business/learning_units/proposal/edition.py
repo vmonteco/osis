@@ -23,40 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-from django.core.exceptions import ObjectDoesNotExist
-from django.utils.translation import ugettext_lazy as _
-from base.models.osis_model_admin import OsisModelAdmin
-from base.models import entity
+from base.business.learning_units.proposal import common
 
 
-class ProposalFolderAdmin(OsisModelAdmin):
-    list_display = ('entity', 'folder_id', )
-
-    search_fields = ['folder_id']
-    raw_id_fields = ('entity', )
-
-
-class ProposalFolder(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    entity = models.ForeignKey('Entity')
-    folder_id = models.IntegerField()
-
-    class Meta:
-        unique_together = ('entity', 'folder_id', )
-
-    def __str__(self):
-        return _("folder_number").format(self.folder_id)
-
-
-def find_by_entity_and_folder_id(an_entity, a_folder_id):
-    try:
-        return ProposalFolder.objects.get(entity=an_entity, folder_id=a_folder_id)
-    except ObjectDoesNotExist:
-        return None
-
-
-def find_distinct_folder_entities():
-    entities = ProposalFolder.objects.distinct('entity').values_list('entity__id', flat=True)
-    return entity.Entity.objects.filter(pk__in=entities)
+def update_learning_unit_proposal(data, proposal):
+    proposal = common.proposal_common_populate(data, proposal)
+    proposal.save()

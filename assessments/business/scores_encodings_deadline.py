@@ -36,8 +36,9 @@ logger = logging.getLogger(settings.DEFAULT_LOGGER)
 
 
 def recompute_all_deadlines(academic_calendar):
-    for off_year_cal in academic_calendar.offeryearcalendar_set.all():
-        compute_deadline(off_year_cal)
+    if academic_calendar.reference == ac_type.SCORES_EXAM_SUBMISSION:
+        for off_year_cal in academic_calendar.offeryearcalendar_set.all():
+            compute_deadline(off_year_cal)
 
 
 def compute_deadline_by_student(session_exam_deadline):
@@ -122,7 +123,8 @@ def _get_oyc_by_reference(off_year_calendar, reference):
     number_session = session_exam_calendar.get_number_session_by_academic_calendar(off_year_calendar.academic_calendar)
     if number_session:
         try:
-            return offer_year_calendar.search(education_group_year_id=off_year_calendar.education_group_year.id,
+            return offer_year_calendar.search(education_group_year=off_year_calendar.education_group_year,
+                                              offer_year=off_year_calendar.offer_year,
                                               academic_calendar_reference=reference,
                                               number_session=number_session).get()
         except offer_year_calendar.OfferYearCalendar.DoesNotExist:

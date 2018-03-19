@@ -132,7 +132,7 @@ class ReviewerReviewViewTestCase(TestCase):
         self.assertEqual(response.status_code, HTTP_OK)
 
     def test_generate_phd_supervisor_menu_tabs(self):
-        self.client.force_login(self.reviewer)
+        self.client.force_login(self.reviewer.person.user)
         self.assertEqual([{'action': 'view', 'class': '', 'item': 'PHD_SUPERVISOR'},
                           {'item': 'RESEARCH', 'class': '', 'action': 'edit'}],
                          generate_reviewer_menu_tabs(reviewer_role.RESEARCH, self.assistant_mandate, None))

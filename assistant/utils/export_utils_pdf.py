@@ -204,7 +204,7 @@ def get_tutoring_learning_unit_year(mandate, style):
     tutoring_learning_units_year = tutoring_learning_unit_year.find_by_mandate(mandate)
     for this_tutoring_learning_unit_year in tutoring_learning_units_year:
         academic_year = str(this_tutoring_learning_unit_year.learning_unit_year.academic_year)
-        data.append([Paragraph(this_tutoring_learning_unit_year.learning_unit_year.title + " (" +
+        data.append([Paragraph(this_tutoring_learning_unit_year.learning_unit_year.complete_title + " (" +
                                this_tutoring_learning_unit_year.learning_unit_year.acronym + ")", style),
                      Paragraph(academic_year, style),
                      Paragraph(str(this_tutoring_learning_unit_year.sessions_number), style),

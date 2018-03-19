@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,22 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
-import string
-import datetime
-
-from base.tests.factories.entity import EntityFactory
-from osis_common.utils.datetime import get_tzinfo
+from base.models.learning_unit_year import LearningUnitYear
 
 
-class ProposalFolderFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "base.ProposalFolder"
-        django_get_or_create = ('entity', )
-
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    entity = factory.SubFactory(EntityFactory)
-    folder_id = factory.fuzzy.FuzzyInteger(100)
+def find_learning_unit_years_summary_editable(tutor):
+    return LearningUnitYear.objects.filter(summary_editable=True,
+                                           attribution__summary_responsible=True,
+                                           attribution__tutor=tutor).order_by('academic_year__year', 'acronym')
