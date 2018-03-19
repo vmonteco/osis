@@ -2685,9 +2685,3 @@ msgstr ""
 
 msgid "Educational information ending"
 msgstr ""
-
-msgid "additional_requirement_entity_1"
-msgstr "Additional requirement entity 1"
-
-msgid "additional_requirement_entity_2"
-msgstr "Additional requirement entity 2"
