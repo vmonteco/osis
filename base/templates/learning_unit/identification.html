@@ -200,9 +200,9 @@
                                 {% dl_tooltip differences 'ADDITIONAL_REQUIREMENT_ENTITY_2' value=additional_requirement_entity_2.acronym %}
 
                                 {% block edit_academic_year %}
-                                    {% dl_tooltip differences 'academic_years' value=learning_unit_year.learning_unit.start_year|academic_years:learning_unit_year.learning_unit.end_year %}
-                                    {% dl_tooltip differences 'end_year' value=learning_unit_year.learning_unit.end_year %}
+                                    {% dl_tooltip differences 'end_year' label_text='academic_years' value=learning_unit_year.learning_unit.start_year|academic_years:learning_unit_year.learning_unit.end_year %}
                                 {% endblock %}
+
                             </div>
                         </div>
                         {% block panel_proposal %}

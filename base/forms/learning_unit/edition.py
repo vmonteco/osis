@@ -61,21 +61,23 @@ class LearningUnitEndDateForm(forms.Form):
                                            label=_('academic_end_year')
                                            )
 
-    def __init__(self, *args, **kwargs):
-        self.learning_unit = kwargs.pop('learning_unit')
-        only_reduce = kwargs.pop('only_reduce', False)
-        super().__init__(*args, **kwargs)
+    def __init__(self, data, learning_unit, *args, only_shorten=False, **kwargs):
+        self.learning_unit = learning_unit
+        super().__init__(data, *args, **kwargs)
         end_year = self.learning_unit.end_year
 
         self._set_initial_value(end_year)
 
         try:
-            queryset = self._get_academic_years(end_year, only_reduce)
+            queryset = self._get_academic_years(end_year, only_shorten)
 
             periodicity = self.learning_unit.periodicity
             self.fields['academic_year'].queryset = filter_biennial(queryset, periodicity)
         except ValueError:
             self.fields['academic_year'].disabled = True
+
+        if only_shorten:
+            self.fields['academic_year'].required = True
 
     def _set_initial_value(self, end_year):
         try:

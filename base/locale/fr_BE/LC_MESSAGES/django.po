@@ -2443,6 +2443,9 @@ msgstr "p23"
 msgid "Put in proposal"
 msgstr "Mettre en proposition"
 
+msgid "Put in suppression proposal"
+msgstr "Mettre en proposition de suppression"
+
 msgid "Proposal for modification"
 msgstr "Proposition de modification"
 
