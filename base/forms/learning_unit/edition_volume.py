@@ -176,7 +176,7 @@ class VolumeEditionForm(forms.Form):
         conflict_report = {}
         luy_to_update_list = [self.learning_unit_year]
         if postponement:
-            conflict_report = edition.get_conflict_report(self.learning_unit_year)
+            conflict_report = edition.get_postponement_conflict_report(self.learning_unit_year)
             luy_to_update_list.extend(conflict_report['luy_without_conflict'])
 
         for component in self._find_learning_components_year(luy_to_update_list):
