@@ -28,6 +28,7 @@ from django.conf.urls import url, include
 from django.conf.urls.static import static
 
 import base.views.learning_units.delete
+import base.views.learning_units.proposal.delete
 import base.views.learning_units.search
 import base.views.learning_units.update
 from attribution.views import attribution, tutor_application
@@ -114,7 +115,7 @@ urlpatterns = [
                 url(r'^suppression/$', update.learning_unit_suppression_proposal,
                     name="learning_unit_suppression_proposal"),
                 url(r'^edit/$', update.edit_learning_unit_proposal, name="edit_proposal"),
-                url(r'^cancel/$', update.cancel_proposal_of_learning_unit,
+                url(r'^cancel/$', base.views.learning_units.proposal.delete.cancel_proposal_of_learning_unit,
                     name="learning_unit_cancel_proposal"),
             ])),
             url(r'^update_end_date/$', learning_unit_edition_end_date, name="learning_unit_edition"),

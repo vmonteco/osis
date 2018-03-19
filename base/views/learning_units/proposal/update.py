@@ -42,7 +42,6 @@ from base.models.enums.proposal_state import ProposalState
 from base.models.enums.proposal_type import ProposalType
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
-from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views import layout
 from base.views.common import display_success_messages, display_error_messages
 from base.views.learning_unit import compute_form_initial_data, get_learning_unit_identification_context
@@ -112,19 +111,6 @@ def learning_unit_suppression_proposal(request, learning_unit_year_id):
             'experimental_phase': True})
 
     return render(request, 'learning_unit/proposal/create_suppression_proposal.html', context)
-
-
-@login_required
-@perms.can_perform_cancel_proposal
-@permission_required('base.can_propose_learningunit', raise_exception=True)
-def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
-    user_person = get_object_or_404(Person, user=request.user)
-    learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
-    learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learning_unit_year)
-    messages_by_level = business_proposal.cancel_proposal(learning_unit_proposal, user_person)
-    display_success_messages(request, messages_by_level[messages.SUCCESS])
-    display_error_messages(request, messages_by_level[messages.ERROR])
-    return redirect('learning_units_proposal')
 
 
 @login_required
