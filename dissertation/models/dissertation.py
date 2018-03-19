@@ -36,6 +36,7 @@ from . import dissertation_location
 from dissertation.utils import emails_dissert
 from dissertation.models.dissertation_role import get_promoteur_by_dissertation
 
+
 class DissertationAdmin(SerializableModelAdmin):
     list_display = ('uuid', 'title', 'author', 'status', 'active', 'proposition_dissertation', 'modification_date')
     raw_id_fields = ('author', 'offer_year_start', 'proposition_dissertation', 'location')
@@ -178,7 +179,7 @@ def count_by_proposition(prop_dissert):
     current_academic_year = academic_year.starting_academic_year()
     return Dissertation.objects.filter(active=True) \
         .filter(proposition_dissertation=prop_dissert) \
-        .filter(offer_year_start__academic_year = current_academic_year) \
+        .filter(offer_year_start__academic_year=current_academic_year) \
         .exclude(status='DRAFT') \
         .count()
 
