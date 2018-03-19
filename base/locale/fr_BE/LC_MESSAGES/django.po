@@ -2682,3 +2682,9 @@ msgstr "Ouverture informations pédagoqiques"
 
 msgid "Educational information ending"
 msgstr "Fermeture informations pédagoqiques"
+
+msgid "official_title_proper_to_partim"
+msgstr "Intitulé officiel propre au partim"
+
+msgid "official_english_title_proper_to_partim"
+msgstr "Intitulé officiel en anglais propre au partim"

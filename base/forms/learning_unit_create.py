@@ -97,7 +97,7 @@ class LearningUnitYearForm(BootstrapForm):
     specific_title_english = forms.CharField(required=False, widget=forms.TextInput())
     session = forms.ChoiceField(add_blank(mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION),
                                 required=False)
-    subtype = forms.CharField(widget=forms.HiddenInput())
+    subtype = forms.CharField()
     container_type = forms.ChoiceField(choices=lazy(_create_learning_container_year_type_list, tuple),
                                        widget=forms.Select(attrs={'onchange': 'showInternshipSubtype()'}))
     faculty_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
@@ -164,6 +164,12 @@ class LearningUnitYearForm(BootstrapForm):
     def __init__(self, *args, **kwargs):
         self.learning_unit = kwargs.pop('learning_unit', None)
         super(LearningUnitYearForm, self).__init__(*args, **kwargs)
+        if self.instance.subtype == "PARTIM":
+            self.fields['specific_title'].label = _('official_title_proper_to_partim')
+            self.fields['specific_title_english'].label = _('official_english_title_proper_to_partim')
+        else:
+            self.fields['specific_title'].label = _('official_title_proper_to_UE')
+            self.fields['specific_title_english'].label = _('official_english_title_proper_to_UE')
 
     def _get_existing_acronym_list(self, academic_year, acronym):
         if self.learning_unit:
