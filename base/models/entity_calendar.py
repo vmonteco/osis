@@ -54,4 +54,3 @@ def find_by_entity_and_reference_for_current_academic_year(entity_id, reference)
                                           academic_calendar__reference=reference)
     except ObjectDoesNotExist:
         return None
-
