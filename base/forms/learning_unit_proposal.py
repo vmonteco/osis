@@ -41,12 +41,12 @@ from base.models.proposal_learning_unit import ProposalLearningUnit
 class ProposalLearningUnitForm(forms.ModelForm):
     entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
 
-    def __init__(self, data, learning_unit_year, type_proposal, state_proposal, author, *args, **kwargs):
+    def __init__(self, data, *args, initial=None, **kwargs):
         super().__init__(data, *args, **kwargs)
-        self.instance.learning_unit_year = learning_unit_year
-        self.instance.type = type_proposal
-        self.instance.state = state_proposal
-        self.instance.author = author
+
+        if initial:
+            for key, value in initial.items():
+                setattr(self.instance, key, value)
 
     def clean_entity(self):
         return self.cleaned_data['entity'].entity

@@ -23,14 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
 from django import forms
 from django.forms import model_to_dict
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_units.edition import filter_biennial, update_learning_unit_year_with_report, \
-    edit_learning_unit_end_date, get_new_end_year
+    edit_learning_unit_end_date
 from base.business.learning_units.perms import FACULTY_UPDATABLE_CONTAINER_TYPES
 from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.utils.choice_field import add_blank
@@ -61,7 +60,7 @@ class LearningUnitEndDateForm(forms.Form):
                                            label=_('academic_end_year')
                                            )
 
-    def __init__(self, data, learning_unit, *args, only_shorten=False, **kwargs):
+    def __init__(self, data, learning_unit, *args, max_year=None, **kwargs):
         self.learning_unit = learning_unit
         super().__init__(data, *args, **kwargs)
         end_year = self.learning_unit.end_year
@@ -69,14 +68,14 @@ class LearningUnitEndDateForm(forms.Form):
         self._set_initial_value(end_year)
 
         try:
-            queryset = self._get_academic_years(end_year, only_shorten)
+            queryset = self._get_academic_years(max_year)
 
             periodicity = self.learning_unit.periodicity
             self.fields['academic_year'].queryset = filter_biennial(queryset, periodicity)
         except ValueError:
             self.fields['academic_year'].disabled = True
 
-        if only_shorten:
+        if max_year:
             self.fields['academic_year'].required = True
 
     def _set_initial_value(self, end_year):
@@ -85,12 +84,11 @@ class LearningUnitEndDateForm(forms.Form):
         except (AcademicYear.DoesNotExist, AcademicYear.MultipleObjectsReturned):
             self.fields['academic_year'].initial = None
 
-    def _get_academic_years(self, end_year, only_reduce):
+    def _get_academic_years(self, max_year):
         current_academic_year = academic_year.current_academic_year()
         min_year = current_academic_year.year
-        if only_reduce and end_year:
-            max_year = end_year
-        else:
+
+        if not max_year:
             max_year = compute_max_academic_year_adjournment()
 
         if self.learning_unit.start_year > min_year:

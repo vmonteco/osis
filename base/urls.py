@@ -114,7 +114,7 @@ urlpatterns = [
                     name="learning_unit_modification_proposal"),
                 url(r'^suppression/$', update.learning_unit_suppression_proposal,
                     name="learning_unit_suppression_proposal"),
-                url(r'^edit/$', update.edit_learning_unit_proposal, name="edit_proposal"),
+                url(r'^edit/$', update.update_learning_unit_proposal, name="edit_proposal"),
                 url(r'^cancel/$', base.views.learning_units.proposal.delete.cancel_proposal_of_learning_unit,
                     name="learning_unit_cancel_proposal"),
             ])),

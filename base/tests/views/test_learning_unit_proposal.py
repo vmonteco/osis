@@ -71,7 +71,7 @@ from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFact
 from base.tests.factories.tutor import TutorFactory
 from base.views.learning_unit import learning_unit_identification
 from base.views.learning_units.search import _cancel_proposals
-from base.views.learning_units.proposal.update import edit_learning_unit_proposal, learning_unit_modification_proposal, \
+from base.views.learning_units.proposal.update import update_learning_unit_proposal, learning_unit_modification_proposal, \
     learning_unit_suppression_proposal
 from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search
 from reference.tests.factories.language import LanguageFactory
@@ -938,7 +938,7 @@ class TestEditProposal(TestCase):
         self.person.user.user_permissions.add(self.permission)
         self.client.force_login(self.person.user)
 
-        self.url = reverse(edit_learning_unit_proposal, args=[self.learning_unit_year.id])
+        self.url = reverse(update_learning_unit_proposal, args=[self.learning_unit_year.id])
 
     def test_edit_proposal_get_no_permission(self):
         self.person.user.user_permissions.remove(self.permission)
@@ -954,7 +954,7 @@ class TestEditProposal(TestCase):
         request = request_factory.get(self.url)
 
         request.user = self.person.user
-        edit_learning_unit_proposal(request, self.learning_unit_year.id)
+        update_learning_unit_proposal(request, self.learning_unit_year.id)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -998,7 +998,7 @@ class TestEditProposal(TestCase):
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
-        edit_learning_unit_proposal(request, self.learning_unit_year.id)
+        update_learning_unit_proposal(request, self.learning_unit_year.id)
 
         msg = [m.message for m in get_messages(request)]
         msg_level = [m.level for m in get_messages(request)]
@@ -1017,7 +1017,7 @@ class TestEditProposal(TestCase):
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
-        edit_learning_unit_proposal(request, self.learning_unit_year.id)
+        update_learning_unit_proposal(request, self.learning_unit_year.id)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
