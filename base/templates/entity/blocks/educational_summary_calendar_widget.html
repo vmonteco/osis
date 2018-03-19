@@ -28,12 +28,13 @@
 
 <form method="post">
     {% csrf_token %}
+    {% bootstrap_form_errors form %}
     <div class="row">
        <div class="col-md-3">
-            {% bootstrap_field form.start_date field_class="datepicker" %}
+            {% bootstrap_field form.start_date %}
         </div>
         <div class="col-md-3">
-            {% bootstrap_field form.end_date field_class="datepicker" %}
+            {% bootstrap_field form.end_date %}
         </div>
         <div class="col-md-3">
             {% bootstrap_button _("Save") button_type="submit" button_class="btn-primary" %}
