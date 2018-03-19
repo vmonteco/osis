@@ -177,8 +177,8 @@ def search_by_offer_and_status(offers, status):
 
 def count_by_proposition(prop_dissert):
     current_academic_year = academic_year.starting_academic_year()
-    return Dissertation.objects.filter(active=True)\
-        .filter(proposition_dissertation=prop_dissert)\
+    return Dissertation.objects.filter(proposition_dissertation=prop_dissert)\
+        .filter(active=True)\
         .filter(offer_year_start__academic_year=current_academic_year)\
         .exclude(status='DRAFT')\
         .count()
