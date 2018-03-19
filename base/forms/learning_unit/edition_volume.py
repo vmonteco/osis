@@ -179,8 +179,9 @@ class VolumeEditionForm(forms.Form):
             conflict_report = edition.get_postponement_conflict_report(self.learning_unit_year)
             luy_to_update_list.extend(conflict_report['luy_without_conflict'])
 
-        for component in self._find_learning_components_year(luy_to_update_list):
-            self._save(component)
+        with transaction.atomic():
+            for component in self._find_learning_components_year(luy_to_update_list):
+                self._save(component)
 
         if conflict_report.get('errors'):
             raise ConsistencyError(_('error_modification_learning_unit'), error_list=conflict_report.get('errors'))
@@ -223,7 +224,6 @@ class VolumeEditionBaseFormset(forms.BaseFormSet):
         self.components = list(self.learning_unit_year.components.keys())
         self.components_values = list(self.learning_unit_year.components.values())
         self.is_faculty_manager = kwargs.pop('is_faculty_manager')
-        self.conflict_errors = []
 
         super().__init__(*args, **kwargs)
 
@@ -261,11 +261,8 @@ class VolumeEditionBaseFormset(forms.BaseFormSet):
         return next(form for form in self.forms if form.component.type == component_type)
 
     def save(self, postponement):
-        try:
-            for form in self.forms:
-                form.save(postponement)
-        except ConsistencyError as e:
-            self.conflict_errors = e.error_list
+        for form in self.forms:
+            form.save(postponement)
 
 
 class VolumeEditionFormsetContainer:
@@ -276,6 +273,7 @@ class VolumeEditionFormsetContainer:
         self.formsets = OrderedDict()
         self.learning_units = learning_units
         self.parent = self.learning_units[0]
+        self.postponement = int(request.POST.get('postponement', 1))
         self.request = request
 
         self.is_faculty_manager = person.is_faculty_manager() and not person.is_central_manager()
@@ -308,17 +306,9 @@ class VolumeEditionFormsetContainer:
         return all(self.formsets[luy].validate_parent_partim(self.formsets[self.parent]) for luy in self.formsets
                    if luy != self.parent)
 
-    def save(self, postponement):
-        with transaction.atomic():
-            for formset in self.formsets.values():
-                formset.save(postponement)
-
-    @property
-    def conflict_errors(self):
-        conflict_errors = []
+    def save(self):
         for formset in self.formsets.values():
-            conflict_errors.extend(formset.conflict_errors)
-        return conflict_errors
+            formset.save(self.postponement)
 
     @property
     def errors(self):
