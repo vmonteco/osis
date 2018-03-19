@@ -27,30 +27,32 @@ import datetime
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from base.business import learning_unit_proposal as business_proposal
-from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
+from base.forms.learning_unit.edition import LearningUnitEndDateForm
+from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, ProposalLearningUnitForm
 from base.models import proposal_learning_unit
 from base.models.entity_version import find_latest_version_by_entity
-from base.models.enums import proposal_state
+from base.models.enums.proposal_state import ProposalState
+from base.models.enums.proposal_type import ProposalType
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
+from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views import layout
 from base.views.common import display_success_messages, display_error_messages
-from base.views.learning_unit import compute_form_initial_data
-from base.models.proposal_learning_unit import ProposalLearningUnit
+from base.views.learning_unit import compute_form_initial_data, get_learning_unit_identification_context
 from base.views.learning_units import perms
 
 
 @login_required
 @perms.can_create_modification_proposal
 @permission_required('base.can_propose_learningunit', raise_exception=True)
-def propose_modification_of_learning_unit(request, learning_unit_year_id):
+def learning_unit_modification_proposal(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
     user_person = get_object_or_404(Person, user=request.user)
     initial_data = compute_form_initial_data(learning_unit_year)
@@ -63,20 +65,53 @@ def propose_modification_of_learning_unit(request, learning_unit_year_id):
         learning_unit=learning_unit_year.learning_unit
     )
 
-    if request.method == 'POST':
-        if form.is_valid():
-            type_proposal = business_proposal.compute_proposal_type(initial_data, request.POST)
-            form.save(learning_unit_year, user_person, type_proposal, proposal_state.ProposalState.FACULTY.name)
-            messages.add_message(request, messages.SUCCESS,
-                                 _("success_modification_proposal")
-                                 .format(_(type_proposal), learning_unit_year.acronym))
-            return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
+    if form.is_valid():
+        type_proposal = business_proposal.compute_proposal_type(initial_data, request.POST)
+        form.save(learning_unit_year, user_person, type_proposal, ProposalState.FACULTY.name)
+        messages.add_message(request, messages.SUCCESS,
+                             _("success_modification_proposal")
+                             .format(_(type_proposal), learning_unit_year.acronym))
+        return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
-    return render(request, 'learning_unit/proposal/update.html', {
+    return render(request, 'learning_unit/proposal/create_modification_proposal.html', {
         'learning_unit_year': learning_unit_year,
         'person': user_person,
         'form': form,
         'experimental_phase': True})
+
+
+@login_required
+@perms.can_create_modification_proposal
+@permission_required('base.can_propose_learningunit', raise_exception=True)
+def learning_unit_suppression_proposal(request, learning_unit_year_id):
+    learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
+    user_person = get_object_or_404(Person, user=request.user)
+    type_proposal = ProposalType.SUPPRESSION.name
+
+    form_end_date = LearningUnitEndDateForm(request.POST or None, learning_unit_year.learning_unit, only_shorten=True)
+    form_proposal = ProposalLearningUnitForm(request.POST or None, learning_unit_year, type_proposal,
+                                             ProposalState.FACULTY.name, user_person)
+
+    if form_end_date.is_valid() and form_proposal.is_valid():
+        with transaction.atomic():
+            form_proposal.save()
+
+            # For the proposal, we do not update learning_unit_year
+            form_end_date.save(update_learning_unit_year=False)
+
+            display_success_messages(
+                request, _("success_modification_proposal").format(_(type_proposal), learning_unit_year.acronym))
+
+        return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
+
+    context = get_learning_unit_identification_context(learning_unit_year_id, user_person)
+    context.update({
+            'person': user_person,
+            'form_end_date': form_end_date,
+            'form_proposal': form_proposal,
+            'experimental_phase': True})
+
+    return render(request, 'learning_unit/proposal/create_suppression_proposal.html', context)
 
 
 @login_required
@@ -125,7 +160,7 @@ def edit_learning_unit_proposal(request, learning_unit_year_id):
 
 def _build_proposal_data(proposal):
     return {"folder_id": proposal.folder_id,
-            "folder_entity": find_latest_version_by_entity(proposal.entity.id,
-                                                           datetime.date.today()),
+            "entity": find_latest_version_by_entity(proposal.entity.id,
+                                                    datetime.date.today()),
             "type": proposal.type,
             "state": proposal.state}

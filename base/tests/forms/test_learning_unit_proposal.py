@@ -98,7 +98,7 @@ class TestSave(TestCase):
             "campus": self.campus.id,
             "requirement_entity": self.entity_version.id,
             "allocation_entity": self.entity_version.id,
-            "folder_entity": self.entity_version.id,
+            "entity": self.entity_version.id,
             "folder_id": "1",
             "state": proposal_state.ProposalState.CENTRAL.name
         }
@@ -227,7 +227,8 @@ class TestSave(TestCase):
             },
             "learning_unit": {
                 "id": self.learning_unit_year.learning_unit.id,
-                "periodicity": self.learning_unit_year.learning_unit.periodicity
+                "periodicity": self.learning_unit_year.learning_unit.periodicity,
+                'end_year': self.learning_unit_year.learning_unit.end_year
             },
             "entities": {
                 entity_container_year_link_type.REQUIREMENT_ENTITY: self.entity_container_year.entity.id,

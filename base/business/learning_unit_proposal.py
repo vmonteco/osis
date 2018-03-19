@@ -112,7 +112,7 @@ def delete_learning_unit_proposal(learning_unit_proposal):
         lu.delete()
 
 
-def _get_difference_of_proposal(learning_unit_yr_proposal):
+def get_difference_of_proposal(learning_unit_yr_proposal):
     differences = {}
     if learning_unit_yr_proposal and learning_unit_yr_proposal.initial_data.get('learning_container_year'):
         differences.update(_get_differences_in_learning_unit_data(learning_unit_yr_proposal))

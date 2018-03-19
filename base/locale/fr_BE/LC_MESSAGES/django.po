@@ -1690,6 +1690,15 @@ msgstr "Ent. attrib."
 msgid "with_entity_subordinated_small"
 msgstr "Avec ent. subord."
 
+msgid "additional_requirement_entity"
+msgstr "Entité resp. cahier de charges complémentaire"
+
+msgid "additional_requirement_entity_1"
+msgstr "Entité resp. cahier de charges complémentaire 1"
+
+msgid "additional_requirement_entity_2"
+msgstr "Entité resp. cahier de charges complémentaire 2"
+
 msgid "academic_end_year"
 msgstr "Anac de fin"
 
@@ -2434,6 +2443,9 @@ msgstr "p23"
 msgid "Put in proposal"
 msgstr "Mettre en proposition"
 
+msgid "Put in suppression proposal"
+msgstr "Mettre en proposition de suppression"
+
 msgid "Proposal for modification"
 msgstr "Proposition de modification"
 
@@ -2679,9 +2691,3 @@ msgstr "Ouverture informations pédagoqiques"
 
 msgid "Educational information ending"
 msgstr "Fermeture informations pédagoqiques"
-
-msgid "additional_requirement_entity_1"
-msgstr "Entité resp. cahier de charges complémentaire 1"
-
-msgid "additional_requirement_entity_2"
-msgstr "Entité resp. cahier de charges complémentaire 2"

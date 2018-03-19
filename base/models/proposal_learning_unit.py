@@ -53,7 +53,7 @@ class ProposalLearningUnit(models.Model):
                              default=proposal_state.ProposalState.FACULTY)
     initial_data = JSONField(default={})
     entity = models.ForeignKey('Entity')
-    folder_id = models.IntegerField()
+    folder_id = models.PositiveIntegerField()
 
     def __str__(self):
         return "{} - {}".format(self.folder_id, self.learning_unit_year)

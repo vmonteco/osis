@@ -1,0 +1,29 @@
+{% load i18n %}
+
+{% if proposal %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            {% trans 'proposal' %}
+        </div>
+        <div class="panel-body">
+            <label style="margin-top:10px;">{% trans 'folder' %}</label><br>
+                {{ proposal_folder_entity_version.0.acronym}} - {{ proposal.folder_id }}
+            <br>
+            <label style="margin-top:10px;">{% trans 'type' %}</label><br>
+                {% trans proposal.type %}
+            <br>
+            <div style="margin-top:10px;">
+                {% block proposal_state %}
+                    <label >{% trans 'state' %}</label><br>
+                    {% trans proposal.state %}
+                {% endblock proposal_state %}
+            </div>
+            <br>
+              <label style="margin-top:10px;">{% trans 'introduced_by' %}</label><br>
+              {{ proposal.author }}
+              <br>
+               <label style="margin-top:10px;">{% trans 'the' %}</label><br>
+              {{ proposal.date }}
+        </div>
+    </div>
+{% endif %}
