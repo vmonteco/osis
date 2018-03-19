@@ -89,7 +89,7 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
     messages_by_level = business_proposal.cancel_proposal(learning_unit_proposal, user_person)
     display_success_messages(request, messages_by_level[messages.SUCCESS])
     display_error_messages(request, messages_by_level[messages.ERROR])
-    return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
+    return redirect('learning_units_proposal')
 
 
 @login_required
