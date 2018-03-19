@@ -83,7 +83,7 @@ def update_learning_unit(request, learning_unit_year_id):
     if form.is_valid():
         try:
             form.save()
-            display_success_messages(request, _("success_modification_learning_unit"))
+            display_success_modification_message(request)
 
         except ConsistencyError as e:
             display_error_messages(request, e.error_list)
@@ -118,7 +118,7 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
     if volume_edition_formset_container.is_valid() and not request.is_ajax():
         try:
             volume_edition_formset_container.save()
-            display_success_messages(request, _('success_modification_learning_unit'))
+            display_success_modification_message(request)
         except ConsistencyError as e:
             display_error_messages(request, e.error_list)
         return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
@@ -130,3 +130,7 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
         return JsonResponse({'errors': volume_edition_formset_container.errors})
 
     return layout.render(request, "learning_unit/volumes_management.html", context)
+
+
+def display_success_modification_message(request):
+    display_success_messages(request, _('success_modification_learning_unit'))
