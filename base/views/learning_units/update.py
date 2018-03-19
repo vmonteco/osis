@@ -119,17 +119,13 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
         try:
             volume_edition_formset_container.save()
             display_success_messages(request, _('success_modification_learning_unit'))
-            return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
         except ConsistencyError as e:
             display_error_messages(request, e.error_list)
-            return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
-        except IntegrityError:
-            display_error_messages(request, _("error_modification_learning_unit"))
+        return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
 
     context['formsets'] = volume_edition_formset_container.formsets
     context['tab_active'] = 'components'
     context['experimental_phase'] = True
-
     if request.is_ajax():
         return JsonResponse({'errors': volume_edition_formset_container.errors})
 

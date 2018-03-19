@@ -438,31 +438,6 @@ class TestLearningUnitVolumesManagement(TestCase):
                                    prefix+"-1-volume_total": [_("vol_tot_full_must_be_greater_than_partim")]}
                               })
 
-    @mock.patch('base.models.learning_component_year.LearningComponentYear.save', side_effect=IntegrityError)
-    @mock.patch('base.models.program_manager.is_program_manager')
-    def test_learning_unit_volumes_management_post_wrong_save(self, mock_program_manager, save):
-        """In this test, we ensure that en Intergrity Error will be displayed on user"""
-        mock_program_manager.return_value = True
-
-        request_factory = RequestFactory()
-        data = get_valid_formset_data(self.learning_unit_year.acronym)
-        data.update(get_valid_formset_data(self.learning_unit_year_partim.acronym, is_partim=True))
-
-        request = request_factory.post(reverse(learning_unit_volumes_management,
-                                               args=[self.learning_unit_year.id]),
-                                       data=data)
-
-        request.user = self.user
-        setattr(request, 'session', 'session')
-        setattr(request, '_messages', FallbackStorage(request))
-
-        learning_unit_volumes_management(request, self.learning_unit_year.id)
-
-        msg_level = [m.level for m in get_messages(request)]
-        msg = [m.message for m in get_messages(request)]
-        self.assertEqual(len(msg), 1)
-        self.assertIn(messages.ERROR, msg_level)
-
     def test_with_user_not_logged(self):
         self.client.logout()
         response = self.client.post(self.url)
