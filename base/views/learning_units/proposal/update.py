@@ -97,7 +97,11 @@ def update_learning_unit_proposal(request, learning_unit_year_id):
 
     if proposal.type == ProposalType.SUPPRESSION.name:
         return _update_or_create_suppression_proposal(request, user_person, proposal.learning_unit_year, proposal)
+    else:
+        return _update_proposal(request, user_person, proposal)
 
+
+def _update_proposal(request, user_person, proposal):
     initial_data = compute_form_initial_data(proposal.learning_unit_year)
     initial_data.update(_build_proposal_data(proposal))
 
@@ -114,9 +118,10 @@ def update_learning_unit_proposal(request, learning_unit_year_id):
             proposal_form.save(proposal.learning_unit_year, user_person, type_proposal,
                                proposal_form.cleaned_data.get("state"))
             display_success_messages(request, _("proposal_edited_successfully"))
-            return HttpResponseRedirect(reverse('learning_unit', args=[learning_unit_year_id]))
+            return HttpResponseRedirect(reverse('learning_unit', args=[proposal.learning_unit_year.id]))
         except (IntegrityError, ValueError) as e:
             display_error_messages(request, e.args[0])
+
     return layout.render(request, 'learning_unit/proposal/edition.html',  {
         'learning_unit_year': proposal.learning_unit_year,
         'person': user_person,
@@ -127,9 +132,11 @@ def update_learning_unit_proposal(request, learning_unit_year_id):
 def _update_or_create_suppression_proposal(request, person, learning_unit_year, proposal=None):
     type_proposal = ProposalType.SUPPRESSION.name
     initial = _get_initial(learning_unit_year, proposal, type_proposal, person)
+
     form_end_date = LearningUnitEndDateForm(request.POST or None, learning_unit_year.learning_unit,
                                             max_year=learning_unit_year.learning_unit.end_year)
     form_proposal = ProposalLearningUnitForm(request.POST or None, instance=proposal, initial=initial)
+
     if form_end_date.is_valid() and form_proposal.is_valid():
         with transaction.atomic():
             form_proposal.save()
@@ -141,6 +148,7 @@ def _update_or_create_suppression_proposal(request, person, learning_unit_year, 
                 request, _("success_modification_proposal").format(_(type_proposal), learning_unit_year.acronym))
 
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
+
     context = get_learning_unit_identification_context(learning_unit_year.id, person)
     context.update({
         'person': person,
