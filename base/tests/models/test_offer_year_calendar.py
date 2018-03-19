@@ -25,6 +25,8 @@
 ##############################################################################
 import datetime
 from unittest import mock
+
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils import timezone
 
@@ -55,7 +57,7 @@ class OfferYearCalendarsAttributesValidation(TestCase):
                                                             academic_calendar=self.academic_calendar)
         self.offer_year_calendar.start_date = datetime.date(YEAR_CALENDAR, 9, 1)
         self.offer_year_calendar.end_date = datetime.date(YEAR_CALENDAR, 8, 1)
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(ValidationError):
             self.offer_year_calendar.save()
 
     def test_compute_deadline_is_called_case_offer_year_calendar_save(self):

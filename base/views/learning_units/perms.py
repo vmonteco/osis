@@ -32,11 +32,21 @@ from base.models import learning_unit_year, person, proposal_learning_unit
 from base.models.proposal_learning_unit import ProposalLearningUnit
 
 
+def can_delete_learning_unit_year(view_func):
+    def f_can_delete_learning_unit_year(request, learning_unit_year_id):
+        learn_unit_year = get_object_or_404(learning_unit_year.LearningUnitYear, pk=learning_unit_year_id)
+        pers = get_object_or_404(person.Person, user=request.user)
+        if not business_perms.can_delete_learning_unit_year(learn_unit_year, pers):
+            raise PermissionDenied
+        return view_func(request, learning_unit_year_id)
+    return f_can_delete_learning_unit_year
+
+
 def can_create_partim(view_func):
     def f_can_create_partim(request, learning_unit_year_id):
         learn_unit_year = get_object_or_404(learning_unit_year.LearningUnitYear, pk=learning_unit_year_id)
         pers = get_object_or_404(person.Person, user=request.user)
-        if not business_perms.is_person_linked_to_entity_in_charge_of_learning_unit(pers, learn_unit_year):
+        if not business_perms.is_person_linked_to_entity_in_charge_of_learning_unit(learn_unit_year, pers):
             raise PermissionDenied
         return view_func(request, learning_unit_year_id)
     return f_can_create_partim

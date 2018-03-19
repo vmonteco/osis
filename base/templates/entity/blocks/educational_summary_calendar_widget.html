@@ -1,6 +1,6 @@
 {% load staticfiles %}
 {% load i18n %}
-{% load format %}
+{% load bootstrap3 %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -25,8 +25,19 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-{% with learning_unit_year.academic_year|slugify as current_yr %}
-    {% with current_id=learning_unit_year.id local_storage_key="learningUnitIds" header_title=learning_unit_year.acronym|add:" - "|add:learning_unit_year.complete_title|add:" - "|add:current_yr %}
-        {% include "template_nav_header.html" %}
-    {% endwith %}
-{% endwith %}
+
+<form method="post">
+    {% csrf_token %}
+    {% bootstrap_form_errors form %}
+    <div class="row">
+       <div class="col-md-3">
+            {% bootstrap_field form.start_date %}
+        </div>
+        <div class="col-md-3">
+            {% bootstrap_field form.end_date %}
+        </div>
+        <div class="col-md-3">
+            {% bootstrap_button _("Save") button_type="submit" button_class="btn-primary" %}
+        </div>
+    </div>
+</form>

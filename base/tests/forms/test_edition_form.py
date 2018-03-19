@@ -230,6 +230,7 @@ class TestVolumeEditionFormsetContainer(TestCase):
 
         data_forms = get_valid_formset_data(self.learning_unit_year_full.acronym)
         data_forms.update(get_valid_formset_data(self.learning_unit_year_partim.acronym, is_partim=True))
+        data_forms.update({'postponement': 1})
 
         volume_edition_formset_container = VolumeEditionFormsetContainer(
             request_factory.post(None, data=data_forms),
@@ -237,7 +238,7 @@ class TestVolumeEditionFormsetContainer(TestCase):
 
         self.assertTrue(volume_edition_formset_container.is_valid())
 
-        volume_edition_formset_container.save(1)
+        volume_edition_formset_container.save()
 
     def test_post_volume_edition_formset_container_wrong_vol_tot_full_must_be_greater_than_partim(self):
         request_factory = RequestFactory()
@@ -267,10 +268,10 @@ class TestVolumeEditionFormsetContainer(TestCase):
                          [self.learning_unit_year_full,
                           self.learning_unit_year_partim])
 
-        first_formset = volume_edition_formset_container.formsets[self.learning_unit_year_full]
-        first_form = first_formset.forms[0]
+        full_formset = volume_edition_formset_container.formsets[self.learning_unit_year_full]
+        first_form = full_formset.forms[0]
 
-        self.assertEqual(len(first_formset.forms), 2)
+        self.assertEqual(len(full_formset.forms), 2)
         self.assertEqual(first_form.learning_unit_year, self.learning_unit_year_full)
 
         fields = first_form.fields
@@ -279,6 +280,16 @@ class TestVolumeEditionFormsetContainer(TestCase):
                 self.assertFalse(field.disabled)
             else:
                 self.assertTrue(field.disabled)
+
+        partim_formset = volume_edition_formset_container.formsets[self.learning_unit_year_partim]
+        first_form = partim_formset.forms[0]
+
+        self.assertEqual(len(partim_formset.forms), 2)
+        self.assertEqual(first_form.learning_unit_year, self.learning_unit_year_partim)
+
+        fields = first_form.fields
+        for key, field in fields.items():
+            self.assertFalse(field.disabled)
 
 
 def get_valid_formset_data(prefix, is_partim=False):

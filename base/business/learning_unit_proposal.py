@@ -24,14 +24,15 @@
 #
 ##############################################################################
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
-from base.models import entity_container_year, campus, entity, entity_version
+from base.business import learning_unit_deletion as business_deletion
+from base.models import entity_container_year, campus, entity
 from base.models.enums import proposal_type, entity_container_year_link_type
-from base.models.proposal_learning_unit import find_by_folder
+from base.utils import send_mail as send_mail_util
 from reference.models import language
 from django.utils.translation import ugettext_lazy as _
 from base import models as mdl_base
 from django.apps import apps
-
+from django.contrib.messages import ERROR, SUCCESS
 
 APP_BASE_LABEL = 'base'
 END_FOREIGN_KEY_NAME = "_id"
@@ -63,7 +64,8 @@ def _compute_data_changed(initial_data, current_data):
     return data_changed
 
 
-def reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year):
+def _reinitialize_data_before_proposal(learning_unit_proposal):
+    learning_unit_year = learning_unit_proposal.learning_unit_year
     initial_data = learning_unit_proposal.initial_data
     _reinitialize_model_before_proposal(learning_unit_year, initial_data["learning_unit_year"])
     _reinitialize_model_before_proposal(learning_unit_year.learning_unit, initial_data["learning_unit"])
@@ -103,10 +105,7 @@ def _reinitialize_entities_before_proposal(learning_container_year, initial_enti
 
 
 def delete_learning_unit_proposal(learning_unit_proposal):
-    proposal_folder = learning_unit_proposal.folder
     learning_unit_proposal.delete()
-    if not find_by_folder(proposal_folder).exists():
-        proposal_folder.delete()
 
 
 def _get_difference_of_proposal(learning_unit_yr_proposal):
@@ -257,7 +256,43 @@ def _get_old_value_when_not_foreign_key(initial_value, key):
 
 
 def _get_rid_of_blank_value(data):
-    clean_data = {}
-    for k, v in data.items():
-        clean_data.update({k: None}) if v == '' else clean_data.update({k: v})
+    clean_data = data.copy()
+    for key, value in clean_data.items():
+        if value == '':
+            clean_data[key] = None
     return clean_data
+
+
+def cancel_proposal(learning_unit_proposal, author, send_mail=True):
+    acronym = learning_unit_proposal.learning_unit_year.acronym
+    error_messages = []
+    success_messages = []
+    if learning_unit_proposal.type == proposal_type.ProposalType.CREATION.name:
+        learning_unit_year = learning_unit_proposal.learning_unit_year
+        error_messages.extend(business_deletion.check_can_delete_ignoring_proposal_validation(learning_unit_year))
+        if not error_messages:
+            success_messages.extend(business_deletion.delete_from_given_learning_unit_year(learning_unit_year))
+    else:
+        _reinitialize_data_before_proposal(learning_unit_proposal)
+    delete_learning_unit_proposal(learning_unit_proposal)
+    success_messages.append(_("success_cancel_proposal").format(acronym))
+    if send_mail:
+        send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation([author], [learning_unit_proposal])
+    return {
+        SUCCESS: success_messages,
+        ERROR: error_messages
+    }
+
+
+def cancel_proposals(proposals_to_cancel, author):
+    success_messages = []
+    error_messages = []
+    for proposal in proposals_to_cancel:
+        messages_by_level = cancel_proposal(proposal, author, send_mail=False)
+        success_messages.extend(messages_by_level[SUCCESS])
+        error_messages.extend(messages_by_level[ERROR])
+    send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation([author], [proposals_to_cancel])
+    return {
+        SUCCESS: success_messages,
+        ERROR: error_messages
+    }
