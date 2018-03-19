@@ -28,7 +28,10 @@ from django.utils.translation import ugettext as _
 
 from base.forms import bootstrap
 from base.forms.utils.datefield import DatePickerInput, DATE_FORMAT
+from base.models.academic_calendar import get_by_reference_and_academic_year
+from base.models.academic_year import current_academic_year
 from base.models.entity_calendar import EntityCalendar
+from base.models.enums import academic_calendar_type
 
 
 class EntityCalendarEducationalInformationForm(bootstrap.BootstrapModelForm):
@@ -39,3 +42,10 @@ class EntityCalendarEducationalInformationForm(bootstrap.BootstrapModelForm):
     class Meta:
         model = EntityCalendar
         fields = ["start_date", "end_date"]
+
+    def save_entity_calendar(self, entity, *args, **kwargs):
+        self.instance.entity = entity
+        self.instance.academic_calendar = get_by_reference_and_academic_year(
+            academic_calendar_type.SUMMARY_COURSE_SUBMISSION, current_academic_year())
+        return self.save(*args, **kwargs)
+

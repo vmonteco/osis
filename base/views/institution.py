@@ -24,17 +24,13 @@
 #
 ##############################################################################
 import json
-import datetime
 
 from django.contrib.auth.decorators import login_required, permission_required
-from django.forms import modelform_factory
 from django.http import JsonResponse
 from base import models as mdl
 from base.forms.entity_calendar import EntityCalendarEducationalInformationForm
 from base.models import entity_version as entity_version_mdl
-from base.models.academic_calendar import get_by_reference_and_academic_year
-from base.models.academic_year import current_academic_year
-from base.models.entity_calendar import EntityCalendar, find_by_entity_and_reference_for_current_academic_year
+from base.models.entity_calendar import find_by_entity_and_reference_for_current_academic_year
 from base.models.enums import entity_type, academic_calendar_type
 from . import layout
 
@@ -83,12 +79,7 @@ def entity_read(request, entity_version_id):
         entity_version.entity.id, academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
     form = EntityCalendarEducationalInformationForm(request.POST or None, instance=entity_calendar_instance)
     if form.is_valid():
-        academic_calendar =  get_by_reference_and_academic_year(academic_calendar_type.SUMMARY_COURSE_SUBMISSION,
-                                                                current_academic_year())
-        new_entity_calendar = form.save(commit=False)
-        new_entity_calendar.entity = entity_version.entity
-        new_entity_calendar.academic_calendar = academic_calendar
-        new_entity_calendar.save()
+        form.save_entity_calendar(entity_version.entity)
 
     return layout.render(request, "entity/identification.html", locals())
 
