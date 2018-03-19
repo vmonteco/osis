@@ -251,19 +251,40 @@ def filter_biennial(queryset, periodicity):
 
 def update_learning_unit_year_with_report(luy_to_update, fields_to_update, entities_by_type_to_update, **kwargs):
     with_report = kwargs.get('with_report', True)
-    force_value = kwargs.get('force_value', False)
+    override_postponement_consistency = kwargs.get('override_postponement_consistency', False)
 
-    _update_learning_unit_year(luy_to_update, fields_to_update, with_report=False)
-    _update_learning_unit_year_entities(luy_to_update, entities_by_type_to_update)
+    conflict_report = {}
+    luy_to_update_list = [luy_to_update]
+    if with_report:
+        conflict_report = get_postponement_conflict_report(
+            luy_to_update,
+            override_postponement_consistency=override_postponement_consistency
+        )
+        luy_to_update_list.extend(conflict_report['luy_without_conflict'])
 
-    if not with_report:
-        return None
-
-    for luy in luy_to_update.find_gt_learning_units_year():
-        if not force_value:
-            check_postponement_conflict(luy_to_update, luy)
-        _update_learning_unit_year(luy, fields_to_update, with_report=True)
+    # Update luy which doesn't have conflict
+    for luy in luy_to_update_list:
+        _update_learning_unit_year(luy, fields_to_update, with_report=(luy != luy_to_update))
         _update_learning_unit_year_entities(luy, entities_by_type_to_update)
+
+    # Show conflict error if exists
+    if conflict_report.get('errors'):
+        raise ConsistencyError(_('error_modification_learning_unit'), error_list=conflict_report.get('errors'))
+
+
+def get_postponement_conflict_report(luy_start, override_postponement_consistency=False):
+    """
+    This function will return a list of learning unit year (luy_without_conflict) ( > luy_start)
+    which doesn't have any conflict. If any conflict found, the variable 'errors' will store it.
+    """
+    result = {'luy_without_conflict': []}
+    for luy in luy_start.find_gt_learning_units_year():
+        error_list = check_postponement_conflict(luy_start, luy)
+        if error_list and not override_postponement_consistency:
+            result['errors'] = error_list
+            break
+        result['luy_without_conflict'].append(luy)
+    return result
 
 
 def _update_learning_unit_year(luy_to_update, fields_to_update, with_report):
@@ -332,9 +353,7 @@ def check_postponement_conflict(luy, next_luy):
     error_list.extend(_check_postponement_conflict_on_entity_container_year(lcy, next_lcy))
     error_list.extend(_check_postponement_learning_unit_year_proposal_state(next_luy))
     error_list.extend(_check_postponement_conflict_on_volumes(lcy, next_lcy))
-
-    if error_list:
-        raise ConsistencyError(_('error_modification_learning_unit'), error_list=error_list)
+    return error_list
 
 
 def _check_postponement_conflict_on_learning_unit_year(luy, next_luy):
