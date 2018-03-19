@@ -1,4 +1,3 @@
-
 {% load i18n %}
 
 
@@ -8,6 +7,7 @@
     </div>
 
     <div class="col-md-9">
+        {# TODO check if we can remove default_if_none : person != request.user #}
         {{ person|default_if_none:request.user }}
     </div>
 </div>

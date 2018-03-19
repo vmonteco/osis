@@ -48,16 +48,17 @@ from base.models.learning_unit_year import LearningUnitYear
 FIELDS_TO_EXCLUDE_WITH_REPORT = ("is_vacant", "type_declaration_vacant", "attribution_procedure")
 
 
-def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year):
+def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year, update_learning_unit_year=True):
     result = []
 
-    new_end_year = _get_new_end_year(new_academic_year)
-    end_year = _get_actual_end_year(learning_unit_to_edit)
+    new_end_year = get_new_end_year(new_academic_year)
+    if update_learning_unit_year:
+        end_year = _get_actual_end_year(learning_unit_to_edit)
 
-    if new_end_year is None or new_end_year > end_year:
-        result.extend(extend_learning_unit(learning_unit_to_edit, new_academic_year))
-    elif new_end_year < end_year:
-        result.extend(shorten_learning_unit(learning_unit_to_edit, new_academic_year))
+        if new_end_year is None or new_end_year > end_year:
+            result.extend(extend_learning_unit(learning_unit_to_edit, new_academic_year))
+        elif new_end_year < end_year:
+            result.extend(shorten_learning_unit(learning_unit_to_edit, new_academic_year))
 
     result.append(_update_end_year_field(learning_unit_to_edit, new_end_year))
     return result
@@ -232,7 +233,7 @@ def _get_actual_end_year(learning_unit_to_edit):
     return learning_unit_to_edit.end_year or compute_max_academic_year_adjournment() + 1
 
 
-def _get_new_end_year(new_academic_year):
+def get_new_end_year(new_academic_year):
     return new_academic_year.year if new_academic_year else None
 
 
