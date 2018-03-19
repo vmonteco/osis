@@ -28,7 +28,8 @@ from django.contrib import messages
 
 register = template.Library()
 
-@register.assignment_tag(takes_context=True)
+
+@register.simple_tag(takes_context=True)
 def as_messages_info(context):
     request = context['request']
     msgs = messages.get_messages(request)
@@ -38,7 +39,8 @@ def as_messages_info(context):
             return True
     return False
 
-@register.assignment_tag(takes_context=True)
+
+@register.simple_tag(takes_context=True)
 def as_messages_warning(context):
     request = context['request']
     msgs = messages.get_messages(request)
@@ -48,7 +50,8 @@ def as_messages_warning(context):
             return True
     return False
 
-@register.assignment_tag(takes_context=True)
+
+@register.simple_tag(takes_context=True)
 def as_messages_error(context):
     request = context['request']
     msgs = messages.get_messages(request)
@@ -58,7 +61,8 @@ def as_messages_error(context):
             return True
     return False
 
-@register.assignment_tag(takes_context=True)
+
+@register.simple_tag(takes_context=True)
 def as_messages_success(context):
     request = context['request']
     msgs = messages.get_messages(request)

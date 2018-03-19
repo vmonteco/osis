@@ -2225,7 +2225,7 @@ msgid "%(subtype)s %(acronym)s is assigned to the assistant %(assistant)s for th
 msgstr "%(subtype)s %(acronym)s est attribué(e) à l'assistant %(assistant)s l'année %(year)s"
 
 msgid "lu_included_in_group"
-msgstr "%(subtype)s %(acronym)s est repris dans le groupement %(group)s du programme %(program)s l’année %(year)s"
+msgstr "%(subtype)s %(acronym)s est repris dans le groupement %(group)s l’année %(year)s"
 
 msgid "The learning unit %(acronym)s is related to the internship speciality %(speciality)s"
 msgstr "L'unité d'enseignement %(acronym)s est liée à la spécialité de stage %(speciality)s"
@@ -2368,6 +2368,9 @@ msgstr "Une proposition de modification de type {} a été faite pour l'unité d
 msgid "proposal_edited_successfully"
 msgstr "Proposition modifiée avec succès"
 
+msgid "proposals_cancelled_successfully"
+msgstr "Propositions annulées avec succès"
+
 msgid "content"
 msgstr "Contenu"
 
@@ -2488,9 +2491,6 @@ msgstr "Procédure"
 msgid "educational_information_management"
 msgstr "Gestion des informations pédagogiques"
 
-msgid "resume_edit"
-msgstr "Editer le résumé de cours"
-
 msgid "SUMMARY_COURSE_SUBMISSION"
 msgstr "Soumission des résumés de cours"
 
@@ -2545,6 +2545,9 @@ msgstr "Remarque en anglais"
 msgid "Ensure this value is less than %(limit_value)s."
 msgstr "Assurez-vous que cette valeur est inférieure à %(limit_value)s."
 
+msgid "Ensure this value is greater than %(limit_value)s."
+msgstr "Assurez-vous que cette valeur est supérieure à %(limit_value)s."
+
 msgid "Entity_not_exist"
 msgstr "L'entité %(entity_acronym)s n'existe pas pour l'année académique sélectionnée %(academic_year)s"
 
@@ -2566,8 +2569,8 @@ msgstr "Erreur lors de la modification de l'unité d'enseignement."
 msgid "cannot_set_internship_subtype_for_type_other_than_internship"
 msgstr "Le sous-type de stage ne peut pas être séléctionnné pour un type d'unité d'enseignement autre que stage."
 
-msgid "%(subtype)s %(acronym)s is in proposal"
-msgstr "%(subtype)s %(acronym)s est en proposition"
+msgid "%(subtype)s %(acronym)s is in proposal for the year %(year)s"
+msgstr "%(subtype)s %(acronym)s est en proposition pour l'année %(year)s"
 
 msgid "volume_have_more_than_2_decimal_places"
 msgstr "Le volume a plus de 2 décimales"
@@ -2620,5 +2623,62 @@ msgstr "Veuillez entrer une valeur inférieur ou égale à 500."
 msgid "force_state"
 msgstr "Forcer l'état"
 
+msgid "do_you_want_change_status_proposals"
+msgstr "Voulez-vous changer le statut de ces propositions?"
+
 msgid "are_you_sure_to_change_state_from"
 msgstr "Êtes-vous sûr de vouloir changer l'état de"
+
+msgid "must_set_common_title_or_specific_title"
+msgstr "L'intitulé officiel ou l'intitulé commun est requis."
+
+msgid "learning_unit_in_proposal_cannot_save"
+msgstr "L'unité d'enseignement %(luy)s est en proposition, impossible de sauvegarder le changement à partir de l'année %(academic_year)s"
+
+msgid "in_proposal"
+msgstr "En proposition"
+
+msgid "by"
+msgstr "Par"
+
+msgid "summary_editable"
+msgstr "informations pédagogiques modifiables"
+
+msgid "get_back_to_initial"
+msgstr "Retour à l'état initial"
+
+msgid "do_you_want_to_get_back_to_initial"
+msgstr "Voulez-vous retourner à l'état initial?"
+
+msgid "error_proposal_suppression_to_initial"
+msgstr "Erreur lors du retour à l'initial. Une des propositions sélectionnées n'est pas de type SUPPRESSION. Rien n'a été fait"
+
+msgid "error_proposal_no_data"
+msgstr "Erreur lors du retour à l'initial. Aucune donnée sélectionnée valide"
+
+msgid "summary_editable_field_successfuly_updated"
+msgstr "La possibilité de modifier les informations pédagogiques a été correctement mise à jour."
+
+msgid "msg_confirm_delete_luy"
+msgstr "Etes-vous certain de vouloir supprimer définitivement cette unité d'enseignement ?"
+
+msgid "already_existing_acronym"
+msgstr "Sigle déjà existant"
+
+msgid "The value of field '%(field)s' is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s"
+msgstr "La valeur du champ '%(field)s' différe entre l'année %(year)s - %(value)s et l'année %(next_year)s - %(next_value)s"
+
+msgid "There is not the learning unit %(acronym)s - %(next_year)s"
+msgstr "Il n'existe pas d'unité d'enseigmenent %(acronym)s - %(next_year)s"
+
+msgid "The value of field '%(field)s' for the learning unit %(acronym)s (%(component_type)s) is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s"
+msgstr "La valeur du champ '%(field)s'de l'unité d'enseignement %(acronym)s (%(component_type)s) différe entre l'année %(year)s - %(value)s et l'année %(next_year)s - %(next_value)s"
+
+msgid "There is not %(component_type)s for the learning unit %(acronym)s - %(year)s but exist in %(existing_year)s"
+msgstr "Il n'y a pas de %(component_type)s pour l'unité d'enseignement %(acronym)s - %(year)s mais existe en %(existing_year)s"
+
+msgid "Educational information opening"
+msgstr "Ouverture informations pédagoqiques"
+
+msgid "Educational information ending"
+msgstr "Fermeture informations pédagoqiques"

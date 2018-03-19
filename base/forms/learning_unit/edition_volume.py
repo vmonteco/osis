@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from collections import OrderedDict
+
 from django import forms
 from django.db import transaction
 from django.db.models import Prefetch
@@ -30,10 +32,11 @@ from django.forms import formset_factory
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
+from base.business.learning_units import edition
+from base.business.learning_units.edition import ConsistencyError
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type as entity_types
 from base.models.enums.component_type import PRACTICAL_EXERCISES, LECTURING
-from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_component import LearningUnitComponent
 
 
@@ -66,11 +69,13 @@ class VolumeEditionForm(forms.Form):
 
     _post_errors = []
     _parent_data = {}
+    _faculty_manager_fields = ['volume_q1', 'volume_q2']
 
     def __init__(self, *args, **kwargs):
         self.component = kwargs.pop('component')
         self.learning_unit_year = kwargs.pop('learning_unit_year')
         self.entities = kwargs.pop('entities')
+        self.is_faculty_manager = kwargs.pop('is_faculty_manager', False)
 
         self.title = self.component.acronym
         self.title_help = _(self.component.type) + ' ' if self.component.type else ''
@@ -86,6 +91,14 @@ class VolumeEditionForm(forms.Form):
 
         self.fields['volume_total_requirement_entities'] = VolumeField(
             label=_('vol_charge'), help_text=_('total_volume_charge'))
+
+        if self.is_faculty_manager and self.learning_unit_year.is_full():
+            self._disable_central_manager_fields()
+
+    def _disable_central_manager_fields(self):
+        for key, field in self.fields.items():
+            if key not in self._faculty_manager_fields:
+                field.disabled = True
 
     def _add_entity_fields(self, key):
         if key in self.entities:
@@ -160,11 +173,18 @@ class VolumeEditionForm(forms.Form):
         if not self.changed_data:
             return None
 
+        conflict_report = {}
+        luy_to_update_list = [self.learning_unit_year]
         if postponement:
-            for component in self._find_gte_learning_components_year():
+            conflict_report = edition.get_postponement_conflict_report(self.learning_unit_year)
+            luy_to_update_list.extend(conflict_report['luy_without_conflict'])
+
+        with transaction.atomic():
+            for component in self._find_learning_components_year(luy_to_update_list):
                 self._save(component)
-        else:
-            self._save(self.component)
+
+        if conflict_report.get('errors'):
+            raise ConsistencyError(_('error_modification_learning_unit'), error_list=conflict_report.get('errors'))
 
     def _save(self, component):
         component.hourly_volume_partial = self.cleaned_data['volume_q1']
@@ -183,8 +203,7 @@ class VolumeEditionForm(forms.Form):
             ecy.repartition_volume = repartition_volume
             ecy.save()
 
-    def _find_gte_learning_components_year(self):
-        gt_learning_units = self.learning_unit_year.find_gte_learning_units_year()
+    def _find_learning_components_year(self, luy_to_update_list):
         prefetch = Prefetch(
             'learning_component_year__entitycomponentyear_set',
             queryset=EntityComponentYear.objects.all(),
@@ -193,7 +212,7 @@ class VolumeEditionForm(forms.Form):
         return [
             luc.learning_component_year
             for luc in LearningUnitComponent.objects.filter(
-                learning_unit_year__in=gt_learning_units).prefetch_related(prefetch)
+                learning_unit_year__in=luy_to_update_list).prefetch_related(prefetch)
             if luc.learning_component_year.type == self.component.type
         ]
 
@@ -204,6 +223,7 @@ class VolumeEditionBaseFormset(forms.BaseFormSet):
         self.learning_unit_year = kwargs.pop('learning_unit_year')
         self.components = list(self.learning_unit_year.components.keys())
         self.components_values = list(self.learning_unit_year.components.values())
+        self.is_faculty_manager = kwargs.pop('is_faculty_manager')
 
         super().__init__(*args, **kwargs)
 
@@ -213,6 +233,7 @@ class VolumeEditionBaseFormset(forms.BaseFormSet):
         kwargs['component'] = self.components[index]
         kwargs['initial'] = self._clean_component_keys(self.components_values[index])
         kwargs['entities'] = self.learning_unit_year.entities
+        kwargs['is_faculty_manager'] = self.is_faculty_manager
         return kwargs
 
     @staticmethod
@@ -248,18 +269,24 @@ class VolumeEditionFormsetContainer:
     """
     Create and Manage a set of VolumeEditionFormsets
     """
-    def __init__(self, request, learning_units):
-        self.formsets = {}
+    def __init__(self, request, learning_units, person):
+        self.formsets = OrderedDict()
         self.learning_units = learning_units
         self.parent = self.learning_units[0]
+        self.postponement = int(request.POST.get('postponement', 1))
         self.request = request
+
+        self.is_faculty_manager = person.is_faculty_manager() and not person.is_central_manager()
 
         for learning_unit in learning_units:
             volume_edition_formset = formset_factory(
                 form=VolumeEditionForm, formset=VolumeEditionBaseFormset, extra=len(learning_unit.components)
             )
             self.formsets[learning_unit] = volume_edition_formset(
-                request.POST or None, learning_unit_year=learning_unit, prefix=learning_unit.acronym
+                request.POST or None,
+                learning_unit_year=learning_unit,
+                prefix=learning_unit.acronym,
+                is_faculty_manager=self.is_faculty_manager
             )
 
     def is_valid(self):
@@ -279,10 +306,9 @@ class VolumeEditionFormsetContainer:
         return all(self.formsets[luy].validate_parent_partim(self.formsets[self.parent]) for luy in self.formsets
                    if luy != self.parent)
 
-    def save(self, postponement):
-        with transaction.atomic():
-            for formset in self.formsets.values():
-                formset.save(postponement)
+    def save(self):
+        for formset in self.formsets.values():
+            formset.save(self.postponement)
 
     @property
     def errors(self):

@@ -30,6 +30,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
+import base.business.learning_units.perms
 from assistant.models.tutoring_learning_unit_year import TutoringLearningUnitYear
 from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 from attribution.tests.factories.attribution import AttributionNewFactory
@@ -130,15 +131,13 @@ class LearningUnitYearDeletion(TestCase):
         self.assertIn(msg_delete_offer_type
                       % {'subtype': _('The partim'),
                          'acronym': l_unit_2.acronym,
-                         'group': group_1.parent.acronym,
-                         'program': group_1.parent.education_group_type,
+                         'group': group_1.parent.partial_acronym,
                          'year': l_unit_2.academic_year},
                       msg)
         self.assertIn(msg_delete_offer_type
                       % {'subtype': _('The partim'),
                          'acronym': l_unit_2.acronym,
-                         'group': group_2.parent.acronym,
-                         'program': group_2.parent.education_group_type,
+                         'group': group_2.parent.partial_acronym,
                          'year': l_unit_2.academic_year},
                       msg)
 
@@ -169,12 +168,13 @@ class LearningUnitYearDeletion(TestCase):
         l_unit_1 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
                                            academic_year=self.academic_year, subtype=learning_unit_year_subtypes.FULL)
         ProposalLearningUnitFactory(learning_unit_year=l_unit_1)
-        msg = learning_unit_deletion.check_learning_unit_year_deletion(l_unit_1)
+        msg = learning_unit_deletion._check_learning_unit_proposal(l_unit_1)
 
         msg = list(msg.values())
         self.assertEqual(msg, [
-            _("%(subtype)s %(acronym)s is in proposal") % {'subtype': _('The learning unit'),
-                                                           'acronym': l_unit_1.acronym}
+            _("%(subtype)s %(acronym)s is in proposal for the year %(year)s") % {'subtype': _('The learning unit'),
+                                                                                 'acronym': l_unit_1.acronym,
+                                                                                 'year': l_unit_1.academic_year}
         ])
 
     def test_delete_next_years(self):
@@ -353,19 +353,23 @@ class LearningUnitYearDeletion(TestCase):
                                                      academic_year=self.academic_year,
                                                      learning_container_year=l_containeryear,
                                                      subtype=learning_unit_year_subtypes.FULL)
-        # Can remove FULL COURSE
-        self.assertFalse(learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year))
+
+        # Cannot remove FULL COURSE
+        self.assertFalse(
+            base.business.learning_units.perms.can_delete_learning_unit_year(learning_unit_year, person))
 
         # Can remove PARTIM COURSE
         learning_unit_year.subtype = learning_unit_year_subtypes.PARTIM
         learning_unit_year.save()
-        self.assertTrue(learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year))
+        self.assertTrue(
+            base.business.learning_units.perms.can_delete_learning_unit_year(learning_unit_year, person))
 
         # With both role, greatest is taken
         add_to_group(person.user, CENTRAL_MANAGER_GROUP)
         learning_unit_year.subtype = learning_unit_year_subtypes.FULL
         learning_unit_year.save()
-        self.assertTrue(learning_unit_deletion.can_delete_learning_unit_year(person, learning_unit_year))
+        self.assertTrue(
+            base.business.learning_units.perms.can_delete_learning_unit_year(learning_unit_year, person))
 
 
 def add_to_group(user, group_name):

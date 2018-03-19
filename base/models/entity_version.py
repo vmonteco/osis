@@ -28,8 +28,10 @@ import datetime
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.functional import cached_property
 
 from base.models.enums import entity_type
+from base.models.enums.entity_type import MAIN_ENTITY_TYPE
 from base.models.enums.organization_type import MAIN
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from osis_common.utils.datetime import get_tzinfo
@@ -66,9 +68,6 @@ class EntityVersion(SerializableModel):
     end_date = models.DateField(db_index=True, blank=True, null=True)
 
     objects = EntityVersionQuerySet.as_manager()
-
-    _descendants = None
-    _children = []
 
     def __str__(self):
         return "{} ({} - {} - {} to {})".format(
@@ -121,31 +120,29 @@ class EntityVersion(SerializableModel):
             date = timezone.now().date()
 
         if self.__contains_given_date(date):
-            return EntityVersion.objects.current(date).filter(parent=self.entity).select_related('entity')
+            qs = EntityVersion.objects.current(date).filter(parent=self.entity).select_related('entity')
+        else:
+            qs = EntityVersion.objects.none()
+
+        return qs
 
     def find_direct_children(self, date=None):
         if not date:
             direct_children = self.children
         else:
             direct_children = self._direct_children(date)
-        return list(direct_children) if direct_children else []
+        return direct_children
 
     def count_direct_children(self, date=None):
-        return len(self.find_direct_children(date))
+        return self.find_direct_children(date).count()
 
-    @property
+    @cached_property
     def descendants(self):
-        if not self._descendants:
-            self._descendants = self.find_descendants()
+        return self.find_descendants()
 
-        return self._descendants
-
-    @property
+    @cached_property
     def children(self):
-        if not self._children:
-            direct_children = self._direct_children()
-            self._children = list(direct_children) if direct_children else []
-        return self._children
+        return self._direct_children()
 
     def find_descendants(self, date=None):
         descendants = []
@@ -344,18 +341,9 @@ def _match_dates(osis_date, esb_date):
 
 
 def find_main_entities_version():
-    entities_version = find_latest_version(date=datetime.datetime.now(get_tzinfo())) \
-        .filter(entity_type__in=[entity_type.SECTOR, entity_type.FACULTY, entity_type.SCHOOL,
-                                 entity_type.INSTITUTE, entity_type.DOCTORAL_COMMISSION, entity_type.LOGISTICS_ENTITY],
-                entity__organization__type=MAIN).order_by('acronym')
-    return entities_version
-
-
-def find_main_entities_version_filtered_by_person(person):
-    from base.models.utils import person_entity_filter
-
-    qs = find_main_entities_version()
-    return person_entity_filter.filter_by_attached_entities(person, qs)
+    now = datetime.datetime.now(get_tzinfo())
+    return find_latest_version(date=now).filter(
+        entity_type__in=MAIN_ENTITY_TYPE, entity__organization__type=MAIN).order_by('acronym')
 
 
 def find_latest_version_by_entity(entity, date):

@@ -1,3 +1,4 @@
+{% load bootstrap3 static %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -21,8 +22,8 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
-
-<div class="modal fade" role="dialog" id="modalReport" aria-labelledby="modalReport">
+<script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
+<div class="modal fade" role="dialog" id="{% block modal_id %}modalReport{% endblock %}" aria-labelledby="modalReport">
     <div class="modal-dialog">
         <div class="modal-content">
             {% block modal_content %}

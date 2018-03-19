@@ -26,9 +26,10 @@
 from django.core.exceptions import ObjectDoesNotExist
 
 from base.models import person_entity
+from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import EntityVersion
 from base.models.person_entity import PersonEntity
-from base.models.entity_container_year import EntityContainerYear
+from osis_common.decorators.deprecated import deprecated
 
 MAP_ENTITY_FIELD = {
     EntityVersion: 'entity',
@@ -37,11 +38,11 @@ MAP_ENTITY_FIELD = {
 }
 
 
-def filter_by_attached_entities(person, queryset):
+@deprecated
+def filter_by_attached_entities(person, entity_queryset):
     entities_attached = person_entity.find_entities_by_person(person)
-    field_path = MAP_ENTITY_FIELD.get(queryset.model)
+    field_path = MAP_ENTITY_FIELD.get(entity_queryset.model)
     if not field_path:
-       raise ObjectDoesNotExist
+        raise ObjectDoesNotExist
     field_filter = "{}__in".format(field_path)
-    return queryset.filter(**{field_filter: entities_attached})
-
+    return entity_queryset.filter(**{field_filter: entities_attached})
