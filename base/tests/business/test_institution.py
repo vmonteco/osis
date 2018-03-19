@@ -24,10 +24,10 @@
 #
 ##############################################################################
 import datetime
+
 from django.test import TestCase
 
-from base.business.institution import find_entity_calendar_instance
-from base.models.academic_year import AcademicYear
+from base.business.institution import find_summary_course_submission_dates_for_entity_version
 from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import AcademicYearFactory
@@ -36,7 +36,7 @@ from base.tests.factories.entity_calendar import EntityCalendarFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 
 
-class InstitutionTestCase(TestCase):
+class FindSummaryCourseSubmissionDatesTestCase(TestCase):
     def setUp(self):
         today = datetime.date.today()
         self.current_academic_year = AcademicYearFactory(start_date=today,
@@ -59,9 +59,12 @@ class InstitutionTestCase(TestCase):
                                                             entity=self.parent_entity)
 
 
-    def test_find_entity_calendar_instance(self):
-        child_entity_calendar = find_entity_calendar_instance(self.child_entity_version)
-        self.assertEqual(child_entity_calendar, self.parent_entity_calendar)
+    def test_when_parent_has_entity_calendar_instance(self):
+        child_entity_dates = find_summary_course_submission_dates_for_entity_version(self.child_entity_version)
+        self.assertEqual(child_entity_dates, {'start_date':self.parent_entity_calendar.start_date,
+                                              'end_date':self.parent_entity_calendar.end_date})
 
-        default_entity_calendar = find_entity_calendar_instance(self.entity_version_without_entity_calendar)
-        self.assertEqual(default_entity_calendar.academic_year, self.current_academic_year)
+    def test_when_no_parent_has_entity_calendar_instance(self):
+        default_entity_dates = find_summary_course_submission_dates_for_entity_version(self.entity_version_without_entity_calendar)
+        self.assertEqual(default_entity_dates, {'start_date':self.academic_calendar.start_date,
+                                                'end_date':self.academic_calendar.end_date})
