@@ -130,6 +130,9 @@ msgstr "Choose a person as reviewer for"
 msgid "columns_title_error"
 msgstr "The cols title are wrong."
 
+msgid "columns_number_error"
+msgstr "The number of cols is wrong."
+
 msgid "comment"
 msgstr "Comment"
 

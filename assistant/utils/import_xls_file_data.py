@@ -28,7 +28,6 @@ import re
 
 from openpyxl import load_workbook
 
-from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_http_methods
@@ -36,7 +35,7 @@ from django.views.decorators.http import require_http_methods
 from base import models as mdl
 from base.models.enums import entity_type
 from base.views import layout
-
+from base.views.common import display_error_messages
 
 from assistant import models as assistant_mdl
 from assistant.forms import MandateFileForm
@@ -65,14 +64,9 @@ def upload_mandates_file(request):
     global ASSISTANTS_IMPORTED, ASSISTANTS_UPDATED, MANDATES_IMPORTED, MANDATES_UPDATED, PERSONS_NOT_FOUND
     form = MandateFileForm(request.POST, request.FILES)
     if form.is_valid() and request.FILES['file']:
-        try:
-            read_xls_mandates(request, request.FILES['file'])
-        except IndexError:
-            messages.add_message(request, messages.ERROR,
-                                 'xls_columns_structure_error'.format('via_excel', 'get_excel_file'))
+        read_xls_mandates(request, request.FILES['file'])
     else:
-        for error_msg in [error_msg for error_msgs in form.errors.values() for error_msg in error_msgs]:
-            messages.add_message(request, messages.ERROR, "{}".format(error_msg))
+        display_error_messages(request, [error_msg for error_msgs in form.errors.values() for error_msg in error_msgs])
     return show_import_result(request)
 
 
@@ -81,7 +75,7 @@ def read_xls_mandates(request, file_name):
     try:
         workbook = load_workbook(file_name, read_only=True, data_only=True)
     except KeyError:
-        messages.add_message(request, messages.ERROR, _('file_must_be_xlsx'))
+        display_error_messages(request, _('file_must_be_xlsx'))
         return False
     first_sheet = workbook.get_sheet_names()[0]
     worksheet = workbook.get_sheet_by_name(first_sheet)
@@ -97,7 +91,7 @@ def read_xls_mandates(request, file_name):
             end_date = check_date_format(current_record.get('END_DATE'))
             entry_date = check_date_format(current_record.get('ENTRY_DATE'))
             if end_date is False or entry_date is False:
-                messages.add_message(request, messages.ERROR, _('date_format_error') + _('line_nbr') + str(current_row))
+                display_error_messages(request, _('date_format_error') + _('line_nbr') + str(current_row))
                 return False
             assistant = create_academic_assistant_if_not_exists(current_record)
             if assistant:
@@ -243,11 +237,10 @@ def show_import_result(request):
 
 def check_file_format(request, titles_rows):
     if len(titles_rows) != COLS_NUMBER:
-        messages.add_message(request, messages.ERROR, _('columns_number_error'))
+        display_error_messages(request, _('columns_number_error'))
         return False
     if titles_rows != COLS_TITLES:
-        messages.add_message(request, messages.ERROR, _('columns_title_error'))
-        messages.add_message(request, messages.ERROR, COLS_TITLES)
+        display_error_messages(request, _('columns_title_error'))
         return False
     return True
 

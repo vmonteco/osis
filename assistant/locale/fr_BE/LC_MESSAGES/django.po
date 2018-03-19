@@ -130,6 +130,9 @@ msgstr "Choisissez une personne comme évaluateur pour"
 msgid "columns_title_error"
 msgstr "Les titres des colonnes sont incorrects."
 
+msgid "columns_number_error"
+msgstr "Le nombre de colonnes est erroné."
+
 msgid "comment"
 msgstr "Commentaire"
 
