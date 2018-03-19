@@ -30,7 +30,9 @@ from django.http import JsonResponse
 from base import models as mdl
 from base.forms.entity_calendar import EntityCalendarEducationalInformationForm
 from base.models import entity_version as entity_version_mdl
-from base.models.entity_calendar import find_by_entity_and_reference_for_current_academic_year
+from base.models import academic_calendar
+from base.models import entity_calendar
+from base.models.academic_year import current_academic_year
 from base.models.enums import entity_type, academic_calendar_type
 from . import layout
 
@@ -75,8 +77,16 @@ def entity_read(request, entity_version_id):
     entity_parent = entity_version.get_parent_version()
     descendants = entity_version.descendants
 
-    entity_calendar_instance = find_by_entity_and_reference_for_current_academic_year(
+    entity_calendar_instance = entity_calendar.find_by_entity_and_reference_for_current_academic_year(
         entity_version.entity.id, academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+    entity_vrs = entity_version
+    while entity_calendar_instance is None and entity_vrs.get_parent_version():
+        entity_vrs = entity_vrs.get_parent_version()
+        entity_calendar_instance = entity_calendar.find_by_entity_and_reference_for_current_academic_year(
+            entity_vrs.entity.id, academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+    if entity_calendar_instance is None:
+        entity_calendar_instance = academic_calendar.get_by_reference_and_academic_year(
+            academic_calendar_type.SUMMARY_COURSE_SUBMISSION,current_academic_year())
     form = EntityCalendarEducationalInformationForm(request.POST or None, instance=entity_calendar_instance)
     if form.is_valid():
         form.save_entity_calendar(entity_version.entity)
