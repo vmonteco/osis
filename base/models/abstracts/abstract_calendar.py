@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,40 +23,32 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import ValidationError
 from django.db import models
-from django.core.exceptions import ObjectDoesNotExist
-from django.utils.translation import ugettext_lazy as _
-from base.models.osis_model_admin import OsisModelAdmin
-from base.models import entity
+from django.utils.translation import ugettext as _
+
+from osis_common.utils.datetime import is_in_chronological_order
 
 
-class ProposalFolderAdmin(OsisModelAdmin):
-    list_display = ('entity', 'folder_id', )
-
-    search_fields = ['folder_id']
-    raw_id_fields = ('entity', )
-
-
-class ProposalFolder(models.Model):
+class AbstractCalendar(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
-    entity = models.ForeignKey('Entity')
-    folder_id = models.IntegerField()
+    academic_calendar = models.ForeignKey('AcademicCalendar')
+    start_date = models.DateTimeField(blank=True, null=True, db_index=True)
+    end_date = models.DateTimeField(blank=True, null=True, db_index=True)
 
     class Meta:
-        unique_together = ('entity', 'folder_id', )
+        abstract = True
 
-    def __str__(self):
-        return _("folder_number").format(self.folder_id)
+    def clean(self):
+        try:
+            self.end_start_dates_validation()
+        except AttributeError as e:
+            raise ValidationError(e)
 
+    def end_start_dates_validation(self):
+        if self._dates_are_set() and not is_in_chronological_order(self.start_date, self.end_date):
+            raise AttributeError(_('end_start_date_error'))
 
-def find_by_entity_and_folder_id(an_entity, a_folder_id):
-    try:
-        return ProposalFolder.objects.get(entity=an_entity, folder_id=a_folder_id)
-    except ObjectDoesNotExist:
-        return None
-
-
-def find_distinct_folder_entities():
-    entities = ProposalFolder.objects.distinct('entity').values_list('entity__id', flat=True)
-    return entity.Entity.objects.filter(pk__in=entities)
+    def _dates_are_set(self):
+        return bool(self.start_date and self.end_date)

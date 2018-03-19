@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,22 +23,23 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
-import string
-import datetime
+from django.db import models
 
-from base.tests.factories.entity import EntityFactory
-from osis_common.utils.datetime import get_tzinfo
+from base.models.abstracts.abstract_calendar import AbstractCalendar
+from base.models.osis_model_admin import OsisModelAdmin
 
 
-class ProposalFolderFactory(factory.django.DjangoModelFactory):
+class EntityCalendarAdmin(OsisModelAdmin):
+    list_display = ('academic_calendar', 'entity', 'start_date', 'end_date', 'changed')
+    raw_id_fields = ('entity', )
+    list_filter = ('academic_calendar__academic_year', 'academic_calendar__reference')
+
+
+class EntityCalendar(AbstractCalendar):
+    entity = models.ForeignKey('Entity')
+
     class Meta:
-        model = "base.ProposalFolder"
-        django_get_or_create = ('entity', )
+        unique_together = ('academic_calendar', 'entity')
 
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    entity = factory.SubFactory(EntityFactory)
-    folder_id = factory.fuzzy.FuzzyInteger(100)
+    def __str__(self):
+        return "{} - {}".format(self.academic_calendar, self.entity)

@@ -27,6 +27,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
 from django.forms import formset_factory
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import SERVICE_COURSES_SEARCH, create_xls, get_last_academic_years, SIMPLE_SEARCH
@@ -36,6 +37,7 @@ from base.forms.learning_units import LearningUnitYearForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalRowForm, ProposalListFormset
 from base.models.academic_year import current_academic_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
+from base.models.person import Person
 from base.views import layout
 from base.views.common import check_if_display_message, display_error_messages, display_success_messages
 from base.business import learning_unit_proposal as proposal_business
@@ -135,15 +137,16 @@ def process_formset(formset, request):
 def _go_back_to_initial_data(formset, request):
     proposals_candidate_to_cancellation = formset.get_checked_proposals()
     if proposals_candidate_to_cancellation:
-        formset = _cancel_list_of_proposal(formset, proposals_candidate_to_cancellation, request)
+        formset = _cancel_proposals(formset, proposals_candidate_to_cancellation, request)
     else:
         _build_no_data_error_message(request)
     return formset
 
 
-def _cancel_list_of_proposal(formset, proposals_to_cancel, request):
+def _cancel_proposals(formset, proposals_to_cancel, request):
     if proposals_to_cancel:
-        proposal_business.cancel_proposals(proposals_to_cancel)
+        user_person = get_object_or_404(Person, user=request.user)
+        proposal_business.cancel_proposals(proposals_to_cancel, user_person)
         display_success_messages(request, _("proposals_cancelled_successfully"))
         formset = None
     else:

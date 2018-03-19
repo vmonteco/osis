@@ -501,7 +501,7 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context['components'] = get_components_identification(learning_unit_year)
     context['proposal'] = proposal
     context['proposal_folder_entity_version'] = mdl.entity_version.get_by_entity_and_date(
-        proposal.folder.entity, None) if proposal else None
+        proposal.entity, None) if proposal else None
     context['differences'] = _get_difference_of_proposal(proposal)
 
     # append permissions
