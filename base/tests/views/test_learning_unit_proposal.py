@@ -398,11 +398,13 @@ class TestLearningUnitSuppressionProposal(TestCase):
             container_type=learning_container_year_types.COURSE,
             campus=CampusFactory(organization=an_organization, is_administration=True)
         )
+        self.learning_unit = LearningUnitFactory(end_year=None)
         self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212",
                                                                subtype=learning_unit_year_subtypes.FULL,
                                                                academic_year=current_academic_year,
                                                                learning_container_year=learning_container_year,
-                                                               quadrimester=None)
+                                                               quadrimester=None,
+                                                               learning_unit=self.learning_unit)
 
         an_entity = EntityFactory(organization=an_organization)
         self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
@@ -417,16 +419,6 @@ class TestLearningUnitSuppressionProposal(TestCase):
             learning_container_year=self.learning_unit_year.learning_container_year,
             entity=self.entity_version.entity,
             type=entity_container_year_link_type.ALLOCATION_ENTITY
-        )
-        self.additional_requirement_entity_1 = EntityContainerYearFactory(
-            learning_container_year=self.learning_unit_year.learning_container_year,
-            entity=self.entity_version.entity,
-            type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1
-        )
-        self.additional_requirement_entity_2 = EntityContainerYearFactory(
-            learning_container_year=self.learning_unit_year.learning_container_year,
-            entity=self.entity_version.entity,
-            type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2
         )
 
         self.person_entity = PersonEntityFactory(person=self.person, entity=an_entity, with_child=True)
@@ -462,8 +454,6 @@ class TestLearningUnitSuppressionProposal(TestCase):
     def test_post_request(self):
         response = self.client.post(self.url, data=self.form_data)
 
-        form_end_date = response.context['form_end_date']
-        print(form_end_date.errors)
         redirected_url = reverse(learning_unit_identification, args=[self.learning_unit_year.id])
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
 
@@ -475,6 +465,9 @@ class TestLearningUnitSuppressionProposal(TestCase):
         self.assertIn(_("success_modification_proposal").format(_(proposal_type.ProposalType.SUPPRESSION.name),
                                                                 self.learning_unit_year.acronym),
                       list(messages))
+
+        self.learning_unit.refresh_from_db()
+        self.assertEqual(self.learning_unit.end_year, self.next_academic_year.year)
 
 
 class TestLearningUnitProposalSearch(TestCase):

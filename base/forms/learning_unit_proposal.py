@@ -25,7 +25,6 @@
 ##############################################################################
 
 from django import forms
-from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
