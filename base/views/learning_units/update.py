@@ -122,7 +122,7 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
     return layout.render(request, "learning_unit/volumes_management.html", context)
 
 
-def _save_form_and_display_messages(form, request):
+def _save_form_and_display_messages(request, form):
     try:
         form.save()
         display_success_messages(request, _('success_modification_learning_unit'))
