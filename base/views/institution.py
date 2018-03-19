@@ -27,10 +27,11 @@ import json
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import JsonResponse
+
 from base import models as mdl
+from base.business.institution import find_summary_course_submission_dates_for_entity_version
 from base.forms.entity_calendar import EntityCalendarEducationalInformationForm
-from base.models import entity_version as entity_version_mdl
-from base.models.entity_calendar import find_by_entity_and_reference_for_current_academic_year
+from base.models import entity_version as entity_version_mdl, entity_calendar
 from base.models.enums import entity_type, academic_calendar_type
 from . import layout
 
@@ -74,10 +75,14 @@ def entity_read(request, entity_version_id):
     entity_version = mdl.entity_version.find_by_id(entity_version_id)
     entity_parent = entity_version.get_parent_version()
     descendants = entity_version.descendants
-
-    entity_calendar_instance = find_by_entity_and_reference_for_current_academic_year(
+    entity_calendar_instance = entity_calendar.find_by_entity_and_reference_for_current_academic_year(
         entity_version.entity.id, academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
-    form = EntityCalendarEducationalInformationForm(request.POST or None, instance=entity_calendar_instance)
+    initial = {}
+    if not entity_calendar_instance:
+        initial = find_summary_course_submission_dates_for_entity_version(entity_version)
+    form = EntityCalendarEducationalInformationForm(request.POST or None,
+                                                    instance=entity_calendar_instance,
+                                                    initial=initial)
     if form.is_valid():
         form.save_entity_calendar(entity_version.entity)
 
