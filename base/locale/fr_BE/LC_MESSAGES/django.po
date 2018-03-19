@@ -1690,9 +1690,6 @@ msgstr "Ent. attrib."
 msgid "with_entity_subordinated_small"
 msgstr "Avec ent. subord."
 
-msgid "additional_requirement_entity"
-msgstr "Entité resp. cahier de charges complémentaire"
-
 msgid "academic_end_year"
 msgstr "Anac de fin"
 
@@ -2682,3 +2679,9 @@ msgstr "Ouverture informations pédagoqiques"
 
 msgid "Educational information ending"
 msgstr "Fermeture informations pédagoqiques"
+
+msgid "additional_requirement_entity_1"
+msgstr "Entité resp. cahier de charges complémentaire 1"
+
+msgid "additional_requirement_entity_2"
+msgstr "Entité resp. cahier de charges complémentaire 2"
