@@ -50,18 +50,21 @@ FIELDS_TO_EXCLUDE_WITH_REPORT = ("is_vacant", "type_declaration_vacant", "attrib
 
 def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year, update_learning_unit_year=True):
     result = []
-
     new_end_year = get_new_end_year(new_academic_year)
-    if update_learning_unit_year:
-        end_year = _get_actual_end_year(learning_unit_to_edit)
 
-        if new_end_year is None or new_end_year > end_year:
-            result.extend(extend_learning_unit(learning_unit_to_edit, new_academic_year))
-        elif new_end_year < end_year:
-            result.extend(shorten_learning_unit(learning_unit_to_edit, new_academic_year))
+    if update_learning_unit_year:
+        result.extend(_update_learning_unit_year_end_date(learning_unit_to_edit, new_academic_year, new_end_year))
 
     result.append(_update_end_year_field(learning_unit_to_edit, new_end_year))
     return result
+
+
+def _update_learning_unit_year_end_date(learning_unit_to_edit, new_academic_year, new_end_year):
+    end_year = _get_actual_end_year(learning_unit_to_edit)
+    if new_end_year is None or new_end_year > end_year:
+        return extend_learning_unit(learning_unit_to_edit, new_academic_year)
+    elif new_end_year < end_year:
+        return shorten_learning_unit(learning_unit_to_edit, new_academic_year)
 
 
 def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
