@@ -67,7 +67,7 @@ def learning_unit_edition_end_date(request, learning_unit_year_id):
             display_error_messages(request, e.args[0])
 
     context['form'] = form
-    return render(request, 'learning_unit/update_end_date.html', context)
+    return layout.render(request, 'learning_unit/update_end_date.html', context)
 
 
 @login_required

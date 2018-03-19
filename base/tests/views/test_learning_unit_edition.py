@@ -93,14 +93,14 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         mock_perms.return_value = True
 
         request_factory = RequestFactory()
-        request = request_factory.get(reverse('learning_unit_edition', args=[self.learning_unit_year.id]))
+        request = request_factory.get(reverse(learning_unit_edition_end_date, args=[self.learning_unit_year.id]))
         request.user = self.a_superuser
 
         learning_unit_edition_end_date(request, self.learning_unit_year.id)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, "learning_unit/edition.html")
+        self.assertEqual(template, "learning_unit/update_end_date.html")
 
     @mock.patch('base.business.learning_units.perms.is_eligible_for_modification_end_date')
     def test_view_learning_unit_edition_post(self, mock_perms):
