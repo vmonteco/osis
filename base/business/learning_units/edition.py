@@ -48,11 +48,11 @@ from base.models.learning_unit_year import LearningUnitYear
 FIELDS_TO_EXCLUDE_WITH_REPORT = ("is_vacant", "type_declaration_vacant", "attribution_procedure")
 
 
-def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year, update_learning_unit_year=True):
+def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year, propagate_end_date_to_luy=True):
     result = []
     new_end_year = get_new_end_year(new_academic_year)
 
-    if update_learning_unit_year:
+    if propagate_end_date_to_luy:
         result.extend(_update_learning_unit_year_end_date(learning_unit_to_edit, new_academic_year, new_end_year))
 
     result.append(_update_end_year_field(learning_unit_to_edit, new_end_year))
