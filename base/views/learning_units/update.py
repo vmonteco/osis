@@ -71,6 +71,14 @@ def learning_unit_edition_end_date(request, learning_unit_year_id):
     return layout.render(request, 'learning_unit/edition.html', context)
 
 
+def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id):
+    if not LearningUnitYear.objects.filter(pk=learning_unit_year_id).exists():
+        result = LearningUnitYear.objects.filter(learning_unit=learning_unit_to_edit).last().pk
+    else:
+        result = learning_unit_year_id
+    return result
+
+
 @login_required
 @permission_required('base.can_edit_learningunit', raise_exception=True)
 @perms.can_perform_learning_unit_modification
@@ -81,25 +89,11 @@ def update_learning_unit(request, learning_unit_year_id):
         request.POST or None, learning_unit_year_instance=learning_unit_year, person=person)
 
     if form.is_valid():
-        try:
-            form.save()
-            display_success_modification_message(request)
-
-        except ConsistencyError as e:
-            display_error_messages(request, e.error_list)
-
+        _save_form_and_display_messages(request, form)
         return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
 
     context = {"learning_unit_year": learning_unit_year, "form": form}
     return layout.render(request, 'learning_unit/modification.html', context)
-
-
-def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id):
-    if not LearningUnitYear.objects.filter(pk=learning_unit_year_id).exists():
-        result = LearningUnitYear.objects.filter(learning_unit=learning_unit_to_edit).last().pk
-    else:
-        result = learning_unit_year_id
-    return result
 
 
 @login_required
@@ -116,11 +110,7 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
     volume_edition_formset_container = VolumeEditionFormsetContainer(request, context['learning_units'], person)
 
     if volume_edition_formset_container.is_valid() and not request.is_ajax():
-        try:
-            volume_edition_formset_container.save()
-            display_success_modification_message(request)
-        except ConsistencyError as e:
-            display_error_messages(request, e.error_list)
+        _save_form_and_display_messages(request, volume_edition_formset_container)
         return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
 
     context['formsets'] = volume_edition_formset_container.formsets
@@ -132,5 +122,9 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
     return layout.render(request, "learning_unit/volumes_management.html", context)
 
 
-def display_success_modification_message(request):
-    display_success_messages(request, _('success_modification_learning_unit'))
+def _save_form_and_display_messages(form, request):
+    try:
+        form.save()
+        display_success_messages(request, _('success_modification_learning_unit'))
+    except ConsistencyError as e:
+        display_error_messages(request, e.error_list)
