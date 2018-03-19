@@ -23,34 +23,29 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
+from django import forms
+from django.utils.translation import ugettext as _
 
-from base.models.abstracts.abstract_calendar import AbstractCalendar
+from base.forms import bootstrap
+from base.forms.utils.datefield import DatePickerInput, DATE_FORMAT
+from base.models.academic_calendar import get_by_reference_and_academic_year
 from base.models.academic_year import current_academic_year
-from base.models.osis_model_admin import OsisModelAdmin
+from base.models.entity_calendar import EntityCalendar
+from base.models.enums import academic_calendar_type
 
 
-class EntityCalendarAdmin(OsisModelAdmin):
-    list_display = ('academic_calendar', 'entity', 'start_date', 'end_date', 'changed')
-    raw_id_fields = ('entity', )
-    list_filter = ('academic_calendar__academic_year', 'academic_calendar__reference')
-
-
-class EntityCalendar(AbstractCalendar):
-    entity = models.ForeignKey('Entity')
+class EntityCalendarEducationalInformationForm(bootstrap.BootstrapModelForm):
+    start_date = forms.DateTimeField(widget=DatePickerInput(format=DATE_FORMAT), input_formats=[DATE_FORMAT, ],
+                                     label=_("Educational information opening"))
+    end_date = forms.DateTimeField(widget=DatePickerInput(format=DATE_FORMAT), input_formats=[DATE_FORMAT, ],
+                                   label=_("Educational information ending"))
 
     class Meta:
-        unique_together = ('academic_calendar', 'entity')
+        model = EntityCalendar
+        fields = ["start_date", "end_date"]
 
-    def __str__(self):
-        return "{} - {}".format(self.academic_calendar, self.entity)
-
-
-def find_by_entity_and_reference_for_current_academic_year(entity_id, reference):
-    try:
-        return EntityCalendar.objects.get(entity_id=entity_id,
-                                          academic_calendar__academic_year=current_academic_year(),
-                                          academic_calendar__reference=reference)
-    except ObjectDoesNotExist:
-        return None
+    def save_entity_calendar(self, entity, *args, **kwargs):
+        self.instance.entity = entity
+        self.instance.academic_calendar = get_by_reference_and_academic_year(
+            academic_calendar_type.SUMMARY_COURSE_SUBMISSION, current_academic_year())
+        return self.save(*args, **kwargs)

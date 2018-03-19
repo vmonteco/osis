@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,34 +23,24 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
-
-from base.models.abstracts.abstract_calendar import AbstractCalendar
-from base.models.academic_year import current_academic_year
-from base.models.osis_model_admin import OsisModelAdmin
-
-
-class EntityCalendarAdmin(OsisModelAdmin):
-    list_display = ('academic_calendar', 'entity', 'start_date', 'end_date', 'changed')
-    raw_id_fields = ('entity', )
-    list_filter = ('academic_calendar__academic_year', 'academic_calendar__reference')
+import factory.fuzzy
+import datetime
+import string
+from base.tests.factories.academic_calendar import AcademicCalendarFactory
+from base.tests.factories.entity import EntityFactory
+from base.tests.factories.offer_year_calendar import generate_end_date, generate_start_date
+from osis_common.utils.datetime import get_tzinfo
 
 
-class EntityCalendar(AbstractCalendar):
-    entity = models.ForeignKey('Entity')
 
+class EntityCalendarFactory(factory.django.DjangoModelFactory):
     class Meta:
-        unique_together = ('academic_calendar', 'entity')
+        model = "base.EntityCalendar"
 
-    def __str__(self):
-        return "{} - {}".format(self.academic_calendar, self.entity)
-
-
-def find_by_entity_and_reference_for_current_academic_year(entity_id, reference):
-    try:
-        return EntityCalendar.objects.get(entity_id=entity_id,
-                                          academic_calendar__academic_year=current_academic_year(),
-                                          academic_calendar__reference=reference)
-    except ObjectDoesNotExist:
-        return None
+    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
+    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
+                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    academic_calendar = factory.SubFactory(AcademicCalendarFactory)
+    entity = factory.SubFactory(EntityFactory)
+    start_date = factory.LazyAttribute(generate_start_date)
+    end_date = factory.LazyAttribute(generate_end_date)

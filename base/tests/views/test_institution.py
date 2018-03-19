@@ -80,6 +80,9 @@ class EntityViewTestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+        context = response.context
+        self.assertTrue(context["form"])
+
     def test_entity_diagram(self):
         self.client.force_login(self.user)
         url = reverse('entity_diagram', args=[self.entity_version.id])

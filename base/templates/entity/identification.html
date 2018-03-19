@@ -25,6 +25,10 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
+{% block style %}
+    {% include "education_group/blocks/datetimepicker_css.html" %}
+{% endblock style %}
+
 {% block breadcrumb %}
 {% include "entity/breadcrumb.html" %}
 {% endblock %}
@@ -71,6 +75,9 @@
                         </div>
                     {% endif %}
                 </div>
+                <br>
+                {% include "entity/blocks/educational_summary_calendar_widget.html" %}
+
                 {% if descendants %}
                 <br>
                 <div class="panel panel-default">
@@ -113,3 +120,7 @@
     </div>
 </div>
 {% endblock %}
+
+{% block script %}
+    {% include "education_group/blocks/datetimepicker_js.html" %}
+{% endblock script %}
