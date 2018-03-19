@@ -97,7 +97,7 @@ class LearningUnitYearForm(BootstrapForm):
     specific_title_english = forms.CharField(required=False, widget=forms.TextInput())
     session = forms.ChoiceField(add_blank(mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION),
                                 required=False)
-    subtype = forms.CharField(widget=forms.HiddenInput()))
+    subtype = forms.CharField(widget=forms.HiddenInput())
     container_type = forms.ChoiceField(choices=lazy(_create_learning_container_year_type_list, tuple),
                                        widget=forms.Select(attrs={'onchange': 'showInternshipSubtype()'}))
     faculty_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
