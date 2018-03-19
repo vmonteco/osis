@@ -155,7 +155,7 @@ class LearningUnitEditionTestCase(TestCase):
         self.assertIn(error_acronym, error_list)
         # Error : Specific title english diff
         error_specific_title_english = _(generic_error) % {
-            'field': _('specific_title_english'),
+            'field': _('official_english_title_proper_to_UE'),
             'year': self.learning_unit_year.academic_year,
             'value': getattr(self.learning_unit_year, 'specific_title_english'),
             'next_year': another_learning_unit_year.academic_year,
@@ -218,7 +218,7 @@ class LearningUnitEditionTestCase(TestCase):
 
         # Error : Common title diff
         error_common_title = _(generic_error) % {
-            'field': _('common_title'),
+            'field': _('common_official_title'),
             'year': self.learning_container_year.academic_year,
             'value': getattr(self.learning_container_year, 'common_title'),
             'next_year': another_learning_container_year.academic_year,
@@ -503,9 +503,7 @@ class LearningUnitEditionTestCase(TestCase):
                                    type=entity_container_year_link_type.REQUIREMENT_ENTITY,
                                    entity=an_entity)
 
-        with self.assertRaises(ConsistencyError) as ctx:
-            business_edition.check_postponement_conflict(self.learning_unit_year, another_learning_unit_year)
-        error_list = ctx.exception.error_list
+        error_list = business_edition.check_postponement_conflict(self.learning_unit_year, another_learning_unit_year)
         self.assertIsInstance(error_list, list)
         self.assertEqual(len(error_list), 6)
 

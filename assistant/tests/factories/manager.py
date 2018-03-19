@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# OSIS stands for Open Student Information System. It's an application
+#    OSIS stands for Open Student Information System. It's an application
 #    designed to manage the core business of higher education institutions,
 #    such as universities, faculties, institutes and professional schools.
 #    The core business involves the administration of students, teachers,
@@ -23,19 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import string
 import factory
-import factory.fuzzy
 
-from factory import DjangoModelFactory
+from base.tests.factories.person import PersonFactory
 
 
-class LanguageFactory(DjangoModelFactory):
+class ManagerFactory(factory.DjangoModelFactory):
     class Meta:
-        model = 'reference.Language'
-        django_get_or_create = ('code',)
+        model = 'assistant.Manager'
 
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    code = factory.Sequence(lambda n: str(n))
-    name = factory.Sequence(lambda n: str(n))
-    recognized = factory.Faker('boolean', chance_of_getting_true=50)
+    person = factory.SubFactory(PersonFactory, first_name=factory.Sequence(lambda n: 'revfirstname{0}'.format(n)),
+                                last_name=factory.Sequence(lambda n: 'revlastname{0}'.format(n)))

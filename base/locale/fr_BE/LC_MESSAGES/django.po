@@ -2691,3 +2691,9 @@ msgstr "Ouverture informations pédagoqiques"
 
 msgid "Educational information ending"
 msgstr "Fermeture informations pédagoqiques"
+
+msgid "additional_requirement_entity_1"
+msgstr "Entité resp. cahier de charges complémentaire 1"
+
+msgid "additional_requirement_entity_2"
+msgstr "Entité resp. cahier de charges complémentaire 2"

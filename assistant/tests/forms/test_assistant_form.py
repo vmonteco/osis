@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# OSIS stands for Open Student Information System. It's an application
+#    OSIS stands for Open Student Information System. It's an application
 #    designed to manage the core business of higher education institutions,
 #    such as universities, faculties, institutes and professional schools.
 #    The core business involves the administration of students, teachers,
@@ -23,19 +23,29 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import string
-import factory
-import factory.fuzzy
+from django.test import TestCase
 
-from factory import DjangoModelFactory
+from assistant.forms import AssistantFormPart6
 
 
-class LanguageFactory(DjangoModelFactory):
-    class Meta:
-        model = 'reference.Language'
-        django_get_or_create = ('code',)
+class TestAssistantFormPart6(TestCase):
 
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    code = factory.Sequence(lambda n: str(n))
-    name = factory.Sequence(lambda n: str(n))
-    recognized = factory.Faker('boolean', chance_of_getting_true=50)
+    def test_with_valid_data(self):
+        form = AssistantFormPart6(data={
+            'tutoring_percent': 30,
+            'service_activities_percent': 20,
+            'formation_activities_percent': 40,
+            'research_percent': 10,
+            'activities_report_remark': None
+        })
+        self.assertTrue(form.is_valid())
+
+    def test_with_invalid_data(self):
+        form = AssistantFormPart6(data={
+            'tutoring_percent': 30,
+            'service_activities_percent': 20,
+            'formation_activities_percent': 30,
+            'research_percent': 10,
+            'activities_report_remark': None
+        })
+        self.assertFalse(form.is_valid())
