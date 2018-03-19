@@ -77,7 +77,7 @@ def entity_read(request, entity_version_id):
     descendants = entity_version.descendants
     entity_calendar_instance = entity_calendar.find_by_entity_and_reference_for_current_academic_year(
         entity_version.entity.id, academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
-    initial={}
+    initial = {}
     if not entity_calendar_instance:
         initial = find_summary_course_submission_dates_for_entity_version(entity_version)
     form = EntityCalendarEducationalInformationForm(request.POST or None,
