@@ -106,12 +106,8 @@ class LearningUnitEndDateForm(forms.Form):
         return academic_year.find_academic_years(start_year=min_year, end_year=max_year)
 
     def save(self, update_learning_unit_year=True):
-        academic_year = self.cleaned_data['academic_year']
-        if update_learning_unit_year:
-            return edit_learning_unit_end_date(self.learning_unit, academic_year)
-        else:
-            self.learning_unit.end_year = get_new_end_year(academic_year)
-            self.learning_unit.save()
+        return edit_learning_unit_end_date(self.learning_unit, self.cleaned_data['academic_year'],
+                                           update_learning_unit_year)
 
 
 def _create_type_declaration_vacant_list():

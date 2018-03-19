@@ -40,7 +40,8 @@ from django.utils.translation import ugettext_lazy as _
 from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
 from attribution.tests.factories.attribution_new import AttributionNewFactory
 from base.business import learning_unit_proposal as proposal_business
-from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
+from base.forms.learning_unit.edition import LearningUnitEndDateForm
+from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, ProposalLearningUnitForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
 from base.models import entity_container_year, entity_version
 from base.models import proposal_learning_unit
@@ -67,15 +68,17 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.tutor import TutorFactory
+from base.views.learning_unit import learning_unit_identification
 from base.views.learning_units.search import _cancel_proposals
-from base.views.learning_units.proposal.update import edit_learning_unit_proposal
+from base.views.learning_units.proposal.update import edit_learning_unit_proposal, learning_unit_modification_proposal, \
+    learning_unit_suppression_proposal
 from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search
 from reference.tests.factories.language import LanguageFactory
 from base.tests.factories.user import UserFactory
 from django.contrib.auth.models import Group
 from base.models.person import CENTRAL_MANAGER_GROUP, FACULTY_MANAGER_GROUP
 
-LABEL_VALUE_BEFORE_PROPROSAL = _('value_before_proposal')
+LABEL_VALUE_BEFORE_PROPOSAL = _('value_before_proposal')
 
 
 class TestLearningUnitModificationProposal(TestCase):
@@ -127,7 +130,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.person_entity = PersonEntityFactory(person=self.person, entity=an_entity, with_child=True)
 
         self.client.force_login(self.person.user)
-        self.url = reverse('learning_unit_modification_proposal', args=[self.learning_unit_year.id])
+        self.url = reverse(learning_unit_modification_proposal, args=[self.learning_unit_year.id])
 
         self.form_data = {
             "academic_year": self.learning_unit_year.academic_year.id,
@@ -374,6 +377,118 @@ class TestLearningUnitModificationProposal(TestCase):
 
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
+
+
+class TestLearningUnitSuppressionProposal(TestCase):
+    def setUp(self):
+        self.person = PersonFactory()
+        self.permission = Permission.objects.get(codename="can_propose_learningunit")
+        self.person.user.user_permissions.add(self.permission)
+
+        self.permission_2 = Permission.objects.get(codename="can_access_learningunit")
+        self.person.user.user_permissions.add(self.permission_2)
+        an_organization = OrganizationFactory(type=organization_type.MAIN)
+        current_academic_year = create_current_academic_year()
+        learning_container_year = LearningContainerYearFactory(
+            academic_year=current_academic_year,
+            container_type=learning_container_year_types.COURSE,
+            campus=CampusFactory(organization=an_organization, is_administration=True)
+        )
+        self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212",
+                                                               subtype=learning_unit_year_subtypes.FULL,
+                                                               academic_year=current_academic_year,
+                                                               learning_container_year=learning_container_year,
+                                                               quadrimester=None)
+
+        an_entity = EntityFactory(organization=an_organization)
+        self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
+                                                   start_date=current_academic_year.start_date,
+                                                   end_date=current_academic_year.end_date)
+        self.requirement_entity = EntityContainerYearFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year,
+            entity=self.entity_version.entity,
+            type=entity_container_year_link_type.REQUIREMENT_ENTITY
+        )
+        self.allocation_entity = EntityContainerYearFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year,
+            entity=self.entity_version.entity,
+            type=entity_container_year_link_type.ALLOCATION_ENTITY
+        )
+        self.additional_requirement_entity_1 = EntityContainerYearFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year,
+            entity=self.entity_version.entity,
+            type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1
+        )
+        self.additional_requirement_entity_2 = EntityContainerYearFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year,
+            entity=self.entity_version.entity,
+            type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2
+        )
+
+        self.person_entity = PersonEntityFactory(person=self.person, entity=an_entity, with_child=True)
+
+        self.client.force_login(self.person.user)
+        self.url = reverse(learning_unit_suppression_proposal, args=[self.learning_unit_year.id])
+
+        self.form_data = {
+            "academic_year": self.learning_unit_year.academic_year.id,
+            "first_letter": self.learning_unit_year.acronym[0],
+            "acronym": self.learning_unit_year.acronym[1:],
+            "common_title": self.learning_unit_year.learning_container_year.common_title,
+            "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
+            "specific_title": self.learning_unit_year.specific_title,
+            "specific_title_english": self.learning_unit_year.specific_title_english,
+            "container_type": self.learning_unit_year.learning_container_year.container_type,
+            "internship_subtype": "",
+            "credits": self.learning_unit_year.credits,
+            "periodicity": self.learning_unit_year.learning_unit.periodicity,
+            "status": self.learning_unit_year.status,
+            "language": self.learning_unit_year.learning_container_year.language.id,
+            "quadrimester": "",
+            "campus": self.learning_unit_year.learning_container_year.campus.id,
+            "session": self.learning_unit_year.session,
+            "requirement_entity": self.entity_version.id,
+            "allocation_entity": self.entity_version.id,
+            "additional_requirement_entity_1": self.entity_version.id,
+            "additional_requirement_entity_2": self.entity_version.id,
+            "entity": self.entity_version.id,
+            "folder_id": "1",
+            "state": proposal_state.ProposalState.FACULTY.name
+        }
+
+    def test_get_request(self):
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'learning_unit/proposal/create_suppression_proposal.html')
+        self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
+        self.assertEqual(response.context['experimental_phase'], True)
+        self.assertEqual(response.context['person'], self.person)
+
+        self.assertIsInstance(response.context['form_proposal'], ProposalLearningUnitForm)
+        self.assertIsInstance(response.context['form_end_date'], LearningUnitEndDateForm)
+
+        form_proposal = response.context['form_proposal']
+        form_end_date = response.context['form_end_date']
+
+        self.assertEqual(form_end_date.fields['academic_year'].initial, None)
+        self.assertEqual(form_proposal.fields['folder_id'].initial, None)
+        self.assertEqual(form_proposal.fields['entity'].initial, None)
+
+    def test_post_request(self):
+        response = self.client.post(self.url, data=self.form_data)
+
+        redirected_url = reverse(learning_unit_identification, args=[self.learning_unit_year.id])
+        self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
+
+        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
+        self.assertTrue(a_proposal_learning_unit)
+        self.assertEqual(a_proposal_learning_unit.author, self.person)
+
+        messages = [str(message) for message in get_messages(response.wsgi_request)]
+        self.assertIn(_("success_modification_proposal").format(_(proposal_type.ProposalType.SUPPRESSION.name),
+                                                                self.learning_unit_year.acronym),
+                      list(messages))
 
 
 class TestLearningUnitProposalSearch(TestCase):
