@@ -129,13 +129,13 @@
                                 <label {% if differences|get_difference_css:'common_title' %}{{ differences|get_difference_css:'common_title' }}{% else %} title="{% trans 'title_official_1' %}"{% endif %}>{% trans 'common_official_title' %}</label><br>
                                 <span {{ differences|get_difference_css:'common_title' }}>{{ learning_unit_year.learning_container_year.common_title | default_if_none:'' }}</span>
                                 <br><br>
-                                <label {% if differences|get_difference_css:'specific_title'%}{{ differences|get_difference_css:'specific_title' }}{% else %}title="{% trans 'title_official_2' %}"{% endif %}>{% trans 'official_title_proper_to_UE' %}</label><br>
+                                <label {% if differences|get_difference_css:'specific_title'%}{{ differences|get_difference_css:'specific_title' }}{% else %}title="{% trans 'title_official_2' %}"{% endif %}>{% if learning_unit_year.subtype == "PARTIM" %}{% trans 'official_title_proper_to_partim' %}{% else %}{% trans 'official_title_proper_to_UE' %}{% endif %}</label><br>
                                     <span {{ differences|get_difference_css:'specific_title' }}>{{learning_unit_year.specific_title | default_if_none:''}}</span>
                                 <br><br>
                                 <label {% if differences|get_difference_css:'common_title_english' %}{{ differences|get_difference_css:'common_title_english' }}{% else %}title="{% trans 'title_in_english' %} {% trans 'title_in_english_1' %}"{% endif %}>{% trans 'common_official_english_title' %}</label><br>
                                 <span {{ differences|get_difference_css:'common_title_english' }}>{{learning_unit_year.learning_container_year.common_title_english | default_if_none:'' }}</span>
                                 <br><br>
-                                <label {% if differences|get_difference_css:'specific_title_english' %}{{ differences|get_difference_css:'specific_title_english' }} {% else %}title="{% trans 'title_in_english' %} {% trans 'title_in_english_2' %}"{% endif %}>{% trans 'official_english_title_proper_to_UE' %}</label><br>
+                                <label {% if differences|get_difference_css:'specific_title_english' %}{{ differences|get_difference_css:'specific_title_english' }} {% else %}title="{% trans 'title_in_english' %} {% trans 'title_in_english_2' %}"{% endif %}>{% if learning_unit_year.subtype == "PARTIM" %}{% trans 'official_english_title_proper_to_partim' %}{% else %}{% trans 'official_english_title_proper_to_UE' %}{% endif %}</label><br>
                                     <span {{ differences|get_difference_css:'specific_title_english'  }}>{{learning_unit_year.specific_title_english | default_if_none:'' }}</span>
                                 <br>
                             </div>
