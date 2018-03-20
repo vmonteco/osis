@@ -143,11 +143,12 @@ class VolumeEditionForm(forms.Form):
     def validate_parent_partim_component(self, parent_data):
         self._parent_data = parent_data
 
-        self._compare('volume_total', 'vol_tot_full_must_be_greater_than_partim', lower_or_equal=True)
-        self._compare('volume_q1', 'vol_q1_full_must_be_greater_or_equal_to_partim')
-        self._compare('volume_q2', 'vol_q2_full_must_be_greater_or_equal_to_partim')
-        self._compare('planned_classes', 'planned_classes_full_must_be_greater_or_equal_to_partim')
-        self._compare(self.requirement_entity_key, 'entity_requirement_full_must_be_greater_or_equal_to_partim')
+        self._compare_parent_partim('volume_total', 'vol_tot_full_must_be_greater_than_partim', lower_or_equal=True)
+        self._compare_parent_partim('volume_q1', 'vol_q1_full_must_be_greater_or_equal_to_partim')
+        self._compare_parent_partim('volume_q2', 'vol_q2_full_must_be_greater_or_equal_to_partim')
+        self._compare_parent_partim('planned_classes', 'planned_classes_full_must_be_greater_or_equal_to_partim')
+        self._compare_parent_partim(self.requirement_entity_key,
+                                    'entity_requirement_full_must_be_greater_or_equal_to_partim')
         self._compare_additional_entities(self.additional_requirement_entity_1_key)
         self._compare_additional_entities(self.additional_requirement_entity_2_key)
 
@@ -156,18 +157,24 @@ class VolumeEditionForm(forms.Form):
     def _compare_additional_entities(self, key):
         # Verify if we have additional_requirement entity
         if key in self._parent_data and key in self.cleaned_data:
-            self._compare(key, 'entity_requirement_full_must_be_greater_or_equal_to_partim')
+            self._compare_parent_partim(key, 'entity_requirement_full_must_be_greater_or_equal_to_partim')
 
-    def _compare(self, key, msg, lower_or_equal=False):
+    def _compare_parent_partim(self, key, msg, lower_or_equal=False):
         partim_data = self.cleaned_data or self.initial
-
-        if lower_or_equal:
-            condition = self._parent_data[key] <= partim_data[key]
-        else:
-            condition = self._parent_data[key] < partim_data[key]
+        condition = self._compare(self._parent_data[key],  partim_data[key], lower_or_equal)
 
         if condition:
             self.add_error(key, _(msg))
+
+    @staticmethod
+    def _compare(value_parent, value_partim, lower_or_equal):
+        if lower_or_equal:
+            condition = value_parent <= value_partim
+        elif value_parent == 0 and value_partim == 0:
+            condition = False
+        else:
+            condition = value_parent < value_partim
+        return condition
 
     def save(self, postponement):
         if not self.changed_data:
