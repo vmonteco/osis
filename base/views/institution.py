@@ -81,9 +81,9 @@ def entities_search(request):
 @login_required
 def entity_read(request, entity_version_id):
     entity_version = get_object_or_404(EntityVersion, id=entity_version_id)
-    can_user_edit = can_user_edit_educational_information_submission_dates_for_entity(request.user,
+    can_user_post = can_user_edit_educational_information_submission_dates_for_entity(request.user,
                                                                                       entity_version.entity)
-    if request.method == "POST" and not can_user_edit:
+    if request.method == "POST" and not can_user_post:
         logger.warning("User {} has no sufficient right to modify submission dates of educational information.".
                        format(request.user))
         raise PermissionDenied()
