@@ -9,25 +9,19 @@ function set_config(config, input) {
 $(document).ready(function() {
     const user_language = document.documentElement.lang;
 
-    $('.datepicker').each(function () {
-        var config = {
+    const defaultConfig = {
             pickTime: false,
             language: user_language
         };
 
-        set_config(config, $(this));
-
-        $(this).datetimepicker(config);
+    $('.datepicker').each(function () {
+        set_config(defaultConfig, $(this));
+        $(this).datetimepicker(defaultConfig);
     });
+
     $('.timepicker').each(function () {
-        var config = {
-            pickDate: false,
-            language: user_language
-        };
-
-        set_config(config, $(this));
-
-        $(this).datetimepicker(config);
+        set_config(defaultConfig, $(this));
+        $(this).datetimepicker(defaultConfig);
     });
 
     $('.datetimepicker').each(function () {
