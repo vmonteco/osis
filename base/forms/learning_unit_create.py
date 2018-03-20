@@ -165,7 +165,7 @@ class LearningUnitYearForm(BootstrapForm):
         self.learning_unit = kwargs.pop('learning_unit', None)
         super(LearningUnitYearForm, self).__init__(*args, **kwargs)
 
-        if self.initial.get('subtype', None) == "PARTIM":
+        if self.initial.get('subtype') == "PARTIM":
             self.fields['specific_title'].label = _('official_title_proper_to_partim')
             self.fields['specific_title_english'].label = _('official_english_title_proper_to_partim')
         else:
