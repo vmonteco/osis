@@ -2686,12 +2686,6 @@ msgstr ""
 msgid "Educational information ending"
 msgstr ""
 
-msgid "additional_requirement_entity_1"
-msgstr "Additional requirement entity 1"
-
-msgid "additional_requirement_entity_2"
-msgstr "Additional requirement entity 2"
-
 msgid "official_title_proper_to_partim"
 msgstr "Official title proper to the partim"
 
