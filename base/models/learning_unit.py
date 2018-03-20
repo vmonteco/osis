@@ -71,7 +71,7 @@ class LearningUnit(AuditableSerializableModel):
 
     def delete(self, *args, **kwargs):
         if self.start_year < 2015:
-            raise IntegrityError('Prohibition to delete a teaching unit before 2015.')
+            raise IntegrityError('Prohibition to delete a learning unit before 2015.')
         return super().delete(*args, **kwargs)
 
     def is_past(self):
