@@ -105,7 +105,7 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
 
         # TODO Move this section in ProposalLearningUnitForm
         data = {'person': a_person, 'learning_unit_year': learning_unit_year, 'state_proposal': state_proposal,
-                'type_proposal': type_proposal, 'entity': self.cleaned_data["entity"],
+                'type_proposal': type_proposal, 'folder_entity': self.cleaned_data["entity"],
                 'folder_id': self.cleaned_data['folder_id']}
         if self.proposal:
             if self.proposal.type in \
