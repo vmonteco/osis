@@ -70,7 +70,7 @@ class LearningUnitDelete(TestCase):
         self.learning_unit_year_list = self.create_learning_unit_years_and_dependencies()
 
     def create_learning_unit_years_and_dependencies(self):
-        l1 = LearningUnitFactory(start_year=1900)
+        l1 = LearningUnitFactory(start_year=2015)
 
         learning_unit_years = []
         for year in range(4):

@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
+from django.db import models, IntegrityError
 
 from base.models.academic_year import current_academic_year
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
@@ -68,6 +68,11 @@ class LearningUnit(AuditableSerializableModel):
         if self.end_year and self.end_year < self.start_year:
             raise AttributeError("Start date should be before the end date")
         super(LearningUnit, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.start_year < 2015:
+            raise IntegrityError('Prohibition to delete a teaching unit before 2015.')
+        return super().delete(*args, **kwargs)
 
     def is_past(self):
         return self.end_year and current_academic_year().year > self.end_year

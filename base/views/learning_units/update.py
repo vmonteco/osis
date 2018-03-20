@@ -26,12 +26,12 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from base.business import learning_unit_year_with_context
-from base.business.learning_units.edition import edit_learning_unit_end_date, ConsistencyError
+from base.business.learning_units.edition import ConsistencyError
 from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
 from base.forms.learning_unit.edition_volume import VolumeEditionFormsetContainer
 from base.models.learning_unit_year import LearningUnitYear
