@@ -31,6 +31,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _
 
 from base.models.entity_version import EntityVersion
 
@@ -39,6 +40,7 @@ from base.business.institution import can_user_edit_educational_information_subm
 from base.forms.entity_calendar import EntityCalendarEducationalInformationForm
 from base.models import entity_version as entity_version_mdl
 from base.models.enums import entity_type
+from base.views.common import display_success_messages
 from . import layout
 
 logger = logging.getLogger(settings.DEFAULT_LOGGER)
@@ -93,6 +95,7 @@ def entity_read(request, entity_version_id):
 
     form = EntityCalendarEducationalInformationForm(entity_version, request.POST or None)
     if form.is_valid():
+        display_success_messages(request, _("Educational information submission dates updated"))
         form.save_entity_calendar(entity_version.entity)
 
     return layout.render(request, "entity/identification.html", locals())
