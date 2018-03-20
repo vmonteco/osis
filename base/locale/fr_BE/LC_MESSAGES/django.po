@@ -1817,9 +1817,10 @@ msgid "invalid_acronym"
 msgstr "Sigle non valide"
 
 msgid "acronym_rules"
-msgstr "Site en une lettre\n"
-       "Sigle en min 2 et max 4 lettres\n"
-       "Code numérique en 4 chiffres"
+msgstr "Code composé de:\n"
+       "site: 1 lettre\n"
+       "partie alphabétique: 2 à 4 lettres\n"
+       "partie numérique: 4 chiffres"
 
 msgid "end_year_title"
 msgstr "Année de fin"
@@ -2522,7 +2523,7 @@ msgid "partim"
 msgstr "Partim"
 
 msgid "partim_character_rules"
-msgstr "Lettre ou chiffre obligatoire"
+msgstr "Identifiant partim: 1 lettre ou 1 chiffre"
 
 msgid "invalid_partim_character"
 msgstr "Caractère déjà utilisé"
