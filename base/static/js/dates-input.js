@@ -1,9 +1,15 @@
-function set_config(config, input) {
+function set_config(config, input, input_type) {
     config.minDate = input.data("mindate");
     config.maxDate = input.data("maxdate");
     config.format = input.data('format');
     config.showToday = false;
     config.useCurrent = false;
+
+    if (input_type === "daterangepicker"){
+        input.daterangepicker(config);
+    } else {
+      input.datetimepicker(config)
+    }
 }
 
 $(document).ready(function() {
@@ -14,14 +20,13 @@ $(document).ready(function() {
             language: user_language
         };
 
+
     $('.datepicker').each(function () {
         set_config(defaultConfig, $(this));
-        $(this).datetimepicker(defaultConfig);
     });
 
     $('.timepicker').each(function () {
         set_config(defaultConfig, $(this));
-        $(this).datetimepicker(defaultConfig);
     });
 
     $('.datetimepicker').each(function () {
@@ -29,9 +34,6 @@ $(document).ready(function() {
             language: user_language
         };
         set_config(config, $(this));
-
-        $(this).datetimepicker(config);
-
     });
 
     $('.daterange').each(function () {
@@ -47,9 +49,7 @@ $(document).ready(function() {
             }
         };
 
-        set_config(config, $(this));
-
-        $(this).daterangepicker(config);
+        set_config(config, $(this), "daterangepicker");
 
         $(this).on('apply.daterangepicker', function(ev, picker) {
             $(this).val(picker.startDate.format(format)
