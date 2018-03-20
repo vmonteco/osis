@@ -510,7 +510,7 @@ def _check_postponement_conflict_on_volumes_data(current_component, next_year_co
                           {
                               'field': _(volume_diff.lower()),
                               'acronym': current_component.learning_container_year.acronym,
-                              'component_type': _(current_component.type),
+                              'component_type': _(current_component.type) if current_component.type else 'NT',
                               'year': current_component.learning_container_year.academic_year,
                               'value': current_volume_data or _('no_data'),
                               'next_year': next_year_component.learning_container_year.academic_year,
