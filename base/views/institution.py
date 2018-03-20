@@ -24,16 +24,24 @@
 #
 ##############################################################################
 import json
+import logging
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
+from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+
+from base.models.entity_version import EntityVersion
 
 from base import models as mdl
-from base.business.institution import find_summary_course_submission_dates_for_entity_version
+from base.business.institution import can_user_edit_educational_information_submission_dates_for_entity
 from base.forms.entity_calendar import EntityCalendarEducationalInformationForm
-from base.models import entity_version as entity_version_mdl, entity_calendar
-from base.models.enums import entity_type, academic_calendar_type
+from base.models import entity_version as entity_version_mdl
+from base.models.enums import entity_type
 from . import layout
+
+logger = logging.getLogger(settings.DEFAULT_LOGGER)
 
 
 @login_required
@@ -72,17 +80,18 @@ def entities_search(request):
 
 @login_required
 def entity_read(request, entity_version_id):
-    entity_version = mdl.entity_version.find_by_id(entity_version_id)
+    entity_version = get_object_or_404(EntityVersion, id=entity_version_id)
+    can_user_edit = can_user_edit_educational_information_submission_dates_for_entity(request.user,
+                                                                                      entity_version.entity)
+    if request.method == "POST" and not can_user_edit:
+        logger.warning("User {} has no sufficient right to modify submission dates of educational information.".
+                       format(request.user))
+        raise PermissionDenied()
+
     entity_parent = entity_version.get_parent_version()
     descendants = entity_version.descendants
-    entity_calendar_instance = entity_calendar.find_by_entity_and_reference_for_current_academic_year(
-        entity_version.entity.id, academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
-    initial = {}
-    if not entity_calendar_instance:
-        initial = find_summary_course_submission_dates_for_entity_version(entity_version)
-    form = EntityCalendarEducationalInformationForm(request.POST or None,
-                                                    instance=entity_calendar_instance,
-                                                    initial=initial)
+
+    form = EntityCalendarEducationalInformationForm(entity_version, request.POST or None)
     if form.is_valid():
         form.save_entity_calendar(entity_version.entity)
 

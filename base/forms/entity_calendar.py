@@ -26,8 +26,10 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
+from base.business.institution import find_summary_course_submission_dates_for_entity_version
 from base.forms import bootstrap
 from base.forms.utils.datefield import DatePickerInput, DATE_FORMAT
+from base.models import entity_calendar
 from base.models.academic_calendar import get_by_reference_and_academic_year
 from base.models.academic_year import current_academic_year
 from base.models.entity_calendar import EntityCalendar
@@ -43,6 +45,13 @@ class EntityCalendarEducationalInformationForm(bootstrap.BootstrapModelForm):
     class Meta:
         model = EntityCalendar
         fields = ["start_date", "end_date"]
+
+    def __init__(self, entity_version, *args, **kwargs):
+        entity_calendar_obj = entity_calendar.find_by_entity_and_reference_for_current_academic_year(
+            entity_version.entity.id, academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+        initial = {} if entity_calendar_obj else find_summary_course_submission_dates_for_entity_version(entity_version)
+
+        super().__init__(*args, instance=entity_calendar_obj, initial=initial, **kwargs)
 
     def save_entity_calendar(self, entity, *args, **kwargs):
         self.instance.entity = entity

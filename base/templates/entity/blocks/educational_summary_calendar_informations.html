@@ -25,18 +25,13 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-<form method="post">
-    {% csrf_token %}
-    {% bootstrap_form_errors form %}
-    <div class="row">
-       <div class="col-md-3">
-            {% bootstrap_field form.start_date %}
-        </div>
-        <div class="col-md-3">
-            {% bootstrap_field form.end_date %}
-        </div>
-        <div class="col-md-3">
-            {% bootstrap_button _("Save") button_type="submit" button_class="btn-primary" %}
-        </div>
+<div class="row">
+    <div class="col-md-3">
+        <label>{{ form.start_date.label }}</label>
+        {{ form.start_date.initial|date:"d/m/Y"|default:"-" }}
     </div>
-</form>
+    <div class="col-md-3">
+        <label>{{ form.end_date.label }}</label>
+        {{ form.end_date.initial|date:"d/m/Y"|default:"-" }}
+    </div>
+</div>
