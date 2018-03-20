@@ -49,6 +49,7 @@ from base.models.enums import entity_container_year_link_type, learning_unit_per
 from base.models.enums import organization_type, entity_type, \
     learning_unit_year_subtypes, proposal_type, learning_container_year_types, proposal_state
 from base.models.enums.proposal_state import ProposalState
+from base.models.enums.proposal_type import ProposalType
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories import academic_year as academic_year_factory, campus as campus_factory, \
     organization as organization_factory
@@ -1029,6 +1030,47 @@ class TestEditProposal(TestCase):
 
         self.proposal.refresh_from_db()
         self.assertEqual(self.proposal.state, 'ProposalState.FACULTY')
+
+    @mock.patch('base.views.layout.render')
+    def test_edit_suppression_proposal_get(self, mock_render):
+        self.proposal.type = ProposalType.SUPPRESSION.name
+        self.proposal.save()
+
+        request_factory = RequestFactory()
+
+        request = request_factory.get(self.url)
+
+        request.user = self.person.user
+        update_learning_unit_proposal(request, self.learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        self.assertEqual(template, 'learning_unit/proposal/create_suppression_proposal.html')
+        self.assertIsInstance(context['form_end_date'], LearningUnitEndDateForm)
+        self.assertIsInstance(context['form_proposal'], ProposalLearningUnitForm)
+
+    def test_edit_suppression_proposal_post(self):
+        self.proposal.type = ProposalType.SUPPRESSION.name
+        self.proposal.save()
+
+        request_factory = RequestFactory()
+        request = request_factory.post(self.url, data={"academic_year": self.academic_years[3].id,
+                                                       "entity": self.entity_version.id,
+                                                       "folder_id": 12})
+
+        request.user = self.person.user
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        update_learning_unit_proposal(request, self.learning_unit_year.id)
+
+        msg = [m.message for m in get_messages(request)]
+        msg_level = [m.level for m in get_messages(request)]
+        self.assertEqual(len(msg), 1)
+        self.assertIn(messages.SUCCESS, msg_level)
+
+        self.proposal.refresh_from_db()
+        self.assertEqual(self.proposal.folder_id, 12)
 
 
 class TestLearningUnitProposalDisplay(TestCase):

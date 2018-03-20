@@ -29,7 +29,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError, transaction
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -73,7 +73,7 @@ def learning_unit_modification_proposal(request, learning_unit_year_id):
                              .format(_(type_proposal), learning_unit_year.acronym))
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
-    return render(request, 'learning_unit/proposal/create_modification_proposal.html', {
+    return layout.render(request, 'learning_unit/proposal/create_modification_proposal.html', {
         'learning_unit_year': learning_unit_year,
         'person': user_person,
         'form': form,
@@ -133,7 +133,7 @@ def _update_or_create_suppression_proposal(request, person, learning_unit_year, 
     type_proposal = ProposalType.SUPPRESSION.name
     initial = _get_initial(learning_unit_year, proposal, type_proposal, person)
 
-    max_year = proposal.initial_data.get('end_year') if proposal else learning_unit_year.learning_unit.end_year
+    max_year = _get_max_year(learning_unit_year, proposal)
 
     form_end_date = LearningUnitEndDateForm(request.POST or None, learning_unit_year.learning_unit, max_year=max_year)
     form_proposal = ProposalLearningUnitForm(request.POST or None, instance=proposal, initial=initial)
@@ -156,7 +156,11 @@ def _update_or_create_suppression_proposal(request, person, learning_unit_year, 
         'form_end_date': form_end_date,
         'form_proposal': form_proposal,
         'experimental_phase': True})
-    return render(request, 'learning_unit/proposal/create_suppression_proposal.html', context)
+    return layout.render(request, 'learning_unit/proposal/create_suppression_proposal.html', context)
+
+
+def _get_max_year(learning_unit_year, proposal):
+    return proposal.initial_data.get('end_year') if proposal else learning_unit_year.learning_unit.end_year
 
 
 def _get_initial(learning_unit_year, proposal, type_proposal, user_person):
