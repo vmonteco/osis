@@ -501,12 +501,10 @@ def _get_next_year_component(next_year_components, component_type):
 def _check_postponement_conflict_on_volumes_data(current_component, next_year_component,
                                                  current_volumes_data, next_year_volumes_data):
     error_list = []
-    volumes_diff = _get_volumes_diff(current_volumes_data, next_year_volumes_data)
-    for volume_diff in volumes_diff:
-        current_value = current_volumes_data.get(volume_diff)
-        next_year_value = next_year_volumes_data.get(volume_diff)
-        error_list.append(_get_error_volume_field_diff(volume_diff, current_component, next_year_component,
-                                                       current_value,next_year_value))
+    volumes_fields_diff = _get_volumes_diff(current_volumes_data, next_year_volumes_data)
+    for field in volumes_fields_diff:
+        values_diff = {'current': current_volumes_data.get(field), 'next_year': next_year_volumes_data.get(field)}
+        error_list.append(_get_error_volume_field_diff(field, current_component, next_year_component, values_diff))
     return error_list
 
 
@@ -515,7 +513,7 @@ def _get_volumes_diff(current_volumes_data, next_year_volumes_data):
                   current_volumes_data)
 
 
-def _get_error_volume_field_diff(field_diff, current_component, next_year_component, current_value, next_year_value):
+def _get_error_volume_field_diff(field_diff, current_component, next_year_component, values_diff):
     return _("The value of field '%(field)s' for the learning unit %(acronym)s (%(component_type)s) "
              "is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s") %\
         {
@@ -523,9 +521,9 @@ def _get_error_volume_field_diff(field_diff, current_component, next_year_compon
                 'acronym': current_component.learning_container_year.acronym,
                 'component_type': _(current_component.type) if current_component.type else 'NT',
                 'year': current_component.learning_container_year.academic_year,
-                'value': current_value or _('no_data'),
+                'value': values_diff.get('current') or _('no_data'),
                 'next_year': next_year_component.learning_container_year.academic_year,
-                'next_value': next_year_value or _('no_data')
+                'next_value': values_diff.get('next_year') or _('no_data')
         }
 
 
