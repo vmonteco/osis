@@ -132,6 +132,12 @@ class TestVolumeEditionForm(TestCase):
             errors = form.validate_parent_partim_component(parent_data)
             self.assertEqual(len(errors), 7)
 
+    def test_compare(self):
+        self.assertFalse(VolumeEditionForm._compare(0, 0, False))
+        self.assertTrue(VolumeEditionForm._compare(12, 14, False))
+        self.assertTrue(VolumeEditionForm._compare(12, 12, True))
+        self.assertFalse(VolumeEditionForm._compare(12, 12, False))
+
 
 def _get_wrong_data_empty_field():
     data = _get_valid_data()
