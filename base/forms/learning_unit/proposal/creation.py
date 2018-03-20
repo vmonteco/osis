@@ -38,8 +38,9 @@ from base.models.person import FACULTY_MANAGER_GROUP
 MAX_ACADEMIC_YEAR_FACULTY = datetime.datetime.now().year+4
 
 
+# FIXME Merge this with ProposalLearningUnitForm
 class LearningUnitProposalForm(BootstrapForm):
-    folder_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
+    entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
 
 

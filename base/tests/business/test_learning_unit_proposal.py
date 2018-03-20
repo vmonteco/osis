@@ -93,9 +93,12 @@ class TestLearningUnitProposalCancel(TestCase):
     def test_cancel_proposal_of_type_creation_case_success(self):
         proposal = self._create_proposal(prop_type=proposal_type.ProposalType.CREATION.name,
                                          prop_state=proposal_state.ProposalState.FACULTY.name)
+        lu = proposal.learning_unit_year.learning_unit
         lu_proposal_business.cancel_proposal(proposal, PersonFactory(), send_mail=False)
         self.assertCountEqual(list(mdl_base.proposal_learning_unit.ProposalLearningUnit.objects
                                    .filter(learning_unit_year=self.learning_unit_year)), [])
+        self.assertCountEqual(list(mdl_base.learning_unit.LearningUnit.objects.filter(id=lu.id)),
+                              [])
 
     @patch('base.utils.send_mail.send_mail_after_the_learning_unit_proposal_cancellation')
     def test_cancel_proposals_of_type_suppression(self, mock_send_mail):

@@ -48,7 +48,7 @@ from base.business.learning_unit import get_cms_label_data, \
     initialize_learning_unit_pedagogy_form, compute_max_academic_year_adjournment, \
     create_learning_unit_partim_structure, CMS_LABEL_SPECIFICATIONS, \
     CMS_LABEL_PEDAGOGY, can_edit_summary_editable_field
-from base.business.learning_unit_proposal import _get_difference_of_proposal
+from base.business.learning_unit_proposal import get_difference_of_proposal
 from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
 from base.business.learning_units.simple.creation import create_learning_unit_year_structure, create_learning_unit
@@ -502,7 +502,7 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context['proposal'] = proposal
     context['proposal_folder_entity_version'] = mdl.entity_version.get_by_entity_and_date(
         proposal.entity, None) if proposal else None
-    context['differences'] = _get_difference_of_proposal(proposal)
+    context['differences'] = get_difference_of_proposal(proposal)
 
     # append permissions
     context.update(learning_unit_year_permissions(learning_unit_year, person))
