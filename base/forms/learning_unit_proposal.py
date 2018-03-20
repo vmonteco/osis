@@ -33,12 +33,36 @@ from base.forms.learning_unit_create import EntitiesVersionChoiceField, Learning
 from base.models import entity_container_year
 from base.models.entity_version import find_main_entities_version
 from base.models.enums import learning_container_year_types
-from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums import proposal_state, proposal_type
+from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
+from base.models.proposal_learning_unit import ProposalLearningUnit
 
 
+class ProposalLearningUnitForm(forms.ModelForm):
+    entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
+
+    def __init__(self, data, learning_unit_year, type_proposal, state_proposal, author, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+        self.instance.learning_unit_year = learning_unit_year
+        self.instance.type = type_proposal
+        self.instance.state = state_proposal
+        self.instance.author = author
+
+    def clean_entity(self):
+        return self.cleaned_data['entity'].entity
+
+    class Meta:
+        model = ProposalLearningUnit
+        fields = ['entity', 'folder_id']
+
+    def save(self, commit=True):
+        self.instance.initial_data = _copy_learning_unit_data(self.instance.learning_unit_year)
+        super().save(commit)
+
+
+# FIXME Split LearningUnitYearForm and ProposalLearningUnit
 class LearningUnitProposalModificationForm(LearningUnitYearForm):
-    folder_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
+    entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
     state = forms.ChoiceField(choices=proposal_state.CHOICES, required=False)
     type = forms.ChoiceField(choices=proposal_type.CHOICES, required=False, disabled=True)
@@ -54,7 +78,7 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
 
     def clean(self):
         cleaned_data = super().clean()
-
+        # TODO Move this section in clean_internship_subtype
         if cleaned_data.get("internship_subtype") and cleaned_data.get("internship_subtype") != 'None' and \
            cleaned_data["container_type"] != learning_container_year_types.INTERNSHIP:
             self.add_error("internship_subtype", _("learning_unit_type_is_not_internship"))
@@ -62,6 +86,7 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
         return cleaned_data
 
     def save(self, learning_unit_year, a_person, type_proposal, state_proposal):
+        # FIXME is_valid already called in the view
         if not self.is_valid():
             raise ValueError("Form is invalid.")
 
@@ -78,8 +103,9 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
 
         self._updates_entities(learning_container_year)
 
+        # TODO Move this section in ProposalLearningUnitForm
         data = {'person': a_person, 'learning_unit_year': learning_unit_year, 'state_proposal': state_proposal,
-                'type_proposal': type_proposal, 'folder_entity': self.cleaned_data['folder_entity'],
+                'type_proposal': type_proposal, 'entity': self.cleaned_data["entity"],
                 'folder_id': self.cleaned_data['folder_id']}
         if self.proposal:
             if self.proposal.type in \
@@ -104,7 +130,7 @@ def _copy_learning_unit_data(learning_unit_year):
                                                             ["id", "acronym", "common_title", "common_title_english",
                                                              "container_type",
                                                              "campus__id", "language__id", "in_charge"])
-    learning_unit_values = _get_attributes_values(learning_unit_year.learning_unit, ["id", "periodicity"])
+    learning_unit_values = _get_attributes_values(learning_unit_year.learning_unit, ["id", "periodicity", "end_year"])
     learning_unit_year_values = _get_attributes_values(learning_unit_year, ["id", "acronym", "specific_title",
                                                                             "specific_title_english",
                                                                             "internship_subtype", "quadrimester",

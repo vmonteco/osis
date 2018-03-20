@@ -105,10 +105,14 @@ def _reinitialize_entities_before_proposal(learning_container_year, initial_enti
 
 
 def delete_learning_unit_proposal(learning_unit_proposal):
+    prop_type = learning_unit_proposal.type
+    lu = learning_unit_proposal.learning_unit_year.learning_unit
     learning_unit_proposal.delete()
+    if prop_type == proposal_type.ProposalType.CREATION.name:
+        lu.delete()
 
 
-def _get_difference_of_proposal(learning_unit_yr_proposal):
+def get_difference_of_proposal(learning_unit_yr_proposal):
     differences = {}
     if learning_unit_yr_proposal and learning_unit_yr_proposal.initial_data.get('learning_container_year'):
         differences.update(_get_differences_in_learning_unit_data(learning_unit_yr_proposal))

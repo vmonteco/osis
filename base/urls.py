@@ -109,8 +109,10 @@ urlpatterns = [
             url(r'^attributions/$', learning_unit.learning_unit_attributions,
                 name="learning_unit_attributions"),
             url(r'^proposal/', include([
-                url(r'^modification/$', update.propose_modification_of_learning_unit,
+                url(r'^modification/$', update.learning_unit_modification_proposal,
                     name="learning_unit_modification_proposal"),
+                url(r'^suppression/$', update.learning_unit_suppression_proposal,
+                    name="learning_unit_suppression_proposal"),
                 url(r'^edit/$', update.edit_learning_unit_proposal, name="edit_proposal"),
                 url(r'^cancel/$', update.cancel_proposal_of_learning_unit,
                     name="learning_unit_cancel_proposal"),
