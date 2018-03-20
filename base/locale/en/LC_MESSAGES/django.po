@@ -2691,3 +2691,6 @@ msgstr "Official title proper to the partim"
 
 msgid "official_english_title_proper_to_partim"
 msgstr "Official English title proper to the partim"
+
+msgid "Educational information submission dates updated"
+msgstr ""

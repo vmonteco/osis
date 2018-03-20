@@ -2698,3 +2698,6 @@ msgstr "Intitulé officiel propre au partim"
 
 msgid "official_english_title_proper_to_partim"
 msgstr "Intitulé officiel en anglais propre au partim"
+
+msgid "Educational information submission dates updated"
+msgstr "Date de soumission des informations pédagogiques mis à jour"
