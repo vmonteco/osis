@@ -24,25 +24,25 @@
 #
 ##############################################################################
 import datetime
+
 from django.contrib.auth.models import Permission, Group
 from django.test import TestCase
 
 from base.business.learning_units import perms
 from base.models.academic_year import AcademicYear
+from base.models.enums import entity_container_year_link_type
 from base.models.enums import proposal_state, proposal_type, learning_container_year_types
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.person import FACULTY_MANAGER_GROUP, CENTRAL_MANAGER_GROUP
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.business.learning_units import GenerateContainer
+from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.user import UserFactory
-from base.tests.factories.entity_container_year import EntityContainerYearFactory
-from base.models.enums import entity_container_year_link_type
-
 
 TYPES_PROPOSAL_NEEDED_TO_EDIT = (learning_container_year_types.COURSE,
                                  learning_container_year_types.DISSERTATION,
@@ -143,8 +143,6 @@ class PermsTestCase(TestCase):
         self.assertFalse(perms.is_eligible_to_edit_proposal(a_proposal, a_person))
 
         PersonEntityFactory(entity=an_requirement_entity, person=a_person)
-        self.assertFalse(perms.is_eligible_to_edit_proposal(a_proposal, a_person))
-
         for a_type in perms.PROPOSAL_TYPE_ACCEPTED_FOR_UPDATE:
             a_proposal.type = a_type
             a_proposal.save()
@@ -182,7 +180,7 @@ class PermsTestCase(TestCase):
         an_requirement_entity = generated_container_first_year.requirement_entity_container_year.entity
 
         luy = generated_container_first_year.learning_unit_year_full
-        a_person = self.create_person_with_permission_to_edit_proposal()
+        a_person = self.create_person_with_permission_to_edit_proposal(FACULTY_MANAGER_GROUP)
 
         a_proposal = ProposalLearningUnitFactory(learning_unit_year=luy,
                                                  type=proposal_type.ProposalType.CREATION.name,
@@ -198,7 +196,7 @@ class PermsTestCase(TestCase):
         an_requirement_entity = generated_container_first_year.requirement_entity_container_year.entity
 
         luy = generated_container_first_year.learning_unit_year_full
-        a_person = self.create_person_with_permission_to_edit_proposal()
+        a_person = self.create_person_with_permission_to_edit_proposal(FACULTY_MANAGER_GROUP)
 
         a_proposal = ProposalLearningUnitFactory(
             learning_unit_year=luy,

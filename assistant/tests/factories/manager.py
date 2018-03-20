@@ -24,21 +24,13 @@
 #
 ##############################################################################
 import factory
-import factory.fuzzy
-import string
-import datetime
 
-from base.tests.factories.entity import EntityFactory
-from osis_common.utils.datetime import get_tzinfo
+from base.tests.factories.person import PersonFactory
 
 
-class ProposalFolderFactory(factory.django.DjangoModelFactory):
+class ManagerFactory(factory.DjangoModelFactory):
     class Meta:
-        model = "base.ProposalFolder"
-        django_get_or_create = ('entity', )
+        model = 'assistant.Manager'
 
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    entity = factory.SubFactory(EntityFactory)
-    folder_id = factory.fuzzy.FuzzyInteger(100)
+    person = factory.SubFactory(PersonFactory, first_name=factory.Sequence(lambda n: 'revfirstname{0}'.format(n)),
+                                last_name=factory.Sequence(lambda n: 'revlastname{0}'.format(n)))

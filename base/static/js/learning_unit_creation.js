@@ -7,7 +7,6 @@ const trans_field_required = gettext('field_is_required');
 const trans_field_min = gettext('min_for_field');
 const trans_field_max = gettext('max_for_field');
 
-
 var form = $('#LearningUnitYearForm').closest("form");
 
 

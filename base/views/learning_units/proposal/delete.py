@@ -23,40 +23,25 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-from django.core.exceptions import ObjectDoesNotExist
-from django.utils.translation import ugettext_lazy as _
-from base.models.osis_model_admin import OsisModelAdmin
-from base.models import entity
+
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, permission_required
+from django.shortcuts import redirect, get_object_or_404
+
+from base.business import learning_unit_proposal as business_proposal
+from base.models.person import Person
+from base.models.proposal_learning_unit import ProposalLearningUnit
+from base.views.common import display_success_messages, display_error_messages
+from base.views.learning_units import perms
 
 
-class ProposalFolderAdmin(OsisModelAdmin):
-    list_display = ('entity', 'folder_id', )
-
-    search_fields = ['folder_id']
-    raw_id_fields = ('entity', )
-
-
-class ProposalFolder(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    entity = models.ForeignKey('Entity')
-    folder_id = models.IntegerField()
-
-    class Meta:
-        unique_together = ('entity', 'folder_id', )
-
-    def __str__(self):
-        return _("folder_number").format(self.folder_id)
-
-
-def find_by_entity_and_folder_id(an_entity, a_folder_id):
-    try:
-        return ProposalFolder.objects.get(entity=an_entity, folder_id=a_folder_id)
-    except ObjectDoesNotExist:
-        return None
-
-
-def find_distinct_folder_entities():
-    entities = ProposalFolder.objects.distinct('entity').values_list('entity__id', flat=True)
-    return entity.Entity.objects.filter(pk__in=entities)
+@login_required
+@perms.can_perform_cancel_proposal
+@permission_required('base.can_propose_learningunit', raise_exception=True)
+def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
+    user_person = get_object_or_404(Person, user=request.user)
+    learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learning_unit_year_id)
+    messages_by_level = business_proposal.cancel_proposal(learning_unit_proposal, user_person)
+    display_success_messages(request, messages_by_level[messages.SUCCESS])
+    display_error_messages(request, messages_by_level[messages.ERROR])
+    return redirect('learning_units_proposal')

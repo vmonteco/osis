@@ -24,15 +24,15 @@
 #
 ##############################################################################
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
+from base.business import learning_unit_deletion as business_deletion
 from base.models import entity_container_year, campus, entity
 from base.models.enums import proposal_type, entity_container_year_link_type
-from base.models.enums.proposal_type import ProposalType
-from base.models.proposal_learning_unit import find_by_folder, ProposalLearningUnit
+from base.utils import send_mail as send_mail_util
 from reference.models import language
 from django.utils.translation import ugettext_lazy as _
 from base import models as mdl_base
 from django.apps import apps
-from django.shortcuts import get_object_or_404
+from django.contrib.messages import ERROR, SUCCESS
 
 APP_BASE_LABEL = 'base'
 END_FOREIGN_KEY_NAME = "_id"
@@ -64,7 +64,8 @@ def _compute_data_changed(initial_data, current_data):
     return data_changed
 
 
-def reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year):
+def reinitialize_data_before_proposal(learning_unit_proposal):
+    learning_unit_year = learning_unit_proposal.learning_unit_year
     initial_data = learning_unit_proposal.initial_data
     _reinitialize_model_before_proposal(learning_unit_year, initial_data["learning_unit_year"])
     _reinitialize_model_before_proposal(learning_unit_year.learning_unit, initial_data["learning_unit"])
@@ -104,13 +105,14 @@ def _reinitialize_entities_before_proposal(learning_container_year, initial_enti
 
 
 def delete_learning_unit_proposal(learning_unit_proposal):
-    proposal_folder = learning_unit_proposal.folder
+    prop_type = learning_unit_proposal.type
+    lu = learning_unit_proposal.learning_unit_year.learning_unit
     learning_unit_proposal.delete()
-    if not find_by_folder(proposal_folder).exists():
-        proposal_folder.delete()
+    if prop_type == proposal_type.ProposalType.CREATION.name:
+        lu.delete()
 
 
-def _get_difference_of_proposal(learning_unit_yr_proposal):
+def get_difference_of_proposal(learning_unit_yr_proposal):
     differences = {}
     if learning_unit_yr_proposal and learning_unit_yr_proposal.initial_data.get('learning_container_year'):
         differences.update(_get_differences_in_learning_unit_data(learning_unit_yr_proposal))
@@ -265,12 +267,36 @@ def _get_rid_of_blank_value(data):
     return clean_data
 
 
-def cancel_proposal(learning_unit_year):
-    learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learning_unit_year)
-    reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year)
+def cancel_proposal(learning_unit_proposal, author, send_mail=True):
+    acronym = learning_unit_proposal.learning_unit_year.acronym
+    error_messages = []
+    success_messages = []
+    if learning_unit_proposal.type == proposal_type.ProposalType.CREATION.name:
+        learning_unit_year = learning_unit_proposal.learning_unit_year
+        error_messages.extend(business_deletion.check_can_delete_ignoring_proposal_validation(learning_unit_year))
+        if not error_messages:
+            success_messages.extend(business_deletion.delete_from_given_learning_unit_year(learning_unit_year))
+    else:
+        reinitialize_data_before_proposal(learning_unit_proposal)
     delete_learning_unit_proposal(learning_unit_proposal)
+    success_messages.append(_("success_cancel_proposal").format(acronym))
+    if send_mail:
+        send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation([author], [learning_unit_proposal])
+    return {
+        SUCCESS: success_messages,
+        ERROR: error_messages
+    }
 
 
-def cancel_proposals(proposal_to_cancel):
-    for proposal in proposal_to_cancel:
-        cancel_proposal(proposal.learning_unit_year)
+def cancel_proposals(proposals_to_cancel, author):
+    success_messages = []
+    error_messages = []
+    for proposal in proposals_to_cancel:
+        messages_by_level = cancel_proposal(proposal, author, send_mail=False)
+        success_messages.extend(messages_by_level[SUCCESS])
+        error_messages.extend(messages_by_level[ERROR])
+    send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation([author], [proposals_to_cancel])
+    return {
+        SUCCESS: success_messages,
+        ERROR: error_messages
+    }

@@ -28,6 +28,7 @@ import re
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import Q
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from base.models import entity_container_year
@@ -39,7 +40,6 @@ from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.group_element_year import GroupElementYear
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
-from django.utils.functional import cached_property
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
@@ -243,11 +243,16 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
         queryset = queryset.filter(learning_container_year__container_type=container_type)
 
     if tutor:
-        queryset = queryset.\
-            filter(Q(attribution__tutor__person__first_name__icontains=tutor) |
-                   Q(attribution__tutor__person__last_name__icontains=tutor))
+        filter_by_first_name = {_build_tutor_filter(name_type='first_name'): tutor}
+        filter_by_last_name = {_build_tutor_filter(name_type='last_name'): tutor}
+        queryset = queryset.filter(Q(**filter_by_first_name) | Q(**filter_by_last_name)).distinct()
 
     return queryset.select_related('learning_container_year', 'academic_year')
+
+
+def _build_tutor_filter(name_type):
+    return '__'.join(['learningunitcomponent', 'learning_component_year', 'attributionchargenew', 'attribution',
+                      'tutor', 'person', name_type, 'icontains'])
 
 
 def _convert_status_bool(status):

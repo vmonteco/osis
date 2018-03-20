@@ -26,6 +26,7 @@
 from base.business.learning_units.proposal import common
 
 
-def update_learning_unit_proposal(data, proposal, folder):
-    proposal = common.proposal_common_populate(data, folder, proposal)
+# FIXME duplicate method : create_learning_unit_proposal
+def update_learning_unit_proposal(data, proposal):
+    proposal = common.proposal_common_populate(data, proposal)
     proposal.save()

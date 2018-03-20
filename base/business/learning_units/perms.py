@@ -36,7 +36,8 @@ FACULTY_UPDATABLE_CONTAINER_TYPES = (learning_container_year_types.COURSE,
 PROPOSAL_TYPE_ACCEPTED_FOR_UPDATE = (ProposalType.CREATION.name,
                                      ProposalType.MODIFICATION.name,
                                      ProposalType.TRANSFORMATION.name,
-                                     ProposalType.TRANSFORMATION_AND_MODIFICATION.name)
+                                     ProposalType.TRANSFORMATION_AND_MODIFICATION.name,
+                                     ProposalType.SUPPRESSION.name)
 
 
 def is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, person):
@@ -60,7 +61,7 @@ def is_eligible_to_create_modification_proposal(learning_unit_year, person):
 
 
 def is_eligible_for_cancel_of_proposal(proposal, person):
-    if not proposal or proposal.state != ProposalState.FACULTY.name:
+    if not proposal or not person.is_faculty_manager() or proposal.state != ProposalState.FACULTY.name:
         return False
 
     if _is_attached_to_initial_entity(proposal, person):

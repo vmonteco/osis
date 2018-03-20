@@ -165,6 +165,13 @@ class LearningUnitYearForm(BootstrapForm):
         self.learning_unit = kwargs.pop('learning_unit', None)
         super(LearningUnitYearForm, self).__init__(*args, **kwargs)
 
+        if self.initial.get('subtype') == "PARTIM":
+            self.fields['specific_title'].label = _('official_title_proper_to_partim')
+            self.fields['specific_title_english'].label = _('official_english_title_proper_to_partim')
+        else:
+            self.fields['specific_title'].label = _('official_title_proper_to_UE')
+            self.fields['specific_title_english'].label = _('official_english_title_proper_to_UE')
+
     def _get_existing_acronym_list(self, academic_year, acronym):
         if self.learning_unit:
             learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym) \

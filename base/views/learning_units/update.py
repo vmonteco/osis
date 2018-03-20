@@ -26,7 +26,7 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -55,9 +55,8 @@ def learning_unit_edition_end_date(request, learning_unit_year_id):
     learning_unit_to_edit = learning_unit_year.learning_unit
     form = LearningUnitEndDateForm(request.POST or None, learning_unit=learning_unit_to_edit)
     if form.is_valid():
-        new_academic_year = form.cleaned_data['academic_year']
         try:
-            result = edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year)
+            result = form.save()
             display_success_messages(request, result)
 
             learning_unit_year_id = _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id)
@@ -68,7 +67,15 @@ def learning_unit_edition_end_date(request, learning_unit_year_id):
             display_error_messages(request, e.args[0])
 
     context['form'] = form
-    return layout.render(request, 'learning_unit/edition.html', context)
+    return layout.render(request, 'learning_unit/update_end_date.html', context)
+
+
+def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id):
+    if not LearningUnitYear.objects.filter(pk=learning_unit_year_id).exists():
+        result = LearningUnitYear.objects.filter(learning_unit=learning_unit_to_edit).last().pk
+    else:
+        result = learning_unit_year_id
+    return result
 
 
 @login_required
@@ -81,25 +88,11 @@ def update_learning_unit(request, learning_unit_year_id):
         request.POST or None, learning_unit_year_instance=learning_unit_year, person=person)
 
     if form.is_valid():
-        try:
-            form.save()
-            display_success_messages(request, _("success_modification_learning_unit"))
-
-        except ConsistencyError as e:
-            display_error_messages(request, e.error_list)
-
+        _save_form_and_display_messages(request, form)
         return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
 
     context = {"learning_unit_year": learning_unit_year, "form": form}
     return layout.render(request, 'learning_unit/modification.html', context)
-
-
-def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id):
-    if not LearningUnitYear.objects.filter(pk=learning_unit_year_id).exists():
-        result = LearningUnitYear.objects.filter(learning_unit=learning_unit_to_edit).last().pk
-    else:
-        result = learning_unit_year_id
-    return result
 
 
 @login_required
@@ -116,20 +109,21 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
     volume_edition_formset_container = VolumeEditionFormsetContainer(request, context['learning_units'], person)
 
     if volume_edition_formset_container.is_valid() and not request.is_ajax():
-        try:
-            postponement = int(request.POST.get('postponement', 1))
-            volume_edition_formset_container.save(postponement)
-            display_success_messages(request, _('success_modification_learning_unit'))
-            return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
-
-        except IntegrityError:
-            display_error_messages(request, _("error_modification_learning_unit"))
+        _save_form_and_display_messages(request, volume_edition_formset_container)
+        return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
 
     context['formsets'] = volume_edition_formset_container.formsets
     context['tab_active'] = 'components'
     context['experimental_phase'] = True
-
     if request.is_ajax():
         return JsonResponse({'errors': volume_edition_formset_container.errors})
 
     return layout.render(request, "learning_unit/volumes_management.html", context)
+
+
+def _save_form_and_display_messages(request, form):
+    try:
+        form.save()
+        display_success_messages(request, _('success_modification_learning_unit'))
+    except ConsistencyError as e:
+        display_error_messages(request, e.error_list)

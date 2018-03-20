@@ -295,13 +295,11 @@ class AssistantFormPart6(ModelForm):
 
 class ReviewerDelegationForm(ModelForm):
     role = forms.CharField(widget=forms.HiddenInput(), required=True)
-    entity = forms.ModelChoiceField(widget=forms.HiddenInput(), required=True, queryset=(
-        entity.search(entity_type=entity_type.INSTITUTE) |
-        entity.search(entity_type=entity_type.FACULTY) |
-        entity.search(entity_type=entity_type.SCHOOL) |
-        entity.search(entity_type=entity_type.PLATFORM) |
-        entity.search(entity_type=entity_type.POLE)))
-
+    entities = \
+        entity.search(entity_type=entity_type.INSTITUTE) | entity.search(entity_type=entity_type.FACULTY) | \
+        entity.search(entity_type=entity_type.SCHOOL) | entity.search(entity_type=entity_type.PLATFORM) | \
+        entity.search(entity_type=entity_type.POLE)
+    entity = EntityChoiceField(required=True, queryset=base.models.entity.find_versions_from_entites(entities, None))
     class Meta:
         model = mdl.reviewer.Reviewer
         fields = ('entity', 'role')

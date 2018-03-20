@@ -38,7 +38,6 @@ from base.models.enums.proposal_type import ProposalType
 from base.views import layout
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
 from reference.models.language import find_by_code
-from base.models import proposal_folder
 
 
 @login_required
@@ -77,14 +76,10 @@ def proposal_learning_unit_add(request):
 
 
 def _proposal_create(data_proposal, new_learning_unit_year, person):
-    folder, created = proposal_folder.ProposalFolder.objects.get_or_create(
-        entity=data_proposal['folder_entity'].entity,
-        folder_id=data_proposal['folder_id'])
     creation.create_learning_unit_proposal({'person': person,
-                                            'folder_entity': data_proposal['folder_entity'].entity,
+                                            'folder_entity': data_proposal['entity'],
                                             'folder_id': data_proposal['folder_id'],
                                             'learning_unit_year': new_learning_unit_year,
                                             'state_proposal': ProposalState.FACULTY.name,
                                             'type_proposal': ProposalType.CREATION.name,
-                                            'initial_data': {}},
-                                           folder)
+                                            'initial_data': {}})
