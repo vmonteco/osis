@@ -133,8 +133,9 @@ def _update_or_create_suppression_proposal(request, person, learning_unit_year, 
     type_proposal = ProposalType.SUPPRESSION.name
     initial = _get_initial(learning_unit_year, proposal, type_proposal, person)
 
-    form_end_date = LearningUnitEndDateForm(request.POST or None, learning_unit_year.learning_unit,
-                                            max_year=learning_unit_year.learning_unit.end_year)
+    max_year = proposal.initial_data.get('end_year') if proposal else learning_unit_year.learning_unit.end_year
+
+    form_end_date = LearningUnitEndDateForm(request.POST or None, learning_unit_year.learning_unit, max_year=max_year)
     form_proposal = ProposalLearningUnitForm(request.POST or None, instance=proposal, initial=initial)
 
     if form_end_date.is_valid() and form_proposal.is_valid():

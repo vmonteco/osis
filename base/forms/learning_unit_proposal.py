@@ -27,6 +27,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
+from base.business.learning_unit_proposal import reinitialize_data_before_proposal
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
 from base.business.learning_units.proposal import edition, creation
 from base.forms.learning_unit_create import EntitiesVersionChoiceField, LearningUnitYearForm
@@ -39,6 +40,7 @@ from base.models.proposal_learning_unit import ProposalLearningUnit
 
 
 class ProposalLearningUnitForm(forms.ModelForm):
+    # TODO entity must be EntitiesChoiceField
     entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
 
     def __init__(self, data, *args, initial=None, **kwargs):
@@ -48,7 +50,8 @@ class ProposalLearningUnitForm(forms.ModelForm):
             for key, value in initial.items():
                 setattr(self.instance, key, value)
 
-        self.initial['entity'] = get_last_version(self.instance.entity)
+        if hasattr(self.instance, 'entity'):
+            self.initial['entity'] = get_last_version(self.instance.entity)
 
     def clean_entity(self):
         return self.cleaned_data['entity'].entity
@@ -58,6 +61,9 @@ class ProposalLearningUnitForm(forms.ModelForm):
         fields = ['entity', 'folder_id']
 
     def save(self, commit=True):
+        if self.instance.initial_data:
+            reinitialize_data_before_proposal(self.instance)
+
         self.instance.initial_data = _copy_learning_unit_data(self.instance.learning_unit_year)
         super().save(commit)
 

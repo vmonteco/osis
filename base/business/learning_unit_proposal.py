@@ -64,7 +64,7 @@ def _compute_data_changed(initial_data, current_data):
     return data_changed
 
 
-def _reinitialize_data_before_proposal(learning_unit_proposal):
+def reinitialize_data_before_proposal(learning_unit_proposal):
     learning_unit_year = learning_unit_proposal.learning_unit_year
     initial_data = learning_unit_proposal.initial_data
     _reinitialize_model_before_proposal(learning_unit_year, initial_data["learning_unit_year"])
@@ -277,7 +277,7 @@ def cancel_proposal(learning_unit_proposal, author, send_mail=True):
         if not error_messages:
             success_messages.extend(business_deletion.delete_from_given_learning_unit_year(learning_unit_year))
     else:
-        _reinitialize_data_before_proposal(learning_unit_proposal)
+        reinitialize_data_before_proposal(learning_unit_proposal)
     delete_learning_unit_proposal(learning_unit_proposal)
     success_messages.append(_("success_cancel_proposal").format(acronym))
     if send_mail:
