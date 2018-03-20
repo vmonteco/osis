@@ -89,6 +89,7 @@ from cms.tests.factories.translated_text import TranslatedTextFactory
 from osis_common.document import xls_build
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
+from django.http import HttpResponseRedirect
 
 
 class LearningUnitViewTestCase(TestCase):
@@ -1296,6 +1297,21 @@ class LearningUnitViewTestCase(TestCase):
 
         self.assertEqual(template, 'learning_unit/specifications_edit.html')
         self.assertIsInstance(context['form'], LearningUnitSpecificationsEditForm)
+
+    def test_learning_unit_specifications_save(self):
+        a_label = 'label'
+        learning_unit_year = LearningUnitYearFactory()
+        text_label_lu = TextLabelFactory(order=1, label=a_label, entity=entity_name.LEARNING_UNIT_YEAR)
+        trans_text = TranslatedTextFactory(text_label=text_label_lu, entity=entity_name.LEARNING_UNIT_YEAR)
+        request_factory = RequestFactory()
+        response = self.client.post(reverse('learning_unit_specifications_edit',
+                                        kwargs={'learning_unit_year_id': learning_unit_year.id}))
+
+        expected_redirection= reverse("learning_unit_specifications",
+                                                           kwargs={'learning_unit_year_id': learning_unit_year.id})
+        self.assertRedirects(response, expected_redirection, fetch_redirect_response=False)
+
+
 
     def create_learning_unit_request(self, learning_unit_year):
         request_factory = RequestFactory()
