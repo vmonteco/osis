@@ -33,6 +33,8 @@
             <th>{% trans 'volume_partial'%}</th>
             <th>{% trans 'volume_remaining'%}</th>
             <th>{% trans 'real_on_planned_classrooms' %}</th>
+            <th>{{ entities_additionnal.ADDITIONAL_REQUIREMENT_ENTITY_1.acronym| default_if_none:'' }}</th>
+            <th>{{ entities_additionnal.ADDITIONAL_REQUIREMENT_ENTITY_2.acronym| default_if_none:'' }}</th>
         </thead>
         <tbody>
         {% for component in components %}
@@ -51,6 +53,12 @@
                         {{ component.learning_component_year.planned_classes| default_if_none:'0' }}
                 </span>
             </td>
+            {% if component.volumes.VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1 %}
+                <td>{{ component.volumes.VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1 | default_if_none:'' }}</td>
+            {% endif %}
+            {% if component.volumes.VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2 %}
+                <td>{{ component.volumes.VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2 | default_if_none:'' }}</td>
+            {% endif %}
         </tr>
         {% endfor %}
         </tbody>

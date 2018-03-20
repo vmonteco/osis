@@ -52,6 +52,8 @@
                             <th>{% trans 'volume_remaining' %}</th>
                             <th>{% trans 'real_on_planned_classrooms' %}</th>
                             <th>{% trans 'lu_usage' %}</th>
+                            <th>{{ entities_additionnal.ADDITIONAL_REQUIREMENT_ENTITY_1.acronym| default_if_none:'' }}</th>
+                            <th>{{ entities_additionnal.ADDITIONAL_REQUIREMENT_ENTITY_2.acronym| default_if_none:'' }}</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -97,6 +99,12 @@
                                 </span>
                             </td>
                             <td>{{ component.learning_unit_usage }}</td>
+                            {% if component.volumes.VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1 %}
+                                <td>{{ component.volumes.VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1 | default_if_none:'' }}</td>
+                            {% endif %}
+                            {% if component.volumes.VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2 %}
+                                <td>{{ component.volumes.VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2 | default_if_none:'' }}</td>
+                            {% endif %}
                             <td></td>
                         </tr>
                         {% with component_number=forloop.counter0 classes_count=component.learning_component_year.classes|length|add:"1" %}

@@ -176,7 +176,9 @@ def volume_learning_component_year(learning_component_year, entity_components_ye
         'VOLUME_QUARTER': distribution,
         'VOLUME_Q1': volume_partial,
         'VOLUME_Q2': volume_remaining,
-        'PLANNED_CLASSES': planned_classes
+        'PLANNED_CLASSES': planned_classes,
+        'VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1': vol_add_req_entity_1,
+        'VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2': vol_add_req_entity_2
     }
 
 

@@ -73,6 +73,7 @@ from base.views.learning_units.search import _learning_units_search
 from cms.models import text_label
 from reference.models import language
 from . import layout
+from base.business.learning_unit_year_with_context import get_with_context
 
 
 @login_required
@@ -107,6 +108,7 @@ def learning_unit_components(request, learning_unit_year_id):
     context = get_common_context_learning_unit_year(learning_unit_year_id, person)
 
     context['components'] = get_same_container_year_components(context['learning_unit_year'], True)
+    context['entities_additionnal'] = _get_additionnal_entities(context['learning_unit_year'])
     context['tab_active'] = 'components'
     context['can_manage_volume'] = business_perms.is_eligible_for_modification(context["learning_unit_year"],
                                                                                person)
@@ -499,6 +501,7 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context['show_subtype'] = show_subtype(learning_unit_year)
     context.update(get_all_attributions(learning_unit_year))
     context['components'] = get_components_identification(learning_unit_year)
+    context['entities_additionnal'] = _get_additionnal_entities(learning_unit_year)
     context['proposal'] = proposal
     context['proposal_folder_entity_version'] = mdl.entity_version.get_by_entity_and_date(
         proposal.entity, None) if proposal else None
@@ -509,3 +512,9 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context.update(learning_unit_proposal_permissions(proposal, person))
 
     return context
+
+
+def _get_additionnal_entities(learning_unit_yr):
+    learning_unit_with_context = get_with_context(
+        learning_container_year_id=learning_unit_yr.learning_container_year)[0]
+    return learning_unit_with_context.entities

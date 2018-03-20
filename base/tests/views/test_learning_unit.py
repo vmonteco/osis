@@ -327,6 +327,7 @@ class LearningUnitViewTestCase(TestCase):
 
         self.assertEqual(template, 'learning_unit/identification.html')
         self.assertEqual(context['learning_unit_year'], learning_unit_year)
+        self.assertTrue('entities_additionnal' in context)
 
     def test_learning_unit__with_faculty_manager_when_can_edit_end_date(self):
         learning_container_year = LearningContainerYearFactory(
@@ -1258,13 +1259,13 @@ class LearningUnitViewTestCase(TestCase):
 
     @mock.patch('base.views.layout.render')
     def test_learning_unit_attributions(self, mock_render):
-        learning_unit_year = LearningUnitYearFactory()
+        learning_unit_yr = LearningUnitYearFactory()
 
-        request = self.create_learning_unit_request(learning_unit_year)
+        request = self.create_learning_unit_request(learning_unit_yr)
 
         from base.views.learning_unit import learning_unit_attributions
 
-        learning_unit_attributions(request, learning_unit_year.id)
+        learning_unit_attributions(request, learning_unit_yr.id)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -1531,3 +1532,4 @@ class TestLearningUnitComponents(TestCase):
             volumes = component['volumes']
             self.assertEqual(volumes['VOLUME_Q1'], None)
             self.assertEqual(volumes['VOLUME_Q2'], None)
+        self.assertTrue('entities_additionnal' in context)
