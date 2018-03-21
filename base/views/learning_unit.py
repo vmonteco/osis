@@ -383,12 +383,12 @@ def check_acronym(request, type):
 def _check_credits(request, learning_unit_year_parent, form):
     luy_credits = form.cleaned_data['credits']
     luy_subtype = form.cleaned_data['subtype']
-    credits_of_parent = learning_unit_year_parent.credits
-    if luy_subtype == 'PARTIM':
-        if luy_credits > credits_of_parent:
+    if luy_subtype == 'PARTIM' and learning_unit_year_parent:
+        if luy_credits > learning_unit_year_parent.credits:
             display_error_messages(request, _('partim_credits_gt_parent_credits'))
-        elif luy_credits == credits_of_parent:
+        elif luy_credits == learning_unit_year_parent.credits:
             display_error_messages(request, _('partim_credits_equals_parent_credits'))
+
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
