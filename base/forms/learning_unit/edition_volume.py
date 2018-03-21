@@ -168,10 +168,10 @@ class VolumeEditionForm(forms.Form):
 
     @staticmethod
     def _compare(value_parent, value_partim, lower_or_equal):
-        if lower_or_equal:
-            condition = value_parent <= value_partim
-        elif value_parent == 0 and value_partim == 0:
+        if value_parent == 0 and value_partim == 0:
             condition = False
+        elif lower_or_equal:
+            condition = value_parent <= value_partim
         else:
             condition = value_parent < value_partim
         return condition
