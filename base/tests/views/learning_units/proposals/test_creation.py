@@ -75,7 +75,7 @@ class LearningUnitViewTestCase(TestCase):
             "common_title": "Common UE title",
             "requirement_entity": self.entity_version.id,
             "allocation_entity": self.entity_version.id,
-            "language": self.language.id,
+            "language": self.language.pk,
             "periodicity": learning_unit_periodicity.ANNUAL,
             "entity": self.entity_version.id,
             "folder_id": 1

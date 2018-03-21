@@ -35,7 +35,7 @@ from base import models as mdl
 from base.business import learning_unit
 from base.forms.bootstrap import BootstrapForm
 from base.forms.utils.choice_field import add_blank
-from base.models.campus import find_main_campuses
+from base.models.campus import find_main_campuses, Campus
 from base.models.entity_version import find_main_entities_version
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
@@ -78,6 +78,7 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
         return obj.acronym
 
 
+# FIXME Convert it in ModelForm !
 class LearningUnitYearForm(BootstrapForm):
     first_letter = forms.ChoiceField(choices=lazy(_create_first_letter_choices, tuple), required=True)
     acronym = forms.CharField(widget=forms.TextInput(attrs={'maxlength': "15", 'required': True}))
@@ -105,7 +106,8 @@ class LearningUnitYearForm(BootstrapForm):
     periodicity = forms.CharField(widget=forms.Select(choices=PERIODICITY_TYPES))
     quadrimester = forms.CharField(widget=forms.Select(choices=add_blank(LEARNING_UNIT_YEAR_QUADRIMESTERS)),
                                    required=False)
-    campus = forms.ModelChoiceField(queryset=find_main_campuses())
+    # TODO the default value must be set in model.
+    campus = forms.ModelChoiceField(queryset=find_main_campuses(), initial=Campus.objects.get(name='Louvain-la-Neuve'))
     requirement_entity = EntitiesVersionChoiceField(
         find_main_entities_version().none(),
         widget=forms.Select(
@@ -132,7 +134,7 @@ class LearningUnitYearForm(BootstrapForm):
     )
     additional_requirement_entity_2 = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
                                                                  widget=forms.Select(attrs={'disable': 'disable'}))
-    language = forms.ModelChoiceField(find_all_languages(), empty_label=None)
+    language = forms.ModelChoiceField(find_all_languages(), empty_label=None, initial='FR')
 
     def clean(self):
         cleaned_data = super().clean()
