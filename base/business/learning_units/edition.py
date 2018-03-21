@@ -293,7 +293,7 @@ def get_postponement_conflict_report(luy_start, override_postponement_consistenc
 
 def check_postponement_conflict_report_errors(conflict_report):
     if conflict_report.get('errors'):
-        last_instance_updated = conflict_report.get('luy_without_conflict',[])[-1]
+        last_instance_updated = conflict_report.get('luy_without_conflict', [])[-1]
         raise ConsistencyError(
             last_instance_updated,
             conflict_report.get('errors'),
