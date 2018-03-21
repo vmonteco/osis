@@ -408,9 +408,11 @@ def _get_differences(obj1, obj2, fields_to_compare):
 
 
 def _get_translated_value(value):
+    if value is None:
+        return _('no_data')
     if isinstance(value, bool):
         return _('yes') if value else _('no')
-    return _('no_data') if value is None else value
+    return value
 
 
 def _check_postponement_learning_unit_year_proposal_state(nex_luy):
@@ -440,13 +442,16 @@ def _check_postponement_conflict_on_entity_container_year(lcy, next_lcy):
 
 
 def _is_different_value(obj1, obj2, field, empty_str_as_none=True):
-    value_obj1 = obj1.get(field) if isinstance(obj1, dict) else getattr(obj1, field, None)
-    value_obj2 = obj2.get(field) if isinstance(obj2, dict) else getattr(obj2, field, None)
-
+    value_obj1 = _get_value_from_field(obj1, field)
+    value_obj2 = _get_value_from_field(obj2, field)
     if empty_str_as_none:
         value_obj1 = value_obj1 or ''
         value_obj2 = value_obj2 or ''
     return value_obj1 != value_obj2
+
+
+def _get_value_from_field(obj, field):
+    return obj.get(field) if isinstance(obj, dict) else getattr(obj, field, None)
 
 
 def _check_postponement_conflict_on_volumes(lcy, next_lcy):
