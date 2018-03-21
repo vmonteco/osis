@@ -26,9 +26,6 @@ msgstr "Management of the summary responsibles"
 msgid "manage_educational_information"
 msgstr "Manage educational information"
 
-msgid "manage_educational_information"
-msgstr "Manage educational information"
-
 msgid "no_attribution_summary_editable"
 msgstr "There is no course for which you can edit educational information."
 
