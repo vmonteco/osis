@@ -705,7 +705,7 @@ class LearningUnitViewTestCase(TestCase):
             "allocation_entity": self.entity_version.id,
             "additional_requirement_entity_1": self.entity_version.id,
             "additional_requirement_entity_2": self.entity_version.id,
-            "language": self.language.id,
+            "language": self.language.pk,
             "session": learning_unit_year_session.SESSION_P23,
             "faculty_remark": "faculty remark",
             "other_remark": "other remark"
@@ -1054,7 +1054,7 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(initial['subtype'], learning_unit_year_subtypes.PARTIM)
         self.assertEqual(initial['container_type'], learning_container_year_types.COURSE)
         self.assertTrue(initial['status'])
-        self.assertEqual(initial['language'], self.language.id)
+        self.assertEqual(initial['language'], self.language.pk)
         self.assertEqual(initial['credits'], Decimal(5))
         self.assertEqual(initial['session'], learning_unit_year_session.SESSION_1XX)
         self.assertEqual(initial['faculty_remark'], "Remarks Faculty")
@@ -1430,7 +1430,7 @@ class LearningUnitYearAdd(TestCase):
             "title_english": "LAW",
             "requirement_entity": entity_version.id,
             "subtype": learning_unit_year_subtypes.FULL,
-            "language": language.id,
+            "language": language.pk,
             "session": learning_unit_year_session.SESSION_P23,
             "faculty_remark": "faculty remark",
             "other_remark": "other remark"
