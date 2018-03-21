@@ -399,7 +399,7 @@ class TestLearningUnitSuppressionProposal(TestCase):
             container_type=learning_container_year_types.COURSE,
             campus=CampusFactory(organization=an_organization, is_administration=True)
         )
-        self.learning_unit = LearningUnitFactory(end_year=None)
+        self.learning_unit = LearningUnitFactory(end_year=None, periodicity=learning_unit_periodicity.ANNUAL)
         self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212",
                                                                subtype=learning_unit_year_subtypes.FULL,
                                                                academic_year=current_academic_year,

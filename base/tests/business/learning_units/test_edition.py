@@ -163,6 +163,29 @@ class LearningUnitEditionTestCase(TestCase):
         }
         self.assertIn(error_specific_title_english, error_list)
 
+    def test_check_postponement_conflict_learning_unit_year_status_diff(self):
+        # Copy the same learning unit + change academic year / acronym / specific_title_english
+        another_learning_unit_year = _build_copy(self.learning_unit_year)
+        another_learning_unit_year.academic_year = self.next_academic_year
+        another_learning_unit_year.status = False
+        another_learning_unit_year.save()
+
+        error_list = business_edition._check_postponement_conflict_on_learning_unit_year(self.learning_unit_year,
+                                                                                         another_learning_unit_year)
+        self.assertIsInstance(error_list, list)
+        self.assertEqual(len(error_list), 1)
+        generic_error = "The value of field '%(field)s' is different between year %(year)s - %(value)s " \
+                        "and year %(next_year)s - %(next_value)s"
+        # Error : Status diff
+        error_status = _(generic_error) % {
+            'field': _('status'),
+            'year': self.learning_unit_year.academic_year,
+            'value': _('yes'),
+            'next_year': another_learning_unit_year.academic_year,
+            'next_value': _('no')
+        }
+        self.assertIn(error_status, error_list)
+
     def test_check_postponement_conflict_learning_container_year_no_differences(self):
         # Copy the same + change academic year
         another_learning_container_year = _build_copy(self.learning_container_year)
@@ -511,7 +534,8 @@ class LearningUnitEditionTestCase(TestCase):
 def _create_learning_unit_year_with_components(l_container, create_lecturing_component=True, create_pratical_component=True):
     a_learning_unit_year = LearningUnitYearFactory(learning_container_year=l_container,
                                                    acronym=l_container.acronym,
-                                                   academic_year=l_container.academic_year)
+                                                   academic_year=l_container.academic_year,
+                                                   status=True)
 
     if create_lecturing_component:
         a_component = LearningComponentYearFactory(
