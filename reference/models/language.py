@@ -38,7 +38,7 @@ class LanguageAdmin(SerializableModelAdmin):
 
 
 class Language(SerializableModel):
-    code = models.CharField(max_length=4, primary_key=True)
+    code = models.CharField(max_length=4, unique=True)
     external_id = models.CharField(max_length=100, blank=True, null=True)
     name = models.CharField(max_length=80, unique=True)
     recognized = models.BooleanField(default=False)
