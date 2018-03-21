@@ -258,13 +258,14 @@ def update_learning_unit_year_with_report(luy_to_update, fields_to_update, entit
     override_postponement_consistency = kwargs.get('override_postponement_consistency', False)
 
     conflict_report = {}
-    luy_to_update_list = [luy_to_update]
     if with_report:
         conflict_report = get_postponement_conflict_report(
             luy_to_update,
             override_postponement_consistency=override_postponement_consistency
         )
-        luy_to_update_list.extend(conflict_report['luy_without_conflict'])
+        luy_to_update_list = conflict_report['luy_without_conflict']
+    else:
+        luy_to_update_list = [luy_to_update]
 
     # Update luy which doesn't have conflict
     for luy in luy_to_update_list:
@@ -272,8 +273,7 @@ def update_learning_unit_year_with_report(luy_to_update, fields_to_update, entit
         _update_learning_unit_year_entities(luy, entities_by_type_to_update)
 
     # Show conflict error if exists
-    if conflict_report.get('errors'):
-        raise ConsistencyError(_('error_modification_learning_unit'), error_list=conflict_report.get('errors'))
+    check_postponement_conflict_report_errors(conflict_report)
 
 
 def get_postponement_conflict_report(luy_start, override_postponement_consistency=False):
@@ -281,7 +281,7 @@ def get_postponement_conflict_report(luy_start, override_postponement_consistenc
     This function will return a list of learning unit year (luy_without_conflict) ( > luy_start)
     which doesn't have any conflict. If any conflict found, the variable 'errors' will store it.
     """
-    result = {'luy_without_conflict': []}
+    result = {'luy_without_conflict': [luy_start]}
     for luy in luy_start.find_gt_learning_units_year():
         error_list = check_postponement_conflict(luy_start, luy)
         if error_list and not override_postponement_consistency:
@@ -289,6 +289,16 @@ def get_postponement_conflict_report(luy_start, override_postponement_consistenc
             break
         result['luy_without_conflict'].append(luy)
     return result
+
+
+def check_postponement_conflict_report_errors(conflict_report):
+    if conflict_report.get('errors'):
+        last_instance_updated = conflict_report.get('luy_without_conflict', [])[-1]
+        raise ConsistencyError(
+            last_instance_updated,
+            conflict_report.get('errors'),
+            _('error_modification_learning_unit')
+        )
 
 
 def _update_learning_unit_year(luy_to_update, fields_to_update, with_report):
@@ -369,7 +379,7 @@ def _check_postponement_conflict_on_learning_unit_year(luy, next_luy):
         'credits': _('credits'),
         'internship_subtype': _('internship_subtype'),
         'status': _('status'),
-        'session': _('session'),
+        'session': _('session_title'),
         'quadrimester': _('quadrimester')
     }
     return _get_differences(luy, next_luy, fields_to_compare)
@@ -398,11 +408,19 @@ def _get_differences(obj1, obj2, fields_to_compare):
                             "and year %(next_year)s - %(next_value)s") % {
             'field': fields_to_compare[field_name],
             'year': obj1.academic_year,
-            'value': current_value if current_value else _('no_data'),
+            'value': _get_translated_value(current_value),
             'next_year': obj2.academic_year,
-            'next_value': next_year_value if next_year_value else _('no_data')
+            'next_value':  _get_translated_value(next_year_value)
         })
     return error_list
+
+
+def _get_translated_value(value):
+    if value is None:
+        return _('no_data')
+    if isinstance(value, bool):
+        return _('yes') if value else _('no')
+    return value
 
 
 def _check_postponement_learning_unit_year_proposal_state(nex_luy):
@@ -431,10 +449,17 @@ def _check_postponement_conflict_on_entity_container_year(lcy, next_lcy):
     return error_list
 
 
-def _is_different_value(obj1, obj2, field):
-    value_obj1 = obj1.get(field) if isinstance(obj1, dict) else getattr(obj1, field, None)
-    value_obj2 = obj2.get(field) if isinstance(obj2, dict) else getattr(obj2, field, None)
+def _is_different_value(obj1, obj2, field, empty_str_as_none=True):
+    value_obj1 = _get_value_from_field(obj1, field)
+    value_obj2 = _get_value_from_field(obj2, field)
+    if empty_str_as_none:
+        value_obj1 = value_obj1 or ''
+        value_obj2 = value_obj2 or ''
     return value_obj1 != value_obj2
+
+
+def _get_value_from_field(obj, field):
+    return obj.get(field) if isinstance(obj, dict) else getattr(obj, field, None)
 
 
 def _check_postponement_conflict_on_volumes(lcy, next_lcy):
@@ -451,7 +476,7 @@ def _check_postponement_conflict_on_volumes(lcy, next_lcy):
             )
         except StopIteration:
             error_list.append(_("There is not the learning unit %(acronym)s - %(next_year)s") % {
-                'acronym': next_lcy.acronym,
+                'acronym': luy_with_components.acronym,
                 'next_year': next_lcy.academic_year
             })
     return error_list
@@ -538,6 +563,7 @@ def _get_error_component_not_found(acronym, component_type, existing_academic_ye
 
 
 class ConsistencyError(Error):
-    def __init__(self, *args, **kwargs):
-        self.error_list = kwargs.pop('error_list')
+    def __init__(self, last_instance_updated, error_list, *args, **kwargs):
+        self.last_instance_updated = last_instance_updated
+        self.error_list = error_list
         super().__init__(*args, **kwargs)
