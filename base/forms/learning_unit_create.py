@@ -159,7 +159,6 @@ class LearningUnitYearForm(BootstrapForm):
             learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym)
         return [learning_unit_year.acronym for learning_unit_year in learning_unit_years]
 
-
     def clean(self):
         cleaned_data = super().clean()
         self._check_if_acronym_already_exists(cleaned_data)
