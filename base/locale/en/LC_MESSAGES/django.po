@@ -2694,3 +2694,9 @@ msgstr "Official English title proper to the partim"
 
 msgid "Educational information submission dates updated"
 msgstr ""
+
+msgid "partim_credits_gt_parent_credits"
+msgstr "The credits value is greater than the credits value of the learning unit."
+
+msgid "partim_credits_equals_parent_credits"
+msgstr "The credits value is equal to the credits value of the learning unit."

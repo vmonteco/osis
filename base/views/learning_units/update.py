@@ -39,7 +39,7 @@ from base.models.person import Person
 from base.views import layout
 from base.views.common import display_error_messages, display_success_messages
 from base.views.learning_unit import get_learning_unit_identification_context, \
-    get_common_context_learning_unit_year, learning_unit_components
+    get_common_context_learning_unit_year, learning_unit_components, _check_credits
 from base.views.learning_units import perms
 
 
@@ -83,12 +83,14 @@ def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year
 @perms.can_perform_learning_unit_modification
 def update_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+    learning_unit_year_parent = learning_unit_year.parent
     person = get_object_or_404(Person, user=request.user)
     form = LearningUnitModificationForm(
         request.POST or None, learning_unit_year_instance=learning_unit_year, person=person)
 
     if form.is_valid():
         _save_form_and_display_messages(request, form)
+        _check_credits(request, learning_unit_year_parent, form)
         return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
 
     context = {"learning_unit_year": learning_unit_year, "form": form}
