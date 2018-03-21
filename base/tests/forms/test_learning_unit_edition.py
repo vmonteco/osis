@@ -126,7 +126,7 @@ class TestLearningUnitModificationForm(TestCase):
             "campus": str(a_campus.id),
             "requirement_entity": str(cls.an_entity_version.id),
             "allocation_entity": str(cls.an_entity_version.id),
-            "language": str(language.id)
+            "language": language.pk
         }
 
         cls.initial_data = {

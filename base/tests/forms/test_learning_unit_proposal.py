@@ -93,7 +93,7 @@ class TestSave(TestCase):
             "credits": "4",
             "periodicity": learning_unit_periodicity.BIENNIAL_ODD,
             "status": False,
-            "language": self.language.id,
+            "language": self.language.pk,
             "quadrimester": learning_unit_year_quadrimesters.Q1,
             "campus": self.campus.id,
             "requirement_entity": self.entity_version.id,
@@ -212,7 +212,7 @@ class TestSave(TestCase):
                 "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
                 "container_type": self.learning_unit_year.learning_container_year.container_type,
                 "campus": self.learning_unit_year.learning_container_year.campus.id,
-                "language": self.learning_unit_year.learning_container_year.language.id,
+                "language": self.learning_unit_year.learning_container_year.language.pk,
                 "in_charge": self.learning_unit_year.learning_container_year.in_charge
             },
             "learning_unit_year": {

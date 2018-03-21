@@ -790,7 +790,7 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
 
         new_lcy_values = model_to_dict(self.learning_container_year, fields=fields_to_update.keys())
         expected_model_dict_values = fields_to_update
-        expected_model_dict_values["language"] = fields_to_update["language"].id
+        expected_model_dict_values["language"] = fields_to_update["language"].pk
         expected_model_dict_values["campus"] = fields_to_update["campus"].id
 
         self.assertDictEqual(expected_model_dict_values, new_lcy_values)
