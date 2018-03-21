@@ -34,6 +34,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from base.business import learning_unit_proposal as business_proposal
+from base.business.learning_units.proposal.common import compute_proposal_state
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, ProposalLearningUnitForm
 from base.models import proposal_learning_unit
@@ -67,7 +68,7 @@ def learning_unit_modification_proposal(request, learning_unit_year_id):
 
     if form.is_valid():
         type_proposal = business_proposal.compute_proposal_type(initial_data, request.POST)
-        form.save(learning_unit_year, user_person, type_proposal, ProposalState.FACULTY.name)
+        form.save(learning_unit_year, user_person, type_proposal, compute_proposal_state(user_person))
         messages.add_message(request, messages.SUCCESS,
                              _("success_modification_proposal")
                              .format(_(type_proposal), learning_unit_year.acronym))
@@ -168,7 +169,7 @@ def _get_initial(learning_unit_year, proposal, type_proposal, user_person):
         return {
             'learning_unit_year': learning_unit_year,
             'type': type_proposal,
-            'state': ProposalState.FACULTY.name,
+            'state': compute_proposal_state(user_person),
             'author': user_person
         }
 

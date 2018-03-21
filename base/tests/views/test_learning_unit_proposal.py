@@ -147,7 +147,7 @@ class TestLearningUnitModificationProposal(TestCase):
             "credits": self.learning_unit_year.credits,
             "periodicity": self.learning_unit_year.learning_unit.periodicity,
             "status": self.learning_unit_year.status,
-            "language": self.learning_unit_year.learning_container_year.language.id,
+            "language": self.learning_unit_year.learning_container_year.language.pk,
             "quadrimester": "",
             "campus": self.learning_unit_year.learning_container_year.campus.id,
             "session": self.learning_unit_year.session,
@@ -208,7 +208,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(form_initial['credits'], self.learning_unit_year.credits)
         self.assertEqual(form_initial['periodicity'], self.learning_unit_year.learning_unit.periodicity)
         self.assertEqual(form_initial['status'], self.learning_unit_year.status)
-        self.assertEqual(form_initial['language'], self.learning_unit_year.learning_container_year.language.id)
+        self.assertEqual(form_initial['language'], self.learning_unit_year.learning_container_year.language.pk)
         self.assertEqual(form_initial['requirement_entity'], self.entity_version.id)
         self.assertEqual(form_initial['allocation_entity'], self.entity_version.id)
         self.assertEqual(form_initial['additional_requirement_entity_1'], self.entity_version.id)
@@ -399,7 +399,7 @@ class TestLearningUnitSuppressionProposal(TestCase):
             container_type=learning_container_year_types.COURSE,
             campus=CampusFactory(organization=an_organization, is_administration=True)
         )
-        self.learning_unit = LearningUnitFactory(end_year=None)
+        self.learning_unit = LearningUnitFactory(end_year=None, periodicity=learning_unit_periodicity.ANNUAL)
         self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212",
                                                                subtype=learning_unit_year_subtypes.FULL,
                                                                academic_year=current_academic_year,
@@ -820,7 +820,7 @@ def _test_attributes_equal(obj, attribute_values_dict):
             if float(getattr(obj, key)) != float(value):
                 return False
         elif key in ["campus", "language"]:
-            if getattr(obj, key).id != value:
+            if getattr(obj, key).pk != value:
                 return False
         elif getattr(obj, key) != value:
             return False
@@ -859,7 +859,7 @@ def _create_proposal_learning_unit():
             "common_title_english": a_learning_unit_year.specific_title_english,
             "container_type": a_learning_unit_year.learning_container_year.container_type,
             "campus": a_learning_unit_year.learning_container_year.campus.id,
-            "language": a_learning_unit_year.learning_container_year.language.id,
+            "language": a_learning_unit_year.learning_container_year.language.pk,
             "in_charge": a_learning_unit_year.learning_container_year.in_charge
         },
         "learning_unit_year": {
@@ -975,7 +975,7 @@ class TestEditProposal(TestCase):
             "common_title": "Common UE title",
             "requirement_entity": self.entity_version.id,
             "allocation_entity": self.entity_version.id,
-            "language": self.language.id,
+            "language": self.language.pk,
             "periodicity": learning_unit_periodicity.ANNUAL,
             "entity": self.entity_version.id,
             "folder_id": 1
@@ -1097,7 +1097,7 @@ class TestLearningUnitProposalDisplay(TestCase):
         cls.proposal_learning_unit = ProposalLearningUnitFactory(learning_unit_year=cls.learning_unit_yr)
         cls.initial_credits = 3.0
         cls.initial_quadrimester = 'Q1'
-        cls.initial_language = cls.language_it.id
+        cls.initial_language = cls.language_it.pk
         cls.initial_data_learning_unit_year = {'credits': cls.initial_credits,
                                                'quadrimester': cls.initial_quadrimester}
 
@@ -1107,11 +1107,11 @@ class TestLearningUnitProposalDisplay(TestCase):
         cls.l_container_year_with_entities = cls.generator_learning_container.generated_container_years[0]
 
     def test_is_foreign_key(self):
-        current_data = {"language{}".format(proposal_business.END_FOREIGN_KEY_NAME): self.language_it.id}
+        current_data = {"language{}".format(proposal_business.END_FOREIGN_KEY_NAME): self.language_it.pk}
         self.assertTrue(proposal_business._is_foreign_key("language", current_data))
 
     def test_is_not_foreign_key(self):
-        current_data = {"credits": self.language_it.id}
+        current_data = {"credits": self.language_it.pk}
         self.assertFalse(proposal_business._is_foreign_key("credits", current_data))
 
     def test_check_differences(self):
@@ -1138,8 +1138,8 @@ class TestLearningUnitProposalDisplay(TestCase):
         self.assertEqual(differences.get('credits'), proposal_business.NO_PREVIOUS_VALUE)
 
     def test_get_the_old_value_for_foreign_key(self):
-        initial_data_learning_container_year = {'language': self.language_pt.id}
-        current_data = {"language_id": self.language_it.id}
+        initial_data_learning_container_year = {'language': self.language_pt.pk}
+        current_data = {"language_id": self.language_it.pk}
         differences = proposal_business._get_the_old_value('language',
                                                            current_data,
                                                            initial_data_learning_container_year)
@@ -1147,7 +1147,7 @@ class TestLearningUnitProposalDisplay(TestCase):
 
     def test_get_the_old_value_for_foreign_key_no_previous_value(self):
         initial_data = {"language": None}
-        current_data = {"language_id": self.language_it.id}
+        current_data = {"language_id": self.language_it.pk}
 
         differences = proposal_business._get_the_old_value('language', current_data, initial_data)
         self.assertEqual(differences.get('language'), proposal_business.NO_PREVIOUS_VALUE)
@@ -1215,7 +1215,7 @@ class TestLearningUnitProposalDisplay(TestCase):
         self.assertEqual(differences.get('campus'), str(self.campus))
 
     def test_get_old_value_of_foreign_key_for_language(self):
-        differences = proposal_business._get_old_value_of_foreign_key('language', self.language_it.id)
+        differences = proposal_business._get_old_value_of_foreign_key('language', self.language_it.pk)
         self.assertEqual(differences.get('language'), str(self.language_it))
 
     def test_has_changed_entity(self):

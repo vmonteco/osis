@@ -35,7 +35,7 @@ from base import models as mdl
 from base.business import learning_unit
 from base.forms.bootstrap import BootstrapForm
 from base.forms.utils.choice_field import add_blank
-from base.models.campus import find_main_campuses
+from base.models.campus import find_main_campuses, Campus
 from base.models.entity_version import find_main_entities_version
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
@@ -78,6 +78,7 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
         return obj.acronym
 
 
+# FIXME Convert it in ModelForm !
 class LearningUnitYearForm(BootstrapForm):
     first_letter = forms.ChoiceField(choices=lazy(_create_first_letter_choices, tuple), required=True)
     acronym = forms.CharField(widget=forms.TextInput(attrs={'maxlength': "15", 'required': True}))
@@ -132,7 +133,31 @@ class LearningUnitYearForm(BootstrapForm):
     )
     additional_requirement_entity_2 = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
                                                                  widget=forms.Select(attrs={'disable': 'disable'}))
-    language = forms.ModelChoiceField(find_all_languages(), empty_label=None)
+    language = forms.ModelChoiceField(find_all_languages(), empty_label=None, initial='FR')
+
+    def __init__(self, *args, **kwargs):
+        self.learning_unit = kwargs.pop('learning_unit', None)
+        super(LearningUnitYearForm, self).__init__(*args, **kwargs)
+
+        # TODO the default value must be set in model.
+        qs = Campus.objects.filter(name='Louvain-la-Neuve')
+        if qs.exists():
+            self.fields['campus'].initial = qs.get()
+
+        if self.initial.get('subtype') == "PARTIM":
+            self.fields['specific_title'].label = _('official_title_proper_to_partim')
+            self.fields['specific_title_english'].label = _('official_english_title_proper_to_partim')
+        else:
+            self.fields['specific_title'].label = _('official_title_proper_to_UE')
+            self.fields['specific_title_english'].label = _('official_english_title_proper_to_UE')
+
+    def _get_existing_acronym_list(self, academic_year, acronym):
+        if self.learning_unit:
+            learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym) \
+                .exclude(learning_unit=self.learning_unit)
+        else:
+            learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym)
+        return [learning_unit_year.acronym for learning_unit_year in learning_unit_years]
 
     def clean(self):
         cleaned_data = super().clean()
@@ -160,25 +185,6 @@ class LearningUnitYearForm(BootstrapForm):
         if not re.match(regex, acronym):
             raise ValidationError(_('invalid_acronym'))
         return acronym
-
-    def __init__(self, *args, **kwargs):
-        self.learning_unit = kwargs.pop('learning_unit', None)
-        super(LearningUnitYearForm, self).__init__(*args, **kwargs)
-
-        if self.initial.get('subtype') == "PARTIM":
-            self.fields['specific_title'].label = _('official_title_proper_to_partim')
-            self.fields['specific_title_english'].label = _('official_english_title_proper_to_partim')
-        else:
-            self.fields['specific_title'].label = _('official_title_proper_to_UE')
-            self.fields['specific_title_english'].label = _('official_english_title_proper_to_UE')
-
-    def _get_existing_acronym_list(self, academic_year, acronym):
-        if self.learning_unit:
-            learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym) \
-                .exclude(learning_unit=self.learning_unit)
-        else:
-            learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym)
-        return [learning_unit_year.acronym for learning_unit_year in learning_unit_years]
 
 
 class CreateLearningUnitYearForm(LearningUnitYearForm):

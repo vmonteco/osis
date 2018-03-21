@@ -61,9 +61,10 @@ def is_eligible_to_create_modification_proposal(learning_unit_year, person):
 
 
 def is_eligible_for_cancel_of_proposal(proposal, person):
-    if not proposal or not person.is_faculty_manager() or proposal.state != ProposalState.FACULTY.name:
+    if not proposal:
         return False
-
+    if person.is_faculty_manager() and proposal.state != ProposalState.FACULTY.name:
+        return False
     if _is_attached_to_initial_entity(proposal, person):
         return True
 

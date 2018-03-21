@@ -2700,3 +2700,7 @@ msgstr "The credits value is greater than the credits value of the learning unit
 
 msgid "partim_credits_equals_parent_credits"
 msgstr "The credits value is equal to the credits value of the learning unit."
+
+msgid "The learning unit has been updated until %(year)s."
+msgstr ""
+

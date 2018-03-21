@@ -137,7 +137,7 @@ def _copy_learning_unit_data(learning_unit_year):
     learning_container_year_values = _get_attributes_values(learning_container_year,
                                                             ["id", "acronym", "common_title", "common_title_english",
                                                              "container_type",
-                                                             "campus__id", "language__id", "in_charge"])
+                                                             "campus__id", "language__pk", "in_charge"])
     learning_unit_values = _get_attributes_values(learning_unit_year.learning_unit, ["id", "periodicity", "end_year"])
     learning_unit_year_values = _get_attributes_values(learning_unit_year, ["id", "acronym", "specific_title",
                                                                             "specific_title_english",

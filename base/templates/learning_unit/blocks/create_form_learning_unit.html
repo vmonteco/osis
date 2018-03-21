@@ -47,8 +47,8 @@
                         <span class='error' id="{{ learning_unit_form.acronym.name }}_message"
                               for='{{ learning_unit_form.acronym.name }}' generated="true"></span>
                         {% if learning_unit_form.acronym.errors %}
-                        <b class='error' for='{{ learning_unit_form.acronym.name }}' generated="true">{{
-                            learning_unit_form.acronym.errors|join:". " }}</b>
+                        <b class='error' for='{{ learning_unit_form.acronym.name }}' generated="true">
+                            {{ learning_unit_form.acronym.errors| join:". " }}</b>
                         {% endif %}
                     </div>
                 </div>

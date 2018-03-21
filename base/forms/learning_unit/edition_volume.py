@@ -33,7 +33,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.learning_units import edition
-from base.business.learning_units.edition import ConsistencyError
+from base.business.learning_units.edition import ConsistencyError, check_postponement_conflict_report_errors
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type as entity_types
 from base.models.enums.component_type import PRACTICAL_EXERCISES, LECTURING
@@ -181,17 +181,18 @@ class VolumeEditionForm(forms.Form):
             return None
 
         conflict_report = {}
-        luy_to_update_list = [self.learning_unit_year]
         if postponement:
             conflict_report = edition.get_postponement_conflict_report(self.learning_unit_year)
-            luy_to_update_list.extend(conflict_report['luy_without_conflict'])
+            luy_to_update_list = conflict_report['luy_without_conflict']
+        else:
+            luy_to_update_list = [self.learning_unit_year]
 
         with transaction.atomic():
             for component in self._find_learning_components_year(luy_to_update_list):
                 self._save(component)
 
-        if conflict_report.get('errors'):
-            raise ConsistencyError(_('error_modification_learning_unit'), error_list=conflict_report.get('errors'))
+        # Show conflict error if exists
+        check_postponement_conflict_report_errors(conflict_report)
 
     def _save(self, component):
         component.hourly_volume_partial = self.cleaned_data['volume_q1']

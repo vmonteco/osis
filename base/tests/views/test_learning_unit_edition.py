@@ -30,7 +30,6 @@ from django.contrib import messages
 from django.contrib.auth.models import Permission
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
-from django.db import IntegrityError
 from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpResponse
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
@@ -278,7 +277,7 @@ class TestEditLearningUnit(TestCase):
             "allocation_entity": self.allocation_entity.id,
             "additional_requirement_entity_1": self.additional_entity_1.id,
             "additional_requirement_entity_2": self.additional_entity_2.id,
-            "language": self.learning_unit_year.learning_container_year.language.id,
+            "language": self.learning_unit_year.learning_container_year.language.pk,
             "is_vacant": self.learning_unit_year.learning_container_year.is_vacant,
             "team": self.learning_unit_year.learning_container_year.team,
             "type_declaration_vacant": self.learning_unit_year.learning_container_year.type_declaration_vacant,
@@ -297,7 +296,7 @@ class TestEditLearningUnit(TestCase):
             "campus": str(self.learning_unit_year.learning_container_year.campus.id),
             "requirement_entity": str(self.requirement_entity.id),
             "allocation_entity": str(self.requirement_entity.id),
-            "language": str(self.learning_unit_year.learning_container_year.language.id)
+            "language": str(self.learning_unit_year.learning_container_year.language.pk)
         }
         response = self.client.post(self.url, data=form_data)
 
