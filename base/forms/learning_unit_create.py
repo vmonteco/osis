@@ -44,7 +44,7 @@ from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_FULL, LEARNING_UNIT_ACRONYM_REGEX_PARTIM, \
     LEARNING_UNIT_ACRONYM_REGEX_ALL
-from reference.models.language import find_all_languages
+from reference.models.language import find_all_languages, Language
 
 MINIMUM_CREDITS = 0
 MAXIMUM_CREDITS = 500
@@ -133,7 +133,7 @@ class LearningUnitYearForm(BootstrapForm):
     )
     additional_requirement_entity_2 = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
                                                                  widget=forms.Select(attrs={'disable': 'disable'}))
-    language = forms.ModelChoiceField(find_all_languages(), empty_label=None, initial='FR')
+    language = forms.ModelChoiceField(find_all_languages(), empty_label=None)
 
     def __init__(self, *args, **kwargs):
         self.learning_unit = kwargs.pop('learning_unit', None)
@@ -143,6 +143,10 @@ class LearningUnitYearForm(BootstrapForm):
         qs = Campus.objects.filter(name='Louvain-la-Neuve')
         if qs.exists():
             self.fields['campus'].initial = qs.get()
+
+        qs = Language.objects.filter(code='FR')
+        if qs.exists():
+            self.fields['language'].initial = qs.get().id
 
         if self.initial.get('subtype') == "PARTIM":
             self.fields['specific_title'].label = _('official_title_proper_to_partim')

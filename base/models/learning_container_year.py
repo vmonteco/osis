@@ -52,7 +52,7 @@ class LearningContainerYear(AuditableSerializableModel):
     common_title_english = models.CharField(max_length=250, blank=True, null=True)
     acronym = models.CharField(max_length=10)
     changed = models.DateTimeField(null=True, auto_now=True)
-    language = models.ForeignKey('reference.Language', blank=True, null=True, default='FR')
+    language = models.ForeignKey('reference.Language', blank=True, null=True)
     campus = models.ForeignKey('Campus', blank=True, null=True)
     team = models.BooleanField(default=False)
     is_vacant = models.BooleanField(default=False)
