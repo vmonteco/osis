@@ -26,6 +26,9 @@
 
 
 # TODO This method will become useless with a ModelForm
+from base.models.enums import proposal_state
+
+
 def proposal_common_populate(data, proposal_param):
     proposal = proposal_param
     proposal.entity = data.get('folder_entity').entity
@@ -35,3 +38,8 @@ def proposal_common_populate(data, proposal_param):
     proposal.state = data.get('state_proposal')
     proposal.author = data.get('person')
     return proposal
+
+
+def compute_proposal_state(a_person):
+    return proposal_state.ProposalState.CENTRAL.value if a_person.is_central_manager() \
+        else proposal_state.ProposalState.FACULTY.value
