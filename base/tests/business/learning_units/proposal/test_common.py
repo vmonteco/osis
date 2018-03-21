@@ -42,20 +42,20 @@ class TestComputeProposalState(TestCase):
     def test_when_person_is_faculty_manager(self):
         faculty_manager = create_person_in_group(FACULTY_MANAGER_GROUP)
 
-        expected_state = proposal_state.ProposalState.FACULTY.value
+        expected_state = proposal_state.ProposalState.FACULTY.name
         actual_state = compute_proposal_state(faculty_manager)
         self.assertEqual(expected_state, actual_state)
 
     def test_when_person_is_central_manager(self):
         central_manager = create_person_in_group(CENTRAL_MANAGER_GROUP)
 
-        expected_state = proposal_state.ProposalState.CENTRAL.value
+        expected_state = proposal_state.ProposalState.CENTRAL.name
         actual_state = compute_proposal_state(central_manager)
         self.assertEqual(expected_state, actual_state)
 
     def test_when_person_is_nor_a_faculty_manager_nor_a_central_manager(self):
         person = PersonFactory()
 
-        expected_state = proposal_state.ProposalState.FACULTY.value
+        expected_state = proposal_state.ProposalState.FACULTY.name
         actual_state = compute_proposal_state(person)
         self.assertEqual(expected_state, actual_state)

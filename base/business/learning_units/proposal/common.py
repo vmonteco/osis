@@ -41,5 +41,5 @@ def proposal_common_populate(data, proposal_param):
 
 
 def compute_proposal_state(a_person):
-    return proposal_state.ProposalState.CENTRAL.value if a_person.is_central_manager() \
-        else proposal_state.ProposalState.FACULTY.value
+    return proposal_state.ProposalState.CENTRAL.name if a_person.is_central_manager() \
+        else proposal_state.ProposalState.FACULTY.name
