@@ -2701,3 +2701,6 @@ msgstr "Intitulé officiel en anglais propre au partim"
 
 msgid "Educational information submission dates updated"
 msgstr "Date de soumission des informations pédagogiques mis à jour"
+
+msgid "The learning unit has been updated until %(year)s."
+msgstr "L'unité d'enseignement a été modifiée jusqu'en %(year)s."

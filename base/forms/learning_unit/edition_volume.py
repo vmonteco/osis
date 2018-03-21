@@ -191,7 +191,9 @@ class VolumeEditionForm(forms.Form):
                 self._save(component)
 
         if conflict_report.get('errors'):
-            raise ConsistencyError(_('error_modification_learning_unit'), error_list=conflict_report.get('errors'))
+            raise ConsistencyError(_('error_modification_learning_unit'),
+                                   error_list=conflict_report.get('errors'),
+                                   last_instance_updated=luy_to_update_list[-1])
 
     def _save(self, component):
         component.hourly_volume_partial = self.cleaned_data['volume_q1']
