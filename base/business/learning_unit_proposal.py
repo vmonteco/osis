@@ -44,24 +44,31 @@ LABEL_INACTIVE = _('inactive')
 
 def compute_proposal_type(initial_data, current_data):
     data_changed = _compute_data_changed(initial_data, current_data)
-    filtered_data_changed = filter(lambda key: key not in ["academic_year", "subtype", "acronym"], data_changed)
-    transformation = "{}{}".format(current_data["first_letter"], current_data["acronym"]) != \
-                     "{}{}".format(initial_data["first_letter"], initial_data["acronym"])
-    modification = any(map(lambda x: x != "acronym", filtered_data_changed))
+    transformation = True if 'first_letter' in data_changed else False
+    if transformation:
+        data_changed.remove('first_letter')
+    modification = True if len(data_changed) else False
     if transformation and modification:
         return proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name
     elif transformation:
         return proposal_type.ProposalType.TRANSFORMATION.name
-    return proposal_type.ProposalType.MODIFICATION.name
+    else:
+        return proposal_type.ProposalType.MODIFICATION.name
 
 
 def _compute_data_changed(initial_data, current_data):
     data_changed = []
-    for key, value in initial_data.items():
-        current_value = current_data.get(key)
-        if str(value) != str(current_value):
+    for key, value in current_data.items():
+        initial_value = initial_data.get(key)
+        if key == 'status':
+            value = _convert_status_bool(value)
+        if initial_value and value and str(value) != str(initial_value):
             data_changed.append(key)
     return data_changed
+
+
+def _convert_status_bool(status):
+    return True if status == 'on' else False
 
 
 def reinitialize_data_before_proposal(learning_unit_proposal):
