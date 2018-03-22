@@ -38,6 +38,7 @@ from django.contrib.messages import ERROR, SUCCESS
 APP_BASE_LABEL = 'base'
 END_FOREIGN_KEY_NAME = "_id"
 NO_PREVIOUS_VALUE = '-'
+# TODO : VALUES_WHICH_NEED_TRANSLATION ?
 VALUES_WHICH_NEED_TRANSLATION = ["periodicity", "container_type", "internship_subtype"]
 LABEL_ACTIVE = _('active')
 LABEL_INACTIVE = _('inactive')
@@ -46,7 +47,7 @@ LABEL_INACTIVE = _('inactive')
 def compute_proposal_type(initial_data, current_data):
     data_changed = _compute_data_changed(initial_data, current_data)
 
-    if _is_transformation_type(data_changed):
+    if 'first_letter' in data_changed:
         data_changed.remove('first_letter')
         if bool(data_changed):
             proposal_type = ProposalType.TRANSFORMATION_AND_MODIFICATION.name
@@ -63,18 +64,10 @@ def _compute_data_changed(initial_data, current_data):
     for key, value in current_data.items():
         initial_value = initial_data.get(key)
         if key == 'status':
-            value = _convert_status_bool(value)
+            value = value == 'on'
         if initial_value and value and str(value) != str(initial_value):
             data_changed.append(key)
     return data_changed
-
-
-def _convert_status_bool(status):
-    return True if status == 'on' else False
-
-
-def _is_transformation_type(data_changed):
-    return True if 'first_letter' in data_changed else False
 
 
 def reinitialize_data_before_proposal(learning_unit_proposal):
@@ -121,7 +114,7 @@ def delete_learning_unit_proposal(learning_unit_proposal):
     prop_type = learning_unit_proposal.type
     lu = learning_unit_proposal.learning_unit_year.learning_unit
     learning_unit_proposal.delete()
-    if prop_type == proposal_type.ProposalType.CREATION.name:
+    if prop_type == ProposalType.CREATION.name:
         lu.delete()
 
 
@@ -284,7 +277,7 @@ def cancel_proposal(learning_unit_proposal, author, send_mail=True):
     acronym = learning_unit_proposal.learning_unit_year.acronym
     error_messages = []
     success_messages = []
-    if learning_unit_proposal.type == proposal_type.ProposalType.CREATION.name:
+    if learning_unit_proposal.type == ProposalType.CREATION.name:
         learning_unit_year = learning_unit_proposal.learning_unit_year
         error_messages.extend(business_deletion.check_can_delete_ignoring_proposal_validation(learning_unit_year))
         if not error_messages:
