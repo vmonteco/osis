@@ -65,9 +65,13 @@ def _compute_data_changed(initial_data, current_data):
         initial_value = initial_data.get(key)
         if key == 'status':
             value = value == 'on'
-        if initial_value and value and str(value) != str(initial_value):
+        if _is_initial_not_equal_current(initial_value, value):
             data_changed.append(key)
     return data_changed
+
+
+def _is_initial_not_equal_current(initial_value, value):
+    return initial_value and value and str(value) != str(initial_value)
 
 
 def reinitialize_data_before_proposal(learning_unit_proposal):
