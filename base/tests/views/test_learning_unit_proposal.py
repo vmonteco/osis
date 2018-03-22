@@ -793,7 +793,7 @@ class TestLearningUnitProposalCancellation(TestCase):
     def test_context_after_valid_get_request(self):
         response = self.client.get(self.url)
 
-        redirected_url = reverse('learning_units_proposal')
+        redirected_url = reverse('learning_unit', args=[self.learning_unit_year.id])
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
 
         messages = [str(message) for message in get_messages(response.wsgi_request)]
@@ -1305,11 +1305,12 @@ class TestCreationProposalCancel(TestCase):
     @mock.patch('base.utils.send_mail.send_mail_after_the_learning_unit_proposal_cancellation')
     def test_cancel_proposal_of_learning_unit(self, mock_send_mail, mock_perms):
         a_proposal = _create_proposal_learning_unit()
-        url = reverse('learning_unit_cancel_proposal', args=[a_proposal.learning_unit_year.id])
+        luy = a_proposal.learning_unit_year
+        url = reverse('learning_unit_cancel_proposal', args=[luy.id])
 
         response = self.client.post(url, data={})
 
-        redirected_url = reverse('learning_units_proposal')
+        redirected_url = reverse('learning_unit', args=[luy.id])
         msgs = [str(message) for message in get_messages(response.wsgi_request)]
 
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)

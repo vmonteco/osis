@@ -30,7 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.business import learning_unit_year_with_context
 from base.business.learning_unit import compute_max_academic_year_adjournment
-from base.business.learning_unit_deletion import delete_from_given_learning_unit_year, \
+from base.business.learning_units.simple.deletion import delete_from_given_learning_unit_year, \
     check_learning_unit_year_deletion
 from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.utils.model import update_instance_model_from_data, update_related_object

@@ -72,6 +72,7 @@ def learning_unit_modification_proposal(request, learning_unit_year_id):
         messages.add_message(request, messages.SUCCESS,
                              _("success_modification_proposal")
                              .format(_(type_proposal), learning_unit_year.acronym))
+
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
     return layout.render(request, 'learning_unit/proposal/create_modification_proposal.html', {
