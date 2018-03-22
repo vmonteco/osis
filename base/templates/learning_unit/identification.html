@@ -1,6 +1,4 @@
 {% extends "layout.html" %}
-{% load format %}
-{% load staticfiles %}
 {% load i18n %}
 {% load learning_unit %}
 {% comment "License" %}
@@ -33,13 +31,16 @@
 
 {% block content %}
 
-{% include "learning_unit/header.html" %}
-{% include "template_messages.html" %}
-{% include "learning_unit/footer.html" %}
-
-<div class="panel panel-default" >
+{% include "learning_unit/blocks/header.html" %}
+{% if messages_deletion %}
+    {% include "learning_unit/deletion_msg.html" %}
+{% endif %}
+<div class="panel panel-default">
+    <div class="panel-heading text-right">
+        {% include "learning_unit/blocks/dropdown/identification_actions_bar.html" with dropdirection="dropdown"%}
+    </div>
     <div class="panel-body" id="tabs" >
-        {% include "learning_unit/tabs.html" %}
+        {% include "learning_unit/blocks/tabs.html" %}
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="identification">
                 <br/>
@@ -49,6 +50,7 @@
                             <div class="panel-body">
                                 <div class="row">
                                     <div class="col-md-3">
+                                        {# FIXME Use dl_tooltip for all label/span #}
                                         <label {{ differences|get_difference_css:'acronym' }}>{% trans 'code'%}</label><br>
                                         {% if learning_unit_year.parent %}
                                             <a href="{% url 'learning_unit' learning_unit_year.parent.id%}" {{ differences|get_difference_css:'acronym'  }}>{{ learning_unit_year.learning_container_year.acronym }}</a>{{learning_unit_year.subdivision}}
@@ -127,13 +129,13 @@
                                 <label {% if differences|get_difference_css:'common_title' %}{{ differences|get_difference_css:'common_title' }}{% else %} title="{% trans 'title_official_1' %}"{% endif %}>{% trans 'common_official_title' %}</label><br>
                                 <span {{ differences|get_difference_css:'common_title' }}>{{ learning_unit_year.learning_container_year.common_title | default_if_none:'' }}</span>
                                 <br><br>
-                                <label {% if differences|get_difference_css:'specific_title'%}{{ differences|get_difference_css:'specific_title' }}{% else %}title="{% trans 'title_official_2' %}"{% endif %}>{% trans 'official_title_proper_to_UE' %}</label><br>
+                                <label {% if differences|get_difference_css:'specific_title'%}{{ differences|get_difference_css:'specific_title' }}{% else %}title="{% trans 'title_official_2' %}"{% endif %}>{% if learning_unit_year.subtype == "PARTIM" %}{% trans 'official_title_proper_to_partim' %}{% else %}{% trans 'official_title_proper_to_UE' %}{% endif %}</label><br>
                                     <span {{ differences|get_difference_css:'specific_title' }}>{{learning_unit_year.specific_title | default_if_none:''}}</span>
                                 <br><br>
                                 <label {% if differences|get_difference_css:'common_title_english' %}{{ differences|get_difference_css:'common_title_english' }}{% else %}title="{% trans 'title_in_english' %} {% trans 'title_in_english_1' %}"{% endif %}>{% trans 'common_official_english_title' %}</label><br>
                                 <span {{ differences|get_difference_css:'common_title_english' }}>{{learning_unit_year.learning_container_year.common_title_english | default_if_none:'' }}</span>
                                 <br><br>
-                                <label {% if differences|get_difference_css:'specific_title_english' %}{{ differences|get_difference_css:'specific_title_english' }} {% else %}title="{% trans 'title_in_english' %} {% trans 'title_in_english_2' %}"{% endif %}>{% trans 'official_english_title_proper_to_UE' %}</label><br>
+                                <label {% if differences|get_difference_css:'specific_title_english' %}{{ differences|get_difference_css:'specific_title_english' }} {% else %}title="{% trans 'title_in_english' %} {% trans 'title_in_english_2' %}"{% endif %}>{% if learning_unit_year.subtype == "PARTIM" %}{% trans 'official_english_title_proper_to_partim' %}{% else %}{% trans 'official_english_title_proper_to_UE' %}{% endif %}</label><br>
                                     <span {{ differences|get_difference_css:'specific_title_english'  }}>{{learning_unit_year.specific_title_english | default_if_none:'' }}</span>
                                 <br>
                             </div>
@@ -186,84 +188,34 @@
                     <div class="col-md-4">
                         <div class="panel panel-default">
                             <div class="panel-body">
-                                <label>{% trans 'institution'%}</label><br>
-                                 {% if organization %}
-                                    <a href="{% url 'organization_read' organization_id=organization.id %}">
-                                        {{ organization.name }}
-                                    </a>
-                                 {% endif %}
-                                <br>
-                                <label style="margin-top:10px;" {{ differences|get_difference_css:'campus' }}>{% trans 'learning_location'%}</label><br>
-                                 {% if campus %}
-                                    <span  {{ differences|get_difference_css:'campus' }}>{{ campus.name }}</span>
-                                 {% endif %}
-                                <br>
-                                <label style="margin-top:10px;" {% if differences|get_difference_css:'REQUIREMENT_ENTITY'%}{{ differences|get_difference_css:'REQUIREMENT_ENTITY' }} {% endif %}>{% trans 'requirement_entity'%}</label><br>
-                                    <a {% if requirement_entity %}href="{% url 'entity_read' entity_version_id=requirement_entity.id %}"{% endif %}
-                                    {% if differences|get_difference_css:'REQUIREMENT_ENTITY' %}
-                                        {{ differences|get_difference_css:'REQUIREMENT_ENTITY' }}
-                                    {% else %}
-                                        title="{{ requirement_entity.title | default_if_none:'' }}"
-                                    {% endif %}>{{ requirement_entity.acronym }}</a>
-                                <br>
-                                <label style="margin-top:10px;" {% if differences|get_difference_css:'ALLOCATION_ENTITY' %}{{ differences|get_difference_css:'ALLOCATION_ENTITY' }}{% endif %}>{% trans 'allocation_entity'%}</label><br>
-                                <a {% if allocation_entity %}href="{% url 'entity_read' entity_version_id=allocation_entity.id %}"{% endif %}
-                                         {% if differences|get_difference_css:'ALLOCATION_ENTITY' %}
-                                             {{ differences|get_difference_css:'ALLOCATION_ENTITY' }}
-                                         {% else %}
-                                             title="{{ allocation_entity.title | default_if_none:'' }}"
-                                         {% endif %}>{{ allocation_entity.acronym }}</a>
+                                {% url 'organization_read' organization_id=organization.id as url_organization%}
+                                {% dl_tooltip differences 'institution' value=organization.name url=url_organization %}
+                                {% dl_tooltip differences 'campus' label_text='learning_location'  value=campus.name %}
 
-                                <br>
-                                <span {{ differences|get_difference_css:'ADDITIONAL_REQUIREMENT_ENTITY_1' }}>
-                                    <label style="margin-top:10px;">{% trans 'additional_requirement_entity'%} 1</label><br>
-                                    <span> {{ additional_requirement_entity_1.acronym }}</span><br>
-                                </span>
-                                <span {{ differences|get_difference_css:'ADDITIONAL_REQUIREMENT_ENTITY_2' }}>
-                                    <label style="margin-top:10px;">{% trans 'additional_requirement_entity'%} 2</label><br>
-                                    <span {{ differences|get_difference_css:'ADDITIONAL_REQUIREMENT_ENTITY_2' }}>{{ additional_requirement_entity_2.acronym }}</span><br>
-                                </span>
+                                {% url 'entity_read' entity_version_id=requirement_entity.id as url_entity_requirement %}
+                                {% url 'entity_read' entity_version_id=allocation_entity.id as url_entity_allocation %}
+
+                                {% dl_tooltip differences 'REQUIREMENT_ENTITY' value=requirement_entity.acronym title=requirement_entity.title url=url_entity_requirement %}
+                                {% dl_tooltip differences 'ALLOCATION_ENTITY' value=allocation_entity.acronym title=allocation_entity.title url=url_entity_allocation %}
+                                {% dl_tooltip differences 'ADDITIONAL_REQUIREMENT_ENTITY_1' value=additional_requirement_entity_1.acronym %}
+                                {% dl_tooltip differences 'ADDITIONAL_REQUIREMENT_ENTITY_2' value=additional_requirement_entity_2.acronym %}
 
                                 {% block edit_academic_year %}
-                                    <label style="margin-top:10px;">{% trans 'academic_years'%}</label><br>
-                                    {% if learning_unit_year.learning_container_year.learning_container %}
-                                        {{ learning_unit_year.learning_unit.start_year|academic_years:learning_unit_year.learning_unit.end_year }}
-                                    {% endif %}
+                                    {% dl_tooltip differences 'end_year' label_text='academic_years' value=learning_unit_year.learning_unit.start_year|academic_years:learning_unit_year.learning_unit.end_year %}
                                 {% endblock %}
+
                             </div>
                         </div>
-                        {% if proposal %}
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    {% trans 'proposal' %}
-                                </div>
-                                <div class="panel-body">
-                                    <label style="margin-top:10px;">{% trans 'folder' %}</label><br>
-                                        {{ proposal_folder_entity_version.0.acronym}} - {{ proposal.folder.folder_id }}
-                                    <br>
-                                    <label style="margin-top:10px;">{% trans 'type' %}</label><br>
-                                        {% trans proposal.type %}
-                                    <br>
-                                    <div style="margin-top:10px;">
-                                        {% block proposal_state %}
-                                            <label >{% trans 'state' %}</label><br>
-                                            {% trans proposal.state %}
-                                        {% endblock proposal_state %}
-                                    </div>
-                                    <br>
-                                      <label style="margin-top:10px;">{% trans 'introduced_by' %}</label><br>
-                                      {{ proposal.author }}
-                                      <br>
-                                       <label style="margin-top:10px;">{% trans 'the' %}</label><br>
-                                      {{ proposal.date }}
-                                </div>
-                            </div>
-                        {% endif %}
+                        {% block panel_proposal %}
+                            {% include 'learning_unit/blocks/panel/panel_proposal.html' %}
+                        {% endblock %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    {% include "learning_unit/footer.html" %}
+    <div class="panel-footer text-right">
+        {% include "learning_unit/blocks/dropdown/identification_actions_bar.html"  with dropdirection="dropup" %}
+    </div>
 </div>
 {% endblock %}

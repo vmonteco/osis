@@ -27,6 +27,7 @@ import factory
 
 from base.tests.factories.person import PersonFactory
 
+
 class ManagerFactory(factory.DjangoModelFactory):
     class Meta:
         model = 'assistant.Manager'

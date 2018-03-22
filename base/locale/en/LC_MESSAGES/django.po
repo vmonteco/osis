@@ -1678,6 +1678,12 @@ msgstr "Allocation entity"
 msgid "additional_requirement_entity"
 msgstr "Additional requirement entity"
 
+msgid "additional_requirement_entity_1"
+msgstr "Additional requirement entity 1"
+
+msgid "additional_requirement_entity_2"
+msgstr "Additional requirement entity 2"
+
 msgid "requirement_entity_small"
 msgstr "Req. Entity"
 
@@ -2222,7 +2228,7 @@ msgid "The learning unit %(acronym)s is related to the internship speciality %(s
 msgstr ""
 
 msgid "lu_included_in_group"
-msgstr "%(subtype)s %(acronym)s is included in the group %(group)s of the program %(program)s for the year %(year)s"
+msgstr "%(subtype)s %(acronym)s is included in the group %(group)s for the year %(year)s"
 
 msgid "%(subtype)s %(acronym)s has been deleted for the year %(year)s"
 msgstr ""
@@ -2362,6 +2368,9 @@ msgstr "You proposed a modification of type {} for the learning unit {}."
 msgid "proposal_edited_successfully"
 msgstr "Proposal edited successfully"
 
+msgid "proposals_cancelled_successfully"
+msgstr "Proposals cancelled successfully"
+
 msgid "content"
 msgstr "Content"
 
@@ -2428,6 +2437,9 @@ msgstr "p23"
 msgid "Put in proposal"
 msgstr ""
 
+msgid "Put in suppression proposal"
+msgstr ""
+
 msgid "Proposal for modification"
 msgstr ""
 
@@ -2481,9 +2493,6 @@ msgstr "Procedure"
 
 msgid "educational_information_management"
 msgstr "Management of educational information"
-
-msgid "resume_edit"
-msgstr "Edit course summary"
 
 msgid "SUMMARY_COURSE_SUBMISSION"
 msgstr "Summary course submission"
@@ -2563,7 +2572,7 @@ msgstr "An error occured when updating the learning unit."
 msgid "cannot_set_internship_subtype_for_type_other_than_internship"
 msgstr "Internship subtype cannot bet set for learning unit type other than internship."
 
-msgid "%(subtype)s %(acronym)s is in proposal"
+msgid "%(subtype)s %(acronym)s is in proposal for the year %(year)s"
 msgstr ""
 
 msgid "volume_have_more_than_2_decimal_places"
@@ -2622,3 +2631,69 @@ msgstr "Do you want to change the status of this proposals?"
 
 msgid "are_you_sure_to_change_state_from"
 msgstr "Are you sure to change the state from"
+
+msgid "must_set_common_title_or_specific_title"
+msgstr "You must either set the common title or the specific title"
+
+msgid "learning_unit_in_proposal_cannot_save"
+msgstr "The learning unit %(luy)s is in proposal, can not save the change from the year %(academic_year)s"
+
+msgid "by"
+msgstr "By"
+
+msgid "in_proposal"
+msgstr "Existing proposal"
+
+msgid "summary_editable"
+msgstr "educational information editable"
+
+msgid "get_back_to_initial"
+msgstr "Get back to initial data"
+
+msgid "do_you_want_to_get_back_to_initial"
+msgstr "Do you want to get back to initial data?"
+
+msgid "error_proposal_suppression_to_initial"
+msgstr "An error occured when getting back to initial state one of the selected proposal is not in SUPPRESSION type. Nothing has been done"
+
+msgid "error_proposal_no_data"
+msgstr "An error occured when getting back to initial state. No valid data to submit"
+
+msgid "summary_editable_field_successfuly_updated"
+msgstr "The possibility to edit educational information has been correctly updated."
+
+msgid "msg_confirm_delete_luy"
+msgstr "Are you certain that you want to delete the learning unit ?"
+
+msgid "already_existing_acronym"
+msgstr "Existing acronym"
+
+msgid "The value of field '%(field)s' is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s"
+msgstr ""
+
+msgid "There is not the learning unit %(acronym)s - %(next_year)s"
+msgstr ""
+
+msgid "The value of field '%(field)s' for the learning unit %(acronym)s (%(component_type)s) is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s"
+msgstr ""
+
+msgid "There is not %(component_type)s for the learning unit %(acronym)s - %(year)s but exist in %(existing_year)s"
+msgstr ""
+
+msgid "Educational information opening"
+msgstr ""
+
+msgid "Educational information ending"
+msgstr ""
+
+msgid "official_title_proper_to_partim"
+msgstr "Official title proper to the partim"
+
+msgid "official_english_title_proper_to_partim"
+msgstr "Official English title proper to the partim"
+
+msgid "Educational information submission dates updated"
+msgstr ""
+
+msgid "The learning unit has been updated until %(year)s."
+msgstr ""

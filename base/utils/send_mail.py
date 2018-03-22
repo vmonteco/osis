@@ -74,19 +74,6 @@ def send_mail_after_scores_submission(persons, learning_unit_name, submitted_enr
 
 
 def send_mail_after_the_learning_unit_year_deletion(managers, acronym, academic_year, msg_list):
-    """
-    Send email to the program managers after deletions made on a learning_unit_year or partials or classes
-    :param acronym: the deleted learning unit
-    :param academic_year: starting academic year at which the deletion must start (can be None if it is a learning_unit)
-    :param msg_list : the list of the messages detailing the deletion
-    :return An error message if the template is not in the database
-    """
-
-    # TODO : At the moment, there is no link between managers and learning_units. So here is an empty list.
-    #Later on, we will have to call a function like 'get_managers(learning_unit_year)' instead.
-    #Something like this :
-    #managers = learning_unit_year.get_managers_of_learning_unit_year(learning_unit_year)
-
     html_template_ref = 'learning_unit_year_deletion_html'
     txt_template_ref = 'learning_unit_year_deletion_txt'
     receivers = [message_config.create_receiver(manager.id, manager.email, manager.language) for manager in managers]
@@ -95,6 +82,17 @@ def send_mail_after_the_learning_unit_year_deletion(managers, acronym, academic_
                           'academic_year': academic_year,
                           'msg_list':msg_list,
                           }
+    message_content = message_config.create_message_content(html_template_ref, txt_template_ref, None, receivers,
+                                                            template_base_data, suject_data, None)
+    return message_service.send_messages(message_content)
+
+
+def send_mail_after_the_learning_unit_proposal_cancellation(managers, proposals):
+    html_template_ref = 'learning_unit_proposal_canceled_html'
+    txt_template_ref = 'learning_unit_proposal_canceled_txt'
+    receivers = [message_config.create_receiver(manager.id, manager.email, manager.language) for manager in managers]
+    suject_data = {}
+    template_base_data = {'proposals': proposals}
     message_content = message_config.create_message_content(html_template_ref, txt_template_ref, None, receivers,
                                                             template_base_data, suject_data, None)
     return message_service.send_messages(message_content)

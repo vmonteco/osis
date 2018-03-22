@@ -115,7 +115,7 @@ def _split_attribution_by_learning_unit_year(attribution):
 
             attribution_splitted.setdefault(lunit_year.id, {
                     'acronym': lunit_year.acronym,
-                    'title': lunit_year.specific_title,
+                    'title': lunit_year.complete_title,
                     'start_year': attribution.start_year,
                     'end_year': attribution.end_year,
                     'function': attribution.function,

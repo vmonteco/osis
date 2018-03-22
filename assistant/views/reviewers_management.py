@@ -118,19 +118,16 @@ def reviewer_replace(request):
     year = academic_year.current_academic_year().year
     if request.POST:
         form = ReviewerReplacementForm(data=request.POST, prefix='rev')
-        if form.is_valid():
+        if form.is_valid() and request.POST.get('person_id'):
             reviewer_to_replace = reviewer.find_by_id(form.cleaned_data.get('id'))
-            if request.POST.get('person_id'):
-                this_person = person.find_by_id(request.POST.get('person_id'))
-                try:
-                    reviewer.find_by_person(this_person)
-                    msg = _("person_already_reviewer_msg")
-                    form.add_error(None, msg)
-                    return render(request, "manager_replace_reviewer.html", {'form': form,
-                                                                             'reviewer': reviewer_to_replace,
-                                                                             'year': year})
-                except ObjectDoesNotExist:
-                    pass
+            this_person = person.find_by_id(request.POST.get('person_id'))
+            if reviewer.find_by_person(this_person):
+                msg = _("person_already_reviewer_msg")
+                form.add_error(None, msg)
+                return render(request, "manager_replace_reviewer.html", {'form': form,
+                                                                         'reviewer': reviewer_to_replace,
+                                                                         'year': year})
+            else:
                 reviewer_to_replace.person = this_person
                 reviewer_to_replace.save()
                 return redirect('reviewers_list')
@@ -145,17 +142,14 @@ def reviewer_add(request):
     year = academic_year.current_academic_year().year
     if request.POST:
         form = ReviewerForm(data=request.POST)
-        if form.is_valid():
+        if form.is_valid() and request.POST.get('person_id'):
             new_reviewer = form.save(commit=False)
-            if request.POST.get('person_id'):
-                this_person = person.find_by_id(request.POST.get('person_id'))
-                try:
-                    reviewer.find_by_person(this_person)
-                    msg = _("person_already_reviewer_msg")
-                    form.add_error(None, msg)
-                    return render(request, "manager_add_reviewer.html", {'form': form, 'year': year})
-                except ObjectDoesNotExist:
-                    pass
+            this_person = person.find_by_id(request.POST.get('person_id'))
+            if reviewer.find_by_person(this_person):
+                msg = _("person_already_reviewer_msg")
+                form.add_error(None, msg)
+                return render(request, "manager_add_reviewer.html", {'form': form, 'year': year})
+            else:
                 new_reviewer.person = this_person
                 new_reviewer.save()
                 return redirect('reviewers_list')

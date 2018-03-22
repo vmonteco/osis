@@ -127,6 +127,12 @@ msgstr "Choix"
 msgid "choose_person_as_reviewer_for"
 msgstr "Choisissez une personne comme évaluateur pour"
 
+msgid "columns_title_error"
+msgstr "Les titres des colonnes sont incorrects."
+
+msgid "columns_number_error"
+msgstr "Le nombre de colonnes est erroné."
+
 msgid "comment"
 msgstr "Commentaire"
 
@@ -192,6 +198,9 @@ msgstr "Tableau de bord"
 
 msgid "data_not_saved"
 msgstr "Un problème est survenu, les données n'ont pas pu être sauvegardées"
+
+msgid "date_format_error"
+msgstr "Une date est invalide dans le fichier"
 
 msgid "date_of_first_nomination"
 msgstr "Date de la première nomination"
@@ -388,6 +397,9 @@ msgstr "La rubrique \"Unités d'enseignement\" doit être complétée"
 
 msgid "learning_units_description"
 msgstr "Exercices, TP, séminaires - associés aux heures de volume 2, que vous assumez personnellement"
+
+msgid "line_nbr"
+msgstr "à la ligne numéro : "
 
 msgid "mandate"
 msgstr "Mandat"

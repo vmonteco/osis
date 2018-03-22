@@ -1,0 +1,23 @@
+{% extends "learning_unit/learning_unit_layout.html" %}
+
+{% block tabs %}
+    {% include "learning_unit/proposal/tabs.html" %}
+{% endblock tabs %}
+
+{% block periodicity %}
+    {% include "learning_unit/blocks/periodicity.html" %}
+{% endblock periodicity %}
+
+{% block quadrimester %}
+    {% include "learning_unit/blocks/quadrimester.html" %}
+{% endblock quadrimester %}
+
+{% block components %}
+    {% if components %}
+        {% include "learning_unit/components_identification.html" %}
+    {% endif %}
+{% endblock components %}
+
+{% block proposal_management %}
+    {% include "learning_unit/blocks/form/form_create_proposal.html" %}
+{% endblock proposal_management%}

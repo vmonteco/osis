@@ -29,6 +29,9 @@ from django.forms import formset_factory
 from django.test import RequestFactory, TestCase, Client
 
 from assistant.models.enums import reviewer_role
+from assistant.tests.factories.academic_assistant import AcademicAssistantFactory
+from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
+from assistant.tests.factories.review import ReviewFactory
 from base.models import academic_year
 from assistant.forms import ReviewersFormset
 from base.models.entity import find_versions_from_entites
@@ -54,24 +57,80 @@ class ReviewersManagementViewTestCase(TestCase):
         self.entity_version = EntityVersionFactory(entity_type=entity_type.INSTITUTE,
                                                    end_date=None,
                                                    entity=self.entity_factory)
+        self.phd_supervisor = PersonFactory()
+
+        self.assistant = AcademicAssistantFactory(supervisor=self.phd_supervisor)
+        today = datetime.date.today()
+        self.current_academic_year = AcademicYearFactory(start_date=today,
+                                                         end_date=today.replace(year=today.year + 1),
+                                                         year=today.year)
+        self.assistant_mandate = AssistantMandateFactory(academic_year=self.current_academic_year,
+                                                         assistant=self.assistant)
         self.reviewer = ReviewerFactory(role=reviewer_role.RESEARCH,
                                         entity=self.entity_version.entity)
-        self.reviewer2 = ReviewerFactory()
+        self.reviewer2 = ReviewerFactory(role=reviewer_role.RESEARCH,
+                                        entity=self.entity_version.entity)
+        self.review = ReviewFactory(reviewer=self.reviewer2)
         self.formset = formset_factory(ReviewersFormset)
         today = datetime.date.today()
         self.current_academic_year = AcademicYearFactory(start_date=today,
                                                          end_date=today.replace(year=today.year + 1),
                                                          year=today.year)
-
-    def test_reviewer_delete(self):
-        self.person = self.reviewer.person
+    def test_reviewers_index(self):
+        self.person = self.manager.person
         self.client.force_login(self.person.user)
-        response = self.client.post('/assistants/manager/reviewers/action/', {'action': 'DELETE',
-                                                                          'id': self.reviewer.id
-                                                                          })
+        response = self.client.post('/assistants/manager/reviewers/')
+        self.assertEqual(response.context, 'blabla')
 
-        self.assertFalse(find_by_person(self.person))
-        self.assertTrue(find_by_person(self.reviewer2.person))
+    def test_reviewer_action(self):
+        self.person = self.manager.person
+        self.client.force_login(self.person.user)
+
+        form_data = {
+            'form-0-action': 'DELETE',
+            'form-0-entity_version': self.entity_version,
+            'form-0-id': self.reviewer.id,
+            'form-INITIAL_FORMS': 1,
+            'form-MAX_NUM_FORMS': '1000',
+            'form-MIN_NUM_FORMS': '0',
+            'form-TOTAL_FORMS': '1'
+        }
+        response = self.client.post('/assistants/manager/reviewers/action/', form_data)
+        self.assertEqual(response.status_code, 302)
+
+    def test_reviewer_action_with_bad_method_and_invalid_data(self):
+        self.person = self.manager.person
+        self.client.force_login(self.person.user)
+
+        form_data = {
+            'form-0-action': None,
+            'form-0-entity_version': self.entity_version,
+            'form-0-id': None,
+            'form-INITIAL_FORMS': 1,
+            'form-MAX_NUM_FORMS': '1000',
+            'form-MIN_NUM_FORMS': '0',
+            'form-TOTAL_FORMS': '1'
+        }
+        response = self.client.get('/assistants/manager/reviewers/action/', form_data)
+        self.assertEqual(response.status_code, 302)
+
+        response = self.client.post('/assistants/manager/reviewers/action/', form_data)
+        self.assertEqual(response.status_code, 302)
+
+    def test_reviewer_action_with_replace(self):
+        self.person = self.manager.person
+        self.client.force_login(self.person.user)
+
+        form_data = {
+            'form-0-action': 'REPLACE',
+            'form-0-entity_version': self.entity_version,
+            'form-0-id': self.reviewer.id,
+            'form-INITIAL_FORMS': 1,
+            'form-MAX_NUM_FORMS': '1000',
+            'form-MIN_NUM_FORMS': '0',
+            'form-TOTAL_FORMS': '1'
+        }
+        response = self.client.post('/assistants/manager/reviewers/action/', form_data)
         self.assertEqual(response.status_code, HTTP_OK)
 
     def test_reviewer_add(self):
@@ -80,9 +139,64 @@ class ReviewersManagementViewTestCase(TestCase):
         this_entity = find_versions_from_entites([self.entity_factory.id], date=None) [0]
         response = self.client.post('/assistants/manager/reviewers/add/', {'entity': this_entity.id,
                                                                           'role': self.reviewer.role,
+                                                                          })
+        self.assertEqual(response.status_code, HTTP_OK)
+        response = self.client.post('/assistants/manager/reviewers/add/', {'entity': this_entity.id,
+                                                                           'role': self.reviewer.role,
+                                                                           'person_id': self.person2.id,
+                                                                           })
+        self.assertEqual(response.status_code, 302)
+        response = self.client.post('/assistants/manager/reviewers/add/', {'entity': this_entity.id,
+                                                                           'role': self.reviewer.role,
+                                                                           'person_id': self.person2.id,
+                                                                           })
+        self.assertEqual(response.status_code, HTTP_OK)
+
+    def test_reviewer_add_with_bad_method(self):
+        self.person = self.manager.person
+        self.client.force_login(self.person.user)
+        this_entity = find_versions_from_entites([self.entity_factory.id], date=None) [0]
+        response = self.client.get('/assistants/manager/reviewers/add/', {'entity': this_entity.id,
+                                                                          'role': self.reviewer.role,
                                                                           'person_id': self.person2.id,
                                                                           })
         self.assertEqual(response.status_code, HTTP_OK)
+
+    def test_reviewer_add_with_invalid_form(self):
+        self.person = self.manager.person
+        self.client.force_login(self.person.user)
+        response = self.client.post('/assistants/manager/reviewers/add/', {'entity': None,
+                                                                          'role': self.reviewer.role,
+                                                                          'person_id': self.person2.id,
+                                                                          })
+        self.assertEqual(response.status_code, HTTP_OK)
+
+
+    def test_reviewer_replace(self):
+        self.person = self.manager.person
+        self.client.force_login(self.person.user)
+        response = self.client.post('/assistants/manager/reviewers/replace/', {
+                                                                            'person_id': None,
+                                                                            })
+        self.assertEqual(response.status_code, HTTP_OK)
+        response = self.client.post('/assistants/manager/reviewers/replace/', {
+                                                                          'person_id': self.person2.id,
+                                                                          'rev-id': self.reviewer.id,
+                                                                          })
+        self.assertEqual(response.status_code, 302)
+        response = self.client.post('/assistants/manager/reviewers/replace/', {
+                                                                           'person_id': self.person2.id,
+                                                                           'rev-id': self.reviewer.id,
+                                                                           })
+        self.assertEqual(response.status_code, HTTP_OK)
+        response = self.client.get('/assistants/manager/reviewers/replace/', {
+                                                                            'person_id': self.person2.id,
+                                                                            'rev-id': self.reviewer.id,
+                                                                            })
+        self.assertEqual(response.status_code, 302)
+
+
+
 
 
 

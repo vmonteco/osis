@@ -31,7 +31,7 @@ from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
-from base.models import proposal_folder, proposal_learning_unit, entity_container_year
+from base.models import proposal_learning_unit, entity_container_year
 from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import organization_type, proposal_type, proposal_state, entity_type, \
     learning_container_year_types, learning_unit_year_quadrimesters, entity_container_year_link_type, \
@@ -45,7 +45,6 @@ from base.tests.factories.learning_container_year import LearningContainerYearFa
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
-from base.tests.factories.proposal_folder import ProposalFolderFactory
 from reference.tests.factories.language import LanguageFactory
 
 PROPOSAL_TYPE = proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name
@@ -85,20 +84,23 @@ class TestSave(TestCase):
             "academic_year": self.learning_unit_year.academic_year.id,
             "first_letter": "L",
             "acronym": "OSIS1245",
-            "common_title": "New title",
-            "common_title_english": "New title english",
+            "common_title": "New common title",
+            "common_title_english": "New common title english",
+            "specific_title": "New title",
+            "specific_title_english": "New title english",
             "container_type": self.learning_unit_year.learning_container_year.container_type,
             "internship_subtype": "",
             "credits": "4",
             "periodicity": learning_unit_periodicity.BIENNIAL_ODD,
             "status": False,
-            "language": self.language.id,
+            "language": self.language.pk,
             "quadrimester": learning_unit_year_quadrimesters.Q1,
             "campus": self.campus.id,
             "requirement_entity": self.entity_version.id,
             "allocation_entity": self.entity_version.id,
-            "folder_entity": self.entity_version.id,
+            "entity": self.entity_version.id,
             "folder_id": "1",
+            "state": proposal_state.ProposalState.CENTRAL.name
         }
 
     def test_invalid_form(self):
@@ -125,6 +127,8 @@ class TestSave(TestCase):
         self.assertFalse(self.learning_unit_year.status)
         self.assertEqual(self.learning_unit_year.credits, Decimal(self.form_data['credits']))
         self.assertEqual(self.learning_unit_year.quadrimester, self.form_data['quadrimester'])
+        self.assertEqual(self.learning_unit_year.specific_title, self.form_data["specific_title"])
+        self.assertEqual(self.learning_unit_year.specific_title_english, self.form_data["specific_title_english"])
 
     def _assert_acronym_has_changed_in_proposal(self):
         self.assertEqual(self.learning_unit_year.acronym,
@@ -199,23 +203,6 @@ class TestSave(TestCase):
                          learning_container_year_types.INTERNSHIP)
         self.assertEqual(self.learning_unit_year.internship_subtype, internship_subtypes.TEACHING_INTERNSHIP)
 
-    def test_folder_creation(self):
-        form = LearningUnitProposalModificationForm(self.form_data)
-        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
-
-        proposal_folder_created = proposal_folder.find_by_entity_and_folder_id(self.entity_version.entity, 1)
-
-        self.assertTrue(proposal_folder_created)
-
-    def test_folder_reuse(self):
-        folder = ProposalFolderFactory(entity=self.entity_version.entity, folder_id=1)
-
-        form = LearningUnitProposalModificationForm(self.form_data)
-        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
-
-        a_proposal_learning_unt = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
-        self.assertEqual(a_proposal_learning_unt.folder, folder)
-
     def test_creation_proposal_learning_unit(self):
         initial_data_expected = {
             "learning_container_year": {
@@ -225,7 +212,7 @@ class TestSave(TestCase):
                 "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
                 "container_type": self.learning_unit_year.learning_container_year.container_type,
                 "campus": self.learning_unit_year.learning_container_year.campus.id,
-                "language": self.learning_unit_year.learning_container_year.language.id,
+                "language": self.learning_unit_year.learning_container_year.language.pk,
                 "in_charge": self.learning_unit_year.learning_container_year.in_charge
             },
             "learning_unit_year": {
@@ -240,7 +227,8 @@ class TestSave(TestCase):
             },
             "learning_unit": {
                 "id": self.learning_unit_year.learning_unit.id,
-                "periodicity": self.learning_unit_year.learning_unit.periodicity
+                "periodicity": self.learning_unit_year.learning_unit.periodicity,
+                'end_year': self.learning_unit_year.learning_unit.end_year
             },
             "entities": {
                 entity_container_year_link_type.REQUIREMENT_ENTITY: self.entity_container_year.entity.id,

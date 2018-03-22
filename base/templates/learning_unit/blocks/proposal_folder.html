@@ -1,0 +1,16 @@
+{% load bootstrap3 i18n %}
+
+<div class="row">
+
+    <div class="col-md-3">
+        {% bootstrap_label _("folder") %}
+    </div>
+
+    <div class="col-md-5">
+        {% bootstrap_field form.entity show_label=False %}
+    </div>
+
+    <div class="col-md-4">
+        {% bootstrap_field form.folder_id show_label=False %}
+    </div>
+</div>
