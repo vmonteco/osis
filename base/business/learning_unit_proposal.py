@@ -26,7 +26,8 @@
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
 from base.business import learning_unit_deletion as business_deletion
 from base.models import entity_container_year, campus, entity
-from base.models.enums import proposal_type, entity_container_year_link_type
+from base.models.enums import entity_container_year_link_type
+from base.models.enums.proposal_type import ProposalType
 from base.utils import send_mail as send_mail_util
 from reference.models import language
 from django.utils.translation import ugettext_lazy as _
@@ -44,16 +45,17 @@ LABEL_INACTIVE = _('inactive')
 
 def compute_proposal_type(initial_data, current_data):
     data_changed = _compute_data_changed(initial_data, current_data)
-    transformation = True if 'first_letter' in data_changed else False
-    if transformation:
+
+    if _is_transformation_type(data_changed):
         data_changed.remove('first_letter')
-    modification = True if len(data_changed) else False
-    if transformation and modification:
-        return proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name
-    elif transformation:
-        return proposal_type.ProposalType.TRANSFORMATION.name
+        if bool(data_changed):
+            proposal_type = ProposalType.TRANSFORMATION_AND_MODIFICATION.name
+        else:
+            proposal_type = ProposalType.TRANSFORMATION.name
     else:
-        return proposal_type.ProposalType.MODIFICATION.name
+        proposal_type = ProposalType.MODIFICATION.name
+
+    return proposal_type
 
 
 def _compute_data_changed(initial_data, current_data):
@@ -69,6 +71,10 @@ def _compute_data_changed(initial_data, current_data):
 
 def _convert_status_bool(status):
     return True if status == 'on' else False
+
+
+def _is_transformation_type(data_changed):
+    return True if 'first_letter' in data_changed else False
 
 
 def reinitialize_data_before_proposal(learning_unit_proposal):
