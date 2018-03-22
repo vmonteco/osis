@@ -81,12 +81,24 @@
             {% trans 'proposals_search'%}
         </a>
     </li>
+    {% if perms.base.is_faculty_manager %}
+        <li role="presentation" {% if search_type == 4 %} class="active" {% endif %}>
+            <a href="{% url 'learning_units_summary'%}" role="tab" id="lnk_summary_list">
+                {% trans 'summary_list' %}
+            </a>
+        </li>
+    {% endif %}
 </ul>
 {% if search_type == 3 %}
     {% include 'learning_unit/by_proposal.html' %}
 {% else %}
-    {% include 'learning_unit/by_activity.html' %}
+    {% if search_type == 4 %}
+        {% include 'learning_unit/summary_list.html' %}
+    {% else %}
+        {% include 'learning_unit/by_activity.html' %}
+    {% endif %}
 {% endif %}
+
 {% endblock %}
 
 {% block script %}

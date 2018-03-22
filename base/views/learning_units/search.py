@@ -30,19 +30,26 @@ from django.forms import formset_factory
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.learning_unit import SERVICE_COURSES_SEARCH, create_xls, get_last_academic_years, SIMPLE_SEARCH
+from base.business.learning_unit import SERVICE_COURSES_SEARCH, create_xls, get_last_academic_years, SIMPLE_SEARCH, \
+    _get_entity_calendar
 from base.forms.common import TooManyResultsException
 from base.forms.learning_unit_create import MAX_RECORDS
 from base.forms.learning_units import LearningUnitYearForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalRowForm, ProposalListFormset
 from base.models.academic_year import current_academic_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
-from base.models.person import Person
+from base.models.person import Person, find_by_user
 from base.views import layout
 from base.views.common import check_if_display_message, display_error_messages, display_success_messages
 from base.business import learning_unit_proposal as proposal_business
+from base.models import learning_unit_year
+from attribution.models import attribution_new
+from cms.models import translated_text
+from cms.enums.entity_name import LEARNING_UNIT_YEAR
+from base.business.learning_unit import CMS_LABEL_PEDAGOGY
 
 PROPOSAL_SEARCH = 3
+SUMMARY_LIST = 4
 
 
 def _learning_units_search(request, search_type):
@@ -164,3 +171,34 @@ def _force_state(formset, request):
         display_success_messages(request, _("proposal_edited_successfully"))
     except IntegrityError:
         display_error_messages(request, _("error_modification_learning_unit"))
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+def learning_units_summary_list(request):
+    a_person = find_by_user(request.user)
+    entities_version_attached = a_person.find_main_entities_version
+    learning_units_found = []
+
+    for an_entity_version in entities_version_attached:
+        a_calendar = _get_entity_calendar(an_entity_version, current_academic_year())
+
+        if a_calendar:
+            entity_learning_units = learning_unit_year.find_by_entities([an_entity_version.entity]).distinct()
+            if entity_learning_units:
+                for lu in entity_learning_units:
+                    attribution_responsibles = attribution_new.search(summary_responsible=True, learning_container_year=lu.learning_container_year)
+                    lu.summary_responsibles = attribution_responsibles
+                    lu.summary_status = translated_text.check_changes(LEARNING_UNIT_YEAR,
+                                                              a_calendar.start_date,
+                                                              a_calendar.end_date,
+                                                              lu.id, CMS_LABEL_PEDAGOGY)
+                learning_units_found.extend(entity_learning_units)
+
+    context = {
+        'learning_units': learning_units_found,
+        'experimental_phase': True,
+        'search_type': SUMMARY_LIST
+    }
+
+    return layout.render(request, "learning_units.html", context)

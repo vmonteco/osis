@@ -2704,3 +2704,12 @@ msgstr "Date de soumission des informations pédagogiques mis à jour"
 
 msgid "The learning unit has been updated until %(year)s."
 msgstr "L'unité d'enseignement a été modifiée jusqu'en %(year)s."
+
+msgid "updated"
+msgstr "Mis à jour"
+
+msgid "unupdated"
+msgstr "Pas à jour"
+
+msgid "summary_list"
+msgstr "Statut des informations pédagogiques"

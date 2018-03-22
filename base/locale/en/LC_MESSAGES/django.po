@@ -2697,3 +2697,12 @@ msgstr ""
 
 msgid "The learning unit has been updated until %(year)s."
 msgstr ""
+
+msgid "updated"
+msgstr "Updated"
+
+msgid "unupdated"
+msgstr "Unupdated"
+
+msgid "summary_list"
+msgstr "Education information status"
