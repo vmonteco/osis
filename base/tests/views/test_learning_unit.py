@@ -328,7 +328,6 @@ class LearningUnitViewTestCase(TestCase):
 
         self.assertEqual(template, 'learning_unit/identification.html')
         self.assertEqual(context['learning_unit_year'], learning_unit_year)
-        self.assertTrue('entities_additionnal' in context)
 
     def test_learning_unit__with_faculty_manager_when_can_edit_end_date(self):
         learning_container_year = LearningContainerYearFactory(
@@ -392,7 +391,8 @@ class LearningUnitViewTestCase(TestCase):
 
     def test_get_components_no_learning_container_yr(self):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year)
-        self.assertEqual(len(learning_unit_business.get_same_container_year_components(learning_unit_year, False)), 0)
+        components_dict = learning_unit_business.get_same_container_year_components(learning_unit_year, False)
+        self.assertEqual(len(components_dict.get('components')), 0)
 
     def test_get_components_with_classes(self):
         l_container = LearningContainerFactory()
@@ -404,9 +404,9 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=l_container_year)
 
-        components = learning_unit_business.get_same_container_year_components(learning_unit_year, True)
-        self.assertEqual(len(components), 1)
-        self.assertEqual(len(components[0]['learning_component_year'].classes), 2)
+        components_dict = learning_unit_business.get_same_container_year_components(learning_unit_year, True)
+        self.assertEqual(len(components_dict.get('components')), 1)
+        self.assertEqual(len(components_dict.get('components')[0]['learning_component_year'].classes), 2)
 
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager')
@@ -1299,19 +1299,13 @@ class LearningUnitViewTestCase(TestCase):
         self.assertIsInstance(context['form'], LearningUnitSpecificationsEditForm)
 
     def test_learning_unit_specifications_save(self):
-        a_label = 'label'
         learning_unit_year = LearningUnitYearFactory()
-        text_label_lu = TextLabelFactory(order=1, label=a_label, entity=entity_name.LEARNING_UNIT_YEAR)
-        trans_text = TranslatedTextFactory(text_label=text_label_lu, entity=entity_name.LEARNING_UNIT_YEAR)
-        request_factory = RequestFactory()
         response = self.client.post(reverse('learning_unit_specifications_edit',
-                                        kwargs={'learning_unit_year_id': learning_unit_year.id}))
+                                            kwargs={'learning_unit_year_id': learning_unit_year.id}))
 
-        expected_redirection= reverse("learning_unit_specifications",
-                                                           kwargs={'learning_unit_year_id': learning_unit_year.id})
+        expected_redirection = reverse("learning_unit_specifications",
+                                       kwargs={'learning_unit_year_id': learning_unit_year.id})
         self.assertRedirects(response, expected_redirection, fetch_redirect_response=False)
-
-
 
     def create_learning_unit_request(self, learning_unit_year):
         request_factory = RequestFactory()
@@ -1548,4 +1542,3 @@ class TestLearningUnitComponents(TestCase):
             volumes = component['volumes']
             self.assertEqual(volumes['VOLUME_Q1'], None)
             self.assertEqual(volumes['VOLUME_Q2'], None)
-        self.assertTrue('entities_additionnal' in context)

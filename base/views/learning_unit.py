@@ -66,7 +66,7 @@ from base.models.learning_container import LearningContainer
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, LEARNING_UNIT_ACRONYM_REGEX_FULL
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
-from base.views.common import display_success_messages, display_error_messages
+from base.views.common import display_success_messages, display_error_messages, data
 from base.views.learning_units import perms
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
 from base.views.learning_units.search import _learning_units_search
@@ -106,9 +106,10 @@ def learning_unit_formations(request, learning_unit_year_id):
 def learning_unit_components(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
     context = get_common_context_learning_unit_year(learning_unit_year_id, person)
-
-    context['components'] = get_same_container_year_components(context['learning_unit_year'], True)
-    context['entities_additionnal'] = _get_additionnal_entities(context['learning_unit_year'])
+    data_components = get_same_container_year_components(context['learning_unit_year'], True)
+    context['components'] = data_components.get('components')
+    context['ADDITIONAL_REQUIREMENT_ENTITY_1'] = data_components.get('ADDITIONAL_REQUIREMENT_ENTITY_1')
+    context['ADDITIONAL_REQUIREMENT_ENTITY_2'] = data_components.get('ADDITIONAL_REQUIREMENT_ENTITY_2')
     context['tab_active'] = 'components'
     context['can_manage_volume'] = business_perms.is_eligible_for_modification(context["learning_unit_year"],
                                                                                person)
@@ -500,8 +501,10 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context['experimental_phase'] = True
     context['show_subtype'] = show_subtype(learning_unit_year)
     context.update(get_all_attributions(learning_unit_year))
-    context['components'] = get_components_identification(learning_unit_year)
-    context['entities_additionnal'] = _get_additionnal_entities(learning_unit_year)
+    components = get_components_identification(learning_unit_year)
+    context['components'] = components.get('components')
+    context['ADDITIONAL_REQUIREMENT_ENTITY_1'] = components.get('ADDITIONAL_REQUIREMENT_ENTITY_1')
+    context['ADDITIONAL_REQUIREMENT_ENTITY_2'] = components.get('ADDITIONAL_REQUIREMENT_ENTITY_2')
     context['proposal'] = proposal
     context['proposal_folder_entity_version'] = mdl.entity_version.get_by_entity_and_date(
         proposal.entity, None) if proposal else None
@@ -512,9 +515,3 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context.update(learning_unit_proposal_permissions(proposal, person))
 
     return context
-
-
-def _get_additionnal_entities(learning_unit_yr):
-    learning_unit_with_context = get_with_context(
-        learning_container_year_id=learning_unit_yr.learning_container_year)[0]
-    return learning_unit_with_context.entities
