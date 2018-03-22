@@ -47,9 +47,8 @@ LABEL_INACTIVE = _('inactive')
 def compute_proposal_type(initial_data, current_data):
     data_changed = _compute_data_changed(initial_data, current_data)
 
-    if 'first_letter' in data_changed:
-        data_changed.remove('first_letter')
-        if bool(data_changed):
+    if _is_transformation(initial_data, current_data):
+        if _is_modification(data_changed):
             proposal_type = ProposalType.TRANSFORMATION_AND_MODIFICATION.name
         else:
             proposal_type = ProposalType.TRANSFORMATION.name
@@ -60,18 +59,31 @@ def compute_proposal_type(initial_data, current_data):
 
 
 def _compute_data_changed(initial_data, current_data):
-    data_changed = []
+    data_changed = {}
     for key, value in current_data.items():
         initial_value = initial_data.get(key)
         if key == 'status':
             value = value == 'on'
         if _is_initial_not_equal_current(initial_value, value):
-            data_changed.append(key)
+            data_changed[key] = value
     return data_changed
 
 
 def _is_initial_not_equal_current(initial_value, value):
     return initial_value and value and str(value) != str(initial_value)
+
+
+def _is_transformation(initial_data, current_data):
+    return "{}{}".format(current_data["first_letter"], current_data["acronym"]) != \
+           "{}{}".format(initial_data["first_letter"], initial_data["acronym"])
+
+
+def _is_modification(data_changed):
+    if data_changed.get('acronym'):
+        del data_changed['acronym']
+    if data_changed.get('first_letter'):
+        del data_changed['first_letter']
+    return True if len(data_changed) > 0 else False
 
 
 def reinitialize_data_before_proposal(learning_unit_proposal):
