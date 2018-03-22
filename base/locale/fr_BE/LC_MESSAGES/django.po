@@ -1904,7 +1904,7 @@ msgid "end_date_gt_begin_date"
 msgstr "L'année de fin doit etre égale ou supérieur à l'année de départ"
 
 msgid "session_title"
-msgstr "Session"
+msgstr "Sessions"
 
 msgid "remarks_title"
 msgstr "Remarques"
@@ -2702,5 +2702,12 @@ msgstr "Intitulé officiel en anglais propre au partim"
 msgid "Educational information submission dates updated"
 msgstr "Date de soumission des informations pédagogiques mis à jour"
 
+msgid "partim_credits_gt_parent_credits"
+msgstr "Le nombre de crédits est supérieur à celui de l'unité d'enseignement"
+
+msgid "partim_credits_equals_parent_credits"
+msgstr "Le nombre de crédits est égal à celui de l'unité d'enseignement"
+
 msgid "The learning unit has been updated until %(year)s."
 msgstr "L'unité d'enseignement a été modifiée jusqu'en %(year)s."
+

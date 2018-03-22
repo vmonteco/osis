@@ -1897,7 +1897,7 @@ msgid "end_date_gt_begin_date"
 msgstr "The end year must be equals or upper than the start year"
 
 msgid "session_title"
-msgstr "Session"
+msgstr "Sessions"
 
 msgid "remarks_title"
 msgstr "Remarks"
@@ -2695,5 +2695,12 @@ msgstr "Official English title proper to the partim"
 msgid "Educational information submission dates updated"
 msgstr ""
 
+msgid "partim_credits_gt_parent_credits"
+msgstr "The credits value is greater than the credits value of the learning unit."
+
+msgid "partim_credits_equals_parent_credits"
+msgstr "The credits value is equal to the credits value of the learning unit."
+
 msgid "The learning unit has been updated until %(year)s."
 msgstr ""
+

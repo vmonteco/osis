@@ -380,6 +380,16 @@ def check_acronym(request, type):
                          'first_using': first_using, 'last_using': last_using}, safe=False)
 
 
+def _check_credits(request, learning_unit_year_parent, form):
+    luy_credits = form.cleaned_data['credits']
+    luy_subtype = form.cleaned_data['subtype']
+    if luy_subtype == 'PARTIM' and learning_unit_year_parent:
+        if luy_credits > learning_unit_year_parent.credits:
+            display_error_messages(request, _('partim_credits_gt_parent_credits'))
+        elif luy_credits == learning_unit_year_parent.credits:
+            display_error_messages(request, _('partim_credits_equals_parent_credits'))
+
+
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units_activity(request):
@@ -416,6 +426,7 @@ def learning_unit_year_partim_add(request, learning_unit_year_id):
     form = CreatePartimForm(learning_unit_year_parent=learning_unit_year_parent, person=person, data=post_data_merged)
     if form.is_valid():
         _create_partim_process(request, learning_unit_year_parent, form)
+        _check_credits(request, learning_unit_year_parent, form)
         return HttpResponseRedirect(reverse("learning_unit",
                                             kwargs={'learning_unit_year_id': learning_unit_year_parent.id}))
     return layout.render(request, "learning_unit/partim_form.html", {'form': form})
