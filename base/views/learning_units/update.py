@@ -83,14 +83,13 @@ def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year
 @perms.can_perform_learning_unit_modification
 def update_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
-    learning_unit_year_parent = learning_unit_year.parent
     person = get_object_or_404(Person, user=request.user)
     form = LearningUnitModificationForm(
         request.POST or None, learning_unit_year_instance=learning_unit_year, person=person)
 
     if form.is_valid():
         _save_form_and_display_messages(request, form)
-        _check_credits(request, learning_unit_year_parent, form)
+        _check_credits(request, learning_unit_year.parent, form)
         return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
 
     context = {"learning_unit_year": learning_unit_year, "form": form}
