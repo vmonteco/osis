@@ -108,6 +108,7 @@ def learning_unit_components(request, learning_unit_year_id):
     context = get_common_context_learning_unit_year(learning_unit_year_id, person)
     data_components = get_same_container_year_components(context['learning_unit_year'], True)
     context['components'] = data_components.get('components')
+    context['REQUIREMENT_ENTITY'] = data_components.get('REQUIREMENT_ENTITY')
     context['ADDITIONAL_REQUIREMENT_ENTITY_1'] = data_components.get('ADDITIONAL_REQUIREMENT_ENTITY_1')
     context['ADDITIONAL_REQUIREMENT_ENTITY_2'] = data_components.get('ADDITIONAL_REQUIREMENT_ENTITY_2')
     context['tab_active'] = 'components'
@@ -503,6 +504,7 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context.update(get_all_attributions(learning_unit_year))
     components = get_components_identification(learning_unit_year)
     context['components'] = components.get('components')
+    context['REQUIREMENT_ENTITY'] = components.get('REQUIREMENT_ENTITY')
     context['ADDITIONAL_REQUIREMENT_ENTITY_1'] = components.get('ADDITIONAL_REQUIREMENT_ENTITY_1')
     context['ADDITIONAL_REQUIREMENT_ENTITY_2'] = components.get('ADDITIONAL_REQUIREMENT_ENTITY_2')
     context['proposal'] = proposal

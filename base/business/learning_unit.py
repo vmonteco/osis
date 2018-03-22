@@ -81,7 +81,7 @@ def get_same_container_year_components(learning_unit_year, with_classes=False):
 
         entity_components_yr = EntityComponentYear.objects.filter(learning_component_year=learning_component_year)
         if indx == 0:
-            additionnal_entities = _get_additional_entities(entity_components_yr)
+            additionnal_entities = _get_entities(entity_components_yr)
 
         components.append({'learning_component_year': learning_component_year,
                            'volumes': volume_learning_component_year(learning_component_year, entity_components_yr),
@@ -167,7 +167,7 @@ def get_components_identification(learning_unit_yr):
                 entity_components_yr = EntityComponentYear.objects.filter(
                     learning_component_year=learning_component_year)
                 if indx == 0:
-                    additionnal_entities = _get_additional_entities(entity_components_yr)
+                    additionnal_entities = _get_entities(entity_components_yr)
 
                 components.append({'learning_component_year': learning_component_year,
                                    'entity_component_yr': entity_components_yr.first(),
@@ -299,11 +299,11 @@ def _compose_components_dict(components, additional_entities):
     return data_components
 
 
-def _get_additional_entities(entity_components_yr):
-    entities = {}
-    for e in entity_components_yr:
-        entities.update({e.entity_container_year.type: e.entity_container_year.entity.most_recent_acronym}) \
-            if e.entity_container_year.type in (entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
-                                                entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2) \
-            else None
-    return entities
+def _get_entities(entity_components_yr):
+    additional_requirement_entities_types = [entity_container_year_link_type.REQUIREMENT_ENTITY,
+                                             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
+                                             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2]
+
+    return {e.entity_container_year.type: e.entity_container_year.entity.most_recent_acronym
+            for e in entity_components_yr
+            if e.entity_container_year.type in additional_requirement_entities_types}
