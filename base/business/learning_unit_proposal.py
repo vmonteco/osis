@@ -26,7 +26,8 @@
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
 from base.business.learning_units.simple import deletion as business_deletion
 from base.models import entity_container_year, campus, entity
-from base.models.enums import proposal_type, entity_container_year_link_type
+from base.models.enums import entity_container_year_link_type
+from base.models.enums.proposal_type import ProposalType
 from base.utils import send_mail as send_mail_util
 from reference.models import language
 from django.utils.translation import ugettext_lazy as _
@@ -37,6 +38,7 @@ from django.contrib.messages import ERROR, SUCCESS
 APP_BASE_LABEL = 'base'
 END_FOREIGN_KEY_NAME = "_id"
 NO_PREVIOUS_VALUE = '-'
+# TODO : VALUES_WHICH_NEED_TRANSLATION ?
 VALUES_WHICH_NEED_TRANSLATION = ["periodicity", "container_type", "internship_subtype"]
 LABEL_ACTIVE = _('active')
 LABEL_INACTIVE = _('inactive')
@@ -44,24 +46,32 @@ LABEL_INACTIVE = _('inactive')
 
 def compute_proposal_type(initial_data, current_data):
     data_changed = _compute_data_changed(initial_data, current_data)
-    filtered_data_changed = filter(lambda key: key not in ["academic_year", "subtype", "acronym"], data_changed)
-    transformation = "{}{}".format(current_data["first_letter"], current_data["acronym"]) != \
-                     "{}{}".format(initial_data["first_letter"], initial_data["acronym"])
-    modification = any(map(lambda x: x != "acronym", filtered_data_changed))
-    if transformation and modification:
-        return proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name
-    elif transformation:
-        return proposal_type.ProposalType.TRANSFORMATION.name
-    return proposal_type.ProposalType.MODIFICATION.name
+
+    if 'first_letter' in data_changed:
+        data_changed.remove('first_letter')
+        if bool(data_changed):
+            proposal_type = ProposalType.TRANSFORMATION_AND_MODIFICATION.name
+        else:
+            proposal_type = ProposalType.TRANSFORMATION.name
+    else:
+        proposal_type = ProposalType.MODIFICATION.name
+
+    return proposal_type
 
 
 def _compute_data_changed(initial_data, current_data):
     data_changed = []
-    for key, value in initial_data.items():
-        current_value = current_data.get(key)
-        if str(value) != str(current_value):
+    for key, value in current_data.items():
+        initial_value = initial_data.get(key)
+        if key == 'status':
+            value = value == 'on'
+        if _is_initial_not_equal_current(initial_value, value):
             data_changed.append(key)
     return data_changed
+
+
+def _is_initial_not_equal_current(initial_value, value):
+    return initial_value and value and str(value) != str(initial_value)
 
 
 def reinitialize_data_before_proposal(learning_unit_proposal):
@@ -108,7 +118,7 @@ def delete_learning_unit_proposal(learning_unit_proposal):
     prop_type = learning_unit_proposal.type
     lu = learning_unit_proposal.learning_unit_year.learning_unit
     learning_unit_proposal.delete()
-    if prop_type == proposal_type.ProposalType.CREATION.name:
+    if prop_type == ProposalType.CREATION.name:
         lu.delete()
 
 
@@ -271,7 +281,7 @@ def cancel_proposal(learning_unit_proposal, author, send_mail=True):
     acronym = learning_unit_proposal.learning_unit_year.acronym
     error_messages = []
     success_messages = []
-    if learning_unit_proposal.type == proposal_type.ProposalType.CREATION.name:
+    if learning_unit_proposal.type == ProposalType.CREATION.name:
         learning_unit_year = learning_unit_proposal.learning_unit_year
         error_messages.extend(business_deletion.check_can_delete_ignoring_proposal_validation(learning_unit_year))
         if not error_messages:
