@@ -10,7 +10,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('base', '0244_auto_20180316_1908'),
-        ('reference', '0017_auto_20180321_1107')
     ]
 
     operations = [
@@ -22,10 +21,5 @@ class Migration(migrations.Migration):
             model_name='campus',
             name='name',
             field=models.CharField(max_length=100),
-        ),
-        migrations.AlterField(
-            model_name='learningcontaineryear',
-            name='language',
-            field=models.ForeignKey(blank=True, default='FR', null=True, on_delete=django.db.models.deletion.CASCADE, to='reference.Language'),
         ),
     ]
