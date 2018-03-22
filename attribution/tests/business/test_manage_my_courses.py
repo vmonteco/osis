@@ -25,8 +25,11 @@
 ##############################################################################
 from django.test import TestCase
 
+from attribution.business.manage_my_courses import find_learning_unit_years_summary_editable
 from attribution.business.perms import can_user_edit_educational_information
 from attribution.tests.factories.attribution import AttributionFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.tutor import TutorFactory
 
 
 class TestUserCanEditEducationalInformation(TestCase):
@@ -65,3 +68,53 @@ class TestUserCanEditEducationalInformation(TestCase):
                                             learning_unit_year__summary_editable=summary_editable)
         return can_user_edit_educational_information(an_attribution.tutor.person.user,
                                                      an_attribution.learning_unit_year.id)
+
+
+class TestFindLearningUnitYearsSummaryEditable(TestCase):
+    def setUp(self):
+        self.tutor = TutorFactory()
+        self.learning_unit_years = [LearningUnitYearFactory(summary_editable=True) for i in range(4)]
+        self.attributions = [AttributionFactory(tutor=self.tutor,
+                                                summary_responsible= True,
+                                                learning_unit_year=self.learning_unit_years[i])
+                             for i in range(4)]
+
+    def test_when_summary_responsible_for_all_attributions_and_all_are_summary_editable(self):
+        expected_luys = self.learning_unit_years
+        actual_luys = find_learning_unit_years_summary_editable(self.tutor)
+        self.assertCountEqual(expected_luys, list(actual_luys))
+
+    def test_not_return_luy_which_are_not_summary_editable(self):
+        self.learning_unit_years[0].summary_editable = False
+        self.learning_unit_years[0].save()
+        self.learning_unit_years[2].summary_editable = False
+        self.learning_unit_years[2].save()
+
+        expected_luys = [self.learning_unit_years[1], self.learning_unit_years[3]]
+        actual_luys = find_learning_unit_years_summary_editable(self.tutor)
+        self.assertCountEqual(expected_luys, list(actual_luys))
+
+    def test_not_return_luy_for_which_tutor_is_not_summary_responsible(self):
+        self.attributions[0].summary_responsible = False
+        self.attributions[0].save()
+        self.attributions[2].summary_responsible = False
+        self.attributions[2].save()
+
+        expected_luys = [self.learning_unit_years[1], self.learning_unit_years[3]]
+        actual_luys = find_learning_unit_years_summary_editable(self.tutor)
+        self.assertCountEqual(expected_luys, list(actual_luys))
+
+    def test_not_return_luy_which_are_not_summary_editable_and_for_wich_tutor_is_not_summary_responsible(self):
+        self.attributions[0].summary_responsible = False
+        self.attributions[0].save()
+        self.attributions[2].summary_responsible = False
+        self.attributions[2].save()
+
+        self.attributions[0].summary_responsible = False
+        self.attributions[0].save()
+        self.attributions[2].summary_responsible = False
+        self.attributions[2].save()
+
+        expected_luys = [self.learning_unit_years[1], self.learning_unit_years[3]]
+        actual_luys = find_learning_unit_years_summary_editable(self.tutor)
+        self.assertCountEqual(expected_luys, list(actual_luys))
