@@ -302,7 +302,8 @@ def _compose_components_dict(components, additional_entities):
 def _get_additional_entities(entity_components_yr):
     entities = {}
     for e in entity_components_yr:
-        if e.entity_container_year.type in (entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
-                                            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2):
-            entities.update({e.entity_container_year.type: e.entity_container_year.entity.most_recent_acronym})
+        entities.update({e.entity_container_year.type: e.entity_container_year.entity.most_recent_acronym}) \
+            if e.entity_container_year.type in (entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
+                                                entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2) \
+            else None
     return entities
