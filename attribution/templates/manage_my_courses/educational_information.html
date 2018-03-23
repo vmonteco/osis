@@ -43,6 +43,24 @@
         {% include "manage_my_courses/blocks/tabs.html" %}
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="educational_information">
+
+                <br>
+
+                <div class="row" >
+                    <div class="col-md-4 col-md-offset-4">
+                        <label> {% trans 'Educational information opening' %} </label>
+                        <br>
+                        {{ submission_dates.start_date|date:"d/m/Y"|default:"-" }}
+                    </div>
+                    <div class="col-md-4">
+                        <label> {% trans 'Educational information ending' %} </label>
+                        <br>
+                        {{ submission_dates.end_date|date:"d/m/Y"|default:"-" }}
+                    </div>
+                </div>
+
+                <br>
+
                 {% url 'tutor_edit_educational_information' learning_unit_year_id=learning_unit_year.id as post_url%}
                 {% include "learning_unit/blocks/panel_educational_informations.html" %}
             </div>
