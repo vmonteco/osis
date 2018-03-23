@@ -41,7 +41,7 @@ from reference.models.language import find_by_code
 
 
 @login_required
-@permission_required('base.can_propose_learningunit', raise_exception=True)
+@permission_required('base.can_create_learningunit', raise_exception=True)
 def get_proposal_learning_unit_creation_form(request, academic_year):
     person = get_object_or_404(mdl_base.person.Person, user=request.user)
     learning_unit_form = LearningUnitProposalCreationForm(person, initial={'academic_year': academic_year,
@@ -56,7 +56,7 @@ def get_proposal_learning_unit_creation_form(request, academic_year):
 
 
 @login_required
-@permission_required('base.can_create_learningunit', raise_exception=True)
+@permission_required('base.can_propose_learningunit', raise_exception=True)
 def proposal_learning_unit_add(request):
     person = get_object_or_404(mdl_base.person.Person, user=request.user)
     learning_unit_form = LearningUnitProposalCreationForm(person, request.POST)
