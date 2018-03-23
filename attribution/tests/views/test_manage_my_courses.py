@@ -91,23 +91,27 @@ class TestViewEducationalInformation(TestCase):
         response = self.client.get(self.url)
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
 
-    @mock.patch("attribution.business.perms.can_user_edit_educational_information",
-                side_effect=lambda req, luy: False)
+    @mock.patch("attribution.business.perms.can_user_view_educational_information",
+                side_effect=lambda usr, luy_id: False)
     def test_check_if_user_can_view_educational_information(self, mock_perm):
         response = self.client.get(self.url)
         self.assertTrue(mock_perm.called)
         self.assertTemplateUsed(response, "access_denied.html")
 
-    def test_template_used(self):
+    @mock.patch("attribution.views.manage_my_courses.can_user_edit_educational_information",
+                side_effect=lambda usr, luy_id: False)
+    def test_template_used(self, mock_can_edit):
         response = self.client.get(self.url)
 
         self.assertTemplateUsed(response, "manage_my_courses/educational_information.html")
+        self.assertTrue(mock_can_edit.called)
 
         context = response.context
         self.assertEqual(context["learning_unit_year"], self.attribution.learning_unit_year)
         self.assertTrue(context["cms_labels_translated"])
         self.assertIsInstance(context["form_french"], LearningUnitPedagogyForm)
         self.assertIsInstance(context["form_english"], LearningUnitPedagogyForm)
+        self.assertFalse(context["can_edit"])
 
 
 class TestManageEducationalInformation(TestCase):
@@ -134,6 +138,8 @@ class TestManageEducationalInformation(TestCase):
 
     @mock.patch("base.views.learning_unit.edit_learning_unit_pedagogy",
                 side_effect=lambda req, luy_id, url: HttpResponse())
-    def test_use_edit_learning_unit_pedagogy_method(self, mock_edit_learning_unit_pedagogy):
+    @mock.patch("attribution.business.perms.can_user_edit_educational_information",
+                side_effect=lambda req, luy: True)
+    def test_use_edit_learning_unit_pedagogy_method(self, mock_can_edit, mock_edit_learning_unit_pedagogy):
         self.client.get(self.url)
         self.assertTrue(mock_edit_learning_unit_pedagogy.called)

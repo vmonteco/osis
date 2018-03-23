@@ -23,10 +23,35 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
+
+from base.business.institution import find_summary_course_submission_dates_for_entity_version
+from base.models.entity_version import find_last_entity_version_by_learning_unit_year_id
 from base.models.learning_unit_year import LearningUnitYear
+from osis_common.utils.datetime import get_tzinfo
+
+
+def can_user_view_educational_information(user, learning_unit_year_id):
+    return  LearningUnitYear.objects.filter(pk=learning_unit_year_id, summary_editable=True,
+                                            attribution__summary_responsible=True,
+                                            attribution__tutor__person__user=user).exists()
 
 
 def can_user_edit_educational_information(user, learning_unit_year_id):
-    return LearningUnitYear.objects.filter(pk=learning_unit_year_id, summary_editable=True,
-                                           attribution__summary_responsible=True,
-                                           attribution__tutor__person__user=user).exists()
+    if not can_user_view_educational_information(user, learning_unit_year_id):
+        return False
+
+    submission_dates = find_educational_information_submission_dates_of_learning_unit_year(learning_unit_year_id)
+    if not submission_dates:
+        return False
+
+    now = datetime.datetime.now(tz=get_tzinfo())
+    return submission_dates["start_date"] <= now <= submission_dates["end_date"]
+
+
+def find_educational_information_submission_dates_of_learning_unit_year(learning_unit_year_id):
+    entity_version = find_last_entity_version_by_learning_unit_year_id(learning_unit_year_id)
+    if entity_version is None:
+        return {}
+
+    return find_summary_course_submission_dates_for_entity_version(entity_version)

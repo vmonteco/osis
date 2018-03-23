@@ -23,16 +23,37 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
+from unittest import mock
+
 from django.test import TestCase
 
 from attribution.business.manage_my_courses import find_learning_unit_years_summary_editable
 from attribution.business.perms import can_user_edit_educational_information
 from attribution.tests.factories.attribution import AttributionFactory
+from base.models.enums import entity_container_year_link_type
+from base.models.enums.academic_calendar_type import SUMMARY_COURSE_SUBMISSION
+from base.tests.factories.entity_calendar import EntityCalendarFactory
+from base.tests.factories.entity_container_year import EntityContainerYearFactory
+from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.tutor import TutorFactory
 
 
 class TestUserCanEditEducationalInformation(TestCase):
+    def setUp(self):
+        patcher = mock.patch('attribution.business.perms.find_summary_course_submission_dates_for_entity_version')
+        self.MockClass = patcher.start()
+
+        today = datetime.datetime.now()
+        self.yesterday = today - datetime.timedelta(days=1)
+        self.tomorrow = today + datetime.timedelta(days=1)
+        self.MockClass.return_value = {"start_date": self.yesterday,
+                                       "end_date": self.tomorrow}
+
+
+        self.addCleanup(patcher.stop)
+
     def test_when_learning_unit_year_does_not_exist(self):
         an_attribution = AttributionFactory(summary_responsible=True, learning_unit_year__summary_editable=True)
 
@@ -62,10 +83,28 @@ class TestUserCanEditEducationalInformation(TestCase):
             self.create_attribution_and_check_if_user_can_edit_educational_information(True, True)
         self.assertTrue(can_edit_educational_information)
 
+    def test_when_period_has_passed(self):
+        self.MockClass.return_value = {"start_date": self.yesterday,
+                                       "end_date": self.yesterday}
+        can_edit_educational_information = \
+            self.create_attribution_and_check_if_user_can_edit_educational_information(True, False)
+        self.assertFalse(can_edit_educational_information)
+
+    def test_when_period_has_not_yet_begun(self):
+        self.MockClass.return_value = {"start_date": self.tomorrow,
+                                       "end_date": self.tomorrow}
+        can_edit_educational_information = \
+            self.create_attribution_and_check_if_user_can_edit_educational_information(True, False)
+        self.assertFalse(can_edit_educational_information)
+
     @staticmethod
     def create_attribution_and_check_if_user_can_edit_educational_information(summary_responsible, summary_editable):
         an_attribution = AttributionFactory(summary_responsible=summary_responsible,
                                             learning_unit_year__summary_editable=summary_editable)
+        entity_container_year = EntityContainerYearFactory(
+            learning_container_year=an_attribution.learning_unit_year.learning_container_year,
+            type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+        EntityVersionFactory(entity=entity_container_year.entity)
         return can_user_edit_educational_information(an_attribution.tutor.person.user,
                                                      an_attribution.learning_unit_year.id)
 
@@ -78,6 +117,12 @@ class TestFindLearningUnitYearsSummaryEditable(TestCase):
                                                 summary_responsible= True,
                                                 learning_unit_year=self.learning_unit_years[i])
                              for i in range(4)]
+        # self.entity_calendar = EntityCalendarFactory(type=entity_container_year_link_type.REQUIREMENT_ENTITY,
+        #                                              academic_calendar__reference=SUMMARY_COURSE_SUBMISSION)
+        # self.entiy_container_years=[EntityContainerYearFactory(
+        #     learning_container_year=self.learning_unit_years[i].learning_container_year,
+        #     entity=self.entity_calendar.entity
+        # ) for i in range(4)]
 
     def test_when_summary_responsible_for_all_attributions_and_all_are_summary_editable(self):
         expected_luys = self.learning_unit_years
