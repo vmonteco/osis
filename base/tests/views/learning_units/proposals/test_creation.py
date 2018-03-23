@@ -90,6 +90,15 @@ class LearningUnitViewTestCase(TestCase):
         self.assertIsInstance(response.context['learning_unit_form'], creation.LearningUnitProposalCreationForm)
         self.assertIsInstance(response.context['proposal_form'], creation.LearningUnitProposalForm)
 
+    def test_get_proposal_learning_unit_creation_form_with_faculty_user(self):
+        self.client.force_login(self.faculty_person.user)
+        url = reverse('proposal_learning_unit_creation_form', args=[self.current_academic_year.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'learning_unit/proposal/creation.html')
+        self.assertIsInstance(response.context['learning_unit_form'], creation.LearningUnitProposalCreationForm)
+        self.assertIsInstance(response.context['proposal_form'], creation.LearningUnitProposalForm)
+
     def test_proposal_learning_unit_add_with_valid_data(self):
         learning_unit_form = creation.LearningUnitProposalCreationForm(person=self.person,
                                                                        data=self.get_valid_data())
