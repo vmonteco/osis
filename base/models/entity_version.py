@@ -25,7 +25,6 @@
 ##############################################################################
 import datetime
 
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
@@ -357,5 +356,5 @@ def find_last_entity_version_by_learning_unit_year_id(learning_unit_year_id):
         return EntityVersion.objects.current(now).\
             filter(entity__entitycontaineryear__learning_container_year__learningunityear__id=learning_unit_year_id). \
             latest('start_date')
-    except ObjectDoesNotExist:
+    except EntityVersion.DoesNotExist:
         return None

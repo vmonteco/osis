@@ -32,9 +32,9 @@ from osis_common.utils.datetime import get_tzinfo
 
 
 def can_user_view_educational_information(user, learning_unit_year_id):
-    return  LearningUnitYear.objects.filter(pk=learning_unit_year_id, summary_editable=True,
-                                            attribution__summary_responsible=True,
-                                            attribution__tutor__person__user=user).exists()
+    return LearningUnitYear.objects.filter(pk=learning_unit_year_id, summary_editable=True,
+                                           attribution__summary_responsible=True,
+                                           attribution__tutor__person__user=user).exists()
 
 
 def can_user_edit_educational_information(user, learning_unit_year_id):
