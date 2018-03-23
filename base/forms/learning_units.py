@@ -30,7 +30,7 @@ from django.db.models import Prefetch
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
-from base.business.entity import get_entities_ids
+from base.business.entity import get_entities_ids, get_entity_container_list
 from base.business.entity_version import SERVICE_COURSE
 from base.business.learning_unit_year_with_context import append_latest_entities
 from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, TooManyResultsException
@@ -75,7 +75,7 @@ class LearningUnitYearForm(SearchForm):
 
     def __init__(self, *args, **kwargs):
         self.service_course_search = kwargs.pop('service_course_search', False)
-        super().__init__(*args, **kwargs)
+        super(SearchForm).__init__(*args, **kwargs)
 
     def clean_acronym(self):
         data_cleaned = self.cleaned_data.get('acronym')
@@ -155,25 +155,15 @@ def get_filter_learning_container_ids(filter_data):
 
     if requirement_entity_acronym:
         entity_ids = get_entities_ids(requirement_entity_acronym, with_entity_subordinated)
-
-        entities_id_list += list(
-            mdl.entity_container_year.search(
-                link_type=entity_container_year_link_type.REQUIREMENT_ENTITY,
-                entity_id=entity_ids
-            ).values_list(
-                'learning_container_year', flat=True).distinct()
-        )
+        entities_id_list = get_entity_container_list(entities_id_list,
+                                                     entity_ids,
+                                                     entity_container_year_link_type.REQUIREMENT_ENTITY)
 
     if allocation_entity_acronym:
         entity_ids = get_entities_ids(allocation_entity_acronym, False)
-        entities_id_list += list(
-            mdl.entity_container_year.search(
-                link_type=entity_container_year_link_type.ALLOCATION_ENTITY,
-                entity_id=entity_ids
-            ).values_list(
-                'learning_container_year', flat=True
-            ).distinct()
-        )
+        entities_id_list = get_entity_container_list(entities_id_list,
+                                                     entity_ids,
+                                                     entity_container_year_link_type.ALLOCATION_ENTITY)
 
     return entities_id_list if entities_id_list else None
 

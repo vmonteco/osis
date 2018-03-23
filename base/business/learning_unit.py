@@ -30,7 +30,6 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from attribution.models.attribution import Attribution
@@ -38,8 +37,7 @@ from base import models as mdl_base
 from base.business.learning_unit_year_with_context import volume_learning_component_year
 from base.business.learning_units.simple.creation import create_learning_unit_content
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
-from base.models import entity_container_year, entity_calendar, entity_version
-from base.models.academic_year import find_academic_year_by_year
+from base.models import entity_container_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type, academic_calendar_type
 from base.models.enums import learning_container_year_types
@@ -297,16 +295,3 @@ def can_edit_summary_editable_field(person, is_person_linked_to_entity):
     return person.is_faculty_manager() and is_person_linked_to_entity
 
 
-def _get_entity_calendar(an_entity_version, academic_yr):
-    entity_cal = entity_calendar.find_by_entity_and_reference_for_current_academic_year(
-        an_entity_version.entity.id, academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
-    if entity_cal is None:
-        if an_entity_version.parent:
-            parent_entity_version = entity_version.find_latest_version_by_entity(an_entity_version.parent, timezone.now())
-            return _get_entity_calendar(parent_entity_version, academic_yr)
-        else:
-            an_academic_calendar = find_academic_year_by_year(academic_yr.year)
-            if an_academic_calendar:
-                return an_academic_calendar
-    else:
-        return entity_cal

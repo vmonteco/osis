@@ -74,9 +74,9 @@ def search(entity, reference, text_labels_name=None, language=None):
 
 def get_or_create(entity, reference, text_label, language):
     translated_text, created = TranslatedText.objects.get_or_create(entity=entity,
-                                                 reference=reference,
-                                                 text_label=text_label,
-                                                 language=language)
+                                                                    reference=reference,
+                                                                    text_label=text_label,
+                                                                    language=language)
     return translated_text
 
 
@@ -87,7 +87,7 @@ def find_by_entity_reference(an_entity_name, an_education_group_year_id):
         .values_list('text_label__label', flat=True)
 
 
-def check_changes(an_entity_name, start_date, end_date, learning_unit_id, text_labels):
+def check_changed(an_entity_name, start_date, end_date, learning_unit_id, text_labels):
     return TranslatedText.objects.filter(entity=an_entity_name,
                                          changed__lte=end_date,
                                          changed__gte=start_date,

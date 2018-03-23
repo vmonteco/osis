@@ -24,6 +24,10 @@
 #
 ##############################################################################
 from base import models as mdl
+from base.models import entity_calendar, entity_version
+from base.models.academic_year import find_academic_year_by_year
+from base.models.enums import entity_container_year_link_type, academic_calendar_type
+from django.utils import timezone
 
 
 def get_entities_ids(requirement_entity_acronym, with_entity_subordinated):
@@ -32,7 +36,36 @@ def get_entities_ids(requirement_entity_acronym, with_entity_subordinated):
     entities_ids |= set(entity_versions.values_list('entity', flat=True).distinct())
 
     if with_entity_subordinated:
-        for entity_version in entity_versions:
-            all_descendants = entity_version.find_descendants(entity_version.start_date)
+        for an_entity_version in entity_versions:
+            all_descendants = entity_version.find_descendants(an_entity_version.start_date)
             entities_ids |= {descendant.entity.id for descendant in all_descendants}
     return list(entities_ids)
+
+
+def get_entity_container_list(entities_id_list_param, entity_ids, entity_container_yr_link_type):
+    entities_id_list = entities_id_list_param
+    entities_id_list += list(
+        mdl.entity_container_year.search(
+            link_type=entity_container_yr_link_type,
+            entity_id=entity_ids
+        ).values_list(
+            'learning_container_year', flat=True
+        ).distinct()
+    )
+    return entities_id_list
+
+
+def get_entity_calendar(an_entity_version, academic_yr):
+    entity_cal = entity_calendar.find_by_entity_and_reference_for_current_academic_year(
+        an_entity_version.entity.id, academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+    if entity_cal is None:
+        if an_entity_version.parent:
+            parent_entity_version = entity_version.find_latest_version_by_entity(an_entity_version.parent,
+                                                                                 timezone.now())
+            return get_entity_calendar(parent_entity_version, academic_yr)
+        else:
+            an_academic_calendar = find_academic_year_by_year(academic_yr.year)
+            if an_academic_calendar:
+                return an_academic_calendar
+    else:
+        return entity_cal
