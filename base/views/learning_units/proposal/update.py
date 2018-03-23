@@ -69,8 +69,9 @@ def learning_unit_modification_proposal(request, learning_unit_year_id):
     if form.is_valid():
         type_proposal = business_proposal.compute_proposal_type(initial_data, request.POST)
         form.save(learning_unit_year, user_person, type_proposal, compute_proposal_state(user_person))
-        display_success_messages(request, _("success_modification_proposal")
-                             .format(_(type_proposal), learning_unit_year.acronym))
+
+        display_success_messages(request, _("success_modification_proposal").format(
+            _(type_proposal), learning_unit_year.acronym))
 
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
@@ -117,7 +118,8 @@ def _update_proposal(request, user_person, proposal):
         try:
             type_proposal = business_proposal.compute_proposal_type(initial_data, request.POST)
 
-            proposal_form.save(proposal.learning_unit_year, user_person, type_proposal, proposal_form.cleaned_data.get("state"))
+            proposal_form.save(proposal.learning_unit_year, user_person, type_proposal,
+                               proposal_form.cleaned_data.get("state"))
 
             # FIXME : Needs refactoring ! This method works around the buggy save()
             initial_data = get_difference_of_proposal(proposal)
