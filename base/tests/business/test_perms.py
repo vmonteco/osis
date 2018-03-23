@@ -155,7 +155,6 @@ class PermsTestCase(TestCase):
             type=entity_container_year_link_type.REQUIREMENT_ENTITY
         )
         a_person = self.create_person_with_permission_to_edit_proposal()
-        self.assertFalse(perms.is_eligible_for_cancel_of_proposal(None, a_person))
         a_proposal = ProposalLearningUnitFactory(
             learning_unit_year=luy,
             type=proposal_type.ProposalType.SUPPRESSION.name,

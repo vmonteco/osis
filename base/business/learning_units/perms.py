@@ -61,8 +61,6 @@ def is_eligible_to_create_modification_proposal(learning_unit_year, person):
 
 
 def is_eligible_for_cancel_of_proposal(proposal, person):
-    if not proposal:
-        return False
     if person.is_central_manager():
         return True
     if not person.is_faculty_manager():
@@ -145,6 +143,6 @@ def learning_unit_year_permissions(learning_unit_year, person):
 
 def learning_unit_proposal_permissions(proposal, person):
     return {
-        'can_cancel_proposal': is_eligible_for_cancel_of_proposal(proposal, person),
+        'can_cancel_proposal': is_eligible_for_cancel_of_proposal(proposal, person) if proposal else False,
         'can_edit_learning_unit_proposal': is_eligible_to_edit_proposal(proposal, person)
     }
