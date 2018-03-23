@@ -42,6 +42,7 @@ from base.models.person import Person, find_by_user
 from base.views import layout
 from base.views.common import check_if_display_message, display_error_messages, display_success_messages
 from base.business import learning_unit_proposal as proposal_business
+from base.models.academic_year import find_academic_year_by_year
 
 PROPOSAL_SEARCH = 3
 SUMMARY_LIST = 4
@@ -171,7 +172,7 @@ def _force_state(formset, request):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units_summary_list(request):
-    learning_units_found = get_learning_units_summary_status(find_by_user(request.user))
+    learning_units_found = get_learning_units_summary_status(find_by_user(request.user), current_academic_year())
     context = {
         'learning_units': sorted(learning_units_found, key=lambda t: t.acronym),
         'experimental_phase': True,

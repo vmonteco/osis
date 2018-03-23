@@ -25,7 +25,7 @@
 ##############################################################################
 from base import models as mdl
 from base.models import entity_calendar, entity_version, entity_version, entity_version
-from base.models.academic_year import find_academic_year_by_year
+
 from base.models.enums import entity_container_year_link_type, academic_calendar_type
 from django.utils import timezone
 from django.db.models import Prefetch
@@ -64,11 +64,12 @@ def get_entity_calendar(an_entity_version, academic_yr):
         if an_entity_version.parent:
             parent_entity_version = entity_version.find_latest_version_by_entity(an_entity_version.parent,
                                                                                  timezone.now())
-            return get_entity_calendar(parent_entity_version, academic_yr)
+            if parent_entity_version:
+                return get_entity_calendar(parent_entity_version, academic_yr)
+            else:
+                return None
         else:
-            an_academic_calendar = find_academic_year_by_year(academic_yr.year)
-            if an_academic_calendar:
-                return an_academic_calendar
+            return None
     else:
         return entity_cal
 

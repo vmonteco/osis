@@ -51,6 +51,7 @@ from cms.enums import entity_name
 from cms.models import translated_text
 from osis_common.document import xls_build
 from cms.enums.entity_name import LEARNING_UNIT_YEAR
+from base.models.academic_year import find_academic_year_by_year
 
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
@@ -328,14 +329,13 @@ def get_list_entity_learning_unit_yr(an_entity_version, current_academic_yr):
         .order_by('academic_year__year', 'acronym')
 
 
-def get_learning_units_summary_status(a_person):
+def get_learning_units_summary_status(a_person, academic_yr):
     entities_version_attached = a_person.find_main_entities_version
     learning_units_found = []
-    current_academic_yr = current_academic_year()
     for an_entity_version in entities_version_attached:
-        a_calendar = get_entity_calendar(an_entity_version, current_academic_yr)
+        a_calendar = _get_calendar(academic_yr, an_entity_version)
         if a_calendar:
-            entity_learning_unit_yr_list = get_list_entity_learning_unit_yr(an_entity_version, current_academic_yr)
+            entity_learning_unit_yr_list = get_list_entity_learning_unit_yr(an_entity_version, academic_yr)
             if entity_learning_unit_yr_list:
                 for lu in entity_learning_unit_yr_list:
                     lu.summary_responsibles = attribution_new.search(summary_responsible=True,
@@ -347,3 +347,12 @@ def get_learning_units_summary_status(a_person):
                                                                       CMS_LABEL_PEDAGOGY)
                 learning_units_found.extend(entity_learning_unit_yr_list)
     return learning_units_found
+
+
+def _get_calendar(academic_yr, an_entity_version):
+    a_calendar = get_entity_calendar(an_entity_version, academic_yr)
+    if a_calendar is None:
+        an_academic_calendar = find_academic_year_by_year(academic_yr.year)
+        if an_academic_calendar:
+            return an_academic_calendar
+    return a_calendar
