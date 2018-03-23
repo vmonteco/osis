@@ -53,7 +53,7 @@ from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
 from base.business.learning_units.simple.creation import create_learning_unit_year_structure, create_learning_unit
 from base.forms.learning_class import LearningClassEditForm
-from base.forms.learning_unit.edition import compute_learning_unit_form_initial_data
+from base.forms.learning_unit.edition import compute_learning_unit_form_initial_data, compute_form_initial_data
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
     PARTIM_FORM_READ_ONLY_FIELD
@@ -481,23 +481,6 @@ def compute_partim_form_initial_data(learning_unit_year_parent):
     initial = compute_form_initial_data(learning_unit_year_parent)
     initial['subtype'] = learning_unit_year_subtypes.PARTIM
     return initial
-
-
-def compute_form_initial_data(learning_unit_year):
-    other_fields_dict = {
-        "first_letter": learning_unit_year.acronym[0],
-        "acronym": learning_unit_year.acronym[1:]
-    }
-    fields = {
-        "learning_unit_year":
-            ("academic_year", "status", "credits", "session", "quadrimester", "subtype", "internship_subtype",
-             "specific_title", "specific_title_english"),
-        "learning_container_year":
-            ("common_title", "common_title_english", "container_type", "campus", "language"),
-        "learning_unit":
-            ("faculty_remark", "other_remark", "periodicity")
-    }
-    return compute_learning_unit_form_initial_data(other_fields_dict, learning_unit_year, fields)
 
 
 def get_learning_unit_identification_context(learning_unit_year_id, person):
