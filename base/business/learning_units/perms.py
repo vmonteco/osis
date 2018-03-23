@@ -102,8 +102,8 @@ def is_eligible_for_modification_end_date(learning_unit_year, person):
         return False
     container_type = learning_unit_year.learning_container_year.container_type
     return container_type not in FACULTY_UPDATABLE_CONTAINER_TYPES or \
-           learning_unit_year.is_partim() or \
-           person.is_central_manager()
+        learning_unit_year.is_partim() or \
+        person.is_central_manager()
 
 
 def is_eligible_for_modification(learning_unit_year, person):
@@ -114,7 +114,7 @@ def is_eligible_for_modification(learning_unit_year, person):
     if person.is_faculty_manager() and not learning_unit_year.can_update_by_faculty_manager():
         return False
     return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year) or \
-           person.is_central_manager()
+        person.is_central_manager()
 
 
 def can_delete_learning_unit_year(learning_unit_year, person):
