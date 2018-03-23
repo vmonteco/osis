@@ -251,8 +251,6 @@ class PermsTestCase(TestCase):
                     entity_container_year_link_type.REQUIREMENT_ENTITY: an_requirement_entity.id,
                 }
             })
-
-        PersonEntityFactory(person=a_person, entity=an_requirement_entity)
         self.assertTrue(perms.is_eligible_for_cancel_of_proposal(a_proposal, a_person))
 
     @staticmethod
