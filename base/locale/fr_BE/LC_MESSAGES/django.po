@@ -1808,13 +1808,13 @@ msgid "create_learning_unit"
 msgstr "Création d'une unité d'enseignement"
 
 msgid "existed_acronym"
-msgstr "Sigle a déjà existé pour "
+msgstr "Code a déjà existé pour "
 
 msgid "existing_acronym"
-msgstr "Sigle déja existant en "
+msgstr "Code déja existant en "
 
 msgid "invalid_acronym"
-msgstr "Sigle non valide"
+msgstr "Code non valide"
 
 msgid "acronym_rules"
 msgstr "Code composé de:\n"
@@ -1904,7 +1904,7 @@ msgid "end_date_gt_begin_date"
 msgstr "L'année de fin doit etre égale ou supérieur à l'année de départ"
 
 msgid "session_title"
-msgstr "Session"
+msgstr "Sessions"
 
 msgid "remarks_title"
 msgstr "Remarques"
@@ -2701,6 +2701,12 @@ msgstr "Intitulé officiel en anglais propre au partim"
 
 msgid "Educational information submission dates updated"
 msgstr "Date de soumission des informations pédagogiques mis à jour"
+
+msgid "partim_credits_gt_parent_credits"
+msgstr "Le nombre de crédits est supérieur à celui de l'unité d'enseignement"
+
+msgid "partim_credits_equals_parent_credits"
+msgstr "Le nombre de crédits est égal à celui de l'unité d'enseignement"
 
 msgid "The learning unit has been updated until %(year)s."
 msgstr "L'unité d'enseignement a été modifiée jusqu'en %(year)s."

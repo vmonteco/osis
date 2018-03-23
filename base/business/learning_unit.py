@@ -54,17 +54,6 @@ CMS_LABEL_SUMMARY = ['resume']
 SIMPLE_SEARCH = 1
 SERVICE_COURSES_SEARCH = 2
 
-VALID_VOLUMES_KEYS = [
-    'VOLUME_TOTAL',
-    'VOLUME_Q1',
-    'VOLUME_Q2',
-    'PLANNED_CLASSES',
-    'VOLUME_' + entity_container_year_link_type.REQUIREMENT_ENTITY,
-    'VOLUME_' + entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
-    'VOLUME_' + entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2,
-    'VOLUME_TOTAL_REQUIREMENT_ENTITIES'
-]
-
 LEARNING_UNIT_CREATION_SPAN_YEARS = 6
 
 
@@ -79,8 +68,9 @@ def get_same_container_year_components(learning_unit_year, with_classes=False):
     components = []
     learning_components_year = mdl_base.learning_component_year.find_by_learning_container_year(learning_container_year,
                                                                                                 with_classes)
+    additionnal_entities = {}
 
-    for learning_component_year in learning_components_year:
+    for indx, learning_component_year in enumerate(learning_components_year):
         if learning_component_year.classes:
             for learning_class_year in learning_component_year.classes:
                 learning_class_year.used_by_learning_units_year = _learning_unit_usage_by_class(learning_class_year)
@@ -90,13 +80,16 @@ def get_same_container_year_components(learning_unit_year, with_classes=False):
         used_by_learning_unit = mdl_base.learning_unit_component.search(learning_component_year, learning_unit_year)
 
         entity_components_yr = EntityComponentYear.objects.filter(learning_component_year=learning_component_year)
+        if indx == 0:
+            additionnal_entities = _get_entities(entity_components_yr)
 
         components.append({'learning_component_year': learning_component_year,
                            'volumes': volume_learning_component_year(learning_component_year, entity_components_yr),
                            'learning_unit_usage': _learning_unit_usage(learning_component_year),
                            'used_by_learning_unit': used_by_learning_unit
                            })
-    return components
+
+    return _compose_components_dict(components, additionnal_entities)
 
 
 def show_subtype(learning_unit_year):
@@ -163,20 +156,25 @@ def _learning_unit_usage_by_class(a_learning_class_year):
 def get_components_identification(learning_unit_yr):
     a_learning_container_yr = learning_unit_yr.learning_container_year
     components = []
+    additionnal_entities = {}
+
     if a_learning_container_yr:
         learning_component_year_list = mdl_base.learning_component_year.find_by_learning_container_year(
             a_learning_container_yr)
 
-        for learning_component_year in learning_component_year_list:
+        for indx, learning_component_year in enumerate(learning_component_year_list):
             if mdl_base.learning_unit_component.search(learning_component_year, learning_unit_yr).exists():
                 entity_components_yr = EntityComponentYear.objects.filter(
                     learning_component_year=learning_component_year)
+                if indx == 0:
+                    additionnal_entities = _get_entities(entity_components_yr)
 
                 components.append({'learning_component_year': learning_component_year,
                                    'entity_component_yr': entity_components_yr.first(),
                                    'volumes': volume_learning_component_year(learning_component_year,
                                                                              entity_components_yr)})
-    return components
+
+    return _compose_components_dict(components, additionnal_entities)
 
 
 def _is_used_by_full_learning_unit_year(a_learning_class_year):
@@ -295,3 +293,17 @@ def can_edit_summary_editable_field(person, is_person_linked_to_entity):
     return person.is_faculty_manager() and is_person_linked_to_entity
 
 
+def _compose_components_dict(components, additional_entities):
+    data_components = {'components': components}
+    data_components.update(additional_entities)
+    return data_components
+
+
+def _get_entities(entity_components_yr):
+    additional_requirement_entities_types = [entity_container_year_link_type.REQUIREMENT_ENTITY,
+                                             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
+                                             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2]
+
+    return {e.entity_container_year.type: e.entity_container_year.entity.most_recent_acronym
+            for e in entity_components_yr
+            if e.entity_container_year.type in additional_requirement_entities_types}
