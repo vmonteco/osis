@@ -2706,3 +2706,6 @@ msgstr ""
 
 msgid "Prohibition to delete a learning unit before 2015."
 msgstr ""
+
+msgid "The entity '%(acronym)s' doesn't exist anymore in %(year)s"
+msgstr ""
