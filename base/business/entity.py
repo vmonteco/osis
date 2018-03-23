@@ -24,10 +24,12 @@
 #
 ##############################################################################
 from base import models as mdl
-from base.models import entity_calendar, entity_version
+from base.models import entity_calendar, entity_version, entity_version, entity_version
 from base.models.academic_year import find_academic_year_by_year
 from base.models.enums import entity_container_year_link_type, academic_calendar_type
 from django.utils import timezone
+from django.db.models import Prefetch
+from base.models import entity_version as mdl_entity_version
 
 
 def get_entities_ids(requirement_entity_acronym, with_entity_subordinated):
@@ -69,3 +71,20 @@ def get_entity_calendar(an_entity_version, academic_yr):
                 return an_academic_calendar
     else:
         return entity_cal
+
+
+def build_entity_container_prefetch():
+    parent_version_prefetch = Prefetch('parent__entityversion_set',
+                                       queryset=mdl_entity_version.search(),
+                                       to_attr='entity_versions')
+    entity_version_prefetch = Prefetch('entity__entityversion_set',
+                                       queryset=mdl_entity_version.search()
+                                       .prefetch_related(parent_version_prefetch),
+                                       to_attr='entity_versions')
+    entity_container_prefetch = Prefetch('learning_container_year__entitycontaineryear_set',
+                                         queryset=mdl.entity_container_year.search(
+                                             link_type=[entity_container_year_link_type.ALLOCATION_ENTITY,
+                                                        entity_container_year_link_type.REQUIREMENT_ENTITY])
+                                         .prefetch_related(entity_version_prefetch),
+                                         to_attr='entity_containers_year')
+    return entity_container_prefetch

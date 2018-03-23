@@ -31,20 +31,26 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
+from attribution.models import attribution_new
 
 from attribution.models.attribution import Attribution
 from base import models as mdl_base
+from base.business.entity import get_entity_calendar, get_entities_ids, get_entity_container_list, \
+    build_entity_container_prefetch
 from base.business.learning_unit_year_with_context import volume_learning_component_year
 from base.business.learning_units.simple.creation import create_learning_unit_content
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
-from base.models import entity_container_year
+from base.models import entity_container_year, learning_unit_year
+from base.models.academic_year import current_academic_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type, academic_calendar_type
 from base.models.enums import learning_container_year_types
 from cms import models as mdl_cms
 from cms.enums import entity_name
 # List of key that a user can modify
+from cms.models import translated_text
 from osis_common.document import xls_build
+from cms.enums.entity_name import LEARNING_UNIT_YEAR
 
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
@@ -307,3 +313,37 @@ def _get_entities(entity_components_yr):
     return {e.entity_container_year.type: e.entity_container_year.entity.most_recent_acronym
             for e in entity_components_yr
             if e.entity_container_year.type in additional_requirement_entities_types}
+
+
+def get_list_entity_learning_unit_yr(an_entity_version, current_academic_yr):
+    entity_ids = get_entities_ids(an_entity_version.entity.most_recent_acronym, True)
+    entities_id_list = get_entity_container_list([], entity_ids, entity_container_year_link_type.REQUIREMENT_ENTITY)
+
+    return learning_unit_year.search(**{'learning_container_year_id': entities_id_list,
+                                        'academic_year_id': current_academic_yr,
+                                        'status': True}) \
+        .select_related('academic_year', 'learning_container_year',
+                        'learning_container_year__academic_year') \
+        .prefetch_related(build_entity_container_prefetch()) \
+        .order_by('academic_year__year', 'acronym')
+
+
+def get_learning_units_summary_status(a_person):
+    entities_version_attached = a_person.find_main_entities_version
+    learning_units_found = []
+    current_academic_yr = current_academic_year()
+    for an_entity_version in entities_version_attached:
+        a_calendar = get_entity_calendar(an_entity_version, current_academic_yr)
+        if a_calendar:
+            entity_learning_unit_yr_list = get_list_entity_learning_unit_yr(an_entity_version, current_academic_yr)
+            if entity_learning_unit_yr_list:
+                for lu in entity_learning_unit_yr_list:
+                    lu.summary_responsibles = attribution_new.search(summary_responsible=True,
+                                                                     learning_container_year=lu.learning_container_year)
+                    lu.summary_status = translated_text.check_changed(LEARNING_UNIT_YEAR,
+                                                                      a_calendar.start_date,
+                                                                      a_calendar.end_date,
+                                                                      lu.id,
+                                                                      CMS_LABEL_PEDAGOGY)
+                learning_units_found.extend(entity_learning_unit_yr_list)
+    return learning_units_found
