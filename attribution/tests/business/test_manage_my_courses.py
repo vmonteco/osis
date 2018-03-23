@@ -38,6 +38,7 @@ from base.tests.factories.entity_container_year import EntityContainerYearFactor
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.tutor import TutorFactory
+from osis_common.utils.datetime import get_tzinfo
 
 
 class TestUserCanEditEducationalInformation(TestCase):
@@ -45,7 +46,7 @@ class TestUserCanEditEducationalInformation(TestCase):
         patcher = mock.patch('attribution.business.perms.find_summary_course_submission_dates_for_entity_version')
         self.MockClass = patcher.start()
 
-        today = datetime.datetime.now()
+        today = datetime.datetime.now(tz=get_tzinfo())
         self.yesterday = today - datetime.timedelta(days=1)
         self.tomorrow = today + datetime.timedelta(days=1)
         self.MockClass.return_value = {"start_date": self.yesterday,

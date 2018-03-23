@@ -100,18 +100,22 @@ class TestViewEducationalInformation(TestCase):
 
     @mock.patch("attribution.views.manage_my_courses.can_user_edit_educational_information",
                 side_effect=lambda usr, luy_id: False)
-    def test_template_used(self, mock_can_edit):
+    @mock.patch("attribution.views.manage_my_courses.find_educational_information_submission_dates_of_learning_unit_year",
+                side_effect=lambda luy_id: {})
+    def test_template_used(self, mock_find_submission_dates, mock_can_edit):
         response = self.client.get(self.url)
 
         self.assertTemplateUsed(response, "manage_my_courses/educational_information.html")
         self.assertTrue(mock_can_edit.called)
+        self.assertTrue(mock_find_submission_dates.called)
 
         context = response.context
         self.assertEqual(context["learning_unit_year"], self.attribution.learning_unit_year)
         self.assertTrue(context["cms_labels_translated"])
         self.assertIsInstance(context["form_french"], LearningUnitPedagogyForm)
         self.assertIsInstance(context["form_english"], LearningUnitPedagogyForm)
-        self.assertFalse(context["can_edit"])
+        self.assertFalse(context["can_edit_information"])
+        self.assertFalse(context["submission_dates"])
 
 
 class TestManageEducationalInformation(TestCase):
