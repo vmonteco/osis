@@ -64,8 +64,8 @@ def is_eligible_for_cancel_of_proposal(proposal, person):
     if person.is_faculty_manager():
         if proposal.state != ProposalState.FACULTY.name:
             return False
-        if (not _is_attached_to_initial_entity(proposal, person) and 
-            not person.is_linked_to_entity_in_charge_of_learning_unit_year(proposal.learning_unit_year)):
+        if not _is_attached_to_initial_entity(proposal, person) and \
+        not person.is_linked_to_entity_in_charge_of_learning_unit_year(proposal.learning_unit_year):
             return False
     return person.user.has_perm('base.can_propose_learningunit')
 
