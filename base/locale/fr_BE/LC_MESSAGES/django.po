@@ -1808,13 +1808,13 @@ msgid "create_learning_unit"
 msgstr "Création d'une unité d'enseignement"
 
 msgid "existed_acronym"
-msgstr "Sigle a déjà existé pour "
+msgstr "Code a déjà existé pour "
 
 msgid "existing_acronym"
-msgstr "Sigle déja existant en "
+msgstr "Code déja existant en "
 
 msgid "invalid_acronym"
-msgstr "Sigle non valide"
+msgstr "Code non valide"
 
 msgid "acronym_rules"
 msgstr "Code composé de:\n"
@@ -1904,7 +1904,7 @@ msgid "end_date_gt_begin_date"
 msgstr "L'année de fin doit etre égale ou supérieur à l'année de départ"
 
 msgid "session_title"
-msgstr "Session"
+msgstr "Sessions"
 
 msgid "remarks_title"
 msgstr "Remarques"
