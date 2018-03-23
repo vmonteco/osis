@@ -76,8 +76,8 @@ def _is_initial_not_equal_current(initial_value, value):
 def _is_transformation(initial_data, current_data):
     if not initial_data:
         return False
-    return (current_data.get("first_letter", "") + current_data["acronym"]
-            != initial_data.get("first_letter", "") + initial_data["acronym"])
+    return (current_data.get("first_letter", "") + current_data["acronym"] !=
+            initial_data.get("first_letter", "") + initial_data["acronym"])
 
 
 def _is_modification(data_changed):
