@@ -39,4 +39,4 @@ class EntityVersionFactory(factory.DjangoModelFactory):
     entity_type = factory.Iterator(entity_type.ENTITY_TYPES, getter=lambda c: c[0])
     parent = factory.SubFactory(EntityFactory)
     start_date = datetime.date(2015, 1, 1).isoformat()
-    end_date = datetime.date(2015, 12, 31).isoformat()
+    end_date = None

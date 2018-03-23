@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required, permission_required
+from django.db import IntegrityError, transaction
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
@@ -50,13 +51,14 @@ def delete_all_learning_units_year(request, learning_unit_year_id):
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
     try:
-        result = deletion.delete_learning_unit(learning_unit)
+        with transaction.atomic():
+            result = deletion.delete_learning_unit(learning_unit)
         display_success_messages(request,
                                  _("The learning unit %(acronym)s has been successfully deleted for all years.") % {
                                      'acronym': learning_unit.acronym})
         display_success_messages(request, sorted(result))
         send_mail_after_the_learning_unit_year_deletion([], learning_unit.acronym, None, result)
 
-    except ProtectedError as e:
+    except (ProtectedError, IntegrityError) as e:
         display_error_messages(request, str(e))
     return redirect('learning_units')

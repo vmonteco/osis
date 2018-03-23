@@ -34,16 +34,18 @@ from base.models.person import Person
 
 def find_summary_course_submission_dates_for_entity_version(entity_version):
     current_calendar_instance = None
-    entity_vrs = entity_version
-    parent_entity_version = entity_vrs.get_parent_version()
-    while current_calendar_instance is None and parent_entity_version:
-        entity_vrs = entity_vrs.get_parent_version()
+    current_entity_version = entity_version
+    while current_entity_version:
         current_calendar_instance = entity_calendar.find_by_entity_and_reference_for_current_academic_year(
-            entity_vrs.entity.id, academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
-        parent_entity_version = entity_vrs.get_parent_version()
+            current_entity_version.entity.id, academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+        if current_calendar_instance:
+            break
+        current_entity_version = current_entity_version.get_parent_version()
+
     if current_calendar_instance is None:
         current_calendar_instance = academic_calendar.get_by_reference_and_academic_year(
             academic_calendar_type.SUMMARY_COURSE_SUBMISSION, current_academic_year())
+
     return {'start_date': current_calendar_instance.start_date,
             'end_date': current_calendar_instance.end_date}
 

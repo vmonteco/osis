@@ -64,21 +64,19 @@
                                         <b class='error' for='{{ form.acronym.name }}' generated="true">{{ form.acronym.errors|join:". " }}</b>
                                     {% endif %}
                                 </div>
-                                <div class="col-md-3" style="padding-left:0;">
+                                <div class="col-md-4" style="padding-left:0;">
                                     <label class="text-no-wrap" {% if form.errors.partim_character %}style="color:red;"{% endif %}>
                                         {% trans 'partim' %}*
                                     </label>
+                                    <abbr title="{% trans 'partim_character_rules' %}">
+                                        <span class="glyphicon glyphicon-question-sign pull-right"
+                                              title="{% trans 'partim_character_rules' %}" style="font-size: 14pt;"
+                                              aria-hidden="true"></span></abbr>
                                     {{ form.partim_character }}
                                     <span class='error' id="{{ form.partim_character.name }}_message" for='{{ form.partim_character.name }}' generated="true"/>
                                     {% if form.partim_character.errors %}
                                         <label class='error' for='{{ form.partim_character.name }}' generated="true">{{ form.partim_character.errors|join:". " }}</label>
                                     {% endif %}
-                                </div>
-                                <div class="col-md-1">
-                                    <abbr title="{% trans 'partim_character_rules' %}">
-                                            <span class="glyphicon glyphicon-question-sign pull-right"
-                                                  title="{% trans 'partim_character_rules' %}" style="font-size: 14pt;"
-                                                  aria-hidden="true"></span></abbr>
                                 </div>
                             </div>
                         </div>

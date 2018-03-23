@@ -348,3 +348,13 @@ def find_main_entities_version():
 
 def find_latest_version_by_entity(entity, date):
     return EntityVersion.objects.current(date).entity(entity).select_related('entity', 'parent').first()
+
+
+def find_last_entity_version_by_learning_unit_year_id(learning_unit_year_id):
+    now = datetime.datetime.now(get_tzinfo())
+    try:
+        return EntityVersion.objects.current(now).\
+            filter(entity__entitycontaineryear__learning_container_year__learningunityear__id=learning_unit_year_id). \
+            latest('start_date')
+    except EntityVersion.DoesNotExist:
+        return None
