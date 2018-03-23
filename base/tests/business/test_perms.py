@@ -126,7 +126,7 @@ class PermsTestCase(TestCase):
             self.assertTrue(
                 perms.is_eligible_for_modification_end_date(
                     luy,
-                    self.create_person_with_permission_to_edit_proposal(CENTRAL_MANAGER_GROUP)))
+                    self.create_person_with_permission_and_group(CENTRAL_MANAGER_GROUP)))
 
 
     def test_access_edit_learning_unit_proposal_as_central_manager(self):
