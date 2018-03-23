@@ -74,8 +74,7 @@ def _is_initial_not_equal_current(initial_value, value):
 
 
 def _is_transformation(initial_data, current_data):
-    return "{}{}".format(current_data["first_letter"], current_data["acronym"]) != \
-           "{}{}".format(initial_data["first_letter"], initial_data["acronym"])
+    return current_data["acronym"] != initial_data['acronym']
 
 
 def _is_modification(data_changed):
