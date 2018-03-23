@@ -122,6 +122,21 @@ class LearningUnitViewTestCase(TestCase):
         count_proposition_by_author = ProposalLearningUnit.objects.filter(author=self.person).count()
         self.assertEqual(count_proposition_by_author, 1)
 
+    def test_proposal_learning_unit_add_with_valid_data_with_faculty_manager(self):
+        learning_unit_form = creation.LearningUnitProposalCreationForm(person=self.faculty_person,
+                                                                       data=self.get_valid_data())
+        proposal_form = creation.LearningUnitProposalForm(data=self.get_valid_data())
+        self.assertTrue(learning_unit_form.is_valid(), learning_unit_form.errors)
+        self.assertTrue(proposal_form.is_valid(), proposal_form.errors)
+        self.client.force_login(self.faculty_person.user)
+        url = reverse('proposal_learning_unit_add')
+        response = self.client.post(url, data=self.get_valid_data())
+        self.assertEqual(response.status_code, 302)
+        count_learning_unit_year = LearningUnitYear.objects.all().count()
+        self.assertEqual(count_learning_unit_year, 1)
+        count_proposition_by_author = ProposalLearningUnit.objects.filter(author=self.faculty_person).count()
+        self.assertEqual(count_proposition_by_author, 1)
+
 
     def get_invalid_data(self):
         faultydict = dict(self.get_valid_data())
