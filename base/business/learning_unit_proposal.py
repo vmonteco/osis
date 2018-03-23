@@ -83,7 +83,7 @@ def _is_modification(data_changed):
         del data_changed['acronym']
     if data_changed.get('first_letter'):
         del data_changed['first_letter']
-    return bool(data_changed) 
+    return bool(data_changed)
 
 
 def reinitialize_data_before_proposal(learning_unit_proposal):
