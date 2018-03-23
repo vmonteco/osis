@@ -28,7 +28,7 @@ import datetime
 from base.business.institution import find_summary_course_submission_dates_for_entity_version
 from base.models.entity_version import find_last_entity_version_by_learning_unit_year_id
 from base.models.learning_unit_year import LearningUnitYear
-from osis_common.utils.datetime import get_tzinfo
+from osis_common.utils.datetime import get_tzinfo, convert_date_to_datetime
 
 
 def can_user_view_educational_information(user, learning_unit_year_id):
@@ -46,7 +46,8 @@ def can_user_edit_educational_information(user, learning_unit_year_id):
         return False
 
     now = datetime.datetime.now(tz=get_tzinfo())
-    return submission_dates["start_date"] <= now <= submission_dates["end_date"]
+    return convert_date_to_datetime(submission_dates["start_date"]) <= now <= \
+        convert_date_to_datetime(submission_dates["end_date"])
 
 
 def find_educational_information_submission_dates_of_learning_unit_year(learning_unit_year_id):

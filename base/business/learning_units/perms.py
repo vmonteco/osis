@@ -61,14 +61,13 @@ def is_eligible_to_create_modification_proposal(learning_unit_year, person):
 
 
 def is_eligible_for_cancel_of_proposal(proposal, person):
-    if not proposal:
-        return False
-    if person.is_faculty_manager() and proposal.state != ProposalState.FACULTY.name:
-        return False
-    if _is_attached_to_initial_entity(proposal, person):
-        return True
-
-    return person.is_linked_to_entity_in_charge_of_learning_unit_year(proposal.learning_unit_year)
+    if person.is_faculty_manager():
+        if proposal.state != ProposalState.FACULTY.name:
+            return False
+        if not _is_attached_to_initial_entity(proposal, person) and \
+        not person.is_linked_to_entity_in_charge_of_learning_unit_year(proposal.learning_unit_year):
+            return False
+    return person.user.has_perm('base.can_propose_learningunit')
 
 
 def _is_attached_to_initial_entity(learning_unit_proposal, a_person):
@@ -145,6 +144,6 @@ def learning_unit_year_permissions(learning_unit_year, person):
 
 def learning_unit_proposal_permissions(proposal, person):
     return {
-        'can_cancel_proposal': is_eligible_for_cancel_of_proposal(proposal, person),
+        'can_cancel_proposal': is_eligible_for_cancel_of_proposal(proposal, person) if proposal else False,
         'can_edit_learning_unit_proposal': is_eligible_to_edit_proposal(proposal, person)
     }
