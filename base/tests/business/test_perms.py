@@ -112,6 +112,21 @@ class PermsTestCase(TestCase):
                                       learning_container_year=None)
         self.assertFalse(luy.can_update_by_faculty_manager())
 
+
+    def test_can_central_manager_modify_end_date_full(self):
+        for proposal_needed_container_type in ALL_TYPES:
+            lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_yr,
+                                                              container_type=proposal_needed_container_type)
+            luy = LearningUnitYearFactory(academic_year=self.academic_yr,
+                                          learning_container_year=lunit_container_yr,
+                                          subtype=FULL)
+
+            self.assertTrue(
+                perms.is_eligible_for_modification_end_date(
+                    luy,
+                    self.create_person_with_permission_to_edit_proposal(CENTRAL_MANAGER_GROUP)))
+
+
     def test_access_edit_learning_unit_proposal_as_central_manager(self):
         luy = LearningUnitYearFactory(academic_year=self.academic_yr)
         a_person = self.create_person_with_permission_to_edit_proposal(CENTRAL_MANAGER_GROUP)
