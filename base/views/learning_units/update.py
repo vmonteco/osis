@@ -127,8 +127,7 @@ def _save_form_and_display_messages(request, form):
         form.save()
         display_success_messages(request, _('success_modification_learning_unit'))
     except ConsistencyError as e:
-        display_success_messages(request,
-                                 _('The learning unit has been updated until %(year)s.')
-                                 % {'year': e.last_instance_updated.academic_year}
-                                 )
+        error_list = e.error_list
+        error_list.insert(0, _('The learning unit has been updated until %(year)s.')
+                          % {'year': e.last_instance_updated.academic_year})
         display_error_messages(request, e.error_list)

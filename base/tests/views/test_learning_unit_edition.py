@@ -287,9 +287,41 @@ class TestEditLearningUnit(TestCase):
 
     def test_valid_post_request(self):
         credits = 18
+        form_data = self._get_valid_form_data()
+        form_data['credits'] = credits
+        response = self.client.post(self.url, data=form_data)
+
+        expected_redirection = reverse("learning_unit", args=[self.learning_unit_year.id])
+        self.assertRedirects(response, expected_redirection)
+
+        self.learning_unit_year.refresh_from_db()
+        self.assertEqual(self.learning_unit_year.credits, credits)
+
+    def test_consistency_report_error_displayed(self):
+        next_academic_year = AcademicYearFactory(year=self.learning_unit_year.academic_year.year + 1)
+        next_learning_container_year = LearningContainerYearFactory(academic_year=next_academic_year,
+                                                                    container_type=learning_container_year_types.COURSE)
+        LearningUnitYearFactory(learning_container_year=next_learning_container_year,
+                                learning_unit=self.learning_unit_year.learning_unit,
+                                acronym="LOSIS4512",
+                                academic_year=next_academic_year,
+                                subtype=learning_unit_year_subtypes.FULL,
+                                credits=26)
+
+        form_data = self._get_valid_form_data()
+        response = self.client.post(self.url, data=form_data)
+
+        expected_redirection = reverse("learning_unit", args=[self.learning_unit_year.id])
+        self.assertRedirects(response, expected_redirection, fetch_redirect_response=False)
+
+        messages = [str(message) for message in get_messages(response.wsgi_request)]
+        self.assertIn(_('The learning unit has been updated until %(year)s.')
+                          % {'year': self.learning_unit_year.academic_year}, list(messages))
+
+    def _get_valid_form_data(self):
         form_data = {
             "acronym": self.learning_unit_year.acronym[1:],
-            "credits": str(credits),
+            "credits": str(self.learning_unit_year.credits),
             "specific_title": self.learning_unit_year.specific_title,
             "first_letter": self.learning_unit_year.acronym[0],
             "periodicity": learning_unit_periodicity.ANNUAL,
@@ -298,13 +330,7 @@ class TestEditLearningUnit(TestCase):
             "allocation_entity": str(self.requirement_entity.id),
             "language": str(self.learning_unit_year.learning_container_year.language.pk)
         }
-        response = self.client.post(self.url, data=form_data)
-
-        expected_redirection = reverse("learning_unit", args=[self.learning_unit_year.id])
-        self.assertRedirects(response, expected_redirection)
-
-        self.learning_unit_year.refresh_from_db()
-        self.assertEqual(self.learning_unit_year.credits, credits)
+        return form_data
 
 
 class TestLearningUnitVolumesManagement(TestCase):
