@@ -2697,3 +2697,6 @@ msgstr ""
 
 msgid "The learning unit has been updated until %(year)s."
 msgstr ""
+
+msgid "The entity '%(acronym)s' doesn't exist anymore in %(year)s"
+msgstr ""
