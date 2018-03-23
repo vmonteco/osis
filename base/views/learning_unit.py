@@ -66,14 +66,13 @@ from base.models.learning_container import LearningContainer
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, LEARNING_UNIT_ACRONYM_REGEX_FULL
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
-from base.views.common import display_success_messages, display_error_messages, data
+from base.views.common import display_success_messages, display_error_messages
 from base.views.learning_units import perms
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
 from base.views.learning_units.search import _learning_units_search
 from cms.models import text_label
 from reference.models import language
 from . import layout
-from base.business.learning_unit_year_with_context import get_with_context
 
 
 @login_required
