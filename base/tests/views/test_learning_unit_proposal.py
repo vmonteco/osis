@@ -242,6 +242,7 @@ class TestLearningUnitModificationProposal(TestCase):
 
     def test_transformation_proposal_request(self):
         self.form_data["first_letter"] = "M"
+        self.form_data["acronym"] = "OSIS1234"
         self.client.post(self.url, data=self.form_data)
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
         self.assertEqual(a_proposal_learning_unit.type, ProposalType.TRANSFORMATION.name)
@@ -256,6 +257,7 @@ class TestLearningUnitModificationProposal(TestCase):
 
     def test_transformation_and_modification_proposal_request(self):
         self.form_data["first_letter"] = "M"
+        self.form_data["acronym"] = "OSIS1234"
         self.form_data["specific_title"] = "New title"
         self.form_data["specific_title_english"] = "New english title"
         self.client.post(self.url, data=self.form_data)
