@@ -118,12 +118,6 @@ class TestFindLearningUnitYearsSummaryEditable(TestCase):
                                                 summary_responsible= True,
                                                 learning_unit_year=self.learning_unit_years[i])
                              for i in range(4)]
-        # self.entity_calendar = EntityCalendarFactory(type=entity_container_year_link_type.REQUIREMENT_ENTITY,
-        #                                              academic_calendar__reference=SUMMARY_COURSE_SUBMISSION)
-        # self.entiy_container_years=[EntityContainerYearFactory(
-        #     learning_container_year=self.learning_unit_years[i].learning_container_year,
-        #     entity=self.entity_calendar.entity
-        # ) for i in range(4)]
 
     def test_when_summary_responsible_for_all_attributions_and_all_are_summary_editable(self):
         expected_luys = self.learning_unit_years
