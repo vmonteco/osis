@@ -75,7 +75,7 @@ class LearningUnitYearForm(SearchForm):
 
     def __init__(self, *args, **kwargs):
         self.service_course_search = kwargs.pop('service_course_search', False)
-        super(SearchForm).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def clean_acronym(self):
         data_cleaned = self.cleaned_data.get('acronym')

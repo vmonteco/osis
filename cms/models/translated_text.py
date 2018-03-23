@@ -81,9 +81,9 @@ def get_or_create(entity, reference, text_label, language):
 
 
 def find_by_entity_reference(an_entity_name, an_education_group_year_id):
-    return TranslatedText.objects.filter(entity=an_entity_name,
-                                         reference=an_education_group_year_id)\
-        .order_by('text_label__order')\
+    return TranslatedText.objects.filter(text_label__entity=an_entity_name,
+                                         reference=an_education_group_year_id) \
+        .order_by('text_label__order') \
         .values_list('text_label__label', flat=True)
 
 
