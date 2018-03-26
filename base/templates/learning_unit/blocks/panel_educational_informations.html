@@ -26,25 +26,21 @@
 
 {% load getattr %}
 
-<div class="row" style="margin-top:10px;">
-    <div class="col-md-2">
-        <label> {% trans 'language' %} </label>
-    </div>
-    <div class="col-md-5">
-        <label> {{ form_french.language.1 }} </label>
-    </div>
-    <div class="col-md-5">
-        <label> {{ form_english.language.1 }} </label>
-    </div>
-</div>
-<hr/>
-
-{% for label_key, label_translated in cms_labels_translated.items %}
-    <div class="row" style="margin-top:10px;">
-        <div class="col-md-2">
+<table class="table">
+    <thead >
+        <tr>
+            <th class="col-md-2" style="padding: 20px;">{% trans 'language' %}</th>
+            <th class="col-md-5" style="padding: 20px;">{{ form_french.language.1 }}</th>
+            <th class="col-md-5" style="padding: 20px;">{{ form_english.language.1 }}</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for label_key, label_translated in cms_labels_translated.items %}
+        <tr>
+            <td style="padding: 20px;">
             <label> {{ label_translated }} </label>
-        </div>
-        <div class="col-md-5">
+            </td>
+            <td style="padding: 20px;">
             {% if can_edit_information %}
                 <a class="pedagogy-edit-btn pull-right" href="#"
                    data-form="{{post_url}}?language={{ form_french.language.0 }}&label={{ label_key }}"
@@ -53,8 +49,8 @@
                 </a>
             {% endif %}
             {{ form_french|getattr:label_key }}
-        </div>
-        <div class="col-md-5">
+            </td>
+            <td style="padding: 20px;">
             {% if can_edit_information %}
                 <a class="pedagogy-edit-btn pull-right" href="#"
                    data-form="{{post_url}}?language={{ form_english.language.0 }}&label={{ label_key }}"
@@ -63,8 +59,8 @@
                 </a>
             {% endif %}
             {{ form_english|getattr:label_key}}
-
-        </div>
-    </div>
-    <hr/>
-{% endfor %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

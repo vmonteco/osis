@@ -149,7 +149,7 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
 
     context['summary_editable_form'] = summary_editable_form
     context['can_edit_summary_editable_field'] = can_user_edit_summary_editable_field
-    return layout.render(request, "learning_unit/pedagogy.html", context)
+    return render(request, "learning_unit/pedagogy.html", context)
 
 
 def build_summary_editable_form(request, learning_unit_year, can_user_edit_summary_editable_field):
