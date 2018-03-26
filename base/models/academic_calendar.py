@@ -27,6 +27,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 
+from base.models import academic_year
 from base.models.enums import academic_calendar_type
 from base.models.exceptions import StartDateHigherThanEndDateException
 from base.models.utils.admin_extentions import remove_delete_action
@@ -52,6 +53,11 @@ class AcademicCalendarAdmin(SerializableModelAdmin):
         return remove_delete_action(super(AcademicCalendarAdmin, self).get_actions(request))
 
 
+class AcademicCalendarQuerySet(models.QuerySet):
+    def current_academic_year(self):
+        return self.filter(academic_year=academic_year.current_academic_year())
+
+
 class AcademicCalendar(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
@@ -65,6 +71,8 @@ class AcademicCalendar(SerializableModel):
     highlight_shortcut = models.CharField(max_length=255, blank=True, null=True)
     reference = models.CharField(choices=academic_calendar_type.ACADEMIC_CALENDAR_TYPES, max_length=50, blank=True,
                                  null=True)
+
+    objects = AcademicCalendarQuerySet.as_manager()
 
     def save(self, *args, **kwargs):
         self.validation_mandatory_dates()
@@ -146,3 +154,10 @@ def is_academic_calendar_opened(an_academic_year_id, a_reference):
     if an_academic_calendar:
         return True
     return False
+
+def find_dates_for_current_academic_year(reference):
+    try:
+        return AcademicCalendar.objects.current_academic_year().filter(reference=reference).\
+            values("start_date", "end_date").get()
+    except AcademicCalendar.DoesNotExist:
+        return {}
