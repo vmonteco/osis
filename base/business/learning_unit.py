@@ -332,6 +332,8 @@ def get_list_entity_learning_unit_yr(an_entity_version, current_academic_yr):
 def get_learning_units_summary_status(a_person, academic_yr):
     entities_version_attached = a_person.find_main_entities_version
     learning_units_found = []
+    # TODO : We must improve performance.
+    cms_list = translated_text.search(entity=LEARNING_UNIT_YEAR, text_labels_name=CMS_LABEL_PEDAGOGY, changed=True)
     for an_entity_version in entities_version_attached:
         a_calendar = _get_calendar(academic_yr, an_entity_version)
         if a_calendar:
@@ -340,13 +342,18 @@ def get_learning_units_summary_status(a_person, academic_yr):
                 for lu in entity_learning_unit_yr_list:
                     lu.summary_responsibles = attribution_new.search(summary_responsible=True,
                                                                      learning_container_year=lu.learning_container_year)
-                    lu.summary_status = translated_text.check_changed(LEARNING_UNIT_YEAR,
-                                                                      a_calendar.start_date,
-                                                                      a_calendar.end_date,
-                                                                      lu.id,
-                                                                      CMS_LABEL_PEDAGOGY)
+                    lu.summary_status = set_summary_status(a_calendar, cms_list, lu)
+
                 learning_units_found.extend(entity_learning_unit_yr_list)
     return learning_units_found
+
+
+def set_summary_status(a_calendar, cms_list, lu):
+    for educational_information in cms_list:
+        if educational_information.reference == lu.id \
+                and a_calendar.start_date <= educational_information.changed <= a_calendar.end_date:
+            return True
+    return False
 
 
 def _get_calendar(academic_yr, an_entity_version):

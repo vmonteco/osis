@@ -61,13 +61,17 @@ def find_by_id(id):
     return TranslatedText.objects.get(pk=id)
 
 
-def search(entity, reference, text_labels_name=None, language=None):
-    queryset = TranslatedText.objects.filter(entity=entity, reference=reference)
+def search(entity, reference=None, text_labels_name=None, language=None, changed=False):
+    queryset = TranslatedText.objects.filter(entity=entity)
 
+    if reference:
+        queryset = queryset.filter(reference=reference)
     if language:
         queryset = queryset.filter(language=language)
     if text_labels_name:
         queryset = queryset.filter(text_label__label__in=text_labels_name)
+    if changed:
+        queryset = queryset.filter(changed__isnull=False)
 
     return queryset.select_related('text_label')
 
@@ -85,11 +89,3 @@ def find_by_entity_reference(an_entity_name, an_education_group_year_id):
                                          reference=an_education_group_year_id) \
         .order_by('text_label__order') \
         .values_list('text_label__label', flat=True)
-
-
-def check_changed(an_entity_name, start_date, end_date, learning_unit_id, text_labels):
-    return TranslatedText.objects.filter(entity=an_entity_name,
-                                         changed__lte=end_date,
-                                         changed__gte=start_date,
-                                         reference=learning_unit_id,
-                                         text_label__label__in=text_labels).exists()
