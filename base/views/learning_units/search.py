@@ -64,7 +64,7 @@ def _learning_units_search(request, search_type):
 
     if request.GET.get('xls_status') == "xls":
         return create_xls(request.user, found_learning_units)
-
+    a_person = find_by_user(request.user)
     context = {
         'form': form,
         'academic_years': get_last_academic_years(),
@@ -73,7 +73,8 @@ def _learning_units_search(request, search_type):
         'learning_units': found_learning_units,
         'current_academic_year': current_academic_year(),
         'experimental_phase': True,
-        'search_type': search_type
+        'search_type': search_type,
+        'is_faculty_manager': a_person.is_faculty_manager()
     }
     return layout.render(request, "learning_units.html", context)
 
@@ -112,7 +113,8 @@ def learning_units_proposal_search(request):
         'current_academic_year': current_academic_year(),
         'experimental_phase': True,
         'search_type': PROPOSAL_SEARCH,
-        'proposals': proposals
+        'proposals': proposals,
+        'is_faculty_manager': a_person.is_faculty_manager()
     }
 
     return layout.render(request, "learning_units.html", context)
@@ -172,11 +174,13 @@ def _force_state(formset, request):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units_summary_list(request):
-    learning_units_found = get_learning_units_and_summary_status(find_by_user(request.user), current_academic_year())
+    a_person = find_by_user(request.user)
+    learning_units_found = get_learning_units_and_summary_status(a_person, current_academic_year())
     context = {
         'learning_units': sorted(learning_units_found, key=lambda t: t.acronym),
         'experimental_phase': True,
-        'search_type': SUMMARY_LIST
+        'search_type': SUMMARY_LIST,
+        'is_faculty_manager': a_person.is_faculty_manager()
     }
 
     return layout.render(request, "learning_units.html", context)

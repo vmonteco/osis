@@ -52,6 +52,7 @@ from cms.models import translated_text
 from osis_common.document import xls_build
 from cms.enums.entity_name import LEARNING_UNIT_YEAR
 from base.models.academic_year import find_academic_year_by_year
+from osis_common.utils.datetime import convert_date_to_datetime
 
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
@@ -335,25 +336,23 @@ def get_learning_units_and_summary_status(a_person, academic_yr):
     # TODO : We must improve performance.
     cms_list = translated_text.find_with_changed(LEARNING_UNIT_YEAR, CMS_LABEL_PEDAGOGY)
     for an_entity_version in entities_version_attached:
-        learning_units_found = _get_learning_unit_by_entity(academic_yr, an_entity_version,
-                                                            cms_list, learning_units_found)
+        learning_units_found.extend(_get_learning_unit_by_entity(academic_yr, an_entity_version, cms_list))
     return learning_units_found
 
 
-def _get_learning_unit_by_entity(academic_yr, an_entity_version, cms_list, learning_units_found_param):
-    learning_units_found = learning_units_found_param
+def _get_learning_unit_by_entity(academic_yr, an_entity_version, cms_list):
     a_calendar = _get_calendar(academic_yr, an_entity_version)
     if a_calendar:
         entity_learning_unit_yr_list = get_list_entity_learning_unit_yr(an_entity_version, academic_yr)
         if entity_learning_unit_yr_list:
-            learning_units_found.extend(get_summary_detail(a_calendar, cms_list, entity_learning_unit_yr_list))
-    return learning_units_found
+            return _get_summary_detail(a_calendar, cms_list, entity_learning_unit_yr_list)
+    return []
 
 
-def set_summary_status(a_calendar, cms_list, lu):
+def _get_summary_status(a_calendar, cms_list, lu):
     for educational_information in cms_list:
         if educational_information.reference == lu.id \
-                and a_calendar.start_date <= educational_information.changed <= a_calendar.end_date:
+                and _changed_in_period(a_calendar.start_date, a_calendar.end_date, educational_information.changed):
             return True
     return False
 
@@ -367,10 +366,14 @@ def _get_calendar(academic_yr, an_entity_version):
     return a_calendar
 
 
-def get_summary_detail(a_calendar, cms_list, entity_learning_unit_yr_list_param):
+def _get_summary_detail(a_calendar, cms_list, entity_learning_unit_yr_list_param):
     entity_learning_unit_yr_list = entity_learning_unit_yr_list_param
     for lu in entity_learning_unit_yr_list:
         lu.summary_responsibles = attribution_new.search(summary_responsible=True,
                                                          learning_container_year=lu.learning_container_year)
-        lu.summary_status = set_summary_status(a_calendar, cms_list, lu)
+        lu.summary_status = _get_summary_status(a_calendar, cms_list, lu)
     return entity_learning_unit_yr_list
+
+
+def _changed_in_period(start_date, end_date, changed_date):
+    return convert_date_to_datetime(start_date) <= changed_date <= convert_date_to_datetime(end_date)
