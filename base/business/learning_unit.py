@@ -318,7 +318,7 @@ def _get_entities(entity_components_yr):
 
 
 def get_list_entity_learning_unit_yr(an_entity_version, current_academic_yr):
-    entity_ids = get_entities_ids(an_entity_version.entity.most_recent_acronym, True)
+    entity_ids = get_entities_ids(an_entity_version.entity.most_recent_acronym, False)
     entities_id_list = get_entity_container_list([], entity_ids, entity_container_year_link_type.REQUIREMENT_ENTITY)
 
     return learning_unit_year.search(**{'learning_container_year_id': entities_id_list,
