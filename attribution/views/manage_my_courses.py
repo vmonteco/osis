@@ -34,6 +34,8 @@ from attribution.business.perms import can_user_edit_educational_information, \
 from attribution.views.perms import tutor_can_edit_educational_information, tutor_can_view_educational_information
 from base.business.learning_unit import get_cms_label_data, initialize_learning_unit_pedagogy_form, CMS_LABEL_PEDAGOGY
 from base.models import person
+from base.models import academic_calendar
+from base.models.enums import academic_calendar_type
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.tutor import Tutor
 from base.views import layout
@@ -42,11 +44,12 @@ from base.views import learning_unit as view_learning_unit
 
 @login_required
 def list_my_attributions_summary_editable(request):
-    tutor = get_object_or_404(Tutor, person__user=request.user)
-    learning_unit_years_summary_editable = find_learning_unit_years_summary_editable(tutor)
+    learning_unit_years_summary_editable = find_learning_unit_years_summary_editable(
+        tutor=get_object_or_404(Tutor, person__user=request.user))
+    submission_dates = academic_calendar.\
+        find_dates_for_current_academic_year(academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
     return layout.render(request,
-                         'manage_my_courses/list_my_courses_summary_editable.html',
-                         {'learning_unit_years_summary_editable': learning_unit_years_summary_editable})
+                         'manage_my_courses/list_my_courses_summary_editable.html', locals())
 
 
 @login_required
