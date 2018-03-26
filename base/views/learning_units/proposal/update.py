@@ -63,12 +63,13 @@ def learning_unit_modification_proposal(request, learning_unit_year_id):
         request.POST or None,
         initial=initial_data,
         instance=proposal,
-        learning_unit=learning_unit_year.learning_unit
+        learning_unit=learning_unit_year.learning_unit,
+        person=user_person
     )
 
     if form.is_valid():
         type_proposal = business_proposal.compute_proposal_type(initial_data, request.POST)
-        form.save(learning_unit_year, user_person, type_proposal, compute_proposal_state(user_person))
+        form.save(learning_unit_year, type_proposal, compute_proposal_state(user_person))
 
         display_success_messages(request, _("success_modification_proposal").format(
             _(type_proposal), learning_unit_year.acronym))
@@ -111,14 +112,15 @@ def _update_proposal(request, user_person, proposal):
         request.POST or None,
         initial=initial_data,
         instance=proposal,
-        learning_unit=proposal.learning_unit_year.learning_unit
+        learning_unit=proposal.learning_unit_year.learning_unit,
+        person=user_person
     )
 
     if proposal_form.is_valid():
         try:
             type_proposal = business_proposal.compute_proposal_type(initial_data, request.POST)
 
-            proposal_form.save(proposal.learning_unit_year, user_person, type_proposal,
+            proposal_form.save(proposal.learning_unit_year, type_proposal,
                                proposal_form.cleaned_data.get("state"))
 
             save_proposal_type(proposal, request)
