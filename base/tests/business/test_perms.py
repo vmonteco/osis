@@ -45,6 +45,7 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.user import UserFactory
+from base.tests.factories.learning_unit import LearningUnitFactory
 
 TYPES_PROPOSAL_NEEDED_TO_EDIT = (learning_container_year_types.COURSE,
                                  learning_container_year_types.DISSERTATION,
@@ -119,9 +120,11 @@ class PermsTestCase(TestCase):
         for proposal_needed_container_type in ALL_TYPES:
             lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_yr,
                                                               container_type=proposal_needed_container_type)
+            lu = LearningUnitFactory(end_year=self.academic_yr.year)
             luy = LearningUnitYearFactory(academic_year=self.academic_yr,
                                           learning_container_year=lunit_container_yr,
-                                          subtype=FULL)
+                                          subtype=FULL,
+                                          learning_unit=lu)
 
             self.assertTrue(
                 perms.is_eligible_for_modification_end_date(

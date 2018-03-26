@@ -2709,3 +2709,12 @@ msgstr ""
 
 msgid "The entity '%(acronym)s' doesn't exist anymore in %(year)s"
 msgstr ""
+
+msgid "updated"
+msgstr "Updated"
+
+msgid "unupdated"
+msgstr "Unupdated"
+
+msgid "summary_list"
+msgstr "Education information status"
