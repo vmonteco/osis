@@ -164,14 +164,8 @@ class LearningUnitModificationForm(LearningUnitYearForm):
             return cleaned_data
 
         requirement_entity = cleaned_data["requirement_entity"]
-        allocation_entity = cleaned_data["allocation_entity"]
-        container_type = cleaned_data["container_type"]
-
         if not self._is_requirement_entity_end_date_valid(requirement_entity):
             self.add_error("requirement_entity", _("requirement_entity_end_date_too_short"))
-
-        self._are_requirement_and_allocation_entities_valid(requirement_entity, allocation_entity, container_type)
-
         return cleaned_data
 
     def _is_requirement_entity_end_date_valid(self, requirement_entity):
@@ -180,11 +174,6 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         if self.learning_unit_end_date is None:
             return False
         return requirement_entity.end_date >= self.learning_unit_end_date
-
-    def _are_requirement_and_allocation_entities_valid(self, requirement_entity, allocation_entity, container_type):
-        if requirement_entity != allocation_entity and \
-                container_type in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES:
-            self.add_error("allocation_entity", _("requirement_and_allocation_entities_cannot_be_different"))
 
     def _disabled_fields_base_on_learning_unit_year_subtype(self, subtype):
         if subtype == PARTIM:
