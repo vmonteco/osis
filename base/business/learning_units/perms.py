@@ -27,17 +27,11 @@ from base.models.entity import Entity
 from base.models.enums import learning_container_year_types
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
 from base.models.enums.proposal_state import ProposalState
-from base.models.enums.proposal_type import ProposalType
 from base.models.person_entity import is_attached_entities
 
 FACULTY_UPDATABLE_CONTAINER_TYPES = (learning_container_year_types.COURSE,
                                      learning_container_year_types.DISSERTATION,
                                      learning_container_year_types.INTERNSHIP)
-PROPOSAL_TYPE_ACCEPTED_FOR_UPDATE = (ProposalType.CREATION.name,
-                                     ProposalType.MODIFICATION.name,
-                                     ProposalType.TRANSFORMATION.name,
-                                     ProposalType.TRANSFORMATION_AND_MODIFICATION.name,
-                                     ProposalType.SUPPRESSION.name)
 
 
 def is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, person):
@@ -82,13 +76,14 @@ def is_eligible_to_edit_proposal(proposal, person):
     if not proposal:
         return False
 
-    is_person_linked_to_entity = person.is_linked_to_entity_in_charge_of_learning_unit_year(
-        proposal.learning_unit_year)
+    if person.is_central_manager():
+        pass
 
-    if person.is_faculty_manager():
-        if (proposal.state != ProposalState.FACULTY.name or
-                proposal.type not in PROPOSAL_TYPE_ACCEPTED_FOR_UPDATE or
-                not is_person_linked_to_entity):
+    elif person.is_faculty_manager():
+        if not person.is_linked_to_entity_in_charge_of_learning_unit_year(proposal.learning_unit_year):
+            return False
+
+        elif proposal.state != ProposalState.FACULTY.name:
             return False
 
     return person.user.has_perm('base.can_edit_learning_unit_proposal')
