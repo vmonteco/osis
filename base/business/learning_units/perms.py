@@ -76,10 +76,7 @@ def is_eligible_to_edit_proposal(proposal, person):
     if not proposal:
         return False
 
-    if person.is_central_manager():
-        pass
-
-    elif person.is_faculty_manager():
+    if person.is_faculty_manager():
         if not person.is_linked_to_entity_in_charge_of_learning_unit_year(proposal.learning_unit_year):
             return False
 
