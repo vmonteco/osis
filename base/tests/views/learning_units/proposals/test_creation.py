@@ -188,7 +188,7 @@ class LearningUnitViewTestCase(TestCase):
 
     def test_proposal_learning_unit_form_with_empty_title_fields(self):
         learning_unit_form = creation.LearningUnitProposalCreationForm(person=self.person,
-                                                                       data=self.get_empty_required_fields())
+                                                                       data=self.get_empty_title_fields())
         proposal_form = creation.LearningUnitProposalForm(data=self.get_empty_title_fields())
         self.assertTrue(proposal_form.is_valid(), proposal_form.errors)
         self.assertFalse(learning_unit_form.is_valid(), learning_unit_form.errors)
