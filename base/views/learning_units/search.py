@@ -106,7 +106,7 @@ def learning_units_proposal_search(request):
 
     if proposals:
         proposals = _proposal_management(request, proposals)
-
+    a_person = find_by_user(request.user)
     context = {
         'form': search_form,
         'academic_years': get_last_academic_years(),
