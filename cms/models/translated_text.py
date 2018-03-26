@@ -88,5 +88,7 @@ def find_by_entity_reference(an_entity_name, an_education_group_year_id):
 
 
 def find_with_changed(entity, text_labels_name):
-    queryset = TranslatedText.objects.filter(entity=entity, text_label__label__in=text_labels_name, changed__isnull=False)
+    queryset = TranslatedText.objects.filter(entity=entity,
+                                             text_label__label__in=text_labels_name,
+                                             changed__isnull=False)
     return queryset.select_related('text_label')

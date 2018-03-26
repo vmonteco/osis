@@ -335,11 +335,18 @@ def get_learning_units_and_summary_status(a_person, academic_yr):
     # TODO : We must improve performance.
     cms_list = translated_text.find_with_changed(LEARNING_UNIT_YEAR, CMS_LABEL_PEDAGOGY)
     for an_entity_version in entities_version_attached:
-        a_calendar = _get_calendar(academic_yr, an_entity_version)
-        if a_calendar:
-            entity_learning_unit_yr_list = get_list_entity_learning_unit_yr(an_entity_version, academic_yr)
-            if entity_learning_unit_yr_list:
-                learning_units_found.extend(get_summary_detail(a_calendar, cms_list, entity_learning_unit_yr_list))
+        learning_units_found = _get_learning_unit_by_entity(academic_yr, an_entity_version,
+                                                            cms_list, learning_units_found)
+    return learning_units_found
+
+
+def _get_learning_unit_by_entity(academic_yr, an_entity_version, cms_list, learning_units_found_param):
+    learning_units_found = learning_units_found_param
+    a_calendar = _get_calendar(academic_yr, an_entity_version)
+    if a_calendar:
+        entity_learning_unit_yr_list = get_list_entity_learning_unit_yr(an_entity_version, academic_yr)
+        if entity_learning_unit_yr_list:
+            learning_units_found.extend(get_summary_detail(a_calendar, cms_list, entity_learning_unit_yr_list))
     return learning_units_found
 
 

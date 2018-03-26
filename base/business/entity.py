@@ -60,17 +60,16 @@ def get_entity_container_list(entities_id_list_param, entity_ids, entity_contain
 def get_entity_calendar(an_entity_version, academic_yr):
     entity_cal = entity_calendar.find_by_entity_and_reference_for_current_academic_year(
         an_entity_version.entity.id, academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
-    if entity_cal is None:
+
+    if entity_cal:
+        return entity_cal
+    else:
         if an_entity_version.parent:
             parent_entity_version = entity_version.find_latest_version_by_entity(an_entity_version.parent,
                                                                                  timezone.now())
             if parent_entity_version:
                 return get_entity_calendar(parent_entity_version, academic_yr)
-
-            return None
         return None
-    else:
-        return entity_cal
 
 
 def build_entity_container_prefetch():
