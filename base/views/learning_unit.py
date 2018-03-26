@@ -53,7 +53,7 @@ from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
 from base.business.learning_units.simple.creation import create_learning_unit_year_structure, create_learning_unit
 from base.forms.learning_class import LearningClassEditForm
-from base.forms.learning_unit.edition import compute_learning_unit_form_initial_data
+from base.forms.learning_unit.edition import compute_learning_unit_form_initial_data, compute_form_initial_data
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
     PARTIM_FORM_READ_ONLY_FIELD
@@ -66,14 +66,13 @@ from base.models.learning_container import LearningContainer
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, LEARNING_UNIT_ACRONYM_REGEX_FULL
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
-from base.views.common import display_success_messages, display_error_messages, data
+from base.views.common import display_success_messages, display_error_messages
 from base.views.learning_units import perms
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
 from base.views.learning_units.search import _learning_units_search
 from cms.models import text_label
 from reference.models import language
 from . import layout
-from base.business.learning_unit_year_with_context import get_with_context
 
 
 @login_required
@@ -482,23 +481,6 @@ def compute_partim_form_initial_data(learning_unit_year_parent):
     initial = compute_form_initial_data(learning_unit_year_parent)
     initial['subtype'] = learning_unit_year_subtypes.PARTIM
     return initial
-
-
-def compute_form_initial_data(learning_unit_year):
-    other_fields_dict = {
-        "first_letter": learning_unit_year.acronym[0],
-        "acronym": learning_unit_year.acronym[1:]
-    }
-    fields = {
-        "learning_unit_year":
-            ("academic_year", "status", "credits", "session", "quadrimester", "subtype", "internship_subtype",
-             "specific_title", "specific_title_english"),
-        "learning_container_year":
-            ("common_title", "common_title_english", "container_type", "campus", "language"),
-        "learning_unit":
-            ("faculty_remark", "other_remark", "periodicity")
-    }
-    return compute_learning_unit_form_initial_data(other_fields_dict, learning_unit_year, fields)
 
 
 def get_learning_unit_identification_context(learning_unit_year_id, person):

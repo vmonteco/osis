@@ -2711,3 +2711,8 @@ msgstr "Le nombre de crédits est égal à celui de l'unité d'enseignement"
 msgid "The learning unit has been updated until %(year)s."
 msgstr "L'unité d'enseignement a été modifiée jusqu'en %(year)s."
 
+msgid "Prohibition to delete a learning unit before 2015."
+msgstr "Interdiction de supprimer une unité d'enseignement avant 2015."
+
+msgid "The entity '%(acronym)s' doesn't exist anymore in %(year)s"
+msgstr "L'entité '%(acronym)s' n'existe plus en %(year)s"

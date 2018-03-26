@@ -25,7 +25,6 @@
 ##############################################################################
 import datetime
 
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError, transaction
 from django.http import HttpResponseRedirect
@@ -34,12 +33,12 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from base.business import learning_unit_proposal as business_proposal
+from base.business.learning_unit_proposal import get_difference_of_proposal
 from base.business.learning_units.proposal.common import compute_proposal_state
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, ProposalLearningUnitForm
 from base.models import proposal_learning_unit
 from base.models.entity_version import find_latest_version_by_entity
-from base.models.enums.proposal_state import ProposalState
 from base.models.enums.proposal_type import ProposalType
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
@@ -50,6 +49,7 @@ from base.views.learning_unit import compute_form_initial_data, get_learning_uni
 from base.views.learning_units import perms
 
 
+# FIXME : Merge create_modification and update_modification
 @login_required
 @perms.can_create_modification_proposal
 @permission_required('base.can_propose_learningunit', raise_exception=True)
@@ -69,9 +69,9 @@ def learning_unit_modification_proposal(request, learning_unit_year_id):
     if form.is_valid():
         type_proposal = business_proposal.compute_proposal_type(initial_data, request.POST)
         form.save(learning_unit_year, user_person, type_proposal, compute_proposal_state(user_person))
-        messages.add_message(request, messages.SUCCESS,
-                             _("success_modification_proposal")
-                             .format(_(type_proposal), learning_unit_year.acronym))
+
+        display_success_messages(request, _("success_modification_proposal").format(
+            _(type_proposal), learning_unit_year.acronym))
 
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
@@ -117,8 +117,12 @@ def _update_proposal(request, user_person, proposal):
     if proposal_form.is_valid():
         try:
             type_proposal = business_proposal.compute_proposal_type(initial_data, request.POST)
+
             proposal_form.save(proposal.learning_unit_year, user_person, type_proposal,
                                proposal_form.cleaned_data.get("state"))
+
+            save_proposal_type(proposal, request)
+
             display_success_messages(request, _("proposal_edited_successfully"))
             return HttpResponseRedirect(reverse('learning_unit', args=[proposal.learning_unit_year.id]))
         except (IntegrityError, ValueError) as e:
@@ -129,6 +133,14 @@ def _update_proposal(request, user_person, proposal):
         'person': user_person,
         'form': proposal_form,
         'experimental_phase': True})
+
+
+def save_proposal_type(proposal, request):
+    # FIXME : Needs refactoring ! This method works around the buggy save()
+    initial_data = get_difference_of_proposal(proposal)
+    type_proposal = business_proposal.compute_proposal_type(initial_data, request.POST)
+    proposal.type = type_proposal
+    proposal.save()
 
 
 def _update_or_create_suppression_proposal(request, person, learning_unit_year, proposal=None):

@@ -98,6 +98,14 @@ class TestUserCanEditEducationalInformation(TestCase):
             self.create_attribution_and_check_if_user_can_edit_educational_information(True, False)
         self.assertFalse(can_edit_educational_information)
 
+    def test_when_period_is_date(self):
+        today = datetime.date.today()
+        self.MockClass.return_value = {"start_date": today - datetime.timedelta(days=1),
+                                       "end_date": today + datetime.timedelta(days=1)}
+        can_edit_educational_information = \
+            self.create_attribution_and_check_if_user_can_edit_educational_information(True, True)
+        self.assertTrue(can_edit_educational_information)
+
     @staticmethod
     def create_attribution_and_check_if_user_can_edit_educational_information(summary_responsible, summary_editable):
         an_attribution = AttributionFactory(summary_responsible=summary_responsible,

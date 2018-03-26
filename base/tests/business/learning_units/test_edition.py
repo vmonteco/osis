@@ -26,6 +26,7 @@
 import random
 
 from copy import deepcopy
+from datetime import timedelta
 from uuid import uuid4
 
 from django.test import TestCase
@@ -67,7 +68,7 @@ class LearningUnitEditionTestCase(TestCase):
                                                                              create_pratical_component=True)
 
         an_entity = EntityFactory()
-        EntityVersionFactory(entity=an_entity, parent=None, end_date=None, acronym="DRT")
+        self.entity_version = EntityVersionFactory(entity=an_entity, parent=None, end_date=None, acronym="DRT")
         self.allocation_entity = _create_entity_container_with_entity_components(
             self.learning_unit_year,
             entity_container_year_link_type.ALLOCATION_ENTITY,
@@ -293,6 +294,33 @@ class LearningUnitEditionTestCase(TestCase):
         )
         self.assertIsInstance(error_list, list)
         self.assertFalse(error_list)
+
+    def test_check_postponement_conflict_entity_container_year_entity_doesnt_exist_anymore(self):
+        # Copy the same container + change academic year
+        another_learning_container_year = _build_copy(self.learning_container_year)
+        another_learning_container_year.academic_year = self.next_academic_year
+        another_learning_container_year.save()
+
+        # Copy same entity
+        for entity_container_to_copy in [self.allocation_entity, self.requirement_entity,
+                                         self.add_requirement_entity_1]:
+            entity_copied = _build_copy(entity_container_to_copy)
+            entity_copied.learning_container_year = another_learning_container_year
+            entity_copied.save()
+
+        # Modify end_date of entity_version
+        self.entity_version.end_date = self.next_academic_year.start_date - timedelta(days=1)
+        self.entity_version.save()
+
+        error_list = business_edition._check_postponement_conflict_on_entity_container_year(
+            self.learning_container_year, another_learning_container_year
+        )
+        self.assertIsInstance(error_list, list)
+        error_entity_not_exist = _("The entity '%(acronym)s' doesn't exist anymore in %(year)s" % {
+            'acronym': self.entity_version.acronym,
+            'year': self.next_academic_year
+        })
+        self.assertIn(error_entity_not_exist, error_list)
 
     def test_check_postponement_conflict_entity_container_year_differences_found(self):
         # Copy the same container + change academic year
