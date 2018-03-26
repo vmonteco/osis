@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django import forms
+from django.core.exceptions import ValidationError
 from django.forms import model_to_dict
 from django.utils.translation import ugettext_lazy as _
 
@@ -34,6 +35,7 @@ from base.business.learning_units.perms import FACULTY_UPDATABLE_CONTAINER_TYPES
 from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.utils.choice_field import add_blank
 from base.models import academic_year, entity_container_year
+from base.models import learning_unit_year
 from base.models.academic_year import AcademicYear
 from base.models.enums.attribution_procedure import AttributionProcedures
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
@@ -167,6 +169,16 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         if not self._is_requirement_entity_end_date_valid(requirement_entity):
             self.add_error("requirement_entity", _("requirement_entity_end_date_too_short"))
         return cleaned_data
+
+    def clean_status(self):
+        status = self.cleaned_data['status']
+        if self.parent:
+            parent_status = self.parent.status
+            if not parent_status and parent_status != status:
+                raise ValidationError(_('The partim must be inactive because the parent is inactive'))
+        elif not status and self.instance.get_partims_related().filter(status=True).count():
+            raise ValidationError(_('The parent must be active because there are partim active'))
+        return status
 
     def _is_requirement_entity_end_date_valid(self, requirement_entity):
         if requirement_entity.end_date is None:
