@@ -27,21 +27,22 @@ from django import forms
 from django.utils.safestring import mark_safe
 from ckeditor.widgets import CKEditorWidget
 
+from base.business.learning_unit import find_language_in_settings
 from base.models.learning_unit_year import LearningUnitYear
 from cms.enums import entity_name
 from cms.models import translated_text
 
 
 class LearningUnitPedagogyForm(forms.Form):
-    learning_unit_year = language = None
     text_labels_name = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
                         'other_informations', 'online_resources']
 
-    def __init__(self, *args, **kwargs):
-        self.learning_unit_year = kwargs.pop('learning_unit_year', None)
-        self.language = kwargs.pop('language', None)
+    def __init__(self, *args, learning_unit_year=None, language_code=None, **kwargs):
+        self.learning_unit_year = learning_unit_year
+        self.language = find_language_in_settings(language_code)
+
         self.load_initial()
-        super(LearningUnitPedagogyForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def load_initial(self):
         translated_texts_list = self._get_all_translated_text_related()
@@ -68,7 +69,7 @@ class LearningUnitPedagogyEditForm(forms.Form):
         self.learning_unit_year = kwargs.pop('learning_unit_year', None)
         self.language_iso = kwargs.pop('language', None)
         self.text_label = kwargs.pop('text_label', None)
-        super(LearningUnitPedagogyEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def load_initial(self):
         value = translated_text.get_or_create(entity=entity_name.LEARNING_UNIT_YEAR,

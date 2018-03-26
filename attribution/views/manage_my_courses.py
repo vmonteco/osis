@@ -32,7 +32,8 @@ from attribution.business.manage_my_courses import find_learning_unit_years_summ
 from attribution.business.perms import can_user_edit_educational_information, \
     find_educational_information_submission_dates_of_learning_unit_year
 from attribution.views.perms import tutor_can_edit_educational_information, tutor_can_view_educational_information
-from base.business.learning_unit import get_cms_label_data, initialize_learning_unit_pedagogy_form, CMS_LABEL_PEDAGOGY
+from base.business.learning_unit import get_cms_label_data, CMS_LABEL_PEDAGOGY
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 from base.models import person
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.tutor import Tutor
@@ -56,8 +57,10 @@ def view_educational_information(request, learning_unit_year_id):
 
     cms_labels_translated = get_cms_label_data(CMS_LABEL_PEDAGOGY,
                                                person.get_user_interface_language(request.user))
-    form_french = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_FR)
-    form_english = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_EN)
+    form_french = LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
+                                           language_code=settings.LANGUAGE_CODE_FR)
+    form_english = LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
+                                            language_code=settings.LANGUAGE_CODE_EN)
 
     can_edit_information = can_user_edit_educational_information(request.user, learning_unit_year_id)
     submission_dates = find_educational_information_submission_dates_of_learning_unit_year(learning_unit_year_id)

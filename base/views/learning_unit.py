@@ -45,7 +45,7 @@ from base.business.learning_unit import get_cms_label_data, \
     get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, find_language_in_settings, \
-    initialize_learning_unit_pedagogy_form, compute_max_academic_year_adjournment, \
+    compute_max_academic_year_adjournment, \
     create_learning_unit_partim_structure, CMS_LABEL_SPECIFICATIONS, \
     CMS_LABEL_PEDAGOGY, can_edit_summary_editable_field
 from base.business.learning_unit_proposal import get_difference_of_proposal
@@ -53,11 +53,12 @@ from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
 from base.business.learning_units.simple.creation import create_learning_unit_year_structure, create_learning_unit
 from base.forms.learning_class import LearningClassEditForm
-from base.forms.learning_unit.edition import compute_learning_unit_form_initial_data, compute_form_initial_data
+from base.forms.learning_unit.edition import compute_form_initial_data
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
     PARTIM_FORM_READ_ONLY_FIELD
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, SummaryEditableModelForm
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, SummaryEditableModelForm, \
+    LearningUnitPedagogyForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import proposal_learning_unit
 from base.models.enums import learning_unit_year_subtypes
@@ -126,8 +127,10 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
     user_language = mdl.person.get_user_interface_language(request.user)
     context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language)
 
-    context['form_french'] = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_FR)
-    context['form_english'] = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_EN)
+    context['form_french'] = LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
+                                                      language_code=settings.LANGUAGE_CODE_FR)
+    context['form_english'] = LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
+                                                       language_code=settings.LANGUAGE_CODE_EN)
     context['experimental_phase'] = True
 
     can_user_edit_summary_editable_field = can_edit_summary_editable_field(user_person,
@@ -149,9 +152,10 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
 
     context['summary_editable_form'] = summary_editable_form
     context['can_edit_summary_editable_field'] = can_user_edit_summary_editable_field
-    return render(request, "learning_unit/pedagogy.html", context)
+    return layout.render(request, "learning_unit/pedagogy.html", context)
 
 
+# TODO Move this method in form __init__
 def build_summary_editable_form(request, learning_unit_year, can_user_edit_summary_editable_field):
     summary_editable_form = SummaryEditableModelForm(request.POST or None, instance=learning_unit_year)
     summary_editable_form.fields['summary_editable'].disabled = not can_user_edit_summary_editable_field

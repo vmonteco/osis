@@ -36,7 +36,6 @@ from attribution.models.attribution import Attribution
 from base import models as mdl_base
 from base.business.learning_unit_year_with_context import volume_learning_component_year
 from base.business.learning_units.simple.creation import create_learning_unit_content
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 from base.models import entity_container_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type, academic_calendar_type
@@ -278,11 +277,6 @@ def can_access_summary(user, learning_unit_year):
     except Http404:
         raise PermissionDenied()
     return True
-
-
-def initialize_learning_unit_pedagogy_form(learning_unit_year, language_code):
-    lang = find_language_in_settings(language_code)
-    return LearningUnitPedagogyForm(learning_unit_year=learning_unit_year, language=lang)
 
 
 def find_language_in_settings(language_code):

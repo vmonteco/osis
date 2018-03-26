@@ -1141,8 +1141,6 @@ class LearningUnitViewTestCase(TestCase):
 
         request = self.create_learning_unit_request(learning_unit_year)
 
-        from base.views.learning_unit import learning_unit_pedagogy
-
         learning_unit_pedagogy(request, learning_unit_year.id)
 
         self.assertTrue(mock_render.called)
@@ -1159,10 +1157,9 @@ class LearningUnitViewTestCase(TestCase):
                                                      summary_editable=True)
 
         request = self.create_learning_unit_request(learning_unit_year)
-
-        from base.views.learning_unit import learning_unit_pedagogy
         learning_unit_pedagogy(request, learning_unit_year.id)
 
+        self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertIsInstance(context['summary_editable_form'], SummaryEditableModelForm)
 
