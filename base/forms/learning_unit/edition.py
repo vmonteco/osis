@@ -132,7 +132,7 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         self.instance = learning_unit_year_instance
         self.learning_unit_end_date = kwargs.pop("end_date", None)
 
-        super().__init__(*args, initial=self.compute_learning_unit_modification_form_initial_data(), **kwargs)
+        super().__init__(*args, initial=compute_form_initial_data(self.instance), **kwargs)
         self.postponement = bool(int(self.data.get('postponement', 1)))
 
         if self.initial:
@@ -227,22 +227,6 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         update_learning_unit_year_with_report(self.instance, lu_type_full_data, entities_data,
                                               with_report=self.postponement)
 
-    def compute_learning_unit_modification_form_initial_data(self):
-        other_fields_dict = {
-            "specific_title": self.instance.specific_title,
-            "specific_title_english": self.instance.specific_title_english,
-            "first_letter": self.instance.acronym[0],
-            "acronym": self.instance.acronym[1:]
-        }
-        fields = {
-            "learning_unit_year": ("academic_year", "status", "credits", "session", "subtype", "quadrimester",
-                                   "attribution_procedure"),
-            "learning_container_year": ("common_title", "common_title_english", "container_type", "campus", "language",
-                                        "is_vacant", "team", "type_declaration_vacant"),
-            "learning_unit": ("faculty_remark", "other_remark", "periodicity")
-        }
-        return compute_learning_unit_form_initial_data(other_fields_dict, self.instance, fields)
-
 
 def compute_learning_unit_form_initial_data(base_dict, learning_unit_year, fields):
     initial_data = base_dict.copy()
@@ -260,3 +244,20 @@ def _get_attributions_of_learning_unit_year(learning_unit_year):
         learning_unit_year.learning_container_year
     )
     return {k.lower(): v.pk for k, v in attributions.items() if v is not None}
+
+
+def compute_form_initial_data(learning_unit_year):
+    other_fields_dict = {
+        "specific_title": learning_unit_year.specific_title,
+        "specific_title_english": learning_unit_year.specific_title_english,
+        "first_letter": learning_unit_year.acronym[0],
+        "acronym": learning_unit_year.acronym[1:]
+    }
+    fields = {
+        "learning_unit_year": ("academic_year", "status", "credits", "session", "subtype", "quadrimester",
+                               "attribution_procedure", "internship_subtype"),
+        "learning_container_year": ("common_title", "common_title_english", "container_type", "campus", "language",
+                                    "is_vacant", "team", "type_declaration_vacant"),
+        "learning_unit": ("faculty_remark", "other_remark", "periodicity")
+    }
+    return compute_learning_unit_form_initial_data(other_fields_dict, learning_unit_year, fields)

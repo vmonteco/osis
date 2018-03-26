@@ -2704,6 +2704,12 @@ msgstr "The credits value is equal to the credits value of the learning unit."
 msgid "The learning unit has been updated until %(year)s."
 msgstr ""
 
+msgid "Prohibition to delete a learning unit before 2015."
+msgstr ""
+
+msgid "The entity '%(acronym)s' doesn't exist anymore in %(year)s"
+msgstr ""
+
 msgid "updated"
 msgstr "Updated"
 
@@ -2712,4 +2718,3 @@ msgstr "Unupdated"
 
 msgid "summary_list"
 msgstr "Education information status"
-
