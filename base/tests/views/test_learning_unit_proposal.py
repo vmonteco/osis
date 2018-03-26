@@ -931,7 +931,7 @@ class TestEditProposal(TestCase):
         self.generated_container_first_year = self.generated_container.generated_container_years[0]
         self.learning_unit_year = self.generated_container_first_year.learning_unit_year_full
         self.proposal = ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year,
-                                                    state=ProposalState.FACULTY,
+                                                    state=ProposalState.FACULTY.name,
                                                     folder_id=1,
                                                     entity=self.entity)
 
@@ -993,7 +993,7 @@ class TestEditProposal(TestCase):
         faultydict["state"] = "bad_choice"
         return faultydict
 
-    def test_edit_proposal_post(self):
+    def test_edit_proposal_post_as_faculty_manager(self):
         request_factory = RequestFactory()
         request = request_factory.post(self.url, data=self.get_modify_data())
 
@@ -1009,10 +1009,11 @@ class TestEditProposal(TestCase):
         self.assertIn(messages.SUCCESS, msg_level)
 
         self.proposal.refresh_from_db()
-        self.assertEqual(self.proposal.state, ProposalState.CENTRAL.value)
+        self.assertEqual(self.proposal.state, ProposalState.FACULTY.value)
 
     @mock.patch('base.views.layout.render')
     def test_edit_proposal_post_wrong_data(self, mock_render):
+        self.person.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
         request_factory = RequestFactory()
         request = request_factory.post(self.url, data=self.get_faulty_data())
 
@@ -1031,7 +1032,7 @@ class TestEditProposal(TestCase):
         self.assertEqual(len(form.errors), 1)
 
         self.proposal.refresh_from_db()
-        self.assertEqual(self.proposal.state, 'ProposalState.FACULTY')
+        self.assertEqual(self.proposal.state, ProposalState.FACULTY.name)
 
     @mock.patch('base.views.layout.render')
     def test_edit_suppression_proposal_get(self, mock_render):

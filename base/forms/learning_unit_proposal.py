@@ -72,17 +72,22 @@ class ProposalLearningUnitForm(forms.ModelForm):
 class LearningUnitProposalModificationForm(LearningUnitYearForm):
     entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
-    state = forms.ChoiceField(choices=proposal_state.CHOICES, required=False)
+    state = forms.ChoiceField(choices=proposal_state.CHOICES, required=False, disabled=True)
     type = forms.ChoiceField(choices=proposal_type.CHOICES, required=False, disabled=True)
 
-    def __init__(self, *args, **kwargs):
-        self.proposal = kwargs.pop('instance', None)
-        super(LearningUnitProposalModificationForm, self).__init__(*args, **kwargs)
+    def __init__(self, data, person, *args, instance=None, **kwargs):
+        super().__init__(data, *args, **kwargs)
+        self.proposal = instance
+
         self.fields["academic_year"].disabled = True
         self.fields["academic_year"].required = False
         self.fields["subtype"].required = False
         # When we submit a proposal, we can select all requirement entity available
         self.fields["requirement_entity"].queryset = find_main_entities_version()
+        self.person = person
+        if self.person.is_central_manager():
+            self.fields['state'].disabled = False
+            self.fields['state'].required = True
 
     def clean(self):
         cleaned_data = super().clean()
@@ -93,7 +98,7 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
 
         return cleaned_data
 
-    def save(self, learning_unit_year, a_person, type_proposal, state_proposal):
+    def save(self, learning_unit_year, type_proposal, state_proposal):
         # FIXME is_valid already called in the view
         if not self.is_valid():
             raise ValueError("Form is invalid.")
@@ -112,7 +117,7 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
         self._updates_entities(learning_container_year)
 
         # TODO Move this section in ProposalLearningUnitForm
-        data = {'person': a_person, 'learning_unit_year': learning_unit_year, 'state_proposal': state_proposal,
+        data = {'person': self.person, 'learning_unit_year': learning_unit_year, 'state_proposal': state_proposal,
                 'type_proposal': type_proposal, 'folder_entity': self.cleaned_data["entity"],
                 'folder_id': self.cleaned_data['folder_id']}
         if self.proposal:
