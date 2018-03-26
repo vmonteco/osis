@@ -738,40 +738,40 @@ class LearningUnitViewTestCase(TestCase):
         return self.get_base_form_data()
 
     def get_faulty_acronym(self):
-        faultydict = dict(self.get_valid_data())
-        faultydict["acronym"] = "TA200"
-        return faultydict
+        faulty_dict = dict(self.get_valid_data())
+        faulty_dict["acronym"] = "TA200"
+        return faulty_dict
 
     def get_existing_acronym(self):
-        faultydict = dict(self.get_valid_data())
-        faultydict["acronym"] = "DRT2018"
-        return faultydict
+        faulty_dict = dict(self.get_valid_data())
+        faulty_dict["acronym"] = "DRT2018"
+        return faulty_dict
 
     def get_empty_internship_subtype(self):
-        faultydict = dict(self.get_valid_data())
-        faultydict["container_type"] = learning_container_year_types.INTERNSHIP
-        faultydict["internship_subtype"] = ""
-        return faultydict
+        faulty_dict = dict(self.get_valid_data())
+        faulty_dict["container_type"] = learning_container_year_types.INTERNSHIP
+        faulty_dict["internship_subtype"] = ""
+        return faulty_dict
 
     def get_empty_acronym(self):
-        faultyDict = dict(self.get_valid_data())
-        faultyDict["acronym"] = ""
-        return faultyDict
+        faulty_dict = dict(self.get_valid_data())
+        faulty_dict["acronym"] = ""
+        return faulty_dict
 
     def get_faulty_allocation_entity(self):
-        faultyDict = dict(self.get_valid_data())
-        faultyDict["container_type"] = random.choice(LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES)
-        faultyDict["allocation_entity"] = self.entity_version_2.id
-        return faultyDict
+        faulty_dict = dict(self.get_valid_data())
+        faulty_dict["container_type"] = random.choice(LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES)
+        faulty_dict["allocation_entity"] = self.entity_version_2.id
+        return faulty_dict
 
     def get_faulty_requirement_entity(self):
         """We will create an entity + entity version that user cannot create on it"""
         entity = EntityFactory(country=self.country, organization=self.organization)
         entity_version = EntityVersionFactory(entity=entity, entity_type=entity_type.SCHOOL, end_date=None,
                                               start_date=datetime.date.today())
-        faultydict = dict(self.get_valid_data())
-        faultydict['requirement_entity'] = entity_version.id
-        return faultydict
+        faulty_dict = dict(self.get_valid_data())
+        faulty_dict['requirement_entity'] = entity_version.id
+        return faulty_dict
 
     def test_learning_unit_year_form(self):
         form = CreateLearningUnitYearForm(person=self.person, data=self.get_valid_data())
