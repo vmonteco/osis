@@ -155,6 +155,7 @@ def is_academic_calendar_opened(an_academic_year_id, a_reference):
         return True
     return False
 
+
 def find_dates_for_current_academic_year(reference):
     try:
         return AcademicCalendar.objects.current_academic_year().filter(reference=reference).\
