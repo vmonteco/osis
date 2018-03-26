@@ -60,6 +60,7 @@ class ProposalLearningUnit(models.Model):
 
     class Meta:
         permissions = (
+            # TODO: Remove this permissions : already exists with can_change_proposal_learning_unit
             ("can_edit_learning_unit_proposal", "Can edit learning unit proposal"),
         )
 
