@@ -329,22 +329,17 @@ def get_list_entity_learning_unit_yr(an_entity_version, current_academic_yr):
         .order_by('academic_year__year', 'acronym')
 
 
-def get_learning_units_summary_status(a_person, academic_yr):
+def get_learning_units_and_summary_status(a_person, academic_yr):
     entities_version_attached = a_person.find_main_entities_version
     learning_units_found = []
     # TODO : We must improve performance.
-    cms_list = translated_text.search(entity=LEARNING_UNIT_YEAR, text_labels_name=CMS_LABEL_PEDAGOGY, changed=True)
+    cms_list = translated_text.find_with_changed(LEARNING_UNIT_YEAR, CMS_LABEL_PEDAGOGY)
     for an_entity_version in entities_version_attached:
         a_calendar = _get_calendar(academic_yr, an_entity_version)
         if a_calendar:
             entity_learning_unit_yr_list = get_list_entity_learning_unit_yr(an_entity_version, academic_yr)
             if entity_learning_unit_yr_list:
-                for lu in entity_learning_unit_yr_list:
-                    lu.summary_responsibles = attribution_new.search(summary_responsible=True,
-                                                                     learning_container_year=lu.learning_container_year)
-                    lu.summary_status = set_summary_status(a_calendar, cms_list, lu)
-
-                learning_units_found.extend(entity_learning_unit_yr_list)
+                learning_units_found.extend(get_summary_detail(a_calendar, cms_list, entity_learning_unit_yr_list))
     return learning_units_found
 
 
@@ -363,3 +358,12 @@ def _get_calendar(academic_yr, an_entity_version):
         if an_academic_calendar:
             return an_academic_calendar
     return a_calendar
+
+
+def get_summary_detail(a_calendar, cms_list, entity_learning_unit_yr_list_param):
+    entity_learning_unit_yr_list = entity_learning_unit_yr_list_param
+    for lu in entity_learning_unit_yr_list:
+        lu.summary_responsibles = attribution_new.search(summary_responsible=True,
+                                                         learning_container_year=lu.learning_container_year)
+        lu.summary_status = set_summary_status(a_calendar, cms_list, lu)
+    return entity_learning_unit_yr_list

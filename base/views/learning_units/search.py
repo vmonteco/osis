@@ -31,7 +31,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import SERVICE_COURSES_SEARCH, create_xls, get_last_academic_years, SIMPLE_SEARCH, \
-    get_learning_units_summary_status
+    get_learning_units_and_summary_status
 from base.forms.common import TooManyResultsException
 from base.forms.learning_unit_create import MAX_RECORDS
 from base.forms.learning_units import LearningUnitYearForm
@@ -172,7 +172,7 @@ def _force_state(formset, request):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units_summary_list(request):
-    learning_units_found = get_learning_units_summary_status(find_by_user(request.user), current_academic_year())
+    learning_units_found = get_learning_units_and_summary_status(find_by_user(request.user), current_academic_year())
     context = {
         'learning_units': sorted(learning_units_found, key=lambda t: t.acronym),
         'experimental_phase': True,

@@ -66,10 +66,9 @@ def get_entity_calendar(an_entity_version, academic_yr):
                                                                                  timezone.now())
             if parent_entity_version:
                 return get_entity_calendar(parent_entity_version, academic_yr)
-            else:
-                return None
-        else:
+
             return None
+        return None
     else:
         return entity_cal
 
