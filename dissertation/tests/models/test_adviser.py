@@ -24,8 +24,9 @@
 #
 ##############################################################################
 from django.contrib.auth.models import User
+from django.test import TestCase
 from base.models.person import Person
-from dissertation.models.adviser import Adviser
+from dissertation.models.adviser import Adviser, none_to_str
 
 
 def create_adviser(person, type="PRF"):
@@ -41,3 +42,10 @@ def create_adviser_from_user(user, type="PRF"):
 def create_adviser_from_scratch(username, email, password, type="PRF"):
     user = User.objects.create_user(username=username, email=email, password=password)
     return create_adviser_from_user(user, type)
+
+
+class UtilsTestCase(TestCase):
+
+    def test_convert_none_to_empty_str(self):
+        self.assertEqual(none_to_str(None), '')
+        self.assertEqual(none_to_str('toto'), 'toto')
