@@ -67,7 +67,6 @@ class StructuresListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             })
         return queryset
 
-
     def get_context_data(self, **kwargs):
         context = super(StructuresListView, self).get_context_data(**kwargs)
         context['year'] = academic_year.current_academic_year().year

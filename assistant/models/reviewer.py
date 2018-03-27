@@ -117,4 +117,3 @@ def has_already_delegate_for_entity(reviewer, entity):
         return Reviewer.objects.get(role=delegate_role, entity=entity)
     except Reviewer.DoesNotExist:
         return False
-
