@@ -26,7 +26,7 @@
 import datetime
 from unittest.mock import patch
 
-from base.business.learning_unit_proposal import compute_proposal_type
+from base.business.learning_unit_proposal import new_compute_proposal_type
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.business import learning_unit_proposal as lu_proposal_business
@@ -36,7 +36,7 @@ from django.test import TestCase, SimpleTestCase
 
 from base.models.enums import organization_type, proposal_type, entity_type, \
     learning_container_year_types, entity_container_year_link_type, \
-    learning_unit_year_subtypes, proposal_state, learning_unit_periodicity
+    learning_unit_year_subtypes, proposal_state
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
@@ -158,89 +158,37 @@ class TestLearningUnitProposalCancel(TestCase):
 
 
 class TestComputeProposalType(SimpleTestCase):
-    def setUp(self):
-        self.initial_data = {
-            "academic_year": 10,
-            "first_letter": "L",
-            "acronym": "OSIS1245",
-            "common_title": "common title",
-            "common_title_english": "common title english",
-            "specific_title": "itle",
-            "specific_title_english": "title english",
-            "container_type": learning_container_year_types.COURSE,
-            "internship_subtype": "",
-            "credits": "4",
-            "periodicity": learning_unit_periodicity.ANNUAL,
-            "status": False,
-            "language": 10,
-            "quadrimester": 10,
-            "campus": 10,
-            "requirement_entity": 10,
-            "allocation_entity": 10,
-            "entity": 10,
-            "folder_id": "1",
-            "state": proposal_state.ProposalState.CENTRAL.name,
-        }
+    def test_return_creation_type_when_creation_is_initial_proposal_type(self):
+        actual_proposal_type = new_compute_proposal_type([], proposal_type.ProposalType.CREATION.name)
+        self.assertEqual(proposal_type.ProposalType.CREATION.name, actual_proposal_type)
 
-        self.new_data = self.initial_data.copy()
+    def test_return_suppression_type_when_suppresion_is_initial_proposal_type(self):
+        actual_proposal_type = new_compute_proposal_type([], proposal_type.ProposalType.SUPPRESSION.name)
+        self.assertEqual(proposal_type.ProposalType.SUPPRESSION.name, actual_proposal_type)
 
-    def test_cannot_switch_initial_proposal_type_when_of_type_creation(self):
-        creation_proposal_type = proposal_type.ProposalType.CREATION.name
-        self.initial_data["type"] = creation_proposal_type
+    def test_return_transformation_when_data_changed_consist_of_first_letter(self):
+        actual_proposal_type = new_compute_proposal_type(["first_letter"], None)
+        self.assertEqual(proposal_type.ProposalType.TRANSFORMATION.name, actual_proposal_type)
 
-        self.assert_proposal_type(creation_proposal_type)
+    def test_return_transformation_when_data_changed_consist_of_acronym(self):
+        actual_proposal_type = new_compute_proposal_type(["acronym"], None)
+        self.assertEqual(proposal_type.ProposalType.TRANSFORMATION.name, actual_proposal_type)
 
-    def test_cannot_switch_initial_proposal_type_when_of_type_suppression(self):
-        suppression_proposal_type = proposal_type.ProposalType.SUPPRESSION.name
-        self.initial_data["type"] = suppression_proposal_type
+    def test_return_modification_when_data_changed_consist_of_other_fields_than_first_letter_or_acronym(self):
+        actual_proposal_type = new_compute_proposal_type(["common_title"], None)
+        self.assertEqual(proposal_type.ProposalType.MODIFICATION.name, actual_proposal_type)
 
-        self.assert_proposal_type(suppression_proposal_type)
+    def test_return_modification_when_no_data_changed(self):
+        actual_proposal_type = new_compute_proposal_type([], None)
+        self.assertEqual(proposal_type.ProposalType.MODIFICATION.name, actual_proposal_type)
 
-    def test_return_transformation_type_when_modifying_only_first_letter(self):
-        self.new_data["first_letter"] = "B"
+    def test_return_transformation_and_modification_when_modifying_acronym_and_other_field(self):
+        actual_proposal_type = new_compute_proposal_type(["acronym", "common_title"], None)
+        self.assertEqual(proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name, actual_proposal_type)
 
-        self.assert_proposal_type(proposal_type.ProposalType.TRANSFORMATION.name)
-
-    def test_return_transformation_type_when_modifying_only_acronym(self):
-        self.new_data["acronym"] = "OSIS2569"
-
-        self.assert_proposal_type(proposal_type.ProposalType.TRANSFORMATION.name)
-
-    def test_return_transformation_type_when_modifying_first_letter_and_acronym(self):
-        self.new_data["first_letter"] = "B"
-        self.new_data["acronym"] = "OSIS2569"
-
-        self.assert_proposal_type(proposal_type.ProposalType.TRANSFORMATION.name)
-
-    def test_return_modification_type_when_modifying_learning_unit_fields_other_than_first_letter_and_acronym(self):
-        fields_to_test = ("common_title", "common_title_english", "specific_title", "specific_title_english",
-                          "container_type", "internship_subtype", "credits", "periodicity", "status", "language",
-                          "quadrimester", "campus", "requirement_entity", "allocation_entity")
-
-        for field in fields_to_test:
-            if type(self.new_data[field]) == int:
-                self.new_data[field] += 1
-                self.assert_proposal_type(proposal_type.ProposalType.MODIFICATION.name)
-                self.new_data[field] = self.initial_data[field]
-            elif type(self.new_data[field]) == str:
-                self.new_data[field] += "new"
-                self.assert_proposal_type(proposal_type.ProposalType.MODIFICATION.name)
-                self.new_data[field] = self.initial_data[field]
-            elif type(self.new_data[field]) == bool:
-                self.new_data[field] ^= True
-                self.assert_proposal_type(proposal_type.ProposalType.MODIFICATION.name)
-                self.new_data[field] = self.initial_data[field]
-
-    def test_return_transformation_and_modification_type_when_modifying_acronym_plus_other_learning_unit_field(self):
-        self.new_data["acronym"] = "OSIS2569"
-        self.new_data["common_title"] =  "new common title"
-
-        self.assert_proposal_type(proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name)
-
-    def assert_proposal_type(self, expected_proposal_type):
-        actual_proposal_type = compute_proposal_type(self.initial_data, self.new_data)
-
-        self.assertEqual(expected_proposal_type, actual_proposal_type)
+    def test_return_transformation_and_modification_when_modifying_first_letter_and_other_field(self):
+        actual_proposal_type = new_compute_proposal_type(["first_letter", "common_title"], None)
+        self.assertEqual(proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name, actual_proposal_type)
 
 
 

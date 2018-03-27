@@ -44,54 +44,21 @@ LABEL_ACTIVE = _('active')
 LABEL_INACTIVE = _('inactive')
 
 
-def compute_proposal_type(initial_data, current_data):
-    if initial_data.get("type") == ProposalType.CREATION.name:
-        return ProposalType.CREATION.name
+def new_compute_proposal_type(data_changed, initial_proposal_type):
+    if initial_proposal_type in [ProposalType.CREATION.name, ProposalType.SUPPRESSION.name]:
+        return initial_proposal_type
 
-    if initial_data.get("type") == ProposalType.SUPPRESSION.name:
-        return ProposalType.SUPPRESSION.name
-
-    data_changed = _compute_data_changed(initial_data, current_data)
-
-    if _is_transformation(initial_data, current_data):
-        if _is_modification(data_changed):
-            proposal_type = ProposalType.TRANSFORMATION_AND_MODIFICATION.name
+    is_transformation = any(map(_is_transformation_field, data_changed))
+    is_modification = any(map(lambda field: not _is_transformation_field(field), data_changed))
+    if is_transformation:
+        if is_modification:
+            return ProposalType.TRANSFORMATION_AND_MODIFICATION.name
         else:
-            proposal_type = ProposalType.TRANSFORMATION.name
-    else:
-        proposal_type = ProposalType.MODIFICATION.name
+            return ProposalType.TRANSFORMATION.name
+    return ProposalType.MODIFICATION.name
 
-    return proposal_type
-
-
-def _compute_data_changed(initial_data, current_data):
-    data_changed = {}
-    for key, value in current_data.items():
-        initial_value = initial_data.get(key)
-        if key == 'status':
-            value = value == 'on'
-        if _is_initial_not_equal_current(initial_value, value):
-            data_changed[key] = value
-    return data_changed
-
-
-def _is_initial_not_equal_current(initial_value, value):
-    return initial_value and value and str(value) != str(initial_value)
-
-
-def _is_transformation(initial_data, current_data):
-    if 'acronym' not in initial_data:
-        return False
-    return (current_data.get("first_letter", "") + current_data["acronym"] !=
-            initial_data.get("first_letter", "") + initial_data["acronym"])
-
-
-def _is_modification(data_changed):
-    if data_changed.get('acronym'):
-        del data_changed['acronym']
-    if data_changed.get('first_letter'):
-        del data_changed['first_letter']
-    return bool(data_changed)
+def _is_transformation_field(field):
+    return field in ["acronym", "first_letter"]
 
 
 def reinitialize_data_before_proposal(learning_unit_proposal):

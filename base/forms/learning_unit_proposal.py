@@ -25,6 +25,7 @@
 ##############################################################################
 
 from django import forms
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_proposal import reinitialize_data_before_proposal
@@ -128,6 +129,12 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
         else:
             data.update({'initial_data': initial_data})
             creation.create_learning_unit_proposal(data)
+
+    @cached_property
+    def changed_data_specific(self):
+        fields_that_cannot_be_modified = {"academic_year", "subtype", "faculty_remark", "other_remark", "entity",
+                                          "folder_id", "state", "type"}
+        return list(set(self.changed_data) - fields_that_cannot_be_modified)
 
     def _updates_entities(self, learning_container_year):
         for entity_type in ENTITY_TYPE_LIST:

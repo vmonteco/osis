@@ -68,7 +68,8 @@ def learning_unit_modification_proposal(request, learning_unit_year_id):
     )
 
     if form.is_valid():
-        type_proposal = business_proposal.compute_proposal_type(initial_data, request.POST)
+        type_proposal = business_proposal.new_compute_proposal_type(form.changed_data_specific,
+                                                                    initial_data.get("type"))
         form.save(learning_unit_year, type_proposal, compute_proposal_state(user_person))
 
         display_success_messages(request, _("success_modification_proposal").format(
@@ -118,12 +119,13 @@ def _update_proposal(request, user_person, proposal):
 
     if proposal_form.is_valid():
         try:
-            type_proposal = business_proposal.compute_proposal_type(initial_data, request.POST)
+            type_proposal = business_proposal.new_compute_proposal_type(proposal_form.changed_data_specific,
+                                                                        initial_data.get("type"))
 
             proposal_form.save(proposal.learning_unit_year, type_proposal,
                                proposal_form.cleaned_data.get("state"))
 
-            save_proposal_type(proposal, request)
+            # TODO check from initial data JSON
 
             display_success_messages(request, _("proposal_edited_successfully"))
             return HttpResponseRedirect(reverse('learning_unit', args=[proposal.learning_unit_year.id]))
@@ -135,15 +137,6 @@ def _update_proposal(request, user_person, proposal):
         'person': user_person,
         'form': proposal_form,
         'experimental_phase': True})
-
-
-def save_proposal_type(proposal, request):
-    # FIXME : Needs refactoring ! This method works around the buggy save()
-    initial_data = get_difference_of_proposal(proposal)
-    type_proposal = business_proposal.compute_proposal_type(initial_data, request.POST)
-    proposal.type = type_proposal
-    proposal.save()
-
 
 def _update_or_create_suppression_proposal(request, person, learning_unit_year, proposal=None):
     type_proposal = ProposalType.SUPPRESSION.name
