@@ -87,6 +87,10 @@ class LearningUnitPedagogyEditForm(forms.Form):
 
 
 class SummaryEditableModelForm(forms.ModelForm):
+    def __init__(self, data, can_user_edit_summary_editable, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+        self.fields['summary_editable'].disabled = not can_user_edit_summary_editable
+
     class Meta:
         model = LearningUnitYear
         fields = ['summary_editable', 'mobility_modality']

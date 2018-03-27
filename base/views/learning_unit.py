@@ -123,8 +123,8 @@ def learning_unit_components(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_pedagogy(request, learning_unit_year_id):
-    user_person = get_object_or_404(Person, user=request.user)
-    context = get_common_context_learning_unit_year(learning_unit_year_id, user_person)
+    person = get_object_or_404(Person, user=request.user)
+    context = get_common_context_learning_unit_year(learning_unit_year_id, person)
     learning_unit_year = context['learning_unit_year']
     user_language = mdl.person.get_user_interface_language(request.user)
     context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language)
@@ -135,20 +135,15 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
                                                        language_code=settings.LANGUAGE_CODE_EN)
     context['experimental_phase'] = True
 
-    can_user_edit_summary_editable_field = can_edit_summary_editable_field(user_person,
-                                                                           context['is_person_linked_to_entity'])
-    summary_editable_form = build_summary_editable_form(request,
-                                                        learning_unit_year,
-                                                        can_user_edit_summary_editable_field)
+    can_user_edit_summary_editable = can_edit_summary_editable_field(person, context['is_person_linked_to_entity'])
+    summary_editable_form = SummaryEditableModelForm(request.POST or None, can_user_edit_summary_editable,
+                                                     instance=learning_unit_year)
 
-    BibliographyFormset = inlineformset_factory(LearningUnitYear, Bibliography, fields=('title', 'mandatory'),
-                                                max_num=10, extra=1)
+    BibliographyFormset = inlineformset_factory(LearningUnitYear, Bibliography,
+                                                fields=('title', 'mandatory'), max_num=10, extra=1)
     bibliography_formset = BibliographyFormset(request.POST or None, instance=learning_unit_year)
 
     if summary_editable_form.is_valid() and bibliography_formset.is_valid():
-        print(request.POST)
-        if not can_user_edit_summary_editable_field:
-            raise PermissionDenied
         try:
             summary_editable_form.save()
             bibliography_formset.save()
@@ -159,16 +154,9 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
             display_error_messages(request, e.args[0])
 
     context['summary_editable_form'] = summary_editable_form
-    context['can_edit_summary_editable_field'] = can_user_edit_summary_editable_field
+    context['can_edit_summary_editable_field'] = can_user_edit_summary_editable
     context['bibliography_formset'] = bibliography_formset
-    return render(request, "learning_unit/pedagogy.html", context)
-
-
-# TODO Move this method in form __init__
-def build_summary_editable_form(request, learning_unit_year, can_user_edit_summary_editable_field):
-    summary_editable_form = SummaryEditableModelForm(request.POST or None, instance=learning_unit_year)
-    summary_editable_form.fields['summary_editable'].disabled = not can_user_edit_summary_editable_field
-    return summary_editable_form
+    return layout.render(request, "learning_unit/pedagogy.html", context)
 
 
 @login_required
