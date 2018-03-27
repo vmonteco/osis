@@ -26,12 +26,16 @@
 from unittest import mock
 import datetime
 
+from django.forms import model_to_dict
 from django.http import HttpResponse, HttpResponseNotFound
 from django.test import TestCase
 from django.urls import reverse
 
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
+from base.models.enums import academic_calendar_type
 from base.models.tutor import Tutor
+from base.tests.factories.academic_calendar import AcademicCalendarFactory
+from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.tutor import TutorFactory
 
@@ -40,16 +44,20 @@ from attribution.views.manage_my_courses import list_my_attributions_summary_edi
 
 
 class ManageMyCoursesViewTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.person = PersonFactory()
+        cls.user = cls.person.user
+        cls.tutor = TutorFactory(person=cls.person)
+
+        cls.attribution = AttributionFactory(tutor=cls.tutor,
+                                             summary_responsible=True,
+                                             learning_unit_year__summary_editable=True)
+        cls.academic_calendar = AcademicCalendarFactory(academic_year=create_current_academic_year(),
+                                                        reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+        cls.url = reverse(list_my_attributions_summary_editable)
+
     def setUp(self):
-        self.person = PersonFactory()
-        self.user = self.person.user
-        self.tutor = TutorFactory(person=self.person)
-
-        self.attribution = AttributionFactory(tutor=self.tutor,
-                                              summary_responsible=True,
-                                              learning_unit_year__summary_editable=True)
-
-        self.url = reverse(list_my_attributions_summary_editable)
         self.client.force_login(self.user)
 
     def test_list_my_attributions_summary_editable_user_not_logged(self):
@@ -58,8 +66,8 @@ class ManageMyCoursesViewTestCase(TestCase):
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
 
     def test_list_my_attributions_summary_editable_user_not_tutor(self):
-        tutors = Tutor.objects.filter(person__user=self.user)
-        tutors.delete()
+        person_not_tutor = PersonFactory()
+        self.client.force_login(person_not_tutor.user)
 
         response = self.client.get(self.url, follow=True)
         self.assertEquals(response.status_code, HttpResponseNotFound.status_code)
@@ -71,9 +79,12 @@ class ManageMyCoursesViewTestCase(TestCase):
 
         response = self.client.get(self.url)
         self.assertTemplateUsed(response, "manage_my_courses/list_my_courses_summary_editable.html")
-
         self.assertTrue(mock_find_luys_summary_editable.called)
-        self.assertCountEqual(response.context['learning_unit_years_summary_editable'], expected_luys_summary_editable)
+
+        context = response.context
+        self.assertCountEqual(context['learning_unit_years_summary_editable'], expected_luys_summary_editable)
+        self.assertDictEqual(context['submission_dates'], model_to_dict(self.academic_calendar,
+                                                                        fields=("start_date", "end_date")))
 
 
 class TestViewEducationalInformation(TestCase):

@@ -2727,3 +2727,12 @@ msgstr "obligatoire"
 
 msgid "Modalities specific to IN and OUT mobility"
 msgstr "Modalités propores à la mobilité IN et OUT"
+
+msgid "updated"
+msgstr "Mis à jour"
+
+msgid "unupdated"
+msgstr "Pas à jour"
+
+msgid "summary_list"
+msgstr "Statut des informations pédagogiques"

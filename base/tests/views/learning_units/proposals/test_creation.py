@@ -166,6 +166,11 @@ class LearningUnitViewTestCase(TestCase):
         faultydict["campus"] = ""
         faultydict["periodicity"] = ""
         faultydict["language"] = ""
+        return faultydict
+
+    def get_empty_title_fields(self):
+        faultydict = dict(self.get_valid_data())
+        faultydict["specific_title"] = None
         faultydict["common_title"] = None
         return faultydict
 
@@ -180,7 +185,15 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(learning_unit_form.errors['campus'], [_('field_is_required')])
         self.assertEqual(learning_unit_form.errors['periodicity'], [_('field_is_required')])
         self.assertEqual(learning_unit_form.errors['language'], [_('field_is_required')])
+
+    def test_proposal_learning_unit_form_with_empty_title_fields(self):
+        learning_unit_form = creation.LearningUnitProposalCreationForm(person=self.person,
+                                                                       data=self.get_empty_title_fields())
+        proposal_form = creation.LearningUnitProposalForm(data=self.get_empty_title_fields())
+        self.assertTrue(proposal_form.is_valid(), proposal_form.errors)
+        self.assertFalse(learning_unit_form.is_valid(), learning_unit_form.errors)
         self.assertEqual(learning_unit_form.errors['common_title'], [_('must_set_common_title_or_specific_title')])
+
 
     def test_proposal_learning_unit_add_with_valid_data_for_faculty_manager(self):
         learning_unit_form = creation.LearningUnitProposalCreationForm(person=self.faculty_person,
