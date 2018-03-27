@@ -252,3 +252,11 @@ class CreatePartimForm(CreateLearningUnitYearForm):
         if not re.match(regex, acronym):
             raise ValidationError(_('invalid_acronym'))
         return acronym
+
+    def clean_status(self):
+        # If the parent is inactive, the partim can be only inactive
+        status = self.cleaned_data['status']
+        parent_status = self.learning_unit_year_parent.status
+        if not parent_status and parent_status != status:
+            raise ValidationError(_('The partim must be inactive because the parent is inactive'))
+        return status

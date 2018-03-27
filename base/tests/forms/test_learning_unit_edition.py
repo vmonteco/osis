@@ -27,6 +27,7 @@ import datetime
 
 from django.contrib.auth.models import Group, Permission
 from django.test import TestCase
+from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
 from base.models.enums import learning_unit_periodicity, learning_unit_year_subtypes, learning_container_year_types, \
@@ -263,6 +264,21 @@ class TestLearningUnitModificationForm(TestCase):
                                                 person=self.person,
                                                 learning_unit_year_instance=self.learning_unit_year)
             self.assertFalse(form.is_valid(), container_type)
+
+    def test_when_partim_active_but_modify_parent_to_inactive(self):
+        # Set status to parent inactive
+        form_data_parent_with_status_inactive = self.form_data.copy()
+        form_data_parent_with_status_inactive['status'] = False
+
+        # Set status to partim active
+        self.learning_unit_year_partim_1.status = True
+        self.learning_unit_year_partim_1.save()
+
+        form = LearningUnitModificationForm(form_data_parent_with_status_inactive,
+                                            person=self.person, end_date=self.current_academic_year.end_date,
+                                            learning_unit_year_instance=self.learning_unit_year)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors['status'], [_('The parent must be active because there are partim active')])
 
     def test_valid_form(self):
         form = LearningUnitModificationForm(self.form_data, person=self.person,

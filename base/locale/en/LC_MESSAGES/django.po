@@ -2718,3 +2718,9 @@ msgstr "Unupdated"
 
 msgid "summary_list"
 msgstr "Education information status"
+
+msgid "The partim must be inactive because the parent is inactive"
+msgstr ""
+
+msgid "The parent must be active because there are partim active"
+msgstr ""
