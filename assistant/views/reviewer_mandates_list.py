@@ -101,23 +101,9 @@ class MandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMi
         context['filter'] = self.kwargs.get("filter", None)
         context['year'] = academic_year.find_academic_year_by_id(
             self.request.session.get('selected_academic_year')).year
-        start_date = academic_year.find_academic_year_by_id(int(self.request.session.get(
-            'selected_academic_year'))).start_date
-
         for mandate in context['object_list']:
             entities_id = mandate.mandateentity_set.all().order_by('id').values_list('entity', flat=True)
             mandate.entities = find_versions_from_entites(entities_id, None)
-        """ 
-        for mandate in context['object_list']:
-            entities = []
-            entities_id = mandate.mandateentity_set.all().order_by('id')
-            for entity in entities_id:
-                current_entityversion = entity_version.get_by_entity_and_date(entity.entity, start_date)[0]
-                if current_entityversion is None:
-                    current_entityversion = entity_version.get_last_version(entity.entity)
-                entities.append(current_entityversion)
-            mandate.entities = entities
-        """
         return context
 
     def get_initial(self):
