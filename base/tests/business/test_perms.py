@@ -71,9 +71,11 @@ class PermsTestCase(TestCase):
         super(AcademicYear, self.academic_year_6).save()
 
         self.lunit_container_yr = LearningContainerYearFactory(academic_year=self.academic_yr)
+        lu = LearningUnitFactory(end_year=self.academic_yr.year)
         self.luy = LearningUnitYearFactory(academic_year=self.academic_yr,
                                            learning_container_year=self.lunit_container_yr,
-                                           subtype=FULL)
+                                           subtype=FULL,
+                                           learning_unit=lu)
 
 
     def test_can_faculty_manager_modify_end_date_partim(self):
