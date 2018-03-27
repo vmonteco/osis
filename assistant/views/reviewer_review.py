@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import re
 from django.contrib.auth.decorators import user_passes_test
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.http import require_http_methods
@@ -205,8 +204,7 @@ def pst_form_view(request):
 
 def generate_reviewer_menu_tabs(role, mandate, active_item: None):
     if active_item:
-        active_item = re.sub('_ASSISTANT', '', active_item)
-        active_item = re.sub('_DAF', '', active_item)
+        active_item = active_item.replace('_ASSISTANT', '').replace('_DAF', '')
     menu = []
     mandate_states = {}
     if mandate.assistant.supervisor:
