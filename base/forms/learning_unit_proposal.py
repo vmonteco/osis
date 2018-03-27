@@ -220,3 +220,16 @@ def get_entity_by_type(entity_type, entities_by_type):
         return entities_by_type[entity_type].id
     else:
         return None
+
+def compute_form_initial_data_from_proposal_json(proposal):
+    if not proposal.initial_data:
+        return {}
+    initial_data = {}
+    initial_data.update(proposal.initial_data["learning_container_year"])
+    initial_data.update(proposal.initial_data["learning_unit_year"])
+    initial_data.update(proposal.initial_data["learning_unit"])
+    initial_data.update(proposal.initial_data["entities"])
+    initial_data["first_letter"] = initial_data["acronym"][0]
+    initial_data["acronym"] = initial_data["acronym"][1:]
+    return initial_data
+

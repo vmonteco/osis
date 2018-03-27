@@ -36,7 +36,8 @@ from base.business import learning_unit_proposal as business_proposal
 from base.business.learning_unit_proposal import get_difference_of_proposal
 from base.business.learning_units.proposal.common import compute_proposal_state
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
-from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, ProposalLearningUnitForm
+from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, ProposalLearningUnitForm, \
+    compute_form_initial_data_from_proposal_json
 from base.models import proposal_learning_unit
 from base.models.entity_version import find_latest_version_by_entity
 from base.models.enums.proposal_type import ProposalType
@@ -109,9 +110,11 @@ def _update_proposal(request, user_person, proposal):
     initial_data = compute_form_initial_data(proposal.learning_unit_year)
     initial_data.update(_build_proposal_data(proposal))
 
+    initial_data_from_json = compute_form_initial_data_from_proposal_json(proposal)
+    initial_data_from_json.update(_build_proposal_data(proposal))
     proposal_form = LearningUnitProposalModificationForm(
         request.POST or None,
-        initial=initial_data,
+        initial=initial_data_from_json,
         instance=proposal,
         learning_unit=proposal.learning_unit_year.learning_unit,
         person=user_person
@@ -120,10 +123,9 @@ def _update_proposal(request, user_person, proposal):
     if proposal_form.is_valid():
         try:
             type_proposal = business_proposal.new_compute_proposal_type(proposal_form.changed_data_specific,
-                                                                        initial_data.get("type"))
+                                                                        initial_data_from_json.get("type"))
 
-            proposal_form.save(proposal.learning_unit_year, type_proposal,
-                               proposal_form.cleaned_data.get("state"))
+            proposal_form.save(proposal.learning_unit_year, type_proposal, proposal_form.cleaned_data.get("state"))
 
             # TODO check from initial data JSON
 
@@ -131,6 +133,14 @@ def _update_proposal(request, user_person, proposal):
             return HttpResponseRedirect(reverse('learning_unit', args=[proposal.learning_unit_year.id]))
         except (IntegrityError, ValueError) as e:
             display_error_messages(request, e.args[0])
+
+    proposal_form = LearningUnitProposalModificationForm(
+        request.POST or None,
+        initial=initial_data,
+        instance=proposal,
+        learning_unit=proposal.learning_unit_year.learning_unit,
+        person=user_person
+    )
 
     return layout.render(request, 'learning_unit/proposal/edition.html',  {
         'learning_unit_year': proposal.learning_unit_year,
