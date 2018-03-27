@@ -133,9 +133,9 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
 
     can_user_edit_summary_editable_field = can_edit_summary_editable_field(user_person,
                                                                            context['is_person_linked_to_entity'])
-    summary_editable_form = build_summary_editable_form(request,
-                                                        learning_unit_year,
-                                                        can_user_edit_summary_editable_field)
+    summary_editable_form = SummaryEditableModelForm(request.POST or None,
+                                                     can_user_edit_summary_editable_field,
+                                                     instance=learning_unit_year)
 
     if summary_editable_form.is_valid():
         if not can_user_edit_summary_editable_field:
