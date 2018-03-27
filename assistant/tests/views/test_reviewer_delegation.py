@@ -35,9 +35,9 @@ from base.models.entity import find_versions_from_entites
 from base.models import entity_version
 
 from assistant.models.academic_assistant import is_supervisor
-from assistant.models.assistant_mandate import find_for_supervisor_for_academic_year
 from assistant.models.enums import reviewer_role
 from assistant.models.reviewer import find_by_person
+from assistant.models.reviewer import has_already_delegate_for_entity
 from assistant.tests.factories.review import ReviewFactory
 from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 from assistant.tests.factories.mandate_entity import MandateEntityFactory
@@ -100,12 +100,19 @@ class StructuresListView(TestCase):
     def test_context_data(self):
         self.client.force_login(self.reviewer.person.user)
         response = self.client.get('/assistants/reviewer/delegation/')
+        queryset = []
         entities_version = entity_version.get_last_version(self.reviewer.entity).children
-        entities = [this_entity_version.entity.id for this_entity_version in entities_version]
-        entities.insert(0, entity_version.get_last_version(self.reviewer.entity).entity.id)
-
+        entities = [this_entity_version.entity for this_entity_version in entities_version]
+        entities.insert(0, entity_version.get_last_version(self.reviewer.entity).entity)
+        for entity in entities:
+            queryset.append({
+                'id': entity.id,
+                'title': entity_version.get_last_version(entity, None).title,
+                'acronym': entity.most_recent_acronym,
+                'has_already_delegate': has_already_delegate_for_entity(self.reviewer, entity)
+            })
         self.assertQuerysetEqual(response.context['object_list'],
-                                 find_versions_from_entites(entities, date=None),
+                                 queryset,
                                  transform=lambda x: x
                                  )
         self.assertEqual(response.context['entity'], entity_version.get_last_version(self.reviewer.entity))

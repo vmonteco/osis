@@ -36,9 +36,7 @@ from base.models import academic_year, person, entity, entity_version
 from assistant.business.users_access import user_is_reviewer_and_procedure_is_open
 from assistant.forms import ReviewerDelegationForm
 from assistant.models.academic_assistant import is_supervisor
-from assistant.models import assistant_mandate
 from assistant.models import reviewer
-from assistant.models.enums import reviewer_role
 from assistant.utils.send_email import send_message
 
 
@@ -55,11 +53,20 @@ class StructuresListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return reverse('access_denied')
 
     def get_queryset(self):
+        queryset = []
         rev = reviewer.find_by_person(self.request.user.person)
         entities_version = entity_version.get_last_version(rev.entity).children
-        entities = [this_entity_version.entity.id for this_entity_version in entities_version]
-        entities.insert(0, entity_version.get_last_version(rev.entity).entity.id)
-        return entity.find_versions_from_entites(entities, date=None)
+        entities = [this_entity_version.entity for this_entity_version in entities_version]
+        entities.insert(0, entity_version.get_last_version(rev.entity).entity)
+        for entity in entities:
+            queryset.append({
+                'id': entity.id,
+                'title': entity_version.get_last_version(entity, None).title,
+                'acronym': entity.most_recent_acronym,
+                'has_already_delegate': reviewer.has_already_delegate_for_entity(rev, entity)
+            })
+        return queryset
+
 
     def get_context_data(self, **kwargs):
         context = super(StructuresListView, self).get_context_data(**kwargs)

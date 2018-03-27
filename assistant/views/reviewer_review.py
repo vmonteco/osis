@@ -32,14 +32,14 @@ from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils import timezone
 
-from base.models import person, entity_version, academic_year
+from base.models import entity_version
 from base.models.enums import entity_type
 
 from assistant.business.users_access import user_is_reviewer_and_procedure_is_open
 from assistant.business.mandate_entity import get_entities_for_mandate
 from assistant.forms import ReviewForm
 from assistant.models import assistant_mandate, review, mandate_entity, tutoring_learning_unit_year
-from assistant.models import reviewer, settings, assistant_document_file
+from assistant.models import reviewer, assistant_document_file
 from assistant.models.enums import review_status, assistant_mandate_state, reviewer_role, document_type
 from assistant.models.enums import assistant_mandate_renewal
 
@@ -110,6 +110,7 @@ def review_edit(request):
                                                 'mandate_id': mandate.id,
                                                 'previous_mandates': previous_mandates,
                                                 'assistant': assistant,
+                                                'can_validate': reviewer.can_validate(current_reviewer),
                                                 'current_reviewer': current_reviewer,
                                                 'entity': entity,
                                                 'menu': menu,
@@ -133,9 +134,11 @@ def review_save(request):
     if form.is_valid():
         current_review = form.save(commit=False)
         if 'validate_and_submit' in request.POST:
+            current_review.reviewer = current_reviewer
             validate_review_and_update_mandate(current_review, mandate)
             return HttpResponseRedirect(reverse("reviewer_mandates_list_todo"))
         elif 'save' in request.POST:
+            current_review.reviewer = current_reviewer
             current_review.status = review_status.IN_PROGRESS
             current_review.save()
             return review_edit(request)
@@ -203,6 +206,7 @@ def pst_form_view(request):
 def generate_reviewer_menu_tabs(role, mandate, active_item: None):
     if active_item:
         active_item = re.sub('_ASSISTANT', '', active_item)
+        active_item = re.sub('_DAF', '', active_item)
     menu = []
     mandate_states = {}
     if mandate.assistant.supervisor:

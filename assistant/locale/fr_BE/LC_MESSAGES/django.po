@@ -575,6 +575,9 @@ msgstr "Remettre un avis"
 msgid "reviewer_delegation"
 msgstr "Délégation(s)"
 
+msgid "reviewer_delegation_add"
+msgstr "Ajout d'un délégué"
+
 msgid "reviewer_mandates_list"
 msgstr "Liste des dossiers"
 
@@ -691,6 +694,13 @@ msgstr "Adresse email du promoteur"
 
 msgid "supervision_review"
 msgstr "Avis encadrement"
+
+msgid "SUPERVISION_DAF"
+msgstr "DAF"
+
+msgid "SUPERVISION_DAF_ASSISTANT"
+msgstr "Délégué de DAF"
+
 
 msgid "support_committee_reports"
 msgstr "Rapport du comité d'encadrement (obligatoire à partir de la deuxième demande de renouvellement)"

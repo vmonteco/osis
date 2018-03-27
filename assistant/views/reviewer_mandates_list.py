@@ -29,6 +29,7 @@ from django.views.generic import ListView
 from django.views.generic.edit import FormMixin
 
 from base.models import academic_year, entity_version
+from base.models.entity import find_versions_from_entites
 
 from assistant.business.users_access import user_is_reviewer_and_procedure_is_open
 from assistant.models import assistant_mandate
@@ -75,7 +76,7 @@ class MandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMi
             self.request.session[
                 'selected_academic_year'] = selected_academic_year.id
             queryset = assistant_mandate.find_by_academic_year(selected_academic_year).filter(id__in=mandates_id).\
-                filter(state=current_reviewer.role.replace('_ASSISTANT', ''))
+                filter(state=current_reviewer.role.replace('_ASSISTANT', '').replace('_DAF', ''))
         else:
             queryset = assistant_mandate.find_by_academic_year(selected_academic_year).filter(id__in=mandates_id)
         return queryset
@@ -102,6 +103,11 @@ class MandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMi
             self.request.session.get('selected_academic_year')).year
         start_date = academic_year.find_academic_year_by_id(int(self.request.session.get(
             'selected_academic_year'))).start_date
+
+        for mandate in context['object_list']:
+            entities_id = mandate.mandateentity_set.all().order_by('id').values_list('entity', flat=True)
+            mandate.entities = find_versions_from_entites(entities_id, None)
+        """ 
         for mandate in context['object_list']:
             entities = []
             entities_id = mandate.mandateentity_set.all().order_by('id')
@@ -111,6 +117,7 @@ class MandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMi
                     current_entityversion = entity_version.get_last_version(entity.entity)
                 entities.append(current_entityversion)
             mandate.entities = entities
+        """
         return context
 
     def get_initial(self):

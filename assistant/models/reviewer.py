@@ -24,7 +24,6 @@
 #
 ##############################################################################
 from django.contrib import admin
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 from base.models import entity_version
@@ -97,7 +96,25 @@ def can_delegate_to_entity(reviewer, entity):
 
 
 def can_delegate(reviewer):
-    if reviewer.role != reviewer_role.SUPERVISION and reviewer.role != reviewer_role.RESEARCH:
+    if reviewer.role == reviewer_role.SUPERVISION or reviewer.role == reviewer_role.RESEARCH \
+            or reviewer.role == reviewer_role.SUPERVISION_DAF:
+        return True
+    else:
+        return False
+
+
+def can_validate(reviewer):
+    if reviewer.role == reviewer_role.SUPERVISION_DAF or reviewer.role == reviewer_role.SUPERVISION_DAF_ASSISTANT \
+            or reviewer.role == reviewer_role.SUPERVISION_ASSISTANT:
         return False
     else:
         return True
+
+
+def has_already_delegate_for_entity(reviewer, entity):
+    delegate_role = reviewer.role + '_ASSISTANT'
+    try:
+        return Reviewer.objects.get(role=delegate_role, entity=entity)
+    except Reviewer.DoesNotExist:
+        return False
+
