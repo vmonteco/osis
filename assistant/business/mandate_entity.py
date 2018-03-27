@@ -39,6 +39,7 @@ def get_entities_for_mandate(mandate):
         entities.append(current_entity_version)
     return entities
 
+
 def add_entities_version_to_mandates_list(context):
     for mandate in context['object_list']:
         entities_id = mandate.mandateentity_set.all().order_by('id').values_list('entity', flat=True)
