@@ -64,7 +64,11 @@
                         <td><a href="{{ proposal.url }}">{{ proposal.acronym }}</a></td>
                         <td>{{ proposal.validity }}</td>
                         <td>{{ proposal.title }}</td>
-                        <td>{{ proposal.container_type }}</td>
+                        <td>
+                            {% with proposal.container_type|default_if_none:'-' as type %}
+                                {% trans type %}
+                            {% endwith %}
+                        </td>
                         <td>{{ proposal.requirement_entity }}</td>
                         <td>{{ proposal.proposal_type }}</td>
                         <td>{{ proposal.proposal_state }}</td>
