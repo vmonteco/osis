@@ -23,9 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from ckeditor.widgets import CKEditorWidget
 from django import forms
 from django.utils.safestring import mark_safe
-from ckeditor.widgets import CKEditorWidget
 
 from base.business.learning_unit import find_language_in_settings
 from base.models.learning_unit_year import LearningUnitYear
@@ -89,4 +89,4 @@ class LearningUnitPedagogyEditForm(forms.Form):
 class SummaryEditableModelForm(forms.ModelForm):
     class Meta:
         model = LearningUnitYear
-        fields = ['summary_editable']
+        fields = ['summary_editable', 'mobility_modality']

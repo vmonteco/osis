@@ -26,12 +26,15 @@
 from base.models import *
 from django.contrib import admin
 
+from base.models.bibliography import Bibliography, BibliographyAdmin
 
 admin.site.register(academic_calendar.AcademicCalendar,
                     academic_calendar.AcademicCalendarAdmin)
 
 admin.site.register(academic_year.AcademicYear,
                     academic_year.AcademicYearAdmin)
+
+admin.site.register(Bibliography, BibliographyAdmin)
 
 admin.site.register(campus.Campus,
                     campus.CampusAdmin)

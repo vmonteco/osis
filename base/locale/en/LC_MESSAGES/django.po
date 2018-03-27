@@ -2709,3 +2709,14 @@ msgstr ""
 
 msgid "The entity '%(acronym)s' doesn't exist anymore in %(year)s"
 msgstr ""
+
+msgctxt "bibliography"
+msgid "title"
+msgstr ""
+
+msgctxt "bibliography"
+msgid "mandatory"
+msgstr ""
+
+msgid "Modalities specific to IN and OUT mobility"
+msgstr ""

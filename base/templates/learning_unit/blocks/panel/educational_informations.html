@@ -1,5 +1,7 @@
 {% load staticfiles %}
-{% load i18n %}
+{% load i18n bootstrap3 %}
+{% load getattr %}
+
 {% comment "License" %}
     * OSIS stands for Open Student Information System. It's an application
     * designed to manage the core business of higher education institutions,
@@ -24,8 +26,7 @@
     * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-{% load getattr %}
-
+{% url 'learning_unit_pedagogy_edit' learning_unit_year_id=learning_unit_year.id as post_url %}
 <table class="table">
     <thead >
         <tr>

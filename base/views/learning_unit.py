@@ -31,6 +31,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db.models import BLANK_CHOICE_DASH
+from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.http import QueryDict
@@ -61,6 +62,7 @@ from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, Summ
     LearningUnitPedagogyForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import proposal_learning_unit
+from base.models.bibliography import Bibliography
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.learning_container import LearningContainer
@@ -139,11 +141,17 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
                                                         learning_unit_year,
                                                         can_user_edit_summary_editable_field)
 
-    if summary_editable_form.is_valid():
+    BibliographyFormset = inlineformset_factory(LearningUnitYear, Bibliography, fields=('title', 'mandatory'),
+                                                max_num=10, extra=1)
+    bibliography_formset = BibliographyFormset(request.POST or None, instance=learning_unit_year)
+
+    if summary_editable_form.is_valid() and bibliography_formset.is_valid():
+        print(request.POST)
         if not can_user_edit_summary_editable_field:
             raise PermissionDenied
         try:
             summary_editable_form.save()
+            bibliography_formset.save()
             display_success_messages(request, _("summary_editable_field_successfuly_updated"))
             return HttpResponseRedirect(reverse('learning_unit_pedagogy', args=[learning_unit_year_id]))
 
@@ -152,7 +160,8 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
 
     context['summary_editable_form'] = summary_editable_form
     context['can_edit_summary_editable_field'] = can_user_edit_summary_editable_field
-    return layout.render(request, "learning_unit/pedagogy.html", context)
+    context['bibliography_formset'] = bibliography_formset
+    return render(request, "learning_unit/pedagogy.html", context)
 
 
 # TODO Move this method in form __init__
