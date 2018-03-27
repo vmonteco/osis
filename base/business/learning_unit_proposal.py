@@ -45,6 +45,12 @@ LABEL_INACTIVE = _('inactive')
 
 
 def compute_proposal_type(initial_data, current_data):
+    if initial_data.get("type") == ProposalType.CREATION.name:
+        return ProposalType.CREATION.name
+
+    if initial_data.get("type") == ProposalType.SUPPRESSION.name:
+        return ProposalType.SUPPRESSION.name
+
     data_changed = _compute_data_changed(initial_data, current_data)
 
     if _is_transformation(initial_data, current_data):

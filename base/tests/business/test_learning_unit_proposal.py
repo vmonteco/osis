@@ -25,16 +25,18 @@
 ##############################################################################
 import datetime
 from unittest.mock import patch
+
+from base.business.learning_unit_proposal import compute_proposal_type
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.business import learning_unit_proposal as lu_proposal_business
 from base import models as mdl_base
 
-from django.test import TestCase
+from django.test import TestCase, SimpleTestCase
 
 from base.models.enums import organization_type, proposal_type, entity_type, \
     learning_container_year_types, entity_container_year_link_type, \
-    learning_unit_year_subtypes, proposal_state
+    learning_unit_year_subtypes, proposal_state, learning_unit_periodicity
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
@@ -153,3 +155,47 @@ class TestLearningUnitProposalCancel(TestCase):
                                            initial_data=initial_data_expected,
                                            type=prop_type,
                                            state=prop_state)
+
+
+class TestComputeProposalType(SimpleTestCase):
+    def setUp(self):
+        self.initial_data = {
+            "academic_year": 10,
+            "first_letter": "L",
+            "acronym": "OSIS1245",
+            "common_title": "New common title",
+            "common_title_english": "New common title english",
+            "specific_title": "New title",
+            "specific_title_english": "New title english",
+            "container_type": learning_container_year_types.COURSE,
+            "internship_subtype": "",
+            "credits": "4",
+            "periodicity": learning_unit_periodicity.ANNUAL,
+            "status": False,
+            "language": 10,
+            "quadrimester": 10,
+            "campus": 10,
+            "requirement_entity": 10,
+            "allocation_entity": 10,
+            "entity": 10,
+            "folder_id": "1",
+            "state": proposal_state.ProposalState.CENTRAL.name,
+            "type": None
+        }
+
+        self.current_data = self.initial_data.copy()
+
+    def test_cannot_switch_initial_proposal_type_when_of_type_creation(self):
+        creation_proposal_type = proposal_type.ProposalType.CREATION.name
+        self.initial_data["type"] = creation_proposal_type
+        actual_proposal_type = compute_proposal_type(self.initial_data, self.current_data)
+
+        self.assertEqual(creation_proposal_type, actual_proposal_type)
+
+    def test_cannot_switch_initial_proposal_type_when_of_type_suppression(self):
+        suppression_proposal_type = proposal_type.ProposalType.SUPPRESSION.name
+        self.initial_data["type"] = suppression_proposal_type
+        actual_proposal_type = compute_proposal_type(self.initial_data, self.current_data)
+
+        self.assertEqual(suppression_proposal_type, actual_proposal_type)
+
