@@ -54,15 +54,13 @@ from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
 from base.business.learning_units.simple.creation import create_learning_unit_year_structure, create_learning_unit
 from base.forms.learning_class import LearningClassEditForm
-from base.forms.learning_unit.edition import compute_form_initial_data
+from base.forms.learning_unit.edition import compute_learning_unit_form_initial_data, compute_form_initial_data
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
     PARTIM_FORM_READ_ONLY_FIELD
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, SummaryEditableModelForm, \
-    LearningUnitPedagogyForm
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, SummaryEditableModelForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import proposal_learning_unit
-from base.models.bibliography import Bibliography
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.learning_container import LearningContainer
@@ -129,10 +127,8 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
     user_language = mdl.person.get_user_interface_language(request.user)
     context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language)
 
-    context['form_french'] = LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
-                                                      language_code=settings.LANGUAGE_CODE_FR)
-    context['form_english'] = LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
-                                                       language_code=settings.LANGUAGE_CODE_EN)
+    context['form_french'] = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_FR)
+    context['form_english'] = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_EN)
     context['experimental_phase'] = True
 
     can_user_edit_summary_editable_field = can_edit_summary_editable_field(user_person,
@@ -141,17 +137,11 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
                                                         learning_unit_year,
                                                         can_user_edit_summary_editable_field)
 
-    BibliographyFormset = inlineformset_factory(LearningUnitYear, Bibliography, fields=('title', 'mandatory'),
-                                                max_num=10, extra=1)
-    bibliography_formset = BibliographyFormset(request.POST or None, instance=learning_unit_year)
-
-    if summary_editable_form.is_valid() and bibliography_formset.is_valid():
-        print(request.POST)
+    if summary_editable_form.is_valid():
         if not can_user_edit_summary_editable_field:
             raise PermissionDenied
         try:
             summary_editable_form.save()
-            bibliography_formset.save()
             display_success_messages(request, _("summary_editable_field_successfuly_updated"))
             return HttpResponseRedirect(reverse('learning_unit_pedagogy', args=[learning_unit_year_id]))
 
@@ -160,15 +150,7 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
 
     context['summary_editable_form'] = summary_editable_form
     context['can_edit_summary_editable_field'] = can_user_edit_summary_editable_field
-    context['bibliography_formset'] = bibliography_formset
-    return render(request, "learning_unit/pedagogy.html", context)
-
-
-# TODO Move this method in form __init__
-def build_summary_editable_form(request, learning_unit_year, can_user_edit_summary_editable_field):
-    summary_editable_form = SummaryEditableModelForm(request.POST or None, instance=learning_unit_year)
-    summary_editable_form.fields['summary_editable'].disabled = not can_user_edit_summary_editable_field
-    return summary_editable_form
+    return layout.render(request, "learning_unit/pedagogy.html", context)
 
 
 @login_required
