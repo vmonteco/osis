@@ -23,10 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from base.models.academic_year import current_academic_year
 from base.models.entity import Entity
 from base.models.enums import learning_container_year_types
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
 from base.models.enums.proposal_state import ProposalState
+from base.models.enums.proposal_type import ProposalType
 from base.models.person_entity import is_attached_entities
 
 FACULTY_UPDATABLE_CONTAINER_TYPES = (learning_container_year_types.COURSE,
@@ -81,6 +83,9 @@ def is_eligible_to_edit_proposal(proposal, person):
             return False
 
         elif proposal.state != ProposalState.FACULTY.name:
+            return False
+        elif proposal.type == ProposalType.MODIFICATION.name and\
+                proposal.learning_unit_year.academic_year.year != current_academic_year().year+1:
             return False
 
     return person.user.has_perm('base.can_edit_learning_unit_proposal')
