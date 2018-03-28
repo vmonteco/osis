@@ -3200,6 +3200,11 @@
                 "can_access_learningunitcomponentclass",
                 "base",
                 "learningunitcomponentclass"
+            ],
+            [
+                "can_access_catalog",
+                "base",
+                "offer"
             ]
         ]
     }
