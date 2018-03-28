@@ -31,7 +31,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='learningunityear',
             name='mobility_modality',
-            field=models.TextField(blank=True, null=True, verbose_name='Modalities specific to IN and OUT mobility'),
+            field=models.CharField(blank=True, max_length=250, null=True,
+                                   verbose_name='Modalities specific to IN and OUT mobility'),
         ),
         migrations.AddField(
             model_name='learningunityear',
