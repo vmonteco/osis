@@ -77,18 +77,19 @@ def _is_attached_to_initial_entity(learning_unit_proposal, a_person):
 def is_eligible_to_edit_proposal(proposal, person):
     if not proposal:
         return False
-
-    if person.is_faculty_manager():
-        if not person.is_linked_to_entity_in_charge_of_learning_unit_year(proposal.learning_unit_year):
-            return False
-
-        elif proposal.state != ProposalState.FACULTY.name:
-            return False
-        elif proposal.type == ProposalType.MODIFICATION.name and\
-                proposal.learning_unit_year.academic_year.year != current_academic_year().year+1:
-            return False
-
+    if person.is_faculty_manager() and not _check_eligible_to_edit_proposal_as_faculty_manager(proposal, person):
+        return False
     return person.user.has_perm('base.can_edit_learning_unit_proposal')
+
+def _check_eligible_to_edit_proposal_as_faculty_manager(proposal, person):
+    if not person.is_linked_to_entity_in_charge_of_learning_unit_year(proposal.learning_unit_year):
+        return False
+    if proposal.state != ProposalState.FACULTY.name:
+        return False
+    if (proposal.type == ProposalType.MODIFICATION.name
+            and proposal.learning_unit_year.academic_year.year != current_academic_year().year + 1):
+        return False
+    return True
 
 
 def is_eligible_for_modification_end_date(learning_unit_year, person):
