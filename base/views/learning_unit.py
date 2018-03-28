@@ -133,7 +133,7 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
             summary_form.save()
             bibliography_formset.save()
 
-            display_success_messages(request, _("summary_editable_field_successfuly_updated"))
+            display_success_messages(request, _("success_modification_learning_unit"))
             return HttpResponseRedirect(reverse('learning_unit_pedagogy', args=[learning_unit_year_id]))
 
         except ValueError as e:
