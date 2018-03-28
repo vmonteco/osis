@@ -94,7 +94,7 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_units.html')
         self.assertEqual(context['search_type'], SUMMARY_LIST)
-        #FIXME
+        #FIXME Return 1 but 0 normally
         self.assertEqual(len(context['learning_units']), 1)
 
     @mock.patch('base.views.layout.render')
