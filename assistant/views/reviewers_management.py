@@ -26,10 +26,10 @@
 from django.core.urlresolvers import reverse
 from django.views.generic import ListView
 from django.http import HttpResponseRedirect
+from django.forms.forms import NON_FIELD_ERRORS
 from django.forms.formsets import formset_factory
 from django.views.generic.edit import FormMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext as _
@@ -150,10 +150,10 @@ def reviewer_add(request):
                 if reviewer.find_by_person(this_person):
                     msg = _("person_already_reviewer_msg")
                     form.add_error(None, msg)
-                    return render(request, "manager_add_reviewer.html", {'form': form, 'year': year})
-                elif reviewer.find_by_entity_and_role(new_reviewer.entity, new_reviewer.role):
+                if reviewer.find_by_entity_and_role(new_reviewer.entity, new_reviewer.role):
                     msg = _("reviewer_with_same_role_already_exists_msg")
                     form.add_error(None, msg)
+                if form.has_error(field=NON_FIELD_ERRORS):
                     return render(request, "manager_add_reviewer.html", {'form': form, 'year': year})
                 else:
                     new_reviewer.person = this_person
