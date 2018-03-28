@@ -28,10 +28,11 @@ from decimal import Decimal
 
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase
+from django.test import TestCase, SimpleTestCase
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm
+from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, \
+    compute_form_initial_data_from_proposal_json
 from base.models import proposal_learning_unit, entity_container_year
 from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import organization_type, proposal_type, proposal_state, entity_type, \
@@ -283,4 +284,52 @@ class TestSave(TestCase):
 
         self.assertFalse(form.is_valid())
         self.assertIn(_("learning_unit_type_is_not_internship"), form.errors["internship_subtype"])
+
+
+class TestComputeFormInitialDataFromProposalJson(SimpleTestCase):
+    def test_with_empty_initial_data(self):
+        result = compute_form_initial_data_from_proposal_json({})
+        self.assertDictEqual(result, {})
+
+        result = compute_form_initial_data_from_proposal_json(None)
+        self.assertDictEqual(result, {})
+
+    def test_flatten_json_initial_data(self):
+        proposal_initial_data = {
+            "learning_container_year": {
+                "acronym":"LOSIS4512",
+                "common_title": "common title",
+            },
+            "learning_unit_year": {
+                "specific_title": "specific_title",
+                "status": True
+            },
+            "learning_unit": {
+                "id": 45,
+                "end_year": 2018
+            },
+            "entities": {
+                entity_container_year_link_type.REQUIREMENT_ENTITY: 45,
+                entity_container_year_link_type.ALLOCATION_ENTITY: 12,
+                entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1: None,
+                entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: None
+            }
+        }
+
+        result = compute_form_initial_data_from_proposal_json(proposal_initial_data)
+        expected_result = {
+            "first_letter": "L",
+            "acronym": "OSIS4512",
+            "common_title": "common title",
+            "specific_title": "specific_title",
+            "status": True,
+            "id": 45,
+            "end_year": 2018,
+            entity_container_year_link_type.REQUIREMENT_ENTITY: 45,
+            entity_container_year_link_type.ALLOCATION_ENTITY: 12,
+            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1: None,
+            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: None
+        }
+
+        self.assertDictEqual(result, expected_result)
 

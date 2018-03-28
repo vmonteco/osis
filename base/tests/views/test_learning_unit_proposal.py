@@ -102,7 +102,8 @@ class TestLearningUnitModificationProposal(TestCase):
                                                                subtype=learning_unit_year_subtypes.FULL,
                                                                academic_year=current_academic_year,
                                                                learning_container_year=learning_container_year,
-                                                               quadrimester=None)
+                                                               quadrimester=None,
+                                                               specific_title_english="title english")
 
         an_entity = EntityFactory(organization=an_organization)
         self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
@@ -225,12 +226,15 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(response.context['person'], self.person)
         self.assertIsInstance(response.context['form'], LearningUnitProposalModificationForm)
 
-    def test_post_request(self):
+    @mock.patch("base.business.learning_unit_proposal.compute_proposal_type",
+                side_effect=lambda data, type: proposal_type.ProposalType.MODIFICATION.name)
+    def test_post_request(self, mock_compute_proposal_type):
         response = self.client.post(self.url, data=self.form_data)
 
         redirected_url = reverse('learning_unit', args=[self.learning_unit_year.id])
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
 
+        self.assertTrue(mock_compute_proposal_type.called)
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
         self.assertTrue(a_proposal_learning_unit)
         self.assertEqual(a_proposal_learning_unit.author, self.person)
@@ -239,31 +243,6 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertIn(_("success_modification_proposal").format(_(proposal_type.ProposalType.MODIFICATION.name),
                                                                 self.learning_unit_year.acronym),
                       list(messages))
-
-    def test_transformation_proposal_request(self):
-        self.form_data["first_letter"] = "M"
-        self.form_data["acronym"] = "OSIS1234"
-        self.client.post(self.url, data=self.form_data)
-        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
-        self.assertEqual(a_proposal_learning_unit.type, ProposalType.TRANSFORMATION.name)
-
-    def test_modification_proposal_request(self):
-        self.form_data["specific_title"] = "New title"
-        self.form_data["specific_title_english"] = "New english title"
-        self.client.post(self.url, data=self.form_data)
-
-        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
-        self.assertEqual(a_proposal_learning_unit.type, ProposalType.MODIFICATION.name)
-
-    def test_transformation_and_modification_proposal_request(self):
-        self.form_data["first_letter"] = "M"
-        self.form_data["acronym"] = "OSIS1234"
-        self.form_data["specific_title"] = "New title"
-        self.form_data["specific_title_english"] = "New english title"
-        self.client.post(self.url, data=self.form_data)
-
-        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
-        self.assertEqual(a_proposal_learning_unit.type, ProposalType.TRANSFORMATION_AND_MODIFICATION.name)
 
     def test_learning_unit_of_type_undefined(self):
         self.learning_unit_year.subtype = None
