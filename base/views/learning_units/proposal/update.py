@@ -69,7 +69,7 @@ def learning_unit_modification_proposal(request, learning_unit_year_id):
     )
 
     if form.is_valid():
-        type_proposal = business_proposal.compute_proposal_type(form.changed_data_specific,
+        type_proposal = business_proposal.compute_proposal_type(form.changed_data_for_fields_that_can_be_modified,
                                                                 initial_data.get("type"))
         form.save(learning_unit_year, type_proposal, compute_proposal_state(user_person))
 
@@ -114,6 +114,7 @@ def _update_proposal(request, user_person, proposal):
     # and compute proposal type
     initial_data_from_json = compute_form_initial_data_from_proposal_json(proposal)
     initial_data_from_json.update(_build_proposal_data(proposal))
+
     proposal_form = LearningUnitProposalModificationForm(
         request.POST or None,
         initial=initial_data_from_json,
@@ -124,8 +125,8 @@ def _update_proposal(request, user_person, proposal):
 
     if proposal_form.is_valid():
         try:
-            type_proposal = business_proposal.compute_proposal_type(proposal_form.changed_data_specific,
-                                                                    initial_data_from_json.get("type"))
+            changed_fields = proposal_form.changed_data_for_fields_that_can_be_modified
+            type_proposal = business_proposal.compute_proposal_type(changed_fields, initial_data_from_json.get("type"))
             proposal_form.save(proposal.learning_unit_year, type_proposal, proposal_form.cleaned_data.get("state"))
             display_success_messages(request, _("proposal_edited_successfully"))
             return HttpResponseRedirect(reverse('learning_unit', args=[proposal.learning_unit_year.id]))
