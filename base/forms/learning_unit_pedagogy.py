@@ -28,7 +28,7 @@ from django import forms
 from django.forms import inlineformset_factory
 from django.utils.safestring import mark_safe
 
-from base.business.learning_unit import find_language_in_settings
+from base.business.learning_unit import find_language_in_settings, can_edit_summary_locked_field
 from base.models.bibliography import Bibliography
 from base.models.learning_unit_year import LearningUnitYear
 from cms.enums import entity_name
@@ -89,9 +89,10 @@ class LearningUnitPedagogyEditForm(forms.Form):
 
 
 class SummaryModelForm(forms.ModelForm):
-    def __init__(self, data, can_user_edit_summary_editable, *args, **kwargs):
+    def __init__(self, data, person, is_person_linked_to_entity, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
-        self.fields["summary_locked"].disabled = not can_user_edit_summary_editable
+        if not can_edit_summary_locked_field(person, is_person_linked_to_entity):
+            self.fields["summary_locked"].disabled = True
 
     class Meta:
         model = LearningUnitYear

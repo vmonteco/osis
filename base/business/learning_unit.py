@@ -292,7 +292,7 @@ def find_language_in_settings(language_code):
 
 
 # TODO Move it in perms
-def can_edit_summary_editable_field(person, is_person_linked_to_entity):
+def can_edit_summary_locked_field(person, is_person_linked_to_entity):
     return person.is_faculty_manager() and is_person_linked_to_entity
 
 

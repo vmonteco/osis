@@ -46,7 +46,7 @@ from base.business.learning_unit import get_cms_label_data, \
     get_all_attributions, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, find_language_in_settings, \
     compute_max_academic_year_adjournment, \
     create_learning_unit_partim_structure, CMS_LABEL_SPECIFICATIONS, \
-    CMS_LABEL_PEDAGOGY, can_edit_summary_editable_field
+    CMS_LABEL_PEDAGOGY, can_edit_summary_locked_field
 from base.business.learning_unit_proposal import get_difference_of_proposal
 from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
@@ -124,9 +124,8 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
     context = get_common_context_learning_unit_year(learning_unit_year_id, person)
     learning_unit_year = context['learning_unit_year']
 
-    can_user_edit_summary_editable = can_edit_summary_editable_field(person, context['is_person_linked_to_entity'])
     post = request.POST or None
-    summary_form = SummaryModelForm(post, can_user_edit_summary_editable, instance=learning_unit_year)
+    summary_form = SummaryModelForm(post, person, context['is_person_linked_to_entity'], instance=learning_unit_year)
     bibliography_formset = BibliographyFormset(post, instance=learning_unit_year)
 
     if summary_form.is_valid() and bibliography_formset.is_valid():
@@ -142,7 +141,6 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
 
     context.update(get_cms_pedagogy_form(request, learning_unit_year))
     context['summary_editable_form'] = summary_form
-    context['can_edit_summary_editable_field'] = can_user_edit_summary_editable
     context['bibliography_formset'] = bibliography_formset
     context['experimental_phase'] = True
 
