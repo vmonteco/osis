@@ -2644,8 +2644,8 @@ msgstr "By"
 msgid "in_proposal"
 msgstr "Existing proposal"
 
-msgid "summary_editable"
-msgstr "educational information editable"
+msgid "summary_locked"
+msgstr "blocked update"
 
 msgid "get_back_to_initial"
 msgstr "Get back to initial data"
