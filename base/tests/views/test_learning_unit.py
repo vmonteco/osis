@@ -33,7 +33,7 @@ from django.contrib import messages
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseForbidden
 from django.test import TestCase, RequestFactory
@@ -84,7 +84,7 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
 from base.views.learning_unit import compute_partim_form_initial_data, _get_post_data_without_read_only_field, \
-    learning_unit_components, learning_class_year_edit, learning_unit_pedagogy
+    learning_unit_components, learning_class_year_edit, learning_unit_pedagogy, learning_unit_specifications
 from base.views.learning_units.search import learning_units_service_course
 from cms.enums import entity_name
 from cms.tests.factories.text_label import TextLabelFactory
@@ -1199,7 +1199,10 @@ class LearningUnitViewTestCase(TestCase):
                                                      summary_locked=False)
         url = reverse(learning_unit_pedagogy, args=[learning_unit_year.id])
         request_factory = RequestFactory()
-        request = request_factory.post(url, data={'summary_locked': True})
+
+        data = self.data_bibliography_formset(learning_unit_year)
+        data['summary_locked'] = True
+        request = request_factory.post(url, data=data)
 
         request.user = fac_manager_user
         setattr(request, 'session', 'session')
@@ -1250,14 +1253,15 @@ class LearningUnitViewTestCase(TestCase):
                                                      summary_locked=False)
         url = reverse(learning_unit_pedagogy, args=[learning_unit_year.id])
         request_factory = RequestFactory()
-        request = request_factory.post(url, data={'summary_locked': True})
+        data = self.data_bibliography_formset(learning_unit_year)
+        data['summary_locked'] = True
+        request = request_factory.post(url, data=data)
 
         request.user = self.a_superuser
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
-        with self.assertRaises(PermissionDenied):
-            learning_unit_pedagogy(request, learning_unit_year.id)
+        learning_unit_pedagogy(request, learning_unit_year.id)
 
         learning_unit_year.refresh_from_db()
         self.assertFalse(learning_unit_year.summary_locked)
@@ -1267,8 +1271,6 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_year = LearningUnitYearFactory()
 
         request = self.create_learning_unit_request(learning_unit_year)
-
-        from base.views.learning_unit import learning_unit_specifications
 
         learning_unit_specifications(request, learning_unit_year.id)
 
@@ -1330,21 +1332,26 @@ class LearningUnitViewTestCase(TestCase):
 
     def create_learning_unit_request(self, learning_unit_year):
         request_factory = RequestFactory()
-        request = request_factory.get(reverse('learning_unit',
-                                              args=[learning_unit_year.id]))
+        request = request_factory.get(reverse('learning_unit', args=[learning_unit_year.pk]))
         request.user = self.a_superuser
         return request
 
-    def data_bibliography_formset(self, learning_unit_year):
-        id = learning_unit_year.id
+    @staticmethod
+    def data_bibliography_formset(learning_unit_year):
         return {'bibliography_set-TOTAL_FORMS': ['3'],
                 'bibliography_set-INITIAL_FORMS': ['0'],
                 'bibliography_set-MIN_NUM_FORMS': ['0'],
                 'bibliography_set-MAX_NUM_FORMS': ['10'],
-                'bibliography_set-0-id': ['', '', ''],
-                'bibliography_set-0-learning_unit_year': [id, '', ''],
-                'bibliography_set-0-title': ['Maître', 'Chevalier', 'Padawan'],
-                'bibliography_set-0-DELETE': ['']}
+                'bibliography_set-0-id': [''],
+                'bibliography_set-0-learning_unit_year': [learning_unit_year.pk],
+                'bibliography_set-0-title': ['Maître'],
+                'bibliography_set-0-DELETE': [''],
+                'bibliography_set-1-id': [''],
+                'bibliography_set-1-learning_unit_year': [''],
+                'bibliography_set-1-title': ['Chevalier'],
+                'bibliography_set-2-id': [''],
+                'bibliography_set-2-learning_unit_year': [''],
+                'bibliography_set-2-title': ['Padawan']}
 
 
 class LearningUnitCreate(TestCase):
