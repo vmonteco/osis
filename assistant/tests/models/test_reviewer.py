@@ -57,7 +57,7 @@ class TestReviewerFactory(TestCase):
 
     def test_find_reviewers(self):
         self.assertCountEqual(
-            [rev for rev in reviewer.find_reviewers()],
+            list(reviewer.find_reviewers()),
             [self.reviewer2, self.reviewer1, self.reviewer3, self.reviewer4, self.reviewer5]
         )
 
@@ -67,13 +67,13 @@ class TestReviewerFactory(TestCase):
     def test_find_by_role(self):
         self.assertCountEqual(
             [self.reviewer2, self.reviewer3],
-            [rev for rev in reviewer.find_by_role(reviewer_role.SUPERVISION)]
+            list(reviewer.find_by_role(reviewer_role.SUPERVISION))
         )
 
     def test_find_by_entity_and_role(self):
         self.assertCountEqual(
             [self.reviewer2],
-            [rev for rev in reviewer.find_by_entity_and_role(self.entity2, reviewer_role.SUPERVISION)]
+            list(reviewer.find_by_entity_and_role(self.entity2, reviewer_role.SUPERVISION))
         )
 
     def test_can_delegate(self):

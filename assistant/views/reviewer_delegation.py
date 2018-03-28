@@ -53,18 +53,16 @@ class StructuresListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return reverse('access_denied')
 
     def get_queryset(self):
-        queryset = []
         rev = reviewer.find_by_person(self.request.user.person)
         entities_version = entity_version.get_last_version(rev.entity).children
         entities = [this_entity_version.entity for this_entity_version in entities_version]
         entities.insert(0, entity_version.get_last_version(rev.entity).entity)
-        for entity in entities:
-            queryset.append({
-                'id': entity.id,
-                'title': entity_version.get_last_version(entity, None).title,
-                'acronym': entity.most_recent_acronym,
-                'has_already_delegate': reviewer.has_already_delegate_for_entity(rev, entity)
-            })
+        queryset = [{
+            'id': entity.id,
+            'title': entity_version.get_last_version(entity, None).title,
+            'acronym': entity.most_recent_acronym,
+            'has_already_delegate': reviewer.get_delegate_for_entity(rev, entity)
+        } for entity in entities]
         return queryset
 
     def get_context_data(self, **kwargs):

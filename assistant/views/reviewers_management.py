@@ -151,6 +151,10 @@ def reviewer_add(request):
                     msg = _("person_already_reviewer_msg")
                     form.add_error(None, msg)
                     return render(request, "manager_add_reviewer.html", {'form': form, 'year': year})
+                elif reviewer.find_by_entity_and_role(new_reviewer.entity, new_reviewer.role):
+                    msg = _("reviewer_with_same_role_already_exists_msg")
+                    form.add_error(None, msg)
+                    return render(request, "manager_add_reviewer.html", {'form': form, 'year': year})
                 else:
                     new_reviewer.person = this_person
                     new_reviewer.save()

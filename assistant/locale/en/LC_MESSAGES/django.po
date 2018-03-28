@@ -593,6 +593,9 @@ msgstr "Reviewer"
 msgid "reviewer_todo"
 msgstr "Files that can be treated"
 
+msgid "reviewer_with_same_role_already_exists_msg"
+msgstr "A reviewer having the same role for this entity already exists"
+
 msgid "reviewers"
 msgstr "Reviewers"
 

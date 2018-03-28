@@ -37,7 +37,7 @@ from base.models import entity_version
 from assistant.models.academic_assistant import is_supervisor
 from assistant.models.enums import reviewer_role
 from assistant.models.reviewer import find_by_person
-from assistant.models.reviewer import has_already_delegate_for_entity
+from assistant.models.reviewer import get_delegate_for_entity
 from assistant.tests.factories.review import ReviewFactory
 from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 from assistant.tests.factories.mandate_entity import MandateEntityFactory
@@ -47,6 +47,7 @@ from assistant.tests.factories.settings import SettingsFactory
 from assistant.models.enums import assistant_mandate_state, review_status
 
 HTTP_OK = 200
+HTTP_FOUND = 302
 
 class StructuresListView(TestCase):
 
@@ -95,22 +96,20 @@ class StructuresListView(TestCase):
 
     def test_with_unlogged_user(self):
         response = self.client.get('/assistants/reviewer/delegation/')
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, HTTP_FOUND)
 
     def test_context_data(self):
         self.client.force_login(self.reviewer.person.user)
         response = self.client.get('/assistants/reviewer/delegation/')
-        queryset = []
         entities_version = entity_version.get_last_version(self.reviewer.entity).children
         entities = [this_entity_version.entity for this_entity_version in entities_version]
         entities.insert(0, entity_version.get_last_version(self.reviewer.entity).entity)
-        for entity in entities:
-            queryset.append({
-                'id': entity.id,
-                'title': entity_version.get_last_version(entity, None).title,
-                'acronym': entity.most_recent_acronym,
-                'has_already_delegate': has_already_delegate_for_entity(self.reviewer, entity)
-            })
+        queryset = [{
+            'id': entity.id,
+            'title': entity_version.get_last_version(entity, None).title,
+            'acronym': entity.most_recent_acronym,
+            'has_already_delegate': get_delegate_for_entity(self.reviewer, entity)
+        } for entity in entities]
         self.assertQuerysetEqual(response.context['object_list'],
                                  queryset,
                                  transform=lambda x: x
@@ -155,10 +154,10 @@ class StructuresListView(TestCase):
                                         'role': self.reviewer.role
                                     }
                                     )
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, HTTP_FOUND)
         self.assertTrue(find_by_person(self.delegate))
 
     def test_add_reviewer_for_structure_if_logged_reviewer_cannot_delegate(self):
         self.client.force_login(self.reviewer2.person.user)
         response = self.client.post('/assistants/reviewer/delegate/add/', {'entity': self.reviewer.entity.id})
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, HTTP_FOUND)

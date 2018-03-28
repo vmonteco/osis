@@ -593,6 +593,9 @@ msgstr "Évaluateur"
 msgid "reviewer_todo"
 msgstr "Dossiers pouvant être traités"
 
+msgid "reviewer_with_same_role_already_exists_msg"
+msgstr "Un évaluateur pour ce rôle et cette entité existe déjà"
+
 msgid "reviewers"
 msgstr "Évaluateurs"
 

@@ -45,6 +45,7 @@ from assistant.tests.factories.settings import SettingsFactory
 from assistant.models.enums import assistant_mandate_state, review_status
 
 HTTP_OK = 200
+HTTP_FOUND = 302
 
 class ReviewerMandatesListViewTestCase(TestCase):
 
@@ -53,14 +54,17 @@ class ReviewerMandatesListViewTestCase(TestCase):
         self.client = Client()
         self.settings = SettingsFactory()
         today = datetime.date.today()
-        self.current_academic_year = AcademicYearFactory(start_date=today,
-                                                         end_date=today.replace(year=today.year + 1),
-                                                         year=today.year)
-        self.previous_academic_year = AcademicYearFactory(start_date=today.replace(year=today.year - 2),
-                                                         end_date=today.replace(year=today.year - 1),
-                                                         year=today.year-2)
+        self.current_academic_year = AcademicYearFactory(
+            start_date=today,
+            end_date=today.replace(year=today.year + 1),
+            year=today.year
+        )
+        self.previous_academic_year = AcademicYearFactory(
+            start_date=today.replace(year=today.year - 2),
+            end_date=today.replace(year=today.year - 1),
+            year=today.year-2
+        )
         self.phd_supervisor = PersonFactory()
-
         self.assistant = AcademicAssistantFactory(supervisor=self.phd_supervisor)
         self.assistant_mandate = AssistantMandateFactory(
             academic_year=self.current_academic_year,
@@ -83,7 +87,7 @@ class ReviewerMandatesListViewTestCase(TestCase):
 
     def test_with_unlogged_user(self):
         response = self.client.get('/assistants/reviewer/')
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, HTTP_FOUND)
 
 
     def test_context_data(self):
