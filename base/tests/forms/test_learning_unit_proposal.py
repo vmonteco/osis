@@ -325,10 +325,10 @@ class TestComputeFormInitialDataFromProposalJson(SimpleTestCase):
             "status": True,
             "id": 45,
             "end_year": 2018,
-            entity_container_year_link_type.REQUIREMENT_ENTITY: 45,
-            entity_container_year_link_type.ALLOCATION_ENTITY: 12,
-            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1: None,
-            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: None
+            entity_container_year_link_type.REQUIREMENT_ENTITY.lower(): 45,
+            entity_container_year_link_type.ALLOCATION_ENTITY.lower(): 12,
+            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1.lower(): None,
+            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2.lower(): None
         }
 
         self.assertDictEqual(result, expected_result)
