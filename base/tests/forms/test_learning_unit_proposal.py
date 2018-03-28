@@ -25,6 +25,7 @@
 ##############################################################################
 import datetime
 from decimal import Decimal
+from unittest import mock
 
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
@@ -294,7 +295,8 @@ class TestComputeFormInitialDataFromProposalJson(SimpleTestCase):
         result = compute_form_initial_data_from_proposal_json(None)
         self.assertDictEqual(result, {})
 
-    def test_flatten_json_initial_data(self):
+    @mock.patch("base.forms.learning_unit_proposal._replace_entity_id_with_entity_version_id", side_effect=None)
+    def test_flatten_json_initial_data(self, mock_replace_entity_id):
         proposal_initial_data = {
             "learning_container_year": {
                 "acronym":"LOSIS4512",
@@ -332,4 +334,4 @@ class TestComputeFormInitialDataFromProposalJson(SimpleTestCase):
         }
 
         self.assertDictEqual(result, expected_result)
-
+        self.assertTrue(mock_replace_entity_id.called)

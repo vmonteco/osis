@@ -235,8 +235,10 @@ def get_last_version(entity, date=None):
     qs = EntityVersion.objects.current(date).entity(entity)
 
     return qs.latest('start_date')
-    # find_latest_version(academic_year.current_academic_year().start_date).get(entity=entity)
 
+def get_last_version_by_entity_id(entity_id):
+    now = datetime.datetime.now(get_tzinfo())
+    return EntityVersion.objects.current(now).filter(entity__id=entity_id).latest('start_date')
 
 def get_by_entity_parent(entity_parent):
     if entity_parent is None:
