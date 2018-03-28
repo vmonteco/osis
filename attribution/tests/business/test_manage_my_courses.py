@@ -107,9 +107,9 @@ class TestUserCanEditEducationalInformation(TestCase):
         self.assertTrue(can_edit_educational_information)
 
     @staticmethod
-    def create_attribution_and_check_if_user_can_edit_educational_information(summary_responsible, summary_editable):
+    def create_attribution_and_check_if_user_can_edit_educational_information(summary_responsible, summary_locked):
         an_attribution = AttributionFactory(summary_responsible=summary_responsible,
-                                            learning_unit_year__summary_editable=summary_editable)
+                                            learning_unit_year__summary_locked=summary_locked)
         entity_container_year = EntityContainerYearFactory(
             learning_container_year=an_attribution.learning_unit_year.learning_container_year,
             type=entity_container_year_link_type.REQUIREMENT_ENTITY)
@@ -121,7 +121,7 @@ class TestUserCanEditEducationalInformation(TestCase):
 class TestFindLearningUnitYearsSummaryEditable(TestCase):
     def setUp(self):
         self.tutor = TutorFactory()
-        self.learning_unit_years = [LearningUnitYearFactory(summary_editable=True) for i in range(4)]
+        self.learning_unit_years = [LearningUnitYearFactory(summary_locked=False) for i in range(4)]
         self.attributions = [AttributionFactory(tutor=self.tutor,
                                                 summary_responsible= True,
                                                 learning_unit_year=self.learning_unit_years[i])
@@ -132,10 +132,10 @@ class TestFindLearningUnitYearsSummaryEditable(TestCase):
         actual_luys = find_learning_unit_years_summary_editable(self.tutor)
         self.assertCountEqual(expected_luys, list(actual_luys))
 
-    def test_not_return_luy_which_are_not_summary_editable(self):
-        self.learning_unit_years[0].summary_editable = False
+    def test_not_return_luy_which_are_summary_locked(self):
+        self.learning_unit_years[0].summary_locked = True
         self.learning_unit_years[0].save()
-        self.learning_unit_years[2].summary_editable = False
+        self.learning_unit_years[2].summary_locked = True
         self.learning_unit_years[2].save()
 
         expected_luys = [self.learning_unit_years[1], self.learning_unit_years[3]]
