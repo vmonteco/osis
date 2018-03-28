@@ -32,8 +32,6 @@ from attribution.business.manage_my_courses import find_learning_unit_years_summ
 from attribution.business.perms import can_user_edit_educational_information
 from attribution.tests.factories.attribution import AttributionFactory
 from base.models.enums import entity_container_year_link_type
-from base.models.enums.academic_calendar_type import SUMMARY_COURSE_SUBMISSION
-from base.tests.factories.entity_calendar import EntityCalendarFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
@@ -56,46 +54,46 @@ class TestUserCanEditEducationalInformation(TestCase):
         self.addCleanup(patcher.stop)
 
     def test_when_learning_unit_year_does_not_exist(self):
-        an_attribution = AttributionFactory(summary_responsible=True, learning_unit_year__summary_editable=True)
+        an_attribution = AttributionFactory(summary_responsible=True, learning_unit_year__summary_locked=False)
 
         can_edit_educational_information = can_user_edit_educational_information(an_attribution.tutor.person.user,
                                                                                  an_attribution.learning_unit_year.id+1)
         self.assertFalse(can_edit_educational_information)
 
     def test_when_not_attributed_to_the_learning_unit_year(self):
-        an_attribution = AttributionFactory(summary_responsible=True, learning_unit_year__summary_editable=True)
-        an_other_attribution = AttributionFactory(summary_responsible=True, learning_unit_year__summary_editable=True)
+        an_attribution = AttributionFactory(summary_responsible=True, learning_unit_year__summary_locked=False)
+        an_other_attribution = AttributionFactory(summary_responsible=True, learning_unit_year__summary_locked=False)
         can_edit_educational_information = can_user_edit_educational_information(an_other_attribution.tutor.person.user,
                                                                                  an_attribution.learning_unit_year.id)
         self.assertFalse(can_edit_educational_information)
 
     def test_when_not_summary_responsible(self):
         can_edit_educational_information = \
-            self.create_attribution_and_check_if_user_can_edit_educational_information(False, True)
+            self.create_attribution_and_check_if_user_can_edit_educational_information(False, False)
         self.assertFalse(can_edit_educational_information)
 
     def test_when_summary_responsible_but_learning_unit_year_educational_information_cannot_be_edited(self):
         can_edit_educational_information =\
-            self.create_attribution_and_check_if_user_can_edit_educational_information(True, False)
+            self.create_attribution_and_check_if_user_can_edit_educational_information(True, True)
         self.assertFalse(can_edit_educational_information)
 
     def test_when_summary_responsible_and_learning_unit_year_educational_information_can_be_edited(self):
         can_edit_educational_information = \
-            self.create_attribution_and_check_if_user_can_edit_educational_information(True, True)
+            self.create_attribution_and_check_if_user_can_edit_educational_information(True, False)
         self.assertTrue(can_edit_educational_information)
 
     def test_when_period_has_passed(self):
         self.MockClass.return_value = {"start_date": self.yesterday,
                                        "end_date": self.yesterday}
         can_edit_educational_information = \
-            self.create_attribution_and_check_if_user_can_edit_educational_information(True, False)
+            self.create_attribution_and_check_if_user_can_edit_educational_information(True, True)
         self.assertFalse(can_edit_educational_information)
 
     def test_when_period_has_not_yet_begun(self):
         self.MockClass.return_value = {"start_date": self.tomorrow,
                                        "end_date": self.tomorrow}
         can_edit_educational_information = \
-            self.create_attribution_and_check_if_user_can_edit_educational_information(True, False)
+            self.create_attribution_and_check_if_user_can_edit_educational_information(True, True)
         self.assertFalse(can_edit_educational_information)
 
     def test_when_period_is_date(self):
@@ -103,7 +101,7 @@ class TestUserCanEditEducationalInformation(TestCase):
         self.MockClass.return_value = {"start_date": today - datetime.timedelta(days=1),
                                        "end_date": today + datetime.timedelta(days=1)}
         can_edit_educational_information = \
-            self.create_attribution_and_check_if_user_can_edit_educational_information(True, True)
+            self.create_attribution_and_check_if_user_can_edit_educational_information(True, False)
         self.assertTrue(can_edit_educational_information)
 
     @staticmethod

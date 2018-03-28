@@ -30,7 +30,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
 from django.db.models import BLANK_CHOICE_DASH
-from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.http import QueryDict
@@ -58,10 +57,9 @@ from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
     PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, SummaryEditableModelForm, \
-    LearningUnitPedagogyForm
+    LearningUnitPedagogyForm, BibliographyFormset
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import proposal_learning_unit
-from base.models.bibliography import Bibliography
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.learning_container import LearningContainer
@@ -137,8 +135,6 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
     summary_editable_form = SummaryEditableModelForm(request.POST or None, can_user_edit_summary_editable,
                                                      instance=learning_unit_year)
 
-    BibliographyFormset = inlineformset_factory(LearningUnitYear, Bibliography,
-                                                fields=('title', 'mandatory'), max_num=10, extra=1)
     bibliography_formset = BibliographyFormset(request.POST or None, instance=learning_unit_year)
 
     if summary_editable_form.is_valid() and bibliography_formset.is_valid():
