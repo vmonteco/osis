@@ -115,13 +115,10 @@ def _update_proposal(request, user_person, proposal):
     initial_data_from_json = compute_form_initial_data_from_proposal_json(proposal)
     initial_data_from_json.update(_build_proposal_data(proposal))
 
-    proposal_form = LearningUnitProposalModificationForm(
-        request.POST or None,
-        initial=initial_data_from_json,
-        instance=proposal,
-        learning_unit=proposal.learning_unit_year.learning_unit,
-        person=user_person
-    )
+    proposal_form = LearningUnitProposalModificationForm(request.POST or None, initial=initial_data_from_json,
+                                                         instance=proposal,
+                                                         learning_unit=proposal.learning_unit_year.learning_unit,
+                                                         person=user_person)
 
     if proposal_form.is_valid():
         try:
@@ -140,6 +137,7 @@ def _update_proposal(request, user_person, proposal):
         'person': user_person,
         'form': proposal_form,
         'experimental_phase': True})
+
 
 def _update_or_create_suppression_proposal(request, person, learning_unit_year, proposal=None):
     type_proposal = ProposalType.SUPPRESSION.name

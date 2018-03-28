@@ -221,6 +221,7 @@ def get_entity_by_type(entity_type, entities_by_type):
     else:
         return None
 
+
 def compute_form_initial_data_from_proposal_json(proposal):
     if not proposal.initial_data:
         return {}
@@ -232,4 +233,3 @@ def compute_form_initial_data_from_proposal_json(proposal):
     initial_data["first_letter"] = initial_data["acronym"][0]
     initial_data["acronym"] = initial_data["acronym"][1:]
     return initial_data
-
