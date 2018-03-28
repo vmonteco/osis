@@ -133,7 +133,7 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
     @cached_property
     def changed_data_for_fields_that_can_be_modified(self):
         fields_that_cannot_be_modified = {"academic_year", "subtype", "faculty_remark", "other_remark", "entity",
-                                          "folder_id", "state", "type"}
+                                          "folder_id", "state", "type", "session"}
         return list(set(self.changed_data) - fields_that_cannot_be_modified)
 
     def _updates_entities(self, learning_container_year):
