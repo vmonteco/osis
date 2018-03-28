@@ -112,7 +112,7 @@ def _update_proposal(request, user_person, proposal):
 
     # Workaround Set initial data from proposal initial data json to compute effectively data modified
     # and compute proposal type
-    initial_data_from_json = compute_form_initial_data_from_proposal_json(proposal)
+    initial_data_from_json = compute_form_initial_data_from_proposal_json(proposal.initial_data)
     initial_data_from_json.update(_build_proposal_data(proposal))
 
     proposal_form = LearningUnitProposalModificationForm(request.POST or None, initial=initial_data_from_json,
