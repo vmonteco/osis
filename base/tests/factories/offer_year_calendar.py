@@ -33,20 +33,20 @@ from base.tests.factories.offer_year import OfferYearFactory
 from osis_common.utils.datetime import get_tzinfo
 
 
-def generate_start_date(offer_year_calendar):
-    if offer_year_calendar.academic_calendar:
-        return datetime.datetime(offer_year_calendar.academic_calendar.start_date.year,
-                                 offer_year_calendar.academic_calendar.start_date.month,
-                                 offer_year_calendar.academic_calendar.start_date.day, tzinfo=get_tzinfo())
+def generate_start_date(abstract_calendar):
+    if abstract_calendar.academic_calendar:
+        return datetime.datetime(abstract_calendar.academic_calendar.start_date.year,
+                                 abstract_calendar.academic_calendar.start_date.month,
+                                 abstract_calendar.academic_calendar.start_date.day, tzinfo=get_tzinfo())
     else:
         return datetime.datetime(2000, 1, 1, tzinfo=get_tzinfo())
 
 
-def generate_end_date(offer_year_calendar):
-    if offer_year_calendar.academic_calendar:
-        return datetime.datetime(offer_year_calendar.academic_calendar.end_date.year,
-                                 offer_year_calendar.academic_calendar.end_date.month,
-                                 offer_year_calendar.academic_calendar.end_date.day,
+def generate_end_date(abstract_calendar):
+    if abstract_calendar.academic_calendar:
+        return datetime.datetime(abstract_calendar.academic_calendar.end_date.year,
+                                 abstract_calendar.academic_calendar.end_date.month,
+                                 abstract_calendar.academic_calendar.end_date.day,
                                  tzinfo=get_tzinfo())
     else:
         return datetime.datetime(2099, 1, 1, tzinfo=get_tzinfo())

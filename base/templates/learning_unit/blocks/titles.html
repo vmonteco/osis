@@ -13,9 +13,7 @@
     </span>
 </div>
 <div class="form-group">
-    <label for="{{ form.specific_title.id_for_label }}">
-        {% trans 'official_title_proper_to_UE' %}
-    </label>
+    {{ form.specific_title.label_tag }}
     {{ form.specific_title }}
     <span class="error">
         {{ form.specific_title.errors }}
@@ -33,9 +31,7 @@
     </span>
 </div>
 <div class="form-group">
-    <label for="{{ form.specific_title_english.id_for_label }}">
-        {% trans 'official_english_title_proper_to_UE' %}
-    </label>
+    {{ form.specific_title_english.label_tag }}
     {{ form.specific_title_english}}
     <span class="error">
         {{ form.specific_title_english.errors }}

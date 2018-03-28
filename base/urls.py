@@ -28,6 +28,7 @@ from django.conf.urls import url, include
 from django.conf.urls.static import static
 
 import base.views.learning_units.delete
+import base.views.learning_units.proposal.delete
 import base.views.learning_units.search
 import base.views.learning_units.update
 from attribution.views import attribution, tutor_application
@@ -90,6 +91,8 @@ urlpatterns = [
             name='learning_units_service_course'),
         url(r'^by_proposal/', base.views.learning_units.search.learning_units_proposal_search,
             name='learning_units_proposal'),
+        url(r'^by_summary/', base.views.learning_units.search.learning_units_summary_list,
+            name='learning_units_summary'),
         url(r'^new/', include([
             url(r'^academic_year_id=(?P<academic_year>[0-9]+)$', learning_unit.learning_unit_create,
                 name="learning_unit_create"),
@@ -109,10 +112,12 @@ urlpatterns = [
             url(r'^attributions/$', learning_unit.learning_unit_attributions,
                 name="learning_unit_attributions"),
             url(r'^proposal/', include([
-                url(r'^modification/$', update.propose_modification_of_learning_unit,
+                url(r'^modification/$', update.learning_unit_modification_proposal,
                     name="learning_unit_modification_proposal"),
-                url(r'^edit/$', update.edit_learning_unit_proposal, name="edit_proposal"),
-                url(r'^cancel/$', update.cancel_proposal_of_learning_unit,
+                url(r'^suppression/$', update.learning_unit_suppression_proposal,
+                    name="learning_unit_suppression_proposal"),
+                url(r'^edit/$', update.update_learning_unit_proposal, name="edit_proposal"),
+                url(r'^cancel/$', base.views.learning_units.proposal.delete.cancel_proposal_of_learning_unit,
                     name="learning_unit_cancel_proposal"),
             ])),
             url(r'^update_end_date/$', learning_unit_edition_end_date, name="learning_unit_edition"),
@@ -124,8 +129,6 @@ urlpatterns = [
             url(r'^class/edit/$', learning_unit.learning_class_year_edit, name="learning_class_year_edit"),
             url(r'^volumes/', base.views.learning_units.update.learning_unit_volumes_management,
                 name="learning_unit_volumes_management"),
-            url(r'^delete/$', base.views.learning_units.delete.delete_from_given_learning_unit_year,
-                name="learning_unit_delete"),
             url(r'^delete_full/$', base.views.learning_units.delete.delete_all_learning_units_year,
                 name="learning_unit_delete_all"),
             url(r'^partim/', include([

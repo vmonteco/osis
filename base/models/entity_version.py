@@ -342,8 +342,19 @@ def _match_dates(osis_date, esb_date):
 
 def find_main_entities_version():
     now = datetime.datetime.now(get_tzinfo())
-    return find_latest_version(date=now).filter(entity_type__in=MAIN_ENTITY_TYPE, entity__organization__type=MAIN)
+    return find_latest_version(date=now).filter(
+        entity_type__in=MAIN_ENTITY_TYPE, entity__organization__type=MAIN).order_by('acronym')
 
 
 def find_latest_version_by_entity(entity, date):
     return EntityVersion.objects.current(date).entity(entity).select_related('entity', 'parent').first()
+
+
+def find_last_entity_version_by_learning_unit_year_id(learning_unit_year_id):
+    now = datetime.datetime.now(get_tzinfo())
+    try:
+        return EntityVersion.objects.current(now).\
+            filter(entity__entitycontaineryear__learning_container_year__learningunityear__id=learning_unit_year_id). \
+            latest('start_date')
+    except EntityVersion.DoesNotExist:
+        return None

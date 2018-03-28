@@ -35,16 +35,17 @@ from base import models as mdl
 from base.business import learning_unit
 from base.forms.bootstrap import BootstrapForm
 from base.forms.utils.choice_field import add_blank
-from base.models.campus import find_main_campuses
+from base.models.campus import find_main_campuses, Campus
 from base.models.entity_version import find_main_entities_version
-from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP
+from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP, \
+    LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_FULL, LEARNING_UNIT_ACRONYM_REGEX_PARTIM, \
     LEARNING_UNIT_ACRONYM_REGEX_ALL
-from reference.models.language import find_all_languages
+from reference.models.language import find_all_languages, Language
 
 MINIMUM_CREDITS = 0
 MAXIMUM_CREDITS = 500
@@ -78,6 +79,7 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
         return obj.acronym
 
 
+# FIXME Convert it in ModelForm !
 class LearningUnitYearForm(BootstrapForm):
     first_letter = forms.ChoiceField(choices=lazy(_create_first_letter_choices, tuple), required=True)
     acronym = forms.CharField(widget=forms.TextInput(attrs={'maxlength': "15", 'required': True}))
@@ -134,16 +136,51 @@ class LearningUnitYearForm(BootstrapForm):
                                                                  widget=forms.Select(attrs={'disable': 'disable'}))
     language = forms.ModelChoiceField(find_all_languages(), empty_label=None)
 
+    def __init__(self, *args, **kwargs):
+        self.learning_unit = kwargs.pop('learning_unit', None)
+        super(LearningUnitYearForm, self).__init__(*args, **kwargs)
+
+        # TODO the default value must be set in model.
+        qs = Campus.objects.filter(name='Louvain-la-Neuve')
+        if qs.exists():
+            self.fields['campus'].initial = qs.get()
+
+        qs = Language.objects.filter(code='FR')
+        if qs.exists():
+            self.fields['language'].initial = qs.get().id
+
+        if self.initial.get('subtype') == "PARTIM":
+            self.fields['specific_title'].label = _('official_title_proper_to_partim')
+            self.fields['specific_title_english'].label = _('official_english_title_proper_to_partim')
+        else:
+            self.fields['specific_title'].label = _('official_title_proper_to_UE')
+            self.fields['specific_title_english'].label = _('official_english_title_proper_to_UE')
+
+    def _get_existing_acronym_list(self, academic_year, acronym):
+        if self.learning_unit:
+            learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym) \
+                .exclude(learning_unit=self.learning_unit)
+        else:
+            learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym)
+        return [learning_unit_year.acronym for learning_unit_year in learning_unit_years]
+
     def clean(self):
         cleaned_data = super().clean()
-        self._check_if_acronym_already_exists(cleaned_data)
+        if self.errors:
+            return cleaned_data
 
+        self._check_if_acronym_already_exists(cleaned_data)
         if 'internship_subtype' in self.fields \
                 and cleaned_data.get("container_type") == INTERNSHIP \
                 and not (cleaned_data['internship_subtype']):
             self.add_error('internship_subtype', _('field_is_required'))
         if not cleaned_data["common_title"] and not cleaned_data["specific_title"]:
             self.add_error("common_title", _("must_set_common_title_or_specific_title"))
+
+        requirement_entity = cleaned_data["requirement_entity"]
+        allocation_entity = cleaned_data["allocation_entity"]
+        container_type = cleaned_data["container_type"]
+        self._are_requirement_and_allocation_entities_valid(requirement_entity, allocation_entity, container_type)
         return cleaned_data
 
     def _check_if_acronym_already_exists(self, cleaned_data):
@@ -154,24 +191,17 @@ class LearningUnitYearForm(BootstrapForm):
             if acronym in learning_unit_years_list:
                 self.add_error('acronym', _('already_existing_acronym'))
 
+    def _are_requirement_and_allocation_entities_valid(self, requirement_entity, allocation_entity, container_type):
+        if requirement_entity != allocation_entity and \
+                container_type in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES:
+            self.add_error("allocation_entity", _("requirement_and_allocation_entities_cannot_be_different"))
+
     def clean_acronym(self, regex=LEARNING_UNIT_ACRONYM_REGEX_ALL):
         acronym = _merge_first_letter_and_acronym(self.cleaned_data.get('first_letter', ""),
                                                   self.cleaned_data.get('acronym', ""))
         if not re.match(regex, acronym):
             raise ValidationError(_('invalid_acronym'))
         return acronym
-
-    def __init__(self, *args, **kwargs):
-        self.learning_unit = kwargs.pop('learning_unit', None)
-        super(LearningUnitYearForm, self).__init__(*args, **kwargs)
-
-    def _get_existing_acronym_list(self, academic_year, acronym):
-        if self.learning_unit:
-            learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym) \
-                .exclude(learning_unit=self.learning_unit)
-        else:
-            learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym)
-        return [learning_unit_year.acronym for learning_unit_year in learning_unit_years]
 
 
 class CreateLearningUnitYearForm(LearningUnitYearForm):
@@ -222,3 +252,11 @@ class CreatePartimForm(CreateLearningUnitYearForm):
         if not re.match(regex, acronym):
             raise ValidationError(_('invalid_acronym'))
         return acronym
+
+    def clean_status(self):
+        # If the parent is inactive, the partim can be only inactive
+        status = self.cleaned_data['status']
+        parent_status = self.learning_unit_year_parent.status
+        if not parent_status and parent_status != status:
+            raise ValidationError(_('The partim must be inactive because the parent is inactive'))
+        return status

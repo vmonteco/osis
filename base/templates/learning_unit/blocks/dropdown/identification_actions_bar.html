@@ -39,6 +39,11 @@
                     {% trans 'Put in proposal' %}
                 </a>
             </li>
+            <li {% if not can_propose %}class="disabled"{% endif %}>
+                <a {% if can_propose %} href="{% url "learning_unit_suppression_proposal" learning_unit_year_id=learning_unit_year.id %}" {% endif %}>
+                    {% trans 'Put in suppression proposal' %}
+                </a>
+            </li>
             <li {% if not can_edit_learning_unit_proposal %}class="disabled"{% endif %}>
                 <a {% if can_edit_learning_unit_proposal %} href="{{ url_edit_proposal }}" {% endif %}>
                     {% trans 'edit_proposal' %}

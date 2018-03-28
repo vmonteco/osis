@@ -7,7 +7,6 @@ const trans_field_required = gettext('field_is_required');
 const trans_field_min = gettext('min_for_field');
 const trans_field_max = gettext('max_for_field');
 
-
 var form = $('#LearningUnitYearForm').closest("form");
 
 
@@ -152,6 +151,7 @@ $(document).ready(function() {
         || isValueEmpty('id_additional_requirement_entity_1')
         || isDisabledField('id_additional_requirement_entity_1');
 
+    $('#id_first_letter').change(validate_acronym);
     $('#id_acronym').change(validate_acronym);
     $('#id_academic_year').change(validate_acronym);
     $("#LearningUnitYearForm").submit(function( event ) {

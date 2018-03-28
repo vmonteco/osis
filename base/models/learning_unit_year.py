@@ -28,6 +28,7 @@ import re
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import Q
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from base.models import entity_container_year
@@ -39,7 +40,6 @@ from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.group_element_year import GroupElementYear
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
-from django.utils.functional import cached_property
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
@@ -53,8 +53,8 @@ class LearningUnitYearAdmin(AuditableSerializableModelAdmin):
     fieldsets = ((None, {'fields': ('academic_year', 'learning_unit', 'learning_container_year', 'acronym',
                                     'specific_title', 'specific_title_english', 'subtype', 'credits', 'decimal_scores',
                                     'structure', 'internship_subtype', 'status', 'session',
-                                    'quadrimester', 'attribution_procedure', 'summary_editable')}),)
-    list_filter = ('academic_year', 'decimal_scores', 'summary_editable')
+                                    'quadrimester', 'attribution_procedure', 'summary_locked')}),)
+    list_filter = ('academic_year', 'decimal_scores', 'summary_locked')
     raw_id_fields = ('learning_unit', 'learning_container_year', 'structure')
     search_fields = ['acronym', 'structure__acronym', 'external_id']
 
@@ -82,7 +82,10 @@ class LearningUnitYear(AuditableSerializableModel):
                                     choices=learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
     attribution_procedure = models.CharField(max_length=20, blank=True, null=True,
                                              choices=attribution_procedure.ATTRIBUTION_PROCEDURES)
-    summary_editable = models.BooleanField(default=True, verbose_name=_("summary_editable"))
+    summary_locked = models.BooleanField(default=False, verbose_name=_("summary_locked"))
+
+    mobility_modality = models.TextField(verbose_name=_('Modalities specific to IN and OUT mobility'),
+                                         blank=True, null=True)
 
     class Meta:
         unique_together = ('learning_unit', 'academic_year', 'deleted')
@@ -243,11 +246,16 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
         queryset = queryset.filter(learning_container_year__container_type=container_type)
 
     if tutor:
-        queryset = queryset.\
-            filter(Q(attribution__tutor__person__first_name__icontains=tutor) |
-                   Q(attribution__tutor__person__last_name__icontains=tutor))
+        filter_by_first_name = {_build_tutor_filter(name_type='first_name'): tutor}
+        filter_by_last_name = {_build_tutor_filter(name_type='last_name'): tutor}
+        queryset = queryset.filter(Q(**filter_by_first_name) | Q(**filter_by_last_name)).distinct()
 
     return queryset.select_related('learning_container_year', 'academic_year')
+
+
+def _build_tutor_filter(name_type):
+    return '__'.join(['learningunitcomponent', 'learning_component_year', 'attributionchargenew', 'attribution',
+                      'tutor', 'person', name_type, 'icontains'])
 
 
 def _convert_status_bool(status):
@@ -283,3 +291,7 @@ def find_max_credits_of_related_partims(a_learning_unit_year):
 
 def find_by_learning_unit(a_learning_unit):
     return search(learning_unit=a_learning_unit)
+
+
+def find_by_entities(entities):
+    return LearningUnitYear.objects.filter(learning_container_year__entitycontaineryear__entity__in=entities)

@@ -26,6 +26,7 @@
 import random
 
 from copy import deepcopy
+from datetime import timedelta
 from uuid import uuid4
 
 from django.test import TestCase
@@ -67,7 +68,7 @@ class LearningUnitEditionTestCase(TestCase):
                                                                              create_pratical_component=True)
 
         an_entity = EntityFactory()
-        EntityVersionFactory(entity=an_entity, parent=None, end_date=None, acronym="DRT")
+        self.entity_version = EntityVersionFactory(entity=an_entity, parent=None, end_date=None, acronym="DRT")
         self.allocation_entity = _create_entity_container_with_entity_components(
             self.learning_unit_year,
             entity_container_year_link_type.ALLOCATION_ENTITY,
@@ -155,13 +156,36 @@ class LearningUnitEditionTestCase(TestCase):
         self.assertIn(error_acronym, error_list)
         # Error : Specific title english diff
         error_specific_title_english = _(generic_error) % {
-            'field': _('specific_title_english'),
+            'field': _('official_english_title_proper_to_UE'),
             'year': self.learning_unit_year.academic_year,
             'value': getattr(self.learning_unit_year, 'specific_title_english'),
             'next_year': another_learning_unit_year.academic_year,
             'next_value': _('no_data')
         }
         self.assertIn(error_specific_title_english, error_list)
+
+    def test_check_postponement_conflict_learning_unit_year_status_diff(self):
+        # Copy the same learning unit + change academic year / acronym / specific_title_english
+        another_learning_unit_year = _build_copy(self.learning_unit_year)
+        another_learning_unit_year.academic_year = self.next_academic_year
+        another_learning_unit_year.status = False
+        another_learning_unit_year.save()
+
+        error_list = business_edition._check_postponement_conflict_on_learning_unit_year(self.learning_unit_year,
+                                                                                         another_learning_unit_year)
+        self.assertIsInstance(error_list, list)
+        self.assertEqual(len(error_list), 1)
+        generic_error = "The value of field '%(field)s' is different between year %(year)s - %(value)s " \
+                        "and year %(next_year)s - %(next_value)s"
+        # Error : Status diff
+        error_status = _(generic_error) % {
+            'field': _('status'),
+            'year': self.learning_unit_year.academic_year,
+            'value': _('yes'),
+            'next_year': another_learning_unit_year.academic_year,
+            'next_value': _('no')
+        }
+        self.assertIn(error_status, error_list)
 
     def test_check_postponement_conflict_learning_container_year_no_differences(self):
         # Copy the same + change academic year
@@ -218,7 +242,7 @@ class LearningUnitEditionTestCase(TestCase):
 
         # Error : Common title diff
         error_common_title = _(generic_error) % {
-            'field': _('common_title'),
+            'field': _('common_official_title'),
             'year': self.learning_container_year.academic_year,
             'value': getattr(self.learning_container_year, 'common_title'),
             'next_year': another_learning_container_year.academic_year,
@@ -270,6 +294,33 @@ class LearningUnitEditionTestCase(TestCase):
         )
         self.assertIsInstance(error_list, list)
         self.assertFalse(error_list)
+
+    def test_check_postponement_conflict_entity_container_year_entity_doesnt_exist_anymore(self):
+        # Copy the same container + change academic year
+        another_learning_container_year = _build_copy(self.learning_container_year)
+        another_learning_container_year.academic_year = self.next_academic_year
+        another_learning_container_year.save()
+
+        # Copy same entity
+        for entity_container_to_copy in [self.allocation_entity, self.requirement_entity,
+                                         self.add_requirement_entity_1]:
+            entity_copied = _build_copy(entity_container_to_copy)
+            entity_copied.learning_container_year = another_learning_container_year
+            entity_copied.save()
+
+        # Modify end_date of entity_version
+        self.entity_version.end_date = self.next_academic_year.start_date - timedelta(days=1)
+        self.entity_version.save()
+
+        error_list = business_edition._check_postponement_conflict_on_entity_container_year(
+            self.learning_container_year, another_learning_container_year
+        )
+        self.assertIsInstance(error_list, list)
+        error_entity_not_exist = _("The entity '%(acronym)s' doesn't exist anymore in %(year)s" % {
+            'acronym': self.entity_version.acronym,
+            'year': self.next_academic_year
+        })
+        self.assertIn(error_entity_not_exist, error_list)
 
     def test_check_postponement_conflict_entity_container_year_differences_found(self):
         # Copy the same container + change academic year
@@ -503,9 +554,7 @@ class LearningUnitEditionTestCase(TestCase):
                                    type=entity_container_year_link_type.REQUIREMENT_ENTITY,
                                    entity=an_entity)
 
-        with self.assertRaises(ConsistencyError) as ctx:
-            business_edition.check_postponement_conflict(self.learning_unit_year, another_learning_unit_year)
-        error_list = ctx.exception.error_list
+        error_list = business_edition.check_postponement_conflict(self.learning_unit_year, another_learning_unit_year)
         self.assertIsInstance(error_list, list)
         self.assertEqual(len(error_list), 6)
 
@@ -513,7 +562,8 @@ class LearningUnitEditionTestCase(TestCase):
 def _create_learning_unit_year_with_components(l_container, create_lecturing_component=True, create_pratical_component=True):
     a_learning_unit_year = LearningUnitYearFactory(learning_container_year=l_container,
                                                    acronym=l_container.acronym,
-                                                   academic_year=l_container.academic_year)
+                                                   academic_year=l_container.academic_year,
+                                                   status=True)
 
     if create_lecturing_component:
         a_component = LearningComponentYearFactory(

@@ -38,8 +38,9 @@ from base.models.person import FACULTY_MANAGER_GROUP
 MAX_ACADEMIC_YEAR_FACULTY = datetime.datetime.now().year+4
 
 
+# FIXME Merge this with ProposalLearningUnitForm
 class LearningUnitProposalForm(BootstrapForm):
-    folder_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
+    entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
 
 
@@ -49,6 +50,7 @@ class LearningUnitProposalCreationForm(LearningUnitYearForm):
         # When we submit a proposal, we can select all requirement entity available
         self.fields["requirement_entity"].queryset = find_main_entities_version()
         if person.user.groups.filter(name=FACULTY_MANAGER_GROUP).exists():
+            self.fields["requirement_entity"].queryset = person.find_main_entities_version
             self.fields["container_type"].choices = add_blank(LEARNING_CONTAINER_YEAR_TYPES_FOR_PROPOSAL_FACULTY)
             self.fields["academic_year"].queryset = AcademicYear.objects\
                 .filter(year__gt=datetime.datetime.now().year)\

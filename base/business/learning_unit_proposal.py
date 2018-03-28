@@ -24,47 +24,50 @@
 #
 ##############################################################################
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
+from base.business.learning_units.simple import deletion as business_deletion
 from base.models import entity_container_year, campus, entity
-from base.models.enums import proposal_type, entity_container_year_link_type
+from base.models.enums import entity_container_year_link_type
 from base.models.enums.proposal_type import ProposalType
-from base.models.proposal_learning_unit import find_by_folder, ProposalLearningUnit
+from base.utils import send_mail as send_mail_util
 from reference.models import language
 from django.utils.translation import ugettext_lazy as _
 from base import models as mdl_base
 from django.apps import apps
-from django.shortcuts import get_object_or_404
+from django.contrib.messages import ERROR, SUCCESS
 
 APP_BASE_LABEL = 'base'
 END_FOREIGN_KEY_NAME = "_id"
 NO_PREVIOUS_VALUE = '-'
+# TODO : VALUES_WHICH_NEED_TRANSLATION ?
 VALUES_WHICH_NEED_TRANSLATION = ["periodicity", "container_type", "internship_subtype"]
 LABEL_ACTIVE = _('active')
 LABEL_INACTIVE = _('inactive')
 
 
-def compute_proposal_type(initial_data, current_data):
-    data_changed = _compute_data_changed(initial_data, current_data)
-    filtered_data_changed = filter(lambda key: key not in ["academic_year", "subtype", "acronym"], data_changed)
-    transformation = "{}{}".format(current_data["first_letter"], current_data["acronym"]) != \
-                     "{}{}".format(initial_data["first_letter"], initial_data["acronym"])
-    modification = any(map(lambda x: x != "acronym", filtered_data_changed))
-    if transformation and modification:
-        return proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name
-    elif transformation:
-        return proposal_type.ProposalType.TRANSFORMATION.name
-    return proposal_type.ProposalType.MODIFICATION.name
+def compute_proposal_type(data_changed, initial_proposal_type):
+    if initial_proposal_type in [ProposalType.CREATION.name, ProposalType.SUPPRESSION.name]:
+        return initial_proposal_type
+
+    is_transformation = any(map(_is_transformation_field, data_changed))
+    is_modification = any(map(_is_modification_field, data_changed))
+    if is_transformation:
+        if is_modification:
+            return ProposalType.TRANSFORMATION_AND_MODIFICATION.name
+        else:
+            return ProposalType.TRANSFORMATION.name
+    return ProposalType.MODIFICATION.name
 
 
-def _compute_data_changed(initial_data, current_data):
-    data_changed = []
-    for key, value in initial_data.items():
-        current_value = current_data.get(key)
-        if str(value) != str(current_value):
-            data_changed.append(key)
-    return data_changed
+def _is_transformation_field(field):
+    return field in ["acronym", "first_letter"]
 
 
-def reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year):
+def _is_modification_field(field):
+    return not _is_transformation_field(field)
+
+
+def reinitialize_data_before_proposal(learning_unit_proposal):
+    learning_unit_year = learning_unit_proposal.learning_unit_year
     initial_data = learning_unit_proposal.initial_data
     _reinitialize_model_before_proposal(learning_unit_year, initial_data["learning_unit_year"])
     _reinitialize_model_before_proposal(learning_unit_year.learning_unit, initial_data["learning_unit"])
@@ -104,13 +107,14 @@ def _reinitialize_entities_before_proposal(learning_container_year, initial_enti
 
 
 def delete_learning_unit_proposal(learning_unit_proposal):
-    proposal_folder = learning_unit_proposal.folder
+    prop_type = learning_unit_proposal.type
+    lu = learning_unit_proposal.learning_unit_year.learning_unit
     learning_unit_proposal.delete()
-    if not find_by_folder(proposal_folder).exists():
-        proposal_folder.delete()
+    if prop_type == ProposalType.CREATION.name:
+        lu.delete()
 
 
-def _get_difference_of_proposal(learning_unit_yr_proposal):
+def get_difference_of_proposal(learning_unit_yr_proposal):
     differences = {}
     if learning_unit_yr_proposal and learning_unit_yr_proposal.initial_data.get('learning_container_year'):
         differences.update(_get_differences_in_learning_unit_data(learning_unit_yr_proposal))
@@ -176,7 +180,7 @@ def _compare_model_with_initial_value(an_id, model_initial_data, mymodel):
     differences = {}
     qs = mymodel.objects.filter(pk=an_id).values()
     if len(qs) > 0:
-        differences.update(_check_differences(model_initial_data,
+        differences.update(_check_differences(_get_rid_of_blank_value(model_initial_data),
                                               _get_rid_of_blank_value(qs[0])))
     return differences
 
@@ -265,12 +269,36 @@ def _get_rid_of_blank_value(data):
     return clean_data
 
 
-def cancel_proposal(learning_unit_year):
-    learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learning_unit_year)
-    reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year)
+def cancel_proposal(learning_unit_proposal, author, send_mail=True):
+    acronym = learning_unit_proposal.learning_unit_year.acronym
+    error_messages = []
+    success_messages = []
+    if learning_unit_proposal.type == ProposalType.CREATION.name:
+        learning_unit_year = learning_unit_proposal.learning_unit_year
+        error_messages.extend(business_deletion.check_can_delete_ignoring_proposal_validation(learning_unit_year))
+        if not error_messages:
+            success_messages.extend(business_deletion.delete_from_given_learning_unit_year(learning_unit_year))
+    else:
+        reinitialize_data_before_proposal(learning_unit_proposal)
     delete_learning_unit_proposal(learning_unit_proposal)
+    success_messages.append(_("success_cancel_proposal").format(acronym))
+    if send_mail:
+        send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation([author], [learning_unit_proposal])
+    return {
+        SUCCESS: success_messages,
+        ERROR: error_messages
+    }
 
 
-def cancel_proposals(proposal_to_cancel):
-    for proposal in proposal_to_cancel:
-        cancel_proposal(proposal.learning_unit_year)
+def cancel_proposals(proposals_to_cancel, author):
+    success_messages = []
+    error_messages = []
+    for proposal in proposals_to_cancel:
+        messages_by_level = cancel_proposal(proposal, author, send_mail=False)
+        success_messages.extend(messages_by_level[SUCCESS])
+        error_messages.extend(messages_by_level[ERROR])
+    send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation([author], [proposals_to_cancel])
+    return {
+        SUCCESS: success_messages,
+        ERROR: error_messages
+    }

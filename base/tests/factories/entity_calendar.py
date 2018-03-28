@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,22 +23,23 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
 import factory.fuzzy
-import string
 import datetime
-
+import string
+from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.entity import EntityFactory
+from base.tests.factories.offer_year_calendar import generate_end_date, generate_start_date
 from osis_common.utils.datetime import get_tzinfo
 
 
-class ProposalFolderFactory(factory.django.DjangoModelFactory):
+class EntityCalendarFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = "base.ProposalFolder"
-        django_get_or_create = ('entity', )
+        model = "base.EntityCalendar"
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
     changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    academic_calendar = factory.SubFactory(AcademicCalendarFactory)
     entity = factory.SubFactory(EntityFactory)
-    folder_id = factory.fuzzy.FuzzyInteger(100)
+    start_date = factory.LazyAttribute(generate_start_date)
+    end_date = factory.LazyAttribute(generate_end_date)

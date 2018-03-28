@@ -1,6 +1,8 @@
 {% extends "layout.html" %}
 {% load staticfiles %}
-{% load i18n %}
+{% load i18n bootstrap3 %}
+{% load getattr %}
+
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -28,7 +30,6 @@
 {% block breadcrumb %}
 {% include "learning_unit/breadcrumb.html" %}
 {% endblock %}
-{% load getattr %}
 
 {% block content %}
 {% include "learning_unit/blocks/header.html" %}
@@ -37,9 +38,19 @@
         {% include "learning_unit/blocks/tabs.html" %}
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active" id="pedagogy">
-                {% url 'learning_unit_pedagogy_edit' learning_unit_year_id=learning_unit_year.id as post_url %}
-                {% include "learning_unit/blocks/panel_summary_editable_update.html" %}
-                {% include "learning_unit/blocks/panel_educational_informations.html" with can_edit_information=perms.base.can_edit_learningunit_pedagogy %}
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="well" style="margin: 10px">
+                        {% bootstrap_field summary_editable_form.summary_locked %}
+                    </div>
+
+                    {% include "learning_unit/blocks/panel/educational_informations.html" with can_edit_information=perms.base.can_edit_learningunit_pedagogy %}
+                    {% bootstrap_field summary_editable_form.mobility_modality layout="horizontal"%}
+
+                    {% include "learning_unit/blocks/panel/bibliography.html" with formset=bibliography_formset %}
+                    {% bootstrap_button _("save") button_type="submit" button_class="btn-primary pull-right" %}
+                </form>
             </div>
         </div>
     </div>
@@ -50,4 +61,16 @@
 
 {% block script %}
     <script src="{% static 'js/pedagogy_modal.js' %}"></script>
+
+    <script src="{% url 'javascript-catalog' %}"></script>
+    <script src="{% static 'js/jquery.formset.js' %}"></script>
+    <script>
+    $('.link-formset').formset({
+        addText: gettext('add another'),
+        deleteText: gettext('remove'),
+        addCssClass: 'btn btn-info btn-sm',
+        deleteCssClass: 'btn btn-warning btn-sm',
+        prefix: 'bibliography_set'
+    });
+    </script>
 {% endblock %}

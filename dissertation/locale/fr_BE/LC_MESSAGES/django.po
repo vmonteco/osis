@@ -844,6 +844,9 @@ msgstr "Cochez les programmes de cours en relation avec ce sujet"
 msgid "select_program_first"
 msgstr "Choisissez d'abord le Programme/Année de début"
 
+msgid "send_email_to_commission_accepted"
+msgstr "Envoyer un email à la commission de lecture à l'acceptation de la commission d'évaluation"
+
 msgid "september"
 msgstr "Septembre"
 

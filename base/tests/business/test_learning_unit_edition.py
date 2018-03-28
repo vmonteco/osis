@@ -790,7 +790,7 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
 
         new_lcy_values = model_to_dict(self.learning_container_year, fields=fields_to_update.keys())
         expected_model_dict_values = fields_to_update
-        expected_model_dict_values["language"] = fields_to_update["language"].id
+        expected_model_dict_values["language"] = fields_to_update["language"].pk
         expected_model_dict_values["campus"] = fields_to_update["campus"].id
 
         self.assertDictEqual(expected_model_dict_values, new_lcy_values)
@@ -818,7 +818,8 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
         fields_to_update.update(learning_unit_fields_to_update)
         fields_to_update.update(learning_unit_year_fields_to_update)
         fields_to_update.update(learning_container_year_fields_to_update)
-        update_learning_unit_year_with_report(learning_unit_years[1], fields_to_update, {}, force_value=True)
+        update_learning_unit_year_with_report(learning_unit_years[1], fields_to_update, {},
+                                              override_postponement_consistency=True)
 
         self.assert_fields_not_updated(learning_unit_years[0])
         self.assert_fields_not_updated(learning_unit_years[0].learning_container_year)
@@ -1045,7 +1046,8 @@ class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
         a_new_requirement_entity = EntityFactory()
         entities_to_update = {entity_container_year_link_type.REQUIREMENT_ENTITY: a_new_requirement_entity}
 
-        update_learning_unit_year_with_report(learning_unit_years[1], {}, entities_to_update, force_value=True)
+        update_learning_unit_year_with_report(learning_unit_years[1], {}, entities_to_update,
+                                              override_postponement_consistency=True)
 
         entity_container_luy_0 = EntityContainerYear.objects.get(
             learning_container_year=learning_unit_years[0].learning_container_year)
