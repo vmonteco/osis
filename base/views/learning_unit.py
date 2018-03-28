@@ -46,7 +46,7 @@ from base.business.learning_unit import get_cms_label_data, \
     get_all_attributions, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, find_language_in_settings, \
     compute_max_academic_year_adjournment, \
     create_learning_unit_partim_structure, CMS_LABEL_SPECIFICATIONS, \
-    CMS_LABEL_PEDAGOGY, can_edit_summary_locked_field
+    CMS_LABEL_PEDAGOGY
 from base.business.learning_unit_proposal import get_difference_of_proposal
 from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
