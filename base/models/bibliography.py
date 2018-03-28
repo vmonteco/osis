@@ -23,34 +23,26 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import forms
-from django.utils.safestring import mark_safe
-from ckeditor.widgets import CKEditorWidget
+from django.contrib.admin import ModelAdmin
+from django.db import models
+from django.utils.translation import pgettext_lazy as _
 
-from base.forms.common import set_trans_txt
-from cms.enums import entity_name
-from cms.models import translated_text
-from cms import models as mdl_cms
+from base.models.learning_unit_year import LearningUnitYear
 
 
-class EducationGroupGeneralInformationsForm(forms.Form):
-    education_group_year = language = None
-    text_labels_name = None
+class BibliographyAdmin(ModelAdmin):
+    list_display = ('title', 'mandatory', 'learning_unit_year')
+    search_fields = ['title', 'learning_unit_year']
+    raw_id_fields = ('learning_unit_year',)
 
-    def __init__(self, *args, **kwargs):
-        self.education_group_year = kwargs.pop('education_group_year', None)
-        self.language = kwargs.pop('language', None)
-        self.text_labels_name = kwargs.pop('text_labels_name', None)
-        self.load_initial()
-        super().__init__(*args, **kwargs)
 
-    def load_initial(self):
-        translated_texts_list = self._get_all_translated_text_related()
-        set_trans_txt(self, translated_texts_list)
+class Bibliography(models.Model):
+    title = models.CharField(max_length=255, verbose_name=_('bibliography', 'title'))
+    mandatory = models.BooleanField(verbose_name=_('bibliography', 'mandatory'))
+    learning_unit_year = models.ForeignKey(LearningUnitYear, on_delete=models.CASCADE)
 
-    def _get_all_translated_text_related(self):
-        language_iso = self.language[0]
-        return translated_text.search(entity=entity_name.OFFER_YEAR,
-                                      reference=self.education_group_year.id,
-                                      language=language_iso,
-                                      text_labels_name=self.text_labels_name)
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name_plural = 'bibliographies'

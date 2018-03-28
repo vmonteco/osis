@@ -2651,8 +2651,8 @@ msgstr "En proposition"
 msgid "by"
 msgstr "Par"
 
-msgid "summary_editable"
-msgstr "informations pédagogiques modifiables"
+msgid "summary_locked"
+msgstr "mise-à-jour bloquée"
 
 msgid "get_back_to_initial"
 msgstr "Retour à l'état initial"
@@ -2716,6 +2716,17 @@ msgstr "Interdiction de supprimer une unité d'enseignement avant 2015."
 
 msgid "The entity '%(acronym)s' doesn't exist anymore in %(year)s"
 msgstr "L'entité '%(acronym)s' n'existe plus en %(year)s"
+
+msgctxt "bibliography"
+msgid "title"
+msgstr "titre"
+
+msgctxt "bibliography"
+msgid "mandatory"
+msgstr "obligatoire"
+
+msgid "Modalities specific to IN and OUT mobility"
+msgstr "Modalités propores à la mobilité IN et OUT"
 
 msgid "updated"
 msgstr "Mis à jour"
