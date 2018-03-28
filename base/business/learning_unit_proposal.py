@@ -44,12 +44,12 @@ LABEL_ACTIVE = _('active')
 LABEL_INACTIVE = _('inactive')
 
 
-def new_compute_proposal_type(data_changed, initial_proposal_type):
+def compute_proposal_type(data_changed, initial_proposal_type):
     if initial_proposal_type in [ProposalType.CREATION.name, ProposalType.SUPPRESSION.name]:
         return initial_proposal_type
 
     is_transformation = any(map(_is_transformation_field, data_changed))
-    is_modification = any(map(lambda field: not _is_transformation_field(field), data_changed))
+    is_modification = any(map(_is_not_transformation_field, data_changed))
     if is_transformation:
         if is_modification:
             return ProposalType.TRANSFORMATION_AND_MODIFICATION.name
@@ -57,8 +57,13 @@ def new_compute_proposal_type(data_changed, initial_proposal_type):
             return ProposalType.TRANSFORMATION.name
     return ProposalType.MODIFICATION.name
 
+
 def _is_transformation_field(field):
     return field in ["acronym", "first_letter"]
+
+
+def _is_not_transformation_field(field):
+    return not _is_transformation_field(field)
 
 
 def reinitialize_data_before_proposal(learning_unit_proposal):
