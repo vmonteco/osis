@@ -102,7 +102,8 @@ class TestLearningUnitModificationProposal(TestCase):
                                                                subtype=learning_unit_year_subtypes.FULL,
                                                                academic_year=current_academic_year,
                                                                learning_container_year=learning_container_year,
-                                                               quadrimester=None)
+                                                               quadrimester=None,
+                                                               specific_title_english="title english")
 
         an_entity = EntityFactory(organization=an_organization)
         self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
