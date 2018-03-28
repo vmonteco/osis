@@ -29,8 +29,10 @@ from django.views.generic import ListView
 from django.views.generic.edit import FormMixin
 
 from base.models import academic_year, entity_version
+from base.models.entity import find_versions_from_entites
 
 from assistant.business.users_access import user_is_reviewer_and_procedure_is_open
+from assistant.business.mandate_entity import add_entities_version_to_mandates_list
 from assistant.models import assistant_mandate
 from assistant.models import reviewer, mandate_entity
 from assistant.forms import MandatesArchivesForm
@@ -75,7 +77,7 @@ class MandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMi
             self.request.session[
                 'selected_academic_year'] = selected_academic_year.id
             queryset = assistant_mandate.find_by_academic_year(selected_academic_year).filter(id__in=mandates_id).\
-                filter(state=current_reviewer.role.replace('_ASSISTANT', ''))
+                filter(state=current_reviewer.role.replace('_ASSISTANT', '').replace('_DAF', ''))
         else:
             queryset = assistant_mandate.find_by_academic_year(selected_academic_year).filter(id__in=mandates_id)
         return queryset
@@ -100,18 +102,7 @@ class MandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMi
         context['filter'] = self.kwargs.get("filter", None)
         context['year'] = academic_year.find_academic_year_by_id(
             self.request.session.get('selected_academic_year')).year
-        start_date = academic_year.find_academic_year_by_id(int(self.request.session.get(
-            'selected_academic_year'))).start_date
-        for mandate in context['object_list']:
-            entities = []
-            entities_id = mandate.mandateentity_set.all().order_by('id')
-            for entity in entities_id:
-                current_entityversion = entity_version.get_by_entity_and_date(entity.entity, start_date)[0]
-                if current_entityversion is None:
-                    current_entityversion = entity_version.get_last_version(entity.entity)
-                entities.append(current_entityversion)
-            mandate.entities = entities
-        return context
+        return add_entities_version_to_mandates_list(context)
 
     def get_initial(self):
         if self.request.session.get('selected_academic_year'):

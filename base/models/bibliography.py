@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,15 +23,26 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
-from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
-from base.tests.factories.entity import EntityFactory
+from django.contrib.admin import ModelAdmin
+from django.db import models
+from django.utils.translation import pgettext_lazy as _
+
+from base.models.learning_unit_year import LearningUnitYear
 
 
-class MandateEntityFactory(factory.DjangoModelFactory):
+class BibliographyAdmin(ModelAdmin):
+    list_display = ('title', 'mandatory', 'learning_unit_year')
+    search_fields = ['title', 'learning_unit_year']
+    raw_id_fields = ('learning_unit_year',)
+
+
+class Bibliography(models.Model):
+    title = models.CharField(max_length=255, verbose_name=_('bibliography', 'title'))
+    mandatory = models.BooleanField(verbose_name=_('bibliography', 'mandatory'))
+    learning_unit_year = models.ForeignKey(LearningUnitYear, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.title
+
     class Meta:
-        model = 'assistant.MandateEntity'
-
-    assistant_mandate = factory.SubFactory(AssistantMandateFactory)
-    entity = factory.SubFactory(EntityFactory)
+        verbose_name_plural = 'bibliographies'

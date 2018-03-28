@@ -33,6 +33,7 @@ from base.models import academic_year, entity_version
 from base.models.entity import find_versions_from_entites
 
 from assistant.business.users_access import user_is_phd_supervisor_and_procedure_is_open
+from assistant.business.mandate_entity import add_entities_version_to_mandates_list
 from assistant.models import assistant_mandate, reviewer
 
 
@@ -61,7 +62,4 @@ class AssistantsListView(LoginRequiredMixin, UserPassesTestMixin, ListView, Form
             context['can_delegate'] = can_delegate
         else:
             context['can_delegate'] = False
-        for mandate in context['object_list']:
-            entities_id = mandate.mandateentity_set.all().order_by('id').values_list('entity', flat=True)
-            mandate.entities = find_versions_from_entites(entities_id, None)
-        return context
+        return add_entities_version_to_mandates_list(context)

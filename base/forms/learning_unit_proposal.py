@@ -25,6 +25,7 @@
 ##############################################################################
 
 from django import forms
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_proposal import reinitialize_data_before_proposal
@@ -129,6 +130,12 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
             data.update({'initial_data': initial_data})
             creation.create_learning_unit_proposal(data)
 
+    @cached_property
+    def changed_data_for_fields_that_can_be_modified(self):
+        fields_that_cannot_be_modified = {"academic_year", "subtype", "faculty_remark", "other_remark", "entity",
+                                          "folder_id", "state", "type", "session"}
+        return list(set(self.changed_data) - fields_that_cannot_be_modified)
+
     def _updates_entities(self, learning_container_year):
         for entity_type in ENTITY_TYPE_LIST:
             _update_or_delete_entity_container(self.cleaned_data[entity_type.lower()], learning_container_year,
@@ -213,3 +220,14 @@ def get_entity_by_type(entity_type, entities_by_type):
         return entities_by_type[entity_type].id
     else:
         return None
+
+
+def compute_form_initial_data_from_proposal_json(proposal_initial_data):
+    if not proposal_initial_data:
+        return {}
+    initial_data = {}
+    for value in proposal_initial_data.values():
+        initial_data.update(value)
+    initial_data["first_letter"] = initial_data["acronym"][0]
+    initial_data["acronym"] = initial_data["acronym"][1:]
+    return initial_data
