@@ -29,7 +29,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
-from django.db import transaction
 from django.db.models import BLANK_CHOICE_DASH
 from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
@@ -133,7 +132,6 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
                                                       language_code=settings.LANGUAGE_CODE_FR)
     context['form_english'] = LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
                                                        language_code=settings.LANGUAGE_CODE_EN)
-    context['experimental_phase'] = True
 
     can_user_edit_summary_editable = can_edit_summary_editable_field(person, context['is_person_linked_to_entity'])
     summary_editable_form = SummaryEditableModelForm(request.POST or None, can_user_edit_summary_editable,
@@ -145,9 +143,9 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
 
     if summary_editable_form.is_valid() and bibliography_formset.is_valid():
         try:
-            with transaction.atomic():
-                summary_editable_form.save()
-                bibliography_formset.save()
+            summary_editable_form.save()
+            bibliography_formset.save()
+
             display_success_messages(request, _("summary_editable_field_successfuly_updated"))
             return HttpResponseRedirect(reverse('learning_unit_pedagogy', args=[learning_unit_year_id]))
 
@@ -157,6 +155,8 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
     context['summary_editable_form'] = summary_editable_form
     context['can_edit_summary_editable_field'] = can_user_edit_summary_editable
     context['bibliography_formset'] = bibliography_formset
+    context['experimental_phase'] = True
+
     return layout.render(request, "learning_unit/pedagogy.html", context)
 
 
