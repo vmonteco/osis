@@ -31,8 +31,8 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
-from attribution.models import attribution_new
 
+from attribution.models import attribution_new
 from attribution.models.attribution import Attribution
 from base import models as mdl_base
 from base.business.entity import get_entity_calendar, get_entities_ids, get_entity_container_list, \
@@ -40,22 +40,20 @@ from base.business.entity import get_entity_calendar, get_entities_ids, get_enti
 from base.business.learning_unit_year_with_context import volume_learning_component_year
 from base.business.learning_units.simple.creation import create_learning_unit_content
 from base.models import entity_container_year, learning_unit_year
-from base.models.academic_year import current_academic_year
+from base.models.academic_year import find_academic_year_by_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type, academic_calendar_type
 from base.models.enums import learning_container_year_types
 from cms import models as mdl_cms
 from cms.enums import entity_name
+from cms.enums.entity_name import LEARNING_UNIT_YEAR
 # List of key that a user can modify
 from cms.models import translated_text
 from osis_common.document import xls_build
-from cms.enums.entity_name import LEARNING_UNIT_YEAR
-from base.models.academic_year import find_academic_year_by_year
 from osis_common.utils.datetime import convert_date_to_datetime
 
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
-CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
-                      'other_informations', 'online_resources']
+CMS_LABEL_PEDAGOGY = ['resume', 'teaching_methods', 'evaluation_methods', 'other_informations', 'online_resources']
 CMS_LABEL_SUMMARY = ['resume']
 
 SIMPLE_SEARCH = 1

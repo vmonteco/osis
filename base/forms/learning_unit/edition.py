@@ -229,8 +229,8 @@ class LearningUnitModificationForm(LearningUnitYearForm):
                                               with_report=self.postponement)
 
 
-def compute_learning_unit_form_initial_data(base_dict, learning_unit_year, fields):
-    initial_data = base_dict.copy()
+def compute_learning_unit_form_initial_data(learning_unit_year, fields):
+    initial_data = {}
     initial_data.update(model_to_dict(learning_unit_year, fields=fields["learning_unit_year"]))
     initial_data.update(model_to_dict(learning_unit_year.learning_container_year,
                                       fields=fields["learning_container_year"]))
@@ -248,17 +248,16 @@ def _get_attributions_of_learning_unit_year(learning_unit_year):
 
 
 def compute_form_initial_data(learning_unit_year):
-    other_fields_dict = {
-        "specific_title": learning_unit_year.specific_title,
-        "specific_title_english": learning_unit_year.specific_title_english,
-        "first_letter": learning_unit_year.acronym[0],
-        "acronym": learning_unit_year.acronym[1:]
-    }
     fields = {
         "learning_unit_year": ("academic_year", "status", "credits", "session", "subtype", "quadrimester",
-                               "attribution_procedure", "internship_subtype"),
+                               "attribution_procedure", "internship_subtype", "specific_title",
+                               "specific_title_english", "acronym"),
         "learning_container_year": ("common_title", "common_title_english", "container_type", "campus", "language",
                                     "is_vacant", "team", "type_declaration_vacant"),
         "learning_unit": ("faculty_remark", "other_remark", "periodicity")
     }
-    return compute_learning_unit_form_initial_data(other_fields_dict, learning_unit_year, fields)
+
+    form_data = compute_learning_unit_form_initial_data(learning_unit_year, fields).copy()
+    form_data["first_letter"] = form_data["acronym"][0]
+    form_data["acronym"] = form_data["acronym"][1:]
+    return form_data

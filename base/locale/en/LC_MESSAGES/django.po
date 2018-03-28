@@ -2727,6 +2727,9 @@ msgctxt "bibliography"
 msgid "mandatory"
 msgstr ""
 
+msgid "Bibliography"
+msgstr ""
+
 msgid "Modalities specific to IN and OUT mobility"
 msgstr ""
 

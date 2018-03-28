@@ -39,7 +39,7 @@ from assistant.tests.factories.reviewer import ReviewerFactory
 from assistant.tests.factories.settings import SettingsFactory
 
 HTTP_OK = 200
-
+HTTP_FORBIDDEN = 403
 
 class ReviewerReviewViewTestCase(TestCase):
 
@@ -66,7 +66,7 @@ class ReviewerReviewViewTestCase(TestCase):
     def test_access_denied(self):
         self.client.logout()
         response = self.client.get(reverse('access_denied'))
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, HTTP_FORBIDDEN)
 
     def test_assistant_home(self):
         response = self.client.get(reverse('assistants_home'))
@@ -82,5 +82,5 @@ class ReviewerReviewViewTestCase(TestCase):
         self.assertRedirects(response, reverse('assistant_mandates'))
         self.client.force_login(self.unauthorized_person.user)
         response = self.client.get(reverse('assistants_home'))
-        self.assertRedirects(response, reverse('access_denied'), target_status_code=403)
+        self.assertRedirects(response, reverse('access_denied'), target_status_code=HTTP_FORBIDDEN)
 

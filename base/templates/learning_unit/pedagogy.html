@@ -40,16 +40,15 @@
             <div role="tabpanel" class="tab-pane active" id="pedagogy">
                 <form method="post">
                     {% csrf_token %}
-
-                    <div class="well" style="margin: 10px">
-                        {% bootstrap_field summary_editable_form.summary_locked %}
-                    </div>
+                    {% bootstrap_field summary_editable_form.summary_locked field_class="well"%}
 
                     {% include "learning_unit/blocks/panel/educational_informations.html" with can_edit_information=perms.base.can_edit_learningunit_pedagogy %}
-                    {% bootstrap_field summary_editable_form.mobility_modality layout="horizontal"%}
 
                     {% include "learning_unit/blocks/panel/bibliography.html" with formset=bibliography_formset %}
-                    {% bootstrap_button _("save") button_type="submit" button_class="btn-primary pull-right" %}
+                    {% bootstrap_field summary_editable_form.mobility_modality %}
+                    {% buttons %}
+                        {% bootstrap_button _("save") button_type="submit" button_class="btn-primary pull-right" %}
+                    {% endbuttons %}
                 </form>
             </div>
         </div>
