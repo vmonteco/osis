@@ -33,7 +33,7 @@ from django.contrib import messages
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseForbidden
 from django.test import TestCase, RequestFactory
@@ -43,13 +43,14 @@ from django.utils.translation import ugettext_lazy as _
 import base.business.learning_unit
 from base.business import learning_unit as learning_unit_business
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, SummaryEditableModelForm
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, SummaryModelForm
 from base.forms.learning_unit_search import SearchForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_units import LearningUnitYearForm
 from base.models import learning_unit_component
 from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear
+from base.models.bibliography import Bibliography
 from base.models.enums import entity_container_year_link_type, active_status
 from base.models.enums import internship_subtypes
 from base.models.enums import learning_container_year_types, organization_type, entity_type
@@ -83,7 +84,7 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
 from base.views.learning_unit import compute_partim_form_initial_data, _get_post_data_without_read_only_field, \
-    learning_unit_components, learning_class_year_edit, learning_unit_pedagogy
+    learning_unit_components, learning_class_year_edit, learning_unit_pedagogy, learning_unit_specifications
 from base.views.learning_units.search import learning_units_service_course
 from cms.enums import entity_name
 from cms.tests.factories.text_label import TextLabelFactory
@@ -91,7 +92,6 @@ from cms.tests.factories.translated_text import TranslatedTextFactory
 from osis_common.document import xls_build
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
-from django.http import HttpResponseRedirect
 
 
 class LearningUnitViewTestCase(TestCase):
@@ -1174,8 +1174,6 @@ class LearningUnitViewTestCase(TestCase):
 
         request = self.create_learning_unit_request(learning_unit_year)
 
-        from base.views.learning_unit import learning_unit_pedagogy
-
         learning_unit_pedagogy(request, learning_unit_year.id)
 
         self.assertTrue(mock_render.called)
@@ -1189,15 +1187,14 @@ class LearningUnitViewTestCase(TestCase):
     def test_learning_unit_pedagogy_summary_editable_form_present(self, mock_render):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=self.learning_container_yr,
-                                                     summary_editable=True)
+                                                     summary_locked=False)
 
         request = self.create_learning_unit_request(learning_unit_year)
-
-        from base.views.learning_unit import learning_unit_pedagogy
         learning_unit_pedagogy(request, learning_unit_year.id)
 
+        self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertIsInstance(context['summary_editable_form'], SummaryEditableModelForm)
+        self.assertIsInstance(context['summary_editable_form'], SummaryModelForm)
 
     @mock.patch('base.models.person.Person.is_faculty_manager')
     def test_learning_unit_pedagogy_summary_editable_update_ok(self, mock_faculty_manager):
@@ -1212,10 +1209,13 @@ class LearningUnitViewTestCase(TestCase):
 
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=self.learning_container_yr,
-                                                     summary_editable=True)
+                                                     summary_locked=False)
         url = reverse(learning_unit_pedagogy, args=[learning_unit_year.id])
         request_factory = RequestFactory()
-        request = request_factory.post(url, data={'summary_editable': False})
+
+        data = self.data_bibliography_formset(learning_unit_year)
+        data['summary_locked'] = True
+        request = request_factory.post(url, data=data)
 
         request.user = fac_manager_user
         setattr(request, 'session', 'session')
@@ -1229,7 +1229,7 @@ class LearningUnitViewTestCase(TestCase):
         self.assertIn(messages.SUCCESS, msg_level)
 
         learning_unit_year.refresh_from_db()
-        self.assertFalse(learning_unit_year.summary_editable)
+        self.assertTrue(learning_unit_year.summary_locked)
 
     @mock.patch('base.models.person.Person.is_faculty_manager')
     def test_learning_unit_pedagogy_summary_editable_cannot_update_entity_not_linked(self, mock_faculty_manager):
@@ -1238,20 +1238,24 @@ class LearningUnitViewTestCase(TestCase):
 
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=self.learning_container_yr,
-                                                     summary_editable=True)
+                                                     summary_locked=False)
+
+        data = self.data_bibliography_formset(learning_unit_year)
+        data['summary_locked'] = True
+
         url = reverse(learning_unit_pedagogy, args=[learning_unit_year.id])
         request_factory = RequestFactory()
-        request = request_factory.post(url, data={'summary_editable': False})
+        request = request_factory.post(url, data=data)
 
         request.user = self.a_superuser
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
-        with self.assertRaises(PermissionDenied):
-            learning_unit_pedagogy(request, learning_unit_year.id)
+        learning_unit_pedagogy(request, learning_unit_year.id)
 
         learning_unit_year.refresh_from_db()
-        self.assertTrue(learning_unit_year.summary_editable)
+        self.assertFalse(learning_unit_year.summary_locked)
+        self.assertEqual(Bibliography.objects.filter(learning_unit_year=learning_unit_year).count(), 3)
 
     @mock.patch('base.models.person.Person.is_faculty_manager')
     def test_learning_unit_pedagogy_summary_editable_cannot_update_not_faculty_manager(self, mock_faculty_manager):
@@ -1259,28 +1263,27 @@ class LearningUnitViewTestCase(TestCase):
 
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=self.learning_container_yr,
-                                                     summary_editable=True)
+                                                     summary_locked=False)
         url = reverse(learning_unit_pedagogy, args=[learning_unit_year.id])
         request_factory = RequestFactory()
-        request = request_factory.post(url, data={'summary_editable': False})
+        data = self.data_bibliography_formset(learning_unit_year)
+        data['summary_locked'] = True
+        request = request_factory.post(url, data=data)
 
         request.user = self.a_superuser
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
-        with self.assertRaises(PermissionDenied):
-            learning_unit_pedagogy(request, learning_unit_year.id)
+        learning_unit_pedagogy(request, learning_unit_year.id)
 
         learning_unit_year.refresh_from_db()
-        self.assertTrue(learning_unit_year.summary_editable)
+        self.assertFalse(learning_unit_year.summary_locked)
 
     @mock.patch('base.views.layout.render')
     def test_learning_unit_specification(self, mock_render):
         learning_unit_year = LearningUnitYearFactory()
 
         request = self.create_learning_unit_request(learning_unit_year)
-
-        from base.views.learning_unit import learning_unit_specifications
 
         learning_unit_specifications(request, learning_unit_year.id)
 
@@ -1342,10 +1345,26 @@ class LearningUnitViewTestCase(TestCase):
 
     def create_learning_unit_request(self, learning_unit_year):
         request_factory = RequestFactory()
-        request = request_factory.get(reverse('learning_unit',
-                                              args=[learning_unit_year.id]))
+        request = request_factory.get(reverse('learning_unit', args=[learning_unit_year.pk]))
         request.user = self.a_superuser
         return request
+
+    @staticmethod
+    def data_bibliography_formset(learning_unit_year):
+        return {'bibliography_set-TOTAL_FORMS': ['3'],
+                'bibliography_set-INITIAL_FORMS': ['0'],
+                'bibliography_set-MIN_NUM_FORMS': ['0'],
+                'bibliography_set-MAX_NUM_FORMS': ['10'],
+                'bibliography_set-0-id': [''],
+                'bibliography_set-0-learning_unit_year': [learning_unit_year.pk],
+                'bibliography_set-0-title': ['Maître'],
+                'bibliography_set-0-DELETE': [''],
+                'bibliography_set-1-id': [''],
+                'bibliography_set-1-learning_unit_year': [''],
+                'bibliography_set-1-title': ['Chevalier'],
+                'bibliography_set-2-id': [''],
+                'bibliography_set-2-learning_unit_year': [''],
+                'bibliography_set-2-title': ['Padawan']}
 
 
 class LearningUnitCreate(TestCase):

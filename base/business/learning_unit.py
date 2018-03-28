@@ -39,7 +39,6 @@ from base.business.entity import get_entity_calendar, get_entities_ids, get_enti
     build_entity_container_prefetch
 from base.business.learning_unit_year_with_context import volume_learning_component_year
 from base.business.learning_units.simple.creation import create_learning_unit_content
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 from base.models import entity_container_year, learning_unit_year
 from base.models.academic_year import current_academic_year
 from base.models.entity_component_year import EntityComponentYear
@@ -288,16 +287,12 @@ def can_access_summary(user, learning_unit_year):
     return True
 
 
-def initialize_learning_unit_pedagogy_form(learning_unit_year, language_code):
-    lang = find_language_in_settings(language_code)
-    return LearningUnitPedagogyForm(learning_unit_year=learning_unit_year, language=lang)
-
-
 def find_language_in_settings(language_code):
     return next((lang for lang in settings.LANGUAGES if lang[0] == language_code), None)
 
 
-def can_edit_summary_editable_field(person, is_person_linked_to_entity):
+# TODO Move it in perms
+def can_edit_summary_locked_field(person, is_person_linked_to_entity):
     return person.is_faculty_manager() and is_person_linked_to_entity
 
 

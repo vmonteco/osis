@@ -24,23 +24,20 @@
 #
 ##############################################################################
 from unittest import mock
-import datetime
 
 from django.forms import model_to_dict
 from django.http import HttpResponse, HttpResponseNotFound
 from django.test import TestCase
 from django.urls import reverse
 
+from attribution.tests.factories.attribution import AttributionFactory
+from attribution.views.manage_my_courses import list_my_attributions_summary_editable
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 from base.models.enums import academic_calendar_type
-from base.models.tutor import Tutor
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.tutor import TutorFactory
-
-from attribution.tests.factories.attribution import AttributionFactory
-from attribution.views.manage_my_courses import list_my_attributions_summary_editable
 
 
 class ManageMyCoursesViewTestCase(TestCase):
@@ -52,7 +49,7 @@ class ManageMyCoursesViewTestCase(TestCase):
 
         cls.attribution = AttributionFactory(tutor=cls.tutor,
                                              summary_responsible=True,
-                                             learning_unit_year__summary_editable=True)
+                                             learning_unit_year__summary_locked=False)
         cls.academic_calendar = AcademicCalendarFactory(academic_year=create_current_academic_year(),
                                                         reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
         cls.url = reverse(list_my_attributions_summary_editable)

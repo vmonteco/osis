@@ -53,8 +53,8 @@ class LearningUnitYearAdmin(SerializableModelAdmin):
     fieldsets = ((None, {'fields': ('academic_year', 'learning_unit', 'learning_container_year', 'acronym',
                                     'specific_title', 'specific_title_english', 'subtype', 'credits', 'decimal_scores',
                                     'structure', 'internship_subtype', 'status', 'session',
-                                    'quadrimester', 'attribution_procedure', 'summary_editable')}),)
-    list_filter = ('academic_year', 'decimal_scores', 'summary_editable')
+                                    'quadrimester', 'attribution_procedure', 'summary_locked')}),)
+    list_filter = ('academic_year', 'decimal_scores', 'summary_locked')
     raw_id_fields = ('learning_unit', 'learning_container_year', 'structure')
     search_fields = ['acronym', 'structure__acronym', 'external_id']
 
@@ -82,7 +82,10 @@ class LearningUnitYear(SerializableModel):
                                     choices=learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
     attribution_procedure = models.CharField(max_length=20, blank=True, null=True,
                                              choices=attribution_procedure.ATTRIBUTION_PROCEDURES)
-    summary_editable = models.BooleanField(default=True, verbose_name=_("summary_editable"))
+    summary_locked = models.BooleanField(default=False, verbose_name=_("summary_locked"))
+
+    mobility_modality = models.TextField(verbose_name=_('Modalities specific to IN and OUT mobility'),
+                                         blank=True, null=True)
 
     class Meta:
         unique_together = ('learning_unit', 'academic_year',)

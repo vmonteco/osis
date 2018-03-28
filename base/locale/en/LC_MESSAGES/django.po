@@ -2644,8 +2644,8 @@ msgstr "By"
 msgid "in_proposal"
 msgstr "Existing proposal"
 
-msgid "summary_editable"
-msgstr "educational information editable"
+msgid "summary_locked"
+msgstr "blocked update"
 
 msgid "get_back_to_initial"
 msgstr "Get back to initial data"
@@ -2718,6 +2718,17 @@ msgstr "Unupdated"
 
 msgid "summary_list"
 msgstr "Education information status"
+
+msgctxt "bibliography"
+msgid "title"
+msgstr ""
+
+msgctxt "bibliography"
+msgid "mandatory"
+msgstr ""
+
+msgid "Modalities specific to IN and OUT mobility"
+msgstr ""
 
 msgid "The partim must be inactive because the parent is inactive"
 msgstr ""
