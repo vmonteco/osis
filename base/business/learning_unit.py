@@ -32,8 +32,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
-from attribution.models import attribution_new
-from attribution.models.attribution import Attribution
+from attribution.models import attribution
 from base import models as mdl_base
 from base.business.entity import get_entity_calendar, get_entities_ids, get_entity_container_list, \
     build_entity_container_prefetch
@@ -278,7 +277,7 @@ def is_summary_submission_opened():
 
 def can_access_summary(user, learning_unit_year):
     try:
-        get_object_or_404(Attribution, learning_unit_year=learning_unit_year,
+        get_object_or_404(attribution.Attribution, learning_unit_year=learning_unit_year,
                           tutor__person__user=user, summary_responsible=True)
     except Http404:
         raise PermissionDenied()
@@ -362,8 +361,8 @@ def _get_calendar(academic_yr, an_entity_version):
 def _get_summary_detail(a_calendar, cms_list, entity_learning_unit_yr_list_param):
     entity_learning_unit_yr_list = entity_learning_unit_yr_list_param
     for lu in entity_learning_unit_yr_list:
-        lu.summary_responsibles = attribution_new.search(summary_responsible=True,
-                                                         learning_container_year=lu.learning_container_year)
+        lu.summary_responsibles = attribution.search(summary_responsible=True,
+                                                     learning_unit_year=lu)
         lu.summary_status = _get_summary_status(a_calendar, cms_list, lu)
     return entity_learning_unit_yr_list
 
