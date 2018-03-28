@@ -41,29 +41,96 @@
         <h2>{% trans 'students' as students_title %}{{ students_title|title }}</h2>
     </div>
 
+
+
+
     <div class="panel panel-default">
-        <div class="panel-body">
+        <div class="panel-body table-responsive">
             <table class="table table-hover" id="students-list">
                 <thead>
                     <tr>
                         <th>{{ students_title|title }}</th>
                         <th>{% trans 'offer_propositions' %}</th>
                         <th>{% trans 'dissertations' %}</th>
+                        <th>{% trans 'acronym' %}</th>
+                        <th>{% trans 'status' %}</th>
                     </tr>
                 </thead>
+                <tbody>
                     {% for student in students %}
                         <tr>
-                            <td>{{ student }}</td>
-                            <td>{{ student.offerenrollment_set.last.offer_year}}</td>
-                            <td>
-                                {% for dissertation in  student.dissertation_set.all %}
-                                    - {{ dissertation }} ({{ dissertation.offer_year_start.acronym }})<br>
-                                {% endfor %}
-                            </td>
+                            {% if student.dissertation_set.count > 1 %}
+                                <td rowspan="{{ student.dissertation_set.count }}">
+                                    {{ student }}
+                                </td>
+                                <td rowspan="{{ student.dissertation_set.count }}">
+                                    <span class="label label-default">{{ student.offerenrollment_set.last.offer_year}}</span>
+                                </td>
+                            {% else %}
+                                <td>{{ student }}</td>
+                                <td>
+                                    <span class="label label-default">{{ student.offerenrollment_set.last.offer_year}}</span>
+                                </td>
+                            {% endif %}
+                            {% for dissertation in  student.dissertation_set.all %}
+                                {% if not forloop.first and student.dissertation_set.count > 1 %}
+                                    <tr>
+                                {% endif %}
+                                <td>
+                                    <a href="{% url 'manager_dissertations_detail' pk=dissertation.pk %}" target="_blank">
+                                        {{ dissertation }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {{ dissertation.offer_year_start.acronym }}
+                                </td>
+                                <td>
+                                    {% if dissertation.status == 'DRAFT' %}
+                                    <span class="label label-danger">
+                                    {% elif dissertation.status == 'DIR_SUBMIT' %}
+                                    <span class="label label-warning">
+                                    {% elif dissertation.status == 'DIR_OK' %}
+                                    <span class="label label-success">
+                                    {% elif dissertation.status == 'DIR_KO' %}
+                                    <span class="label label-danger">
+                                    {% elif dissertation.status == 'COM_SUBMIT' %}
+                                    <span class="label label-primary">
+                                    {% elif dissertation.status == 'COM_OK' %}
+                                    <span class="label label-default">
+                                    {% elif dissertation.status == 'COM_KO' %}
+                                    <span class="label label-danger">
+                                    {% elif dissertation.status == 'EVA_SUBMIT' %}
+                                    <span class="label label-primary">
+                                    {% elif dissertation.status == 'EVA_OK' %}
+                                    <span class="label label-default">
+                                    {% elif dissertation.status == 'EVA_KO' %}
+                                    <span class="label label-danger">
+                                    {% elif dissertation.status == 'TO_RECEIVE' %}
+                                    <span class="label label-default">
+                                    {% elif dissertation.status == 'TO_DEFEND' %}
+                                    <span class="label label-default">
+                                    {% elif dissertation.status == 'DEFENDED' %}
+                                    <span class="label label-success">
+                                    {% elif dissertation.status == 'ENDED' %}
+                                    <span class="label label-success">
+                                    {% elif dissertation.status == 'ENDED_WIN' %}
+                                    <span class="label label-success">
+                                    {% elif dissertation.status == 'ENDED_LOS' %}
+                                    <span class="label label-success">
+                                    {% endif %}
+                                        {{ dissertation.get_status_display }}
+                                    </span>
+                                </td>
+                                {% if not forloop.last and student.dissertation_set.count > 1 %}
+                                    </tr>
+                                {% endif %}
+                            {% empty %}
+                                <td></td>
+                                <td></td>
+                                <td><span class="label label-danger">Pas de mémoire</span></td>
+                            {% endfor %}
                         </tr>
                     {% endfor %}
-                <tbody>
-
                 </tbody>
             </table>
         </div>
