@@ -29,6 +29,7 @@ from django.forms import inlineformset_factory
 from django.utils.safestring import mark_safe
 
 from base.business.learning_unit import find_language_in_settings, can_edit_summary_locked_field
+from base.forms.common import set_trans_txt
 from base.models.bibliography import Bibliography
 from base.models.learning_unit_year import LearningUnitYear
 from cms.enums import entity_name
@@ -48,11 +49,7 @@ class LearningUnitPedagogyForm(forms.Form):
 
     def load_initial(self):
         translated_texts_list = self._get_all_translated_text_related()
-
-        for trans_txt in translated_texts_list:
-            text_label = trans_txt.text_label.label
-            text = trans_txt.text if trans_txt.text else ""
-            setattr(self, text_label, mark_safe(text))
+        set_trans_txt(self, translated_texts_list)
 
     def _get_all_translated_text_related(self):
         language_iso = self.language[0]
