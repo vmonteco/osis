@@ -699,6 +699,7 @@ class LearningUnitViewTestCase(TestCase):
         data = self.get_common_data()
         data.update(self.get_partim_data(original_learning_unit_year))
         data['specific_title'] = "Partim partial title"
+        data['status'] = original_learning_unit_year.status
         return data
 
     def get_common_data(self):
@@ -966,6 +967,18 @@ class LearningUnitViewTestCase(TestCase):
         form = CreateLearningUnitYearForm(person=self.person, data=faultydata)
         self.assertFalse(form.is_valid())
         self.assertTrue(form.errors["common_title"])
+
+    def test_learning_unit_partim_form_with_status_active_but_parent_inactive(self):
+        learning_unit_year_parent = LearningUnitYearFactory(acronym='LBIR1200',
+                                                            academic_year=self.current_academic_year,
+                                                            subtype=learning_unit_year_subtypes.FULL,
+                                                            status=False)
+        valid_partim_data = self.get_base_partim_form_data(learning_unit_year_parent)
+        valid_partim_data['status'] = True
+        form = CreatePartimForm(person=self.person, learning_unit_year_parent=learning_unit_year_parent,
+                                data=valid_partim_data)
+        self.assertFalse(form.is_valid())
+        self.assertTrue(form.errors['status'])
 
     def test_expected_partim_creation_on_6_years(self):
         # Create container + container year for N+6

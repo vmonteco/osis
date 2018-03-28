@@ -2729,3 +2729,9 @@ msgstr ""
 
 msgid "Modalities specific to IN and OUT mobility"
 msgstr ""
+
+msgid "The partim must be inactive because the parent is inactive"
+msgstr ""
+
+msgid "The parent must be active because there are partim active"
+msgstr ""

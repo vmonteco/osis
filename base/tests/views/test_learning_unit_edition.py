@@ -328,7 +328,8 @@ class TestEditLearningUnit(TestCase):
             "campus": str(self.learning_unit_year.learning_container_year.campus.id),
             "requirement_entity": str(self.requirement_entity.id),
             "allocation_entity": str(self.requirement_entity.id),
-            "language": str(self.learning_unit_year.learning_container_year.language.pk)
+            "language": str(self.learning_unit_year.learning_container_year.language.pk),
+            "status": True
         }
         return form_data
 
