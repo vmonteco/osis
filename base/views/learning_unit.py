@@ -56,7 +56,7 @@ from base.forms.learning_unit.edition import compute_form_initial_data
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
     PARTIM_FORM_READ_ONLY_FIELD
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, SummaryEditableModelForm, \
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, SummaryModelForm, \
     LearningUnitPedagogyForm, BibliographyFormset
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import proposal_learning_unit
@@ -123,23 +123,15 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
     context = get_common_context_learning_unit_year(learning_unit_year_id, person)
     learning_unit_year = context['learning_unit_year']
-    user_language = mdl.person.get_user_interface_language(request.user)
-    context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language)
-
-    context['form_french'] = LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
-                                                      language_code=settings.LANGUAGE_CODE_FR)
-    context['form_english'] = LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
-                                                       language_code=settings.LANGUAGE_CODE_EN)
 
     can_user_edit_summary_editable = can_edit_summary_editable_field(person, context['is_person_linked_to_entity'])
-    summary_editable_form = SummaryEditableModelForm(request.POST or None, can_user_edit_summary_editable,
-                                                     instance=learning_unit_year)
+    post = request.POST or None
+    summary_form = SummaryModelForm(post, can_user_edit_summary_editable, instance=learning_unit_year)
+    bibliography_formset = BibliographyFormset(post, instance=learning_unit_year)
 
-    bibliography_formset = BibliographyFormset(request.POST or None, instance=learning_unit_year)
-
-    if summary_editable_form.is_valid() and bibliography_formset.is_valid():
+    if summary_form.is_valid() and bibliography_formset.is_valid():
         try:
-            summary_editable_form.save()
+            summary_form.save()
             bibliography_formset.save()
 
             display_success_messages(request, _("summary_editable_field_successfuly_updated"))
@@ -148,12 +140,24 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
         except ValueError as e:
             display_error_messages(request, e.args[0])
 
-    context['summary_editable_form'] = summary_editable_form
+    context.update(get_cms_pedagogy_form(request, learning_unit_year))
+    context['summary_editable_form'] = summary_form
     context['can_edit_summary_editable_field'] = can_user_edit_summary_editable
     context['bibliography_formset'] = bibliography_formset
     context['experimental_phase'] = True
 
     return layout.render(request, "learning_unit/pedagogy.html", context)
+
+
+def get_cms_pedagogy_form(request, learning_unit_year):
+    user_language = mdl.person.get_user_interface_language(request.user)
+    return {
+        'cms_labels_translated': get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language),
+        'form_french': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
+                                                language_code=settings.LANGUAGE_CODE_FR),
+        'form_english': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
+                                                 language_code=settings.LANGUAGE_CODE_EN)
+        }
 
 
 @login_required

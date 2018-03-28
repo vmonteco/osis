@@ -291,6 +291,7 @@ def find_language_in_settings(language_code):
     return next((lang for lang in settings.LANGUAGES if lang[0] == language_code), None)
 
 
+# TODO Move it in perms
 def can_edit_summary_editable_field(person, is_person_linked_to_entity):
     return person.is_faculty_manager() and is_person_linked_to_entity
 

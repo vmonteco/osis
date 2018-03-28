@@ -88,7 +88,7 @@ class LearningUnitPedagogyEditForm(forms.Form):
         trans_text.save()
 
 
-class SummaryEditableModelForm(forms.ModelForm):
+class SummaryModelForm(forms.ModelForm):
     def __init__(self, data, can_user_edit_summary_editable, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
         self.fields["summary_locked"].disabled = not can_user_edit_summary_editable

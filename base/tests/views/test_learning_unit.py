@@ -43,7 +43,7 @@ from django.utils.translation import ugettext_lazy as _
 import base.business.learning_unit
 from base.business import learning_unit as learning_unit_business
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, SummaryEditableModelForm
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, SummaryModelForm
 from base.forms.learning_unit_search import SearchForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_units import LearningUnitYearForm
@@ -1194,7 +1194,7 @@ class LearningUnitViewTestCase(TestCase):
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertIsInstance(context['summary_editable_form'], SummaryEditableModelForm)
+        self.assertIsInstance(context['summary_editable_form'], SummaryModelForm)
 
     @mock.patch('base.models.person.Person.is_faculty_manager')
     def test_learning_unit_pedagogy_summary_editable_update_ok(self, mock_faculty_manager):
