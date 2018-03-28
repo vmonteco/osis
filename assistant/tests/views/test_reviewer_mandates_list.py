@@ -32,8 +32,9 @@ from base.tests.factories.entity_version import EntityVersionFactory
 from base.models.enums import entity_type
 from base.models.entity import find_versions_from_entites
 
-from assistant.models.assistant_mandate import find_for_supervisor_for_academic_year
+from assistant.models.assistant_mandate import find_by_academic_year
 from assistant.models.enums import reviewer_role
+from assistant.models.mandate_entity import find_by_entity
 from assistant.models.reviewer import find_by_person
 from assistant.tests.factories.review import ReviewFactory
 from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
@@ -46,53 +47,76 @@ from assistant.models.enums import assistant_mandate_state, review_status
 HTTP_OK = 200
 HTTP_FOUND = 302
 
-class AssistantsListViewTestCase(TestCase):
+class ReviewerMandatesListViewTestCase(TestCase):
 
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
         self.settings = SettingsFactory()
         today = datetime.date.today()
-        self.current_academic_year = AcademicYearFactory(start_date=today,
-                                                         end_date=today.replace(year=today.year + 1),
-                                                         year=today.year)
+        self.current_academic_year = AcademicYearFactory(
+            start_date=today,
+            end_date=today.replace(year=today.year + 1),
+            year=today.year
+        )
+        self.previous_academic_year = AcademicYearFactory(
+            start_date=today.replace(year=today.year - 2),
+            end_date=today.replace(year=today.year - 1),
+            year=today.year-2
+        )
         self.phd_supervisor = PersonFactory()
-
         self.assistant = AcademicAssistantFactory(supervisor=self.phd_supervisor)
-        self.assistant_mandate = AssistantMandateFactory(academic_year=self.current_academic_year,
-                                                         assistant=self.assistant)
-        self.assistant_mandate.state = assistant_mandate_state.PHD_SUPERVISOR
-        self.assistant_mandate.save()
+        self.assistant_mandate = AssistantMandateFactory(
+            academic_year=self.current_academic_year,
+            assistant=self.assistant,
+            state=assistant_mandate_state.PHD_SUPERVISOR
+        )
+        self.assistant2 = AcademicAssistantFactory(supervisor=None)
+        self.assistant_mandate2 = AssistantMandateFactory(
+            academic_year=self.current_academic_year,
+            assistant=self.assistant2,
+            state=assistant_mandate_state.RESEARCH,
+        )
         self.review = ReviewFactory(reviewer=None, mandate=self.assistant_mandate,
                                     status=review_status.IN_PROGRESS)
-        self.entity_version = EntityVersionFactory(entity_type=entity_type.INSTITUTE)
+        self.entity_version = EntityVersionFactory(entity_type=entity_type.INSTITUTE, end_date=None)
         self.mandate_entity = MandateEntityFactory(assistant_mandate=self.assistant_mandate,
+                                                   entity=self.entity_version.entity)
+        self.mandate_entity2 = MandateEntityFactory(assistant_mandate=self.assistant_mandate2,
                                                    entity=self.entity_version.entity)
 
     def test_with_unlogged_user(self):
-        response = self.client.get('/assistants/phd_supervisor/assistants/')
+        response = self.client.get('/assistants/reviewer/')
         self.assertEqual(response.status_code, HTTP_FOUND)
 
-    def test_context_data_phd_supervisor_is_not_reviewer(self):
-        self.client.force_login(self.phd_supervisor.user)
-        response = self.client.get('/assistants/phd_supervisor/assistants/')
-        self.assertEqual(response.status_code, HTTP_OK)
-        self.assertEqual(response.context['current_reviewer'], find_by_person(self.phd_supervisor))
-        self.assertFalse(response.context['can_delegate'])
-        entities_id = self.assistant_mandate.mandateentity_set.all().order_by('id').values_list('entity', flat=True)
-        self.assistant_mandate.entities = find_versions_from_entites(entities_id, None)
-        self.assistant_mandate.save()
-        self.assertQuerysetEqual(response.context['object_list'],
-                                 find_for_supervisor_for_academic_year(self.phd_supervisor, self.current_academic_year),
-                                 transform = lambda x: x
-                                 )
 
-    def test_context_data_phd_supervisor_is_reviewer(self):
+    def test_context_data(self):
         self.reviewer = ReviewerFactory(role=reviewer_role.RESEARCH,
                                         entity=self.entity_version.entity,
                                         person=self.phd_supervisor)
         self.client.force_login(self.phd_supervisor.user)
-        response = self.client.get('/assistants/phd_supervisor/assistants/')
-        self.assertEqual(response.context['current_reviewer'], find_by_person(self.phd_supervisor))
+        response = self.client.get('/assistants/reviewer/')
+        self.assertEqual(response.context['reviewer'], find_by_person(self.phd_supervisor))
         self.assertTrue(response.context['can_delegate'])
+        mandates_id = find_by_entity(self.reviewer.entity).values_list(
+            'assistant_mandate_id', flat=True)
+        self.assertQuerysetEqual(response.context['object_list'],
+                                 find_by_academic_year(self.current_academic_year).filter(id__in=mandates_id),
+                                 transform=lambda x: x
+                                 )
+
+    def test_context_data_for_specific_academic_year(self):
+        self.reviewer = ReviewerFactory(role=reviewer_role.RESEARCH,
+                                        entity=self.entity_version.entity,
+                                        person=self.phd_supervisor)
+        self.client.force_login(self.phd_supervisor.user)
+        response = self.client.get('/assistants/reviewer/?academic_year=' + str(self.previous_academic_year.id))
+        self.assertEqual(response.context['reviewer'], find_by_person(self.phd_supervisor))
+        self.assertTrue(response.context['can_delegate'])
+        mandates_id = find_by_entity(self.reviewer.entity).values_list(
+            'assistant_mandate_id', flat=True)
+        self.assertQuerysetEqual(response.context['object_list'],
+                                 find_by_academic_year(self.previous_academic_year).filter(id__in=mandates_id),
+                                 transform=lambda x: x
+                                 )
 

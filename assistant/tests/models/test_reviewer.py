@@ -49,14 +49,16 @@ class TestReviewerFactory(TestCase):
         self.reviewer1 = ReviewerFactory(role=reviewer_role.VICE_RECTOR, entity=self.entity1)
         self.reviewer2 = ReviewerFactory(role=reviewer_role.SUPERVISION, entity=self.entity2)
         self.reviewer3 = ReviewerFactory(role=reviewer_role.SUPERVISION, entity=self.entity3)
+        self.reviewer4 = ReviewerFactory(role=reviewer_role.SUPERVISION_DAF, entity=self.entity3)
+        self.reviewer5 = ReviewerFactory(role=reviewer_role.SUPERVISION_DAF_ASSISTANT, entity=self.entity4)
 
     def test_find_by_person(self):
         self.assertEqual(self.reviewer1, reviewer.find_by_person(self.reviewer1.person))
 
     def test_find_reviewers(self):
         self.assertCountEqual(
-            [rev for rev in reviewer.find_reviewers()],
-            [self.reviewer2, self.reviewer1, self.reviewer3]
+            list(reviewer.find_reviewers()),
+            [self.reviewer2, self.reviewer1, self.reviewer3, self.reviewer4, self.reviewer5]
         )
 
     def test_find_by_id(self):
@@ -65,22 +67,29 @@ class TestReviewerFactory(TestCase):
     def test_find_by_role(self):
         self.assertCountEqual(
             [self.reviewer2, self.reviewer3],
-            [rev for rev in reviewer.find_by_role(reviewer_role.SUPERVISION)]
+            list(reviewer.find_by_role(reviewer_role.SUPERVISION))
         )
 
     def test_find_by_entity_and_role(self):
         self.assertCountEqual(
             [self.reviewer2],
-            [rev for rev in reviewer.find_by_entity_and_role(self.entity2, reviewer_role.SUPERVISION)]
+            list(reviewer.find_by_entity_and_role(self.entity2, reviewer_role.SUPERVISION))
         )
 
     def test_can_delegate(self):
         self.assertFalse(reviewer.can_delegate(self.reviewer1))
         self.assertTrue(reviewer.can_delegate(self.reviewer2))
 
+    def test_daf_assistant_cannot_delegate(self):
+        self.assertFalse(reviewer.can_delegate(self.reviewer5))
+
+    def test_daf_can_delegate(self):
+        self.assertTrue(reviewer.can_delegate(self.reviewer4))
+
     def test_can_delegate_to_entity(self):
         self.assertFalse(reviewer.can_delegate_to_entity(self.reviewer1, self.entity1))
         self.assertFalse(reviewer.can_delegate_to_entity(self.reviewer2, self.entity1))
         self.assertTrue(reviewer.can_delegate_to_entity(self.reviewer2, self.entity2))
         self.assertTrue(reviewer.can_delegate_to_entity(self.reviewer3, self.entity4))
+        self.assertFalse(reviewer.can_delegate_to_entity(self.reviewer4, self.entity1))
 

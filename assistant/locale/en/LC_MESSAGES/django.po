@@ -575,6 +575,9 @@ msgstr "Submit an opinion"
 msgid "reviewer_delegation"
 msgstr "Delegation(s)"
 
+msgid "reviewer_delegation_add"
+msgstr "Add a delegate"
+
 msgid "reviewer_mandates_list"
 msgstr "List of files"
 
@@ -589,6 +592,9 @@ msgstr "Reviewer"
 
 msgid "reviewer_todo"
 msgstr "Files that can be treated"
+
+msgid "reviewer_with_same_role_already_exists_msg"
+msgstr "A reviewer having the same role for this entity already exists"
 
 msgid "reviewers"
 msgstr "Reviewers"
@@ -691,6 +697,12 @@ msgstr "Email address  of the promoter"
 
 msgid "supervision_review"
 msgstr "Opinion of the steering commitee"
+
+msgid "SUPERVISION_DAF"
+msgstr "DAF"
+
+msgid "SUPERVISION_DAF_ASSISTANT"
+msgstr "DAF representative"
 
 msgid "support_committee_reports"
 msgstr "Report of the steering committee (mandatory from the second renewal application)"
