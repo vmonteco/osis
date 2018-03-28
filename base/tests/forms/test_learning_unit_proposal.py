@@ -26,6 +26,7 @@
 import datetime
 from decimal import Decimal
 
+from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
@@ -36,6 +37,7 @@ from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import organization_type, proposal_type, proposal_state, entity_type, \
     learning_container_year_types, learning_unit_year_quadrimesters, entity_container_year_link_type, \
     learning_unit_periodicity, internship_subtypes, learning_unit_year_subtypes
+from base.models.person import FACULTY_MANAGER_GROUP, CENTRAL_MANAGER_GROUP
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
@@ -93,7 +95,7 @@ class TestSave(TestCase):
             "credits": "4",
             "periodicity": learning_unit_periodicity.BIENNIAL_ODD,
             "status": False,
-            "language": self.language.id,
+            "language": self.language.pk,
             "quadrimester": learning_unit_year_quadrimesters.Q1,
             "campus": self.campus.id,
             "requirement_entity": self.entity_version.id,
@@ -103,24 +105,34 @@ class TestSave(TestCase):
             "state": proposal_state.ProposalState.CENTRAL.name
         }
 
+    def test_learning_unit_proposal_form_get_as_faculty_manager(self):
+        self.person.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
+        form = LearningUnitProposalModificationForm(self.form_data, person=self.person)
+        self.assertTrue(form.fields['state'].disabled)
+
+    def test_learning_unit_proposal_form_get_as_central_manager(self):
+        self.person.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
+        form = LearningUnitProposalModificationForm(self.form_data, person=self.person)
+        self.assertFalse(form.fields['state'].disabled)
+
     def test_invalid_form(self):
         del self.form_data['requirement_entity']
 
-        form = LearningUnitProposalModificationForm(self.form_data)
+        form = LearningUnitProposalModificationForm(self.form_data, self.person)
         with self.assertRaises(ValueError):
-            form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
+            form.save(self.learning_unit_year, PROPOSAL_TYPE, PROPOSAL_STATE)
 
     def test_learning_unit_update(self):
-        form = LearningUnitProposalModificationForm(self.form_data)
-        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
+        form = LearningUnitProposalModificationForm(self.form_data, self.person)
+        form.save(self.learning_unit_year, PROPOSAL_TYPE, PROPOSAL_STATE)
 
         self.learning_unit_year.refresh_from_db()
 
         self.assertEqual(self.learning_unit_year.learning_unit.periodicity, self.form_data['periodicity'])
 
     def test_learning_unit_year_update(self):
-        form = LearningUnitProposalModificationForm(self.form_data)
-        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
+        form = LearningUnitProposalModificationForm(self.form_data, person=self.person)
+        form.save(self.learning_unit_year, PROPOSAL_TYPE, PROPOSAL_STATE)
         self.learning_unit_year.refresh_from_db()
         self._assert_acronym_has_changed_in_proposal()
         self._assert_common_titles_stored_in_container()
@@ -142,8 +154,8 @@ class TestSave(TestCase):
                          self.form_data['common_title_english'])
 
     def test_learning_container_update(self):
-        form = LearningUnitProposalModificationForm(self.form_data)
-        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
+        form = LearningUnitProposalModificationForm(self.form_data, self.person)
+        form.save(self.learning_unit_year, PROPOSAL_TYPE, PROPOSAL_STATE)
 
         self.learning_unit_year.refresh_from_db()
         learning_container_year = self.learning_unit_year.learning_container_year
@@ -156,8 +168,8 @@ class TestSave(TestCase):
         self.assertEqual(learning_container_year.campus, self.campus)
 
     def test_requirement_entity(self):
-        form = LearningUnitProposalModificationForm(self.form_data)
-        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
+        form = LearningUnitProposalModificationForm(self.form_data, self.person)
+        form.save(self.learning_unit_year, PROPOSAL_TYPE, PROPOSAL_STATE)
 
         self.entity_container_year.refresh_from_db()
         self.assertEqual(self.entity_container_year.entity, self.entity_version.entity)
@@ -176,8 +188,8 @@ class TestSave(TestCase):
         self.form_data["additional_requirement_entity_1"] = additional_entity_version_1.id
         self.form_data["additional_requirement_entity_2"] = additional_entity_version_2.id
 
-        form = LearningUnitProposalModificationForm(self.form_data)
-        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
+        form = LearningUnitProposalModificationForm(self.form_data, self.person)
+        form.save(self.learning_unit_year, PROPOSAL_TYPE, PROPOSAL_STATE)
 
         entities_by_type = \
             entity_container_year.find_entities_grouped_by_linktype(self.learning_unit_year.learning_container_year)
@@ -194,8 +206,8 @@ class TestSave(TestCase):
         self.form_data["container_type"] = learning_container_year_types.INTERNSHIP
         self.form_data["internship_subtype"] = internship_subtypes.TEACHING_INTERNSHIP
 
-        form = LearningUnitProposalModificationForm(self.form_data)
-        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
+        form = LearningUnitProposalModificationForm(self.form_data, self.person)
+        form.save(self.learning_unit_year, PROPOSAL_TYPE, PROPOSAL_STATE)
 
         self.learning_unit_year.refresh_from_db()
 
@@ -212,7 +224,7 @@ class TestSave(TestCase):
                 "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
                 "container_type": self.learning_unit_year.learning_container_year.container_type,
                 "campus": self.learning_unit_year.learning_container_year.campus.id,
-                "language": self.learning_unit_year.learning_container_year.language.id,
+                "language": self.learning_unit_year.learning_container_year.language.pk,
                 "in_charge": self.learning_unit_year.learning_container_year.in_charge
             },
             "learning_unit_year": {
@@ -238,8 +250,8 @@ class TestSave(TestCase):
             }
         }
 
-        form = LearningUnitProposalModificationForm(self.form_data)
-        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
+        form = LearningUnitProposalModificationForm(self.form_data, self.person)
+        form.save(self.learning_unit_year, PROPOSAL_TYPE, PROPOSAL_STATE)
 
         a_proposal_learning_unt = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
 
@@ -258,8 +270,8 @@ class TestSave(TestCase):
             learning_container_year=self.learning_unit_year.learning_container_year,
             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1
         )
-        form = LearningUnitProposalModificationForm(self.form_data)
-        form.save(self.learning_unit_year, self.person, PROPOSAL_TYPE, PROPOSAL_STATE)
+        form = LearningUnitProposalModificationForm(self.form_data, self.person)
+        form.save(self.learning_unit_year, PROPOSAL_TYPE, PROPOSAL_STATE)
 
         with self.assertRaises(ObjectDoesNotExist):
             EntityContainerYear.objects.get(learning_container_year=self.learning_unit_year.learning_container_year,
@@ -267,7 +279,7 @@ class TestSave(TestCase):
 
     def test_internship_subtype(self):
         self.form_data["internship_subtype"] = internship_subtypes.TEACHING_INTERNSHIP
-        form = LearningUnitProposalModificationForm(self.form_data)
+        form = LearningUnitProposalModificationForm(self.form_data, self.person)
 
         self.assertFalse(form.is_valid())
         self.assertIn(_("learning_unit_type_is_not_internship"), form.errors["internship_subtype"])

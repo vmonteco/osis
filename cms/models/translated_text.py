@@ -33,7 +33,7 @@ from osis_common.models.auditable_model import AuditableModel, AuditableModelAdm
 
 class TranslatedTextAdmin(AuditableModelAdmin):
     actions = None  # Remove ability to delete in Admin Interface
-    list_display = ('text_label', 'entity', 'reference', 'language', 'text',)
+    list_display = ('text_label', 'entity', 'reference', 'language', 'text')
     ordering = ('text_label',)
     list_filter = ('entity',)
     search_fields = ['reference', 'text_label__label']
@@ -74,14 +74,21 @@ def search(entity, reference, text_labels_name=None, language=None):
 
 def get_or_create(entity, reference, text_label, language):
     translated_text, created = TranslatedText.objects.get_or_create(entity=entity,
-                                                 reference=reference,
-                                                 text_label=text_label,
-                                                 language=language)
+                                                                    reference=reference,
+                                                                    text_label=text_label,
+                                                                    language=language)
     return translated_text
 
 
 def find_by_entity_reference(an_entity_name, an_education_group_year_id):
     return TranslatedText.objects.filter(text_label__entity=an_entity_name,
-                                         reference=an_education_group_year_id)\
-        .order_by('text_label__order')\
+                                         reference=an_education_group_year_id) \
+        .order_by('text_label__order') \
         .values_list('text_label__label', flat=True)
+
+
+def find_with_changed(entity, text_labels_name):
+    queryset = TranslatedText.objects.filter(entity=entity,
+                                             text_label__label__in=text_labels_name,
+                                             changed__isnull=False)
+    return queryset.select_related('text_label')

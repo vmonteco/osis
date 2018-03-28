@@ -147,7 +147,7 @@ class TestLearningUnitModificationProposal(TestCase):
             "credits": self.learning_unit_year.credits,
             "periodicity": self.learning_unit_year.learning_unit.periodicity,
             "status": self.learning_unit_year.status,
-            "language": self.learning_unit_year.learning_container_year.language.id,
+            "language": self.learning_unit_year.learning_container_year.language.pk,
             "quadrimester": "",
             "campus": self.learning_unit_year.learning_container_year.campus.id,
             "session": self.learning_unit_year.session,
@@ -208,7 +208,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(form_initial['credits'], self.learning_unit_year.credits)
         self.assertEqual(form_initial['periodicity'], self.learning_unit_year.learning_unit.periodicity)
         self.assertEqual(form_initial['status'], self.learning_unit_year.status)
-        self.assertEqual(form_initial['language'], self.learning_unit_year.learning_container_year.language.id)
+        self.assertEqual(form_initial['language'], self.learning_unit_year.learning_container_year.language.pk)
         self.assertEqual(form_initial['requirement_entity'], self.entity_version.id)
         self.assertEqual(form_initial['allocation_entity'], self.entity_version.id)
         self.assertEqual(form_initial['additional_requirement_entity_1'], self.entity_version.id)
@@ -241,10 +241,11 @@ class TestLearningUnitModificationProposal(TestCase):
                       list(messages))
 
     def test_transformation_proposal_request(self):
-        self.form_data["acronym"] = "OSIS1452"
+        self.form_data["first_letter"] = "M"
+        self.form_data["acronym"] = "OSIS1234"
         self.client.post(self.url, data=self.form_data)
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
-        self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.TRANSFORMATION.name)
+        self.assertEqual(a_proposal_learning_unit.type, ProposalType.TRANSFORMATION.name)
 
     def test_modification_proposal_request(self):
         self.form_data["specific_title"] = "New title"
@@ -252,16 +253,17 @@ class TestLearningUnitModificationProposal(TestCase):
         self.client.post(self.url, data=self.form_data)
 
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
-        self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.MODIFICATION.name)
+        self.assertEqual(a_proposal_learning_unit.type, ProposalType.MODIFICATION.name)
 
     def test_transformation_and_modification_proposal_request(self):
-        self.form_data["acronym"] = "OSIS1452"
+        self.form_data["first_letter"] = "M"
+        self.form_data["acronym"] = "OSIS1234"
         self.form_data["specific_title"] = "New title"
         self.form_data["specific_title_english"] = "New english title"
         self.client.post(self.url, data=self.form_data)
 
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
-        self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name)
+        self.assertEqual(a_proposal_learning_unit.type, ProposalType.TRANSFORMATION_AND_MODIFICATION.name)
 
     def test_learning_unit_of_type_undefined(self):
         self.learning_unit_year.subtype = None
@@ -399,7 +401,7 @@ class TestLearningUnitSuppressionProposal(TestCase):
             container_type=learning_container_year_types.COURSE,
             campus=CampusFactory(organization=an_organization, is_administration=True)
         )
-        self.learning_unit = LearningUnitFactory(end_year=None)
+        self.learning_unit = LearningUnitFactory(end_year=None, periodicity=learning_unit_periodicity.ANNUAL)
         self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212",
                                                                subtype=learning_unit_year_subtypes.FULL,
                                                                academic_year=current_academic_year,
@@ -793,7 +795,7 @@ class TestLearningUnitProposalCancellation(TestCase):
     def test_context_after_valid_get_request(self):
         response = self.client.get(self.url)
 
-        redirected_url = reverse('learning_units_proposal')
+        redirected_url = reverse('learning_unit', args=[self.learning_unit_year.id])
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
 
         messages = [str(message) for message in get_messages(response.wsgi_request)]
@@ -820,7 +822,7 @@ def _test_attributes_equal(obj, attribute_values_dict):
             if float(getattr(obj, key)) != float(value):
                 return False
         elif key in ["campus", "language"]:
-            if getattr(obj, key).id != value:
+            if getattr(obj, key).pk != value:
                 return False
         elif getattr(obj, key) != value:
             return False
@@ -859,7 +861,7 @@ def _create_proposal_learning_unit():
             "common_title_english": a_learning_unit_year.specific_title_english,
             "container_type": a_learning_unit_year.learning_container_year.container_type,
             "campus": a_learning_unit_year.learning_container_year.campus.id,
-            "language": a_learning_unit_year.learning_container_year.language.id,
+            "language": a_learning_unit_year.learning_container_year.language.pk,
             "in_charge": a_learning_unit_year.learning_container_year.in_charge
         },
         "learning_unit_year": {
@@ -929,7 +931,7 @@ class TestEditProposal(TestCase):
         self.generated_container_first_year = self.generated_container.generated_container_years[0]
         self.learning_unit_year = self.generated_container_first_year.learning_unit_year_full
         self.proposal = ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year,
-                                                    state=ProposalState.FACULTY,
+                                                    state=ProposalState.FACULTY.name,
                                                     folder_id=1,
                                                     entity=self.entity)
 
@@ -975,7 +977,7 @@ class TestEditProposal(TestCase):
             "common_title": "Common UE title",
             "requirement_entity": self.entity_version.id,
             "allocation_entity": self.entity_version.id,
-            "language": self.language.id,
+            "language": self.language.pk,
             "periodicity": learning_unit_periodicity.ANNUAL,
             "entity": self.entity_version.id,
             "folder_id": 1
@@ -991,7 +993,7 @@ class TestEditProposal(TestCase):
         faultydict["state"] = "bad_choice"
         return faultydict
 
-    def test_edit_proposal_post(self):
+    def test_edit_proposal_post_as_faculty_manager(self):
         request_factory = RequestFactory()
         request = request_factory.post(self.url, data=self.get_modify_data())
 
@@ -1007,10 +1009,11 @@ class TestEditProposal(TestCase):
         self.assertIn(messages.SUCCESS, msg_level)
 
         self.proposal.refresh_from_db()
-        self.assertEqual(self.proposal.state, ProposalState.CENTRAL.value)
+        self.assertEqual(self.proposal.state, ProposalState.FACULTY.value)
 
     @mock.patch('base.views.layout.render')
     def test_edit_proposal_post_wrong_data(self, mock_render):
+        self.person.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
         request_factory = RequestFactory()
         request = request_factory.post(self.url, data=self.get_faulty_data())
 
@@ -1029,7 +1032,7 @@ class TestEditProposal(TestCase):
         self.assertEqual(len(form.errors), 1)
 
         self.proposal.refresh_from_db()
-        self.assertEqual(self.proposal.state, 'ProposalState.FACULTY')
+        self.assertEqual(self.proposal.state, ProposalState.FACULTY.name)
 
     @mock.patch('base.views.layout.render')
     def test_edit_suppression_proposal_get(self, mock_render):
@@ -1097,7 +1100,7 @@ class TestLearningUnitProposalDisplay(TestCase):
         cls.proposal_learning_unit = ProposalLearningUnitFactory(learning_unit_year=cls.learning_unit_yr)
         cls.initial_credits = 3.0
         cls.initial_quadrimester = 'Q1'
-        cls.initial_language = cls.language_it.id
+        cls.initial_language = cls.language_it.pk
         cls.initial_data_learning_unit_year = {'credits': cls.initial_credits,
                                                'quadrimester': cls.initial_quadrimester}
 
@@ -1107,11 +1110,11 @@ class TestLearningUnitProposalDisplay(TestCase):
         cls.l_container_year_with_entities = cls.generator_learning_container.generated_container_years[0]
 
     def test_is_foreign_key(self):
-        current_data = {"language{}".format(proposal_business.END_FOREIGN_KEY_NAME): self.language_it.id}
+        current_data = {"language{}".format(proposal_business.END_FOREIGN_KEY_NAME): self.language_it.pk}
         self.assertTrue(proposal_business._is_foreign_key("language", current_data))
 
     def test_is_not_foreign_key(self):
-        current_data = {"credits": self.language_it.id}
+        current_data = {"credits": self.language_it.pk}
         self.assertFalse(proposal_business._is_foreign_key("credits", current_data))
 
     def test_check_differences(self):
@@ -1138,8 +1141,8 @@ class TestLearningUnitProposalDisplay(TestCase):
         self.assertEqual(differences.get('credits'), proposal_business.NO_PREVIOUS_VALUE)
 
     def test_get_the_old_value_for_foreign_key(self):
-        initial_data_learning_container_year = {'language': self.language_pt.id}
-        current_data = {"language_id": self.language_it.id}
+        initial_data_learning_container_year = {'language': self.language_pt.pk}
+        current_data = {"language_id": self.language_it.pk}
         differences = proposal_business._get_the_old_value('language',
                                                            current_data,
                                                            initial_data_learning_container_year)
@@ -1147,7 +1150,7 @@ class TestLearningUnitProposalDisplay(TestCase):
 
     def test_get_the_old_value_for_foreign_key_no_previous_value(self):
         initial_data = {"language": None}
-        current_data = {"language_id": self.language_it.id}
+        current_data = {"language_id": self.language_it.pk}
 
         differences = proposal_business._get_the_old_value('language', current_data, initial_data)
         self.assertEqual(differences.get('language'), proposal_business.NO_PREVIOUS_VALUE)
@@ -1215,7 +1218,7 @@ class TestLearningUnitProposalDisplay(TestCase):
         self.assertEqual(differences.get('campus'), str(self.campus))
 
     def test_get_old_value_of_foreign_key_for_language(self):
-        differences = proposal_business._get_old_value_of_foreign_key('language', self.language_it.id)
+        differences = proposal_business._get_old_value_of_foreign_key('language', self.language_it.pk)
         self.assertEqual(differences.get('language'), str(self.language_it))
 
     def test_has_changed_entity(self):
@@ -1305,11 +1308,12 @@ class TestCreationProposalCancel(TestCase):
     @mock.patch('base.utils.send_mail.send_mail_after_the_learning_unit_proposal_cancellation')
     def test_cancel_proposal_of_learning_unit(self, mock_send_mail, mock_perms):
         a_proposal = _create_proposal_learning_unit()
-        url = reverse('learning_unit_cancel_proposal', args=[a_proposal.learning_unit_year.id])
+        luy = a_proposal.learning_unit_year
+        url = reverse('learning_unit_cancel_proposal', args=[luy.id])
 
         response = self.client.post(url, data={})
 
-        redirected_url = reverse('learning_units_proposal')
+        redirected_url = reverse('learning_unit', args=[luy.id])
         msgs = [str(message) for message in get_messages(response.wsgi_request)]
 
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)

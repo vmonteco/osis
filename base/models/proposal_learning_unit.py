@@ -50,7 +50,7 @@ class ProposalLearningUnit(models.Model):
     learning_unit_year = models.OneToOneField('LearningUnitYear')
     type = models.CharField(max_length=50, choices=proposal_type.CHOICES)
     state = models.CharField(max_length=50, choices=proposal_state.CHOICES, verbose_name=_("state"),
-                             default=proposal_state.ProposalState.FACULTY)
+                             default=proposal_state.ProposalState.FACULTY.name)
     initial_data = JSONField(default={})
     entity = models.ForeignKey('Entity')
     folder_id = models.PositiveIntegerField()
@@ -60,6 +60,7 @@ class ProposalLearningUnit(models.Model):
 
     class Meta:
         permissions = (
+            # TODO: Remove this permissions : already exists with can_change_proposal_learning_unit
             ("can_edit_learning_unit_proposal", "Can edit learning unit proposal"),
         )
 

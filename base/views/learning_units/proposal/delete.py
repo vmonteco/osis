@@ -29,6 +29,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import redirect, get_object_or_404
 
 from base.business import learning_unit_proposal as business_proposal
+from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views.common import display_success_messages, display_error_messages
@@ -44,4 +45,8 @@ def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
     messages_by_level = business_proposal.cancel_proposal(learning_unit_proposal, user_person)
     display_success_messages(request, messages_by_level[messages.SUCCESS])
     display_error_messages(request, messages_by_level[messages.ERROR])
+
+    if LearningUnitYear.objects.filter(pk=learning_unit_year_id).exists():
+        return redirect('learning_unit', learning_unit_year_id=learning_unit_year_id)
+
     return redirect('learning_units_proposal')

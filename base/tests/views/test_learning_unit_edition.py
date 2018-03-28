@@ -30,7 +30,6 @@ from django.contrib import messages
 from django.contrib.auth.models import Permission
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
-from django.db import IntegrityError
 from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpResponse
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
@@ -278,7 +277,7 @@ class TestEditLearningUnit(TestCase):
             "allocation_entity": self.allocation_entity.id,
             "additional_requirement_entity_1": self.additional_entity_1.id,
             "additional_requirement_entity_2": self.additional_entity_2.id,
-            "language": self.learning_unit_year.learning_container_year.language.id,
+            "language": self.learning_unit_year.learning_container_year.language.pk,
             "is_vacant": self.learning_unit_year.learning_container_year.is_vacant,
             "team": self.learning_unit_year.learning_container_year.team,
             "type_declaration_vacant": self.learning_unit_year.learning_container_year.type_declaration_vacant,
@@ -288,17 +287,8 @@ class TestEditLearningUnit(TestCase):
 
     def test_valid_post_request(self):
         credits = 18
-        form_data = {
-            "acronym": self.learning_unit_year.acronym[1:],
-            "credits": str(credits),
-            "specific_title": self.learning_unit_year.specific_title,
-            "first_letter": self.learning_unit_year.acronym[0],
-            "periodicity": learning_unit_periodicity.ANNUAL,
-            "campus": str(self.learning_unit_year.learning_container_year.campus.id),
-            "requirement_entity": str(self.requirement_entity.id),
-            "allocation_entity": str(self.requirement_entity.id),
-            "language": str(self.learning_unit_year.learning_container_year.language.id)
-        }
+        form_data = self._get_valid_form_data()
+        form_data['credits'] = credits
         response = self.client.post(self.url, data=form_data)
 
         expected_redirection = reverse("learning_unit", args=[self.learning_unit_year.id])
@@ -306,6 +296,42 @@ class TestEditLearningUnit(TestCase):
 
         self.learning_unit_year.refresh_from_db()
         self.assertEqual(self.learning_unit_year.credits, credits)
+
+    def test_consistency_report_error_displayed(self):
+        next_academic_year = AcademicYearFactory(year=self.learning_unit_year.academic_year.year + 1)
+        next_learning_container_year = LearningContainerYearFactory(academic_year=next_academic_year,
+                                                                    container_type=learning_container_year_types.COURSE)
+        LearningUnitYearFactory(learning_container_year=next_learning_container_year,
+                                learning_unit=self.learning_unit_year.learning_unit,
+                                acronym="LOSIS4512",
+                                academic_year=next_academic_year,
+                                subtype=learning_unit_year_subtypes.FULL,
+                                credits=26)
+
+        form_data = self._get_valid_form_data()
+        response = self.client.post(self.url, data=form_data)
+
+        expected_redirection = reverse("learning_unit", args=[self.learning_unit_year.id])
+        self.assertRedirects(response, expected_redirection, fetch_redirect_response=False)
+
+        messages = [str(message) for message in get_messages(response.wsgi_request)]
+        self.assertIn(_('The learning unit has been updated until %(year)s.')
+                          % {'year': self.learning_unit_year.academic_year}, list(messages))
+
+    def _get_valid_form_data(self):
+        form_data = {
+            "acronym": self.learning_unit_year.acronym[1:],
+            "credits": str(self.learning_unit_year.credits),
+            "specific_title": self.learning_unit_year.specific_title,
+            "first_letter": self.learning_unit_year.acronym[0],
+            "periodicity": learning_unit_periodicity.ANNUAL,
+            "campus": str(self.learning_unit_year.learning_container_year.campus.id),
+            "requirement_entity": str(self.requirement_entity.id),
+            "allocation_entity": str(self.requirement_entity.id),
+            "language": str(self.learning_unit_year.learning_container_year.language.pk),
+            "status": True
+        }
+        return form_data
 
 
 class TestLearningUnitVolumesManagement(TestCase):

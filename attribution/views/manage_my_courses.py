@@ -29,9 +29,13 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
 from attribution.business.manage_my_courses import find_learning_unit_years_summary_editable
-from attribution.views.perms import tutor_can_edit_educational_information
+from attribution.business.perms import can_user_edit_educational_information, \
+    find_educational_information_submission_dates_of_learning_unit_year
+from attribution.views.perms import tutor_can_edit_educational_information, tutor_can_view_educational_information
 from base.business.learning_unit import get_cms_label_data, initialize_learning_unit_pedagogy_form, CMS_LABEL_PEDAGOGY
 from base.models import person
+from base.models import academic_calendar
+from base.models.enums import academic_calendar_type
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.tutor import Tutor
 from base.views import layout
@@ -40,25 +44,27 @@ from base.views import learning_unit as view_learning_unit
 
 @login_required
 def list_my_attributions_summary_editable(request):
-    tutor = get_object_or_404(Tutor, person__user=request.user)
-    learning_unit_years_summary_editable = find_learning_unit_years_summary_editable(tutor)
+    learning_unit_years_summary_editable = find_learning_unit_years_summary_editable(
+        tutor=get_object_or_404(Tutor, person__user=request.user))
+    submission_dates = academic_calendar.\
+        find_dates_for_current_academic_year(academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
     return layout.render(request,
-                         'manage_my_courses/list_my_courses_summary_editable.html',
-                         {'learning_unit_years_summary_editable': learning_unit_years_summary_editable})
+                         'manage_my_courses/list_my_courses_summary_editable.html', locals())
 
 
 @login_required
-@tutor_can_edit_educational_information
+@tutor_can_view_educational_information
 def view_educational_information(request, learning_unit_year_id):
     learning_unit_year = LearningUnitYear.objects.get(pk=learning_unit_year_id)
-    user_language = person.get_user_interface_language(request.user)
-    context = {
-        'learning_unit_year': learning_unit_year,
-        'cms_labels_translated': get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language),
-        'form_french': initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_FR),
-        'form_english': initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_EN)
-    }
-    return layout.render(request, 'manage_my_courses/educational_information.html', context)
+
+    cms_labels_translated = get_cms_label_data(CMS_LABEL_PEDAGOGY,
+                                               person.get_user_interface_language(request.user))
+    form_french = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_FR)
+    form_english = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_EN)
+
+    can_edit_information = can_user_edit_educational_information(request.user, learning_unit_year_id)
+    submission_dates = find_educational_information_submission_dates_of_learning_unit_year(learning_unit_year_id)
+    return layout.render(request, 'manage_my_courses/educational_information.html', locals())
 
 
 @login_required

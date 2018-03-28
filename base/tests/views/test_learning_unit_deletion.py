@@ -52,6 +52,7 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import UserFactory
+from base.views.learning_units.delete import delete_all_learning_units_year
 
 
 class LearningUnitDelete(TestCase):
@@ -70,7 +71,7 @@ class LearningUnitDelete(TestCase):
         self.learning_unit_year_list = self.create_learning_unit_years_and_dependencies()
 
     def create_learning_unit_years_and_dependencies(self):
-        l1 = LearningUnitFactory(start_year=1900)
+        l1 = LearningUnitFactory(start_year=2015)
 
         learning_unit_years = []
         for year in range(4):
@@ -124,6 +125,31 @@ class LearningUnitDelete(TestCase):
 
         for y in range(4):
             self.assertFalse(LearningUnitYear.objects.filter(pk=learning_unit_years[y].pk).exists())
+
+        # Check redirection to identification
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('learning_units'))
+
+    def test_delete_all_learning_units_year_case_error_start_date(self):
+        learning_unit_years = self.learning_unit_year_list
+        request_factory = RequestFactory()
+        learning_unit_years[1].learning_unit.start_year = 2014
+        learning_unit_years[1].learning_unit.save()
+
+        request = request_factory.post(reverse(delete_all_learning_units_year, args=[learning_unit_years[1].id]))
+        request.user = self.user
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        response = delete_all_learning_units_year(request, learning_unit_years[1].id)
+
+        msg_level = [m.level for m in get_messages(request)]
+        msg = [m.message for m in get_messages(request)]
+
+        self.assertIn(messages.ERROR, msg_level, msg)
+
+        for y in range(4):
+            self.assertTrue(LearningUnitYear.objects.filter(pk=learning_unit_years[y].pk).exists())
 
         # Check redirection to identification
         self.assertEqual(response.status_code, 302)

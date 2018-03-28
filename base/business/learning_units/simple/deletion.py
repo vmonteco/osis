@@ -35,7 +35,6 @@ from base.models import learning_unit_enrollment, learning_unit_component, learn
 from base.models import proposal_learning_unit
 from cms.enums import entity_name
 from cms.models import translated_text
-from base.models.enums import learning_unit_year_subtypes
 
 
 def check_learning_unit_deletion(learning_unit):

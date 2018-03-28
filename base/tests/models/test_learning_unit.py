@@ -25,6 +25,7 @@
 ##############################################################################
 import datetime
 
+from django.db import DatabaseError
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
@@ -111,3 +112,12 @@ class LearningUnitTest(TestCase):
 
         # Case end year > start year
         LearningUnitFactory(start_year=2017, end_year=2018)
+
+    def test_delete_before_2015(self):
+        lu = LearningUnitFactory(start_year=2014, end_year=2018)
+
+        with self.assertRaises(DatabaseError):
+            lu.delete()
+
+        lu.start_year = 2015
+        lu.delete()
