@@ -2666,9 +2666,6 @@ msgstr "Erreur lors du retour à l'initial. Une des propositions sélectionnées
 msgid "error_proposal_no_data"
 msgstr "Erreur lors du retour à l'initial. Aucune donnée sélectionnée valide"
 
-msgid "summary_editable_field_successfuly_updated"
-msgstr "La possibilité de modifier les informations pédagogiques a été correctement mise à jour."
-
 msgid "msg_confirm_delete_luy"
 msgstr "Etes-vous certain de vouloir supprimer définitivement cette unité d'enseignement ?"
 

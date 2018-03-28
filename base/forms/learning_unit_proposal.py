@@ -133,7 +133,7 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
     @cached_property
     def changed_data_for_fields_that_can_be_modified(self):
         fields_that_cannot_be_modified = {"academic_year", "subtype", "faculty_remark", "other_remark", "entity",
-                                          "folder_id", "state", "type"}
+                                          "folder_id", "state", "type", "session"}
         return list(set(self.changed_data) - fields_that_cannot_be_modified)
 
     def _updates_entities(self, learning_container_year):
@@ -227,7 +227,7 @@ def compute_form_initial_data_from_proposal_json(proposal_initial_data):
         return {}
     initial_data = {}
     for value in proposal_initial_data.values():
-        initial_data.update(value)
+        initial_data.update({k.lower(): v for k, v in value.items()})
     initial_data["first_letter"] = initial_data["acronym"][0]
     initial_data["acronym"] = initial_data["acronym"][1:]
     return initial_data
