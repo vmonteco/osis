@@ -236,9 +236,11 @@ def get_last_version(entity, date=None):
 
     return qs.latest('start_date')
 
+
 def get_last_version_by_entity_id(entity_id):
     now = datetime.datetime.now(get_tzinfo())
     return EntityVersion.objects.current(now).filter(entity__id=entity_id).latest('start_date')
+
 
 def get_by_entity_parent(entity_parent):
     if entity_parent is None:
