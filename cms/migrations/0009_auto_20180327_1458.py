@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
 
     operations = [
         # Remove all deleted records physically
-        migrations.RunSQL("DELETE FROM cms_translatedtextlabel WHERE deleted is not null"),
-        migrations.RunSQL("DELETE FROM cms_translatedtext WHERE deleted is not null"),
-        migrations.RunSQL("DELETE FROM cms_textlabel WHERE deleted is not null")
+        migrations.RunSQL("DELETE FROM cms_translatedtextlabel CASCADE WHERE deleted is not null"),
+        migrations.RunSQL("DELETE FROM cms_translatedtext CASCADE WHERE deleted is not null"),
+        migrations.RunSQL("DELETE FROM cms_textlabel CASCADE WHERE deleted is not null")
     ]
