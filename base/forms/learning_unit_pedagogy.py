@@ -25,12 +25,9 @@
 ##############################################################################
 from ckeditor.widgets import CKEditorWidget
 from django import forms
-from django.forms import inlineformset_factory
-from django.utils.safestring import mark_safe
 
 from base.business.learning_unit import find_language_in_settings, can_edit_summary_locked_field
 from base.forms.common import set_trans_txt
-from base.models.bibliography import Bibliography
 from base.models.learning_unit_year import LearningUnitYear
 from cms.enums import entity_name
 from cms.models import translated_text
@@ -91,10 +88,19 @@ class SummaryModelForm(forms.ModelForm):
         if not can_edit_summary_locked_field(person, is_person_linked_to_entity):
             self.fields["summary_locked"].disabled = True
 
+        if not person.user.has_perm('can_edit_learningunit_pedagogy'):
+            for field in self.fields.values():
+                field.disabled = True
+
     class Meta:
         model = LearningUnitYear
         fields = ["summary_locked", 'mobility_modality']
 
 
-BibliographyFormset = inlineformset_factory(LearningUnitYear, Bibliography, fields=('title', 'mandatory'),
-                                            max_num=10, extra=1)
+class BibliographyModelForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        person = kwargs.pop('person')
+        super().__init__(*args, **kwargs)
+        if not person.user.has_perm('can_edit_learningunit_pedagogy'):
+            for field in self.fields.values():
+                field.disabled = True

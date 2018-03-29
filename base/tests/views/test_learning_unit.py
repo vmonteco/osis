@@ -155,6 +155,8 @@ class LearningUnitViewTestCase(TestCase):
         self.language = LanguageFactory(code='FR')
         self.a_superuser = SuperUserFactory()
         self.person = PersonFactory(user=self.a_superuser)
+        self.user = UserFactory()
+        PersonFactory(user=self.user)
         PersonEntityFactory(person=self.person, entity=self.entity)
         PersonEntityFactory(person=self.person, entity=self.entity_2)
         PersonEntityFactory(person=self.person, entity=self.entity_3)
@@ -1257,6 +1259,30 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_year.refresh_from_db()
         self.assertFalse(learning_unit_year.summary_locked)
         self.assertEqual(Bibliography.objects.filter(learning_unit_year=learning_unit_year).count(), 3)
+
+    def test_learning_unit_pedagogy_without_permission(self):
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=self.learning_container_yr,
+                                                     summary_locked=False)
+
+        data = self.data_bibliography_formset(learning_unit_year)
+        data['summary_locked'] = True
+
+        url = reverse(learning_unit_pedagogy, args=[learning_unit_year.id])
+        request_factory = RequestFactory()
+        request = request_factory.post(url, data=data)
+        self.user.user_permissions.add(Permission.objects.get(codename='can_access_learningunit'))
+
+        request.user = self.user
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        learning_unit_pedagogy(request, learning_unit_year.id)
+
+        learning_unit_year.refresh_from_db()
+        self.assertFalse(learning_unit_year.summary_locked)
+        self.assertEqual(Bibliography.objects.filter(learning_unit_year=learning_unit_year).count(), 0,
+                         'Bibliography cannot be updated')
 
     @mock.patch('base.models.person.Person.is_faculty_manager')
     def test_learning_unit_pedagogy_summary_editable_cannot_update_not_faculty_manager(self, mock_faculty_manager):

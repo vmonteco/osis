@@ -26,6 +26,7 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
+from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
@@ -37,7 +38,9 @@ from base.business.learning_unit import CMS_LABEL_PEDAGOGY, get_cms_label_data
 from base.business.learning_units.edition import ConsistencyError
 from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
 from base.forms.learning_unit.edition_volume import VolumeEditionFormsetContainer
-from base.forms.learning_unit_pedagogy import BibliographyFormset, SummaryModelForm, LearningUnitPedagogyForm
+from base.forms.learning_unit_pedagogy import BibliographyFormset, SummaryModelForm, LearningUnitPedagogyForm, \
+    BibliographyModelForm
+from base.models.bibliography import Bibliography
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
@@ -141,12 +144,16 @@ def update_learning_unit_pedagogy(request, learning_unit_year_id, context, templ
     person = get_object_or_404(Person, user=request.user)
     context.update(get_common_context_learning_unit_year(learning_unit_year_id, person))
     learning_unit_year = context['learning_unit_year']
+    perm_to_edit = int(request.user.has_perm('can_edit_learningunit_pedagogy'))
 
     post = request.POST or None
     summary_form = SummaryModelForm(post, person, context['is_person_linked_to_entity'], instance=learning_unit_year)
+    BibliographyFormset = inlineformset_factory(LearningUnitYear, Bibliography, fields=('title', 'mandatory'),
+                                                max_num=10, extra=perm_to_edit, form=BibliographyModelForm,
+                                                can_delete=perm_to_edit)
     bibliography_formset = BibliographyFormset(post, instance=learning_unit_year)
 
-    if summary_form.is_valid() and bibliography_formset.is_valid():
+    if perm_to_edit and summary_form.is_valid() and bibliography_formset.is_valid():
         try:
             summary_form.save()
             bibliography_formset.save()
