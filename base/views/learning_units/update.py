@@ -151,7 +151,7 @@ def update_learning_unit_pedagogy(request, learning_unit_year_id, context, templ
     BibliographyFormset = inlineformset_factory(LearningUnitYear, Bibliography, fields=('title', 'mandatory'),
                                                 max_num=10, extra=perm_to_edit, form=BibliographyModelForm,
                                                 can_delete=perm_to_edit)
-    bibliography_formset = BibliographyFormset(post, instance=learning_unit_year)
+    bibliography_formset = BibliographyFormset(post, instance=learning_unit_year, form_kwargs={'person': person})
 
     if perm_to_edit and summary_form.is_valid() and bibliography_formset.is_valid():
         try:
