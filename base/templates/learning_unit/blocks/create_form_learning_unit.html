@@ -34,7 +34,7 @@
                 <div class="row" style="margin:0;">
                     <div class="col-md-4" style="padding-right:0;">
                         <label>
-                            {% trans 'acronym' %}*
+                            {% trans 'code' %}*
                         </label>
                         {{ learning_unit_form.first_letter }}
                     </div>
@@ -47,8 +47,8 @@
                         <span class='error' id="{{ learning_unit_form.acronym.name }}_message"
                               for='{{ learning_unit_form.acronym.name }}' generated="true"></span>
                         {% if learning_unit_form.acronym.errors %}
-                        <b class='error' for='{{ learning_unit_form.acronym.name }}' generated="true">{{
-                            learning_unit_form.acronym.errors|join:". " }}</b>
+                        <b class='error' for='{{ learning_unit_form.acronym.name }}' generated="true">
+                            {{ learning_unit_form.acronym.errors| join:". " }}</b>
                         {% endif %}
                     </div>
                 </div>
@@ -172,11 +172,11 @@
         </div>
         <div class="row">
             <div class="col-md-6">
-                <label>{% trans 'additional_requirement_entity' %} 1</label>
+                <label>{% trans 'additional_requirement_entity_1' %}</label>
                 {{ learning_unit_form.additional_requirement_entity_1 }}
             </div>
             <div class="col-md-6">
-                <label>{% trans 'additional_requirement_entity' %} 2</label>
+                <label>{% trans 'additional_requirement_entity_2' %}</label>
                 {{ learning_unit_form.additional_requirement_entity_2 }}
             </div>
         </div>

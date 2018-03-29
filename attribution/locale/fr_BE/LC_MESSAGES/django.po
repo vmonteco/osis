@@ -26,9 +26,6 @@ msgstr "Permet d'administrer la liste des enseignants responsables des infos pé
 msgid "manage_educational_information"
 msgstr "Gérer les informations pédagogiques"
 
-msgid "manage_my_courses"
-msgstr "Gérer mes cours"
-
 msgid "no_attribution_summary_editable"
 msgstr "Il n'existe aucun cours dont vous pouvez modifier les informations pédagogiques."
 

@@ -841,6 +841,9 @@ msgstr "Check the programs related to this topic"
 msgid "select_program_first"
 msgstr "Please select Start Program/Year first"
 
+msgid "send_email_to_commission_accepted"
+msgstr "Send an email to reading commission when acceptation of evaluation commission"
+
 msgid "september"
 msgstr "September"
 

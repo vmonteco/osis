@@ -34,7 +34,6 @@ from assistant.models.enums import reviewer_role
 class ReviewerFactory(factory.DjangoModelFactory):
     class Meta:
         model = 'assistant.Reviewer'
-        django_get_or_create = ('entity',)
 
     role = factory.Iterator(reviewer_role.ROLE_CHOICES, getter=lambda c: c[0])
     person = factory.SubFactory(PersonFactory, first_name=factory.Sequence(lambda n: 'revfirstname{0}'.format(n)),

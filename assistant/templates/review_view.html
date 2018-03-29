@@ -40,7 +40,7 @@
 {% endblock %}
 {% block content %}
 <div class="page-header">
-    {% if cuurent_reviewer %}
+    {% if current_reviewer %}
         <h6>{% trans 'connected_as' %} {{ current_reviewer.person }} ({% trans current_reviewer.role %}) - {{ entity.acronym }}</h6>
     {% else %}
         <h6>{% trans 'connected_as' %} {{ assistant.supervisor }} ({% trans 'PHD_SUPERVISOR' %})</h6>

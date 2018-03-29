@@ -25,12 +25,14 @@
 ##############################################################################
 import datetime
 from unittest.mock import patch
+
+from base.business.learning_unit_proposal import compute_proposal_type
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.business import learning_unit_proposal as lu_proposal_business
 from base import models as mdl_base
 
-from django.test import TestCase
+from django.test import TestCase, SimpleTestCase
 
 from base.models.enums import organization_type, proposal_type, entity_type, \
     learning_container_year_types, entity_container_year_link_type, \
@@ -93,9 +95,12 @@ class TestLearningUnitProposalCancel(TestCase):
     def test_cancel_proposal_of_type_creation_case_success(self):
         proposal = self._create_proposal(prop_type=proposal_type.ProposalType.CREATION.name,
                                          prop_state=proposal_state.ProposalState.FACULTY.name)
+        lu = proposal.learning_unit_year.learning_unit
         lu_proposal_business.cancel_proposal(proposal, PersonFactory(), send_mail=False)
         self.assertCountEqual(list(mdl_base.proposal_learning_unit.ProposalLearningUnit.objects
                                    .filter(learning_unit_year=self.learning_unit_year)), [])
+        self.assertCountEqual(list(mdl_base.learning_unit.LearningUnit.objects.filter(id=lu.id)),
+                              [])
 
     @patch('base.utils.send_mail.send_mail_after_the_learning_unit_proposal_cancellation')
     def test_cancel_proposals_of_type_suppression(self, mock_send_mail):
@@ -122,7 +127,7 @@ class TestLearningUnitProposalCancel(TestCase):
                 "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
                 "container_type": self.learning_unit_year.learning_container_year.container_type,
                 "campus": self.learning_unit_year.learning_container_year.campus.id,
-                "language": self.learning_unit_year.learning_container_year.language.id,
+                "language": self.learning_unit_year.learning_container_year.language.pk,
                 "in_charge": self.learning_unit_year.learning_container_year.in_charge
             },
             "learning_unit_year": {
@@ -150,3 +155,40 @@ class TestLearningUnitProposalCancel(TestCase):
                                            initial_data=initial_data_expected,
                                            type=prop_type,
                                            state=prop_state)
+
+
+class TestComputeProposalType(SimpleTestCase):
+    def test_return_creation_type_when_creation_is_initial_proposal_type(self):
+        actual_proposal_type = compute_proposal_type([], proposal_type.ProposalType.CREATION.name)
+        self.assertEqual(proposal_type.ProposalType.CREATION.name, actual_proposal_type)
+
+    def test_return_suppression_type_when_suppresion_is_initial_proposal_type(self):
+        actual_proposal_type = compute_proposal_type([], proposal_type.ProposalType.SUPPRESSION.name)
+        self.assertEqual(proposal_type.ProposalType.SUPPRESSION.name, actual_proposal_type)
+
+    def test_return_transformation_when_data_changed_consist_of_first_letter(self):
+        actual_proposal_type = compute_proposal_type(["first_letter"], None)
+        self.assertEqual(proposal_type.ProposalType.TRANSFORMATION.name, actual_proposal_type)
+
+    def test_return_transformation_when_data_changed_consist_of_acronym(self):
+        actual_proposal_type = compute_proposal_type(["acronym"], None)
+        self.assertEqual(proposal_type.ProposalType.TRANSFORMATION.name, actual_proposal_type)
+
+    def test_return_modification_when_data_changed_consist_of_other_fields_than_first_letter_or_acronym(self):
+        actual_proposal_type = compute_proposal_type(["common_title"], None)
+        self.assertEqual(proposal_type.ProposalType.MODIFICATION.name, actual_proposal_type)
+
+    def test_return_modification_when_no_data_changed(self):
+        actual_proposal_type = compute_proposal_type([], None)
+        self.assertEqual(proposal_type.ProposalType.MODIFICATION.name, actual_proposal_type)
+
+    def test_return_transformation_and_modification_when_modifying_acronym_and_other_field(self):
+        actual_proposal_type = compute_proposal_type(["acronym", "common_title"], None)
+        self.assertEqual(proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name, actual_proposal_type)
+
+    def test_return_transformation_and_modification_when_modifying_first_letter_and_other_field(self):
+        actual_proposal_type = compute_proposal_type(["first_letter", "common_title"], None)
+        self.assertEqual(proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name, actual_proposal_type)
+
+
+

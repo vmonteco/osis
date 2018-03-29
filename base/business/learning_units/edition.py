@@ -30,10 +30,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.business import learning_unit_year_with_context
 from base.business.learning_unit import compute_max_academic_year_adjournment
-from base.business.learning_unit_deletion import delete_from_given_learning_unit_year, \
+from base.business.learning_units.simple.deletion import delete_from_given_learning_unit_year, \
     check_learning_unit_year_deletion
 from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.utils.model import update_instance_model_from_data, update_related_object
+from base import models as mdl_base
 from base.models import entity_component_year
 from base.models import entity_container_year, learning_component_year, learning_class_year, learning_unit_component
 from base.models.academic_year import AcademicYear
@@ -48,19 +49,23 @@ from base.models.learning_unit_year import LearningUnitYear
 FIELDS_TO_EXCLUDE_WITH_REPORT = ("is_vacant", "type_declaration_vacant", "attribution_procedure")
 
 
-def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year):
+def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year, propagate_end_date_to_luy=True):
     result = []
+    new_end_year = get_new_end_year(new_academic_year)
 
-    new_end_year = _get_new_end_year(new_academic_year)
-    end_year = _get_actual_end_year(learning_unit_to_edit)
-
-    if new_end_year is None or new_end_year > end_year:
-        result.extend(extend_learning_unit(learning_unit_to_edit, new_academic_year))
-    elif new_end_year < end_year:
-        result.extend(shorten_learning_unit(learning_unit_to_edit, new_academic_year))
+    if propagate_end_date_to_luy:
+        result.extend(_update_learning_unit_year_end_date(learning_unit_to_edit, new_academic_year, new_end_year))
 
     result.append(_update_end_year_field(learning_unit_to_edit, new_end_year))
     return result
+
+
+def _update_learning_unit_year_end_date(learning_unit_to_edit, new_academic_year, new_end_year):
+    end_year = _get_actual_end_year(learning_unit_to_edit)
+    if new_end_year is None or new_end_year > end_year:
+        return extend_learning_unit(learning_unit_to_edit, new_academic_year)
+    elif new_end_year < end_year:
+        return shorten_learning_unit(learning_unit_to_edit, new_academic_year)
 
 
 def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
@@ -232,7 +237,7 @@ def _get_actual_end_year(learning_unit_to_edit):
     return learning_unit_to_edit.end_year or compute_max_academic_year_adjournment() + 1
 
 
-def _get_new_end_year(new_academic_year):
+def get_new_end_year(new_academic_year):
     return new_academic_year.year if new_academic_year else None
 
 
@@ -254,13 +259,14 @@ def update_learning_unit_year_with_report(luy_to_update, fields_to_update, entit
     override_postponement_consistency = kwargs.get('override_postponement_consistency', False)
 
     conflict_report = {}
-    luy_to_update_list = [luy_to_update]
     if with_report:
         conflict_report = get_postponement_conflict_report(
             luy_to_update,
             override_postponement_consistency=override_postponement_consistency
         )
-        luy_to_update_list.extend(conflict_report['luy_without_conflict'])
+        luy_to_update_list = conflict_report['luy_without_conflict']
+    else:
+        luy_to_update_list = [luy_to_update]
 
     # Update luy which doesn't have conflict
     for luy in luy_to_update_list:
@@ -268,8 +274,7 @@ def update_learning_unit_year_with_report(luy_to_update, fields_to_update, entit
         _update_learning_unit_year_entities(luy, entities_by_type_to_update)
 
     # Show conflict error if exists
-    if conflict_report.get('errors'):
-        raise ConsistencyError(_('error_modification_learning_unit'), error_list=conflict_report.get('errors'))
+    check_postponement_conflict_report_errors(conflict_report)
 
 
 def get_postponement_conflict_report(luy_start, override_postponement_consistency=False):
@@ -277,7 +282,7 @@ def get_postponement_conflict_report(luy_start, override_postponement_consistenc
     This function will return a list of learning unit year (luy_without_conflict) ( > luy_start)
     which doesn't have any conflict. If any conflict found, the variable 'errors' will store it.
     """
-    result = {'luy_without_conflict': []}
+    result = {'luy_without_conflict': [luy_start]}
     for luy in luy_start.find_gt_learning_units_year():
         error_list = check_postponement_conflict(luy_start, luy)
         if error_list and not override_postponement_consistency:
@@ -285,6 +290,16 @@ def get_postponement_conflict_report(luy_start, override_postponement_consistenc
             break
         result['luy_without_conflict'].append(luy)
     return result
+
+
+def check_postponement_conflict_report_errors(conflict_report):
+    if conflict_report.get('errors'):
+        last_instance_updated = conflict_report.get('luy_without_conflict', [])[-1]
+        raise ConsistencyError(
+            last_instance_updated,
+            conflict_report.get('errors'),
+            _('error_modification_learning_unit')
+        )
 
 
 def _update_learning_unit_year(luy_to_update, fields_to_update, with_report):
@@ -357,9 +372,56 @@ def check_postponement_conflict(luy, next_luy):
 
 
 def _check_postponement_conflict_on_learning_unit_year(luy, next_luy):
-    fields_to_compare = 'acronym', 'specific_title', 'specific_title_english', 'subtype', 'credits', \
-                        'decimal_scores', 'internship_subtype', 'status', 'session', 'quadrimester',
+    fields_to_compare = {
+        'acronym': _('acronym'),
+        'specific_title': _('official_title_proper_to_UE'),
+        'specific_title_english': _('official_english_title_proper_to_UE'),
+        'subtype': _('subtype'),
+        'credits': _('credits'),
+        'internship_subtype': _('internship_subtype'),
+        'status': _('status'),
+        'session': _('session_title'),
+        'quadrimester': _('quadrimester')
+    }
     return _get_differences(luy, next_luy, fields_to_compare)
+
+
+def _check_postponement_conflict_on_learning_container_year(lcy, next_lcy):
+    fields_to_compare = {
+        'container_type': _('type'),
+        'common_title': _('common_official_title'),
+        'common_title_english': _('common_official_english_title'),
+        'acronym': _('acronym'),
+        'language': _('language'),
+        'campus': _('campus'),
+        'team': _('team_management')
+    }
+    return _get_differences(lcy, next_lcy, fields_to_compare)
+
+
+def _get_differences(obj1, obj2, fields_to_compare):
+    field_diff = filter(lambda field: _is_different_value(obj1, obj2, field), fields_to_compare.keys())
+    error_list = []
+    for field_name in field_diff:
+        current_value = getattr(obj1, field_name, None)
+        next_year_value = getattr(obj2, field_name, None)
+        error_list.append(_("The value of field '%(field)s' is different between year %(year)s - %(value)s "
+                            "and year %(next_year)s - %(next_value)s") % {
+            'field': fields_to_compare[field_name],
+            'year': obj1.academic_year,
+            'value': _get_translated_value(current_value),
+            'next_year': obj2.academic_year,
+            'next_value':  _get_translated_value(next_year_value)
+        })
+    return error_list
+
+
+def _get_translated_value(value):
+    if value is None:
+        return _('no_data')
+    if isinstance(value, bool):
+        return _('yes') if value else _('no')
+    return value
 
 
 def _check_postponement_learning_unit_year_proposal_state(nex_luy):
@@ -368,35 +430,12 @@ def _check_postponement_learning_unit_year_proposal_state(nex_luy):
     return [error_msg] if nex_luy.is_in_proposal() else []
 
 
-def _check_postponement_conflict_on_learning_container_year(lcy, next_lcy):
-    fields_to_compare = 'container_type', 'common_title', 'common_title_english', 'acronym', 'language', \
-                        'campus', 'team',
-    return _get_differences(lcy, next_lcy, fields_to_compare)
-
-
-def _get_differences(obj1, obj2, fields_to_compare):
-    field_diff = filter(lambda field: _is_different_value(obj1, obj2, field), fields_to_compare)
-    error_list = []
-    for field_name in field_diff:
-        current_value = getattr(obj1, field_name, None)
-        next_year_value = getattr(obj2, field_name, None)
-        error_list.append(_("The value of field '%(field)s' is different between year %(year)s - %(value)s "
-                            "and year %(next_year)s - %(next_value)s") % {
-            'field': _(field_name),
-            'year': obj1.academic_year,
-            'value': current_value if current_value else _('no_data'),
-            'next_year': obj2.academic_year,
-            'next_value': next_year_value if next_year_value else _('no_data')
-        })
-    return error_list
-
-
 def _check_postponement_conflict_on_entity_container_year(lcy, next_lcy):
     current_entities = entity_container_year.find_entities_grouped_by_linktype(lcy)
     next_year_entities = entity_container_year.find_entities_grouped_by_linktype(next_lcy)
+    error_list = _check_if_all_entities_exist(next_lcy, list(next_year_entities.values()))
     entity_type_diff = filter(lambda type: _is_different_value(current_entities, next_year_entities, type),
                               ENTITY_TYPE_LIST)
-    error_list = []
     for entity_type in entity_type_diff:
         current_entity = current_entities.get(entity_type)
         next_year_entity = next_year_entities.get(entity_type)
@@ -411,10 +450,33 @@ def _check_postponement_conflict_on_entity_container_year(lcy, next_lcy):
     return error_list
 
 
-def _is_different_value(obj1, obj2, field):
-    value_obj1 = obj1.get(field) if isinstance(obj1, dict) else getattr(obj1, field, None)
-    value_obj2 = obj2.get(field) if isinstance(obj2, dict) else getattr(obj2, field, None)
+def _check_if_all_entities_exist(lcy, entities_list):
+    error_list = []
+    date = lcy.academic_year.start_date
+    entities_ids = [entity.id for entity in entities_list]
+    existing_entities = mdl_base.entity.find_versions_from_entites(entities_ids, date).values_list('id', flat=True)
+    entities_not_found = filter(lambda entity: entity.id not in existing_entities, entities_list)
+
+    for entity_not_found in set(entities_not_found):
+        error = _("The entity '%(acronym)s' doesn't exist anymore in %(year)s" % {
+            'acronym': entity_not_found.most_recent_acronym,
+            'year': lcy.academic_year
+        })
+        error_list.append(error)
+    return error_list
+
+
+def _is_different_value(obj1, obj2, field, empty_str_as_none=True):
+    value_obj1 = _get_value_from_field(obj1, field)
+    value_obj2 = _get_value_from_field(obj2, field)
+    if empty_str_as_none:
+        value_obj1 = value_obj1 or ''
+        value_obj2 = value_obj2 or ''
     return value_obj1 != value_obj2
+
+
+def _get_value_from_field(obj, field):
+    return obj.get(field) if isinstance(obj, dict) else getattr(obj, field, None)
 
 
 def _check_postponement_conflict_on_volumes(lcy, next_lcy):
@@ -431,7 +493,7 @@ def _check_postponement_conflict_on_volumes(lcy, next_lcy):
             )
         except StopIteration:
             error_list.append(_("There is not the learning unit %(acronym)s - %(next_year)s") % {
-                'acronym': next_lcy.acronym,
+                'acronym': luy_with_components.acronym,
                 'next_year': next_lcy.academic_year
             })
     return error_list
@@ -481,27 +543,30 @@ def _get_next_year_component(next_year_components, component_type):
 def _check_postponement_conflict_on_volumes_data(current_component, next_year_component,
                                                  current_volumes_data, next_year_volumes_data):
     error_list = []
-    volumes_diff = _get_volumes_diff(current_volumes_data, next_year_volumes_data)
-    for volume_diff in volumes_diff:
-        current_volume_data = current_volumes_data.get(volume_diff)
-        next_year_volume_data = next_year_volumes_data.get(volume_diff)
-        error_list.append(_("The value of field '%(field)s' for the learning unit %(acronym)s (%(component_type)s) "
-                            "is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s") %
-                          {
-                              'field': _(volume_diff.lower()),
-                              'acronym': current_component.learning_container_year.acronym,
-                              'component_type': _(current_component.type),
-                              'year': current_component.learning_container_year.academic_year,
-                              'value': current_volume_data or _('no_data'),
-                              'next_year': next_year_component.learning_container_year.academic_year,
-                              'next_value': next_year_volume_data or _('no_data')
-                          })
+    volumes_fields_diff = _get_volumes_diff(current_volumes_data, next_year_volumes_data)
+    for field in volumes_fields_diff:
+        values_diff = {'current': current_volumes_data.get(field), 'next_year': next_year_volumes_data.get(field)}
+        error_list.append(_get_error_volume_field_diff(field, current_component, next_year_component, values_diff))
     return error_list
 
 
 def _get_volumes_diff(current_volumes_data, next_year_volumes_data):
     return filter(lambda data: _is_different_value(current_volumes_data, next_year_volumes_data, data),
                   current_volumes_data)
+
+
+def _get_error_volume_field_diff(field_diff, current_component, next_year_component, values_diff):
+    return _("The value of field '%(field)s' for the learning unit %(acronym)s (%(component_type)s) "
+             "is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s") %\
+        {
+                'field': _(field_diff.lower()),
+                'acronym': current_component.learning_container_year.acronym,
+                'component_type': _(current_component.type) if current_component.type else 'NT',
+                'year': current_component.learning_container_year.academic_year,
+                'value': values_diff.get('current') or _('no_data'),
+                'next_year': next_year_component.learning_container_year.academic_year,
+                'next_value': values_diff.get('next_year') or _('no_data')
+        }
 
 
 def _get_error_component_not_found(acronym, component_type, existing_academic_year, not_found_academic_year):
@@ -515,6 +580,7 @@ def _get_error_component_not_found(acronym, component_type, existing_academic_ye
 
 
 class ConsistencyError(Error):
-    def __init__(self, *args, **kwargs):
-        self.error_list = kwargs.pop('error_list')
+    def __init__(self, last_instance_updated, error_list, *args, **kwargs):
+        self.last_instance_updated = last_instance_updated
+        self.error_list = error_list
         super().__init__(*args, **kwargs)

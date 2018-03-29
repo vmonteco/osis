@@ -31,7 +31,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from base.business import learning_unit_year_with_context
-from base.business.learning_units.edition import edit_learning_unit_end_date, ConsistencyError
+from base.business.learning_units.edition import ConsistencyError
 from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
 from base.forms.learning_unit.edition_volume import VolumeEditionFormsetContainer
 from base.models.learning_unit_year import LearningUnitYear
@@ -39,7 +39,7 @@ from base.models.person import Person
 from base.views import layout
 from base.views.common import display_error_messages, display_success_messages
 from base.views.learning_unit import get_learning_unit_identification_context, \
-    get_common_context_learning_unit_year, learning_unit_components
+    get_common_context_learning_unit_year, learning_unit_components, _check_credits
 from base.views.learning_units import perms
 
 
@@ -55,9 +55,8 @@ def learning_unit_edition_end_date(request, learning_unit_year_id):
     learning_unit_to_edit = learning_unit_year.learning_unit
     form = LearningUnitEndDateForm(request.POST or None, learning_unit=learning_unit_to_edit)
     if form.is_valid():
-        new_academic_year = form.cleaned_data['academic_year']
         try:
-            result = edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year)
+            result = form.save()
             display_success_messages(request, result)
 
             learning_unit_year_id = _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id)
@@ -68,7 +67,7 @@ def learning_unit_edition_end_date(request, learning_unit_year_id):
             display_error_messages(request, e.args[0])
 
     context['form'] = form
-    return layout.render(request, 'learning_unit/edition.html', context)
+    return layout.render(request, 'learning_unit/update_end_date.html', context)
 
 
 def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id):
@@ -90,6 +89,7 @@ def update_learning_unit(request, learning_unit_year_id):
 
     if form.is_valid():
         _save_form_and_display_messages(request, form)
+        _check_credits(request, learning_unit_year.parent, form)
         return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
 
     context = {"learning_unit_year": learning_unit_year, "form": form}
@@ -127,4 +127,7 @@ def _save_form_and_display_messages(request, form):
         form.save()
         display_success_messages(request, _('success_modification_learning_unit'))
     except ConsistencyError as e:
+        error_list = e.error_list
+        error_list.insert(0, _('The learning unit has been updated until %(year)s.')
+                          % {'year': e.last_instance_updated.academic_year})
         display_error_messages(request, e.error_list)

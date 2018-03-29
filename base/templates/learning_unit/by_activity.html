@@ -29,7 +29,7 @@
 {% block content %}
 <div class="panel panel-default">
 
-    {% include "learning_unit/blocks/search_form_learning_unit.html" %}
+    {% include "learning_unit/blocks/form/search_form_learning_unit.html" %}
 
     <div style="margin-top:10px;">
 
@@ -69,7 +69,7 @@
                     <td>{{ learning_unit.complete_title|default_if_none:'' }}</td>
                     <td>
                         {% with learning_unit.learning_container_year.container_type|default_if_none:'-' as type %}
-                        {% trans type %}
+                            {% trans type %}
                         {% endwith %}
                     </td>
                     <td>

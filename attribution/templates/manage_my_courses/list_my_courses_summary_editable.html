@@ -28,15 +28,18 @@
 {% endcomment %}
 
 {% block breadcrumb %}
-<li class="active">{% trans 'manage_my_courses' %}</li>
+<li class="active">{% trans 'manage_educational_information' %}</li>
 {% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h2>{% trans 'manage_my_courses' %}</h2>
+    <h2>{% trans 'manage_educational_information' %}</h2>
 </div>
 <div class="panel panel-default">
     <div class="panel-body">
+
+        {% include "manage_my_courses/blocks/submission_dates.html" %}
+
         {% block learning_units_summary_editable %}
             {% include "manage_my_courses/blocks/list/learning_units_summary_editable.html" %}
         {% endblock learning_units_summary_editable %}

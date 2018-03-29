@@ -1,6 +1,4 @@
-
-{% load bootstrap3 %}
-{% load i18n %}
+{% load bootstrap3 i18n %}
 
 <div class="row">
 
@@ -9,10 +7,17 @@
     </div>
 
     <div class="col-md-5">
-        {% bootstrap_field form.folder_entity show_label=False %}
+        {% bootstrap_field form.entity show_label=False %}
     </div>
 
     <div class="col-md-4">
         {% bootstrap_field form.folder_id show_label=False %}
     </div>
 </div>
+{% block script %}
+<script>
+    window.onload = function() {
+        window.scrollTo(0,document.body.scrollHeight);
+    };
+</script>
+{% endblock %}

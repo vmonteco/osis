@@ -24,119 +24,65 @@
 #
 ##############################################################################
 from unittest import mock
-import datetime
 
-from django.http import HttpResponse
+from django.forms import model_to_dict
+from django.http import HttpResponse, HttpResponseNotFound
 from django.test import TestCase
 from django.urls import reverse
 
+from attribution.tests.factories.attribution import AttributionFactory
+from attribution.views.manage_my_courses import list_my_attributions_summary_editable
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
-from base.models.tutor import Tutor
-from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.models.enums import academic_calendar_type
+from base.tests.factories.academic_calendar import AcademicCalendarFactory
+from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.tutor import TutorFactory
 
-from attribution.tests.factories.attribution import AttributionFactory
-from attribution.views.manage_my_courses import list_my_attributions_summary_editable
-
-
-HTTP_NOT_FOUND = 404
-
 
 class ManageMyCoursesViewTestCase(TestCase):
-    def setUp(self):
-        self.person = PersonFactory()
-        self.user = self.person.user
-        self.tutor = TutorFactory(person=self.person)
-        self.academic_year = AcademicYearFactory(year=datetime.date.today().year,
-                                                 start_date=datetime.date.today())
+    @classmethod
+    def setUpTestData(cls):
+        cls.person = PersonFactory()
+        cls.user = cls.person.user
+        cls.tutor = TutorFactory(person=cls.person)
 
-        self.learning_unit_years = [LearningUnitYearFactory(summary_editable=True)
-                                    for i in range(4)]
-        self.attributions = [AttributionFactory(tutor=self.tutor,
-                                                summary_responsible=True,
-                                                learning_unit_year=self.learning_unit_years[i])
-                             for i in range(4)]
+        cls.attribution = AttributionFactory(tutor=cls.tutor,
+                                             summary_responsible=True,
+                                             learning_unit_year__summary_locked=False)
+        cls.academic_calendar = AcademicCalendarFactory(academic_year=create_current_academic_year(),
+                                                        reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+        cls.url = reverse(list_my_attributions_summary_editable)
+
+    def setUp(self):
+        self.client.force_login(self.user)
 
     def test_list_my_attributions_summary_editable_user_not_logged(self):
-        url = reverse(list_my_attributions_summary_editable)
         self.client.logout()
-        response = self.client.get(url)
-        self.assertRedirects(response, '/login/?next={}'.format(url))
+        response = self.client.get(self.url)
+        self.assertRedirects(response, '/login/?next={}'.format(self.url))
 
     def test_list_my_attributions_summary_editable_user_not_tutor(self):
-        tutors = Tutor.objects.filter(person__user=self.user)
-        tutors.delete()
+        person_not_tutor = PersonFactory()
+        self.client.force_login(person_not_tutor.user)
 
-        self.client.force_login(self.user)
-        url = reverse(list_my_attributions_summary_editable)
-        response = self.client.get(url, follow=True)
-        self.assertEquals(response.status_code, HTTP_NOT_FOUND)
+        response = self.client.get(self.url, follow=True)
+        self.assertEquals(response.status_code, HttpResponseNotFound.status_code)
 
-    def test_list_my_attributions_summary_editable(self):
-        self.client.force_login(self.user)
-        url = reverse(list_my_attributions_summary_editable)
-        response = self.client.get(url)
+    @mock.patch("attribution.views.manage_my_courses.find_learning_unit_years_summary_editable")
+    def test_list_my_attributions_summary_editable(self, mock_find_luys_summary_editable):
+        expected_luys_summary_editable = [self.attribution.learning_unit_year]
+        mock_find_luys_summary_editable.return_value = expected_luys_summary_editable
+
+        response = self.client.get(self.url)
         self.assertTemplateUsed(response, "manage_my_courses/list_my_courses_summary_editable.html")
+        self.assertTrue(mock_find_luys_summary_editable.called)
 
-        context = response.context[-1]
-        self.assertCountEqual(context['learning_unit_years_summary_editable'], self.learning_unit_years)
+        context = response.context
+        self.assertCountEqual(context['learning_unit_years_summary_editable'], expected_luys_summary_editable)
+        self.assertDictEqual(context['submission_dates'], model_to_dict(self.academic_calendar,
+                                                                        fields=("start_date", "end_date")))
 
-
-    def test_list_my_attributions_summary_editable_false_for_some(self):
-        self.client.force_login(self.user)
-
-        self.learning_unit_years[0].summary_editable = False
-        self.learning_unit_years[0].save()
-        self.learning_unit_years[2].summary_editable = False
-        self.learning_unit_years[2].save()
-
-        url = reverse(list_my_attributions_summary_editable)
-        response = self.client.get(url)
-
-        self.assertTemplateUsed(response, "manage_my_courses/list_my_courses_summary_editable.html")
-
-        context = response.context[-1]
-        self.assertCountEqual(context['learning_unit_years_summary_editable'],
-                              [self.learning_unit_years[1], self.learning_unit_years[3]])
-
-    def test_list_my_attributions_summary_responsible_false_for_some(self):
-        self.client.force_login(self.user)
-
-        self.attributions[0].summary_responsible = False
-        self.attributions[0].save()
-        self.attributions[2].summary_responsible = False
-        self.attributions[2].save()
-
-        url = reverse(list_my_attributions_summary_editable)
-        response = self.client.get(url)
-        self.assertTemplateUsed(response, "manage_my_courses/list_my_courses_summary_editable.html")
-
-        context = response.context[-1]
-        self.assertCountEqual(context['learning_unit_years_summary_editable'],
-                              [self.learning_unit_years[1], self.learning_unit_years[3]])
-
-    def test_list_my_attributions_summary_responsible_and_summary_editable_false_for_some(self):
-        self.client.force_login(self.user)
-
-        self.attributions[0].summary_responsible = False
-        self.attributions[0].save()
-        self.attributions[2].summary_responsible = False
-        self.attributions[2].save()
-
-        self.attributions[0].summary_responsible = False
-        self.attributions[0].save()
-        self.attributions[2].summary_responsible = False
-        self.attributions[2].save()
-
-        url = reverse(list_my_attributions_summary_editable)
-        response = self.client.get(url)
-        self.assertTemplateUsed(response, "manage_my_courses/list_my_courses_summary_editable.html")
-
-        context = response.context[-1]
-        self.assertCountEqual(context['learning_unit_years_summary_editable'],
-                              [self.learning_unit_years[1], self.learning_unit_years[3]])
 
 class TestViewEducationalInformation(TestCase):
     @classmethod
@@ -153,23 +99,31 @@ class TestViewEducationalInformation(TestCase):
         response = self.client.get(self.url)
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
 
-    @mock.patch("attribution.business.perms.can_user_edit_educational_information",
-                side_effect=lambda req, luy: False)
+    @mock.patch("attribution.business.perms.can_user_view_educational_information",
+                side_effect=lambda usr, luy_id: False)
     def test_check_if_user_can_view_educational_information(self, mock_perm):
         response = self.client.get(self.url)
         self.assertTrue(mock_perm.called)
         self.assertTemplateUsed(response, "access_denied.html")
 
-    def test_template_used(self):
+    @mock.patch("attribution.views.manage_my_courses.can_user_edit_educational_information",
+                side_effect=lambda usr, luy_id: False)
+    @mock.patch("attribution.views.manage_my_courses.find_educational_information_submission_dates_of_learning_unit_year",
+                side_effect=lambda luy_id: {})
+    def test_template_used(self, mock_find_submission_dates, mock_can_edit):
         response = self.client.get(self.url)
 
         self.assertTemplateUsed(response, "manage_my_courses/educational_information.html")
+        self.assertTrue(mock_can_edit.called)
+        self.assertTrue(mock_find_submission_dates.called)
 
         context = response.context
         self.assertEqual(context["learning_unit_year"], self.attribution.learning_unit_year)
         self.assertTrue(context["cms_labels_translated"])
         self.assertIsInstance(context["form_french"], LearningUnitPedagogyForm)
         self.assertIsInstance(context["form_english"], LearningUnitPedagogyForm)
+        self.assertFalse(context["can_edit_information"])
+        self.assertFalse(context["submission_dates"])
 
 
 class TestManageEducationalInformation(TestCase):
@@ -196,6 +150,8 @@ class TestManageEducationalInformation(TestCase):
 
     @mock.patch("base.views.learning_unit.edit_learning_unit_pedagogy",
                 side_effect=lambda req, luy_id, url: HttpResponse())
-    def test_use_edit_learning_unit_pedagogy_method(self, mock_edit_learning_unit_pedagogy):
+    @mock.patch("attribution.business.perms.can_user_edit_educational_information",
+                side_effect=lambda req, luy: True)
+    def test_use_edit_learning_unit_pedagogy_method(self, mock_can_edit, mock_edit_learning_unit_pedagogy):
         self.client.get(self.url)
         self.assertTrue(mock_edit_learning_unit_pedagogy.called)
