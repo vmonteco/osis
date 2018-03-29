@@ -30,10 +30,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.business import learning_unit_year_with_context
 from base.business.learning_unit import compute_max_academic_year_adjournment
-from base.business.learning_unit_deletion import delete_from_given_learning_unit_year, \
+from base.business.learning_units.simple.deletion import delete_from_given_learning_unit_year, \
     check_learning_unit_year_deletion
 from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.utils.model import update_instance_model_from_data, update_related_object
+from base import models as mdl_base
 from base.models import entity_component_year
 from base.models import entity_container_year, learning_component_year, learning_class_year, learning_unit_component
 from base.models.academic_year import AcademicYear
@@ -432,9 +433,9 @@ def _check_postponement_learning_unit_year_proposal_state(nex_luy):
 def _check_postponement_conflict_on_entity_container_year(lcy, next_lcy):
     current_entities = entity_container_year.find_entities_grouped_by_linktype(lcy)
     next_year_entities = entity_container_year.find_entities_grouped_by_linktype(next_lcy)
+    error_list = _check_if_all_entities_exist(next_lcy, list(next_year_entities.values()))
     entity_type_diff = filter(lambda type: _is_different_value(current_entities, next_year_entities, type),
                               ENTITY_TYPE_LIST)
-    error_list = []
     for entity_type in entity_type_diff:
         current_entity = current_entities.get(entity_type)
         next_year_entity = next_year_entities.get(entity_type)
@@ -446,6 +447,22 @@ def _check_postponement_conflict_on_entity_container_year(lcy, next_lcy):
             'next_year': next_lcy.academic_year,
             'next_value': next_year_entity.most_recent_acronym if next_year_entity else _('no_data')
         })
+    return error_list
+
+
+def _check_if_all_entities_exist(lcy, entities_list):
+    error_list = []
+    date = lcy.academic_year.start_date
+    entities_ids = [entity.id for entity in entities_list]
+    existing_entities = mdl_base.entity.find_versions_from_entites(entities_ids, date).values_list('id', flat=True)
+    entities_not_found = filter(lambda entity: entity.id not in existing_entities, entities_list)
+
+    for entity_not_found in set(entities_not_found):
+        error = _("The entity '%(acronym)s' doesn't exist anymore in %(year)s" % {
+            'acronym': entity_not_found.most_recent_acronym,
+            'year': lcy.academic_year
+        })
+        error_list.append(error)
     return error_list
 
 

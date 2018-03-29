@@ -27,13 +27,13 @@ msgid "You will pass the proposal %(proposal)s from state %(old_state)s to %(new
 msgstr ""
 
 msgid "existed_acronym"
-msgstr "Existed acronym for "
+msgstr "Existed code for "
 
 msgid "existing_acronym"
-msgstr "Existing acronym in "
+msgstr "Existing code in "
 
 msgid "invalid_acronym"
-msgstr "Invalid acronym"
+msgstr "Invalid code"
 
 msgid "field_is_required"
 msgstr "This field is required"
@@ -44,3 +44,8 @@ msgstr "Please enter a value greater than or equal to 0."
 msgid "max_for_field"
 msgstr "Please enter a value less than or equal to 500."
 
+msgid "add another"
+msgstr ""
+
+msgid "remove"
+msgstr ""

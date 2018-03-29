@@ -102,7 +102,8 @@ class TestLearningUnitModificationProposal(TestCase):
                                                                subtype=learning_unit_year_subtypes.FULL,
                                                                academic_year=current_academic_year,
                                                                learning_container_year=learning_container_year,
-                                                               quadrimester=None)
+                                                               quadrimester=None,
+                                                               specific_title_english="title english")
 
         an_entity = EntityFactory(organization=an_organization)
         self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
@@ -225,12 +226,15 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(response.context['person'], self.person)
         self.assertIsInstance(response.context['form'], LearningUnitProposalModificationForm)
 
-    def test_post_request(self):
+    @mock.patch("base.business.learning_unit_proposal.compute_proposal_type",
+                side_effect=lambda data, type: proposal_type.ProposalType.MODIFICATION.name)
+    def test_post_request(self, mock_compute_proposal_type):
         response = self.client.post(self.url, data=self.form_data)
 
         redirected_url = reverse('learning_unit', args=[self.learning_unit_year.id])
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
 
+        self.assertTrue(mock_compute_proposal_type.called)
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
         self.assertTrue(a_proposal_learning_unit)
         self.assertEqual(a_proposal_learning_unit.author, self.person)
@@ -239,29 +243,6 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertIn(_("success_modification_proposal").format(_(proposal_type.ProposalType.MODIFICATION.name),
                                                                 self.learning_unit_year.acronym),
                       list(messages))
-
-    def test_transformation_proposal_request(self):
-        self.form_data["acronym"] = "OSIS1452"
-        self.client.post(self.url, data=self.form_data)
-        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
-        self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.TRANSFORMATION.name)
-
-    def test_modification_proposal_request(self):
-        self.form_data["specific_title"] = "New title"
-        self.form_data["specific_title_english"] = "New english title"
-        self.client.post(self.url, data=self.form_data)
-
-        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
-        self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.MODIFICATION.name)
-
-    def test_transformation_and_modification_proposal_request(self):
-        self.form_data["acronym"] = "OSIS1452"
-        self.form_data["specific_title"] = "New title"
-        self.form_data["specific_title_english"] = "New english title"
-        self.client.post(self.url, data=self.form_data)
-
-        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
-        self.assertEqual(a_proposal_learning_unit.type, proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name)
 
     def test_learning_unit_of_type_undefined(self):
         self.learning_unit_year.subtype = None
@@ -793,7 +774,7 @@ class TestLearningUnitProposalCancellation(TestCase):
     def test_context_after_valid_get_request(self):
         response = self.client.get(self.url)
 
-        redirected_url = reverse('learning_units_proposal')
+        redirected_url = reverse('learning_unit', args=[self.learning_unit_year.id])
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
 
         messages = [str(message) for message in get_messages(response.wsgi_request)]
@@ -929,7 +910,7 @@ class TestEditProposal(TestCase):
         self.generated_container_first_year = self.generated_container.generated_container_years[0]
         self.learning_unit_year = self.generated_container_first_year.learning_unit_year_full
         self.proposal = ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year,
-                                                    state=ProposalState.FACULTY,
+                                                    state=ProposalState.FACULTY.name,
                                                     folder_id=1,
                                                     entity=self.entity)
 
@@ -991,7 +972,7 @@ class TestEditProposal(TestCase):
         faultydict["state"] = "bad_choice"
         return faultydict
 
-    def test_edit_proposal_post(self):
+    def test_edit_proposal_post_as_faculty_manager(self):
         request_factory = RequestFactory()
         request = request_factory.post(self.url, data=self.get_modify_data())
 
@@ -1007,10 +988,11 @@ class TestEditProposal(TestCase):
         self.assertIn(messages.SUCCESS, msg_level)
 
         self.proposal.refresh_from_db()
-        self.assertEqual(self.proposal.state, ProposalState.CENTRAL.value)
+        self.assertEqual(self.proposal.state, ProposalState.FACULTY.value)
 
     @mock.patch('base.views.layout.render')
     def test_edit_proposal_post_wrong_data(self, mock_render):
+        self.person.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
         request_factory = RequestFactory()
         request = request_factory.post(self.url, data=self.get_faulty_data())
 
@@ -1029,7 +1011,7 @@ class TestEditProposal(TestCase):
         self.assertEqual(len(form.errors), 1)
 
         self.proposal.refresh_from_db()
-        self.assertEqual(self.proposal.state, 'ProposalState.FACULTY')
+        self.assertEqual(self.proposal.state, ProposalState.FACULTY.name)
 
     @mock.patch('base.views.layout.render')
     def test_edit_suppression_proposal_get(self, mock_render):
@@ -1305,11 +1287,12 @@ class TestCreationProposalCancel(TestCase):
     @mock.patch('base.utils.send_mail.send_mail_after_the_learning_unit_proposal_cancellation')
     def test_cancel_proposal_of_learning_unit(self, mock_send_mail, mock_perms):
         a_proposal = _create_proposal_learning_unit()
-        url = reverse('learning_unit_cancel_proposal', args=[a_proposal.learning_unit_year.id])
+        luy = a_proposal.learning_unit_year
+        url = reverse('learning_unit_cancel_proposal', args=[luy.id])
 
         response = self.client.post(url, data={})
 
-        redirected_url = reverse('learning_units_proposal')
+        redirected_url = reverse('learning_unit', args=[luy.id])
         msgs = [str(message) for message in get_messages(response.wsgi_request)]
 
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)

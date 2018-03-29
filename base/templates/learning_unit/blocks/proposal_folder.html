@@ -14,3 +14,10 @@
         {% bootstrap_field form.folder_id show_label=False %}
     </div>
 </div>
+{% block script %}
+<script>
+    window.onload = function() {
+        window.scrollTo(0,document.body.scrollHeight);
+    };
+</script>
+{% endblock %}

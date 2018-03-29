@@ -1808,13 +1808,13 @@ msgid "create_learning_unit"
 msgstr "Création d'une unité d'enseignement"
 
 msgid "existed_acronym"
-msgstr "Sigle a déjà existé pour "
+msgstr "Code a déjà existé pour "
 
 msgid "existing_acronym"
-msgstr "Sigle déja existant en "
+msgstr "Code déja existant en "
 
 msgid "invalid_acronym"
-msgstr "Sigle non valide"
+msgstr "Code non valide"
 
 msgid "acronym_rules"
 msgstr "Code composé de:\n"
@@ -1904,7 +1904,7 @@ msgid "end_date_gt_begin_date"
 msgstr "L'année de fin doit etre égale ou supérieur à l'année de départ"
 
 msgid "session_title"
-msgstr "Session"
+msgstr "Sessions"
 
 msgid "remarks_title"
 msgstr "Remarques"
@@ -2651,8 +2651,8 @@ msgstr "En proposition"
 msgid "by"
 msgstr "Par"
 
-msgid "summary_editable"
-msgstr "informations pédagogiques modifiables"
+msgid "summary_locked"
+msgstr "mise-à-jour bloquée"
 
 msgid "get_back_to_initial"
 msgstr "Retour à l'état initial"
@@ -2665,9 +2665,6 @@ msgstr "Erreur lors du retour à l'initial. Une des propositions sélectionnées
 
 msgid "error_proposal_no_data"
 msgstr "Erreur lors du retour à l'initial. Aucune donnée sélectionnée valide"
-
-msgid "summary_editable_field_successfuly_updated"
-msgstr "La possibilité de modifier les informations pédagogiques a été correctement mise à jour."
 
 msgid "msg_confirm_delete_luy"
 msgstr "Etes-vous certain de vouloir supprimer définitivement cette unité d'enseignement ?"
@@ -2702,5 +2699,46 @@ msgstr "Intitulé officiel en anglais propre au partim"
 msgid "Educational information submission dates updated"
 msgstr "Date de soumission des informations pédagogiques mis à jour"
 
+msgid "partim_credits_gt_parent_credits"
+msgstr "Le nombre de crédits est supérieur à celui de l'unité d'enseignement"
+
+msgid "partim_credits_equals_parent_credits"
+msgstr "Le nombre de crédits est égal à celui de l'unité d'enseignement"
+
 msgid "The learning unit has been updated until %(year)s."
 msgstr "L'unité d'enseignement a été modifiée jusqu'en %(year)s."
+
+msgid "Prohibition to delete a learning unit before 2015."
+msgstr "Interdiction de supprimer une unité d'enseignement avant 2015."
+
+msgid "The entity '%(acronym)s' doesn't exist anymore in %(year)s"
+msgstr "L'entité '%(acronym)s' n'existe plus en %(year)s"
+
+msgctxt "bibliography"
+msgid "title"
+msgstr "titre"
+
+msgctxt "bibliography"
+msgid "mandatory"
+msgstr "obligatoire"
+
+msgid "Bibliography"
+msgstr "Bibliographie"
+
+msgid "Modalities specific to IN and OUT mobility"
+msgstr "Modalités propores à la mobilité IN et OUT"
+
+msgid "updated"
+msgstr "Mis à jour"
+
+msgid "unupdated"
+msgstr "Pas à jour"
+
+msgid "summary_list"
+msgstr "Statut des informations pédagogiques"
+
+msgid "The partim must be inactive because the parent is inactive"
+msgstr "Le partim doit être inactif car le cours complet est inactif"
+
+msgid "The parent must be active because there are partim active"
+msgstr "Le cours complet doit être actif car un partim est actif"

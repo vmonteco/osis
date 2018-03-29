@@ -44,6 +44,7 @@ from assistant.tests.factories.settings import SettingsFactory
 from assistant.models.enums import assistant_mandate_state, review_status
 
 HTTP_OK = 200
+HTTP_FOUND = 302
 
 class AssistantsListViewTestCase(TestCase):
 
@@ -70,7 +71,7 @@ class AssistantsListViewTestCase(TestCase):
 
     def test_with_unlogged_user(self):
         response = self.client.get('/assistants/phd_supervisor/assistants/')
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, HTTP_FOUND)
 
     def test_context_data_phd_supervisor_is_not_reviewer(self):
         self.client.force_login(self.phd_supervisor.user)

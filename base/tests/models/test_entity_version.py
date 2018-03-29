@@ -30,10 +30,14 @@ import factory.fuzzy
 from django.test import TestCase
 
 from base.models import entity_version
+from base.models.entity_version import find_last_entity_version_by_learning_unit_year_id
 from base.models.enums import organization_type
-from base.tests.factories.academic_year import AcademicYearFactory
+from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
+from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.entity import EntityFactory
+from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
@@ -340,3 +344,22 @@ class EntityVersionTest(TestCase):
         self.assertTrue(entity_list)
         self.assertEqual(len(entity_list), 1)
         self.assertEqual(entity_list[0], entity_version_attached)
+
+
+class TestFindLastEntityVersionByLearningUnitYearId(TestCase):
+    def test_when_entity_version(self):
+        learning_unit_year = LearningUnitYearFactory()
+
+        actual_entity_version = find_last_entity_version_by_learning_unit_year_id(learning_unit_year.id)
+
+        self.assertIsNone(actual_entity_version)
+
+    def test_find_last_entity_version_by_learning_unit_year_id(self):
+        an_entity_version = EntityVersionFactory()
+        learning_unit_year = LearningUnitYearFactory()
+        EntityContainerYearFactory(entity=an_entity_version.entity,
+                                   learning_container_year=learning_unit_year.learning_container_year,
+                                   type=REQUIREMENT_ENTITY)
+
+        actual_entity_version = find_last_entity_version_by_learning_unit_year_id(learning_unit_year.id)
+        self.assertEqual(an_entity_version, actual_entity_version)

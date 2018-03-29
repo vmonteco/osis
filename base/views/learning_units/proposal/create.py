@@ -34,7 +34,6 @@ from base.business.learning_units.proposal.common import compute_proposal_state
 from base.business.learning_units.simple.creation import create_learning_unit_year_structure, create_learning_unit
 from base.forms.learning_unit.proposal.creation import LearningUnitProposalCreationForm, LearningUnitProposalForm
 from base.models.enums import learning_unit_year_subtypes
-from base.models.enums.proposal_state import ProposalState
 from base.models.enums.proposal_type import ProposalType
 from base.views import layout
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
@@ -42,7 +41,7 @@ from reference.models.language import find_by_code
 
 
 @login_required
-@permission_required('base.can_create_learningunit', raise_exception=True)
+@permission_required('base.can_propose_learningunit', raise_exception=True)
 def get_proposal_learning_unit_creation_form(request, academic_year):
     person = get_object_or_404(mdl_base.person.Person, user=request.user)
     learning_unit_form = LearningUnitProposalCreationForm(person, initial={'academic_year': academic_year,
@@ -50,7 +49,10 @@ def get_proposal_learning_unit_creation_form(request, academic_year):
                                                                            "container_type": BLANK_CHOICE_DASH,
                                                                            "language": find_by_code("FR")})
     proposal_form = LearningUnitProposalForm()
-    return layout.render(request, "learning_unit/proposal/creation.html", locals())
+    return layout.render(request, "learning_unit/proposal/creation.html",
+                         {'person': person,
+                          'learning_unit_form': learning_unit_form,
+                          'proposal_form': proposal_form})
 
 
 @login_required
@@ -71,9 +73,12 @@ def proposal_learning_unit_add(request):
         _proposal_create(data_proposal, new_learning_unit_year, person)
         show_success_learning_unit_year_creation_message(request, new_learning_unit_year,
                                                          'proposal_learning_unit_successfuly_created')
-        return redirect('learning_units')
+        return redirect('learning_unit', learning_unit_year_id=new_learning_unit_year.id)
+
     return layout.render(request, "learning_unit/proposal/creation.html",
-                         {'learning_unit_form': learning_unit_form, 'proposal_form': proposal_form, 'person': person})
+                         {'learning_unit_form': learning_unit_form,
+                          'proposal_form': proposal_form,
+                          'person': person})
 
 
 def _proposal_create(data_proposal, new_learning_unit_year, person):

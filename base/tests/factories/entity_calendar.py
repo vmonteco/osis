@@ -32,7 +32,6 @@ from base.tests.factories.offer_year_calendar import generate_end_date, generate
 from osis_common.utils.datetime import get_tzinfo
 
 
-
 class EntityCalendarFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = "base.EntityCalendar"

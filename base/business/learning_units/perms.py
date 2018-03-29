@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from base.models.academic_year import current_academic_year
 from base.models.entity import Entity
 from base.models.enums import learning_container_year_types
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
@@ -33,11 +34,6 @@ from base.models.person_entity import is_attached_entities
 FACULTY_UPDATABLE_CONTAINER_TYPES = (learning_container_year_types.COURSE,
                                      learning_container_year_types.DISSERTATION,
                                      learning_container_year_types.INTERNSHIP)
-PROPOSAL_TYPE_ACCEPTED_FOR_UPDATE = (ProposalType.CREATION.name,
-                                     ProposalType.MODIFICATION.name,
-                                     ProposalType.TRANSFORMATION.name,
-                                     ProposalType.TRANSFORMATION_AND_MODIFICATION.name,
-                                     ProposalType.SUPPRESSION.name)
 
 
 def is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, person):
@@ -61,14 +57,13 @@ def is_eligible_to_create_modification_proposal(learning_unit_year, person):
 
 
 def is_eligible_for_cancel_of_proposal(proposal, person):
-    if not proposal:
-        return False
-    if person.is_faculty_manager() and proposal.state != ProposalState.FACULTY.name:
-        return False
-    if _is_attached_to_initial_entity(proposal, person):
-        return True
-
-    return person.is_linked_to_entity_in_charge_of_learning_unit_year(proposal.learning_unit_year)
+    if person.is_faculty_manager():
+        if proposal.state != ProposalState.FACULTY.name:
+            return False
+        if not _is_attached_to_initial_entity(proposal, person) and \
+        not person.is_linked_to_entity_in_charge_of_learning_unit_year(proposal.learning_unit_year):
+            return False
+    return person.user.has_perm('base.can_propose_learningunit')
 
 
 def _is_attached_to_initial_entity(learning_unit_proposal, a_person):
@@ -82,17 +77,20 @@ def _is_attached_to_initial_entity(learning_unit_proposal, a_person):
 def is_eligible_to_edit_proposal(proposal, person):
     if not proposal:
         return False
-
-    is_person_linked_to_entity = person.is_linked_to_entity_in_charge_of_learning_unit_year(
-        proposal.learning_unit_year)
-
-    if person.is_faculty_manager():
-        if (proposal.state != ProposalState.FACULTY.name or
-                proposal.type not in PROPOSAL_TYPE_ACCEPTED_FOR_UPDATE or
-                not is_person_linked_to_entity):
-            return False
-
+    if person.is_faculty_manager() and not _check_eligible_to_edit_proposal_as_faculty_manager(proposal, person):
+        return False
     return person.user.has_perm('base.can_edit_learning_unit_proposal')
+
+
+def _check_eligible_to_edit_proposal_as_faculty_manager(proposal, person):
+    if not person.is_linked_to_entity_in_charge_of_learning_unit_year(proposal.learning_unit_year):
+        return False
+    if proposal.state != ProposalState.FACULTY.name:
+        return False
+    if (proposal.type == ProposalType.MODIFICATION.name and
+            proposal.learning_unit_year.academic_year.year != current_academic_year().year + 1):
+        return False
+    return True
 
 
 def is_eligible_for_modification_end_date(learning_unit_year, person):
@@ -101,7 +99,9 @@ def is_eligible_for_modification_end_date(learning_unit_year, person):
     if not is_eligible_for_modification(learning_unit_year, person):
         return False
     container_type = learning_unit_year.learning_container_year.container_type
-    return container_type not in FACULTY_UPDATABLE_CONTAINER_TYPES or learning_unit_year.is_partim()
+    return container_type not in FACULTY_UPDATABLE_CONTAINER_TYPES or \
+        learning_unit_year.is_partim() or \
+        person.is_central_manager()
 
 
 def is_eligible_for_modification(learning_unit_year, person):
@@ -111,7 +111,8 @@ def is_eligible_for_modification(learning_unit_year, person):
         return False
     if person.is_faculty_manager() and not learning_unit_year.can_update_by_faculty_manager():
         return False
-    return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
+    return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year) or \
+        person.is_central_manager()
 
 
 def can_delete_learning_unit_year(learning_unit_year, person):
@@ -142,6 +143,6 @@ def learning_unit_year_permissions(learning_unit_year, person):
 
 def learning_unit_proposal_permissions(proposal, person):
     return {
-        'can_cancel_proposal': is_eligible_for_cancel_of_proposal(proposal, person),
+        'can_cancel_proposal': is_eligible_for_cancel_of_proposal(proposal, person) if proposal else False,
         'can_edit_learning_unit_proposal': is_eligible_to_edit_proposal(proposal, person)
     }

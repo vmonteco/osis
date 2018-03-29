@@ -183,8 +183,7 @@
             <a class="btn btn-default" id="lnk_mandate_cancel" href="{% url 'reviewer_mandates_list' %}">
         {% endif %}
         <span class="glyphicon glyphicon-cancel" aria-hidden="true"></span> {% trans 'cancel'%}</a>
-        {# un assistant de supervision ne peut valider la review #}
-        {% if "SUPERVISION_ASSISTANT" not in role %}
+        {% if can_validate %}
             <button type="submit" class="btn btn-success" title="{% trans 'validate_and_submit'%}"
                     id="bt_pstform_validate_and_submit" name="validate_and_submit"
                     onclick="return confirm('{% trans 'confirm_validation' %}')">

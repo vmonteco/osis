@@ -32,6 +32,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.proposal import creation
+from base.models.academic_year import AcademicYear
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, organization_type, \
     entity_type, learning_unit_periodicity
 from base.models.learning_unit_year import LearningUnitYear
@@ -39,8 +40,10 @@ from base.models.person import FACULTY_MANAGER_GROUP
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories import academic_year as academic_year_factory, campus as campus_factory, \
     organization as organization_factory, person as factory_person, user as factory_user
+from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.person_entity import PersonEntityFactory
 from reference.tests.factories.language import LanguageFactory
 
 
@@ -51,9 +54,13 @@ class LearningUnitViewTestCase(TestCase):
         self.faculty_user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
         self.faculty_person = factory_person.PersonFactory(user=self.faculty_user)
         self.faculty_user.user_permissions.add(Permission.objects.get(codename='can_propose_learningunit'))
+        self.faculty_user.user_permissions.add(Permission.objects.get(codename='can_create_learningunit'))
         self.super_user = factory_user.SuperUserFactory()
         self.person = factory_person.PersonFactory(user=self.super_user)
-        self.current_academic_year = academic_year_factory.create_current_academic_year()
+        self.academic_year = AcademicYearFactory.build(start_date=today.replace(year=today.year + 1),
+                                                         end_date=today.replace(year=today.year + 2),
+                                                         year=today.year + 1)
+        super(AcademicYear, self.academic_year).save()
         self.language = LanguageFactory(code='FR')
         self.organization = organization_factory.OrganizationFactory(type=organization_type.MAIN)
         self.campus = campus_factory.CampusFactory(organization=self.organization, is_administration=True)
@@ -61,6 +68,7 @@ class LearningUnitViewTestCase(TestCase):
         self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL,
                                                    start_date=today - datetime.timedelta(days=1),
                                                    end_date=today.replace(year=today.year + 1))
+        PersonEntityFactory(person=self.faculty_person, entity=self.entity)
 
     def get_valid_data(self):
         return {
@@ -68,7 +76,7 @@ class LearningUnitViewTestCase(TestCase):
             'acronym': 'TAU2000',
             "subtype": learning_unit_year_subtypes.FULL,
             "container_type": learning_container_year_types.COURSE,
-            "academic_year": self.current_academic_year.id,
+            "academic_year": self.academic_year.id,
             "status": True,
             "credits": "5",
             "campus": self.campus.id,
@@ -83,7 +91,16 @@ class LearningUnitViewTestCase(TestCase):
 
     def test_get_proposal_learning_unit_creation_form(self):
         self.client.force_login(self.person.user)
-        url = reverse('proposal_learning_unit_creation_form', args=[self.current_academic_year.id])
+        url = reverse('proposal_learning_unit_creation_form', args=[self.academic_year.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'learning_unit/proposal/creation.html')
+        self.assertIsInstance(response.context['learning_unit_form'], creation.LearningUnitProposalCreationForm)
+        self.assertIsInstance(response.context['proposal_form'], creation.LearningUnitProposalForm)
+
+    def test_get_proposal_learning_unit_creation_form_with_faculty_user(self):
+        self.client.force_login(self.faculty_person.user)
+        url = reverse('proposal_learning_unit_creation_form', args=[self.academic_year.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, 'learning_unit/proposal/creation.html')
@@ -103,6 +120,21 @@ class LearningUnitViewTestCase(TestCase):
         count_learning_unit_year = LearningUnitYear.objects.all().count()
         self.assertEqual(count_learning_unit_year, 1)
         count_proposition_by_author = ProposalLearningUnit.objects.filter(author=self.person).count()
+        self.assertEqual(count_proposition_by_author, 1)
+
+    def test_proposal_learning_unit_add_with_valid_data_with_faculty_manager(self):
+        learning_unit_form = creation.LearningUnitProposalCreationForm(person=self.faculty_person,
+                                                                       data=self.get_valid_data())
+        proposal_form = creation.LearningUnitProposalForm(data=self.get_valid_data())
+        self.assertTrue(learning_unit_form.is_valid(), learning_unit_form.errors)
+        self.assertTrue(proposal_form.is_valid(), proposal_form.errors)
+        self.client.force_login(self.faculty_person.user)
+        url = reverse('proposal_learning_unit_add')
+        response = self.client.post(url, data=self.get_valid_data())
+        self.assertEqual(response.status_code, 302)
+        count_learning_unit_year = LearningUnitYear.objects.all().count()
+        self.assertEqual(count_learning_unit_year, 1)
+        count_proposition_by_author = ProposalLearningUnit.objects.filter(author=self.faculty_person).count()
         self.assertEqual(count_proposition_by_author, 1)
 
 
@@ -134,6 +166,11 @@ class LearningUnitViewTestCase(TestCase):
         faultydict["campus"] = ""
         faultydict["periodicity"] = ""
         faultydict["language"] = ""
+        return faultydict
+
+    def get_empty_title_fields(self):
+        faultydict = dict(self.get_valid_data())
+        faultydict["specific_title"] = None
         faultydict["common_title"] = None
         return faultydict
 
@@ -148,10 +185,18 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(learning_unit_form.errors['campus'], [_('field_is_required')])
         self.assertEqual(learning_unit_form.errors['periodicity'], [_('field_is_required')])
         self.assertEqual(learning_unit_form.errors['language'], [_('field_is_required')])
-        self.assertEqual(learning_unit_form.errors['common_title'], [_('field_is_required')])
+
+    def test_proposal_learning_unit_form_with_empty_title_fields(self):
+        learning_unit_form = creation.LearningUnitProposalCreationForm(person=self.person,
+                                                                       data=self.get_empty_title_fields())
+        proposal_form = creation.LearningUnitProposalForm(data=self.get_empty_title_fields())
+        self.assertTrue(proposal_form.is_valid(), proposal_form.errors)
+        self.assertFalse(learning_unit_form.is_valid(), learning_unit_form.errors)
+        self.assertEqual(learning_unit_form.errors['common_title'], [_('must_set_common_title_or_specific_title')])
+
 
     def test_proposal_learning_unit_add_with_valid_data_for_faculty_manager(self):
-        learning_unit_form = creation.LearningUnitProposalCreationForm(person=self.person,
+        learning_unit_form = creation.LearningUnitProposalCreationForm(person=self.faculty_person,
                                                                        data=self.get_valid_data())
         proposal_form = creation.LearningUnitProposalForm(data=self.get_valid_data())
         self.assertTrue(learning_unit_form.is_valid(), learning_unit_form.errors)
