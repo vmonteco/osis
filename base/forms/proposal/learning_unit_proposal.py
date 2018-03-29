@@ -165,7 +165,7 @@ class ProposalRowForm(ProposalStateModelForm):
     @property
     def container_type(self):
         container = self.instance.learning_unit_year.learning_container_year
-        return container.container_type if container.container_type else ''
+        return _(container.container_type) if container.container_type else '-'
 
     @property
     def requirement_entity(self):

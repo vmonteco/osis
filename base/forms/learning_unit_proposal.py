@@ -25,6 +25,7 @@
 ##############################################################################
 
 from django import forms
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_proposal import reinitialize_data_before_proposal
@@ -32,8 +33,8 @@ from base.business.learning_units.edition import update_or_create_entity_contain
 from base.business.learning_units.proposal import edition, creation
 from base.forms.learning_unit_create import EntitiesVersionChoiceField, LearningUnitYearForm
 from base.models import entity_container_year
-from base.models.entity_version import find_main_entities_version, get_last_version
-from base.models.enums import learning_container_year_types
+from base.models.entity_version import find_main_entities_version, get_last_version, get_last_version_by_entity_id
+from base.models.enums import learning_container_year_types, entity_container_year_link_type
 from base.models.enums import proposal_state, proposal_type
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.proposal_learning_unit import ProposalLearningUnit
@@ -129,6 +130,12 @@ class LearningUnitProposalModificationForm(LearningUnitYearForm):
             data.update({'initial_data': initial_data})
             creation.create_learning_unit_proposal(data)
 
+    @cached_property
+    def changed_data_for_fields_that_can_be_modified(self):
+        fields_that_cannot_be_modified = {"academic_year", "subtype", "faculty_remark", "other_remark", "entity",
+                                          "folder_id", "state", "type", "session"}
+        return list(set(self.changed_data) - fields_that_cannot_be_modified)
+
     def _updates_entities(self, learning_container_year):
         for entity_type in ENTITY_TYPE_LIST:
             _update_or_delete_entity_container(self.cleaned_data[entity_type.lower()], learning_container_year,
@@ -213,3 +220,23 @@ def get_entity_by_type(entity_type, entities_by_type):
         return entities_by_type[entity_type].id
     else:
         return None
+
+
+def compute_form_initial_data_from_proposal_json(proposal_initial_data):
+    if not proposal_initial_data:
+        return {}
+    initial_data = {}
+    for value in proposal_initial_data.values():
+        initial_data.update({k.lower(): v for k, v in value.items()})
+    initial_data["first_letter"] = initial_data["acronym"][0]
+    initial_data["acronym"] = initial_data["acronym"][1:]
+    _replace_entity_id_with_entity_version_id(initial_data)
+    return initial_data
+
+
+def _replace_entity_id_with_entity_version_id(initial_data):
+    lower_link_types_name = (link_type.lower() for link_type in entity_container_year_link_type.ENTITY_TYPE_LIST)
+    for link_type in lower_link_types_name:
+        entity_id = initial_data.get(link_type)
+        entity_version_id = get_last_version_by_entity_id(entity_id).id if entity_id else None
+        initial_data[link_type] = entity_version_id

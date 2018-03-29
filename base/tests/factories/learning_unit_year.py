@@ -69,7 +69,6 @@ class LearningUnitYearFactory(DjangoModelFactory):
     quadrimester = factory.Iterator(learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS,
                                     getter=operator.itemgetter(0))
     attribution_procedure = None
-    summary_editable = True
 
 
 class LearningUnitYearFakerFactory(DjangoModelFactory):
@@ -83,11 +82,11 @@ class LearningUnitYearFakerFactory(DjangoModelFactory):
     changed = fake.date_time_this_decade(before_now=True, after_now=True, tzinfo=get_tzinfo())
     acronym = factory.LazyAttribute(lambda obj: obj.learning_container_year.acronym)
     specific_title = factory.LazyAttribute(lambda obj: obj.learning_container_year.common_title)
+    specific_title_english = None
     subtype = factory.Iterator(learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, getter=operator.itemgetter(0))
     credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, MAXIMUM_CREDITS)
     decimal_scores = False
     status = True
-    summary_editable = True
     session = factory.Iterator(learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION, getter=operator.itemgetter(0))
     quadrimester = factory.Iterator(learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS,
                                     getter=operator.itemgetter(0))

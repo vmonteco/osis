@@ -31,32 +31,28 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
-from attribution.models import attribution_new
 
-from attribution.models.attribution import Attribution
+from attribution.models import attribution
 from base import models as mdl_base
 from base.business.entity import get_entity_calendar, get_entities_ids, get_entity_container_list, \
     build_entity_container_prefetch
 from base.business.learning_unit_year_with_context import volume_learning_component_year
 from base.business.learning_units.simple.creation import create_learning_unit_content
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 from base.models import entity_container_year, learning_unit_year
-from base.models.academic_year import current_academic_year
+from base.models.academic_year import find_academic_year_by_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type, academic_calendar_type
 from base.models.enums import learning_container_year_types
 from cms import models as mdl_cms
 from cms.enums import entity_name
+from cms.enums.entity_name import LEARNING_UNIT_YEAR
 # List of key that a user can modify
 from cms.models import translated_text
 from osis_common.document import xls_build
-from cms.enums.entity_name import LEARNING_UNIT_YEAR
-from base.models.academic_year import find_academic_year_by_year
 from osis_common.utils.datetime import convert_date_to_datetime
 
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
-CMS_LABEL_PEDAGOGY = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
-                      'other_informations', 'online_resources']
+CMS_LABEL_PEDAGOGY = ['resume', 'teaching_methods', 'evaluation_methods', 'other_informations', 'online_resources']
 CMS_LABEL_SUMMARY = ['resume']
 
 SIMPLE_SEARCH = 1
@@ -281,23 +277,19 @@ def is_summary_submission_opened():
 
 def can_access_summary(user, learning_unit_year):
     try:
-        get_object_or_404(Attribution, learning_unit_year=learning_unit_year,
+        get_object_or_404(attribution.Attribution, learning_unit_year=learning_unit_year,
                           tutor__person__user=user, summary_responsible=True)
     except Http404:
         raise PermissionDenied()
     return True
 
 
-def initialize_learning_unit_pedagogy_form(learning_unit_year, language_code):
-    lang = find_language_in_settings(language_code)
-    return LearningUnitPedagogyForm(learning_unit_year=learning_unit_year, language=lang)
-
-
 def find_language_in_settings(language_code):
     return next((lang for lang in settings.LANGUAGES if lang[0] == language_code), None)
 
 
-def can_edit_summary_editable_field(person, is_person_linked_to_entity):
+# TODO Move it in perms
+def can_edit_summary_locked_field(person, is_person_linked_to_entity):
     return person.is_faculty_manager() and is_person_linked_to_entity
 
 
@@ -318,7 +310,7 @@ def _get_entities(entity_components_yr):
 
 
 def get_list_entity_learning_unit_yr(an_entity_version, current_academic_yr):
-    entity_ids = get_entities_ids(an_entity_version.entity.most_recent_acronym, True)
+    entity_ids = get_entities_ids(an_entity_version.entity.most_recent_acronym, False)
     entities_id_list = get_entity_container_list([], entity_ids, entity_container_year_link_type.REQUIREMENT_ENTITY)
 
     return learning_unit_year.search(**{'learning_container_year_id': entities_id_list,
@@ -369,8 +361,8 @@ def _get_calendar(academic_yr, an_entity_version):
 def _get_summary_detail(a_calendar, cms_list, entity_learning_unit_yr_list_param):
     entity_learning_unit_yr_list = entity_learning_unit_yr_list_param
     for lu in entity_learning_unit_yr_list:
-        lu.summary_responsibles = attribution_new.search(summary_responsible=True,
-                                                         learning_container_year=lu.learning_container_year)
+        lu.summary_responsibles = attribution.search(summary_responsible=True,
+                                                     learning_unit_year=lu)
         lu.summary_status = _get_summary_status(a_calendar, cms_list, lu)
     return entity_learning_unit_yr_list
 

@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django import forms
+from django.core.exceptions import ValidationError
 from django.forms import model_to_dict
 from django.utils.translation import ugettext_lazy as _
 
@@ -34,6 +35,7 @@ from base.business.learning_units.perms import FACULTY_UPDATABLE_CONTAINER_TYPES
 from base.forms.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.utils.choice_field import add_blank
 from base.models import academic_year, entity_container_year
+from base.models import learning_unit_year
 from base.models.academic_year import AcademicYear
 from base.models.enums.attribution_procedure import AttributionProcedures
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
@@ -164,15 +166,19 @@ class LearningUnitModificationForm(LearningUnitYearForm):
             return cleaned_data
 
         requirement_entity = cleaned_data["requirement_entity"]
-        allocation_entity = cleaned_data["allocation_entity"]
-        container_type = cleaned_data["container_type"]
-
         if not self._is_requirement_entity_end_date_valid(requirement_entity):
             self.add_error("requirement_entity", _("requirement_entity_end_date_too_short"))
-
-        self._are_requirement_and_allocation_entities_valid(requirement_entity, allocation_entity, container_type)
-
         return cleaned_data
+
+    def clean_status(self):
+        status = self.cleaned_data['status']
+        if self.parent:
+            parent_status = self.parent.status
+            if not parent_status and parent_status != status:
+                raise ValidationError(_('The partim must be inactive because the parent is inactive'))
+        elif not status and self.instance.get_partims_related().filter(status=True).count():
+            raise ValidationError(_('The parent must be active because there are partim active'))
+        return status
 
     def _is_requirement_entity_end_date_valid(self, requirement_entity):
         if requirement_entity.end_date is None:
@@ -180,11 +186,6 @@ class LearningUnitModificationForm(LearningUnitYearForm):
         if self.learning_unit_end_date is None:
             return False
         return requirement_entity.end_date >= self.learning_unit_end_date
-
-    def _are_requirement_and_allocation_entities_valid(self, requirement_entity, allocation_entity, container_type):
-        if requirement_entity != allocation_entity and \
-                container_type in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES:
-            self.add_error("allocation_entity", _("requirement_and_allocation_entities_cannot_be_different"))
 
     def _disabled_fields_base_on_learning_unit_year_subtype(self, subtype):
         if subtype == PARTIM:
@@ -228,8 +229,8 @@ class LearningUnitModificationForm(LearningUnitYearForm):
                                               with_report=self.postponement)
 
 
-def compute_learning_unit_form_initial_data(base_dict, learning_unit_year, fields):
-    initial_data = base_dict.copy()
+def compute_learning_unit_form_initial_data(learning_unit_year, fields):
+    initial_data = {}
     initial_data.update(model_to_dict(learning_unit_year, fields=fields["learning_unit_year"]))
     initial_data.update(model_to_dict(learning_unit_year.learning_container_year,
                                       fields=fields["learning_container_year"]))
@@ -247,17 +248,16 @@ def _get_attributions_of_learning_unit_year(learning_unit_year):
 
 
 def compute_form_initial_data(learning_unit_year):
-    other_fields_dict = {
-        "specific_title": learning_unit_year.specific_title,
-        "specific_title_english": learning_unit_year.specific_title_english,
-        "first_letter": learning_unit_year.acronym[0],
-        "acronym": learning_unit_year.acronym[1:]
-    }
     fields = {
         "learning_unit_year": ("academic_year", "status", "credits", "session", "subtype", "quadrimester",
-                               "attribution_procedure", "internship_subtype"),
+                               "attribution_procedure", "internship_subtype", "specific_title",
+                               "specific_title_english", "acronym"),
         "learning_container_year": ("common_title", "common_title_english", "container_type", "campus", "language",
                                     "is_vacant", "team", "type_declaration_vacant"),
         "learning_unit": ("faculty_remark", "other_remark", "periodicity")
     }
-    return compute_learning_unit_form_initial_data(other_fields_dict, learning_unit_year, fields)
+
+    form_data = compute_learning_unit_form_initial_data(learning_unit_year, fields).copy()
+    form_data["first_letter"] = form_data["acronym"][0]
+    form_data["acronym"] = form_data["acronym"][1:]
+    return form_data

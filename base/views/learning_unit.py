@@ -28,9 +28,9 @@ import re
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db.models import BLANK_CHOICE_DASH
+from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.http import QueryDict
@@ -45,9 +45,9 @@ from base.business.learning_unit import get_cms_label_data, \
     get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, find_language_in_settings, \
-    initialize_learning_unit_pedagogy_form, compute_max_academic_year_adjournment, \
+    compute_max_academic_year_adjournment, \
     create_learning_unit_partim_structure, CMS_LABEL_SPECIFICATIONS, \
-    CMS_LABEL_PEDAGOGY, can_edit_summary_editable_field
+    CMS_LABEL_PEDAGOGY
 from base.business.learning_unit_proposal import get_difference_of_proposal
 from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
@@ -57,9 +57,11 @@ from base.forms.learning_unit.edition import compute_form_initial_data
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
     PARTIM_FORM_READ_ONLY_FIELD
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, SummaryEditableModelForm
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, SummaryModelForm, \
+    LearningUnitPedagogyForm, BibliographyModelForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import proposal_learning_unit
+from base.models.bibliography import Bibliography
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.learning_container import LearningContainer
@@ -120,42 +122,48 @@ def learning_unit_components(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_pedagogy(request, learning_unit_year_id):
-    user_person = get_object_or_404(Person, user=request.user)
-    context = get_common_context_learning_unit_year(learning_unit_year_id, user_person)
+    person = get_object_or_404(Person, user=request.user)
+    context = get_common_context_learning_unit_year(learning_unit_year_id, person)
     learning_unit_year = context['learning_unit_year']
-    user_language = mdl.person.get_user_interface_language(request.user)
-    context['cms_labels_translated'] = get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language)
+    perm_to_edit = int(request.user.has_perm('can_edit_learningunit_pedagogy'))
 
-    context['form_french'] = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_FR)
-    context['form_english'] = initialize_learning_unit_pedagogy_form(learning_unit_year, settings.LANGUAGE_CODE_EN)
-    context['experimental_phase'] = True
+    post = request.POST or None
+    summary_form = SummaryModelForm(post, person, context['is_person_linked_to_entity'], instance=learning_unit_year)
 
-    can_user_edit_summary_editable_field = can_edit_summary_editable_field(user_person,
-                                                                           context['is_person_linked_to_entity'])
-    summary_editable_form = build_summary_editable_form(request,
-                                                        learning_unit_year,
-                                                        can_user_edit_summary_editable_field)
+    BibliographyFormset = inlineformset_factory(LearningUnitYear, Bibliography, fields=('title', 'mandatory'),
+                                                max_num=10, extra=perm_to_edit, form=BibliographyModelForm,
+                                                can_delete=perm_to_edit)
 
-    if summary_editable_form.is_valid():
-        if not can_user_edit_summary_editable_field:
-            raise PermissionDenied
+    bibliography_formset = BibliographyFormset(post, instance=learning_unit_year, form_kwargs={'person': person})
+
+    if perm_to_edit and summary_form.is_valid() and bibliography_formset.is_valid():
         try:
-            summary_editable_form.save()
-            display_success_messages(request, _("summary_editable_field_successfuly_updated"))
+            summary_form.save()
+            bibliography_formset.save()
+
+            display_success_messages(request, _("success_modification_learning_unit"))
             return HttpResponseRedirect(reverse('learning_unit_pedagogy', args=[learning_unit_year_id]))
 
         except ValueError as e:
             display_error_messages(request, e.args[0])
 
-    context['summary_editable_form'] = summary_editable_form
-    context['can_edit_summary_editable_field'] = can_user_edit_summary_editable_field
+    context.update(get_cms_pedagogy_form(request, learning_unit_year))
+    context['summary_editable_form'] = summary_form
+    context['bibliography_formset'] = bibliography_formset
+    context['experimental_phase'] = True
+
     return layout.render(request, "learning_unit/pedagogy.html", context)
 
 
-def build_summary_editable_form(request, learning_unit_year, can_user_edit_summary_editable_field):
-    summary_editable_form = SummaryEditableModelForm(request.POST or None, instance=learning_unit_year)
-    summary_editable_form.fields['summary_editable'].disabled = not can_user_edit_summary_editable_field
-    return summary_editable_form
+def get_cms_pedagogy_form(request, learning_unit_year):
+    user_language = mdl.person.get_user_interface_language(request.user)
+    return {
+        'cms_labels_translated': get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language),
+        'form_french': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
+                                                language_code=settings.LANGUAGE_CODE_FR),
+        'form_english': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
+                                                 language_code=settings.LANGUAGE_CODE_EN)
+        }
 
 
 @login_required

@@ -25,6 +25,7 @@
 ##############################################################################
 from base.models import academic_year
 from base.models import entity_version
+from base.models.entity import find_versions_from_entites
 
 
 def get_entities_for_mandate(mandate):
@@ -37,3 +38,10 @@ def get_entities_for_mandate(mandate):
             else entity_version.get_last_version(this_entity.entity)
         entities.append(current_entity_version)
     return entities
+
+
+def add_entities_version_to_mandates_list(context):
+    for mandate in context['object_list']:
+        entities_id = mandate.mandateentity_set.all().order_by('id').values_list('entity', flat=True)
+        mandate.entities = find_versions_from_entites(entities_id, None)
+    return context
