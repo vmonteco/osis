@@ -32,20 +32,19 @@ from assistant.models.enums import reviewer_role
 from assistant.tests.factories.academic_assistant import AcademicAssistantFactory
 from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 from assistant.tests.factories.review import ReviewFactory
-from base.models import academic_year
 from assistant.forms import ReviewersFormset
 from base.models.entity import find_versions_from_entites
 from base.models.enums import entity_type
 from base.tests.factories.academic_year import AcademicYearFactory
 from assistant.tests.factories.manager import ManagerFactory
 from assistant.tests.factories.reviewer import ReviewerFactory
-from assistant.views.reviewers_management import reviewer_delete
-from assistant.models.reviewer import find_by_person
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.person import PersonFactory
 
 HTTP_OK = 200
+HTTP_FOUND = 302
+
 
 class ReviewersManagementViewTestCase(TestCase):
     def setUp(self):
@@ -66,7 +65,7 @@ class ReviewersManagementViewTestCase(TestCase):
                                                          year=today.year)
         self.assistant_mandate = AssistantMandateFactory(academic_year=self.current_academic_year,
                                                          assistant=self.assistant)
-        self.reviewer = ReviewerFactory(role=reviewer_role.RESEARCH,
+        self.reviewer = ReviewerFactory(role=reviewer_role.RESEARCH_ASSISTANT,
                                         entity=self.entity_version.entity)
         self.reviewer2 = ReviewerFactory(role=reviewer_role.RESEARCH,
                                         entity=self.entity_version.entity)
@@ -76,11 +75,12 @@ class ReviewersManagementViewTestCase(TestCase):
         self.current_academic_year = AcademicYearFactory(start_date=today,
                                                          end_date=today.replace(year=today.year + 1),
                                                          year=today.year)
+
     def test_reviewers_index(self):
         self.person = self.manager.person
         self.client.force_login(self.person.user)
         response = self.client.post('/assistants/manager/reviewers/')
-        self.assertEqual(response.context, 'blabla')
+        self.assertEqual(response.status_code, HTTP_OK)
 
     def test_reviewer_action(self):
         self.person = self.manager.person
