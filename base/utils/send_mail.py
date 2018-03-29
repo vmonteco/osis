@@ -170,3 +170,14 @@ def send_again(message_history_id):
         return message_service.send_again(receiver, message_history_id)
     else:
         return _('no_receiver_error')
+
+
+def send_mail_for_educational_information_update(teachers, learning_units_years):
+    html_template_ref = 'educational_information_update_html'
+    txt_template_ref = 'educational_information_update_txt'
+    receivers = [message_config.create_receiver(manager.id, manager.email, manager.language) for manager in teachers]
+    template_base_data = {'learning_unit_years': learning_units_years}
+
+    message_content = message_config.create_message_content(html_template_ref, txt_template_ref, None, receivers,
+                                                            template_base_data, {}, None)
+    return message_service.send_messages(message_content)

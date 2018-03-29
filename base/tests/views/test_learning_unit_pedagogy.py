@@ -68,7 +68,7 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         request = request_factory.get(self.url)
         request.user = a_user
         self.client.force_login(a_user)
-        from base.views.learning_units.search import learning_units_summary_list
+        from base.views.learning_units.educational_information import learning_units_summary_list
         with self.assertRaises(PermissionDenied):
             learning_units_summary_list(request)
 
@@ -88,7 +88,7 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         request.user = faculty_user
         self._create_learning_unit_year_for_entity(an_entity)
         self.client.force_login(faculty_user)
-        from base.views.learning_units.search import learning_units_summary_list
+        from base.views.learning_units.educational_information import learning_units_summary_list
         learning_units_summary_list(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -118,7 +118,7 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         self._create_learning_unit_year_for_entity(an_entity)
         self._create_entity_calendar(an_entity)
         self.client.force_login(faculty_user)
-        from base.views.learning_units.search import learning_units_summary_list
+        from base.views.learning_units.educational_information import learning_units_summary_list
         learning_units_summary_list(request)
 
         self.assertTrue(mock_render.called)
