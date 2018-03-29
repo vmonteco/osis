@@ -38,7 +38,7 @@ from base.business.learning_unit import CMS_LABEL_PEDAGOGY, get_cms_label_data
 from base.business.learning_units.edition import ConsistencyError
 from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
 from base.forms.learning_unit.edition_volume import VolumeEditionFormsetContainer
-from base.forms.learning_unit_pedagogy import BibliographyFormset, SummaryModelForm, LearningUnitPedagogyForm, \
+from base.forms.learning_unit_pedagogy import SummaryModelForm, LearningUnitPedagogyForm, \
     BibliographyModelForm
 from base.models.bibliography import Bibliography
 from base.models.learning_unit_year import LearningUnitYear
