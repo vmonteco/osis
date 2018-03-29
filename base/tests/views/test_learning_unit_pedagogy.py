@@ -94,7 +94,6 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_units.html')
         self.assertEqual(context['search_type'], SUMMARY_LIST)
-        #FIXME Return 1 but 0 normally
         self.assertEqual(len(context['learning_units']), 1)
 
     @mock.patch('base.views.layout.render')
@@ -127,6 +126,7 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         self.assertEqual(template, 'learning_units.html')
         self.assertEqual(context['search_type'], SUMMARY_LIST)
         self.assertEqual(len(context['learning_units']), 1)
+        self.assertTrue(context['is_faculty_manager'])
 
     def _create_entity_calendar(self, an_entity):
         an_academic_calendar = AcademicCalendarFactory(academic_year=self.current_academic_year,
