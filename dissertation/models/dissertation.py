@@ -23,12 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-<<<<<<< HEAD
 
-=======
-from dissertation.models import dissertation_role
-from dissertation.utils import emails_dissert
->>>>>>> 6f094086bbe875c7ba26adb0ac6bbfc94bf08f51
+
 from django.core.exceptions import ObjectDoesNotExist
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from django.db import models
@@ -39,7 +35,6 @@ from . import proposition_dissertation
 from . import offer_proposition
 from . import dissertation_location
 from dissertation.utils import emails_dissert
-from dissertation.models.dissertation_role import get_promoteur_by_dissertation
 
 
 class DissertationAdmin(SerializableModelAdmin):
