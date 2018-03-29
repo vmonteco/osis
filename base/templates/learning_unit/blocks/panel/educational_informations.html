@@ -26,42 +26,67 @@
     * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-{% url 'learning_unit_pedagogy_edit' learning_unit_year_id=learning_unit_year.id as post_url %}
-<table class="table">
-    <thead >
-        <tr>
-            <th class="col-md-2" style="padding: 20px;">{% trans 'language' %}</th>
-            <th class="col-md-5" style="padding: 20px;">{{ form_french.language.1 }}</th>
-            <th class="col-md-5" style="padding: 20px;">{{ form_english.language.1 }}</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for label_key, label_translated in cms_labels_translated.items %}
-        <tr>
-            <td style="padding: 20px;">
-            <label> {{ label_translated }} </label>
-            </td>
-            <td style="padding: 20px;">
-            {% if can_edit_information %}
-                <a class="pedagogy-edit-btn pull-right" href="#"
-                   data-form="{{post_url}}?language={{ form_french.language.0 }}&label={{ label_key }}"
-                   title="{% trans 'edit' %}">
-                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                </a>
-            {% endif %}
-            {{ form_french|getattr:label_key }}
-            </td>
-            <td style="padding: 20px;">
-            {% if can_edit_information %}
-                <a class="pedagogy-edit-btn pull-right" href="#"
-                   data-form="{{post_url}}?language={{ form_english.language.0 }}&label={{ label_key }}"
-                   title="{% trans 'edit' %}">
-                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                </a>
-            {% endif %}
-            {{ form_english|getattr:label_key}}
-            </td>
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
+
+<div role="tabpanel" class="tab-pane active" id="pedagogy">
+    <form method="post">
+        {% csrf_token %}
+        {% bootstrap_field summary_editable_form.summary_locked field_class="well"%}
+
+        <table class="table">
+            <thead >
+                <tr>
+                    <th class="col-md-2" style="padding: 20px;">{% trans 'language' %}</th>
+                    <th class="col-md-5" style="padding: 20px;">{{ form_french.language.1 }}</th>
+                    <th class="col-md-5" style="padding: 20px;">{{ form_english.language.1 }}</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for label_key, label_translated in cms_labels_translated.items %}
+                <tr>
+                    <td style="padding: 20px;">
+                    <label> {{ label_translated }} </label>
+                    </td>
+                    <td style="padding: 20px;">
+                    {% if can_edit_information %}
+                        <a class="pedagogy-edit-btn pull-right" href="#"
+                           data-form="{{post_url}}?language={{ form_french.language.0 }}&label={{ label_key }}"
+                           title="{% trans 'edit' %}">
+                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                        </a>
+                    {% endif %}
+                    {{ form_french|getattr:label_key }}
+                    </td>
+                    <td style="padding: 20px;">
+                    {% if can_edit_information %}
+                        <a class="pedagogy-edit-btn pull-right" href="#"
+                           data-form="{{post_url}}?language={{ form_english.language.0 }}&label={{ label_key }}"
+                           title="{% trans 'edit' %}">
+                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                        </a>
+                    {% endif %}
+                    {{ form_english|getattr:label_key}}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% include "learning_unit/blocks/panel/bibliography.html" with formset=bibliography_formset %}
+        {% bootstrap_field summary_editable_form.mobility_modality %}
+        {% buttons %}
+            {% bootstrap_button _("save") button_type="submit" button_class="btn-primary pull-right" %}
+        {% endbuttons %}
+    </form>
+</div>
+
+<script src="{% static 'js/pedagogy_modal.js' %}"></script>
+<script src="{% static 'js/jquery.formset.js' %}"></script>
+<script>
+$('.link-formset').formset({
+    addText: gettext('add another'),
+    deleteText: gettext('remove'),
+    addCssClass: 'btn btn-info btn-sm',
+    deleteCssClass: 'btn btn-warning btn-sm',
+    prefix: 'bibliography_set'
+});
+</script>
