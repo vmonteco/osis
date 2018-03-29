@@ -41,13 +41,13 @@
                 <form method="post">
                     {% csrf_token %}
                     {% bootstrap_field summary_editable_form.summary_locked field_class="well"%}
-
                     {% include "learning_unit/blocks/panel/educational_informations.html" with can_edit_information=perms.base.can_edit_learningunit_pedagogy %}
-
                     {% include "learning_unit/blocks/panel/bibliography.html" with formset=bibliography_formset %}
                     {% bootstrap_field summary_editable_form.mobility_modality %}
                     {% buttons %}
-                        {% bootstrap_button _("save") button_type="submit" button_class="btn-primary pull-right" %}
+                        {% if perms.base.can_edit_learningunit_pedagogy %}
+                            {% bootstrap_button _("save") button_type="submit" button_class="btn-primary pull-right" %}
+                        {% endif %}
                     {% endbuttons %}
                 </form>
             </div>
@@ -61,15 +61,17 @@
 {% block script %}
     <script src="{% static 'js/pedagogy_modal.js' %}"></script>
 
-    <script src="{% url 'javascript-catalog' %}"></script>
-    <script src="{% static 'js/jquery.formset.js' %}"></script>
-    <script>
-    $('.link-formset').formset({
-        addText: gettext('add another'),
-        deleteText: gettext('remove'),
-        addCssClass: 'btn btn-info btn-sm',
-        deleteCssClass: 'btn btn-warning btn-sm',
-        prefix: 'bibliography_set'
-    });
-    </script>
+    {% if perms.base.can_edit_learningunit_pedagogy %}
+        <script src="{% url 'javascript-catalog' %}"></script>
+        <script src="{% static 'js/jquery.formset.js' %}"></script>
+        <script>
+        $('.link-formset').formset({
+            addText: gettext('add another'),
+            deleteText: gettext('remove'),
+            addCssClass: 'btn btn-info btn-sm',
+            deleteCssClass: 'btn btn-warning btn-sm',
+            prefix: 'bibliography_set'
+        });
+        </script>
+    {% endif %}
 {% endblock %}

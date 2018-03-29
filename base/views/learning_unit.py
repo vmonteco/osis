@@ -30,6 +30,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
 from django.db.models import BLANK_CHOICE_DASH
+from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.http import QueryDict
@@ -57,9 +58,10 @@ from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
     PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, SummaryModelForm, \
-    LearningUnitPedagogyForm, BibliographyFormset
+    LearningUnitPedagogyForm, BibliographyModelForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import proposal_learning_unit
+from base.models.bibliography import Bibliography
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.learning_container import LearningContainer
@@ -123,12 +125,18 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
     context = get_common_context_learning_unit_year(learning_unit_year_id, person)
     learning_unit_year = context['learning_unit_year']
+    perm_to_edit = int(request.user.has_perm('can_edit_learningunit_pedagogy'))
 
     post = request.POST or None
     summary_form = SummaryModelForm(post, person, context['is_person_linked_to_entity'], instance=learning_unit_year)
-    bibliography_formset = BibliographyFormset(post, instance=learning_unit_year)
 
-    if summary_form.is_valid() and bibliography_formset.is_valid():
+    BibliographyFormset = inlineformset_factory(LearningUnitYear, Bibliography, fields=('title', 'mandatory'),
+                                                max_num=10, extra=perm_to_edit, form=BibliographyModelForm,
+                                                can_delete=perm_to_edit)
+
+    bibliography_formset = BibliographyFormset(post, instance=learning_unit_year, form_kwargs={'person': person})
+
+    if perm_to_edit and summary_form.is_valid() and bibliography_formset.is_valid():
         try:
             summary_form.save()
             bibliography_formset.save()
