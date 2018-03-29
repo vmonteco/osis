@@ -147,7 +147,6 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
         except ValueError as e:
             display_error_messages(request, e.args[0])
 
-
     context.update(get_cms_pedagogy_form(request, learning_unit_year))
     context['summary_editable_form'] = summary_form
     context['bibliography_formset'] = bibliography_formset
