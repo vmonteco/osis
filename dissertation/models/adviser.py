@@ -69,7 +69,7 @@ class Adviser(SerializableModel):
         # list_stat[0]= count dissertation_role active of adviser
         # list_stat[1]= count dissertation_role Promoteur active of adviser
         # list_stat[2]= count dissertation_role coPromoteur active of adviser
-        # list_stat[3]= count dissertation_role coPromoteur active of adviser
+        # list_stat[3]= count dissertation_role reader active of adviser
         # list_stat[4]= count dissertation_role need request active of adviser
         list_stat[0] = 0
         list_stat[1] = 0
@@ -203,10 +203,9 @@ def find_advisers_last_name_email(term, maximum_in_request):
 def convert_advisers_to_array(advisers):
     return_data = [
         {
-            'value': "{p_last_name}, {p_first_name} ({p_email})".format(p_last_name=none_to_str(adviser.person),
-                                                                        p_first_name=none_to_str(
-                                                                            adviser.person.first_name),
-                                                                        p_email=none_to_str(adviser.person.email)),
+            'value': "{}, {} ({})".format(none_to_str(adviser.person.last_name),
+                                          none_to_str(adviser.person.first_name),
+                                          none_to_str(adviser.person.email)),
             'first_name': none_to_str(adviser.person.first_name),
             'last_name': none_to_str(adviser.person.last_name),
             'id': adviser.id
@@ -217,8 +216,4 @@ def convert_advisers_to_array(advisers):
 
 
 def none_to_str(value):
-    if value is None:
-        return ''
-    else:
-        return value
-
+    return value or ''
