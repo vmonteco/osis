@@ -27,10 +27,10 @@ from django.db import models
 
 from base.models import learning_class_year
 from base.models.enums import learning_component_year_type, learning_container_year_types
-from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
+from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
-class LearningComponentYearAdmin(AuditableSerializableModelAdmin):
+class LearningComponentYearAdmin(SerializableModelAdmin):
     list_display = ('learning_container_year', 'title', 'acronym', 'type', 'comment')
     fieldsets = ((None, {'fields': ('learning_container_year', 'title', 'acronym', 'volume_declared_vacant',
                                     'type', 'comment', 'planned_classes', 'hourly_volume_partial')}),)
@@ -39,7 +39,7 @@ class LearningComponentYearAdmin(AuditableSerializableModelAdmin):
     list_filter = ('learning_container_year__academic_year',)
 
 
-class LearningComponentYear(AuditableSerializableModel):
+class LearningComponentYear(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     learning_container_year = models.ForeignKey('LearningContainerYear')

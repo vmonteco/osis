@@ -49,6 +49,9 @@ from base.tests.factories.entity_calendar import EntityCalendarFactory
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_year import create_current_academic_year
+from base.views.learning_units.educational_information import SUCCESS_MESSAGE
+from attribution.tests.factories.attribution import AttributionFactory
+from base.tests.factories.tutor import TutorFactory
 
 
 class LearningUnitViewPedagogyTestCase(TestCase):
@@ -68,7 +71,7 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         request = request_factory.get(self.url)
         request.user = a_user
         self.client.force_login(a_user)
-        from base.views.learning_units.search import learning_units_summary_list
+        from base.views.learning_units.educational_information import learning_units_summary_list
         with self.assertRaises(PermissionDenied):
             learning_units_summary_list(request)
 
@@ -88,13 +91,12 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         request.user = faculty_user
         self._create_learning_unit_year_for_entity(an_entity)
         self.client.force_login(faculty_user)
-        from base.views.learning_units.search import learning_units_summary_list
+        from base.views.learning_units.educational_information import learning_units_summary_list
         learning_units_summary_list(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_units.html')
         self.assertEqual(context['search_type'], SUMMARY_LIST)
-        #FIXME Return 1 but 0 normally
         self.assertEqual(len(context['learning_units']), 1)
 
     @mock.patch('base.views.layout.render')
@@ -116,10 +118,13 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         a_person_entity.save()
         request = request_factory.get(self.url)
         request.user = faculty_user
-        self._create_learning_unit_year_for_entity(an_entity)
+        lu = self._create_learning_unit_year_for_entity(an_entity)
+        person_lu = PersonFactory()
+        tutor_lu_1 = TutorFactory(person=person_lu)
+        self.attribution_lu = AttributionFactory(learning_unit_year=lu, tutor=tutor_lu_1, summary_responsible=True)
         self._create_entity_calendar(an_entity)
         self.client.force_login(faculty_user)
-        from base.views.learning_units.search import learning_units_summary_list
+        from base.views.learning_units.educational_information import learning_units_summary_list
         learning_units_summary_list(request)
 
         self.assertTrue(mock_render.called)
@@ -127,6 +132,7 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         self.assertEqual(template, 'learning_units.html')
         self.assertEqual(context['search_type'], SUMMARY_LIST)
         self.assertEqual(len(context['learning_units']), 1)
+        self.assertTrue(context['is_faculty_manager'])
 
     def _create_entity_calendar(self, an_entity):
         an_academic_calendar = AcademicCalendarFactory(academic_year=self.current_academic_year,
@@ -144,6 +150,16 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         EntityContainerYearFactory(learning_container_year=l_container_yr,
                                    entity=an_entity,
                                    type=entity_container_year_link_type.REQUIREMENT_ENTITY)
-        LearningUnitYearFactory(acronym="LBIR1100",
-                                learning_container_year=l_container_yr,
-                                academic_year=self.current_academic_year)
+        return LearningUnitYearFactory(acronym="LBIR1100",
+                                       learning_container_year=l_container_yr,
+                                       academic_year=self.current_academic_year)
+
+    def test_send_email_educational_information_needs_update_no_access(self):
+        request_factory = RequestFactory()
+        a_user = UserFactory()
+        request = request_factory.get(self.url)
+        request.user = a_user
+        self.client.force_login(a_user)
+        from base.views.learning_units.educational_information import send_email_educational_information_needs_update
+        with self.assertRaises(PermissionDenied):
+            send_email_educational_information_needs_update(request)

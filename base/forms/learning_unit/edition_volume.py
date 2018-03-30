@@ -33,18 +33,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.learning_units import edition
-from base.business.learning_units.edition import ConsistencyError, check_postponement_conflict_report_errors
+from base.business.learning_units.edition import check_postponement_conflict_report_errors
+from base.forms.utils.emptyfield import EmptyField
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type as entity_types
 from base.models.enums.component_type import PRACTICAL_EXERCISES, LECTURING
 from base.models.learning_unit_component import LearningUnitComponent
-
-
-class EmptyField(forms.CharField):
-    widget = forms.HiddenInput
-
-    def __init__(self, label):
-        super().__init__(label=label, required=False)
 
 
 class VolumeField(forms.DecimalField):

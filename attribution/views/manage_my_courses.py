@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -32,15 +31,12 @@ from attribution.business.manage_my_courses import find_learning_unit_years_summ
 from attribution.business.perms import can_user_edit_educational_information, \
     find_educational_information_submission_dates_of_learning_unit_year
 from attribution.views.perms import tutor_can_edit_educational_information, tutor_can_view_educational_information
-from base.business.learning_unit import get_cms_label_data, CMS_LABEL_PEDAGOGY
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
-from base.models import person
 from base.models import academic_calendar
 from base.models.enums import academic_calendar_type
-from base.models.learning_unit_year import LearningUnitYear
 from base.models.tutor import Tutor
 from base.views import layout
 from base.views import learning_unit as view_learning_unit
+from base.views.learning_units.update import update_learning_unit_pedagogy
 
 
 @login_required
@@ -49,6 +45,7 @@ def list_my_attributions_summary_editable(request):
         tutor=get_object_or_404(Tutor, person__user=request.user))
     submission_dates = academic_calendar.\
         find_dates_for_current_academic_year(academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+    # FIXME : locals as context is not allowed
     return layout.render(request,
                          'manage_my_courses/list_my_courses_summary_editable.html', locals())
 
@@ -56,18 +53,13 @@ def list_my_attributions_summary_editable(request):
 @login_required
 @tutor_can_view_educational_information
 def view_educational_information(request, learning_unit_year_id):
-    learning_unit_year = LearningUnitYear.objects.get(pk=learning_unit_year_id)
-
-    cms_labels_translated = get_cms_label_data(CMS_LABEL_PEDAGOGY,
-                                               person.get_user_interface_language(request.user))
-    form_french = LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
-                                           language_code=settings.LANGUAGE_CODE_FR)
-    form_english = LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
-                                            language_code=settings.LANGUAGE_CODE_EN)
-
-    can_edit_information = can_user_edit_educational_information(request.user, learning_unit_year_id)
-    submission_dates = find_educational_information_submission_dates_of_learning_unit_year(learning_unit_year_id)
-    return layout.render(request, 'manage_my_courses/educational_information.html', locals())
+    context = {
+        'can_edit_information': can_user_edit_educational_information(request.user, learning_unit_year_id),
+        'submission_dates': find_educational_information_submission_dates_of_learning_unit_year(
+                learning_unit_year_id)
+    }
+    template = 'manage_my_courses/educational_information.html'
+    return update_learning_unit_pedagogy(request, learning_unit_year_id, context, template)
 
 
 @login_required
