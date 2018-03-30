@@ -43,13 +43,9 @@
         {% include "manage_my_courses/blocks/tabs.html" %}
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="educational_information">
-
                 <br>
-
                 {% include "manage_my_courses/blocks/submission_dates.html" %}
-
                 <br>
-
                 {% url 'tutor_edit_educational_information' learning_unit_year_id=learning_unit_year.id as post_url%}
                 {% include "learning_unit/blocks/panel/educational_informations.html" %}
             </div>
@@ -57,8 +53,4 @@
     </div>
 </div>
 <div class="modal fade" id="pedagogy_edit" role="dialog" data-backdrop="static"></div>
-{% endblock %}
-
-{% block script %}
-    <script src="{% static 'js/pedagogy_modal.js' %}"></script>
 {% endblock %}

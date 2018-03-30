@@ -146,7 +146,8 @@ def _update_or_create_suppression_proposal(request, person, learning_unit_year, 
     max_year = _get_max_year(learning_unit_year, proposal)
 
     form_end_date = LearningUnitEndDateForm(request.POST or None, learning_unit_year.learning_unit, max_year=max_year)
-    form_proposal = ProposalLearningUnitForm(request.POST or None, instance=proposal, initial=initial)
+    form_proposal = ProposalLearningUnitForm(request.POST or None, person=person, instance=proposal,
+                                             initial=initial)
 
     if form_end_date.is_valid() and form_proposal.is_valid():
         with transaction.atomic():

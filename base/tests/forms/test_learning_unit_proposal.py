@@ -25,6 +25,7 @@
 ##############################################################################
 import datetime
 from decimal import Decimal
+from unittest import mock
 
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
@@ -286,7 +287,7 @@ class TestSave(TestCase):
         self.assertIn(_("learning_unit_type_is_not_internship"), form.errors["internship_subtype"])
 
 
-class TestComputeFormInitialDataFromProposalJson(SimpleTestCase):
+class TestComputeFormInitialDataFromProposalJson(TestCase):
     def test_with_empty_initial_data(self):
         result = compute_form_initial_data_from_proposal_json({})
         self.assertDictEqual(result, {})
@@ -295,6 +296,7 @@ class TestComputeFormInitialDataFromProposalJson(SimpleTestCase):
         self.assertDictEqual(result, {})
 
     def test_flatten_json_initial_data(self):
+        entity_version = EntityVersionFactory()
         proposal_initial_data = {
             "learning_container_year": {
                 "acronym":"LOSIS4512",
@@ -309,8 +311,8 @@ class TestComputeFormInitialDataFromProposalJson(SimpleTestCase):
                 "end_year": 2018
             },
             "entities": {
-                entity_container_year_link_type.REQUIREMENT_ENTITY: 45,
-                entity_container_year_link_type.ALLOCATION_ENTITY: 12,
+                entity_container_year_link_type.REQUIREMENT_ENTITY: entity_version.entity.id,
+                entity_container_year_link_type.ALLOCATION_ENTITY: entity_version.entity.id,
                 entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1: None,
                 entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: None
             }
@@ -325,11 +327,10 @@ class TestComputeFormInitialDataFromProposalJson(SimpleTestCase):
             "status": True,
             "id": 45,
             "end_year": 2018,
-            entity_container_year_link_type.REQUIREMENT_ENTITY.lower(): 45,
-            entity_container_year_link_type.ALLOCATION_ENTITY.lower(): 12,
+            entity_container_year_link_type.REQUIREMENT_ENTITY.lower(): entity_version.id,
+            entity_container_year_link_type.ALLOCATION_ENTITY.lower(): entity_version.id,
             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1.lower(): None,
             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2.lower(): None
         }
 
         self.assertDictEqual(result, expected_result)
-
