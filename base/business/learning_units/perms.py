@@ -148,8 +148,10 @@ def learning_unit_year_permissions(learning_unit_year, person):
     }
 
 
-def learning_unit_proposal_permissions(proposal, person):
-    return {
-        'can_cancel_proposal': is_eligible_for_cancel_of_proposal(proposal, person) if proposal else False,
-        'can_edit_learning_unit_proposal': is_eligible_to_edit_proposal(proposal, person)
-    }
+def learning_unit_proposal_permissions(proposal, person, current_learning_unit_year):
+    permissions = {'can_cancel_proposal': False, 'can_edit_learning_unit_proposal': False}
+    if proposal.learning_unit_year != current_learning_unit_year:
+        return permissions
+    permissions['can_cancel_proposal'] = is_eligible_for_cancel_of_proposal(proposal, person) if proposal else False
+    permissions['can_edit_learning_unit_proposal'] = is_eligible_to_edit_proposal(proposal, person)
+    return permissions
