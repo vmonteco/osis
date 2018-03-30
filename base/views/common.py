@@ -190,7 +190,7 @@ def display_error_messages(request, messages_to_display):
 
 
 def display_success_messages(request, messages_to_display, extra_tags=None):
-    display_messages(request, messages_to_display, messages.SUCCESS)
+    display_messages(request, messages_to_display, messages.SUCCESS, extra_tags=extra_tags)
 
 
 def display_messages(request, messages_to_display, level, extra_tags=None):
