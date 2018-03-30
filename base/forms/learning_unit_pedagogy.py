@@ -25,11 +25,9 @@
 ##############################################################################
 from ckeditor.widgets import CKEditorWidget
 from django import forms
-from django.forms import inlineformset_factory
-from django.utils.safestring import mark_safe
 
 from base.business.learning_unit import find_language_in_settings, can_edit_summary_locked_field
-from base.models.bibliography import Bibliography
+from base.forms.common import set_trans_txt
 from base.models.learning_unit_year import LearningUnitYear
 from cms.enums import entity_name
 from cms.models import translated_text
@@ -48,11 +46,7 @@ class LearningUnitPedagogyForm(forms.Form):
 
     def load_initial(self):
         translated_texts_list = self._get_all_translated_text_related()
-
-        for trans_txt in translated_texts_list:
-            text_label = trans_txt.text_label.label
-            text = trans_txt.text if trans_txt.text else ""
-            setattr(self, text_label, mark_safe(text))
+        set_trans_txt(self, translated_texts_list)
 
     def _get_all_translated_text_related(self):
         language_iso = self.language[0]
@@ -94,10 +88,19 @@ class SummaryModelForm(forms.ModelForm):
         if not can_edit_summary_locked_field(person, is_person_linked_to_entity):
             self.fields["summary_locked"].disabled = True
 
+        if not person.user.has_perm('can_edit_learningunit_pedagogy'):
+            for field in self.fields.values():
+                field.disabled = True
+
     class Meta:
         model = LearningUnitYear
         fields = ["summary_locked", 'mobility_modality']
 
 
-BibliographyFormset = inlineformset_factory(LearningUnitYear, Bibliography, fields=('title', 'mandatory'),
-                                            max_num=10, extra=1)
+class BibliographyModelForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        person = kwargs.pop('person')
+        super().__init__(*args, **kwargs)
+        if not person.user.has_perm('can_edit_learningunit_pedagogy'):
+            for field in self.fields.values():
+                field.disabled = True

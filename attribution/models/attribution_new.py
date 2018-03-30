@@ -24,21 +24,19 @@
 #
 ##############################################################################
 from django.db import models
+from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from attribution.models import attribution_charge_new
 from attribution.models.enums import function
-from base.models.enums import component_type
-from osis_common.models.auditable_model import AuditableModelAdmin, AuditableModel
 
 
-class AttributionNewAdmin(AuditableModelAdmin):
+class AttributionNewAdmin(admin.ModelAdmin):
 
     list_display = ('tutor', 'score_responsible', 'function', 'learning_container_year', 'start_year', 'end_year',
                     'changed', 'substitute')
-    list_filter = ('learning_container_year__academic_year', 'score_responsible', 'summary_responsible')
+    list_filter = ('learning_container_year__academic_year', 'score_responsible')
     fieldsets = ((None, {'fields': ('learning_container_year', 'tutor', 'function', 'score_responsible',
-                                    'summary_responsible', 'start_year', 'end_year', 'substitute')}),)
+                                    'start_year', 'end_year', 'substitute')}),)
     raw_id_fields = ('learning_container_year', 'tutor', 'substitute')
     search_fields = ['tutor__person__first_name', 'tutor__person__last_name', 'learning_container_year__acronym',
                      'tutor__person__global_id', 'function']
@@ -51,7 +49,7 @@ class AttributionNewAdmin(AuditableModelAdmin):
     publish_attribution_to_portal.short_description = _("publish_attribution_to_portal")
 
 
-class AttributionNew(AuditableModel):
+class AttributionNew(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     learning_container_year = models.ForeignKey('base.LearningContainerYear')
@@ -62,7 +60,6 @@ class AttributionNew(AuditableModel):
     start_year = models.IntegerField(blank=True, null=True)
     end_year = models.IntegerField(blank=True, null=True)
     score_responsible = models.BooleanField(default=False)
-    summary_responsible = models.BooleanField(default=False)
     substitute = models.ForeignKey('base.Person', blank=True, null=True)
 
     def __str__(self):

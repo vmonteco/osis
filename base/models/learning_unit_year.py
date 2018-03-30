@@ -39,7 +39,7 @@ from base.models.enums import learning_unit_year_subtypes, internship_subtypes, 
 from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.group_element_year import GroupElementYear
 from base.models.proposal_learning_unit import ProposalLearningUnit
-from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
+from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
@@ -47,7 +47,7 @@ MINIMUM_CREDITS = 0.0
 MAXIMUM_CREDITS = 500
 
 
-class LearningUnitYearAdmin(AuditableSerializableModelAdmin):
+class LearningUnitYearAdmin(SerializableModelAdmin):
     list_display = ('external_id', 'acronym', 'specific_title', 'academic_year', 'credits', 'changed', 'structure',
                     'status')
     fieldsets = ((None, {'fields': ('academic_year', 'learning_unit', 'learning_container_year', 'acronym',
@@ -59,7 +59,7 @@ class LearningUnitYearAdmin(AuditableSerializableModelAdmin):
     search_fields = ['acronym', 'structure__acronym', 'external_id']
 
 
-class LearningUnitYear(AuditableSerializableModel):
+class LearningUnitYear(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     academic_year = models.ForeignKey('AcademicYear')
     learning_unit = models.ForeignKey('LearningUnit')
@@ -84,11 +84,11 @@ class LearningUnitYear(AuditableSerializableModel):
                                              choices=attribution_procedure.ATTRIBUTION_PROCEDURES)
     summary_locked = models.BooleanField(default=False, verbose_name=_("summary_locked"))
 
-    mobility_modality = models.TextField(verbose_name=_('Modalities specific to IN and OUT mobility'),
+    mobility_modality = models.CharField(max_length=250, verbose_name=_('Modalities specific to IN and OUT mobility'),
                                          blank=True, null=True)
 
     class Meta:
-        unique_together = ('learning_unit', 'academic_year', 'deleted')
+        unique_together = ('learning_unit', 'academic_year',)
 
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
