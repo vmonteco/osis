@@ -98,8 +98,6 @@ class StudentTest(TestCase):
         self.assertIsNotNone(db_student)
         self.assertEqual(db_student, tmp_student)
 
-        pass
-
     def test_find_by_offer_year(self):
         tmp_student = StudentFactory()
         tmp_offer_year = OfferYearFactory()
