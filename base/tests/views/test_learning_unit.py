@@ -44,9 +44,8 @@ import base.business.learning_unit
 from base.business import learning_unit as learning_unit_business
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, SummaryModelForm
-from base.forms.learning_unit_search import SearchForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
-from base.forms.learning_units import LearningUnitYearForm
+from base.forms.learning_unit.search_form import LearningUnitYearForm, SearchForm
 from base.models import learning_unit_component
 from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear

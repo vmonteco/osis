@@ -34,7 +34,7 @@ from base.business.learning_unit import SERVICE_COURSES_SEARCH, create_xls, get_
     get_learning_units_and_summary_status
 from base.forms.common import TooManyResultsException
 from base.forms.learning_unit_create import MAX_RECORDS
-from base.forms.learning_units import LearningUnitYearForm
+from base.forms.learning_unit.search_form import LearningUnitYearForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalRowForm, ProposalListFormset
 from base.models.academic_year import current_academic_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
@@ -42,7 +42,6 @@ from base.models.person import Person, find_by_user
 from base.views import layout
 from base.views.common import check_if_display_message, display_error_messages, display_success_messages
 from base.business import learning_unit_proposal as proposal_business
-from base.models.academic_year import find_academic_year_by_year
 
 PROPOSAL_SEARCH = 3
 SUMMARY_LIST = 4
