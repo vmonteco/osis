@@ -28,20 +28,11 @@ PERSON = 'person'
 
 
 def get_responsible_and_learning_unit_yr_list(learning_units_found):
-    distinct_responsible_list = []
     responsible_and_learning_unit_yr_list = []
     for learning_unit_yr in learning_units_found:
         if not learning_unit_yr.summary_status:
-            for responsible in learning_unit_yr.summary_responsibles:
-                a_responsible_person = responsible.tutor.person
-                if a_responsible_person not in distinct_responsible_list:
-                    responsible_and_learning_unit_yr_list.append(
-                        _build_new_responsible_data(a_responsible_person, learning_unit_yr))
-                    distinct_responsible_list.append(a_responsible_person)
-                else:
-                    responsible_and_learning_unit_yr_list = _update_responsible_data_with_new_learning_unit_yr(
-                        a_responsible_person, learning_unit_yr,
-                        responsible_and_learning_unit_yr_list)
+            responsible_and_learning_unit_yr_list = \
+                _update_responsible_and_learning_unit_yr_list(learning_unit_yr, responsible_and_learning_unit_yr_list)
     return responsible_and_learning_unit_yr_list
 
 
@@ -60,3 +51,24 @@ def _update_responsible_data_with_new_learning_unit_yr(a_responsible_person, lea
 def _build_new_responsible_data(a_responsible_person, learning_unit_yr):
     return {PERSON: a_responsible_person,
             LEARNING_UNIT_YEARS: [learning_unit_yr]}
+
+
+def _update_responsible_and_learning_unit_yr_list(learning_unit_yr, responsible_and_learning_unit_yr_list_param):
+    responsible_and_learning_unit_yr_list = responsible_and_learning_unit_yr_list_param
+    for responsible in learning_unit_yr.summary_responsibles:
+        a_responsible_person = responsible.tutor.person
+        if _is_new_responsible(responsible_and_learning_unit_yr_list, a_responsible_person):
+            responsible_and_learning_unit_yr_list.append(
+                _build_new_responsible_data(a_responsible_person, learning_unit_yr))
+        else:
+            responsible_and_learning_unit_yr_list = _update_responsible_data_with_new_learning_unit_yr(
+                a_responsible_person, learning_unit_yr,
+                responsible_and_learning_unit_yr_list)
+    return responsible_and_learning_unit_yr_list
+
+
+def _is_new_responsible(responsible_and_learning_unit_yr_list, a_person):
+    for record_responsible_learning_units in responsible_and_learning_unit_yr_list:
+        if record_responsible_learning_units.get(PERSON) == a_person:
+            return False
+    return True
