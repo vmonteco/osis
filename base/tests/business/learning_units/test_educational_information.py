@@ -23,30 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
-from unittest.mock import patch
 
-from base.business.learning_unit_proposal import compute_proposal_type
+from django.test import TestCase
+
 from base.tests.factories.person import PersonFactory
-from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
-from base.business import learning_unit_proposal as lu_proposal_business
-from base import models as mdl_base
-
-from django.test import TestCase, SimpleTestCase
-
-from base.models.enums import organization_type, proposal_type, entity_type, \
-    learning_container_year_types, entity_container_year_link_type, \
-    learning_unit_year_subtypes, proposal_state
-from base.tests.factories.academic_year import create_current_academic_year
-from base.tests.factories.campus import CampusFactory
-from base.tests.factories.entity import EntityFactory
-from base.tests.factories.entity_container_year import EntityContainerYearFactory
-from base.tests.factories.entity_version import EntityVersionFactory
-from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
-from base.tests.factories.organization import OrganizationFactory
-from base.tests.factories.academic_year import create_current_academic_year
-
 from attribution.tests.factories.attribution import AttributionFactory
 from base.business.learning_units.educational_information import get_responsible_and_learning_unit_yr_list, PERSON, LEARNING_UNIT_YEARS
 from base.tests.factories.tutor import TutorFactory

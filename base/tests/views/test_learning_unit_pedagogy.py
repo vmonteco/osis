@@ -51,6 +51,7 @@ from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_year import create_current_academic_year
 from base.views.learning_units.educational_information import SUCCESS_MESSAGE
 from attribution.tests.factories.attribution import AttributionFactory
+from base.tests.factories.tutor import TutorFactory
 
 
 class LearningUnitViewPedagogyTestCase(TestCase):
@@ -119,7 +120,7 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         request.user = faculty_user
         lu = self._create_learning_unit_year_for_entity(an_entity)
         person_lu = PersonFactory()
-        tutor_lu_1 = TutorFactory(person=self.person_lu)
+        tutor_lu_1 = TutorFactory(person=person_lu)
         self.attribution_lu = AttributionFactory(learning_unit_year=lu, tutor=tutor_lu_1, summary_responsible=True)
         self._create_entity_calendar(an_entity)
         self.client.force_login(faculty_user)
@@ -132,13 +133,6 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         self.assertEqual(context['search_type'], SUMMARY_LIST)
         self.assertEqual(len(context['learning_units']), 1)
         self.assertTrue(context['is_faculty_manager'])
-        formset = context['formset']
-        responsible_concerned_by_need_to_update = formset.get_checked_responsible()
-        print(responsible_concerned_by_need_to_update)
-        self.assertEqual(len(responsible_concerned_by_need_to_update), 1)
-
-
-
 
     def _create_entity_calendar(self, an_entity):
         an_academic_calendar = AcademicCalendarFactory(academic_year=self.current_academic_year,

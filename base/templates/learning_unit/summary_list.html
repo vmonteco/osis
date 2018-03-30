@@ -123,7 +123,7 @@
                     $('#message_info_container').css( "visibility", "visible" );
                     $('#message_info_container').css( "display", "block" );
                     $('#message_info_container').append(data.as_messages_info);
-                    $("#modal_mail_summary_reminder").modal('hide');
+                    $('#btn_modal_mail_summary_reminder_cancel').trigger( "click" );
                 }
             });
         });
