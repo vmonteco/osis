@@ -25,6 +25,7 @@
 ##############################################################################
 import re
 
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from django.db import models
 from django.db.models import Q
@@ -200,6 +201,15 @@ class LearningUnitYear(SerializableModel):
         entity_container_yr = entity_container_year.search(link_type=entity_type,
                                                            learning_container_year=self.learning_container_year).get()
         return entity_container_yr.entity if entity_container_yr else None
+
+    def clean(self):
+        learning_unit_years = find_gte_year_acronym(self.academic_year, self.acronym)
+
+        if self.learning_unit:
+            learning_unit_years = learning_unit_years.exclude(learning_unit=self.learning_unit)
+
+        if self.acronym in learning_unit_years.values('acronym'):
+            raise ValidationError(_('already_existing_acronym'))
 
 
 def get_by_id(learning_unit_year_id):

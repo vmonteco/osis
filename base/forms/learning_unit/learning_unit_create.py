@@ -27,12 +27,9 @@ import re
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import transaction
-from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
-from base import models as mdl
 from base.business import learning_unit
 from base.forms.bootstrap import BootstrapForm
 from base.forms.utils.choice_field import add_blank
@@ -42,14 +39,11 @@ from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_Y
     LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
-from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
-from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_FULL, LEARNING_UNIT_ACRONYM_REGEX_PARTIM, \
-    LEARNING_UNIT_ACRONYM_REGEX_ALL, LearningUnit
+    LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
 from reference.models import language
-from reference.models.language import find_all_languages, Language
 
 MINIMUM_CREDITS = 0
 MAXIMUM_CREDITS = 500
@@ -127,6 +121,13 @@ class LearningUnitModelForm(forms.ModelForm):
 
 
 class LearningUnitYearModelForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.initial.get('subtype') == "PARTIM":
+            self.fields['specific_title'].label = _('official_title_proper_to_partim')
+            self.fields['specific_title_english'].label = _('official_english_title_proper_to_partim')
+
     class Meta:
         model = LearningUnitYear
         fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'subtype', 'credits',
@@ -216,85 +217,6 @@ class LearningUnitFormContainer:
 
 # FIXME Convert it in ModelForm !
 class LearningUnitYearForm(BootstrapForm):
-    first_letter = forms.ChoiceField(choices=lazy(_create_first_letter_choices, tuple), required=True)
-    acronym = forms.CharField(widget=forms.TextInput(attrs={'maxlength': "15", 'required': True}))
-    academic_year = forms.ModelChoiceField(queryset=mdl.academic_year.find_academic_years(), required=True)
-    status = forms.BooleanField(required=False, initial=True)
-    internship_subtype = forms.TypedChoiceField(
-        choices=add_blank(mdl.enums.internship_subtypes.INTERNSHIP_SUBTYPES),
-        required=False, empty_value=None)
-    credits = forms.DecimalField(decimal_places=2,
-                                 validators=[MinValueValidator(0),
-                                             MaxValueValidator(MAXIMUM_CREDITS)],
-                                 widget=forms.NumberInput(attrs={'min': MINIMUM_CREDITS,
-                                                                 'max': MAXIMUM_CREDITS}))
-    common_title = forms.CharField(required=False)
-    common_title_english = forms.CharField(required=False, widget=forms.TextInput())
-    specific_title = forms.CharField(required=False)
-    specific_title_english = forms.CharField(required=False, widget=forms.TextInput())
-    session = forms.ChoiceField(add_blank(mdl.enums.learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION),
-                                required=False)
-    subtype = forms.CharField(widget=forms.HiddenInput())
-    container_type = forms.ChoiceField(choices=lazy(_create_learning_container_year_type_list, tuple),
-                                       widget=forms.Select(attrs={'onchange': 'showInternshipSubtype()'}))
-    faculty_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
-    other_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
-    periodicity = forms.CharField(widget=forms.Select(choices=PERIODICITY_TYPES))
-    quadrimester = forms.CharField(widget=forms.Select(choices=add_blank(LEARNING_UNIT_YEAR_QUADRIMESTERS)),
-                                   required=False)
-    campus = forms.ModelChoiceField(queryset=find_main_campuses())
-    requirement_entity = EntitiesVersionChoiceField(EntityVersion.objects.none(),
-        widget=forms.Select(
-            attrs={
-                'onchange': (
-                    'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_1", false);'
-                    'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", true);'
-                )
-            }
-        )
-    )
-    allocation_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=True,
-                                                   widget=forms.Select(attrs={'id': 'allocation_entity'}))
-    additional_requirement_entity_1 = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
-        widget=forms.Select(
-            attrs={
-                'onchange':
-                    'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", false)',
-                'disable': 'disable'
-            }
-        )
-    )
-    additional_requirement_entity_2 = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
-                                                                 widget=forms.Select(attrs={'disable': 'disable'}))
-    language = forms.ModelChoiceField(find_all_languages(), empty_label=None)
-
-    def __init__(self, *args, **kwargs):
-        self.learning_unit = kwargs.pop('learning_unit', None)
-        super(LearningUnitYearForm, self).__init__(*args, **kwargs)
-
-        # TODO the default values must be set in model.
-        qs = Campus.objects.filter(name='Louvain-la-Neuve')
-        if qs.exists():
-            self.fields['campus'].initial = qs.get()
-
-        qs = Language.objects.filter(code='FR')
-        if qs.exists():
-            self.fields['language'].initial = qs.get().id
-
-        if self.initial.get('subtype') == "PARTIM":
-            self.fields['specific_title'].label = _('official_title_proper_to_partim')
-            self.fields['specific_title_english'].label = _('official_english_title_proper_to_partim')
-        else:
-            self.fields['specific_title'].label = _('official_title_proper_to_UE')
-            self.fields['specific_title_english'].label = _('official_english_title_proper_to_UE')
-
-    def _get_existing_acronym_list(self, academic_year, acronym):
-        if self.learning_unit:
-            learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym) \
-                .exclude(learning_unit=self.learning_unit)
-        else:
-            learning_unit_years = mdl.learning_unit_year.find_gte_year_acronym(academic_year, acronym)
-        return [learning_unit_year.acronym for learning_unit_year in learning_unit_years]
 
     def clean(self):
         cleaned_data = super().clean()
@@ -315,25 +237,10 @@ class LearningUnitYearForm(BootstrapForm):
         self._are_requirement_and_allocation_entities_valid(requirement_entity, allocation_entity, container_type)
         return cleaned_data
 
-    def _check_if_acronym_already_exists(self, cleaned_data):
-        if 'acronym' in cleaned_data and 'academic_year' in cleaned_data and cleaned_data['academic_year']:
-            acronym = cleaned_data['acronym']
-            academic_year = cleaned_data['academic_year']
-            learning_unit_years_list = self._get_existing_acronym_list(academic_year, acronym)
-            if acronym in learning_unit_years_list:
-                self.add_error('acronym', _('already_existing_acronym'))
-
     def _are_requirement_and_allocation_entities_valid(self, requirement_entity, allocation_entity, container_type):
         if requirement_entity != allocation_entity and \
                 container_type in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES:
             self.add_error("allocation_entity", _("requirement_and_allocation_entities_cannot_be_different"))
-
-    def clean_acronym(self, regex=LEARNING_UNIT_ACRONYM_REGEX_ALL):
-        acronym = _merge_first_letter_and_acronym(self.cleaned_data.get('first_letter', ""),
-                                                  self.cleaned_data.get('acronym', ""))
-        if not re.match(regex, acronym):
-            raise ValidationError(_('invalid_acronym'))
-        return acronym
 
 
 class CreateLearningUnitYearForm(LearningUnitYearForm):
