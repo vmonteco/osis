@@ -135,6 +135,33 @@ class LearningUnitYearModelForm(forms.ModelForm):
 
 
 class LearningContainerYearModelForm(forms.ModelForm):
+    requirement_entity = EntitiesVersionChoiceField(
+        find_main_entities_version().none(),
+        widget=forms.Select(
+            attrs={
+                'onchange': (
+                    'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_1", false);'
+                    'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", true);'
+                )
+            }
+        )
+    )
+    allocation_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=True,
+                                                   widget=forms.Select(attrs={'id': 'allocation_entity'}))
+    additional_requirement_entity_1 = EntitiesVersionChoiceField(
+        queryset=find_main_entities_version(),
+        required=False,
+        widget=forms.Select(
+            attrs={
+                'onchange':
+                    'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", false)',
+                'disable': 'disable'
+            }
+        )
+    )
+    additional_requirement_entity_2 = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
+                                                                 widget=forms.Select(attrs={'disable': 'disable'}))
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['campus'].queryset = find_main_campuses()
@@ -143,6 +170,8 @@ class LearningContainerYearModelForm(forms.ModelForm):
     class Meta:
         model = LearningContainerYear
         fields = ('container_type', 'common_title', 'common_title_english', 'language', 'campus')
+
+
 
 # FIXME Convert it in ModelForm !
 class LearningUnitYearForm(BootstrapForm):

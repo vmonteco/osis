@@ -71,31 +71,13 @@
     </div>
     <div class="panel-body">
         <div class="row">
-            <div class="col-md-6">
-                <label {% if learning_unit_year_form.errors.requirement_entity %}style="color:red;" {% endif %}>
-                    {% trans 'requirement_entity' %}*
-                </label>
-                {{ learning_unit_year_form.requirement_entity }}
-                <label {% if learning_unit_year_form.errors.requirement_entity %}style="color:red;" {% endif %}>
-                    {{ learning_unit_year_form.errors.requirement_entity| striptags }}
-                </label>
-            </div>
-            <div class="col-md-6">
-                <label>{% trans 'allocation_entity' %}*</label>
-                {{ learning_unit_year_form.allocation_entity }}
-            </div>
+            <div class="col-md-6">{% bootstrap_field learning_container_form.requirement_entity %}</div>
+            <div class="col-md-6">{% bootstrap_field learning_container_form.allocation_entity %}</div>
         </div>
         <div class="row">
-            <div class="col-md-6">
-                <label>{% trans 'additional_requirement_entity_1' %}</label>
-                {{ learning_unit_year_form.additional_requirement_entity_1 }}
-            </div>
-            <div class="col-md-6">
-                <label>{% trans 'additional_requirement_entity_2' %}</label>
-                {{ learning_unit_year_form.additional_requirement_entity_2 }}
-            </div>
+            <div class="col-md-6">{% bootstrap_field learning_container_form.additional_requirement_entity_1 %}</div>
+            <div class="col-md-6">{% bootstrap_field learning_container_form.additional_requirement_entity_2 %}</div>
         </div>
-
     </div>
 </div>
 <div class="panel panel-default">
@@ -109,5 +91,4 @@
         </div>
     </div>
 </div>
-{{ learning_unit_year_form.subtype }}
-
+{% bootstrap_field learning_unit_year_form.subtype %}
