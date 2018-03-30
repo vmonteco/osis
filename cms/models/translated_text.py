@@ -25,13 +25,13 @@
 ##############################################################################
 from ckeditor.fields import RichTextField
 from django.db import models
+from django.contrib import admin
 from django.conf import settings
 from cms.enums.entity_name import ENTITY_NAME
 from .text_label import TextLabel
-from osis_common.models.auditable_model import AuditableModel, AuditableModelAdmin
 
 
-class TranslatedTextAdmin(AuditableModelAdmin):
+class TranslatedTextAdmin(admin.ModelAdmin):
     actions = None  # Remove ability to delete in Admin Interface
     list_display = ('text_label', 'entity', 'reference', 'language', 'text')
     ordering = ('text_label',)
@@ -44,7 +44,7 @@ class TranslatedTextAdmin(AuditableModelAdmin):
         return False
 
 
-class TranslatedText(AuditableModel):
+class TranslatedText(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     language = models.CharField(max_length=30, null=True, choices=settings.LANGUAGES, default=settings.LANGUAGE_CODE)

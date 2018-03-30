@@ -24,13 +24,11 @@
 #
 ##############################################################################
 from django.db import models
-from osis_common.models.auditable_model import AuditableModel, AuditableModelAdmin
-
-from base.models.enums import learning_unit_year_subtypes
+from django.contrib import admin
 from base.models.enums import sessions_derogation
 
 
-class GroupElementYearAdmin(AuditableModelAdmin):
+class GroupElementYearAdmin(admin.ModelAdmin):
     list_display = ('parent', 'child_branch', 'child_leaf',)
     fieldsets = ((None, {'fields': ('parent', 'child_branch', 'child_leaf', 'absolute_credits','relative_credits',
                                     'min_credits', 'max_credits', 'is_mandatory', 'block', 'current_order',
@@ -39,7 +37,7 @@ class GroupElementYearAdmin(AuditableModelAdmin):
     raw_id_fields = ('parent', 'child_branch', 'child_leaf',)
 
 
-class GroupElementYear(AuditableModel):
+class GroupElementYear(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     parent = models.ForeignKey('EducationGroupYear', related_name='parent', blank=True, null=True)
