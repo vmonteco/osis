@@ -25,13 +25,13 @@
 ##############################################################################
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.contrib import admin
 from django.db.models import Prefetch
 
 from cms.enums.entity_name import ENTITY_NAME
-from osis_common.models.auditable_model import AuditableModel, AuditableModelAdmin
 
 
-class TextLabelAdmin(AuditableModelAdmin):
+class TextLabelAdmin(admin.ModelAdmin):
     actions = None  # Remove ability to delete in Admin Interface
     list_display = ('parent', 'entity', 'label', 'order', 'published',)
     search_fields = ['label']
@@ -49,7 +49,7 @@ class TextLabelAdmin(AuditableModelAdmin):
         return False
 
 
-class TextLabel(AuditableModel):
+class TextLabel(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     parent = models.ForeignKey('self', blank=True, null=True)

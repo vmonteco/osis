@@ -24,13 +24,12 @@
 #
 ##############################################################################
 from django.db import models, IntegrityError
+from django.utils.translation import ugettext_lazy as _
 
 from base.models.academic_year import current_academic_year
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.proposal_learning_unit import ProposalLearningUnit
-from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
-from django.utils.translation import ugettext_lazy as _
-
+from osis_common.models.serializable_model import SerializableModelAdmin, SerializableModel
 
 LEARNING_UNIT_ACRONYM_REGEX_BASE = "^[BLMW][A-Z]{2,4}\d{4}"
 LETTER_OR_DIGIT = "[A-Z0-9]"
@@ -40,7 +39,7 @@ LEARNING_UNIT_ACRONYM_REGEX_FULL = LEARNING_UNIT_ACRONYM_REGEX_BASE + STRING_END
 LEARNING_UNIT_ACRONYM_REGEX_PARTIM = LEARNING_UNIT_ACRONYM_REGEX_BASE + LETTER_OR_DIGIT + STRING_END
 
 
-class LearningUnitAdmin(AuditableSerializableModelAdmin):
+class LearningUnitAdmin(SerializableModelAdmin):
     list_display = ('learning_container', 'acronym', 'title', 'start_year', 'end_year', 'changed')
     fieldsets = ((None, {
                     'fields': ('learning_container', 'acronym', 'title', 'start_year', 'end_year',
@@ -51,7 +50,7 @@ class LearningUnitAdmin(AuditableSerializableModelAdmin):
     list_filter = ('periodicity', 'start_year')
 
 
-class LearningUnit(AuditableSerializableModel):
+class LearningUnit(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     learning_container = models.ForeignKey('LearningContainer', blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
