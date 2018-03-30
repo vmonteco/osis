@@ -433,6 +433,26 @@ class TestLearningUnitSuppressionProposal(TestCase):
         self.assertEqual(form_proposal.fields['folder_id'].initial, None)
         self.assertEqual(form_proposal.fields['entity'].initial, None)
 
+    def test_get_request_by_central_manager(self):
+        self.person.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'learning_unit/proposal/create_suppression_proposal.html')
+        self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
+        self.assertEqual(response.context['experimental_phase'], True)
+        self.assertEqual(response.context['person'], self.person)
+
+        self.assertIsInstance(response.context['form_proposal'], ProposalLearningUnitForm)
+        self.assertIsInstance(response.context['form_end_date'], LearningUnitEndDateForm)
+
+        form_proposal = response.context['form_proposal']
+        form_end_date = response.context['form_end_date']
+
+        self.assertEqual(form_end_date.fields['academic_year'].initial, None)
+        self.assertEqual(form_proposal.fields['folder_id'].initial, None)
+        self.assertEqual(form_proposal.fields['entity'].initial, None)
+
     def test_post_request(self):
         response = self.client.post(self.url, data=self.form_data)
 
