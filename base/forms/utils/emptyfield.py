@@ -23,23 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
 
-from base.views.common import display_success_messages
+from django import forms
 
 
-def show_success_learning_unit_year_creation_message(request, learning_unit_year_created, translation_key):
-    success_msg = create_learning_unit_year_creation_message(learning_unit_year_created, translation_key)
-    display_success_messages(request, success_msg, extra_tags='safe')
+class EmptyField(forms.CharField):
+    widget = forms.HiddenInput
 
-
-def create_learning_unit_year_creation_message(learning_unit_year_created, translation_key):
-    link = reverse("learning_unit", kwargs={'learning_unit_year_id': learning_unit_year_created.id})
-    return _(translation_key) % {'link': link, 'acronym': learning_unit_year_created.acronym,
-                                 'academic_year': learning_unit_year_created.academic_year}
-
-
-def create_learning_unit_year_deletion_message(learning_unit_year_deleted):
-    return _('learning_unit_successfuly_deleted').format(acronym=learning_unit_year_deleted.acronym,
-                                                         academic_year=learning_unit_year_deleted.academic_year)
+    def __init__(self, label):
+        super().__init__(label=label, required=False)
