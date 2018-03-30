@@ -24,15 +24,13 @@
 #
 ##############################################################################
 from django.db import models
+from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from attribution.models import attribution_charge_new
 from attribution.models.enums import function
-from base.models.enums import component_type
-from osis_common.models.auditable_model import AuditableModelAdmin, AuditableModel
 
 
-class AttributionNewAdmin(AuditableModelAdmin):
+class AttributionNewAdmin(admin.ModelAdmin):
 
     list_display = ('tutor', 'score_responsible', 'function', 'learning_container_year', 'start_year', 'end_year',
                     'changed', 'substitute')
@@ -51,7 +49,7 @@ class AttributionNewAdmin(AuditableModelAdmin):
     publish_attribution_to_portal.short_description = _("publish_attribution_to_portal")
 
 
-class AttributionNew(AuditableModel):
+class AttributionNew(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     learning_container_year = models.ForeignKey('base.LearningContainerYear')

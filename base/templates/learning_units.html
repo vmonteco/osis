@@ -53,12 +53,12 @@
                         <span class="caret"></span>
                         </button>
                 <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
-                    {% if perms.base.can_change_learningunit %}
+                    {% if perms.base.can_edit_learningunit %}
                         <li>
                             <a href="{{ create_learning_unit_url }}" id="lnk_learning_unit_create">{% trans 'new_learning_unit' %}</a>
                         </li>
                     {% endif %}
-                    {% if perms.base.can_change_proposallearningunit %}
+                    {% if perms.base.can_edit_learning_unit_proposal %}
                         <li>
                             <a href="{{ create_proposal_url }}" id="lnk_create_proposal_url">{% trans 'proposal_creation' %}</a>
                         </li>
