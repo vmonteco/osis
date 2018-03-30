@@ -322,15 +322,15 @@ class TestIsEligibleToCreateModificationProposal(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.current_academic_year = create_current_academic_year()
+        cls.past_academic_year = AcademicYearFactory(
+            start_date=cls.current_academic_year.start_date - datetime.timedelta(days=365),
+            end_date=cls.current_academic_year.end_date - datetime.timedelta(days=365),
+            year=cls.current_academic_year.year - 1
+        )
         cls.person = PersonFactory()
 
     def test_cannot_propose_modification_of_past_learning_unit(self):
-        past_academic_year = AcademicYearFactory(
-            start_date=self.current_academic_year.start_date - datetime.timedelta(days=365),
-            end_date=self.current_academic_year.end_date - datetime.timedelta(days=365),
-            year=self.current_academic_year.year - 1
-        )
-        past_luy = LearningUnitYearFakerFactory(learning_container_year__academic_year=past_academic_year)
+        past_luy = LearningUnitYearFakerFactory(learning_container_year__academic_year=self.past_academic_year)
 
         self.assertFalse(is_eligible_to_create_modification_proposal(past_luy, self.person))
 
@@ -357,6 +357,24 @@ class TestIsEligibleToCreateModificationProposal(TestCase):
         ProposalLearningUnitFactory(learning_unit_year=luy_with_proposal)
 
         self.assertFalse(is_eligible_to_create_modification_proposal(luy_with_proposal, self.person))
+
+    def test_can_only_propose_modification_for_lu_which_is_not_in_proposition_on_different_year(self):
+        past_luy_with_proposal = LearningUnitYearFakerFactory(
+            learning_container_year__academic_year=self.past_academic_year)
+        ProposalLearningUnitFactory(learning_unit_year=past_luy_with_proposal)
+
+        luy = LearningUnitYearFakerFactory(
+            learning_container_year__academic_year=self.current_academic_year,
+            learning_container_year__container_type=COURSE,
+            subtype=FULL,
+            learning_unit=past_luy_with_proposal.learning_unit
+        )
+
+        an_entity_container_year = EntityContainerYearFactory(learning_container_year=luy.learning_container_year,
+                                                              type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+        PersonEntityFactory(person=self.person, entity=an_entity_container_year.entity)
+
+        self.assertFalse(is_eligible_to_create_modification_proposal(luy, self.person))
 
     def test_cannot_propose_modification_for_luy_for_which_person_is_not_linked_to_entity(self):
         luy = LearningUnitYearFakerFactory(learning_container_year__academic_year=self.current_academic_year,

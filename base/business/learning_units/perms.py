@@ -49,7 +49,7 @@ def is_eligible_to_create_modification_proposal(learning_unit_year, person):
         return False
     if not _is_container_type_course_dissertation_or_internship(learning_unit_year):
         return False
-    if learning_unit_year.is_in_proposal():
+    if learning_unit_year.learning_unit.has_proposal():
         return False
     return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
 
