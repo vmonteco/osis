@@ -444,7 +444,7 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context = get_common_context_learning_unit_year(learning_unit_year_id, person)
 
     learning_unit_year = context['learning_unit_year']
-    proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
+    proposal = proposal_learning_unit.find_by_learning_unit(learning_unit_year.learning_unit)
 
     context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
     context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
@@ -460,7 +460,9 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context['proposal'] = proposal
     context['proposal_folder_entity_version'] = mdl.entity_version.get_by_entity_and_date(
         proposal.entity, None) if proposal else None
-    context['differences'] = get_difference_of_proposal(proposal)
+    context['differences'] = get_difference_of_proposal(proposal) \
+        if proposal and proposal.learning_unit_year == learning_unit_year \
+        else {}
 
     # append permissions
     context.update(learning_unit_year_permissions(learning_unit_year, person))
