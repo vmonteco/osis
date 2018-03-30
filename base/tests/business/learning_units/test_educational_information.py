@@ -29,7 +29,8 @@ from django.test import TestCase
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from attribution.tests.factories.attribution import AttributionFactory
-from base.business.learning_units.educational_information import get_responsible_and_learning_unit_yr_list, PERSON, LEARNING_UNIT_YEARS
+from base.business.learning_units.educational_information import get_responsible_and_learning_unit_yr_list, PERSON, \
+    LEARNING_UNIT_YEARS, _update_responsible_data_with_new_learning_unit_yr
 from base.tests.factories.tutor import TutorFactory
 
 
@@ -81,3 +82,10 @@ class TestEducationalInformation(TestCase):
         learning_unit_year_updated.summary_status=True
         learning_units = get_responsible_and_learning_unit_yr_list([learning_unit_year_updated])
         self.assertCountEqual(learning_units, [])
+
+    def test_update_responsible_data_with_new_learning_unit_yr(self):
+        list_before_update = [{PERSON: self.person_lu_2,
+                               LEARNING_UNIT_YEARS: []}]
+        self.assertEqual(_update_responsible_data_with_new_learning_unit_yr(self.person_lu_1,
+                                                                            self.learning_unit_year_2,
+                                                                            list_before_update), list_before_update)
