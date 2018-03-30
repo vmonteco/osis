@@ -238,10 +238,9 @@ class LearningUnitYearDeletion(TestCase):
 
         msg = deletion.delete_from_given_learning_unit_year(learning_unit_year)
 
-        msg_success = _("%(subtype)s %(acronym)s has been deleted for the year %(year)s")
-        self.assertEqual(msg_success % {'subtype': _('The partim'),
-                                        'acronym': learning_unit_year.acronym,
-                                        'year': learning_unit_year.academic_year},
+        msg_success = _("learning_unit_successfuly_deleted")
+        self.assertEqual(msg_success.format(acronym=learning_unit_year.acronym,
+                                            academic_year=learning_unit_year.academic_year),
                          msg.pop())
 
         self.assertEqual(LearningClassYear.objects.all().count(), 0)

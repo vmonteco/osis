@@ -2515,6 +2515,9 @@ msgstr "Create a new partim"
 msgid "learning_unit_successfuly_created"
 msgstr "Learning unit <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
 
+msgid "learning_unit_successfuly_deleted"
+msgstr "Learning unit {acronym} ({academic_year}) successfuly deleted."
+
 msgid "learning_unit_creation_academic_year_max_error"
 msgstr "Please select an academic year lower than {}."
 
@@ -2525,7 +2528,7 @@ msgid "learning_unit_created"
 msgstr "Learning unit %(learning_unit)s created for the academic year %(academic_year)s"
 
 msgid "learning_unit_updated"
-msgstr "Learning unit %(learning_unit)s has been updated successfully"
+msgstr "Learning unit {acronym} successfully updated."
 
 msgid "partim_greater_than_parent"
 msgstr "The learning unit %(learning_unit)s has a partim %(partim)s with an end year greater than %(year)s"
