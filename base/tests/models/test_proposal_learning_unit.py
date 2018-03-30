@@ -47,6 +47,12 @@ class TestSearch(TestCase):
         )
         self.assertEqual(a_proposal_learning_unit, self.proposal_learning_unit)
 
+    def test_find_learning_unit(self):
+        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(
+            self.proposal_learning_unit.learning_unit_year.learning_unit
+        )
+        self.assertEqual(a_proposal_learning_unit, self.proposal_learning_unit)
+
     def test_str(self):
         expected_str = "{} - {}".format(self.proposal_learning_unit.folder_id,
                                         self.proposal_learning_unit.learning_unit_year)

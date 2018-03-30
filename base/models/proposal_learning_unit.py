@@ -72,6 +72,13 @@ def find_by_learning_unit_year(a_learning_unit_year):
         return None
 
 
+def find_by_learning_unit(a_learning_unit):
+    try:
+        return ProposalLearningUnit.objects.get(learning_unit_year__learning_unit=a_learning_unit)
+    except ObjectDoesNotExist:
+        return None
+
+
 def search(academic_year_id=None, acronym=None, entity_folder_id=None, folder_id=None, proposal_type=None,
            proposal_state=None, learning_container_year_id=None, tutor=None, *args, **kwargs):
 
