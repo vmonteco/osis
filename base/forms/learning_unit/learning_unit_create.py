@@ -45,6 +45,7 @@ from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_FULL, LEARNING_UNIT_ACRONYM_REGEX_PARTIM, \
     LEARNING_UNIT_ACRONYM_REGEX_ALL, LearningUnit
+from base.models.learning_unit_year import LearningUnitYear
 from reference.models.language import find_all_languages, Language
 
 MINIMUM_CREDITS = 0
@@ -58,6 +59,8 @@ PARTIM_FORM_READ_ONLY_FIELD = {'first_letter', 'acronym', 'common_title', 'commo
 
 
 class AcronymInput(forms.MultiWidget):
+    template_name = 'learning_unit/blocks/widget/acronym_widget.html'
+
     def __init__(self, *args, **kwargs):
         choices = kwargs.pop('choices', [])
 
@@ -119,6 +122,15 @@ class LearningUnitModelForm(forms.ModelForm):
             'acronym': AcronymField
         }
 
+
+class LearningUnitYearModelForm(forms.ModelForm):
+    class Meta:
+        model = LearningUnitYear
+        fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'subtype', 'credits',
+                  'session', )
+        field_classes = {
+            'acronym': AcronymField
+        }
 
 # FIXME Convert it in ModelForm !
 class LearningUnitYearForm(BootstrapForm):

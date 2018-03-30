@@ -30,28 +30,12 @@
     </div>
     <div class="panel-body">
         <div class="row">
-            <div class="col-md-3" style="padding:0;">
-                <div class="row" style="margin:0;">
-                    <div class="col-md-4" style="padding-right:0;">
-                        <label>
-                            {% trans 'code' %}*
-                        </label>
-                        {{ learning_unit_form.first_letter }}
-                    </div>
-                    <abbr title="{% trans 'acronym_rules' %}">
-                        <span class="glyphicon glyphicon-question-sign pull-right"
-                              title="{% trans 'acronym_rules' %}" style="font-size: 14pt;"
-                              aria-hidden="true"></span></abbr>
-                    <div class="col-md-8" style="padding:0;margin-top:7px;">
-                        {{ learning_unit_form.acronym }}
-                        <span class='error' id="{{ learning_unit_form.acronym.name }}_message"
-                              for='{{ learning_unit_form.acronym.name }}' generated="true"></span>
-                        {% if learning_unit_form.acronym.errors %}
-                        <b class='error' for='{{ learning_unit_form.acronym.name }}' generated="true">
-                            {{ learning_unit_form.acronym.errors| join:". " }}</b>
-                        {% endif %}
-                    </div>
-                </div>
+            <div class="col-md-3">
+                {% bootstrap_label learning_unit_form.acronym.label %}
+                <abbr title="{% trans 'acronym_rules' %}">
+                <span class="glyphicon glyphicon-question-sign " title="{% trans 'acronym_rules' %}" style="font-size: 14pt;" aria-hidden="true"></span>
+                </abbr>
+                {% bootstrap_field learning_unit_form.acronym show_label=False %}
             </div>
             <div class="col-md-3">
                 <label {% if learning_unit_form.errors.container_type%}style="color:red;" {% endif %}>
@@ -137,13 +121,13 @@
     </div>
     <div class="panel-body">
         <div>
-            {% bootstrap_field  learning_unit_form.common_title  label=_('common_official_title') %}
+{#            {% bootstrap_field  learning_unit_form.common_title  label=_('common_official_title') %}#}
         </div>
         <div>
             {% bootstrap_field  learning_unit_form.specific_title label=_('official_title_proper_to_UE') %}
         </div>
         <div>
-            {% bootstrap_field  learning_unit_form.common_title_english label=_('common_official_english_title') %}
+{#            {% bootstrap_field  learning_unit_form.common_title_english label=_('common_official_english_title') %}#}
         </div>
         <div>
             {% bootstrap_field  learning_unit_form.specific_title_english label=_('official_english_title_proper_to_UE') %}

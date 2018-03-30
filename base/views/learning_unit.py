@@ -56,7 +56,7 @@ from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit.edition import compute_form_initial_data
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
-    PARTIM_FORM_READ_ONLY_FIELD
+    PARTIM_FORM_READ_ONLY_FIELD, LearningUnitYearModelForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, SummaryModelForm, \
     LearningUnitPedagogyForm, BibliographyModelForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
@@ -325,11 +325,12 @@ def learning_class_year_edit(request, learning_unit_year_id):
 @permission_required('base.can_create_learningunit', raise_exception=True)
 def learning_unit_create(request, academic_year):
     person = get_object_or_404(Person, user=request.user)
-    learning_unit_form = CreateLearningUnitYearForm(person, initial={'academic_year': academic_year,
-                                                                     'subtype': learning_unit_year_subtypes.FULL,
-                                                                     "container_type": BLANK_CHOICE_DASH,
-                                                                     'language': language.find_by_code('FR')})
-    return layout.render(request, "learning_unit/simple/creation.html", {'learning_unit_form': learning_unit_form})
+    # learning_unit_form = CreateLearningUnitYearForm(person, initial={'academic_year': academic_year,
+    #                                                                  'subtype': learning_unit_year_subtypes.FULL,
+    #                                                                  "container_type": BLANK_CHOICE_DASH,
+    #                                                                  'language': language.find_by_code('FR')})
+    learning_unit_form = LearningUnitYearModelForm(request.POST or None)
+    return render(request, "learning_unit/simple/creation.html", {'learning_unit_form': learning_unit_form})
 
 
 @login_required
