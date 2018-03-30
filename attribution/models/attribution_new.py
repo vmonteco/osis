@@ -91,6 +91,5 @@ def search(*args, **kwargs):
             qs = qs.filter(tutor__person__global_id__in=kwargs['global_id'])
         else:
             qs = qs.filter(tutor__person__global_id=kwargs['global_id'])
-    if "summary_responsible" in kwargs:
-        qs = qs.filter(summary_responsible=kwargs['summary_responsible'])
+
     return qs.select_related('tutor__person', 'learning_container_year')

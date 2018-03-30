@@ -39,11 +39,13 @@ from base.views import layout
 from base.views.learning_units.search import SUMMARY_LIST
 from django.utils.translation import ugettext_lazy as _
 
+SUCCESS_MESSAGE = _('success_mail_reminder')
+
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def send_email_educational_information_needs_update(request):
-    if request.POST:
+    if request.is_ajax():
         list_mail_reminder_formset = formset_factory(form=MailReminderRow,
                                                      formset=MailReminderFormset)
         formset = list_mail_reminder_formset(data=request.POST)
@@ -55,9 +57,8 @@ def send_email_educational_information_needs_update(request):
                 a_person = get_object_or_404(Person, pk=a_responsible_person_id.get('person'))
                 send_mail_for_educational_information_update([a_person],
                                                              a_responsible_person_id.get('learning_unit_years'))
+            return JsonResponse({'as_messages_info': SUCCESS_MESSAGE})
 
-    if request.is_ajax():
-        return JsonResponse({'as_messages_info': _('success_mail_reminder')})
     return HttpResponseRedirect(reverse('learning_units_summary'))
 
 

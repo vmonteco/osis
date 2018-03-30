@@ -60,20 +60,14 @@ class MailReminderRow(forms.Form):
             self.initial['person_id'] = self.person.id
             self.fields["responsible"].label = "{}  {}".format(self.person.last_name, self.person.first_name)
 
-        acronym_list = self._get_acronyms_concatenation()
+        acronym_list = _get_acronyms_concatenation(self.learning_unit_years)
         self.initial['learning_unit_years'] = acronym_list
         self.fields["learning_unit_years"].label = acronym_list
         self.fields["responsible"].widget.attrs['class'] = 'no_label'
 
-    def _get_acronyms_concatenation(self):
-        acronyms_concatenation = ''
-        cpt = 0
-        for learning_unit_yr in self.learning_unit_years:
-            if cpt > 0:
-                acronyms_concatenation += ', '
-            acronyms_concatenation += learning_unit_yr.acronym
-            cpt += 1
-        return acronyms_concatenation
+
+def _get_acronyms_concatenation(learning_unit_years):
+    return ', '.join([learning_unit_yr.acronym for learning_unit_yr in learning_unit_years])
 
 
 class MailReminderFormset(forms.BaseFormSet):

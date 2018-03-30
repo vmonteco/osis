@@ -49,7 +49,7 @@ from base.tests.factories.entity_calendar import EntityCalendarFactory
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_year import create_current_academic_year
-
+from base.views.learning_units.educational_information import SUCCESS_MESSAGE
 
 class LearningUnitViewPedagogyTestCase(TestCase):
     def setUp(self):
@@ -147,3 +147,13 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         LearningUnitYearFactory(acronym="LBIR1100",
                                 learning_container_year=l_container_yr,
                                 academic_year=self.current_academic_year)
+
+    def test_send_email_educational_information_needs_update_no_access(self):
+        request_factory = RequestFactory()
+        a_user = UserFactory()
+        request = request_factory.get(self.url)
+        request.user = a_user
+        self.client.force_login(a_user)
+        from base.views.learning_units.educational_information import send_email_educational_information_needs_update
+        with self.assertRaises(PermissionDenied):
+            send_email_educational_information_needs_update(request)
