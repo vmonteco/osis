@@ -31,6 +31,7 @@ import base.views.learning_units.delete
 import base.views.learning_units.proposal.delete
 import base.views.learning_units.search
 import base.views.learning_units.update
+import base.views.learning_units.proposal.consolidate
 from attribution.views import attribution, tutor_application
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group
@@ -119,6 +120,8 @@ urlpatterns = [
                 url(r'^edit/$', update.update_learning_unit_proposal, name="edit_proposal"),
                 url(r'^cancel/$', base.views.learning_units.proposal.delete.cancel_proposal_of_learning_unit,
                     name="learning_unit_cancel_proposal"),
+                url(r'^consolidate/$', base.views.learning_units.proposal.consolidate.consolidate_proposal,
+                    name="learning_unit_consolidate_proposal"),
             ])),
             url(r'^update_end_date/$', learning_unit_edition_end_date, name="learning_unit_edition"),
             url(r'^update/$', update_learning_unit, name="edit_learning_unit"),
