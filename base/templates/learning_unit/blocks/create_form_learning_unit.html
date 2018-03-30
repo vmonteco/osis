@@ -31,87 +31,26 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-md-3">
-                {% bootstrap_label learning_unit_form.acronym.label %}
+                {% bootstrap_label learning_unit_year_form.acronym.label %}
                 <abbr title="{% trans 'acronym_rules' %}">
-                <span class="glyphicon glyphicon-question-sign " title="{% trans 'acronym_rules' %}" style="font-size: 14pt;" aria-hidden="true"></span>
+                <span class="glyphicon glyphicon-question-sign " title="{% trans 'acronym_rules' %}" style="font-size: 14pt;"></span>
                 </abbr>
-                {% bootstrap_field learning_unit_form.acronym show_label=False %}
+                {% bootstrap_field learning_unit_year_form.acronym show_label=False %}
             </div>
-            <div class="col-md-3">
-                <label {% if learning_unit_form.errors.container_type%}style="color:red;" {% endif %}>
-                    {% trans 'type' %}*
-                </label>
-                {{ learning_unit_form.container_type}}
-                <label {% if learning_unit_form.errors.container_type%}style="color:red;" {% endif %}>
-                    {{ learning_unit_form.errors.container_type| striptags }}
-                </label>
-            </div>
-            {% if learning_unit_form.internship_subtype in learning_unit_form.visible_fields %}
-            <div class="col-md-3">
-                <label id="lbl_internship_subtype">
-                    {% trans 'internship_subtype' %}
-                </label>
-                {{ learning_unit_form.internship_subtype }}
-                <label id="lbl_internship_subtype_error"
-                       {% if learning_unit_form.errors.internship_subtype%}style="color:red;" {% endif %}>
-                    {{ learning_unit_form.errors.internship_subtype| striptags }}
-                </label>
-            </div>
+            <div class="col-md-3">{% bootstrap_field learning_container_form.container_type %}</div>
+            {% if learning_unit_year_form.internship_subtype in learning_unit_year_form.visible_fields %}
+                <div class="col-md-3">{% bootstrap_field  learning_unit_year_form.internship_subtype %}</div>
             {% endif %}
-            <div class="col-md-3">
-                <label {% if learning_unit_form.errors.campus %}style="color:red;" {% endif %}>
-                    {% trans 'learning_location' %}*
-                </label>
-                {{ learning_unit_form.campus }}
-                <label {% if learning_unit_form.errors.campus %}style="color:red;" {% endif %}>
-                    {{ learning_unit_form.errors.campus| striptags }}
-                </label>
-            </div>
+            <div class="col-md-3">{% bootstrap_field learning_container_form.campus %}</div>
         </div>
         <div class="row">
-            <div class="col-md-2">
-                <label class="text-nowrap">{% trans 'academic_year' %}*</label>
-                {{ learning_unit_form.academic_year }}
-                <b style="color: red;">{{ learning_unit_form.academic_year.errors }}</b>
-            </div>
-            <div class="col-md-2">
-                <label>{% trans 'periodicity' %}*</label>
-                {{ learning_unit_form.periodicity }}
-            </div>
-            <div class="col-md-2">
-                <label>{% trans 'language' %}*</label>
-                {{ learning_unit_form.language }}
-            </div>
-            <div class="col-md-6">
-                <div class="row">
-                    <div class="col-md-3">
-                        <label>
-                            {% trans 'credits' %}*
-                        </label>
-                        {{ learning_unit_form.credits }}
-                        <label {% if learning_unit_form.errors.credits %}style="color:red;" {% endif %}>
-                            {{ learning_unit_form.errors.credits| striptags }}
-                        </label>
-                    </div>
-                    <div class="col-md-3">
-                        <label {% if learning_unit_form.errors.session %}style="color:red;" {% endif %}>
-                            {% trans 'session_title' %}
-                        </label>
-                        {{ learning_unit_form.session }}
-                        <label {% if learning_unit_form.errors.session %}style="color:red;" {% endif %}>
-                            {{ learning_unit_form.errors.session| striptags }}
-                        </label>
-                    </div>
-                    <div class="col-md-3">
-                        <label>{% trans 'quadrimester' %}</label>
-                        {{ learning_unit_form.quadrimester }}
-                    </div>
-                    <div class="col-md-3">
-                        {{ learning_unit_form.status }}
-                        <label>{% trans 'active_title' %}</label>
-                    </div>
-                </div>
-            </div>
+            <div class="col-md-2">{% bootstrap_field learning_unit_year_form.academic_year %}</div>
+            <div class="col-md-2">{% bootstrap_field learning_unit_form.periodicity %}</div>
+            <div class="col-md-2">{% bootstrap_field learning_container_form.language %}</div>
+            <div class="col-md-1">{% bootstrap_field learning_unit_year_form.credits %}</div>
+            <div class="col-md-2">{% bootstrap_field learning_unit_year_form.session %}</div>
+            <div class="col-md-2">{% bootstrap_field learning_unit_year_form.quadrimester %}</div>
+            <div class="col-md-1">{% bootstrap_field learning_unit_year_form.status %}</div>
         </div>
     </div>
 </div>
@@ -120,18 +59,10 @@
         <label>{% trans 'titles' %}</label>
     </div>
     <div class="panel-body">
-        <div>
-{#            {% bootstrap_field  learning_unit_form.common_title  label=_('common_official_title') %}#}
-        </div>
-        <div>
-            {% bootstrap_field  learning_unit_form.specific_title label=_('official_title_proper_to_UE') %}
-        </div>
-        <div>
-{#            {% bootstrap_field  learning_unit_form.common_title_english label=_('common_official_english_title') %}#}
-        </div>
-        <div>
-            {% bootstrap_field  learning_unit_form.specific_title_english label=_('official_english_title_proper_to_UE') %}
-        </div>
+        {% bootstrap_field  learning_container_form.common_title %}
+        {% bootstrap_field  learning_unit_year_form.specific_title %}
+        {% bootstrap_field  learning_container_form.common_title_english  %}
+        {% bootstrap_field  learning_unit_year_form.specific_title_english %}
     </div>
 </div>
 <div class="panel panel-default">
@@ -141,27 +72,27 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-md-6">
-                <label {% if learning_unit_form.errors.requirement_entity %}style="color:red;" {% endif %}>
+                <label {% if learning_unit_year_form.errors.requirement_entity %}style="color:red;" {% endif %}>
                     {% trans 'requirement_entity' %}*
                 </label>
-                {{ learning_unit_form.requirement_entity }}
-                <label {% if learning_unit_form.errors.requirement_entity %}style="color:red;" {% endif %}>
-                    {{ learning_unit_form.errors.requirement_entity| striptags }}
+                {{ learning_unit_year_form.requirement_entity }}
+                <label {% if learning_unit_year_form.errors.requirement_entity %}style="color:red;" {% endif %}>
+                    {{ learning_unit_year_form.errors.requirement_entity| striptags }}
                 </label>
             </div>
             <div class="col-md-6">
                 <label>{% trans 'allocation_entity' %}*</label>
-                {{ learning_unit_form.allocation_entity }}
+                {{ learning_unit_year_form.allocation_entity }}
             </div>
         </div>
         <div class="row">
             <div class="col-md-6">
                 <label>{% trans 'additional_requirement_entity_1' %}</label>
-                {{ learning_unit_form.additional_requirement_entity_1 }}
+                {{ learning_unit_year_form.additional_requirement_entity_1 }}
             </div>
             <div class="col-md-6">
                 <label>{% trans 'additional_requirement_entity_2' %}</label>
-                {{ learning_unit_form.additional_requirement_entity_2 }}
+                {{ learning_unit_year_form.additional_requirement_entity_2 }}
             </div>
         </div>
 
@@ -173,15 +104,10 @@
     </div>
     <div class="panel-body">
         <div class="row">
-            <div class="col-md-6">
-                <label>{% trans 'faculty' %}</label>
-                {{ learning_unit_form.faculty_remark }}
-            </div>
-            <div class="col-md-6">
-                <label>{% trans 'other' %}</label>
-                {{ learning_unit_form.other_remark }}
-            </div>
+            <div class="col-md-6">{% bootstrap_field  learning_unit_form.faculty_remark %}</div>
+            <div class="col-md-6">{% bootstrap_field  learning_unit_form.other_remark %}</div>
         </div>
     </div>
 </div>
-{{ learning_unit_form.subtype }}
+{{ learning_unit_year_form.subtype }}
+

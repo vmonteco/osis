@@ -43,6 +43,7 @@ from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_Y
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
+from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_FULL, LEARNING_UNIT_ACRONYM_REGEX_PARTIM, \
     LEARNING_UNIT_ACRONYM_REGEX_ALL, LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
@@ -127,10 +128,21 @@ class LearningUnitYearModelForm(forms.ModelForm):
     class Meta:
         model = LearningUnitYear
         fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'subtype', 'credits',
-                  'session', )
+                  'session', 'quadrimester', 'status', 'internship_subtype')
         field_classes = {
             'acronym': AcronymField
         }
+
+
+class LearningContainerYearModelForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['campus'].queryset = find_main_campuses()
+        self.fields['container_type'].widget.attrs ={'onchange': 'showInternshipSubtype()'}
+
+    class Meta:
+        model = LearningContainerYear
+        fields = ('container_type', 'common_title', 'common_title_english', 'language', 'campus')
 
 # FIXME Convert it in ModelForm !
 class LearningUnitYearForm(BootstrapForm):

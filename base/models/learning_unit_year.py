@@ -68,14 +68,15 @@ class LearningUnitYear(AuditableSerializableModel):
     acronym = models.CharField(max_length=15, db_index=True)
     specific_title = models.CharField(max_length=255, blank=True, null=True)
     specific_title_english = models.CharField(max_length=250, blank=True, null=True)
-    subtype = models.CharField(max_length=50, choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES)
+    subtype = models.CharField(max_length=50, choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
+                               default=learning_unit_year_subtypes.FULL)
     credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True,
                                   validators=[MinValueValidator(MINIMUM_CREDITS), MaxValueValidator(MAXIMUM_CREDITS)])
     decimal_scores = models.BooleanField(default=False)
     structure = models.ForeignKey('Structure', blank=True, null=True)
     internship_subtype = models.CharField(max_length=250, blank=True, null=True,
                                           choices=internship_subtypes.INTERNSHIP_SUBTYPES)
-    status = models.BooleanField(default=False)
+    status = models.BooleanField(default=False, verbose_name=_('active_title'))
     session = models.CharField(max_length=50, blank=True, null=True,
                                choices=learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION)
     quadrimester = models.CharField(max_length=4, blank=True, null=True,

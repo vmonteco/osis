@@ -56,7 +56,7 @@ from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit.edition import compute_form_initial_data
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
-    PARTIM_FORM_READ_ONLY_FIELD, LearningUnitYearModelForm
+    PARTIM_FORM_READ_ONLY_FIELD, LearningUnitYearModelForm, LearningContainerYearModelForm, LearningUnitModelForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, SummaryModelForm, \
     LearningUnitPedagogyForm, BibliographyModelForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
@@ -329,8 +329,14 @@ def learning_unit_create(request, academic_year):
     #                                                                  'subtype': learning_unit_year_subtypes.FULL,
     #                                                                  "container_type": BLANK_CHOICE_DASH,
     #                                                                  'language': language.find_by_code('FR')})
-    learning_unit_form = LearningUnitYearModelForm(request.POST or None)
-    return render(request, "learning_unit/simple/creation.html", {'learning_unit_form': learning_unit_form})
+    data = request.POST or None
+    learning_unit_year_form = LearningUnitYearModelForm(data, initial={'academic_year': academic_year})
+    learning_unit_form = LearningUnitModelForm(data)
+    learning_container_form = LearningContainerYearModelForm(data, initial={'language': language.find_by_code('FR')})
+
+    return render(request, "learning_unit/simple/creation.html", {'learning_unit_form': learning_unit_form,
+                                                                  'learning_unit_year_form': learning_unit_year_form,
+                                                                  'learning_container_form': learning_container_form})
 
 
 @login_required
