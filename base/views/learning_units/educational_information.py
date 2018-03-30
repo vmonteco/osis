@@ -53,10 +53,7 @@ def send_email_educational_information_needs_update(request):
         if formset.is_valid():
             responsible_person_ids = formset.get_checked_responsibles()
 
-            for a_responsible_person_id in responsible_person_ids:
-                a_person = get_object_or_404(Person, pk=a_responsible_person_id.get('person'))
-                send_mail_for_educational_information_update([a_person],
-                                                             a_responsible_person_id.get('learning_unit_years'))
+            _send_email_to_responsibles(responsible_person_ids)
             return JsonResponse({'as_messages_info': SUCCESS_MESSAGE})
 
     return HttpResponseRedirect(reverse('learning_units_summary'))
@@ -85,3 +82,10 @@ def learning_units_summary_list(request):
     }
 
     return layout.render(request, "learning_units.html", context)
+
+
+def _send_email_to_responsibles(responsible_person_ids):
+    for a_responsible_person_id in responsible_person_ids:
+        a_person = get_object_or_404(Person, pk=a_responsible_person_id.get('person'))
+        send_mail_for_educational_information_update([a_person],
+                                                     a_responsible_person_id.get('learning_unit_years'))

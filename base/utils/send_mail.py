@@ -36,6 +36,10 @@ from osis_common.messaging import message_config, send_message as message_servic
 from base.models import person as person_mdl
 from osis_common.document import paper_sheet
 
+EDUCATIONAL_INFORMATION_UPDATE_TXT = 'educational_information_update_txt'
+
+EDUCATIONAL_INFORMATION_UPDATE_HTML = 'educational_information_update_html'
+
 
 def send_mail_after_scores_submission(persons, learning_unit_name, submitted_enrollments, all_encoded):
     """
@@ -173,9 +177,9 @@ def send_again(message_history_id):
 
 
 def send_mail_for_educational_information_update(teachers, learning_units_years):
-    html_template_ref = 'educational_information_update_html'
-    txt_template_ref = 'educational_information_update_txt'
-    receivers = [message_config.create_receiver(manager.id, manager.email, manager.language) for manager in teachers]
+    html_template_ref = EDUCATIONAL_INFORMATION_UPDATE_HTML
+    txt_template_ref = EDUCATIONAL_INFORMATION_UPDATE_TXT
+    receivers = [message_config.create_receiver(teacher.id, teacher.email, teacher.language) for teacher in teachers]
     template_base_data = {'learning_unit_years': learning_units_years}
 
     message_content = message_config.create_message_content(html_template_ref, txt_template_ref, None, receivers,
