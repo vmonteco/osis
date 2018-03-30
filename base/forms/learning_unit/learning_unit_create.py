@@ -97,11 +97,6 @@ def _create_faculty_learning_container_type_list():
     return add_blank(LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY)
 
 
-def _merge_first_letter_and_acronym(first_letter, acronym):
-    merge_first_letter_acronym = (first_letter + acronym).upper()
-    return merge_first_letter_acronym
-
-
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.acronym
@@ -110,7 +105,7 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
 class LearningUnitModelForm(forms.ModelForm):
     class Meta:
         model = LearningUnit
-        fields = ('acronym', 'title', 'periodicity', 'faculty_remark', 'other_remark')
+        fields = ('acronym', 'periodicity', 'faculty_remark', 'other_remark')
         field_classes = {
             'acronym': AcronymField
         }
@@ -164,6 +159,7 @@ class LearningContainerYearModelForm(forms.ModelForm):
     def __init__(self, data, person, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
         self.fields['campus'].queryset = find_main_campuses()
+
         # TODO the default values must be set in model.
         qs = Campus.objects.filter(name='Louvain-la-Neuve')
         if qs.exists():
@@ -194,6 +190,7 @@ class LearningContainerYearModelForm(forms.ModelForm):
                 and container_type in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES):
                 self.add_error("allocation_entity", _("requirement_and_allocation_entities_cannot_be_different"))
 
+
 class LearningUnitFormContainer:
 
     def __init__(self, data, person, academic_year):
@@ -208,15 +205,19 @@ class LearningUnitFormContainer:
             self.learning_unit_form.is_valid(),
             self.learning_container_form.is_valid()
         ]
+
         if all(forms_is_valid):
             return self.post_validation()
         return False
 
     def post_validation(self):
+        print('post')
         common_title = self.learning_container_form.cleaned_data["common_title"]
         specific_title = self.learning_unit_year_form.cleaned_data["specific_title"]
         if not common_title and not specific_title:
             self.learning_container_form.add_error("common_title", _("must_set_common_title_or_specific_title"))
+            return False
+        return True
 
     def save(self, commit=True):
         with transaction.atomic():
@@ -230,19 +231,7 @@ class LearningUnitFormContainer:
                 'learning_container_form': self.learning_container_form}
 
 
-# FIXME Convert it in ModelForm !
-class LearningUnitYearForm(BootstrapForm):
-    pass
-
-
-class CreateLearningUnitYearForm(LearningUnitYearForm):
-
-
-    def clean_acronym(self, regex=LEARNING_UNIT_ACRONYM_REGEX_FULL):
-        return super().clean_acronym(regex)
-
-
-class CreatePartimForm(CreateLearningUnitYearForm):
+class CreatePartimForm(BootstrapForm):
     # TODO Create widget for partim acronym
     partim_character = forms.CharField(required=True,
                                        widget=forms.TextInput(attrs={'class': 'text-center',

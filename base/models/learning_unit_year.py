@@ -32,8 +32,8 @@ from django.db.models import Q
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from base.models import entity_container_year, learning_unit
-from base.models.academic_year import current_academic_year, compute_max_academic_year_adjournment
+from base.models import entity_container_year
+from base.models.academic_year import current_academic_year, compute_max_academic_year_adjournment, AcademicYear
 from base.models.enums import active_status, learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
@@ -50,8 +50,9 @@ MAXIMUM_CREDITS = 500
 
 
 def academic_year_validator(value):
+    academic = AcademicYear.objects.get(pk=value)
     academic_year_max = compute_max_academic_year_adjournment()
-    if value.year > academic_year_max:
+    if academic.year > academic_year_max:
         raise ValidationError(_('learning_unit_creation_academic_year_max_error').format(academic_year_max))
 
 
@@ -69,7 +70,7 @@ class LearningUnitYearAdmin(SerializableModelAdmin):
 
 class LearningUnitYear(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
-    academic_year = models.ForeignKey('AcademicYear', validators=[academic_year_validator])
+    academic_year = models.ForeignKey(AcademicYear, validators=[academic_year_validator])
     learning_unit = models.ForeignKey('LearningUnit')
     learning_container_year = models.ForeignKey('LearningContainerYear', blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
@@ -211,7 +212,7 @@ class LearningUnitYear(SerializableModel):
     def clean(self):
         learning_unit_years = find_gte_year_acronym(self.academic_year, self.acronym)
 
-        if self.learning_unit:
+        if getattr(self, 'learning_unit', None):
             learning_unit_years = learning_unit_years.exclude(learning_unit=self.learning_unit)
 
         if self.acronym in learning_unit_years.values_list('acronym', flat=True):
@@ -220,15 +221,19 @@ class LearningUnitYear(SerializableModel):
         if not re.match(REGEX_BY_SUBTYPE[self.subtype], self.acronym):
             raise ValidationError({'acronym': _('invalid_acronym')})
 
-        if (self.learning_container_year.container_type == learning_container_year_types.INTERNSHIP
-                and not self.internship_subtype):
-            raise ValidationError({'internship_subtype': _('field_is_required')})
+        if getattr(self, 'learning_container_year', None):
+            if (self.learning_container_year.container_type == learning_container_year_types.INTERNSHIP
+                    and not self.internship_subtype):
+                raise ValidationError({'internship_subtype': _('field_is_required')})
 
+        self.clean_status()
+        
     def clean_status(self):
         # If the parent is inactive, the partim can be only inactive
         if self.parent:
             if not self.parent.status and self.status:
                 raise ValidationError({'status', _('The partim must be inactive because the parent is inactive')})
+
 
 def get_by_id(learning_unit_year_id):
     return LearningUnitYear.objects.select_related('learning_container_year__learning_container') \

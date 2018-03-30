@@ -28,7 +28,7 @@ import datetime
 from django import forms
 
 from base.forms.bootstrap import BootstrapForm
-from base.forms.learning_unit.learning_unit_create import EntitiesVersionChoiceField, LearningUnitYearForm
+from base.forms.learning_unit.learning_unit_create import EntitiesVersionChoiceField
 from base.forms.utils.choice_field import add_blank
 from base.models.academic_year import AcademicYear
 from base.models.entity_version import find_main_entities_version
@@ -44,7 +44,7 @@ class LearningUnitProposalForm(BootstrapForm):
     folder_id = forms.IntegerField(min_value=0)
 
 
-class LearningUnitProposalCreationForm(LearningUnitYearForm):
+class LearningUnitProposalCreationForm(forms.Form):
     def __init__(self, person, *args, **kwargs):
         super(LearningUnitProposalCreationForm, self).__init__(*args, **kwargs)
         # When we submit a proposal, we can select all requirement entity available

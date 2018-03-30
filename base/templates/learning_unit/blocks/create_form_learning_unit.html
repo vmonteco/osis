@@ -27,6 +27,11 @@
 <div class="panel panel-default">
     <div class="panel-heading">
         <label>{% trans 'basic_informations_title' %}</label>
+
+        {% bootstrap_form_errors learning_unit_year_form %}
+        {% bootstrap_form_errors learning_unit_form %}
+        {% bootstrap_form_errors learning_container_form %}
+
     </div>
     <div class="panel-body">
         <div class="row">
@@ -59,10 +64,10 @@
         <label>{% trans 'titles' %}</label>
     </div>
     <div class="panel-body">
-        {% bootstrap_field  learning_container_form.common_title %}
-        {% bootstrap_field  learning_unit_year_form.specific_title %}
-        {% bootstrap_field  learning_container_form.common_title_english  %}
-        {% bootstrap_field  learning_unit_year_form.specific_title_english %}
+        {% bootstrap_field learning_container_form.common_title %}
+        {% bootstrap_field learning_unit_year_form.specific_title %}
+        {% bootstrap_field learning_container_form.common_title_english  %}
+        {% bootstrap_field learning_unit_year_form.specific_title_english %}
     </div>
 </div>
 <div class="panel panel-default">
@@ -86,8 +91,8 @@
     </div>
     <div class="panel-body">
         <div class="row">
-            <div class="col-md-6">{% bootstrap_field  learning_unit_form.faculty_remark %}</div>
-            <div class="col-md-6">{% bootstrap_field  learning_unit_form.other_remark %}</div>
+            <div class="col-md-6">{% bootstrap_field learning_unit_form.faculty_remark %}</div>
+            <div class="col-md-6">{% bootstrap_field learning_unit_form.other_remark %}</div>
         </div>
     </div>
 </div>

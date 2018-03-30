@@ -31,7 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.learning_unit_proposal import reinitialize_data_before_proposal
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
 from base.business.learning_units.proposal import edition, creation
-from base.forms.learning_unit.learning_unit_create import EntitiesVersionChoiceField, LearningUnitYearForm
+from base.forms.learning_unit.learning_unit_create import EntitiesVersionChoiceField
 from base.models import entity_container_year
 from base.models.entity_version import find_main_entities_version, get_last_version, get_last_version_by_entity_id
 from base.models.enums import learning_container_year_types, entity_container_year_link_type
@@ -78,7 +78,7 @@ class ProposalLearningUnitForm(forms.ModelForm):
 
 
 # FIXME Split LearningUnitYearForm and ProposalLearningUnit
-class LearningUnitProposalModificationForm(LearningUnitYearForm):
+class LearningUnitProposalModificationForm(forms.Form):
     entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
     folder_id = forms.IntegerField(min_value=0)
     state = forms.ChoiceField(choices=proposal_state.CHOICES, required=False, disabled=True)
