@@ -37,7 +37,6 @@ from base.models.entity_version import find_main_entities_version, get_last_vers
 from base.models.enums import learning_container_year_types, entity_container_year_link_type
 from base.models.enums import proposal_state, proposal_type
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
-from base.models.enums.proposal_type import ProposalType
 from base.models.proposal_learning_unit import ProposalLearningUnit
 
 
@@ -64,7 +63,6 @@ class ProposalLearningUnitForm(forms.ModelForm):
             self.fields['state'].required = False
         self.fields['type'].disabled = True
         self.fields['type'].required = False
-        self.fields['type'].initial = ProposalType.SUPPRESSION.name
 
     def clean_entity(self):
         return self.cleaned_data['entity'].entity

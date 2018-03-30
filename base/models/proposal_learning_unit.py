@@ -48,7 +48,8 @@ class ProposalLearningUnit(models.Model):
     author = models.ForeignKey('Person', null=True)
     date = models.DateTimeField(auto_now=True)
     learning_unit_year = models.OneToOneField('LearningUnitYear')
-    type = models.CharField(max_length=50, choices=proposal_type.CHOICES)
+    type = models.CharField(max_length=50, choices=proposal_type.CHOICES, verbose_name=_("type"),
+                            default=proposal_type.ProposalType.MODIFICATION.name)
     state = models.CharField(max_length=50, choices=proposal_state.CHOICES, verbose_name=_("state"),
                              default=proposal_state.ProposalState.FACULTY.name)
     initial_data = JSONField(default={})
