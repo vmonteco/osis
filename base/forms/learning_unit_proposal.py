@@ -43,7 +43,6 @@ from base.models.proposal_learning_unit import ProposalLearningUnit
 class ProposalLearningUnitForm(forms.ModelForm):
     # TODO entity must be EntitiesChoiceField
     entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
-    type = forms.ChoiceField(choices=proposal_type.CHOICES, required=False, disabled=True)
 
     def __init__(self, data, person, *args, initial=None, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -68,7 +67,7 @@ class ProposalLearningUnitForm(forms.ModelForm):
 
     class Meta:
         model = ProposalLearningUnit
-        fields = ['entity', 'folder_id', 'state', 'type']
+        fields = ['entity', 'folder_id', 'state']
 
     def save(self, commit=True):
         if self.instance.initial_data:
