@@ -25,6 +25,8 @@
 ##############################################################################
 from django.db import models
 from django.utils import timezone
+
+from base import models as mdl_base
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
@@ -112,3 +114,11 @@ def current_academic_year():
 def starting_academic_year():
     """ If we have two academic year [2015-2016] [2016-2017]. It will return [2016-2017] """
     return current_academic_years().last()
+
+
+LEARNING_UNIT_CREATION_SPAN_YEARS = 6
+
+
+def compute_max_academic_year_adjournment():
+    starting_academic_year = mdl_base.academic_year.starting_academic_year()
+    return starting_academic_year.year + LEARNING_UNIT_CREATION_SPAN_YEARS

@@ -43,8 +43,8 @@ from base.business.learning_unit import get_cms_label_data, \
     get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, find_language_in_settings, \
-    compute_max_academic_year_adjournment, \
     create_learning_unit_partim_structure, CMS_LABEL_SPECIFICATIONS
+from base.models.academic_year import compute_max_academic_year_adjournment
 from base.business.learning_unit_proposal import get_difference_of_proposal
 from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
@@ -276,6 +276,7 @@ def learning_unit_create(request, academic_year):
     learning_unit_form_container = LearningUnitFormContainer(request.POST or None, person, academic_year)
 
     if learning_unit_form_container.is_valid():
+        learning_unit_form_container.save()
         first_learning_unit_year_id = _create_learning_unit_years_process(learning_unit_form_container.learning_unit_form,
                                                                           request)
         return redirect('learning_unit', learning_unit_year_id=first_learning_unit_year_id)

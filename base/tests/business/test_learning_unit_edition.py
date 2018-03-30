@@ -32,7 +32,7 @@ from django.forms import model_to_dict
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.learning_unit import compute_max_academic_year_adjournment
+from base.models.academic_year import compute_max_academic_year_adjournment
 from base.business.learning_units.edition import edit_learning_unit_end_date, update_learning_unit_year_with_report, \
     ConsistencyError
 from base.models import academic_year

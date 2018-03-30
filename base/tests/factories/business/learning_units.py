@@ -27,9 +27,9 @@ import datetime
 
 from decimal import Decimal
 
-from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS, compute_max_academic_year_adjournment
 from base.models import academic_year as mdl_academic_year
-from base.models.academic_year import AcademicYear
+from base.models.academic_year import AcademicYear, LEARNING_UNIT_CREATION_SPAN_YEARS, \
+    compute_max_academic_year_adjournment
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
     learning_unit_periodicity, learning_unit_year_subtypes, component_type
 from base.models.enums import learning_unit_year_quadrimesters

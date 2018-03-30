@@ -85,17 +85,17 @@ function extractValue(domElem){
 
 
 function getFirstLetter(){
-    return extractValue($('#id_first_letter'));
+    return extractValue($('#id_acronym_0'));
 }
 
 
 function getAcronym(){
-    return extractValue($('#id_acronym'));
+    return extractValue($('#id_acronym_1'));
 }
 
 
 function getPartimCharacter(){
-    return extractValue($('#hdn_partim_character'));
+    return extractValue($('#id_acronym_2'));
 }
 
 
@@ -151,12 +151,12 @@ $(document).ready(function() {
         || isValueEmpty('id_additional_requirement_entity_1')
         || isDisabledField('id_additional_requirement_entity_1');
 
-    $('#id_first_letter').change(validate_acronym);
-    $('#id_acronym').change(validate_acronym);
+    $('#id_acronym_0').change(validate_acronym);
+    $('#id_acronym_1').change(validate_acronym);
     $('#id_academic_year').change(validate_acronym);
     $("#LearningUnitYearForm").submit(function( event ) {
         if (!window.valid_acronym) {
-            $("#id_acronym").focus();
+            $("#id_acronym_1").focus();
         }
         return window.valid_acronym;
     });

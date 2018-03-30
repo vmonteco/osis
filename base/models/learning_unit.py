@@ -28,6 +28,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.models.academic_year import current_academic_year
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
+from base.models.enums.learning_unit_year_subtypes import PARTIM, FULL
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from osis_common.models.serializable_model import SerializableModelAdmin, SerializableModel
 
@@ -37,6 +38,11 @@ STRING_END = "$"
 LEARNING_UNIT_ACRONYM_REGEX_ALL = LEARNING_UNIT_ACRONYM_REGEX_BASE + LETTER_OR_DIGIT + "{0,1}" + STRING_END
 LEARNING_UNIT_ACRONYM_REGEX_FULL = LEARNING_UNIT_ACRONYM_REGEX_BASE + STRING_END
 LEARNING_UNIT_ACRONYM_REGEX_PARTIM = LEARNING_UNIT_ACRONYM_REGEX_BASE + LETTER_OR_DIGIT + STRING_END
+
+REGEX_BY_SUBTYPE = {
+    PARTIM: LEARNING_UNIT_ACRONYM_REGEX_PARTIM,
+    FULL: LEARNING_UNIT_ACRONYM_REGEX_FULL
+}
 
 
 class LearningUnitAdmin(SerializableModelAdmin):

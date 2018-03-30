@@ -28,14 +28,13 @@ from django.core.exceptions import ValidationError
 from django.forms import model_to_dict
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_units.edition import filter_biennial, update_learning_unit_year_with_report, \
     edit_learning_unit_end_date
 from base.business.learning_units.perms import FACULTY_UPDATABLE_CONTAINER_TYPES
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearForm, PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.utils.choice_field import add_blank
 from base.models import academic_year, entity_container_year
-from base.models.academic_year import AcademicYear
+from base.models.academic_year import AcademicYear, compute_max_academic_year_adjournment
 from base.models.enums.attribution_procedure import AttributionProcedures
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums.learning_container_year_types import INTERNSHIP

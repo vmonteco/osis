@@ -58,8 +58,6 @@ CMS_LABEL_SUMMARY = ['resume']
 SIMPLE_SEARCH = 1
 SERVICE_COURSES_SEARCH = 2
 
-LEARNING_UNIT_CREATION_SPAN_YEARS = 6
-
 
 def get_last_academic_years(last_years=10):
     today = datetime.date.today()
@@ -187,11 +185,6 @@ def _is_used_by_full_learning_unit_year(a_learning_class_year):
             return True
 
     return False
-
-
-def compute_max_academic_year_adjournment():
-    starting_academic_year = mdl_base.academic_year.starting_academic_year()
-    return starting_academic_year.year + LEARNING_UNIT_CREATION_SPAN_YEARS
 
 
 def prepare_xls_content(found_learning_units):

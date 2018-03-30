@@ -28,6 +28,7 @@ from unittest import mock
 
 from django.test import TestCase
 
+import base.models.academic_year
 from base.business.learning_units.simple import creation
 from base import models as mdl_base
 from base.business import learning_unit
@@ -48,8 +49,8 @@ class LearningUnitCreationTest(TestCase):
         self.current_academic_year = create_current_academic_year()
 
     def test_compute_max_academic_year_adjournment(self):
-        self.assertEqual(learning_unit.compute_max_academic_year_adjournment(),
-                         self.current_academic_year.year + learning_unit.LEARNING_UNIT_CREATION_SPAN_YEARS)
+        self.assertEqual(base.models.academic_year.compute_max_academic_year_adjournment(),
+                         self.current_academic_year.year + base.models.academic_year.LEARNING_UNIT_CREATION_SPAN_YEARS)
 
     def test_create_learning_unit_year(self):
         data_dict = self.get_data_dict(learning_container_year_types.OTHER_COLLECTIVE)
