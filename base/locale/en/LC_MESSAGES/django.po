@@ -2528,7 +2528,7 @@ msgid "learning_unit_created"
 msgstr "Learning unit %(learning_unit)s created for the academic year %(academic_year)s"
 
 msgid "learning_unit_updated"
-msgstr "Learning unit %(learning_unit)s has been updated successfully"
+msgstr "Learning unit {acronym} successfully updated."
 
 msgid "partim_greater_than_parent"
 msgstr "The learning unit %(learning_unit)s has a partim %(partim)s with an end year greater than %(year)s"

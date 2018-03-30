@@ -124,7 +124,7 @@ def _check_extend_partim(last_learning_unit_year, new_academic_year):
 def _update_end_year_field(lu, year):
     lu.end_year = year
     lu.save()
-    return _('learning_unit_updated') % {'learning_unit': lu.acronym}
+    return _('learning_unit_updated').format(acronym=lu.acronym)
 
 
 def _duplicate_learning_unit_year(old_learn_unit_year, new_academic_year):
