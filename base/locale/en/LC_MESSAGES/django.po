@@ -2735,3 +2735,15 @@ msgstr ""
 
 msgid "The parent must be active because there are partim active"
 msgstr ""
+
+msgid "educational_information_update_reminder"
+msgstr "Mail to remind educational information update"
+
+msgid "do_you_want_to_sent_email"
+msgstr "Do you want to sent email to remind to update the educational informations?"
+
+msgid "desc_mail_reminder"
+msgstr "Sent email to remind to update educational information"
+
+msgid "success_mail_reminder"
+msgstr "Reminding mails sent"
