@@ -68,7 +68,7 @@ class ProposalLearningUnit(models.Model):
 def find_by_learning_unit_year(a_learning_unit_year):
     try:
         return ProposalLearningUnit.objects.get(learning_unit_year=a_learning_unit_year)
-    except ObjectDoesNotExist:
+    except ProposalLearningUnit.DoesNotExist:
         return None
 
 
