@@ -47,13 +47,16 @@ def is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, pe
 def is_eligible_to_create_modification_proposal(learning_unit_year, person):
     if learning_unit_year.is_past() or learning_unit_year.is_partim():
         return False
-    if learning_unit_year.learning_container_year and \
-            learning_unit_year.learning_container_year.container_type not in FACULTY_UPDATABLE_CONTAINER_TYPES:
+    if not _is_container_type_course_dissertation_or_internship(learning_unit_year):
         return False
     if learning_unit_year.is_in_proposal():
         return False
-
     return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
+
+
+def _is_container_type_course_dissertation_or_internship(learning_unit_year):
+    return learning_unit_year.learning_container_year and\
+           learning_unit_year.learning_container_year.container_type in FACULTY_UPDATABLE_CONTAINER_TYPES
 
 
 def is_eligible_for_cancel_of_proposal(proposal, person):
