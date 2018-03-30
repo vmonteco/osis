@@ -24,11 +24,11 @@
 #
 ##############################################################################
 from django.db import models, IntegrityError
+from django.utils.translation import ugettext_lazy as _
 
 from base.models.academic_year import current_academic_year
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
-from django.utils.translation import ugettext_lazy as _
-
+from base.models.proposal_learning_unit import ProposalLearningUnit
 from osis_common.models.serializable_model import SerializableModelAdmin, SerializableModel
 
 LEARNING_UNIT_ACRONYM_REGEX_BASE = "^[BLMW][A-Z]{2,4}\d{4}"
@@ -78,6 +78,9 @@ class LearningUnit(SerializableModel):
 
     def is_past(self):
         return self.end_year and current_academic_year().year > self.end_year
+
+    def has_proposal(self):
+        return ProposalLearningUnit.objects.filter(learning_unit_year__learning_unit=self).exists()
 
     class Meta:
         permissions = (
