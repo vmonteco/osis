@@ -25,7 +25,7 @@
 ##############################################################################
 import re
 
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from django.db import models
 from django.db.models import Q
 from django.utils.functional import cached_property
@@ -38,6 +38,7 @@ from base.models.enums import learning_unit_year_subtypes, internship_subtypes, 
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.group_element_year import GroupElementYear
+from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
@@ -65,9 +66,12 @@ class LearningUnitYear(SerializableModel):
     learning_unit = models.ForeignKey('LearningUnit')
     learning_container_year = models.ForeignKey('LearningContainerYear', blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
-    acronym = models.CharField(max_length=15, db_index=True)
-    specific_title = models.CharField(max_length=255, blank=True, null=True)
-    specific_title_english = models.CharField(max_length=250, blank=True, null=True)
+    acronym = models.CharField(max_length=15, db_index=True,
+                               validators=[RegexValidator(LEARNING_UNIT_ACRONYM_REGEX_ALL)])
+    specific_title = models.CharField(max_length=255, blank=True, null=True,
+                                      verbose_name=_('official_title_proper_to_UE'))
+    specific_title_english = models.CharField(max_length=250, blank=True, null=True,
+                                              verbose_name=_('official_english_title_proper_to_UE'))
     subtype = models.CharField(max_length=50, choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
                                default=learning_unit_year_subtypes.FULL)
     credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True,

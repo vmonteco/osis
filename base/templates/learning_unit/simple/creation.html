@@ -1,7 +1,5 @@
 {% extends "layout.html" %}
-{% load staticfiles %}
-{% load i18n %}
-
+{% load staticfiles i18n %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -38,8 +36,7 @@
 </div>
 <div class="panel panel-default">
     <div class="panel-body">
-        <form method="post" action="{% url 'learning_unit_year_add' %}" id="LearningUnitYearForm"
-        data-validate-url="{% url 'check_acronym' type='FULL' %}">
+        <form method="post" id="LearningUnitYearForm" data-validate-url="{% url 'check_acronym' type='FULL' %}">
             {% csrf_token %}
             {% include "learning_unit/blocks/create_form_learning_unit.html" %}
             <div class="panel-body">

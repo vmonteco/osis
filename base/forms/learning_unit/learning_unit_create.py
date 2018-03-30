@@ -28,6 +28,7 @@ import re
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db import transaction
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
@@ -36,7 +37,7 @@ from base.business import learning_unit
 from base.forms.bootstrap import BootstrapForm
 from base.forms.utils.choice_field import add_blank
 from base.models.campus import find_main_campuses, Campus
-from base.models.entity_version import find_main_entities_version
+from base.models.entity_version import find_main_entities_version, EntityVersion
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, INTERNSHIP, \
     LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
@@ -47,6 +48,7 @@ from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_FULL, LEARNING_UNIT_ACRONYM_REGEX_PARTIM, \
     LEARNING_UNIT_ACRONYM_REGEX_ALL, LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
+from reference.models import language
 from reference.models.language import find_all_languages, Language
 
 MINIMUM_CREDITS = 0
@@ -135,8 +137,7 @@ class LearningUnitYearModelForm(forms.ModelForm):
 
 
 class LearningContainerYearModelForm(forms.ModelForm):
-    requirement_entity = EntitiesVersionChoiceField(
-        find_main_entities_version().none(),
+    requirement_entity = EntitiesVersionChoiceField(EntityVersion.objects.none(),
         widget=forms.Select(
             attrs={
                 'onchange': (
@@ -146,11 +147,11 @@ class LearningContainerYearModelForm(forms.ModelForm):
             }
         )
     )
-    allocation_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=True,
-                                                   widget=forms.Select(attrs={'id': 'allocation_entity'}))
+    allocation_entity = EntitiesVersionChoiceField(
+        find_main_entities_version(), widget=forms.Select(attrs={'id': 'allocation_entity'})
+    )
     additional_requirement_entity_1 = EntitiesVersionChoiceField(
-        queryset=find_main_entities_version(),
-        required=False,
+        find_main_entities_version(), required=False,
         widget=forms.Select(
             attrs={
                 'onchange':
@@ -159,17 +160,57 @@ class LearningContainerYearModelForm(forms.ModelForm):
             }
         )
     )
-    additional_requirement_entity_2 = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
-                                                                 widget=forms.Select(attrs={'disable': 'disable'}))
+    additional_requirement_entity_2 = EntitiesVersionChoiceField(
+        queryset=find_main_entities_version(), required=False, widget=forms.Select(attrs={'disable': 'disable'})
+    )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, data, person, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
         self.fields['campus'].queryset = find_main_campuses()
+        # TODO the default values must be set in model.
+        qs = Campus.objects.filter(name='Louvain-la-Neuve')
+        if qs.exists():
+            self.fields['campus'].initial = qs.get()
+
         self.fields['container_type'].widget.attrs ={'onchange': 'showInternshipSubtype()'}
+
+        # When we create a learning unit, we can only select requirement entity which are attached to the person
+        self.fields["requirement_entity"].queryset = person.find_main_entities_version
+        if person.is_faculty_manager():
+            self.fields["container_type"].choices = _create_faculty_learning_container_type_list()
+            self.fields.pop('internship_subtype')
 
     class Meta:
         model = LearningContainerYear
         fields = ('container_type', 'common_title', 'common_title_english', 'language', 'campus')
+
+
+class LearningUnitFormContainer:
+
+    def __init__(self, data, person, academic_year):
+        self.learning_unit_year_form = LearningUnitYearModelForm(data, initial={'academic_year': academic_year})
+        self.learning_unit_form = LearningUnitModelForm(data)
+        self.learning_container_form = LearningContainerYearModelForm(
+            data, person, initial={'language': language.find_by_code('FR')})
+
+    def is_valid(self):
+        forms_is_valid = [
+            self.learning_unit_year_form.is_valid(),
+            self.learning_unit_form.is_valid(),
+            self.learning_container_form.is_valid()
+        ]
+        return all(forms_is_valid)
+
+    def save(self, commit=True):
+        with transaction.atomic():
+            self.learning_unit_year_form.save(commit),
+            self.learning_unit_form.save(commit),
+            self.learning_container_form.save(commit)
+
+    def get_context(self):
+        return {'learning_unit_form': self.learning_unit_form,
+                'learning_unit_year_form': self.learning_unit_year_form,
+                'learning_container_form': self.learning_container_form}
 
 
 
@@ -202,8 +243,7 @@ class LearningUnitYearForm(BootstrapForm):
     quadrimester = forms.CharField(widget=forms.Select(choices=add_blank(LEARNING_UNIT_YEAR_QUADRIMESTERS)),
                                    required=False)
     campus = forms.ModelChoiceField(queryset=find_main_campuses())
-    requirement_entity = EntitiesVersionChoiceField(
-        find_main_entities_version().none(),
+    requirement_entity = EntitiesVersionChoiceField(EntityVersion.objects.none(),
         widget=forms.Select(
             attrs={
                 'onchange': (
@@ -215,9 +255,7 @@ class LearningUnitYearForm(BootstrapForm):
     )
     allocation_entity = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=True,
                                                    widget=forms.Select(attrs={'id': 'allocation_entity'}))
-    additional_requirement_entity_1 = EntitiesVersionChoiceField(
-        queryset=find_main_entities_version(),
-        required=False,
+    additional_requirement_entity_1 = EntitiesVersionChoiceField(queryset=find_main_entities_version(), required=False,
         widget=forms.Select(
             attrs={
                 'onchange':
@@ -234,7 +272,7 @@ class LearningUnitYearForm(BootstrapForm):
         self.learning_unit = kwargs.pop('learning_unit', None)
         super(LearningUnitYearForm, self).__init__(*args, **kwargs)
 
-        # TODO the default value must be set in model.
+        # TODO the default values must be set in model.
         qs = Campus.objects.filter(name='Louvain-la-Neuve')
         if qs.exists():
             self.fields['campus'].initial = qs.get()
@@ -304,7 +342,7 @@ class CreateLearningUnitYearForm(LearningUnitYearForm):
         super(CreateLearningUnitYearForm, self).__init__(*args, **kwargs)
         # When we create a learning unit, we can only select requirement entity which are attached to the person
         self.fields["requirement_entity"].queryset = person.find_main_entities_version
-        if person.user.groups.filter(name='faculty_managers').exists():
+        if person.is_faculty_manager():
             self.fields["container_type"].choices = _create_faculty_learning_container_type_list()
             self.fields.pop('internship_subtype')
 

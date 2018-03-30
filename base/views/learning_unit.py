@@ -29,7 +29,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
-from django.db.models import BLANK_CHOICE_DASH
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.http import QueryDict
@@ -52,9 +51,9 @@ from base.business.learning_units.perms import learning_unit_year_permissions, l
 from base.business.learning_units.simple.creation import create_learning_unit_year_structure, create_learning_unit
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit.edition import compute_form_initial_data
-from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
-    PARTIM_FORM_READ_ONLY_FIELD, LearningUnitYearModelForm, LearningContainerYearModelForm, LearningUnitModelForm
+    PARTIM_FORM_READ_ONLY_FIELD, LearningUnitFormContainer
+from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import proposal_learning_unit
@@ -69,7 +68,6 @@ from base.views.learning_units import perms
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
 from base.views.learning_units.search import _learning_units_search
 from cms.models import text_label
-from reference.models import language
 from . import layout
 
 
@@ -274,30 +272,15 @@ def learning_class_year_edit(request, learning_unit_year_id):
 @permission_required('base.can_create_learningunit', raise_exception=True)
 def learning_unit_create(request, academic_year):
     person = get_object_or_404(Person, user=request.user)
-    # learning_unit_form = CreateLearningUnitYearForm(person, initial={'academic_year': academic_year,
-    #                                                                  'subtype': learning_unit_year_subtypes.FULL,
-    #                                                                  "container_type": BLANK_CHOICE_DASH,
-    #                                                                  'language': language.find_by_code('FR')})
-    data = request.POST or None
-    learning_unit_year_form = LearningUnitYearModelForm(data, initial={'academic_year': academic_year})
-    learning_unit_form = LearningUnitModelForm(data)
-    learning_container_form = LearningContainerYearModelForm(data, initial={'language': language.find_by_code('FR')})
 
-    return render(request, "learning_unit/simple/creation.html", {'learning_unit_form': learning_unit_form,
-                                                                  'learning_unit_year_form': learning_unit_year_form,
-                                                                  'learning_container_form': learning_container_form})
+    learning_unit_form_container = LearningUnitFormContainer(request.POST or None, person, academic_year)
 
-
-@login_required
-@permission_required('base.can_create_learningunit', raise_exception=True)
-@require_POST
-def learning_unit_year_add(request):
-    person = get_object_or_404(Person, user=request.user)
-    learning_unit_form = CreateLearningUnitYearForm(person, request.POST)
-    if learning_unit_form.is_valid():
-        first_learning_unit_year_id = _create_learning_unit_years_process(learning_unit_form, request)
+    if learning_unit_form_container.is_valid():
+        first_learning_unit_year_id = _create_learning_unit_years_process(learning_unit_form_container.learning_unit_form,
+                                                                          request)
         return redirect('learning_unit', learning_unit_year_id=first_learning_unit_year_id)
-    return layout.render(request, "learning_unit/simple/creation.html", {'learning_unit_form': learning_unit_form})
+
+    return render(request, "learning_unit/simple/creation.html", learning_unit_form_container.get_context())
 
 
 def _create_learning_unit_years_process(learning_unit_form, request):
