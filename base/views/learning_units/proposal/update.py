@@ -33,7 +33,6 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from base.business import learning_unit_proposal as business_proposal
-from base.business.learning_unit_proposal import get_difference_of_proposal
 from base.business.learning_units.proposal.common import compute_proposal_state
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, ProposalLearningUnitForm, \
