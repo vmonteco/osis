@@ -37,7 +37,7 @@ from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_Y
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 from base.models.learning_container_year import LearningContainerYear
-from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_FULL, LearningUnit
+from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
 from reference.models import language
 
@@ -54,32 +54,53 @@ PARTIM_FORM_READ_ONLY_FIELD = {'first_letter', 'acronym', 'common_title', 'commo
 class AcronymInput(forms.MultiWidget):
     template_name = 'learning_unit/blocks/widget/acronym_widget.html'
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, is_partim=False, **kwargs):
         choices = kwargs.pop('choices', [])
-
-        widgets = (
+        self.is_partim = is_partim
+        widgets = [
             forms.Select(choices=choices),
             forms.TextInput(),
-        )
+        ]
+
+        if self.is_partim:
+            widgets.append(
+                forms.TextInput(attrs={'class': 'text-center',
+                                       'style': 'text-transform: uppercase;',
+                                       'maxlength': "1",
+                                       'onchange': 'validate_acronym()'})
+            )
+
         super().__init__(widgets, *args, **kwargs)
 
     def decompress(self, value):
+        return self.decompress_partim(value) if self.is_partim else self.decompress_full(value)
+
+    @staticmethod
+    def decompress_full(value):
         if value:
-            return [value[0], value[1:]]
-        return [None, None]
+            return [value[0], value[1:-1], value[-1]]
+        return [None, None, None]
+
+    @staticmethod
+    def decompress_partim(value):
+        if value:
+            return [value[0], value[1:-1], ]
 
 
 class AcronymField(forms.MultiValueField):
     widget = AcronymInput
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, is_partim=False, **kwargs):
         max_length = kwargs.pop('max_length')
         list_fields = [
             forms.ChoiceField(choices=_create_first_letter_choices()),
             forms.CharField(max_length=max_length)
         ]
+        if is_partim:
+            list_fields.append(forms.CharField(max_length=1))
+
         super().__init__(list_fields, *args, **kwargs)
-        self.widget = AcronymInput(choices=_create_first_letter_choices())
+        self.widget = AcronymInput(choices=_create_first_letter_choices(), is_partim=is_partim)
 
     def compress(self, data_list):
         return ''.join(data_list)
@@ -118,6 +139,8 @@ class LearningUnitYearModelForm(forms.ModelForm):
         if self.initial.get('subtype') == "PARTIM":
             self.fields['specific_title'].label = _('official_title_proper_to_partim')
             self.fields['specific_title_english'].label = _('official_english_title_proper_to_partim')
+
+            self.fields['acronym'].widget = AcronymField(is_partim=True, max_length=10)
 
     class Meta:
         model = LearningUnitYear
@@ -173,6 +196,10 @@ class LearningContainerYearModelForm(forms.ModelForm):
             self.fields["container_type"].choices = _create_faculty_learning_container_type_list()
             self.fields.pop('internship_subtype')
 
+        if self.initial.get('subtype') == "PARTIM":
+            _create_learning_container_year_type_list()
+
+
     class Meta:
         model = LearningContainerYear
         fields = ('container_type', 'common_title', 'common_title_english', 'language', 'campus')
@@ -193,11 +220,14 @@ class LearningContainerYearModelForm(forms.ModelForm):
 
 class LearningUnitFormContainer:
 
-    def __init__(self, data, person, academic_year):
+    def __init__(self, data, person, academic_year, is_partim=False):
         self.learning_unit_year_form = LearningUnitYearModelForm(data, initial={'academic_year': academic_year})
         self.learning_unit_form = LearningUnitModelForm(data)
         self.learning_container_form = LearningContainerYearModelForm(
             data, person, initial={'language': language.find_by_code('FR')})
+
+        if is_partim:
+            self.disabled_fields()
 
     def is_valid(self):
         forms_is_valid = [
@@ -211,7 +241,6 @@ class LearningUnitFormContainer:
         return False
 
     def post_validation(self):
-        print('post')
         common_title = self.learning_container_form.cleaned_data["common_title"]
         specific_title = self.learning_unit_year_form.cleaned_data["specific_title"]
         if not common_title and not specific_title:
@@ -230,25 +259,13 @@ class LearningUnitFormContainer:
                 'learning_unit_year_form': self.learning_unit_year_form,
                 'learning_container_form': self.learning_container_form}
 
+    def disabled_fields(self):
+        for key, value in self.all_fields():
+            if key in PARTIM_FORM_READ_ONLY_FIELD:
+                value.widget.attrs[READONLY_ATTR] = READONLY_ATTR
 
-class CreatePartimForm(BootstrapForm):
-    # TODO Create widget for partim acronym
-    partim_character = forms.CharField(required=True,
-                                       widget=forms.TextInput(attrs={'class': 'text-center',
-                                                                     'style': 'text-transform: uppercase;',
-                                                                     'maxlength': "1",
-                                                                     'id': 'hdn_partim_character',
-                                                                     'onchange': 'validate_acronym()'}))
-
-    def __init__(self, learning_unit_year_parent, *args, **kwargs):
-        self.learning_unit_year_parent = learning_unit_year_parent
-        super(CreatePartimForm, self).__init__(*args, **kwargs)
-        self.fields['container_type'].choices = _create_learning_container_year_type_list()
-        # The credit of LUY partim cannot be greater than credit of full LUY
-        self.set_read_only_fields()
-
-    def set_read_only_fields(self):
-        for field in PARTIM_FORM_READ_ONLY_FIELD:
-            if self.fields.get(field):
-                self.fields[field].widget.attrs[READONLY_ATTR] = READONLY_ATTR
-
+    def all_fields(self):
+        fields = self.learning_unit_form.fields
+        fields.update(self.learning_container_form.fields)
+        fields.udapte(self.learning_unit_year_form.fields)
+        return fields

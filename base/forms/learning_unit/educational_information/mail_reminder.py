@@ -25,21 +25,7 @@
 ##############################################################################
 
 from django import forms
-from django.db import transaction
-from django.db.models import Prefetch
-from django.urls import reverse
-from django.utils.functional import lazy
-from django.utils.translation import ugettext_lazy as _
 
-from base import models as mdl
-from base.business.learning_unit_year_with_context import append_latest_entities
-from base.forms import learning_units as learning_units_form
-from base.forms.common import get_clean_data, TooManyResultsException
-from base.forms.learning_unit_search import SearchForm
-from base.models import entity_version
-from base.models.enums import entity_container_year_link_type, proposal_type, proposal_state
-from base.models.proposal_learning_unit import ProposalLearningUnit
-from attribution.models.attribution_new import AttributionNew
 from base.forms.utils.emptyfield import EmptyField
 
 
