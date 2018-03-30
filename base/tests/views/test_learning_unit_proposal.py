@@ -1047,7 +1047,7 @@ class TestEditProposal(TestCase):
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'learning_unit/proposal/create_suppression.html')
+        self.assertEqual(template, 'learning_unit/proposal/edit_suppression.html')
         self.assertIsInstance(context['form_end_date'], LearningUnitEndDateForm)
         self.assertIsInstance(context['form_proposal'], ProposalLearningUnitForm)
 
