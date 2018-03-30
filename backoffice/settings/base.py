@@ -202,10 +202,17 @@ QUEUES = {}
 # Add local path in your environment settings (ex: dev.py)
 LOCALE_PATHS = ()
 
+def define_style_sheet(name, class_name):
+    return {'name': name, 'element': 'div', 'attributes': {'class': class_name}}
+
 # Apps Settings
 CKEDITOR_JQUERY_URL = os.path.join(STATIC_URL, "js/jquery-2.1.4.min.js")
 CKEDITOR_CONFIGS = {
     'default': {
+        "removePlugins": "stylesheetparser",
+        'allowedContent': True,
+        'extraAllowedContent': 'div(reddot_*)',
+        'extraPlugins': 'reddot',
         'toolbar': 'Custom',
         'toolbar_Custom': [
             {'name': 'basicstyles', 'items': ['Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat']},
@@ -221,6 +228,15 @@ CKEDITOR_CONFIGS = {
              'items': ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton',
                        'HiddenField']},
             {'name': 'about', 'items': ['About']},
+        ],
+        'stylesSet': [
+            define_style_sheet('Intro', 'reddot_intro'),
+            define_style_sheet('Teaser', 'reddot_teaser'),
+            define_style_sheet('Collapse', 'reddot_collapse'),
+            define_style_sheet('Extra', 'reddot_extra'),
+            define_style_sheet('Body', 'reddot_body'),
+            define_style_sheet('Part1', 'reddot_part1'),
+            define_style_sheet('Part2', 'reddot_part2'),
         ],
     },
     'minimal': {
