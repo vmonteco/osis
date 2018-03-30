@@ -44,7 +44,7 @@ from base.models.enums.learning_unit_management_sites import LearningUnitManagem
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
 from base.models.enums.learning_unit_year_quadrimesters import LEARNING_UNIT_YEAR_QUADRIMESTERS
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_FULL, LEARNING_UNIT_ACRONYM_REGEX_PARTIM, \
-    LEARNING_UNIT_ACRONYM_REGEX_ALL
+    LEARNING_UNIT_ACRONYM_REGEX_ALL, LearningUnit
 from reference.models.language import find_all_languages, Language
 
 MINIMUM_CREDITS = 0
@@ -55,6 +55,38 @@ PARTIM_FORM_READ_ONLY_FIELD = {'first_letter', 'acronym', 'common_title', 'commo
                                'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year',
                                'container_type', 'internship_subtype',
                                'additional_requirement_entity_1', 'additional_requirement_entity_2'}
+
+
+class AcronymInput(forms.MultiWidget):
+    def __init__(self, *args, **kwargs):
+        choices = kwargs.pop('choices', [])
+
+        widgets = (
+            forms.Select(choices=choices),
+            forms.TextInput(),
+        )
+        super().__init__(widgets, *args, **kwargs)
+
+    def decompress(self, value):
+        if value:
+            return [value[0], value[1:]]
+        return [None, None]
+
+
+class AcronymField(forms.MultiValueField):
+    widget = AcronymInput
+
+    def __init__(self, *args, **kwargs):
+        max_length = kwargs.pop('max_length')
+        list_fields = [
+            forms.ChoiceField(choices=_create_first_letter_choices()),
+            forms.CharField(max_length=max_length)
+        ]
+        super().__init__(list_fields, *args, **kwargs)
+        self.widget = AcronymInput(choices=_create_first_letter_choices())
+
+    def compress(self, data_list):
+        return ''.join(data_list)
 
 
 def _create_first_letter_choices():
@@ -77,6 +109,15 @@ def _merge_first_letter_and_acronym(first_letter, acronym):
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.acronym
+
+
+class LearningUnitModelForm(forms.ModelForm):
+    class Meta:
+        model = LearningUnit
+        fields = ('acronym', 'title', 'periodicity', 'faculty_remark', 'other_remark')
+        field_classes = {
+            'acronym': AcronymField
+        }
 
 
 # FIXME Convert it in ModelForm !

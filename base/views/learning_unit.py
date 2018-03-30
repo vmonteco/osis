@@ -55,7 +55,7 @@ from base.business.learning_units.simple.creation import create_learning_unit_ye
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit.edition import compute_form_initial_data
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
-from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
+from base.forms.learning_unit.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
     PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, SummaryModelForm, \
     LearningUnitPedagogyForm, BibliographyModelForm

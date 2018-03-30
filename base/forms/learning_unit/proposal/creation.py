@@ -28,7 +28,7 @@ import datetime
 from django import forms
 
 from base.forms.bootstrap import BootstrapForm
-from base.forms.learning_unit_create import EntitiesVersionChoiceField, LearningUnitYearForm
+from base.forms.learning_unit.learning_unit_create import EntitiesVersionChoiceField, LearningUnitYearForm
 from base.forms.utils.choice_field import add_blank
 from base.models.academic_year import AcademicYear
 from base.models.entity_version import find_main_entities_version

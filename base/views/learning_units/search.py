@@ -33,7 +33,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.learning_unit import SERVICE_COURSES_SEARCH, create_xls, get_last_academic_years, SIMPLE_SEARCH, \
     get_learning_units_and_summary_status
 from base.forms.common import TooManyResultsException
-from base.forms.learning_unit_create import MAX_RECORDS
+from base.forms.learning_unit.learning_unit_create import MAX_RECORDS
 from base.forms.learning_unit.search_form import LearningUnitYearForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalRowForm, ProposalListFormset
 from base.models.academic_year import current_academic_year

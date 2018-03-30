@@ -42,7 +42,7 @@ from django.utils.translation import ugettext_lazy as _
 
 import base.business.learning_unit
 from base.business import learning_unit as learning_unit_business
-from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm
+from base.forms.learning_unit.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, SummaryModelForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_unit.search_form import LearningUnitYearForm, SearchForm
