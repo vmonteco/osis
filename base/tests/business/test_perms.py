@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import datetime
+from unittest import mock
 
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
@@ -39,7 +40,7 @@ from base.models.enums.attribution_procedure import EXTERNAL
 from base.models.enums.learning_container_year_types import OTHER_COLLECTIVE, OTHER_INDIVIDUAL, MASTER_THESIS, COURSE
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.enums.proposal_type import ProposalType
-from base.models.person import FACULTY_MANAGER_GROUP, CENTRAL_MANAGER_GROUP
+from base.models.person import FACULTY_MANAGER_GROUP, CENTRAL_MANAGER_GROUP, Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateContainer
@@ -382,5 +383,13 @@ class TestIsEligibleToCreateModificationProposal(TestCase):
                 self.luy.learning_container_year.container_type = luy_container_type
                 self.luy.learning_container_year.save()
                 self.assertTrue(is_eligible_to_create_modification_proposal(self.luy, self.person))
+    @mock.patch.object(Person, "is_central_manager", side_effect=lambda: True)
+    def test_person_is_central_manager(self, mock_is_central_manager):
+        self.person_entity.delete()
+
+        self.assertTrue(is_eligible_to_create_modification_proposal(self.luy, self.person))
+        self.assertTrue(mock_is_central_manager.called)
+
+
 
 
