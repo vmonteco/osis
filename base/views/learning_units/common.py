@@ -37,9 +37,9 @@ def show_success_learning_unit_year_creation_message(request, learning_unit_year
 def create_learning_unit_year_creation_message(learning_unit_year_created, translation_key):
     link = reverse("learning_unit", kwargs={'learning_unit_year_id': learning_unit_year_created.id})
     return _(translation_key) % {'link': link, 'acronym': learning_unit_year_created.acronym,
-                                        'academic_year': learning_unit_year_created.academic_year}
+                                 'academic_year': learning_unit_year_created.academic_year}
 
 
 def create_learning_unit_year_deletion_message(learning_unit_year_deleted):
     return _('learning_unit_successfuly_deleted').format(acronym=learning_unit_year_deleted.acronym,
-                                                                academic_year=learning_unit_year_deleted.academic_year)
+                                                         academic_year=learning_unit_year_deleted.academic_year)
