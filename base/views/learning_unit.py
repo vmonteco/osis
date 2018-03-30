@@ -466,6 +466,6 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
 
     # append permissions
     context.update(learning_unit_year_permissions(learning_unit_year, person))
-    context.update(learning_unit_proposal_permissions(proposal, person))
+    context.update(learning_unit_proposal_permissions(proposal, person, learning_unit_year))
 
     return context
