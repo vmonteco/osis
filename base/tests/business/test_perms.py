@@ -329,68 +329,58 @@ class TestIsEligibleToCreateModificationProposal(TestCase):
         )
         cls.person = PersonFactory()
 
+    def setUp(self):
+        self.luy = LearningUnitYearFakerFactory(learning_container_year__academic_year=self.current_academic_year,
+                                           learning_container_year__container_type=COURSE,
+                                           subtype=FULL)
+        self.entity_container_year = EntityContainerYearFactory(
+            learning_container_year=self.luy.learning_container_year,
+            type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+        self.person_entity = PersonEntityFactory(person=self.person, entity=self.entity_container_year.entity)
+
     def test_cannot_propose_modification_of_past_learning_unit(self):
         past_luy = LearningUnitYearFakerFactory(learning_container_year__academic_year=self.past_academic_year)
 
         self.assertFalse(is_eligible_to_create_modification_proposal(past_luy, self.person))
 
     def test_cannot_propose_modification_of_partim(self):
-        luy_partim = LearningUnitYearFakerFactory(learning_container_year__academic_year=self.current_academic_year,
-                                                  subtype=PARTIM)
+        self.luy.subtype = PARTIM
+        self.luy.save()
 
-        self.assertFalse(is_eligible_to_create_modification_proposal(luy_partim, self.person))
+        self.assertFalse(is_eligible_to_create_modification_proposal(self.luy, self.person))
 
     def test_can_only_propose_modification_for_course_internship_and_dissertation(self):
         other_types = (OTHER_COLLECTIVE, OTHER_INDIVIDUAL, MASTER_THESIS, EXTERNAL)
         for luy_container_type in other_types:
             with self.subTest(luy_container_type=luy_container_type):
-                luy = LearningUnitYearFakerFactory(learning_container_year__academic_year=self.current_academic_year,
-                                                   learning_container_year__container_type=luy_container_type,
-                                                   subtype=FULL)
-                self.assertFalse(is_eligible_to_create_modification_proposal(luy, self.person))
+                self.luy.learning_container_year.container_type = luy_container_type
+                self.luy.learning_container_year.save()
+                self.assertFalse(is_eligible_to_create_modification_proposal(self.luy, self.person))
 
     def test_can_only_propose_modification_for_luy_which_is_not_currently_in_proposition(self):
-        luy_with_proposal = LearningUnitYearFakerFactory(
-            learning_container_year__academic_year=self.current_academic_year,
-            learning_container_year__container_type=COURSE,
-            subtype=FULL)
-        ProposalLearningUnitFactory(learning_unit_year=luy_with_proposal)
+        ProposalLearningUnitFactory(learning_unit_year=self.luy)
 
-        self.assertFalse(is_eligible_to_create_modification_proposal(luy_with_proposal, self.person))
+        self.assertFalse(is_eligible_to_create_modification_proposal(self.luy, self.person))
 
     def test_can_only_propose_modification_for_lu_which_is_not_in_proposition_on_different_year(self):
         past_luy_with_proposal = LearningUnitYearFakerFactory(
-            learning_container_year__academic_year=self.past_academic_year)
+            learning_container_year__academic_year=self.past_academic_year,
+            learning_unit=self.luy.learning_unit
+        )
         ProposalLearningUnitFactory(learning_unit_year=past_luy_with_proposal)
 
-        luy = LearningUnitYearFakerFactory(
-            learning_container_year__academic_year=self.current_academic_year,
-            learning_container_year__container_type=COURSE,
-            subtype=FULL,
-            learning_unit=past_luy_with_proposal.learning_unit
-        )
-
-        an_entity_container_year = EntityContainerYearFactory(learning_container_year=luy.learning_container_year,
-                                                              type=entity_container_year_link_type.REQUIREMENT_ENTITY)
-        PersonEntityFactory(person=self.person, entity=an_entity_container_year.entity)
-
-        self.assertFalse(is_eligible_to_create_modification_proposal(luy, self.person))
+        self.assertFalse(is_eligible_to_create_modification_proposal(self.luy, self.person))
 
     def test_cannot_propose_modification_for_luy_for_which_person_is_not_linked_to_entity(self):
-        luy = LearningUnitYearFakerFactory(learning_container_year__academic_year=self.current_academic_year,
-                                           learning_container_year__container_type=COURSE,
-                                           subtype=FULL)
+        self.person_entity.delete()
 
-        self.assertFalse(is_eligible_to_create_modification_proposal(luy, self.person))
+        self.assertFalse(is_eligible_to_create_modification_proposal(self.luy, self.person))
 
     def test_all_requirements_are_met_to_propose_modification(self):
-        luy = LearningUnitYearFakerFactory(learning_container_year__academic_year=self.current_academic_year,
-                                           learning_container_year__container_type=COURSE,
-                                           subtype=FULL)
-        an_entity_container_year = EntityContainerYearFactory(learning_container_year=luy.learning_container_year,
-                                                              type=entity_container_year_link_type.REQUIREMENT_ENTITY)
-        PersonEntityFactory(person=self.person, entity=an_entity_container_year.entity)
-
-        self.assertTrue(is_eligible_to_create_modification_proposal(luy, self.person))
+        for luy_container_type in FACULTY_UPDATABLE_CONTAINER_TYPES:
+            with self.subTest(luy_container_type=luy_container_type):
+                self.luy.learning_container_year.container_type = luy_container_type
+                self.luy.learning_container_year.save()
+                self.assertTrue(is_eligible_to_create_modification_proposal(self.luy, self.person))
 
 
