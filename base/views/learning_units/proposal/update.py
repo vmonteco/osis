@@ -78,7 +78,7 @@ def learning_unit_modification_proposal(request, learning_unit_year_id):
 
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
-    return layout.render(request, 'learning_unit/proposal/create_modification_proposal.html', {
+    return layout.render(request, 'learning_unit/proposal/create_modification.html', {
         'learning_unit_year': learning_unit_year,
         'person': user_person,
         'form': form,
@@ -132,7 +132,7 @@ def _update_proposal(request, user_person, proposal):
 
     proposal_form.initial = initial_data
 
-    return layout.render(request, 'learning_unit/proposal/edition.html',  {
+    return layout.render(request, 'learning_unit/proposal/edit_modification.html',  {
         'learning_unit_year': proposal.learning_unit_year,
         'person': user_person,
         'form': proposal_form,
@@ -167,7 +167,9 @@ def _update_or_create_suppression_proposal(request, person, learning_unit_year, 
         'form_end_date': form_end_date,
         'form_proposal': form_proposal,
         'experimental_phase': True})
-    return layout.render(request, 'learning_unit/proposal/create_suppression_proposal.html', context)
+    if proposal:
+        return layout.render(request, 'learning_unit/proposal/edit_suppression.html', context)
+    return layout.render(request, 'learning_unit/proposal/create_suppression.html', context)
 
 
 def _get_max_year(learning_unit_year, proposal):
