@@ -932,7 +932,8 @@ class TestEditProposal(TestCase):
         self.proposal = ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year,
                                                     state=ProposalState.FACULTY.name,
                                                     folder_id=1,
-                                                    entity=self.entity)
+                                                    entity=self.entity,
+                                                    type=proposal_type.ProposalType.MODIFICATION.name)
 
         self.person = PersonFactory()
         self.person_entity = PersonEntityFactory(person=self.person, entity=self.entity)
