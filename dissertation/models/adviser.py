@@ -156,6 +156,10 @@ def list_teachers():
                           .order_by('person__last_name', 'person__first_name')
 
 
+def find_all_advisers():
+    return Adviser.objects.all()
+
+
 def add(person, type_arg, available_by_email, available_by_phone, available_at_office, comment):
     adv = Adviser(person=person,
                   type=type_arg,
@@ -186,3 +190,24 @@ def get_by_id(adviser_id):
         return Adviser.objects.get(pk=adviser_id)
     except ObjectDoesNotExist:
         return None
+
+
+def find_advisers_last_name_email(term, maximum_in_request):
+    if term is None:
+        return []
+    else:
+        return Adviser.objects.filter(Q(person__email__icontains=term) |
+                                      Q(person__last_name__icontains=term))[:maximum_in_request]
+
+
+def convert_advisers_to_array(advisers):
+    return_data = [
+        {
+            'value': "{p.last_name}, {p.first_name} ({p.email})".format(p=adviser.person),
+            'first_name': adviser.person.first_name,
+            'last_name': adviser.person.last_name,
+            'id': adviser.id
+        }
+        for adviser in advisers
+        ]
+    return return_data

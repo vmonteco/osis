@@ -24,23 +24,27 @@
 #
 ##############################################################################
 from ckeditor.fields import RichTextField
-from django.contrib import admin
 from django.db import models
 from django.conf import settings
 from cms.enums.entity_name import ENTITY_NAME
 from .text_label import TextLabel
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.auditable_model import AuditableModel, AuditableModelAdmin
 
 
-class TranslatedTextAdmin(OsisModelAdmin):
-    list_display = ('text_label', 'entity', 'reference', 'language', 'text',)
+class TranslatedTextAdmin(AuditableModelAdmin):
+    actions = None  # Remove ability to delete in Admin Interface
+    list_display = ('text_label', 'entity', 'reference', 'language', 'text')
     ordering = ('text_label',)
     list_filter = ('entity',)
     search_fields = ['reference', 'text_label__label']
     raw_id_fields = ('text_label',)
+    fieldsets = ((None, {'fields': ('text_label', 'entity', 'reference', 'language', 'text')}),)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
-class TranslatedText(models.Model):
+class TranslatedText(AuditableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     language = models.CharField(max_length=30, null=True, choices=settings.LANGUAGES, default=settings.LANGUAGE_CODE)
@@ -70,14 +74,21 @@ def search(entity, reference, text_labels_name=None, language=None):
 
 def get_or_create(entity, reference, text_label, language):
     translated_text, created = TranslatedText.objects.get_or_create(entity=entity,
-                                                 reference=reference,
-                                                 text_label=text_label,
-                                                 language=language)
+                                                                    reference=reference,
+                                                                    text_label=text_label,
+                                                                    language=language)
     return translated_text
 
 
 def find_by_entity_reference(an_entity_name, an_education_group_year_id):
     return TranslatedText.objects.filter(text_label__entity=an_entity_name,
-                                         reference=an_education_group_year_id)\
-        .order_by('text_label__order')\
+                                         reference=an_education_group_year_id) \
+        .order_by('text_label__order') \
         .values_list('text_label__label', flat=True)
+
+
+def find_with_changed(entity, text_labels_name):
+    queryset = TranslatedText.objects.filter(entity=entity,
+                                             text_label__label__in=text_labels_name,
+                                             changed__isnull=False)
+    return queryset.select_related('text_label')

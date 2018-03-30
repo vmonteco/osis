@@ -1,0 +1,203 @@
+{% load staticfiles bootstrap3 %}
+{% load i18n %}
+{% comment "License" %}
+    * OSIS stands for Open Student Information System. It's an application
+    * designed to manage the core business of higher education institutions,
+    * such as universities, faculties, institutes and professional schools.
+    * The core business involves the administration of students, teachers,
+    * courses, programs and so on.
+    *
+    * Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+    *
+    * This program is free software: you can redistribute it and/or modify
+    * it under the terms of the GNU General Public License as published by
+    * the Free Software Foundation, either version 3 of the License, or
+    * (at your option) any later version.
+    *
+    * This program is distributed in the hope that it will be useful,
+    * but WITHOUT ANY WARRANTY; without even the implied warranty of
+    * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    * GNU General Public License for more details.
+    *
+    * A copy of this license - GNU General Public License - is available
+    * at the root of the source code of this program.  If not,
+    * see http://www.gnu.org/licenses/.
+{% endcomment %}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <label>{% trans 'basic_informations_title' %}</label>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-3" style="padding:0;">
+                <div class="row" style="margin:0;">
+                    <div class="col-md-4" style="padding-right:0;">
+                        <label>
+                            {% trans 'code' %}*
+                        </label>
+                        {{ learning_unit_form.first_letter }}
+                    </div>
+                    <abbr title="{% trans 'acronym_rules' %}">
+                        <span class="glyphicon glyphicon-question-sign pull-right"
+                              title="{% trans 'acronym_rules' %}" style="font-size: 14pt;"
+                              aria-hidden="true"></span></abbr>
+                    <div class="col-md-8" style="padding:0;margin-top:7px;">
+                        {{ learning_unit_form.acronym }}
+                        <span class='error' id="{{ learning_unit_form.acronym.name }}_message"
+                              for='{{ learning_unit_form.acronym.name }}' generated="true"></span>
+                        {% if learning_unit_form.acronym.errors %}
+                        <b class='error' for='{{ learning_unit_form.acronym.name }}' generated="true">
+                            {{ learning_unit_form.acronym.errors| join:". " }}</b>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label {% if learning_unit_form.errors.container_type%}style="color:red;" {% endif %}>
+                    {% trans 'type' %}*
+                </label>
+                {{ learning_unit_form.container_type}}
+                <label {% if learning_unit_form.errors.container_type%}style="color:red;" {% endif %}>
+                    {{ learning_unit_form.errors.container_type| striptags }}
+                </label>
+            </div>
+            {% if learning_unit_form.internship_subtype in learning_unit_form.visible_fields %}
+            <div class="col-md-3">
+                <label id="lbl_internship_subtype">
+                    {% trans 'internship_subtype' %}
+                </label>
+                {{ learning_unit_form.internship_subtype }}
+                <label id="lbl_internship_subtype_error"
+                       {% if learning_unit_form.errors.internship_subtype%}style="color:red;" {% endif %}>
+                    {{ learning_unit_form.errors.internship_subtype| striptags }}
+                </label>
+            </div>
+            {% endif %}
+            <div class="col-md-3">
+                <label {% if learning_unit_form.errors.campus %}style="color:red;" {% endif %}>
+                    {% trans 'learning_location' %}*
+                </label>
+                {{ learning_unit_form.campus }}
+                <label {% if learning_unit_form.errors.campus %}style="color:red;" {% endif %}>
+                    {{ learning_unit_form.errors.campus| striptags }}
+                </label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                <label class="text-nowrap">{% trans 'academic_year' %}*</label>
+                {{ learning_unit_form.academic_year }}
+                <b style="color: red;">{{ learning_unit_form.academic_year.errors }}</b>
+            </div>
+            <div class="col-md-2">
+                <label>{% trans 'periodicity' %}*</label>
+                {{ learning_unit_form.periodicity }}
+            </div>
+            <div class="col-md-2">
+                <label>{% trans 'language' %}*</label>
+                {{ learning_unit_form.language }}
+            </div>
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label>
+                            {% trans 'credits' %}*
+                        </label>
+                        {{ learning_unit_form.credits }}
+                        <label {% if learning_unit_form.errors.credits %}style="color:red;" {% endif %}>
+                            {{ learning_unit_form.errors.credits| striptags }}
+                        </label>
+                    </div>
+                    <div class="col-md-3">
+                        <label {% if learning_unit_form.errors.session %}style="color:red;" {% endif %}>
+                            {% trans 'session_title' %}
+                        </label>
+                        {{ learning_unit_form.session }}
+                        <label {% if learning_unit_form.errors.session %}style="color:red;" {% endif %}>
+                            {{ learning_unit_form.errors.session| striptags }}
+                        </label>
+                    </div>
+                    <div class="col-md-3">
+                        <label>{% trans 'quadrimester' %}</label>
+                        {{ learning_unit_form.quadrimester }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ learning_unit_form.status }}
+                        <label>{% trans 'active_title' %}</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <label>{% trans 'titles' %}</label>
+    </div>
+    <div class="panel-body">
+        <div>
+            {% bootstrap_field  learning_unit_form.common_title  label=_('common_official_title') %}
+        </div>
+        <div>
+            {% bootstrap_field  learning_unit_form.specific_title label=_('official_title_proper_to_UE') %}
+        </div>
+        <div>
+            {% bootstrap_field  learning_unit_form.common_title_english label=_('common_official_english_title') %}
+        </div>
+        <div>
+            {% bootstrap_field  learning_unit_form.specific_title_english label=_('official_english_title_proper_to_UE') %}
+        </div>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <label>{% trans 'associated_entity' %}</label>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-6">
+                <label {% if learning_unit_form.errors.requirement_entity %}style="color:red;" {% endif %}>
+                    {% trans 'requirement_entity' %}*
+                </label>
+                {{ learning_unit_form.requirement_entity }}
+                <label {% if learning_unit_form.errors.requirement_entity %}style="color:red;" {% endif %}>
+                    {{ learning_unit_form.errors.requirement_entity| striptags }}
+                </label>
+            </div>
+            <div class="col-md-6">
+                <label>{% trans 'allocation_entity' %}*</label>
+                {{ learning_unit_form.allocation_entity }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label>{% trans 'additional_requirement_entity_1' %}</label>
+                {{ learning_unit_form.additional_requirement_entity_1 }}
+            </div>
+            <div class="col-md-6">
+                <label>{% trans 'additional_requirement_entity_2' %}</label>
+                {{ learning_unit_form.additional_requirement_entity_2 }}
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <label>{% trans 'remarks_title' %}</label>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-6">
+                <label>{% trans 'faculty' %}</label>
+                {{ learning_unit_form.faculty_remark }}
+            </div>
+            <div class="col-md-6">
+                <label>{% trans 'other' %}</label>
+                {{ learning_unit_form.other_remark }}
+            </div>
+        </div>
+    </div>
+</div>
+{{ learning_unit_form.subtype }}

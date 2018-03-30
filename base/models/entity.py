@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Case, When, Q, F
@@ -133,3 +132,10 @@ def find_versions_from_entites(entities, date):
                entityversion__start_date__lte=date).\
         annotate(acronym=F('entityversion__acronym')).annotate(title=F('entityversion__title')).\
         annotate(entity_type=F('entityversion__entity_type')).order_by(preserved)
+
+
+def find_by_id(an_id):
+    try:
+        return Entity.objects.get(pk=an_id)
+    except Entity.DoesNotExist:
+        return None

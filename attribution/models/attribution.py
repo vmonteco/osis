@@ -25,20 +25,20 @@
 ##############################################################################
 from django.db import models
 from django.db.models import Prefetch
+
 from attribution.models.enums import function
 from base.models import entity_container_year
-from base.models.academic_year import current_academic_year
-from base.models import person
-from base.models.enums import entity_container_year_link_type
 from base.models import learning_unit_year
+from base.models import person
+from base.models.academic_year import current_academic_year
+from base.models.enums import entity_container_year_link_type
 from base.models.learning_unit_year import LearningUnitYear
 from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
-from attribution.models import attribution_charge_new
-from base.models.enums import component_type
 
 
 class AttributionAdmin(AuditableSerializableModelAdmin):
-    list_display = ('tutor', 'function', 'score_responsible', 'learning_unit_year', 'start_year', 'end_year', 'changed')
+    list_display = ('tutor', 'function', 'score_responsible', 'summary_responsible', 'learning_unit_year', 'start_year',
+                    'end_year', 'changed')
     list_filter = ('learning_unit_year__academic_year', 'function', 'score_responsible', 'summary_responsible')
     fieldsets = ((None, {'fields': ('learning_unit_year', 'tutor', 'function', 'score_responsible',
                                     'summary_responsible', 'start_year', 'end_year')}),)
@@ -70,7 +70,8 @@ class Attribution(AuditableSerializableModel):
         return None
 
 
-def search(tutor=None, learning_unit_year=None, score_responsible=None, list_learning_unit_year=None):
+def search(tutor=None, learning_unit_year=None, score_responsible=None, summary_responsible=None,
+           list_learning_unit_year=None):
     queryset = Attribution.objects
     if tutor:
         queryset = queryset.filter(tutor=tutor)
@@ -78,6 +79,8 @@ def search(tutor=None, learning_unit_year=None, score_responsible=None, list_lea
         queryset = queryset.filter(learning_unit_year=learning_unit_year)
     if score_responsible is not None:
         queryset = queryset.filter(score_responsible=score_responsible)
+    if summary_responsible is not None:
+        queryset = queryset.filter(score_responsible=summary_responsible)
     if list_learning_unit_year is not None:
         queryset = queryset.filter(learning_unit_year__in=list_learning_unit_year)
     return queryset.select_related('tutor__person', 'learning_unit_year')

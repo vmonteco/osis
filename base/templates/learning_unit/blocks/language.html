@@ -1,0 +1,13 @@
+
+{% load bootstrap3 %}
+{% load i18n %}
+
+<div class="form-group col-md-3">
+    <label for="{{ form.language.id_for_label }}">
+        {% trans 'language' %}
+    </label>
+    {{ form.language }}
+    <span class="error">
+        {{ form.language.errors }}
+    </span>
+</div>

@@ -36,7 +36,7 @@ def get_attributions_list(attributions, responsibles_order):
         dict_attribution[attribution] = [attribution.learning_unit_year.id,
                                          entity_v.acronym,
                                          attribution.learning_unit_year.acronym,
-                                         attribution.learning_unit_year.specific_title,
+                                         attribution.learning_unit_year.complete_title,
                                          tutors]
     return dict_attribution
 

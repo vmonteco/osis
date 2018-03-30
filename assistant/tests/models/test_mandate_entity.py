@@ -60,4 +60,7 @@ class TestMandateEntityFactory(TestCase):
                          mandate_entity.find_by_mandate_and_entity(self.assistant_mandate, self.entity).first())
 
     def test_find_by_mandate(self):
-        self.assertEqual(3, len(mandate_entity.find_by_mandate(self.assistant_mandate)))
+        self.assertCountEqual(
+            [self.mandate_entity, self.mandate_entity2, self.mandate_entity3],
+            mandate_entity.find_by_mandate(self.assistant_mandate)
+        )

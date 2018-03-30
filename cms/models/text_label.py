@@ -23,30 +23,33 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib import admin
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Prefetch
 
 from cms.enums.entity_name import ENTITY_NAME
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.auditable_model import AuditableModel, AuditableModelAdmin
 
 
-class TextLabelAdmin(OsisModelAdmin):
+class TextLabelAdmin(AuditableModelAdmin):
+    actions = None  # Remove ability to delete in Admin Interface
     list_display = ('parent', 'entity', 'label', 'order', 'published',)
     search_fields = ['label']
     ordering = ('entity',)
-    actions = ['delete_selected']
     raw_id_fields = ('parent',)
     list_filter = ('published',)
+    fieldsets = ((None, {'fields': ('parent', 'entity', 'label', 'order', 'published',)}),)
 
     def delete_selected(self, request, obj):
         for text_label in obj.all():
             text_label.delete()
             reorganise_order(text_label.parent)
 
+    def has_delete_permission(self, request, obj=None):
+        return False
 
-class TextLabel(models.Model):
+
+class TextLabel(AuditableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     parent = models.ForeignKey('self', blank=True, null=True)

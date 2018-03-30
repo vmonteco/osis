@@ -24,11 +24,11 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
 
 from base.models import entity
 from base.models import entity_version
-from base.models import person
+from base.models.entity import Entity
+from base.models.entity_version import EntityVersion
 from base.models.osis_model_admin import OsisModelAdmin
 
 
@@ -71,6 +71,24 @@ def find_entities_by_person(person):
     return list(entities)
 
 
-def find_entities_by_user(user):
-    pers = person.find_by_user(user=user)
-    return find_entities_by_person(pers) if pers else []
+def is_attached_entities(person, entity_queryset):
+    admissible_entities = list(entity_queryset.values_list('pk', flat=True))
+
+    qs = PersonEntity.objects.filter(person=person)
+    if qs.filter(entity__in=admissible_entities).exists():
+        return True
+    elif qs.filter(entity__in=_entity_ancestors(entity_queryset), with_child=True).exists():
+        return True
+    else:
+        return False
+
+
+def _entity_ancestors(entity_list):
+    ancestors = list(EntityVersion.objects.filter(entity__in=entity_list).exclude(parent__isnull=True)
+                     .values_list('parent', flat=True))
+
+    parents = Entity.objects.filter(pk__in=ancestors)
+    if parents.exists():
+        ancestors.extend(_entity_ancestors(parents))
+
+    return ancestors or []

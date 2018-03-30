@@ -23,29 +23,29 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from collections import OrderedDict
+
+from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.decorators import login_required, permission_required
 
 from base import models as mdl
 from base.business import education_group as education_group_business
 from base.business.education_group import assert_category_of_education_group_year
+from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
 from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
 from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataFormset
 from base.models.education_group_year import EducationGroupYear
-from base.models.enums import education_group_categories
-
-from . import layout
-from cms.enums import entity_name
-from cms import models as mdl_cms
-from collections import OrderedDict
-from django.conf import settings
-from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
 from base.models.enums import academic_calendar_type
+from base.models.enums import education_group_categories
+from cms import models as mdl_cms
+from cms.enums import entity_name
+from . import layout
 
 CODE_SCS = 'code_scs'
 TITLE = 'title'
@@ -161,7 +161,7 @@ def education_group_administrative_data(request, education_group_year_id):
 
     context = {'parent': parent,
                'education_group_year': education_group_year,
-               'course_enrollment':get_dates(academic_calendar_type.COURSE_ENROLLMENT, education_group_year),
+               'course_enrollment': get_dates(academic_calendar_type.COURSE_ENROLLMENT, education_group_year),
                'mandataries': mdl.mandatary.find_by_education_group_year(education_group_year),
                'pgm_mgrs': mdl.program_manager.find_by_education_group(education_group_year.education_group)}
     context.update({'exam_enrollments': get_sessions_dates(academic_calendar_type.EXAM_ENROLLMENTS,
@@ -280,9 +280,9 @@ def _get_group_elements_data(group_elements):
 
 def _sorting(group_elements_data):
     return sorted(group_elements_data,
-                  key= lambda k: (k.get('group_element').current_order is None,
-                                  k.get('group_element').current_order == -1,
-                                  k.get('group_element').current_order))
+                  key=lambda k: (k.get('group_element').current_order is None,
+                                 k.get('group_element').current_order == -1,
+                                 k.get('group_element').current_order))
 
 
 def _get_education_group_detail(dict_param, group_element):

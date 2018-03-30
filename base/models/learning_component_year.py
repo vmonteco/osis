@@ -41,6 +41,7 @@ class LearningComponentYearAdmin(AuditableSerializableModelAdmin):
 
 class LearningComponentYear(AuditableSerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
+    changed = models.DateTimeField(null=True, auto_now=True)
     learning_container_year = models.ForeignKey('LearningContainerYear')
     title = models.CharField(max_length=255, blank=True, null=True)
     acronym = models.CharField(max_length=4, blank=True, null=True)

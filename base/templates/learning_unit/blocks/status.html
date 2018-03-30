@@ -1,0 +1,12 @@
+{% load bootstrap3 %}
+{% load i18n %}
+
+<div class="form-group col-md-3">
+    <label for="{{ form.status.id_for_label }}">
+        {% trans 'active_title' %}
+    </label>
+    {{ form.status }}
+    <span class="error">
+        {{ form.status.errors }}
+    </span>
+</div>

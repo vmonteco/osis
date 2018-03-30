@@ -64,11 +64,11 @@ class LearningUnitYearWithContextTestCase(TestCase):
     def test_get_floated_only_element_of_list(self):
         a_list = []
         self.assertIsNone(learning_unit_year_with_context._get_floated_only_element_of_list(a_list))
-        self.assertEquals(learning_unit_year_with_context._get_floated_only_element_of_list(a_list, 0), 0)
+        self.assertEqual(learning_unit_year_with_context._get_floated_only_element_of_list(a_list, 0), 0)
 
         a_list = [17]
-        self.assertEquals(learning_unit_year_with_context._get_floated_only_element_of_list(a_list), 17.0)
-        self.assertEquals(type(learning_unit_year_with_context._get_floated_only_element_of_list(a_list)), float)
+        self.assertEqual(learning_unit_year_with_context._get_floated_only_element_of_list(a_list), 17.0)
+        self.assertEqual(type(learning_unit_year_with_context._get_floated_only_element_of_list(a_list)), float)
 
         a_list = [1, 2]
         with self.assertRaisesMessage(ValueError, "The provided list should contain 0 or 1 elements"):

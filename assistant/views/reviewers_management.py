@@ -26,10 +26,10 @@
 from django.core.urlresolvers import reverse
 from django.views.generic import ListView
 from django.http import HttpResponseRedirect
+from django.forms.forms import NON_FIELD_ERRORS
 from django.forms.formsets import formset_factory
 from django.views.generic.edit import FormMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext as _
@@ -122,18 +122,16 @@ def reviewer_replace(request):
             reviewer_to_replace = reviewer.find_by_id(form.cleaned_data.get('id'))
             if request.POST.get('person_id'):
                 this_person = person.find_by_id(request.POST.get('person_id'))
-                try:
-                    reviewer.find_by_person(this_person)
+                if reviewer.find_by_person(this_person):
                     msg = _("person_already_reviewer_msg")
                     form.add_error(None, msg)
                     return render(request, "manager_replace_reviewer.html", {'form': form,
                                                                              'reviewer': reviewer_to_replace,
                                                                              'year': year})
-                except ObjectDoesNotExist:
-                    pass
-                reviewer_to_replace.person = this_person
-                reviewer_to_replace.save()
-                return redirect('reviewers_list')
+                else:
+                    reviewer_to_replace.person = this_person
+                    reviewer_to_replace.save()
+                    return redirect('reviewers_list')
         else:
             return render(request, "manager_replace_reviewer.html", {'form': form, 'year': year})
     else:
@@ -149,16 +147,18 @@ def reviewer_add(request):
             new_reviewer = form.save(commit=False)
             if request.POST.get('person_id'):
                 this_person = person.find_by_id(request.POST.get('person_id'))
-                try:
-                    reviewer.find_by_person(this_person)
+                if reviewer.find_by_person(this_person):
                     msg = _("person_already_reviewer_msg")
                     form.add_error(None, msg)
+                if reviewer.find_by_entity_and_role(new_reviewer.entity, new_reviewer.role):
+                    msg = _("reviewer_with_same_role_already_exists_msg")
+                    form.add_error(None, msg)
+                if form.has_error(field=NON_FIELD_ERRORS):
                     return render(request, "manager_add_reviewer.html", {'form': form, 'year': year})
-                except ObjectDoesNotExist:
-                    pass
-                new_reviewer.person = this_person
-                new_reviewer.save()
-                return redirect('reviewers_list')
+                else:
+                    new_reviewer.person = this_person
+                    new_reviewer.save()
+                    return redirect('reviewers_list')
         else:
             return render(request, "manager_add_reviewer.html", {'form': form, 'year': year})
     else:

@@ -1,24 +1,42 @@
 const internship = "INTERNSHIP";
 const LEARNING_UNIT_FULL_SUBTYPE = "FULL";
+const trans_existed_acronym = gettext('existed_acronym');
+const trans_existing_acronym = gettext('existing_acronym');
+const trans_invalid_acronym = gettext('invalid_acronym');
+const trans_field_required = gettext('field_is_required');
+const trans_field_min = gettext('min_for_field');
+const trans_field_max = gettext('max_for_field');
 
 var form = $('#LearningUnitYearForm').closest("form");
 
 
 function isLearningUnitSubtypeFull(){
-    return document.getElementById('id_subtype').value == LEARNING_UNIT_FULL_SUBTYPE
+    if(document.getElementById('id_subtype') !== null){
+
+        return document.getElementById('id_subtype').value === LEARNING_UNIT_FULL_SUBTYPE
+    }
+    else if (learning_unit_current_subtype !== undefined){
+        return learning_unit_current_subtype === LEARNING_UNIT_FULL_SUBTYPE;
+    }
+    return true;
 }
 
 
 function isValueEmpty(html_id){
-    return document.getElementById(html_id).value == ""
+    return document.getElementById(html_id).value === ""
+}
+
+
+function isDisabledField(html_id){
+    return document.getElementById(html_id).disabled === true
 }
 
 
 function showInternshipSubtype(){
     if (isLearningUnitSubtypeFull() && document.getElementById('id_internship_subtype')) {
         var container_type_value = document.getElementById('id_container_type').value;
-        var value_not_internship = container_type_value != internship;
-        var labelElem = $('#lbl_internship_subtype')
+        var value_not_internship = container_type_value !== internship;
+        var labelElem = $('#lbl_internship_subtype');
 
         document.getElementById('id_internship_subtype').disabled = value_not_internship;
         if (value_not_internship) {
@@ -32,7 +50,7 @@ function showInternshipSubtype(){
 }
 
 function updateAdditionalEntityEditability(elem, id, disable_only){
-    var empty_element = elem == "";
+    var empty_element = elem === "";
     if (empty_element){
         $('#'.concat(id))[0].selectedIndex = 0;
         document.getElementById(id).disabled = true;
@@ -41,7 +59,6 @@ function updateAdditionalEntityEditability(elem, id, disable_only){
         document.getElementById(id).disabled = false;
     }
 }
-
 
 function validate_acronym() {
     cleanErrorMessage();
@@ -88,7 +105,7 @@ function callbackAcronymValidation(data){
     } else if (data['existed_acronym'] && !data['existing_acronym']) {
         setWarningMessage(trans_existed_acronym + data['last_using'], '#acronym_message');
     } else if (data['existing_acronym']) {
-        setErrorMessage(trans_existing_acronym, '#acronym_message');
+        setErrorMessage(trans_existing_acronym + data['first_using'], '#acronym_message');
     }
 }
 
@@ -104,50 +121,56 @@ function setWarningMessage(text, element){
 }
 
 
-    function validateAcronymAjax(url, acronym, year_id, callback) {
-        /**
-        * This function will check if the acronym exist or have already existed
-        **/
-        queryString = "?acronym=" + acronym + "&year_id=" + year_id;
-        $.ajax({
-           url: url + queryString
-        }).done(function(data){
-            callback(data);
-        });
-    }
-
-    $(document).ready(function() {
-        $(function () {
-            $('#LearningUnitYearForm').validate();
-        });
-        $.extend($.validator.messages, {
-            required: trans_field_required
-        });
-
-        showInternshipSubtype();
-        document.getElementById('id_additional_requirement_entity_1').disabled = !isLearningUnitSubtypeFull() || isValueEmpty('id_requirement_entity');
-        document.getElementById('id_additional_requirement_entity_2').disabled = !isLearningUnitSubtypeFull() || isValueEmpty('id_additional_requirement_entity_1');
-
-
-        $('#id_acronym').change(validate_acronym);
-        $('#id_academic_year').change(validate_acronym);
-        $("#LearningUnitYearForm").submit(function( event ) {
-            if (!window.valid_acronym) {
-                $("#id_acronym").focus();
-            }
-            return window.valid_acronym;
-        });
-
-        $('#learning_unit_year_add').click(function() {
-            if(window.acronym_already_used){
-                $form = $("#LearningUnitYearForm");
-                $form.validate();
-                var formIsValid = $form.valid();
-                if(formIsValid){
-                  $("#prolongOrCreateModal").modal();
-                }
-            } else {
-                $("#LearningUnitYearForm").submit();
-            }
-        });
+function validateAcronymAjax(url, acronym, year_id, callback) {
+    /**
+    * This function will check if the acronym exist or have already existed
+    **/
+    queryString = "?acronym=" + acronym + "&year_id=" + year_id;
+    $.ajax({
+       url: url + queryString
+    }).done(function(data){
+        callback(data);
     });
+}
+
+$(document).ready(function() {
+    $(function () {
+        $('#LearningUnitYearForm').validate();
+    });
+    $.extend($.validator.messages, {
+        required: trans_field_required,
+        min: trans_field_min,
+        max: trans_field_max
+    });
+
+    showInternshipSubtype();
+    document.getElementById('id_additional_requirement_entity_1').disabled = !isLearningUnitSubtypeFull()
+        || isValueEmpty('id_requirement_entity')
+        || isDisabledField('id_requirement_entity');
+    document.getElementById('id_additional_requirement_entity_2').disabled = !isLearningUnitSubtypeFull()
+        || isValueEmpty('id_additional_requirement_entity_1')
+        || isDisabledField('id_additional_requirement_entity_1');
+
+    $('#id_first_letter').change(validate_acronym);
+    $('#id_acronym').change(validate_acronym);
+    $('#id_academic_year').change(validate_acronym);
+    $("#LearningUnitYearForm").submit(function( event ) {
+        if (!window.valid_acronym) {
+            $("#id_acronym").focus();
+        }
+        return window.valid_acronym;
+    });
+
+    $('#learning_unit_year_add').click(function() {
+        if(window.acronym_already_used){
+            $form = $("#LearningUnitYearForm");
+            $form.validate();
+            var formIsValid = $form.valid();
+            if(formIsValid){
+              $("#prolongOrCreateModal").modal();
+            }
+        } else {
+            $("#LearningUnitYearForm").submit();
+        }
+    });
+});

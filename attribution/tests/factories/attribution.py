@@ -24,16 +24,15 @@
 #
 ##############################################################################
 import string
-import factory
+
 import factory.fuzzy
 from faker import Faker
 
+from attribution.models.enums import function
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.tests.factories.tutor import TutorFactory
 from osis_common.utils.datetime import get_tzinfo
-from attribution.models.enums import function
-
 
 fake = Faker()
 

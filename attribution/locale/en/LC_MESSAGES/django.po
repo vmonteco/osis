@@ -17,11 +17,20 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+msgid "courses"
+msgstr "Courses"
+
+msgid "desc_lnk_summary_responsible"
+msgstr "Management of the summary responsibles"
+
+msgid "manage_educational_information"
+msgstr "Manage educational information"
+
+msgid "no_attribution_summary_editable"
+msgstr "There is no course for which you can edit educational information."
+
 msgid "summary_responsible"
 msgstr "Summary responsible"
 
 msgid "summary_responsibles"
 msgstr "Summary responsibles"
-
-msgid "desc_lnk_summary_responsible"
-msgstr "Management of the summary responsibles"
