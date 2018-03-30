@@ -189,16 +189,16 @@ def display_error_messages(request, messages_to_display):
     display_messages(request, messages_to_display, messages.ERROR)
 
 
-def display_success_messages(request, messages_to_display):
+def display_success_messages(request, messages_to_display, extra_tags=None):
     display_messages(request, messages_to_display, messages.SUCCESS)
 
 
-def display_messages(request, messages_to_display, level):
+def display_messages(request, messages_to_display, level, extra_tags=None):
     if not isinstance(messages_to_display, (tuple, list)):
         messages_to_display = [messages_to_display]
 
     for msg in messages_to_display:
-        messages.add_message(request, level, _(msg))
+        messages.add_message(request, level, _(msg), extra_tags=extra_tags)
 
 
 def check_if_display_message(request, results):

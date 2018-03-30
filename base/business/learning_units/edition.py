@@ -26,6 +26,7 @@
 
 from django.db import IntegrityError, transaction, Error
 from django.db.models import F
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from base.business import learning_unit_year_with_context
@@ -45,6 +46,7 @@ from base.models.enums import learning_unit_periodicity, learning_unit_year_subt
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit_year import LearningUnitYear
+from base.views.learning_units.common import create_learning_unit_year_creation_message
 
 FIELDS_TO_EXCLUDE_WITH_REPORT = ("is_vacant", "type_declaration_vacant", "attribution_procedure")
 
@@ -101,10 +103,7 @@ def extend_learning_unit(learning_unit_to_edit, new_academic_year):
     with transaction.atomic():
         for ac_year in _get_next_academic_years(learning_unit_to_edit, new_academic_year.year):
             new_luy = _duplicate_learning_unit_year(last_learning_unit_year, ac_year)
-            result.append(_('learning_unit_created') % {
-                'learning_unit': new_luy.acronym,
-                'academic_year': new_luy.academic_year
-            })
+            result.append(create_learning_unit_year_creation_message(new_luy, 'learning_unit_successfuly_created'))
 
     return result
 

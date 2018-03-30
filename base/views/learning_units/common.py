@@ -30,7 +30,13 @@ from django.utils.translation import ugettext_lazy as _
 
 
 def show_success_learning_unit_year_creation_message(request, learning_unit_year_created, translation_key):
+    success_msg = create_learning_unit_year_creation_message(learning_unit_year_created, translation_key)
+    messages.add_message(request, messages.SUCCESS, success_msg, extra_tags='safe')
+
+
+def create_learning_unit_year_creation_message(learning_unit_year_created, translation_key):
     link = reverse("learning_unit", kwargs={'learning_unit_year_id': learning_unit_year_created.id})
     success_msg = _(translation_key) % {'link': link, 'acronym': learning_unit_year_created.acronym,
                                         'academic_year': learning_unit_year_created.academic_year}
-    messages.add_message(request, messages.SUCCESS, success_msg, extra_tags='safe')
+    return success_msg
+
