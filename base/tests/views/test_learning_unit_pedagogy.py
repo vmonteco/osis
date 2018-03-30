@@ -50,6 +50,8 @@ from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_year import create_current_academic_year
 from base.views.learning_units.educational_information import SUCCESS_MESSAGE
+from attribution.tests.factories.attribution import AttributionFactory
+
 
 class LearningUnitViewPedagogyTestCase(TestCase):
     def setUp(self):
@@ -115,7 +117,10 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         a_person_entity.save()
         request = request_factory.get(self.url)
         request.user = faculty_user
-        self._create_learning_unit_year_for_entity(an_entity)
+        lu = self._create_learning_unit_year_for_entity(an_entity)
+        person_lu = PersonFactory()
+        tutor_lu_1 = TutorFactory(person=self.person_lu)
+        self.attribution_lu = AttributionFactory(learning_unit_year=lu, tutor=tutor_lu_1, summary_responsible=True)
         self._create_entity_calendar(an_entity)
         self.client.force_login(faculty_user)
         from base.views.learning_units.educational_information import learning_units_summary_list
@@ -127,6 +132,13 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         self.assertEqual(context['search_type'], SUMMARY_LIST)
         self.assertEqual(len(context['learning_units']), 1)
         self.assertTrue(context['is_faculty_manager'])
+        formset = context['formset']
+        responsible_concerned_by_need_to_update = formset.get_checked_responsible()
+        print(responsible_concerned_by_need_to_update)
+        self.assertEqual(len(responsible_concerned_by_need_to_update), 1)
+
+
+
 
     def _create_entity_calendar(self, an_entity):
         an_academic_calendar = AcademicCalendarFactory(academic_year=self.current_academic_year,
@@ -144,9 +156,9 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         EntityContainerYearFactory(learning_container_year=l_container_yr,
                                    entity=an_entity,
                                    type=entity_container_year_link_type.REQUIREMENT_ENTITY)
-        LearningUnitYearFactory(acronym="LBIR1100",
-                                learning_container_year=l_container_yr,
-                                academic_year=self.current_academic_year)
+        return LearningUnitYearFactory(acronym="LBIR1100",
+                                       learning_container_year=l_container_yr,
+                                       academic_year=self.current_academic_year)
 
     def test_send_email_educational_information_needs_update_no_access(self):
         request_factory = RequestFactory()
