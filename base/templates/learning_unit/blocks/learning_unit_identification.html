@@ -1,34 +1,15 @@
+{% load bootstrap3 %}
 
 <div class="row">
-
-    {% block acronym %}
-        {% include "learning_unit/blocks/acronym.html" %}
-    {% endblock acronym %}
-
-    {% block type %}
-        {% include "learning_unit/blocks/type.html" %}
-    {% endblock type %}
-
-    {% block status %}
-        {% include "learning_unit/blocks/status.html" %}
-    {% endblock status %}
-
+    <div class="col-md-5">{% bootstrap_field learning_unit_year_form.acronym %}</div>
+    <div class="col-md-4">{% bootstrap_field learning_container_form.container_type %}</div>
+    <div class="col-md-3">{% bootstrap_field learning_unit_year_form.status %}</div>
 </div>
 
 <br>
 
 <div class="row">
-
-    {% block internship_subtype %}
-        {% include "learning_unit/blocks/internship_subtype.html" %}
-    {% endblock internship_subtype %}
-
-    {% block nominal_credits %}
-        {% include "learning_unit/blocks/nominal_credits.html" %}
-    {% endblock nominal_credits %}
-
-    {% block language %}
-        {% include "learning_unit/blocks/language.html" %}
-    {% endblock language %}
-
+    <div class="col-md-6">{% bootstrap_field  learning_unit_year_form.internship_subtype %}</div>
+    <div class="col-md-3">{% bootstrap_field learning_unit_year_form.credits %}</div>
+    <div class="col-md-3">{% bootstrap_field learning_container_form.language %}</div>
 </div>

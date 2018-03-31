@@ -26,15 +26,14 @@
 
 from django.db import IntegrityError, transaction, Error
 from django.db.models import F
-from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from base import models as mdl_base
 from base.business import learning_unit_year_with_context
+from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.learning_units.simple.deletion import delete_from_given_learning_unit_year, \
     check_learning_unit_year_deletion
-from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.utils.model import update_instance_model_from_data, update_related_object
-from base import models as mdl_base
 from base.models import entity_component_year
 from base.models import entity_container_year, learning_component_year, learning_class_year, learning_unit_component
 from base.models.academic_year import AcademicYear, compute_max_academic_year_adjournment
@@ -100,8 +99,8 @@ def extend_learning_unit(learning_unit_to_edit, new_academic_year):
         new_academic_year = AcademicYear.objects.get(year=compute_max_academic_year_adjournment())
 
     with transaction.atomic():
-        for ac_year in _get_next_academic_years(learning_unit_to_edit, new_academic_year.year):
-            new_luy = _duplicate_learning_unit_year(last_learning_unit_year, ac_year)
+        for ac_year in get_next_academic_years(learning_unit_to_edit, new_academic_year.year):
+            new_luy = duplicate_learning_unit_year(last_learning_unit_year, ac_year)
             result.append(create_learning_unit_year_creation_message(new_luy, 'learning_unit_successfuly_created'))
 
     return result
@@ -126,7 +125,7 @@ def _update_end_year_field(lu, year):
     return _('learning_unit_updated').format(acronym=lu.acronym)
 
 
-def _duplicate_learning_unit_year(old_learn_unit_year, new_academic_year):
+def duplicate_learning_unit_year(old_learn_unit_year, new_academic_year):
     duplicated_luy = update_related_object(old_learn_unit_year, 'academic_year', new_academic_year)
     duplicated_luy.attribution_procedure = None
     duplicated_luy.learning_container_year = _duplicate_learning_container_year(duplicated_luy, new_academic_year)
@@ -239,7 +238,7 @@ def get_new_end_year(new_academic_year):
     return new_academic_year.year if new_academic_year else None
 
 
-def _get_next_academic_years(learning_unit_to_edit, year):
+def get_next_academic_years(learning_unit_to_edit, year):
     range_years = list(range(learning_unit_to_edit.end_year + 1, year + 1))
     return AcademicYear.objects.filter(year__in=range_years).order_by('year')
 

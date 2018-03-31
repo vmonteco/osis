@@ -117,6 +117,7 @@ def _create_attribution_procedure_list():
     return add_blank(AttributionProcedures.translation_choices())
 
 
+# TODO use modelForm
 class LearningUnitModificationForm(forms.Form):
     is_vacant = forms.BooleanField(required=False)
     team = forms.BooleanField(required=False)

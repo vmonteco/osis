@@ -32,12 +32,14 @@ from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
+from osis_common.decorators.deprecated import deprecated
 
 DEFAULT_ACRONYM_LECTURING_COMPONENT = "CM1"
 DEFAULT_ACRONYM_PRACTICAL_COMPONENT = "TP1"
 UNTYPED_ACRONYM = "NT1"
 
 
+@deprecated
 def create_learning_unit_year_structure(data, new_learning_container, new_learning_unit, academic_year):
     new_learning_container_yr = LearningContainerYear.objects.create(academic_year=academic_year,
                                                                      learning_container=new_learning_container,

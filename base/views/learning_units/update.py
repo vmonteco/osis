@@ -28,7 +28,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
 from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -36,8 +36,9 @@ from base import models as mdl
 from base.business import learning_unit_year_with_context
 from base.business.learning_unit import CMS_LABEL_PEDAGOGY, get_cms_label_data
 from base.business.learning_units.edition import ConsistencyError
-from base.forms.learning_unit.edition import LearningUnitEndDateForm, LearningUnitModificationForm
+from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.forms.learning_unit.edition_volume import VolumeEditionFormsetContainer
+from base.forms.learning_unit.learning_unit_create import LearningUnitFormContainer
 from base.forms.learning_unit_pedagogy import SummaryModelForm, LearningUnitPedagogyForm, \
     BibliographyModelForm
 from base.models.bibliography import Bibliography
@@ -46,7 +47,7 @@ from base.models.person import Person
 from base.views import layout
 from base.views.common import display_error_messages, display_success_messages
 from base.views.learning_unit import get_learning_unit_identification_context, \
-    get_common_context_learning_unit_year, learning_unit_components, _check_credits
+    get_common_context_learning_unit_year, learning_unit_components
 from base.views.learning_units import perms
 
 
@@ -91,16 +92,23 @@ def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year
 def update_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     person = get_object_or_404(Person, user=request.user)
-    form = LearningUnitModificationForm(
-        request.POST or None, learning_unit_year_instance=learning_unit_year, person=person)
+    # form = LearningUnitModificationForm(
+    #     request.POST or None, learning_unit_year_instance=learning_unit_year, person=person)
+    #
+    # if form.is_valid():
+    #     _save_form_and_display_messages(request, form)
+    #     _check_credits(request, learning_unit_year.parent, form)
+    #     return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
 
-    if form.is_valid():
-        _save_form_and_display_messages(request, form)
-        _check_credits(request, learning_unit_year.parent, form)
-        return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
+    learning_unit_form_container = LearningUnitFormContainer(request.POST or None, person, instance=learning_unit_year)
 
-    context = {"learning_unit_year": learning_unit_year, "form": form}
-    return layout.render(request, 'learning_unit/modification.html', context)
+    if learning_unit_form_container.is_valid():
+        new_luys = learning_unit_form_container.save()
+        return redirect('learning_unit', learning_unit_year_id=new_luys[0].pk)
+
+    context = learning_unit_form_container.get_context()
+    context["learning_unit_year"] = learning_unit_year
+    return render(request, 'learning_unit/modification.html', context)
 
 
 @login_required

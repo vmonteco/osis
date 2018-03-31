@@ -28,23 +28,24 @@ from django import forms
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.bootstrap import BootstrapForm
+from base.business.learning_units.edition import duplicate_learning_unit_year
+from base.business.learning_units.simple.creation import _create_entity_container_year, \
+    _append_requirement_entity_container
 from base.forms.utils.choice_field import add_blank
+from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear
 from base.models.campus import find_main_campuses, Campus
 from base.models.entity_version import find_main_entities_version, EntityVersion
+from base.models.enums import entity_container_year_link_type
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, \
     LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
+from base.models.learning_container import LearningContainer
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
 from reference.models import language
 
-MINIMUM_CREDITS = 0
-MAXIMUM_CREDITS = 500
-MAX_RECORDS = 1000
-READONLY_ATTR = "disabled"
 PARTIM_FORM_READ_ONLY_FIELD = {'first_letter', 'acronym', 'common_title', 'common_title_english', 'requirement_entity',
                                'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year',
                                'container_type', 'internship_subtype',
@@ -126,10 +127,7 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
 class LearningUnitModelForm(forms.ModelForm):
     class Meta:
         model = LearningUnit
-        fields = ('acronym', 'periodicity', 'faculty_remark', 'other_remark')
-        field_classes = {
-            'acronym': AcronymField
-        }
+        fields = ('periodicity', 'faculty_remark', 'other_remark')
 
 
 class LearningUnitYearModelForm(forms.ModelForm):
@@ -145,7 +143,7 @@ class LearningUnitYearModelForm(forms.ModelForm):
     class Meta:
         model = LearningUnitYear
         fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'subtype', 'credits',
-                  'session', 'quadrimester', 'status', 'internship_subtype')
+                  'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure')
         field_classes = {
             'acronym': AcronymField
         }
@@ -199,10 +197,10 @@ class LearningContainerYearModelForm(forms.ModelForm):
         if self.initial.get('subtype') == "PARTIM":
             _create_learning_container_year_type_list()
 
-
     class Meta:
         model = LearningContainerYear
-        fields = ('container_type', 'common_title', 'common_title_english', 'language', 'campus')
+        fields = ('container_type', 'common_title', 'common_title_english', 'language', 'campus',
+                  'type_declaration_vacant', 'team', 'is_vacant')
 
     def clean(self):
         cleaned_data = super().clean()
@@ -216,27 +214,54 @@ class LearningContainerYearModelForm(forms.ModelForm):
         if (requirement_entity != allocation_entity
                 and container_type in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES):
                 self.add_error("allocation_entity", _("requirement_and_allocation_entities_cannot_be_different"))
+        return cleaned_data
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+
+        # Create Allocation Entity container
+        _create_entity_container_year(self.cleaned_data['allocation_entity'],
+                                      instance, entity_container_year_link_type.ALLOCATION_ENTITY)
+
+        # Create All Requirements Entity Container [Min 1, Max 3]
+        requirement_entity_containers = [
+            _create_entity_container_year(self.cleaned_data['requirement_entity'], instance,
+                                          entity_container_year_link_type.REQUIREMENT_ENTITY)]
+
+        if self.cleaned_data.get('additional_requirement_entity_1'):
+            _append_requirement_entity_container(
+                self.data['additional_requirement_entity_1'], instance, requirement_entity_containers,
+                entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1
+            )
+
+        if self.cleaned_data.get('additional_requirement_entity_2'):
+            _append_requirement_entity_container(
+                self.cleaned_data['additional_requirement_entity_2'], instance, requirement_entity_containers,
+                entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2
+            )
+        return instance
 
 
 class LearningUnitFormContainer:
 
-    def __init__(self, data, person, academic_year, is_partim=False):
-        self.learning_unit_year_form = LearningUnitYearModelForm(data, initial={'academic_year': academic_year})
-        self.learning_unit_form = LearningUnitModelForm(data)
+    def __init__(self, data, person, is_partim=False, initial=None, instance=None):
+        if initial:
+            initial['language'] = language.find_by_code('FR')
+
+        self.learning_unit_year_form = LearningUnitYearModelForm(
+            data, initial=initial, instance=instance)
+        self.learning_unit_form = LearningUnitModelForm(
+            data, initial=initial, instance=instance.learning_unit)
         self.learning_container_form = LearningContainerYearModelForm(
-            data, person, initial={'language': language.find_by_code('FR')})
+            data, person, initial=initial, instance=instance.learning_container_year)
+
+        self.forms = [self.learning_unit_form, self.learning_container_form, self.learning_unit_year_form]
 
         if is_partim:
             self.disabled_fields()
 
     def is_valid(self):
-        forms_is_valid = [
-            self.learning_unit_year_form.is_valid(),
-            self.learning_unit_form.is_valid(),
-            self.learning_container_form.is_valid()
-        ]
-
-        if all(forms_is_valid):
+        if all(form.is_valid() for form in self.forms):
             return self.post_validation()
         return False
 
@@ -248,11 +273,30 @@ class LearningUnitFormContainer:
             return False
         return True
 
+    @transaction.atomic
     def save(self, commit=True):
-        with transaction.atomic():
-            self.learning_unit_year_form.save(commit),
-            self.learning_unit_form.save(commit),
-            self.learning_container_form.save(commit)
+        learning_container = LearningContainer.objects.create()
+        self.assign_duplicated_data(learning_container)
+
+        learning_unit = self.learning_unit_form.save(commit)
+        learning_container_year = self.learning_container_form.save(commit)
+
+        # TODO Create components
+        self.learning_unit_year.learning_container_year = learning_container_year
+        self.learning_unit_year.learning_unit = learning_unit
+        new_luys = [self.learning_unit_year_form.save(commit)]
+
+        for ac_year in range(learning_unit.start_year+1, compute_max_academic_year_adjournment()+1):
+            new_luys.append(duplicate_learning_unit_year(new_luys[0], AcademicYear.objects.get(year=ac_year)))
+
+        return new_luys
+
+    def assign_duplicated_data(self, learning_container):
+        self.learning_unit.learning_container = learning_container
+        self.learning_container_year.learning_container = learning_container
+        self.learning_container_year.academic_year = self.learning_unit_year.academic_year
+        self.learning_unit.start_year = self.learning_unit_year.academic_year.year
+        self.learning_unit.acronym = self.learning_unit_year.acronym
 
     def get_context(self):
         return {'learning_unit_form': self.learning_unit_form,
@@ -261,11 +305,22 @@ class LearningUnitFormContainer:
 
     def disabled_fields(self):
         for key, value in self.all_fields():
-            if key in PARTIM_FORM_READ_ONLY_FIELD:
-                value.widget.attrs[READONLY_ATTR] = READONLY_ATTR
+            value.required = True
 
     def all_fields(self):
         fields = self.learning_unit_form.fields
         fields.update(self.learning_container_form.fields)
         fields.udapte(self.learning_unit_year_form.fields)
         return fields
+
+    @property
+    def learning_unit(self):
+        return self.learning_unit_form.instance
+
+    @property
+    def learning_container_year(self):
+        return self.learning_container_form.instance
+
+    @property
+    def learning_unit_year(self):
+        return self.learning_unit_year_form.instance

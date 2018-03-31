@@ -44,23 +44,20 @@ from base.business.learning_unit import get_cms_label_data, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, find_language_in_settings, \
     create_learning_unit_partim_structure, CMS_LABEL_SPECIFICATIONS
-from base.models.academic_year import compute_max_academic_year_adjournment
 from base.business.learning_unit_proposal import get_difference_of_proposal
 from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
-from base.business.learning_units.simple.creation import create_learning_unit_year_structure, create_learning_unit
+from base.business.learning_units.simple.creation import create_learning_unit
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit.edition import compute_form_initial_data
-from base.forms.learning_unit.learning_unit_create import CreatePartimForm, \
-    PARTIM_FORM_READ_ONLY_FIELD, LearningUnitFormContainer
+from base.forms.learning_unit.learning_unit_create import PARTIM_FORM_READ_ONLY_FIELD, LearningUnitFormContainer
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import proposal_learning_unit
+from base.models.academic_year import compute_max_academic_year_adjournment
 from base.models.enums import learning_unit_year_subtypes
-from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
-from base.models.learning_container import LearningContainer
-from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, LEARNING_UNIT_ACRONYM_REGEX_FULL
+from base.models.learning_unit import REGEX_BY_SUBTYPE
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views.common import display_error_messages
@@ -68,6 +65,7 @@ from base.views.learning_units import perms
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
 from base.views.learning_units.search import _learning_units_search
 from cms.models import text_label
+from osis_common.decorators.ajax import ajax_required
 from . import layout
 
 
@@ -273,38 +271,22 @@ def learning_class_year_edit(request, learning_unit_year_id):
 def learning_unit_create(request, academic_year):
     person = get_object_or_404(Person, user=request.user)
 
-    learning_unit_form_container = LearningUnitFormContainer(request.POST or None, person, academic_year)
+    learning_unit_form_container = LearningUnitFormContainer(request.POST or None, person,
+                                                             initial={'academic_year': academic_year})
 
     if learning_unit_form_container.is_valid():
-        learning_unit_form_container.save()
-        first_learning_unit_year_id = _create_learning_unit_years_process(learning_unit_form_container.learning_unit_form,
-                                                                          request)
-        return redirect('learning_unit', learning_unit_year_id=first_learning_unit_year_id)
+        new_luys = learning_unit_form_container.save()
+        for luy in new_luys:
+            show_success_learning_unit_year_creation_message(request, luy, 'learning_unit_successfuly_created')
+        return redirect('learning_unit', learning_unit_year_id=new_luys[0].pk)
 
     return render(request, "learning_unit/simple/creation.html", learning_unit_form_container.get_context())
 
 
-def _create_learning_unit_years_process(learning_unit_form, request):
-    data = learning_unit_form.cleaned_data
-    year = data['academic_year'].year
-    new_learning_container = LearningContainer.objects.create()
-    new_learning_unit = create_learning_unit(data, new_learning_container, year)
-    first_learning_unit_year_id = None
-    while year <= compute_max_academic_year_adjournment():
-        academic_year = mdl.academic_year.find_academic_year_by_year(year)
-        new_learning_unit_year = create_learning_unit_year_structure(data, new_learning_container,
-                                                                     new_learning_unit, academic_year)
-        if not first_learning_unit_year_id:
-            first_learning_unit_year_id = new_learning_unit_year.id
-        show_success_learning_unit_year_creation_message(request, new_learning_unit_year,
-                                                         'learning_unit_successfuly_created')
-        year += 1
-    return first_learning_unit_year_id
-
-
 @login_required
+@ajax_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
-def check_acronym(request, type):
+def check_acronym(request, subtype):
     acronym = request.GET['acronym']
     academic_yr = mdl.academic_year.find_academic_year_by_id(request.GET['year_id'])
     existed_acronym = False
@@ -321,16 +303,16 @@ def check_acronym(request, type):
         first_using = str(learning_unit_year.academic_year)
         existing_acronym = True
 
-    if type == PARTIM:
-        valid = bool(re.match(LEARNING_UNIT_ACRONYM_REGEX_ALL, acronym))
-    elif type == FULL:
-        valid = bool(re.match(LEARNING_UNIT_ACRONYM_REGEX_FULL, acronym))
-    else:
+    if subtype not in REGEX_BY_SUBTYPE:
         valid = False
+    else:
+        valid = re.match(REGEX_BY_SUBTYPE[subtype], acronym)
+
     return JsonResponse({'valid': valid, 'existing_acronym': existing_acronym, 'existed_acronym': existed_acronym,
                          'first_using': first_using, 'last_using': last_using}, safe=False)
 
 
+# TODO Move this check in a form
 def _check_credits(request, learning_unit_year_parent, form):
     luy_credits = form.cleaned_data['credits']
     luy_subtype = form.cleaned_data['subtype']
