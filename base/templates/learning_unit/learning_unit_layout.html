@@ -34,7 +34,7 @@
                 {% block form %}
 
                     <form method="post" id="LearningUnitYearForm"
-                          data-validate-url="{% url 'check_acronym' type=learning_unit_year.subtype %}">
+                          data-validate-url="{% url 'check_acronym' subtype=learning_unit_year.subtype %}">
                         {% csrf_token %}
                         <div class="row">
                             <div class="col-md-8">

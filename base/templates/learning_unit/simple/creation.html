@@ -36,7 +36,7 @@
 </div>
 <div class="panel panel-default">
     <div class="panel-body">
-        <form method="post" id="LearningUnitYearForm" data-validate-url="{% url 'check_acronym' type='FULL' %}">
+        <form method="post" id="LearningUnitYearForm" data-validate-url="{% url 'check_acronym' subtype='FULL' %}">
             {% csrf_token %}
             {% include "learning_unit/blocks/create_form_learning_unit.html" %}
             <div class="panel-body">

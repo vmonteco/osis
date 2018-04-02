@@ -227,12 +227,21 @@ class LearningUnitYear(SerializableModel):
                 raise ValidationError({'internship_subtype': _('field_is_required')})
 
         self.clean_status()
+        self.clean_credits()
         
     def clean_status(self):
         # If the parent is inactive, the partim can be only inactive
         if self.parent:
             if not self.parent.status and self.status:
                 raise ValidationError({'status', _('The partim must be inactive because the parent is inactive')})
+
+    def clean_credits(self):
+        if not self.parent:
+            return
+        if self.credits > self.parent.credits:
+            raise ValidationError({'credits':_('partim_credits_gt_parent_credits')})
+        elif self.credits == self.parent.credits:
+            raise ValidationError({'credits':  _('partim_credits_equals_parent_credits')})
 
 
 def get_by_id(learning_unit_year_id):

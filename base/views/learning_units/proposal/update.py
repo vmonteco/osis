@@ -46,7 +46,7 @@ from base.models.person import Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views import layout
 from base.views.common import display_success_messages, display_error_messages
-from base.views.learning_unit import compute_form_initial_data, get_learning_unit_identification_context
+from base.views.learning_unit import get_learning_unit_identification_context
 from base.views.learning_units import perms
 
 

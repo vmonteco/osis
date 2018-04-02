@@ -31,7 +31,6 @@ from django.test import TestCase
 import base.models.academic_year
 from base.business.learning_units.simple import creation
 from base import models as mdl_base
-from base.business import learning_unit
 from base.models.enums import entity_container_year_link_type
 from base.models.enums import learning_component_year_type
 from base.models.enums import learning_container_year_types

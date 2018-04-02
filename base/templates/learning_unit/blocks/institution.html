@@ -1,6 +1,4 @@
-
-{% load bootstrap3 %}
-{% load i18n %}
+{% load bootstrap3 i18n %}
 
 <div class="panel panel-default">
     <div class="panel-body">
@@ -11,12 +9,8 @@
                 {{ learning_unit_year.learning_container_year.campus.organization.name }}
             {% endif %}
         </div>
-
         {% bootstrap_field learning_container_form.campus %}
-        {% bootstrap_field learning_container_form.requirement_entity %}
-        {% bootstrap_field learning_container_form.allocation_entity %}
-        {% bootstrap_field learning_container_form.additional_requirement_entity_1 %}
-        {% bootstrap_field learning_container_form.additional_requirement_entity_2 %}
+        {% bootstrap_formset  entity_container_form %}
         {% bootstrap_field learning_unit_year_form.academic_year %}
     </div>
 </div>

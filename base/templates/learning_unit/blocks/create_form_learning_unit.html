@@ -73,12 +73,13 @@
     </div>
     <div class="panel-body">
         <div class="row">
-            <div class="col-md-6">{% bootstrap_field learning_container_form.requirement_entity %}</div>
-            <div class="col-md-6">{% bootstrap_field learning_container_form.allocation_entity %}</div>
+            {{ entity_container_form.management_form }}
+            <div class="col-md-6">{% bootstrap_field entity_container_form.0.entity %}</div>
+            <div class="col-md-6">{% bootstrap_field entity_container_form.1.entity %}</div>
         </div>
         <div class="row">
-            <div class="col-md-6">{% bootstrap_field learning_container_form.additional_requirement_entity_1 %}</div>
-            <div class="col-md-6">{% bootstrap_field learning_container_form.additional_requirement_entity_2 %}</div>
+            <div class="col-md-6">{% bootstrap_field entity_container_form.2.entity %}</div>
+            <div class="col-md-6">{% bootstrap_field entity_container_form.3.entity %}</div>
         </div>
     </div>
 </div>

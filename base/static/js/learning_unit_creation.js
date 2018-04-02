@@ -70,7 +70,9 @@ function validate_acronym() {
 
 
 function cleanErrorMessage(){
-    $('#acronym_message').removeClass("error-message").text("");
+    parent = $("#id_acronym_0").closest(".form-group");
+    parent.removeClass('has-error');
+    parent.children(".help-block").remove();
 }
 
 
@@ -101,18 +103,19 @@ function getPartimCharacter(){
 
 function callbackAcronymValidation(data){
     if (!data['valid']) {
-        setErrorMessage(trans_invalid_acronym, '#acronym_message');
+        setErrorMessage(trans_invalid_acronym, '#id_acronym_0');
     } else if (data['existed_acronym'] && !data['existing_acronym']) {
-        setWarningMessage(trans_existed_acronym + data['last_using'], '#acronym_message');
+        setWarningMessage(trans_existed_acronym + data['last_using'], '#id_acronym_0');
     } else if (data['existing_acronym']) {
-        setErrorMessage(trans_existing_acronym + data['first_using'], '#acronym_message');
+        setErrorMessage(trans_existing_acronym + data['first_using'], '#id_acronym_0');
     }
 }
 
 
 function setErrorMessage(text, element){
-    $(element).addClass("error").text(text);
-    $(element).css("color","red");
+    parent = $(element).closest(".form-group");
+    parent.addClass('has-error');
+    parent.append("<div class='help-block'>" + text + "</div>");
 }
 
 function setWarningMessage(text, element){

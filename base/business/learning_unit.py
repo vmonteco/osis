@@ -37,12 +37,12 @@ from base import models as mdl_base
 from base.business.entity import get_entity_calendar, get_entities_ids, get_entity_container_list, \
     build_entity_container_prefetch
 from base.business.learning_unit_year_with_context import volume_learning_component_year
-from base.business.learning_units.simple.creation import create_learning_unit_content
 from base.models import entity_container_year, learning_unit_year
 from base.models.academic_year import find_academic_year_by_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type, academic_calendar_type
 from base.models.enums import learning_container_year_types
+from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITIES
 from cms import models as mdl_cms
 from cms.enums import entity_name
 from cms.enums.entity_name import LEARNING_UNIT_YEAR
@@ -250,9 +250,7 @@ def create_partim(data_dict, new_learning_container_year):
     # Get all requirement entity containers [Min 1 - Max 3]
     requirement_entity_containers = list(entity_container_year.search(
         learning_container_year=new_learning_container_year,
-        link_type=[entity_container_year_link_type.REQUIREMENT_ENTITY,
-                   entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
-                   entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2]))
+        link_type=REQUIREMENT_ENTITIES))
 
     return create_learning_unit_content({'academic_year': academic_year,
                                          'data': data,
