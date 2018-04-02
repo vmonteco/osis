@@ -42,7 +42,8 @@ from django.utils.translation import ugettext_lazy as _
 
 import base.business.learning_unit
 from base.business import learning_unit as learning_unit_business
-from base.forms.learning_unit.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm
+from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
+    LearningUnitFormContainer
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, SummaryModelForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.forms.learning_unit.search_form import LearningUnitYearForm, SearchForm
@@ -82,8 +83,8 @@ from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
-from base.views.learning_unit import compute_partim_form_initial_data, _get_post_data_without_read_only_field, \
-    learning_unit_components, learning_class_year_edit, learning_unit_specifications
+from base.views.learning_unit import learning_unit_components, learning_class_year_edit, learning_unit_specifications, \
+    learning_unit_create
 from base.views.learning_units.update import learning_unit_pedagogy
 from base.views.learning_units.search import learning_units_service_course
 from cms.enums import entity_name
@@ -92,6 +93,8 @@ from cms.tests.factories.translated_text import TranslatedTextFactory
 from osis_common.document import xls_build
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
+from base.views.learning_units.search import learning_units
+from base.views.learning_unit import learning_unit_identification
 
 
 class LearningUnitViewTestCase(TestCase):
@@ -185,8 +188,6 @@ class LearningUnitViewTestCase(TestCase):
         request = request_factory.get(reverse('learning_units'))
         request.user = self.a_superuser
 
-        from base.views.learning_units.search import learning_units
-
         learning_units(request)
 
         self.assertTrue(mock_render.called)
@@ -215,7 +216,6 @@ class LearningUnitViewTestCase(TestCase):
         request = request_factory.get(reverse('learning_units'), data=filter_data)
         request.user = self.a_superuser
 
-        from base.views.learning_units.search import learning_units
         learning_units(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -327,8 +327,6 @@ class LearningUnitViewTestCase(TestCase):
                                                      learning_container_year=learning_container_year)
 
         request = self.create_learning_unit_request(learning_unit_year)
-
-        from base.views.learning_unit import learning_unit_identification
 
         learning_unit_identification(request, learning_unit_year.id)
 
@@ -714,26 +712,26 @@ class LearningUnitViewTestCase(TestCase):
             "campus": self.campus.id,
             "specific_title": "Specific UE title",
             "specific_title_english": "Specific English UUE title",
-            "requirement_entity": self.entity_version.id,
-            "allocation_entity": self.entity_version.id,
-            "additional_requirement_entity_1": self.entity_version.id,
-            "additional_requirement_entity_2": self.entity_version.id,
+            "entitycontaineryear_set-0-entity": self.entity_version.id,
+            "entitycontaineryear_set-1-entity": self.entity_version.id,
             "language": self.language.pk,
             "session": learning_unit_year_session.SESSION_P23,
             "faculty_remark": "faculty remark",
-            "other_remark": "other remark"
+            "other_remark": "other remark",
+            'entitycontaineryear_set-TOTAL_FORMS': ['4'],
+            'entitycontaineryear_set-INITIAL_FORMS': ['0']
         }
 
     def get_learning_unit_data(self):
-        return {'first_letter': 'L',
-                'acronym': 'TAU2000',
+        return {'acronym_0': 'L',
+                'acronym_1': 'TAU2000',
                 "subtype": learning_unit_year_subtypes.FULL}
 
     def get_partim_data(self, original_learning_unit_year):
         return {
-            'first_letter': original_learning_unit_year.acronym[:1],
-            'acronym': original_learning_unit_year.acronym[1:],
-            'partim_character': factory.fuzzy.FuzzyText(length=1).fuzz(),
+            'acronym_0': original_learning_unit_year.acronym[1],
+            'acronym_1': original_learning_unit_year.acronym[1:],
+            'acronym_2': factory.fuzzy.FuzzyText(length=1).fuzz(),
             "subtype": learning_unit_year_subtypes.PARTIM
         }
 
@@ -747,7 +745,7 @@ class LearningUnitViewTestCase(TestCase):
 
     def get_existing_acronym(self):
         faulty_dict = dict(self.get_valid_data())
-        faulty_dict["acronym"] = "DRT2018"
+        faulty_dict["acronym_1"] = "DRT2018"
         return faulty_dict
 
     def get_empty_internship_subtype(self):
@@ -777,7 +775,7 @@ class LearningUnitViewTestCase(TestCase):
         return faulty_dict
 
     def test_learning_unit_year_form(self):
-        form = CreateLearningUnitYearForm(person=self.person, data=self.get_valid_data())
+        form = LearningUnitFormContainer(self.get_valid_data(), person=self.person)
         self.assertTrue(form.is_valid(), form.errors)
         url = reverse('learning_unit_year_add')
         response = self.client.post(url, data=self.get_base_form_data())
@@ -786,29 +784,30 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(count_learning_unit_year, 7)
 
     def test_create_learning_unit_year_requirement_entity_not_allowed(self):
-        form = CreateLearningUnitYearForm(person=self.person, data=self.get_faulty_requirement_entity())
+        form = LearningUnitFormContainer(self.get_faulty_requirement_entity(), person=self.person)
         self.assertFalse(form.is_valid())
         self.assertEqual(len(form.errors), 1, form.errors)
         self.assertTrue('requirement_entity' in form.errors)
 
     def test_learning_unit_creation_form_with_valid_data(self):
-        form = CreateLearningUnitYearForm(person=self.person, data=self.get_valid_data())
+        form = LearningUnitFormContainer(self.get_valid_data(), person=self.person)
+
         self.assertTrue(form.is_valid(), form.errors)
         self.assertTrue(form.cleaned_data, form.errors)
         self.assertEqual(form.cleaned_data['acronym'], "LTAU2000")
 
     def test_learning_unit_creation_form_with_empty_acronym(self):
-        form = CreateLearningUnitYearForm(person=self.person, data=self.get_empty_acronym())
+        form = LearningUnitFormContainer(self.get_empty_acronym(), person=self.person)
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['acronym'], [_('field_is_required')])
 
     def test_learning_unit_creation_form_with_invalid_data(self):
-        form = CreateLearningUnitYearForm(person=self.person, data=self.get_faulty_acronym())
+        form = LearningUnitFormContainer(self.get_faulty_acronym(), person=self.person)
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['acronym'], [_('invalid_acronym')])
 
     def test_learning_unit_creation_form_with_container_type_same_entity(self):
-        form = CreateLearningUnitYearForm(person=self.person, data=self.get_faulty_allocation_entity())
+        form = LearningUnitFormContainer(self.get_faulty_allocation_entity(), person=self.person)
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['allocation_entity'],
                          [_('requirement_and_allocation_entities_cannot_be_different')])
@@ -819,24 +818,24 @@ class LearningUnitViewTestCase(TestCase):
         super(AcademicYear, bad_academic_year).save()
         data = dict(self.get_valid_data())
         data['academic_year'] = bad_academic_year.id
-        form = CreateLearningUnitYearForm(person=self.person, data=data)
+        form = LearningUnitFormContainer(data, self.person)
         self.assertFalse(form.is_valid())
 
     def test_learning_unit_creation_form_with_existing_acronym(self):
         LearningUnitYearFactory(acronym="LDRT2018", academic_year=self.current_academic_year)
-        form = CreateLearningUnitYearForm(person=self.person, data=self.get_existing_acronym())
+        form = LearningUnitFormContainer(self.get_existing_acronym(), person=self.person)
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['acronym'], [_('already_existing_acronym')])
 
     def test_learning_unit_creation_form_with_field_is_required_empty(self):
-        form = CreateLearningUnitYearForm(person=self.person, data=self.get_empty_internship_subtype())
+        form = LearningUnitFormContainer(self.get_empty_internship_subtype(), person=self.person)
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['internship_subtype'], [_('field_is_required')])
 
     def test_learning_unit_check_acronym(self):
         kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
 
-        url = reverse('check_acronym', kwargs={'type': FULL})
+        url = reverse('check_acronym', kwargs={'subtype': FULL})
         get_data = {'acronym': 'goodacronym', 'year_id': self.academic_year_1.id}
         response = self.client.get(url, get_data, **kwargs)
 
@@ -949,7 +948,7 @@ class LearningUnitViewTestCase(TestCase):
         PersonEntityFactory(person=faculty_person, entity=self.entity)
         data = dict(self.get_valid_data())
         data['container_type'] = MASTER_THESIS
-        form = CreateLearningUnitYearForm(person=faculty_person, data=data)
+        form = LearningUnitFormContainer(data, person=faculty_person)
         self.assertTrue(form.is_valid(), form.errors)
         url = reverse('learning_unit_year_add')
         response = self.client.post(url, data=data)
@@ -959,14 +958,14 @@ class LearningUnitViewTestCase(TestCase):
     def test_learning_unit_form_without_allocation_entity(self):
         faultydict = dict(self.get_valid_data())
         faultydict['allocation_entity'] = None
-        form = CreateLearningUnitYearForm(person=self.person, data=faultydict)
+        form = LearningUnitFormContainer(faultydict, person=self.person)
         self.assertFalse(form.is_valid(), form.errors)
         self.assertTrue(form.errors['allocation_entity'])
 
     def test_learning_unit_form_without_common_and_specific_title(self):
         faultydata = dict(self.get_valid_data())
         faultydata["specific_title"] = ""
-        form = CreateLearningUnitYearForm(person=self.person, data=faultydata)
+        form = LearningUnitFormContainer(faultydata, person=self.person)
         self.assertFalse(form.is_valid())
         self.assertTrue(form.errors["common_title"])
 
@@ -1049,8 +1048,7 @@ class LearningUnitViewTestCase(TestCase):
         del valid_partim_data['additional_requirement_entity_1']
         del valid_partim_data['additional_requirement_entity_2']
 
-        form = CreatePartimForm(person=self.person, learning_unit_year_parent=learning_unit_year_parent,
-                                data=valid_partim_data)
+        form = LearningUnitFormContainer(valid_partim_data, person=self.person, learning_unit_year_parent=learning_unit_year_parent)
         self.assertTrue(form.is_valid(), form.errors)
         full_acronym = form.cleaned_data['acronym']
 
@@ -1424,18 +1422,19 @@ class LearningUnitCreate(TestCase):
         self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, 'learning_unit/simple/creation.html')
 
-        self.assertIsInstance(response.context['learning_unit_form'], CreateLearningUnitYearForm)
+        self.assertIsInstance(response.context['learning_unit_form'], LearningUnitModelForm)
 
 
 class LearningUnitYearAdd(TestCase):
     def setUp(self):
-        create_current_academic_year()
+        self.current_academic_year = create_current_academic_year()
         self.person = PersonFactory()
+        LanguageFactory(code="FR")
         content_type = ContentType.objects.get_for_model(LearningUnit)
         permission = Permission.objects.get(codename="can_create_learningunit",
                                             content_type=content_type)
         self.person.user.user_permissions.add(permission)
-        self.url = reverse('learning_unit_year_add')
+        self.url = reverse('learning_unit_create', args=[self.current_academic_year.pk])
 
         self.client.force_login(self.person.user)
 
@@ -1454,19 +1453,13 @@ class LearningUnitYearAdd(TestCase):
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, 'access_denied.html')
 
-    def test_when_get_request(self):
-        response = self.client.get(self.url)
-
-        self.assertEqual(response.status_code, 405)
-        self.assertTemplateUsed(response, 'method_not_allowed.html')
-
     def test_when_empty_form_data(self):
         response = self.client.post(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, 'learning_unit/simple/creation.html')
 
-        self.assertIsInstance(response.context['learning_unit_form'], CreateLearningUnitYearForm)
+        self.assertIsInstance(response.context['learning_unit_form'], LearningUnitModelForm)
 
     def test_when_valid_form_data(self):
         today = datetime.date.today()
@@ -1506,8 +1499,8 @@ class LearningUnitYearAdd(TestCase):
         language = LanguageFactory()
 
         form_data = {
-            "first_letter": "L",
-            "acronym": "TAU2000",
+            "acronym_0": "L",
+            "acronym_1": "TAU2000",
             "container_type": learning_container_year_types.COURSE,
             "academic_year": current_academic_year.id,
             "status": True,
@@ -1517,12 +1510,14 @@ class LearningUnitYearAdd(TestCase):
             "internship_subtype": internship_subtypes.TEACHING_INTERNSHIP,
             "title": "LAW",
             "title_english": "LAW",
-            "requirement_entity": entity_version.id,
+            "entitycontaineryear_set-0-entity": entity_version.id,
             "subtype": learning_unit_year_subtypes.FULL,
             "language": language.pk,
             "session": learning_unit_year_session.SESSION_P23,
             "faculty_remark": "faculty remark",
-            "other_remark": "other remark"
+            "other_remark": "other remark",
+            'entitycontaineryear_set-TOTAL_FORMS': ['4'],
+            'entitycontaineryear_set-INITIAL_FORMS': ['0'],
         }
 
         response = self.client.post(self.url, data=form_data)

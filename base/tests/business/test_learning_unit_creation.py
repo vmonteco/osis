@@ -29,7 +29,6 @@ from unittest import mock
 from django.test import TestCase
 
 import base.models.academic_year
-from base.business.learning_units.simple import creation
 from base import models as mdl_base
 from base.models.enums import entity_container_year_link_type
 from base.models.enums import learning_component_year_type

@@ -82,6 +82,11 @@ class LearningUnitModelForm(forms.ModelForm):
 
 
 class LearningUnitYearModelForm(forms.ModelForm):
+    def __init__(self, data, person, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+        if person.is_faculty_manager():
+            self.fields.pop('internship_subtype')
+
     class Meta:
         model = LearningUnitYear
         fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'subtype', 'credits',
@@ -220,7 +225,6 @@ class LearningContainerYearModelForm(forms.ModelForm):
 
         if person.is_faculty_manager():
             self.fields["container_type"].choices = _create_faculty_learning_container_type_list()
-            self.fields.pop('internship_subtype')
 
         if self.initial.get('subtype') == "PARTIM":
             self.fields["container_type"].choices = _create_learning_container_year_type_list()
@@ -234,6 +238,7 @@ class LearningContainerYearModelForm(forms.ModelForm):
 class LearningUnitFormContainer:
 
     def __init__(self, data, person, is_partim=False, initial=None, learning_container_year=None, learning_unit=None, instance=None):
+        # TODO the default value must be given by the model
         if initial:
             initial['language'] = language.find_by_code('FR')
 
@@ -243,7 +248,7 @@ class LearningUnitFormContainer:
             is_partim = instance.is_partim()
 
         luy_form = LearningUnitYearPartimModelForm if is_partim else LearningUnitYearModelForm
-        self.learning_unit_year_form = luy_form(data, initial=initial, instance=instance)
+        self.learning_unit_year_form = luy_form(data, person, initial=initial, instance=instance)
         self.learning_unit_form = LearningUnitModelForm(data, initial=initial, instance=learning_unit)
         self.learning_container_form = LearningContainerYearModelForm(
             data, person, initial=initial, instance=learning_container_year)
@@ -326,6 +331,14 @@ class LearningUnitFormContainer:
         fields.update(self.learning_container_form.fields)
         fields.update(self.learning_unit_year_form.fields)
         return fields
+
+    @property
+    def errors(self):
+        return [form.errors for form in self.forms]
+
+    @property
+    def cleaned_data(self):
+        return [form.cleaned_data for form in self.forms]
 
     @property
     def learning_unit(self):
