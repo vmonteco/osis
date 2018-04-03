@@ -2480,6 +2480,9 @@ msgstr "Annuler proposition"
 msgid "edit_proposal"
 msgstr "Editer proposition"
 
+msgid "Consolidate proposal"
+msgstr "Consolider proposition"
+
 msgid "msg_confirm_cancel_proposal"
 msgstr "Etes-vous certain de vouloir annuler la proposition ?"
 

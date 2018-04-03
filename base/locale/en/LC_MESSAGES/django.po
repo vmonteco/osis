@@ -2473,6 +2473,9 @@ msgstr "Cancel proposal"
 msgid "edit_proposal"
 msgstr "Edit proposal"
 
+msgid "Consolidate proposal"
+msgstr ""
+
 msgid "msg_confirm_cancel_proposal"
 msgstr "Are you certain that you want to cancel the learning unit proposal ?"
 

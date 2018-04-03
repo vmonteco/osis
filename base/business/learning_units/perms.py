@@ -71,6 +71,11 @@ def is_eligible_to_edit_proposal(proposal, person):
     return person.user.has_perm('base.can_edit_learning_unit_proposal')
 
 
+def is_eligible_to_consolidate_proposal(proposal, person):
+    eligible_states = (ProposalState.ACCEPTED.name, ProposalState.REFUSED.name)
+    return person.user.has_perm('base.can_consolidate_learningunit_proposal') and proposal.state in eligible_states
+
+
 def is_eligible_for_modification_end_date(learning_unit_year, person):
     if learning_unit_year.learning_unit.is_past():
         return False
@@ -149,9 +154,11 @@ def learning_unit_year_permissions(learning_unit_year, person):
 
 
 def learning_unit_proposal_permissions(proposal, person, current_learning_unit_year):
-    permissions = {'can_cancel_proposal': False, 'can_edit_learning_unit_proposal': False}
+    permissions = {'can_cancel_proposal': False, 'can_edit_learning_unit_proposal': False,
+                   'can_consolidate_proposal': False}
     if not proposal or proposal.learning_unit_year != current_learning_unit_year:
         return permissions
     permissions['can_cancel_proposal'] = is_eligible_for_cancel_of_proposal(proposal, person)
     permissions['can_edit_learning_unit_proposal'] = is_eligible_to_edit_proposal(proposal, person)
+    permissions['can_consolidate_proposal'] = is_eligible_to_consolidate_proposal(proposal, person)
     return permissions
