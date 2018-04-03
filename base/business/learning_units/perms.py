@@ -71,6 +71,11 @@ def is_eligible_to_edit_proposal(proposal, person):
     return person.user.has_perm('base.can_edit_learning_unit_proposal')
 
 
+def is_eligible_to_consolidate_proposal(proposal, person):
+    states_accepted = (ProposalState.ACCEPTED.name, ProposalState.REFUSED.name)
+    return person.user.has_perm('base.can_consolidate_learningunit_proposal') and proposal.state in states_accepted
+
+
 def is_eligible_for_modification_end_date(learning_unit_year, person):
     if learning_unit_year.learning_unit.is_past():
         return False
