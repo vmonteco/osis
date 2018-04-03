@@ -80,7 +80,7 @@ def search(tutor=None, learning_unit_year=None, score_responsible=None, summary_
     if score_responsible is not None:
         queryset = queryset.filter(score_responsible=score_responsible)
     if summary_responsible is not None:
-        queryset = queryset.filter(score_responsible=summary_responsible)
+        queryset = queryset.filter(summary_responsible=summary_responsible)
     if list_learning_unit_year is not None:
         queryset = queryset.filter(learning_unit_year__in=list_learning_unit_year)
     return queryset.select_related('tutor__person', 'learning_unit_year')

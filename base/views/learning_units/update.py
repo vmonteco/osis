@@ -64,7 +64,7 @@ def learning_unit_edition_end_date(request, learning_unit_year_id):
     if form.is_valid():
         try:
             result = form.save()
-            display_success_messages(request, result)
+            display_success_messages(request, result, extra_tags='safe')
 
             learning_unit_year_id = _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id)
 

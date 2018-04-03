@@ -2534,6 +2534,9 @@ msgstr "Caractère déjà utilisé"
 msgid "learning_unit_successfuly_created"
 msgstr "Unité d'enseignement <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> créée avec succès."
 
+msgid "learning_unit_successfuly_deleted"
+msgstr "Unité d'enseignement {acronym} ({academic_year}) supprimée avec succès."
+
 msgid "learning_unit_creation_academic_year_max_error"
 msgstr "Impossible de créer une UE dont l'année académique est supérieure à {}."
 
@@ -2544,7 +2547,7 @@ msgid "learning_unit_created"
 msgstr "L'unité d'enseignement %(learning_unit)s créée pour l'année academique %(academic_year)s"
 
 msgid "learning_unit_updated"
-msgstr "L'unité d'enseignement %(learning_unit)s a été mise à jour avec succès"
+msgstr "Unité d'enseignement {acronym} mise à jour avec succès"
 
 msgid "partim_greater_than_parent"
 msgstr "L'unité d'enseignement %(learning_unit)s a un partim %(partim)s avec une année de fin plus grande que %(year)s"
@@ -2745,3 +2748,15 @@ msgstr "Le partim doit être inactif car le cours complet est inactif"
 
 msgid "The parent must be active because there are partim active"
 msgstr "Le cours complet doit être actif car un partim est actif"
+
+msgid "educational_information_update_reminder"
+msgstr "Mail de rappel résumés"
+
+msgid "do_you_want_to_sent_email"
+msgstr "Voulez-vous envoyer un email de rappel?"
+
+msgid "desc_mail_reminder"
+msgstr "Envoyer un email de rappel pour la mise à jour des informations pédagogiques"
+
+msgid "success_mail_reminder"
+msgstr "Messages de rappel envoyés"
