@@ -23,18 +23,20 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.http import HttpResponseNotAllowed
+from unittest import mock
+
+from django.http import HttpResponseNotAllowed, HttpResponseForbidden
 from django.test import TestCase
 from rest_framework.reverse import reverse
 
-from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.tests.factories.person import PersonFactory
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 
 
 class TestConsolidate(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.learning_unit_year = LearningUnitYearFakerFactory()
+        cls.learning_unit_year = ProposalLearningUnitFactory().learning_unit_year
         cls.url = reverse("learning_unit_consolidate_proposal", args=[cls.learning_unit_year.id])
         cls.person = PersonFactory()
 
@@ -53,3 +55,15 @@ class TestConsolidate(TestCase):
 
         self.assertTemplateUsed(response, "method_not_allowed.html")
         self.assertEqual(response.status_code, HttpResponseNotAllowed.status_code)
+
+    @mock.patch("base.business.learning_units.perms.is_eligible_to_consolidate_proposal",
+                side_effect=lambda prop, pers: False)
+    def test_when_no_permission_to_consolidate(self, mock_perm):
+        response = self.client.post(self.url)
+
+        self.assertTemplateUsed(response, "access_denied.html")
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTrue(mock_perm.called)
+
+
+
