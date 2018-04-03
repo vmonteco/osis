@@ -40,10 +40,10 @@ HEADER = [str(_('academic_year')),
           str(_('registration_number')),
           str(_('lastname')),
           str(_('firstname')),
+          str(_('email')),
           str(_('numbered_score')),
           str(_('justification')),
-          str(_('end_date')),
-          str(_('ID'))]
+          str(_('end_date'))]
 
 JUSTIFICATION_ALIASES = {
     exam_enrollment_justification_type.ABSENCE_JUSTIFIED : "M",
@@ -90,10 +90,10 @@ def export_xls(exam_enrollments):
                           student.registration_id,
                           person.last_name,
                           person.first_name,
+                          person.email,
                           score,
                           str(justification),
-                          end_date,
-                          exam_enroll.id])
+                          end_date])
 
         row_number += 1
         __coloring_non_editable(worksheet, row_number, score, exam_enroll.justification_final)
@@ -120,16 +120,17 @@ def __columns_resizing(ws):
     col_academic_year = ws.column_dimensions['E']
     col_academic_year.width = 18
     col_last_name = ws.column_dimensions['F']
-    col_last_name.width = 30
+    col_last_name.width = 25
     col_first_name = ws.column_dimensions['G']
-    col_first_name.width = 30
-    col_note = ws.column_dimensions['H']
-    col_note.width = 20
+    col_first_name.width = 25
+    col_email = ws.column_dimensions['H']
+    col_email.width = 30
     col_note = ws.column_dimensions['I']
-    col_note.width = 20
-    col_id_exam_enrollment = ws.column_dimensions['K']
-    # Hide the exam_enrollment_id column
-    col_id_exam_enrollment.hidden = True
+    col_note.width = 15
+    col_note = ws.column_dimensions['J']
+    col_note.width = 15
+    col_note = ws.column_dimensions['K']
+    col_note.width = 15
 
 
 def __coloring_non_editable(ws, row_number, score, justification):
@@ -140,12 +141,12 @@ def __coloring_non_editable(ws, row_number, score, justification):
     style_no_modification = Style(fill=pattern_fill_grey)
     column_number = 1
     while column_number < 12:
-        if column_number < 8 or column_number > 9:
+        if column_number < 9 or column_number > 10:
             ws.cell(row=row_number, column=column_number).style = style_no_modification
         else:
             if not(score is None and justification is None):
-                ws.cell(row=row_number, column=8).style = style_no_modification
                 ws.cell(row=row_number, column=9).style = style_no_modification
+                ws.cell(row=row_number, column=10).style = style_no_modification
 
         column_number += 1
 
