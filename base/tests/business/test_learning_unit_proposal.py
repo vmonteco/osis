@@ -26,7 +26,9 @@
 import datetime
 from unittest.mock import patch
 
-from base.business.learning_unit_proposal import compute_proposal_type
+from base.business.learning_unit_proposal import compute_proposal_type, consolidate_creation_proposal
+from base.models.learning_unit_year import LearningUnitYear
+from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.business import learning_unit_proposal as lu_proposal_business
@@ -37,7 +39,7 @@ from django.test import TestCase, SimpleTestCase
 from base.models.enums import organization_type, proposal_type, entity_type, \
     learning_container_year_types, entity_container_year_link_type, \
     learning_unit_year_subtypes, proposal_state
-from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -192,3 +194,39 @@ class TestComputeProposalType(SimpleTestCase):
 
 
 
+def create_academic_years():
+    academic_years_to_create = 6
+    current_academic_year = create_current_academic_year()
+    academic_years = [current_academic_year]
+
+    for i in range(1, academic_years_to_create + 1):
+        new_academic_year = AcademicYearFactory.build(
+            year=current_academic_year.year+i,
+            start_date=current_academic_year.start_date + datetime.timedelta(days=365*i),
+            end_date=current_academic_year.end_date + datetime.timedelta(days=365 * i))
+        academic_years.append(new_academic_year)
+    return academic_years
+
+
+class TestConsolidateCreationProposal(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.academic_years = create_academic_years()
+        cls.current_academic_year = cls.academic_years[0]
+
+    def test_does_nothing_when_proposal_state_is_refused(self):
+        proposal = ProposalLearningUnitFactory(
+            state=proposal_state.ProposalState.REFUSED.name,
+            learning_unit_year__learning_container_year__academic_year=self.current_academic_year)
+        consolidate_creation_proposal(proposal)
+
+        self.assertTrue(ProposalLearningUnit.objects.filter(pk=proposal.pk).exists())
+        self.assertTrue(LearningUnitYear.objects.all().count() == 1, "should not report learning unit")
+
+    def test_delete_proposal(self):
+        proposal = ProposalLearningUnitFactory(
+            state=proposal_state.ProposalState.ACCEPTED.name,
+            learning_unit_year__learning_container_year__academic_year=self.current_academic_year)
+        consolidate_creation_proposal(proposal)
+
+        self.assertFalse(ProposalLearningUnit.objects.filter(pk=proposal.pk).exists())

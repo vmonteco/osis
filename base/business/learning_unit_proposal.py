@@ -26,7 +26,7 @@
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
 from base.business.learning_units.simple import deletion as business_deletion
 from base.models import entity_container_year, campus, entity
-from base.models.enums import entity_container_year_link_type
+from base.models.enums import entity_container_year_link_type, proposal_state
 from base.models.enums.proposal_type import ProposalType
 from base.utils import send_mail as send_mail_util
 from reference.models import language
@@ -302,3 +302,9 @@ def cancel_proposals(proposals_to_cancel, author):
         SUCCESS: success_messages,
         ERROR: error_messages
     }
+
+
+def consolidate_creation_proposal(proposal):
+    if proposal.state == proposal_state.ProposalState.REFUSED.name:
+        return
+    proposal.delete()
