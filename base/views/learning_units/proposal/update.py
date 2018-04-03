@@ -131,7 +131,7 @@ def _update_proposal(request, user_person, proposal):
 
     proposal_form.initial = initial_data
 
-    return layout.render(request, 'learning_unit/proposal/edit_modification.html',  {
+    return layout.render(request, 'learning_unit/proposal/update_modification.html',  {
         'learning_unit_year': proposal.learning_unit_year,
         'person': user_person,
         'form': proposal_form,
@@ -167,7 +167,7 @@ def _update_or_create_suppression_proposal(request, person, learning_unit_year, 
         'form_proposal': form_proposal,
         'experimental_phase': True})
     if proposal:
-        return layout.render(request, 'learning_unit/proposal/edit_suppression.html', context)
+        return layout.render(request, 'learning_unit/proposal/update_suppression.html', context)
     return layout.render(request, 'learning_unit/proposal/create_suppression.html', context)
 
 

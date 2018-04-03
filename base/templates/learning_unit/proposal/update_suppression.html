@@ -12,8 +12,8 @@
 {% endblock %}
 
 {% block panel_proposal %}
-    {% with form_proposal as form %}
-        {% include 'learning_unit/blocks/form/edit_proposal.html' %}
+    {% with form=form_proposal %}
+        {% include 'learning_unit/blocks/form/update_proposal.html' %}
     {% endwith %}
     {% buttons %}
         <a href="{% url 'learning_unit' learning_unit_year_id=learning_unit_year.id %}" class="btn btn-default">

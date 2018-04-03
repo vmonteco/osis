@@ -2,10 +2,5 @@
 {% load i18n %}
 
 <div class="row">
-    <div class="col-md-3">
-        {% bootstrap_label _('type') %}
-    </div>
-    <div class="col-md-9">
-        {% bootstrap_field form.type show_label=False %}
-    </div>
+        {% bootstrap_field form.type layout='horizontal' %}
 </div>

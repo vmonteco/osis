@@ -961,7 +961,7 @@ class TestEditProposal(TestCase):
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'learning_unit/proposal/edit_modification.html')
+        self.assertEqual(template, 'learning_unit/proposal/update_modification.html')
         self.assertIsInstance(context['form'], LearningUnitProposalModificationForm)
 
     def get_valid_data(self):
@@ -1025,7 +1025,7 @@ class TestEditProposal(TestCase):
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'learning_unit/proposal/edit_modification.html')
+        self.assertEqual(template, 'learning_unit/proposal/update_modification.html')
         self.assertIsInstance(context['form'], LearningUnitProposalModificationForm)
 
         form = context['form']
@@ -1048,7 +1048,7 @@ class TestEditProposal(TestCase):
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'learning_unit/proposal/edit_suppression.html')
+        self.assertEqual(template, 'learning_unit/proposal/update_suppression.html')
         self.assertIsInstance(context['form_end_date'], LearningUnitEndDateForm)
         self.assertIsInstance(context['form_proposal'], ProposalLearningUnitForm)
 
