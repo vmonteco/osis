@@ -25,10 +25,12 @@
 ##############################################################################
 from unittest import mock
 
+from django.contrib.auth.models import Permission
 from django.http import HttpResponseNotAllowed, HttpResponseForbidden, HttpResponseNotFound
 from django.test import TestCase
 from rest_framework.reverse import reverse
 
+from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 
@@ -36,9 +38,12 @@ from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFact
 class TestConsolidate(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.learning_unit_year = ProposalLearningUnitFactory().learning_unit_year
+        create_current_academic_year()
+        cls.proposal = ProposalLearningUnitFactory()
+        cls.learning_unit_year = cls.proposal.learning_unit_year
         cls.url = reverse("learning_unit_consolidate_proposal", args=[cls.learning_unit_year.id])
         cls.person = PersonFactory()
+        cls.person.user.user_permissions.add(Permission.objects.get(codename="can_access_learningunit"))
 
     def setUp(self):
         self.client.force_login(self.person.user)
@@ -72,3 +77,15 @@ class TestConsolidate(TestCase):
 
         self.assertTemplateUsed(response, "page_not_found.html")
         self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
+
+    @mock.patch("base.views.learning_units.proposal.consolidate.consolidate_creation_proposal",
+                side_effect=lambda prop: [])
+    @mock.patch("base.business.learning_units.perms.is_eligible_to_consolidate_proposal",
+                side_effect=lambda prop, pers: True)
+    def test_when_proposal_and_can_consolidate_proposal(self, mock_perm, mock_consolidate):
+        response = self.client.post(self.url, follow=False)
+
+        expected_redirect_url = reverse('learning_unit', args=[self.learning_unit_year.id])
+        self.assertRedirects(response, expected_redirect_url)
+        self.assertTrue(mock_consolidate.called)
+        mock_consolidate.assert_called_with(self.proposal)

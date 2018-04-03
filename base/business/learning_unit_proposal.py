@@ -308,8 +308,10 @@ def cancel_proposals(proposals_to_cancel, author):
 
 def consolidate_creation_proposal(proposal):
     if proposal.state == proposal_state.ProposalState.REFUSED.name:
-        return
+        return []
     proposal.learning_unit_year.learning_unit.end_year = proposal.learning_unit_year.academic_year.year
     proposal.learning_unit_year.learning_unit.save()
-    edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, None)
+    results = edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, None)
     proposal.delete()
+    return results
+
