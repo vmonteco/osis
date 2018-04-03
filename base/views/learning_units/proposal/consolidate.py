@@ -24,9 +24,10 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
+from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views.learning_units import perms
 
 
@@ -34,4 +35,5 @@ from base.views.learning_units import perms
 @require_POST
 @perms.can_perform_consolidation_of_proposal
 def consolidate_proposal(request, learning_unit_year_id):
+    proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year__id=learning_unit_year_id)
     return redirect('learning_unit', learning_unit_year_id=learning_unit_year_id)

@@ -25,7 +25,7 @@
 ##############################################################################
 from unittest import mock
 
-from django.http import HttpResponseNotAllowed, HttpResponseForbidden
+from django.http import HttpResponseNotAllowed, HttpResponseForbidden, HttpResponseNotFound
 from django.test import TestCase
 from rest_framework.reverse import reverse
 
@@ -65,5 +65,10 @@ class TestConsolidate(TestCase):
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTrue(mock_perm.called)
 
+    def test_when_no_proposal(self):
+        url = reverse("learning_unit_consolidate_proposal", args=[self.learning_unit_year.id + 1])
 
+        response = self.client.post(url)
 
+        self.assertTemplateUsed(response, "page_not_found.html")
+        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
