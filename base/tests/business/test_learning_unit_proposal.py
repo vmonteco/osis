@@ -24,9 +24,12 @@
 #
 ##############################################################################
 import datetime
+from unittest import mock
 from unittest.mock import patch
 
+from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
 from base.business.learning_unit_proposal import compute_proposal_type, consolidate_creation_proposal
+from base.models.academic_year import AcademicYear
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories.person import PersonFactory
@@ -195,7 +198,7 @@ class TestComputeProposalType(SimpleTestCase):
 
 
 def create_academic_years():
-    academic_years_to_create = 6
+    academic_years_to_create = LEARNING_UNIT_CREATION_SPAN_YEARS + 2
     current_academic_year = create_current_academic_year()
     academic_years = [current_academic_year]
 
@@ -204,6 +207,7 @@ def create_academic_years():
             year=current_academic_year.year+i,
             start_date=current_academic_year.start_date + datetime.timedelta(days=365*i),
             end_date=current_academic_year.end_date + datetime.timedelta(days=365 * i))
+        super(AcademicYear, new_academic_year).save()
         academic_years.append(new_academic_year)
     return academic_years
 
@@ -214,19 +218,28 @@ class TestConsolidateCreationProposal(TestCase):
         cls.academic_years = create_academic_years()
         cls.current_academic_year = cls.academic_years[0]
 
-    def test_does_nothing_when_proposal_state_is_refused(self):
-        proposal = ProposalLearningUnitFactory(
-            state=proposal_state.ProposalState.REFUSED.name,
-            learning_unit_year__learning_container_year__academic_year=self.current_academic_year)
-        consolidate_creation_proposal(proposal)
+    def setUp(self):
+        self.proposal = ProposalLearningUnitFactory(
+            state=proposal_state.ProposalState.ACCEPTED.name,
+            learning_unit_year__learning_container_year__academic_year=self.current_academic_year,
+            learning_unit_year__learning_unit__start_year=self.current_academic_year.year
+        )
 
-        self.assertTrue(ProposalLearningUnit.objects.filter(pk=proposal.pk).exists())
+    def test_does_nothing_when_proposal_state_is_refused(self):
+        self.proposal.state = proposal_state.ProposalState.REFUSED.name
+        self.proposal.save()
+
+        consolidate_creation_proposal(self.proposal)
+
+        self.assertTrue(ProposalLearningUnit.objects.filter(pk=self.proposal.pk).exists())
         self.assertTrue(LearningUnitYear.objects.all().count() == 1, "should not report learning unit")
 
-    def test_delete_proposal(self):
-        proposal = ProposalLearningUnitFactory(
-            state=proposal_state.ProposalState.ACCEPTED.name,
-            learning_unit_year__learning_container_year__academic_year=self.current_academic_year)
-        consolidate_creation_proposal(proposal)
+    @mock.patch("base.business.learning_unit_proposal.edit_learning_unit_end_date")
+    def test_extend_learning_unit(self, mock_edit_lu_end_date):
+        consolidate_creation_proposal(self.proposal)
 
-        self.assertFalse(ProposalLearningUnit.objects.filter(pk=proposal.pk).exists())
+        self.assertTrue(mock_edit_lu_end_date.called)
+
+        lu_arg, academic_year_arg = mock_edit_lu_end_date.call_args[0]
+        self.assertEqual(lu_arg.end_year, self.proposal.learning_unit_year.academic_year.year)
+        self.assertIsNone(academic_year_arg)
