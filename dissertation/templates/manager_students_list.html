@@ -66,49 +66,27 @@
                                 {% if forloop.first %}
                                     <dl class="dl-horizontal">
                                 {% endif %}
-                                        <dt style="text-align: left;">
-                                            {% if dissertation.status == 'DRAFT' %}
-                                            <span class="label label-danger">
-                                            {% elif dissertation.status == 'DIR_SUBMIT' %}
-                                            <span class="label label-warning">
-                                            {% elif dissertation.status == 'DIR_OK' %}
-                                            <span class="label label-success">
-                                            {% elif dissertation.status == 'DIR_KO' %}
-                                            <span class="label label-danger">
-                                            {% elif dissertation.status == 'COM_SUBMIT' %}
-                                            <span class="label label-primary">
-                                            {% elif dissertation.status == 'COM_OK' %}
-                                            <span class="label label-default">
-                                            {% elif dissertation.status == 'COM_KO' %}
-                                            <span class="label label-danger">
-                                            {% elif dissertation.status == 'EVA_SUBMIT' %}
-                                            <span class="label label-primary">
-                                            {% elif dissertation.status == 'EVA_OK' %}
-                                            <span class="label label-default">
-                                            {% elif dissertation.status == 'EVA_KO' %}
-                                            <span class="label label-danger">
-                                            {% elif dissertation.status == 'TO_RECEIVE' %}
-                                            <span class="label label-default">
-                                            {% elif dissertation.status == 'TO_DEFEND' %}
-                                            <span class="label label-default">
-                                            {% elif dissertation.status == 'DEFENDED' %}
-                                            <span class="label label-success">
-                                            {% elif dissertation.status == 'ENDED' %}
-                                            <span class="label label-success">
-                                            {% elif dissertation.status == 'ENDED_WIN' %}
-                                            <span class="label label-success">
-                                            {% elif dissertation.status == 'ENDED_LOS' %}
-                                            <span class="label label-success">
-                                            {% endif %}
-                                                {{ dissertation.get_status_display }}
-                                            </span>
-                                        </dt>
-                                        <dd>
-                                            &nbsp;
-                                            <a href="{% url 'manager_dissertations_detail' pk=dissertation.pk %}" target="_blank">
-                                                {{ dissertation }} [{{ dissertation.offer_year_start.acronym }}]
-                                            </a>
-                                        </dd>
+                                    <dt style="text-align: left;">
+                                        {% if dissertation.status == 'DIR_SUBMIT' %}
+                                        <span class="label label-warning">
+                                        {% elif dissertation.status == 'COM_SUBMIT' or dissertation.status == 'EVA_SUBMIT' %}
+                                        <span class="label label-primary">
+                                        {% elif dissertation.status == 'DIR_KO' or dissertation.status == 'DRAFT' or dissertation.status == 'COM_KO' or dissertation.status == 'EVA_KO' %}
+                                        <span class="label label-danger">
+                                        {% elif dissertation.status == 'COM_OK' or dissertation.status == 'EVA_OK' or dissertation.status == 'TO_RECEIVE' or dissertation.status == 'TO_DEFEND' %}
+                                        <span class="label label-default">
+                                        {% else  %}
+                                        <span class="label label-success">
+                                        {% endif %}
+                                            {{ dissertation.get_status_display }}
+                                        </span>
+                                    </dt>
+                                    <dd>
+                                        &nbsp;
+                                        <a href="{% url 'manager_dissertations_detail' pk=dissertation.pk %}" target="_blank">
+                                            {{ dissertation }} [{{ dissertation.offer_year_start.acronym }}]
+                                        </a>
+                                    </dd>
                                 {% empty %}
                                     <span class="label label-danger">Pas de mémoire</span>
                                 {% if forloop.last %}
