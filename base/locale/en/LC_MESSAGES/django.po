@@ -942,6 +942,9 @@ msgstr "Search/update the list"
 msgid "registration_id"
 msgstr "Registration ID"
 
+msgid "registration_id_does_not_match_email"
+msgstr "Registration ID does not match email"
+
 msgid "identification_number"
 msgstr "Number ID"
 
