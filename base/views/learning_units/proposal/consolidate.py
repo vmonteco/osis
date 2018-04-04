@@ -23,8 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.messages import ERROR, SUCCESS
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.shortcuts import redirect, get_object_or_404
@@ -46,17 +46,26 @@ def consolidate_proposal(request):
 
     if not perms.is_proposal_in_state_to_be_consolidated(proposal):
         raise PermissionDenied("Proposal learning unit is neither accepted nor refused.")
+
     result = {}
     try:
         result = business_proposal.consolidate_proposal(proposal)
-        if result.get(messages.ERROR, []):
-            display_error_messages(request, result[messages.ERROR])
-        else:
-            display_success_messages(request, result.get(messages.SUCCESS, []), extra_tags='safe')
+        _display_message_based_on_result(request, result)
     except IntegrityError as e:
         display_error_messages(request, e.args[0])
 
+    return _consolidate_proposal_redirection(proposal, result)
+
+
+def _display_message_based_on_result(request, result):
+    if result.get(ERROR, []):
+        display_error_messages(request, result[ERROR])
+    else:
+        display_success_messages(request, result.get(SUCCESS, []), extra_tags='safe')
+
+
+def _consolidate_proposal_redirection(proposal, consolidation_result):
     if proposal.type == proposal_type.ProposalType.CREATION.name and \
-            proposal.state == proposal_state.ProposalState.REFUSED.name and not result.get(messages.ERROR, []):
+            proposal.state == proposal_state.ProposalState.REFUSED.name and not consolidation_result.get(ERROR, []):
         return redirect('learning_units')
-    return redirect('learning_unit', learning_unit_year_id=learning_unit_year_id)
+    return redirect('learning_unit', learning_unit_year_id=proposal.learning_unit_year.id)
