@@ -308,7 +308,7 @@ def cancel_proposals(proposals_to_cancel, author):
 
 def consolidate_proposal(proposal):
     if proposal.type == proposal_type.ProposalType.CREATION.name:
-        return consolidate_proposal(proposal)
+        return consolidate_creation_proposal(proposal)
     return []
 
 
