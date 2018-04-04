@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import functools
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
@@ -140,31 +142,21 @@ def process_formset(formset, request):
 
 
 def _go_back_to_initial_data(formset, request):
-    proposals_candidate_to_cancellation = formset.get_checked_proposals()
-    if proposals_candidate_to_cancellation:
-        formset = _cancel_proposals(formset, proposals_candidate_to_cancellation, request)
-    else:
-        _build_no_data_error_message(request)
-    return formset
-
-
-def _cancel_proposals(formset, proposals_to_cancel, request):
-    if proposals_to_cancel:
-        user_person = get_object_or_404(Person, user=request.user)
-        proposal_business.cancel_proposals(proposals_to_cancel, user_person)
-        display_success_messages(request, _("proposals_cancelled_successfully"))
-        formset = None
-    else:
-        _build_no_data_error_message(request)
-    return formset
+    return _apply_action_on_proposals(formset, request, proposal_business.cancel_proposals,
+                                       "proposals_cancelled_successfully")
 
 
 def _consolidate_proposals(formset, request):
-    proposals_to_consolidate = formset.get_checked_proposals()
-    if proposals_to_consolidate:
+    return _apply_action_on_proposals(formset, request, proposal_business.consolidate_proposals,
+                                       "proposals_consolidated_successfully")
+
+
+def _apply_action_on_proposals(formset, request, action_method, success_message_id):
+    proposals = formset.get_checked_proposals()
+    if proposals:
         user_person = get_object_or_404(Person, user=request.user)
-        proposal_business.consolidate_proposals(proposals_to_consolidate, user_person)
-        display_success_messages(request, _("proposals_consolidated_successfully"))
+        action_method(proposals, user_person)
+        display_success_messages(request, _(success_message_id))
         formset = None
     else:
         _build_no_data_error_message(request)

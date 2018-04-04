@@ -317,7 +317,7 @@ def consolidate_proposal(proposal):
 def consolidate_proposals(proposals, author):
     messages = {SUCCESS: [], ERROR: []}
     proposals_that_can_be_consolidated = \
-        filter(lambda prop: perms.is_eligible_to_consolidate_proposal(prop, author),proposals)
+        filter(lambda prop: perms.is_eligible_to_consolidate_proposal(prop, author), proposals)
     for proposal in proposals_that_can_be_consolidated:
         msg = consolidate_creation_proposal(proposal)
         messages[SUCCESS].extend(msg.get(SUCCESS, []))
