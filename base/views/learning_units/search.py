@@ -132,6 +132,8 @@ def process_formset(formset, request):
     if formset.is_valid():
         if formset.action == 'back_to_initial':
             formset = _go_back_to_initial_data(formset, request)
+        elif formset.action == "consolidate":
+            _consolidate_proposals(formset, request)
         else:
             _force_state(formset, request)
     return formset
@@ -151,6 +153,18 @@ def _cancel_proposals(formset, proposals_to_cancel, request):
         user_person = get_object_or_404(Person, user=request.user)
         proposal_business.cancel_proposals(proposals_to_cancel, user_person)
         display_success_messages(request, _("proposals_cancelled_successfully"))
+        formset = None
+    else:
+        _build_no_data_error_message(request)
+    return formset
+
+
+def _consolidate_proposals(formset, request):
+    proposals_to_consolidate = formset.get_checked_proposals()
+    if proposals_to_consolidate:
+        user_person = get_object_or_404(Person, user=request.user)
+        proposal_business.consolidate_proposals(proposals_to_consolidate, user_person)
+        display_success_messages(request, _("proposals_consolidated_successfully"))
         formset = None
     else:
         _build_no_data_error_message(request)

@@ -2378,6 +2378,9 @@ msgstr "Proposition modifiée avec succès"
 msgid "proposals_cancelled_successfully"
 msgstr "Propositions annulées avec succès"
 
+msgid "proposals_consolidated_successfully"
+msgstr "Propositions consolidées avec succès"
+
 msgid "content"
 msgstr "Contenu"
 
