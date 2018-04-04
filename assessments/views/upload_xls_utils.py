@@ -44,8 +44,8 @@ col_session = 1
 col_learning_unit = 2
 col_offer = 3
 col_registration_id = 4
-col_score = 7
-col_justification = 8
+col_score = 8
+col_justification = 9
 
 REGISTRATION_ID_LENGTH = 8
 
