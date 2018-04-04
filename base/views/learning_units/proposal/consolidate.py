@@ -46,7 +46,7 @@ def consolidate_proposal(request):
 
     if not perms.is_proposal_in_state_to_be_consolidated(proposal):
         raise PermissionDenied("Proposal learning unit is neither accepted nor refused.")
-
+    result = {}
     try:
         result = business_proposal.consolidate_proposal(proposal)
         if result.get(messages.ERROR, []):
@@ -57,6 +57,6 @@ def consolidate_proposal(request):
         display_error_messages(request, e.args[0])
 
     if proposal.type == proposal_type.ProposalType.CREATION.name and \
-            proposal.state == proposal_state.ProposalState.REFUSED.name:
+            proposal.state == proposal_state.ProposalState.REFUSED.name and not result.get(messages.ERROR, []):
         return redirect('learning_units')
     return redirect('learning_unit', learning_unit_year_id=learning_unit_year_id)

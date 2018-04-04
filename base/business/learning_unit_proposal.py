@@ -320,7 +320,8 @@ def consolidate_creation_proposal(proposal):
         results = _consolidate_creation_proposal_of_state_accepted(proposal)
     else:
         results = _consolidate_creation_proposal_of_state_refused(proposal)
-    proposal.delete()
+    if not results.get(ERROR, []):
+        proposal.delete()
     return results
 
 
@@ -331,5 +332,5 @@ def _consolidate_creation_proposal_of_state_accepted(proposal):
 def _consolidate_creation_proposal_of_state_refused(proposal):
     result = deletion.check_learning_unit_deletion(proposal.learning_unit_year.learning_unit, check_proposal=False)
     if result:
-        return {ERROR: result.values()}
+        return {ERROR: list(result.values())}
     return {SUCCESS: deletion.delete_learning_unit(proposal.learning_unit_year.learning_unit)}
