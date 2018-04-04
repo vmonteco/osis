@@ -487,3 +487,9 @@ class DissertationViewTestCase(TestCase):
             url = "/dissertation/manager_dissertations_role_delete_by_ajax/{role}"
             response = self.client.get(url.format(role=str(element.id)))
             self.assertEqual(response.status_code, ERROR_403_NOT_AUTORIZED)
+
+    def test_manager_students_list(self):
+        self.client.force_login(self.manager.person.user)
+        url = reverse('manager_students_list')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HTTP_OK)
