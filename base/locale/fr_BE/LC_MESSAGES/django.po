@@ -2760,3 +2760,9 @@ msgstr "Envoyer un email de rappel pour la mise à jour des informations pédago
 
 msgid "success_mail_reminder"
 msgstr "Messages de rappel envoyés"
+
+msgid "consolidate"
+msgstr "Consolider"
+
+msgid "do_you_want_to_consolidate"
+msgstr "Voulez-vous consolider ?"

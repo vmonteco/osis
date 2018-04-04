@@ -2753,3 +2753,9 @@ msgstr "Sent email to remind to update educational information"
 
 msgid "success_mail_reminder"
 msgstr "Reminding mails sent"
+
+msgid "consolidate"
+msgstr "Consolidate"
+
+msgid "do_you_want_to_consolidate"
+msgstr "Do you want to consolidate ?"

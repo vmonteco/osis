@@ -39,6 +39,10 @@
                         data-toggle="modal" data-target="#modalBackToInitial">
                     {% trans 'get_back_to_initial' %}
                 </button>
+                <button type="button" class="btn btn-default" style="margin-left:10px;" id="btn_modal_consolidate"
+                        data-toggle="modal" data-target="#modalConsolidate">
+                    {% trans 'consolidate' %}
+                </button>
 
                 {% bootstrap_formset_errors proposals %}
                 {{ proposals.management_form }}
@@ -74,6 +78,7 @@
             </table>
             {% include "learning_unit/blocks/modal/modal_force_state.html" %}
             {% include "learning_unit/blocks/modal/modal_back_to_initial.html" %}
+                {% include "learning_unit/blocks/modal/modal_consolidate.html" %}
         {% endif %}
         </div>
     </form>
