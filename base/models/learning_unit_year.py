@@ -70,11 +70,12 @@ class LearningUnitYearAdmin(SerializableModelAdmin):
 
 class LearningUnitYear(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
-    academic_year = models.ForeignKey(AcademicYear, validators=[academic_year_validator])
+    academic_year = models.ForeignKey(AcademicYear,  verbose_name=_('academic_year'),
+                                      validators=[academic_year_validator])
     learning_unit = models.ForeignKey('LearningUnit')
     learning_container_year = models.ForeignKey('LearningContainerYear', blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
-    acronym = models.CharField(max_length=15, db_index=True,
+    acronym = models.CharField(max_length=15, db_index=True, verbose_name=_('code'),
                                validators=[RegexValidator(LEARNING_UNIT_ACRONYM_REGEX_ALL)])
     specific_title = models.CharField(max_length=255, blank=True, null=True,
                                       verbose_name=_('official_title_proper_to_UE'))
@@ -87,11 +88,12 @@ class LearningUnitYear(SerializableModel):
     decimal_scores = models.BooleanField(default=False)
     structure = models.ForeignKey('Structure', blank=True, null=True)
     internship_subtype = models.CharField(max_length=250, blank=True, null=True,
+                                          verbose_name=_('internship_subtype'),
                                           choices=internship_subtypes.INTERNSHIP_SUBTYPES)
     status = models.BooleanField(default=False, verbose_name=_('active_title'))
     session = models.CharField(max_length=50, blank=True, null=True,
                                choices=learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION)
-    quadrimester = models.CharField(max_length=4, blank=True, null=True,
+    quadrimester = models.CharField(max_length=4, blank=True, null=True, verbose_name=_('quadrimester'),
                                     choices=learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
     attribution_procedure = models.CharField(max_length=20, blank=True, null=True,
                                              choices=attribution_procedure.ATTRIBUTION_PROCEDURES)

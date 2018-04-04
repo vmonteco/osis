@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 from attribution.models.attribution_new import AttributionNew
 from base.models import learning_unit_year
@@ -46,13 +47,14 @@ class LearningContainerYear(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     academic_year = models.ForeignKey('AcademicYear')
     learning_container = models.ForeignKey('LearningContainer')
-    container_type = models.CharField(max_length=20, blank=True, null=True,
+    container_type = models.CharField(max_length=20, blank=True, null=True, verbose_name=_('type'),
                                       choices=learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES)
-    common_title = models.CharField(max_length=255, blank=True, null=True)
-    common_title_english = models.CharField(max_length=250, blank=True, null=True)
+    common_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_('common_official_title'))
+    common_title_english = models.CharField(max_length=250, blank=True, null=True,
+                                            verbose_name=_('common_official_english_title'))
     acronym = models.CharField(max_length=10)
     changed = models.DateTimeField(null=True, auto_now=True)
-    language = models.ForeignKey('reference.Language', blank=True, null=True)
+    language = models.ForeignKey('reference.Language', blank=True, null=True, verbose_name=_('language'))
     campus = models.ForeignKey('Campus', blank=True, null=True)
     team = models.BooleanField(default=False)
     is_vacant = models.BooleanField(default=False)

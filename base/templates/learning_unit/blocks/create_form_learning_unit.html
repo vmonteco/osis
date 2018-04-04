@@ -30,7 +30,7 @@
 
         {% bootstrap_form_errors learning_unit_year_form %}
         {% bootstrap_form_errors learning_unit_form %}
-        {% bootstrap_form_errors learning_container_form %}
+        {% bootstrap_form_errors learning_container_year_form %}
 
     </div>
     <div class="panel-body">
@@ -42,16 +42,16 @@
                 </abbr>
                 {% bootstrap_field learning_unit_year_form.acronym show_label=False %}
             </div>
-            <div class="col-md-3">{% bootstrap_field learning_container_form.container_type %}</div>
+            <div class="col-md-3">{% bootstrap_field learning_container_year_form.container_type %}</div>
             {% if learning_unit_year_form.internship_subtype in learning_unit_year_form.visible_fields %}
                 <div class="col-md-3">{% bootstrap_field  learning_unit_year_form.internship_subtype %}</div>
             {% endif %}
-            <div class="col-md-3">{% bootstrap_field learning_container_form.campus %}</div>
+            <div class="col-md-3">{% bootstrap_field learning_container_year_form.campus %}</div>
         </div>
         <div class="row">
             <div class="col-md-2">{% bootstrap_field learning_unit_year_form.academic_year %}</div>
             <div class="col-md-2">{% bootstrap_field learning_unit_form.periodicity %}</div>
-            <div class="col-md-2">{% bootstrap_field learning_container_form.language %}</div>
+            <div class="col-md-2">{% bootstrap_field learning_container_year_form.language %}</div>
             <div class="col-md-1">{% bootstrap_field learning_unit_year_form.credits %}</div>
             <div class="col-md-2">{% bootstrap_field learning_unit_year_form.session %}</div>
             <div class="col-md-2">{% bootstrap_field learning_unit_year_form.quadrimester %}</div>
@@ -85,4 +85,6 @@
 </div>
 {% include "learning_unit/blocks/remarks.html" %}
 
-{% bootstrap_field learning_unit_year_form.subtype %}
+{% block script %}
+    <script> const learning_unit_current_subtype = "{{ subtype }}"; </script>
+{% endblock %}

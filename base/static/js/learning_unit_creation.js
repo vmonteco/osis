@@ -11,14 +11,7 @@ var form = $('#LearningUnitYearForm').closest("form");
 
 
 function isLearningUnitSubtypeFull(){
-    if(document.getElementById('id_subtype') !== null){
-
-        return document.getElementById('id_subtype').value === LEARNING_UNIT_FULL_SUBTYPE
-    }
-    else if (learning_unit_current_subtype !== undefined){
-        return learning_unit_current_subtype === LEARNING_UNIT_FULL_SUBTYPE;
-    }
-    return true;
+   return learning_unit_current_subtype === LEARNING_UNIT_FULL_SUBTYPE;
 }
 
 
@@ -36,7 +29,7 @@ function showInternshipSubtype(){
     if (isLearningUnitSubtypeFull() && document.getElementById('id_internship_subtype')) {
         var container_type_value = document.getElementById('id_container_type').value;
         var value_not_internship = container_type_value !== internship;
-        var labelElem = $('#lbl_internship_subtype');
+        var labelElem = $("label[for='id_internship_subtype']");
 
         document.getElementById('id_internship_subtype').disabled = value_not_internship;
         if (value_not_internship) {

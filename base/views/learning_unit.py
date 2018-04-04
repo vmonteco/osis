@@ -52,6 +52,7 @@ from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import proposal_learning_unit
+from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import PARTIM
 from base.models.learning_unit import REGEX_BY_SUBTYPE
 from base.models.learning_unit_year import LearningUnitYear
@@ -265,8 +266,8 @@ def learning_class_year_edit(request, learning_unit_year_id):
 @permission_required('base.can_create_learningunit', raise_exception=True)
 def learning_unit_create(request, academic_year):
     person = get_object_or_404(Person, user=request.user)
-
     learning_unit_form_container = LearningUnitFormContainer(request.POST or None, person,
+                                                             subtype=learning_unit_year_subtypes.FULL,
                                                              initial={'academic_year': academic_year})
 
     if learning_unit_form_container.is_valid():
@@ -335,11 +336,11 @@ def get_partim_creation_form(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
     learning_unit_year_parent = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     learning_unit_form_container = LearningUnitFormContainer(
-        request.POST or None, person, is_partim=True,
+        request.POST or None, person,
+        subtype=learning_unit_year_subtypes.PARTIM,
         learning_container_year=learning_unit_year_parent.learning_container_year,
         initial={
             'acronym': learning_unit_year_parent.acronym,
-            'subtype': PARTIM,
             'academic_year': learning_unit_year_parent.academic_year,
             'periodicity': learning_unit_year_parent.learning_unit.periodicity,
             'specific_title': learning_unit_year_parent.specific_title,

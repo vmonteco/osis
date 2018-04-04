@@ -48,11 +48,11 @@ REGEX_BY_SUBTYPE = {
 class LearningUnitAdmin(SerializableModelAdmin):
     list_display = ('learning_container', 'acronym', 'title', 'start_year', 'end_year', 'changed')
     fieldsets = ((None, {
-                    'fields': ('learning_container', 'acronym', 'title', 'start_year', 'end_year',
-                               'periodicity', 'faculty_remark', 'other_remark')
+                    'fields': ('learning_container', 'start_year', 'end_year', 'periodicity',
+                               'faculty_remark', 'other_remark')
                  }),)
     raw_id_fields = ('learning_container',)
-    search_fields = ['acronym', 'title', 'learning_container__external_id']
+    search_fields = ['learningunityear__acronym', 'learningunityear__title', 'learning_container__external_id']
     list_filter = ('periodicity', 'start_year')
 
 
@@ -60,22 +60,29 @@ class LearningUnit(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     learning_container = models.ForeignKey('LearningContainer', blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
-    acronym = models.CharField(max_length=15)
-    title = models.CharField(max_length=255)
     start_year = models.IntegerField()
     end_year = models.IntegerField(blank=True, null=True)
     progress = None
-    periodicity = models.CharField(max_length=20, blank=True, null=True, choices=PERIODICITY_TYPES)
-    faculty_remark = models.TextField(blank=True, null=True)
-    other_remark = models.TextField(blank=True, null=True)
+    periodicity = models.CharField(max_length=20, blank=True, null=True, choices=PERIODICITY_TYPES,
+                                   verbose_name=_('periodicity'))
+    faculty_remark = models.TextField(blank=True, null=True, verbose_name=_('faculty_remark'))
+    other_remark = models.TextField(blank=True, null=True, verbose_name=_('other_remark'))
 
     def __str__(self):
-        return u"%s - %s" % (self.acronym, self.title)
+        return "{}".format(self.id)
 
     def save(self, *args, **kwargs):
         if self.end_year and self.end_year < self.start_year:
             raise AttributeError("Start date should be before the end date")
         super(LearningUnit, self).save(*args, **kwargs)
+
+    @property
+    def acronym(self):
+        return self.most_recent_learning_unit_year().acronym
+
+    @property
+    def title(self):
+        return self.most_recent_learning_unit_year().title
 
     def delete(self, *args, **kwargs):
         if self.start_year < 2015:
@@ -87,6 +94,9 @@ class LearningUnit(SerializableModel):
 
     def has_proposal(self):
         return ProposalLearningUnit.objects.filter(learning_unit_year__learning_unit=self).exists()
+
+    def most_recent_learning_unit_year(self):
+        return self.learningunityear_set.filter(learning_unit_id=self.id).latest('academic_year__year')
 
     class Meta:
         permissions = (

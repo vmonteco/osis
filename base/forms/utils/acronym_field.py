@@ -36,7 +36,7 @@ class AcronymInput(forms.MultiWidget):
         choices = kwargs.pop('choices', [])
         widgets = [
             forms.Select(choices=choices),
-            forms.TextInput(),
+            forms.TextInput(attrs={'class': 'text-uppercase'}),
         ]
 
         super().__init__(widgets, *args, **kwargs)
@@ -44,7 +44,7 @@ class AcronymInput(forms.MultiWidget):
     def decompress(self, value):
         if value:
             return [value[0], value[1:]]
-        return [None, None]
+        return ['', '']
 
 
 class PartimAcronymInput(forms.MultiWidget):
@@ -54,9 +54,8 @@ class PartimAcronymInput(forms.MultiWidget):
         choices = kwargs.pop('choices', [])
         widgets = [
             forms.Select(choices=choices, attrs={'disabled': True}),
-            forms.TextInput(attrs={'disabled': True}),
-            forms.TextInput(attrs={'class': 'text-center',
-                                   'style': 'text-transform: uppercase;',
+            forms.TextInput(attrs={'disabled': True, 'class': 'text-uppercase'}),
+            forms.TextInput(attrs={'class': 'text-center text-uppercase',
                                    'maxlength': "1",
                                    'onchange': 'validate_acronym()'})
         ]
@@ -65,7 +64,7 @@ class PartimAcronymInput(forms.MultiWidget):
     def decompress(self, value):
         if value:
             return [value[0], value[1:-1], value[-1]]
-        return [None, None, None]
+        return ['', '', '']
 
 
 class AcronymField(forms.MultiValueField):
@@ -82,7 +81,7 @@ class AcronymField(forms.MultiValueField):
         self.widget = AcronymInput(choices=_create_first_letter_choices())
 
     def compress(self, data_list):
-        return ''.join(data_list)
+        return ''.join(data_list).upper()
 
 
 class PartimAcronymField(AcronymField):
