@@ -225,18 +225,24 @@ class TestConsolidateCreationProposal(TestCase):
             learning_unit_year__learning_unit__start_year=self.current_academic_year.year
         )
 
-    def test_does_nothing_when_proposal_state_is_refused(self):
+    @mock.patch("base.business.learning_units.simple.deletion.check_learning_unit_deletion",
+                side_effect=lambda lu, check_proposal: {})
+    @mock.patch("base.business.learning_units.simple.deletion.delete_learning_unit")
+    def test_delete_learning_unit_when_proposal_state_is_refused(self, mock_delete, mock_check):
         self.proposal.state = proposal_state.ProposalState.REFUSED.name
         self.proposal.save()
 
         consolidate_creation_proposal(self.proposal)
 
-        self.assertTrue(ProposalLearningUnit.objects.filter(pk=self.proposal.pk).exists())
-        self.assertTrue(LearningUnitYear.objects.all().count() == 1, "should not report learning unit")
+        self.assertFalse(ProposalLearningUnit.objects.all().exists())
+        mock_check.assert_called_once_with(self.proposal.learning_unit_year.learning_unit, check_proposal=False)
+        mock_delete.assert_called_once_with(self.proposal.learning_unit_year.learning_unit)
 
     @mock.patch("base.business.learning_unit_proposal.edit_learning_unit_end_date")
     def test_extend_learning_unit(self, mock_edit_lu_end_date):
         consolidate_creation_proposal(self.proposal)
+
+        self.assertFalse(ProposalLearningUnit.objects.all().exists())
 
         self.assertTrue(mock_edit_lu_end_date.called)
 

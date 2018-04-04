@@ -30,7 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 from base import models as mdl_base
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components, \
     edit_learning_unit_end_date
-from base.business.learning_units.simple import deletion as business_deletion
+from base.business.learning_units.simple import deletion as business_deletion, deletion
 from base.models import entity_container_year, campus, entity
 from base.models.enums import entity_container_year_link_type, proposal_state, proposal_type
 from base.models.enums.proposal_type import ProposalType
@@ -309,14 +309,28 @@ def cancel_proposals(proposals_to_cancel, author):
 def consolidate_proposal(proposal):
     if proposal.type == proposal_type.ProposalType.CREATION.name:
         return consolidate_creation_proposal(proposal)
-    return []
+    return {}
 
 
 def consolidate_creation_proposal(proposal):
-    if proposal.state == proposal_state.ProposalState.REFUSED.name:
-        return []
     proposal.learning_unit_year.learning_unit.end_year = proposal.learning_unit_year.academic_year.year
     proposal.learning_unit_year.learning_unit.save()
-    results = edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, None)
-    proposal.delete()
+
+    if proposal.state == proposal_state.ProposalState.ACCEPTED.name:
+        results = _consolidate_creation_proposal_of_state_accepted(proposal)
+    else:
+        results = _consolidate_creation_proposal_of_state_refused(proposal)
+    if not results.get(ERROR, []):
+        proposal.delete()
     return results
+
+
+def _consolidate_creation_proposal_of_state_accepted(proposal):
+    return {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, None)}
+
+
+def _consolidate_creation_proposal_of_state_refused(proposal):
+    result = deletion.check_learning_unit_deletion(proposal.learning_unit_year.learning_unit, check_proposal=False)
+    if result:
+        return {ERROR: list(result.values())}
+    return {SUCCESS: deletion.delete_learning_unit(proposal.learning_unit_year.learning_unit)}
