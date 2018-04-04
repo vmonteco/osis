@@ -23,25 +23,32 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
+from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
 from base.business.learning_unit_proposal import consolidate_creation_proposal
+from base.models.enums.proposal_state import ProposalState
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views.common import display_success_messages, display_error_messages
-from base.views.learning_units import perms
 
 
 @login_required
 @require_POST
-@perms.can_perform_consolidation_of_proposal
-def consolidate_proposal(request, learning_unit_year_id):
+@permission_required('base.can_consolidate_learningunit_proposal', raise_exception=True)
+def consolidate_proposal(request):
+    learning_unit_year_id = request.POST.get("learning_unit_year_id")
     proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year__id=learning_unit_year_id)
+    eligible_states = (ProposalState.ACCEPTED.name, ProposalState.REFUSED.name)
+    if proposal.state not in eligible_states:
+        raise PermissionDenied("Proposal learning unit is neither accepted nor refused.")
+
     try:
         result = consolidate_creation_proposal(proposal)
         display_success_messages(request, result, extra_tags='safe')
     except IntegrityError as e:
         display_error_messages(request, e.args[0])
+
     return redirect('learning_unit', learning_unit_year_id=learning_unit_year_id)
