@@ -24,9 +24,14 @@
 #
 ##############################################################################
 import datetime
+from unittest import mock
 from unittest.mock import patch
 
-from base.business.learning_unit_proposal import compute_proposal_type
+from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
+from base.business.learning_unit_proposal import compute_proposal_type, consolidate_creation_proposal
+from base.models.academic_year import AcademicYear
+from base.models.learning_unit_year import LearningUnitYear
+from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.business import learning_unit_proposal as lu_proposal_business
@@ -37,7 +42,7 @@ from django.test import TestCase, SimpleTestCase
 from base.models.enums import organization_type, proposal_type, entity_type, \
     learning_container_year_types, entity_container_year_link_type, \
     learning_unit_year_subtypes, proposal_state
-from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -192,3 +197,49 @@ class TestComputeProposalType(SimpleTestCase):
 
 
 
+def create_academic_years():
+    academic_years_to_create = LEARNING_UNIT_CREATION_SPAN_YEARS + 2
+    current_academic_year = create_current_academic_year()
+    academic_years = [current_academic_year]
+
+    for i in range(1, academic_years_to_create + 1):
+        new_academic_year = AcademicYearFactory.build(
+            year=current_academic_year.year+i,
+            start_date=current_academic_year.start_date + datetime.timedelta(days=365*i),
+            end_date=current_academic_year.end_date + datetime.timedelta(days=365 * i))
+        super(AcademicYear, new_academic_year).save()
+        academic_years.append(new_academic_year)
+    return academic_years
+
+
+class TestConsolidateCreationProposal(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.academic_years = create_academic_years()
+        cls.current_academic_year = cls.academic_years[0]
+
+    def setUp(self):
+        self.proposal = ProposalLearningUnitFactory(
+            state=proposal_state.ProposalState.ACCEPTED.name,
+            learning_unit_year__learning_container_year__academic_year=self.current_academic_year,
+            learning_unit_year__learning_unit__start_year=self.current_academic_year.year
+        )
+
+    def test_does_nothing_when_proposal_state_is_refused(self):
+        self.proposal.state = proposal_state.ProposalState.REFUSED.name
+        self.proposal.save()
+
+        consolidate_creation_proposal(self.proposal)
+
+        self.assertTrue(ProposalLearningUnit.objects.filter(pk=self.proposal.pk).exists())
+        self.assertTrue(LearningUnitYear.objects.all().count() == 1, "should not report learning unit")
+
+    @mock.patch("base.business.learning_unit_proposal.edit_learning_unit_end_date")
+    def test_extend_learning_unit(self, mock_edit_lu_end_date):
+        consolidate_creation_proposal(self.proposal)
+
+        self.assertTrue(mock_edit_lu_end_date.called)
+
+        lu_arg, academic_year_arg = mock_edit_lu_end_date.call_args[0]
+        self.assertEqual(lu_arg.end_year, self.proposal.learning_unit_year.academic_year.year)
+        self.assertIsNone(academic_year_arg)

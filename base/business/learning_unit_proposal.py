@@ -23,17 +23,19 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
+from django.apps import apps
+from django.contrib.messages import ERROR, SUCCESS
+from django.utils.translation import ugettext_lazy as _
+
+from base import models as mdl_base
+from base.business.learning_units.edition import update_or_create_entity_container_year_with_components, \
+    edit_learning_unit_end_date
 from base.business.learning_units.simple import deletion as business_deletion
 from base.models import entity_container_year, campus, entity
-from base.models.enums import entity_container_year_link_type
+from base.models.enums import entity_container_year_link_type, proposal_state, proposal_type
 from base.models.enums.proposal_type import ProposalType
 from base.utils import send_mail as send_mail_util
 from reference.models import language
-from django.utils.translation import ugettext_lazy as _
-from base import models as mdl_base
-from django.apps import apps
-from django.contrib.messages import ERROR, SUCCESS
 
 APP_BASE_LABEL = 'base'
 END_FOREIGN_KEY_NAME = "_id"
@@ -302,3 +304,19 @@ def cancel_proposals(proposals_to_cancel, author):
         SUCCESS: success_messages,
         ERROR: error_messages
     }
+
+
+def consolidate_proposal(proposal):
+    if proposal.type == proposal_type.ProposalType.CREATION.name:
+        return consolidate_creation_proposal(proposal)
+    return []
+
+
+def consolidate_creation_proposal(proposal):
+    if proposal.state == proposal_state.ProposalState.REFUSED.name:
+        return []
+    proposal.learning_unit_year.learning_unit.end_year = proposal.learning_unit_year.academic_year.year
+    proposal.learning_unit_year.learning_unit.save()
+    results = edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, None)
+    proposal.delete()
+    return results

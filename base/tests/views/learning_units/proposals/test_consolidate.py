@@ -25,10 +25,13 @@
 ##############################################################################
 from unittest import mock
 
-from django.http import HttpResponseNotAllowed, HttpResponseForbidden
+from django.contrib.auth.models import Permission
+from django.http import HttpResponseNotAllowed, HttpResponseForbidden, HttpResponseNotFound
 from django.test import TestCase
 from rest_framework.reverse import reverse
 
+from base.models.enums import proposal_state
+from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 
@@ -36,9 +39,17 @@ from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFact
 class TestConsolidate(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.learning_unit_year = ProposalLearningUnitFactory().learning_unit_year
-        cls.url = reverse("learning_unit_consolidate_proposal", args=[cls.learning_unit_year.id])
+        create_current_academic_year()
+
+        cls.proposal = ProposalLearningUnitFactory(state=proposal_state.ProposalState.ACCEPTED.name)
+        cls.learning_unit_year = cls.proposal.learning_unit_year
+
         cls.person = PersonFactory()
+        cls.person.user.user_permissions.add(Permission.objects.get(codename="can_access_learningunit"))
+        cls.person.user.user_permissions.add(Permission.objects.get(codename="can_consolidate_learningunit_proposal"))
+
+        cls.url = reverse("learning_unit_consolidate_proposal")
+        cls.post_data = {"learning_unit_year_id": cls.learning_unit_year.id}
 
     def setUp(self):
         self.client.force_login(self.person.user)
@@ -46,7 +57,7 @@ class TestConsolidate(TestCase):
     def test_login_required(self):
         self.client.logout()
 
-        response = self.client.get(self.url)
+        response = self.client.post(self.url, data=self.post_data)
 
         self.assertRedirects(response, "/login/?next={}".format(self.url))
 
@@ -56,14 +67,34 @@ class TestConsolidate(TestCase):
         self.assertTemplateUsed(response, "method_not_allowed.html")
         self.assertEqual(response.status_code, HttpResponseNotAllowed.status_code)
 
-    @mock.patch("base.business.learning_units.perms.is_eligible_to_consolidate_proposal",
-                side_effect=lambda prop, pers: False)
-    def test_when_no_permission_to_consolidate(self, mock_perm):
-        response = self.client.post(self.url)
+    def test_when_no_permission_to_consolidate(self):
+        person_with_no_rights = PersonFactory()
+        self.client.force_login(person_with_no_rights.user)
+        response = self.client.post(self.url, data=self.post_data)
 
         self.assertTemplateUsed(response, "access_denied.html")
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
-        self.assertTrue(mock_perm.called)
 
+    def test_when_no_proposal(self):
+        post_data = {"learning_unit_year_id": self.learning_unit_year.id + 1}
 
+        response = self.client.post(self.url, data=post_data)
 
+        self.assertTemplateUsed(response, "page_not_found.html")
+        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
+
+    def test_when_no_post_data(self):
+        response = self.client.post(self.url, data={})
+
+        self.assertTemplateUsed(response, "page_not_found.html")
+        self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
+
+    @mock.patch("base.business.learning_unit_proposal.consolidate_proposal",
+                side_effect=lambda prop: [])
+    def test_when_proposal_and_can_consolidate_proposal(self, mock_consolidate):
+        response = self.client.post(self.url, data=self.post_data, follow=False)
+
+        expected_redirect_url = reverse('learning_unit', args=[self.learning_unit_year.id])
+        self.assertRedirects(response, expected_redirect_url)
+        self.assertTrue(mock_consolidate.called)
+        mock_consolidate.assert_called_with(self.proposal)
