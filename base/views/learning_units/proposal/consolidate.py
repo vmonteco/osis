@@ -33,6 +33,7 @@ from django.views.decorators.http import require_POST
 from base.business import learning_unit_proposal as business_proposal
 from base.business.learning_units import perms
 from base.models.enums import proposal_type, proposal_state
+from base.models.person import Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views.common import display_success_messages, display_error_messages
 
@@ -43,13 +44,14 @@ from base.views.common import display_success_messages, display_error_messages
 def consolidate_proposal(request):
     learning_unit_year_id = request.POST.get("learning_unit_year_id")
     proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year__id=learning_unit_year_id)
+    user_person = get_object_or_404(Person, user=request.user)
 
     if not perms.is_proposal_in_state_to_be_consolidated(proposal):
         raise PermissionDenied("Proposal learning unit is neither accepted nor refused.")
 
     result = {}
     try:
-        result = business_proposal.consolidate_proposal(proposal)
+        result = business_proposal.consolidate_proposal(proposal, user_person, send_mail=True)
         _display_message_based_on_result(request, result)
     except IntegrityError as e:
         display_error_messages(request, e.args[0])
