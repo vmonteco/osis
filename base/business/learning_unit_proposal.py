@@ -311,6 +311,7 @@ def consolidate_proposal(proposal):
         return consolidate_proposal(proposal)
     return []
 
+
 def consolidate_creation_proposal(proposal):
     if proposal.state == proposal_state.ProposalState.REFUSED.name:
         return []
@@ -319,4 +320,3 @@ def consolidate_creation_proposal(proposal):
     results = edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, None)
     proposal.delete()
     return results
-
