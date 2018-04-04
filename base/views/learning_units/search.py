@@ -143,12 +143,12 @@ def process_formset(formset, request):
 
 def _go_back_to_initial_data(formset, request):
     return _apply_action_on_proposals(formset, request, proposal_business.cancel_proposals,
-                                       "proposals_cancelled_successfully")
+                                      "proposals_cancelled_successfully")
 
 
 def _consolidate_proposals(formset, request):
     return _apply_action_on_proposals(formset, request, proposal_business.consolidate_proposals,
-                                       "proposals_consolidated_successfully")
+                                      "proposals_consolidated_successfully")
 
 
 def _apply_action_on_proposals(formset, request, action_method, success_message_id):

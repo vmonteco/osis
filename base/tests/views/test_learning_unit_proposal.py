@@ -71,10 +71,9 @@ from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.tutor import TutorFactory
 from base.views.learning_unit import learning_unit_identification
-from base.views.learning_units.search import _cancel_proposals
 from base.views.learning_units.proposal.update import update_learning_unit_proposal, learning_unit_modification_proposal, \
     learning_unit_suppression_proposal
-from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search
+from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search, _go_back_to_initial_data
 from reference.tests.factories.language import LanguageFactory
 from base.tests.factories.user import UserFactory
 from django.contrib.auth.models import Group
@@ -654,7 +653,7 @@ class TestLearningUnitProposalSearch(TestCase):
         request, template, context = mock_render.call_args[0]
         formset = context['proposals']
         setattr(request, '_messages', FallbackStorage(request))
-        self.assertEqual(_cancel_proposals(formset, None, request), formset)
+        self.assertIsNone(_go_back_to_initial_data(formset, request))
 
     @mock.patch('base.views.layout.render')
     def test_get_checked_proposals(self, mock_render):
