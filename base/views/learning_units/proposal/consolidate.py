@@ -31,6 +31,7 @@ from django.views.decorators.http import require_POST
 
 from base.business import learning_unit_proposal as business_proposal
 from base.business.learning_units import perms
+from base.models.enums import proposal_type, proposal_state
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views.common import display_success_messages, display_error_messages
 
@@ -51,4 +52,7 @@ def consolidate_proposal(request):
     except IntegrityError as e:
         display_error_messages(request, e.args[0])
 
+    if proposal.type == proposal_type.ProposalType.CREATION.name and \
+            proposal.state == proposal_state.ProposalState.REFUSED.name:
+        return redirect('learning_units')
     return redirect('learning_unit', learning_unit_year_id=learning_unit_year_id)

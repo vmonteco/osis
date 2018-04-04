@@ -38,19 +38,20 @@ from cms.enums import entity_name
 from cms.models import translated_text
 
 
-def check_learning_unit_deletion(learning_unit):
+def check_learning_unit_deletion(learning_unit, check_proposal=True):
     msg = {}
 
     for learning_unit_year in learn_unit_year_model.search(learning_unit=learning_unit).order_by('academic_year__year'):
-        msg.update(check_learning_unit_year_deletion(learning_unit_year))
+        msg.update(check_learning_unit_year_deletion(learning_unit_year, check_proposal=check_proposal))
 
     return msg
 
 
-def check_learning_unit_year_deletion(learning_unit_year):
+def check_learning_unit_year_deletion(learning_unit_year, check_proposal=True):
     msg = {}
 
-    msg.update(_check_learning_unit_proposal(learning_unit_year))
+    if check_proposal:
+        msg.update(_check_learning_unit_proposal(learning_unit_year))
     msg.update(check_can_delete_ignoring_proposal_validation(learning_unit_year))
     return msg
 
