@@ -24,24 +24,29 @@
 #
 ##############################################################################
 import datetime
+from unittest import mock
 
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from base.business.learning_units import perms
+from base.business.learning_units.perms import is_eligible_to_create_modification_proposal, \
+    FACULTY_UPDATABLE_CONTAINER_TYPES, is_eligible_to_consolidate_proposal
 from base.models.academic_year import AcademicYear
 from base.models.enums import entity_container_year_link_type
 from base.models.enums import proposal_state, proposal_type, learning_container_year_types
+from base.models.enums.attribution_procedure import EXTERNAL
+from base.models.enums.learning_container_year_types import OTHER_COLLECTIVE, OTHER_INDIVIDUAL, MASTER_THESIS, COURSE
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.enums.proposal_type import ProposalType
-from base.models.person import FACULTY_MANAGER_GROUP, CENTRAL_MANAGER_GROUP
+from base.models.person import FACULTY_MANAGER_GROUP, CENTRAL_MANAGER_GROUP, Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
-from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateContainer
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory, LearningUnitYearFakerFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
@@ -312,3 +317,108 @@ class PermsTestCase(TestCase):
         if group_name:
             a_person.user.groups.add(Group.objects.get(name=group_name))
         return a_person
+
+
+class TestIsEligibleToCreateModificationProposal(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.current_academic_year = create_current_academic_year()
+        cls.past_academic_year = AcademicYearFactory(
+            start_date=cls.current_academic_year.start_date - datetime.timedelta(days=365),
+            end_date=cls.current_academic_year.end_date - datetime.timedelta(days=365),
+            year=cls.current_academic_year.year - 1
+        )
+        cls.person = PersonFactory()
+
+    def setUp(self):
+        self.luy = LearningUnitYearFakerFactory(learning_container_year__academic_year=self.current_academic_year,
+                                           learning_container_year__container_type=COURSE,
+                                           subtype=FULL)
+        self.entity_container_year = EntityContainerYearFactory(
+            learning_container_year=self.luy.learning_container_year,
+            type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+        self.person_entity = PersonEntityFactory(person=self.person, entity=self.entity_container_year.entity)
+
+    def test_cannot_propose_modification_of_past_learning_unit(self):
+        past_luy = LearningUnitYearFakerFactory(learning_container_year__academic_year=self.past_academic_year)
+
+        self.assertFalse(is_eligible_to_create_modification_proposal(past_luy, self.person))
+
+    def test_cannot_propose_modification_of_partim(self):
+        self.luy.subtype = PARTIM
+        self.luy.save()
+
+        self.assertFalse(is_eligible_to_create_modification_proposal(self.luy, self.person))
+
+    def test_can_only_propose_modification_for_course_internship_and_dissertation(self):
+        other_types = (OTHER_COLLECTIVE, OTHER_INDIVIDUAL, MASTER_THESIS, EXTERNAL)
+        for luy_container_type in other_types:
+            with self.subTest(luy_container_type=luy_container_type):
+                self.luy.learning_container_year.container_type = luy_container_type
+                self.luy.learning_container_year.save()
+                self.assertFalse(is_eligible_to_create_modification_proposal(self.luy, self.person))
+
+    def test_can_only_propose_modification_for_luy_which_is_not_currently_in_proposition(self):
+        ProposalLearningUnitFactory(learning_unit_year=self.luy)
+
+        self.assertFalse(is_eligible_to_create_modification_proposal(self.luy, self.person))
+
+    def test_can_only_propose_modification_for_lu_which_is_not_in_proposition_on_different_year(self):
+        past_luy_with_proposal = LearningUnitYearFakerFactory(
+            learning_container_year__academic_year=self.past_academic_year,
+            learning_unit=self.luy.learning_unit
+        )
+        ProposalLearningUnitFactory(learning_unit_year=past_luy_with_proposal)
+
+        self.assertFalse(is_eligible_to_create_modification_proposal(self.luy, self.person))
+
+    def test_cannot_propose_modification_for_luy_for_which_person_is_not_linked_to_entity(self):
+        self.person_entity.delete()
+
+        self.assertFalse(is_eligible_to_create_modification_proposal(self.luy, self.person))
+
+    def test_all_requirements_are_met_to_propose_modification(self):
+        for luy_container_type in FACULTY_UPDATABLE_CONTAINER_TYPES:
+            with self.subTest(luy_container_type=luy_container_type):
+                self.luy.learning_container_year.container_type = luy_container_type
+                self.luy.learning_container_year.save()
+                self.assertTrue(is_eligible_to_create_modification_proposal(self.luy, self.person))
+    @mock.patch.object(Person, "is_central_manager", side_effect=lambda: True)
+    def test_person_is_central_manager(self, mock_is_central_manager):
+        self.person_entity.delete()
+
+        self.assertTrue(is_eligible_to_create_modification_proposal(self.luy, self.person))
+        self.assertTrue(mock_is_central_manager.called)
+
+
+class TestIsEligibleToConsolidateLearningUnitProposal(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.person_with_right_to_consolidate = PersonFactory()
+        cls.person_with_right_to_consolidate.user.user_permissions.add(
+            Permission.objects.get(codename="can_consolidate_learningunit_proposal")
+        )
+
+        cls.person_without_right_to_consolidate = PersonFactory()
+
+    def test_when_person_has_no_right_to_consolidate(self):
+        proposal_in_state_accepted = ProposalLearningUnitFactory(state=proposal_state.ProposalState.ACCEPTED.name)
+        self.assertFalse(is_eligible_to_consolidate_proposal(proposal_in_state_accepted,
+                                                             self.person_without_right_to_consolidate))
+
+    def test_when_person_has_right_to_consolidate_but_proposal_state_is_neither_accepted_nor_refused(self):
+        states = (state.name for state in proposal_state.ProposalState
+                  if state not in (proposal_state.ProposalState.ACCEPTED, proposal_state.ProposalState.REFUSED))
+        for state in states:
+            with self.subTest(state=state):
+                proposal = ProposalLearningUnitFactory(state=state)
+                self.assertFalse(is_eligible_to_consolidate_proposal(proposal, self.person_with_right_to_consolidate))
+
+    def test_when_person_has_right_to_consolidate_and_proposal_state_is_accepter_or_refused(self):
+        states = (state.name for state in proposal_state.ProposalState
+                  if state in (proposal_state.ProposalState.ACCEPTED, proposal_state.ProposalState.REFUSED))
+
+        for state in states:
+            with self.subTest(state=state):
+                proposal = ProposalLearningUnitFactory(state=state)
+                self.assertTrue(is_eligible_to_consolidate_proposal(proposal, self.person_with_right_to_consolidate))

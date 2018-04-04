@@ -84,12 +84,11 @@ def send_email(dissert, template_ref, receivers):
     receivers = generate_receivers(receivers)
     html_template_ref = template_ref + '_html'
     txt_template_ref = template_ref + '_txt'
+    suject_data = get_subject_template(dissert)
     if template_ref is not 'dissertation_to_commission_list':
         template_base_data = get_base_template(dissert)
-        suject_data = None
     else:
         template_base_data = get_commission_template(dissert)
-        suject_data = get_subject_template(dissert)
     tables = None
     message_content = message_config.create_message_content(html_template_ref, txt_template_ref, tables, receivers,
                                                             template_base_data, suject_data)

@@ -192,7 +192,7 @@ class TestLearningUnitModificationProposal(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'learning_unit/proposal/create_modification_proposal.html')
+        self.assertTemplateUsed(response, 'learning_unit/proposal/create_modification.html')
         self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
         self.assertEqual(response.context['experimental_phase'], True)
         self.assertEqual(response.context['person'], self.person)
@@ -220,7 +220,7 @@ class TestLearningUnitModificationProposal(TestCase):
         response = self.client.post(self.url, data={})
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'learning_unit/proposal/create_modification_proposal.html')
+        self.assertTemplateUsed(response, 'learning_unit/proposal/create_modification.html')
         self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
         self.assertEqual(response.context['experimental_phase'], True)
         self.assertEqual(response.context['person'], self.person)
@@ -265,7 +265,7 @@ class TestLearningUnitModificationProposal(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'learning_unit/proposal/create_modification_proposal.html')
+        self.assertTemplateUsed(response, 'learning_unit/proposal/create_modification.html')
 
     def test_learning_unit_of_type_dissertation(self):
         self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.DISSERTATION
@@ -274,7 +274,7 @@ class TestLearningUnitModificationProposal(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'learning_unit/proposal/create_modification_proposal.html')
+        self.assertTemplateUsed(response, 'learning_unit/proposal/create_modification.html')
 
     def test_learning_unit_of_other_types(self):
         self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.OTHER_COLLECTIVE
@@ -343,7 +343,7 @@ class TestLearningUnitModificationProposal(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'learning_unit/proposal/create_modification_proposal.html')
+        self.assertTemplateUsed(response, 'learning_unit/proposal/create_modification.html')
 
     def test_linked_to_child_entity(self):
         today = datetime.date.today()
@@ -418,7 +418,27 @@ class TestLearningUnitSuppressionProposal(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'learning_unit/proposal/create_suppression_proposal.html')
+        self.assertTemplateUsed(response, 'learning_unit/proposal/create_suppression.html')
+        self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
+        self.assertEqual(response.context['experimental_phase'], True)
+        self.assertEqual(response.context['person'], self.person)
+
+        self.assertIsInstance(response.context['form_proposal'], ProposalLearningUnitForm)
+        self.assertIsInstance(response.context['form_end_date'], LearningUnitEndDateForm)
+
+        form_proposal = response.context['form_proposal']
+        form_end_date = response.context['form_end_date']
+
+        self.assertEqual(form_end_date.fields['academic_year'].initial, None)
+        self.assertEqual(form_proposal.fields['folder_id'].initial, None)
+        self.assertEqual(form_proposal.fields['entity'].initial, None)
+
+    def test_get_request_by_central_manager(self):
+        self.person.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, 'learning_unit/proposal/create_suppression.html')
         self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
         self.assertEqual(response.context['experimental_phase'], True)
         self.assertEqual(response.context['person'], self.person)
@@ -912,7 +932,8 @@ class TestEditProposal(TestCase):
         self.proposal = ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year,
                                                     state=ProposalState.FACULTY.name,
                                                     folder_id=1,
-                                                    entity=self.entity)
+                                                    entity=self.entity,
+                                                    type=proposal_type.ProposalType.MODIFICATION.name)
 
         self.person = PersonFactory()
         self.person_entity = PersonEntityFactory(person=self.person, entity=self.entity)
@@ -940,7 +961,7 @@ class TestEditProposal(TestCase):
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'learning_unit/proposal/edition.html')
+        self.assertEqual(template, 'learning_unit/proposal/update_modification.html')
         self.assertIsInstance(context['form'], LearningUnitProposalModificationForm)
 
     def get_valid_data(self):
@@ -1004,7 +1025,7 @@ class TestEditProposal(TestCase):
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'learning_unit/proposal/edition.html')
+        self.assertEqual(template, 'learning_unit/proposal/update_modification.html')
         self.assertIsInstance(context['form'], LearningUnitProposalModificationForm)
 
         form = context['form']
@@ -1027,7 +1048,7 @@ class TestEditProposal(TestCase):
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'learning_unit/proposal/create_suppression_proposal.html')
+        self.assertEqual(template, 'learning_unit/proposal/update_suppression.html')
         self.assertIsInstance(context['form_end_date'], LearningUnitEndDateForm)
         self.assertIsInstance(context['form_proposal'], ProposalLearningUnitForm)
 

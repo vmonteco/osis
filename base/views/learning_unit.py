@@ -30,7 +30,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
 from django.db.models import BLANK_CHOICE_DASH
-from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.http import QueryDict
@@ -46,8 +45,7 @@ from base.business.learning_unit import get_cms_label_data, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, find_language_in_settings, \
     compute_max_academic_year_adjournment, \
-    create_learning_unit_partim_structure, CMS_LABEL_SPECIFICATIONS, \
-    CMS_LABEL_PEDAGOGY
+    create_learning_unit_partim_structure, CMS_LABEL_SPECIFICATIONS
 from base.business.learning_unit_proposal import get_difference_of_proposal
 from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
@@ -57,18 +55,16 @@ from base.forms.learning_unit.edition import compute_form_initial_data
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePartimForm, \
     PARTIM_FORM_READ_ONLY_FIELD
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, SummaryModelForm, \
-    LearningUnitPedagogyForm, BibliographyModelForm
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import proposal_learning_unit
-from base.models.bibliography import Bibliography
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.learning_container import LearningContainer
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, LEARNING_UNIT_ACRONYM_REGEX_FULL
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
-from base.views.common import display_success_messages, display_error_messages
+from base.views.common import display_error_messages
 from base.views.learning_units import perms
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
 from base.views.learning_units.search import _learning_units_search
@@ -117,53 +113,6 @@ def learning_unit_components(request, learning_unit_year_id):
                                                                                person)
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/components.html", context)
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def learning_unit_pedagogy(request, learning_unit_year_id):
-    person = get_object_or_404(Person, user=request.user)
-    context = get_common_context_learning_unit_year(learning_unit_year_id, person)
-    learning_unit_year = context['learning_unit_year']
-    perm_to_edit = int(request.user.has_perm('can_edit_learningunit_pedagogy'))
-
-    post = request.POST or None
-    summary_form = SummaryModelForm(post, person, context['is_person_linked_to_entity'], instance=learning_unit_year)
-
-    BibliographyFormset = inlineformset_factory(LearningUnitYear, Bibliography, fields=('title', 'mandatory'),
-                                                max_num=10, extra=perm_to_edit, form=BibliographyModelForm,
-                                                can_delete=perm_to_edit)
-
-    bibliography_formset = BibliographyFormset(post, instance=learning_unit_year, form_kwargs={'person': person})
-
-    if perm_to_edit and summary_form.is_valid() and bibliography_formset.is_valid():
-        try:
-            summary_form.save()
-            bibliography_formset.save()
-
-            display_success_messages(request, _("success_modification_learning_unit"))
-            return HttpResponseRedirect(reverse('learning_unit_pedagogy', args=[learning_unit_year_id]))
-
-        except ValueError as e:
-            display_error_messages(request, e.args[0])
-
-    context.update(get_cms_pedagogy_form(request, learning_unit_year))
-    context['summary_editable_form'] = summary_form
-    context['bibliography_formset'] = bibliography_formset
-    context['experimental_phase'] = True
-
-    return layout.render(request, "learning_unit/pedagogy.html", context)
-
-
-def get_cms_pedagogy_form(request, learning_unit_year):
-    user_language = mdl.person.get_user_interface_language(request.user)
-    return {
-        'cms_labels_translated': get_cms_label_data(CMS_LABEL_PEDAGOGY, user_language),
-        'form_french': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
-                                                language_code=settings.LANGUAGE_CODE_FR),
-        'form_english': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
-                                                 language_code=settings.LANGUAGE_CODE_EN)
-        }
 
 
 @login_required
@@ -495,7 +444,7 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context = get_common_context_learning_unit_year(learning_unit_year_id, person)
 
     learning_unit_year = context['learning_unit_year']
-    proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
+    proposal = proposal_learning_unit.find_by_learning_unit(learning_unit_year.learning_unit)
 
     context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
     context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
@@ -511,10 +460,12 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context['proposal'] = proposal
     context['proposal_folder_entity_version'] = mdl.entity_version.get_by_entity_and_date(
         proposal.entity, None) if proposal else None
-    context['differences'] = get_difference_of_proposal(proposal)
+    context['differences'] = get_difference_of_proposal(proposal) \
+        if proposal and proposal.learning_unit_year == learning_unit_year \
+        else {}
 
     # append permissions
     context.update(learning_unit_year_permissions(learning_unit_year, person))
-    context.update(learning_unit_proposal_permissions(proposal, person))
+    context.update(learning_unit_proposal_permissions(proposal, person, learning_unit_year))
 
     return context

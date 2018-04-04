@@ -98,6 +98,10 @@ def find_by_offer(offers):
                           .order_by('person__last_name', 'person__first_name').distinct()
 
 
+def find_by_offers_and_academic_year(offers, academic_year):
+    return find_by_offer(offers).filter(offerenrollment__offer_year__academic_year=academic_year)
+
+
 def find_by_offer_year(offer_y):
     return Student.objects.filter(offerenrollment__offer_year=offer_y)
 

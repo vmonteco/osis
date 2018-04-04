@@ -54,6 +54,11 @@
                     {% trans 'cancel_proposal' %}
                 </a>
             </li>
+            <li {% if not can_consolidate_proposal %}class="disabled"{% endif %}>
+                <a {% if can_consolidate_proposal %}  href="{% url "learning_unit_consolidate_proposal" learning_unit_year_id=learning_unit_year.id %}" {% endif %}>
+                    {% trans 'Consolidate proposal' %}
+                </a>
+            </li>
             {% endif %}
             {% if "base.can_edit_learningunit" in perms %}
                 <li class="divider"></li>

@@ -28,9 +28,11 @@ from django.conf.urls import url, include
 from django.conf.urls.static import static
 
 import base.views.learning_units.delete
+import base.views.learning_units.educational_information
 import base.views.learning_units.proposal.delete
 import base.views.learning_units.search
 import base.views.learning_units.update
+import base.views.learning_units.proposal.consolidate
 from attribution.views import attribution, tutor_application
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group
@@ -91,7 +93,7 @@ urlpatterns = [
             name='learning_units_service_course'),
         url(r'^by_proposal/', base.views.learning_units.search.learning_units_proposal_search,
             name='learning_units_proposal'),
-        url(r'^by_summary/', base.views.learning_units.search.learning_units_summary_list,
+        url(r'^by_summary/', base.views.learning_units.educational_information.learning_units_summary_list,
             name='learning_units_summary'),
         url(r'^new/', include([
             url(r'^academic_year_id=(?P<academic_year>[0-9]+)$', learning_unit.learning_unit_create,
@@ -107,7 +109,7 @@ urlpatterns = [
             url(r'^$', learning_unit.learning_unit_identification, name='learning_unit'),
             url(r'^formations/$', learning_unit.learning_unit_formations, name="learning_unit_formations"),
             url(r'^components/$', learning_unit.learning_unit_components, name="learning_unit_components"),
-            url(r'^pedagogy/$', learning_unit.learning_unit_pedagogy, name="learning_unit_pedagogy"),
+            url(r'^pedagogy/$', base.views.learning_units.update.learning_unit_pedagogy, name="learning_unit_pedagogy"),
             url(r'^pedagogy/edit/$', learning_unit.learning_unit_pedagogy_edit, name="learning_unit_pedagogy_edit"),
             url(r'^attributions/$', learning_unit.learning_unit_attributions,
                 name="learning_unit_attributions"),
@@ -119,6 +121,8 @@ urlpatterns = [
                 url(r'^edit/$', update.update_learning_unit_proposal, name="edit_proposal"),
                 url(r'^cancel/$', base.views.learning_units.proposal.delete.cancel_proposal_of_learning_unit,
                     name="learning_unit_cancel_proposal"),
+                url(r'^consolidate/$', base.views.learning_units.proposal.consolidate.consolidate_proposal,
+                    name="learning_unit_consolidate_proposal"),
             ])),
             url(r'^update_end_date/$', learning_unit_edition_end_date, name="learning_unit_edition"),
             url(r'^update/$', update_learning_unit, name="edit_learning_unit"),
@@ -138,6 +142,9 @@ urlpatterns = [
         ])),
         url(r'^check/(?P<type>[A-Z]+)$', learning_unit.check_acronym, name="check_acronym"),
         url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
+        url(r'^email_educational_information_update/$',
+            base.views.learning_units.educational_information.send_email_educational_information_needs_update,
+            name='email_educational_information_update'),
     ])),
     url(r'^proposals/search/$', base.views.learning_units.search.learning_units_proposal_search,
         name="learning_unit_proposal_search"),

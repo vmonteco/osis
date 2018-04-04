@@ -44,7 +44,7 @@ class ProposalLearningUnitForm(forms.ModelForm):
     # TODO entity must be EntitiesChoiceField
     entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
 
-    def __init__(self, data, *args, initial=None, **kwargs):
+    def __init__(self, data, person, *args, initial=None, **kwargs):
         super().__init__(data, *args, **kwargs)
 
         if initial:
@@ -54,12 +54,27 @@ class ProposalLearningUnitForm(forms.ModelForm):
         if hasattr(self.instance, 'entity'):
             self.initial['entity'] = get_last_version(self.instance.entity)
 
+        self.person = person
+        if self.person.is_central_manager():
+            self.enable_field('state')
+        else:
+            self.disable_field('state')
+        self.disable_field('type')
+
+    def disable_field(self, field):
+        self.fields[field].disabled = True
+        self.fields[field].required = False
+
+    def enable_field(self, field):
+        self.fields[field].disabled = False
+        self.fields[field].required = True
+
     def clean_entity(self):
         return self.cleaned_data['entity'].entity
 
     class Meta:
         model = ProposalLearningUnit
-        fields = ['entity', 'folder_id']
+        fields = ['entity', 'folder_id', 'state', 'type']
 
     def save(self, commit=True):
         if self.instance.initial_data:

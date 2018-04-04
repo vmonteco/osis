@@ -33,6 +33,7 @@ from base.business.learning_unit import CMS_LABEL_SPECIFICATIONS, CMS_LABEL_PEDA
 from base.models import learning_unit_enrollment, learning_unit_component, learning_class_year, \
     learning_unit_year as learn_unit_year_model
 from base.models import proposal_learning_unit
+from base.views.learning_units.common import create_learning_unit_year_deletion_message
 from cms.enums import entity_name
 from cms.models import translated_text
 
@@ -172,10 +173,7 @@ def delete_from_given_learning_unit_year(learning_unit_year):
 
     learning_unit_year.delete()
 
-    msg.append(_("%(subtype)s %(acronym)s has been deleted for the year %(year)s")
-               % {'subtype': _str_partim_or_full(learning_unit_year),
-                  'acronym': learning_unit_year.acronym,
-                  'year': learning_unit_year.academic_year})
+    msg.append(create_learning_unit_year_deletion_message(learning_unit_year))
     return msg
 
 
