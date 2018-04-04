@@ -90,7 +90,7 @@ class TestConsolidate(TestCase):
         self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
 
     @mock.patch("base.business.learning_unit_proposal.consolidate_proposal",
-                side_effect=lambda prop: [])
+                side_effect=lambda prop: {})
     def test_when_proposal_and_can_consolidate_proposal(self, mock_consolidate):
         response = self.client.post(self.url, data=self.post_data, follow=False)
 

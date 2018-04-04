@@ -309,7 +309,7 @@ def cancel_proposals(proposals_to_cancel, author):
 def consolidate_proposal(proposal):
     if proposal.type == proposal_type.ProposalType.CREATION.name:
         return consolidate_creation_proposal(proposal)
-    return []
+    return {}
 
 
 def consolidate_creation_proposal(proposal):
@@ -325,11 +325,11 @@ def consolidate_creation_proposal(proposal):
 
 
 def _consolidate_creation_proposal_of_state_accepted(proposal):
-    return edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, None)
+    return {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, None)}
 
 
 def _consolidate_creation_proposal_of_state_refused(proposal):
     result = deletion.check_learning_unit_deletion(proposal.learning_unit_year.learning_unit, check_proposal=False)
     if result:
-        return result.values()
-    return deletion.delete_learning_unit(proposal.learning_unit_year.learning_unit)
+        return {ERROR: result.values()}
+    return {SUCCESS: deletion.delete_learning_unit(proposal.learning_unit_year.learning_unit)}

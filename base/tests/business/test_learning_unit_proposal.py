@@ -226,7 +226,7 @@ class TestConsolidateCreationProposal(TestCase):
         )
 
     @mock.patch("base.business.learning_units.simple.deletion.check_learning_unit_deletion",
-                side_effect=lambda lu: {})
+                side_effect=lambda lu, check_proposal: {})
     @mock.patch("base.business.learning_units.simple.deletion.delete_learning_unit")
     def test_delete_learning_unit_when_proposal_state_is_refused(self, mock_delete, mock_check):
         self.proposal.state = proposal_state.ProposalState.REFUSED.name

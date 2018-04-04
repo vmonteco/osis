@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
@@ -48,7 +49,10 @@ def consolidate_proposal(request):
 
     try:
         result = business_proposal.consolidate_proposal(proposal)
-        display_success_messages(request, result, extra_tags='safe')
+        if result.get(messages.ERROR, []):
+            display_error_messages(request, result[messages.ERROR])
+        else:
+            display_success_messages(request, result.get(messages.SUCCESS, []), extra_tags='safe')
     except IntegrityError as e:
         display_error_messages(request, e.args[0])
 
