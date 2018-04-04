@@ -286,7 +286,7 @@ def _check_consistency_data(row):
 
 def _registration_id_matches_email(registration_id, email):
     student_by_registration_id = mdl.student.find_by_registration_id(registration_id)
-    return student_by_registration_id.person.email == email
+    return student_by_registration_id.person.email.strip() == email.strip()
 
 
 def _update_row(user, row, enrollments_managed_grouped, is_program_manager):
