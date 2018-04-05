@@ -2374,6 +2374,9 @@ msgstr "Proposal edited successfully"
 msgid "proposals_cancelled_successfully"
 msgstr "Proposals cancelled successfully"
 
+msgid "proposals_consolidated_successfully"
+msgstr "Proposals consolidated successfully"
+
 msgid "content"
 msgstr "Content"
 
@@ -2756,3 +2759,9 @@ msgstr "Sent email to remind to update educational information"
 
 msgid "success_mail_reminder"
 msgstr "Reminding mails sent"
+
+msgid "consolidate"
+msgstr "Consolidate"
+
+msgid "do_you_want_to_consolidate"
+msgstr "Do you want to consolidate ?"

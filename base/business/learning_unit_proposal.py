@@ -30,6 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 from base import models as mdl_base
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components, \
     edit_learning_unit_end_date
+from base.business.learning_units import perms
 from base.business.learning_units.simple import deletion as business_deletion, deletion
 from base.models import entity_container_year, campus, entity
 from base.models.enums import entity_container_year_link_type, proposal_state, proposal_type
@@ -292,6 +293,7 @@ def cancel_proposal(learning_unit_proposal, author, send_mail=True):
     }
 
 
+# FIXME Verify that author has the right to cancel proposal
 def cancel_proposals(proposals_to_cancel, author):
     success_messages = []
     error_messages = []
@@ -304,6 +306,17 @@ def cancel_proposals(proposals_to_cancel, author):
         SUCCESS: success_messages,
         ERROR: error_messages
     }
+
+
+def consolidate_proposals(proposals, author):
+    messages = {SUCCESS: [], ERROR: []}
+    proposals_that_can_be_consolidated = \
+        filter(lambda prop: perms.is_eligible_to_consolidate_proposal(prop, author), proposals)
+    for proposal in proposals_that_can_be_consolidated:
+        msg = consolidate_proposal(proposal)
+        messages[SUCCESS].extend(msg.get(SUCCESS, []))
+        messages[ERROR].extend(msg.get(ERROR, []))
+    return messages
 
 
 def consolidate_proposal(proposal):
