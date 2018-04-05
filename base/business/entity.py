@@ -33,10 +33,13 @@ from base.models import entity_version as mdl_entity_version
 
 
 def get_entities_ids(requirement_entity_acronym, with_entity_subordinated):
-    entities_ids = set()
     entity_versions = mdl.entity_version.search(acronym=requirement_entity_acronym)
-    entities_ids |= set(entity_versions.values_list('entity', flat=True).distinct())
+    return _get_distinct_entity_ids(entity_versions, with_entity_subordinated)
 
+
+def _get_distinct_entity_ids(entity_versions, with_entity_subordinated):
+    entities_ids = set()
+    entities_ids |= set(entity_versions.values_list('entity', flat=True).distinct())
     if with_entity_subordinated:
         for an_entity_version in entity_versions:
             all_descendants = an_entity_version.find_descendants(an_entity_version.start_date)
@@ -90,12 +93,5 @@ def build_entity_container_prefetch():
 
 
 def get_entities_ids_by_acronyms(requirement_entity_acronym, with_entity_subordinated):
-    entities_ids = set()
     entity_versions = mdl.entity_version.search_by_acronyms(requirement_entity_acronym)
-    entities_ids |= set(entity_versions.values_list('entity', flat=True).distinct())
-
-    if with_entity_subordinated:
-        for an_entity_version in entity_versions:
-            all_descendants = an_entity_version.find_descendants(an_entity_version.start_date)
-            entities_ids |= {descendant.entity.id for descendant in all_descendants}
-    return list(entities_ids)
+    return _get_distinct_entity_ids(entity_versions, with_entity_subordinated)
