@@ -44,6 +44,7 @@ col_session = 1
 col_learning_unit = 2
 col_offer = 3
 col_registration_id = 4
+col_email = 7
 col_score = 8
 col_justification = 9
 
@@ -179,6 +180,7 @@ def __save_xls_scores(request, file_name, learning_unit_year_id):
                                   learn_unit_acronyms_managed = learn_unit_acronyms_managed_by_user,
                                   registration_ids_managed = registration_ids_managed_by_user,
                                   learning_unit_year=learning_unit_year)
+            _check_consistency_data(row)
             updated_row = _update_row(request.user, row, enrollments_grouped, is_program_manager)
             if updated_row:
                 new_scores_number+=1
@@ -219,6 +221,10 @@ def _extract_registration_id(row):
         xls_registration_id = str(row[col_registration_id].value)
         return xls_registration_id.zfill(REGISTRATION_ID_LENGTH)
     return None
+
+
+def _extract_email(row):
+    return str(row[col_email].value)
 
 
 def _group_exam_enrollments_by_registration_id_and_learning_unit_year(enrollments):
@@ -269,6 +275,18 @@ def _check_intergity_data(row, **kwargs):
         else:
             # ... if it's beacause the registration id doesn't exist
             raise UploadValueError("%s" % _('registration_id_not_access_or_not_exist'), messages.ERROR)
+
+
+def _check_consistency_data(row):
+    xls_registration_id = _extract_registration_id(row)
+    xls_email = _extract_email(row)
+    if not _registration_id_matches_email(xls_registration_id, xls_email):
+        raise UploadValueError("%s" % _('registration_id_does_not_match_email'), messages.ERROR)
+
+
+def _registration_id_matches_email(registration_id, email):
+    student_by_registration_id = mdl.student.find_by_registration_id(registration_id)
+    return str(student_by_registration_id.person.email).strip() == email.strip()
 
 
 def _update_row(user, row, enrollments_managed_grouped, is_program_manager):
