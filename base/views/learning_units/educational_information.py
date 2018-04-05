@@ -42,7 +42,6 @@ from base.forms.common import TooManyResultsException
 from base.views.common import check_if_display_message
 from base.views.common import display_error_messages
 from base.models.academic_year import current_academic_year
-from base.forms.learning_unit_search import SearchForm
 
 SUCCESS_MESSAGE = _('success_mail_reminder')
 
@@ -98,7 +97,7 @@ def learning_units_summary_list(request):
         'learning_units': sorted(learning_units_found, key=lambda learning_yr: learning_yr.acronym),
         'experimental_phase': True,
         'search_type': SUMMARY_LIST,
-        'is_faculty_manager': a_user_person.is_faculty_manager(),
+        'is_faculty_manager': a_user_person.is_faculty_manager()
     }
 
     return layout.render(request, "learning_units.html", context)
