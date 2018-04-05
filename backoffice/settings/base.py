@@ -209,6 +209,28 @@ def define_style_sheet(name, class_name):
 # Apps Settings
 CKEDITOR_JQUERY_URL = os.path.join(STATIC_URL, "js/jquery-2.1.4.min.js")
 CKEDITOR_CONFIGS = {
+    'reddot': {
+        "removePlugins": "stylesheetparser",
+        'allowedContent': True,
+        'extraAllowedContent': 'div(reddot_*)',
+        'extraPlugins': 'reddot',
+        'stylesSet': [
+            define_style_sheet('Intro', 'reddot_intro'),
+            define_style_sheet('Teaser', 'reddot_teaser'),
+            define_style_sheet('Collapse', 'reddot_collapse'),
+            define_style_sheet('Extra', 'reddot_extra'),
+            define_style_sheet('Body', 'reddot_body'),
+            define_style_sheet('Part1', 'reddot_part1'),
+            define_style_sheet('Part2', 'reddot_part2'),
+        ],
+        'toolbar': 'Custom',
+        'toolbar_Custom': [
+            ['Bold', 'Italic', 'Underline'],
+            ['NumberedList', 'BulletedList'],
+            ['Link', 'Unlink'],
+            ['CreateDiv'],
+        ]
+    },
     'default': {
         "removePlugins": "stylesheetparser",
         'allowedContent': True,

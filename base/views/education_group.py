@@ -29,15 +29,19 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
+from django.forms import forms
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_http_methods
 
 from base import models as mdl
 from base.business import education_group as education_group_business
 from base.business.education_group import assert_category_of_education_group_year
+from base.business.learning_unit import find_language_in_settings
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
+from base.forms.education_group_pedagogy_edit import EducationGroupPedagogyEditForm
 from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
 from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataFormset
 from base.models.education_group_year import EducationGroupYear
@@ -45,6 +49,7 @@ from base.models.enums import academic_calendar_type
 from base.models.enums import education_group_categories
 from cms import models as mdl_cms
 from cms.enums import entity_name
+from cms.models import text_label
 from . import layout
 
 CODE_SCS = 'code_scs'
@@ -128,6 +133,7 @@ def education_group_general_informations(request, education_group_year_id):
     parent = _get_education_group_root(education_group_year_root_id, education_group_year)
 
     context = {'parent': parent,
+               'can_edit_information': True,
                'education_group_year': education_group_year,
                'cms_labels_translated': _get_cms_label_data(CMS_LABEL,
                                                             mdl.person.get_user_interface_language(request.user)),
@@ -302,3 +308,43 @@ def _get_learning_unit_detail(dict_param, group_element):
                  BLOCK: group_element.block,
                  SESSIONS_DEROGATION: group_element.sessions_derogation})
     return dict_param
+
+
+
+@login_required
+@permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
+@require_http_methods(['GET', 'POST'])
+def education_group_pedagogy_edit(request, education_group_year_id):
+    redirect_url =reverse('education_group_general_informations',
+                          kwargs={
+                              'education_group_year_id': education_group_year_id
+                          })
+    if request.method == 'POST':
+        form = EducationGroupPedagogyEditForm(request.POST)
+        if form.is_valid():
+            form.save()
+        return redirect(redirect_url)
+
+    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+
+    context = {
+        'education_group_year': education_group_year,
+    }
+
+    label_name = request.GET.get('label')
+    language = request.GET.get('language')
+    text_lb = text_label.find_root_by_name(label_name)
+    form = EducationGroupPedagogyEditForm(**{
+        'education_group_year': context['education_group_year'],
+        'language': language,
+        'text_label': text_lb,
+    })
+
+    form.load_initial()
+    context['form'] = form
+    user_language = mdl.person.get_user_interface_language(request.user)
+    context['text_label_translated'] = next((txt for txt in text_lb.translated_text_labels
+                                             if txt.language == user_language), None)
+    context['language_translated'] = find_language_in_settings(language)
+
+    return layout.render(request, 'education_group/pedagogy_edit.html', context)
