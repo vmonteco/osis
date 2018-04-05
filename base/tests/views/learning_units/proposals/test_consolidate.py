@@ -90,11 +90,10 @@ class TestConsolidate(TestCase):
         self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
 
     @mock.patch("base.business.learning_unit_proposal.consolidate_proposal",
-                side_effect=lambda prop: {})
+                side_effect=lambda prop, author, send_mail: {})
     def test_when_proposal_and_can_consolidate_proposal(self, mock_consolidate):
         response = self.client.post(self.url, data=self.post_data, follow=False)
 
         expected_redirect_url = reverse('learning_unit', args=[self.learning_unit_year.id])
         self.assertRedirects(response, expected_redirect_url)
-        self.assertTrue(mock_consolidate.called)
-        mock_consolidate.assert_called_with(self.proposal)
+        mock_consolidate.assert_called_once_with(self.proposal, author=self.person, send_mail=True)
