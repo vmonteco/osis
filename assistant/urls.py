@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.conf.urls import url, include
+from assistant.views import manager_assistant_form
 from assistant.views import mandate, home, assistant_form, assistant, phd_supervisor_review
 from assistant.views import manager_settings, reviewers_management, upload_assistant_file
 from assistant.views import mandates_list, reviewer_mandates_list, reviewer_review, reviewer_delegation
@@ -92,6 +93,8 @@ urlpatterns = [
 
     url(r'^manager/', include([
         url(r'^$', home.manager_home, name='manager_home'),
+        url(r'^assistant_form/(?P<mandate_id>\d+)/$', manager_assistant_form.assistant_form_view,
+            name='manager_assistant_form_view'),
         url(r'^mandates/', include([
             url(r'^$', mandates_list.MandatesListView.as_view(), name='mandates_list'),
             url(r'^edit/$', mandate.mandate_edit, name='mandate_read'),
