@@ -31,7 +31,7 @@ from django.contrib.messages import SUCCESS, ERROR
 
 from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
 from base.business.learning_unit_proposal import compute_proposal_type, consolidate_creation_proposal, \
-    consolidate_proposals
+    consolidate_proposals, consolidate_proposal
 from base.models.academic_year import AcademicYear
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories.person import PersonFactory
@@ -239,7 +239,14 @@ class TestConsolidateProposals(TestCase):
         })
 
 
+class TestConsolidateProposal(TestCase):
+    @mock.patch("base.business.learning_unit_proposal.consolidate_creation_proposal",
+                side_effect=lambda prop: {})
+    def test_when_proposal_of_type_creation(self, mock_consolidate_creation_proposal):
+        creation_proposal = ProposalLearningUnitFactory(type=proposal_type.ProposalType.CREATION.name)
+        consolidate_proposal(creation_proposal)
 
+        mock_consolidate_creation_proposal.assert_called_once_with(creation_proposal)
 
 
 class TestConsolidateCreationProposal(TestCase):
