@@ -289,7 +289,6 @@ def _registration_id_matches_email(registration_id, email):
     return str(student_by_registration_id.person.email).strip() == email.strip()
 
 
-
 def _update_row(user, row, enrollments_managed_grouped, is_program_manager):
     xls_registration_id = _extract_registration_id(row)
     xls_learning_unit_acronym = row[col_learning_unit].value
