@@ -211,7 +211,8 @@ def _is_regex(acronym):
 
 
 def search(academic_year_id=None, acronym=None, learning_container_year_id=None, learning_unit=None,
-           title=None, subtype=None, status=None, container_type=None, tutor=None, summary_responsible=None, *args, **kwargs):
+           title=None, subtype=None, status=None, container_type=None, tutor=None,
+           summary_responsible=None, *args, **kwargs):
     queryset = LearningUnitYear.objects
 
     if academic_year_id:

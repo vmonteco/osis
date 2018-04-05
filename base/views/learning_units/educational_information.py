@@ -69,11 +69,7 @@ def learning_units_summary_list(request):
     a_user_person = find_by_user(request.user)
     learning_units_found = []
     entities_version_attached = a_user_person.find_main_entities_version
-
-    if request.GET:
-        search_form = LearningUnitYearForm(request.GET or None)
-    else:
-        search_form = LearningUnitYearForm(data={'academic_year_id': current_academic_year().id})
+    search_form = _get_search_form(request)
 
     try:
         if search_form.is_valid():
@@ -85,12 +81,7 @@ def learning_units_summary_list(request):
 
     responsible_and_learning_unit_yr_list = get_responsible_and_learning_unit_yr_list(learning_units_found)
 
-    list_mail_reminder_formset = formset_factory(form=MailReminderRow,
-                                                 formset=MailReminderFormset,
-                                                 extra=len(responsible_and_learning_unit_yr_list))
-
-    formset = list_mail_reminder_formset(request.POST or None,
-                                         list_responsible=responsible_and_learning_unit_yr_list)
+    formset = _get_formset(request, responsible_and_learning_unit_yr_list)
     context = {
         'form': search_form,
         'formset': formset,
@@ -108,3 +99,20 @@ def _send_email_to_responsibles(responsible_person_ids):
         a_person = get_object_or_404(Person, pk=a_responsible_person_id.get('person'))
         send_mail_for_educational_information_update([a_person],
                                                      a_responsible_person_id.get('learning_unit_years'))
+
+
+def _get_formset(request, responsible_and_learning_unit_yr_list):
+    list_mail_reminder_formset = formset_factory(form=MailReminderRow,
+                                                 formset=MailReminderFormset,
+                                                 extra=len(responsible_and_learning_unit_yr_list))
+    formset = list_mail_reminder_formset(request.POST or None,
+                                         list_responsible=responsible_and_learning_unit_yr_list)
+    return formset
+
+
+def _get_search_form(request):
+    if request.GET:
+        search_form = LearningUnitYearForm(request.GET or None)
+    else:
+        search_form = LearningUnitYearForm(data={'academic_year_id': current_academic_year().id})
+    return search_form
