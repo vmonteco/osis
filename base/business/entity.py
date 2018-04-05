@@ -87,3 +87,15 @@ def build_entity_container_prefetch():
                                          .prefetch_related(entity_version_prefetch),
                                          to_attr='entity_containers_year')
     return entity_container_prefetch
+
+
+def get_entities_ids_by_acronyms(requirement_entity_acronym, with_entity_subordinated):
+    entities_ids = set()
+    entity_versions = mdl.entity_version.search_by_acronyms(requirement_entity_acronym)
+    entities_ids |= set(entity_versions.values_list('entity', flat=True).distinct())
+
+    if with_entity_subordinated:
+        for an_entity_version in entity_versions:
+            all_descendants = an_entity_version.find_descendants(an_entity_version.start_date)
+            entities_ids |= {descendant.entity.id for descendant in all_descendants}
+    return list(entities_ids)

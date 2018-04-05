@@ -373,6 +373,5 @@ def _get_learning_unit_by_luy_entity(cms_list, learning_unit_yr):
     a_calendar = _get_calendar(learning_unit_yr.academic_year,
                                learning_unit_yr.entities.get('REQUIREMENT_ENTITY', None))
     if a_calendar:
-        if learning_unit_yr:
-            return _get_summary_detail(a_calendar, cms_list, [learning_unit_yr])
+        return _get_summary_detail(a_calendar, cms_list, [learning_unit_yr])
     return []

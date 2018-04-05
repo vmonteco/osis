@@ -29,7 +29,8 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
-from base.business.entity import get_entities_ids, get_entity_container_list, build_entity_container_prefetch
+from base.business.entity import get_entities_ids, get_entity_container_list, build_entity_container_prefetch, \
+    get_entities_ids_by_acronyms
 from base.business.entity_version import SERVICE_COURSE
 from base.business.learning_unit_year_with_context import append_latest_entities
 from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, TooManyResultsException
@@ -172,10 +173,7 @@ def get_filter_learning_container_ids(filter_data):
 
 
 def get_filter_learning_container_ids_summary(entities_requirement):
-    entities_id_list = []
-    for requirement_entity_acronym in entities_requirement:
-        entity_ids = get_entities_ids(requirement_entity_acronym.acronym, True)
-        entities_id_list.extend(get_entity_container_list(entities_id_list,
-                                                          entity_ids,
-                                                          entity_container_year_link_type.REQUIREMENT_ENTITY))
+    entities_id_list = get_entity_container_list([],
+                                                 get_entities_ids_by_acronyms(entities_requirement, True),
+                                                 entity_container_year_link_type.REQUIREMENT_ENTITY)
     return entities_id_list if entities_id_list else None
