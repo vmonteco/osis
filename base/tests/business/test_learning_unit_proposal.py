@@ -27,8 +27,11 @@ import datetime
 from unittest import mock
 from unittest.mock import patch
 
+from django.contrib.messages import SUCCESS, ERROR
+
 from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
-from base.business.learning_unit_proposal import compute_proposal_type, consolidate_creation_proposal
+from base.business.learning_unit_proposal import compute_proposal_type, consolidate_creation_proposal, \
+    consolidate_proposals, consolidate_proposal
 from base.models.academic_year import AcademicYear
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories.person import PersonFactory
@@ -209,6 +212,41 @@ def create_academic_years():
         super(AcademicYear, new_academic_year).save()
         academic_years.append(new_academic_year)
     return academic_years
+
+
+class TestConsolidateProposals(TestCase):
+    def setUp(self):
+        self.author = PersonFactory()
+        self.proposals = [ProposalLearningUnitFactory() for _ in range(3)]
+
+    @mock.patch("base.business.learning_units.perms.is_eligible_to_consolidate_proposal",
+                side_effect=[True, False, True])
+    @mock.patch("base.business.learning_unit_proposal.consolidate_proposal",
+                side_effect=lambda prop: {ERROR: ["msg_error"], SUCCESS: ["msg_success"]})
+    def test_call_method_consolidate_proposal(self, mock_consolidate_proposal, mock_perm):
+        result = consolidate_proposals(self.proposals, self.author)
+
+        perm_args_list = [((self.proposals[0], self.author),), ((self.proposals[1], self.author),),
+                          ((self.proposals[2], self.author),)]
+        self.assertTrue(mock_perm.call_args_list == perm_args_list)
+
+        consolidate_args_list = [((self.proposals[0],),), ((self.proposals[2],),)]
+        self.assertTrue(mock_consolidate_proposal.call_args_list == consolidate_args_list)
+
+        self.assertDictEqual(result, {
+            SUCCESS: ["msg_success"] * 2,
+            ERROR: ["msg_error"] * 2
+        })
+
+
+class TestConsolidateProposal(TestCase):
+    @mock.patch("base.business.learning_unit_proposal.consolidate_creation_proposal",
+                side_effect=lambda prop: {})
+    def test_when_proposal_of_type_creation(self, mock_consolidate_creation_proposal):
+        creation_proposal = ProposalLearningUnitFactory(type=proposal_type.ProposalType.CREATION.name)
+        consolidate_proposal(creation_proposal)
+
+        mock_consolidate_creation_proposal.assert_called_once_with(creation_proposal)
 
 
 class TestConsolidateCreationProposal(TestCase):

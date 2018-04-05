@@ -308,21 +308,13 @@ def cancel_proposals(proposals_to_cancel, author):
     }
 
 
-def consolidate_proposal(proposal, author, send_mail=False):
-    if proposal.type == proposal_type.ProposalType.CREATION.name:
-        return consolidate_creation_proposal(proposal)
-    if send_mail:
-        send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation([author], [proposal])
-    return {}
-
-
 def consolidate_proposals(proposals, author):
     messages = {SUCCESS: [], ERROR: []}
     proposals_that_can_be_consolidated = \
         [prop for prop in proposals if perms.is_eligible_to_consolidate_proposal(prop, author)]
 
     for proposal in proposals_that_can_be_consolidated:
-        msg = consolidate_creation_proposal(proposal)
+        msg = consolidate_proposal(proposal)
         messages[SUCCESS].extend(msg.get(SUCCESS, []))
         messages[ERROR].extend(msg.get(ERROR, []))
 
@@ -330,7 +322,18 @@ def consolidate_proposals(proposals, author):
     return messages
 
 
-def consolidate_creation_proposal(proposal, send_mail=False):
+def consolidate_proposal(proposal, author=None, send_mail=False):
+    result = {}
+    if proposal.type == proposal_type.ProposalType.CREATION.name:
+        result = consolidate_creation_proposal(proposal)
+
+    if send_mail and author is not None:
+        send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation([author], [proposal])
+
+    return result
+
+
+def consolidate_creation_proposal(proposal):
     proposal.learning_unit_year.learning_unit.end_year = proposal.learning_unit_year.academic_year.year
     proposal.learning_unit_year.learning_unit.save()
 

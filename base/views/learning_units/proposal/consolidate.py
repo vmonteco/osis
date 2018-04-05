@@ -51,7 +51,7 @@ def consolidate_proposal(request):
 
     result = {}
     try:
-        result = business_proposal.consolidate_proposal(proposal, user_person, send_mail=True)
+        result = business_proposal.consolidate_proposal(proposal, author=user_person, send_mail=True)
         _display_message_based_on_result(request, result)
     except IntegrityError as e:
         display_error_messages(request, e.args[0])
