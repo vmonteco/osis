@@ -110,7 +110,7 @@ msgid "bad_filename"
 msgstr "Le nom du fichier ne peut pas contenir : ( ) % $ , ; : / = +"
 
 msgid "bad_person_msg"
-msgstr "Veuillez sélectionné une personne dans la liste après avoir effectué une recherche"
+msgstr "Veuillez sélectionner une personne dans la liste après avoir effectué une recherche"
 
 msgid "beginning"
 msgstr "Début"

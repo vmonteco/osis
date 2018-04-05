@@ -42,7 +42,6 @@ from assistant.models import reviewer, review
 from assistant.utils import manager_access
 
 
-
 class ReviewersListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMixin):
     context_object_name = 'reviewers_list'
     template_name = 'reviewers_list.html'
@@ -84,6 +83,7 @@ def reviewers_index(request):
     return render(request, "reviewers_list.html", {'reviewers_formset': reviewers_formset
                                                    })
 
+
 @require_http_methods(["POST"])
 @user_passes_test(manager_access.user_is_manager, login_url='assistants_home')
 def reviewer_action(request):
@@ -114,6 +114,7 @@ def reviewer_delete(request, reviewer_id):
     reviewer_to_delete.delete()
     return HttpResponseRedirect(reverse('reviewers_list'))
 
+
 @require_http_methods(["POST"])
 @user_passes_test(manager_access.user_is_manager, login_url='assistants_home')
 def reviewer_replace(request):
@@ -126,24 +127,19 @@ def reviewer_replace(request):
     except ValueError:
         msg = _("bad_person_msg")
         form.add_error(None, msg)
-        return render(request, "manager_replace_reviewer.html", {'reviewer': reviewer_to_replace,
-                                                                         'entity': entity,
-                                                                         'year': year,
-                                                                         'form': form})
     if form.is_valid() and this_person:
         if reviewer.find_by_person(this_person):
             msg = _("person_already_reviewer_msg")
             form.add_error(None, msg)
-            return render(request, "manager_replace_reviewer.html", {'form': form,
-                                                                     'entity': entity,
-                                                                     'reviewer': reviewer_to_replace,
-                                                                     'year': year})
         else:
             reviewer_to_replace.person = this_person
             reviewer_to_replace.save()
             return redirect('reviewers_list')
-    else:
-        return render(request, "manager_replace_reviewer.html", {'form': form, 'year': year})
+    return render(request, "manager_replace_reviewer.html", {'reviewer': reviewer_to_replace,
+                                                             'entity': entity,
+                                                             'year': year,
+                                                             'form': form})
+
 
 @user_passes_test(manager_access.user_is_manager, login_url='assistants_home')
 def reviewer_add(request):
@@ -155,8 +151,6 @@ def reviewer_add(request):
         except ValueError:
             msg = _("bad_person_msg")
             form.add_error(None, msg)
-            return render(request, "manager_add_reviewer.html", {'year': year,
-                                                                     'form': form})
         if form.is_valid() and this_person:
             new_reviewer = form.save(commit=False)
             if reviewer.find_by_person(this_person):
@@ -165,14 +159,10 @@ def reviewer_add(request):
             if reviewer.find_by_entity_and_role(new_reviewer.entity, new_reviewer.role):
                 msg = _("reviewer_with_same_role_already_exists_msg")
                 form.add_error(None, msg)
-            if form.has_error(field=NON_FIELD_ERRORS):
-                return render(request, "manager_add_reviewer.html", {'form': form, 'year': year})
-            else:
+            if not form.has_error(field=NON_FIELD_ERRORS):
                 new_reviewer.person = this_person
                 new_reviewer.save()
                 return redirect('reviewers_list')
-        else:
-            return render(request, "manager_add_reviewer.html", {'form': form, 'year': year})
     else:
         form = ReviewerForm(initial={'year': year})
-        return render(request, "manager_add_reviewer.html", {'form': form, 'year': year})
+    return render(request, "manager_add_reviewer.html", {'form': form, 'year': year})
