@@ -223,7 +223,9 @@ class TestConsolidateProposals(TestCase):
                 side_effect=[True, False, True])
     @mock.patch("base.business.learning_unit_proposal.consolidate_proposal",
                 side_effect=lambda prop: {ERROR: ["msg_error"], SUCCESS: ["msg_success"]})
-    def test_call_method_consolidate_proposal(self, mock_consolidate_proposal, mock_perm):
+    @mock.patch("base.utils.send_mail.send_mail_after_the_learning_unit_proposal_consolidation",
+                side_effect=None)
+    def test_call_method_consolidate_proposal(self, mock_mail, mock_consolidate_proposal, mock_perm):
         result = consolidate_proposals(self.proposals, self.author)
 
         perm_args_list = [((self.proposals[0], self.author),), ((self.proposals[1], self.author),),
@@ -238,8 +240,21 @@ class TestConsolidateProposals(TestCase):
             ERROR: ["msg_error"] * 2
         })
 
+        mock_mail.assert_called_once_with([self.author], self.proposals)
+
 
 class TestConsolidateProposal(TestCase):
+    @mock.patch("base.business.learning_unit_proposal.consolidate_creation_proposal",
+                side_effect=lambda prop: {})
+    @mock.patch("base.utils.send_mail.send_mail_after_the_learning_unit_proposal_consolidation",
+                side_effect=None)
+    def test_when_sending_mail(self, mock_send_mail, mock_consolidate):
+        author = PersonFactory()
+        creation_proposal = ProposalLearningUnitFactory(type=proposal_type.ProposalType.CREATION.name)
+        consolidate_proposal(creation_proposal, author=author, send_mail=True)
+
+        mock_send_mail.assert_called_once_with([author], [creation_proposal])
+
     @mock.patch("base.business.learning_unit_proposal.consolidate_creation_proposal",
                 side_effect=lambda prop: {})
     def test_when_proposal_of_type_creation(self, mock_consolidate_creation_proposal):

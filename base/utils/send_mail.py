@@ -94,6 +94,16 @@ def send_mail_after_the_learning_unit_year_deletion(managers, acronym, academic_
 def send_mail_after_the_learning_unit_proposal_cancellation(managers, proposals):
     html_template_ref = 'learning_unit_proposal_canceled_html'
     txt_template_ref = 'learning_unit_proposal_canceled_txt'
+    return _send_mail_after_learning_unit_proposal_action(managers, proposals, html_template_ref, txt_template_ref)
+
+
+def send_mail_after_the_learning_unit_proposal_consolidation(managers, proposals):
+    html_template_ref = 'learning_unit_proposal_consolidated_html'
+    txt_template_ref = 'learning_unit_proposal_consolidated_txt'
+    return _send_mail_after_learning_unit_proposal_action(managers, proposals, html_template_ref, txt_template_ref)
+
+
+def _send_mail_after_learning_unit_proposal_action(managers, proposals, html_template_ref, txt_template_ref):
     receivers = [message_config.create_receiver(manager.id, manager.email, manager.language) for manager in managers]
     suject_data = {}
     template_base_data = {'proposals': proposals}
