@@ -308,21 +308,21 @@ def cancel_proposals(proposals_to_cancel, author):
     }
 
 
-def consolidate_proposal(proposal):
-    if proposal.type == proposal_type.ProposalType.CREATION.name:
-        return consolidate_creation_proposal(proposal)
-    return {}
-
-
 def consolidate_proposals(proposals, author):
     messages = {SUCCESS: [], ERROR: []}
     proposals_that_can_be_consolidated = \
         filter(lambda prop: perms.is_eligible_to_consolidate_proposal(prop, author), proposals)
     for proposal in proposals_that_can_be_consolidated:
-        msg = consolidate_creation_proposal(proposal)
+        msg = consolidate_proposal(proposal)
         messages[SUCCESS].extend(msg.get(SUCCESS, []))
         messages[ERROR].extend(msg.get(ERROR, []))
     return messages
+
+
+def consolidate_proposal(proposal):
+    if proposal.type == proposal_type.ProposalType.CREATION.name:
+        return consolidate_creation_proposal(proposal)
+    return {}
 
 
 def consolidate_creation_proposal(proposal):
