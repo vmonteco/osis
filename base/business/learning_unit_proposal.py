@@ -328,7 +328,7 @@ def consolidate_proposal(proposal, author=None, send_mail=False):
         result = consolidate_creation_proposal(proposal)
 
     if send_mail and author is not None:
-        send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation([author], [proposal])
+        send_mail_util.send_mail_after_the_learning_unit_proposal_consolidation([author], [proposal])
 
     return result
 
