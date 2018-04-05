@@ -33,6 +33,7 @@ from base.models.exam_enrollment import ExamEnrollment
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 
 from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.person import PersonFactory
 from base.tests.factories.session_exam_calendar import SessionExamCalendarFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.student import StudentFactory
@@ -52,6 +53,9 @@ LEARNING_UNIT_ACRONYM = "LOSIS1211"
 
 REGISTRATION_ID_1 = "00000001"
 REGISTRATION_ID_2 = "00000002"
+
+EMAIL_1 = "adam.smith@test.be"
+EMAIL_2 = "john.doe@test.be"
 
 
 def _get_list_tag_and_content(messages):
@@ -82,8 +86,11 @@ class TestUploadXls(TestCase):
         a_session_exam = SessionExamFactory(number_session=number_session.ONE,
                                             learning_unit_year=a_learning_unit_year)
 
-        student_1 = StudentFactory(registration_id=REGISTRATION_ID_1)
-        student_2 = StudentFactory(registration_id=REGISTRATION_ID_2)
+        self.person_student_1 = PersonFactory(email=EMAIL_1)
+        person_student_2 = PersonFactory(email=EMAIL_2)
+
+        student_1 = StudentFactory(registration_id=REGISTRATION_ID_1, person=self.person_student_1)
+        student_2 = StudentFactory(registration_id=REGISTRATION_ID_2, person=person_student_2)
 
         an_offer_year = OfferYearFactory(academic_year=an_academic_year,
                                          acronym=OFFER_ACRONYM)
@@ -215,3 +222,64 @@ class TestUploadXls(TestCase):
             )
             self.assertEqual(exam_enrollment_1.score_draft, SCORE_1)
 
+
+    def test_with_registration_id_not_matching_email(self):
+        INCORRECT_LINES = '12, 13'
+        with open("assessments/tests/resources/registration_id_not_matching_email.xlsx", 'rb') as score_sheet:
+            response = self.client.post(self.url, {'file': score_sheet}, follow=True)
+            messages = list(response.context['messages'])
+
+            messages_tag_and_content = _get_list_tag_and_content(messages)
+            self.assertIn(('error', "%s : %s %s" % (_('registration_id_does_not_match_email'),
+                                                    _('Line'),
+                                                    INCORRECT_LINES)),
+                          messages_tag_and_content)
+
+
+    def test_with_correct_score_sheet_white_spaces_around_emails(self):
+        NUMBER_CORRECT_SCORES = "2"
+        SCORE_1 = 16
+        SCORE_2 = exam_enrollment_justification_type.ABSENCE_UNJUSTIFIED
+        with open("assessments/tests/resources/correct_score_sheet_spaces_around_emails.xlsx", 'rb') as score_sheet:
+            response = self.client.post(self.url, {'file': score_sheet}, follow=True)
+            messages = list(response.context['messages'])
+
+            messages_tag_and_content = _get_list_tag_and_content(messages)
+            self.assertIn(('success', '%s %s' % (NUMBER_CORRECT_SCORES, _('score_saved'))),
+                          messages_tag_and_content)
+
+            exam_enrollment_1 = ExamEnrollment.objects.get(
+                learning_unit_enrollment__offer_enrollment__student__registration_id=REGISTRATION_ID_1
+            )
+            self.assertEqual(exam_enrollment_1.score_draft, SCORE_1)
+
+            exam_enrollment_2 = ExamEnrollment.objects.get(
+                learning_unit_enrollment__offer_enrollment__student__registration_id=REGISTRATION_ID_2
+            )
+            self.assertEqual(exam_enrollment_2.justification_draft, SCORE_2)
+
+
+    def test_with_correct_score_sheet_white_one_empty_email(self):
+        self.person_student_1.email = None
+        self.person_student_1.save()
+
+        NUMBER_CORRECT_SCORES = "2"
+        SCORE_1 = 16
+        SCORE_2 = exam_enrollment_justification_type.ABSENCE_UNJUSTIFIED
+        with open("assessments/tests/resources/correct_score_sheet_one_empty_email.xlsx", 'rb') as score_sheet:
+            response = self.client.post(self.url, {'file': score_sheet}, follow=True)
+            messages = list(response.context['messages'])
+
+            messages_tag_and_content = _get_list_tag_and_content(messages)
+            self.assertIn(('success', '%s %s' % (NUMBER_CORRECT_SCORES, _('score_saved'))),
+                          messages_tag_and_content)
+
+            exam_enrollment_1 = ExamEnrollment.objects.get(
+                learning_unit_enrollment__offer_enrollment__student__registration_id=REGISTRATION_ID_1
+            )
+            self.assertEqual(exam_enrollment_1.score_draft, SCORE_1)
+
+            exam_enrollment_2 = ExamEnrollment.objects.get(
+                learning_unit_enrollment__offer_enrollment__student__registration_id=REGISTRATION_ID_2
+            )
+            self.assertEqual(exam_enrollment_2.justification_draft, SCORE_2)
