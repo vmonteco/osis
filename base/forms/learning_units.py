@@ -96,12 +96,16 @@ class LearningUnitYearForm(SearchForm):
         if self.service_course_search:
             return self._get_service_course_learning_units()
         else:
-            return self._get_learning_units()
+            return self.get_learning_units()
 
-    def _get_learning_units(self, service_course_search=None):
+    def get_learning_units(self, service_course_search=None, requirement_entities=None):
         clean_data = self.cleaned_data
         service_course_search = service_course_search or self.service_course_search
-        clean_data['learning_container_year_id'] = get_filter_learning_container_ids(clean_data)
+
+        if requirement_entities:
+            clean_data['learning_container_year_id'] = get_filter_learning_container_ids_summary(requirement_entities)
+        else:
+            clean_data['learning_container_year_id'] = get_filter_learning_container_ids(clean_data)
 
         if not service_course_search \
                 and clean_data \
@@ -120,7 +124,7 @@ class LearningUnitYearForm(SearchForm):
     def _get_service_course_learning_units(self):
         service_courses = []
 
-        for learning_unit in self._get_learning_units(True):
+        for learning_unit in self.get_learning_units(True):
             if not learning_unit.entities.get(SERVICE_COURSE):
                 continue
 
@@ -164,4 +168,14 @@ def get_filter_learning_container_ids(filter_data):
                                                      entity_ids,
                                                      entity_container_year_link_type.ALLOCATION_ENTITY)
 
+    return entities_id_list if entities_id_list else None
+
+
+def get_filter_learning_container_ids_summary(entities_requirement):
+    entities_id_list = []
+    for requirement_entity_acronym in entities_requirement:
+        entity_ids = get_entities_ids(requirement_entity_acronym.acronym, True)
+        entities_id_list.extend(get_entity_container_list(entities_id_list,
+                                                          entity_ids,
+                                                          entity_container_year_link_type.REQUIREMENT_ENTITY))
     return entities_id_list if entities_id_list else None

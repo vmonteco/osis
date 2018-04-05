@@ -28,16 +28,21 @@ from django.forms import formset_factory
 from django.http import JsonResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import get_learning_units_and_summary_status
 from base.business.learning_units.educational_information import get_responsible_and_learning_unit_yr_list
 from base.forms.learning_unit.educational_information.mail_reminder import MailReminderRow, MailReminderFormset
-from base.models.academic_year import current_academic_year
 from base.models.person import Person, find_by_user
 from base.utils.send_mail import send_mail_for_educational_information_update
 from base.views import layout
 from base.views.learning_units.search import SUMMARY_LIST
-from django.utils.translation import ugettext_lazy as _
+from base.forms.learning_units import LearningUnitYearForm
+from base.forms.common import TooManyResultsException
+from base.views.common import check_if_display_message
+from base.views.common import display_error_messages
+from base.models.academic_year import current_academic_year
+from base.forms.learning_unit_search import SearchForm
 
 SUCCESS_MESSAGE = _('success_mail_reminder')
 
@@ -63,7 +68,22 @@ def send_email_educational_information_needs_update(request):
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units_summary_list(request):
     a_user_person = find_by_user(request.user)
-    learning_units_found = get_learning_units_and_summary_status(a_user_person, current_academic_year())
+    learning_units_found = []
+    entities_version_attached = a_user_person.find_main_entities_version
+
+    if request.GET:
+        search_form = LearningUnitYearForm(request.GET or None)
+    else:
+        search_form = LearningUnitYearForm(data={'academic_year_id': current_academic_year().id})
+
+    try:
+        if search_form.is_valid():
+            learning_units_found_search = search_form.get_learning_units(requirement_entities=entities_version_attached)
+            learning_units_found = get_learning_units_and_summary_status(learning_units_found_search)
+            check_if_display_message(request, learning_units_found_search)
+    except TooManyResultsException:
+        display_error_messages(request, 'too_many_results')
+
     responsible_and_learning_unit_yr_list = get_responsible_and_learning_unit_yr_list(learning_units_found)
 
     list_mail_reminder_formset = formset_factory(form=MailReminderRow,
@@ -72,13 +92,13 @@ def learning_units_summary_list(request):
 
     formset = list_mail_reminder_formset(request.POST or None,
                                          list_responsible=responsible_and_learning_unit_yr_list)
-
     context = {
+        'form': search_form,
         'formset': formset,
         'learning_units': sorted(learning_units_found, key=lambda learning_yr: learning_yr.acronym),
         'experimental_phase': True,
         'search_type': SUMMARY_LIST,
-        'is_faculty_manager': a_user_person.is_faculty_manager()
+        'is_faculty_manager': a_user_person.is_faculty_manager(),
     }
 
     return layout.render(request, "learning_units.html", context)

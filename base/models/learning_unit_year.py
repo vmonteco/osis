@@ -211,7 +211,7 @@ def _is_regex(acronym):
 
 
 def search(academic_year_id=None, acronym=None, learning_container_year_id=None, learning_unit=None,
-           title=None, subtype=None, status=None, container_type=None, tutor=None, *args, **kwargs):
+           title=None, subtype=None, status=None, container_type=None, tutor=None, summary_responsible=None, *args, **kwargs):
     queryset = LearningUnitYear.objects
 
     if academic_year_id:
@@ -249,6 +249,11 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
         filter_by_first_name = {_build_tutor_filter(name_type='first_name'): tutor}
         filter_by_last_name = {_build_tutor_filter(name_type='last_name'): tutor}
         queryset = queryset.filter(Q(**filter_by_first_name) | Q(**filter_by_last_name)).distinct()
+
+    if summary_responsible:
+        queryset = queryset.filter((Q(attribution__tutor__person__first_name__icontains=summary_responsible)
+                                    | Q(attribution__tutor__person__last_name__icontains=summary_responsible))
+                                   & Q(attribution__summary_responsible=True)).distinct()
 
     return queryset.select_related('learning_container_year', 'academic_year')
 
