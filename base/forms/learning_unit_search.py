@@ -58,7 +58,14 @@ class SearchForm(forms.Form):
     tutor = forms.CharField(
         max_length=20,
         required=False,
-        label=_('tutor'))
+        label=_('tutor')
+    )
+
+    summary_responsible = forms.CharField(
+        max_length=20,
+        required=False,
+        label=_('summary_responsible')
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

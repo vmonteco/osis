@@ -362,3 +362,10 @@ def find_last_entity_version_by_learning_unit_year_id(learning_unit_year_id):
             latest('start_date')
     except EntityVersion.DoesNotExist:
         return None
+
+
+def search_by_acronyms(entities):
+    q = Q()
+    for entity in entities:
+        q |= Q(acronym__icontains=entity.acronym)
+    return EntityVersion.objects.filter(q)

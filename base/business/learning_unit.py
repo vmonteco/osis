@@ -322,16 +322,6 @@ def get_list_entity_learning_unit_yr(an_entity_version, current_academic_yr):
         .order_by('academic_year__year', 'acronym')
 
 
-def get_learning_units_and_summary_status(a_person, academic_yr):
-    entities_version_attached = a_person.find_main_entities_version
-    learning_units_found = []
-    # TODO : We must improve performance.
-    cms_list = translated_text.find_with_changed(LEARNING_UNIT_YEAR, CMS_LABEL_PEDAGOGY)
-    for an_entity_version in entities_version_attached:
-        learning_units_found.extend(_get_learning_unit_by_entity(academic_yr, an_entity_version, cms_list))
-    return learning_units_found
-
-
 def _get_learning_unit_by_entity(academic_yr, an_entity_version, cms_list):
     a_calendar = _get_calendar(academic_yr, an_entity_version)
     if a_calendar:
@@ -369,3 +359,19 @@ def _get_summary_detail(a_calendar, cms_list, entity_learning_unit_yr_list_param
 
 def _changed_in_period(start_date, end_date, changed_date):
     return convert_date_to_datetime(start_date) <= changed_date <= convert_date_to_datetime(end_date)
+
+
+def get_learning_units_and_summary_status(learning_unit_years):
+    learning_units_found = []
+    cms_list = translated_text.find_with_changed(LEARNING_UNIT_YEAR, CMS_LABEL_PEDAGOGY)
+    for learning_unit_yr in learning_unit_years:
+        learning_units_found.extend(_get_learning_unit_by_luy_entity(cms_list, learning_unit_yr))
+    return learning_units_found
+
+
+def _get_learning_unit_by_luy_entity(cms_list, learning_unit_yr):
+    a_calendar = _get_calendar(learning_unit_yr.academic_year,
+                               learning_unit_yr.entities.get('REQUIREMENT_ENTITY', None))
+    if a_calendar:
+        return _get_summary_detail(a_calendar, cms_list, [learning_unit_yr])
+    return []
