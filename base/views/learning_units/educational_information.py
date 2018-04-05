@@ -81,10 +81,9 @@ def learning_units_summary_list(request):
 
     responsible_and_learning_unit_yr_list = get_responsible_and_learning_unit_yr_list(learning_units_found)
 
-    formset = _get_formset(request, responsible_and_learning_unit_yr_list)
     context = {
         'form': search_form,
-        'formset': formset,
+        'formset': _get_formset(request, responsible_and_learning_unit_yr_list),
         'learning_units': sorted(learning_units_found, key=lambda learning_yr: learning_yr.acronym),
         'experimental_phase': True,
         'search_type': SUMMARY_LIST,
@@ -102,12 +101,12 @@ def _send_email_to_responsibles(responsible_person_ids):
 
 
 def _get_formset(request, responsible_and_learning_unit_yr_list):
-    list_mail_reminder_formset = formset_factory(form=MailReminderRow,
-                                                 formset=MailReminderFormset,
-                                                 extra=len(responsible_and_learning_unit_yr_list))
-    formset = list_mail_reminder_formset(request.POST or None,
-                                         list_responsible=responsible_and_learning_unit_yr_list)
-    return formset
+    if responsible_and_learning_unit_yr_list:
+        list_mail_reminder_formset = formset_factory(form=MailReminderRow,
+                                                     formset=MailReminderFormset,
+                                                     extra=len(responsible_and_learning_unit_yr_list))
+        return list_mail_reminder_formset(request.POST or None, list_responsible=responsible_and_learning_unit_yr_list)
+    return None
 
 
 def _get_search_form(request):

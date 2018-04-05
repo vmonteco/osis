@@ -2765,3 +2765,6 @@ msgstr "Consolidate"
 
 msgid "do_you_want_to_consolidate"
 msgstr "Do you want to consolidate ?"
+
+msgid "need_no_reminder"
+msgstr "Need no reminder"
