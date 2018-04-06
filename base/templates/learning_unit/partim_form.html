@@ -39,7 +39,7 @@
 </div>
 <div class="panel panel-default">
     <div class="panel-body">
-        <form method="post" data-validate-url="{% url 'check_acronym'  type='PARTIM' %}" id="LearningUnitYearForm">
+        <form method="post" data-validate-url="{% url 'check_acronym' subtype='PARTIM' %}" id="LearningUnitYearForm">
             {% csrf_token %}
                 {% include "learning_unit/blocks/create_form_learning_unit.html" %}
 

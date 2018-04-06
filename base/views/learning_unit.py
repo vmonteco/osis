@@ -267,8 +267,7 @@ def learning_class_year_edit(request, learning_unit_year_id):
 def learning_unit_create(request, academic_year):
     person = get_object_or_404(Person, user=request.user)
     learning_unit_form_container = LearningUnitFormContainer(request.POST or None, person,
-                                                             subtype=learning_unit_year_subtypes.FULL,
-                                                             initial={'academic_year': academic_year})
+                                                             default_ac_year=academic_year)
 
     if learning_unit_form_container.is_valid():
         new_luys = learning_unit_form_container.save()
@@ -330,28 +329,15 @@ def outside_period(request):
 
 @login_required
 @permission_required('base.can_create_learningunit', raise_exception=True)
-@require_GET
+@require_http_methods(["POST", "GET"])
 @perms.can_create_partim
-def get_partim_creation_form(request, learning_unit_year_id):
+def create_partim_form(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
-    learning_unit_year_parent = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+    learning_unit_year_full = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     learning_unit_form_container = LearningUnitFormContainer(
         request.POST or None, person,
-        subtype=learning_unit_year_subtypes.PARTIM,
-        learning_container_year=learning_unit_year_parent.learning_container_year,
-        initial={
-            'acronym': learning_unit_year_parent.acronym,
-            'academic_year': learning_unit_year_parent.academic_year,
-            'periodicity': learning_unit_year_parent.learning_unit.periodicity,
-            'specific_title': learning_unit_year_parent.specific_title,
-            'specific_title_english': learning_unit_year_parent.specific_title_english,
-            'credits': learning_unit_year_parent.credits,
-            'session': learning_unit_year_parent.credits,
-            'quadrimester': learning_unit_year_parent.quadrimester,
-            'status': learning_unit_year_parent.status,
-            'internship_subtype': learning_unit_year_parent.internship_subtype,
-            'attribution_procedure': learning_unit_year_parent.attribution_procedure
-            })
+        learning_unit_year_full=learning_unit_year_full
+    )
 
     if learning_unit_form_container.is_valid():
         new_luys = learning_unit_form_container.save()

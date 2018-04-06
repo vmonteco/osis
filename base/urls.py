@@ -132,7 +132,7 @@ urlpatterns = [
             url(r'^delete_full/$', base.views.learning_units.delete.delete_all_learning_units_year,
                 name="learning_unit_delete_all"),
             url(r'^partim/', include([
-                url(r'^new/$', learning_unit.get_partim_creation_form, name="learning_unit_create_partim"),
+                url(r'^new/$', learning_unit.create_partim_form, name="learning_unit_create_partim"),
             ])),
         ])),
         url(r'^check/(?P<subtype>[A-Z]+)$', learning_unit.check_acronym, name="check_acronym"),

@@ -86,7 +86,7 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
 class LearningUnitModelForm(forms.ModelForm):
     class Meta:
         model = LearningUnit
-        fields = ('periodicity', 'faculty_remark', 'other_remark')
+        fields = ('periodicity', 'faculty_remark', 'other_remark', )
         widgets = {
             'faculty_remark': forms.Textarea(attrs={'rows': '5'}),
             'other_remark': forms.Textarea(attrs={'rows': '5'})
@@ -108,13 +108,13 @@ class LearningUnitYearModelForm(forms.ModelForm):
     class Meta:
         model = LearningUnitYear
         fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'credits',
-                  'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure')
+                  'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure', 'subtype', )
         widgets = {'subtype': forms.HiddenInput()}
         field_classes = {
             'acronym': AcronymField
         }
 
-    def save(self, commit=True, entity_container_years=list()):
+    def save(self, commit=True, entity_container_years=None):
         instance = super().save(commit)
         components_type = _get_default_components_type(self.instance.learning_container_year.container_type)
         for component_type in components_type:
@@ -131,7 +131,9 @@ class LearningUnitYearModelForm(forms.ModelForm):
             self.create_entity_component_year(component, entity_container_years)
         return instance
 
-    def create_entity_component_year(self, component, entity_container_years):
+    def create_entity_component_year(self, component, entity_container_years=None):
+        if entity_container_years is None:
+            entity_container_years = []
         requirement_entity_containers = filter(lambda ec: ec.type in REQUIREMENT_ENTITIES, entity_container_years)
         for requirement_entity_container in requirement_entity_containers:
             EntityComponentYear.objects.get_or_create(entity_container_year=requirement_entity_container,
@@ -224,13 +226,13 @@ class EntityContainerYearFormset(forms.BaseInlineFormSet):
 
 EntityContainerFormset = inlineformset_factory(
     LearningContainerYear, EntityContainerYear, form=EntityContainerYearModelForm,
-    formset=EntityContainerYearFormset, max_num=4, min_num=2, extra=4, can_delete=False
+    formset=EntityContainerYearFormset, max_num=4, min_num=3, extra=4, can_delete=False
 )
 
 
 class LearningContainerYearModelForm(forms.ModelForm):
-    def __init__(self, data, person, *args, **kwargs):
-        super().__init__(data, *args, **kwargs)
+    def __init__(self, person, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.fields['campus'].queryset = find_main_campuses()
         self.fields['container_type'].widget.attrs ={'onchange': 'showInternshipSubtype()'}
@@ -248,29 +250,29 @@ class LearningContainerYearModelForm(forms.ModelForm):
 
 
 class LearningUnitFormContainer:
-    def __init__(self, data, person, subtype, initial=None, learning_container_year=None, instance=None):
-        self.subtype = subtype
+    def __init__(self, data, person, default_ac_year=None, learning_unit_year_full=None, instance=None):
+        self.learning_unit_year_full = learning_unit_year_full
+        self.default_ac_year=default_ac_year
 
-        if initial is None:
-            initial = {}
-        initial.update(self.get_preselected_value())
-
-        learning_container = None
         learning_unit = None
+        learning_container = None
+        learning_container_year = None
         if instance:
             learning_unit = instance.learning_unit
             learning_container_year = instance.learning_container_year
             learning_container = learning_container_year.learning_container
+        elif self.subtype == learning_unit_year_subtypes.PARTIM:
+            # If subtype PARTIM, the container come from FULL LUY args
+            learning_container_year = learning_unit_year_full.learning_container_year
+            learning_container = learning_container_year.learning_container
 
-        self.learning_container_form = LearningContainerModelForm(data, initial=initial, instance=learning_container)
-        self.learning_unit_form = LearningUnitModelForm(data, initial=initial, instance=learning_unit)
-        # luy_form = LearningUnitYearPartimModelForm if is_partim else LearningUnitYearModelForm
-        luy_form = LearningUnitYearModelForm
-        self.learning_unit_year_form = luy_form(data, person, initial=initial, instance=instance)
-        self.learning_container_year_form = LearningContainerYearModelForm(
-            data, person, initial=initial, instance=learning_container_year)
-        self.entity_container_form = EntityContainerFormset(data, instance=learning_container_year,
-                                                            form_kwargs={'person': person})
+        self.learning_container_form = self._get_learning_container_form(learning_container, data)
+        self.learning_unit_form = self._get_learning_unit_form(self.subtype, learning_unit, data)
+        self.learning_unit_year_form = self._get_learning_unit_year_form(self.subtype, instance, person, data)
+        self.learning_container_year_form = self._get_learning_container_year_form(
+            self.subtype, learning_container_year, person, data)
+        self.entity_container_form = self._get_entity_container_formset(self.subtype, learning_container_year, person,
+                                                                        data)
 
         self.forms = [
             self.learning_unit_form, self.learning_container_form,
@@ -279,35 +281,54 @@ class LearningUnitFormContainer:
         ]
 
         if self.subtype == learning_unit_year_subtypes.PARTIM:
-            self.disabled_fields()
+            self.disable_fields(PARTIM_FORM_READ_ONLY_FIELD)
 
     def is_valid(self):
-        if all(form.is_valid() for form in self.forms):
-            return self.post_validation()
-        return False
+        if self.subtype == learning_unit_year_subtypes.FULL:
+            form_list = self.forms
+        else:
+            form_list = [self.learning_unit_year_form, self.learning_unit_form]
+        return all(form.is_valid() for form in form_list) and self._is_valid_between_modelforms()
 
-    def post_validation(self):
-        result = True
-        common_title = self.learning_container_year_form.cleaned_data["common_title"]
+    def _is_valid_between_modelforms(self):
+        if self.subtype == learning_unit_year_subtypes.FULL:
+            validations = [self._validate_no_empty_title, self._validate_same_entities_container]
+        else:
+            validations = [self._validate_no_empty_title]
+        return all(validation() for validation in validations)
+
+    def _validate_same_entities_container(self):
         container_type = self.learning_container_year_form.cleaned_data["container_type"]
-        specific_title = self.learning_unit_year_form.cleaned_data["specific_title"]
-        if not common_title and not specific_title:
-            self.learning_container_year_form.add_error("common_title", _("must_set_common_title_or_specific_title"))
-            result = False
-
         requirement_entity = self.entity_container_form.forms[0].cleaned_data["entity"]
         allocation_entity = self.entity_container_form.forms[1].cleaned_data["entity"]
-
         if container_type in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES:
             if requirement_entity != allocation_entity:
                 self.entity_container_form.forms[1].add_error(
                     "entity", _("requirement_and_allocation_entities_cannot_be_different"))
-                result = False
-        return result
+                return False
+        return True
+
+    def _validate_no_empty_title(self):
+        if self.subtype == learning_unit_year_subtypes.FULL:
+            common_title = self.learning_container_year_form.cleaned_data["common_title"]
+        else:
+            common_title = self.learning_unit_year_full.learning_container_year.common_title
+
+        specific_title = self.learning_unit_year_form.cleaned_data["specific_title"]
+        if not common_title and not specific_title:
+            self.learning_container_year_form.add_error("common_title", _("must_set_common_title_or_specific_title"))
+            return False
+        return True
 
     @transaction.atomic
     def save(self, commit=True):
-        academic_year = self.learning_unit_year.academic_year
+        if self.subtype == learning_unit_year_subtypes.FULL:
+            return self._save_full(commit)
+        else:
+            return self._save_partim(commit)
+
+    def _save_full(self, commit):
+        academic_year = self.default_ac_year
 
         # Save learning container
         learning_container = self.learning_container_form.save(commit)
@@ -334,8 +355,30 @@ class LearningUnitFormContainer:
         learning_unit_year = self.learning_unit_year_form.save(commit, entity_container_years)
 
         # Make Postponement
-        new_luys = [learning_unit_year]
-        for ac_year in range(learning_unit.start_year+1, compute_max_academic_year_adjournment()+1):
+        return self._make_postponement(learning_unit_year)
+
+    def _save_partim(self, commit):
+        # Save learning unit
+        self.learning_unit.learning_container = self.learning_unit_year_full.learning_container_year.learning_container
+        self.learning_unit.start_year = self.learning_unit_year_full.learning_unit.start_year
+        learning_unit = self.learning_unit_form.save(commit)
+
+        # Get entity container form full learning container
+        learning_container_year_full = self.learning_unit_year_full.learning_container_year
+        entity_container_years = learning_container_year_full.entitycontaineryear_set.all()
+
+        # Save learning unit year
+        self.learning_unit_year.learning_container_year = learning_container_year_full
+        self.learning_unit_year.learning_unit = learning_unit
+        self.learning_unit_year.subtype = self.subtype
+        learning_unit_year = self.learning_unit_year_form.save(commit, entity_container_years)
+
+        # Make Postponement
+        return self._make_postponement(learning_unit_year)
+
+    def _make_postponement(self, start_luy):
+        new_luys = [start_luy]
+        for ac_year in range(start_luy.learning_unit.start_year + 1, compute_max_academic_year_adjournment() + 1):
             new_luys.append(duplicate_learning_unit_year(new_luys[0], AcademicYear.objects.get(year=ac_year)))
         return new_luys
 
@@ -348,26 +391,19 @@ class LearningUnitFormContainer:
             'entity_container_form': self.entity_container_form
         }
 
-    def disabled_fields(self):
-        for key, value in self.all_fields().items():
-            if key in PARTIM_FORM_READ_ONLY_FIELD:
-                value.disabled = True
+    def disable_fields(self, field_names):
+        for key, value in self.get_all_fields().items():
+            value.disabled = key in field_names
 
-    def all_fields(self):
-        fields = self.learning_unit_form.fields
-        fields.update(self.learning_container_year_form.fields)
-        fields.update(self.learning_unit_year_form.fields)
+    def get_all_fields(self):
+        fields = {}
+        for form in self.forms:
+            if form == self.entity_container_form:
+                for index, form in enumerate(self.entity_container_form.forms):
+                    fields.update({ENTITY_TYPE_LIST[index].lower(): form.fields['entity']})
+            else:
+                fields.update(form.fields)
         return fields
-
-    def get_preselected_value(self):
-        return {
-            # Default campus selected 'Louvain-la-Neuve' if exist
-            'campus': Campus.objects.filter(name='Louvain-la-Neuve').first(),
-            # Default language French
-            'language': language.find_by_code('FR'),
-            # Default active UE
-            'status': True
-        }
 
     @property
     def errors(self):
@@ -388,3 +424,75 @@ class LearningUnitFormContainer:
     @property
     def learning_unit_year(self):
         return self.learning_unit_year_form.instance
+
+    @property
+    def subtype(self):
+        return learning_unit_year_subtypes.PARTIM if self.learning_unit_year_full else \
+            learning_unit_year_subtypes.FULL
+
+    def _get_entity_container_formset(self, subtype, learning_container_year, person, post_data):
+        form_data = {'instance': learning_container_year, 'form_kwargs': {'person': person}}
+        if subtype == learning_unit_year_subtypes.FULL:
+            # A partim cannot modify the entities linked (Only FULL LUY CAN)
+            form_data['data'] = post_data
+        return EntityContainerFormset(**form_data)
+
+    def _get_learning_container_year_form(self, subtype, learning_container_year, person, post_data):
+        initial = {
+            # Default campus selected 'Louvain-la-Neuve' if exist
+            'campus': Campus.objects.filter(name='Louvain-la-Neuve').first(),
+            # Default language French
+            'language': language.find_by_code('FR')
+        }
+        form_data = {'person': person, 'instance': learning_container_year, 'initial': initial}
+        if subtype == learning_unit_year_subtypes.FULL:
+            form_data['data'] = post_data
+        return LearningContainerYearModelForm(**form_data)
+
+    def _get_learning_unit_year_form(self, subtype, learning_unit_year, person, post_data):
+        initial = {'status': True, 'academic_year': self.default_ac_year, 'subtype': self.subtype}
+        form_data = {'person': person, 'instance': learning_unit_year, 'data': post_data, 'initial': initial}
+        if subtype == learning_unit_year_subtypes.PARTIM:
+            # Get inherit value form full learning unit year
+            inherit_values = self._get_inherit_luy_value_from_full()
+            form_data['initial'].update(inherit_values)
+            if post_data:
+                form_data['data'] = self._merge_inherit_value(inherit_values, post_data)
+            return LearningUnitYearPartimModelForm(**form_data)
+        return LearningUnitYearModelForm(**form_data)
+
+    def _get_learning_unit_form(self, subtype, learning_unit, post_data):
+        initial = {}
+        if subtype == learning_unit_year_subtypes.PARTIM:
+            initial.update(self._get_inherit_lu_value_from_full())
+        return LearningUnitModelForm(post_data, instance=learning_unit)
+
+    def _get_learning_container_form(self, learning_container, post_data):
+        return LearningContainerModelForm(post_data, instance=learning_container)
+
+    def _get_inherit_luy_value_from_full(self):
+        learning_unit_year_full = self.learning_unit_year_full
+        return {
+            'acronym': learning_unit_year_full.acronym,
+            'academic_year': learning_unit_year_full.academic_year.id,
+            'specific_title': learning_unit_year_full.specific_title,
+            'specific_title_english': learning_unit_year_full.specific_title_english,
+            'credits': learning_unit_year_full.credits,
+            'session': learning_unit_year_full.session,
+            'quadrimester': learning_unit_year_full.quadrimester,
+            'status': learning_unit_year_full.status,
+            'internship_subtype': learning_unit_year_full.internship_subtype,
+            'attribution_procedure': learning_unit_year_full.attribution_procedure
+        }
+
+    def _get_inherit_lu_value_from_full(self):
+        learning_unit_full = self.learning_unit_year_full.learning_unit
+        return {
+            'periodicity': learning_unit_full.periodicity
+        }
+
+    def _merge_inherit_value(self, inherit_values, post_data):
+        form_data = dict(inherit_values)
+        for key in post_data.keys():
+            form_data[key] = post_data[key]
+        return form_data

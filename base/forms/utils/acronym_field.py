@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import re
+
 from django import forms
 
 from base.forms.utils.choice_field import add_blank
@@ -53,8 +55,8 @@ class PartimAcronymInput(forms.MultiWidget):
     def __init__(self, *args, **kwargs):
         choices = kwargs.pop('choices', [])
         widgets = [
-            forms.Select(choices=choices, attrs={'disabled': True}),
-            forms.TextInput(attrs={'disabled': True, 'class': 'text-uppercase'}),
+            forms.Select(choices=choices, attrs={'disabled': False}),
+            forms.TextInput(attrs={'disabled': False, 'class': 'text-uppercase'}),
             forms.TextInput(attrs={'class': 'text-center text-uppercase',
                                    'maxlength': "1",
                                    'onchange': 'validate_acronym()'})
@@ -63,8 +65,19 @@ class PartimAcronymInput(forms.MultiWidget):
 
     def decompress(self, value):
         if value:
-            return [value[0], value[1:-1], value[-1]]
+            return split_acronym(value)
         return ['', '', '']
+
+
+def split_acronym(value):
+    """This function split acronym into small piece list
+    Index 0 :  Localisation (L/M/...)
+    Index 1 :  Sigle/Cnum
+    Index 2 :  Subdivision
+    """
+    last_digit_position = re.match('.+([0-9])[^0-9]*$', value).start(1)
+    subdivision = value[last_digit_position + 1] if len(value) > last_digit_position + 1 else ''
+    return [value[0], value[1:last_digit_position + 1], subdivision]
 
 
 class AcronymField(forms.MultiValueField):
@@ -84,7 +97,7 @@ class AcronymField(forms.MultiValueField):
         return ''.join(data_list).upper()
 
 
-class PartimAcronymField(AcronymField):
+class PartimAcronymField(forms.MultiValueField):
     widget = PartimAcronymInput
 
     def __init__(self, *args, **kwargs):
@@ -99,6 +112,8 @@ class PartimAcronymField(AcronymField):
         super().__init__(list_fields, *args, **kwargs)
         self.widget = PartimAcronymInput(choices=_create_first_letter_choices())
 
+    def compress(self, data_list):
+        return ''.join(data_list).upper()
 
 def _create_first_letter_choices():
     return add_blank(LearningUnitManagementSite.choices())

@@ -85,6 +85,8 @@
 </div>
 {% include "learning_unit/blocks/remarks.html" %}
 
+{% bootstrap_field learning_unit_year_form.subtype %}
+
 {% block script %}
     <script> const learning_unit_current_subtype = "{{ subtype }}"; </script>
 {% endblock %}
