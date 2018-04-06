@@ -434,11 +434,11 @@ def _setup_classes(learning_component_year, number_classes=5):
 
 
 def _create_fixed_educational_information_for_luy(luy):
-    for i in range(10):
-        title = 'title of bibliography {}'.format(i)
-        mandatory = bool(i % 2) # alternatively False/True
-        _create_bibliography_for_luy(luy, title, mandatory)
+    _create_bibliography_for_luy(luy)
 
 
-def _create_bibliography_for_luy(luy, title, mandatory):
-    return BibliographyFactory(learning_unit_year=luy, title=title, mandatory=mandatory)
+def _create_bibliography_for_luy(luy, quantity=10):
+    for bib_number in range(quantity):
+        title = 'title of bibliography {}'.format(bib_number)
+        mandatory = bool(bib_number % 2) # alternatively False/True
+        BibliographyFactory(learning_unit_year=luy, title=title, mandatory=mandatory)
