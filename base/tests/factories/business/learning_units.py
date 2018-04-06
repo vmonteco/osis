@@ -434,6 +434,8 @@ def _setup_classes(learning_component_year, number_classes=5):
 
 
 def _create_fixed_educational_information_for_luy(luy):
+    luy.mobility_modality = 'Modalities specific to IN and OUT mobility : example for test.'
+    luy.save()
     _create_bibliography_for_luy(luy)
 
 

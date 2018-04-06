@@ -711,13 +711,16 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
 
         first_luy = mdl_luy.find_oldest_by_learning_unit(learning_unit_full_annual)
         first_year_bibliography = mdl_bibliography.build_list_of_bibliography_content_by_learning_unit_year(first_luy)
+        first_year_mobility_modalities = first_luy.mobility_modality
 
         edit_learning_unit_end_date(learning_unit_full_annual, academic_year_of_new_end_date)
 
         latest_luy =  mdl_luy.find_latest_by_learning_unit(learning_unit_full_annual)
         end_year_bibliography = mdl_bibliography.build_list_of_bibliography_content_by_learning_unit_year(latest_luy)
+        end_year_mobility_modalities = latest_luy.mobility_modality
 
         self.assertCountEqual(first_year_bibliography, end_year_bibliography)
+        self.assertEquals(first_year_mobility_modalities, end_year_mobility_modalities)
 
 
 def _create_classes(learning_component_year, number_classes):
