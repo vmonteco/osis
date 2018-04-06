@@ -48,14 +48,14 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-4">
-                            <label for="{{ proposal_form.folder_id.id_for_label }}">{% trans 'folder' %}</label>
+                            <label for="{{ proposal_form.folder_id.id_for_label }}">{% trans 'folder' %}*</label>
                         </div>
                         <div class="col-md-4">
-                            {{ proposal_form.entity }}*
+                            {{ proposal_form.entity }}
                             <span class="error">{{ proposal_form.entity.errors }}</span>
                         </div>
                         <div class="col-md-4">
-                            {{ proposal_form.folder_id }}*
+                            {{ proposal_form.folder_id }}
                             <span class="error">{{ proposal_form.folder_id.errors }}</span>
                         </div>
                     </div>
