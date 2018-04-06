@@ -35,6 +35,7 @@ from base.models.enums import entity_container_year_link_type, learning_containe
 from base.models.enums import learning_unit_year_quadrimesters
 from base.models.enums import learning_unit_year_session
 from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.bibliography import BibliographyFactory
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity_component_year import EntityComponentYearFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -206,6 +207,12 @@ class LearningUnitsMixin:
                     results.append(learning_unit_year_partim)
 
         return results
+
+    @staticmethod
+    def setup_educational_information(learning_unit_years_list):
+        for luy in learning_unit_years_list:
+            _create_fixed_educational_information_for_luy(luy)
+        return learning_unit_years_list
 
 
 class GenerateAcademicYear:
@@ -424,3 +431,14 @@ def _setup_entity_component_year(learning_component_year, entity_container_year)
 def _setup_classes(learning_component_year, number_classes=5):
     for i in range(number_classes):
         LearningClassYearFactory(learning_component_year=learning_component_year)
+
+
+def _create_fixed_educational_information_for_luy(luy):
+    for i in range(10):
+        title = 'title of bibliography {}'.format(i)
+        mandatory = bool(i % 2) # alternatively False/True
+        _create_bibliography_for_luy(luy, title, mandatory)
+
+
+def _create_bibliography_for_luy(luy, title, mandatory):
+    return BibliographyFactory(learning_unit_year=luy, title=title, mandatory=mandatory)

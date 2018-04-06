@@ -36,6 +36,8 @@ from base.business.learning_unit import compute_max_academic_year_adjournment
 from base.business.learning_units.edition import edit_learning_unit_end_date, update_learning_unit_year_with_report, \
     ConsistencyError
 from base.models import academic_year
+from base.models import learning_unit_year as mdl_luy
+from base.models import bibliography as mdl_bibliography
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import learning_component_year_type
@@ -690,6 +692,32 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         list_of_years_learning_unit = _get_list_years_learning_unit(learning_unit_annual)
         self.assertEqual(list_of_years_learning_unit, list_of_expected_years)
         self.assertEqual(learning_unit_annual.end_year, excepted_end_year)
+
+
+    def test_postpone_end_date_with_bibliography(self):
+        start_year_full = self.current_academic_year.year - 1
+        end_year_full = self.current_academic_year.year + 1
+        expected_end_year_full = end_year_full + 2
+        academic_year_of_new_end_date = academic_year.find_academic_year_by_year(expected_end_year_full)
+
+        learning_unit_full_annual = self.setup_learning_unit(start_year=start_year_full, end_year=end_year_full)
+
+        luy_list = self.setup_list_of_learning_unit_years_full(
+            list_of_academic_years=self.list_of_academic_years,
+            learning_unit_full=learning_unit_full_annual
+        )
+
+        self.setup_educational_information(luy_list)
+
+        first_luy = mdl_luy.find_oldest_by_learning_unit(learning_unit_full_annual)
+        first_year_bibliography = mdl_bibliography.build_list_of_bibliography_content_by_learning_unit_year(first_luy)
+
+        edit_learning_unit_end_date(learning_unit_full_annual, academic_year_of_new_end_date)
+
+        latest_luy =  mdl_luy.find_latest_by_learning_unit(learning_unit_full_annual)
+        end_year_bibliography = mdl_bibliography.build_list_of_bibliography_content_by_learning_unit_year(latest_luy)
+
+        self.assertCountEqual(first_year_bibliography, end_year_bibliography)
 
 
 def _create_classes(learning_component_year, number_classes):
