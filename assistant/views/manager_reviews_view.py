@@ -28,38 +28,21 @@ from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 
-from assistant.models import assistant_document_file
+from assistant.models.review import find_by_mandate
 from assistant.models import assistant_mandate
-from assistant.models import tutoring_learning_unit_year
-from assistant.models.enums import assistant_mandate_renewal
-from assistant.models.enums import assistant_type
-from assistant.models.enums import document_type
 from assistant.utils import manager_access
 
 
 @require_http_methods(["GET"])
 @user_passes_test(manager_access.user_is_manager, login_url='access_denied')
-def assistant_form_view(request, mandate_id):
+def reviews_view(request, mandate_id):
+    reviews = find_by_mandate(mandate_id)
     mandate = assistant_mandate.find_mandate_by_id(mandate_id)
-    learning_units = tutoring_learning_unit_year.find_by_mandate(mandate)
-    phd_files = assistant_document_file.find_by_assistant_mandate_and_description(mandate,
-                                                                                  document_type.PHD_DOCUMENT)
-    research_files = assistant_document_file.find_by_assistant_mandate_and_description(mandate,
-                                                                                       document_type.RESEARCH_DOCUMENT)
-    tutoring_files = assistant_document_file.find_by_assistant_mandate_and_description(mandate,
-                                                                                       document_type.TUTORING_DOCUMENT)
     return render(
-        request, 'manager_assistant_form_view.html',
+        request, 'manager_reviews_view.html',
         {
             'mandate_id': mandate_id,
-            'assistant': mandate.assistant,
-            'mandate': mandate,
-            'learning_units': learning_units,
-            'phd_files': phd_files,
-            'assistant_mandate_renewal': assistant_mandate_renewal,
-            'research_files': research_files,
-            'tutoring_files': tutoring_files,
             'year': mandate.academic_year.year + 1,
-            'assistant_type': assistant_type
+            'reviews': reviews
         }
     )

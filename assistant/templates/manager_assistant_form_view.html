@@ -36,21 +36,24 @@
 {% block content %}
 <div class="page-header">
     <h3>{% trans 'assistant_mandates_renewals' %} {{ year }} </h3>
-    <h4>{{ assistant.person }}</h4>
     <ul class="nav nav-tabs">
-        <li><form id=mandate_id method="POST" action="{% url 'mandate_read' %}">
-                    {{ form.non_field_errors }}
- 		            {% csrf_token %}
-                    <input type="hidden" name="mandate_id" value="{{ mandate.id }}">
-                    <button type="submit" class="btn btn-link" title="{% trans 'assistant_form'%}">
-                        {% trans 'administrative_assistant_form'%}
-                    </button></form>
+        <li>
+            <form id=mandate_id method="POST" action="{% url 'mandate_read' %}">
+                {{ form.non_field_errors }}
+                {% csrf_token %}
+                <input type="hidden" name="mandate_id" value="{{ mandate.id }}">
+                <button type="submit" class="btn btn-link" title="{% trans 'administrative_assistant_form'%}">
+                    {% trans 'administrative_assistant_form'%}
+                </button>
+            </form>
         </li>
         <li class="active"><a href="#">{% trans 'assistant_form' %}</a></li>
+        <li><a href="{% url 'manager_reviews_view' mandate_id=mandate.id %}">{% trans 'reviews' %}</a></li>
     </ul>
 </div>
 <div class="panel panel-default">
     <div class="panel-body">
+        <h3>{{ mandate.assistant.person }} ({{ mandate.assistant.person.gender }})</h3>
   		<div class="panel-default">
   			<div class="panel-heading">
   				<h4>{% trans 'contract' %}</h4>
@@ -110,7 +113,7 @@
                 </div>
             </div>
         </div>
-  		{% if mandate.assistant_type == 'ASSISTANT' %}
+  		{% if mandate.assistant_type == assistant_type.ASSISTANT %}
             <div class="panel-default">
   			    <div class="panel-heading">
   				    <h4>{% trans 'doctorate' %}</h4>
@@ -122,7 +125,11 @@
                         {% trans 'registered_phd' %}
                     </div>
                     <div class="col-md-3">
-                        {% trans assistant.inscription %}
+                        {% if assistant.inscription %}
+                            {% trans assistant.inscription %}
+                        {% else %}
+                            n/a
+                        {% endif %}
                     </div>
                     <div class="col-md-3">
                         {% trans 'expected_registering_date' %}
@@ -141,7 +148,7 @@
                 </div>
                 <div class="row" style="padding-top: 2px;">
                     <div class="col-md-3">
-                        {% trans 'phd_inscription_date' %}
+                        {% trans 'phd_date' %}
                     </div>
                     <div class="col-md-9">
                         {{ assistant.phd_inscription_date|default_if_none:"n/a" }}
@@ -458,7 +465,7 @@
                     {{ mandate.tutoring_percent }} %
                 </div>
             </div>
-            {% if mandate.assistant_type == 'ASSISTANT' %}
+            {% if mandate.assistant_type == assistant_type.ASSISTANT %}
                 <div class="row" style="padding-top: 2px;">
                     <div class="col-md-5">
                         {% trans 'research_percent' %}

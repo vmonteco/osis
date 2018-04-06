@@ -39,12 +39,14 @@
 {% block content %}
 <div class="page-header">
     <h3>{% trans 'assistant_mandates_renewals' %} {{ mandate.academic_year.year|add:1 }}</h3>
-</div>
-<div class="panel panel-default">
     <ul class="nav nav-tabs ">
 	    <li class="active"><a href="#">{% trans 'administrative_assistant_form' %}</a></li>
         <li><a href="{% url 'manager_assistant_form_view' mandate_id=mandate.id %}">{% trans 'assistant_form' %}</a></li>
+        <li><a href="{% url 'manager_reviews_view' mandate_id=mandate.id %}">{% trans 'reviews' %}</a></li>
     </ul>
+</div>
+<div class="panel panel-default">
+
 
     <div class="panel-body">
         <h3>{{ mandate.assistant.person }} ({{ mandate.assistant.person.gender }})</h3>
