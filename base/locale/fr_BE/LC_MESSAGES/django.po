@@ -1814,7 +1814,7 @@ msgid "existed_acronym"
 msgstr "Code a déjà existé pour "
 
 msgid "existing_acronym"
-msgstr "Code déja existant en "
+msgstr "Code déjà existant en "
 
 msgid "invalid_acronym"
 msgstr "Code non valide"
