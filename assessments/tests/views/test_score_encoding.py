@@ -482,10 +482,18 @@ class UploadXLSTest(TestCase):
 
     def test_header_not_changed(self):
         from assessments.business.score_encoding_export import HEADER
-        valid_header= [str(_('academic_year')), str(_('session_title')), str(_('learning_unit')), str(_('program')),
-                       str(_('registration_number')), str(_('lastname')), str(_('firstname')), str(_('email')),
-                       str(_('numbered_score')), str(_('justification')), str(_('end_date'))]
-        self.assertCountEqual(HEADER, valid_header)
+        self.assertEqual(HEADER.index('academic_year'), 0)
+        self.assertEqual(HEADER.index('session_title'), 1)
+        self.assertEqual(HEADER.index('learning_unit'), 2)
+        self.assertEqual(HEADER.index('program'), 3)
+        self.assertEqual(HEADER.index('registration_number'), 4)
+        self.assertEqual(HEADER.index('lastname'), 5)
+        self.assertEqual(HEADER.index('firstname'), 6)
+        self.assertEqual(HEADER.index('email'), 7)
+        self.assertEqual(HEADER.index('numbered_score'), 8)
+        self.assertEqual(HEADER.index('justification'), 9)
+        self.assertEqual(HEADER.index('end_date'), 10)
+
 
 
 

@@ -56,7 +56,8 @@ def export_xls(exam_enrollments):
     __display_legends(worksheet)
     worksheet.append([str('')])
     __columns_resizing(worksheet)
-    worksheet.append(HEADER)
+    header_translate_list = [str(_(elem)) for elem in HEADER]
+    worksheet.append(header_translate_list)
 
     row_number = 11
     for exam_enroll in exam_enrollments:
