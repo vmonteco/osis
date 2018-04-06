@@ -33,17 +33,8 @@ from django.utils import timezone
 from base import models as mdl
 from base.models.enums import exam_enrollment_justification_type
 
-HEADER = [str(_('academic_year')),
-          str(_('session_title')),
-          str(_('learning_unit')),
-          str(_('program')),
-          str(_('registration_number')),
-          str(_('lastname')),
-          str(_('firstname')),
-          str(_('email')),
-          str(_('numbered_score')),
-          str(_('justification')),
-          str(_('end_date'))]
+HEADER = ['academic_year', 'session_title', 'learning_unit', 'program', 'registration_number', 'lastname', 'firstname',
+          'email', 'numbered_score', 'justification', 'end_date']
 
 JUSTIFICATION_ALIASES = {
     exam_enrollment_justification_type.ABSENCE_JUSTIFIED : "M",

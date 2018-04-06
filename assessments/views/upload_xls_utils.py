@@ -34,19 +34,21 @@ from django.views.decorators.http import require_http_methods
 from openpyxl import load_workbook
 
 from assessments.business import score_encoding_list
+from assessments.business.score_encoding_export import HEADER
 from assessments.forms.score_file import ScoreFileForm
 from attribution import models as mdl_attr
 from base import models as mdl
 from base.models.enums import exam_enrollment_justification_type as justification_types
 
-col_academic_year = 0
-col_session = 1
-col_learning_unit = 2
-col_offer = 3
-col_registration_id = 4
-col_email = 7
-col_score = 8
-col_justification = 9
+
+col_academic_year = HEADER.index('academic_year')
+col_session = HEADER.index('session_title')
+col_learning_unit = HEADER.index('learning_unit')
+col_offer = HEADER.index('program')
+col_registration_id = HEADER.index('registration_number')
+col_email = HEADER.index('email')
+col_score = HEADER.index('numbered_score')
+col_justification = HEADER.index('justification')
 
 REGISTRATION_ID_LENGTH = 8
 

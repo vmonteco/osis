@@ -480,6 +480,14 @@ class UploadXLSTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 405)
 
+    def test_header_not_changed(self):
+        from assessments.business.score_encoding_export import HEADER
+        valid_header= [str(_('academic_year')), str(_('session_title')), str(_('learning_unit')), str(_('program')),
+                       str(_('registration_number')), str(_('lastname')), str(_('firstname')), str(_('email')),
+                       str(_('numbered_score')), str(_('justification')), str(_('end_date'))]
+        self.assertCountEqual(HEADER, valid_header)
+
+
 
 def prepare_exam_enrollment_for_double_encoding_validation(exam_enrollment):
     exam_enrollment.score_reencoded = 14
