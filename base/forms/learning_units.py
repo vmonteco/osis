@@ -29,7 +29,8 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
-from base.business.entity import get_entities_ids, get_entity_container_list, build_entity_container_prefetch
+from base.business.entity import get_entities_ids, get_entity_container_list, build_entity_container_prefetch, \
+    get_entities_ids_by_acronyms
 from base.business.entity_version import SERVICE_COURSE
 from base.business.learning_unit_year_with_context import append_latest_entities
 from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, TooManyResultsException
@@ -96,12 +97,16 @@ class LearningUnitYearForm(SearchForm):
         if self.service_course_search:
             return self._get_service_course_learning_units()
         else:
-            return self._get_learning_units()
+            return self.get_learning_units()
 
-    def _get_learning_units(self, service_course_search=None):
+    def get_learning_units(self, service_course_search=None, requirement_entities=None):
         clean_data = self.cleaned_data
         service_course_search = service_course_search or self.service_course_search
-        clean_data['learning_container_year_id'] = get_filter_learning_container_ids(clean_data)
+
+        if requirement_entities:
+            clean_data['learning_container_year_id'] = get_filter_learning_container_ids_summary(requirement_entities)
+        else:
+            clean_data['learning_container_year_id'] = get_filter_learning_container_ids(clean_data)
 
         if not service_course_search \
                 and clean_data \
@@ -120,7 +125,7 @@ class LearningUnitYearForm(SearchForm):
     def _get_service_course_learning_units(self):
         service_courses = []
 
-        for learning_unit in self._get_learning_units(True):
+        for learning_unit in self.get_learning_units(True):
             if not learning_unit.entities.get(SERVICE_COURSE):
                 continue
 
@@ -164,4 +169,11 @@ def get_filter_learning_container_ids(filter_data):
                                                      entity_ids,
                                                      entity_container_year_link_type.ALLOCATION_ENTITY)
 
+    return entities_id_list if entities_id_list else None
+
+
+def get_filter_learning_container_ids_summary(entities_requirement):
+    entities_id_list = get_entity_container_list([],
+                                                 get_entities_ids_by_acronyms(entities_requirement, True),
+                                                 entity_container_year_link_type.REQUIREMENT_ENTITY)
     return entities_id_list if entities_id_list else None
