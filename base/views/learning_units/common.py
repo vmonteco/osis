@@ -43,5 +43,3 @@ def create_learning_unit_year_creation_message(learning_unit_year_created, trans
 def create_learning_unit_year_deletion_message(learning_unit_year_deleted):
     return _('learning_unit_successfuly_deleted').format(acronym=learning_unit_year_deleted.acronym,
                                                          academic_year=learning_unit_year_deleted.academic_year)
-
-
