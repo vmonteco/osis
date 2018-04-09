@@ -32,6 +32,7 @@ from base.business.learning_units.edition import duplicate_learning_unit_year
 from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear
 from base.models.campus import find_main_campuses, Campus
 from base.models.enums.component_type import LECTURING, PRACTICAL_EXERCISES
+from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, \
     LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES, CONTAINER_TYPE_WITH_DEFAULT_COMPONENT
 from base.models.enums import learning_unit_year_subtypes
@@ -40,10 +41,10 @@ from reference.models import language
 import abc
 
 
-# PARTIM_FORM_READ_ONLY_FIELD = {'common_title', 'common_title_english', 'requirement_entity',
-#                                'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year',
-#                                'container_type', 'internship_subtype',
-#                                'additional_requirement_entity_1', 'additional_requirement_entity_2'}
+PARTIM_FORM_READ_ONLY_FIELD = {'common_title', 'common_title_english', 'requirement_entity',
+                               'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year',
+                               'container_type', 'internship_subtype',
+                               'additional_requirement_entity_1', 'additional_requirement_entity_2'}
 #
 # DEFAULT_ACRONYM_COMPONENT = {
 #     LECTURING: "CM1",
@@ -80,6 +81,20 @@ class LearningUnitBaseForm:
     @property
     def cleaned_data(self):
         return [form.cleaned_data for form in self.forms]
+
+    def disable_fields(self, field_names):
+        for key, value in self.get_all_fields().items():
+            value.disabled = key in field_names
+
+    def get_all_fields(self):
+        fields = {}
+        for cls, form_instance in self.form_instances.items():
+            if cls == EntityContainerFormset:
+                for index, form in enumerate(form_instance.forms):
+                    fields.update({ENTITY_TYPE_LIST[index].lower(): form.fields['entity']})
+            else:
+                fields.update(form_instance.fields)
+        return fields
 
     def get_context(self):
         return {
@@ -219,10 +234,11 @@ class PartimForm(LearningUnitBaseForm):
                 'instance': self.learning_unit_year_full.learning_container_year.learning_container,
             },
             LearningUnitYearModelForm: {
-                'data': self._merge_two_dicts(data, inherit_luy_values) if data else None,
+                'data': _merge_two_dicts(data, inherit_luy_values) if data else None,
                 'instance': instance,
-                'initial': self._merge_two_dicts({'subtype': self.subtype}, inherit_luy_values),
-                'person': person
+                'initial': _merge_two_dicts({'subtype': self.subtype}, inherit_luy_values),
+                'person': person,
+                'subtype': self.subtype
             },
             LearningContainerYearModelForm: {
                 'instance': self.learning_unit_year_full.learning_container_year,
@@ -230,11 +246,11 @@ class PartimForm(LearningUnitBaseForm):
             },
             EntityContainerFormset: {
                 'instance': self.learning_unit_year_full.learning_container_year,
-                'person': person
+                'form_kwargs': {'person': person}
             }
         }
-        kwargs.update(instances_data)
-        super().__init__(self, *args, **kwargs)
+        super(PartimForm, self).__init__(instances_data, *args, **kwargs)
+        self.disable_fields(PARTIM_FORM_READ_ONLY_FIELD)
 
     def _get_inherit_learning_unit_year_full_value(self):
         """This function will return the inherit value come from learning unit year FULL"""

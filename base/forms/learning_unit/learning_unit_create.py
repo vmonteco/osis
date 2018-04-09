@@ -103,16 +103,19 @@ class LearningUnitYearModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         if kwargs.pop('person').is_faculty_manager():
             self.fields.pop('internship_subtype')
-        super().__init__(kwargs.pop('data'), *args, **kwargs)
+        subtype = kwargs.pop('subtype')
+        super().__init__(*args, **kwargs)
+        if subtype == learning_unit_year_subtypes.PARTIM:
+            self.fields['specific_title'].label = _('official_title_proper_to_partim')
+            self.fields['specific_title_english'].label = _('official_english_title_proper_to_partim')
+
 
     class Meta:
         model = LearningUnitYear
         fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'credits',
                   'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure', 'subtype', )
         widgets = {'subtype': forms.HiddenInput()}
-        field_classes = {
-            'acronym': AcronymField
-        }
+        field_classes = {'acronym': AcronymField}
 
     def save(self, commit=True, entity_container_years=None):
         instance = super().save(commit)
