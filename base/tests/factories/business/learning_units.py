@@ -447,6 +447,6 @@ def _create_bibliography_for_luy(luy, quantity=10):
         BibliographyFactory(learning_unit_year=luy)
 
 
-def _create_cms_data_for_luy(luy):
-    return TranslatedTextFactory(reference=luy.id,
-                                 text=factory.fuzzy.FuzzyText(prefix="Entity ", length=15).fuzz())
+def _create_cms_data_for_luy(luy, quantity=10):
+    for _ in range(quantity):
+        TranslatedTextFactory(reference=luy.id, text=factory.fuzzy.FuzzyText(length=255).fuzz())
