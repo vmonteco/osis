@@ -69,6 +69,7 @@ def _update_learning_unit_year_end_date(learning_unit_to_edit, new_academic_year
         return extend_learning_unit(learning_unit_to_edit, new_academic_year)
     elif new_end_year < end_year:
         return shorten_learning_unit(learning_unit_to_edit, new_academic_year)
+    return []
 
 
 def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
