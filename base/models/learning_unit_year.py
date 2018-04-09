@@ -238,10 +238,13 @@ class LearningUnitYear(SerializableModel):
                 raise ValidationError({'status', _('The partim must be inactive because the parent is inactive')})
 
     def clean_credits(self):
+        # TODO :: Create non null constraint in DB (how to manage external learning units with credits==Null?)
+        if not self.credits:
+            raise ValidationError({'credits': _('field_is_required')})
         if not self.parent:
             return
         if self.credits > self.parent.credits:
-            raise ValidationError({'credits':_('partim_credits_gt_parent_credits')})
+            raise ValidationError({'credits': _('partim_credits_gt_parent_credits')})
         elif self.credits == self.parent.credits:
             raise ValidationError({'credits':  _('partim_credits_equals_parent_credits')})
 
