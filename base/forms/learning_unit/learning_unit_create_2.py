@@ -28,7 +28,7 @@ from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm,
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.learning_units.edition import duplicate_learning_unit_year
+from base.business.learning_units import edition as edition_business
 from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear
 from base.models.campus import find_main_campuses, Campus
 from base.models.enums.component_type import LECTURING, PRACTICAL_EXERCISES
@@ -40,6 +40,8 @@ from base.models.learning_unit_year import LearningUnitYear
 from reference.models import language
 import abc
 
+
+FULL_READ_ONLY_FIELDS = {"first_letter", "acronym", "academic_year", "container_type", "subtype"}
 
 PARTIM_FORM_READ_ONLY_FIELD = {'common_title', 'common_title_english', 'requirement_entity',
                                'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year',
@@ -61,6 +63,8 @@ class LearningUnitBaseForm:
     form_instances = {}
 
     subtype = None
+
+    postponement = True
 
     def __init__(self, instances_data, *args, **kwargs):
         for form_class in self.forms:
@@ -112,11 +116,32 @@ class LearningUnitBaseForm:
             return False
         return True
 
-    def _make_postponement(self, start_luy):
+    def _create_with_postponement(self, start_luy):
         new_luys = [start_luy]
         for ac_year in range(start_luy.learning_unit.start_year + 1, compute_max_academic_year_adjournment() + 1):
-            new_luys.append(duplicate_learning_unit_year(new_luys[0], AcademicYear.objects.get(year=ac_year)))
+            new_luys.append(edition_business.duplicate_learning_unit_year(new_luys[0],
+                                                                          AcademicYear.objects.get(year=ac_year)))
         return new_luys
+
+    # TODO :: should reuse duplicate_learning_unit_year() function
+    # TODO :: (the postponement function should be the same for creation AND update !)
+    def _update_with_postponement(self, learning_unit_year_instance):
+        entities_data = self._get_entities_data()
+        lu_type_full_data = self._get_flat_cleaned_data_apart_from_entities()
+        edition_business.update_learning_unit_year_with_report(learning_unit_year_instance, lu_type_full_data,
+                                                               entities_data, with_report=self.postponement)
+
+    def _get_entities_data(self):
+        return {entity_container_year_form.instance.type.upper(): entity_container_year_form.instance.entity
+                for entity_container_year_form in self.form_instances[EntityContainerFormset]}
+
+    def _get_flat_cleaned_data_apart_from_entities(self):
+        all_clean_data = {}
+        for cls, form_instance in self.form_instances.items():
+            if cls != EntityContainerFormset:
+                all_clean_data.update({field: value for field, value in form_instance.cleaned_data.items()
+                                       if field not in FULL_READ_ONLY_FIELDS})
+        return all_clean_data
 
 
 class FullForm(LearningUnitBaseForm):
@@ -124,8 +149,11 @@ class FullForm(LearningUnitBaseForm):
     subtype = learning_unit_year_subtypes.FULL
 
     def __init__(self, data, person, default_ac_year=None, instance=None, *args, **kwargs):
+        self.instance = instance
         if instance and not isinstance(instance, LearningUnitYear):
             raise AttributeError('instance arg should be an instance of {}'.format(LearningUnitYear))
+
+        self.postponement = bool(int(data.get('postponement', 1))) if data else False
 
         self.academic_year = instance.academic_year if instance else default_ac_year
         instances_data = {
@@ -143,7 +171,8 @@ class FullForm(LearningUnitBaseForm):
                 'initial': {
                     'status': True, 'academic_year': default_ac_year, 'subtype': self.subtype
                 } if not instance else None,
-                'person': person
+                'person': person,
+                'subtype': self.subtype
             },
             LearningContainerYearModelForm: {
                 'data': data,
@@ -183,6 +212,15 @@ class FullForm(LearningUnitBaseForm):
 
     @transaction.atomic
     def save(self, commit=True):
+        if self._is_update_action():
+            return self._update_with_postponement(self.instance)
+        else:
+            return self._create(commit)
+
+    def _is_update_action(self):
+        return self.instance
+
+    def _create(self, commit):
         academic_year = self.academic_year
 
         learning_container = self.form_instances[LearningContainerModelForm].save(commit)
@@ -209,12 +247,7 @@ class FullForm(LearningUnitBaseForm):
         self.form_instances[LearningUnitYearModelForm].instance.subtype = self.subtype
         learning_unit_year = self.form_instances[LearningUnitYearModelForm].save(commit, entity_container_years)
 
-        return self._make_postponement(learning_unit_year)
-
-
-        #
-        # def validate_data_between_modelforms(self):
-        #     pass
+        return self._create_with_postponement(learning_unit_year)
 
 
 class PartimForm(LearningUnitBaseForm):
@@ -305,7 +338,7 @@ class PartimForm(LearningUnitBaseForm):
         learning_unit_year = self.form_instances[LearningUnitYearModelForm].save(commit, entity_container_years)
 
         # Make Postponement
-        return self._make_postponement(learning_unit_year)
+        return self._create_with_postponement(learning_unit_year)
 
 
 def _merge_two_dicts(dict_a, dict_b):

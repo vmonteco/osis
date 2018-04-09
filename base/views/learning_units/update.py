@@ -103,8 +103,9 @@ def update_learning_unit(request, learning_unit_year_id):
     learning_unit_form_container = FullForm(request.POST or None, person, instance=learning_unit_year)
 
     if learning_unit_form_container.is_valid():
-        new_luys = learning_unit_form_container.save()
-        return redirect('learning_unit', learning_unit_year_id=new_luys[0].pk)
+        new_luys = _save_form_and_display_messages(request, learning_unit_form_container)
+        if new_luys:
+            return redirect('learning_unit', learning_unit_year_id=new_luys[0].pk)
 
     context = learning_unit_form_container.get_context()
     context["learning_unit_year"] = learning_unit_year
@@ -138,14 +139,16 @@ def learning_unit_volumes_management(request, learning_unit_year_id):
 
 
 def _save_form_and_display_messages(request, form):
+    records = None
     try:
-        form.save()
+        records = form.save()
         display_success_messages(request, _('success_modification_learning_unit'))
     except ConsistencyError as e:
         error_list = e.error_list
         error_list.insert(0, _('The learning unit has been updated until %(year)s.')
                           % {'year': e.last_instance_updated.academic_year})
         display_error_messages(request, e.error_list)
+    return records
 
 
 def update_learning_unit_pedagogy(request, learning_unit_year_id, context, template):
