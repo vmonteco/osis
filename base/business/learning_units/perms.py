@@ -35,6 +35,9 @@ FACULTY_UPDATABLE_CONTAINER_TYPES = (learning_container_year_types.COURSE,
                                      learning_container_year_types.DISSERTATION,
                                      learning_container_year_types.INTERNSHIP)
 
+PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES = (ProposalState.ACCEPTED.name,
+                                          ProposalState.REFUSED.name)
+
 
 def is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, person):
     entity = Entity.objects.filter(
@@ -77,8 +80,7 @@ def is_eligible_to_consolidate_proposal(proposal, person):
 
 
 def is_proposal_in_state_to_be_consolidated(proposal):
-    eligible_states = (ProposalState.ACCEPTED.name, ProposalState.REFUSED.name)
-    return proposal.state in eligible_states
+    return proposal.state in PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES
 
 
 def is_eligible_for_modification_end_date(learning_unit_year, person):

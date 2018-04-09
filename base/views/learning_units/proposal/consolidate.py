@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.messages import ERROR, SUCCESS
+from django.contrib.messages import ERROR
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.shortcuts import redirect, get_object_or_404
@@ -35,7 +35,7 @@ from base.business.learning_units import perms
 from base.models.enums import proposal_type, proposal_state
 from base.models.person import Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
-from base.views.common import display_success_messages, display_error_messages
+from base.views.common import display_error_messages, display_most_critical_messages
 
 
 @login_required
@@ -52,18 +52,11 @@ def consolidate_proposal(request):
     result = {}
     try:
         result = business_proposal.consolidate_proposal(proposal, author=user_person, send_mail=True)
-        _display_message_based_on_result(request, result)
+        display_most_critical_messages(request, result)
     except IntegrityError as e:
         display_error_messages(request, e.args[0])
 
     return _consolidate_proposal_redirection(proposal, result)
-
-
-def _display_message_based_on_result(request, result):
-    if result.get(ERROR, []):
-        display_error_messages(request, result[ERROR])
-    else:
-        display_success_messages(request, result.get(SUCCESS, []), extra_tags='safe')
 
 
 def _consolidate_proposal_redirection(proposal, consolidation_result):

@@ -42,7 +42,7 @@ from base.views.learning_units import perms
 def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
     user_person = get_object_or_404(Person, user=request.user)
     learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learning_unit_year_id)
-    messages_by_level = business_proposal.cancel_proposal(learning_unit_proposal, user_person)
+    messages_by_level = business_proposal.cancel_proposal(learning_unit_proposal, author=user_person, send_mail=True)
     display_success_messages(request, messages_by_level[messages.SUCCESS])
     display_error_messages(request, messages_by_level[messages.ERROR])
 

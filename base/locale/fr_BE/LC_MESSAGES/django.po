@@ -2477,9 +2477,6 @@ msgstr "Xls avec les activités"
 msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
 msgstr "%(date)s doit être comprise entre %(start_date)s et %(end_date)s"
 
-msgid "success_cancel_proposal"
-msgstr "La proposition pour {} a été annulée."
-
 msgid "cancel_proposal"
 msgstr "Annuler proposition"
 
@@ -2775,3 +2772,15 @@ msgstr "Voulez-vous consolider ?"
 
 msgid "need_no_reminder"
 msgstr "Pas besoin de rappel tout est en ordre"
+
+msgid "error_consolidate_proposal"
+msgstr "Proposition {acronym} ({academic_year}) ne peut pas être consolidée."
+
+msgid "success_consolidate_proposal"
+msgstr "Proposition {acronym} ({academic_year}) consolidée avec succès."
+
+msgid "error_cancel_proposal"
+msgstr "Proposition {acronym} ({academic_year}) ne peut pas être annulée."
+
+msgid "success_cancel_proposal"
+msgstr "Proposition {acronym} ({academic_year}) annulée avec succès"

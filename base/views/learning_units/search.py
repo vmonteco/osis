@@ -23,8 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import functools
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
@@ -41,7 +39,8 @@ from base.models.academic_year import current_academic_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.person import Person, find_by_user
 from base.views import layout
-from base.views.common import check_if_display_message, display_error_messages, display_success_messages
+from base.views.common import check_if_display_message, display_error_messages, display_success_messages, \
+    display_messages_by_level
 from base.business import learning_unit_proposal as proposal_business
 
 PROPOSAL_SEARCH = 3
@@ -142,21 +141,19 @@ def process_formset(formset, request):
 
 
 def _go_back_to_initial_data(formset, request):
-    return _apply_action_on_proposals(formset, request, proposal_business.cancel_proposals,
-                                      "proposals_cancelled_successfully")
+    return _apply_action_on_proposals(formset, request, proposal_business.cancel_proposals)
 
 
 def _consolidate_proposals(formset, request):
-    return _apply_action_on_proposals(formset, request, proposal_business.consolidate_proposals,
-                                      "proposals_consolidated_successfully")
+    return _apply_action_on_proposals(formset, request, proposal_business.consolidate_proposals)
 
 
-def _apply_action_on_proposals(formset, request, action_method, success_message_id):
+def _apply_action_on_proposals(formset, request, action_method):
     proposals = formset.get_checked_proposals()
     if proposals:
         user_person = get_object_or_404(Person, user=request.user)
-        action_method(proposals, user_person)
-        display_success_messages(request, _(success_message_id))
+        messages_by_level = action_method(proposals, user_person)
+        display_messages_by_level(request, messages_by_level)
         formset = None
     else:
         _build_no_data_error_message(request)
