@@ -80,7 +80,7 @@ def get_or_create(entity, reference, text_label, language):
     return translated_text
 
 
-def find_by_entity_reference(an_entity_name, an_education_group_year_id):
+def find_labels_list_by_label_entity_and_reference(an_entity_name, an_education_group_year_id):
     return TranslatedText.objects.filter(text_label__entity=an_entity_name,
                                          reference=an_education_group_year_id) \
         .order_by('text_label__order') \
