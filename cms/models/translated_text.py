@@ -87,6 +87,10 @@ def find_labels_list_by_label_entity_and_reference(an_entity_name, an_education_
         .values_list('text_label__label', flat=True)
 
 
+def find_by_reference(reference):
+    return TranslatedText.objects.filter(reference=reference)
+
+
 def find_with_changed(entity, text_labels_name):
     queryset = TranslatedText.objects.filter(entity=entity,
                                              text_label__label__in=text_labels_name,
