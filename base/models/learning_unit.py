@@ -27,7 +27,7 @@ from django.db import models, IntegrityError
 from django.utils.translation import ugettext_lazy as _
 
 from base.models.academic_year import current_academic_year
-from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
+from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES, ANNUAL
 from base.models.enums.learning_unit_year_subtypes import PARTIM, FULL
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from osis_common.models.serializable_model import SerializableModelAdmin, SerializableModel
@@ -63,7 +63,7 @@ class LearningUnit(SerializableModel):
     start_year = models.IntegerField()
     end_year = models.IntegerField(blank=True, null=True)
     progress = None
-    periodicity = models.CharField(max_length=20, blank=True, null=True, choices=PERIODICITY_TYPES,
+    periodicity = models.CharField(max_length=20, choices=PERIODICITY_TYPES, default=ANNUAL,
                                    verbose_name=_('periodicity'))
     faculty_remark = models.TextField(blank=True, null=True, verbose_name=_('faculty_remark'))
     other_remark = models.TextField(blank=True, null=True, verbose_name=_('other_remark'))
