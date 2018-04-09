@@ -230,20 +230,23 @@ class FullForm(LearningUnitBaseForm):
                                                                         learning_container=learning_container,
                                                                         commit=commit)
 
-        container_year = self.form_instances[LearningContainerYearModelForm].save(academic_year=academic_year,
-                                                                                  learning_container=learning_container,
-                                                                                  acronym=self.form_instances[LearningUnitYearModelForm].instance.acronym,
-                                                                                  commit=commit)
+        container_year = self.form_instances[LearningContainerYearModelForm].save(
+            academic_year=academic_year,
+            learning_container=learning_container,
+            acronym=self.form_instances[LearningUnitYearModelForm].instance.acronym,
+            commit=commit)
 
-        entity_container_years = self.form_instances[EntityContainerFormset].save(learning_container_year=container_year,
-                                                                                  commit=commit)
+        entity_container_years = self.form_instances[EntityContainerFormset].save(
+            learning_container_year=container_year,
+            commit=commit)
 
         # Save learning unit year (learning_unit_component +  learning_component_year + entity_component_year)
-        learning_unit_year = self.form_instances[LearningUnitYearModelForm].save(learning_container_year=container_year,
-                                                                                 learning_unit=learning_unit,
-                                                                                 entity_container_years=entity_container_years,
-                                                                                 subtype=self.subtype,
-                                                                                 commit=commit)
+        learning_unit_year = self.form_instances[LearningUnitYearModelForm].save(
+            learning_container_year=container_year,
+            learning_unit=learning_unit,
+            entity_container_years=entity_container_years,
+            subtype=self.subtype,
+            commit=commit)
 
         return self._create_with_postponement(learning_unit_year)
 
