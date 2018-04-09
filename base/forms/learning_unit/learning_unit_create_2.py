@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
-    LearningContainerModelForm, EntityContainerYearFormset, LearningContainerYearModelForm
+    LearningContainerModelForm, EntityContainerFormset, LearningContainerYearModelForm
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
@@ -55,15 +55,15 @@ import abc
 class LearningUnitBaseForm:
 
     forms = [LearningUnitModelForm, LearningUnitYearModelForm, LearningContainerModelForm,
-             LearningContainerYearModelForm, EntityContainerYearFormset]
+             LearningContainerYearModelForm, EntityContainerFormset]
 
     form_instances = {}
 
     subtype = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, instances_data, *args, **kwargs):
         for form_class in self.forms:
-            self.form_instances[form_class] = form_class(*args, **kwargs[form_class])
+            self.form_instances[form_class] = form_class(*args, **instances_data[form_class])
 
     @abc.abstractmethod
     def is_valid(self):
@@ -87,7 +87,7 @@ class LearningUnitBaseForm:
             'learning_unit_form': self.form_instances[LearningUnitModelForm],
             'learning_unit_year_form': self.form_instances[LearningUnitYearModelForm],
             'learning_container_year_form': self.form_instances[LearningContainerYearModelForm],
-            'entity_container_form': self.form_instances[EntityContainerYearFormset]
+            'entity_container_form': self.form_instances[EntityContainerFormset]
         }
 
     def _validate_no_empty_title(self, common_title):
@@ -109,7 +109,7 @@ class FullForm(LearningUnitBaseForm):
     subtype = learning_unit_year_subtypes.FULL
 
     def __init__(self, data, person, default_ac_year=None, instance=None, *args, **kwargs):
-        if not isinstance(instance, LearningUnitYear):
+        if instance and not isinstance(instance, LearningUnitYear):
             raise AttributeError('instance arg should be an instance of {}'.format(LearningUnitYear))
 
         self.academic_year = instance.academic_year if instance else default_ac_year
@@ -139,27 +139,27 @@ class FullForm(LearningUnitBaseForm):
                 },
                 'person': person
             },
-            EntityContainerYearFormset: {
+            EntityContainerFormset: {
                 'data': data,
                 'instance': instance.learning_container_year if instance else None,
-                'person': person
+                'form_kwargs': {'person': person}
             }
         }
-        kwargs.update(instances_data)
-        super().__init__(self, *args, **kwargs)
+        super(FullForm, self).__init__(instances_data, *args, **kwargs)
 
     def is_valid(self):
+        if any(not form_instance.is_valid() for form_instance in self.form_instances.values()):
+            return False
         common_title = self.form_instances[LearningContainerYearModelForm].cleaned_data["common_title"]
-        return all([form_instance.is_valid() for form_instance in self.form_instances.values()]) \
-               and self._validate_no_empty_title(common_title) and self._validate_same_entities_container()
+        return self._validate_no_empty_title(common_title) and self._validate_same_entities_container()
 
     def _validate_same_entities_container(self):
         container_type = self.form_instances[LearningContainerYearModelForm].cleaned_data["container_type"]
-        requirement_entity = self.form_instances[EntityContainerYearFormset[0]].cleaned_data["entity"]
-        allocation_entity = self.form_instances[EntityContainerYearFormset[1]].cleaned_data["entity"]
+        requirement_entity = self.form_instances[EntityContainerFormset[0]].cleaned_data["entity"]
+        allocation_entity = self.form_instances[EntityContainerFormset[1]].cleaned_data["entity"]
         if container_type in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES:
             if requirement_entity != allocation_entity:
-                self.form_instances[EntityContainerYearFormset[1]].add_error(
+                self.form_instances[EntityContainerFormset[1]].add_error(
                     "entity", _("requirement_and_allocation_entities_cannot_be_different"))
                 return False
         return True
@@ -183,8 +183,8 @@ class FullForm(LearningUnitBaseForm):
         learning_container_year = learning_container_form.save(commit)
 
         # Save entity container year
-        self.form_instances[EntityContainerYearFormset].instance = learning_container_year
-        entity_container_years = self.form_instances[EntityContainerYearFormset].save(commit)
+        self.form_instances[EntityContainerFormset].instance = learning_container_year
+        entity_container_years = self.form_instances[EntityContainerFormset].save(commit)
 
         # Save learning unit year (learning_unit_component +  learning_component_year + entity_component_year)
         self.form_instances[LearningUnitYearModelForm].instance.learning_container_year = learning_container_year
@@ -193,7 +193,6 @@ class FullForm(LearningUnitBaseForm):
         learning_unit_year = self.form_instances[LearningUnitYearModelForm].save(commit, entity_container_years)
 
         self._make_postponement(learning_unit_year)
-
 
 
         #
@@ -229,7 +228,7 @@ class PartimForm(LearningUnitBaseForm):
                 'instance': self.learning_unit_year_full.learning_container_year,
                 'person': person
             },
-            EntityContainerYearFormset: {
+            EntityContainerFormset: {
                 'instance': self.learning_unit_year_full.learning_container_year,
                 'person': person
             }

@@ -101,9 +101,9 @@ class LearningContainerModelForm(forms.ModelForm):
 
 class LearningUnitYearModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super().__init__(kwargs.pop('data'), *args, **kwargs)
         if kwargs.pop('person').is_faculty_manager():
             self.fields.pop('internship_subtype')
+        super().__init__(kwargs.pop('data'), *args, **kwargs)
 
     class Meta:
         model = LearningUnitYear
@@ -232,12 +232,13 @@ EntityContainerFormset = inlineformset_factory(
 
 class LearningContainerYearModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
+        person = kwargs.pop('person')
         super().__init__(*args, **kwargs)
 
         self.fields['campus'].queryset = find_main_campuses()
         self.fields['container_type'].widget.attrs ={'onchange': 'showInternshipSubtype()'}
 
-        if kwargs.pop('person').is_faculty_manager():
+        if person.is_faculty_manager():
             self.fields["container_type"].choices = _create_faculty_learning_container_type_list()
 
         if self.initial.get('subtype') == learning_unit_year_subtypes.PARTIM:
