@@ -220,9 +220,9 @@ class PartimForm(LearningUnitBaseForm):
                 'instance': self.learning_unit_year_full.learning_container_year.learning_container,
             },
             LearningUnitYearModelForm: {
-                'data': self._merge_inherit_value(data, inherit_luy_values) if data else None,
+                'data': self._merge_two_dicts(data, inherit_luy_values) if data else None,
                 'instance': instance,
-                'initial': self._merge_inherit_value({'subtype': self.subtype}, inherit_luy_values),
+                'initial': self._merge_two_dicts({'subtype': self.subtype}, inherit_luy_values),
                 'person': person
             },
             LearningContainerYearModelForm: {
@@ -259,11 +259,14 @@ class PartimForm(LearningUnitBaseForm):
             'periodicity': learning_unit_full.periodicity
         }
 
-    def _merge_inherit_value(self, post_data, inherit_values):
-        form_data = dict(inherit_values)
-        for key in post_data.keys():
-            form_data[key] = post_data[key]
-        return form_data
+    def is_valid(self):
+        form_cls_to_validate = [LearningUnitModelForm, LearningUnitYearModelForm]
+        if any(not form_instance.is_valid() for cls, form_instance in self.form_instances.items()
+               if cls in form_cls_to_validate):
+            return False
+
+        common_title = self.learning_unit_year_full.learning_container_year.common_title
+        return self._validate_no_empty_title(common_title)
 
     @transaction.atomic
     def save(self, commit=True):
@@ -286,3 +289,10 @@ class PartimForm(LearningUnitBaseForm):
 
         # Make Postponement
         return self._make_postponement(learning_unit_year)
+
+
+def _merge_two_dicts(dict_a, dict_b):
+    form_data = dict(dict_a)
+    for key in dict_b.keys():
+        form_data[key] = dict_b[key]
+    return form_data
