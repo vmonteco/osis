@@ -100,18 +100,6 @@ class LearningUnitBaseForm:
     def cleaned_data(self):
         return [form.cleaned_data for form in self.forms]
 
-    @property
-    def learning_unit(self):
-        return self.learning_unit_form.instance
-
-    @property
-    def learning_container_year(self):
-        return self.learning_container_year_form.instance
-
-    @property
-    def learning_unit_year(self):
-        return self.learning_unit_year_form.instance
-
     def get_context(self):
         return {
             'subtype': self.subtype,
@@ -143,6 +131,7 @@ class FullForm(LearningUnitBaseForm):
         if not isinstance(instance, LearningUnitYear):
             raise AttributeError('instance arg should be an instance of {}'.format(LearningUnitYear))
 
+        self.academic_year = instance.academic_year if instance else default_ac_year
         instances_data = {
             LearningUnitModelForm: {
                 'data': data,
@@ -198,7 +187,7 @@ class FullForm(LearningUnitBaseForm):
 
     @transaction.atomic
     def save(self, commit=True):
-        academic_year = self.default_ac_year
+        academic_year = self.academic_year
 
         learning_container = self.form_instances[LearningContainerModelForm].save(commit)
 

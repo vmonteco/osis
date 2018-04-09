@@ -405,25 +405,25 @@ class LearningUnitFormContainer:
                 fields.update(form.fields)
         return fields
 
-    # @property
-    # def errors(self):
-    #     return [form.errors for form in self.forms]
-    #
-    # @property
-    # def cleaned_data(self):
-    #     return [form.cleaned_data for form in self.forms]
-    #
-    # @property
-    # def learning_unit(self):
-    #     return self.learning_unit_form.instance
-    #
-    # @property
-    # def learning_container_year(self):
-    #     return self.learning_container_year_form.instance
-    #
-    # @property
-    # def learning_unit_year(self):
-    #     return self.learning_unit_year_form.instance
+    @property
+    def errors(self):
+        return [form.errors for form in self.forms]
+
+    @property
+    def cleaned_data(self):
+        return [form.cleaned_data for form in self.forms]
+
+    @property
+    def learning_unit(self):
+        return self.learning_unit_form.instance
+
+    @property
+    def learning_container_year(self):
+        return self.learning_container_year_form.instance
+
+    @property
+    def learning_unit_year(self):
+        return self.learning_unit_year_form.instance
 
     @property
     def subtype(self):
