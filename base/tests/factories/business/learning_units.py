@@ -436,17 +436,15 @@ def _setup_classes(learning_component_year, number_classes=5):
 
 
 def _create_fixed_educational_information_for_luy(luy):
-    luy.mobility_modality = 'Modalities specific to IN and OUT mobility : example for test.'
+    luy.mobility_modality = factory.fuzzy.FuzzyText(length=150).fuzz()
     luy.save()
     _create_bibliography_for_luy(luy)
     _create_cms_data_for_luy(luy)
 
 
 def _create_bibliography_for_luy(luy, quantity=10):
-    for bib_number in range(quantity):
-        title = 'title of bibliography {}'.format(bib_number)
-        mandatory = bool(bib_number % 2) # alternatively False/True
-        BibliographyFactory(learning_unit_year=luy, title=title, mandatory=mandatory)
+    for _ in range(quantity):
+        BibliographyFactory(learning_unit_year=luy)
 
 
 def _create_cms_data_for_luy(luy):

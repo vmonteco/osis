@@ -710,17 +710,17 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
 
         self.setup_educational_information(luy_list)
 
-        first_luy = mdl_luy.find_oldest_by_learning_unit(learning_unit_full_annual)
-        first_year_bibliography = mdl_bibliography.build_list_of_bibliography_content_by_learning_unit_year(first_luy)
-        first_year_mobility_modalities = first_luy.mobility_modality
-        first_year_educational_information = translated_text.find_by_reference(first_luy.id)
+        last_luy = mdl_luy.find_latest_by_learning_unit(learning_unit_full_annual)
+        first_year_bibliography = mdl_bibliography.build_list_of_bibliography_content_by_learning_unit_year(last_luy)
+        first_year_mobility_modalities = last_luy.mobility_modality
+        first_year_educational_information = translated_text.find_by_reference(last_luy.id)
 
         edit_learning_unit_end_date(learning_unit_full_annual, academic_year_of_new_end_date)
 
-        latest_luy =  mdl_luy.find_latest_by_learning_unit(learning_unit_full_annual)
-        end_year_bibliography = mdl_bibliography.build_list_of_bibliography_content_by_learning_unit_year(latest_luy)
-        end_year_mobility_modalities = latest_luy.mobility_modality
-        end_year_educational_information = translated_text.find_by_reference(latest_luy.id)
+        new_luy =  mdl_luy.find_latest_by_learning_unit(learning_unit_full_annual)
+        end_year_bibliography = mdl_bibliography.build_list_of_bibliography_content_by_learning_unit_year(new_luy)
+        end_year_mobility_modalities = new_luy.mobility_modality
+        end_year_educational_information = translated_text.find_by_reference(new_luy.id)
 
         self.assertCountEqual(first_year_bibliography, end_year_bibliography)
         self.assertEquals(first_year_mobility_modalities, end_year_mobility_modalities)

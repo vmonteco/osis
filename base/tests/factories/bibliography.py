@@ -33,5 +33,5 @@ class BibliographyFactory(factory.DjangoModelFactory):
         model = 'base.Bibliography'
 
     title = factory.fuzzy.FuzzyText(length=200)
-    mandatory = False
+    mandatory = factory.Iterator([True, False])
     learning_unit_year = factory.SubFactory(LearningUnitYearFactory)
