@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import datetime
+import factory.fuzzy
 
 from decimal import Decimal
 
@@ -47,6 +48,7 @@ from base.tests.factories.learning_container_year import LearningContainerYearFa
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from cms.tests.factories.translated_text import TranslatedTextFactory
 from reference.tests.factories.language import LanguageFactory
 
 
@@ -437,6 +439,7 @@ def _create_fixed_educational_information_for_luy(luy):
     luy.mobility_modality = 'Modalities specific to IN and OUT mobility : example for test.'
     luy.save()
     _create_bibliography_for_luy(luy)
+    _create_cms_data_for_luy(luy)
 
 
 def _create_bibliography_for_luy(luy, quantity=10):
@@ -444,3 +447,8 @@ def _create_bibliography_for_luy(luy, quantity=10):
         title = 'title of bibliography {}'.format(bib_number)
         mandatory = bool(bib_number % 2) # alternatively False/True
         BibliographyFactory(learning_unit_year=luy, title=title, mandatory=mandatory)
+
+
+def _create_cms_data_for_luy(luy):
+    return TranslatedTextFactory(reference=luy.id,
+                                 text=factory.fuzzy.FuzzyText(prefix="Entity ", length=15).fuzz())
