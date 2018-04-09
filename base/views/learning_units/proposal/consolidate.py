@@ -52,14 +52,14 @@ def consolidate_proposal(request):
     result = {}
     try:
         result = business_proposal.consolidate_proposal(proposal, author=user_person, send_mail=True)
-        _display_message_based_on_result(request, result)
+        display_message_based_on_result(request, result)
     except IntegrityError as e:
         display_error_messages(request, e.args[0])
 
     return _consolidate_proposal_redirection(proposal, result)
 
 
-def _display_message_based_on_result(request, result):
+def display_message_based_on_result(request, result):
     if result.get(ERROR, []):
         display_error_messages(request, result[ERROR])
     else:

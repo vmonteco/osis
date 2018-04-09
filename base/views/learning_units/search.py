@@ -23,10 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import functools
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.messages import ERROR, SUCCESS
 from django.db import IntegrityError
 from django.forms import formset_factory
 from django.shortcuts import get_object_or_404
@@ -142,25 +141,30 @@ def process_formset(formset, request):
 
 
 def _go_back_to_initial_data(formset, request):
-    return _apply_action_on_proposals(formset, request, proposal_business.cancel_proposals,
-                                      "proposals_cancelled_successfully")
+    return _apply_action_on_proposals(formset, request, proposal_business.cancel_proposals)
 
 
 def _consolidate_proposals(formset, request):
-    return _apply_action_on_proposals(formset, request, proposal_business.consolidate_proposals,
-                                      "proposals_consolidated_successfully")
+    return _apply_action_on_proposals(formset, request, proposal_business.consolidate_proposals)
 
 
-def _apply_action_on_proposals(formset, request, action_method, success_message_id):
+def _apply_action_on_proposals(formset, request, action_method):
     proposals = formset.get_checked_proposals()
     if proposals:
         user_person = get_object_or_404(Person, user=request.user)
-        action_method(proposals, user_person)
-        display_success_messages(request, _(success_message_id))
+        results = action_method(proposals, user_person)
+        display_message_based_on_result(request, results)
         formset = None
     else:
         _build_no_data_error_message(request)
     return formset
+
+
+def display_message_based_on_result(request, result):
+    if result.get(ERROR, []):
+        display_error_messages(request, result[ERROR])
+    if result.get(SUCCESS, []):
+        display_success_messages(request, result.get(SUCCESS, []), extra_tags='safe')
 
 
 def _build_no_data_error_message(request):

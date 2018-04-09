@@ -294,7 +294,6 @@ def cancel_proposal(learning_unit_proposal, author, send_mail=True):
     }
 
 
-# FIXME Verify that author has the right to cancel proposal
 def cancel_proposals(proposals_to_cancel, author):
     success_messages = []
     error_messages = []
@@ -311,13 +310,17 @@ def cancel_proposals(proposals_to_cancel, author):
 
 def consolidate_proposals(proposals, author):
     messages = {SUCCESS: [], ERROR: []}
-    proposals_that_can_be_consolidated = \
-        [prop for prop in proposals if perms.is_eligible_to_consolidate_proposal(prop, author)]
 
-    for proposal in proposals_that_can_be_consolidated:
+    for proposal in proposals:
         msg = consolidate_proposal(proposal)
-        messages[SUCCESS].extend(msg.get(SUCCESS, []))
-        messages[ERROR].extend(msg.get(ERROR, []))
+        if msg.get(ERROR):
+            error_msg = _("error_consolidate_proposal").format(acronym=proposal.learning_unit_year.acronym,
+                                                           academic_year=proposal.learning_unit_year.academic_year)
+            messages[ERROR].append(error_msg)
+        else:
+            success_msg = _("success_consolidate_proposal").format(acronym=proposal.learning_unit_year.acronym,
+                                                            academic_year=proposal.learning_unit_year.academic_year)
+            messages[SUCCESS].append(success_msg)
 
     send_mail_util.send_mail_after_the_learning_unit_proposal_consolidation([author], proposals)
     return messages
@@ -327,8 +330,8 @@ def consolidate_proposal(proposal, author=None, send_mail=False):
     result = {}
     if proposal.state not in PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES:
         return {
-            ERROR: _("cannot_consolidate_proposal").format(acronym=proposal.learning_unit_year.acronym,
-                                                           academic_year=proposal.learning_unit_year.academic_year)
+            ERROR: [_("error_consolidate_proposal").format(acronym=proposal.learning_unit_year.acronym,
+                                                           academic_year=proposal.learning_unit_year.academic_year)]
         }
     if proposal.type == proposal_type.ProposalType.CREATION.name:
         result = consolidate_creation_proposal(proposal)

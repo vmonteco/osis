@@ -217,27 +217,24 @@ def create_academic_years():
 class TestConsolidateProposals(TestCase):
     def setUp(self):
         self.author = PersonFactory()
-        self.proposals = [ProposalLearningUnitFactory() for _ in range(3)]
+        self.proposals = [ProposalLearningUnitFactory() for _ in range(2)]
 
-    @mock.patch("base.business.learning_units.perms.is_eligible_to_consolidate_proposal",
-                side_effect=[True, False, True])
     @mock.patch("base.business.learning_unit_proposal.consolidate_proposal",
-                side_effect=lambda prop: {ERROR: ["msg_error"], SUCCESS: ["msg_success"]})
+                side_effect=lambda prop: {SUCCESS: ["msg_success"]})
     @mock.patch("base.utils.send_mail.send_mail_after_the_learning_unit_proposal_consolidation",
                 side_effect=None)
-    def test_call_method_consolidate_proposal(self, mock_mail, mock_consolidate_proposal, mock_perm):
+    def test_call_method_consolidate_proposal(self, mock_mail, mock_consolidate_proposal):
         result = consolidate_proposals(self.proposals, self.author)
 
-        perm_args_list = [((self.proposals[0], self.author),), ((self.proposals[1], self.author),),
-                          ((self.proposals[2], self.author),)]
-        self.assertTrue(mock_perm.call_args_list == perm_args_list)
-
-        consolidate_args_list = [((self.proposals[0],),), ((self.proposals[2],),)]
+        consolidate_args_list = [((self.proposals[0],),), ((self.proposals[1],),)]
         self.assertTrue(mock_consolidate_proposal.call_args_list == consolidate_args_list)
 
         self.assertDictEqual(result, {
-            SUCCESS: ["msg_success"] * 2,
-            ERROR: ["msg_error"] * 2
+            ERROR: [],
+            SUCCESS: [_("success_consolidate_proposal").format(
+                        acronym=proposal.learning_unit_year.acronym,
+                        academic_year=proposal.learning_unit_year.academic_year
+                    ) for proposal in self.proposals]
         })
 
         mock_mail.assert_called_once_with([self.author], self.proposals)
@@ -252,10 +249,10 @@ class TestConsolidateProposal(TestCase):
                 proposal = ProposalLearningUnitFactory(state=state)
                 result = consolidate_proposal(proposal)
                 expected_result = {
-                    ERROR: _("cannot_consolidate_proposal").format(
+                    ERROR: [_("error_consolidate_proposal").format(
                         acronym=proposal.learning_unit_year.acronym,
                         academic_year=proposal.learning_unit_year.academic_year
-                    )
+                    )]
                 }
                 self.assertDictEqual(result, expected_result)
 
