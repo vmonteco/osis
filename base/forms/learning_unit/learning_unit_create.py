@@ -100,9 +100,9 @@ class LearningContainerModelForm(forms.ModelForm):
 
 
 class LearningUnitYearModelForm(forms.ModelForm):
-    def __init__(self, data, person, *args, **kwargs):
-        super().__init__(data, *args, **kwargs)
-        if person.is_faculty_manager():
+    def __init__(self, *args, **kwargs):
+        super().__init__(kwargs.pop('data'), *args, **kwargs)
+        if kwargs.pop('person').is_faculty_manager():
             self.fields.pop('internship_subtype')
 
     class Meta:
@@ -231,13 +231,13 @@ EntityContainerFormset = inlineformset_factory(
 
 
 class LearningContainerYearModelForm(forms.ModelForm):
-    def __init__(self, person, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.fields['campus'].queryset = find_main_campuses()
         self.fields['container_type'].widget.attrs ={'onchange': 'showInternshipSubtype()'}
 
-        if person.is_faculty_manager():
+        if kwargs.pop('person').is_faculty_manager():
             self.fields["container_type"].choices = _create_faculty_learning_container_type_list()
 
         if self.initial.get('subtype') == learning_unit_year_subtypes.PARTIM:
@@ -405,25 +405,25 @@ class LearningUnitFormContainer:
                 fields.update(form.fields)
         return fields
 
-    @property
-    def errors(self):
-        return [form.errors for form in self.forms]
-
-    @property
-    def cleaned_data(self):
-        return [form.cleaned_data for form in self.forms]
-
-    @property
-    def learning_unit(self):
-        return self.learning_unit_form.instance
-
-    @property
-    def learning_container_year(self):
-        return self.learning_container_year_form.instance
-
-    @property
-    def learning_unit_year(self):
-        return self.learning_unit_year_form.instance
+    # @property
+    # def errors(self):
+    #     return [form.errors for form in self.forms]
+    #
+    # @property
+    # def cleaned_data(self):
+    #     return [form.cleaned_data for form in self.forms]
+    #
+    # @property
+    # def learning_unit(self):
+    #     return self.learning_unit_form.instance
+    #
+    # @property
+    # def learning_container_year(self):
+    #     return self.learning_container_year_form.instance
+    #
+    # @property
+    # def learning_unit_year(self):
+    #     return self.learning_unit_year_form.instance
 
     @property
     def subtype(self):
