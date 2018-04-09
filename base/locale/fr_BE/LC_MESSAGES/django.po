@@ -2775,3 +2775,6 @@ msgstr "Voulez-vous consolider ?"
 
 msgid "need_no_reminder"
 msgstr "Pas besoin de rappel tout est en ordre"
+
+msgid "cannot_consolidate_proposal"
+msgstr "Unité d'enseignement {acronym} ({academic_year}) ne peut pas être consolidée."

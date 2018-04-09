@@ -31,6 +31,7 @@ from base import models as mdl_base
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components, \
     edit_learning_unit_end_date
 from base.business.learning_units import perms
+from base.business.learning_units.perms import PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES
 from base.business.learning_units.simple import deletion as business_deletion, deletion
 from base.models import entity_container_year, campus, entity
 from base.models.enums import entity_container_year_link_type, proposal_state, proposal_type
@@ -324,6 +325,11 @@ def consolidate_proposals(proposals, author):
 
 def consolidate_proposal(proposal, author=None, send_mail=False):
     result = {}
+    if proposal.state not in PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES:
+        return {
+            ERROR: _("cannot_consolidate_proposal").format(acronym=proposal.learning_unit_year.acronym,
+                                                           academic_year=proposal.learning_unit_year.academic_year)
+        }
     if proposal.type == proposal_type.ProposalType.CREATION.name:
         result = consolidate_creation_proposal(proposal)
 

@@ -2768,3 +2768,6 @@ msgstr "Do you want to consolidate ?"
 
 msgid "need_no_reminder"
 msgstr "Need no reminder"
+
+msgid "cannot_consolidate_proposal"
+msgstr "Learning unit {acronym} ({academic_year}) cannot be consolidated."

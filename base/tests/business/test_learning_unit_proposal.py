@@ -28,22 +28,20 @@ from unittest import mock
 from unittest.mock import patch
 
 from django.contrib.messages import SUCCESS, ERROR
+from django.test import TestCase, SimpleTestCase
+from django.utils.translation import ugettext_lazy as _
 
+from base import models as mdl_base
+from base.business import learning_unit_proposal as lu_proposal_business
 from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
 from base.business.learning_unit_proposal import compute_proposal_type, consolidate_creation_proposal, \
     consolidate_proposals, consolidate_proposal
+from base.business.learning_units.perms import PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES
 from base.models.academic_year import AcademicYear
-from base.models.proposal_learning_unit import ProposalLearningUnit
-from base.tests.factories.person import PersonFactory
-from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
-from base.business import learning_unit_proposal as lu_proposal_business
-from base import models as mdl_base
-
-from django.test import TestCase, SimpleTestCase
-
 from base.models.enums import organization_type, proposal_type, entity_type, \
     learning_container_year_types, entity_container_year_link_type, \
     learning_unit_year_subtypes, proposal_state
+from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
@@ -52,6 +50,8 @@ from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.tests.factories.organization import OrganizationFactory
+from base.tests.factories.person import PersonFactory
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 
 
 class TestLearningUnitProposal(TestCase):
@@ -244,13 +244,29 @@ class TestConsolidateProposals(TestCase):
 
 
 class TestConsolidateProposal(TestCase):
+    def test_when_proposal_is_not_accepted_nor_refused(self):
+        states = (state for state, _ in proposal_state.ProposalState.__members__.items()
+                  if state not in PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES )
+        for state in states:
+            with self.subTest(state=state):
+                proposal = ProposalLearningUnitFactory(state=state)
+                result = consolidate_proposal(proposal)
+                expected_result = {
+                    ERROR: _("cannot_consolidate_proposal").format(
+                        acronym=proposal.learning_unit_year.acronym,
+                        academic_year=proposal.learning_unit_year.academic_year
+                    )
+                }
+                self.assertDictEqual(result, expected_result)
+
     @mock.patch("base.business.learning_unit_proposal.consolidate_creation_proposal",
                 side_effect=lambda prop: {})
     @mock.patch("base.utils.send_mail.send_mail_after_the_learning_unit_proposal_consolidation",
                 side_effect=None)
     def test_when_sending_mail(self, mock_send_mail, mock_consolidate):
         author = PersonFactory()
-        creation_proposal = ProposalLearningUnitFactory(type=proposal_type.ProposalType.CREATION.name)
+        creation_proposal = ProposalLearningUnitFactory(state=proposal_state.ProposalState.ACCEPTED.name,
+                                                        type=proposal_type.ProposalType.CREATION.name)
         consolidate_proposal(creation_proposal, author=author, send_mail=True)
 
         mock_send_mail.assert_called_once_with([author], [creation_proposal])
@@ -258,7 +274,8 @@ class TestConsolidateProposal(TestCase):
     @mock.patch("base.business.learning_unit_proposal.consolidate_creation_proposal",
                 side_effect=lambda prop: {})
     def test_when_proposal_of_type_creation(self, mock_consolidate_creation_proposal):
-        creation_proposal = ProposalLearningUnitFactory(type=proposal_type.ProposalType.CREATION.name)
+        creation_proposal = ProposalLearningUnitFactory(state=proposal_state.ProposalState.ACCEPTED.name,
+                                                        type=proposal_type.ProposalType.CREATION.name)
         consolidate_proposal(creation_proposal)
 
         mock_consolidate_creation_proposal.assert_called_once_with(creation_proposal)
