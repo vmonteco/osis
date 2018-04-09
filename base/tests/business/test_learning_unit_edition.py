@@ -695,7 +695,7 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         self.assertEqual(learning_unit_annual.end_year, excepted_end_year)
 
 
-    def test_postpone_end_date_with_bibliography(self):
+    def test_postpone_end_date_with_cms_data_and_bibliography(self):
         start_year_full = self.current_academic_year.year - 1
         end_year_full = self.current_academic_year.year + 1
         expected_end_year_full = end_year_full + 2
