@@ -2470,9 +2470,6 @@ msgstr "Xls with learning units"
 msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
 msgstr ""
 
-msgid "success_cancel_proposal"
-msgstr "The proposal for {} was cancelled."
-
 msgid "cancel_proposal"
 msgstr "Cancel proposal"
 
@@ -2770,7 +2767,13 @@ msgid "need_no_reminder"
 msgstr "Need no reminder"
 
 msgid "error_consolidate_proposal"
-msgstr "Learning unit {acronym} ({academic_year}) cannot be consolidated."
+msgstr "Proposal {acronym} ({academic_year}) cannot be consolidated."
 
 msgid "success_consolidate_proposal"
-msgstr "Learning unit {acronym} ({academic_year}) successfully consolidated."
+msgstr "Proposal {acronym} ({academic_year}) successfully consolidated."
+
+msgid "error_cancel_proposal"
+msgstr "Proposal {acronym} ({academic_year}) cannot be canceled."
+
+msgid "success_cancel_proposal"
+msgstr "Proposal {acronym} ({academic_year}) successfully canceled."

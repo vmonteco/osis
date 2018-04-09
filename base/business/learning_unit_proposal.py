@@ -275,6 +275,7 @@ def _get_rid_of_blank_value(data):
 
 def cancel_proposal(learning_unit_proposal, author, send_mail=True):
     acronym = learning_unit_proposal.learning_unit_year.acronym
+    academic_year = learning_unit_proposal.learning_unit_year.academic_year
     error_messages = []
     success_messages = []
     if learning_unit_proposal.type == ProposalType.CREATION.name:
@@ -285,7 +286,8 @@ def cancel_proposal(learning_unit_proposal, author, send_mail=True):
     else:
         reinitialize_data_before_proposal(learning_unit_proposal)
     delete_learning_unit_proposal(learning_unit_proposal)
-    success_messages.append(_("success_cancel_proposal").format(acronym))
+    success_messages.append(_("success_cancel_proposal").format(acronym=acronym,
+                                                                academic_year=academic_year))
     if send_mail:
         send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation([author], [learning_unit_proposal])
     return {
@@ -295,17 +297,19 @@ def cancel_proposal(learning_unit_proposal, author, send_mail=True):
 
 
 def cancel_proposals(proposals_to_cancel, author):
-    success_messages = []
-    error_messages = []
+    messages = {SUCCESS: [], ERROR: []}
     for proposal in proposals_to_cancel:
-        messages_by_level = cancel_proposal(proposal, author, send_mail=False)
-        success_messages.extend(messages_by_level[SUCCESS])
-        error_messages.extend(messages_by_level[ERROR])
+        msg = cancel_proposal(proposal, author, send_mail=False)
+        if msg.get(ERROR):
+            error_msg = _("error_cancel_proposal").format(acronym=proposal.learning_unit_year.acronym,
+                                                           academic_year=proposal.learning_unit_year.academic_year)
+            messages[ERROR].append(error_msg)
+        else:
+            success_msg = _("success_cancel_proposal").format(acronym=proposal.learning_unit_year.acronym,
+                                                            academic_year=proposal.learning_unit_year.academic_year)
+            messages[SUCCESS].append(success_msg)
     send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation([author], [proposals_to_cancel])
-    return {
-        SUCCESS: success_messages,
-        ERROR: error_messages
-    }
+    return messages
 
 
 def consolidate_proposals(proposals, author):

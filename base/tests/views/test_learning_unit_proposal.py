@@ -797,7 +797,9 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
 
         messages = [str(message) for message in get_messages(response.wsgi_request)]
-        self.assertIn(_("success_cancel_proposal").format(self.learning_unit_year.acronym), list(messages))
+        self.assertIn(_("success_cancel_proposal").format(acronym=self.learning_unit_year.acronym,
+                                                          academic_year=self.learning_unit_year.academic_year),
+                      list(messages))
 
     def test_models_after_cancellation_of_proposal(self):
         _modify_learning_unit_year_data(self.learning_unit_year)
