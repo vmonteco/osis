@@ -109,6 +109,8 @@ class LearningUnitYearModelForm(forms.ModelForm):
             self.fields['specific_title'].label = _('official_title_proper_to_partim')
             self.fields['specific_title_english'].label = _('official_english_title_proper_to_partim')
 
+        if kwargs.get('instance'):
+            self.fields['academic_year'].disabled = True
 
     class Meta:
         model = LearningUnitYear
@@ -211,7 +213,8 @@ class EntityContainerYearModelForm(forms.ModelForm):
         fields = ['entity']
 
     def clean_entity(self):
-        return self.cleaned_data['entity'].entity
+        entity_version = self.cleaned_data['entity']
+        return entity_version.entity if entity_version else None
 
     def save(self, commit=True):
         if hasattr(self.instance, 'entity'):

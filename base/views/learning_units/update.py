@@ -38,7 +38,7 @@ from base.business.learning_unit import CMS_LABEL_PEDAGOGY, get_cms_label_data
 from base.business.learning_units.edition import ConsistencyError
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.forms.learning_unit.edition_volume import VolumeEditionFormsetContainer
-from base.forms.learning_unit.learning_unit_create import LearningUnitFormContainer
+from base.forms.learning_unit.learning_unit_create_2 import FullForm
 from base.forms.learning_unit_pedagogy import SummaryModelForm, LearningUnitPedagogyForm, \
     BibliographyModelForm
 from base.models.bibliography import Bibliography
@@ -100,7 +100,7 @@ def update_learning_unit(request, learning_unit_year_id):
     #     _check_credits(request, learning_unit_year.parent, form)
     #     return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
 
-    learning_unit_form_container = LearningUnitFormContainer(request.POST or None, person, instance=learning_unit_year)
+    learning_unit_form_container = FullForm(request.POST or None, person, instance=learning_unit_year)
 
     if learning_unit_form_container.is_valid():
         new_luys = learning_unit_form_container.save()

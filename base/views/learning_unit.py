@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from base.models.academic_year import AcademicYear
 import re
 
 from django.conf import settings
@@ -47,8 +48,7 @@ from base.business.learning_unit_proposal import get_difference_of_proposal
 from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
 from base.forms.learning_class import LearningClassEditForm
-from base.forms.learning_unit.learning_unit_create import LearningUnitFormContainer
-from base.forms.learning_unit.learning_unit_create_2 import PartimForm
+from base.forms.learning_unit.learning_unit_create_2 import PartimForm, FullForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
@@ -265,10 +265,10 @@ def learning_class_year_edit(request, learning_unit_year_id):
 
 @login_required
 @permission_required('base.can_create_learningunit', raise_exception=True)
-def learning_unit_create(request, academic_year):
+def learning_unit_create(request, academic_year_id):
     person = get_object_or_404(Person, user=request.user)
-    learning_unit_form_container = LearningUnitFormContainer(request.POST or None, person,
-                                                             default_ac_year=academic_year)
+    learning_unit_form_container = FullForm(request.POST or None, person,
+                                            default_ac_year=get_object_or_404(AcademicYear, pk=academic_year_id))
 
     if learning_unit_form_container.is_valid():
         new_luys = learning_unit_form_container.save()

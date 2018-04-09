@@ -95,7 +95,7 @@ urlpatterns = [
         url(r'^by_summary/', base.views.learning_units.educational_information.learning_units_summary_list,
             name='learning_units_summary'),
         url(r'^new/', include([
-            url(r'^academic_year_id=(?P<academic_year>[0-9]+)$', learning_unit.learning_unit_create,
+            url(r'^academic_year_id=(?P<academic_year_id>[0-9]+)$', learning_unit.learning_unit_create,
                 name="learning_unit_create"),
             url(r'^proposal/academic_year_id=(?P<academic_year>[0-9]+)$',
                 create.get_proposal_learning_unit_creation_form,
