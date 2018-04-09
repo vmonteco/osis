@@ -25,46 +25,31 @@
 ##############################################################################
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
     LearningContainerModelForm, EntityContainerYearFormset, LearningContainerYearModelForm
-from django import forms
 from django.db import transaction
-from django.forms import inlineformset_factory
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_units.edition import duplicate_learning_unit_year
-from base.forms.utils.acronym_field import AcronymField, PartimAcronymField
-from base.forms.utils.choice_field import add_blank
 from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear
 from base.models.campus import find_main_campuses, Campus
-from base.models.entity_component_year import EntityComponentYear
-from base.models.entity_container_year import EntityContainerYear, find_requirement_entities
-from base.models.entity_version import find_main_entities_version, get_last_version
 from base.models.enums.component_type import LECTURING, PRACTICAL_EXERCISES
-from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
-    ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2, ENTITY_TYPE_LIST, REQUIREMENT_ENTITIES
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, \
     LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES, CONTAINER_TYPE_WITH_DEFAULT_COMPONENT
-from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 from base.models.enums import learning_unit_year_subtypes
-from base.models.learning_component_year import LearningComponentYear
-from base.models.learning_container import LearningContainer
-from base.models.learning_container_year import LearningContainerYear
-from base.models.learning_unit import LearningUnit
-from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from reference.models import language
 import abc
 
 
-PARTIM_FORM_READ_ONLY_FIELD = {'common_title', 'common_title_english', 'requirement_entity',
-                               'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year',
-                               'container_type', 'internship_subtype',
-                               'additional_requirement_entity_1', 'additional_requirement_entity_2'}
-
-DEFAULT_ACRONYM_COMPONENT = {
-    LECTURING: "CM1",
-    PRACTICAL_EXERCISES: "TP1",
-    None: "NT1"
-}
+# PARTIM_FORM_READ_ONLY_FIELD = {'common_title', 'common_title_english', 'requirement_entity',
+#                                'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year',
+#                                'container_type', 'internship_subtype',
+#                                'additional_requirement_entity_1', 'additional_requirement_entity_2'}
+#
+# DEFAULT_ACRONYM_COMPONENT = {
+#     LECTURING: "CM1",
+#     PRACTICAL_EXERCISES: "TP1",
+#     None: "NT1"
+# }
 
 
 class LearningUnitBaseForm:
@@ -80,17 +65,13 @@ class LearningUnitBaseForm:
         for form_class in self.forms:
             self.form_instances[form_class] = form_class(*args, **kwargs[form_class])
 
+    @abc.abstractmethod
     def is_valid(self):
-        return all([form_instance.is_valid() for form_instance in self.form_instances.values()]) \
-               and all([validator(*args) for validator, args in self._get_validators()])
+        return False
 
     @abc.abstractmethod
     def save(self):
         pass
-
-    @abc.abstractmethod
-    def _get_validators(self):
-        return []
 
     @property
     def errors(self):
@@ -167,12 +148,10 @@ class FullForm(LearningUnitBaseForm):
         kwargs.update(instances_data)
         super().__init__(self, *args, **kwargs)
 
-    def _get_validators(self):
+    def is_valid(self):
         common_title = self.form_instances[LearningContainerYearModelForm].cleaned_data["common_title"]
-        return {
-            self._validate_no_empty_title: [common_title],
-            self._validate_same_entities_container: [],
-        }
+        return all([form_instance.is_valid() for form_instance in self.form_instances.values()]) \
+               and self._validate_no_empty_title(common_title) and self._validate_same_entities_container()
 
     def _validate_same_entities_container(self):
         container_type = self.form_instances[LearningContainerYearModelForm].cleaned_data["container_type"]
@@ -197,10 +176,11 @@ class FullForm(LearningUnitBaseForm):
         learning_unit = self.form_instances[LearningUnitModelForm].save(commit)
 
         # Save learning container year
-        self.form_instances[LearningContainerYearModelForm].instance.learning_container = learning_container
-        self.form_instances[LearningContainerYearModelForm].instance.acronym = self.learning_unit_year.acronym
-        self.form_instances[LearningContainerYearModelForm].instance.academic_year = academic_year
-        learning_container_year = self.form_instances[LearningContainerYearModelForm].save(commit)
+        learning_container_form = self.form_instances[LearningContainerYearModelForm]
+        learning_container_form.instance.learning_container = learning_container
+        learning_container_form.instance.acronym = self.form_instances[LearningUnitYearModelForm].acronym
+        learning_container_form.instance.academic_year = academic_year
+        learning_container_year = learning_container_form.save(commit)
 
         # Save entity container year
         self.form_instances[EntityContainerYearFormset].instance = learning_container_year
@@ -216,7 +196,7 @@ class FullForm(LearningUnitBaseForm):
 
 
 
-    #
-    # def validate_data_between_modelforms(self):
-    #     pass
+        #
+        # def validate_data_between_modelforms(self):
+        #     pass
 
