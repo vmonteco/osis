@@ -216,7 +216,5 @@ def display_most_critical_messages(request, messages_by_level):
 
 
 def display_messages_by_level(request, messages_by_level):
-    if messages_by_level.get(ERROR, []):
-        display_error_messages(request, messages_by_level[ERROR])
-    if messages_by_level.get(SUCCESS, []):
-        display_success_messages(request, messages_by_level.get(SUCCESS, []), extra_tags='safe')
+    display_error_messages(request, messages_by_level.get(ERROR, []))
+    display_success_messages(request, messages_by_level.get(SUCCESS, []), extra_tags='safe')
