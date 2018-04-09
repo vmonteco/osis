@@ -231,3 +231,89 @@ class FullForm(LearningUnitBaseForm):
     # def validate_data_between_modelforms(self):
     #     pass
 
+
+class PartimForm(LearningUnitBaseForm):
+    subtype = learning_unit_year_subtypes.PARTIM
+
+    def __init__(self, data, person, learning_unit_year_full, instance=None, *args, **kwargs):
+        self.learning_unit_year_full = learning_unit_year_full
+
+        inherit_lu_values = self._get_inherit_learning_unit_full_value()
+        inherit_luy_values = self._get_inherit_learning_unit_year_full_value()
+
+        instances_data = {
+            LearningUnitModelForm: {
+                'data': data,
+                'initial': inherit_lu_values,
+                'instance': instance.learning_unit if instance else None,
+            },
+            LearningContainerModelForm: {
+                'instance': self.learning_unit_year_full.learning_container_year.learning_container,
+            },
+            LearningUnitYearModelForm: {
+                'data': self._merge_inherit_value(data, inherit_luy_values) if data else None,
+                'instance': instance,
+                'initial': self._merge_inherit_value({'subtype': self.subtype}, inherit_luy_values),
+                'person': person
+            },
+            LearningContainerYearModelForm: {
+                'instance': self.learning_unit_year_full.learning_container_year,
+                'person': person
+            },
+            EntityContainerYearFormset: {
+                'instance': self.learning_unit_year_full.learning_container_year,
+                'person': person
+            }
+        }
+        kwargs.update(instances_data)
+        super().__init__(self, *args, **kwargs)
+
+    def _get_inherit_learning_unit_year_full_value(self):
+        """This function will return the inherit value come from learning unit year FULL"""
+        return {
+            'acronym': self.learning_unit_year_full.acronym,
+            'academic_year': self.learning_unit_year_full.academic_year.id,
+            'specific_title': self.learning_unit_year_full.specific_title,
+            'specific_title_english': self.learning_unit_year_full.specific_title_english,
+            'credits': self.learning_unit_year_full.credits,
+            'session': self.learning_unit_year_full.session,
+            'quadrimester': self.learning_unit_year_full.quadrimester,
+            'status': self.learning_unit_year_full.status,
+            'internship_subtype': self.learning_unit_year_full.internship_subtype,
+            'attribution_procedure': self.learning_unit_year_full.attribution_procedure
+        }
+
+    def _get_inherit_learning_unit_full_value(self):
+        """This function will return the inherit value come from learning unit FULL"""
+        learning_unit_full = self.learning_unit_year_full.learning_unit
+        return {
+            'periodicity': learning_unit_full.periodicity
+        }
+
+    def _merge_inherit_value(self, post_data, inherit_values):
+        form_data = dict(inherit_values)
+        for key in post_data.keys():
+            form_data[key] = post_data[key]
+        return form_data
+
+    @transaction.atomic
+    def save(self, commit=True):
+        # Save learning unit
+        learning_unit_instance = self.form_instances[LearningUnitModelForm].instance
+        learning_unit_instance.learning_container = self.learning_unit_year_full.learning_container_year.learning_container
+        learning_unit_instance.start_year = self.learning_unit_year_full.learning_unit.start_year
+        learning_unit = self.form_instances[LearningUnitModelForm].save(commit)
+
+        # Get entity container form full learning container
+        learning_container_year_full = self.learning_unit_year_full.learning_container_year
+        entity_container_years = learning_container_year_full.entitycontaineryear_set.all()
+
+        # Save learning unit year
+        learning_unit_year_instance = self.form_instances[LearningUnitYearModelForm].instance
+        learning_unit_year_instance.learning_container_year = learning_container_year_full
+        learning_unit_year_instance.learning_unit = learning_unit
+        learning_unit_year_instance.subtype = self.subtype
+        learning_unit_year = self.form_instances[LearningUnitYearModelForm].save(commit, entity_container_years)
+
+        # Make Postponement
+        return self._make_postponement(learning_unit_year)
