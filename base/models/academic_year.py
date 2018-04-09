@@ -26,7 +26,6 @@
 from django.db import models
 from django.utils import timezone
 
-from base import models as mdl_base
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
@@ -120,5 +119,4 @@ LEARNING_UNIT_CREATION_SPAN_YEARS = 6
 
 
 def compute_max_academic_year_adjournment():
-    starting_academic_year = mdl_base.academic_year.starting_academic_year()
-    return starting_academic_year.year + LEARNING_UNIT_CREATION_SPAN_YEARS
+    return starting_academic_year().year + LEARNING_UNIT_CREATION_SPAN_YEARS
