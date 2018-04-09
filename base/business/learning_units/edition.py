@@ -219,6 +219,7 @@ def _duplicate_bibliography(duplicated_luy):
     for bib in previous_bibliography:
         update_related_object(bib, 'learning_unit_year', duplicated_luy)
 
+
 def _duplicate_cms_data(duplicated_luy):
     previous_cms_data = translated_text.find_by_reference(duplicated_luy.copied_from.id)
     for item in previous_cms_data:
