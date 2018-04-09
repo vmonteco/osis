@@ -31,6 +31,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, logout
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth.views import login as django_login
+from django.contrib.messages import ERROR, SUCCESS
 from django.shortcuts import redirect
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
@@ -205,3 +206,17 @@ def check_if_display_message(request, results):
     if not results:
         messages.add_message(request, messages.WARNING, _('no_result'))
     return True
+
+
+def display_most_critical_messages(request, messages_by_level):
+    if messages_by_level.get(ERROR, []):
+        display_error_messages(request, messages_by_level[ERROR])
+    else:
+        display_success_messages(request, messages_by_level.get(SUCCESS, []), extra_tags='safe')
+
+
+def display_messages_by_level(request, messages_by_level):
+    if messages_by_level.get(ERROR, []):
+        display_error_messages(request, messages_by_level[ERROR])
+    if messages_by_level.get(SUCCESS, []):
+        display_success_messages(request, messages_by_level.get(SUCCESS, []), extra_tags='safe')

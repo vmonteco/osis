@@ -95,7 +95,7 @@ class TestLearningUnitProposalCancel(TestCase):
     def test_cancel_proposal_of_type_suppression_case_success(self):
         proposal = self._create_proposal(prop_type=proposal_type.ProposalType.SUPPRESSION.name,
                                          prop_state=proposal_state.ProposalState.FACULTY.name)
-        lu_proposal_business.cancel_proposal(proposal, PersonFactory(), send_mail=False)
+        lu_proposal_business.cancel_proposal(proposal, PersonFactory())
         self.assertCountEqual(list(mdl_base.proposal_learning_unit.ProposalLearningUnit.objects
                                    .filter(learning_unit_year=self.learning_unit_year)), [])
 
@@ -103,7 +103,7 @@ class TestLearningUnitProposalCancel(TestCase):
         proposal = self._create_proposal(prop_type=proposal_type.ProposalType.CREATION.name,
                                          prop_state=proposal_state.ProposalState.FACULTY.name)
         lu = proposal.learning_unit_year.learning_unit
-        lu_proposal_business.cancel_proposal(proposal, PersonFactory(), send_mail=False)
+        lu_proposal_business.cancel_proposal(proposal, PersonFactory())
         self.assertCountEqual(list(mdl_base.proposal_learning_unit.ProposalLearningUnit.objects
                                    .filter(learning_unit_year=self.learning_unit_year)), [])
         self.assertCountEqual(list(mdl_base.learning_unit.LearningUnit.objects.filter(id=lu.id)),
@@ -122,7 +122,7 @@ class TestLearningUnitProposalCancel(TestCase):
     def test_send_mail_after_proposal_cancellation(self, mock_send_mail):
         proposal = self._create_proposal(prop_type=proposal_type.ProposalType.SUPPRESSION.name,
                                          prop_state=proposal_state.ProposalState.FACULTY.name)
-        lu_proposal_business.cancel_proposal(proposal, PersonFactory())
+        lu_proposal_business.cancel_proposal(proposal, author=PersonFactory(), send_mail=True)
         self.assertTrue(mock_send_mail.called)
 
     def _create_proposal(self, prop_type, prop_state):

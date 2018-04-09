@@ -25,7 +25,6 @@
 ##############################################################################
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.messages import ERROR, SUCCESS
 from django.db import IntegrityError
 from django.forms import formset_factory
 from django.shortcuts import get_object_or_404
@@ -40,7 +39,8 @@ from base.models.academic_year import current_academic_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.person import Person, find_by_user
 from base.views import layout
-from base.views.common import check_if_display_message, display_error_messages, display_success_messages
+from base.views.common import check_if_display_message, display_error_messages, display_success_messages, \
+    display_messages_by_level
 from base.business import learning_unit_proposal as proposal_business
 
 PROPOSAL_SEARCH = 3
@@ -152,19 +152,12 @@ def _apply_action_on_proposals(formset, request, action_method):
     proposals = formset.get_checked_proposals()
     if proposals:
         user_person = get_object_or_404(Person, user=request.user)
-        results = action_method(proposals, user_person)
-        display_message_based_on_result(request, results)
+        messages_by_level = action_method(proposals, user_person)
+        display_messages_by_level(request, messages_by_level)
         formset = None
     else:
         _build_no_data_error_message(request)
     return formset
-
-
-def display_message_based_on_result(request, result):
-    if result.get(ERROR, []):
-        display_error_messages(request, result[ERROR])
-    if result.get(SUCCESS, []):
-        display_success_messages(request, result.get(SUCCESS, []), extra_tags='safe')
 
 
 def _build_no_data_error_message(request):
