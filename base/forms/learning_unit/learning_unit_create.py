@@ -84,6 +84,12 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
 
 
 class LearningUnitModelForm(forms.ModelForm):
+
+    def save(self, **kwargs):
+        self.instance.learning_container = kwargs.pop('learning_container')
+        self.instance.start_year = kwargs.pop('academic_year').year
+        return super(LearningUnitModelForm, self).save(**kwargs)
+
     class Meta:
         model = LearningUnit
         fields = ('periodicity', 'faculty_remark', 'other_remark', )
@@ -119,8 +125,13 @@ class LearningUnitYearModelForm(forms.ModelForm):
         widgets = {'subtype': forms.HiddenInput()}
         field_classes = {'acronym': AcronymField}
 
-    def save(self, commit=True, entity_container_years=None):
-        instance = super().save(commit)
+    def save(self, **kwargs):
+        # Save learning unit year (learning_unit_component +  learning_component_year + entity_component_year)
+        self.instance.learning_container_year = kwargs.pop('learning_container_year')
+        self.instance.learning_unit = kwargs.pop('learning_unit')
+        self.instance.subtype = kwargs.pop('subtype')
+        entity_container_years = kwargs.pop('entity_container_years')
+        instance = super().save(**kwargs)
         components_type = _get_default_components_type(self.instance.learning_container_year.container_type)
         for component_type in components_type:
             # Create learning component year
@@ -216,12 +227,17 @@ class EntityContainerYearModelForm(forms.ModelForm):
         entity_version = self.cleaned_data['entity']
         return entity_version.entity if entity_version else None
 
-    def save(self, commit=True):
+    def save(self, **kwargs):
         if hasattr(self.instance, 'entity'):
-            return super().save(commit)
+            return super(EntityContainerYearModelForm, self).save(**kwargs)
 
 
 class EntityContainerYearFormset(forms.BaseInlineFormSet):
+
+    def save(self, **kwargs):
+        self.instance = kwargs.pop('learning_container_year')
+        return super().save(**kwargs)
+
     def get_form_kwargs(self, index):
         kwargs = super().get_form_kwargs(index)
         instance = kwargs.get('instance')
@@ -249,6 +265,12 @@ class LearningContainerYearModelForm(forms.ModelForm):
 
         if self.initial.get('subtype') == learning_unit_year_subtypes.PARTIM:
             self.fields["container_type"].choices = _create_learning_container_year_type_list()
+
+    def save(self, **kwargs):
+        self.instance.learning_container = kwargs.pop('learning_container')
+        self.instance.acronym = kwargs.pop('acronym')
+        self.instance.academic_year = kwargs.pop('academic_year')
+        return super(LearningContainerYearModelForm, self).save(**kwargs)
 
     class Meta:
         model = LearningContainerYear
