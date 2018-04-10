@@ -39,7 +39,7 @@ class EntitySearchForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['acronym'].widget.attrs['style'] ="text-transform:uppercase"
+        self.fields['acronym'].widget.attrs['style'] = "text-transform:uppercase"
 
     def get_entities(self):
         if super().is_valid():
