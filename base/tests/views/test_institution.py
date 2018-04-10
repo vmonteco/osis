@@ -84,7 +84,7 @@ class EntityViewTestCase(APITestCase):
     def test_entities_search(self):
         self.client.force_login(self.user)
         url = reverse(entities_search)
-        response = self.client.get(url+"?acronym=%s&title=%s&entity_type=%s" % ("ENTITY_CHILDREN", "", ""))
+        response = self.client.get(url, data={"acronym": "ENTITY_CHILDREN", "title": "", "entity_type": ""})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['entities_version']), 1)
 

@@ -70,15 +70,13 @@ def entities_search(request):
 
     entities_version_list = form.get_entities().order_by(order_by)
 
-    paginator = Paginator(entities_version_list, 20)  # Show 25 entities per page
+    paginator = Paginator(entities_version_list, 20)
     page = request.GET.get('page', 1)
     try:
         entities_version_list = paginator.page(page)
     except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
         entities_version_list = paginator.page(1)
     except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
         entities_version_list = paginator.page(paginator.num_pages)
 
     return render(request, "entities.html", {'entities_version': entities_version_list, 'form': form})
