@@ -35,7 +35,6 @@ from base.business.learning_units.educational_information import get_responsible
 from base.forms.common import TooManyResultsException
 from base.forms.learning_unit.educational_information.mail_reminder import MailReminderRow, MailReminderFormset
 from base.forms.learning_units import LearningUnitYearForm
-from base.models.academic_year import current_academic_year
 from base.models.person import Person, find_by_user
 from base.utils.send_mail import send_mail_for_educational_information_update
 from base.views import layout
@@ -69,7 +68,7 @@ def learning_units_summary_list(request):
     a_user_person = find_by_user(request.user)
     learning_units_found = []
 
-    search_form = _get_search_form(request)
+    search_form = LearningUnitYearForm(request.GET or None)
 
     try:
         if search_form.is_valid():
@@ -108,11 +107,3 @@ def _get_formset(request, responsible_and_learning_unit_yr_list):
                                                      extra=len(responsible_and_learning_unit_yr_list))
         return list_mail_reminder_formset(request.POST or None, list_responsible=responsible_and_learning_unit_yr_list)
     return None
-
-
-def _get_search_form(request):
-    if request.GET:
-        search_form = LearningUnitYearForm(request.GET or None)
-    else:
-        search_form = LearningUnitYearForm(data={'academic_year_id': current_academic_year().id})
-    return search_form

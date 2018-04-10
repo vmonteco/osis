@@ -43,34 +43,29 @@ class LearningUnitYearForm(SearchForm):
     container_type = forms.ChoiceField(
         label=_('type'),
         choices=SearchForm.ALL_CHOICES + learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
-        required=False
     )
 
     subtype = forms.ChoiceField(
         label=_('subtype'),
         choices=SearchForm.ALL_CHOICES + learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
-        required=False
     )
 
     status = forms.ChoiceField(
         label=_('status'),
         choices=SearchForm.ALL_CHOICES + active_status.ACTIVE_STATUS_LIST[:-1],
-        required=False
     )
 
     title = forms.CharField(
         max_length=20,
-        required=False,
         label=_('title')
     )
 
     allocation_entity_acronym = forms.CharField(
         max_length=20,
-        required=False,
         label=_('allocation_entity_small')
     )
 
-    with_entity_subordinated = forms.BooleanField(required=False, label=_('with_entity_subordinated_small'))
+    with_entity_subordinated = forms.BooleanField(label=_('with_entity_subordinated_small'))
 
     def __init__(self, *args, **kwargs):
         self.service_course_search = kwargs.pop('service_course_search', False)
@@ -104,9 +99,9 @@ class LearningUnitYearForm(SearchForm):
 
         if requirement_entities:
             clean_data['requirement_entities'] = requirement_entities
-        else:
-            # TODO Use a queryset instead !!
-            clean_data['learning_container_year_id'] = get_filter_learning_container_ids(clean_data)
+
+        # TODO Use a queryset instead !!
+        clean_data['learning_container_year_id'] = get_filter_learning_container_ids(clean_data)
 
         if not service_course_search \
                 and clean_data \
