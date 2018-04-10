@@ -256,23 +256,22 @@ class PartimForm(LearningUnitBaseForm):
 
     def __init__(self, data, person, learning_unit_year_full, instance=None, *args, **kwargs):
         self.learning_unit_year_full = learning_unit_year_full
-
+        # Inherit values cannot be changed by user
         inherit_lu_values = self._get_inherit_learning_unit_full_value()
         inherit_luy_values = self._get_inherit_learning_unit_year_full_value()
-
         instances_data = {
             LearningUnitModelForm: {
                 'data': data,
-                'initial': inherit_lu_values,
+                'initial': inherit_lu_values if not data else None,
                 'instance': instance.learning_unit if instance else None,
             },
             LearningContainerModelForm: {
                 'instance': self.learning_unit_year_full.learning_container_year.learning_container,
             },
             LearningUnitYearModelForm: {
-                'data': _merge_two_dicts(data, inherit_luy_values) if data else None,
+                'data': _merge_two_dicts(data.dict(), inherit_luy_values) if data else None,
                 'instance': instance,
-                'initial': _merge_two_dicts({'subtype': self.subtype}, inherit_luy_values),
+                'initial': self._get_initial_learning_unit_year_form() if not instance else None,
                 'person': person,
                 'subtype': self.subtype
             },
@@ -290,17 +289,22 @@ class PartimForm(LearningUnitBaseForm):
 
     def _get_inherit_learning_unit_year_full_value(self):
         """This function will return the inherit value come from learning unit year FULL"""
+        return {field: value for field, value in self._get_initial_learning_unit_year_form().items() if
+                field in PARTIM_FORM_READ_ONLY_FIELD}
+
+    def _get_initial_learning_unit_year_form(self):
         return {
             'acronym': self.learning_unit_year_full.acronym,
             'academic_year': self.learning_unit_year_full.academic_year.id,
-            'specific_title': self.learning_unit_year_full.specific_title,
-            'specific_title_english': self.learning_unit_year_full.specific_title_english,
+            'internship_subtype': self.learning_unit_year_full.internship_subtype,
+            'attribution_procedure': self.learning_unit_year_full.attribution_procedure,
+            'subtype': self.subtype,
             'credits': self.learning_unit_year_full.credits,
             'session': self.learning_unit_year_full.session,
             'quadrimester': self.learning_unit_year_full.quadrimester,
             'status': self.learning_unit_year_full.status,
-            'internship_subtype': self.learning_unit_year_full.internship_subtype,
-            'attribution_procedure': self.learning_unit_year_full.attribution_procedure
+            'specific_title': self.learning_unit_year_full.specific_title,
+            'specific_title_english': self.learning_unit_year_full.specific_title_english
         }
 
     def _get_inherit_learning_unit_full_value(self):
@@ -312,8 +316,8 @@ class PartimForm(LearningUnitBaseForm):
 
     def is_valid(self):
         form_cls_to_validate = [LearningUnitModelForm, LearningUnitYearModelForm]
-        if any(not form_instance.is_valid() for cls, form_instance in self.form_instances.items()
-               if cls in form_cls_to_validate):
+        if any([not form_instance.is_valid() for cls, form_instance in self.form_instances.items()
+               if cls in form_cls_to_validate]):
             return False
 
         common_title = self.learning_unit_year_full.learning_container_year.common_title
@@ -321,22 +325,27 @@ class PartimForm(LearningUnitBaseForm):
 
     @transaction.atomic
     def save(self, commit=True):
+        academic_year = self.learning_unit_year_full.academic_year
+
         # Save learning unit
-        learning_unit_instance = self.form_instances[LearningUnitModelForm].instance
-        learning_unit_instance.learning_container = self.learning_unit_year_full.learning_container_year.learning_container
-        learning_unit_instance.start_year = self.learning_unit_year_full.learning_unit.start_year
-        learning_unit = self.form_instances[LearningUnitModelForm].save(commit)
+        learning_unit = self.form_instances[LearningUnitModelForm].save(
+            academic_year=academic_year,
+            learning_container=self.learning_unit_year_full.learning_container_year.learning_container,
+            commit=commit
+        )
 
         # Get entity container form full learning container
         learning_container_year_full = self.learning_unit_year_full.learning_container_year
         entity_container_years = learning_container_year_full.entitycontaineryear_set.all()
 
         # Save learning unit year
-        learning_unit_year_instance = self.form_instances[LearningUnitYearModelForm].instance
-        learning_unit_year_instance.learning_container_year = learning_container_year_full
-        learning_unit_year_instance.learning_unit = learning_unit
-        learning_unit_year_instance.subtype = self.subtype
-        learning_unit_year = self.form_instances[LearningUnitYearModelForm].save(commit, entity_container_years)
+        learning_unit_year = self.form_instances[LearningUnitYearModelForm].save(
+            learning_container_year=learning_container_year_full,
+            learning_unit=learning_unit,
+            entity_container_years=entity_container_years,
+            subtype=self.subtype,
+            commit=commit
+        )
 
         # Make Postponement
         return self._create_with_postponement(learning_unit_year)
@@ -344,6 +353,5 @@ class PartimForm(LearningUnitBaseForm):
 
 def _merge_two_dicts(dict_a, dict_b):
     form_data = dict(dict_a)
-    for key in dict_b.keys():
-        form_data[key] = dict_b[key]
+    form_data.update(dict_b)
     return form_data

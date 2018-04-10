@@ -112,9 +112,11 @@ class LearningUnitYearModelForm(forms.ModelForm):
         subtype = kwargs.pop('subtype')
         super().__init__(*args, **kwargs)
         if subtype == learning_unit_year_subtypes.PARTIM:
+            self.fields['acronym'] = PartimAcronymField()
             self.fields['specific_title'].label = _('official_title_proper_to_partim')
             self.fields['specific_title_english'].label = _('official_english_title_proper_to_partim')
-
+        else:
+            self.fields['acronym'] = AcronymField()
         if kwargs.get('instance'):
             self.fields['academic_year'].disabled = True
 
@@ -123,7 +125,6 @@ class LearningUnitYearModelForm(forms.ModelForm):
         fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'credits',
                   'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure', 'subtype', )
         widgets = {'subtype': forms.HiddenInput()}
-        field_classes = {'acronym': AcronymField}
 
     def save(self, **kwargs):
         # Save learning unit year (learning_unit_component +  learning_component_year + entity_component_year)
