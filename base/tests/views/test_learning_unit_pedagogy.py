@@ -32,6 +32,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
 
 from attribution.tests.factories.attribution import AttributionFactory
+from base.models.academic_year import current_academic_year
 from base.models.enums import academic_calendar_type
 from base.models.enums import entity_container_year_link_type
 from base.models.enums import learning_container_year_types, organization_type
@@ -59,7 +60,7 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         self.current_academic_year = create_current_academic_year()
         self.organization = OrganizationFactory(type=organization_type.MAIN)
         self.country = CountryFactory()
-        self.url = reverse('learning_units_summary')
+        self.url = reverse(learning_units_summary_list)
         faculty_managers_group = Group.objects.get(name='faculty_managers')
         self.faculty_user = UserFactory()
         self.faculty_user.groups.add(faculty_managers_group)
@@ -94,7 +95,7 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_units.html')
         self.assertEqual(context['search_type'], SUMMARY_LIST)
-        self.assertEqual(len(context['learning_units']), 1)
+        self.assertEqual(len(context['learning_units']), 0)
 
     @mock.patch('base.views.layout.render')
     def test_learning_units_summary_list(self, mock_render):
@@ -107,7 +108,7 @@ class LearningUnitViewPedagogyTestCase(TestCase):
                              end_date=datetime.datetime(now.year+1, 9, 15),
                              entity_type='INSTITUTE')
 
-        request = request_factory.get(self.url)
+        request = request_factory.get(self.url, data={'academic_year_id': current_academic_year().id})
         request.user = self.faculty_user
 
         lu = self._create_learning_unit_year_for_entity(self.an_entity)
