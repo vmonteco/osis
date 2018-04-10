@@ -29,15 +29,14 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
-from base.business.entity import get_entities_ids, get_entity_container_list, build_entity_container_prefetch, \
-    get_entities_ids_by_acronyms
+from base.business.entity import get_entities_ids, get_entity_container_list, build_entity_container_prefetch
 from base.business.entity_version import SERVICE_COURSE
 from base.business.learning_unit_year_with_context import append_latest_entities
 from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, TooManyResultsException
+from base.forms.learning_unit_search import SearchForm
 from base.models import learning_unit_year
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
     learning_unit_year_subtypes, active_status
-from base.forms.learning_unit_search import SearchForm
 
 
 class LearningUnitYearForm(SearchForm):
@@ -104,8 +103,9 @@ class LearningUnitYearForm(SearchForm):
         service_course_search = service_course_search or self.service_course_search
 
         if requirement_entities:
-            clean_data['learning_container_year_id'] = get_filter_learning_container_ids_summary(requirement_entities)
+            clean_data['requirement_entities'] = requirement_entities
         else:
+            # TODO Use a queryset instead !!
             clean_data['learning_container_year_id'] = get_filter_learning_container_ids(clean_data)
 
         if not service_course_search \
@@ -169,11 +169,4 @@ def get_filter_learning_container_ids(filter_data):
                                                      entity_ids,
                                                      entity_container_year_link_type.ALLOCATION_ENTITY)
 
-    return entities_id_list if entities_id_list else None
-
-
-def get_filter_learning_container_ids_summary(entities_requirement):
-    entities_id_list = get_entity_container_list([],
-                                                 get_entities_ids_by_acronyms(entities_requirement, True),
-                                                 entity_container_year_link_type.REQUIREMENT_ENTITY)
     return entities_id_list if entities_id_list else None
