@@ -212,7 +212,7 @@ def _is_regex(acronym):
 
 def search(academic_year_id=None, acronym=None, learning_container_year_id=None, learning_unit=None,
            title=None, subtype=None, status=None, container_type=None, tutor=None,
-           summary_responsible=None, *args, **kwargs):
+           summary_responsible=None, requirement_entities=None, *args, **kwargs):
     queryset = LearningUnitYear.objects
 
     if academic_year_id:
@@ -229,6 +229,11 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
             queryset = queryset.filter(learning_container_year__in=learning_container_year_id)
         elif learning_container_year_id:
             queryset = queryset.filter(learning_container_year=learning_container_year_id)
+
+    if requirement_entities:
+        queryset = queryset.filter(
+            learning_container_year__entitycontaineryear__entity__entityversion__in=requirement_entities,
+            learning_container_year__entitycontaineryear__type=entity_container_year_link_type.REQUIREMENT_ENTITY)
 
     if learning_unit:
         queryset = queryset.filter(learning_unit=learning_unit)
