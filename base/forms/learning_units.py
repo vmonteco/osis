@@ -99,9 +99,12 @@ class LearningUnitYearForm(SearchForm):
         else:
             return self.get_learning_units()
 
-    def get_learning_units(self, service_course_search=None, requirement_entities=None):
+    def get_learning_units(self, service_course_search=None, requirement_entities=None, luy_status=None):
         clean_data = self.cleaned_data
         service_course_search = service_course_search or self.service_course_search
+
+        if luy_status:
+            clean_data['status'] = luy_status
 
         if requirement_entities:
             clean_data['learning_container_year_id'] = get_filter_learning_container_ids_summary(requirement_entities)
