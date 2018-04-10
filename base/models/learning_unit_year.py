@@ -257,11 +257,19 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
         queryset = queryset.filter(Q(**filter_by_first_name) | Q(**filter_by_last_name)).distinct()
 
     if summary_responsible:
-        queryset = queryset.filter((Q(attribution__tutor__person__first_name__icontains=summary_responsible) |
-                                    Q(attribution__tutor__person__last_name__icontains=summary_responsible)) &
-                                   Q(attribution__summary_responsible=True)).distinct()
+        queryset = find_summary_responsible_by_name(queryset, summary_responsible)
 
     return queryset.select_related('learning_container_year', 'academic_year')
+
+
+def find_summary_responsible_by_name(queryset, name):
+    for term in name.split():
+        queryset = queryset.filter(
+            Q(attribution__tutor__person__first_name__icontains=term) |
+            Q(attribution__tutor__person__last_name__icontains=term)
+        )
+
+    return queryset.filter(attribution__summary_responsible=True).distinct()
 
 
 def _build_tutor_filter(name_type):
