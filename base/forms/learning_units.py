@@ -103,7 +103,7 @@ class LearningUnitYearForm(SearchForm):
     def get_learning_units(self, service_course_search=None, requirement_entities=None, luy_status=None):
         service_course_search = service_course_search or self.service_course_search
         clean_data = self.cleaned_data
-        clean_data['status'] = self.cleaned_data['status'] or _convert_status_bool(luy_status)
+        clean_data['status'] = self._set_status(luy_status)
 
         if requirement_entities:
             clean_data['learning_container_year_id'] = get_filter_learning_container_ids_summary(requirement_entities)
@@ -123,6 +123,9 @@ class LearningUnitYearForm(SearchForm):
 
         return [append_latest_entities(learning_unit, service_course_search) for learning_unit in
                 learning_units]
+
+    def _set_status(self, luy_status):
+        return _convert_status_bool(luy_status) if luy_status else self.cleaned_data['status']
 
     def _get_service_course_learning_units(self):
         service_courses = []
