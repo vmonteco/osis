@@ -23,28 +23,26 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-SECTOR = "SECTOR"
-FACULTY = "FACULTY"
-SCHOOL = "SCHOOL"
-INSTITUTE = "INSTITUTE"
-POLE = "POLE"
-DOCTORAL_COMMISSION = "DOCTORAL_COMMISSION"
-PLATFORM = "PLATFORM"
-LOGISTICS_ENTITY = "LOGISTICS_ENTITY"
+from base import models as mdl
+from base.forms.utils.choice_field import add_blank
+from base.models.entity_version import EntityVersion
+from base.models.enums import entity_type
 
 
-ENTITY_TYPES = (
-    (SECTOR, _(SECTOR)),
-    (FACULTY, _(FACULTY)),
-    (SCHOOL, _(SCHOOL)),
-    (INSTITUTE, _(INSTITUTE)),
-    (POLE, _(POLE)),
-    (DOCTORAL_COMMISSION, _(DOCTORAL_COMMISSION)),
-    (PLATFORM, _(PLATFORM)),
-    (LOGISTICS_ENTITY, _(LOGISTICS_ENTITY)),
-)
+class EntitySearchForm(forms.Form):
+    acronym = forms.CharField(label=_('acronym'), required=False)
+    title = forms.CharField(label=_('title'), required=False)
+    entity_type = forms.ChoiceField(label=_('type'), choices=add_blank(entity_type.ENTITY_TYPES), required=False)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['acronym'].widget.attrs['style'] = "text-transform:uppercase"
 
-MAIN_ENTITY_TYPE = (SECTOR, FACULTY, SCHOOL, INSTITUTE, DOCTORAL_COMMISSION, LOGISTICS_ENTITY)
+    def get_entities(self):
+        if super().is_valid():
+            return mdl.entity_version.search_entities(with_entity=True, **self.cleaned_data)
+        else:
+            return EntityVersion.objects.all()
