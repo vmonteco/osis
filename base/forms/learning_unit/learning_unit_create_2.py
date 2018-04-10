@@ -29,6 +29,7 @@ from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_units import edition as edition_business
+from base.forms.utils.acronym_field import split_acronym
 from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear
 from base.models.campus import find_main_campuses, Campus
 from base.models.enums.component_type import LECTURING, PRACTICAL_EXERCISES
@@ -43,16 +44,10 @@ import abc
 
 FULL_READ_ONLY_FIELDS = {"first_letter", "acronym", "academic_year", "container_type", "subtype"}
 
-PARTIM_FORM_READ_ONLY_FIELD = {'common_title', 'common_title_english', 'requirement_entity',
-                               'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year',
-                               'container_type', 'internship_subtype',
+PARTIM_FORM_READ_ONLY_FIELD = {'acronym_0', 'acronym_1', 'common_title', 'common_title_english',
+                               'requirement_entity', 'allocation_entity', 'language', 'periodicity', 'campus',
+                               'academic_year', 'container_type', 'internship_subtype',
                                'additional_requirement_entity_1', 'additional_requirement_entity_2'}
-#
-# DEFAULT_ACRONYM_COMPONENT = {
-#     LECTURING: "CM1",
-#     PRACTICAL_EXERCISES: "TP1",
-#     None: "NT1"
-# }
 
 
 class LearningUnitBaseForm:
@@ -134,7 +129,9 @@ class LearningUnitBaseForm:
         entities_data = self._get_entities_data()
         lu_type_full_data = self._get_flat_cleaned_data_apart_from_entities()
         edition_business.update_learning_unit_year_with_report(learning_unit_year_instance, lu_type_full_data,
-                                                               entities_data, with_report=self.postponement)
+                                                               entities_data,
+                                                               with_report=self.postponement,
+                                                               override_postponement_consistency=True)
 
     def _get_entities_data(self):
         return {entity_container_year_form.instance.type.upper(): entity_container_year_form.instance.entity
@@ -253,9 +250,16 @@ class FullForm(LearningUnitBaseForm):
 
 class PartimForm(LearningUnitBaseForm):
     subtype = learning_unit_year_subtypes.PARTIM
+    form_cls_to_validate = [LearningUnitModelForm, LearningUnitYearModelForm]
 
     def __init__(self, data, person, learning_unit_year_full, instance=None, *args, **kwargs):
+        if instance and not isinstance(instance, LearningUnitYear):
+            raise AttributeError('instance arg should be an instance of {}'.format(LearningUnitYear))
+        self.instance = instance
+        if not isinstance(learning_unit_year_full, LearningUnitYear):
+            raise AttributeError('learning_unit_year_full arg should be an instance of {}'.format(LearningUnitYear))
         self.learning_unit_year_full = learning_unit_year_full
+
         # Inherit values cannot be changed by user
         inherit_lu_values = self._get_inherit_learning_unit_full_value()
         inherit_luy_values = self._get_inherit_learning_unit_year_full_value()
@@ -271,7 +275,7 @@ class PartimForm(LearningUnitBaseForm):
             LearningUnitYearModelForm: {
                 'data': _merge_two_dicts(data.dict(), inherit_luy_values) if data else None,
                 'instance': instance,
-                'initial': self._get_initial_learning_unit_year_form() if not instance else None,
+                'initial': self._get_initial_learning_unit_year_form() if not self.instance else None,
                 'person': person,
                 'subtype': self.subtype
             },
@@ -285,16 +289,24 @@ class PartimForm(LearningUnitBaseForm):
             }
         }
         super(PartimForm, self).__init__(instances_data, *args, **kwargs)
-        self.disable_fields(PARTIM_FORM_READ_ONLY_FIELD)
+        self.disable_fields(self._get_fields_to_disabled())
+
+    def _get_fields_to_disabled(self):
+        field_to_disabled = PARTIM_FORM_READ_ONLY_FIELD.copy()
+        if self.instance:
+            field_to_disabled.update({'acronym_2'})
+        return field_to_disabled
 
     def _get_inherit_learning_unit_year_full_value(self):
         """This function will return the inherit value come from learning unit year FULL"""
         return {field: value for field, value in self._get_initial_learning_unit_year_form().items() if
-                field in PARTIM_FORM_READ_ONLY_FIELD}
+                field in self._get_fields_to_disabled()}
 
     def _get_initial_learning_unit_year_form(self):
-        return {
-            'acronym': self.learning_unit_year_full.acronym,
+        acronym = self.instance.acronym if self.instance else self.learning_unit_year_full.acronym
+        acronym_splited = split_acronym(acronym)
+        initial_learning_unit_year = {
+            'acronym': acronym_splited,
             'academic_year': self.learning_unit_year_full.academic_year.id,
             'internship_subtype': self.learning_unit_year_full.internship_subtype,
             'attribution_procedure': self.learning_unit_year_full.attribution_procedure,
@@ -306,6 +318,10 @@ class PartimForm(LearningUnitBaseForm):
             'specific_title': self.learning_unit_year_full.specific_title,
             'specific_title_english': self.learning_unit_year_full.specific_title_english
         }
+        initial_learning_unit_year.update({
+            "acronym_{}".format(idx): acronym_part for idx, acronym_part in enumerate(acronym_splited)
+        })
+        return initial_learning_unit_year
 
     def _get_inherit_learning_unit_full_value(self):
         """This function will return the inherit value come from learning unit FULL"""
@@ -315,9 +331,8 @@ class PartimForm(LearningUnitBaseForm):
         }
 
     def is_valid(self):
-        form_cls_to_validate = [LearningUnitModelForm, LearningUnitYearModelForm]
         if any([not form_instance.is_valid() for cls, form_instance in self.form_instances.items()
-               if cls in form_cls_to_validate]):
+               if cls in self.form_cls_to_validate]):
             return False
 
         common_title = self.learning_unit_year_full.learning_container_year.common_title
@@ -325,6 +340,12 @@ class PartimForm(LearningUnitBaseForm):
 
     @transaction.atomic
     def save(self, commit=True):
+        if self._is_update_action():
+            return self._update_with_postponement(self.instance)
+        else:
+            return self._create(commit)
+
+    def _create(self, commit=True):
         academic_year = self.learning_unit_year_full.academic_year
 
         # Save learning unit
@@ -349,6 +370,20 @@ class PartimForm(LearningUnitBaseForm):
 
         # Make Postponement
         return self._create_with_postponement(learning_unit_year)
+
+    def _get_entities_data(self):
+        learning_container_year_full = self.learning_unit_year_full.learning_container_year
+        entity_container_years = learning_container_year_full.entitycontaineryear_set.all()
+        return {entity_container.type.upper(): entity_container.entity for entity_container in
+                entity_container_years}
+
+    def _get_flat_cleaned_data_apart_from_entities(self):
+        all_clean_data = {}
+        for cls, form_instance in self.form_instances.items():
+           if cls in self.form_cls_to_validate:
+               all_clean_data.update({field: value for field, value in form_instance.cleaned_data.items()
+                                      if field not in FULL_READ_ONLY_FIELDS})
+        return all_clean_data
 
 
 def _merge_two_dicts(dict_a, dict_b):

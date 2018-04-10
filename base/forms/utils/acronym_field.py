@@ -36,9 +36,10 @@ class AcronymInput(forms.MultiWidget):
 
     def __init__(self, *args, **kwargs):
         choices = kwargs.pop('choices', [])
+        disabled = kwargs.pop('disabled', False)
         widgets = [
-            forms.Select(choices=choices),
-            forms.TextInput(attrs={'class': 'text-uppercase'}),
+            forms.Select(choices=choices, attrs={'disabled': disabled}),
+            forms.TextInput(attrs={'class': 'text-uppercase', 'disabled': disabled}),
         ]
 
         super().__init__(widgets, *args, **kwargs)
@@ -47,26 +48,6 @@ class AcronymInput(forms.MultiWidget):
         if value:
             return [value[0], value[1:]]
         return ['', '']
-
-
-class PartimAcronymInput(forms.MultiWidget):
-    template_name = 'learning_unit/blocks/widget/partim_widget.html'
-
-    def __init__(self, *args, **kwargs):
-        choices = kwargs.pop('choices', [])
-        widgets = [
-            forms.Select(choices=choices, attrs={'disabled': False}),
-            forms.TextInput(attrs={'disabled': False, 'class': 'text-uppercase'}),
-            forms.TextInput(attrs={'class': 'text-center text-uppercase',
-                                   'maxlength': "1",
-                                   'onchange': 'validate_acronym()'})
-        ]
-        super().__init__(widgets, *args, **kwargs)
-
-    def decompress(self, value):
-        if value:
-            return split_acronym(value)
-        return ['', '', '']
 
 
 def split_acronym(value):
@@ -97,11 +78,33 @@ class AcronymField(forms.MultiValueField):
         return ''.join(data_list).upper()
 
 
+class PartimAcronymInput(forms.MultiWidget):
+    template_name = 'learning_unit/blocks/widget/partim_widget.html'
+
+    def __init__(self, attrs=None):
+        widgets = [
+            forms.Select(choices=_create_first_letter_choices()),
+            forms.TextInput(attrs={'class': 'text-uppercase'}),
+            forms.TextInput(attrs={
+                'class': 'text-center text-uppercase',
+                'maxlength': "1",
+                'onchange': 'validate_acronym()'
+            })
+        ]
+        super().__init__(widgets)
+
+    def decompress(self, value):
+        if value:
+            return split_acronym(value)
+        return ['', '', '']
+
+
 class PartimAcronymField(forms.MultiValueField):
     widget = PartimAcronymInput
 
     def __init__(self, *args, **kwargs):
         max_length = kwargs.pop('max_length', None)
+        disabled = kwargs.pop('disabled', [True, True, False])
 
         list_fields = [
             forms.ChoiceField(choices=_create_first_letter_choices()),
@@ -110,10 +113,15 @@ class PartimAcronymField(forms.MultiValueField):
         ]
         kwargs['require_all_fields'] = kwargs.pop('required', True)
         super().__init__(list_fields, *args, **kwargs)
-        self.widget = PartimAcronymInput(choices=_create_first_letter_choices())
+        self.apply_attrs_to_widgets('disabled', disabled)
+
+    def apply_attrs_to_widgets(self, property, values):
+        for index, subwidget in enumerate(self.widget.widgets):
+            subwidget.attrs[property] = values[index]
 
     def compress(self, data_list):
         return ''.join(data_list).upper()
+
 
 def _create_first_letter_choices():
     return add_blank(LearningUnitManagementSite.choices())

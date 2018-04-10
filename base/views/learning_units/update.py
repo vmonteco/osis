@@ -38,10 +38,11 @@ from base.business.learning_unit import CMS_LABEL_PEDAGOGY, get_cms_label_data
 from base.business.learning_units.edition import ConsistencyError
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.forms.learning_unit.edition_volume import VolumeEditionFormsetContainer
-from base.forms.learning_unit.learning_unit_create_2 import FullForm
+from base.forms.learning_unit.learning_unit_create_2 import FullForm, PartimForm
 from base.forms.learning_unit_pedagogy import SummaryModelForm, LearningUnitPedagogyForm, \
     BibliographyModelForm
 from base.models.bibliography import Bibliography
+from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
@@ -99,8 +100,12 @@ def update_learning_unit(request, learning_unit_year_id):
     #     _save_form_and_display_messages(request, form)
     #     _check_credits(request, learning_unit_year.parent, form)
     #     return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
-
-    learning_unit_form_container = FullForm(request.POST or None, person, instance=learning_unit_year)
+    if learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
+        learning_unit_form_container = FullForm(request.POST or None, person, instance=learning_unit_year)
+    else:
+        learning_unit_form_container = PartimForm(request.POST or None, person,
+                                                  learning_unit_year_full=learning_unit_year.parent,
+                                                  instance=learning_unit_year)
 
     if learning_unit_form_container.is_valid():
         new_luys = _save_form_and_display_messages(request, learning_unit_form_container)

@@ -29,7 +29,7 @@ from django.forms import inlineformset_factory
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_units.edition import duplicate_learning_unit_year
-from base.forms.utils.acronym_field import AcronymField, PartimAcronymField
+from base.forms.utils.acronym_field import AcronymField, PartimAcronymField, split_acronym
 from base.forms.utils.choice_field import add_blank
 from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear
 from base.models.campus import find_main_campuses, Campus
@@ -115,8 +115,7 @@ class LearningUnitYearModelForm(forms.ModelForm):
             self.fields['acronym'] = PartimAcronymField()
             self.fields['specific_title'].label = _('official_title_proper_to_partim')
             self.fields['specific_title_english'].label = _('official_english_title_proper_to_partim')
-        else:
-            self.fields['acronym'] = AcronymField()
+
         if kwargs.get('instance'):
             self.fields['academic_year'].disabled = True
 
@@ -125,6 +124,7 @@ class LearningUnitYearModelForm(forms.ModelForm):
         fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'credits',
                   'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure', 'subtype', )
         widgets = {'subtype': forms.HiddenInput()}
+        field_classes = {'acronym': AcronymField}
 
     def save(self, **kwargs):
         # Save learning unit year (learning_unit_component +  learning_component_year + entity_component_year)
