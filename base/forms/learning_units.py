@@ -37,6 +37,7 @@ from base.forms.learning_unit_search import SearchForm
 from base.models import learning_unit_year
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
     learning_unit_year_subtypes, active_status
+from base.models.learning_unit_year import convert_status_bool
 
 
 class LearningUnitYearForm(SearchForm):
@@ -93,9 +94,10 @@ class LearningUnitYearForm(SearchForm):
         else:
             return self.get_learning_units()
 
-    def get_learning_units(self, service_course_search=None, requirement_entities=None):
-        clean_data = self.cleaned_data
+    def get_learning_units(self, service_course_search=None, requirement_entities=None, luy_status=None):
         service_course_search = service_course_search or self.service_course_search
+        clean_data = self.cleaned_data
+        clean_data['status'] = self._set_status(luy_status)
 
         if requirement_entities:
             clean_data['requirement_entities'] = requirement_entities
@@ -117,6 +119,9 @@ class LearningUnitYearForm(SearchForm):
         # FIXME We must keep a queryset
         return [append_latest_entities(learning_unit, service_course_search) for learning_unit in
                 learning_units]
+
+    def _set_status(self, luy_status):
+        return convert_status_bool(luy_status) if luy_status else self.cleaned_data['status']
 
     def _get_service_course_learning_units(self):
         service_courses = []

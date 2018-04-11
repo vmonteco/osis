@@ -246,7 +246,7 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
         queryset = queryset.filter(subtype=subtype)
 
     if status:
-        queryset = queryset.filter(status=_convert_status_bool(status))
+        queryset = queryset.filter(status=convert_status_bool(status))
 
     if container_type:
         queryset = queryset.filter(learning_container_year__container_type=container_type)
@@ -277,7 +277,7 @@ def _build_tutor_filter(name_type):
                       'tutor', 'person', name_type, 'icontains'])
 
 
-def _convert_status_bool(status):
+def convert_status_bool(status):
     if status in (active_status.ACTIVE, active_status.INACTIVE):
         boolean = status == active_status.ACTIVE
     else:
