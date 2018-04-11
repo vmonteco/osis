@@ -23,33 +23,23 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
-
 from django.http import QueryDict
-from wheel.signatures.djbec import P
 
-from base.forms.learning_unit.learning_unit_create_2 import FullForm, PartimForm, PARTIM_FORM_READ_ONLY_FIELD
+from base.forms.learning_unit.learning_unit_create_2 import PartimForm
 from base.forms.utils import acronym_field
-from base.models.academic_year import AcademicYear
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.business.learning_units import GenerateContainer
-from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
-from django.contrib.auth.models import Group
-from django.test import TestCase, RequestFactory
-from django.utils.translation import ugettext_lazy as _
 
-from base.forms.learning_unit.learning_unit_create import LearningUnitFormContainer, LearningUnitYearModelForm, \
-    LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningUnitYearPartimModelForm, \
-    LearningContainerModelForm
+from django.test import TestCase
+
+from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
+    LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
 from base.models.enums import learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes
-from base.models.person import CENTRAL_MANAGER_GROUP, FACULTY_MANAGER_GROUP
-from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
-from base.tests.factories.campus import CampusFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory, LearningUnitYearFakerFactory
+from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
-from reference.tests.factories.language import LanguageFactory
 
 
 def _instanciate_form(learning_unit_year_full, post_data=None, instance=None):
@@ -228,7 +218,6 @@ class TestPartimFormIsValid(TestCase):
         ]
         for index, form in enumerate(formset_instance.forms):
             self.assertEqual(expected_instance_form[index], form.instance)
-
 
 
 def get_valid_form_data(learning_unit_year_partim):
