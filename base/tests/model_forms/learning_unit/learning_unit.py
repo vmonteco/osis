@@ -25,48 +25,65 @@
 ##############################################################################
 from django.test import TestCase
 
+from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm
+from base.models.enums.learning_unit_periodicity import BIENNIAL_EVEN
+from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.learning_container import LearningContainerFactory
+from base.tests.factories.learning_unit import LearningUnitFactory
+
 
 class TestLearningUnitModelFormInit(TestCase):
     """Tests LearningUnitModelForm.__init__()"""
     def setUp(self):
-        pass
+        self.form = LearningUnitModelForm()
 
     def test_faculty_remark_widget_textarea_rows(self):
-        "should assert rows == 5"
-        pass
+        self.assertEqual(self.form.fields['faculty_remark'].widget.attrs['rows'], '5', "should assert rows == 5")
 
     def test_other_remark_widget_textarea_rows(self):
-        "should assert rows == 5"
-        pass
+        self.assertEqual(self.form.fields['other_remark'].widget.attrs['rows'], '5', "should assert rows == 5")
 
 
 class TestLearningUnitModelFormSave(TestCase):
     """Tests LearningUnitModelForm.save()"""
+
+    quote_1 = """Many that live deserve death. 
+    And some that die deserve life. 
+    Can you give it to them? 
+    Then do not be too eager to deal out death in judgement."""
+
+    quote_2 = """And then her heart changed, or at least she understood it; 
+    and the winter passed, and the sun shone upon her."""
+
+    post_data = {'periodicity': BIENNIAL_EVEN, 'faculty_remark': quote_1, 'other_remark': quote_2}
+
     def setUp(self):
-        pass
+        self.current_academic_year = create_current_academic_year()
+        self.learning_container = LearningContainerFactory()
+        self.form = LearningUnitModelForm(self.post_data)
+        self.save_kwargs = {'learning_container': self.learning_container,
+                            'academic_year': self.current_academic_year}
 
     def test_case_missing_learning_container_kwarg(self):
-        pass
+        with self.assertRaises(KeyError):
+            self.form.save(academic_year=self.current_academic_year)
 
     def test_case_missing_academic_year_kwarg(self):
-        pass
+        with self.assertRaises(KeyError):
+            self.form.save(learning_container=self.learning_container)
 
-    def test_case_creation_periodicity_correctly_saved(self):
-        "post_data={'periodicity': BISANNUAL}"
-        pass
+    def test_case_creation_correctly_saved(self):
+        self.assertTrue(self.form.is_valid(), self.form.errors)
+        lu = self.form.save(**self.save_kwargs)
+        self.assertEqual(lu.periodicity, BIENNIAL_EVEN)
+        self.assertEqual(lu.faculty_remark, self.quote_1)
+        self.assertEqual(lu.other_remark, self.quote_2)
 
-    def test_case_creation_faculty_remark_correctly_saved(self):
-        pass
-
-    def test_case_creation_other_remark_correctly_saved(self):
-        pass
-
-    def test_case_update_periodicity_correctly_saved(self):
-        "post_data={'periodicity': BISANNUAL}"
-        pass
-
-    def test_case_update_faculty_remark_correctly_saved(self):
-        pass
-
-    def test_case_update_other_remark_correctly_saved(self):
-        pass
+    def test_case_update_correctly_saved(self):
+        learning_unit_to_update = LearningUnitFactory(learning_container=self.learning_container)
+        self.form = LearningUnitModelForm(self.post_data, instance=learning_unit_to_update)
+        self.assertTrue(self.form.is_valid(), self.form.errors)
+        lu = self.form.save(**self.save_kwargs)
+        self.assertEqual(lu.periodicity, BIENNIAL_EVEN)
+        self.assertEqual(lu.faculty_remark, self.quote_1)
+        self.assertEqual(lu.other_remark, self.quote_2)
