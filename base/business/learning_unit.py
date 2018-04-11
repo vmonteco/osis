@@ -322,15 +322,6 @@ def get_list_entity_learning_unit_yr(an_entity_version, current_academic_yr):
         .order_by('academic_year__year', 'acronym')
 
 
-def _get_learning_unit_by_entity(academic_yr, an_entity_version, cms_list):
-    a_calendar = _get_calendar(academic_yr, an_entity_version)
-    if a_calendar:
-        entity_learning_unit_yr_list = get_list_entity_learning_unit_yr(an_entity_version, academic_yr)
-        if entity_learning_unit_yr_list:
-            return _get_summary_detail(a_calendar, cms_list, entity_learning_unit_yr_list)
-    return []
-
-
 def _get_summary_status(a_calendar, cms_list, lu):
     for educational_information in cms_list:
         if educational_information.reference == lu.id \
@@ -370,8 +361,9 @@ def get_learning_units_and_summary_status(learning_unit_years):
 
 
 def _get_learning_unit_by_luy_entity(cms_list, learning_unit_yr):
-    a_calendar = _get_calendar(learning_unit_yr.academic_year,
-                               learning_unit_yr.entities.get('REQUIREMENT_ENTITY', None))
-    if a_calendar:
-        return _get_summary_detail(a_calendar, cms_list, [learning_unit_yr])
+    requirement_entity = learning_unit_yr.entities.get('REQUIREMENT_ENTITY', None)
+    if requirement_entity:
+        a_calendar = _get_calendar(learning_unit_yr.academic_year, requirement_entity)
+        if a_calendar:
+            return _get_summary_detail(a_calendar, cms_list, [learning_unit_yr])
     return []
