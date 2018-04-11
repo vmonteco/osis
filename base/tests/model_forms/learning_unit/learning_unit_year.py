@@ -23,82 +23,112 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django import forms
+from django.contrib.auth.models import Group
 from django.test import TestCase
+from django.utils.translation import ugettext_lazy as _
+
+from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm
+from base.forms.utils.acronym_field import PartimAcronymField, AcronymField
+from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
+from base.models.person import CENTRAL_MANAGER_GROUP, FACULTY_MANAGER_GROUP
+from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.learning_container import LearningContainerFactory
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.learning_unit import LearningUnitFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.person import PersonFactory
 
 
 class TestLearningUnitYearModelFormInit(TestCase):
     """Tests LearningUnitYearModelForm.__init__()"""
     def setUp(self):
-        pass
-
-    def test_case_missing_person_kwarg(self):
-        pass
-
-    def test_case_missing_subtype_kwargs(self):
-        pass
+        self.central_manager = PersonFactory()
+        self.central_manager.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
+        self.faculty_manager = PersonFactory()
+        self.faculty_manager.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
 
     def test_internship_subtype_removed_when_user_is_faculty_manager(self):
-        pass
+
+        self.form = LearningUnitYearModelForm(data=None, person=self.central_manager, subtype=FULL)
+        self.assertIsInstance(self.form.fields.get('internship_subtype'), forms.TypedChoiceField)
+
+        self.form = LearningUnitYearModelForm(data=None, person=self.faculty_manager, subtype=FULL)
+        self.assertIsNone(self.form.fields.get('internship_subtype'))
 
     def test_acronym_field_case_partim(self):
-        "should assert field is PartimAcronymField"
-        pass
+        self.form = LearningUnitYearModelForm(data=None, person=self.central_manager, subtype=PARTIM)
+        self.assertIsInstance(self.form.fields.get('acronym'), PartimAcronymField, "should assert field is PartimAcronymField")
 
     def test_acronym_field_case_full(self):
-        "should assert field is AcronymField"
+        self.form = LearningUnitYearModelForm(data=None, person=self.central_manager, subtype=FULL)
+        self.assertIsInstance(self.form.fields.get('acronym'), AcronymField, "should assert field is AcronymField")
 
     def test_label_specific_title_case_partim(self):
-        'should assert specific_title label correctly translated "proper to partim" '
-        pass
-
-    def test_label_common_title_case_partim(self):
-        'should assert common_title label correctly translated "proper to partim" '
-        pass
+        self.form = LearningUnitYearModelForm(data=None, person=self.central_manager, subtype=PARTIM)
+        self.assertEqual(self.form.fields['specific_title'].label, _('official_title_proper_to_partim'))
+        self.assertEqual(self.form.fields['specific_title_english'].label, _('official_english_title_proper_to_partim'))
 
     def test_case_update_academic_year_is_disabled(self):
-        pass
+        self.form = LearningUnitYearModelForm(data=None, person=self.central_manager, subtype=PARTIM,
+                                              instance=LearningUnitYearFactory())
+        self.assertTrue(self.form.fields['academic_year'].disabled)
 
-    def test_subtype_widget_is_hidden_input(self):
-        """Subtype must be present because not considered in POST_DATA if not present in fields
-            + prevent use default value of model field"""
-        pass
 
 # TODO :: unit tests on AcronymField et PartimAcronymField
 
 class TestLearningUnitYearModelFormSave(TestCase):
     """Tests LearningUnitYearModelForm.save()"""
+
     def setUp(self):
-        pass
+        self.central_manager = PersonFactory()
+        self.central_manager.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
+        self.faculty_manager = PersonFactory()
+        self.faculty_manager.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
+
+        self.learning_container = LearningContainerFactory()
+        self.learning_unit = LearningUnitFactory(learning_container=self.learning_container)
+        self.learning_container_year = LearningContainerYearFactory(learning_container=self.learning_container)
+        self.form = LearningUnitYearModelForm(data=None, person=self.central_manager, subtype=FULL)
+        self.learning_unit_year_to_update = LearningUnitYearFactory(
+            learning_unit=self.learning_unit, learning_container_year=self.learning_container_year)
+
+        self.current_academic_year = create_current_academic_year()
+        self.post_data = {
+            'acronym_0': 'L',
+            'acronym_1': 'OSIS9001',
+            'academic_year': self.current_academic_year.id,
+            'specific_title': 'The hobbit ',
+            'specific_title_english': 'An Unexpected Journey',
+            'credits': 3,
+            'session': 3,
+            'quadrimester': 'Q1',
+            'internship_subtype': '',
+            'attribution_procedure': ''
+        }
 
     def test_case_missing_required_learning_container_year_kwarg(self):
-        pass
+        with self.assertRaises(KeyError):
+            self.form.save(learning_unit=self.learning_unit, entity_container_years=[])
 
     def test_case_missing_required_learning_unit_kwarg(self):
-        pass
-
-    def test_case_missing_required_subtype_kwarg(self):
-        pass
+        with self.assertRaises(KeyError):
+            self.form.save(learning_container_year=self.learning_container_year, entity_container_years=[])
 
     def test_case_missing_required_entity_container_years_kwarg(self):
-        pass
-
-    def test_learning_container_year_not_updated(self):
-        "if instance is given (in case of update), the Modelform can't update the instance.learning_container_year value from post_data"
-        pass
-
-    def test_learning_unit_not_updated(self):
-        "if instance is given (in case of update), the Modelform can't update the instance.learning_unit value from post_data"
-        pass
-
-    def test_subtype_not_updated(self):
-        "if instance is given (in case of update), the Modelform can't update the instance.subtype value from post_data"
-        pass
+        with self.assertRaises(KeyError):
+            self.form.save(learning_container_year=self.learning_container_year, learning_unit=self.learning_unit)
 
     def test_post_data_correctly_saved_case_creation(self):
         "should assert get_attr(learning_unit_year_created, field) for field in fields_to_check are the same value than post_data[field]"
         fields_to_check = ['academic_year', 'acronym', 'specific_title', 'specific_title_english', 'credits',
                            'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure']
-        pass
+
+        form = LearningUnitYearModelForm(data=self.post_data, person=self.central_manager, subtype=FULL)
+        self.assertTrue(form.is_valid(), form.errors)
+        # TODO
+        luy = self.form.save(learning_container_year=self.learning_container_year, learning_unit=self.learning_unit,
+                             entity_container_years=[])
 
     def test_components_are_correctly_saved_when_creation_of_container_type_master_thesis(self):
         "case container_type = MASTER_THESIS and "

@@ -23,24 +23,22 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
-    LearningContainerModelForm, EntityContainerFormset, LearningContainerYearModelForm
+import abc
+
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_units import edition as edition_business
+from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
+    LearningContainerModelForm, EntityContainerFormset, LearningContainerYearModelForm
 from base.forms.utils.acronym_field import split_acronym
 from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear
-from base.models.campus import find_main_campuses, Campus
-from base.models.enums.component_type import LECTURING, PRACTICAL_EXERCISES
-from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
-from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, \
-    LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES, CONTAINER_TYPE_WITH_DEFAULT_COMPONENT
+from base.models.campus import Campus
 from base.models.enums import learning_unit_year_subtypes
+from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
+from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
 from base.models.learning_unit_year import LearningUnitYear
 from reference.models import language
-import abc
-
 
 FULL_READ_ONLY_FIELDS = {"first_letter", "acronym", "academic_year", "container_type", "subtype"}
 
@@ -171,7 +169,7 @@ class FullForm(LearningUnitBaseForm):
                 'data': data,
                 'instance': instance,
                 'initial': {
-                    'status': True, 'academic_year': default_ac_year, 'subtype': self.subtype
+                    'status': True, 'academic_year': default_ac_year,
                 } if not instance else None,
                 'person': person,
                 'subtype': self.subtype
@@ -242,7 +240,6 @@ class FullForm(LearningUnitBaseForm):
             learning_container_year=container_year,
             learning_unit=learning_unit,
             entity_container_years=entity_container_years,
-            subtype=self.subtype,
             commit=commit)
 
         return self._create_with_postponement(learning_unit_year)
@@ -367,7 +364,6 @@ class PartimForm(LearningUnitBaseForm):
             learning_container_year=learning_container_year_full,
             learning_unit=learning_unit,
             entity_container_years=entity_container_years,
-            subtype=self.subtype,
             commit=commit
         )
 

@@ -42,11 +42,10 @@ from django.utils.translation import ugettext_lazy as _
 
 import base.business.learning_unit
 from base.business import learning_unit as learning_unit_business
-from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
-    LearningUnitFormContainer
+from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm
+from base.forms.learning_unit.search_form import LearningUnitYearForm, SearchForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, SummaryModelForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
-from base.forms.learning_unit.search_form import LearningUnitYearForm, SearchForm
 from base.models import learning_unit_component
 from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear
@@ -83,18 +82,17 @@ from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
-from base.views.learning_unit import learning_unit_components, learning_class_year_edit, learning_unit_specifications, \
-    learning_unit_create
-from base.views.learning_units.update import learning_unit_pedagogy
+from base.views.learning_unit import learning_unit_components, learning_class_year_edit, learning_unit_specifications
+from base.views.learning_unit import learning_unit_identification
+from base.views.learning_units.search import learning_units
 from base.views.learning_units.search import learning_units_service_course
+from base.views.learning_units.update import learning_unit_pedagogy
 from cms.enums import entity_name
 from cms.tests.factories.text_label import TextLabelFactory
 from cms.tests.factories.translated_text import TranslatedTextFactory
 from osis_common.document import xls_build
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
-from base.views.learning_units.search import learning_units
-from base.views.learning_unit import learning_unit_identification
 
 
 class LearningUnitViewTestCase(TestCase):

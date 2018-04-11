@@ -24,32 +24,28 @@
 #
 ##############################################################################
 from django import forms
-from django.db import transaction
 from django.forms import inlineformset_factory
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.learning_units.edition import duplicate_learning_unit_year
-from base.forms.utils.acronym_field import AcronymField, PartimAcronymField, split_acronym
+from base.forms.utils.acronym_field import AcronymField, PartimAcronymField
 from base.forms.utils.choice_field import add_blank
-from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear
-from base.models.campus import find_main_campuses, Campus
+from base.models.campus import find_main_campuses
 from base.models.entity_component_year import EntityComponentYear
-from base.models.entity_container_year import EntityContainerYear, find_requirement_entities
+from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import find_main_entities_version, get_last_version
+from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.component_type import LECTURING, PRACTICAL_EXERCISES
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
     ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2, ENTITY_TYPE_LIST, REQUIREMENT_ENTITIES
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, \
-    LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES, CONTAINER_TYPE_WITH_DEFAULT_COMPONENT
+    CONTAINER_TYPE_WITH_DEFAULT_COMPONENT
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
-from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_container import LearningContainer
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
-from reference.models import language
 
 PARTIM_FORM_READ_ONLY_FIELD = {'common_title', 'common_title_english', 'requirement_entity',
                                'allocation_entity', 'language', 'periodicity', 'campus', 'academic_year',
@@ -106,11 +102,14 @@ class LearningContainerModelForm(forms.ModelForm):
 
 
 class LearningUnitYearModelForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        if kwargs.pop('person').is_faculty_manager():
+    def __init__(self, data, person, subtype, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        if person.is_faculty_manager():
             self.fields.pop('internship_subtype')
-        subtype = kwargs.pop('subtype')
-        super().__init__(*args, **kwargs)
+
+        self.instance.subtype = subtype
+
         if subtype == learning_unit_year_subtypes.PARTIM:
             self.fields['acronym'] = PartimAcronymField()
             self.fields['specific_title'].label = _('official_title_proper_to_partim')
@@ -122,15 +121,14 @@ class LearningUnitYearModelForm(forms.ModelForm):
     class Meta:
         model = LearningUnitYear
         fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'credits',
-                  'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure', 'subtype', )
-        widgets = {'subtype': forms.HiddenInput()}
+                  'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure', )
+
         field_classes = {'acronym': AcronymField}
 
     def save(self, **kwargs):
         # Save learning unit year (learning_unit_component +  learning_component_year + entity_component_year)
         self.instance.learning_container_year = kwargs.pop('learning_container_year')
         self.instance.learning_unit = kwargs.pop('learning_unit')
-        self.instance.subtype = kwargs.pop('subtype')
         entity_container_years = kwargs.pop('entity_container_years')
         instance = super().save(**kwargs)
         components_type = _get_default_components_type(self.instance.learning_container_year.container_type)
