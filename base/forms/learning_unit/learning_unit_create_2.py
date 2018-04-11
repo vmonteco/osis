@@ -258,6 +258,9 @@ class PartimForm(LearningUnitBaseForm):
         self.instance = instance
         if not isinstance(learning_unit_year_full, LearningUnitYear):
             raise AttributeError('learning_unit_year_full arg should be an instance of {}'.format(LearningUnitYear))
+        if learning_unit_year_full.subtype != learning_unit_year_subtypes.FULL:
+            error_args = 'learning_unit_year_full arg should have a subtype {}'.format(learning_unit_year_subtypes.FULL)
+            raise AttributeError(error_args)
         self.learning_unit_year_full = learning_unit_year_full
 
         # Inherit values cannot be changed by user
@@ -304,9 +307,8 @@ class PartimForm(LearningUnitBaseForm):
 
     def _get_initial_learning_unit_year_form(self):
         acronym = self.instance.acronym if self.instance else self.learning_unit_year_full.acronym
-        acronym_splited = split_acronym(acronym)
         initial_learning_unit_year = {
-            'acronym': acronym_splited,
+            'acronym': acronym,
             'academic_year': self.learning_unit_year_full.academic_year.id,
             'internship_subtype': self.learning_unit_year_full.internship_subtype,
             'attribution_procedure': self.learning_unit_year_full.attribution_procedure,
@@ -318,6 +320,7 @@ class PartimForm(LearningUnitBaseForm):
             'specific_title': self.learning_unit_year_full.specific_title,
             'specific_title_english': self.learning_unit_year_full.specific_title_english
         }
+        acronym_splited = split_acronym(acronym)
         initial_learning_unit_year.update({
             "acronym_{}".format(idx): acronym_part for idx, acronym_part in enumerate(acronym_splited)
         })
