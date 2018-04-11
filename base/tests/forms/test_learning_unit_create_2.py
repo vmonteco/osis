@@ -249,6 +249,16 @@ class TestFullFormIsValid(TestCase):
         form = _instanciate_form(post_data=self.post_data, default_ac_year=self.current_academic_year)
         self.assertFalse(form.is_valid())
 
+    @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm._validate_same_entities_container', side_effect=lambda *args: False)
+    def test_creation_case_not_same_entities_container(self, mock_is_valid):
+        form = _instanciate_form(post_data=self.post_data, default_ac_year=self.current_academic_year)
+        self.assertFalse(form.is_valid())
+
+    @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm._validate_no_empty_title', side_effect=lambda *args: False)
+    def test_creation_case_wrong_titles(self, mock_is_valid):
+        form = _instanciate_form(post_data=self.post_data, default_ac_year=self.current_academic_year)
+        self.assertFalse(form.is_valid())
+
     def test_update_case_correct_data(self):
         now = datetime.datetime.now()
         learn_unit_structure = GenerateContainer(now.year, now.year)
@@ -276,3 +286,18 @@ class TestFullFormIsValid(TestCase):
     def test_update_case_wrong_entity_container_year_data(self, mock_is_valid):
         form = _instanciate_form(post_data=self.post_data, instance=self.learning_unit_year)
         self.assertFalse(form.is_valid())
+
+    @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm._validate_same_entities_container', side_effect=lambda *args: False)
+    def test_creation_case_not_same_entities_container(self, mock_is_valid):
+        form = _instanciate_form(post_data=self.post_data, instance=self.learning_unit_year)
+        self.assertFalse(form.is_valid())
+
+    @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm._validate_no_empty_title', side_effect=lambda *args: False)
+    def test_creattion_case_wrong_titles(self, mock_is_valid):
+        form = _instanciate_form(post_data=self.post_data, instance=self.learning_unit_year)
+        self.assertFalse(form.is_valid())
+
+
+class TestFullFormSave(TestCase):
+    """Unit tests for is_valid() """
+    pass
