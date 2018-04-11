@@ -125,30 +125,33 @@ class LearningUnitYearModelForm(forms.ModelForm):
 
         field_classes = {'acronym': AcronymField}
 
+    # TODO :: Move assignment to self.instance from save into __init__
+    # TODO :: Make these kwarg to args (learning_container_year, learning_unit, ... are required args)
     def save(self, **kwargs):
-        # Save learning unit year (learning_unit_component +  learning_component_year + entity_component_year)
         self.instance.learning_container_year = kwargs.pop('learning_container_year')
         self.instance.learning_unit = kwargs.pop('learning_unit')
         entity_container_years = kwargs.pop('entity_container_years')
         instance = super().save(**kwargs)
+        self._save_learning_components(entity_container_years, instance)
+        return instance
+
+    def _save_learning_components(self, entity_container_years, learning_unit_year):
         components_type = _get_default_components_type(self.instance.learning_container_year.container_type)
         for component_type in components_type:
-            # Create learning component year
             component, created = LearningComponentYear.objects.get_or_create(
-                learning_container_year=instance.learning_container_year,
+                learning_container_year=learning_unit_year.learning_container_year,
                 type=component_type,
                 defaults={'acronym': DEFAULT_ACRONYM_COMPONENT[component_type]}
             )
-            # Create learning unit component (Link learning unit year / learning component year)
-            LearningUnitComponent.objects.get_or_create(learning_unit_year=instance, learning_component_year=component,
-                                                        type=component_type)
-            # Create entity component year for requirement entities
-            self.create_entity_component_year(component, entity_container_years)
-        return instance
+            self._save_learning_unit_component(component, component_type, learning_unit_year)
+            self._save_entity_components_year(component, entity_container_years)
 
-    def create_entity_component_year(self, component, entity_container_years=None):
-        if entity_container_years is None:
-            entity_container_years = []
+    def _save_learning_unit_component(self, component, component_type, learning_unit_year):
+        return LearningUnitComponent.objects.get_or_create(learning_unit_year=learning_unit_year,
+                                                           learning_component_year=component,
+                                                           type=component_type)
+
+    def _save_entity_components_year(self, component, entity_container_years):
         requirement_entity_containers = filter(lambda ec: ec.type in REQUIREMENT_ENTITIES, entity_container_years)
         for requirement_entity_container in requirement_entity_containers:
             EntityComponentYear.objects.get_or_create(entity_container_year=requirement_entity_container,
