@@ -32,16 +32,15 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import get_learning_units_and_summary_status
 from base.business.learning_units.educational_information import get_responsible_and_learning_unit_yr_list
+from base.forms.common import TooManyResultsException
 from base.forms.learning_unit.educational_information.mail_reminder import MailReminderRow, MailReminderFormset
+from base.forms.learning_units import LearningUnitYearForm
 from base.models.person import Person, find_by_user
 from base.utils.send_mail import send_mail_for_educational_information_update
 from base.views import layout
-from base.views.learning_units.search import SUMMARY_LIST
-from base.forms.learning_units import LearningUnitYearForm
-from base.forms.common import TooManyResultsException
 from base.views.common import check_if_display_message
 from base.views.common import display_error_messages
-from base.models.academic_year import current_academic_year
+from base.views.learning_units.search import SUMMARY_LIST
 
 SUCCESS_MESSAGE = _('success_mail_reminder')
 
@@ -68,13 +67,13 @@ def send_email_educational_information_needs_update(request):
 def learning_units_summary_list(request):
     a_user_person = find_by_user(request.user)
     learning_units_found = []
-    entities_version_attached = a_user_person.find_main_entities_version
-    search_form = _get_search_form(request)
+
+    search_form = LearningUnitYearForm(request.GET or None)
 
     try:
         if search_form.is_valid():
             learning_units_found_search = search_form.get_learning_units(
-                requirement_entities=entities_version_attached,
+                requirement_entities=a_user_person.find_main_entities_version,
                 luy_status=True
             )
             learning_units_found = get_learning_units_and_summary_status(learning_units_found_search)
@@ -110,11 +109,3 @@ def _get_formset(request, responsible_and_learning_unit_yr_list):
                                                      extra=len(responsible_and_learning_unit_yr_list))
         return list_mail_reminder_formset(request.POST or None, list_responsible=responsible_and_learning_unit_yr_list)
     return None
-
-
-def _get_search_form(request):
-    if request.GET:
-        search_form = LearningUnitYearForm(request.GET or None)
-    else:
-        search_form = LearningUnitYearForm(data={'academic_year_id': current_academic_year().id})
-    return search_form
