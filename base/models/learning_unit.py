@@ -108,6 +108,7 @@ class LearningUnit(SerializableModel):
             ("can_delete_learningunit", "Can delete learning unit"),
             ("can_propose_learningunit", "Can propose learning unit "),
             ("can_create_learningunit", "Can create learning unit"),
+            ("can_consolidate_learningunit_proposal", "Can consolidate learning unit proposal"),
         )
 
 

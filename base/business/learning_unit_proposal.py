@@ -23,17 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
-from base.business.learning_units.simple import deletion as business_deletion
+from django.apps import apps
+from django.contrib.messages import ERROR, SUCCESS
+from django.utils.translation import ugettext_lazy as _
+
+from base import models as mdl_base
+from base.business.learning_units.edition import update_or_create_entity_container_year_with_components, \
+    edit_learning_unit_end_date
+from base.business.learning_units import perms
+from base.business.learning_units.perms import PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES
+from base.business.learning_units.simple import deletion as business_deletion, deletion
 from base.models import entity_container_year, campus, entity
-from base.models.enums import entity_container_year_link_type
+from base.models.enums import entity_container_year_link_type, proposal_state, proposal_type
 from base.models.enums.proposal_type import ProposalType
 from base.utils import send_mail as send_mail_util
 from reference.models import language
-from django.utils.translation import ugettext_lazy as _
-from base import models as mdl_base
-from django.apps import apps
-from django.contrib.messages import ERROR, SUCCESS
 
 APP_BASE_LABEL = 'base'
 END_FOREIGN_KEY_NAME = "_id"
@@ -269,8 +273,39 @@ def _get_rid_of_blank_value(data):
     return clean_data
 
 
-def cancel_proposal(learning_unit_proposal, author, send_mail=True):
+def cancel_proposals(proposals, author):
+    return apply_action_on_proposals(proposals, author, cancel_proposal, "success_cancel_proposal",
+                                     "error_cancel_proposal",
+                                     send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation)
+
+
+def consolidate_proposals(proposals, author):
+    return apply_action_on_proposals(proposals, author, consolidate_proposal, "success_consolidate_proposal",
+                                     "error_consolidate_proposal",
+                                     send_mail_util.send_mail_after_the_learning_unit_proposal_consolidation)
+
+
+def apply_action_on_proposals(proposals, author, action_method, success_msg_id, error_msg_id, send_mail_method):
+    messages_by_level = {SUCCESS: [], ERROR: []}
+
+    for proposal in proposals:
+        msg = action_method(proposal)
+        if msg.get(ERROR):
+            error_msg = _(error_msg_id).format(acronym=proposal.learning_unit_year.acronym,
+                                               academic_year=proposal.learning_unit_year.academic_year)
+            messages_by_level[ERROR].append(error_msg)
+        else:
+            success_msg = _(success_msg_id).format(acronym=proposal.learning_unit_year.acronym,
+                                                   academic_year=proposal.learning_unit_year.academic_year)
+            messages_by_level[SUCCESS].append(success_msg)
+
+    send_mail_method([author], proposals)
+    return messages_by_level
+
+
+def cancel_proposal(learning_unit_proposal, author=None, send_mail=False):
     acronym = learning_unit_proposal.learning_unit_year.acronym
+    academic_year = learning_unit_proposal.learning_unit_year.academic_year
     error_messages = []
     success_messages = []
     if learning_unit_proposal.type == ProposalType.CREATION.name:
@@ -281,8 +316,9 @@ def cancel_proposal(learning_unit_proposal, author, send_mail=True):
     else:
         reinitialize_data_before_proposal(learning_unit_proposal)
     delete_learning_unit_proposal(learning_unit_proposal)
-    success_messages.append(_("success_cancel_proposal").format(acronym))
-    if send_mail:
+    success_messages.append(_("success_cancel_proposal").format(acronym=acronym,
+                                                                academic_year=academic_year))
+    if send_mail and author is not None:
         send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation([author], [learning_unit_proposal])
     return {
         SUCCESS: success_messages,
@@ -290,15 +326,42 @@ def cancel_proposal(learning_unit_proposal, author, send_mail=True):
     }
 
 
-def cancel_proposals(proposals_to_cancel, author):
-    success_messages = []
-    error_messages = []
-    for proposal in proposals_to_cancel:
-        messages_by_level = cancel_proposal(proposal, author, send_mail=False)
-        success_messages.extend(messages_by_level[SUCCESS])
-        error_messages.extend(messages_by_level[ERROR])
-    send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation([author], [proposals_to_cancel])
-    return {
-        SUCCESS: success_messages,
-        ERROR: error_messages
-    }
+def consolidate_proposal(proposal, author=None, send_mail=False):
+    messages_by_level = {}
+    if proposal.state not in PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES:
+        return {
+            ERROR: [_("error_consolidate_proposal").format(acronym=proposal.learning_unit_year.acronym,
+                                                           academic_year=proposal.learning_unit_year.academic_year)]
+        }
+    if proposal.type == proposal_type.ProposalType.CREATION.name:
+        messages_by_level = consolidate_creation_proposal(proposal)
+
+    if send_mail and author is not None:
+        send_mail_util.send_mail_after_the_learning_unit_proposal_consolidation([author], [proposal])
+
+    return messages_by_level
+
+
+def consolidate_creation_proposal(proposal):
+    proposal.learning_unit_year.learning_unit.end_year = proposal.learning_unit_year.academic_year.year
+    proposal.learning_unit_year.learning_unit.save()
+
+    if proposal.state == proposal_state.ProposalState.ACCEPTED.name:
+        results = _consolidate_creation_proposal_of_state_accepted(proposal)
+    else:
+        results = _consolidate_creation_proposal_of_state_refused(proposal)
+    if not results.get(ERROR, []):
+        proposal.delete()
+    return results
+
+
+def _consolidate_creation_proposal_of_state_accepted(proposal):
+    return {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, None)}
+
+
+def _consolidate_creation_proposal_of_state_refused(proposal):
+    messages_by_level = deletion.check_learning_unit_deletion(proposal.learning_unit_year.learning_unit,
+                                                              check_proposal=False)
+    if messages_by_level:
+        return {ERROR: list(messages_by_level.values())}
+    return {SUCCESS: deletion.delete_learning_unit(proposal.learning_unit_year.learning_unit)}

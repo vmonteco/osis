@@ -26,9 +26,9 @@
 from django.contrib import admin
 from django.db import models
 
+from assistant.models.enums import reviewer_role
 from base.models import entity_version
 from base.models.enums import entity_type
-from assistant.models.enums import reviewer_role
 
 
 class ReviewerAdmin(admin.ModelAdmin):
@@ -42,11 +42,11 @@ class ReviewerAdmin(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
         form = super(ReviewerAdmin, self).get_form(request, obj, **kwargs)
         form.base_fields['entity'].queryset = \
-            entity_version.search_entities(type=entity_type.INSTITUTE) | \
-            entity_version.search_entities(type=entity_type.FACULTY) | \
-            entity_version.search_entities(type=entity_type.SECTOR) | \
-            entity_version.search_entities(type=entity_type.POLE) | \
-            entity_version.search_entities(type=entity_type.SCHOOL)
+            entity_version.search_entities(entity_type=entity_type.INSTITUTE) | \
+            entity_version.search_entities(entity_type=entity_type.FACULTY) | \
+            entity_version.search_entities(entity_type=entity_type.SECTOR) | \
+            entity_version.search_entities(entity_type=entity_type.POLE) | \
+            entity_version.search_entities(entity_type=entity_type.SCHOOL)
         return form
 
 

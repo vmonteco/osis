@@ -26,6 +26,7 @@
 
 from base.models import academic_calendar
 from base.models import academic_year
+from base.models import bibliography
 from base.models import campus
 from base.models import education_group
 from base.models import education_group_language

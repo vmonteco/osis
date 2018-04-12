@@ -263,7 +263,8 @@ def _is_regex(acronym):
 
 
 def search(academic_year_id=None, acronym=None, learning_container_year_id=None, learning_unit=None,
-           title=None, subtype=None, status=None, container_type=None, tutor=None, *args, **kwargs):
+           title=None, subtype=None, status=None, container_type=None, tutor=None,
+           summary_responsible=None, requirement_entities=None, *args, **kwargs):
     queryset = LearningUnitYear.objects
 
     if academic_year_id:
@@ -281,6 +282,11 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
         elif learning_container_year_id:
             queryset = queryset.filter(learning_container_year=learning_container_year_id)
 
+    if requirement_entities:
+        queryset = queryset.filter(
+            learning_container_year__entitycontaineryear__entity__entityversion__in=requirement_entities,
+            learning_container_year__entitycontaineryear__type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+
     if learning_unit:
         queryset = queryset.filter(learning_unit=learning_unit)
 
@@ -292,7 +298,7 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
         queryset = queryset.filter(subtype=subtype)
 
     if status:
-        queryset = queryset.filter(status=_convert_status_bool(status))
+        queryset = queryset.filter(status=convert_status_bool(status))
 
     if container_type:
         queryset = queryset.filter(learning_container_year__container_type=container_type)
@@ -302,7 +308,20 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
         filter_by_last_name = {_build_tutor_filter(name_type='last_name'): tutor}
         queryset = queryset.filter(Q(**filter_by_first_name) | Q(**filter_by_last_name)).distinct()
 
+    if summary_responsible:
+        queryset = find_summary_responsible_by_name(queryset, summary_responsible)
+
     return queryset.select_related('learning_container_year', 'academic_year')
+
+
+def find_summary_responsible_by_name(queryset, name):
+    for term in name.split():
+        queryset = queryset.filter(
+            Q(attribution__tutor__person__first_name__icontains=term) |
+            Q(attribution__tutor__person__last_name__icontains=term)
+        )
+
+    return queryset.filter(attribution__summary_responsible=True).distinct()
 
 
 def _build_tutor_filter(name_type):
@@ -310,7 +329,7 @@ def _build_tutor_filter(name_type):
                       'tutor', 'person', name_type, 'icontains'])
 
 
-def _convert_status_bool(status):
+def convert_status_bool(status):
     if status in (active_status.ACTIVE, active_status.INACTIVE):
         boolean = status == active_status.ACTIVE
     else:
@@ -347,3 +366,7 @@ def find_by_learning_unit(a_learning_unit):
 
 def find_by_entities(entities):
     return LearningUnitYear.objects.filter(learning_container_year__entitycontaineryear__entity__in=entities)
+
+
+def find_latest_by_learning_unit(a_learning_unit):
+    return search(learning_unit=a_learning_unit).order_by('academic_year').last()

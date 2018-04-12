@@ -38,7 +38,8 @@ from base.models.academic_year import current_academic_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.person import Person, find_by_user
 from base.views import layout
-from base.views.common import check_if_display_message, display_error_messages, display_success_messages
+from base.views.common import check_if_display_message, display_error_messages, display_success_messages, \
+    display_messages_by_level
 from base.business import learning_unit_proposal as proposal_business
 
 PROPOSAL_SEARCH = 3
@@ -49,7 +50,6 @@ def _learning_units_search(request, search_type):
     service_course_search = search_type == SERVICE_COURSES_SEARCH
 
     form = LearningUnitYearForm(request.GET or None, service_course_search=service_course_search)
-
     found_learning_units = []
     try:
         if form.is_valid():
@@ -131,25 +131,27 @@ def process_formset(formset, request):
     if formset.is_valid():
         if formset.action == 'back_to_initial':
             formset = _go_back_to_initial_data(formset, request)
+        elif formset.action == "consolidate":
+            _consolidate_proposals(formset, request)
         else:
             _force_state(formset, request)
     return formset
 
 
 def _go_back_to_initial_data(formset, request):
-    proposals_candidate_to_cancellation = formset.get_checked_proposals()
-    if proposals_candidate_to_cancellation:
-        formset = _cancel_proposals(formset, proposals_candidate_to_cancellation, request)
-    else:
-        _build_no_data_error_message(request)
-    return formset
+    return _apply_action_on_proposals(formset, request, proposal_business.cancel_proposals)
 
 
-def _cancel_proposals(formset, proposals_to_cancel, request):
-    if proposals_to_cancel:
+def _consolidate_proposals(formset, request):
+    return _apply_action_on_proposals(formset, request, proposal_business.consolidate_proposals)
+
+
+def _apply_action_on_proposals(formset, request, action_method):
+    proposals = formset.get_checked_proposals()
+    if proposals:
         user_person = get_object_or_404(Person, user=request.user)
-        proposal_business.cancel_proposals(proposals_to_cancel, user_person)
-        display_success_messages(request, _("proposals_cancelled_successfully"))
+        messages_by_level = action_method(proposals, user_person)
+        display_messages_by_level(request, messages_by_level)
         formset = None
     else:
         _build_no_data_error_message(request)

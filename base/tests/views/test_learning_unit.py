@@ -163,24 +163,6 @@ class LearningUnitViewTestCase(TestCase):
         self.client.force_login(self.a_superuser)
 
     @mock.patch('base.views.layout.render')
-    def test_learning_units(self, mock_render):
-        request_factory = RequestFactory()
-
-        request = request_factory.get(reverse('learning_units'))
-        request.user = self.a_superuser
-
-        from base.views.learning_units.search import learning_units
-
-        learning_units(request)
-
-        self.assertTrue(mock_render.called)
-        request, template, context = mock_render.call_args[0]
-
-        self.assertEqual(template, 'learning_units.html')
-        self.assertEqual(context['current_academic_year'], self.current_academic_year)
-        self.assertEqual(len(context['academic_years']), 7)
-
-    @mock.patch('base.views.layout.render')
     def test_learning_units_search(self, mock_render):
         request_factory = RequestFactory()
         request = request_factory.get(reverse('learning_units'))
@@ -206,15 +188,18 @@ class LearningUnitViewTestCase(TestCase):
     def test_learning_units_search_with_acronym_filtering(self, mock_render):
         self._prepare_context_learning_units_search()
         request_factory = RequestFactory()
+
         filter_data = {
             'academic_year_id': self.current_academic_year.id,
-            'status': active_status.ACTIVE,
-            'acronym': 'LBIR'
+            'acronym': 'LBIR',
+            'status': active_status.ACTIVE
         }
+
         request = request_factory.get(reverse('learning_units'), data=filter_data)
         request.user = self.a_superuser
 
         learning_units(request)
+
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_units.html')
@@ -244,8 +229,8 @@ class LearningUnitViewTestCase(TestCase):
         request_factory = RequestFactory()
         filter_data = {
             'academic_year_id': self.current_academic_year.id,
-            'status': active_status.ACTIVE,
-            'acronym': '^LB(+)2+'
+            'acronym': '^LB(+)2+',
+            'status': active_status.ACTIVE
         }
         request = request_factory.get(reverse('learning_units'), data=filter_data)
         request.user = self.a_superuser
