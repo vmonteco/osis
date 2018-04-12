@@ -62,7 +62,7 @@
                             <div class="col-md-5">
                                 {% if can_edit_information %}
                                     <a class="pedagogy-edit-btn pull-right" href="#"
-                                       data-form="{{post_url}}?language={{ form_french.language.0 }}&label={{ label_key }}"
+                                       data-form="{{post_url}}?language={{ form_french.language.0 }}&label={{ label_key|urlencode }}"
                                        title="{% trans 'edit' %}">
                                         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                                     </a>
@@ -72,7 +72,7 @@
                             <div class="col-md-5">
                                 {% if can_edit_information %}
                                     <a class="pedagogy-edit-btn pull-right" href="#"
-                                       data-form="{{post_url}}?language={{ form_english.language.0 }}&label={{ label_key }}"
+                                       data-form="{{post_url}}?language={{ form_english.language.0 }}&label={{ label_key|urlencode }}"
                                        title="{% trans 'edit' %}">
                                         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                                     </a>
