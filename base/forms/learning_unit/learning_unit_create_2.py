@@ -265,19 +265,20 @@ class PartimForm(LearningUnitBaseForm):
         inherit_luy_values = self._get_inherit_learning_unit_year_full_value()
         instances_data = {
             LearningUnitModelForm: {
-                'data': data,
-                'initial': inherit_lu_values if not data else None,
-                'instance': instance.learning_unit if instance else None,
-            },
-            LearningContainerModelForm: {
-                'instance': self.learning_unit_year_full.learning_container_year.learning_container,
+                'data': _merge_two_dicts(data.dict(), inherit_lu_values) if data else None,
+                'instance': self.instance.learning_unit if self.instance else None,
+                'initial': inherit_lu_values if not self.instance else None,
             },
             LearningUnitYearModelForm: {
                 'data': _merge_two_dicts(data.dict(), inherit_luy_values) if data else None,
-                'instance': instance,
+                'instance': self.instance,
                 'initial': self._get_initial_learning_unit_year_form() if not self.instance else None,
                 'person': person,
                 'subtype': self.subtype
+            },
+            # Cannot be modify by user [No DATA args provided]
+            LearningContainerModelForm: {
+                'instance': self.learning_unit_year_full.learning_container_year.learning_container,
             },
             LearningContainerYearModelForm: {
                 'instance': self.learning_unit_year_full.learning_container_year,
@@ -356,12 +357,11 @@ class PartimForm(LearningUnitBaseForm):
         )
 
         # Get entity container form full learning container
-        learning_container_year_full = self.learning_unit_year_full.learning_container_year
-        entity_container_years = learning_container_year_full.entitycontaineryear_set.all()
+        entity_container_years = self._get_entity_container_year()
 
         # Save learning unit year
         learning_unit_year = self.form_instances[LearningUnitYearModelForm].save(
-            learning_container_year=learning_container_year_full,
+            learning_container_year=self.learning_unit_year_full.learning_container_year,
             learning_unit=learning_unit,
             entity_container_years=entity_container_years,
             commit=commit
@@ -369,6 +369,9 @@ class PartimForm(LearningUnitBaseForm):
 
         # Make Postponement
         return self._create_with_postponement(learning_unit_year)
+
+    def _get_entity_container_year(self):
+        return self.learning_unit_year_full.learning_container_year.entitycontaineryear_set.all()
 
     def _get_entities_data(self):
         learning_container_year_full = self.learning_unit_year_full.learning_container_year
