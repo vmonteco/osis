@@ -51,7 +51,6 @@ def _learning_units_search(request, search_type):
     service_course_search = search_type == SERVICE_COURSES_SEARCH
 
     form = LearningUnitYearForm(request.GET or None, service_course_search=service_course_search)
-
     found_learning_units = []
     try:
         if form.is_valid():

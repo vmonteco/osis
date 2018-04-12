@@ -29,10 +29,10 @@ from django.conf.urls.static import static
 
 import base.views.learning_units.delete
 import base.views.learning_units.educational_information
+import base.views.learning_units.proposal.consolidate
 import base.views.learning_units.proposal.delete
 import base.views.learning_units.search
 import base.views.learning_units.update
-import base.views.learning_units.proposal.consolidate
 from attribution.views import attribution, tutor_application
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group
@@ -71,8 +71,7 @@ urlpatterns = [
     url(r'^catalog/$', common.catalog, name='catalog'),
 
     url(r'^entities/', include([
-        url(r'^$', institution.entities, name='entities'),
-        url(r'^search$', institution.entities_search, name='entities_search'),
+        url(r'^$', institution.entities_search, name='entities'),
         url(r'^(?P<entity_version_id>[0-9]+)/', include([
             url(r'^$', institution.entity_read, name='entity_read'),
             url(r'^address/$', institution.get_entity_address, name='entity_address'),

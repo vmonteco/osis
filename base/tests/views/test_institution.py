@@ -28,17 +28,18 @@ import json
 from unittest import mock
 
 from django.http import HttpResponseForbidden
+from rest_framework.reverse import reverse
+from rest_framework.test import APITestCase
 
 from base.forms.entity_calendar import EntityCalendarEducationalInformationForm
 from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.entity import EntityFactory
+from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.person import PersonFactory
-from rest_framework.reverse import reverse
-from rest_framework.test import APITestCase
 from base.views import institution
+from base.views.institution import entities_search
 from reference.tests.factories.country import CountryFactory
 
 
@@ -82,10 +83,10 @@ class EntityViewTestCase(APITestCase):
 
     def test_entities_search(self):
         self.client.force_login(self.user)
-        url = reverse('entities_search')
-        response = self.client.get(url+"?acronym=%s&title=%s&type_choices=%s" % ("ENTITY_CHILDREN", "", ""))
+        url = reverse(entities_search)
+        response = self.client.get(url, data={"acronym": "ENTITY_CHILDREN", "title": "", "entity_type": ""})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context[-1]['entities_version']), 1)
+        self.assertEqual(len(response.context['entities_version']), 1)
 
     def test_entity_read(self):
         self.client.force_login(self.user)

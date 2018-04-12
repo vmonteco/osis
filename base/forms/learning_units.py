@@ -29,49 +29,44 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
-from base.business.entity import get_entities_ids, get_entity_container_list, build_entity_container_prefetch, \
-    get_entities_ids_by_acronyms
+from base.business.entity import get_entities_ids, get_entity_container_list, build_entity_container_prefetch
 from base.business.entity_version import SERVICE_COURSE
 from base.business.learning_unit_year_with_context import append_latest_entities
 from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, TooManyResultsException
+from base.forms.learning_unit_search import SearchForm
 from base.models import learning_unit_year
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
     learning_unit_year_subtypes, active_status
-from base.forms.learning_unit_search import SearchForm
+from base.models.learning_unit_year import convert_status_bool
 
 
 class LearningUnitYearForm(SearchForm):
     container_type = forms.ChoiceField(
         label=_('type'),
         choices=SearchForm.ALL_CHOICES + learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
-        required=False
     )
 
     subtype = forms.ChoiceField(
         label=_('subtype'),
         choices=SearchForm.ALL_CHOICES + learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
-        required=False
     )
 
     status = forms.ChoiceField(
         label=_('status'),
         choices=SearchForm.ALL_CHOICES + active_status.ACTIVE_STATUS_LIST[:-1],
-        required=False
     )
 
     title = forms.CharField(
         max_length=20,
-        required=False,
         label=_('title')
     )
 
     allocation_entity_acronym = forms.CharField(
         max_length=20,
-        required=False,
         label=_('allocation_entity_small')
     )
 
-    with_entity_subordinated = forms.BooleanField(required=False, label=_('with_entity_subordinated_small'))
+    with_entity_subordinated = forms.BooleanField(label=_('with_entity_subordinated_small'))
 
     def __init__(self, *args, **kwargs):
         self.service_course_search = kwargs.pop('service_course_search', False)
@@ -99,14 +94,16 @@ class LearningUnitYearForm(SearchForm):
         else:
             return self.get_learning_units()
 
-    def get_learning_units(self, service_course_search=None, requirement_entities=None):
-        clean_data = self.cleaned_data
+    def get_learning_units(self, service_course_search=None, requirement_entities=None, luy_status=None):
         service_course_search = service_course_search or self.service_course_search
+        clean_data = self.cleaned_data
+        clean_data['status'] = self._set_status(luy_status)
 
         if requirement_entities:
-            clean_data['learning_container_year_id'] = get_filter_learning_container_ids_summary(requirement_entities)
-        else:
-            clean_data['learning_container_year_id'] = get_filter_learning_container_ids(clean_data)
+            clean_data['requirement_entities'] = requirement_entities
+
+        # TODO Use a queryset instead !!
+        clean_data['learning_container_year_id'] = get_filter_learning_container_ids(clean_data)
 
         if not service_course_search \
                 and clean_data \
@@ -119,8 +116,12 @@ class LearningUnitYearForm(SearchForm):
             .prefetch_related(build_entity_container_prefetch()) \
             .order_by('academic_year__year', 'acronym')
 
+        # FIXME We must keep a queryset
         return [append_latest_entities(learning_unit, service_course_search) for learning_unit in
                 learning_units]
+
+    def _set_status(self, luy_status):
+        return convert_status_bool(luy_status) if luy_status else self.cleaned_data['status']
 
     def _get_service_course_learning_units(self):
         service_courses = []
@@ -169,11 +170,4 @@ def get_filter_learning_container_ids(filter_data):
                                                      entity_ids,
                                                      entity_container_year_link_type.ALLOCATION_ENTITY)
 
-    return entities_id_list if entities_id_list else None
-
-
-def get_filter_learning_container_ids_summary(entities_requirement):
-    entities_id_list = get_entity_container_list([],
-                                                 get_entities_ids_by_acronyms(entities_requirement, True),
-                                                 entity_container_year_link_type.REQUIREMENT_ENTITY)
     return entities_id_list if entities_id_list else None
