@@ -25,31 +25,24 @@
 ##############################################################################
 import datetime
 from unittest import mock
+
+from django.test import TestCase
+
+from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
+    LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
 from base.forms.learning_unit.learning_unit_create_2 import FullForm
 from base.models.academic_year import AcademicYear
-from base.models.entity_container_year import EntityContainerYear
+from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit_year import LearningUnitYear
+from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.business.entities import create_entities_hierarchy
 from base.tests.factories.business.learning_units import GenerateContainer
-from base.tests.factories.entity_container_year import EntityContainerYearFactory
-from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.campus import CampusFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
-from base.tests.factories.person_entity import PersonEntityFactory
-from django.contrib.auth.models import Group
-from django.test import TestCase, RequestFactory
-from django.utils.translation import ugettext_lazy as _
-
-from base.forms.learning_unit.learning_unit_create import LearningUnitFormContainer, LearningUnitYearModelForm, \
-    LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningUnitYearPartimModelForm, \
-    LearningContainerModelForm
-from base.models.enums import learning_container_year_types
-from base.models.enums import learning_unit_year_subtypes, entity_container_year_link_type
-from base.models.person import CENTRAL_MANAGER_GROUP, FACULTY_MANAGER_GROUP
-from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
-from base.tests.factories.campus import CampusFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory, LearningUnitYearFakerFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
+from base.tests.factories.person_entity import PersonEntityFactory
 from reference.tests.factories.language import LanguageFactory
 
 
@@ -151,7 +144,7 @@ class TestFullFormInit(TestCase):
         full_form = _instanciate_form(post_data=self.post_data, default_ac_year=self.academic_year)
         expected_initials = {
             LearningUnitYearModelForm: {
-                'status': True, 'academic_year': self.academic_year, 'subtype': learning_unit_year_subtypes.FULL
+                'status': True, 'academic_year': self.academic_year
             },
             LearningContainerYearModelForm: {
                 'campus': self.initial_campus,
