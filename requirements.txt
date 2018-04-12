@@ -18,6 +18,7 @@ gitpython
 requests==2.18.3
 django-bootstrap3==9.1.0
 beautifulsoup4
+pypom
 
 -r ./osis_common/requirements.txt
 -r ./internship/requirements.txt
