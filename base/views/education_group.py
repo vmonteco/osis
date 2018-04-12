@@ -124,7 +124,7 @@ def education_group_general_informations(request, education_group_year_id):
     assert_category_of_education_group_year(
         education_group_year, (education_group_categories.TRAINING, education_group_categories.MINI_TRAINING))
 
-    CMS_LABEL = mdl_cms.translated_text.find_by_entity_reference(entity_name.OFFER_YEAR, education_group_year_id)
+    cms_label = mdl_cms.translated_text.find_by_entity_reference(entity_name.OFFER_YEAR, education_group_year_id)
 
     fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
     en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
@@ -136,12 +136,12 @@ def education_group_general_informations(request, education_group_year_id):
         'parent': parent,
         'can_edit_information': request.user.has_perm('base.can_edit_educationgroup_pedagogy'),
         'education_group_year': education_group_year,
-        'cms_labels_translated': _get_cms_label_data(CMS_LABEL,
+        'cms_labels_translated': _get_cms_label_data(cms_label,
                                                      mdl.person.get_user_interface_language(request.user)),
         'form_french': EducationGroupGeneralInformationsForm(education_group_year=education_group_year,
-                                                             language=fr_language, text_labels_name=CMS_LABEL),
+                                                             language=fr_language, text_labels_name=cms_label),
         'form_english': EducationGroupGeneralInformationsForm(education_group_year=education_group_year,
-                                                              language=en_language, text_labels_name=CMS_LABEL)
+                                                              language=en_language, text_labels_name=cms_label)
     }
     return layout.render(request, "education_group/tab_general_informations.html", context)
 
