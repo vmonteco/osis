@@ -35,6 +35,9 @@ FACULTY_UPDATABLE_CONTAINER_TYPES = (learning_container_year_types.COURSE,
                                      learning_container_year_types.DISSERTATION,
                                      learning_container_year_types.INTERNSHIP)
 
+PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES = (ProposalState.ACCEPTED.name,
+                                          ProposalState.REFUSED.name)
+
 
 def is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, person):
     entity = Entity.objects.filter(
@@ -69,6 +72,15 @@ def is_eligible_to_edit_proposal(proposal, person):
     if person.is_faculty_manager() and not _check_eligible_to_edit_proposal_as_faculty_manager(proposal, person):
         return False
     return person.user.has_perm('base.can_edit_learning_unit_proposal')
+
+
+def is_eligible_to_consolidate_proposal(proposal, person):
+    return person.user.has_perm('base.can_consolidate_learningunit_proposal') and \
+           is_proposal_in_state_to_be_consolidated(proposal)
+
+
+def is_proposal_in_state_to_be_consolidated(proposal):
+    return proposal.state in PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES
 
 
 def is_eligible_for_modification_end_date(learning_unit_year, person):
@@ -149,9 +161,11 @@ def learning_unit_year_permissions(learning_unit_year, person):
 
 
 def learning_unit_proposal_permissions(proposal, person, current_learning_unit_year):
-    permissions = {'can_cancel_proposal': False, 'can_edit_learning_unit_proposal': False}
+    permissions = {'can_cancel_proposal': False, 'can_edit_learning_unit_proposal': False,
+                   'can_consolidate_proposal': False}
     if not proposal or proposal.learning_unit_year != current_learning_unit_year:
         return permissions
     permissions['can_cancel_proposal'] = is_eligible_for_cancel_of_proposal(proposal, person)
     permissions['can_edit_learning_unit_proposal'] = is_eligible_to_edit_proposal(proposal, person)
+    permissions['can_consolidate_proposal'] = is_eligible_to_consolidate_proposal(proposal, person)
     return permissions

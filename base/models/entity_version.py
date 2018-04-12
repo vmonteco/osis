@@ -289,9 +289,7 @@ def count(**kwargs):
     return search(**kwargs).count()
 
 
-def search_entities(acronym=None, title=None, type=None, with_entity=None):
-    if not acronym and not title and not type:
-        return
+def search_entities(acronym=None, title=None, entity_type=None, with_entity=None):
     queryset = EntityVersion.objects
     if with_entity:
         queryset = queryset.select_related('entity__organization')
@@ -300,8 +298,8 @@ def search_entities(acronym=None, title=None, type=None, with_entity=None):
         queryset = queryset.filter(acronym__icontains=acronym)
     if title:
         queryset = queryset.filter(title__icontains=title)
-    if type:
-        queryset = queryset.filter(entity_type=type)
+    if entity_type:
+        queryset = queryset.filter(entity_type=entity_type)
 
     return queryset
 
@@ -362,3 +360,10 @@ def find_last_entity_version_by_learning_unit_year_id(learning_unit_year_id):
             latest('start_date')
     except EntityVersion.DoesNotExist:
         return None
+
+
+def search_by_acronyms(entities):
+    q = Q()
+    for entity in entities:
+        q |= Q(acronym__icontains=entity.acronym)
+    return EntityVersion.objects.filter(q)

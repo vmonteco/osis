@@ -942,6 +942,9 @@ msgstr "Search/update the list"
 msgid "registration_id"
 msgstr "Registration ID"
 
+msgid "registration_id_does_not_match_email"
+msgstr "Registration ID does not match email"
+
 msgid "identification_number"
 msgstr "Number ID"
 
@@ -2371,6 +2374,9 @@ msgstr "Proposal edited successfully"
 msgid "proposals_cancelled_successfully"
 msgstr "Proposals cancelled successfully"
 
+msgid "proposals_consolidated_successfully"
+msgstr "Proposals consolidated successfully"
+
 msgid "content"
 msgstr "Content"
 
@@ -2464,14 +2470,14 @@ msgstr "Xls with learning units"
 msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
 msgstr ""
 
-msgid "success_cancel_proposal"
-msgstr "The proposal for {} was cancelled."
-
 msgid "cancel_proposal"
 msgstr "Cancel proposal"
 
 msgid "edit_proposal"
 msgstr "Edit proposal"
+
+msgid "Consolidate proposal"
+msgstr ""
 
 msgid "msg_confirm_cancel_proposal"
 msgstr "Are you certain that you want to cancel the learning unit proposal ?"
@@ -2750,3 +2756,24 @@ msgstr "Sent email to remind to update educational information"
 
 msgid "success_mail_reminder"
 msgstr "Reminding mails sent"
+
+msgid "consolidate"
+msgstr "Consolidate"
+
+msgid "do_you_want_to_consolidate"
+msgstr "Do you want to consolidate ?"
+
+msgid "need_no_reminder"
+msgstr "Need no reminder"
+
+msgid "error_consolidate_proposal"
+msgstr "Proposal {acronym} ({academic_year}) cannot be consolidated."
+
+msgid "success_consolidate_proposal"
+msgstr "Proposal {acronym} ({academic_year}) successfully consolidated."
+
+msgid "error_cancel_proposal"
+msgstr "Proposal {acronym} ({academic_year}) cannot be canceled."
+
+msgid "success_cancel_proposal"
+msgstr "Proposal {acronym} ({academic_year}) successfully canceled."

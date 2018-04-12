@@ -119,7 +119,8 @@ def education_group_general_informations(request, education_group_year_id):
     assert_category_of_education_group_year(
         education_group_year, (education_group_categories.TRAINING, education_group_categories.MINI_TRAINING))
 
-    CMS_LABEL = mdl_cms.translated_text.find_by_entity_reference(entity_name.OFFER_YEAR, education_group_year_id)
+    CMS_LABEL = mdl_cms.translated_text.find_labels_list_by_label_entity_and_reference(entity_name.OFFER_YEAR,
+                                                                                       education_group_year_id)
 
     fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
     en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)

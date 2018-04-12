@@ -31,10 +31,15 @@ from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
 
+from attribution.tests.factories.attribution import AttributionFactory
+from base.models.academic_year import current_academic_year
+from base.models.enums import academic_calendar_type
 from base.models.enums import entity_container_year_link_type
 from base.models.enums import learning_container_year_types, organization_type
-from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.academic_calendar import AcademicCalendarFactory
+from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.entity import EntityFactory
+from base.tests.factories.entity_calendar import EntityCalendarFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
@@ -42,28 +47,27 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
+from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.user import UserFactory
+from base.views.learning_units.educational_information import learning_units_summary_list, \
+    send_email_educational_information_needs_update
 from base.views.learning_units.search import SUMMARY_LIST
 from reference.tests.factories.country import CountryFactory
-from base.tests.factories.entity_calendar import EntityCalendarFactory
-from base.tests.factories.academic_calendar import AcademicCalendarFactory
-from base.models.enums import academic_calendar_type
-from base.tests.factories.academic_year import create_current_academic_year
-from base.views.learning_units.educational_information import SUCCESS_MESSAGE
-from attribution.tests.factories.attribution import AttributionFactory
-from base.tests.factories.tutor import TutorFactory
 
 
 class LearningUnitViewPedagogyTestCase(TestCase):
     def setUp(self):
-        today = datetime.date.today()
-        self.current_academic_year = AcademicYearFactory(start_date=today,
-                                                         end_date=today.replace(year=today.year + 1),
-                                                         year=today.year)
         self.current_academic_year = create_current_academic_year()
         self.organization = OrganizationFactory(type=organization_type.MAIN)
         self.country = CountryFactory()
-        self.url = reverse('learning_units_summary')
+        self.url = reverse(learning_units_summary_list)
+        faculty_managers_group = Group.objects.get(name='faculty_managers')
+        self.faculty_user = UserFactory()
+        self.faculty_user.groups.add(faculty_managers_group)
+        self.faculty_person = PersonFactory(user=self.faculty_user)
+
+        self.an_entity = EntityFactory(country=self.country, organization=self.organization)
+        PersonEntityFactory(person=self.faculty_person, entity=self.an_entity)
 
     def test_learning_units_summary_list_no_access(self):
         request_factory = RequestFactory()
@@ -71,7 +75,6 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         request = request_factory.get(self.url)
         request.user = a_user
         self.client.force_login(a_user)
-        from base.views.learning_units.educational_information import learning_units_summary_list
         with self.assertRaises(PermissionDenied):
             learning_units_summary_list(request)
 
@@ -80,51 +83,41 @@ class LearningUnitViewPedagogyTestCase(TestCase):
 
         request_factory = RequestFactory()
 
-        faculty_managers_group = Group.objects.get(name='faculty_managers')
-        faculty_user = UserFactory()
-        faculty_user.groups.add(faculty_managers_group)
-        faculty_person = PersonFactory(user=faculty_user)
-        an_entity = EntityFactory(country=self.country, organization=self.organization)
-        EntityVersionFactory(entity=an_entity)
-        PersonEntityFactory(person=faculty_person, entity=an_entity)
+        EntityVersionFactory(entity=self.an_entity)
+
         request = request_factory.get(self.url)
-        request.user = faculty_user
-        self._create_learning_unit_year_for_entity(an_entity)
-        self.client.force_login(faculty_user)
-        from base.views.learning_units.educational_information import learning_units_summary_list
+        request.user = self.faculty_user
+        self._create_learning_unit_year_for_entity(self.an_entity)
+        self.client.force_login(self.faculty_user)
+
         learning_units_summary_list(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_units.html')
         self.assertEqual(context['search_type'], SUMMARY_LIST)
-        self.assertEqual(len(context['learning_units']), 1)
+        self.assertEqual(len(context['learning_units']), 0)
 
     @mock.patch('base.views.layout.render')
     def test_learning_units_summary_list(self, mock_render):
         request_factory = RequestFactory()
 
-        faculty_managers_group = Group.objects.get(name='faculty_managers')
-        faculty_user = UserFactory()
-        faculty_user.groups.add(faculty_managers_group)
-        faculty_person = PersonFactory(user=faculty_user)
-        an_entity = EntityFactory(country=self.country, organization=self.organization)
         now = datetime.datetime.now()
-        EntityVersionFactory(entity=an_entity,
+
+        EntityVersionFactory(entity=self.an_entity,
                              start_date=now,
                              end_date=datetime.datetime(now.year+1, 9, 15),
                              entity_type='INSTITUTE')
 
-        a_person_entity = PersonEntityFactory(person=faculty_person, entity=an_entity)
-        a_person_entity.save()
-        request = request_factory.get(self.url)
-        request.user = faculty_user
-        lu = self._create_learning_unit_year_for_entity(an_entity)
+        request = request_factory.get(self.url, data={'academic_year_id': current_academic_year().id})
+        request.user = self.faculty_user
+
+        lu = self._create_learning_unit_year_for_entity(self.an_entity)
         person_lu = PersonFactory()
         tutor_lu_1 = TutorFactory(person=person_lu)
         self.attribution_lu = AttributionFactory(learning_unit_year=lu, tutor=tutor_lu_1, summary_responsible=True)
-        self._create_entity_calendar(an_entity)
-        self.client.force_login(faculty_user)
-        from base.views.learning_units.educational_information import learning_units_summary_list
+        self._create_entity_calendar(self.an_entity)
+        self.client.force_login(self.faculty_user)
+
         learning_units_summary_list(request)
 
         self.assertTrue(mock_render.called)
@@ -160,6 +153,5 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         request = request_factory.get(self.url)
         request.user = a_user
         self.client.force_login(a_user)
-        from base.views.learning_units.educational_information import send_email_educational_information_needs_update
         with self.assertRaises(PermissionDenied):
             send_email_educational_information_needs_update(request)

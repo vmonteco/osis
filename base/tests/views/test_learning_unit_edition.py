@@ -366,8 +366,8 @@ class TestLearningUnitVolumesManagement(TestCase):
                                               args=[self.learning_unit_year.id]))
 
         request.user = self.user
-        setattr(request, 'session', 'session')
-        setattr(request, '_messages', FallbackStorage(request))
+        request.session = 'session'
+        request._messages = FallbackStorage(request)
 
         learning_unit_volumes_management(request, self.learning_unit_year.id)
         self.assertTrue(mock_render.called)

@@ -955,6 +955,9 @@ msgstr "Rechercher/mettre à jour la liste"
 msgid "registration_id"
 msgstr "NOMA"
 
+msgid "registration_id_does_not_match_email"
+msgstr "Le NOMA ne correspond pas à l'email"
+
 msgid "identification_number"
 msgstr "Matricule"
 
@@ -1811,7 +1814,7 @@ msgid "existed_acronym"
 msgstr "Code a déjà existé pour "
 
 msgid "existing_acronym"
-msgstr "Code déja existant en "
+msgstr "Code déjà existant en "
 
 msgid "invalid_acronym"
 msgstr "Code non valide"
@@ -2378,6 +2381,9 @@ msgstr "Proposition modifiée avec succès"
 msgid "proposals_cancelled_successfully"
 msgstr "Propositions annulées avec succès"
 
+msgid "proposals_consolidated_successfully"
+msgstr "Propositions consolidées avec succès"
+
 msgid "content"
 msgstr "Contenu"
 
@@ -2471,14 +2477,14 @@ msgstr "Xls avec les activités"
 msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
 msgstr "%(date)s doit être comprise entre %(start_date)s et %(end_date)s"
 
-msgid "success_cancel_proposal"
-msgstr "La proposition pour {} a été annulée."
-
 msgid "cancel_proposal"
 msgstr "Annuler proposition"
 
 msgid "edit_proposal"
 msgstr "Editer proposition"
+
+msgid "Consolidate proposal"
+msgstr "Consolider proposition"
 
 msgid "msg_confirm_cancel_proposal"
 msgstr "Etes-vous certain de vouloir annuler la proposition ?"
@@ -2757,3 +2763,24 @@ msgstr "Envoyer un email de rappel pour la mise à jour des informations pédago
 
 msgid "success_mail_reminder"
 msgstr "Messages de rappel envoyés"
+
+msgid "consolidate"
+msgstr "Consolider"
+
+msgid "do_you_want_to_consolidate"
+msgstr "Voulez-vous consolider ?"
+
+msgid "need_no_reminder"
+msgstr "Pas besoin de rappel tout est en ordre"
+
+msgid "error_consolidate_proposal"
+msgstr "Proposition {acronym} ({academic_year}) ne peut pas être consolidée."
+
+msgid "success_consolidate_proposal"
+msgstr "Proposition {acronym} ({academic_year}) consolidée avec succès."
+
+msgid "error_cancel_proposal"
+msgstr "Proposition {acronym} ({academic_year}) ne peut pas être annulée."
+
+msgid "success_cancel_proposal"
+msgstr "Proposition {acronym} ({academic_year}) annulée avec succès"

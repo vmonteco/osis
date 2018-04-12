@@ -32,7 +32,7 @@ from django.test import TestCase
 
 from base.business.learning_units import perms
 from base.business.learning_units.perms import is_eligible_to_create_modification_proposal, \
-    FACULTY_UPDATABLE_CONTAINER_TYPES
+    FACULTY_UPDATABLE_CONTAINER_TYPES, is_eligible_to_consolidate_proposal
 from base.models.academic_year import AcademicYear
 from base.models.enums import entity_container_year_link_type
 from base.models.enums import proposal_state, proposal_type, learning_container_year_types
@@ -391,5 +391,34 @@ class TestIsEligibleToCreateModificationProposal(TestCase):
         self.assertTrue(mock_is_central_manager.called)
 
 
+class TestIsEligibleToConsolidateLearningUnitProposal(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.person_with_right_to_consolidate = PersonFactory()
+        cls.person_with_right_to_consolidate.user.user_permissions.add(
+            Permission.objects.get(codename="can_consolidate_learningunit_proposal")
+        )
 
+        cls.person_without_right_to_consolidate = PersonFactory()
 
+    def test_when_person_has_no_right_to_consolidate(self):
+        proposal_in_state_accepted = ProposalLearningUnitFactory(state=proposal_state.ProposalState.ACCEPTED.name)
+        self.assertFalse(is_eligible_to_consolidate_proposal(proposal_in_state_accepted,
+                                                             self.person_without_right_to_consolidate))
+
+    def test_when_person_has_right_to_consolidate_but_proposal_state_is_neither_accepted_nor_refused(self):
+        states = (state.name for state in proposal_state.ProposalState
+                  if state not in (proposal_state.ProposalState.ACCEPTED, proposal_state.ProposalState.REFUSED))
+        for state in states:
+            with self.subTest(state=state):
+                proposal = ProposalLearningUnitFactory(state=state)
+                self.assertFalse(is_eligible_to_consolidate_proposal(proposal, self.person_with_right_to_consolidate))
+
+    def test_when_person_has_right_to_consolidate_and_proposal_state_is_accepter_or_refused(self):
+        states = (state.name for state in proposal_state.ProposalState
+                  if state in (proposal_state.ProposalState.ACCEPTED, proposal_state.ProposalState.REFUSED))
+
+        for state in states:
+            with self.subTest(state=state):
+                proposal = ProposalLearningUnitFactory(state=state)
+                self.assertTrue(is_eligible_to_consolidate_proposal(proposal, self.person_with_right_to_consolidate))

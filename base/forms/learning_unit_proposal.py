@@ -56,18 +56,25 @@ class ProposalLearningUnitForm(forms.ModelForm):
 
         self.person = person
         if self.person.is_central_manager():
-            self.fields['state'].disabled = False
-            self.fields['state'].required = True
+            self.enable_field('state')
         else:
-            self.fields['state'].disabled = True
-            self.fields['state'].required = False
+            self.disable_field('state')
+        self.disable_field('type')
+
+    def disable_field(self, field):
+        self.fields[field].disabled = True
+        self.fields[field].required = False
+
+    def enable_field(self, field):
+        self.fields[field].disabled = False
+        self.fields[field].required = True
 
     def clean_entity(self):
         return self.cleaned_data['entity'].entity
 
     class Meta:
         model = ProposalLearningUnit
-        fields = ['entity', 'folder_id', 'state']
+        fields = ['entity', 'folder_id', 'state', 'type']
 
     def save(self, commit=True):
         if self.instance.initial_data:

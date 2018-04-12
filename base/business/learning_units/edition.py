@@ -45,6 +45,7 @@ from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit_year import LearningUnitYear
 from base.views.learning_units.common import create_learning_unit_year_creation_message
+from cms.models import translated_text
 
 FIELDS_TO_EXCLUDE_WITH_REPORT = ("is_vacant", "type_declaration_vacant", "attribution_procedure")
 
@@ -66,6 +67,7 @@ def _update_learning_unit_year_end_date(learning_unit_to_edit, new_academic_year
         return extend_learning_unit(learning_unit_to_edit, new_academic_year)
     elif new_end_year < end_year:
         return shorten_learning_unit(learning_unit_to_edit, new_academic_year)
+    return []
 
 
 def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
@@ -129,6 +131,8 @@ def duplicate_learning_unit_year(old_learn_unit_year, new_academic_year):
     duplicated_luy = update_related_object(old_learn_unit_year, 'academic_year', new_academic_year)
     duplicated_luy.attribution_procedure = None
     duplicated_luy.learning_container_year = _duplicate_learning_container_year(duplicated_luy, new_academic_year)
+    _duplicate_bibliography(duplicated_luy)
+    _duplicate_cms_data(duplicated_luy)
     duplicated_luy.save()
     return duplicated_luy
 
@@ -207,6 +211,18 @@ def _duplicate_learning_unit_component(new_component, new_learn_unit_year):
 def _duplicate_learning_class_year(new_component):
     for old_learning_class in learning_class_year.find_by_learning_component_year(new_component.copied_from):
         update_related_object(old_learning_class, 'learning_component_year', new_component)
+
+
+def _duplicate_bibliography(duplicated_luy):
+    previous_bibliography = mdl_base.bibliography.find_by_learning_unit_year(duplicated_luy.copied_from)
+    for bib in previous_bibliography:
+        update_related_object(bib, 'learning_unit_year', duplicated_luy)
+
+
+def _duplicate_cms_data(duplicated_luy):
+    previous_cms_data = translated_text.find_by_reference(duplicated_luy.copied_from.id)
+    for item in previous_cms_data:
+        update_related_object(item, 'reference', duplicated_luy.id)
 
 
 def _check_shorten_partims(learning_unit_to_edit, new_academic_year):

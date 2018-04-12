@@ -29,6 +29,7 @@ from django.conf.urls.static import static
 
 import base.views.learning_units.delete
 import base.views.learning_units.educational_information
+import base.views.learning_units.proposal.consolidate
 import base.views.learning_units.proposal.delete
 import base.views.learning_units.search
 import base.views.learning_units.update
@@ -70,8 +71,7 @@ urlpatterns = [
     url(r'^catalog/$', common.catalog, name='catalog'),
 
     url(r'^entities/', include([
-        url(r'^$', institution.entities, name='entities'),
-        url(r'^search$', institution.entities_search, name='entities_search'),
+        url(r'^$', institution.entities_search, name='entities'),
         url(r'^(?P<entity_version_id>[0-9]+)/', include([
             url(r'^$', institution.entity_read, name='entity_read'),
             url(r'^address/$', institution.get_entity_address, name='entity_address'),
@@ -140,6 +140,8 @@ urlpatterns = [
         url(r'^email_educational_information_update/$',
             base.views.learning_units.educational_information.send_email_educational_information_needs_update,
             name='email_educational_information_update'),
+        url(r'^proposal/consolidate/$', base.views.learning_units.proposal.consolidate.consolidate_proposal,
+            name="learning_unit_consolidate_proposal"),
     ])),
     url(r'^proposals/search/$', base.views.learning_units.search.learning_units_proposal_search,
         name="learning_unit_proposal_search"),

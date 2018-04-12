@@ -108,6 +108,7 @@ class LearningUnit(SerializableModel):
             ("can_delete_learningunit", "Can delete learning unit"),
             ("can_propose_learningunit", "Can propose learning unit "),
             ("can_create_learningunit", "Can create learning unit"),
+            ("can_consolidate_learningunit_proposal", "Can consolidate learning unit proposal"),
         )
 
 
@@ -117,12 +118,3 @@ def find_by_id(learning_unit_id):
 
 def find_by_ids(learning_unit_ids):
     return LearningUnit.objects.filter(pk__in=learning_unit_ids)
-
-
-def search(acronym=None):
-    queryset = LearningUnit.objects
-
-    if acronym:
-        queryset = queryset.filter(acronym=acronym)
-
-    return queryset

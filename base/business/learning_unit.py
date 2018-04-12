@@ -46,11 +46,11 @@ from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITI
 from cms import models as mdl_cms
 from cms.enums import entity_name
 from cms.enums.entity_name import LEARNING_UNIT_YEAR
-# List of key that a user can modify
 from cms.models import translated_text
 from osis_common.document import xls_build
 from osis_common.utils.datetime import convert_date_to_datetime
 
+# List of key that a user can modify
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'teaching_methods', 'evaluation_methods', 'other_informations', 'online_resources']
 CMS_LABEL_SUMMARY = ['resume']
@@ -313,25 +313,6 @@ def get_list_entity_learning_unit_yr(an_entity_version, current_academic_yr):
         .order_by('academic_year__year', 'acronym')
 
 
-def get_learning_units_and_summary_status(a_person, academic_yr):
-    entities_version_attached = a_person.find_main_entities_version
-    learning_units_found = []
-    # TODO : We must improve performance.
-    cms_list = translated_text.find_with_changed(LEARNING_UNIT_YEAR, CMS_LABEL_PEDAGOGY)
-    for an_entity_version in entities_version_attached:
-        learning_units_found.extend(_get_learning_unit_by_entity(academic_yr, an_entity_version, cms_list))
-    return learning_units_found
-
-
-def _get_learning_unit_by_entity(academic_yr, an_entity_version, cms_list):
-    a_calendar = _get_calendar(academic_yr, an_entity_version)
-    if a_calendar:
-        entity_learning_unit_yr_list = get_list_entity_learning_unit_yr(an_entity_version, academic_yr)
-        if entity_learning_unit_yr_list:
-            return _get_summary_detail(a_calendar, cms_list, entity_learning_unit_yr_list)
-    return []
-
-
 def _get_summary_status(a_calendar, cms_list, lu):
     for educational_information in cms_list:
         if educational_information.reference == lu.id \
@@ -360,3 +341,20 @@ def _get_summary_detail(a_calendar, cms_list, entity_learning_unit_yr_list_param
 
 def _changed_in_period(start_date, end_date, changed_date):
     return convert_date_to_datetime(start_date) <= changed_date <= convert_date_to_datetime(end_date)
+
+
+def get_learning_units_and_summary_status(learning_unit_years):
+    learning_units_found = []
+    cms_list = translated_text.find_with_changed(LEARNING_UNIT_YEAR, CMS_LABEL_PEDAGOGY)
+    for learning_unit_yr in learning_unit_years:
+        learning_units_found.extend(_get_learning_unit_by_luy_entity(cms_list, learning_unit_yr))
+    return learning_units_found
+
+
+def _get_learning_unit_by_luy_entity(cms_list, learning_unit_yr):
+    requirement_entity = learning_unit_yr.entities.get('REQUIREMENT_ENTITY', None)
+    if requirement_entity:
+        a_calendar = _get_calendar(learning_unit_yr.academic_year, requirement_entity)
+        if a_calendar:
+            return _get_summary_detail(a_calendar, cms_list, [learning_unit_yr])
+    return []
