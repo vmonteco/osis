@@ -38,7 +38,7 @@ from base.models.enums import learning_unit_year_subtypes, learning_container_ye
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import FACULTY_MANAGER_GROUP
 from base.models.proposal_learning_unit import ProposalLearningUnit
-from base.tests.factories import academic_year as academic_year_factory, campus as campus_factory, \
+from base.tests.factories import campus as campus_factory, \
     organization as organization_factory, person as factory_person, user as factory_user
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.entity import EntityFactory

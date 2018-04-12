@@ -43,6 +43,7 @@ from django.utils.translation import ugettext_lazy as _
 import base.business.learning_unit
 from base.business import learning_unit as learning_unit_business
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm
+from base.forms.learning_unit.learning_unit_create_2 import FullForm, PartimForm
 from base.forms.learning_unit.search_form import LearningUnitYearForm, SearchForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, SummaryModelForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
@@ -758,7 +759,7 @@ class LearningUnitViewTestCase(TestCase):
         return faulty_dict
 
     def test_learning_unit_year_form(self):
-        form = LearningUnitFormContainer(self.get_valid_data(), person=self.person)
+        form = FullForm(self.get_valid_data(), person=self.person)
         self.assertTrue(form.is_valid(), form.errors)
         url = reverse('learning_unit_year_add')
         response = self.client.post(url, data=self.get_base_form_data())
@@ -767,30 +768,30 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(count_learning_unit_year, 7)
 
     def test_create_learning_unit_year_requirement_entity_not_allowed(self):
-        form = LearningUnitFormContainer(self.get_faulty_requirement_entity(), person=self.person)
+        form = FullForm(self.get_faulty_requirement_entity(), person=self.person)
         self.assertFalse(form.is_valid())
         self.assertEqual(len(form.errors), 1, form.errors)
         self.assertTrue('requirement_entity' in form.errors)
 
     def test_learning_unit_creation_form_with_valid_data(self):
-        form = LearningUnitFormContainer(self.get_valid_data(), person=self.person)
+        form = FullForm(self.get_valid_data(), person=self.person)
 
         self.assertTrue(form.is_valid(), form.errors)
         self.assertTrue(form.cleaned_data, form.errors)
         self.assertEqual(form.cleaned_data['acronym'], "LTAU2000")
 
     def test_learning_unit_creation_form_with_empty_acronym(self):
-        form = LearningUnitFormContainer(self.get_empty_acronym(), person=self.person)
+        form = FullForm(self.get_empty_acronym(), person=self.person)
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['acronym'], [_('field_is_required')])
 
     def test_learning_unit_creation_form_with_invalid_data(self):
-        form = LearningUnitFormContainer(self.get_faulty_acronym(), person=self.person)
+        form = FullForm(self.get_faulty_acronym(), person=self.person)
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['acronym'], [_('invalid_acronym')])
 
     def test_learning_unit_creation_form_with_container_type_same_entity(self):
-        form = LearningUnitFormContainer(self.get_faulty_allocation_entity(), person=self.person)
+        form = FullForm(self.get_faulty_allocation_entity(), person=self.person)
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['allocation_entity'],
                          [_('requirement_and_allocation_entities_cannot_be_different')])
@@ -801,17 +802,17 @@ class LearningUnitViewTestCase(TestCase):
         super(AcademicYear, bad_academic_year).save()
         data = dict(self.get_valid_data())
         data['academic_year'] = bad_academic_year.id
-        form = LearningUnitFormContainer(data, self.person)
+        form = FullForm(data, self.person)
         self.assertFalse(form.is_valid())
 
     def test_learning_unit_creation_form_with_existing_acronym(self):
         LearningUnitYearFactory(acronym="LDRT2018", academic_year=self.current_academic_year)
-        form = LearningUnitFormContainer(self.get_existing_acronym(), person=self.person)
+        form = FullForm(self.get_existing_acronym(), person=self.person)
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['acronym'], [_('already_existing_acronym')])
 
     def test_learning_unit_creation_form_with_field_is_required_empty(self):
-        form = LearningUnitFormContainer(self.get_empty_internship_subtype(), person=self.person)
+        form = FullForm(self.get_empty_internship_subtype(), person=self.person)
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors['internship_subtype'], [_('field_is_required')])
 
@@ -931,7 +932,7 @@ class LearningUnitViewTestCase(TestCase):
         PersonEntityFactory(person=faculty_person, entity=self.entity)
         data = dict(self.get_valid_data())
         data['container_type'] = MASTER_THESIS
-        form = LearningUnitFormContainer(data, person=faculty_person)
+        form = FullForm(data, person=faculty_person)
         self.assertTrue(form.is_valid(), form.errors)
         url = reverse('learning_unit_year_add')
         response = self.client.post(url, data=data)
@@ -941,14 +942,14 @@ class LearningUnitViewTestCase(TestCase):
     def test_learning_unit_form_without_allocation_entity(self):
         faultydict = dict(self.get_valid_data())
         faultydict['allocation_entity'] = None
-        form = LearningUnitFormContainer(faultydict, person=self.person)
+        form = FullForm(faultydict, person=self.person)
         self.assertFalse(form.is_valid(), form.errors)
         self.assertTrue(form.errors['allocation_entity'])
 
     def test_learning_unit_form_without_common_and_specific_title(self):
         faultydata = dict(self.get_valid_data())
         faultydata["specific_title"] = ""
-        form = LearningUnitFormContainer(faultydata, person=self.person)
+        form = FullForm(faultydata, person=self.person)
         self.assertFalse(form.is_valid())
         self.assertTrue(form.errors["common_title"])
 
@@ -959,7 +960,7 @@ class LearningUnitViewTestCase(TestCase):
                                                             status=False)
         valid_partim_data = self.get_base_partim_form_data(learning_unit_year_parent)
         valid_partim_data['status'] = True
-        form = CreatePartimForm(person=self.person, learning_unit_year_parent=learning_unit_year_parent,
+        form = PartimForm(person=self.person, learning_unit_year_parent=learning_unit_year_parent,
                                 data=valid_partim_data)
         self.assertFalse(form.is_valid())
         self.assertTrue(form.errors['status'])
@@ -992,7 +993,7 @@ class LearningUnitViewTestCase(TestCase):
         del valid_partim_data['additional_requirement_entity_1']
         del valid_partim_data['additional_requirement_entity_2']
 
-        form = CreatePartimForm(person=self.person, learning_unit_year_parent=learning_unit_year_parent,
+        form = PartimForm(person=self.person, learning_unit_year_parent=learning_unit_year_parent,
                                 data=valid_partim_data)
         self.assertTrue(form.is_valid(), form.errors)
         full_acronym = form.cleaned_data['acronym']
@@ -1031,7 +1032,7 @@ class LearningUnitViewTestCase(TestCase):
         del valid_partim_data['additional_requirement_entity_1']
         del valid_partim_data['additional_requirement_entity_2']
 
-        form = LearningUnitFormContainer(valid_partim_data, person=self.person, learning_unit_year_parent=learning_unit_year_parent)
+        form = FullForm(valid_partim_data, person=self.person, learning_unit_year_parent=learning_unit_year_parent)
         self.assertTrue(form.is_valid(), form.errors)
         full_acronym = form.cleaned_data['acronym']
 
