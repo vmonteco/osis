@@ -478,7 +478,6 @@ class EducationGroupGeneralInformations(TestCase):
 
         cls.user = UserFactory()
         cls.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
-        # cls.user.user_permissions.add(Permission.objects.get(codename="can_edit_educationgroup_pedagogy"))
         cls.url = reverse("education_group_general_informations", args=[cls.education_group_child.id])
 
     def setUp(self):
@@ -547,7 +546,7 @@ class EducationGroupGeneralInformations(TestCase):
         self.assertEqual(list(form_french.text_labels_name), [self.cms_label_for_child.text_label.label])
         self.assertEqual(list(form_english.text_labels_name), [self.cms_label_for_child.text_label.label])
 
-    def test_can_edit_pedagogy(self):
+    def test_user_has_link_to_edit_pedagogy(self):
         self.user.user_permissions.add(Permission.objects.get(codename='can_edit_educationgroup_pedagogy'))
 
         response = self.client.get(self.url)
@@ -556,10 +555,9 @@ class EducationGroupGeneralInformations(TestCase):
         self.assertTemplateUsed(response, "education_group/tab_general_informations.html")
 
         soup = bs4.BeautifulSoup(response.content, 'html.parser')
-        print(soup.prettify())
         self.assertEqual(len(soup.select('a.pedagogy-edit-btn')), 2)
 
-    def test_can_not_edit_pedagogy(self):
+    def test_user_has_not_link_to_edit_pedagogy(self):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, "education_group/tab_general_informations.html")
