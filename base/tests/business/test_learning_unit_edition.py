@@ -694,7 +694,6 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         self.assertEqual(list_of_years_learning_unit, list_of_expected_years)
         self.assertEqual(learning_unit_annual.end_year, excepted_end_year)
 
-
     def test_postpone_end_date_with_cms_data_and_bibliography(self):
         start_year_full = self.current_academic_year.year - 1
         end_year_full = self.current_academic_year.year + 1
@@ -717,7 +716,7 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
 
         edit_learning_unit_end_date(learning_unit_full_annual, academic_year_of_new_end_date)
 
-        new_luy =  mdl_luy.find_latest_by_learning_unit(learning_unit_full_annual)
+        new_luy = mdl_luy.find_latest_by_learning_unit(learning_unit_full_annual)
         new_luy_bibliography = mdl_bibliography.build_list_of_bibliography_content_by_learning_unit_year(new_luy)
         new_luy_mobility_modalities = new_luy.mobility_modality
         new_luy_educational_information = translated_text.build_list_of_cms_content_by_reference(new_luy.id)
