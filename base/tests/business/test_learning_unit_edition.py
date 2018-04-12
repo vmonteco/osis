@@ -420,7 +420,7 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         self.assertEqual(str(context.exception),
                          _('partim_greater_than_parent') % {
                              'learning_unit': learning_unit_full_annual.acronym,
-                             'partim': list_partims[-1].acronym,
+                             'partim': list_partims[1].acronym,
                              'year': academic_year_of_new_end_date}
                          )
 
@@ -449,7 +449,7 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         self.assertEqual(str(context.exception),
                          _('partim_greater_than_parent') % {
                              'learning_unit': learning_unit_full_annual.acronym,
-                             'partim': list_partims[-1].acronym,
+                             'partim': list_partims[1].acronym,
                              'year': academic_year_of_new_end_date}
                          )
 
@@ -478,7 +478,7 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         self.assertEqual(str(context.exception),
                          _('partim_greater_than_parent') % {
                              'learning_unit': learning_unit_full_annual.acronym,
-                             'partim': list_partims[-1].acronym,
+                             'partim': list_partims[1].acronym,
                              'year': academic_year_of_new_end_date}
                          )
 

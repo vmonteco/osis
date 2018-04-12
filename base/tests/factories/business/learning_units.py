@@ -155,7 +155,6 @@ class LearningUnitsMixin:
                     )
 
                 result = LearningUnitYearFactory(
-                    acronym=learning_unit.acronym,
                     academic_year=academic_year,
                     learning_unit=learning_unit,
                     learning_container_year=learning_container_year,
