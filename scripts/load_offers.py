@@ -17,12 +17,19 @@ from cms.models.translated_text import TranslatedText
 
 
 def new_div(html_content, class_name):
+    """
+    Crée un div avec le nom d'une classe et le contenu HTML donné
+    """
     node = etree.Element('div', **{'class': class_name})
     node.append(html.fromstring(html_content))
     return etree.tostring(node, pretty_print=True, encoding=str)
 
 
 def append_if_content(content, info, key, class_name=None):
+    """
+    Si la clé se trouve dans le dictionnaire et que la valeur de celle-ci est utilisable
+    alors on crée un nouveau contenu
+    """
     class_name = class_name or key
 
     part = info.get(key)
@@ -31,6 +38,13 @@ def append_if_content(content, info, key, class_name=None):
 
 
 def generate_html_two_parts(info):
+    """
+    Génere le HTML pour les éléments qui sont en deux parties
+    <div class="reddot_part1">
+    </div>
+    <div class="reddot_part2">
+    </div>
+    """
     content = []
 
     append_if_content(content, info, 'part1', 'reddot_part1')
@@ -40,6 +54,13 @@ def generate_html_two_parts(info):
 
 
 def generate_html_for_program(info):
+    """
+    Génère le HTML pour les programmes
+    <div class="reddot_intro">
+    </div>
+    <div class="reddot_body">
+    </div>
+    """
     content = []
 
     append_if_content(content, info, 'intro', 'reddot_intro')
@@ -49,6 +70,27 @@ def generate_html_for_program(info):
 
 
 def generate_html_from_comp_acquis(competences):
+    """
+    Génere le code HTML pour les Compétences et Acquis
+    <div class="reddot_body">
+    </div>
+    Si il y a des composants, alors on cree des tags supplementaires.
+    <div class="reddot_intro">
+    </div>
+    <div class="reddot_teaser">
+    </div>
+    <div class="reddot_collapse">
+    </div>
+
+    <div class="reddot_teaser">
+    </div>
+    <div class="reddot_collapse">
+    </div>
+
+    et eventuellement un div avec un extra
+    <div class="reddot_extra">
+    </div>
+    """
     content = []
 
     append_if_content(content, competences, 'body', 'reddot_body')
@@ -72,6 +114,7 @@ def CLASS(*args):
 
 
 def generate_html_for_contacts(contacts):
+    """Generate l'HTML pour la page des contacts"""
     calls = (
         render_responsible,
         partial(render_members, section='other_responsibles', class_name='responsibles'),
@@ -86,6 +129,14 @@ def generate_html_for_contacts(contacts):
 
 
 def render_responsible(contacts):
+    """
+    Genere un HTML de la forme suivante
+    <div class="contacts_responsible">
+        <ul>
+            <li><a href="{{ responsible.url }}">{{ responsible.name }} </a></li>
+        </ul>
+    </div>
+    """
     responsible = contacts.get('responsible')
     if responsible:
         return E.div(
@@ -100,6 +151,17 @@ def render_responsible(contacts):
 
 
 def render_members(contacts, section, class_name=None):
+    """
+    Genere un HTML de la forme suivante
+
+    <div class="{{ class_name }}">
+        <ul>
+            {% for member in members %}
+            <li>{{ member.title }} <a href="{{ member.url }}">{{ member.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    """
     members = contacts.get(section)
 
     class_name = section if class_name is None else class_name
@@ -118,6 +180,9 @@ def render_members(contacts, section, class_name=None):
 
 
 def get_text_label(entity, label):
+    """
+    Essaie de recuperer un label d'une entité ou simplement la crée si celle-ci n'existe pas.
+    """
     text_label, created = TextLabel.objects.get_or_create(
         entity=entity,
         label=label,
@@ -127,6 +192,14 @@ def get_text_label(entity, label):
 
 
 def debugger(func):
+    """
+    Decorateur qui permet de lancer le debugger de python en mode post mortem
+    Il s'utilise de la maniere suivante
+
+    @debugger
+    def run():
+        pass
+    """
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
