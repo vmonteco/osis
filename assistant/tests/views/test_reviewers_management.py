@@ -162,7 +162,7 @@ class ReviewersManagementViewTestCase(TestCase):
         this_entity = find_versions_from_entites([self.entity_factory.id], date=None)[0]
         response = self.client.post('/assistants/manager/reviewers/add/', {'entity': this_entity.id,
                                                                            'role': self.reviewer.role,
-                                                                           'person_id': None,
+                                                                           'person_id': '',
                                                                            })
         self.assertEqual(response.status_code, HTTP_OK)
 

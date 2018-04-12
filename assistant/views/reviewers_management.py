@@ -115,15 +115,6 @@ def reviewer_delete(request, reviewer_id):
     return HttpResponseRedirect(reverse('reviewers_list'))
 
 
-def try_find_person_by_id(form, person_id):
-    try:
-        this_person = person.find_by_id(person_id)
-        return this_person
-    except ValueError:
-        msg = _("bad_person_msg")
-        form.add_error(None, msg)
-
-
 @require_http_methods(["POST"])
 @user_passes_test(manager_access.user_is_manager, login_url='assistants_home')
 def reviewer_replace(request):
@@ -131,8 +122,9 @@ def reviewer_replace(request):
     form = ReviewerReplacementForm(data=request.POST, prefix='rev')
     reviewer_to_replace = reviewer.find_by_id(request.POST.get('reviewer_id'))
     entity = entity_version.get_last_version(reviewer_to_replace.entity)
-    this_person = try_find_person_by_id(form, request.POST.get('person_id'))
+    this_person = request.POST.get('person_id')
     if form.is_valid() and this_person:
+        this_person = person.find_by_id(this_person)
         if reviewer.find_by_person(this_person):
             msg = _("person_already_reviewer_msg")
             form.add_error(None, msg)
@@ -140,6 +132,9 @@ def reviewer_replace(request):
             reviewer_to_replace.person = this_person
             reviewer_to_replace.save()
             return redirect('reviewers_list')
+    else:
+        msg = _("bad_person_msg")
+        form.add_error(None, msg)
     return render(request, "manager_replace_reviewer.html", {'reviewer': reviewer_to_replace,
                                                              'entity': entity,
                                                              'year': year,
@@ -151,8 +146,9 @@ def reviewer_add(request):
     year = academic_year.current_academic_year().year
     if request.POST:
         form = ReviewerForm(data=request.POST)
-        this_person = try_find_person_by_id(form, request.POST.get('person_id'))
+        this_person = request.POST.get('person_id')
         if form.is_valid() and this_person:
+            this_person = person.find_by_id(this_person)
             new_reviewer = form.save(commit=False)
             if reviewer.find_by_person(this_person):
                 msg = _("person_already_reviewer_msg")
@@ -164,6 +160,9 @@ def reviewer_add(request):
                 new_reviewer.person = this_person
                 new_reviewer.save()
                 return redirect('reviewers_list')
+        else:
+            msg = _("bad_person_msg")
+            form.add_error(None, msg)
     else:
         form = ReviewerForm(initial={'year': year})
     return render(request, "manager_add_reviewer.html", {'form': form, 'year': year})
