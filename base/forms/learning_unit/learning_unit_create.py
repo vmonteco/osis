@@ -146,12 +146,14 @@ class LearningUnitYearModelForm(forms.ModelForm):
             self._save_learning_unit_component(component, component_type, learning_unit_year)
             self._save_entity_components_year(component, entity_container_years)
 
-    def _save_learning_unit_component(self, component, component_type, learning_unit_year):
+    @staticmethod
+    def _save_learning_unit_component(component, component_type, learning_unit_year):
         return LearningUnitComponent.objects.get_or_create(learning_unit_year=learning_unit_year,
                                                            learning_component_year=component,
                                                            type=component_type)
 
-    def _save_entity_components_year(self, component, entity_container_years):
+    @staticmethod
+    def _save_entity_components_year(component, entity_container_years):
         requirement_entity_containers = filter(lambda ec: ec.type in REQUIREMENT_ENTITIES, entity_container_years)
         for requirement_entity_container in requirement_entity_containers:
             EntityComponentYear.objects.get_or_create(entity_container_year=requirement_entity_container,
