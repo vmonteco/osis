@@ -24,7 +24,10 @@
 #
 ##############################################################################
 from unittest import mock
+import factory
+import factory.fuzzy
 
+from django.forms import model_to_dict
 from django.http import QueryDict
 
 from base.forms.learning_unit.learning_unit_create_2 import PartimForm
@@ -320,7 +323,8 @@ class TestPartimFormSaveInsert(LearningUnitPartimFormContextMixin):
         form.save()
 
         # Check all related object is created
-        self.assertEqual(LearningUnitYear.objects.filter(acronym=partim_acronym).count(), 7)
+        self.assertEqual(LearningUnitYear.objects.filter(acronym=partim_acronym,
+                                                         academic_year=self.current_academic_year).count(), 1)
         self.assertEqual(LearningUnit.objects.filter(learningunityear__acronym=partim_acronym)
                                              .distinct('id').count(), 1)
 
@@ -340,6 +344,35 @@ class TestPartimFormSaveUpdate(LearningUnitPartimFormContextMixin):
         self.assertTrue(mock_update_method.called)
         self.assertFalse(mock_create_method.called)
 
+    def test_save_method_update(self):
+        post_data = get_valid_form_data(self.learning_unit_year_partim)
+        update_fields_luy_model = {
+            'credits': 2.5,
+            'specific_title': factory.fuzzy.FuzzyText(length=15).fuzz(),
+            'specific_title_english': factory.fuzzy.FuzzyText(length=15).fuzz(),
+        }
+        post_data.update(update_fields_luy_model)
+        update_fields_lu_model = {
+            'faculty_remark': factory.fuzzy.FuzzyText(length=15).fuzz(),
+            'other_remark': factory.fuzzy.FuzzyText(length=15).fuzz()
+        }
+        post_data.update(update_fields_lu_model)
+
+        form = _instanciate_form(self.learning_unit_year_full, post_data=post_data,
+                                 instance=self.learning_unit_year_partim)
+        self.assertTrue(form.is_valid())
+        form.save()
+
+        # Refresh learning unit year
+        self.learning_unit_year_partim.refresh_from_db()
+        # Check learning unit year update
+        learning_unit_year_dict = model_to_dict(self.learning_unit_year_partim)
+        for field, value in update_fields_luy_model.items():
+            self.assertEqual(learning_unit_year_dict[field], value)
+        # Check learning unit update
+        learning_unit_dict = model_to_dict(self.learning_unit_year_partim.learning_unit)
+        for field, value in update_fields_lu_model.items():
+            self.assertEqual(learning_unit_dict[field], value)
 
 
 def get_valid_form_data(learning_unit_year_partim):
