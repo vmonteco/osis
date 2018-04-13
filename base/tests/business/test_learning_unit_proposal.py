@@ -35,7 +35,7 @@ from base import models as mdl_base
 from base.business import learning_unit_proposal as lu_proposal_business
 from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
 from base.business.learning_unit_proposal import compute_proposal_type, consolidate_creation_proposal_accepted, \
-    consolidate_proposals, consolidate_proposal, consolidate_suppression_proposal_accepted
+    consolidate_proposals_and_send_report, consolidate_proposal, consolidate_suppression_proposal_accepted
 from base.business.learning_units.perms import PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES
 from base.models.academic_year import AcademicYear
 from base.models.enums import organization_type, proposal_type, entity_type, \
@@ -113,7 +113,7 @@ class TestLearningUnitProposalCancel(TestCase):
     def test_cancel_proposals_of_type_suppression(self, mock_send_mail):
         proposal = self._create_proposal(prop_type=proposal_type.ProposalType.SUPPRESSION.name,
                                          prop_state=proposal_state.ProposalState.FACULTY.name)
-        lu_proposal_business.cancel_proposals([proposal], PersonFactory())
+        lu_proposal_business.cancel_proposals_and_send_report([proposal], PersonFactory())
         self.assertCountEqual(list(mdl_base.proposal_learning_unit.ProposalLearningUnit.objects
                                    .filter(learning_unit_year=self.learning_unit_year)), [])
         self.assertTrue(mock_send_mail.called)
@@ -224,7 +224,7 @@ class TestConsolidateProposals(TestCase):
     @mock.patch("base.utils.send_mail.send_mail_after_the_learning_unit_proposal_consolidation",
                 side_effect=None)
     def test_call_method_consolidate_proposal(self, mock_mail, mock_consolidate_proposal):
-        result = consolidate_proposals(self.proposals, self.author)
+        result = consolidate_proposals_and_send_report(self.proposals, self.author)
 
         consolidate_args_list = [((self.proposals[0],),), ((self.proposals[1],),)]
         self.assertTrue(mock_consolidate_proposal.call_args_list == consolidate_args_list)
