@@ -329,13 +329,17 @@ def cancel_proposal(learning_unit_proposal, author=None, send_mail=False):
 
 def consolidate_proposal(proposal, author=None, send_mail=False):
     messages_by_level = {}
-    if proposal.state not in PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES:
-        return {
-            ERROR: [_("error_consolidate_proposal").format(acronym=proposal.learning_unit_year.acronym,
-                                                           academic_year=proposal.learning_unit_year.academic_year)]
-        }
-    if proposal.type == proposal_type.ProposalType.CREATION.name:
-        messages_by_level = consolidate_creation_proposal(proposal)
+    if proposal.state == proposal_state.ProposalState.REFUSED.name:
+        messages_by_level = cancel_proposal(proposal)
+    elif proposal.state == proposal_state.ProposalState.ACCEPTED.name:
+        if proposal.type == proposal_type.ProposalType.CREATION.name:
+            messages_by_level = consolidate_creation_proposal_accepted(proposal)
+        elif proposal.type == proposal_type.ProposalType.SUPPRESSION.name:
+            messages_by_level = consolidate_suppression_proposal_accepted(proposal)
+    else:
+        messages_by_level ={ ERROR: [_("error_consolidate_proposal").
+                                         format(acronym=proposal.learning_unit_year.acronym,
+                                                academic_year=proposal.learning_unit_year.academic_year)]}
 
     if send_mail and author is not None:
         send_mail_util.send_mail_after_the_learning_unit_proposal_consolidation([author], [proposal])
@@ -343,46 +347,23 @@ def consolidate_proposal(proposal, author=None, send_mail=False):
     return messages_by_level
 
 
-def consolidate_creation_proposal(proposal):
+def consolidate_creation_proposal_accepted(proposal):
     proposal.learning_unit_year.learning_unit.end_year = proposal.learning_unit_year.academic_year.year
-    proposal.learning_unit_year.learning_unit.save()
 
-    if proposal.state == proposal_state.ProposalState.ACCEPTED.name:
-        results = _consolidate_creation_proposal_of_state_accepted(proposal)
-    else:
-        results = _consolidate_creation_proposal_of_state_refused(proposal)
+    results = {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, None)}
     if not results.get(ERROR):
         proposal.delete()
     return results
 
 
-def consolidate_suppression_proposal(proposal):
-    if proposal.state == proposal_state.ProposalState.ACCEPTED.name:
-        initial_end_year = proposal.initial_data["learning_unit"]["end_year"]
-        new_end_year = proposal.learning_unit_year.learning_unit.end_year
+def consolidate_suppression_proposal_accepted(proposal):
+    initial_end_year = proposal.initial_data["learning_unit"]["end_year"]
+    new_end_year = proposal.learning_unit_year.learning_unit.end_year
 
-        proposal.learning_unit_year.learning_unit.end_year = initial_end_year
-        new_academic_year = find_academic_year_by_year(new_end_year)
-        results = {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, new_academic_year)}
-    else:
-        reinitialize_data_before_proposal(proposal)
-        delete_learning_unit_proposal(proposal)
-        results = {SUCCESS: [_("success_consolidate_proposal").
-                                format(acronym=proposal.learning_unit_year.acronym,
-                                       academic_year=proposal.learning_unit_year.academic_year)]}
+    proposal.learning_unit_year.learning_unit.end_year = initial_end_year
+    new_academic_year = find_academic_year_by_year(new_end_year)
+    results = {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, new_academic_year)}
+
     if not results.get(ERROR):
         proposal.delete()
     return results
-
-
-
-def _consolidate_creation_proposal_of_state_accepted(proposal):
-    return {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, None)}
-
-
-def _consolidate_creation_proposal_of_state_refused(proposal):
-    messages_by_level = deletion.check_learning_unit_deletion(proposal.learning_unit_year.learning_unit,
-                                                              check_proposal=False)
-    if messages_by_level:
-        return {ERROR: list(messages_by_level.values())}
-    return {SUCCESS: deletion.delete_learning_unit(proposal.learning_unit_year.learning_unit)}

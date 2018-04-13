@@ -34,8 +34,8 @@ from django.utils.translation import ugettext_lazy as _
 from base import models as mdl_base
 from base.business import learning_unit_proposal as lu_proposal_business
 from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
-from base.business.learning_unit_proposal import compute_proposal_type, consolidate_creation_proposal, \
-    consolidate_proposals, consolidate_proposal, consolidate_suppression_proposal
+from base.business.learning_unit_proposal import compute_proposal_type, consolidate_creation_proposal_accepted, \
+    consolidate_proposals, consolidate_proposal, consolidate_suppression_proposal_accepted
 from base.business.learning_units.perms import PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES
 from base.models.academic_year import AcademicYear
 from base.models.enums import organization_type, proposal_type, entity_type, \
@@ -240,6 +240,10 @@ class TestConsolidateProposals(TestCase):
         mock_mail.assert_called_once_with([self.author], self.proposals)
 
 
+def mock_message_by_level(*args, **kwargs):
+    return {SUCCESS: ["this is a mock"]}
+
+
 class TestConsolidateProposal(TestCase):
     def test_when_proposal_is_not_accepted_nor_refused(self):
         states = (state for state, _ in proposal_state.ProposalState.__members__.items()
@@ -256,106 +260,57 @@ class TestConsolidateProposal(TestCase):
                 }
                 self.assertDictEqual(result, expected_result)
 
-    @mock.patch("base.business.learning_unit_proposal.consolidate_creation_proposal",
-                side_effect=lambda prop: {})
+    @mock.patch("base.business.learning_unit_proposal.cancel_proposal", side_effect=mock_message_by_level)
+    def test_when_proposal_is_refused(self, mock_cancel_proposal):
+        proposal_refused = ProposalLearningUnitFactory(state=proposal_state.ProposalState.REFUSED.name)
+
+        consolidate_proposal(proposal_refused)
+
+        mock_cancel_proposal.assert_called_once_with(proposal_refused)
+
+    @mock.patch("base.business.learning_unit_proposal.cancel_proposal", side_effect=mock_message_by_level)
     @mock.patch("base.utils.send_mail.send_mail_after_the_learning_unit_proposal_consolidation",
                 side_effect=None)
-    def test_when_sending_mail(self, mock_send_mail, mock_consolidate):
+    def test_when_sending_mail(self, mock_send_mail, mock_cancel_proposal):
         author = PersonFactory()
-        creation_proposal = ProposalLearningUnitFactory(state=proposal_state.ProposalState.ACCEPTED.name,
-                                                        type=proposal_type.ProposalType.CREATION.name)
+        creation_proposal = ProposalLearningUnitFactory(state=proposal_state.ProposalState.REFUSED.name)
         consolidate_proposal(creation_proposal, author=author, send_mail=True)
 
         mock_send_mail.assert_called_once_with([author], [creation_proposal])
 
-    @mock.patch("base.business.learning_unit_proposal.consolidate_creation_proposal",
-                side_effect=lambda prop: {})
-    def test_when_proposal_of_type_creation(self, mock_consolidate_creation_proposal):
+    @mock.patch("base.business.learning_unit_proposal.edit_learning_unit_end_date")
+    def test_when_proposal_of_type_creation_and_accepted(self, mock_edit_lu_end_date):
         creation_proposal = ProposalLearningUnitFactory(state=proposal_state.ProposalState.ACCEPTED.name,
                                                         type=proposal_type.ProposalType.CREATION.name)
         consolidate_proposal(creation_proposal)
 
-        mock_consolidate_creation_proposal.assert_called_once_with(creation_proposal)
-
-
-class TestConsolidateCreationProposal(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.academic_years = create_academic_years()
-        cls.current_academic_year = cls.academic_years[0]
-
-    def setUp(self):
-        self.proposal = ProposalLearningUnitFactory(
-            type=proposal_type.ProposalType.CREATION.name,
-            state=proposal_state.ProposalState.ACCEPTED.name,
-            learning_unit_year__learning_container_year__academic_year=self.current_academic_year,
-            learning_unit_year__learning_unit__start_year=self.current_academic_year.year
-        )
-
-    @mock.patch("base.business.learning_units.simple.deletion.check_learning_unit_deletion",
-                side_effect=lambda lu, check_proposal: {})
-    @mock.patch("base.business.learning_units.simple.deletion.delete_learning_unit")
-    def test_delete_learning_unit_when_proposal_state_is_refused(self, mock_delete, mock_check):
-        self.proposal.state = proposal_state.ProposalState.REFUSED.name
-        self.proposal.save()
-
-        consolidate_creation_proposal(self.proposal)
-
-        self.assertFalse(ProposalLearningUnit.objects.filter(pk=self.proposal.pk).exists())
-        mock_check.assert_called_once_with(self.proposal.learning_unit_year.learning_unit, check_proposal=False)
-        mock_delete.assert_called_once_with(self.proposal.learning_unit_year.learning_unit)
-
-    @mock.patch("base.business.learning_unit_proposal.edit_learning_unit_end_date")
-    def test_extend_learning_unit(self, mock_edit_lu_end_date):
-        consolidate_creation_proposal(self.proposal)
-
-        self.assertFalse(ProposalLearningUnit.objects.filter(pk=self.proposal.pk).exists())
+        self.assertFalse(ProposalLearningUnit.objects.filter(pk=creation_proposal.pk).exists())
 
         self.assertTrue(mock_edit_lu_end_date.called)
-
         lu_arg, academic_year_arg = mock_edit_lu_end_date.call_args[0]
-        self.assertEqual(lu_arg.end_year, self.proposal.learning_unit_year.academic_year.year)
+        self.assertEqual(lu_arg.end_year, creation_proposal.learning_unit_year.academic_year.year)
         self.assertIsNone(academic_year_arg)
 
-
-class TestConsolidateSuppressionProposal(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.academic_years = create_academic_years()
-        cls.current_academic_year = cls.academic_years[0]
-
-    def setUp(self):
-        self.proposal = ProposalLearningUnitFactory(
-            type=proposal_type.ProposalType.SUPPRESSION.name,
-            state=proposal_state.ProposalState.ACCEPTED.name,
-            learning_unit_year__learning_container_year__academic_year=self.current_academic_year,
-            learning_unit_year__learning_unit__start_year=self.current_academic_year.year,
-            initial_data={
-                "learning_unit": {
-                    "end_year": self.academic_years[1].year
-                }
-            }
-        )
-
     @mock.patch("base.business.learning_unit_proposal.edit_learning_unit_end_date")
-    def test_when_proposal_is_accepted(self, mock_edit_lu_end_date):
-        consolidate_suppression_proposal(self.proposal)
+    def test_when_proposal_of_type_suppression_and_accepted(self, mock_edit_lu_end_date):
+        academic_years = create_academic_years()
+        suppression_proposal = ProposalLearningUnitFactory(state=proposal_state.ProposalState.ACCEPTED.name,
+                                                           type=proposal_type.ProposalType.SUPPRESSION.name,
+                                                           initial_data={
+                                                               "learning_unit": {
+                                                                   "end_year": academic_years[2].year
+                                                               }
+                                                           })
+        consolidate_proposal(suppression_proposal)
 
-        self.assertFalse(ProposalLearningUnit.objects.filter(pk=self.proposal.pk).exists())
+        self.assertFalse(ProposalLearningUnit.objects.filter(pk=suppression_proposal.pk).exists())
 
         self.assertTrue(mock_edit_lu_end_date.called)
 
         lu_arg, academic_year_arg = mock_edit_lu_end_date.call_args[0]
-        self.assertEqual(lu_arg.end_year, self.proposal.initial_data["learning_unit"]["end_year"])
-        self.proposal.learning_unit_year.learning_unit.refresh_from_db()
-        self.assertEqual(academic_year_arg.year, self.proposal.learning_unit_year.learning_unit.end_year)
+        self.assertEqual(lu_arg.end_year, suppression_proposal.initial_data["learning_unit"]["end_year"])
+        suppression_proposal.learning_unit_year.learning_unit.refresh_from_db()
+        self.assertEqual(academic_year_arg.year, suppression_proposal.learning_unit_year.learning_unit.end_year)
 
 
-    def test_when_proposal_is_refused(self):
-        self.proposal.state = proposal_state.ProposalState.REFUSED.name
-        self.proposal.save()
-
-        consolidate_creation_proposal(self.proposal)
-
-        self.assertFalse(ProposalLearningUnit.objects.filter(pk=self.proposal.pk).exists())
 
