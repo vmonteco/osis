@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.messages import ERROR
 from django.core.exceptions import PermissionDenied
@@ -35,7 +36,7 @@ from base.business.learning_units import perms
 from base.models.enums import proposal_type, proposal_state
 from base.models.person import Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
-from base.views.common import display_error_messages, display_most_critical_messages
+from base.views.common import display_error_messages, display_info_messages, display_messages_by_level
 
 
 @login_required
@@ -49,14 +50,15 @@ def consolidate_proposal(request):
     if not perms.is_proposal_in_state_to_be_consolidated(proposal):
         raise PermissionDenied("Proposal learning unit is neither accepted nor refused.")
 
-    result = {}
+    messages_by_level = {}
     try:
-        result = business_proposal.consolidate_proposal(proposal, author=user_person, send_mail=True)
-        display_most_critical_messages(request, result)
+        messages_by_level = business_proposal.consolidate_proposal(proposal, author=user_person, send_mail=True)
+        display_messages_by_level(request, messages_by_level)
+        display_info_messages(request, _("A consolidation report has been sent."))
     except IntegrityError as e:
         display_error_messages(request, e.args[0])
 
-    return _consolidate_proposal_redirection(proposal, result)
+    return _consolidate_proposal_redirection(proposal, messages_by_level)
 
 
 def _consolidate_proposal_redirection(proposal, consolidation_result):
