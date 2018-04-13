@@ -31,7 +31,9 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.learning_unit.proposal import creation
+from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm
+from base.forms.learning_unit_proposal import ProposalLearningUnitForm, CreationProposalBaseForm
+from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
 from base.models.academic_year import AcademicYear
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, organization_type, \
     entity_type, learning_unit_periodicity
@@ -40,7 +42,7 @@ from base.models.person import FACULTY_MANAGER_GROUP
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories import campus as campus_factory, \
     organization as organization_factory, person as factory_person, user as factory_user
-from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.person_entity import PersonEntityFactory
@@ -57,6 +59,7 @@ class LearningUnitViewTestCase(TestCase):
         self.faculty_user.user_permissions.add(Permission.objects.get(codename='can_create_learningunit'))
         self.super_user = factory_user.SuperUserFactory()
         self.person = factory_person.PersonFactory(user=self.super_user)
+        self.current_academic_year = create_current_academic_year()
         self.academic_year = AcademicYearFactory.build(start_date=today.replace(year=today.year + 1),
                                                          end_date=today.replace(year=today.year + 2),
                                                          year=today.year + 1)
@@ -95,8 +98,8 @@ class LearningUnitViewTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, 'learning_unit/proposal/creation.html')
-        self.assertIsInstance(response.context['learning_unit_form'], creation.LearningUnitProposalCreationForm)
-        self.assertIsInstance(response.context['proposal_form'], creation.LearningUnitProposalForm)
+        self.assertIsInstance(response.context['learning_unit_form'], LearningUnitModelForm)
+        self.assertIsInstance(response.context['form_proposal'], ProposalLearningUnitForm)
 
     def test_get_proposal_learning_unit_creation_form_with_faculty_user(self):
         self.client.force_login(self.faculty_person.user)
@@ -104,13 +107,11 @@ class LearningUnitViewTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, 'learning_unit/proposal/creation.html')
-        self.assertIsInstance(response.context['learning_unit_form'], creation.LearningUnitProposalCreationForm)
-        self.assertIsInstance(response.context['proposal_form'], creation.LearningUnitProposalForm)
+        self.assertIsInstance(response.context['learning_unit_form'], LearningUnitModelForm)
+        self.assertIsInstance(response.context['form_proposal'], ProposalLearningUnitForm)
 
     def test_proposal_learning_unit_add_with_valid_data(self):
-        learning_unit_form = creation.LearningUnitProposalCreationForm(person=self.person,
-                                                                       data=self.get_valid_data())
-        proposal_form = creation.LearningUnitProposalForm(data=self.get_valid_data())
+        learning_unit_form = CreationProposalBaseForm(data=self.get_valid_data(), person=self.person)
         self.assertTrue(learning_unit_form.is_valid(), learning_unit_form.errors)
         self.assertTrue(proposal_form.is_valid(), proposal_form.errors)
         self.client.force_login(self.person.user)
@@ -145,9 +146,7 @@ class LearningUnitViewTestCase(TestCase):
         return faultydict
 
     def test_proposal_learning_unit_add_with_invalid_data(self):
-        learning_unit_form = creation.LearningUnitProposalCreationForm(person=self.person,
-                                                                       data=self.get_invalid_data())
-        proposal_form = creation.LearningUnitProposalForm(data=self.get_valid_data())
+        learning_unit_form = CreationProposalBaseForm(self.get_invalid_data(), person=self.person)
         self.assertFalse(learning_unit_form.is_valid(), learning_unit_form.errors)
         self.assertTrue(proposal_form.is_valid(), proposal_form.errors)
         self.client.force_login(self.person.user)
@@ -175,8 +174,8 @@ class LearningUnitViewTestCase(TestCase):
         return faultydict
 
     def test_proposal_learning_unit_form_with_empty_fields(self):
-        learning_unit_form = creation.LearningUnitProposalCreationForm(person=self.person,
-                                                                       data=self.get_empty_required_fields())
+        learning_unit_form = CreationProposalBaseForm(self.get_empty_required_fields(), person=self.person)
+
         proposal_form = creation.LearningUnitProposalForm(data=self.get_empty_required_fields())
         self.assertTrue(proposal_form.is_valid(), proposal_form.errors)
         self.assertFalse(learning_unit_form.is_valid(), learning_unit_form.errors)

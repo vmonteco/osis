@@ -1,100 +1,15 @@
-{% extends "layout.html" %}
-{% load staticfiles %}
-{% load i18n %}
+{% extends "learning_unit/simple/creation.html" %}
+{% load bootstrap3 i18n %}
 
-{% comment "License" %}
-* OSIS stands for Open Student Information System. It's an application
-* designed to manage the core business of higher education institutions,
-* such as universities, faculties, institutes and professional schools.
-* The core business involves the administration of students, teachers,
-* courses, programs and so on.
-*
-* Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* A copy of this license - GNU General Public License - is available
-* at the root of the source code of this program.  If not,
-* see http://www.gnu.org/licenses/.
-{% endcomment %}
+{% block h2_title %}<h2>{% trans 'proposal_creation' %}</h2>{% endblock %}
 
-{% block breadcrumb %}
-<li><a href="{% url 'catalog' %}" id="lnk_catalog">{% trans 'formation_catalogue'%}</a></li>
-<li><a href="{% url 'learning_units' %}" id="lnk_learning_units">{% trans 'learning_units'%}</a></li>
-<li id="lnk_learning_unit">{% trans 'proposal_creation' %}</li>
-{% endblock %}
-
-{% block content %}
-<div class="page-header">
-    <h2>{% trans 'proposal_creation' %}</h2>
-</div>
-<div class="panel panel-default">
-    <div class="panel-body">
-        <form method="post" action="{% url 'proposal_learning_unit_add' %}" id="LearningUnitYearForm"
-              data-validate-url="{% url 'check_acronym' type='FULL' %}">
-            {% csrf_token %}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <label>{% trans 'proposal_management' %}</label>
-                </div>
-                <div class="panel-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <label for="{{ proposal_form.folder_id.id_for_label }}">{% trans 'folder' %}*</label>
-                        </div>
-                        <div class="col-md-4">
-                            {{ proposal_form.entity }}
-                            <span class="error">{{ proposal_form.entity.errors }}</span>
-                        </div>
-                        <div class="col-md-4">
-                            {{ proposal_form.folder_id }}
-                            <span class="error">{{ proposal_form.folder_id.errors }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% include "learning_unit/blocks/create_form_learning_unit.html" %}
-            <div class="panel-body">
-                <button type="button" id="learning_unit_year_add" class="btn btn-primary"
-                        title="{% trans 'add' %}">{%trans 'save' %}</button>
-            </div>
-        </form>
-
-        <!-- Modal -->
-        <div class="modal fade" id="prolongOrCreateModal" tabindex="-1" role="dialog"
-             aria-labelledby="prolongOrCreateModalLabel">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">{% trans 'confirm_your_action' %}</h4>
-                    </div>
-                    <div class="modal-body">
-                        {% trans 'prolong_or_create_learning_unit_message' %}
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" id="buttonCreate" class="btn btn-primary" form="LearningUnitYearForm"
-                                value="Submit">{% trans 'create' %}
-                        </button>
-                        <button type="button" class="btn btn-info">{% trans 'prolong' %}</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'cancel' %}</button>
-                    </div>
-                </div>
-            </div>
+{% block create_proposal %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <label>{% trans 'proposal_management' %}</label>
         </div>
-
+        <div class="panel-body">
+            {% include 'learning_unit/blocks/proposal_folder.html' with form=form_proposal %}
+        </div>
     </div>
-</div>
-{% endblock %}
-{% block script %}
-<script type="text/javascript" src="{% static 'js/learning_unit_creation.js' %}"></script>
 {% endblock %}
