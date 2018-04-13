@@ -277,7 +277,7 @@ class LearningContainerYearModelForm(forms.ModelForm):
         self.instance.learning_container = kwargs.pop('learning_container')
         self.instance.acronym = kwargs.pop('acronym')
         self.instance.academic_year = kwargs.pop('academic_year')
-        return super(LearningContainerYearModelForm, self).save(**kwargs)
+        return super().save(**kwargs)
 
     class Meta:
         model = LearningContainerYear
