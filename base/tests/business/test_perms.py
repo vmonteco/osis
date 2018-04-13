@@ -383,12 +383,6 @@ class TestIsEligibleToCreateModificationProposal(TestCase):
                 self.luy.learning_container_year.container_type = luy_container_type
                 self.luy.learning_container_year.save()
                 self.assertTrue(is_eligible_to_create_modification_proposal(self.luy, self.person))
-    @mock.patch.object(Person, "is_central_manager", side_effect=lambda: True)
-    def test_person_is_central_manager(self, mock_is_central_manager):
-        self.person_entity.delete()
-
-        self.assertTrue(is_eligible_to_create_modification_proposal(self.luy, self.person))
-        self.assertTrue(mock_is_central_manager.called)
 
 
 class TestIsEligibleToConsolidateLearningUnitProposal(TestCase):

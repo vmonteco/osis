@@ -54,7 +54,7 @@ def is_eligible_to_create_modification_proposal(learning_unit_year, person):
         return False
     if learning_unit_year.learning_unit.has_proposal():
         return False
-    return person.is_central_manager() or person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
+    return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
 
 
 def is_eligible_for_cancel_of_proposal(proposal, person):
