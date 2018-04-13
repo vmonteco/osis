@@ -100,7 +100,7 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
             _instanciate_form(learning_unit_year_full=self.learning_unit_year_full,
                               instance=wrong_instance)
 
-    def test_model_form_instances_case_creation(self):
+    def test_model_forms_case_creation(self):
         form = _instanciate_form(self.learning_unit_year_full)
         for cls in PartimForm.form_classes:
             self.assertIsInstance(form.forms[cls], cls)
@@ -179,7 +179,7 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
         self._test_entity_container_model_formset_instance(form)
 
     def _test_learning_unit_model_form_instance(self, partim_form, post_data):
-        form_instance = partim_form.form_instances[LearningUnitModelForm]
+        form_instance = partim_form.forms[LearningUnitModelForm]
         fields_to_validate = ['faculty_remark', 'other_remark']
         self._assert_equal_values(form_instance.instance, post_data, fields_to_validate)
         # Periodicity inherit from parent [Cannot be modify by user]
@@ -188,7 +188,7 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
 
 
     def _test_learning_unit_year_model_form_instance(self, partim_form, post_data):
-        form_instance = partim_form.form_instances[LearningUnitYearModelForm]
+        form_instance = partim_form.forms[LearningUnitYearModelForm]
         fields_to_validate = ['specific_title', 'specific_title_english', 'credits',
                               'session', 'quadrimester', 'status', 'subtype', ]
         self._assert_equal_values(form_instance.instance, post_data, fields_to_validate)
@@ -200,21 +200,21 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
     def _test_learning_container_model_form_instance(self, partim_form):
         """In this test, we ensure that the instance of learning container model form inherit
            from full learning container """
-        form_instance = partim_form.form_instances[LearningContainerModelForm]
+        form_instance = partim_form.forms[LearningContainerModelForm]
         self.assertEqual(form_instance.instance,
                          self.learning_unit_year_full.learning_container_year.learning_container)
 
     def _test_learning_container_year_model_form_instance(self, partim_form):
         """ In this test, we ensure that the instance of learning container year model form inherit
             from full learning container year """
-        form_instance = partim_form.form_instances[LearningContainerYearModelForm]
+        form_instance = partim_form.forms[LearningContainerYearModelForm]
         self.assertEqual(form_instance.instance,
                          self.learning_unit_year_full.learning_container_year)
 
     def _test_entity_container_model_formset_instance(self, partim_form):
         """ In this test, we ensure that the instance of learning container year model form inherit
             from full learning container year """
-        formset_instance = partim_form.form_instances[EntityContainerFormset]
+        formset_instance = partim_form.forms[EntityContainerFormset]
         self.assertEqual(formset_instance.instance,
                          self.learning_unit_year_full.learning_container_year)
         # Test expected instance
