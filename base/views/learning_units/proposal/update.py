@@ -23,8 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
-
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import transaction
 from django.shortcuts import redirect, get_object_or_404, render
@@ -34,7 +32,6 @@ from base.business.learning_units.proposal.common import compute_proposal_state
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.forms.learning_unit.learning_unit_create_2 import FullForm, PartimForm
 from base.forms.learning_unit_proposal import ProposalLearningUnitForm
-from base.models.entity_version import find_latest_version_by_entity
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.proposal_type import ProposalType
 from base.models.learning_unit_year import LearningUnitYear
@@ -86,41 +83,18 @@ def _update_or_proposal(request, person, learning_unit_year, proposal=None):
                                                   learning_unit_year_full=learning_unit_year.parent,
                                                   instance=learning_unit_year)
 
-    # initial_data = compute_form_initial_data(proposal.learning_unit_year)
-    # initial_data.update(_build_proposal_data(proposal))
-
-    # Workaround Set initial data from proposal initial data json to compute effectively data modified
-    # and compute proposal type
-    # initial_data_from_json = compute_form_initial_data_from_proposal_json(proposal.initial_data)
-    # initial_data_from_json.update(_build_proposal_data(proposal))
-
-    # proposal_form = LearningUnitProposalModificationForm(request.POST or None, initial=initial_data_from_json,
-    #                                                      instance=proposal,
-    #                                                      learning_unit=proposal.learning_unit_year.learning_unit,
-    #                                                      person=user_person)
     form_proposal = ProposalLearningUnitForm(request.POST or None, person=person, instance=proposal,
                                              initial=initial)
 
     if learning_unit_form_container.is_valid() and form_proposal.is_valid():
         with transaction.atomic():
-            learning_unit_form_container.save()
             proposal = form_proposal.save()
+            learning_unit_form_container.save()
 
             display_success_messages(
                 request, _("success_modification_proposal").format(_(proposal.type), learning_unit_year.acronym))
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
-    # if proposal_form.is_valid():
-    #     try:
-    #         changed_fields = proposal_form.changed_data_for_fields_that_can_be_modified
-    #         type_proposal = business_proposal.compute_proposal_type(changed_fields, initial_data_from_json.get("type"))
-    #         proposal_form.save(proposal.learning_unit_year, type_proposal, proposal_form.cleaned_data.get("state"))
-    #         display_success_messages(request, _("proposal_edited_successfully"))
-    #         return HttpResponseRedirect(reverse('learning_unit', args=[proposal.learning_unit_year.id]))
-    #     except (IntegrityError, ValueError) as e:
-    #         display_error_messages(request, e.args[0])
-
-    # proposal_form.initial = initial_data
     context = learning_unit_form_container.get_context()
     context['learning_unit_year'] = learning_unit_year
     context['experimental_phase'] = True
@@ -178,10 +152,3 @@ def _get_initial(learning_unit_year, proposal, user_person, proposal_type=Propos
     if proposal:
         initial['type'] = proposal.type
     return initial
-
-
-def _build_proposal_data(proposal):
-    return {"folder_id": proposal.folder_id,
-            "entity": find_latest_version_by_entity(proposal.entity.id, datetime.date.today()),
-            "type": proposal.type,
-            "state": proposal.state}
