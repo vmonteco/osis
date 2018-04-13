@@ -352,4 +352,10 @@ class TestConsolidateSuppressionProposal(TestCase):
 
 
     def test_when_proposal_is_refused(self):
-        pass
+        self.proposal.state = proposal_state.ProposalState.REFUSED.name
+        self.proposal.save()
+
+        consolidate_creation_proposal(self.proposal)
+
+        self.assertFalse(ProposalLearningUnit.objects.filter(pk=self.proposal.pk).exists())
+

@@ -357,12 +357,19 @@ def consolidate_creation_proposal(proposal):
 
 
 def consolidate_suppression_proposal(proposal):
-    initial_end_year = proposal.initial_data["learning_unit"]["end_year"]
-    new_end_year = proposal.learning_unit_year.learning_unit.end_year
+    if proposal.state == proposal_state.ProposalState.ACCEPTED.name:
+        initial_end_year = proposal.initial_data["learning_unit"]["end_year"]
+        new_end_year = proposal.learning_unit_year.learning_unit.end_year
 
-    proposal.learning_unit_year.learning_unit.end_year = initial_end_year
-    new_academic_year = find_academic_year_by_year(new_end_year)
-    results = {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, new_academic_year)}
+        proposal.learning_unit_year.learning_unit.end_year = initial_end_year
+        new_academic_year = find_academic_year_by_year(new_end_year)
+        results = {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, new_academic_year)}
+    else:
+        reinitialize_data_before_proposal(proposal)
+        delete_learning_unit_proposal(proposal)
+        results = {SUCCESS: [_("success_consolidate_proposal").
+                                format(acronym=proposal.learning_unit_year.acronym,
+                                       academic_year=proposal.learning_unit_year.academic_year)]}
     if not results.get(ERROR):
         proposal.delete()
     return results
