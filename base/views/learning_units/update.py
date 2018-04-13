@@ -102,9 +102,8 @@ def update_learning_unit(request, learning_unit_year_id):
                                                   instance=learning_unit_year)
 
     if learning_unit_form_container.is_valid():
-        new_luys = _save_form_and_display_messages(request, learning_unit_form_container)
-        if new_luys:
-            return redirect('learning_unit', learning_unit_year_id=new_luys[0].pk)
+        _save_form_and_display_messages(request, learning_unit_form_container)
+        return redirect('learning_unit', learning_unit_year_id=learning_unit_year_id)
 
     context = learning_unit_form_container.get_context()
     context["learning_unit_year"] = learning_unit_year

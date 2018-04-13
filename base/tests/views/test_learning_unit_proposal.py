@@ -41,7 +41,7 @@ from attribution.tests.factories.attribution_charge_new import AttributionCharge
 from attribution.tests.factories.attribution_new import AttributionNewFactory
 from base.business import learning_unit_proposal as proposal_business
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
-from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, ProposalLearningUnitForm
+from base.forms.learning_unit_proposal import ProposalLearningUnitForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
 from base.models import entity_container_year, entity_version
 from base.models import proposal_learning_unit

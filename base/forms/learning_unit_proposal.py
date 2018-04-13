@@ -83,7 +83,7 @@ class ProposalLearningUnitForm(forms.ModelForm):
             reinitialize_data_before_proposal(self.instance)
 
         self.instance.initial_data = _copy_learning_unit_data(self.instance.learning_unit_year)
-        super().save(commit)
+        return super().save(commit)
 
 
 # # FIXME Split LearningUnitYearForm and ProposalLearningUnit

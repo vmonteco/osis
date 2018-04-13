@@ -8,9 +8,11 @@
     <div class="panel-body">
         {% include 'learning_unit/blocks/proposal_folder.html' %}
         <br>
-        {% include 'learning_unit/blocks/proposal_status.html' %}
+        <div class="row">{% bootstrap_field form.state layout='horizontal' %}</div>
         <br>
-        {% include 'learning_unit/blocks/proposal_type.html' %}
+        <div class="row">
+            {% bootstrap_field form.type layout='horizontal' %}
+        </div>
         <br>
         {% include 'learning_unit/blocks/proposal_user.html' %}
     </div>
