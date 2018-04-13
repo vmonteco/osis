@@ -60,12 +60,12 @@ class GroupElementYear(models.Model):
                                            choices=sessions_derogation.SessionsDerogationTypes.choices(),
                                            default=sessions_derogation.SessionsDerogationTypes.SESSION_UNDEFINED.value)
 
-
+# Todo :: unit tests on academic_year in parent (and not in branches !!)
 def search(**kwargs):
     queryset = GroupElementYear.objects
 
     if 'academic_year' in kwargs:
-        queryset = queryset.filter(child_branch__academic_year=kwargs['academic_year'])
+        queryset = queryset.filter(parent__academic_year=kwargs['academic_year'])
 
     if 'learning_unit_year' in kwargs:
         queryset = queryset.filter(child_leaf=kwargs['learning_unit_year'])
@@ -78,43 +78,74 @@ def find_by_parent(an_education_group_year):
 
 
 def find_related_root_education_groups(learn_unit_year):
-    default_root_type_names = education_group_type.search(category=education_group_categories.MINI_TRAINING)\
+    root_type_names = education_group_type.search(category=education_group_categories.MINI_TRAINING)\
                                                   .exclude(name='Option').values_list('name')
-    default_root_categories = [education_group_categories.TRAINING]
+    root_categories = [education_group_categories.TRAINING]
     filters = {
-        'parent__education_group_type__name': default_root_type_names,
-        'parent__education_group_type__category': default_root_categories
+        'parent__education_group_type__name': root_type_names,
+        'parent__education_group_type__category': root_categories
     }
     _find_related_root_education_groups(learn_unit_year, filters=filters)
 
 
 def _find_related_root_education_groups(learn_unit_year, filters=None):
     parents_by_id = _build_parent_list_by_education_group_year_id(learn_unit_year)
-    direct_parent_ids = search(learning_unit_year=learn_unit_year).values_list('parent')
-    return _find_elements(direct_parent_ids, parents_by_id, filters)
+    # direct_parent_ids = search(learning_unit_year=learn_unit_year).values_list('parent')
+    # direct_parent_ids = search(learning_unit_year=learn_unit_year) \
+    #     .values(*_columns_used_to_build_hierarchy(filters=filters))
+    fake_group_element = {
+        'child_leaf': learn_unit_year.id,
+        'child_branch': None
+    }
+    return _find_elements(fake_group_element, parents_by_id, filters)
 
 
 def _build_parent_list_by_education_group_year_id(learn_unit_year, filters=None):
     columns_needed_for_filters = filters.keys() if filters else []
     group_elements = search(academic_year=learn_unit_year.academic_year) \
         .select_related('education_group_year__education_group_type') \
-        .values('parent', 'child_branch', *columns_needed_for_filters)
+        .values('parent', 'child_branch', 'child_leaf', *columns_needed_for_filters)
     result = {}
     for group_element_year in group_elements:
-        result.setdefault(group_element_year['child_branch'], []).append(group_element_year)
-        result.setdefault(group_element_year['parent'], [])
+        # child_branch = group_element_year['child_branch']
+        key = _build_child_key(group_element_year)
+        result.setdefault(key, []).append(group_element_year)
+        # Append the parent id in keys
+        # fake_parent = {'child_branch': group_element_year['parent']}
+        # result.setdefault(_build_child_key(fake_parent), [])
     return result
 
 
-def _find_elements(direct_parent_ids, parents_by_id, filters=None):
+# Todo == unit tests
+def _build_child_key(group_element_year):
+    branch_part = 'child_branch'
+    id_part = group_element_year['child_branch']
+    if group_element_year['child_leaf']:
+        branch_part = 'child_leaf'
+        id_part = group_element_year['child_leaf']
+    return '{branch_part}_{id_part}'.format(**locals())
+
+
+def _find_elements(child, group_elements_by_child_id, filters=None):
     roots = []
-    for child in direct_parent_ids:
-        child_id = child['child_branch']
-        # parent_id = child_branch['parent']
-        if filters and any(child[col_name] in values_list for col_name, values_list in filters.items()):
-            roots.append(child)
-        elif not parents_by_id[child_id]:
-            roots.append(child)
-        else:
-            roots.extend(_find_elements(parents_by_id[child], parents_by_id, filters=filters))
+    group_elements_year = group_elements_by_child_id.get(_build_child_key(child))
+    if not group_elements_year:
+        roots.append(child['child_branch'])
+    else:
+        for group_element_year in group_elements_year:
+            parent_id = group_element_year['parent']
+            if filters and any(group_element_year[col_name] in values_list for col_name, values_list in filters.items()):
+                roots.append(parent_id)
+            else:
+                fake_group_element = {
+                    'child_leaf': None,
+                    'child_branch': parent_id
+                }
+                roots.extend(_find_elements(fake_group_element, group_elements_by_child_id, filters=filters))
+    # import pdb; pdb.set_trace()
     return roots
+
+# TODO :: clean code / remove unused functions
+def _columns_used_to_build_hierarchy(filters=None):
+    columns_needed_for_filters = filters.keys() if filters else []
+    return ['parent', 'child_branch'] + list(columns_needed_for_filters)
