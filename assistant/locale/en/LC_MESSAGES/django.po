@@ -109,6 +109,9 @@ msgstr "Prize(s) and/or distinction(s)"
 msgid "bad_filename"
 msgstr "Filename can not contains : ( ) % $ , ; : / = +"
 
+msgid "bad_person_msg"
+msgstr "Please enter the last name and first name of the person you are looking for and select the corresponding choice in the drop-down list"
+
 msgid "beginning"
 msgstr "Beginning"
 
