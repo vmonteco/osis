@@ -29,11 +29,12 @@ from itertools import chain
 from django import forms
 from django.db import transaction
 
-from base.business.learning_unit_proposal import reinitialize_data_before_proposal, compute_proposal_type
+from base.business.learning_unit_proposal import reinitialize_data_before_proposal
 from base.business.learning_units.proposal.common import compute_proposal_state
 from base.forms.learning_unit.learning_unit_create import EntitiesVersionChoiceField
 from base.forms.learning_unit.learning_unit_create_2 import FullForm, PartimForm
 from base.models import entity_container_year
+from base.models.academic_year import current_academic_year
 from base.models.entity_version import find_main_entities_version, get_last_version, get_last_version_by_entity_id
 from base.models.enums import entity_container_year_link_type, learning_unit_year_subtypes
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
@@ -78,10 +79,12 @@ class ProposalLearningUnitForm(forms.ModelForm):
         fields = ['entity', 'folder_id', 'state', 'type']
 
     def save(self, commit=True):
-        if self.instance.initial_data:
-            reinitialize_data_before_proposal(self.instance)
+        # When we save a creation_proposal, we do not need to save the initial_data
+        if hasattr(self.instance, 'learning_unit_year'):
+            if self.instance.initial_data:
+                reinitialize_data_before_proposal(self.instance)
 
-        self.instance.initial_data = _copy_learning_unit_data(self.instance.learning_unit_year)
+            self.instance.initial_data = _copy_learning_unit_data(self.instance.learning_unit_year)
         return super().save(commit)
 
 
@@ -123,6 +126,7 @@ class ProposalBaseForm:
     def save(self):
         proposal = self.form_proposal.save()
         self.learning_unit_form_container.save()
+        # TODO
         #compute_proposal_type()
         return proposal
 
@@ -144,6 +148,21 @@ class ProposalBaseForm:
         context['person'] = self.person
         context['form_proposal'] = self.form_proposal
         return context
+
+
+class CreationProposalBaseForm(ProposalBaseForm):
+    def __init__(self, data, person, default_ac_year=None):
+        if not default_ac_year:
+            default_ac_year = current_academic_year()
+
+        super().__init__(data, person, None, proposal_type=ProposalType.CREATION.name,
+                         default_ac_year=default_ac_year)
+
+    @transaction.atomic
+    def save(self):
+        new_luys = self.learning_unit_form_container.save()
+        self.form_proposal.instance.learning_unit_year = new_luys[0]
+        return self.form_proposal.save()
 
 
 # # FIXME Split LearningUnitYearForm and ProposalLearningUnit
