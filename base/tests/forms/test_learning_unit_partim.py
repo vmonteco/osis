@@ -29,29 +29,31 @@ from django.http import QueryDict
 
 from base.forms.learning_unit.learning_unit_create_2 import PartimForm
 from base.forms.utils import acronym_field
+from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
-from base.tests.factories.business.learning_units import GenerateContainer
+from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
 from base.tests.factories.learning_unit import LearningUnitFactory
 
 from django.test import TestCase
 
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
-from base.models.enums import learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 
 
-FULL_ACRONYM='LBIR1200'
-SUBDIVISION_ACRONYM='A'
+FULL_ACRONYM = 'LBIR1200'
+SUBDIVISION_ACRONYM = 'A'
 
 
 class LearningUnitPartimFormContextMixin(TestCase):
     """This mixin is used in this test file in order to setup an environment for testing PARTIM FORM"""
     def setUp(self):
         self.current_academic_year = create_current_academic_year()
+        self.generated_ac_years = GenerateAcademicYear(self.current_academic_year.year + 1,
+                                                       self.current_academic_year.year + 10)
 
         # Creation of a LearingContainerYear and all related models
         self.learn_unit_structure = GenerateContainer(self.current_academic_year.year, self.current_academic_year.year)
@@ -305,6 +307,23 @@ class TestPartimFormSaveInsert(LearningUnitPartimFormContextMixin):
         # Ensure postponement is called
         self.assertTrue(mock_create_with_postponement.called)
 
+    def test_save_method_creation(self):
+        partim_acronym = FULL_ACRONYM + 'C'
+        a_new_learning_unit_partim = LearningUnitYearFactory.build(
+            academic_year=self.current_academic_year,
+            acronym=partim_acronym,
+            subtype=learning_unit_year_subtypes.PARTIM
+        )
+        post_data = get_valid_form_data(a_new_learning_unit_partim)
+        form = _instanciate_form(self.learning_unit_year_full, post_data=post_data, instance=None)
+        self.assertTrue(form.is_valid())
+        form.save()
+
+        # Check all related object is created
+        self.assertEqual(LearningUnitYear.objects.filter(acronym=partim_acronym).count(), 7)
+        self.assertEqual(LearningUnit.objects.filter(learningunityear__acronym=partim_acronym)
+                                             .distinct('id').count(), 1)
+
 
 class TestPartimFormSaveUpdate(LearningUnitPartimFormContextMixin):
     """Unit tests for save() for update"""
@@ -320,6 +339,7 @@ class TestPartimFormSaveUpdate(LearningUnitPartimFormContextMixin):
         form.save()
         self.assertTrue(mock_update_method.called)
         self.assertFalse(mock_create_method.called)
+
 
 
 def get_valid_form_data(learning_unit_year_partim):
@@ -343,6 +363,7 @@ def get_valid_form_data(learning_unit_year_partim):
     qdict = QueryDict('', mutable=True)
     qdict.update(post_data)
     return qdict
+
 
 def _instanciate_form(learning_unit_year_full, post_data=None, instance=None):
     person = PersonFactory()

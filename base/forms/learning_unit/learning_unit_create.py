@@ -139,9 +139,12 @@ class LearningUnitYearModelForm(forms.ModelForm):
         components_type = _get_default_components_type(self.instance.learning_container_year.container_type)
         for component_type in components_type:
             component, created = LearningComponentYear.objects.get_or_create(
-                learning_container_year=learning_unit_year.learning_container_year,
+                learningunitcomponent__learning_unit_year=learning_unit_year,
                 type=component_type,
-                defaults={'acronym': DEFAULT_ACRONYM_COMPONENT[component_type]}
+                defaults={
+                    'acronym': DEFAULT_ACRONYM_COMPONENT[component_type],
+                    'learning_container_year': learning_unit_year.learning_container_year
+                }
             )
             self._save_learning_unit_component(component, component_type, learning_unit_year)
             self._save_entity_components_year(component, entity_container_years)
