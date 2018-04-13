@@ -25,6 +25,13 @@
 ##############################################################################
 import datetime
 from unittest import mock
+from base.models.entity_component_year import EntityComponentYear
+from base.models.entity_container_year import EntityContainerYear
+from base.models.learning_component_year import LearningComponentYear
+from base.models.learning_container import LearningContainer
+from base.models.learning_container_year import LearningContainerYear
+from base.models.learning_unit import LearningUnit
+from base.models.learning_unit_component import LearningUnitComponent
 
 from django.test import TestCase
 
@@ -32,7 +39,7 @@ from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelF
     LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
 from base.forms.learning_unit.learning_unit_create_2 import FullForm
 from base.models.academic_year import AcademicYear
-from base.models.enums import learning_unit_year_subtypes
+from base.models.enums import learning_unit_year_subtypes, learning_container_year_types
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.business.entities import create_entities_hierarchy
@@ -52,14 +59,15 @@ def _instanciate_form(default_ac_year=None, person=None, post_data=None, instanc
     return FullForm(post_data, person, instance=instance, default_ac_year=default_ac_year)
 
 
-def get_valid_form_data(academic_year):
-    container_year = LearningContainerYearFactory.build(academic_year=academic_year)
+def get_valid_form_data(academic_year, learning_unit_year=None):
     entities = create_entities_hierarchy()
     person_entity = PersonEntityFactory(entity=entities['root_entity'], with_child=True)
     requirement_entity_version = entities['child_one_entity_version']
-    learning_unit_year = LearningUnitYearFactory.build(academic_year=academic_year,
-                                                       learning_container_year=container_year,
-                                                       subtype=learning_unit_year_subtypes.FULL)
+    if not learning_unit_year:
+        container_year = LearningContainerYearFactory.build(academic_year=academic_year)
+        learning_unit_year = LearningUnitYearFactory.build(academic_year=academic_year,
+                                                           learning_container_year=container_year,
+                                                           subtype=learning_unit_year_subtypes.FULL)
     return {
         # Learning unit year data model form
         'acronym': learning_unit_year.acronym,
@@ -101,14 +109,25 @@ def get_valid_form_data(academic_year):
     }
 
 
-class TestFullFormInit(TestCase):
-    """Unit tests for FullForm.__init__()"""
-
+class LearningUnitFullFormContextMixin(TestCase):
+    """This mixin is used in this test file in order to setup an environment for testing FULL FORM"""
     def setUp(self):
         self.initial_language = LanguageFactory(code='FR')
         self.initial_campus = CampusFactory(name='Louvain-la-Neuve')
-        self.academic_year = create_current_academic_year()
-        self.post_data = get_valid_form_data(self.academic_year)
+        self.current_academic_year = create_current_academic_year()
+
+        self.post_data = get_valid_form_data(self.current_academic_year)
+
+        # Creation of a LearingContainerYear and all related models
+        self.learn_unit_structure = GenerateContainer(self.current_academic_year.year, self.current_academic_year.year)
+        self.learning_unit_year = LearningUnitYear.objects.get(
+            learning_unit=self.learn_unit_structure.learning_unit_full,
+            academic_year=self.current_academic_year
+        )
+
+
+class TestFullFormInit(LearningUnitFullFormContextMixin):
+    """Unit tests for FullForm.__init__()"""
 
     def test_subtype_is_full(self):
         form = _instanciate_form(instance=LearningUnitYearFactory())
@@ -136,15 +155,15 @@ class TestFullFormInit(TestCase):
         self.assertEqual(form.academic_year, learning_unit_year_instance.academic_year)
 
     def test_model_forms_case_creation(self):
-        form = _instanciate_form(post_data=self.post_data, default_ac_year=self.academic_year)
+        form = _instanciate_form(post_data=self.post_data, default_ac_year=self.current_academic_year)
         for cls in FullForm.form_classes:
             self.assertIsInstance(form.forms[cls], cls)
 
     def test_initial_values_of_forms_case_creation(self):
-        full_form = _instanciate_form(post_data=self.post_data, default_ac_year=self.academic_year)
+        full_form = _instanciate_form(post_data=self.post_data, default_ac_year=self.current_academic_year)
         expected_initials = {
             LearningUnitYearModelForm: {
-                'status': True, 'academic_year': self.academic_year
+                'status': True, 'academic_year': self.current_academic_year
             },
             LearningContainerYearModelForm: {
                 'campus': self.initial_campus,
@@ -155,10 +174,7 @@ class TestFullFormInit(TestCase):
             self.assertEqual(full_form.forms[form_class].initial, initial)
 
     def test_model_forms_case_update(self):
-        now = datetime.datetime.now()
-        learn_unit_structure = GenerateContainer(now.year, now.year)
-        learn_unit_year = LearningUnitYear.objects.get(learning_unit=learn_unit_structure.learning_unit_full,
-                                                       academic_year=AcademicYear.objects.get(year=now.year))
+        learn_unit_year = self.learning_unit_year
         form = _instanciate_form(post_data=self.post_data, instance=learn_unit_year)
 
         self.assertEqual(form.forms[LearningUnitModelForm].instance, learn_unit_year.learning_unit)
@@ -170,21 +186,8 @@ class TestFullFormInit(TestCase):
         self.assertEqual(formset_instance.forms[1].instance.learning_container_year, learn_unit_year.learning_container_year)
 
 
-class TestFullFormIsValid(TestCase):
+class TestFullFormIsValid(LearningUnitFullFormContextMixin):
     """Unit tests for is_valid() """
-    def setUp(self):
-        self.initial_language = LanguageFactory(code='FR')
-        self.initial_campus = CampusFactory(name='Louvain-la-Neuve')
-        self.current_academic_year = create_current_academic_year()
-
-        self.post_data = get_valid_form_data(self.current_academic_year)
-
-        # Creation of a LearingContainerYear and all related models
-        self.learn_unit_structure = GenerateContainer(self.current_academic_year.year, self.current_academic_year.year)
-        self.learning_unit_year = LearningUnitYear.objects.get(
-            learning_unit=self.learn_unit_structure.learning_unit_full,
-            academic_year=self.current_academic_year
-        )
 
     def _assert_equal_values(self, obj, dictionnary, fields_to_validate):
         for field in fields_to_validate:
@@ -291,6 +294,59 @@ class TestFullFormIsValid(TestCase):
         self.assertFalse(form.is_valid())
 
 
-class TestFullFormSave(TestCase):
-    """Unit tests for is_valid() """
-    pass
+class TestFullFormSave(LearningUnitFullFormContextMixin):
+    """Unit tests for save() """
+
+    @mock.patch('base.forms.learning_unit.learning_unit_create_2.LearningUnitBaseForm._update_with_postponement', side_effect=None)
+    @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm._create', side_effect=None)
+    def test_when_update_method(self, mock_create_method, mock_update_method):
+        form = _instanciate_form(post_data=self.post_data, instance=self.learning_unit_year)
+        form.save()
+        self.assertTrue(mock_update_method.called)
+        self.assertFalse(mock_create_method.called)
+
+    @mock.patch('base.forms.learning_unit.learning_unit_create_2.LearningUnitBaseForm._update_with_postponement', side_effect=None)
+    @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm._create', side_effect=None)
+    def test_when_create_method(self, mock_create_method, mock_update_method):
+        form = _instanciate_form(post_data=self.post_data, default_ac_year=self.current_academic_year)
+        form.save()
+        self.assertTrue(mock_create_method.called)
+        self.assertFalse(mock_update_method.called)
+
+
+class testFullFormCreate(TestCase):
+    """Unit tests for FullForm._create()"""
+
+    def setUp(self):
+        self.initial_language = LanguageFactory(code='FR')
+        self.initial_campus = CampusFactory(name='Louvain-la-Neuve')
+        self.current_academic_year = create_current_academic_year()
+        AcademicYearFactory.produce_in_future(self.current_academic_year.year)
+
+        container_year = LearningContainerYearFactory.build(academic_year=self.current_academic_year,
+                                                            container_type=learning_container_year_types.COURSE)
+        learning_unit_year = LearningUnitYearFactory.build(academic_year=self.current_academic_year,
+                                                           learning_container_year=container_year,
+                                                           subtype=learning_unit_year_subtypes.FULL)
+        self.post_data = get_valid_form_data(self.current_academic_year, learning_unit_year=learning_unit_year)
+
+    def test_create_method_correctly_save_all_learning_unit_structure(self):
+        form = _instanciate_form(post_data=self.post_data, default_ac_year=self.current_academic_year)
+        self.assertTrue(form.is_valid())
+        form.save()
+
+        NUMBER_OF_POSTPONMENTS = 7
+        NUMBER_OF_ENTITIES_BY_CONTAINER = 2
+        NUMBER_OF_COMPONENTS = 2 # container_type == COURSE ==> 1 TP / 1 CM
+
+        self.assertEqual(self._count_records(LearningContainer), 1)
+        self.assertEqual(self._count_records(LearningContainerYear), NUMBER_OF_POSTPONMENTS)
+        self.assertEqual(self._count_records(LearningUnit), 1)
+        self.assertEqual(self._count_records(LearningUnitYear), NUMBER_OF_POSTPONMENTS)
+        self.assertEqual(self._count_records(EntityContainerYear), NUMBER_OF_ENTITIES_BY_CONTAINER * NUMBER_OF_POSTPONMENTS)
+        self.assertEqual(self._count_records(LearningComponentYear), NUMBER_OF_COMPONENTS * NUMBER_OF_POSTPONMENTS)
+        self.assertEqual(self._count_records(LearningUnitComponent), 2 * NUMBER_OF_POSTPONMENTS)
+        self.assertEqual(self._count_records(EntityComponentYear), NUMBER_OF_COMPONENTS * NUMBER_OF_POSTPONMENTS)
+
+    def _count_records(self, model_class):
+        return model_class.objects.all().count()
