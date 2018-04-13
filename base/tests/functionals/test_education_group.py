@@ -123,10 +123,11 @@ class TestEducationGroupYear(SeleniumTestCase):
     @classmethod
     def setUpClass(cls):
         if HAS_VIRTUAL_DISPLAY:
-            cls.virtual_display = pyvirtualdisplay.Display(size=(1280, 1024))
+            cls.virtual_display = pyvirtualdisplay.Display(size=(1920, 1080))
             cls.virtual_display.start()
 
         super().setUpClass()
+        cls.selenium.set_window_size(1920, 1080)
 
     @classmethod
     def tearDownClass(cls):
