@@ -32,6 +32,7 @@ from base.models.learning_container import LearningContainer
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_component import LearningUnitComponent
+from base.tests.factories.entity_version import EntityVersionFactory
 
 from django.test import TestCase
 
@@ -350,3 +351,36 @@ class testFullFormCreate(TestCase):
 
     def _count_records(self, model_class):
         return model_class.objects.all().count()
+
+
+class TestFullFormValidateSameEntitiesContainer(LearningUnitFullFormContextMixin):
+    """Unit tests for FullForm._validate_same_entities_container()"""
+
+    def test_when_same_entities_container(self):
+        form = _instanciate_form(post_data=self.post_data, default_ac_year=self.current_academic_year)
+        self.assertTrue(form.is_valid())
+
+    def test_when_not_same_entities_container_case_container_type_master_thesis(self):
+        post_data = self._get_post_data_with_different_entities_container_year(learning_container_year_types.MASTER_THESIS)
+        form = _instanciate_form(post_data=post_data, default_ac_year=self.current_academic_year)
+        self.assertFalse(form.is_valid())
+
+    def test_when_not_same_entities_container_case_container_type_internship(self):
+        post_data = self._get_post_data_with_different_entities_container_year(learning_container_year_types.INTERNSHIP)
+        form = _instanciate_form(post_data=post_data, default_ac_year=self.current_academic_year)
+        self.assertFalse(form.is_valid())
+
+    def test_when_not_same_entities_container_case_container_type_dissertation(self):
+        post_data = self._get_post_data_with_different_entities_container_year(learning_container_year_types.DISSERTATION)
+        form = _instanciate_form(post_data=post_data, default_ac_year=self.current_academic_year)
+        self.assertFalse(form.is_valid())
+
+    def _get_post_data_with_different_entities_container_year(self, container_type):
+        container_year = LearningContainerYearFactory.build(academic_year=self.current_academic_year,
+                                                            container_type=container_type)
+        learning_unit_year = LearningUnitYearFactory.build(academic_year=self.current_academic_year,
+                                                           learning_container_year=container_year,
+                                                           subtype=learning_unit_year_subtypes.FULL)
+        post_data = get_valid_form_data(self.current_academic_year, learning_unit_year=learning_unit_year)
+        post_data['entitycontaineryear_set-1-entity'] = EntityVersionFactory().id
+        return post_data
