@@ -2773,10 +2773,10 @@ msgstr "Voulez-vous consolider ?"
 msgid "need_no_reminder"
 msgstr "Pas besoin de rappel tout est en ordre"
 
-msgid "error_consolidate_proposal"
+msgid "Proposal {acronym} ({academic_year}) cannot be consolidated."
 msgstr "Proposition {acronym} ({academic_year}) ne peut pas être consolidée."
 
-msgid "success_consolidate_proposal"
+msgid "Proposal {acronym} ({academic_year}) successfully consolidated."
 msgstr "Proposition {acronym} ({academic_year}) consolidée avec succès."
 
 msgid "error_cancel_proposal"

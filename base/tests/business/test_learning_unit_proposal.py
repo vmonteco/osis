@@ -253,7 +253,7 @@ class TestConsolidateProposal(TestCase):
                 proposal = ProposalLearningUnitFactory(state=state)
                 result = consolidate_proposal(proposal)
                 expected_result = {
-                    ERROR: [_("error_consolidate_proposal").format(
+                    SUCCESS: [_("Proposal {acronym} ({academic_year}) successfully consolidated.").format(
                         acronym=proposal.learning_unit_year.acronym,
                         academic_year=proposal.learning_unit_year.academic_year
                     )]
