@@ -2772,11 +2772,11 @@ msgstr ""
 msgid "Proposal {acronym} ({academic_year}) successfully consolidated."
 msgstr ""
 
-msgid "error_cancel_proposal"
-msgstr "Proposal {acronym} ({academic_year}) cannot be canceled."
+msgid "Proposal {acronym} ({academic_year}) cannot be canceled."
+msgstr ""
 
 msgid "Proposal {acronym} ({academic_year}) successfully canceled."
-msgstr "Proposal {acronym} ({academic_year}) successfully canceled."
+msgstr ""
 
 msgid "A report has been sent."
 msgstr ""
