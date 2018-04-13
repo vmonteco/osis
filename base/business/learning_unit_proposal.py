@@ -34,6 +34,7 @@ from base.business.learning_units import perms
 from base.business.learning_units.perms import PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES
 from base.business.learning_units.simple import deletion as business_deletion, deletion
 from base.models import entity_container_year, campus, entity
+from base.models.academic_year import find_academic_year_by_year
 from base.models.enums import entity_container_year_link_type, proposal_state, proposal_type
 from base.models.enums.proposal_type import ProposalType
 from base.utils import send_mail as send_mail_util
@@ -350,9 +351,22 @@ def consolidate_creation_proposal(proposal):
         results = _consolidate_creation_proposal_of_state_accepted(proposal)
     else:
         results = _consolidate_creation_proposal_of_state_refused(proposal)
-    if not results.get(ERROR, []):
+    if not results.get(ERROR):
         proposal.delete()
     return results
+
+
+def consolidate_suppression_proposal(proposal):
+    initial_end_year = proposal.initial_data["learning_unit"]["end_year"]
+    new_end_year = proposal.learning_unit_year.learning_unit.end_year
+
+    proposal.learning_unit_year.learning_unit.end_year = initial_end_year
+    new_academic_year = find_academic_year_by_year(new_end_year)
+    results = {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, new_academic_year)}
+    if not results.get(ERROR):
+        proposal.delete()
+    return results
+
 
 
 def _consolidate_creation_proposal_of_state_accepted(proposal):

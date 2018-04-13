@@ -35,7 +35,7 @@ from base import models as mdl_base
 from base.business import learning_unit_proposal as lu_proposal_business
 from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
 from base.business.learning_unit_proposal import compute_proposal_type, consolidate_creation_proposal, \
-    consolidate_proposals, consolidate_proposal
+    consolidate_proposals, consolidate_proposal, consolidate_suppression_proposal
 from base.business.learning_units.perms import PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES
 from base.models.academic_year import AcademicYear
 from base.models.enums import organization_type, proposal_type, entity_type, \
@@ -286,6 +286,7 @@ class TestConsolidateCreationProposal(TestCase):
 
     def setUp(self):
         self.proposal = ProposalLearningUnitFactory(
+            type=proposal_type.ProposalType.CREATION.name,
             state=proposal_state.ProposalState.ACCEPTED.name,
             learning_unit_year__learning_container_year__academic_year=self.current_academic_year,
             learning_unit_year__learning_unit__start_year=self.current_academic_year.year
@@ -300,7 +301,7 @@ class TestConsolidateCreationProposal(TestCase):
 
         consolidate_creation_proposal(self.proposal)
 
-        self.assertFalse(ProposalLearningUnit.objects.all().exists())
+        self.assertFalse(ProposalLearningUnit.objects.filter(pk=self.proposal.pk).exists())
         mock_check.assert_called_once_with(self.proposal.learning_unit_year.learning_unit, check_proposal=False)
         mock_delete.assert_called_once_with(self.proposal.learning_unit_year.learning_unit)
 
@@ -308,10 +309,47 @@ class TestConsolidateCreationProposal(TestCase):
     def test_extend_learning_unit(self, mock_edit_lu_end_date):
         consolidate_creation_proposal(self.proposal)
 
-        self.assertFalse(ProposalLearningUnit.objects.all().exists())
+        self.assertFalse(ProposalLearningUnit.objects.filter(pk=self.proposal.pk).exists())
 
         self.assertTrue(mock_edit_lu_end_date.called)
 
         lu_arg, academic_year_arg = mock_edit_lu_end_date.call_args[0]
         self.assertEqual(lu_arg.end_year, self.proposal.learning_unit_year.academic_year.year)
         self.assertIsNone(academic_year_arg)
+
+
+class TestConsolidateSuppressionProposal(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.academic_years = create_academic_years()
+        cls.current_academic_year = cls.academic_years[0]
+
+    def setUp(self):
+        self.proposal = ProposalLearningUnitFactory(
+            type=proposal_type.ProposalType.SUPPRESSION.name,
+            state=proposal_state.ProposalState.ACCEPTED.name,
+            learning_unit_year__learning_container_year__academic_year=self.current_academic_year,
+            learning_unit_year__learning_unit__start_year=self.current_academic_year.year,
+            initial_data={
+                "learning_unit": {
+                    "end_year": self.academic_years[1].year
+                }
+            }
+        )
+
+    @mock.patch("base.business.learning_unit_proposal.edit_learning_unit_end_date")
+    def test_when_proposal_is_accepted(self, mock_edit_lu_end_date):
+        consolidate_suppression_proposal(self.proposal)
+
+        self.assertFalse(ProposalLearningUnit.objects.filter(pk=self.proposal.pk).exists())
+
+        self.assertTrue(mock_edit_lu_end_date.called)
+
+        lu_arg, academic_year_arg = mock_edit_lu_end_date.call_args[0]
+        self.assertEqual(lu_arg.end_year, self.proposal.initial_data["learning_unit"]["end_year"])
+        self.proposal.learning_unit_year.learning_unit.refresh_from_db()
+        self.assertEqual(academic_year_arg.year, self.proposal.learning_unit_year.learning_unit.end_year)
+
+
+    def test_when_proposal_is_refused(self):
+        pass
