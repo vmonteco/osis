@@ -2787,3 +2787,15 @@ msgstr "Proposition {acronym} ({academic_year}) annulée avec succès"
 
 msgid "A report has been sent."
 msgstr "Un rapport a été envoyé."
+
+msgid "Success"
+msgstr "Succès"
+
+msgid "Failure"
+msgstr "Echec"
+
+msgid "state consolidation"
+msgstr "état consolidation"
+
+msgid "remarks"
+msgstr "remarques"

@@ -344,7 +344,7 @@ def consolidate_proposal(proposal, author=None, send_mail=False):
                                                 academic_year=proposal.learning_unit_year.academic_year)]}
 
     if send_mail and author is not None:
-        send_mail_util.send_mail_after_the_learning_unit_proposal_consolidation([author], [proposal])
+        send_mail_util.send_mail_after_the_learning_unit_proposal_consolidation([author], [(proposal, results)])
         messages_by_level[INFO] = [_("A report has been sent.")]
 
 

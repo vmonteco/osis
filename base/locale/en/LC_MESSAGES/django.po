@@ -2780,3 +2780,15 @@ msgstr ""
 
 msgid "A report has been sent."
 msgstr ""
+
+msgid "Success"
+msgstr ""
+
+msgid "Failure"
+msgstr ""
+
+msgid "state consolidation"
+msgstr ""
+
+msgid "remarks"
+msgstr ""

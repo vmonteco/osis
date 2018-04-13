@@ -27,7 +27,7 @@
 """
 Utility files for mail sending
 """
-
+from django.contrib.messages import ERROR
 from django.utils.translation import ugettext as _
 from assessments.business import score_encoding_sheet
 
@@ -97,18 +97,30 @@ def send_mail_after_the_learning_unit_proposal_cancellation(managers, proposals)
     return _send_mail_after_learning_unit_proposal_action(managers, proposals, html_template_ref, txt_template_ref)
 
 
-def send_mail_after_the_learning_unit_proposal_consolidation(managers, proposals):
+def send_mail_after_the_learning_unit_proposal_consolidation(managers, proposals_with_results):
     html_template_ref = 'learning_unit_proposal_consolidated_html'
     txt_template_ref = 'learning_unit_proposal_consolidated_txt'
-    return _send_mail_after_learning_unit_proposal_action(managers, proposals, html_template_ref, txt_template_ref)
+    return _send_mail_after_learning_unit_proposal_action(managers, proposals_with_results, html_template_ref, txt_template_ref)
 
 
-def _send_mail_after_learning_unit_proposal_action(managers, proposals, html_template_ref, txt_template_ref):
+def _send_mail_after_learning_unit_proposal_action(managers, proposals_with_results, html_template_ref, txt_template_ref):
     receivers = [message_config.create_receiver(manager.id, manager.email, manager.language) for manager in managers]
     suject_data = {}
-    template_base_data = {'proposals': proposals}
-    message_content = message_config.create_message_content(html_template_ref, txt_template_ref, None, receivers,
-                                                            template_base_data, suject_data, None)
+    template_base_data = {}
+    table_header = ['learning unit', 'type', 'state consolidation', 'remarks']
+    table_data = [
+        (
+            "{acronym} - {academic_year}".format(acronym=proposal.learning_unit_year.acronym,
+                                                 academic_year=proposal.learning_unit_year.academic_year),
+            _(proposal.type),
+            _("Success") if ERROR not in results else _("Failure"),
+            "\n".join(results.get(ERROR, []))
+        ) for (proposal, results) in proposals_with_results
+
+    ]
+    table = message_config.create_table('proposals', table_header, table_data)
+    message_content = message_config.create_message_content(html_template_ref, txt_template_ref, [table], receivers,
+                                                            template_base_data, suject_data)
     return message_service.send_messages(message_content)
 
 
