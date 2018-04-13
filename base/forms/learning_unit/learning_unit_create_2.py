@@ -129,8 +129,11 @@ class LearningUnitBaseForm:
                                                                override_postponement_consistency=True)
 
     def _get_entities_data(self):
-        return {entity_container_year_form.instance.type.upper(): entity_container_year_form.instance.entity
-                for entity_container_year_form in self.forms[EntityContainerFormset]}
+        entities_data = {}
+        all_data_cleaned = self.forms[EntityContainerFormset].cleaned_data
+        for index, data_cleaned in enumerate(all_data_cleaned):
+            entities_data[ENTITY_TYPE_LIST[index]] = data_cleaned.get('entity')
+        return entities_data
 
     def _get_flat_cleaned_data_apart_from_entities(self):
         all_clean_data = {}
