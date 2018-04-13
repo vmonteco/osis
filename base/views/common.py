@@ -213,5 +213,5 @@ def check_if_display_message(request, results):
 
 
 def display_messages_by_level(request, messages_by_level):
-    display_error_messages(request, messages_by_level.get(ERROR, []))
-    display_success_messages(request, messages_by_level.get(SUCCESS, []), extra_tags='safe')
+    for level, msgs, in messages_by_level.items():
+        display_messages(request, msgs, level, extra_tags='safe')

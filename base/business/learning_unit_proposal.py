@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from django.apps import apps
-from django.contrib.messages import ERROR, SUCCESS
+from django.contrib.messages import ERROR, SUCCESS, INFO
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl_base
@@ -275,32 +275,25 @@ def _get_rid_of_blank_value(data):
 
 
 def cancel_proposals(proposals, author):
-    return apply_action_on_proposals(proposals, author, cancel_proposal, "success_cancel_proposal",
-                                     "error_cancel_proposal",
+    return apply_action_on_proposals(proposals, author, cancel_proposal,
                                      send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation)
 
 
 def consolidate_proposals(proposals, author):
-    return apply_action_on_proposals(proposals, author, consolidate_proposal, "success_consolidate_proposal",
-                                     "error_consolidate_proposal",
-                                     send_mail_util.send_mail_after_the_learning_unit_proposal_consolidation)
+    return  apply_action_on_proposals(proposals, author, consolidate_proposal,
+                                      send_mail_util.send_mail_after_the_learning_unit_proposal_consolidation)
 
 
-def apply_action_on_proposals(proposals, author, action_method, success_msg_id, error_msg_id, send_mail_method):
-    messages_by_level = {SUCCESS: [], ERROR: []}
+def apply_action_on_proposals(proposals, author, action_method, send_mail_method):
+    messages_by_level = {SUCCESS: [], ERROR: [], INFO: [_("A report has been sent.")]}
 
     for proposal in proposals:
         msg = action_method(proposal)
-        if msg.get(ERROR):
-            error_msg = _(error_msg_id).format(acronym=proposal.learning_unit_year.acronym,
-                                               academic_year=proposal.learning_unit_year.academic_year)
-            messages_by_level[ERROR].append(error_msg)
-        else:
-            success_msg = _(success_msg_id).format(acronym=proposal.learning_unit_year.acronym,
-                                                   academic_year=proposal.learning_unit_year.academic_year)
-            messages_by_level[SUCCESS].append(success_msg)
+        messages_by_level[ERROR].extend(msg.get(ERROR, []))
+        messages_by_level[SUCCESS].extend(msg.get(SUCCESS, []))
 
     send_mail_method([author], proposals)
+
     return messages_by_level
 
 
@@ -341,13 +334,16 @@ def consolidate_proposal(proposal, author=None, send_mail=False):
         elif proposal.type == proposal_type.ProposalType.SUPPRESSION.name:
             results = consolidate_suppression_proposal_accepted(proposal)
 
-    if send_mail and author is not None:
-        send_mail_util.send_mail_after_the_learning_unit_proposal_consolidation([author], [proposal])
 
     if ERROR in results:
         messages_by_level = {ERROR: [_("Proposal {acronym} ({academic_year}) cannot be consolidated.").
                                          format(acronym=proposal.learning_unit_year.acronym,
                                                 academic_year=proposal.learning_unit_year.academic_year)]}
+
+    if send_mail and author is not None:
+        send_mail_util.send_mail_after_the_learning_unit_proposal_consolidation([author], [proposal])
+        messages_by_level[INFO] = [_("A report has been sent.")]
+
 
     return messages_by_level
 

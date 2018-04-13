@@ -2785,5 +2785,5 @@ msgstr "Proposition {acronym} ({academic_year}) ne peut pas être annulée."
 msgid "success_cancel_proposal"
 msgstr "Proposition {acronym} ({academic_year}) annulée avec succès"
 
-msgid "A consolidation report has been sent."
-msgstr "Un rapport de consolidation a été envoyé."
+msgid "A report has been sent."
+msgstr "Un rapport a été envoyé."

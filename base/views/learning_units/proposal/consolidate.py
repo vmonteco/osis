@@ -54,7 +54,6 @@ def consolidate_proposal(request):
     try:
         messages_by_level = business_proposal.consolidate_proposal(proposal, author=user_person, send_mail=True)
         display_messages_by_level(request, messages_by_level)
-        display_info_messages(request, _("A consolidation report has been sent."))
     except IntegrityError as e:
         display_error_messages(request, e.args[0])
 
