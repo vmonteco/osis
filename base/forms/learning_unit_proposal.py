@@ -89,7 +89,7 @@ class ProposalBaseForm:
     #Default values
     proposal_type = ProposalType.TRANSFORMATION.name
 
-    def __init__(self, data, person, learning_unit_year, proposal=None, proposal_type=None):
+    def __init__(self, data, person, learning_unit_year, proposal=None, proposal_type=None, default_ac_year=None):
         self.person = person
         self.learning_unit_year = learning_unit_year
         self.proposal = proposal
@@ -98,8 +98,8 @@ class ProposalBaseForm:
 
         initial = self._get_initial()
 
-        if learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
-            self.learning_unit_form_container = FullForm(data, person, instance=learning_unit_year)
+        if not learning_unit_year or learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
+            self.learning_unit_form_container = FullForm(data, person, default_ac_year, instance=learning_unit_year)
         else:
             self.learning_unit_form_container = PartimForm(data, person,
                                                       learning_unit_year_full=learning_unit_year.parent,

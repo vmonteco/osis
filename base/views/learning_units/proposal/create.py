@@ -31,6 +31,7 @@ from django.shortcuts import redirect, get_object_or_404
 from base import models as mdl_base
 from base.business.learning_units.proposal import creation
 from base.business.learning_units.proposal.common import compute_proposal_state
+from base.forms.learning_unit_proposal import ProposalBaseForm
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.proposal_type import ProposalType
 from base.views import layout
@@ -42,17 +43,15 @@ from reference.models.language import find_by_code
 @permission_required('base.can_propose_learningunit', raise_exception=True)
 def get_proposal_learning_unit_creation_form(request, academic_year):
     person = get_object_or_404(mdl_base.person.Person, user=request.user)
-    learning_unit_form = LearningUnitProposalCreationForm(person, initial={'academic_year': academic_year,
-                                                                           'subtype': learning_unit_year_subtypes.FULL,
-                                                                           "container_type": BLANK_CHOICE_DASH,
-                                                                           "language": find_by_code("FR")})
-    proposal_form = LearningUnitProposalForm()
-    return layout.render(request, "learning_unit/proposal/creation.html",
-                         {'person': person,
-                          'learning_unit_form': learning_unit_form,
-                          'proposal_form': proposal_form})
+    proposal_form = ProposalBaseForm(request.POST or None, person, None, proposal_type=ProposalType.CREATION.name, default_ac_year=academic_year)
+
+    if proposal_form.is_valid():
+        proposal_form.save()
+
+    return layout.render(request, "learning_unit/proposal/creation.html", proposal_form.get_context())
 
 
+# FIXME Remove this duplicated method
 @login_required
 @permission_required('base.can_propose_learningunit', raise_exception=True)
 def proposal_learning_unit_add(request):
