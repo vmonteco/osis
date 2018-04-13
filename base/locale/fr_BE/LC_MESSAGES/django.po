@@ -2794,9 +2794,6 @@ msgstr "Succès"
 msgid "Failure"
 msgstr "Echec"
 
-msgid "State consolidation"
-msgstr "Etat consolidation"
-
 msgid "Remarks"
 msgstr "Remarques"
 

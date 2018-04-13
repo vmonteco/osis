@@ -2787,9 +2787,6 @@ msgstr ""
 msgid "Failure"
 msgstr ""
 
-msgid "State consolidation"
-msgstr ""
-
 msgid "Remarks"
 msgstr ""
 
