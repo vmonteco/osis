@@ -69,6 +69,8 @@ def is_eligible_for_cancel_of_proposal(proposal, person):
 def is_eligible_to_edit_proposal(proposal, person):
     if not proposal:
         return False
+    if not person.is_linked_to_entity_in_charge_of_learning_unit_year(proposal.learning_unit_year):
+        return False
     if person.is_faculty_manager() and not _check_eligible_to_edit_proposal_as_faculty_manager(proposal, person):
         return False
     return person.user.has_perm('base.can_edit_learning_unit_proposal')
@@ -135,8 +137,6 @@ def _is_attached_to_initial_entity(learning_unit_proposal, a_person):
 
 
 def _check_eligible_to_edit_proposal_as_faculty_manager(proposal, person):
-    if not person.is_linked_to_entity_in_charge_of_learning_unit_year(proposal.learning_unit_year):
-        return False
     if proposal.state != ProposalState.FACULTY.name:
         return False
     if (proposal.type == ProposalType.MODIFICATION.name and
