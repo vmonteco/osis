@@ -40,7 +40,7 @@ msgstr "Add a teaching unit"
 msgid "address"
 msgstr "Address"
 
-msgid "administrative_assistant_form"
+msgid "administrative_data"
 msgstr "Administrative data"
 
 msgid "advice"

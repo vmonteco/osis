@@ -42,8 +42,8 @@
                 {{ form.non_field_errors }}
                 {% csrf_token %}
                 <input type="hidden" name="mandate_id" value="{{ mandate.id }}">
-                <button type="submit" class="btn btn-link" title="{% trans 'administrative_assistant_form'%}">
-                    {% trans 'administrative_assistant_form'%}
+                <button type="submit" class="btn btn-link" title="{% trans 'administrative_data'%}">
+                    {% trans 'administrative_data'%}
                 </button>
             </form>
         </li>
@@ -173,9 +173,7 @@
             </div>
             {% if phd_files.all %}
                 <div class="row" style="padding-top: 10px;">
-                    <div class="col-md-12">
                     {% trans 'support_committee_reports' %}
-                    </div>
                 </div>
                 <div class="row" style="padding-top: 2px;">
                     <ul>
@@ -245,9 +243,7 @@
             </div>
             {% if research_files.all %}
                 <div class="row" style="padding-top: 10px;">
-                    <div class="col-md-12">
-                        {% trans 'dial_publications' %}
-                    </div>
+                    {% trans 'dial_publications' %}
                 </div>
                 <div class="row" style="padding-top: 2px;">
                     <ul>
@@ -325,9 +321,7 @@
         </div>
         {% if tutoring_files.all %}
             <div class="row" style="padding-top: 10px;">
-                <div class="col-md-12">
-                    {% trans 'tutoring_reports' %}
-                </div>
+                {% trans 'tutoring_reports' %}
             </div>
             <div class="row" style="padding-top: 2px;">
                 <ul>
