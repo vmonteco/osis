@@ -24,6 +24,8 @@
 #
 ##############################################################################
 import abc
+from collections import OrderedDict
+from itertools import chain
 
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
@@ -76,6 +78,14 @@ class LearningUnitBaseForm:
     @property
     def errors(self):
         return [form. errors for form in self.forms.values()]
+
+    @property
+    def fields(self):
+        fields = OrderedDict()
+        for form in self.forms.values():
+            if hasattr(form, 'fields'):
+                fields.update(form.fields.items())
+        return fields
 
     @property
     def cleaned_data(self):

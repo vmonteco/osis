@@ -23,15 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from collections import OrderedDict
+from itertools import chain
 
 from django import forms
+from django.db import transaction
 
-from base.business.learning_unit_proposal import reinitialize_data_before_proposal
+from base.business.learning_unit_proposal import reinitialize_data_before_proposal, compute_proposal_type
+from base.business.learning_units.proposal.common import compute_proposal_state
 from base.forms.learning_unit.learning_unit_create import EntitiesVersionChoiceField
+from base.forms.learning_unit.learning_unit_create_2 import FullForm, PartimForm
 from base.models import entity_container_year
 from base.models.entity_version import find_main_entities_version, get_last_version, get_last_version_by_entity_id
-from base.models.enums import entity_container_year_link_type
+from base.models.enums import entity_container_year_link_type, learning_unit_year_subtypes
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
+from base.models.enums.proposal_type import ProposalType
 from base.models.proposal_learning_unit import ProposalLearningUnit
 
 
@@ -77,6 +83,67 @@ class ProposalLearningUnitForm(forms.ModelForm):
 
         self.instance.initial_data = _copy_learning_unit_data(self.instance.learning_unit_year)
         return super().save(commit)
+
+
+class ProposalBaseForm:
+    #Default values
+    proposal_type = ProposalType.TRANSFORMATION.name
+
+    def __init__(self, data, person, learning_unit_year, proposal=None, proposal_type=None):
+        self.person = person
+        self.learning_unit_year = learning_unit_year
+        self.proposal = proposal
+        if proposal_type:
+            self.proposal_type = proposal_type
+
+        initial = self._get_initial()
+
+        if learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
+            self.learning_unit_form_container = FullForm(data, person, instance=learning_unit_year)
+        else:
+            self.learning_unit_form_container = PartimForm(data, person,
+                                                      learning_unit_year_full=learning_unit_year.parent,
+                                                      instance=learning_unit_year)
+
+        self.form_proposal = ProposalLearningUnitForm(data, person=person, instance=proposal,
+                                                 initial=initial)
+
+    def is_valid(self):
+        return self.learning_unit_form_container.is_valid() and self.form_proposal.is_valid()
+
+    @property
+    def errors(self):
+        return self.learning_unit_form_container.errors.append(self.form_proposal.errors)
+
+    @property
+    def fields(self):
+        return OrderedDict(chain(self.form_proposal.fields.items(), self.learning_unit_form_container.fields.items()))
+
+    @transaction.atomic
+    def save(self):
+        proposal = self.form_proposal.save()
+        self.learning_unit_form_container.save()
+        #compute_proposal_type()
+        return proposal
+
+    def _get_initial(self):
+        initial = {
+                'learning_unit_year': self.learning_unit_year,
+                'type': self.proposal_type,
+                'state': compute_proposal_state(self.person),
+                'author': self.person
+        }
+        if self.proposal:
+            initial['type'] = self.proposal.type
+        return initial
+
+    def get_context(self):
+        context = self.learning_unit_form_container.get_context()
+        context['learning_unit_year'] = self.learning_unit_year
+        context['experimental_phase'] = True
+        context['person'] = self.person
+        context['form_proposal'] = self.form_proposal
+        return context
 
 
 # # FIXME Split LearningUnitYearForm and ProposalLearningUnit

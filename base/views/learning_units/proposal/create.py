@@ -31,7 +31,6 @@ from django.shortcuts import redirect, get_object_or_404
 from base import models as mdl_base
 from base.business.learning_units.proposal import creation
 from base.business.learning_units.proposal.common import compute_proposal_state
-from base.forms.learning_unit.proposal.creation import LearningUnitProposalCreationForm, LearningUnitProposalForm
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.proposal_type import ProposalType
 from base.views import layout

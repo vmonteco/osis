@@ -32,7 +32,7 @@ from base.business.learning_unit_proposal import compute_proposal_type
 from base.business.learning_units.proposal.common import compute_proposal_state
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.forms.learning_unit.learning_unit_create_2 import FullForm, PartimForm
-from base.forms.learning_unit_proposal import ProposalLearningUnitForm
+from base.forms.learning_unit_proposal import ProposalLearningUnitForm, ProposalBaseForm
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.proposal_type import ProposalType
 from base.models.learning_unit_year import LearningUnitYear
@@ -75,33 +75,15 @@ def update_learning_unit_proposal(request, learning_unit_year_id):
 
 
 def _update_or_proposal(request, person, learning_unit_year, proposal=None):
-    initial = _get_initial(learning_unit_year, proposal, person)
+    proposal_base_form = ProposalBaseForm(request.POST or None, person, learning_unit_year, proposal)
 
-    if learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
-        learning_unit_form_container = FullForm(request.POST or None, person, instance=learning_unit_year)
-    else:
-        learning_unit_form_container = PartimForm(request.POST or None, person,
-                                                  learning_unit_year_full=learning_unit_year.parent,
-                                                  instance=learning_unit_year)
-
-    form_proposal = ProposalLearningUnitForm(request.POST or None, person=person, instance=proposal,
-                                             initial=initial)
-
-    if learning_unit_form_container.is_valid() and form_proposal.is_valid():
-        with transaction.atomic():
-            proposal = form_proposal.save()
-            learning_unit_form_container.save()
-            compute_proposal_type()
-
-            display_success_messages(
-                request, _("success_modification_proposal").format(_(proposal.type), learning_unit_year.acronym))
+    if proposal_base_form.is_valid():
+        proposal = proposal_base_form.save()
+        display_success_messages(
+            request, _("success_modification_proposal").format(_(proposal.type), learning_unit_year.acronym))
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
-    context = learning_unit_form_container.get_context()
-    context['learning_unit_year'] = learning_unit_year
-    context['experimental_phase'] = True
-    context['person'] = person
-    context['form_proposal'] = form_proposal
+    context = proposal_base_form.get_context()
     if proposal:
         return layout.render(request, 'learning_unit/proposal/update_modification.html', context)
     return layout.render(request, 'learning_unit/proposal/create_modification.html', context)
