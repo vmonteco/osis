@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.messages import ERROR
 from django.core.exceptions import PermissionDenied
@@ -36,7 +35,7 @@ from base.business.learning_units import perms
 from base.models.enums import proposal_type, proposal_state
 from base.models.person import Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
-from base.views.common import display_error_messages, display_info_messages, display_messages_by_level
+from base.views.common import display_error_messages, display_messages_by_level
 
 
 @login_required
@@ -52,7 +51,7 @@ def consolidate_proposal(request):
 
     messages_by_level = {}
     try:
-        messages_by_level = business_proposal.consolidate_proposal(proposal, author=user_person, send_mail=True)
+        messages_by_level = business_proposal.consolidate_proposal_and_send_report(proposal, user_person)
         display_messages_by_level(request, messages_by_level)
     except IntegrityError as e:
         display_error_messages(request, e.args[0])

@@ -2787,8 +2787,11 @@ msgstr ""
 msgid "Failure"
 msgstr ""
 
-msgid "state consolidation"
+msgid "State consolidation"
 msgstr ""
 
-msgid "remarks"
+msgid "Remarks"
+msgstr ""
+
+msgid "Learning unit"
 msgstr ""

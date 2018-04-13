@@ -107,7 +107,7 @@ def _send_mail_after_learning_unit_proposal_action(managers, proposals_with_resu
     receivers = [message_config.create_receiver(manager.id, manager.email, manager.language) for manager in managers]
     suject_data = {}
     template_base_data = {}
-    table_header = ['learning unit', 'type', 'state consolidation', 'remarks']
+    table_header = ['Learning unit', 'type', 'State consolidation', 'Remarks']
     table_data = [
         (
             "{acronym} - {academic_year}".format(acronym=proposal.learning_unit_year.acronym,

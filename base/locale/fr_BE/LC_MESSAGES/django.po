@@ -2794,8 +2794,11 @@ msgstr "Succès"
 msgid "Failure"
 msgstr "Echec"
 
-msgid "state consolidation"
-msgstr "état consolidation"
+msgid "State consolidation"
+msgstr "Etat consolidation"
 
-msgid "remarks"
-msgstr "remarques"
+msgid "Remarks"
+msgstr "Remarques"
+
+msgid "Learning unit"
+msgstr "Unité d'enseignement"

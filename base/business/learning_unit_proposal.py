@@ -275,32 +275,90 @@ def _get_rid_of_blank_value(data):
 
 
 def cancel_proposals(proposals, author):
-    return apply_action_on_proposals(proposals, author, cancel_proposal,
+    return apply_action_on_proposals(proposals, author, _cancel_proposal,
+                                     "Proposal {acronym} ({academic_year}) successfully canceled.",
+                                     "Proposal {acronym} ({academic_year}) cannot be canceled.",
                                      send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation)
 
 
 def consolidate_proposals(proposals, author):
-    return  apply_action_on_proposals(proposals, author, consolidate_proposal,
+    return  apply_action_on_proposals(proposals, author, _consolidate_proposal,
+                                      "Proposal {acronym} ({academic_year}) successfully consolidated.",
+                                      "Proposal {acronym} ({academic_year}) cannot be consolidated.",
                                       send_mail_util.send_mail_after_the_learning_unit_proposal_consolidation)
 
 
-def apply_action_on_proposals(proposals, author, action_method, send_mail_method):
+def apply_action_on_proposals(proposals, author, action_method, success_msg_id, error_msg_id, send_mail_method):
     messages_by_level = {SUCCESS: [], ERROR: [], INFO: [_("A report has been sent.")]}
+    proposals_with_results = _apply_action_on_proposals(proposals, action_method)
 
-    for proposal in proposals:
-        msg = action_method(proposal)
-        messages_by_level[ERROR].extend(msg.get(ERROR, []))
-        messages_by_level[SUCCESS].extend(msg.get(SUCCESS, []))
+    send_mail_method([author], proposals_with_results)
+    for proposal, results in proposals_with_results:
+        if ERROR in results:
+            messages_by_level[ERROR].append(_(error_msg_id).format(
+                acronym=proposal.learning_unit_year.acronym,
+                academic_year=proposal.learning_unit_year.academic_year)
+            )
+        else:
+            messages_by_level[SUCCESS].append(_(success_msg_id).format(
+                acronym=proposal.learning_unit_year.acronym,
+                academic_year=proposal.learning_unit_year.academic_year)
+            )
 
-    send_mail_method([author], proposals)
+    return messages_by_level
+
+def _apply_action_on_proposals(proposals, action_method):
+    return [(proposal, action_method(proposal)) for proposal in proposals]
+
+
+def cancel_proposal_and_send_report(proposal, author):
+    messages_by_level = {SUCCESS: [_("Proposal {acronym} ({academic_year}) successfully canceled.").
+                                       format(acronym=proposal.learning_unit_year.acronym,
+                                              academic_year=proposal.learning_unit_year.academic_year)]}
+
+    results = _cancel_proposal(proposal)
+
+    if ERROR in results:
+        messages_by_level = {ERROR: [_("Proposal {acronym} ({academic_year}) cannot be canceled.").
+                                         format(acronym=proposal.learning_unit_year.acronym,
+                                                academic_year=proposal.learning_unit_year.academic_year)]}
+
+    send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation([author], [proposal])
+    messages_by_level[INFO] = [_("A report has been sent.")]
 
     return messages_by_level
 
 
-def cancel_proposal(proposal, author=None, send_mail=False):
-    messages_by_level = {SUCCESS: [_("Proposal {acronym} ({academic_year}) successfully canceled.").
+def consolidate_proposal_and_send_report(proposal, author):
+    messages_by_level = {SUCCESS: [_("Proposal {acronym} ({academic_year}) successfully consolidated.").
                                        format(acronym=proposal.learning_unit_year.acronym,
                                               academic_year=proposal.learning_unit_year.academic_year)]}
+    results = _consolidate_proposal(proposal)
+    if ERROR in results:
+        messages_by_level = {ERROR: [_("Proposal {acronym} ({academic_year}) cannot be consolidated.").
+                                         format(acronym=proposal.learning_unit_year.acronym,
+                                                academic_year=proposal.learning_unit_year.academic_year)]}
+
+    send_mail_util.send_mail_after_the_learning_unit_proposal_consolidation([author], [(proposal, results)])
+    messages_by_level[INFO] = [_("A report has been sent.")]
+
+    return messages_by_level
+
+
+def _consolidate_proposal(proposal):
+    results = {}
+    if proposal.state == proposal_state.ProposalState.REFUSED.name:
+        results = _cancel_proposal(proposal)
+    elif proposal.state == proposal_state.ProposalState.ACCEPTED.name:
+
+        if proposal.type == proposal_type.ProposalType.CREATION.name:
+            results = consolidate_creation_proposal_accepted(proposal)
+        elif proposal.type == proposal_type.ProposalType.SUPPRESSION.name:
+            results = consolidate_suppression_proposal_accepted(proposal)
+    return results
+
+
+def _cancel_proposal(proposal):
     results = {}
     if proposal.type == ProposalType.CREATION.name:
         learning_unit_year = proposal.learning_unit_year
@@ -310,45 +368,7 @@ def cancel_proposal(proposal, author=None, send_mail=False):
     else:
         reinitialize_data_before_proposal(proposal)
     delete_learning_unit_proposal(proposal)
-
-    if ERROR in results:
-        messages_by_level = {ERROR: [_("Proposal {acronym} ({academic_year}) cannot be canceled.").
-                                         format(acronym=proposal.learning_unit_year.acronym,
-                                                academic_year=proposal.learning_unit_year.academic_year)]}
-
-    if send_mail and author is not None:
-        send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation([author], [proposal])
-        messages_by_level[INFO] = [_("A report has been sent.")]
-
-    return messages_by_level
-
-
-def consolidate_proposal(proposal, author=None, send_mail=False):
-    messages_by_level = {SUCCESS: [_("Proposal {acronym} ({academic_year}) successfully consolidated.").
-                                       format(acronym=proposal.learning_unit_year.acronym,
-                                              academic_year=proposal.learning_unit_year.academic_year)]}
-    results = {}
-    if proposal.state == proposal_state.ProposalState.REFUSED.name:
-       results = cancel_proposal(proposal)
-    elif proposal.state == proposal_state.ProposalState.ACCEPTED.name:
-
-        if proposal.type == proposal_type.ProposalType.CREATION.name:
-            results = consolidate_creation_proposal_accepted(proposal)
-        elif proposal.type == proposal_type.ProposalType.SUPPRESSION.name:
-            results = consolidate_suppression_proposal_accepted(proposal)
-
-
-    if ERROR in results:
-        messages_by_level = {ERROR: [_("Proposal {acronym} ({academic_year}) cannot be consolidated.").
-                                         format(acronym=proposal.learning_unit_year.acronym,
-                                                academic_year=proposal.learning_unit_year.academic_year)]}
-
-    if send_mail and author is not None:
-        send_mail_util.send_mail_after_the_learning_unit_proposal_consolidation([author], [(proposal, results)])
-        messages_by_level[INFO] = [_("A report has been sent.")]
-
-
-    return messages_by_level
+    return results
 
 
 def consolidate_creation_proposal_accepted(proposal):
