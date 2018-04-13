@@ -28,6 +28,7 @@ from django.db import transaction
 from django.shortcuts import redirect, get_object_or_404, render
 from django.utils.translation import ugettext_lazy as _
 
+from base.business.learning_unit_proposal import compute_proposal_type
 from base.business.learning_units.proposal.common import compute_proposal_state
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.forms.learning_unit.learning_unit_create_2 import FullForm, PartimForm
@@ -90,6 +91,7 @@ def _update_or_proposal(request, person, learning_unit_year, proposal=None):
         with transaction.atomic():
             proposal = form_proposal.save()
             learning_unit_form_container.save()
+            compute_proposal_type()
 
             display_success_messages(
                 request, _("success_modification_proposal").format(_(proposal.type), learning_unit_year.acronym))
@@ -101,8 +103,8 @@ def _update_or_proposal(request, person, learning_unit_year, proposal=None):
     context['person'] = person
     context['form_proposal'] = form_proposal
     if proposal:
-        return render(request, 'learning_unit/proposal/update_modification.html', context)
-    return render(request, 'learning_unit/proposal/create_modification.html', context)
+        return layout.render(request, 'learning_unit/proposal/update_modification.html', context)
+    return layout.render(request, 'learning_unit/proposal/create_modification.html', context)
 
 
 def _update_or_create_suppression_proposal(request, person, learning_unit_year, proposal=None):

@@ -25,19 +25,12 @@
 ##############################################################################
 
 from django import forms
-from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_proposal import reinitialize_data_before_proposal
-from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
-from base.business.learning_units.proposal import edition, creation
-from base.forms.learning_unit.learning_unit_create import EntitiesVersionChoiceField, LearningUnitModelForm, \
-    LearningUnitYearModelForm, LearningContainerModelForm, LearningContainerYearModelForm, EntityContainerFormset
-from base.forms.learning_unit.learning_unit_create_2 import FullForm, LearningUnitBaseForm
+from base.forms.learning_unit.learning_unit_create import EntitiesVersionChoiceField
 from base.models import entity_container_year
 from base.models.entity_version import find_main_entities_version, get_last_version, get_last_version_by_entity_id
-from base.models.enums import learning_container_year_types, entity_container_year_link_type
-from base.models.enums import proposal_state, proposal_type
+from base.models.enums import entity_container_year_link_type
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.proposal_learning_unit import ProposalLearningUnit
 
@@ -83,7 +76,6 @@ class ProposalLearningUnitForm(forms.ModelForm):
             reinitialize_data_before_proposal(self.instance)
 
         self.instance.initial_data = _copy_learning_unit_data(self.instance.learning_unit_year)
-        print(self.instance.initial_data)
         return super().save(commit)
 
 
