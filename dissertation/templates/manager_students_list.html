@@ -52,14 +52,14 @@
                         <th>{% trans 'dissertation' %}</th>
                 </thead>
                 <tbody>
-                    {% for student in students %}
+                    {% for offer_enrollement in offer_enrollements %}
                         <tr>
-                            <td>{{ student }}</td>
+                            <td>{{ offer_enrollement.student }}</td>
                             <td>
-                                <span class="label label-default">{{ student.offerenrollment_set.last.offer_year}}</span>
+                                <span class="label label-default">{{ offer_enrollement.offer_year}}</span>
                             </td>
                             <td>
-                            {% for dissertation in  student.dissertation_set.all %}
+                            {% for dissertation in  offer_enrollement.student.dissertation_set.all %}
                                 {% if forloop.first %}
                                     <dl class="dl-horizontal">
                                 {% endif %}
@@ -87,19 +87,22 @@
                             {% endfor %}
                             </td>
                             <td>
-                            {% for dissertation in  student.dissertation_set.all %}
+                            {% for dissertation in  offer_enrollement.student.dissertation_set.all %}
 
-                                        &nbsp;
-                                        <a href="{% url 'manager_dissertations_detail' pk=dissertation.pk %}" target="_blank">
-                                            {{ dissertation }} [{{ dissertation.offer_year_start.acronym }}]
-                                        </a>
-                                   <br>
-                                {% if forloop.last %}
+                                    <div class="row">
+                                        <div class=pull-left class="col-xs-2">
+                                            &nbsp;
+                                            <a href="{% url 'manager_dissertations_detail' pk=dissertation.pk %}" target="_blank">
+                                            {{ dissertation }} </a>
+                                        </div>
+                                        <div class=pull-right class="col-xs-1">
+                                            <span class="label label-default" class="pull-right">[{{ dissertation.offer_year_start.acronym }}]</span>
+                                            <br>
+                                        </div>
+                                    </div>
 
-                                {% endif %}
                             {% endfor %}
                             </td>
-
                         </tr>
                     {% endfor %}
                 </tbody>

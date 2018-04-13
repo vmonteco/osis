@@ -25,15 +25,18 @@
 ##############################################################################
 import time
 import json
+
+from base.models.offer_enrollment import find_by_offers_year
 from django.http import HttpResponse,JsonResponse
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect
+from django.db.models import Prefetch
 from dissertation.models.dissertation_role import DissertationRole
 from dissertation.models.enums.status_types import STATUS_CHOICES
-from base.models import academic_year
+from base.models import academic_year,offer_enrollment
 from base import models as mdl
 from base.views import layout
 from dissertation.models import adviser, dissertation, dissertation_document_file, dissertation_role,\
@@ -797,13 +800,13 @@ def manager_dissertations_wait_recep_list(request):
 @login_required
 @user_passes_test(adviser.is_manager)
 def manager_students_list(request):
-
     current_manager = adviser.search_by_person(mdl.person.find_by_user(request.user))
     offers = faculty_adviser.search_by_adviser(current_manager)
-    students = mdl.student.find_by_offers_and_academic_year(offers, mdl.academic_year.starting_academic_year())\
-        .prefetch_related('dissertation_set', 'offerenrollment_set')
+    offers_years = mdl.offer_year.find_by_offers_and_year(offers,mdl.academic_year.starting_academic_year())
+    offer_enroll = offer_enrollment.find_by_offers_year(offers_years).\
+        select_related('student','offer_year').prefetch_related('student__dissertation_set')
 
-    return layout.render(request, 'manager_students_list.html', {'students': students})
+    return layout.render(request, 'manager_students_list.html', {'offer_enrollements': offer_enroll})
 
 
 ###########################
