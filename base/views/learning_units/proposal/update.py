@@ -28,17 +28,19 @@ import datetime
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError, transaction
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from base.business import learning_unit_proposal as business_proposal
 from base.business.learning_units.proposal.common import compute_proposal_state
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
-from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, ProposalLearningUnitForm, \
+from base.forms.learning_unit.learning_unit_create_2 import FullForm, PartimForm
+from base.forms.learning_unit_proposal import ProposalLearningUnitForm, \
     compute_form_initial_data_from_proposal_json
 from base.models import proposal_learning_unit
 from base.models.entity_version import find_latest_version_by_entity
+from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.proposal_type import ProposalType
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
@@ -56,32 +58,38 @@ from base.views.learning_units import perms
 def learning_unit_modification_proposal(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, id=learning_unit_year_id)
     user_person = get_object_or_404(Person, user=request.user)
-    initial_data = compute_form_initial_data(learning_unit_year)
+    initial = {
+            'learning_unit_year': learning_unit_year,
+            'type': ProposalType.TRANSFORMATION_AND_MODIFICATION.name,
+            'state': compute_proposal_state(user_person),
+            'author': user_person
+        }
     proposal = proposal_learning_unit.find_by_learning_unit_year(learning_unit_year)
 
-    form = LearningUnitProposalModificationForm(
-        request.POST or None,
-        initial=initial_data,
-        instance=proposal,
-        learning_unit=learning_unit_year.learning_unit,
-        person=user_person
-    )
+    if learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
+        learning_unit_form_container = FullForm(request.POST or None, user_person, instance=learning_unit_year)
+    else:
+        learning_unit_form_container = PartimForm(request.POST or None, user_person,
+                                                  learning_unit_year_full=learning_unit_year.parent,
+                                                  instance=learning_unit_year)
+    form_proposal = ProposalLearningUnitForm(request.POST or None, person=user_person, instance=proposal,
+                                             initial=initial)
 
-    if form.is_valid():
-        type_proposal = business_proposal.compute_proposal_type(form.changed_data_for_fields_that_can_be_modified,
-                                                                initial_data.get("type"))
-        form.save(learning_unit_year, type_proposal, compute_proposal_state(user_person))
+    if learning_unit_form_container.is_valid() and form_proposal.is_valid():
+        with transaction.atomic():
+            learning_unit_form_container.save()
+            proposal = form_proposal.save()
 
-        display_success_messages(request, _("success_modification_proposal").format(
-            _(type_proposal), learning_unit_year.acronym))
-
+            display_success_messages(
+                request, _("success_modification_proposal").format(_(proposal.type), learning_unit_year.acronym))
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
-    return layout.render(request, 'learning_unit/proposal/create_modification.html', {
-        'learning_unit_year': learning_unit_year,
-        'person': user_person,
-        'form': form,
-        'experimental_phase': True})
+    context = learning_unit_form_container.get_context()
+    context['learning_unit_year'] = learning_unit_year
+    context['experimental_phase'] = True
+    context['person'] = user_person
+    context['form_proposal'] = form_proposal
+    return render(request, 'learning_unit/proposal/create_modification.html', context)
 
 
 @login_required

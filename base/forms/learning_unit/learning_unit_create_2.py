@@ -50,20 +50,17 @@ PARTIM_FORM_READ_ONLY_FIELD = {'acronym_0', 'acronym_1', 'common_title', 'common
 
 class LearningUnitBaseForm:
 
-    forms = [LearningUnitModelForm, LearningUnitYearModelForm, LearningContainerModelForm,
-             LearningContainerYearModelForm, EntityContainerFormset]
+    form_classes = [LearningUnitModelForm, LearningUnitYearModelForm, LearningContainerModelForm,
+                    LearningContainerYearModelForm, EntityContainerFormset]
 
-    form_instances = {}
-
+    forms = {}
     subtype = None
-
     postponement = True
-
     instance = None
 
     def __init__(self, instances_data, *args, **kwargs):
-        for form_class in self.forms:
-            self.form_instances[form_class] = form_class(*args, **instances_data[form_class])
+        for form_class in self.form_classes:
+            self.forms[form_class] = form_class(*args, **instances_data[form_class])
 
     def _is_update_action(self):
         return self.instance
@@ -78,11 +75,11 @@ class LearningUnitBaseForm:
 
     @property
     def errors(self):
-        return [form.errors for form in self.forms]
+        return [form. errors for form in self.forms.values()]
 
     @property
     def cleaned_data(self):
-        return [form.cleaned_data for form in self.forms]
+        return [form.cleaned_data for form in self.forms.values()]
 
     def disable_fields(self, field_names):
         for key, value in self.get_all_fields().items():
@@ -90,7 +87,7 @@ class LearningUnitBaseForm:
 
     def get_all_fields(self):
         fields = {}
-        for cls, form_instance in self.form_instances.items():
+        for cls, form_instance in self.forms.items():
             if cls == EntityContainerFormset:
                 for index, form in enumerate(form_instance.forms):
                     fields.update({ENTITY_TYPE_LIST[index].lower(): form.fields['entity']})
@@ -101,16 +98,16 @@ class LearningUnitBaseForm:
     def get_context(self):
         return {
             'subtype': self.subtype,
-            'learning_unit_form': self.form_instances[LearningUnitModelForm],
-            'learning_unit_year_form': self.form_instances[LearningUnitYearModelForm],
-            'learning_container_year_form': self.form_instances[LearningContainerYearModelForm],
-            'entity_container_form': self.form_instances[EntityContainerFormset]
+            'learning_unit_form': self.forms[LearningUnitModelForm],
+            'learning_unit_year_form': self.forms[LearningUnitYearModelForm],
+            'learning_container_year_form': self.forms[LearningContainerYearModelForm],
+            'entity_container_form': self.forms[EntityContainerFormset]
         }
 
     def _validate_no_empty_title(self, common_title):
-        specific_title = self.form_instances[LearningUnitYearModelForm].cleaned_data["specific_title"]
+        specific_title = self.forms[LearningUnitYearModelForm].cleaned_data["specific_title"]
         if not common_title and not specific_title:
-            self.form_instances[LearningContainerYearModelForm].add_error("common_title", _("must_set_common_title_or_specific_title"))
+            self.forms[LearningContainerYearModelForm].add_error("common_title", _("must_set_common_title_or_specific_title"))
             return False
         return True
 
@@ -133,11 +130,11 @@ class LearningUnitBaseForm:
 
     def _get_entities_data(self):
         return {entity_container_year_form.instance.type.upper(): entity_container_year_form.instance.entity
-                for entity_container_year_form in self.form_instances[EntityContainerFormset]}
+                for entity_container_year_form in self.forms[EntityContainerFormset]}
 
     def _get_flat_cleaned_data_apart_from_entities(self):
         all_clean_data = {}
-        for cls, form_instance in self.form_instances.items():
+        for cls, form_instance in self.forms.items():
             if cls != EntityContainerFormset:
                 all_clean_data.update({field: value for field, value in form_instance.cleaned_data.items()
                                        if field not in FULL_READ_ONLY_FIELDS})
@@ -194,18 +191,18 @@ class FullForm(LearningUnitBaseForm):
         super(FullForm, self).__init__(instances_data, *args, **kwargs)
 
     def is_valid(self):
-        if any([not form_instance.is_valid() for form_instance in self.form_instances.values()]):
+        if any([not form_instance.is_valid() for form_instance in self.forms.values()]):
             return False
-        common_title = self.form_instances[LearningContainerYearModelForm].cleaned_data["common_title"]
+        common_title = self.forms[LearningContainerYearModelForm].cleaned_data["common_title"]
         return self._validate_no_empty_title(common_title) and self._validate_same_entities_container()
 
     def _validate_same_entities_container(self):
-        container_type = self.form_instances[LearningContainerYearModelForm].cleaned_data["container_type"]
-        requirement_entity = self.form_instances[EntityContainerFormset][0].cleaned_data["entity"]
-        allocation_entity = self.form_instances[EntityContainerFormset][1].cleaned_data["entity"]
+        container_type = self.forms[LearningContainerYearModelForm].cleaned_data["container_type"]
+        requirement_entity = self.forms[EntityContainerFormset][0].cleaned_data["entity"]
+        allocation_entity = self.forms[EntityContainerFormset][1].cleaned_data["entity"]
         if container_type in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES:
             if requirement_entity != allocation_entity:
-                self.form_instances[EntityContainerFormset][1].add_error(
+                self.forms[EntityContainerFormset][1].add_error(
                     "entity", _("requirement_and_allocation_entities_cannot_be_different"))
                 return False
         return True
@@ -220,23 +217,23 @@ class FullForm(LearningUnitBaseForm):
     def _create(self, commit):
         academic_year = self.academic_year
 
-        learning_container = self.form_instances[LearningContainerModelForm].save(commit)
-        learning_unit = self.form_instances[LearningUnitModelForm].save(academic_year=academic_year,
-                                                                        learning_container=learning_container,
-                                                                        commit=commit)
+        learning_container = self.forms[LearningContainerModelForm].save(commit)
+        learning_unit = self.forms[LearningUnitModelForm].save(academic_year=academic_year,
+                                                               learning_container=learning_container,
+                                                               commit=commit)
 
-        container_year = self.form_instances[LearningContainerYearModelForm].save(
+        container_year = self.forms[LearningContainerYearModelForm].save(
             academic_year=academic_year,
             learning_container=learning_container,
-            acronym=self.form_instances[LearningUnitYearModelForm].instance.acronym,
+            acronym=self.forms[LearningUnitYearModelForm].instance.acronym,
             commit=commit)
 
-        entity_container_years = self.form_instances[EntityContainerFormset].save(
+        entity_container_years = self.forms[EntityContainerFormset].save(
             learning_container_year=container_year,
             commit=commit)
 
         # Save learning unit year (learning_unit_component +  learning_component_year + entity_component_year)
-        learning_unit_year = self.form_instances[LearningUnitYearModelForm].save(
+        learning_unit_year = self.forms[LearningUnitYearModelForm].save(
             learning_container_year=container_year,
             learning_unit=learning_unit,
             entity_container_years=entity_container_years,
@@ -332,7 +329,7 @@ class PartimForm(LearningUnitBaseForm):
         }
 
     def is_valid(self):
-        if any([not form_instance.is_valid() for cls, form_instance in self.form_instances.items()
+        if any([not form_instance.is_valid() for cls, form_instance in self.forms.items()
                if cls in self.form_cls_to_validate]):
             return False
 
@@ -350,7 +347,7 @@ class PartimForm(LearningUnitBaseForm):
         academic_year = self.learning_unit_year_full.academic_year
 
         # Save learning unit
-        learning_unit = self.form_instances[LearningUnitModelForm].save(
+        learning_unit = self.forms[LearningUnitModelForm].save(
             academic_year=academic_year,
             learning_container=self.learning_unit_year_full.learning_container_year.learning_container,
             commit=commit
@@ -360,7 +357,7 @@ class PartimForm(LearningUnitBaseForm):
         entity_container_years = self._get_entity_container_year()
 
         # Save learning unit year
-        learning_unit_year = self.form_instances[LearningUnitYearModelForm].save(
+        learning_unit_year = self.forms[LearningUnitYearModelForm].save(
             learning_container_year=self.learning_unit_year_full.learning_container_year,
             learning_unit=learning_unit,
             entity_container_years=entity_container_years,
@@ -381,7 +378,7 @@ class PartimForm(LearningUnitBaseForm):
 
     def _get_flat_cleaned_data_apart_from_entities(self):
         all_clean_data = {}
-        for cls, form_instance in self.form_instances.items():
+        for cls, form_instance in self.forms.items():
            if cls in self.form_cls_to_validate:
                all_clean_data.update({field: value for field, value in form_instance.cleaned_data.items()
                                       if field not in FULL_READ_ONLY_FIELDS})

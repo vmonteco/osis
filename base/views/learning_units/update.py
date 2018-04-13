@@ -93,13 +93,7 @@ def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year
 def update_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     person = get_object_or_404(Person, user=request.user)
-    # form = LearningUnitModificationForm(
-    #     request.POST or None, learning_unit_year_instance=learning_unit_year, person=person)
-    #
-    # if form.is_valid():
-    #     _save_form_and_display_messages(request, form)
-    #     _check_credits(request, learning_unit_year.parent, form)
-    #     return redirect("learning_unit", learning_unit_year_id=learning_unit_year.id)
+
     if learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
         learning_unit_form_container = FullForm(request.POST or None, person, instance=learning_unit_year)
     else:
@@ -114,7 +108,8 @@ def update_learning_unit(request, learning_unit_year_id):
 
     context = learning_unit_form_container.get_context()
     context["learning_unit_year"] = learning_unit_year
-    return render(request, 'learning_unit/modification.html', context)
+
+    return render(request, 'learning_unit/simple/update.html', context)
 
 
 @login_required

@@ -137,8 +137,8 @@ class TestFullFormInit(TestCase):
 
     def test_model_form_instances_case_creation(self):
         form = _instanciate_form(post_data=self.post_data, default_ac_year=self.academic_year)
-        for cls in FullForm.forms:
-            self.assertIsInstance(form.form_instances[cls], cls)
+        for cls in FullForm.form_classes:
+            self.assertIsInstance(form.forms[cls], cls)
 
     def test_initial_values_of_form_instances_case_creation(self):
         full_form = _instanciate_form(post_data=self.post_data, default_ac_year=self.academic_year)
@@ -152,7 +152,7 @@ class TestFullFormInit(TestCase):
             }
         }
         for form_class, initial in expected_initials.items():
-            self.assertEqual(full_form.form_instances[form_class].initial, initial)
+            self.assertEqual(full_form.forms[form_class].initial, initial)
 
     def test_model_form_instances_case_update(self):
         now = datetime.datetime.now()
@@ -161,11 +161,11 @@ class TestFullFormInit(TestCase):
                                                        academic_year=AcademicYear.objects.get(year=now.year))
         form = _instanciate_form(post_data=self.post_data, instance=learn_unit_year)
 
-        self.assertEqual(form.form_instances[LearningUnitModelForm].instance, learn_unit_year.learning_unit)
-        self.assertEqual(form.form_instances[LearningContainerModelForm].instance, learn_unit_year.learning_container_year.learning_container)
-        self.assertEqual(form.form_instances[LearningUnitYearModelForm].instance, learn_unit_year)
-        self.assertEqual(form.form_instances[LearningContainerYearModelForm].instance, learn_unit_year.learning_container_year)
-        formset_instance = form.form_instances[EntityContainerFormset]
+        self.assertEqual(form.forms[LearningUnitModelForm].instance, learn_unit_year.learning_unit)
+        self.assertEqual(form.forms[LearningContainerModelForm].instance, learn_unit_year.learning_container_year.learning_container)
+        self.assertEqual(form.forms[LearningUnitYearModelForm].instance, learn_unit_year)
+        self.assertEqual(form.forms[LearningContainerYearModelForm].instance, learn_unit_year.learning_container_year)
+        formset_instance = form.forms[EntityContainerFormset]
         self.assertEqual(formset_instance.forms[0].instance.learning_container_year, learn_unit_year.learning_container_year)
         self.assertEqual(formset_instance.forms[1].instance.learning_container_year, learn_unit_year.learning_container_year)
 

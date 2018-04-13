@@ -7,8 +7,8 @@
     </div>
     <div class="panel-body">
         <div class="row">
-            <div class="col-md-6">{% bootstrap_field learning_unit_form.faculty_remark %}</div>
-            <div class="col-md-6">{% bootstrap_field learning_unit_form.other_remark %}</div>
+            {% bootstrap_field learning_unit_form.faculty_remark form_group_class="col-md-6" %}
+            {% bootstrap_field learning_unit_form.other_remark form_group_class="col-md-6" %}
         </div>
     </div>
 </div>

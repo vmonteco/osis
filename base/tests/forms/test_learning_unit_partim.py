@@ -102,8 +102,8 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
 
     def test_model_form_instances_case_creation(self):
         form = _instanciate_form(self.learning_unit_year_full)
-        for cls in PartimForm.forms:
-            self.assertIsInstance(form.form_instances[cls], cls)
+        for cls in PartimForm.form_classes:
+            self.assertIsInstance(form.forms[cls], cls)
 
     def test_inherit_initial_values(self):
         """This test will check if field are pre-full in by value of full learning unit year"""
@@ -130,7 +130,7 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
         }
         partim_form = _instanciate_form(self.learning_unit_year_full)
         for form_class, initial in expected_initials.items():
-            self.assertEqual(partim_form.form_instances[form_class].initial, initial)
+            self.assertEqual(partim_form.forms[form_class].initial, initial)
 
     def test_disabled_fields(self):
         """This function will check if fields is disabled"""
