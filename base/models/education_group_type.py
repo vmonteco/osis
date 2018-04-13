@@ -38,18 +38,30 @@ class EducationGroupTypeAdmin(OsisModelAdmin):
 
 class EducationGroupType(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
-    category = models.CharField(max_length=25, choices=education_group_categories.CATEGORIES, default=education_group_categories.TRAINING)
+    category = models.CharField(max_length=25, choices=education_group_categories.CATEGORIES,
+                                default=education_group_categories.TRAINING)
     name = models.CharField(max_length=255)
 
     def __str__(self):
         return u"%s" % self.name
 
 
+def search(**kwargs):
+    queryset = EducationGroupType.objects
+
+    if 'category' in kwargs:
+        queryset = queryset.filter(category=kwargs['category'])
+
+    return queryset
+
+
 def find_all():
     return EducationGroupType.objects.order_by('name')
 
+
 def find_by_category(category=None):
-    return EducationGroupType.objects.filter(category=category).order_by('name')
+    return search(category=category).order_by('name')
+
 
 def find_by_name(name=None):
     return EducationGroupType.objects.filter(name=name)
