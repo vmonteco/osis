@@ -29,12 +29,15 @@ Utility files for mail sending
 """
 from django.contrib.messages import ERROR
 from django.utils.translation import ugettext as _
+from openpyxl import Workbook
+from openpyxl.writer.excel import save_virtual_workbook
+
 from assessments.business import score_encoding_sheet
 
 from osis_common.models import message_history as message_history_mdl
 from osis_common.messaging import message_config, send_message as message_service
 from base.models import person as person_mdl
-from osis_common.document import paper_sheet
+from osis_common.document import paper_sheet, xls_build
 
 EDUCATIONAL_INFORMATION_UPDATE_TXT = 'educational_information_update_txt'
 
@@ -91,20 +94,20 @@ def send_mail_after_the_learning_unit_year_deletion(managers, acronym, academic_
     return message_service.send_messages(message_content)
 
 
-def send_mail_after_the_learning_unit_proposal_cancellation(managers, proposals):
+def send_mail_after_the_learning_unit_proposal_cancellation(manager, proposals):
     html_template_ref = 'learning_unit_proposal_canceled_html'
     txt_template_ref = 'learning_unit_proposal_canceled_txt'
-    return _send_mail_after_learning_unit_proposal_action(managers, proposals, html_template_ref, txt_template_ref)
+    return _send_mail_after_learning_unit_proposal_action(manager, proposals, html_template_ref, txt_template_ref)
 
 
-def send_mail_after_the_learning_unit_proposal_consolidation(managers, proposals_with_results):
+def send_mail_after_the_learning_unit_proposal_consolidation(manager, proposals_with_results):
     html_template_ref = 'learning_unit_proposal_consolidated_html'
     txt_template_ref = 'learning_unit_proposal_consolidated_txt'
-    return _send_mail_after_learning_unit_proposal_action(managers, proposals_with_results, html_template_ref, txt_template_ref)
+    return _send_mail_after_learning_unit_proposal_action(manager, proposals_with_results, html_template_ref, txt_template_ref)
 
 
-def _send_mail_after_learning_unit_proposal_action(managers, proposals_with_results, html_template_ref, txt_template_ref):
-    receivers = [message_config.create_receiver(manager.id, manager.email, manager.language) for manager in managers]
+def _send_mail_after_learning_unit_proposal_action(manager, proposals_with_results, html_template_ref, txt_template_ref):
+    receivers = [message_config.create_receiver(manager.id, manager.email, manager.language)]
     suject_data = {}
     template_base_data = {}
     table_header = ['Learning unit', 'type', 'status', 'Remarks']
@@ -119,9 +122,54 @@ def _send_mail_after_learning_unit_proposal_action(managers, proposals_with_resu
 
     ]
     table = message_config.create_table('proposals', table_header, table_data)
+    attachment = ("report.xlsx",
+                  build_proposal_report_attachment(manager, proposals_with_results),
+                  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     message_content = message_config.create_message_content(html_template_ref, txt_template_ref, [table], receivers,
-                                                            template_base_data, suject_data)
+                                                            template_base_data, suject_data, attachment=attachment)
     return message_service.send_messages(message_content)
+
+
+def build_proposal_report_attachment(manager, proposals_with_results):
+    table_data = [
+        (
+            proposal.learning_unit_year.academic_year.name,
+            proposal.learning_unit_year.acronym,
+            proposal.learning_unit_year.complete_title,
+            _(proposal.type),
+            _("Success") if ERROR not in results else _("Failure"),
+            "\n".join(results.get(ERROR, []))
+        ) for (proposal, results) in proposals_with_results
+    ]
+
+    xls_parameters = {
+        xls_build.LIST_DESCRIPTION_KEY: "Liste d'activités",
+        xls_build.FILENAME_KEY: 'Learning_units',
+        xls_build.USER_KEY: str(manager),
+        xls_build.WORKSHEETS_DATA: [
+            {
+                xls_build.CONTENT_KEY: table_data,
+                xls_build.HEADER_TITLES_KEY: [_('academic_year_small'), _('code'), _('title'), _('type'), _('status'),
+                                              _('Remarks')],
+                xls_build.WORKSHEET_TITLE_KEY: 'Report'
+            }
+        ]
+    }
+
+    return _create_xls(xls_parameters)
+
+
+def _create_xls(parameters_dict):
+    workbook = Workbook(encoding='utf-8')
+    sheet_number = 0
+    for worksheet_data in parameters_dict.get(xls_build.WORKSHEETS_DATA):
+        xls_build._build_worksheet(worksheet_data,  workbook, sheet_number)
+        sheet_number = sheet_number + 1
+
+    xls_build._build_worksheet_parameters(workbook, parameters_dict.get(xls_build.USER_KEY),
+                                          parameters_dict.get(xls_build.LIST_DESCRIPTION_KEY))
+
+    return save_virtual_workbook(workbook)
 
 
 def send_message_after_all_encoded_by_manager(persons, enrollments, learning_unit_acronym, offer_acronym):

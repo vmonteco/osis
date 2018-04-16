@@ -301,7 +301,7 @@ def apply_action_on_proposals_and_send_report(proposals, author, action_method, 
     messages_by_level = {SUCCESS: [], ERROR: [], INFO: [_("A report has been sent.")]}
     proposals_with_results = apply_action_on_proposals(proposals, action_method)
 
-    send_mail_method([author], proposals_with_results)
+    send_mail_method(author, proposals_with_results)
     for proposal, results in proposals_with_results:
         if ERROR in results:
             messages_by_level[ERROR].append(_(error_msg_id).format(
