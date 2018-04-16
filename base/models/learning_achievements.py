@@ -43,8 +43,8 @@ class LearningAchievements(OrderedModel):
     code_name = models.CharField(max_length=100, verbose_name=_('code'))
     text = RichTextField(null=True, verbose_name=_('text'))
     learning_unit_year = models.ForeignKey('LearningUnitYear')
-    order_with_respect_to = ('learning_unit_year', 'language')
     language = models.ForeignKey('reference.Language')
+    order_with_respect_to = ('learning_unit_year', 'language')
 
     class Meta:
         unique_together = ("code_name", "learning_unit_year", "language")
