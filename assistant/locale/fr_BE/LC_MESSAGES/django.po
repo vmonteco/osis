@@ -40,6 +40,9 @@ msgstr "Ajouter une unité d'enseignement"
 msgid "address"
 msgstr "Adresse"
 
+msgid "administrative_data"
+msgstr "Données administratives"
+
 msgid "advice"
 msgstr "Avis"
 
@@ -108,6 +111,9 @@ msgstr "Prix et/ou distinction(s)"
 
 msgid "bad_filename"
 msgstr "Le nom du fichier ne peut pas contenir : ( ) % $ , ; : / = +"
+
+msgid "bad_person_msg"
+msgstr "Veuillez sélectionner une personne dans la liste après avoir effectué une recherche"
 
 msgid "beginning"
 msgstr "Début"

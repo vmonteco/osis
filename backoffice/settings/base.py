@@ -67,7 +67,8 @@ INSTALLED_APPS = (
     'statici18n',
     'rest_framework',
     'rest_framework.authtoken',
-    'bootstrap3'
+    'bootstrap3',
+    'ordered_model'
 )
 
 MIDDLEWARE = (
