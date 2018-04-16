@@ -34,7 +34,8 @@ class GroupElementYearAdmin(admin.ModelAdmin):
                                     'min_credits', 'max_credits', 'is_mandatory', 'block', 'current_order',
                                     'own_comment', 'sessions_derogation', 'minor_access', 'comment',
                                     'comment_english',)}),)
-    search_fields = ['child_branch__acronym', 'child_branch__partial_acronym', 'child_leaf__acronym', 'parent__acronym', 'parent__partial_acronym']
+    search_fields = ['child_branch__acronym', 'child_branch__partial_acronym', 'child_leaf__acronym', 'parent__acronym',
+                     'parent__partial_acronym']
     raw_id_fields = ('parent', 'child_branch', 'child_leaf',)
     list_filter = ('is_mandatory', 'minor_access', 'sessions_derogation')
 
