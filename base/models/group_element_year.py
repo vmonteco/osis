@@ -90,7 +90,7 @@ def find_learning_unit_formations(learn_unit_year):
 
 # TODO :: pouvoir renvoyer un dict {learning_unit_year_id: [liste des education_group_year_id roots]}
 def _find_related_root_education_groups(learn_unit_year, filters=None):
-    parents_by_id = _build_parent_list_by_education_group_year_id(learn_unit_year, filters=filters)
+    parents_by_id = _build_parent_list_by_education_group_year_id(learn_unit_year.academic_year, filters=filters)
     # direct_parent_ids = search(learning_unit_year=learn_unit_year).values_list('parent')
     # direct_parent_ids = search(learning_unit_year=learn_unit_year) \
     #     .values(*_columns_used_to_build_hierarchy(filters=filters))
@@ -101,9 +101,9 @@ def _find_related_root_education_groups(learn_unit_year, filters=None):
     return _find_elements(parents_by_id, child_leaf=learn_unit_year.id, filters=filters)
 
 
-def _build_parent_list_by_education_group_year_id(learn_unit_year, filters=None):
+def _build_parent_list_by_education_group_year_id(academic_year, filters=None):
     columns_needed_for_filters = filters.keys() if filters else []
-    group_elements = search(academic_year=learn_unit_year.academic_year) \
+    group_elements = search(academic_year=academic_year) \
         .select_related('education_group_year__education_group_type') \
         .values('parent', 'child_branch', 'child_leaf', *columns_needed_for_filters)
     result = {}

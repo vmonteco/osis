@@ -84,7 +84,7 @@ class TestFindBuildParentListByEducationGroupYearId(TestCase):
         filters = {
             'parent__education_group_type__category': [education_group_categories.TRAINING]
         }
-        result = group_element_year._build_parent_list_by_education_group_year_id(self.child_leaf, filters=filters)
+        result = group_element_year._build_parent_list_by_education_group_year_id(self.child_leaf.academic_year, filters=filters)
 
         expected_result = {
             'child_branch_{}'.format(self.child_branch.id): [{
@@ -104,7 +104,7 @@ class TestFindBuildParentListByEducationGroupYearId(TestCase):
         self.assertDictEqual(result, expected_result)
 
     def test_without_filters(self):
-        result = group_element_year._build_parent_list_by_education_group_year_id(self.child_leaf)
+        result = group_element_year._build_parent_list_by_education_group_year_id(self.child_leaf.academic_year)
         expected_result = {
             'child_branch_{}'.format(self.child_branch.id): [{
                 'parent': self.root.id,
@@ -256,9 +256,6 @@ class TestFindLearningUnitFormations(TestCase):
 
 class TestBuildChildKey(TestCase):
     """Unit tests on _build_child_key() """
-    def setUp(self):
-        pass
-
     def test_case_params_are_none(self):
         with self.assertRaises(AttributeError):
             group_element_year._build_child_key()
