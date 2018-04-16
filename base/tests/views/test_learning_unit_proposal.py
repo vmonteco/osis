@@ -224,15 +224,12 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(response.context['person'], self.person)
         self.assertIsInstance(response.context['form_proposal'], ProposalLearningUnitForm)
 
-    @mock.patch("base.business.learning_unit_proposal.compute_proposal_type",
-                side_effect=lambda data, type: proposal_type.ProposalType.MODIFICATION.name)
-    def test_post_request(self, mock_compute_proposal_type):
+    def test_post_request(self):
         response = self.client.post(self.url, data=self.form_data)
 
         redirected_url = reverse(learning_unit_identification, args=[self.learning_unit_year.id])
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
 
-        self.assertTrue(mock_compute_proposal_type.called)
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
         self.assertTrue(a_proposal_learning_unit)
         self.assertEqual(a_proposal_learning_unit.author, self.person)
