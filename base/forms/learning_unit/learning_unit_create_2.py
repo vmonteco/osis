@@ -25,7 +25,6 @@
 ##############################################################################
 import abc
 from collections import OrderedDict
-from itertools import chain
 
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
@@ -121,7 +120,8 @@ class LearningUnitBaseForm:
     def _validate_no_empty_title(self, common_title):
         specific_title = self.forms[LearningUnitYearModelForm].cleaned_data["specific_title"]
         if not common_title and not specific_title:
-            self.forms[LearningContainerYearModelForm].add_error("common_title", _("must_set_common_title_or_specific_title"))
+            self.forms[LearningContainerYearModelForm].add_error(
+                "common_title", _("must_set_common_title_or_specific_title"))
             return False
         return True
 
@@ -401,8 +401,8 @@ class PartimForm(LearningUnitBaseForm):
     def _get_flat_cleaned_data_apart_from_entities(self):
         all_clean_data = {}
         for cls, form_instance in self.forms.items():
-           if cls in self.form_cls_to_validate:
-               all_clean_data.update({field: value for field, value in form_instance.cleaned_data.items()
+            if cls in self.form_cls_to_validate:
+                all_clean_data.update({field: value for field, value in form_instance.cleaned_data.items()
                                       if field not in FULL_READ_ONLY_FIELDS})
         return all_clean_data
 

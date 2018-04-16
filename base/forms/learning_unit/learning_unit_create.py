@@ -270,7 +270,7 @@ class LearningContainerYearModelForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields['campus'].queryset = find_main_campuses()
-        self.fields['container_type'].widget.attrs ={'onchange': 'showInternshipSubtype()'}
+        self.fields['container_type'].widget.attrs = {'onchange': 'showInternshipSubtype()'}
 
         if person.is_faculty_manager() and not proposal:
             self.fields["container_type"].choices = _create_faculty_learning_container_type_list()

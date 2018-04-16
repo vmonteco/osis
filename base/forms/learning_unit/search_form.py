@@ -40,6 +40,8 @@ from base.models.enums import entity_container_year_link_type, learning_containe
     learning_unit_year_subtypes, active_status
 from base.models.learning_unit_year import convert_status_bool
 
+MAX_RECORDS = 1000
+
 
 class SearchForm(forms.Form):
     MAX_RECORDS = 1000
@@ -214,6 +216,3 @@ def get_filter_learning_container_ids(filter_data):
                                                      entity_container_year_link_type.ALLOCATION_ENTITY)
 
     return entities_id_list if entities_id_list else None
-
-
-MAX_RECORDS = 1000

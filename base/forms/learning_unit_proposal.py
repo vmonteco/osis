@@ -35,8 +35,8 @@ from base.forms.learning_unit.learning_unit_create import EntitiesVersionChoiceF
 from base.forms.learning_unit.learning_unit_create_2 import FullForm, PartimForm
 from base.models import entity_container_year
 from base.models.academic_year import current_academic_year
-from base.models.entity_version import find_main_entities_version, get_last_version, get_last_version_by_entity_id
-from base.models.enums import entity_container_year_link_type, learning_unit_year_subtypes
+from base.models.entity_version import find_main_entities_version, get_last_version
+from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums.proposal_type import ProposalType
 from base.models.proposal_learning_unit import ProposalLearningUnit
@@ -89,7 +89,7 @@ class ProposalLearningUnitForm(forms.ModelForm):
 
 
 class ProposalBaseForm:
-    #Default values
+    # Default values
     proposal_type = ProposalType.TRANSFORMATION.name
 
     def __init__(self, data, person, learning_unit_year, proposal=None, proposal_type=None, default_ac_year=None):
@@ -106,12 +106,12 @@ class ProposalBaseForm:
                                                          proposal=True)
         else:
             self.learning_unit_form_container = PartimForm(data, person,
-                                                      learning_unit_year_full=learning_unit_year.parent,
-                                                      instance=learning_unit_year,
-                                                      proposal=True)
+                                                           learning_unit_year_full=learning_unit_year.parent,
+                                                           instance=learning_unit_year,
+                                                           proposal=True)
 
         self.form_proposal = ProposalLearningUnitForm(data, person=person, instance=proposal,
-                                                 initial=initial)
+                                                      initial=initial)
 
     def is_valid(self):
         return all([self.learning_unit_form_container.is_valid() and self.form_proposal.is_valid()])

@@ -217,20 +217,23 @@ class LearningUnitYear(SerializableModel):
         if getattr(self, 'learning_unit', None):
             learning_unit_years = learning_unit_years.exclude(learning_unit=self.learning_unit)
 
+        self.clean_acronym(learning_unit_years)
+        self.clean_internship_subtype()
+        self.clean_status()
+        self.clean_credits()
+
+    def clean_internship_subtype(self):
+        if getattr(self, 'learning_container_year', None):
+            if (self.learning_container_year.container_type == learning_container_year_types.INTERNSHIP and
+                    not self.internship_subtype):
+                raise ValidationError({'internship_subtype': _('field_is_required')})
+
+    def clean_acronym(self, learning_unit_years):
         if self.acronym in learning_unit_years.values_list('acronym', flat=True):
             raise ValidationError({'acronym': _('already_existing_acronym')})
-
         if not re.match(REGEX_BY_SUBTYPE[self.subtype], self.acronym):
             raise ValidationError({'acronym': _('invalid_acronym')})
 
-        if getattr(self, 'learning_container_year', None):
-            if (self.learning_container_year.container_type == learning_container_year_types.INTERNSHIP
-                    and not self.internship_subtype):
-                raise ValidationError({'internship_subtype': _('field_is_required')})
-
-        self.clean_status()
-        self.clean_credits()
-        
     def clean_status(self):
         # If the parent is inactive, the partim can be only inactive
         if self.parent:
