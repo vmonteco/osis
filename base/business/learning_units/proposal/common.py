@@ -23,21 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
-
 # TODO This method will become useless with a ModelForm
 from base.models.enums import proposal_state
-
-
-def proposal_common_populate(data, proposal_param):
-    proposal = proposal_param
-    proposal.entity = data.get('folder_entity').entity
-    proposal.folder_id = data.get('folder_id')
-    proposal.learning_unit_year = data.get('learning_unit_year')
-    proposal.type = data.get('type_proposal')
-    proposal.state = data.get('state_proposal')
-    proposal.author = data.get('person')
-    return proposal
 
 
 def compute_proposal_state(a_person):

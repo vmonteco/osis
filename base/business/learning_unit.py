@@ -27,9 +27,6 @@ import datetime
 from collections import OrderedDict
 
 from django.conf import settings
-from django.core.exceptions import PermissionDenied
-from django.http import Http404
-from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from attribution.models import attribution
@@ -42,7 +39,6 @@ from base.models.academic_year import find_academic_year_by_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type, academic_calendar_type
 from base.models.enums import learning_container_year_types
-from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITIES
 from cms import models as mdl_cms
 from cms.enums import entity_name
 from cms.enums.entity_name import LEARNING_UNIT_YEAR
@@ -234,45 +230,10 @@ def create_xls(user, found_learning_units):
     return xls_build.generate_xls(prepare_xls_parameters_list(user, workingsheets_data))
 
 
-def create_learning_unit_partim_structure(data_dict):
-    learning_container = data_dict.get('learning_container', None)
-    academic_year = data_dict.get('academic_year', None)
-    learning_container_year = mdl_base.learning_container_year.search(academic_year, learning_container).get()
-    return create_partim(data_dict, learning_container_year)
-
-
-def create_partim(data_dict, new_learning_container_year):
-    data = data_dict.get('data', None)
-    new_learning_unit = data_dict.get('new_learning_unit', None)
-    status = data_dict.get('status', None)
-    academic_year = data_dict.get('academic_year', None)
-
-    # Get all requirement entity containers [Min 1 - Max 3]
-    requirement_entity_containers = list(entity_container_year.search(
-        learning_container_year=new_learning_container_year,
-        link_type=REQUIREMENT_ENTITIES))
-
-    return create_learning_unit_content({'academic_year': academic_year,
-                                         'data': data,
-                                         'new_learning_container_year': new_learning_container_year,
-                                         'new_learning_unit': new_learning_unit,
-                                         'requirement_entity_containers': requirement_entity_containers,
-                                         'status': status})
-
-
 def is_summary_submission_opened():
     current_academic_year = mdl_base.academic_year.current_academic_year()
     return mdl_base.academic_calendar.is_academic_calendar_opened(current_academic_year,
                                                                   academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
-
-
-def can_access_summary(user, learning_unit_year):
-    try:
-        get_object_or_404(attribution.Attribution, learning_unit_year=learning_unit_year,
-                          tutor__person__user=user, summary_responsible=True)
-    except Http404:
-        raise PermissionDenied()
-    return True
 
 
 def find_language_in_settings(language_code):
