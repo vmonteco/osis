@@ -281,7 +281,7 @@ def cancel_proposals_and_send_report(proposals, author):
         cancel_proposal,
         "Proposal {acronym} ({academic_year}) successfully canceled.",
         "Proposal {acronym} ({academic_year}) cannot be canceled.",
-        send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation
+        send_mail_util.send_mail_cancellation_learning_unit_proposals
     )
 
 
@@ -292,7 +292,7 @@ def consolidate_proposals_and_send_report(proposals, author):
         consolidate_proposal,
         "Proposal {acronym} ({academic_year}) successfully consolidated.",
         "Proposal {acronym} ({academic_year}) cannot be consolidated.",
-        send_mail_util.send_mail_after_the_learning_unit_proposal_consolidation
+        send_mail_util.send_mail_consolidation_learning_unit_proposal
     )
 
 

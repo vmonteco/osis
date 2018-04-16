@@ -94,19 +94,21 @@ def send_mail_after_the_learning_unit_year_deletion(managers, acronym, academic_
     return message_service.send_messages(message_content)
 
 
-def send_mail_after_the_learning_unit_proposal_cancellation(manager, proposals):
+def send_mail_cancellation_learning_unit_proposals(manager, tuple_proposals_results):
     html_template_ref = 'learning_unit_proposal_canceled_html'
     txt_template_ref = 'learning_unit_proposal_canceled_txt'
-    return _send_mail_after_learning_unit_proposal_action(manager, proposals, html_template_ref, txt_template_ref)
+    return _send_mail_action_learning_unit_proposal(manager, tuple_proposals_results, html_template_ref,
+                                                    txt_template_ref)
 
 
-def send_mail_after_the_learning_unit_proposal_consolidation(manager, proposals_with_results):
+def send_mail_consolidation_learning_unit_proposal(manager, tuple_proposals_results):
     html_template_ref = 'learning_unit_proposal_consolidated_html'
     txt_template_ref = 'learning_unit_proposal_consolidated_txt'
-    return _send_mail_after_learning_unit_proposal_action(manager, proposals_with_results, html_template_ref, txt_template_ref)
+    return _send_mail_action_learning_unit_proposal(manager, tuple_proposals_results, html_template_ref,
+                                                    txt_template_ref)
 
 
-def _send_mail_after_learning_unit_proposal_action(manager, proposals_with_results, html_template_ref, txt_template_ref):
+def _send_mail_action_learning_unit_proposal(manager, tuple_proposals_results, html_template_ref, txt_template_ref):
     receivers = [message_config.create_receiver(manager.id, manager.email, manager.language)]
     suject_data = {}
     template_base_data = {
@@ -114,7 +116,7 @@ def _send_mail_after_learning_unit_proposal_action(manager, proposals_with_resul
         "last_name": manager.last_name
     }
     attachment = ("report.xlsx",
-                  build_proposal_report_attachment(manager, proposals_with_results),
+                  build_proposal_report_attachment(manager, tuple_proposals_results),
                   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     message_content = message_config.create_message_content(html_template_ref, txt_template_ref, None, receivers,
                                                             template_base_data, suject_data, attachment=attachment)
@@ -150,6 +152,7 @@ def build_proposal_report_attachment(manager, proposals_with_results):
     return _create_xls(xls_parameters)
 
 
+# FIXME should be moved to osis_common
 def _create_xls(parameters_dict):
     workbook = Workbook(encoding='utf-8')
     sheet_number = 0

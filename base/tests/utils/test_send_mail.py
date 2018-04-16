@@ -92,7 +92,7 @@ class TestSendMessage(TestCase):
     def test_send_mail_after_the_learning_unit_proposal_cancellation(self, mock_class):
         mock_class.send.return_value = None
         self.assertIsInstance(mock_class, EmailMultiAlternatives)
-        send_mail.send_mail_after_the_learning_unit_proposal_cancellation(self.persons, [self.learning_unit_year])
+        send_mail.send_mail_cancellation_learning_unit_proposals(self.persons, [self.learning_unit_year])
         call_args = mock_class.call_args
         recipients = call_args[0][3]
         attachments = call_args[1]
