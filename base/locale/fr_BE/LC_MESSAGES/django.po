@@ -1149,6 +1149,9 @@ msgstr "Sauvegarde temporaire (non soumis à la faculté)"
 msgid "the_coordinator_must_still_submit_scores"
 msgstr "Le coordinateur doit toujours soumettre les notes"
 
+msgid "text"
+msgstr "Texte"
+
 msgid "title"
 msgstr "Intitulé"
 

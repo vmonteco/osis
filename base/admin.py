@@ -84,6 +84,9 @@ admin.site.register(external_offer.ExternalOffer,
 admin.site.register(group_element_year.GroupElementYear,
                     group_element_year.GroupElementYearAdmin)
 
+admin.site.register(learning_achievements.LearningAchievements,
+                    learning_achievements.LearningAchievementsAdmin)
+
 admin.site.register(learning_class_year.LearningClassYear,
                     learning_class_year.LearningClassYearAdmin)
 
