@@ -80,20 +80,30 @@ def find_by_parent(an_education_group_year):
     return GroupElementYear.objects.filter(parent=an_education_group_year)
 
 
-def find_learning_unit_formations(learn_unit_year):
-    root_type_names = education_group_type.search(category=education_group_categories.MINI_TRAINING)\
-                                          .exclude(name='Option').values_list('name', flat=True)
+def find_learning_unit_formation_roots(learn_unit_year):
+    filters = _get_root_filters()
+    return _find_related_root_education_groups([learn_unit_year], filters=filters)
+
+
+def _get_root_filters():
+    root_type_names = education_group_type.search(category=education_group_categories.MINI_TRAINING) \
+        .exclude(name='Option').values_list('name', flat=True)
     root_categories = [education_group_categories.TRAINING]
-    filters = {
+    return {
         'parent__education_group_type__name': root_type_names,
         'parent__education_group_type__category': root_categories
     }
-    return _find_related_root_education_groups(learn_unit_year, filters=filters)
 
 
-def _find_related_root_education_groups(learn_unit_year, filters=None):
-    parents_by_id = _build_parent_list_by_education_group_year_id(learn_unit_year.academic_year, filters=filters)
-    return _find_elements(parents_by_id, child_leaf=learn_unit_year.id, filters=filters)
+def _find_related_root_education_groups(learn_unit_year_list, filters=None):
+    if len(set(learn_unit_year.academic_year_id for learn_unit_year in learn_unit_year_list)) > 1:
+        raise AttributeError("The algorithm should load only graph/structure for 1 academic_year "
+                             "to avoid too large 'in-memory' data.")
+    else:
+        academic_year = learn_unit_year_list[0].academic_year
+    parents_by_id = _build_parent_list_by_education_group_year_id(academic_year, filters=filters)
+    return {learn_unit_year.id: _find_elements(parents_by_id, child_leaf=learn_unit_year.id, filters=filters)
+            for learn_unit_year in learn_unit_year_list}
 
 
 def _build_parent_list_by_education_group_year_id(academic_year, filters=None):
