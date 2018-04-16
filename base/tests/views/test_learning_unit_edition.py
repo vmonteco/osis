@@ -26,7 +26,6 @@
 import datetime
 from unittest import mock
 
-from decimal import Decimal
 from django.contrib import messages
 from django.contrib.auth.models import Permission
 from django.contrib.messages import get_messages
@@ -54,7 +53,8 @@ from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.user import UserFactory, SuperUserFactory
 from base.tests.forms.test_edition_form import get_valid_formset_data
-from base.views.learning_units.update import learning_unit_edition_end_date, learning_unit_volumes_management
+from base.views.learning_units.update import learning_unit_edition_end_date, learning_unit_volumes_management, \
+    update_learning_unit
 
 
 class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
@@ -180,7 +180,7 @@ class TestEditLearningUnit(TestCase):
         cls.user = cls.person.user
         cls.user.user_permissions.add(Permission.objects.get(codename="can_edit_learningunit"),
                                       Permission.objects.get(codename="can_access_learningunit"))
-        cls.url = reverse("edit_learning_unit", args=[cls.learning_unit_year.id])
+        cls.url = reverse(update_learning_unit, args=[cls.learning_unit_year.id])
 
     def setUp(self):
         self.client.force_login(self.user)
@@ -311,6 +311,7 @@ class TestEditLearningUnit(TestCase):
         credits = 18
         form_data = self._get_valid_form_data()
         form_data['credits'] = credits
+        form_data['container_type'] = learning_container_year_types.COURSE
         response = self.client.post(self.url, data=form_data)
 
         expected_redirection = reverse("learning_unit", args=[self.learning_unit_year.id])

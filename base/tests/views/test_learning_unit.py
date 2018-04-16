@@ -1116,7 +1116,7 @@ class LearningUnitViewTestCase(TestCase):
         request = request_factory.post(url, data=data)
 
         request.user = fac_manager_user
-        setattr(request, 'session', 'session')
+        request.session = 'session'
         setattr(request, '_messages', FallbackStorage(request))
 
         learning_unit_pedagogy(request, learning_unit_year.id)

@@ -242,18 +242,6 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
         form = _instanciate_form(self.learning_unit_year_full, post_data=post_data)
         self.assertFalse(form.is_valid())
 
-    @mock.patch('base.forms.learning_unit.learning_unit_create.LearningUnitYearModelForm.is_valid',
-                side_effect=lambda *args: False)
-    def test_creation_case_wrong_learning_unit_data(self, mock_is_valid):
-        a_new_learning_unit_partim = LearningUnitYearFactory.build(
-            academic_year=self.current_academic_year,
-            acronym=FULL_ACRONYM + 'B',
-            subtype=learning_unit_year_subtypes.PARTIM
-        )
-        post_data = get_valid_form_data(a_new_learning_unit_partim)
-        form = _instanciate_form(self.learning_unit_year_full, post_data=post_data)
-        self.assertFalse(form.is_valid())
-
 
 class TestPartimFormSaveInsert(LearningUnitPartimFormContextMixin):
     """Unit tests for save() for insert"""
@@ -290,7 +278,7 @@ class TestPartimFormSaveInsert(LearningUnitPartimFormContextMixin):
         mock_lu_form_save.return_value = a_new_learning_unit_partim.learning_unit
         form = _instanciate_form(self.learning_unit_year_full, post_data=post_data, instance=None)
         self.assertTrue(form.is_valid())
-        form._create(commit=True)
+        form._create(commit=True, postponement=True)
         # Ensure call to learning unit model form is done
         self.assertTrue(mock_lu_form_save.called)
         mock_lu_form_save.assert_called_once_with(
