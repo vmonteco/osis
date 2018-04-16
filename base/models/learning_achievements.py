@@ -40,6 +40,8 @@ class LearningAchievementsAdmin(OrderedModelAdmin):
 
 
 class LearningAchievements(OrderedModel):
+    external_id = models.CharField(max_length=100, blank=True, null=True)
+    changed = models.DateTimeField(null=True, auto_now=True)
     code_name = models.CharField(max_length=100, verbose_name=_('code'))
     text = RichTextField(null=True, verbose_name=_('text'))
     learning_unit_year = models.ForeignKey('LearningUnitYear')
