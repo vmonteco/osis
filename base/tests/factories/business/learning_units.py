@@ -387,7 +387,8 @@ def _get_default_common_value_learning_unit_year(learning_container_year, subtyp
         'specific_title_english': 'Title Specific English',
         'credits': Decimal(5),
         'session': learning_unit_year_session.SESSION_1X3,
-        'quadrimester': learning_unit_year_quadrimesters.Q1
+        'quadrimester': learning_unit_year_quadrimesters.Q1,
+        'internship_subtype': None
     }
     if subtype == learning_unit_year_subtypes.PARTIM:
         common_data['acronym'] += 'A'

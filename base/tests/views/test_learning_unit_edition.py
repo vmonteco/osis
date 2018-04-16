@@ -26,6 +26,7 @@
 import datetime
 from unittest import mock
 
+from decimal import Decimal
 from django.contrib import messages
 from django.contrib.auth.models import Permission
 from django.contrib.messages import get_messages
@@ -35,6 +36,8 @@ from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
+    LearningContainerYearModelForm, EntityContainerFormset
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import learning_unit_periodicity, learning_container_year_types, learning_unit_year_subtypes, \
     entity_container_year_link_type, vacant_declaration_type, attribution_procedure, entity_type, organization_type
@@ -241,7 +244,7 @@ class TestEditLearningUnit(TestCase):
     def test_template_used_for_get_request(self):
         response = self.client.get(self.url)
 
-        self.assertTemplateUsed(response, "learning_unit/update.html")
+        self.assertTemplateUsed(response, "learning_unit/simple/update.html")
         self.assertEqual(response.status_code, HttpResponse.status_code)
 
     def test_context_used_for_get_request(self):
@@ -249,41 +252,60 @@ class TestEditLearningUnit(TestCase):
 
         context = response.context
         self.assertEqual(context["learning_unit_year"], self.learning_unit_year)
-        self.assertTrue(context["form"])
+        self.assertIsInstance(context["learning_unit_form"], LearningUnitModelForm)
+        self.assertIsInstance(context["learning_unit_year_form"], LearningUnitYearModelForm)
+        self.assertIsInstance(context["learning_container_year_form"], LearningContainerYearModelForm)
+        self.assertIsInstance(context["entity_container_form"], EntityContainerFormset)
 
     def test_form_initial_data(self):
         response = self.client.get(self.url)
-        form = response.context["form"]
-        initial_data = form.initial
-        expected_initial = {
-            "acronym": self.learning_unit_year.acronym[1:],
-            "academic_year": self.learning_unit_year.academic_year.id,
-            "status": self.learning_unit_year.status,
-            "credits": self.learning_unit_year.credits,
-            "common_title": self.learning_unit_year.learning_container_year.common_title,
-            "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
-            "specific_title": self.learning_unit_year.specific_title,
-            "specific_title_english": self.learning_unit_year.specific_title_english,
-            "session": self.learning_unit_year.session,
-            "subtype": self.learning_unit_year.subtype,
-            "first_letter": self.learning_unit_year.acronym[0],
-            "container_type": self.learning_unit_year.learning_container_year.container_type,
-            "faculty_remark": self.learning_unit_year.learning_unit.faculty_remark,
-            "other_remark": self.learning_unit_year.learning_unit.other_remark,
-            "periodicity": self.learning_unit_year.learning_unit.periodicity,
-            "quadrimester": self.learning_unit_year.quadrimester,
-            "campus": self.learning_unit_year.learning_container_year.campus.id,
-            "requirement_entity": self.requirement_entity.id,
-            "allocation_entity": self.allocation_entity.id,
-            "additional_requirement_entity_1": self.additional_entity_1.id,
-            "additional_requirement_entity_2": self.additional_entity_2.id,
-            "language": self.learning_unit_year.learning_container_year.language.pk,
-            "is_vacant": self.learning_unit_year.learning_container_year.is_vacant,
-            "team": self.learning_unit_year.learning_container_year.team,
-            "type_declaration_vacant": self.learning_unit_year.learning_container_year.type_declaration_vacant,
-            "attribution_procedure": self.learning_unit_year.attribution_procedure
+        context = response.context[-1]
+        # Expected initials form
+        expected_initials = {
+            'learning_container_year_form': {
+                "container_type": self.learning_unit_year.learning_container_year.container_type,
+                "common_title": self.learning_unit_year.learning_container_year.common_title,
+                "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
+                "team": self.learning_unit_year.learning_container_year.team,
+                "campus": self.learning_unit_year.learning_container_year.campus.pk,
+                "is_vacant": self.learning_unit_year.learning_container_year.is_vacant,
+                "language": self.learning_unit_year.learning_container_year.language.pk,
+                "type_declaration_vacant": self.learning_unit_year.learning_container_year.type_declaration_vacant
+            },
+            'learning_unit_year_form': {
+                "acronym": self.learning_unit_year.acronym,
+                "academic_year": self.learning_unit_year.academic_year.id,
+                "status": self.learning_unit_year.status,
+                "credits": self.learning_unit_year.credits,
+                "specific_title": self.learning_unit_year.specific_title,
+                "specific_title_english": self.learning_unit_year.specific_title_english,
+                "session": self.learning_unit_year.session,
+                "quadrimester": self.learning_unit_year.quadrimester,
+                "attribution_procedure": self.learning_unit_year.attribution_procedure,
+                "internship_subtype": self.learning_unit_year.internship_subtype
+            },
+            'learning_unit_form': {
+                "faculty_remark": self.learning_unit_year.learning_unit.faculty_remark,
+                "other_remark": self.learning_unit_year.learning_unit.other_remark,
+                "periodicity": self.learning_unit_year.learning_unit.periodicity
+            }
         }
-        self.assertDictEqual(initial_data, expected_initial)
+        for form_name, expected_initial in expected_initials.items():
+            initial_data = context[form_name].initial
+            self.assertDictEqual(initial_data, expected_initial)
+
+        # Expected form in formset entity container
+        learning_container_year_id = self.learning_unit_year.learning_container_year.id
+        expected_initials = [
+            {'entity': self.requirement_entity , 'learning_container_year': learning_container_year_id},
+            {'entity': self.allocation_entity, 'learning_container_year': learning_container_year_id},
+            {'entity': self.additional_entity_1, 'learning_container_year': learning_container_year_id},
+            {'entity': self.additional_entity_2, 'learning_container_year': learning_container_year_id},
+        ]
+        entity_container_formset = context['entity_container_form']
+        for idx, expected_initial in enumerate(expected_initials):
+            initial_data = entity_container_formset.forms[idx].initial
+            self.assertDictEqual(initial_data, expected_initial)
 
     def test_valid_post_request(self):
         credits = 18
@@ -297,39 +319,24 @@ class TestEditLearningUnit(TestCase):
         self.learning_unit_year.refresh_from_db()
         self.assertEqual(self.learning_unit_year.credits, credits)
 
-    def test_consistency_report_error_displayed(self):
-        next_academic_year = AcademicYearFactory(year=self.learning_unit_year.academic_year.year + 1)
-        next_learning_container_year = LearningContainerYearFactory(academic_year=next_academic_year,
-                                                                    container_type=learning_container_year_types.COURSE)
-        LearningUnitYearFactory(learning_container_year=next_learning_container_year,
-                                learning_unit=self.learning_unit_year.learning_unit,
-                                acronym="LOSIS4512",
-                                academic_year=next_academic_year,
-                                subtype=learning_unit_year_subtypes.FULL,
-                                credits=26)
-
-        form_data = self._get_valid_form_data()
-        response = self.client.post(self.url, data=form_data)
-
-        expected_redirection = reverse("learning_unit", args=[self.learning_unit_year.id])
-        self.assertRedirects(response, expected_redirection, fetch_redirect_response=False)
-
-        messages = [str(message) for message in get_messages(response.wsgi_request)]
-        self.assertIn(_('The learning unit has been updated until %(year)s.')
-                          % {'year': self.learning_unit_year.academic_year}, list(messages))
-
     def _get_valid_form_data(self):
         form_data = {
-            "acronym": self.learning_unit_year.acronym[1:],
-            "credits": str(self.learning_unit_year.credits),
+            "acronym_0": self.learning_unit_year.acronym[0],
+            "acronym_1": self.learning_unit_year.acronym[1:],
+            "credits": self.learning_unit_year.credits,
             "specific_title": self.learning_unit_year.specific_title,
-            "first_letter": self.learning_unit_year.acronym[0],
             "periodicity": learning_unit_periodicity.ANNUAL,
-            "campus": str(self.learning_unit_year.learning_container_year.campus.id),
-            "requirement_entity": str(self.requirement_entity.id),
-            "allocation_entity": str(self.requirement_entity.id),
-            "language": str(self.learning_unit_year.learning_container_year.language.pk),
-            "status": True
+            "campus": self.learning_unit_year.learning_container_year.campus.pk,
+            "language": self.learning_unit_year.learning_container_year.language.pk,
+            "status": True,
+
+            'entitycontaineryear_set-0-entity': self.requirement_entity.id,
+            'entitycontaineryear_set-1-entity': self.requirement_entity.id,
+            'entitycontaineryear_set-2-entity': '',
+            'entitycontaineryear_set-INITIAL_FORMS': '0',
+            'entitycontaineryear_set-MAX_NUM_FORMS': '4',
+            'entitycontaineryear_set-MIN_NUM_FORMS': '3',
+            'entitycontaineryear_set-TOTAL_FORMS': '4',
         }
         return form_data
 
