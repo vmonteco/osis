@@ -24,7 +24,6 @@
 #
 ##############################################################################
 from base.models.enums import education_group_categories
-from base.models.group_element_year import GroupElementYear
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from django.test import TestCase
@@ -32,19 +31,6 @@ from base.tests.factories.academic_year import AcademicYearFactory, create_curre
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.models import group_element_year
-
-
-def build_hierarchy():
-    current_academic_year = create_current_academic_year()
-    root_group_type = EducationGroupTypeFactory(name='Bachelor', category=education_group_categories.TRAINING)
-    root = EducationGroupYearFactory(academic_year=current_academic_year, education_group_type=root_group_type)
-    for _ in range(3):
-        group_type = EducationGroupTypeFactory(category=education_group_categories.GROUP)
-        educ_group = EducationGroupYearFactory(academic_year=current_academic_year, education_group_type=group_type)
-        GroupElementYearFactory(parent=root, child_branch=educ_group)
-        for __ in range(3):
-            GroupElementYearFactory(parent=educ_group, child_branch=None, child_leaf=LearningUnitYearFactory())
-    return root
 
 
 class GroupElementYearTest(TestCase):
@@ -129,15 +115,6 @@ class TestFindRelatedRootEducationGroups(TestCase):
 
         root_group_type = EducationGroupTypeFactory(name='Bachelor', category=education_group_categories.TRAINING)
         self.root = EducationGroupYearFactory(academic_year=self.current_academic_year, education_group_type=root_group_type)
-
-    def test_without_filters_case_direct_parent_academic_year_is_different(self):
-        child_branch = EducationGroupYearFactory(
-            academic_year=AcademicYearFactory(year=self.current_academic_year.year - 1)
-        )
-        GroupElementYearFactory(parent=self.root, child_branch=child_branch)
-        GroupElementYearFactory(parent=child_branch, child_branch=None, child_leaf=self.child_leaf)
-        result = group_element_year._find_related_root_education_groups(self.child_leaf)
-        self.assertEqual(result, [self.root.id])
 
     def test_without_filters_case_direct_parent_id_root(self):
         element_year = GroupElementYearFactory(parent=self.root, child_branch=None, child_leaf=self.child_leaf)
@@ -274,14 +251,16 @@ class TestBuildChildKey(TestCase):
 
 class TestSearch(TestCase):
     """Unit tests on search()"""
-    def test_academic_year_search_only_in_parent(self):
-        pass
+    def test_without_filters_case_direct_parent_academic_year_is_different(self):
+        current_academic_year = create_current_academic_year()
+        child_leaf = LearningUnitYearFactory(academic_year=current_academic_year)
 
-    # @staticmethod
-    # def _build_group_elements_year(group_types, academic_year, child_leaf=None, child_branch=None):
-    #     for educ_group_type in group_types:
-    #         GroupElementYearFactory(
-    #             parent=EducationGroupYearFactory(academic_year=academic_year, education_group_type=educ_group_type),
-    #             child_branch=child_branch,
-    #             child_leaf=child_leaf
-    #         )
+        root_group_type = EducationGroupTypeFactory(name='Bachelor', category=education_group_categories.TRAINING)
+        self.root = EducationGroupYearFactory(academic_year=current_academic_year, education_group_type=root_group_type)
+        child_branch = EducationGroupYearFactory(
+            academic_year=AcademicYearFactory(year=current_academic_year.year - 1)
+        )
+        GroupElementYearFactory(parent=self.root, child_branch=child_branch)
+        GroupElementYearFactory(parent=child_branch, child_branch=None, child_leaf=child_leaf)
+        result = group_element_year._find_related_root_education_groups(child_leaf)
+        self.assertEqual(result, [self.root.id])

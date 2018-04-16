@@ -92,7 +92,6 @@ def find_learning_unit_formations(learn_unit_year):
     return _find_related_root_education_groups(learn_unit_year, filters=filters)
 
 
-# TODO :: pouvoir renvoyer un dict {learning_unit_year_id: [liste des education_group_year_id roots]}
 def _find_related_root_education_groups(learn_unit_year, filters=None):
     parents_by_id = _build_parent_list_by_education_group_year_id(learn_unit_year.academic_year, filters=filters)
     return _find_elements(parents_by_id, child_leaf=learn_unit_year.id, filters=filters)
