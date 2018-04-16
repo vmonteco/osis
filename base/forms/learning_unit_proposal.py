@@ -29,7 +29,7 @@ from itertools import chain
 from django import forms
 from django.db import transaction
 
-from base.business.learning_unit_proposal import reinitialize_data_before_proposal
+from base.business.learning_unit_proposal import reinitialize_data_before_proposal, compute_proposal_type
 from base.business.learning_units.proposal.common import compute_proposal_state
 from base.forms.learning_unit.learning_unit_create import EntitiesVersionChoiceField
 from base.forms.learning_unit.learning_unit_create_2 import FullForm, PartimForm
@@ -126,10 +126,10 @@ class ProposalBaseForm:
 
     @transaction.atomic
     def save(self):
-        proposal = self.form_proposal.save()
+        proposal = self.form_proposal.save(False)
         self.learning_unit_form_container.save()
-        # TODO
-        #compute_proposal_type()
+        proposal.type = compute_proposal_type(self.learning_unit_form_container.changed_data, proposal.initial_data)
+        proposal = self.form_proposal.save()
         return proposal
 
     def _get_initial(self):

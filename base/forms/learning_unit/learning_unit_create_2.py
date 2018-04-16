@@ -91,6 +91,10 @@ class LearningUnitBaseForm:
     def cleaned_data(self):
         return [form.cleaned_data for form in self.forms.values()]
 
+    @property
+    def changed_data(self):
+        return [form.changed_data for form in self.forms.values()]
+
     def disable_fields(self, field_names):
         for key, value in self.get_all_fields().items():
             value.disabled = key in field_names
@@ -256,6 +260,7 @@ class FullForm(LearningUnitBaseForm):
         if postponement:
             return self._create_with_postponement(learning_unit_year)
         return [learning_unit_year]
+
 
 class PartimForm(LearningUnitBaseForm):
     subtype = learning_unit_year_subtypes.PARTIM

@@ -252,6 +252,10 @@ class EntityContainerYearFormset(forms.BaseInlineFormSet):
             kwargs['entity_type'] = ENTITY_TYPE_LIST[index]
         return kwargs
 
+    @property
+    def changed_data(self):
+        return [form.changed_data for form in self.forms]
+
 
 EntityContainerFormset = inlineformset_factory(
     LearningContainerYear, EntityContainerYear, form=EntityContainerYearModelForm,
