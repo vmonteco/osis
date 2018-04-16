@@ -23,8 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from ckeditor.fields import RichTextField
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
+
+from ckeditor.fields import RichTextField
 from ordered_model.models import OrderedModel
 from ordered_model.admin import OrderedModelAdmin
 
@@ -38,10 +40,13 @@ class LearningAchievementsAdmin(OrderedModelAdmin):
 
 
 class LearningAchievements(OrderedModel):
-    code_name = models.CharField(max_length=100)
-    text = RichTextField(null=True)
+    code_name = models.CharField(max_length=100, verbose_name=_('code'))
+    text = RichTextField(null=True, verbose_name=_('text'))
     learning_unit_year = models.ForeignKey('LearningUnitYear')
     order_with_respect_to = 'learning_unit_year'
 
     class Meta:
         unique_together = ("code_name", "learning_unit_year")
+
+    def __str__(self):
+        return u'{} - {} (order {})'.format(self.learning_unit_year, self.code_name, self.order)

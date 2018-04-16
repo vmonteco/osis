@@ -1131,6 +1131,9 @@ msgstr "Temporary save (not submitted to the faculty yet)"
 msgid "the_coordinator_must_still_submit_scores"
 msgstr "The coordinator must still submit the scores"
 
+msgid "text"
+msgstr "Text"
+
 msgid "title"
 msgstr "Title"
 
