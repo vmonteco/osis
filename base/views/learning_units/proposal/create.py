@@ -27,10 +27,8 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import redirect, get_object_or_404
 
-from base import models as mdl_base
 from base.forms.learning_unit_proposal import CreationProposalBaseForm
 from base.models.academic_year import AcademicYear
-from base.models.enums.proposal_type import ProposalType
 from base.models.person import Person
 from base.views import layout
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
@@ -49,5 +47,7 @@ def get_proposal_learning_unit_creation_form(request, academic_year):
         show_success_learning_unit_year_creation_message(request, proposal.learning_unit_year,
                                                          'proposal_learning_unit_successfuly_created')
         return redirect('learning_unit', learning_unit_year_id=proposal.learning_unit_year.pk)
+
+    print(proposal_form.errors)
 
     return layout.render(request, "learning_unit/proposal/creation.html", proposal_form.get_context())

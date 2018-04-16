@@ -77,7 +77,7 @@ class LearningUnitBaseForm:
 
     @property
     def errors(self):
-        return [form. errors for form in self.forms.values()]
+        return [form.errors for form in self.forms.values()]
 
     @property
     def fields(self):
@@ -158,7 +158,7 @@ class FullForm(LearningUnitBaseForm):
 
     subtype = learning_unit_year_subtypes.FULL
 
-    def __init__(self, data, person, default_ac_year=None, instance=None, *args, **kwargs):
+    def __init__(self, data, person, default_ac_year=None, instance=None, proposal=False, *args, **kwargs):
         self.instance = instance
         if instance and not isinstance(instance, LearningUnitYear):
             raise AttributeError('instance arg should be an instance of {}'.format(LearningUnitYear))
@@ -187,6 +187,7 @@ class FullForm(LearningUnitBaseForm):
             LearningContainerYearModelForm: {
                 'data': data,
                 'instance': instance.learning_container_year if instance else None,
+                'proposal': proposal,
                 'initial': {
                     # Default campus selected 'Louvain-la-Neuve' if exist
                     'campus': Campus.objects.filter(name='Louvain-la-Neuve').first(),
@@ -221,13 +222,13 @@ class FullForm(LearningUnitBaseForm):
         return True
 
     @transaction.atomic
-    def save(self, commit=True):
+    def save(self, commit=True, postponement=True):
         if self._is_update_action():
             return self._update_with_postponement(self.instance)
         else:
-            return self._create(commit)
+            return self._create(commit, postponement)
 
-    def _create(self, commit):
+    def _create(self, commit, postponement):
         academic_year = self.academic_year
 
         learning_container = self.forms[LearningContainerModelForm].save(commit)
@@ -252,8 +253,9 @@ class FullForm(LearningUnitBaseForm):
             entity_container_years=entity_container_years,
             commit=commit)
 
-        return self._create_with_postponement(learning_unit_year)
-
+        if postponement:
+            return self._create_with_postponement(learning_unit_year)
+        return [learning_unit_year]
 
 class PartimForm(LearningUnitBaseForm):
     subtype = learning_unit_year_subtypes.PARTIM
@@ -350,13 +352,13 @@ class PartimForm(LearningUnitBaseForm):
         return self._validate_no_empty_title(common_title)
 
     @transaction.atomic
-    def save(self, commit=True):
+    def save(self, commit=True, postponement=True):
         if self._is_update_action():
             return self._update_with_postponement(self.instance)
         else:
-            return self._create(commit)
+            return self._create(commit, postponement)
 
-    def _create(self, commit=True):
+    def _create(self, commit, postponement):
         academic_year = self.learning_unit_year_full.academic_year
 
         # Save learning unit
@@ -378,7 +380,9 @@ class PartimForm(LearningUnitBaseForm):
         )
 
         # Make Postponement
-        return self._create_with_postponement(learning_unit_year)
+        if postponement:
+            return self._create_with_postponement(learning_unit_year)
+        return [learning_unit_year]
 
     def _get_entity_container_year(self):
         return self.learning_unit_year_full.learning_container_year.entitycontaineryear_set.all()

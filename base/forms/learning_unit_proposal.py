@@ -102,21 +102,23 @@ class ProposalBaseForm:
         initial = self._get_initial()
 
         if not learning_unit_year or learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
-            self.learning_unit_form_container = FullForm(data, person, default_ac_year, instance=learning_unit_year)
+            self.learning_unit_form_container = FullForm(data, person, default_ac_year, instance=learning_unit_year,
+                                                         proposal=True)
         else:
             self.learning_unit_form_container = PartimForm(data, person,
                                                       learning_unit_year_full=learning_unit_year.parent,
-                                                      instance=learning_unit_year)
+                                                      instance=learning_unit_year,
+                                                      proposal=True)
 
         self.form_proposal = ProposalLearningUnitForm(data, person=person, instance=proposal,
                                                  initial=initial)
 
     def is_valid(self):
-        return self.learning_unit_form_container.is_valid() and self.form_proposal.is_valid()
+        return all([self.learning_unit_form_container.is_valid() and self.form_proposal.is_valid()])
 
     @property
     def errors(self):
-        return self.learning_unit_form_container.errors.append(self.form_proposal.errors)
+        return self.learning_unit_form_container.errors + [self.form_proposal.errors]
 
     @property
     def fields(self):
@@ -160,7 +162,7 @@ class CreationProposalBaseForm(ProposalBaseForm):
 
     @transaction.atomic
     def save(self):
-        new_luys = self.learning_unit_form_container.save()
+        new_luys = self.learning_unit_form_container.save(postponement=False)
         self.form_proposal.instance.learning_unit_year = new_luys[0]
         return self.form_proposal.save()
 

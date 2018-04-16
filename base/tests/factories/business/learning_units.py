@@ -109,8 +109,9 @@ class LearningUnitsMixin:
         results = None
         if start_year and end_year:
             results = [AcademicYearFactory.build(year=year) for year in range(start_year, end_year + 1)]
-            for result in results:
-                super(AcademicYear, result).save()
+            [super(AcademicYear, result).save() for result in results
+             if not AcademicYear.objects.filter(year=result.year).exists()]
+
         return results
 
     @staticmethod

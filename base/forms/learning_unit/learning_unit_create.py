@@ -262,12 +262,13 @@ EntityContainerFormset = inlineformset_factory(
 class LearningContainerYearModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         person = kwargs.pop('person')
+        proposal = kwargs.pop('proposal', False)
         super().__init__(*args, **kwargs)
 
         self.fields['campus'].queryset = find_main_campuses()
         self.fields['container_type'].widget.attrs ={'onchange': 'showInternshipSubtype()'}
 
-        if person.is_faculty_manager():
+        if person.is_faculty_manager() and not proposal:
             self.fields["container_type"].choices = _create_faculty_learning_container_type_list()
 
         if self.initial.get('subtype') == learning_unit_year_subtypes.PARTIM:
