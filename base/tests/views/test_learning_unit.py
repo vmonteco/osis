@@ -1068,7 +1068,8 @@ class LearningUnitViewTestCase(TestCase):
     @mock.patch('base.views.layout.render')
     def test_learning_unit_pedagogy(self, mock_render):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
-                                                     learning_container_year=self.learning_container_yr)
+                                                     learning_container_year=self.learning_container_yr,
+                                                     subtype=learning_unit_year_subtypes.FULL)
 
         request = self.create_learning_unit_request(learning_unit_year)
 
@@ -1085,6 +1086,7 @@ class LearningUnitViewTestCase(TestCase):
     def test_learning_unit_pedagogy_summary_editable_form_present(self, mock_render):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=self.learning_container_yr,
+                                                     subtype=learning_unit_year_subtypes.FULL,
                                                      summary_locked=False)
 
         request = self.create_learning_unit_request(learning_unit_year)
@@ -1107,6 +1109,7 @@ class LearningUnitViewTestCase(TestCase):
 
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=self.learning_container_yr,
+                                                     subtype=learning_unit_year_subtypes.FULL,
                                                      summary_locked=False)
         url = reverse(learning_unit_pedagogy, args=[learning_unit_year.id])
         request_factory = RequestFactory()
@@ -1136,6 +1139,7 @@ class LearningUnitViewTestCase(TestCase):
 
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=self.learning_container_yr,
+                                                     subtype=learning_unit_year_subtypes.FULL,
                                                      summary_locked=False)
 
         data = self.data_bibliography_formset(learning_unit_year)
@@ -1158,6 +1162,7 @@ class LearningUnitViewTestCase(TestCase):
     def test_learning_unit_pedagogy_without_permission(self):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=self.learning_container_yr,
+                                                     subtype=learning_unit_year_subtypes.FULL,
                                                      summary_locked=False)
 
         data = self.data_bibliography_formset(learning_unit_year)
@@ -1185,6 +1190,7 @@ class LearningUnitViewTestCase(TestCase):
 
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=self.learning_container_yr,
+                                                     subtype=learning_unit_year_subtypes.FULL,
                                                      summary_locked=False)
         url = reverse(learning_unit_pedagogy, args=[learning_unit_year.id])
         request_factory = RequestFactory()
