@@ -77,27 +77,28 @@ def find_by_parent(an_education_group_year):
     return GroupElementYear.objects.filter(parent=an_education_group_year)
 
 
-def find_related_root_education_groups(learn_unit_year):
+def find_learning_unit_formations(learn_unit_year):
     root_type_names = education_group_type.search(category=education_group_categories.MINI_TRAINING)\
-                                                  .exclude(name='Option').values_list('name')
+                                          .exclude(name='Option').values_list('name', flat=True)
     root_categories = [education_group_categories.TRAINING]
     filters = {
         'parent__education_group_type__name': root_type_names,
         'parent__education_group_type__category': root_categories
     }
-    _find_related_root_education_groups(learn_unit_year, filters=filters)
+    return _find_related_root_education_groups(learn_unit_year, filters=filters)
 
 
+# TODO :: pouvoir renvoyer un dict {learning_unit_year_id: [liste des education_group_year_id roots]}
 def _find_related_root_education_groups(learn_unit_year, filters=None):
-    parents_by_id = _build_parent_list_by_education_group_year_id(learn_unit_year)
+    parents_by_id = _build_parent_list_by_education_group_year_id(learn_unit_year, filters=filters)
     # direct_parent_ids = search(learning_unit_year=learn_unit_year).values_list('parent')
     # direct_parent_ids = search(learning_unit_year=learn_unit_year) \
     #     .values(*_columns_used_to_build_hierarchy(filters=filters))
-    fake_group_element = {
-        'child_leaf': learn_unit_year.id,
-        'child_branch': None
-    }
-    return _find_elements(fake_group_element, parents_by_id, filters)
+    # child_group_element = {
+    #     'child_leaf': learn_unit_year.id,
+    #     'child_branch': None
+    # }
+    return _find_elements(parents_by_id, child_leaf=learn_unit_year.id, filters=filters)
 
 
 def _build_parent_list_by_education_group_year_id(learn_unit_year, filters=None):
@@ -108,7 +109,8 @@ def _build_parent_list_by_education_group_year_id(learn_unit_year, filters=None)
     result = {}
     for group_element_year in group_elements:
         # child_branch = group_element_year['child_branch']
-        key = _build_child_key(group_element_year)
+        key = _build_child_key(child_branch=group_element_year['child_branch'],
+                               child_leaf=group_element_year['child_leaf'])
         result.setdefault(key, []).append(group_element_year)
         # Append the parent id in keys
         # fake_parent = {'child_branch': group_element_year['parent']}
@@ -117,31 +119,42 @@ def _build_parent_list_by_education_group_year_id(learn_unit_year, filters=None)
 
 
 # Todo == unit tests
-def _build_child_key(group_element_year):
-    branch_part = 'child_branch'
-    id_part = group_element_year['child_branch']
-    if group_element_year['child_leaf']:
+def _build_child_key(child_branch=None, child_leaf=None):
+    args = [child_leaf, child_branch]
+    if not any(args) or all(args):
+        raise AttributeError('Only one of the 2 param must bet set (not both of them).')
+    if child_leaf:
         branch_part = 'child_leaf'
-        id_part = group_element_year['child_leaf']
+        id_part = child_leaf
+    else:
+        branch_part = 'child_branch'
+        id_part = child_branch
+    # branch_part = 'child_branch'
+    # id_part = child_branch_id
+    # if group_element_year['child_leaf']:
+    #     branch_part = 'child_leaf'
+    #     id_part = group_element_year['child_leaf']
     return '{branch_part}_{id_part}'.format(**locals())
 
 
-def _find_elements(child, group_elements_by_child_id, filters=None):
+def _find_elements(group_elements_by_child_id, child_leaf=None, child_branch=None, filters=None):
     roots = []
-    group_elements_year = group_elements_by_child_id.get(_build_child_key(child))
+    group_elements_year = group_elements_by_child_id.get(_build_child_key(child_leaf=child_leaf,
+                                                                          child_branch=child_branch))
     if not group_elements_year:
-        roots.append(child['child_branch'])
+        if child_branch:
+            roots.append(child_branch)
     else:
         for group_element_year in group_elements_year:
             parent_id = group_element_year['parent']
             if filters and any(group_element_year[col_name] in values_list for col_name, values_list in filters.items()):
                 roots.append(parent_id)
             else:
-                fake_group_element = {
-                    'child_leaf': None,
-                    'child_branch': parent_id
-                }
-                roots.extend(_find_elements(fake_group_element, group_elements_by_child_id, filters=filters))
+                # child_group_element = {
+                #     'child_leaf': None,
+                #     'child_branch': parent_id
+                # }
+                roots.extend(_find_elements(group_elements_by_child_id, child_branch=parent_id, filters=filters))
     # import pdb; pdb.set_trace()
     return roots
 
