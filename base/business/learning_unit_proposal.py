@@ -63,7 +63,7 @@ def compute_proposal_type(data_changed, initial_proposal_type):
 
 
 def _is_transformation_field(field):
-    return field in ["acronym", "first_letter"]
+    return field in ["acronym_0", "acronym_1"]
 
 
 def _is_modification_field(field):

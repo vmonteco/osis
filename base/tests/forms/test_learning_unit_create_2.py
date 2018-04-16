@@ -40,7 +40,7 @@ from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelF
     LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
 from base.forms.learning_unit.learning_unit_create_2 import FullForm
 from base.models.academic_year import AcademicYear
-from base.models.enums import learning_unit_year_subtypes, learning_container_year_types
+from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, organization_type
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.business.entities import create_entities_hierarchy
@@ -49,6 +49,7 @@ from base.tests.factories.campus import CampusFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from reference.tests.factories.language import LanguageFactory
@@ -64,8 +65,12 @@ def get_valid_form_data(academic_year, learning_unit_year=None):
     entities = create_entities_hierarchy()
     person_entity = PersonEntityFactory(entity=entities['root_entity'], with_child=True)
     requirement_entity_version = entities['child_one_entity_version']
+    organization = OrganizationFactory(type=organization_type.MAIN)
+    campus = CampusFactory(organization=organization)
+
     if not learning_unit_year:
-        container_year = LearningContainerYearFactory.build(academic_year=academic_year)
+
+        container_year = LearningContainerYearFactory(academic_year=academic_year, campus=campus)
         learning_unit_year = LearningUnitYearFactory.build(academic_year=academic_year,
                                                            learning_container_year=container_year,
                                                            subtype=learning_unit_year_subtypes.FULL)
@@ -118,7 +123,6 @@ class LearningUnitFullFormContextMixin(TestCase):
         self.current_academic_year = create_current_academic_year()
 
         self.post_data = get_valid_form_data(self.current_academic_year)
-
         # Creation of a LearingContainerYear and all related models
         self.learn_unit_structure = GenerateContainer(self.current_academic_year.year, self.current_academic_year.year)
         self.learning_unit_year = LearningUnitYear.objects.get(
@@ -262,7 +266,7 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
         learn_unit_year = LearningUnitYear.objects.get(learning_unit=learn_unit_structure.learning_unit_full,
                                                        academic_year=AcademicYear.objects.get(year=now.year))
         form = _instanciate_form(post_data=self.post_data, instance=learn_unit_year)
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
 
     @mock.patch('base.forms.learning_unit.learning_unit_create.LearningUnitModelForm.is_valid', side_effect=lambda *args: False)
     def test_update_case_wrong_learning_unit_data(self, mock_is_valid):
@@ -323,9 +327,12 @@ class testFullFormCreate(TestCase):
         self.initial_campus = CampusFactory(name='Louvain-la-Neuve')
         self.current_academic_year = create_current_academic_year()
         AcademicYearFactory.produce_in_future(self.current_academic_year.year)
-
+        organization = OrganizationFactory(type=organization_type.MAIN)
+        campus = CampusFactory(organization=organization)
+        language = LanguageFactory()
         container_year = LearningContainerYearFactory.build(academic_year=self.current_academic_year,
-                                                            container_type=learning_container_year_types.COURSE)
+                                                            container_type=learning_container_year_types.COURSE,
+                                                            campus=campus, language=language)
         learning_unit_year = LearningUnitYearFactory.build(academic_year=self.current_academic_year,
                                                            learning_container_year=container_year,
                                                            subtype=learning_unit_year_subtypes.FULL)
@@ -333,7 +340,7 @@ class testFullFormCreate(TestCase):
 
     def test_create_method_correctly_save_all_learning_unit_structure(self):
         form = _instanciate_form(post_data=self.post_data, default_ac_year=self.current_academic_year)
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
         NUMBER_OF_POSTPONMENTS = 7

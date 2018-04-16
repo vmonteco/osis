@@ -173,11 +173,11 @@ class TestComputeProposalType(SimpleTestCase):
         self.assertEqual(proposal_type.ProposalType.SUPPRESSION.name, actual_proposal_type)
 
     def test_return_transformation_when_data_changed_consist_of_first_letter(self):
-        actual_proposal_type = compute_proposal_type(["first_letter"], None)
+        actual_proposal_type = compute_proposal_type(["acronym_0"], None)
         self.assertEqual(proposal_type.ProposalType.TRANSFORMATION.name, actual_proposal_type)
 
     def test_return_transformation_when_data_changed_consist_of_acronym(self):
-        actual_proposal_type = compute_proposal_type(["acronym"], None)
+        actual_proposal_type = compute_proposal_type(["acronym_1"], None)
         self.assertEqual(proposal_type.ProposalType.TRANSFORMATION.name, actual_proposal_type)
 
     def test_return_modification_when_data_changed_consist_of_other_fields_than_first_letter_or_acronym(self):
@@ -189,11 +189,11 @@ class TestComputeProposalType(SimpleTestCase):
         self.assertEqual(proposal_type.ProposalType.MODIFICATION.name, actual_proposal_type)
 
     def test_return_transformation_and_modification_when_modifying_acronym_and_other_field(self):
-        actual_proposal_type = compute_proposal_type(["acronym", "common_title"], None)
+        actual_proposal_type = compute_proposal_type(["acronym_1", "common_title"], None)
         self.assertEqual(proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name, actual_proposal_type)
 
     def test_return_transformation_and_modification_when_modifying_first_letter_and_other_field(self):
-        actual_proposal_type = compute_proposal_type(["first_letter", "common_title"], None)
+        actual_proposal_type = compute_proposal_type(["acronym_0", "common_title"], None)
         self.assertEqual(proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name, actual_proposal_type)
 
 

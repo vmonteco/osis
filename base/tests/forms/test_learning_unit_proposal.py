@@ -194,6 +194,7 @@ class TestSave(TestCase):
             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1: additional_entity_version_1.entity,
             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: additional_entity_version_2.entity
         }
+        self.maxDiff = None
         self.assertDictEqual(entities_by_type, expected_entities)
 
     def test_modify_learning_container_subtype(self):
@@ -274,14 +275,6 @@ class TestSave(TestCase):
             EntityContainerYear.objects.get(learning_container_year=self.learning_unit_year.learning_container_year,
                                             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
 
-    def test_internship_subtype(self):
-        self.form_data["internship_subtype"] = internship_subtypes.TEACHING_INTERNSHIP
-        form = ProposalBaseForm(self.form_data, self.person, self.learning_unit_year)
-
-        self.assertFalse(form.is_valid(), form.errors)
-
-        self.assertIn(_("learning_unit_type_is_not_internship"), form.errors["internship_subtype"])
-
 
 class TestComputeFormInitialDataFromProposalJson(TestCase):
     def test_with_empty_initial_data(self):
@@ -295,7 +288,7 @@ class TestComputeFormInitialDataFromProposalJson(TestCase):
         entity_version = EntityVersionFactory()
         proposal_initial_data = {
             "learning_container_year": {
-                "acronym":"LOSIS4512",
+                "acronym": "LOSIS4512",
                 "common_title": "common title",
             },
             "learning_unit_year": {
