@@ -28,6 +28,7 @@ from django.contrib import admin
 from base.models.enums import sessions_derogation
 from base.models.enums import education_group_categories
 from base.models import education_group_type
+from django.db.models import Q
 
 
 class GroupElementYearAdmin(admin.ModelAdmin):
@@ -60,12 +61,15 @@ class GroupElementYear(models.Model):
                                            choices=sessions_derogation.SessionsDerogationTypes.choices(),
                                            default=sessions_derogation.SessionsDerogationTypes.SESSION_UNDEFINED.value)
 
-# Todo :: unit tests on academic_year in parent (and not in branches !!)
+
 def search(**kwargs):
     queryset = GroupElementYear.objects
 
     if 'academic_year' in kwargs:
-        queryset = queryset.filter(parent__academic_year=kwargs['academic_year'])
+        academic_year = kwargs['academic_year']
+        queryset = queryset.filter(Q(parent__academic_year=academic_year)
+                                   |Q(child_branch__academic_year=academic_year)
+                                   |Q(child_leaf__academic_year=academic_year))
 
     if 'learning_unit_year' in kwargs:
         queryset = queryset.filter(child_leaf=kwargs['learning_unit_year'])

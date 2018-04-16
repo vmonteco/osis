@@ -137,8 +137,7 @@ class TestFindRelatedRootEducationGroups(TestCase):
         GroupElementYearFactory(parent=self.root, child_branch=child_branch)
         GroupElementYearFactory(parent=child_branch, child_branch=None, child_leaf=self.child_leaf)
         result = group_element_year._find_related_root_education_groups(self.child_leaf)
-        self.assertIsInstance(result, list)
-        self.assertFalse(result)
+        self.assertEqual(result, [self.root.id])
 
     def test_without_filters_case_direct_parent_id_root(self):
         element_year = GroupElementYearFactory(parent=self.root, child_branch=None, child_leaf=self.child_leaf)
@@ -271,6 +270,12 @@ class TestBuildChildKey(TestCase):
     def test_case_child_leaf_is_set(self):
         result = group_element_year._build_child_key(child_leaf=5678)
         self.assertEqual(result, 'child_leaf_5678')
+
+
+class TestSearch(TestCase):
+    """Unit tests on search()"""
+    def test_academic_year_search_only_in_parent(self):
+        pass
 
     # @staticmethod
     # def _build_group_elements_year(group_types, academic_year, child_leaf=None, child_branch=None):
