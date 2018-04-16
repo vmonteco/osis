@@ -937,6 +937,8 @@ class TestEditProposal(TestCase):
                                                     type=proposal_type.ProposalType.MODIFICATION.name)
 
         self.person = PersonFactory()
+        requirement_entity_of_luy = self.generated_container_first_year.requirement_entity_container_year.entity
+        PersonEntityFactory(entity=requirement_entity_of_luy, person=self.person)
         self.person_entity = PersonEntityFactory(person=self.person, entity=self.entity)
         self.permission = Permission.objects.get(codename="can_edit_learning_unit_proposal")
         self.person.user.user_permissions.add(self.permission)
