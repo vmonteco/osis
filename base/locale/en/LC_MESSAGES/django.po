@@ -2389,9 +2389,6 @@ msgstr "Code SCS"
 msgid "title_code_formation"
 msgstr "Title / Formation's code"
 
-msgid "absolute_credits"
-msgstr "Abs. credits"
-
 msgid "relative_target_credits"
 msgstr "Relative target's credits"
 
