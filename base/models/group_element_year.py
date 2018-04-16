@@ -33,7 +33,7 @@ from django.db.models import Q
 
 class GroupElementYearAdmin(admin.ModelAdmin):
     list_display = ('parent', 'child_branch', 'child_leaf',)
-    fieldsets = ((None, {'fields': ('parent', 'child_branch', 'child_leaf', 'absolute_credits','relative_credits',
+    fieldsets = ((None, {'fields': ('parent', 'child_branch', 'child_leaf', 'relative_credits',
                                     'min_credits', 'max_credits', 'is_mandatory', 'block', 'current_order',
                                     'own_comment', 'sessions_derogation','minor_access', 'comment',
                                     'comment_english',)}),)
@@ -46,7 +46,6 @@ class GroupElementYear(models.Model):
     parent = models.ForeignKey('EducationGroupYear', related_name='parent', blank=True, null=True)
     child_branch = models.ForeignKey('EducationGroupYear', related_name='child_branch', blank=True, null=True)
     child_leaf = models.ForeignKey('LearningUnitYear', related_name='child_leaf', blank=True, null=True)
-    absolute_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     relative_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     min_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     max_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
