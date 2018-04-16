@@ -91,13 +91,6 @@ def find_learning_unit_formations(learn_unit_year):
 # TODO :: pouvoir renvoyer un dict {learning_unit_year_id: [liste des education_group_year_id roots]}
 def _find_related_root_education_groups(learn_unit_year, filters=None):
     parents_by_id = _build_parent_list_by_education_group_year_id(learn_unit_year.academic_year, filters=filters)
-    # direct_parent_ids = search(learning_unit_year=learn_unit_year).values_list('parent')
-    # direct_parent_ids = search(learning_unit_year=learn_unit_year) \
-    #     .values(*_columns_used_to_build_hierarchy(filters=filters))
-    # child_group_element = {
-    #     'child_leaf': learn_unit_year.id,
-    #     'child_branch': None
-    # }
     return _find_elements(parents_by_id, child_leaf=learn_unit_year.id, filters=filters)
 
 
@@ -108,17 +101,12 @@ def _build_parent_list_by_education_group_year_id(academic_year, filters=None):
         .values('parent', 'child_branch', 'child_leaf', *columns_needed_for_filters)
     result = {}
     for group_element_year in group_elements:
-        # child_branch = group_element_year['child_branch']
         key = _build_child_key(child_branch=group_element_year['child_branch'],
                                child_leaf=group_element_year['child_leaf'])
         result.setdefault(key, []).append(group_element_year)
-        # Append the parent id in keys
-        # fake_parent = {'child_branch': group_element_year['parent']}
-        # result.setdefault(_build_child_key(fake_parent), [])
     return result
 
 
-# Todo == unit tests
 def _build_child_key(child_branch=None, child_leaf=None):
     args = [child_leaf, child_branch]
     if not any(args) or all(args):
@@ -129,11 +117,6 @@ def _build_child_key(child_branch=None, child_leaf=None):
     else:
         branch_part = 'child_branch'
         id_part = child_branch
-    # branch_part = 'child_branch'
-    # id_part = child_branch_id
-    # if group_element_year['child_leaf']:
-    #     branch_part = 'child_leaf'
-    #     id_part = group_element_year['child_leaf']
     return '{branch_part}_{id_part}'.format(**locals())
 
 
@@ -150,15 +133,5 @@ def _find_elements(group_elements_by_child_id, child_leaf=None, child_branch=Non
             if filters and any(group_element_year[col_name] in values_list for col_name, values_list in filters.items()):
                 roots.append(parent_id)
             else:
-                # child_group_element = {
-                #     'child_leaf': None,
-                #     'child_branch': parent_id
-                # }
                 roots.extend(_find_elements(group_elements_by_child_id, child_branch=parent_id, filters=filters))
-    # import pdb; pdb.set_trace()
     return roots
-
-# TODO :: clean code / remove unused functions
-def _columns_used_to_build_hierarchy(filters=None):
-    columns_needed_for_filters = filters.keys() if filters else []
-    return ['parent', 'child_branch'] + list(columns_needed_for_filters)
