@@ -127,9 +127,10 @@ class ProposalBaseForm:
     @transaction.atomic
     def save(self):
         proposal = self.form_proposal.save(False)
-        self.learning_unit_form_container.save()
-        proposal.type = compute_proposal_type(self.learning_unit_form_container.changed_data, proposal.initial_data)
+        proposal.type = compute_proposal_type(self.learning_unit_form_container.cleaned_data, proposal.initial_data)
         proposal = self.form_proposal.save()
+
+        self.learning_unit_form_container.save()
         return proposal
 
     def _get_initial(self):
@@ -312,21 +313,21 @@ def get_entity_by_type(entity_type, entities_by_type):
         return None
 
 
-def compute_form_initial_data_from_proposal_json(proposal_initial_data):
-    if not proposal_initial_data:
-        return {}
-    initial_data = {}
-    for value in proposal_initial_data.values():
-        initial_data.update({k.lower(): v for k, v in value.items()})
-    initial_data["first_letter"] = initial_data["acronym"][0]
-    initial_data["acronym"] = initial_data["acronym"][1:]
-    _replace_entity_id_with_entity_version_id(initial_data)
-    return initial_data
+# def compute_form_initial_data_from_proposal_json(proposal_initial_data):
+#     if not proposal_initial_data:
+#         return {}
+#     initial_data = {}
+#     for value in proposal_initial_data.values():
+#         initial_data.update({k.lower(): v for k, v in value.items()})
+#     initial_data["first_letter"] = initial_data["acronym"][0]
+#     initial_data["acronym"] = initial_data["acronym"][1:]
+#     _replace_entity_id_with_entity_version_id(initial_data)
+#     return initial_data
 
 
-def _replace_entity_id_with_entity_version_id(initial_data):
-    lower_link_types_name = (link_type.lower() for link_type in entity_container_year_link_type.ENTITY_TYPE_LIST)
-    for link_type in lower_link_types_name:
-        entity_id = initial_data.get(link_type)
-        entity_version_id = get_last_version_by_entity_id(entity_id).id if entity_id else None
-        initial_data[link_type] = entity_version_id
+# def _replace_entity_id_with_entity_version_id(initial_data):
+#     lower_link_types_name = (link_type.lower() for link_type in entity_container_year_link_type.ENTITY_TYPE_LIST)
+#     for link_type in lower_link_types_name:
+#         entity_id = initial_data.get(link_type)
+#         entity_version_id = get_last_version_by_entity_id(entity_id).id if entity_id else None
+#         initial_data[link_type] = entity_version_id
