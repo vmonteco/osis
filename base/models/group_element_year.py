@@ -80,6 +80,11 @@ def find_by_parent(an_education_group_year):
     return GroupElementYear.objects.filter(parent=an_education_group_year)
 
 
+def find_group_formation_roots(educ_group_year):
+    filters = _get_root_filters()
+    return _find_related_root_education_groups([educ_group_year], filters=filters)
+
+
 def find_learning_unit_formation_roots(learn_unit_year):
     filters = _get_root_filters()
     return _find_related_root_education_groups([learn_unit_year], filters=filters)
@@ -95,15 +100,22 @@ def _get_root_filters():
     }
 
 
-def _find_related_root_education_groups(learn_unit_year_list, filters=None):
-    if len(set(learn_unit_year.academic_year_id for learn_unit_year in learn_unit_year_list)) > 1:
+def _find_related_root_education_groups(objects, filters=None):
+    from base.models.learning_unit_year import LearningUnitYear
+    academic_year = _extract_common_academic_year(objects)
+    parents_by_id = _build_parent_list_by_education_group_year_id(academic_year, filters=filters)
+    if isinstance(objects[0], LearningUnitYear):
+        return {obj.id: _find_elements(parents_by_id, child_leaf=obj.id, filters=filters) for obj in objects}
+    else:
+        return {obj.id: _find_elements(parents_by_id, child_branch=obj.id, filters=filters) for obj in objects}
+
+
+def _extract_common_academic_year(objects):
+    if len(set(getattr(obj, 'academic_year_id') for obj in objects)) > 1:
         raise AttributeError("The algorithm should load only graph/structure for 1 academic_year "
                              "to avoid too large 'in-memory' data.")
     else:
-        academic_year = learn_unit_year_list[0].academic_year
-    parents_by_id = _build_parent_list_by_education_group_year_id(academic_year, filters=filters)
-    return {learn_unit_year.id: _find_elements(parents_by_id, child_leaf=learn_unit_year.id, filters=filters)
-            for learn_unit_year in learn_unit_year_list}
+        return objects[0].academic_year
 
 
 def _build_parent_list_by_education_group_year_id(academic_year, filters=None):
