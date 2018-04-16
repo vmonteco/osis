@@ -48,6 +48,4 @@ def get_proposal_learning_unit_creation_form(request, academic_year):
                                                          'proposal_learning_unit_successfuly_created')
         return redirect('learning_unit', learning_unit_year_id=proposal.learning_unit_year.pk)
 
-    print(proposal_form.errors)
-
     return layout.render(request, "learning_unit/proposal/creation.html", proposal_form.get_context())

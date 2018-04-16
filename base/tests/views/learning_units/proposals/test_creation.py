@@ -168,34 +168,31 @@ class LearningUnitViewTestCase(TestCase):
 
     def test_proposal_learning_unit_form_with_empty_fields(self):
         learning_unit_form = CreationProposalBaseForm(self.get_empty_required_fields(), person=self.person)
-        print(self.get_empty_required_fields())
         self.assertFalse(learning_unit_form.is_valid(), learning_unit_form.errors)
         luy_errors = learning_unit_form.learning_unit_form_container.forms[LearningUnitYearModelForm].errors
+        lu_errors = learning_unit_form.learning_unit_form_container.forms[LearningUnitModelForm].errors
         lcy_errors = learning_unit_form.learning_unit_form_container.forms[LearningContainerYearModelForm].errors
 
         self.assertEqual(luy_errors['acronym'], [_('field_is_required'), _('invalid_acronym')])
         self.assertEqual(lcy_errors['container_type'], [_('field_is_required')])
-        self.assertEqual(learning_unit_form.errors['campus'], [_('field_is_required')])
-        self.assertEqual(learning_unit_form.errors['periodicity'], [_('field_is_required')])
-        self.assertEqual(learning_unit_form.errors['language'], [_('field_is_required')])
+        self.assertEqual(lu_errors['periodicity'], [_('field_is_required')])
+
+        # TODO Check if the model learningContainerYear is correctly implemented
+        self.assertEqual(luy_errors['language'], [_('field_is_required')])
+        self.assertEqual(luy_errors['campus'], [_('field_is_required')])
 
     def test_proposal_learning_unit_form_with_empty_title_fields(self):
-        learning_unit_form = creation.LearningUnitProposalCreationForm(person=self.person,
-                                                                       data=self.get_empty_title_fields())
-        proposal_form = creation.LearningUnitProposalForm(data=self.get_empty_title_fields())
-        self.assertTrue(proposal_form.is_valid(), proposal_form.errors)
+        learning_unit_form = CreationProposalBaseForm(self.get_empty_title_fields(), person=self.person)
         self.assertFalse(learning_unit_form.is_valid(), learning_unit_form.errors)
-        self.assertEqual(learning_unit_form.errors['common_title'], [_('must_set_common_title_or_specific_title')])
-
+        lcy_errors = learning_unit_form.learning_unit_form_container.forms[LearningContainerYearModelForm].errors
+        self.assertEqual(lcy_errors['common_title'], [_('must_set_common_title_or_specific_title')])
 
     def test_proposal_learning_unit_add_with_valid_data_for_faculty_manager(self):
-        learning_unit_form = creation.LearningUnitProposalCreationForm(person=self.faculty_person,
-                                                                       data=self.get_valid_data())
-        proposal_form = creation.LearningUnitProposalForm(data=self.get_valid_data())
+        learning_unit_form = CreationProposalBaseForm(self.get_valid_data(), person=self.faculty_person)
+
         self.assertTrue(learning_unit_form.is_valid(), learning_unit_form.errors)
-        self.assertTrue(proposal_form.is_valid(), proposal_form.errors)
         self.client.force_login(self.faculty_person.user)
-        url = reverse('proposal_learning_unit_add')
+        url = reverse(get_proposal_learning_unit_creation_form, args=[self.academic_year.id])
         response = self.client.post(url, data=self.get_valid_data())
         self.assertEqual(response.status_code, 302)
         count_learning_unit_year = LearningUnitYear.objects.all().count()
