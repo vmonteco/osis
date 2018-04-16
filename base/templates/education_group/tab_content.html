@@ -47,6 +47,7 @@
                                 <tr>
                                     <th>{% trans 'code_scs'%}</th>
                                     <th>{% trans 'title_code_formation' %}</th>
+                                    <th>{% trans 'absolute_credits' %}</th>
                                     <th>{% trans 'relative_target_credits' %}</th>
                                     <th>{% trans 'min_credits' %}</th>
                                     <th>{% trans 'max_credits' %}</th>
@@ -61,6 +62,7 @@
                                     <tr>
                                         <td>{{ element.code_scs | default_if_none:''  }}</td>
                                         <td>{{ element.title | default_if_none:'' }}</td>
+                                        <td>{{ element.group_element.child_leaf.credits | default_if_none:'-' }}</td>
                                         <td>{{ element.group_element.relative_credits | default_if_none:'-' }}</td>
                                         <td>{{ element.credits_min | default_if_none:'-' }}</td>
                                         <td>{{ element.credits_max | default_if_none:'-' }}</td>
