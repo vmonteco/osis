@@ -109,23 +109,14 @@ def send_mail_after_the_learning_unit_proposal_consolidation(manager, proposals_
 def _send_mail_after_learning_unit_proposal_action(manager, proposals_with_results, html_template_ref, txt_template_ref):
     receivers = [message_config.create_receiver(manager.id, manager.email, manager.language)]
     suject_data = {}
-    template_base_data = {}
-    table_header = ['Learning unit', 'type', 'status', 'Remarks']
-    table_data = [
-        (
-            "{acronym} - {academic_year}".format(acronym=proposal.learning_unit_year.acronym,
-                                                 academic_year=proposal.learning_unit_year.academic_year),
-            _(proposal.type),
-            _("Success") if ERROR not in results else _("Failure"),
-            "\n".join(results.get(ERROR, []))
-        ) for (proposal, results) in proposals_with_results
-
-    ]
-    table = message_config.create_table('proposals', table_header, table_data)
+    template_base_data = {
+        "first_name": manager.first_name,
+        "last_name": manager.last_name
+    }
     attachment = ("report.xlsx",
                   build_proposal_report_attachment(manager, proposals_with_results),
                   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    message_content = message_config.create_message_content(html_template_ref, txt_template_ref, [table], receivers,
+    message_content = message_config.create_message_content(html_template_ref, txt_template_ref, None, receivers,
                                                             template_base_data, suject_data, attachment=attachment)
     return message_service.send_messages(message_content)
 
