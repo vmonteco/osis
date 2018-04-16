@@ -46,7 +46,7 @@ class LearningContainerYear(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     academic_year = models.ForeignKey('AcademicYear')
     learning_container = models.ForeignKey('LearningContainer')
-    container_type = models.CharField(max_length=20, blank=True, null=True,
+    container_type = models.CharField(max_length=20,
                                       choices=learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES)
     common_title = models.CharField(max_length=255, blank=True, null=True)
     common_title_english = models.CharField(max_length=250, blank=True, null=True)
