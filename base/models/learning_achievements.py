@@ -32,21 +32,22 @@ from ordered_model.admin import OrderedModelAdmin
 
 
 class LearningAchievementsAdmin(OrderedModelAdmin):
-    list_display = ('learning_unit_year', 'code_name', 'order', 'move_up_down_links')
-    fieldsets = ((None, {'fields': ('learning_unit_year', 'code_name', 'order', 'text')}),)
+    list_display = ('learning_unit_year', 'code_name', 'order', 'move_up_down_links', 'language')
+    fieldsets = ((None, {'fields': ('learning_unit_year', 'code_name', 'order', 'text', 'language')}),)
     readonly_fields = ['order']
     search_fields = ['learning_unit_year__acronym', 'code_name', 'order']
-    raw_id_fields = ('learning_unit_year',)
+    raw_id_fields = ('learning_unit_year', 'language')
 
 
 class LearningAchievements(OrderedModel):
     code_name = models.CharField(max_length=100, verbose_name=_('code'))
     text = RichTextField(null=True, verbose_name=_('text'))
     learning_unit_year = models.ForeignKey('LearningUnitYear')
-    order_with_respect_to = 'learning_unit_year'
+    order_with_respect_to = ('learning_unit_year', 'language')
+    language = models.ForeignKey('reference.Language')
 
     class Meta:
-        unique_together = ("code_name", "learning_unit_year")
+        unique_together = ("code_name", "learning_unit_year", "language")
 
     def __str__(self):
         return u'{} - {} (order {})'.format(self.learning_unit_year, self.code_name, self.order)
