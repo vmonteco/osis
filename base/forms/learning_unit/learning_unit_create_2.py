@@ -295,6 +295,7 @@ class PartimForm(LearningUnitBaseForm):
     def __init__(self, data, person, learning_unit_year_full, instance=None, *args, **kwargs):
         check_learning_unit_year_instance(instance)
         self.instance = instance
+        self.person = person
         if not isinstance(learning_unit_year_full, LearningUnitYear):
             raise AttributeError('learning_unit_year_full arg should be an instance of {}'.format(LearningUnitYear))
         if learning_unit_year_full.subtype != learning_unit_year_subtypes.FULL:
@@ -305,35 +306,35 @@ class PartimForm(LearningUnitBaseForm):
         # Inherit values cannot be changed by user
         inherit_lu_values = self._get_inherit_learning_unit_full_value()
         inherit_luy_values = self._get_inherit_learning_unit_year_full_value()
-        instances_data = self._build_instance_data(data, inherit_lu_values, inherit_luy_values, person)
+        instances_data = self._build_instance_data(data, inherit_lu_values, inherit_luy_values)
 
         super(PartimForm, self).__init__(instances_data, *args, **kwargs)
         self.disable_fields(self._get_fields_to_disabled())
 
-    def _build_instance_data(self, data, inherit_lu_values, inherit_luy_values, person):
+    def _build_instance_data(self, data, inherit_lu_values, inherit_luy_values):
         return {
             LearningUnitModelForm: self._build_instance_data_learning_unit(data, inherit_lu_values),
-            LearningUnitYearModelForm: self._build_instance_data_learning_unit_year(data, inherit_luy_values, person),
+            LearningUnitYearModelForm: self._build_instance_data_learning_unit_year(data, inherit_luy_values),
             # Cannot be modify by user [No DATA args provided]
             LearningContainerModelForm: {
                 'instance': self.learning_unit_year_full.learning_container_year.learning_container,
             },
             LearningContainerYearModelForm: {
                 'instance': self.learning_unit_year_full.learning_container_year,
-                'person': person
+                'person': self.person
             },
             EntityContainerFormset: {
                 'instance': self.learning_unit_year_full.learning_container_year,
-                'form_kwargs': {'person': person}
+                'form_kwargs': {'person': self.person}
             }
         }
 
-    def _build_instance_data_learning_unit_year(self, data, inherit_luy_values, person):
+    def _build_instance_data_learning_unit_year(self, data, inherit_luy_values):
         return {
             'data': merge_data(data, inherit_luy_values),
             'instance': self.instance,
             'initial': self._get_initial_learning_unit_year_form() if not self.instance else None,
-            'person': person,
+            'person': self.person,
             'subtype': self.subtype
         }
 
