@@ -25,15 +25,11 @@
 ##############################################################################
 import datetime
 import random
-from decimal import Decimal
 from unittest import mock
-from unittest.mock import Mock
-from urllib.parse import urlencode
 
 import factory.fuzzy
 from django.contrib import messages
 from django.contrib.auth.models import Permission, Group
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
@@ -47,7 +43,6 @@ from django.utils.translation import ugettext_lazy as _
 import base.business.learning_unit
 from base.business import learning_unit as learning_unit_business
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm
-from base.forms.learning_unit.learning_unit_create_2 import FullForm, PartimForm
 from base.forms.learning_unit.search_form import LearningUnitYearForm, SearchForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, SummaryModelForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
@@ -59,14 +54,10 @@ from base.models.enums import entity_container_year_link_type, active_status
 from base.models.enums import internship_subtypes
 from base.models.enums import learning_container_year_types, organization_type, entity_type
 from base.models.enums import learning_unit_periodicity
-from base.models.enums import learning_unit_year_quadrimesters
 from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
-from base.models.enums.learning_container_year_types import MASTER_THESIS, \
-    LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
+from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
 from base.models.enums.learning_unit_year_subtypes import FULL
-from base.models.learning_unit import LearningUnit
-from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import FACULTY_MANAGER_GROUP
 from base.models.person_entity import PersonEntity
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
@@ -79,7 +70,6 @@ from base.tests.factories.learning_class_year import LearningClassYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from base.tests.factories.learning_container import LearningContainerFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
-from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_component_class import LearningUnitComponentClassFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
@@ -257,7 +247,7 @@ class LearningUnitViewCreatePartimTestCase(TestCase):
                 side_effect=lambda *args: True)
     def test_create_partim_get_form(self, mock_is_pers_linked_to_entity_charge):
         response = self.client.get(self.url)
-        self.assertTemplateUsed(response, "learning_unit/creation_partim.html")
+        self.assertTemplateUsed(response, "learning_unit/simple/creation_partim.html")
         self.assertEqual(response.status_code, HttpResponse.status_code)
 
     @mock.patch('base.views.learning_units.perms.business_perms.is_person_linked_to_entity_in_charge_of_learning_unit',
@@ -265,7 +255,7 @@ class LearningUnitViewCreatePartimTestCase(TestCase):
     @mock.patch('base.forms.learning_unit.learning_unit_create_2.PartimForm.is_valid', side_effect=lambda *args : False)
     def test_create_partim_when_invalid_form_no_redirection(self, mock_is_valid, mock_is_pers_linked_to_entity_charge):
         response = self.client.post(self.url, data={})
-        self.assertTemplateUsed(response, "learning_unit/creation_partim.html")
+        self.assertTemplateUsed(response, "learning_unit/simple/creation_partim.html")
         self.assertEqual(response.status_code, HttpResponse.status_code)
 
     @mock.patch('base.views.learning_units.perms.business_perms.is_person_linked_to_entity_in_charge_of_learning_unit',
