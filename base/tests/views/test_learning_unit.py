@@ -257,7 +257,7 @@ class LearningUnitViewCreatePartimTestCase(TestCase):
                 side_effect=lambda *args: True)
     def test_create_partim_get_form(self, mock_is_pers_linked_to_entity_charge):
         response = self.client.get(self.url)
-        self.assertTemplateUsed(response, "learning_unit/partim_form.html")
+        self.assertTemplateUsed(response, "learning_unit/creation_partim.html")
         self.assertEqual(response.status_code, HttpResponse.status_code)
 
     @mock.patch('base.views.learning_units.perms.business_perms.is_person_linked_to_entity_in_charge_of_learning_unit',
@@ -265,7 +265,7 @@ class LearningUnitViewCreatePartimTestCase(TestCase):
     @mock.patch('base.forms.learning_unit.learning_unit_create_2.PartimForm.is_valid', side_effect=lambda *args : False)
     def test_create_partim_when_invalid_form_no_redirection(self, mock_is_valid, mock_is_pers_linked_to_entity_charge):
         response = self.client.post(self.url, data={})
-        self.assertTemplateUsed(response, "learning_unit/partim_form.html")
+        self.assertTemplateUsed(response, "learning_unit/creation_partim.html")
         self.assertEqual(response.status_code, HttpResponse.status_code)
 
     @mock.patch('base.views.learning_units.perms.business_perms.is_person_linked_to_entity_in_charge_of_learning_unit',

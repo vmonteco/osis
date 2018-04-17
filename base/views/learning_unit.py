@@ -345,7 +345,7 @@ def create_partim_form(request, learning_unit_year_id):
             show_success_learning_unit_year_creation_message(request, luy, 'learning_unit_successfuly_created')
         return redirect('learning_unit', learning_unit_year_id=new_luys[0].pk)
 
-    return render(request, "learning_unit/partim_form.html", learning_unit_form_container.get_context())
+    return render(request, "learning_unit/simple/creation_partim.html", learning_unit_form_container.get_context())
 
 
 def get_learning_unit_identification_context(learning_unit_year_id, person):
