@@ -183,26 +183,26 @@ class EntityContainerYearModelForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.instance.type = entity_type
-        self.set_field_with_entity_type(entity_type)
+        self._set_field_by_entity_type(entity_type)
 
         self.fields['entity'].label = _(entity_type.lower())
 
         if hasattr(self.instance, 'entity'):
             self.initial['entity'] = get_last_version(self.instance.entity)
 
-    def set_field_with_entity_type(self, entity_type):
-        if entity_type == REQUIREMENT_ENTITY:
-            self.set_requirement_entity()
-        elif entity_type == ALLOCATION_ENTITY:
-            self.set_allocation_entity()
-        elif entity_type == ADDITIONAL_REQUIREMENT_ENTITY_1:
-            self.set_additional_requirement_entity_1()
-        elif entity_type == ADDITIONAL_REQUIREMENT_ENTITY_2:
-            self.set_additional_requirement_entity_2()
+    def _set_field_by_entity_type(self, entity_type):
+        set_by_entity_type = {
+            REQUIREMENT_ENTITY: self.set_requirement_entity,
+            ALLOCATION_ENTITY: self.set_allocation_entity,
+            ADDITIONAL_REQUIREMENT_ENTITY_1: self.set_additional_requirement_entity_1,
+            ADDITIONAL_REQUIREMENT_ENTITY_2: self.set_additional_requirement_entity_2,
+        }
+        set_by_entity_type[entity_type]()
 
     def set_requirement_entity(self):
         field = self.fields['entity']
-        field.queryset = self.person.find_main_entities_version
+        # TODO Really slow method : disabled for the moment
+        # field.queryset = self.person.find_main_entities_version
         field.widget.attrs = {
             'onchange': (
                 'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_1", false);'
