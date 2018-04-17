@@ -76,6 +76,9 @@ def search(**kwargs):
                                    Q(child_branch__academic_year=academic_year) |
                                    Q(child_leaf__academic_year=academic_year))
 
+    if 'child_leaf' in kwargs:
+        queryset = queryset.filter(child_leaf=kwargs['child_leaf'])
+
     return queryset
 
 
