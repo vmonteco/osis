@@ -274,34 +274,36 @@ def _get_rid_of_blank_value(data):
     return clean_data
 
 
-def cancel_proposals_and_send_report(proposals, author):
+def cancel_proposals_and_send_report(proposals, author, research_criteria):
     return apply_action_on_proposals_and_send_report(
         proposals,
         author,
         cancel_proposal,
         "Proposal {acronym} ({academic_year}) successfully canceled.",
         "Proposal {acronym} ({academic_year}) cannot be canceled.",
-        send_mail_util.send_mail_cancellation_learning_unit_proposals
+        send_mail_util.send_mail_cancellation_learning_unit_proposals,
+        research_criteria
     )
 
 
-def consolidate_proposals_and_send_report(proposals, author):
+def consolidate_proposals_and_send_report(proposals, author, research_criteria):
     return  apply_action_on_proposals_and_send_report(
         proposals,
         author,
         consolidate_proposal,
         "Proposal {acronym} ({academic_year}) successfully consolidated.",
         "Proposal {acronym} ({academic_year}) cannot be consolidated.",
-        send_mail_util.send_mail_consolidation_learning_unit_proposal
+        send_mail_util.send_mail_consolidation_learning_unit_proposal,
+        research_criteria
     )
 
 
 def apply_action_on_proposals_and_send_report(proposals, author, action_method, success_msg_id, error_msg_id,
-                                              send_mail_method):
+                                              send_mail_method, research_criteria):
     messages_by_level = {SUCCESS: [], ERROR: [], INFO: [_("A report has been sent.")]}
     proposals_with_results = apply_action_on_proposals(proposals, action_method)
 
-    send_mail_method(author, proposals_with_results)
+    send_mail_method(author, proposals_with_results, research_criteria)
     for proposal, results in proposals_with_results:
         if ERROR in results:
             messages_by_level[ERROR].append(_(error_msg_id).format(
@@ -331,6 +333,8 @@ def consolidate_proposal(proposal):
             results = consolidate_creation_proposal_accepted(proposal)
         elif proposal.type == proposal_type.ProposalType.SUPPRESSION.name:
             results = consolidate_suppression_proposal_accepted(proposal)
+        else:
+            results = consolidate_modification_proposal_accepted(proposal)
     return results
 
 
@@ -367,3 +371,8 @@ def consolidate_suppression_proposal_accepted(proposal):
     if not results.get(ERROR):
         proposal.delete()
     return results
+
+
+# TODO implement modification proposal consolidation
+def consolidate_modification_proposal_accepted(proposal):
+    return {}

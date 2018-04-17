@@ -27,12 +27,14 @@
 """
 Utility files for mail sending
 """
+import datetime
 from django.contrib.messages import ERROR
 from django.utils.translation import ugettext as _
 from openpyxl import Workbook
-from openpyxl.writer.excel import save_virtual_workbook
+from openpyxl.writer.excel import save_virtual_workbook, save_workbook
 
 from assessments.business import score_encoding_sheet
+from osis_common.document.xls_build import _adjust_column_width
 
 from osis_common.models import message_history as message_history_mdl
 from osis_common.messaging import message_config, send_message as message_service
@@ -94,21 +96,22 @@ def send_mail_after_the_learning_unit_year_deletion(managers, acronym, academic_
     return message_service.send_messages(message_content)
 
 
-def send_mail_cancellation_learning_unit_proposals(manager, tuple_proposals_results):
+def send_mail_cancellation_learning_unit_proposals(manager, tuple_proposals_results, research_criteria):
     html_template_ref = 'learning_unit_proposal_canceled_html'
     txt_template_ref = 'learning_unit_proposal_canceled_txt'
     return _send_mail_action_learning_unit_proposal(manager, tuple_proposals_results, html_template_ref,
-                                                    txt_template_ref)
+                                                    txt_template_ref, "cancellation", research_criteria)
 
 
-def send_mail_consolidation_learning_unit_proposal(manager, tuple_proposals_results):
+def send_mail_consolidation_learning_unit_proposal(manager, tuple_proposals_results, research_criteria):
     html_template_ref = 'learning_unit_proposal_consolidated_html'
     txt_template_ref = 'learning_unit_proposal_consolidated_txt'
     return _send_mail_action_learning_unit_proposal(manager, tuple_proposals_results, html_template_ref,
-                                                    txt_template_ref)
+                                                    txt_template_ref, "consolidation", research_criteria)
 
 
-def _send_mail_action_learning_unit_proposal(manager, tuple_proposals_results, html_template_ref, txt_template_ref):
+def _send_mail_action_learning_unit_proposal(manager, tuple_proposals_results, html_template_ref, txt_template_ref,
+                                             operation, research_criteria):
     receivers = [message_config.create_receiver(manager.id, manager.email, manager.language)]
     suject_data = {}
     template_base_data = {
@@ -116,14 +119,14 @@ def _send_mail_action_learning_unit_proposal(manager, tuple_proposals_results, h
         "last_name": manager.last_name
     }
     attachment = ("report.xlsx",
-                  build_proposal_report_attachment(manager, tuple_proposals_results),
+                  build_proposal_report_attachment(manager, tuple_proposals_results, operation, research_criteria),
                   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     message_content = message_config.create_message_content(html_template_ref, txt_template_ref, None, receivers,
                                                             template_base_data, suject_data, attachment=attachment)
     return message_service.send_messages(message_content)
 
 
-def build_proposal_report_attachment(manager, proposals_with_results):
+def build_proposal_report_attachment(manager, proposals_with_results, operation, research_criteria):
     table_data = [
         (
             proposal.learning_unit_year.academic_year.name,
@@ -146,7 +149,9 @@ def build_proposal_report_attachment(manager, proposals_with_results):
                                               _('Remarks')],
                 xls_build.WORKSHEET_TITLE_KEY: 'Report'
             }
-        ]
+        ],
+        "operation": operation,
+        "research_criteria": research_criteria
     }
 
     return _create_xls(xls_parameters)
@@ -160,10 +165,24 @@ def _create_xls(parameters_dict):
         xls_build._build_worksheet(worksheet_data,  workbook, sheet_number)
         sheet_number = sheet_number + 1
 
-    xls_build._build_worksheet_parameters(workbook, parameters_dict.get(xls_build.USER_KEY),
-                                          parameters_dict.get(xls_build.LIST_DESCRIPTION_KEY))
-
+    _build_worksheet_parameters(workbook, parameters_dict.get(xls_build.USER_KEY),
+                                parameters_dict.get("operation", ""), parameters_dict.get("research_criteria"))
+    save_workbook(workbook, "./temp.xlsx")
     return save_virtual_workbook(workbook)
+
+
+def _build_worksheet_parameters(workbook, a_user, operation, research_criteria):
+    worksheet_parameters = workbook.create_sheet(title=str(_('parameters')))
+    now = datetime.datetime.now()
+    worksheet_parameters.append([str(_('author')), str(a_user)])
+    worksheet_parameters.append([str(_('date')), now.strftime('%d-%m-%Y %H:%M')])
+    worksheet_parameters.append([_('Operation'), _(operation)])
+    for research_key, research_value in research_criteria.items():
+        if research_value:
+            worksheet_parameters.append([_(research_key), str(research_value)])
+
+    _adjust_column_width(worksheet_parameters)
+    return worksheet_parameters
 
 
 def send_message_after_all_encoded_by_manager(persons, enrollments, learning_unit_acronym, offer_acronym):
