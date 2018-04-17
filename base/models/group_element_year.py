@@ -102,12 +102,12 @@ def _get_root_filters():
 
 def _raise_if_incorrect_instance(objects):
     first_obj = objects[0]
-    authorized_instances = [LearningUnitYear, EducationGroupYear]
-    if not all([isinstance(first_obj, cls) for cls in authorized_instances]):
-        raise AttributeError("Objects must be either LearningUnitYear or EducationGroupYear intances.")
     obj_class = first_obj.__class__
-    if list(filter(lambda obj: not isinstance(obj, obj_class), objects)):
-        raise AttributeError("All objects must be the same instance ({})".format(obj_class))
+    authorized_instances = [LearningUnitYear, EducationGroupYear]
+    if not any([obj_class == cls for cls in authorized_instances]):
+        raise AttributeError("Objects must be either LearningUnitYear or EducationGroupYear intances.")
+    if list(filter(lambda obj: obj.__class__ != obj_class, objects)):
+        raise AttributeError("All objects must be the same class instance ({})".format(obj_class))
 
 
 def _find_related_root_education_groups(objects, filters=None):

@@ -25,6 +25,7 @@
 ##############################################################################
 from unittest import mock
 from base.models.enums import education_group_categories
+from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from django.test import TestCase
@@ -119,6 +120,7 @@ class TestFindRelatedRootEducationGroups(TestCase):
 
     @mock.patch('base.models.group_element_year._raise_if_incorrect_instance')
     def test_objects_instances_check_is_called(self, mock_check_instance):
+        group_element_year._find_related_root_education_groups([self.child_leaf])
         self.assertTrue(mock_check_instance.called)
 
     def test_without_filters_case_direct_parent_id_root(self):
