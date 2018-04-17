@@ -38,7 +38,6 @@ from base.models.enums import active_status, learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 from base.models.enums.learning_unit_periodicity import ANNUAL
-from base.models.group_element_year import GroupElementYear
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, REGEX_BY_SUBTYPE
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
@@ -156,7 +155,7 @@ class LearningUnitYear(SerializableModel):
         return LearningUnitYear.objects.none()
 
     def find_list_group_element_year(self):
-        return GroupElementYear.objects.filter(child_leaf=self).select_related('parent')
+        return self.child_leaf.filter(child_leaf=self).select_related('parent')
 
     def get_learning_unit_next_year(self):
         try:

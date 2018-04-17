@@ -51,9 +51,9 @@ from base.forms.learning_unit.learning_unit_create_2 import PartimForm, FullForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
-from base.models import proposal_learning_unit
 from base.models.academic_year import AcademicYear
 from base.models.learning_unit import REGEX_BY_SUBTYPE
+from base.models import proposal_learning_unit, group_element_year
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views.learning_units import perms
@@ -77,7 +77,8 @@ def get_common_context_learning_unit_year(learning_unit_year_id, person):
     return {
         'learning_unit_year': learning_unit_year,
         'current_academic_year': mdl.academic_year.current_academic_year(),
-        'is_person_linked_to_entity': person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
+        'is_person_linked_to_entity': person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year),
+        'experimental_phase': True
     }
 
 
@@ -86,6 +87,7 @@ def get_common_context_learning_unit_year(learning_unit_year_id, person):
 def learning_unit_formations(request, learning_unit_year_id):
     context = get_common_context_learning_unit_year(learning_unit_year_id,
                                                     get_object_or_404(Person, user=request.user))
+    context['group_element_years'] = group_element_year.search(child_leaf=context["learning_unit_year"])
     return layout.render(request, "learning_unit/formations.html", context)
 
 
