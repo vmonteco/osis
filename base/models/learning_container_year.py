@@ -52,8 +52,8 @@ class LearningContainerYear(SerializableModel):
     common_title_english = models.CharField(max_length=250, blank=True, null=True)
     acronym = models.CharField(max_length=10)
     changed = models.DateTimeField(null=True, auto_now=True)
-    language = models.ForeignKey('reference.Language', blank=True, null=True)
-    campus = models.ForeignKey('Campus', blank=True, null=True)
+    language = models.ForeignKey('reference.Language', null=True)
+    campus = models.ForeignKey('Campus', null=True)
     team = models.BooleanField(default=False)
     is_vacant = models.BooleanField(default=False)
     type_declaration_vacant = models.CharField(max_length=100, blank=True, null=True,
