@@ -28,7 +28,7 @@ from django.db import transaction
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.learning_units.proposal.common import compute_proposal_state
+from base.business.learning_unit_proposal import compute_proposal_state
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.forms.learning_unit_proposal import ProposalLearningUnitForm, ProposalBaseForm
 from base.models.enums.proposal_type import ProposalType

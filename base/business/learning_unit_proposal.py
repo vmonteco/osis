@@ -364,3 +364,8 @@ def _consolidate_creation_proposal_of_state_refused(proposal):
     if messages_by_level:
         return {ERROR: list(messages_by_level.values())}
     return {SUCCESS: deletion.delete_learning_unit(proposal.learning_unit_year.learning_unit)}
+
+
+def compute_proposal_state(a_person):
+    return proposal_state.ProposalState.CENTRAL.name if a_person.is_central_manager() \
+        else proposal_state.ProposalState.FACULTY.name
