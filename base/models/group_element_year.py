@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from base.models.learning_unit_year import LearningUnitYear
 from django.db import models
 from django.contrib import admin
 from base.models.enums import sessions_derogation
@@ -80,14 +81,9 @@ def find_by_parent(an_education_group_year):
     return GroupElementYear.objects.filter(parent=an_education_group_year)
 
 
-def find_group_formation_roots(educ_group_year):
+def find_learning_unit_formation_roots(obj):
     filters = _get_root_filters()
-    return _find_related_root_education_groups([educ_group_year], filters=filters)
-
-
-def find_learning_unit_formation_roots(learn_unit_year):
-    filters = _get_root_filters()
-    return _find_related_root_education_groups([learn_unit_year], filters=filters)
+    return _find_related_root_education_groups([obj], filters=filters)
 
 
 def _get_root_filters():
@@ -101,7 +97,6 @@ def _get_root_filters():
 
 
 def _find_related_root_education_groups(objects, filters=None):
-    from base.models.learning_unit_year import LearningUnitYear
     academic_year = _extract_common_academic_year(objects)
     parents_by_id = _build_parent_list_by_education_group_year_id(academic_year, filters=filters)
     if isinstance(objects[0], LearningUnitYear):
