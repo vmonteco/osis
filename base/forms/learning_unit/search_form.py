@@ -33,11 +33,56 @@ from base.business.entity import get_entities_ids, get_entity_container_list, bu
 from base.business.entity_version import SERVICE_COURSE
 from base.business.learning_unit_year_with_context import append_latest_entities
 from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, TooManyResultsException
-from base.forms.learning_unit_search import SearchForm
+from base.forms.utils.uppercase import convert_to_uppercase
 from base.models import learning_unit_year
+from base.models.academic_year import AcademicYear, current_academic_year
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
     learning_unit_year_subtypes, active_status
 from base.models.learning_unit_year import convert_status_bool
+
+MAX_RECORDS = 1000
+
+
+class SearchForm(forms.Form):
+    MAX_RECORDS = 1000
+    ALL_LABEL = (None, _('all_label'))
+    ALL_CHOICES = (ALL_LABEL,)
+
+    academic_year_id = forms.ModelChoiceField(
+        label=_('academic_year_small'),
+        queryset=AcademicYear.objects.all(),
+        empty_label=_('all_label'),
+    )
+
+    requirement_entity_acronym = forms.CharField(
+        max_length=20,
+        label=_('requirement_entity_small')
+    )
+
+    acronym = forms.CharField(
+        max_length=15,
+        label=_('code')
+    )
+
+    tutor = forms.CharField(
+        max_length=20,
+        label=_('tutor')
+    )
+
+    summary_responsible = forms.CharField(
+        max_length=20,
+        label=_('summary_responsible')
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['academic_year_id'].initial = current_academic_year()
+        for field in self.fields.values():
+            # In a search form, the fields are never required
+            field.required = False
+
+    def clean_requirement_entity_acronym(self):
+        return convert_to_uppercase(self.cleaned_data.get('requirement_entity_acronym'))
 
 
 class LearningUnitYearForm(SearchForm):

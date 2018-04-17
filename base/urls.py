@@ -95,14 +95,11 @@ urlpatterns = [
         url(r'^by_summary/', base.views.learning_units.educational_information.learning_units_summary_list,
             name='learning_units_summary'),
         url(r'^new/', include([
-            url(r'^academic_year_id=(?P<academic_year>[0-9]+)$', learning_unit.learning_unit_create,
+            url(r'^academic_year_id=(?P<academic_year_id>[0-9]+)$', learning_unit.learning_unit_create,
                 name="learning_unit_create"),
-            url(r'^learning_unit_year_add/$', learning_unit.learning_unit_year_add, name='learning_unit_year_add'),
             url(r'^proposal/academic_year_id=(?P<academic_year>[0-9]+)$',
                 create.get_proposal_learning_unit_creation_form,
                 name="proposal_learning_unit_creation_form"),
-            url(r'^proposal_learning_unit_add/$', create.proposal_learning_unit_add,
-                name='proposal_learning_unit_add'),
         ])),
         url(r'^(?P<learning_unit_year_id>[0-9]+)/', include([
             url(r'^$', learning_unit.learning_unit_identification, name='learning_unit'),
@@ -133,11 +130,10 @@ urlpatterns = [
             url(r'^delete_full/$', base.views.learning_units.delete.delete_all_learning_units_year,
                 name="learning_unit_delete_all"),
             url(r'^partim/', include([
-                url(r'^new/$', learning_unit.get_partim_creation_form, name="learning_unit_create_partim"),
-                url(r'^add/$', learning_unit.learning_unit_year_partim_add, name='learning_unit_year_partim_add')
+                url(r'^new/$', learning_unit.create_partim_form, name="learning_unit_create_partim"),
             ])),
         ])),
-        url(r'^check/(?P<type>[A-Z]+)$', learning_unit.check_acronym, name="check_acronym"),
+        url(r'^check/(?P<subtype>[A-Z]+)$', learning_unit.check_acronym, name="check_acronym"),
         url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
         url(r'^email_educational_information_update/$',
             base.views.learning_units.educational_information.send_email_educational_information_needs_update,

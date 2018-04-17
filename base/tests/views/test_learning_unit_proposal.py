@@ -41,7 +41,7 @@ from attribution.tests.factories.attribution_charge_new import AttributionCharge
 from attribution.tests.factories.attribution_new import AttributionNewFactory
 from base.business import learning_unit_proposal as proposal_business
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
-from base.forms.learning_unit_proposal import LearningUnitProposalModificationForm, ProposalLearningUnitForm
+from base.forms.learning_unit_proposal import ProposalLearningUnitForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
 from base.models import entity_container_year, entity_version
 from base.models import proposal_learning_unit
@@ -136,8 +136,8 @@ class TestLearningUnitModificationProposal(TestCase):
 
         self.form_data = {
             "academic_year": self.learning_unit_year.academic_year.id,
-            "first_letter": self.learning_unit_year.acronym[0],
-            "acronym": self.learning_unit_year.acronym[1:],
+            "acronym_0": self.learning_unit_year.acronym[0],
+            "acronym_1": self.learning_unit_year.acronym[1:],
             "common_title": self.learning_unit_year.learning_container_year.common_title,
             "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
             "specific_title": self.learning_unit_year.specific_title,
@@ -151,13 +151,17 @@ class TestLearningUnitModificationProposal(TestCase):
             "quadrimester": "",
             "campus": self.learning_unit_year.learning_container_year.campus.id,
             "session": self.learning_unit_year.session,
-            "requirement_entity": self.entity_version.id,
-            "allocation_entity": self.entity_version.id,
-            "additional_requirement_entity_1": self.entity_version.id,
-            "additional_requirement_entity_2": self.entity_version.id,
             "entity": self.entity_version.id,
             "folder_id": "1",
-            "state": proposal_state.ProposalState.FACULTY.name
+            "state": proposal_state.ProposalState.FACULTY.name,
+            'entitycontaineryear_set-0-entity': self.entity_version.id,
+            'entitycontaineryear_set-1-entity': self.entity_version.id,
+            'entitycontaineryear_set-2-entity': self.entity_version.id,
+            'entitycontaineryear_set-3-entity': self.entity_version.id,
+            'entitycontaineryear_set-INITIAL_FORMS': '0',
+            'entitycontaineryear_set-MAX_NUM_FORMS': '4',
+            'entitycontaineryear_set-MIN_NUM_FORMS': '3',
+            'entitycontaineryear_set-TOTAL_FORMS': '4',
         }
 
     def test_user_not_logged(self):
@@ -195,25 +199,20 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
         self.assertEqual(response.context['experimental_phase'], True)
         self.assertEqual(response.context['person'], self.person)
-
-        self.assertIsInstance(response.context['form'], LearningUnitProposalModificationForm)
-        form_initial = response.context['form'].initial
-        self.assertEqual(form_initial['academic_year'], self.learning_unit_year.academic_year.id)
-        self.assertEqual(form_initial['first_letter'], self.learning_unit_year.acronym[0])
-        self.assertEqual(form_initial['acronym'], self.learning_unit_year.acronym[1:])
-        self.assertEqual(form_initial['specific_title'], self.learning_unit_year.specific_title)
-        self.assertEqual(form_initial['container_type'], self.learning_unit_year.
+        self.assertIsInstance(response.context['form_proposal'], ProposalLearningUnitForm)
+        luy_initial = response.context['learning_unit_year_form'].initial
+        lu_initial = response.context['learning_unit_form'].initial
+        lcy_initial = response.context['learning_container_year_form'].initial
+        self.assertEqual(luy_initial['academic_year'], self.learning_unit_year.academic_year.id)
+        self.assertEqual(luy_initial['acronym'], self.learning_unit_year.acronym)
+        self.assertEqual(luy_initial['specific_title'], self.learning_unit_year.specific_title)
+        self.assertEqual(lcy_initial['container_type'], self.learning_unit_year.
                          learning_container_year.container_type)
-        self.assertEqual(form_initial['subtype'], self.learning_unit_year.subtype)
-        self.assertEqual(form_initial['credits'], self.learning_unit_year.credits)
-        self.assertEqual(form_initial['periodicity'], self.learning_unit_year.learning_unit.periodicity)
-        self.assertEqual(form_initial['status'], self.learning_unit_year.status)
-        self.assertEqual(form_initial['language'], self.learning_unit_year.learning_container_year.language.pk)
-        self.assertEqual(form_initial['requirement_entity'], self.entity_version.id)
-        self.assertEqual(form_initial['allocation_entity'], self.entity_version.id)
-        self.assertEqual(form_initial['additional_requirement_entity_1'], self.entity_version.id)
-        self.assertEqual(form_initial['additional_requirement_entity_2'], self.entity_version.id)
-        self.assertEqual(form_initial['campus'], self.learning_unit_year.learning_container_year.campus.id)
+        self.assertEqual(luy_initial['credits'], self.learning_unit_year.credits)
+        self.assertEqual(lu_initial['periodicity'], self.learning_unit_year.learning_unit.periodicity)
+        self.assertEqual(luy_initial['status'], self.learning_unit_year.status)
+        self.assertEqual(lcy_initial['language'], self.learning_unit_year.learning_container_year.language.pk)
+        self.assertEqual(lcy_initial['campus'], self.learning_unit_year.learning_container_year.campus.id)
 
     def test_post_request_with_invalid_form(self):
         response = self.client.post(self.url, data={})
@@ -223,17 +222,14 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(response.context['learning_unit_year'], self.learning_unit_year)
         self.assertEqual(response.context['experimental_phase'], True)
         self.assertEqual(response.context['person'], self.person)
-        self.assertIsInstance(response.context['form'], LearningUnitProposalModificationForm)
+        self.assertIsInstance(response.context['form_proposal'], ProposalLearningUnitForm)
 
-    @mock.patch("base.business.learning_unit_proposal.compute_proposal_type",
-                side_effect=lambda data, type: proposal_type.ProposalType.MODIFICATION.name)
-    def test_post_request(self, mock_compute_proposal_type):
+    def test_post_request(self):
         response = self.client.post(self.url, data=self.form_data)
 
-        redirected_url = reverse('learning_unit', args=[self.learning_unit_year.id])
+        redirected_url = reverse(learning_unit_identification, args=[self.learning_unit_year.id])
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
 
-        self.assertTrue(mock_compute_proposal_type.called)
         a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
         self.assertTrue(a_proposal_learning_unit)
         self.assertEqual(a_proposal_learning_unit.author, self.person)
@@ -965,12 +961,12 @@ class TestEditProposal(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_unit/proposal/update_modification.html')
-        self.assertIsInstance(context['form'], LearningUnitProposalModificationForm)
+        self.assertIsInstance(context['form_proposal'], ProposalLearningUnitForm)
 
     def get_valid_data(self):
         return {
-            'first_letter': 'L',
-            'acronym': 'TAU2000',
+            'acronym_0': 'L',
+            'acronym_1': 'TAU2000',
             "subtype": learning_unit_year_subtypes.FULL,
             "container_type": learning_container_year_types.COURSE,
             "academic_year": self.current_academic_year.id,
@@ -978,12 +974,17 @@ class TestEditProposal(TestCase):
             "credits": "5",
             "campus": self.campus.id,
             "common_title": "Common UE title",
-            "requirement_entity": self.entity_version.id,
-            "allocation_entity": self.entity_version.id,
             "language": self.language.pk,
             "periodicity": learning_unit_periodicity.ANNUAL,
             "entity": self.entity_version.id,
-            "folder_id": 1
+            "folder_id": 1,
+            'entitycontaineryear_set-0-entity': self.entity_version.id,
+            'entitycontaineryear_set-1-entity': self.entity_version.id,
+            'entitycontaineryear_set-2-entity': '',
+            'entitycontaineryear_set-INITIAL_FORMS': '0',
+            'entitycontaineryear_set-MAX_NUM_FORMS': '4',
+            'entitycontaineryear_set-MIN_NUM_FORMS': '3',
+            'entitycontaineryear_set-TOTAL_FORMS': '4',
         }
 
     def get_modify_data(self):
@@ -1001,15 +1002,15 @@ class TestEditProposal(TestCase):
         request = request_factory.post(self.url, data=self.get_modify_data())
 
         request.user = self.person.user
-        setattr(request, 'session', 'session')
-        setattr(request, '_messages', FallbackStorage(request))
+        request.session = 'session'
+        request._messages = FallbackStorage(request)
 
         update_learning_unit_proposal(request, self.learning_unit_year.id)
 
         msg = [m.message for m in get_messages(request)]
         msg_level = [m.level for m in get_messages(request)]
+        self.assertIn(messages.SUCCESS, msg_level, msg)
         self.assertEqual(len(msg), 1)
-        self.assertIn(messages.SUCCESS, msg_level)
 
         self.proposal.refresh_from_db()
         self.assertEqual(self.proposal.state, ProposalState.FACULTY.value)
@@ -1021,17 +1022,17 @@ class TestEditProposal(TestCase):
         request = request_factory.post(self.url, data=self.get_faulty_data())
 
         request.user = self.person.user
-        setattr(request, 'session', 'session')
-        setattr(request, '_messages', FallbackStorage(request))
+        request.session = 'session'
+        request._messages = FallbackStorage(request)
 
         update_learning_unit_proposal(request, self.learning_unit_year.id)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_unit/proposal/update_modification.html')
-        self.assertIsInstance(context['form'], LearningUnitProposalModificationForm)
+        self.assertIsInstance(context['form_proposal'], ProposalLearningUnitForm)
 
-        form = context['form']
+        form = context['form_proposal']
         self.assertEqual(len(form.errors), 1)
 
         self.proposal.refresh_from_db()
@@ -1065,8 +1066,8 @@ class TestEditProposal(TestCase):
                                                        "folder_id": 12})
 
         request.user = self.person.user
-        setattr(request, 'session', 'session')
-        setattr(request, '_messages', FallbackStorage(request))
+        request.session = 'session'
+        request._messages = FallbackStorage(request)
 
         update_learning_unit_proposal(request, self.learning_unit_year.id)
 

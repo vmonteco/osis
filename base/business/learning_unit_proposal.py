@@ -30,7 +30,6 @@ from django.utils.translation import ugettext_lazy as _
 from base import models as mdl_base
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components, \
     edit_learning_unit_end_date
-from base.business.learning_units import perms
 from base.business.learning_units.perms import PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES
 from base.business.learning_units.simple import deletion as business_deletion, deletion
 from base.models import entity_container_year, campus, entity
@@ -63,7 +62,7 @@ def compute_proposal_type(data_changed, initial_proposal_type):
 
 
 def _is_transformation_field(field):
-    return field in ["acronym", "first_letter"]
+    return field == "acronym"
 
 
 def _is_modification_field(field):
@@ -365,3 +364,8 @@ def _consolidate_creation_proposal_of_state_refused(proposal):
     if messages_by_level:
         return {ERROR: list(messages_by_level.values())}
     return {SUCCESS: deletion.delete_learning_unit(proposal.learning_unit_year.learning_unit)}
+
+
+def compute_proposal_state(a_person):
+    return proposal_state.ProposalState.CENTRAL.name if a_person.is_central_manager() \
+        else proposal_state.ProposalState.FACULTY.name

@@ -28,9 +28,9 @@ import factory.fuzzy
 
 from decimal import Decimal
 
-from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS, compute_max_academic_year_adjournment
 from base.models import academic_year as mdl_academic_year
-from base.models.academic_year import AcademicYear
+from base.models.academic_year import AcademicYear, LEARNING_UNIT_CREATION_SPAN_YEARS, \
+    compute_max_academic_year_adjournment
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
     learning_unit_periodicity, learning_unit_year_subtypes, component_type
 from base.models.enums import learning_unit_year_quadrimesters
@@ -109,8 +109,9 @@ class LearningUnitsMixin:
         results = None
         if start_year and end_year:
             results = [AcademicYearFactory.build(year=year) for year in range(start_year, end_year + 1)]
-            for result in results:
-                super(AcademicYear, result).save()
+            [super(AcademicYear, result).save() for result in results
+             if not AcademicYear.objects.filter(year=result.year).exists()]
+
         return results
 
     @staticmethod
@@ -155,7 +156,6 @@ class LearningUnitsMixin:
                     )
 
                 result = LearningUnitYearFactory(
-                    acronym=learning_unit.acronym,
                     academic_year=academic_year,
                     learning_unit=learning_unit,
                     learning_container_year=learning_container_year,
@@ -387,7 +387,8 @@ def _get_default_common_value_learning_unit_year(learning_container_year, subtyp
         'specific_title_english': 'Title Specific English',
         'credits': Decimal(5),
         'session': learning_unit_year_session.SESSION_1X3,
-        'quadrimester': learning_unit_year_quadrimesters.Q1
+        'quadrimester': learning_unit_year_quadrimesters.Q1,
+        'internship_subtype': None
     }
     if subtype == learning_unit_year_subtypes.PARTIM:
         common_data['acronym'] += 'A'
