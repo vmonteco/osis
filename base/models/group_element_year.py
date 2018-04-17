@@ -72,8 +72,8 @@ def search(**kwargs):
     if 'academic_year' in kwargs:
         academic_year = kwargs['academic_year']
         queryset = queryset.filter(Q(parent__academic_year=academic_year)
-                                   |Q(child_branch__academic_year=academic_year)
-                                   |Q(child_leaf__academic_year=academic_year))
+                                   | Q(child_branch__academic_year=academic_year)
+                                   | Q(child_leaf__academic_year=academic_year))
 
     if 'learning_unit_year' in kwargs:
         queryset = queryset.filter(child_leaf=kwargs['learning_unit_year'])
@@ -115,9 +115,9 @@ def _find_related_root_education_groups(objects, filters=None):
     academic_year = _extract_common_academic_year(objects)
     parents_by_id = _build_parent_list_by_education_group_year_id(academic_year, filters=filters)
     if isinstance(objects[0], LearningUnitYear):
-        return {obj.id: _find_elements(parents_by_id, child_leaf=obj.id, filters=filters) for obj in objects}
+        return {obj.id: _find_elements(parents_by_id, child_leaf_id=obj.id, filters=filters) for obj in objects}
     else:
-        return {obj.id: _find_elements(parents_by_id, child_branch=obj.id, filters=filters) for obj in objects}
+        return {obj.id: _find_elements(parents_by_id, child_branch_id=obj.id, filters=filters) for obj in objects}
 
 
 def _extract_common_academic_year(objects):
@@ -156,18 +156,28 @@ def _build_child_key(child_branch=None, child_leaf=None):
     return '{branch_part}_{id_part}'.format(**locals())
 
 
-def _find_elements(group_elements_by_child_id, child_leaf=None, child_branch=None, filters=None):
+def _find_elements(group_elements_by_child_id, child_leaf_id=None, child_branch_id=None, filters=None):
     roots = []
-    group_elements_year = group_elements_by_child_id.get(_build_child_key(child_leaf=child_leaf,
-                                                                          child_branch=child_branch))
-    if not group_elements_year:
-        if child_branch:
-            roots.append(child_branch)
+    unique_child_key = _build_child_key(child_leaf=child_leaf_id, child_branch=child_branch_id)
+    group_elem_year_parents = group_elements_by_child_id.get(unique_child_key)
+    if not group_elem_year_parents:
+        if child_branch_id:
+            roots.append(child_branch_id)
     else:
-        for group_element_year in group_elements_year:
-            parent_id = group_element_year['parent']
-            if filters and any(group_element_year[col_name] in values_list for col_name, values_list in filters.items()):
+        for group_elem_year in group_elem_year_parents:
+            parent_id = group_elem_year['parent']
+            if filters and _match_filters(group_elem_year, filters):
+                # If record match breackpoint, we must stop mounting across the hierarchy.
                 roots.append(parent_id)
             else:
-                roots.extend(_find_elements(group_elements_by_child_id, child_branch=parent_id, filters=filters))
+                roots.extend(_find_elements(group_elements_by_child_id, child_branch_id=parent_id, filters=filters))
     return roots
+
+
+def _match_filters(element_year, filters):
+    return any(element_year[col_name] in values_list for col_name, values_list in filters.items())
+
+
+def _has_parent(child_branch_id, group_elem_year_parents):
+    return not group_elem_year_parents and child_branch_id
+

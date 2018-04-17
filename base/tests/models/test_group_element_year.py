@@ -154,7 +154,6 @@ class TestFindRelatedRootEducationGroups(TestCase):
         expected_result = {
             self.child_leaf.id: [self.root.id, root_2.id]
         }
-        self.assertDictEqual(result, expected_result)
         self.assertEqual(len(result[self.child_leaf.id]), 2)
         self.assertIn(self.root.id, result[self.child_leaf.id])
         self.assertIn(root_2.id, result[self.child_leaf.id])
