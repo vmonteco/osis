@@ -71,6 +71,7 @@ from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.learning_achievements import LearningAchievementsFactory
 from base.tests.factories.learning_class_year import LearningClassYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from base.tests.factories.learning_container import LearningContainerFactory
@@ -1294,6 +1295,10 @@ class LearningUnitViewTestCase(TestCase):
     @mock.patch('base.views.layout.render')
     def test_learning_unit_specification(self, mock_render):
         learning_unit_year = LearningUnitYearFactory()
+        fr = LanguageFactory(code='FR')
+        en = LanguageFactory(code='EN')
+        learning_unit_achievements_fr = LearningAchievementsFactory(language=fr,learning_unit_year=learning_unit_year)
+        learning_unit_achievements_en = LearningAchievementsFactory(language=en,learning_unit_year=learning_unit_year)
 
         request = self.create_learning_unit_request(learning_unit_year)
 
@@ -1305,6 +1310,8 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_unit/specifications.html')
         self.assertIsInstance(context['form_french'], LearningUnitSpecificationsForm)
         self.assertIsInstance(context['form_english'], LearningUnitSpecificationsForm)
+        self.assertCountEqual(context['achievements_fr'], [learning_unit_achievements_fr])
+        self.assertCountEqual(context['achievements_en'], [learning_unit_achievements_en])
 
     @mock.patch('base.views.layout.render')
     def test_learning_unit_attributions(self, mock_render):
