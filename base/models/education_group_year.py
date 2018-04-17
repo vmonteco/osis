@@ -35,7 +35,6 @@ from base.models.enums import education_group_association
 from base.models.enums import offer_year_entity_type
 from base.models.enums import education_group_categories
 from base.models.exceptions import MaximumOneParentAllowedException
-from base.models.group_element_year import GroupElementYear
 from base.models.osis_model_admin import OsisModelAdmin
 
 
@@ -142,13 +141,13 @@ class EducationGroupYear(models.Model):
 
     @property
     def parents_by_group_element_year(self):
-        group_elements_year = GroupElementYear.objects.filter(child_branch=self).select_related('parent')
+        group_elements_year = self.child_branch.filter(child_branch=self).select_related('parent')
         return [group_element_year.parent for group_element_year in group_elements_year
                 if group_element_year.parent]
 
     @property
     def children_by_group_element_year(self):
-        group_elements_year = GroupElementYear.objects.filter(parent=self).select_related('child_branch')
+        group_elements_year = self.parent.filter(parent=self).select_related('child_branch')
         return [group_element_year.child_branch for group_element_year in group_elements_year
                 if group_element_year.child_branch]
 
