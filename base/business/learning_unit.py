@@ -31,10 +31,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from attribution.models import attribution
 from base import models as mdl_base
-from base.business.entity import get_entity_calendar, get_entities_ids, get_entity_container_list, \
-    build_entity_container_prefetch
+from base.business.entity import get_entity_calendar
 from base.business.learning_unit_year_with_context import volume_learning_component_year
-from base.models import entity_container_year, learning_unit_year
+from base.models import entity_container_year
 from base.models.academic_year import find_academic_year_by_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type, academic_calendar_type
@@ -259,19 +258,6 @@ def _get_entities(entity_components_yr):
     return {e.entity_container_year.type: e.entity_container_year.entity.most_recent_acronym
             for e in entity_components_yr
             if e.entity_container_year.type in additional_requirement_entities_types}
-
-
-def get_list_entity_learning_unit_yr(an_entity_version, current_academic_yr):
-    entity_ids = get_entities_ids(an_entity_version.entity.most_recent_acronym, False)
-    entities_id_list = get_entity_container_list([], entity_ids, entity_container_year_link_type.REQUIREMENT_ENTITY)
-
-    return learning_unit_year.search(**{'learning_container_year_id': entities_id_list,
-                                        'academic_year_id': current_academic_yr,
-                                        'status': True}) \
-        .select_related('academic_year', 'learning_container_year',
-                        'learning_container_year__academic_year') \
-        .prefetch_related(build_entity_container_prefetch()) \
-        .order_by('academic_year__year', 'acronym')
 
 
 def _get_summary_status(a_calendar, cms_list, lu):
