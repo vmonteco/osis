@@ -28,6 +28,7 @@
 
 {% block style %}
     <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dissertation_style.css' %}">
 
 {% endblock %}
 
@@ -46,7 +47,7 @@
             <table class="table table-hover" id="students-list">
                 <thead>
                     <tr>
-                        <th>{{ students_title|title }}</th>
+                        <th class="col-xs-3">{{ students_title|title }}</th>
                         <th>{% trans 'offer_propositions' %}</th>
                         <th>{% trans 'status' %}</th>
                         <th>{% trans 'dissertation' %}</th>
@@ -63,6 +64,7 @@
                                 {% if forloop.first %}
                                     <dl class="dl-horizontal">
                                 {% endif %}
+                                <div class="div_in_datatable">
                                     <dt style="text-align: left;">
                                         {% if dissertation.status == 'DIR_SUBMIT' %}
                                         <span class="label label-warning">
@@ -78,6 +80,7 @@
                                             {{ dissertation.get_status_display }}
                                         </span>
                                     </dt>
+                                </div>
                                 {% empty %}
                                     <span class="label label-danger">Pas de mémoire</span>
                                 {% if forloop.last %}
@@ -90,13 +93,12 @@
                             {% for dissertation in  offer_enrollement.student.dissertation_set.all %}
 
                                     <div class="row">
-                                        <div class=pull-left class="col-xs-2">
-                                            &nbsp;
-                                            <a href="{% url 'manager_dissertations_detail' pk=dissertation.pk %}" target="_blank">
-                                            {{ dissertation }} </a>
+                                        <div class="pull-left col-xs-9 div_in_datatable">
+                                            <a href="{% url 'manager_dissertations_detail' pk=dissertation.pk %}"  title="{{ dissertation }}" target="_blank">
+                                            {{ dissertation|truncatechars:60 }}</a>
                                         </div>
-                                        <div class=pull-right class="col-xs-1">
-                                            <span class="label label-default" class="pull-right">[{{ dissertation.offer_year_start.acronym }}]</span>
+                                        <div class="pull-left col-xs-2 div_in_datatable">
+                                            <span class="label label-default pull-right">[{{ dissertation.offer_year_start.acronym }}]</span>
                                             <br>
                                         </div>
                                     </div>
@@ -168,7 +170,7 @@
                 initComplete: function () {
                     this.api().columns([1]).every( function () {
                         var column = this;
-                        var select = $('<select><option value=""></option></select>')
+                        var select = $('<select class="search_select_filter"><option value=""></option></select>')
                             .appendTo( $(column.header()).empty() )
                             .on( 'change', function () {
                                 var val = $.fn.dataTable.util.escapeRegex(
@@ -181,7 +183,7 @@
                             column.data().unique().sort().each( function ( d, j ) {
                             var val = $('<div/>').html(d).text();
                             select.append( '<option value="' + val + '">' + val + '</option>' );
-                            } );
+                        } );
                     } );
                 }
             });
