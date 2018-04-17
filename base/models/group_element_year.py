@@ -71,9 +71,9 @@ def search(**kwargs):
 
     if 'academic_year' in kwargs:
         academic_year = kwargs['academic_year']
-        queryset = queryset.filter(Q(parent__academic_year=academic_year)
-                                   | Q(child_branch__academic_year=academic_year)
-                                   | Q(child_leaf__academic_year=academic_year))
+        queryset = queryset.filter(Q(parent__academic_year=academic_year) |
+                                   Q(child_branch__academic_year=academic_year) |
+                                   Q(child_leaf__academic_year=academic_year))
 
     if 'learning_unit_year' in kwargs:
         queryset = queryset.filter(child_leaf=kwargs['learning_unit_year'])
@@ -160,21 +160,25 @@ def _find_elements(group_elements_by_child_id, child_leaf_id=None, child_branch_
     roots = []
     unique_child_key = _build_child_key(child_leaf=child_leaf_id, child_branch=child_branch_id)
     group_elem_year_parents = group_elements_by_child_id.get(unique_child_key)
+    # if has no parent
     if not group_elem_year_parents:
+        # Must be 2 separated 'if' statements ; in case child_branch_id is not set but the child_leaf_id is set,
+        # it means that the child_leaf has any parent. The function will return [].
         if child_branch_id:
             roots.append(child_branch_id)
     else:
         for group_elem_year in group_elem_year_parents:
             parent_id = group_elem_year['parent']
-            if filters and _match_filters(group_elem_year, filters):
-                # If record match breackpoint, we must stop mounting across the hierarchy.
+            if filters and _match_any_filters(group_elem_year, filters):
+                # If record matches any filter, we must stop mounting across the hierarchy.
                 roots.append(parent_id)
             else:
+                # Recursive call ; the parent_id becomes the child_branch.
                 roots.extend(_find_elements(group_elements_by_child_id, child_branch_id=parent_id, filters=filters))
     return roots
 
 
-def _match_filters(element_year, filters):
+def _match_any_filters(element_year, filters):
     return any(element_year[col_name] in values_list for col_name, values_list in filters.items())
 
 
