@@ -73,6 +73,7 @@ from reference.models import language
 from . import layout
 from base.models import learning_achievements
 
+
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_identification(request, learning_unit_year_id):
