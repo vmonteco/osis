@@ -26,7 +26,8 @@
 from ckeditor.widgets import CKEditorWidget
 from django import forms
 
-from base.business.learning_unit import find_language_in_settings, can_edit_summary_locked_field
+from base.business.learning_unit import find_language_in_settings
+from base.business.learning_units.perms import can_edit_summary_locked_field
 from base.forms.common import set_trans_txt
 from base.models.learning_unit_year import LearningUnitYear
 from cms.enums import entity_name

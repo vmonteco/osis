@@ -168,3 +168,7 @@ def learning_unit_proposal_permissions(proposal, person, current_learning_unit_y
     permissions['can_edit_learning_unit_proposal'] = is_eligible_to_edit_proposal(proposal, person)
     permissions['can_consolidate_proposal'] = is_eligible_to_consolidate_proposal(proposal, person)
     return permissions
+
+
+def can_edit_summary_locked_field(person, is_person_linked_to_entity):
+    return person.is_faculty_manager() and is_person_linked_to_entity

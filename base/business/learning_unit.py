@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
 from collections import OrderedDict
 
 from django.conf import settings
@@ -52,12 +51,6 @@ CMS_LABEL_SUMMARY = ['resume']
 
 SIMPLE_SEARCH = 1
 SERVICE_COURSES_SEARCH = 2
-
-
-def get_last_academic_years(last_years=10):
-    today = datetime.date.today()
-    date_ten_years_before = today.replace(year=today.year - last_years)
-    return mdl_base.academic_year.find_academic_years().filter(start_date__gte=date_ten_years_before)
 
 
 def get_same_container_year_components(learning_unit_year, with_classes=False):
@@ -237,11 +230,6 @@ def is_summary_submission_opened():
 
 def find_language_in_settings(language_code):
     return next((lang for lang in settings.LANGUAGES if lang[0] == language_code), None)
-
-
-# TODO Move it in perms
-def can_edit_summary_locked_field(person, is_person_linked_to_entity):
-    return person.is_faculty_manager() and is_person_linked_to_entity
 
 
 def _compose_components_dict(components, additional_entities):
