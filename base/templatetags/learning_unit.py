@@ -93,9 +93,15 @@ def html_display(html_string):
 
 @register.filter
 def get_text(a_list, i):
-    return mark_safe(a_list[i].text)
+    try:
+        return mark_safe(a_list[i].text)
+    except:
+        return ''
 
 
 @register.filter
 def get_code_name(a_list, i):
-    return mark_safe(a_list[i].code_name)
+    try:
+        return mark_safe(a_list[i].code_name)
+    except:
+        return ''

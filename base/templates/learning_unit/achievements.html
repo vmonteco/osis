@@ -47,8 +47,8 @@
                 <div class="row">
                     <div class="col-md-1">{{ achievement.code_name }}</div>
                     <div class="col-md-5">{{ achievement.text|html_display }}</div>
-                    <div class="col-md-1">{{ achievements_en|get_code_name:forloop.counter0  }}</div>
-                    <div class="col-md-5">{{ achievements_en|get_text:forloop.counter0  }}   </div>
+                    <div class="col-md-1">{{ achievements_en|get_code_name:forloop.counter0 }}</div>
+                    <div class="col-md-5">{{ achievements_en|get_text:forloop.counter0 }}  </div>
                 </div>
             {% endfor %}
         </div>
