@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models.academic_year import AcademicYear
 import re
 
 from django.conf import settings
@@ -35,7 +34,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
-from django.views.decorators.http import require_http_methods, require_GET
+from django.views.decorators.http import require_http_methods
 
 from attribution.business import attribution_charge_new
 from base import models as mdl
@@ -53,8 +52,7 @@ from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import proposal_learning_unit
-from base.models.enums import learning_unit_year_subtypes
-from base.models.enums.learning_unit_year_subtypes import PARTIM
+from base.models.academic_year import AcademicYear
 from base.models.learning_unit import REGEX_BY_SUBTYPE
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person

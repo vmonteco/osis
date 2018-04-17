@@ -105,12 +105,15 @@ class LearningUnitBaseForm:
     def get_all_fields(self):
         fields = {}
         for cls, form_instance in self.forms.items():
-            if cls == EntityContainerFormset:
-                for index, form in enumerate(form_instance.forms):
-                    fields.update({ENTITY_TYPE_LIST[index].lower(): form.fields['entity']})
-            else:
-                fields.update(form_instance.fields)
+            fields.update(self._get_formset_fields(form_instance) if cls == EntityContainerFormset
+                          else form_instance.fields)
         return fields
+
+    @staticmethod
+    def _get_formset_fields(form_instance):
+        return {
+            ENTITY_TYPE_LIST[index].lower(): form.fields['entity'] for index, form in enumerate(form_instance.forms)
+        }
 
     def get_context(self):
         return {
@@ -176,19 +179,18 @@ class FullForm(LearningUnitBaseForm):
 
     subtype = learning_unit_year_subtypes.FULL
 
-    def __init__(self, data, person, instance=None, proposal=False, *args, **kwargs):
+    def __init__(self, data, person, default_ac_year=None, instance=None, proposal=False, *args, **kwargs):
         check_learning_unit_year_instance(instance)
         self.instance = instance
         self.person = person
-        self.default_ac_year = kwargs.pop('default_ac_year', None)
 
         self.postponement = bool(int(data.get('postponement', 1))) if data else False
 
-        self.academic_year = instance.academic_year if instance else self.default_ac_year
-        instances_data = self._build_instance_data(data, instance, proposal)
-        super(FullForm, self).__init__(instances_data, *args, **kwargs)
+        self.academic_year = instance.academic_year if instance else default_ac_year
+        instances_data = self._build_instance_data(data, default_ac_year, instance, proposal)
+        super().__init__(instances_data, *args, **kwargs)
 
-    def _build_instance_data(self, data, instance, proposal):
+    def _build_instance_data(self, data, default_ac_year, instance, proposal):
         return{
             LearningUnitModelForm: {
                 'data': data,
@@ -198,8 +200,7 @@ class FullForm(LearningUnitBaseForm):
                 'data': data,
                 'instance': instance.learning_container_year.learning_container if instance else None,
             },
-            LearningUnitYearModelForm: self._build_instance_data_learning_unit_year(data,
-                                                                                    self.default_ac_year, instance),
+            LearningUnitYearModelForm: self._build_instance_data_learning_unit_year(data, default_ac_year, instance),
             LearningContainerYearModelForm: self._build_instance_data_learning_container_year(data, instance, proposal),
             EntityContainerFormset: {
                 'data': data,
