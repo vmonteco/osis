@@ -28,7 +28,6 @@ import datetime
 from django.db import models
 from django.utils import timezone
 
-from base import models as mdl_base
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 LEARNING_UNIT_CREATION_SPAN_YEARS = 6
@@ -127,4 +126,4 @@ def compute_max_academic_year_adjournment():
 def get_last_academic_years(last_years=10):
     today = datetime.date.today()
     date_ten_years_before = today.replace(year=today.year - last_years)
-    return mdl_base.academic_year.find_academic_years().filter(start_date__gte=date_ten_years_before)
+    return find_academic_years().filter(start_date__gte=date_ten_years_before)
