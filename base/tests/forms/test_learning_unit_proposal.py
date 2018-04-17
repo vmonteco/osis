@@ -258,14 +258,7 @@ class TestSave(TestCase):
         self.assertDictEqual(a_proposal_learning_unt.initial_data, initial_data_expected)
 
     def test_when_setting_additional_entity_to_none(self):
-        EntityContainerYearFactory(
-            learning_container_year=self.learning_unit_year.learning_container_year,
-            type=entity_container_year_link_type.ALLOCATION_ENTITY
-        )
-        EntityContainerYearFactory(
-            learning_container_year=self.learning_unit_year.learning_container_year,
-            type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1
-        )
+        self.form_data['entitycontaineryear_set-2-entity'] = None
         form = ProposalBaseForm(self.form_data, self.person, self.learning_unit_year)
         self.assertTrue(form.is_valid())
         form.save()
@@ -273,52 +266,3 @@ class TestSave(TestCase):
         with self.assertRaises(ObjectDoesNotExist):
             EntityContainerYear.objects.get(learning_container_year=self.learning_unit_year.learning_container_year,
                                             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
-
-
-# class TestComputeFormInitialDataFromProposalJson(TestCase):
-#     def test_with_empty_initial_data(self):
-#         result = compute_form_initial_data_from_proposal_json({})
-#         self.assertDictEqual(result, {})
-#
-#         result = compute_form_initial_data_from_proposal_json(None)
-#         self.assertDictEqual(result, {})
-#
-#     def test_flatten_json_initial_data(self):
-#         entity_version = EntityVersionFactory()
-#         proposal_initial_data = {
-#             "learning_container_year": {
-#                 "acronym": "LOSIS4512",
-#                 "common_title": "common title",
-#             },
-#             "learning_unit_year": {
-#                 "specific_title": "specific_title",
-#                 "status": True
-#             },
-#             "learning_unit": {
-#                 "id": 45,
-#                 "end_year": 2018
-#             },
-#             "entities": {
-#                 entity_container_year_link_type.REQUIREMENT_ENTITY: entity_version.entity.id,
-#                 entity_container_year_link_type.ALLOCATION_ENTITY: entity_version.entity.id,
-#                 entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1: None,
-#                 entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: None
-#             }
-#         }
-#
-#         result = compute_form_initial_data_from_proposal_json(proposal_initial_data)
-#         expected_result = {
-#             "acronym_0": "L",
-#             "acronym_1": "OSIS4512",
-#             "common_title": "common title",
-#             "specific_title": "specific_title",
-#             "status": True,
-#             "id": 45,
-#             "end_year": 2018,
-#             entity_container_year_link_type.REQUIREMENT_ENTITY.lower(): entity_version.id,
-#             entity_container_year_link_type.ALLOCATION_ENTITY.lower(): entity_version.id,
-#             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1.lower(): None,
-#             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2.lower(): None
-#         }
-#
-#         self.assertDictEqual(result, expected_result)

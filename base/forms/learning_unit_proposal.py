@@ -92,7 +92,7 @@ class ProposalBaseForm:
     # Default values
     proposal_type = ProposalType.TRANSFORMATION.name
 
-    def __init__(self, data, person, learning_unit_year, proposal=None, proposal_type=None, default_ac_year=None):
+    def __init__(self, data, person, learning_unit_year=None, proposal=None, proposal_type=None, default_ac_year=None):
         self.person = person
         self.learning_unit_year = learning_unit_year
         self.proposal = proposal
@@ -154,83 +154,19 @@ class ProposalBaseForm:
 
 
 class CreationProposalBaseForm(ProposalBaseForm):
+    proposal_type = ProposalType.CREATION.name
+
     def __init__(self, data, person, default_ac_year=None):
         if not default_ac_year:
             default_ac_year = current_academic_year()
 
-        super().__init__(data, person, None, proposal_type=ProposalType.CREATION.name,
-                         default_ac_year=default_ac_year)
+        super().__init__(data, person, default_ac_year=default_ac_year)
 
     @transaction.atomic
     def save(self):
         new_luys = self.learning_unit_form_container.save(postponement=False)
         self.form_proposal.instance.learning_unit_year = new_luys[0]
         return self.form_proposal.save()
-
-
-# # FIXME Split LearningUnitYearForm and ProposalLearningUnit
-# class ProposalForm(FullForm):
-#     # def __init__(self, data, person, *args, instance=None, **kwargs):
-#     #     super().__init__(data, *args, **kwargs)
-#     #     self.proposal = instance
-#     #
-#     #     self.fields["academic_year"].disabled = True
-#     #     self.fields["academic_year"].required = False
-#     #     self.fields["subtype"].required = False
-#     #     When we submit a proposal, we can select all requirement entity available
-#     #     self.fields["requirement_entity"].queryset = find_main_entities_version()
-#     #     self.person = person
-#     #     if self.person.is_central_manager():
-#     #         self.fields['state'].disabled = False
-#     #         self.fields['state'].required = True
-#
-#     # def clean(self):
-#     #     cleaned_data = super().clean()
-#     #     # TODO Move this section in clean_internship_subtype
-#     #
-#     #     if cleaned_data.get("internship_subtype") and cleaned_data.get("internship_subtype") != 'None' and \
-#     #        cleaned_data["container_type"] != learning_container_year_types.INTERNSHIP:
-#     #         self.add_error("internship_subtype", _("learning_unit_type_is_not_internship"))
-#     #
-#     #     return cleaned_data
-#
-#     # def save(self, learning_unit_year, type_proposal, state_proposal):
-#     #     # initial_data = _copy_learning_unit_data(learning_unit_year)
-#     #     # learning_container_year = learning_unit_year.learning_container_year
-#     #     #
-#     #     # _update_model_object(learning_unit_year.learning_unit, self.cleaned_data, ["periodicity"])
-#     #     # _update_model_object(learning_unit_year, self.cleaned_data, ["acronym", "status", "quadrimester",
-#     #     #                                                              "specific_title", "specific_title_english",
-#     #     #                                                              "internship_subtype", "credits"])
-#     #     # _update_model_object(learning_container_year, self.cleaned_data, ["acronym", "title", "language", "campus",
-#     #     #                                                                   "common_title", "common_title_english",
-#     #     #                                                                   "container_type"])
-#     #
-#     #     # self._updates_entities(learning_container_year)
-#     #
-#     #     # TODO Move this section in ProposalLearningUnitForm
-#     #     # data = {'person': self.person, 'learning_unit_year': learning_unit_year, 'state_proposal': state_proposal,
-#     #     #         'type_proposal': type_proposal, 'folder_entity': self.cleaned_data["entity"],
-#     #     #         'folder_id': self.cleaned_data['folder_id']}
-#     #     if self.proposal:
-#     #         if self.proposal.type in \
-#     #                 (proposal_type.ProposalType.CREATION.value, proposal_type.ProposalType.SUPPRESSION.value):
-#     #             data["type_proposal"] = self.proposal.type
-#     #         edition.update_learning_unit_proposal(data, self.proposal)
-#     #     else:
-#     #         data.update({'initial_data': initial_data})
-#     #         creation.create_learning_unit_proposal(data)
-#
-#     # @cached_property
-#     # def changed_data_for_fields_that_can_be_modified(self):
-#     #     fields_that_cannot_be_modified = {"academic_year", "subtype", "faculty_remark", "other_remark", "entity",
-#     #                                       "folder_id", "state", "type", "session"}
-#     #     return list(set(self.changed_data) - fields_that_cannot_be_modified)
-#     #
-#     # def _updates_entities(self, learning_container_year):
-#     #     for entity_type in ENTITY_TYPE_LIST:
-#     #         _update_or_delete_entity_container(self.cleaned_data[entity_type.lower()], learning_container_year,
-#     #                                            entity_type)
 
 
 def _copy_learning_unit_data(learning_unit_year):
@@ -249,36 +185,6 @@ def _copy_learning_unit_data(learning_unit_year):
     learning_unit_year_values["credits"] = float(learning_unit_year.credits) if learning_unit_year.credits else None
     return get_initial_data(entities_by_type, learning_container_year_values, learning_unit_values,
                             learning_unit_year_values)
-
-#
-# def _update_model_object(obj, data_values, fields_to_update):
-#     obj_new_values = _create_sub_dictionary(data_values, fields_to_update)
-#     _set_attributes_from_dict(obj, obj_new_values)
-#     obj.save()
-
-
-# def _update_or_delete_entity_container(entity_version, learning_container_year, type_entity):
-#     if not entity_version:
-#         _delete_entity(learning_container_year, type_entity)
-#     else:
-#         update_or_create_entity_container_year_with_components(entity_version.entity, learning_container_year,
-#                                                                type_entity)
-
-
-# def _delete_entity(learning_container_year, type_entity):
-#     an_entity_container_year = entity_container_year.\
-#         find_by_learning_container_year_and_linktype(learning_container_year, type_entity)
-#     if an_entity_container_year:
-#         an_entity_container_year.delete()
-
-
-# def _set_attributes_from_dict(obj, attributes_values):
-#     for key, value in attributes_values.items():
-#         setattr(obj, key, value)
-
-
-# def _create_sub_dictionary(original_dict, list_keys):
-#     return {key: value for key, value in original_dict.items() if key in list_keys}
 
 
 def _get_attributes_values(obj, attributes_name):
@@ -311,23 +217,3 @@ def get_entity_by_type(entity_type, entities_by_type):
         return entities_by_type[entity_type].id
     else:
         return None
-
-
-# def compute_form_initial_data_from_proposal_json(proposal_initial_data):
-#     if not proposal_initial_data:
-#         return {}
-#     initial_data = {}
-#     for value in proposal_initial_data.values():
-#         initial_data.update({k.lower(): v for k, v in value.items()})
-#     initial_data["first_letter"] = initial_data["acronym"][0]
-#     initial_data["acronym"] = initial_data["acronym"][1:]
-#     _replace_entity_id_with_entity_version_id(initial_data)
-#     return initial_data
-
-
-# def _replace_entity_id_with_entity_version_id(initial_data):
-#     lower_link_types_name = (link_type.lower() for link_type in entity_container_year_link_type.ENTITY_TYPE_LIST)
-#     for link_type in lower_link_types_name:
-#         entity_id = initial_data.get(link_type)
-#         entity_version_id = get_last_version_by_entity_id(entity_id).id if entity_id else None
-#         initial_data[link_type] = entity_version_id
