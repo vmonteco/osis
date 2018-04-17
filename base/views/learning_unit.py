@@ -96,8 +96,7 @@ def get_common_context_learning_unit_year(learning_unit_year_id, person):
 def learning_unit_formations(request, learning_unit_year_id):
     context = get_common_context_learning_unit_year(learning_unit_year_id,
                                                     get_object_or_404(Person, user=request.user))
-    group_element_years = group_element_year.find_by_child_leaf(context["learning_unit_year"])
-    context['group_element_years'] = group_element_years
+    context['group_element_years'] = group_element_year.search(child_leaf=context["learning_unit_year"])
     return layout.render(request, "learning_unit/formations.html", context)
 
 

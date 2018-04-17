@@ -76,15 +76,14 @@ def search(**kwargs):
                                    Q(child_branch__academic_year=academic_year) |
                                    Q(child_leaf__academic_year=academic_year))
 
+    if 'child_leaf' in kwargs:
+        queryset = queryset.filter(child_leaf=kwargs['child_leaf'])
+
     return queryset
 
 
 def find_by_parent(an_education_group_year):
     return GroupElementYear.objects.filter(parent=an_education_group_year)
-
-
-def find_by_child_leaf(learning_unit_year):
-    return GroupElementYear.objects.filter(child_leaf=learning_unit_year)
 
 
 def find_learning_unit_formation_roots(obj):
