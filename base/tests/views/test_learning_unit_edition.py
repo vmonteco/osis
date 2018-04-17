@@ -238,7 +238,7 @@ class TestEditLearningUnit(TestCase):
 
         response = self.client.get(self.url)
 
-        self.assertTemplateUsed(response, "learning_unit/modification.html")
+        self.assertTemplateUsed(response, "learning_unit/simple/update.html")
         self.assertEqual(response.status_code, HttpResponse.status_code)
 
     def test_template_used_for_get_request(self):
