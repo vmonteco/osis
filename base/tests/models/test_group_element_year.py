@@ -213,6 +213,20 @@ class TestFindRelatedRootEducationGroups(TestCase):
         self.assertDictEqual(result, expected_result)
         self.assertNotIn(root.id, result)
 
+    def test_without_filters_case_objects_are_education_group_instance(self):
+        root = EducationGroupYearFactory(
+            academic_year=self.current_academic_year,
+        )
+        child_branch = EducationGroupYearFactory(
+            academic_year=self.current_academic_year,
+        )
+        GroupElementYearFactory(parent=root, child_branch=child_branch)
+        result = group_element_year._find_related_root_education_groups([child_branch])
+        expected_result = {
+            child_branch.id: [root.id]
+        }
+        self.assertDictEqual(result, expected_result)
+
 
 class TestFindLearningUnitFormationRoots(TestCase):
     """Unit tests for find_learning_unit_formation_roots()"""

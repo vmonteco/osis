@@ -30,6 +30,9 @@ from base.models.enums import education_group_categories
 from base.models.osis_model_admin import OsisModelAdmin
 
 
+GROUP_TYPE_OPTION = 'Option'
+
+
 class EducationGroupTypeAdmin(OsisModelAdmin):
     list_display = ('name', 'category', )
     list_filter = ('name', 'category', )

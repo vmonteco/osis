@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from base.models.education_group_type import GROUP_TYPE_OPTION
 from base.models.education_group_year import EducationGroupYear
 from base.models.learning_unit_year import LearningUnitYear
 from django.db import models
@@ -75,9 +76,6 @@ def search(**kwargs):
                                    Q(child_branch__academic_year=academic_year) |
                                    Q(child_leaf__academic_year=academic_year))
 
-    if 'learning_unit_year' in kwargs:
-        queryset = queryset.filter(child_leaf=kwargs['learning_unit_year'])
-
     return queryset
 
 
@@ -92,7 +90,7 @@ def find_learning_unit_formation_roots(obj):
 
 def _get_root_filters():
     root_type_names = education_group_type.search(category=education_group_categories.MINI_TRAINING) \
-        .exclude(name='Option').values_list('name', flat=True)
+        .exclude(name=GROUP_TYPE_OPTION).values_list('name', flat=True)
     root_categories = [education_group_categories.TRAINING]
     return {
         'parent__education_group_type__name': root_type_names,
@@ -103,10 +101,9 @@ def _get_root_filters():
 def _raise_if_incorrect_instance(objects):
     first_obj = objects[0]
     obj_class = first_obj.__class__
-    authorized_instances = [LearningUnitYear, EducationGroupYear]
-    if not any([obj_class == cls for cls in authorized_instances]):
+    if obj_class not in [LearningUnitYear, EducationGroupYear]:
         raise AttributeError("Objects must be either LearningUnitYear or EducationGroupYear intances.")
-    if list(filter(lambda obj: obj.__class__ != obj_class, objects)):
+    if any(obj for obj in objects if obj.__class__ != obj_class):
         raise AttributeError("All objects must be the same class instance ({})".format(obj_class))
 
 
@@ -124,8 +121,7 @@ def _extract_common_academic_year(objects):
     if len(set(getattr(obj, 'academic_year_id') for obj in objects)) > 1:
         raise AttributeError("The algorithm should load only graph/structure for 1 academic_year "
                              "to avoid too large 'in-memory' data.")
-    else:
-        return objects[0].academic_year
+    return objects[0].academic_year
 
 
 def _build_parent_list_by_education_group_year_id(academic_year, filters=None):
@@ -136,6 +132,7 @@ def _build_parent_list_by_education_group_year_id(academic_year, filters=None):
                           .select_related('education_group_year__education_group_type')
                           .values('parent', 'child_branch', 'child_leaf', *columns_needed_for_filters))
     result = {}
+    # TODO :: uses .annotate() on queryset to make the below expected result
     for group_element_year in group_elements:
         key = _build_child_key(child_branch=group_element_year['child_branch'],
                                child_leaf=group_element_year['child_leaf'])
@@ -180,8 +177,3 @@ def _find_elements(group_elements_by_child_id, child_leaf_id=None, child_branch_
 
 def _match_any_filters(element_year, filters):
     return any(element_year[col_name] in values_list for col_name, values_list in filters.items())
-
-
-def _has_parent(child_branch_id, group_elem_year_parents):
-    return not group_elem_year_parents and child_branch_id
-
