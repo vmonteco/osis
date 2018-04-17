@@ -179,13 +179,14 @@ class FullForm(LearningUnitBaseForm):
     def __init__(self, data, person, default_ac_year=None, instance=None, proposal=False, *args, **kwargs):
         check_learning_unit_year_instance(instance)
         self.instance = instance
+        self.person = person
         self.postponement = bool(int(data.get('postponement', 1))) if data else False
 
         self.academic_year = instance.academic_year if instance else default_ac_year
-        instances_data = self._build_instance_data(data, default_ac_year, instance, person, proposal)
+        instances_data = self._build_instance_data(data, default_ac_year, instance, proposal)
         super(FullForm, self).__init__(instances_data, *args, **kwargs)
 
-    def _build_instance_data(self, data, default_ac_year, instance, person, proposal):
+    def _build_instance_data(self, data, default_ac_year, instance, proposal):
         return{
             LearningUnitModelForm: {
                 'data': data,
@@ -195,32 +196,38 @@ class FullForm(LearningUnitBaseForm):
                 'data': data,
                 'instance': instance.learning_container_year.learning_container if instance else None,
             },
-            LearningUnitYearModelForm: {
-                'data': data,
-                'instance': instance,
-                'initial': {
-                    'status': True, 'academic_year': default_ac_year,
-                } if not instance else None,
-                'person': person,
-                'subtype': self.subtype
-            },
-            LearningContainerYearModelForm: {
-                'data': data,
-                'instance': instance.learning_container_year if instance else None,
-                'proposal': proposal,
-                'initial': {
-                    # Default campus selected 'Louvain-la-Neuve' if exist
-                    'campus': Campus.objects.filter(name='Louvain-la-Neuve').first(),
-                    # Default language French
-                    'language': language.find_by_code('FR')
-                } if not instance else None,
-                'person': person
-            },
+            LearningUnitYearModelForm: self._build_instance_data_learning_unit_year(data, default_ac_year, instance),
+            LearningContainerYearModelForm: self._build_instance_data_learning_container_year(data, instance, proposal),
             EntityContainerFormset: {
                 'data': data,
                 'instance': instance.learning_container_year if instance else None,
-                'form_kwargs': {'person': person}
+                'form_kwargs': {'person': self.person}
             }
+        }
+
+    def _build_instance_data_learning_container_year(self, data, instance, proposal):
+        return {
+            'data': data,
+            'instance': instance.learning_container_year if instance else None,
+            'proposal': proposal,
+            'initial': {
+                # Default campus selected 'Louvain-la-Neuve' if exist
+                'campus': Campus.objects.filter(name='Louvain-la-Neuve').first(),
+                # Default language French
+                'language': language.find_by_code('FR')
+            } if not instance else None,
+            'person': self.person
+        }
+
+    def _build_instance_data_learning_unit_year(self, data, default_ac_year, instance):
+        return {
+            'data': data,
+            'instance': instance,
+            'initial': {
+                'status': True, 'academic_year': default_ac_year,
+            } if not instance else None,
+            'person': self.person,
+            'subtype': self.subtype
         }
 
     def is_valid(self):
@@ -301,18 +308,8 @@ class PartimForm(LearningUnitBaseForm):
 
     def _build_instance_data(self, data, inherit_lu_values, inherit_luy_values, person):
         return {
-            LearningUnitModelForm: {
-                'data': merge_data(data, inherit_lu_values),
-                'instance': self.instance.learning_unit if self.instance else None,
-                'initial': inherit_lu_values if not self.instance else None,
-            },
-            LearningUnitYearModelForm: {
-                'data': merge_data(data, inherit_luy_values),
-                'instance': self.instance,
-                'initial': self._get_initial_learning_unit_year_form() if not self.instance else None,
-                'person': person,
-                'subtype': self.subtype
-            },
+            LearningUnitModelForm: self._build_instance_data_learning_unit(data, inherit_lu_values),
+            LearningUnitYearModelForm: self._build_instance_data_learning_unit_year(data, inherit_luy_values, person),
             # Cannot be modify by user [No DATA args provided]
             LearningContainerModelForm: {
                 'instance': self.learning_unit_year_full.learning_container_year.learning_container,
@@ -325,6 +322,22 @@ class PartimForm(LearningUnitBaseForm):
                 'instance': self.learning_unit_year_full.learning_container_year,
                 'form_kwargs': {'person': person}
             }
+        }
+
+    def _build_instance_data_learning_unit_year(self, data, inherit_luy_values, person):
+        return {
+            'data': merge_data(data, inherit_luy_values),
+            'instance': self.instance,
+            'initial': self._get_initial_learning_unit_year_form() if not self.instance else None,
+            'person': person,
+            'subtype': self.subtype
+        }
+
+    def _build_instance_data_learning_unit(self, data, inherit_lu_values):
+        return {
+            'data': merge_data(data, inherit_lu_values),
+            'instance': self.instance.learning_unit if self.instance else None,
+            'initial': inherit_lu_values if not self.instance else None,
         }
 
     def _get_fields_to_disabled(self):
