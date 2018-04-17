@@ -201,8 +201,7 @@ class EntityContainerYearModelForm(forms.ModelForm):
 
     def set_requirement_entity(self):
         field = self.fields['entity']
-        # TODO Really slow method : disabled for the moment
-        # field.queryset = self.person.find_main_entities_version
+        field.queryset = self.person.find_main_entities_version
         field.widget.attrs = {
             'onchange': (
                 'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_1", false);'
