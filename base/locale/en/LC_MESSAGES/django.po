@@ -2795,3 +2795,6 @@ msgstr ""
 
 msgid "Learning unit"
 msgstr ""
+
+msgid "Research criteria"
+msgstr ""

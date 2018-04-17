@@ -177,9 +177,9 @@ def _build_worksheet_parameters(workbook, a_user, operation, research_criteria):
     worksheet_parameters.append([str(_('author')), str(a_user)])
     worksheet_parameters.append([str(_('date')), now.strftime('%d-%m-%Y %H:%M')])
     worksheet_parameters.append([_('Operation'), _(operation)])
-    for research_key, research_value in research_criteria.items():
-        if research_value:
-            worksheet_parameters.append([_(research_key), str(research_value)])
+    worksheet_parameters.append([_('Research criteria')])
+    for research_key, research_value in research_criteria:
+        worksheet_parameters.append(["", research_key, str(research_value)])
 
     _adjust_column_width(worksheet_parameters)
     return worksheet_parameters

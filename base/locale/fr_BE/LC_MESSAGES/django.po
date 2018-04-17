@@ -2802,3 +2802,6 @@ msgstr "Remarques"
 
 msgid "Learning unit"
 msgstr "Unité d'enseignement"
+
+msgid "Research criteria"
+msgstr "Critères de recherche"

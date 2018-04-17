@@ -94,12 +94,12 @@ def learning_units_service_course(request):
 def learning_units_proposal_search(request):
     search_form = LearningUnitProposalForm(request.GET or None)
     proposals = []
-    cleaned_research_criteria = {}
+    cleaned_research_criteria = []
     try:
         if search_form.is_valid():
             proposals = search_form.get_proposal_learning_units()
             check_if_display_message(request, proposals)
-            cleaned_research_criteria = search_form.cleaned_data
+            cleaned_research_criteria = search_form.get_research_criteria()
 
     except TooManyResultsException:
         display_error_messages(request, 'too_many_results')

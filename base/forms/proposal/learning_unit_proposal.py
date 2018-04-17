@@ -126,6 +126,10 @@ class LearningUnitProposalForm(SearchForm):
 
         return proposal
 
+    def get_research_criteria(self):
+        return [(str(field.label), str(self.cleaned_data[field_name])) for field_name, field in self.fields.items()
+                if self.cleaned_data[field_name]]
+
 
 class ProposalStateModelForm(forms.ModelForm):
     class Meta:
