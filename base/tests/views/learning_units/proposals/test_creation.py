@@ -70,7 +70,9 @@ class LearningUnitViewTestCase(TestCase):
         self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL,
                                                    start_date=today - datetime.timedelta(days=1),
                                                    end_date=self.academic_years[-1].end_date)
+
         PersonEntityFactory(person=self.faculty_person, entity=self.entity)
+        PersonEntityFactory(person=self.person, entity=self.entity)
 
     def get_valid_data(self):
         return {

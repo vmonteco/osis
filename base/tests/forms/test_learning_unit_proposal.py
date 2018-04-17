@@ -47,6 +47,7 @@ from base.tests.factories.learning_container_year import LearningContainerYearFa
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
+from base.tests.factories.person_entity import PersonEntityFactory
 from reference.tests.factories.language import LanguageFactory
 
 PROPOSAL_TYPE = proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name
@@ -77,7 +78,7 @@ class TestSave(TestCase):
         an_entity = EntityFactory(organization=an_organization)
         self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL, start_date=today,
                                                    end_date=today.replace(year=today.year + 1))
-
+        PersonEntityFactory(person=self.person, entity=an_entity)
         self.language = LanguageFactory(code="EN")
         self.campus = CampusFactory(name="OSIS Campus", organization=OrganizationFactory(type=organization_type.MAIN),
                                     is_administration=True)
@@ -202,7 +203,7 @@ class TestSave(TestCase):
         self.form_data["internship_subtype"] = internship_subtypes.TEACHING_INTERNSHIP
 
         form = ProposalBaseForm(self.form_data, self.person, self.learning_unit_year)
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
         self.learning_unit_year.refresh_from_db()
