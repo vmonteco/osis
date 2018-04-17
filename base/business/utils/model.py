@@ -50,3 +50,9 @@ def duplicate_object(obj):
     new_obj.uuid = uuid.uuid4()
     new_obj.copied_from = obj
     return new_obj
+
+
+def merge_two_dicts(dict_a, dict_b):
+    form_data = dict(dict_a)
+    form_data.update(dict_b)
+    return form_data
