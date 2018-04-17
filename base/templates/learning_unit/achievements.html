@@ -1,0 +1,56 @@
+{% load staticfiles %}
+{% load i18n %}
+{% load learning_unit %}
+{% comment "License" %}
+    * OSIS stands for Open Student Information System. It's an application
+    * designed to manage the core business of higher education institutions,
+    * such as universities, faculties, institutes and professional schools.
+    * The core business involves the administration of students, teachers,
+    * courses, programs and so on.
+    *
+    * Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+    *
+    * This program is free software: you can redistribute it and/or modify
+    * it under the terms of the GNU General Public License as published by
+    * the Free Software Foundation, either version 3 of the License, or
+    * (at your option) any later version.
+    *
+    * This program is distributed in the hope that it will be useful,
+    * but WITHOUT ANY WARRANTY; without even the implied warranty of
+    * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    * GNU General Public License for more details.
+    *
+    * A copy of this license - GNU General Public License - is available
+    * at the root of the source code of this program.  If not,
+    * see http://www.gnu.org/licenses/.
+{% endcomment %}
+
+{% if achievements_fr  %}
+    <div class="row" style="margin-top:10px;">
+        <div class="col-md-2">
+        </div>
+        <div class="col-md-5">
+            <label> {{ form_french.language.1 }} </label>
+        </div>
+        <div class="col-md-5">
+            <label> {{ form_english.language.1 }} </label>
+        </div>
+    </div>
+    {% include 'learning_unit/blocks/achievement_titles.html' %}
+
+    <div class="row" style="margin-top:10px;">
+        <div class="col-md-2">
+            <label>{% trans 'learning_achievements' %}</label>
+        </div>
+        <div class="col-md-10">
+            {% for achievement in achievements_fr %}
+                <div class="row">
+                    <div class="col-md-1">{{ achievement.code_name }}</div>
+                    <div class="col-md-5">{{ achievement.text|html_display }}</div>
+                    <div class="col-md-1">{{ achievements_en|get_code_name:forloop.counter0  }}</div>
+                    <div class="col-md-5">{{ achievements_en|get_text:forloop.counter0  }}   </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}

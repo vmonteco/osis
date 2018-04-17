@@ -67,11 +67,11 @@ from base.models.person import Person
 from base.views.common import display_error_messages
 from base.views.learning_units import perms
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
-from base.views.learning_units.search import _learning_units_search
+from base.views.learning_units.search import _learning_units_search, learning_units
 from cms.models import text_label
 from reference.models import language
 from . import layout
-
+from base.models import learning_achievements
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
@@ -177,6 +177,9 @@ def learning_unit_specifications(request, learning_unit_year_id):
         'form_french': LearningUnitSpecificationsForm(learning_unit_year, fr_language),
         'form_english': LearningUnitSpecificationsForm(learning_unit_year, en_language)
     })
+
+    context.update({'achievements_fr': learning_achievements.find_by_learning_unit_year(learning_unit_year, 'FR'),
+                    'achievements_en': learning_achievements.find_by_learning_unit_year(learning_unit_year, 'EN')})
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/specifications.html", context)
 

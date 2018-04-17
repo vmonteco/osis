@@ -53,3 +53,8 @@ class LearningAchievements(OrderedModel):
 
     def __str__(self):
         return u'{} - {} (order {})'.format(self.learning_unit_year, self.code_name, self.order)
+
+
+def find_by_learning_unit_year(learning_unit_yr, a_language):
+    return LearningAchievements.objects.filter(learning_unit_year=learning_unit_yr,
+                                               language__code=a_language).order_by('order')

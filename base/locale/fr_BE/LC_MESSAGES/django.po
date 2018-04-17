@@ -2787,3 +2787,6 @@ msgstr "Proposition {acronym} ({academic_year}) ne peut pas être annulée."
 
 msgid "success_cancel_proposal"
 msgstr "Proposition {acronym} ({academic_year}) annulée avec succès"
+
+msgid "learning_achievements"
+msgstr "Acquis d'apprentissage"

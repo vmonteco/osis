@@ -51,7 +51,7 @@ from osis_common.document import xls_build
 from osis_common.utils.datetime import convert_date_to_datetime
 
 # List of key that a user can modify
-CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
+CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'teaching_methods', 'evaluation_methods', 'other_informations', 'online_resources']
 CMS_LABEL_SUMMARY = ['resume']
 
