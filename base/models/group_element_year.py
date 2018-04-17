@@ -35,6 +35,7 @@ class GroupElementYearAdmin(admin.ModelAdmin):
                                     'own_comment', 'sessions_derogation','minor_access', 'comment',
                                     'comment_english',)}),)
     raw_id_fields = ('parent', 'child_branch', 'child_leaf',)
+    search_fields = ['child_leaf__acronym']
 
 
 class GroupElementYear(models.Model):
@@ -57,7 +58,10 @@ class GroupElementYear(models.Model):
                                            choices=sessions_derogation.SessionsDerogationTypes.choices(),
                                            default=sessions_derogation.SessionsDerogationTypes.SESSION_UNDEFINED.value)
 
+
 def find_by_parent(an_education_group_year):
     return GroupElementYear.objects.filter(parent=an_education_group_year)
 
 
+def find_by_child_leaf(learning_unit_year):
+    return GroupElementYear.objects.filter(child_leaf=learning_unit_year)

@@ -57,7 +57,7 @@ from base.forms.learning_unit_create import CreateLearningUnitYearForm, CreatePa
     PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
-from base.models import proposal_learning_unit
+from base.models import proposal_learning_unit, group_element_year
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.learning_container import LearningContainer
@@ -86,7 +86,8 @@ def get_common_context_learning_unit_year(learning_unit_year_id, person):
     return {
         'learning_unit_year': learning_unit_year,
         'current_academic_year': mdl.academic_year.current_academic_year(),
-        'is_person_linked_to_entity': person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
+        'is_person_linked_to_entity': person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year),
+        'experimental_phase': True
     }
 
 
@@ -95,6 +96,8 @@ def get_common_context_learning_unit_year(learning_unit_year_id, person):
 def learning_unit_formations(request, learning_unit_year_id):
     context = get_common_context_learning_unit_year(learning_unit_year_id,
                                                     get_object_or_404(Person, user=request.user))
+    group_element_years = group_element_year.find_by_child_leaf(context["learning_unit_year"])
+    context['group_element_years'] = group_element_years
     return layout.render(request, "learning_unit/formations.html", context)
 
 

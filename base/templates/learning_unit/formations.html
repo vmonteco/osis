@@ -35,9 +35,39 @@
 <div class="panel panel-default" >
     <div class="panel-body" id="tabs" >
         {% include "learning_unit/blocks/tabs.html" %}
-
-        <div class="tab-content" id="tab_content">
-            <div role="tabpanel" class="tab-pane active" id="formations">
+        <br>
+        <div class="panel panel-default" >
+            <div class="panel-heading" >
+                {% blocktrans with acronym=learning_unit_year.acronym %}The learning unit {{ acronym }} is included in the following education groups{% endblocktrans %}
+            </div>
+            <div class="panel-body" >
+                <div class="tab-content" id="tab_content">
+                    <div role="tabpanel" class="tab-pane active" id="trainings">
+                        <table class="table">
+                            <thead>
+                                <th>{% trans 'code' %}</th>
+                                <th>{% trans 'title' %}</th>
+                                <th>{% trans 'type_code_formation' %}</th>
+                                <th>{% trans 'block' %}</th>
+                                <th>{% trans 'trainings' %}</th>
+                                <th>{% trans 'absolute_and_relative_credits' %}</th>
+                            </thead>
+                            <tbody>
+                                {% for group_element_year in group_element_years %}
+                                    <tr>
+                                        <td>{{ group_element_year.parent.partial_acronym }}</td>
+                                        <td>{{ group_element_year.parent.title }}</td>
+                                        <td>{{ group_element_year.parent.education_group_type }}</td>
+                                        <td>{{ group_element_year.block }}</td>
+                                        <td>{{ group_element_year.training }}</td>
+                                        <td>{{ group_element_year.relative_credits | default_if_none:'-' }} /
+                                            {{ group_element_year.child_leaf.credits | default_if_none:'-' }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
