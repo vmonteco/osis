@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from base.models.education_group_year import EducationGroupYear
 from base.models.learning_unit_year import LearningUnitYear
 from django.db import models
 from django.contrib import admin
@@ -96,7 +97,18 @@ def _get_root_filters():
     }
 
 
+def _raise_if_incorrect_instance(objects):
+    first_obj = objects[0]
+    authorized_instances = [LearningUnitYear, EducationGroupYear]
+    if not all([isinstance(first_obj, cls) for cls in authorized_instances]):
+        raise AttributeError("Objects must be either LearningUnitYear or EducationGroupYear intances.")
+    obj_class = first_obj.__class__
+    if list(filter(lambda obj: not isinstance(obj, obj_class), objects)):
+        raise AttributeError("All objects must be the same instance ({})".format(obj_class))
+
+
 def _find_related_root_education_groups(objects, filters=None):
+    _raise_if_incorrect_instance(objects)
     academic_year = _extract_common_academic_year(objects)
     parents_by_id = _build_parent_list_by_education_group_year_id(academic_year, filters=filters)
     if isinstance(objects[0], LearningUnitYear):

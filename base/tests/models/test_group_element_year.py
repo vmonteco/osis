@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from unittest import mock
 from base.models.enums import education_group_categories
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
@@ -115,6 +116,10 @@ class TestFindRelatedRootEducationGroups(TestCase):
 
         root_group_type = EducationGroupTypeFactory(name='Bachelor', category=education_group_categories.TRAINING)
         self.root = EducationGroupYearFactory(academic_year=self.current_academic_year, education_group_type=root_group_type)
+
+    @mock.patch('base.models.group_element_year._raise_if_incorrect_instance')
+    def test_objects_instances_check_is_called(self, mock_check_instance):
+        self.assertTrue(mock_check_instance.called)
 
     def test_without_filters_case_direct_parent_id_root(self):
         element_year = GroupElementYearFactory(parent=self.root, child_branch=None, child_leaf=self.child_leaf)
@@ -282,3 +287,13 @@ class TestBuildChildKey(TestCase):
     def test_case_child_leaf_is_set(self):
         result = group_element_year._build_child_key(child_leaf=5678)
         self.assertEqual(result, 'child_leaf_5678')
+
+
+class TestRaiseIfIncorrectInstance(TestCase):
+    def test_case_unothorized_instance(self):
+        with self.assertRaises(AttributeError):
+            group_element_year._raise_if_incorrect_instance([AcademicYearFactory()])
+
+    def test_case_different_objects_instances(self):
+        with self.assertRaises(AttributeError):
+            group_element_year._raise_if_incorrect_instance([EducationGroupYearFactory(), LearningUnitYearFactory()])
