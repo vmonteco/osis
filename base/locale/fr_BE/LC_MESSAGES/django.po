@@ -2795,4 +2795,4 @@ msgid "type_code_formation"
 msgstr "Type d'OF"
 
 msgid "absolute_and_relative_credits"
-msgstr "Crédits relatifs / absolus"
+msgstr "Crédits<br>relatifs / absolus"
