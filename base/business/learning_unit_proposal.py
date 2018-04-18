@@ -286,7 +286,7 @@ def cancel_proposals_and_send_report(proposals, author, research_criteria):
 
 
 def consolidate_proposals_and_send_report(proposals, author, research_criteria):
-    return  apply_action_on_proposals_and_send_report(
+    return apply_action_on_proposals_and_send_report(
         proposals,
         author,
         consolidate_proposal,
@@ -327,7 +327,6 @@ def consolidate_proposal(proposal):
     if proposal.state == proposal_state.ProposalState.REFUSED.name:
         results = cancel_proposal(proposal)
     elif proposal.state == proposal_state.ProposalState.ACCEPTED.name:
-
         if proposal.type == proposal_type.ProposalType.CREATION.name:
             results = consolidate_creation_proposal_accepted(proposal)
         elif proposal.type == proposal_type.ProposalType.SUPPRESSION.name:

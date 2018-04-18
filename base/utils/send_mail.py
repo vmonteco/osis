@@ -128,16 +128,7 @@ def _send_mail_action_learning_unit_proposal(manager, tuple_proposals_results, h
 
 # FIXME should be moved to osis_common
 def build_proposal_report_attachment(manager, proposals_with_results, operation, research_criteria):
-    table_data = [
-        (
-            proposal.learning_unit_year.academic_year.name,
-            proposal.learning_unit_year.acronym,
-            proposal.learning_unit_year.complete_title,
-            _(proposal.type),
-            _("Success") if ERROR not in results else _("Failure"),
-            "\n".join(results.get(ERROR, []))
-        ) for (proposal, results) in proposals_with_results
-    ]
+    table_data = _build_table_proposal_data(proposals_with_results)
 
     xls_parameters = {
         xls_build.LIST_DESCRIPTION_KEY: "Liste d'activités",
@@ -156,6 +147,19 @@ def build_proposal_report_attachment(manager, proposals_with_results, operation,
     }
 
     return _create_xls(xls_parameters)
+
+
+def _build_table_proposal_data(proposals_with_results):
+    return [
+        (
+            proposal.learning_unit_year.academic_year.name,
+            proposal.learning_unit_year.acronym,
+            proposal.learning_unit_year.complete_title,
+            _(proposal.type),
+            _("Success") if ERROR not in results else _("Failure"),
+            "\n".join(results.get(ERROR, []))
+        ) for (proposal, results) in proposals_with_results
+    ]
 
 
 # FIXME should be moved to osis_common
