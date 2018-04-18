@@ -2813,3 +2813,6 @@ msgstr "Relative / Absolute credits"
 
 msgid "Proposal is neither accepted nor refused."
 msgstr ""
+
+msgid "learning_achievements"
+msgstr "Learning achievements"

@@ -2820,3 +2820,6 @@ msgstr "Crédits relatifs / absolus"
 
 msgid "Proposal is neither accepted nor refused."
 msgstr "La proposition n'est ni acceptée ni refusée."
+
+msgid "learning_achievements"
+msgstr "Acquis d'apprentissage"
