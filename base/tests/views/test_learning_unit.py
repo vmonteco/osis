@@ -1216,8 +1216,8 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_unit/specifications.html')
         self.assertIsInstance(context['form_french'], LearningUnitSpecificationsForm)
         self.assertIsInstance(context['form_english'], LearningUnitSpecificationsForm)
-        self.assertCountEqual(context['achievements_fr'], [learning_unit_achievements_fr])
-        self.assertCountEqual(context['achievements_en'], [learning_unit_achievements_en])
+        self.assertCountEqual(context['achievements_FR'], [learning_unit_achievements_fr])
+        self.assertCountEqual(context['achievements_EN'], [learning_unit_achievements_en])
 
     @mock.patch('base.views.layout.render')
     def test_learning_unit_attributions(self, mock_render):
@@ -1383,3 +1383,33 @@ class TestLearningUnitComponents(TestCase):
             volumes = component['volumes']
             self.assertEqual(volumes['VOLUME_Q1'], None)
             self.assertEqual(volumes['VOLUME_Q2'], None)
+
+
+class TestLearningAchievements(TestCase):
+    def setUp(self):
+        self.academic_year = create_current_academic_year()
+        self.learning_unit_year = LearningUnitYearFactory(
+            academic_year=self.academic_year,
+            subtype=learning_unit_year_subtypes.FULL
+        )
+
+        self.code_languages = ["FR", "EN", "IT"]
+        for code_language in self.code_languages:
+            language = LanguageFactory(code=code_language)
+            LearningAchievementsFactory(language=language, learning_unit_year=self.learning_unit_year)
+
+    def test_get_achievements_group_by_language_no_achievement(self):
+        a_luy_without_achievements = LearningUnitYearFactory(
+            academic_year=self.academic_year,
+            subtype=learning_unit_year_subtypes.FULL
+        )
+        result = learning_unit_business.get_achievements_group_by_language(a_luy_without_achievements)
+        self.assertIsInstance(result, dict)
+        self.assertFalse(result)
+
+    def test_get_achievements_group_by_language(self):
+        result = learning_unit_business.get_achievements_group_by_language(self.learning_unit_year)
+        self.assertIsInstance(result, dict)
+        for code_language in self.code_languages:
+            key = "achievements_{}".format(code_language)
+            self.assertTrue(result[key])

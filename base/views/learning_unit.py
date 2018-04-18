@@ -42,7 +42,7 @@ from base.business.learning_unit import get_cms_label_data, \
     get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
     get_all_attributions, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, find_language_in_settings, \
-    CMS_LABEL_SPECIFICATIONS
+    CMS_LABEL_SPECIFICATIONS, get_achievements_group_by_language
 from base.business.learning_unit_proposal import get_difference_of_proposal
 from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
@@ -172,11 +172,7 @@ def learning_unit_specifications(request, learning_unit_year_id):
         'form_english': LearningUnitSpecificationsForm(learning_unit_year, en_language)
     })
 
-    all_achievements = learning_achievements.find_by_learning_unit_year(learning_unit_year)
-    for achievement in all_achievements:
-        key = 'achievements_{}'.format(achievement.language.code)
-        context.setdefault(key, []).append(achievement)
-
+    context.update(get_achievements_group_by_language(learning_unit_year))
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/specifications.html", context)
 
