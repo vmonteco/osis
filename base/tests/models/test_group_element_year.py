@@ -284,6 +284,14 @@ class TestFindLearningUnitFormationRoots(TestCase):
         result = group_element_year.find_learning_unit_formation_roots([self.child_leaf])
         self.assertEqual(result[self.child_leaf.id], [group_element.parent.id])
 
+    def test_case_arg_is_empty(self):
+        result = group_element_year.find_learning_unit_formation_roots([])
+        self.assertEqual(result, {})
+
+    def test_case_arg_is_none(self):
+        result = group_element_year.find_learning_unit_formation_roots(None)
+        self.assertEqual(result, {})
+
 
 class TestBuildChildKey(TestCase):
     """Unit tests on _build_child_key() """
