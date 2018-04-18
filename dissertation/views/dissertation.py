@@ -25,18 +25,15 @@
 ##############################################################################
 import time
 import json
-
-from base.models.offer_enrollment import find_by_offers_years
 from django.http import HttpResponse,JsonResponse
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect
-from django.db.models import Prefetch
 from dissertation.models.dissertation_role import DissertationRole
 from dissertation.models.enums.status_types import STATUS_CHOICES
-from base.models import academic_year,offer_enrollment
+from base.models import academic_year, offer_enrollment
 from base import models as mdl
 from base.views import layout
 from dissertation.models import adviser, dissertation, dissertation_document_file, dissertation_role,\
