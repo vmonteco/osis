@@ -2789,3 +2789,6 @@ msgstr "Formation's type"
 
 msgid "absolute_and_relative_credits"
 msgstr "Relative / Absolute credits"
+
+msgid "learning_achievements"
+msgstr "Learning achievements"

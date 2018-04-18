@@ -2796,3 +2796,7 @@ msgstr "Type d'OF"
 
 msgid "absolute_and_relative_credits"
 msgstr "Crédits relatifs / absolus"
+
+msgid "learning_achievements"
+msgstr "Acquis d'apprentissage"
+

@@ -33,6 +33,7 @@ from base import models as mdl_base
 from base.business.entity import get_entity_calendar
 from base.business.learning_unit_year_with_context import volume_learning_component_year
 from base.models import entity_container_year
+from base.models import learning_achievements
 from base.models.academic_year import find_academic_year_by_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type, academic_calendar_type
@@ -45,7 +46,7 @@ from osis_common.document import xls_build
 from osis_common.utils.datetime import convert_date_to_datetime
 
 # List of key that a user can modify
-CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'skills_to_be_acquired', 'prerequisite']
+CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'teaching_methods', 'evaluation_methods', 'other_informations', 'online_resources']
 CMS_LABEL_SUMMARY = ['resume']
 
@@ -293,3 +294,12 @@ def _get_learning_unit_by_luy_entity(cms_list, learning_unit_yr):
         if a_calendar:
             return _get_summary_detail(a_calendar, cms_list, [learning_unit_yr])
     return []
+
+
+def get_achievements_group_by_language(learning_unit_year):
+    achievement_grouped = {}
+    all_achievements = learning_achievements.find_by_learning_unit_year(learning_unit_year)
+    for achievement in all_achievements:
+        key = 'achievements_{}'.format(achievement.language.code)
+        achievement_grouped.setdefault(key, []).append(achievement)
+    return achievement_grouped
