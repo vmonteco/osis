@@ -99,8 +99,6 @@ def is_eligible_for_modification_end_date(learning_unit_year, person):
 def is_eligible_for_modification(learning_unit_year, person):
     if learning_unit_year.is_past():
         return False
-    if learning_unit_year.is_in_proposal():
-        return False
     if person.is_faculty_manager() and not learning_unit_year.can_update_by_faculty_manager():
         return False
     return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
@@ -168,3 +166,7 @@ def learning_unit_proposal_permissions(proposal, person, current_learning_unit_y
     permissions['can_edit_learning_unit_proposal'] = is_eligible_to_edit_proposal(proposal, person)
     permissions['can_consolidate_proposal'] = is_eligible_to_consolidate_proposal(proposal, person)
     return permissions
+
+
+def can_edit_summary_locked_field(person, is_person_linked_to_entity):
+    return person.is_faculty_manager() and is_person_linked_to_entity

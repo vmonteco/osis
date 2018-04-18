@@ -25,6 +25,7 @@
 ##############################################################################
 import datetime
 import string
+from base.models.academic_year import AcademicYear
 
 import factory.fuzzy
 from django.utils import timezone
@@ -80,6 +81,15 @@ class AcademicYearFactory(DjangoModelFactory):
         while i < quantity:
             AcademicYearFactory(year=from_year-i)
             i += 1
+
+    @staticmethod
+    def produce_in_future(current_year, quantity=10):
+        i = 1
+        academic_years = []
+        while i < quantity+1:
+            academic_years.append(AcademicYearFactory.build(year=current_year + i))
+            i += 1
+        AcademicYear.objects.bulk_create(academic_years)
 
 
 class AcademicYearFakerFactory(DjangoModelFactory):

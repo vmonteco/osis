@@ -33,11 +33,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl_base
 from base.business import learning_unit_proposal as lu_proposal_business
-from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS
 from base.business.learning_unit_proposal import compute_proposal_type, consolidate_creation_proposal_accepted, \
     consolidate_proposals_and_send_report, consolidate_proposal, consolidate_suppression_proposal_accepted
+from base.business.learning_unit_proposal import compute_proposal_type, consolidate_proposal
 from base.business.learning_units.perms import PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES
-from base.models.academic_year import AcademicYear
+from base.models.academic_year import AcademicYear, LEARNING_UNIT_CREATION_SPAN_YEARS
 from base.models.enums import organization_type, proposal_type, entity_type, \
     learning_container_year_types, entity_container_year_link_type, \
     learning_unit_year_subtypes, proposal_state
@@ -174,10 +174,6 @@ class TestComputeProposalType(SimpleTestCase):
         self.assertEqual(proposal_type.ProposalType.SUPPRESSION.name, actual_proposal_type)
 
     def test_return_transformation_when_data_changed_consist_of_first_letter(self):
-        actual_proposal_type = compute_proposal_type(["first_letter"], None)
-        self.assertEqual(proposal_type.ProposalType.TRANSFORMATION.name, actual_proposal_type)
-
-    def test_return_transformation_when_data_changed_consist_of_acronym(self):
         actual_proposal_type = compute_proposal_type(["acronym"], None)
         self.assertEqual(proposal_type.ProposalType.TRANSFORMATION.name, actual_proposal_type)
 
@@ -192,11 +188,6 @@ class TestComputeProposalType(SimpleTestCase):
     def test_return_transformation_and_modification_when_modifying_acronym_and_other_field(self):
         actual_proposal_type = compute_proposal_type(["acronym", "common_title"], None)
         self.assertEqual(proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name, actual_proposal_type)
-
-    def test_return_transformation_and_modification_when_modifying_first_letter_and_other_field(self):
-        actual_proposal_type = compute_proposal_type(["first_letter", "common_title"], None)
-        self.assertEqual(proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name, actual_proposal_type)
-
 
 
 def create_academic_years():

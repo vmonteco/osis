@@ -11,14 +11,7 @@ var form = $('#LearningUnitYearForm').closest("form");
 
 
 function isLearningUnitSubtypeFull(){
-    if(document.getElementById('id_subtype') !== null){
-
-        return document.getElementById('id_subtype').value === LEARNING_UNIT_FULL_SUBTYPE
-    }
-    else if (learning_unit_current_subtype !== undefined){
-        return learning_unit_current_subtype === LEARNING_UNIT_FULL_SUBTYPE;
-    }
-    return true;
+   return learning_unit_current_subtype === LEARNING_UNIT_FULL_SUBTYPE;
 }
 
 
@@ -36,7 +29,7 @@ function showInternshipSubtype(){
     if (isLearningUnitSubtypeFull() && document.getElementById('id_internship_subtype')) {
         var container_type_value = document.getElementById('id_container_type').value;
         var value_not_internship = container_type_value !== internship;
-        var labelElem = $('#lbl_internship_subtype');
+        var labelElem = $("label[for='id_internship_subtype']");
 
         document.getElementById('id_internship_subtype').disabled = value_not_internship;
         if (value_not_internship) {
@@ -70,7 +63,9 @@ function validate_acronym() {
 
 
 function cleanErrorMessage(){
-    $('#acronym_message').removeClass("error-message").text("");
+    parent = $("#id_acronym_0").closest(".form-group");
+    parent.removeClass('has-error');
+    parent.children(".help-block").remove();
 }
 
 
@@ -85,34 +80,35 @@ function extractValue(domElem){
 
 
 function getFirstLetter(){
-    return extractValue($('#id_first_letter'));
+    return extractValue($('#id_acronym_0'));
 }
 
 
 function getAcronym(){
-    return extractValue($('#id_acronym'));
+    return extractValue($('#id_acronym_1'));
 }
 
 
 function getPartimCharacter(){
-    return extractValue($('#hdn_partim_character'));
+    return extractValue($('#id_acronym_2'));
 }
 
 
 function callbackAcronymValidation(data){
     if (!data['valid']) {
-        setErrorMessage(trans_invalid_acronym, '#acronym_message');
+        setErrorMessage(trans_invalid_acronym, '#id_acronym_0');
     } else if (data['existed_acronym'] && !data['existing_acronym']) {
-        setWarningMessage(trans_existed_acronym + data['last_using'], '#acronym_message');
+        setWarningMessage(trans_existed_acronym + data['last_using'], '#id_acronym_0');
     } else if (data['existing_acronym']) {
-        setErrorMessage(trans_existing_acronym + data['first_using'], '#acronym_message');
+        setErrorMessage(trans_existing_acronym + data['first_using'], '#id_acronym_0');
     }
 }
 
 
 function setErrorMessage(text, element){
-    $(element).addClass("error").text(text);
-    $(element).css("color","red");
+    parent = $(element).closest(".form-group");
+    parent.addClass('has-error');
+    parent.append("<div class='help-block'>" + text + "</div>");
 }
 
 function setWarningMessage(text, element){
@@ -151,12 +147,12 @@ $(document).ready(function() {
         || isValueEmpty('id_additional_requirement_entity_1')
         || isDisabledField('id_additional_requirement_entity_1');
 
-    $('#id_first_letter').change(validate_acronym);
-    $('#id_acronym').change(validate_acronym);
+    $('#id_acronym_0').change(validate_acronym);
+    $('#id_acronym_1').change(validate_acronym);
     $('#id_academic_year').change(validate_acronym);
     $("#LearningUnitYearForm").submit(function( event ) {
         if (!window.valid_acronym) {
-            $("#id_acronym").focus();
+            $("#id_acronym_1").focus();
         }
         return window.valid_acronym;
     });
