@@ -31,7 +31,8 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 class OfferEnrollmentAdmin(SerializableModelAdmin):
     list_display = ('offer_year', 'education_group_year', 'student', 'date_enrollment', 'enrollment_state', 'changed')
-    fieldsets = ((None, {'fields': ('offer_year', 'student', 'date_enrollment', 'enrollment_state')}),)
+    fieldsets = ((None, {'fields': ('offer_year', 'student', 'date_enrollment', 'enrollment_state',
+                                    'education_group_year')}),)
     list_filter = ('offer_year__academic_year', 'enrollment_state')
     raw_id_fields = ('offer_year', 'student')
     search_fields = ['offer_year__acronym', 'education_group_year__acronym', 'student__person__first_name',
