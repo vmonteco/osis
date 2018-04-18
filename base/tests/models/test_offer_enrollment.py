@@ -46,13 +46,10 @@ def create_offer_enrollment(student, offer_year):
 
 class OfferEnrollementTest(TestCase):
     def test_find_by_offers_year(self):
-        person1 = PersonFactory.create(first_name="John")
-        student1 = StudentFactory.create(person=person1)
-        ac_year = academic_year.create_current_academic_year()
-        offer_year1 = OfferYearFactory(acronym="econ2MZ", academic_year=ac_year)
+        student1 = StudentFactory.create()
+        offer_year1 = OfferYearFactory()
         OfferEnrollmentFactory(student=student1, offer_year=offer_year1)
-        result = list(offer_enrollment.find_by_offers_year([offer_year1]))
-        self.assertEqual(result[0].student.person.first_name, "John")
-        self.assertEqual(result[0].offer_year.acronym, "econ2MZ")
-        self.assertEqual(result[0].offer_year.academic_year, ac_year)
+        result = list(offer_enrollment.find_by_offers_years([offer_year1]))
+        self.assertEqual(result[0].student, student1)
+        self.assertEqual(result[0].offer_year, offer_year1)
         self.assertEqual(len(result), 1)

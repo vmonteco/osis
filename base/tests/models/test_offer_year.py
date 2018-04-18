@@ -76,7 +76,6 @@ class OfferYearTest(TestCase):
     def test_find_by_offers_and_year(self):
         ac_year = academic_year.create_current_academic_year()
         offer1 = OfferFactory()
-        OfferYearFactory(offer=offer1, acronym="econ2MZ", academic_year=ac_year)
+        offer_year1 = OfferYearFactory(offer=offer1, academic_year=ac_year)
         result = list(offer_year.find_by_offers_and_year([offer1],ac_year))
-        self.assertEqual(result[0].acronym, "econ2MZ")
-        self.assertEqual(result[0].academic_year, ac_year)
+        self.assertEqual(result[0],offer_year1)

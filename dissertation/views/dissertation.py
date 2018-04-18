@@ -26,7 +26,7 @@
 import time
 import json
 
-from base.models.offer_enrollment import find_by_offers_year
+from base.models.offer_enrollment import find_by_offers_years
 from django.http import HttpResponse,JsonResponse
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
@@ -802,9 +802,9 @@ def manager_dissertations_wait_recep_list(request):
 def manager_students_list(request):
     current_manager = adviser.search_by_person(mdl.person.find_by_user(request.user))
     offers = faculty_adviser.search_by_adviser(current_manager)
-    offers_years = mdl.offer_year.find_by_offers_and_year(offers,mdl.academic_year.starting_academic_year())
-    offer_enroll = offer_enrollment.find_by_offers_year(offers_years).\
-        select_related('student','offer_year').prefetch_related('student__dissertation_set')
+    offers_years = mdl.offer_year.find_by_offers_and_year(offers, mdl.academic_year.starting_academic_year())
+    offer_enroll = offer_enrollment.find_by_offers_years(offers_years).\
+        select_related('student', 'offer_year').prefetch_related('student__dissertation_set')
 
     return layout.render(request, 'manager_students_list.html', {'offer_enrollements': offer_enroll})
 

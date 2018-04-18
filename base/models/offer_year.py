@@ -190,7 +190,7 @@ def find_by_offer(offers):
     return OfferYear.objects.filter(offer__in=offers)
 
 
-def find_by_offers_and_year(offers,ac_year):
+def find_by_offers_and_year(offers, ac_year):
     return find_by_offer(offers).filter(academic_year=ac_year)
 
 
