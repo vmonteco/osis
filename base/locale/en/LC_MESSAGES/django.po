@@ -2781,7 +2781,7 @@ msgstr "Proposal {acronym} ({academic_year}) cannot be canceled."
 msgid "success_cancel_proposal"
 msgstr "Proposal {acronym} ({academic_year}) successfully canceled."
 
-msgid "The learning Unit %(acronym)s is included in the following education groups"
+msgid "The learning unit %(acronym)s is included in the following education groups"
 msgstr ""
 
 msgid "type_code_formation"
@@ -2789,3 +2789,6 @@ msgstr "Formation's type"
 
 msgid "absolute_and_relative_credits"
 msgstr "Relative / Absolute credits"
+
+msgid "learning_achievements"
+msgstr "Learning achievements"
