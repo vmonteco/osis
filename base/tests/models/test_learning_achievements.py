@@ -23,30 +23,23 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
-
-from django.utils import timezone
-
 from django.test import TestCase
 from django.db import IntegrityError
 
-from base.models.academic_year import AcademicYear
-from base.models.learning_achievements import find_by_learning_unit_yr_and_language
+from base.models import learning_achievements
+from base.tests.factories.academic_year import create_current_academic_year
 from reference.tests.factories.language import LanguageFactory
 from base.tests.factories.business.learning_units import GenerateContainer
 from base.tests.factories.learning_achievements import LearningAchievementsFactory
 
 
-now = timezone.now()
 A_CODE_NAME = 'AA 1'
-
+A2_CODE_NAME = 'AA 2'
 
 class LearningAchievementsTest(TestCase):
 
     def setUp(self):
-        current_academic_year = AcademicYear(year=now.year,
-                                             start_date=datetime.date(now.year, now.month, 15),
-                                             end_date=datetime.date(now.year + 1, now.month, 28))
+        current_academic_year = create_current_academic_year()
         generated_container = GenerateContainer(start_year=current_academic_year.year,
                                                 end_year=current_academic_year.year)
         generated_container_first_year = generated_container.generated_container_years[0]
@@ -55,17 +48,27 @@ class LearningAchievementsTest(TestCase):
         self.language_en = LanguageFactory(code='EN')
 
     def test_unique(self):
-
-        self.create_lu_achievement(A_CODE_NAME, self.language_fr, self.luy)
+        LearningAchievementsFactory(code_name=A_CODE_NAME, learning_unit_year=self.luy, language=self.language_fr)
         with self.assertRaises(IntegrityError):
-            self.create_lu_achievement(A_CODE_NAME, self.language_fr, self.luy)
+            LearningAchievementsFactory(code_name=A_CODE_NAME, learning_unit_year=self.luy, language=self.language_fr)
 
-    def test_find_by_learning_unit_yr_and_language(self):
-        luy_achievement = self.create_lu_achievement(A_CODE_NAME, self.language_fr, self.luy)
-        self.assertCountEqual(find_by_learning_unit_yr_and_language(self.luy, self.language_en.code), [])
-        self.assertCountEqual(find_by_learning_unit_yr_and_language(self.luy, self.language_fr.code), [luy_achievement])
+    def test_find_by_learning_unit_year(self):
+        luy_achievement_fr = LearningAchievementsFactory(code_name=A_CODE_NAME, learning_unit_year=self.luy,
+                                                         language=self.language_fr)
+        luy_achievement_en = LearningAchievementsFactory(code_name=A_CODE_NAME, learning_unit_year=self.luy,
+                                                         language=self.language_en)
+        result = learning_achievements.find_by_learning_unit_year(self.luy)
+        self.assertIn(luy_achievement_fr, result)
+        self.assertIn(luy_achievement_en, result)
 
-    def create_lu_achievement(self, a_code_name, a_language, a_learning_unit_yr):
-        return LearningAchievementsFactory(code_name=a_code_name,
-                                           learning_unit_year=a_learning_unit_yr,
-                                           language=a_language)
+    def test_find_by_learning_unit_year_order(self):
+        luy_achievement_fr_1 = LearningAchievementsFactory(code_name=A_CODE_NAME, learning_unit_year=self.luy,
+                                                           language=self.language_fr)
+        luy_achievement_en_1 = LearningAchievementsFactory(code_name=A_CODE_NAME, learning_unit_year=self.luy,
+                                                           language=self.language_en)
+        luy_achievement_fr_2 = LearningAchievementsFactory(code_name=A2_CODE_NAME, learning_unit_year=self.luy,
+                                                           language=self.language_fr)
+        # By default, OrderModel insert with the highest model + 1
+        expected_result = [luy_achievement_en_1, luy_achievement_fr_1, luy_achievement_fr_2]
+        result = list(learning_achievements.find_by_learning_unit_year(self.luy))
+        self.assertListEqual(result, expected_result)

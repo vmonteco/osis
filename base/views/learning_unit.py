@@ -172,10 +172,11 @@ def learning_unit_specifications(request, learning_unit_year_id):
         'form_english': LearningUnitSpecificationsForm(learning_unit_year, en_language)
     })
 
-    context.update({'achievements_fr': learning_achievements.find_by_learning_unit_yr_and_language(learning_unit_year,
-                                                                                                   'FR'),
-                    'achievements_en': learning_achievements.find_by_learning_unit_yr_and_language(learning_unit_year,
-                                                                                                   'EN')})
+    all_achievements = learning_achievements.find_by_learning_unit_year(learning_unit_year)
+    for achievement in all_achievements:
+        key = 'achievements_{}'.format(achievement.language.code)
+        context.setdefault(key, []).append(achievement)
+
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/specifications.html", context)
 

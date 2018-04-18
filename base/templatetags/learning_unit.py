@@ -84,24 +84,3 @@ def dl_tooltip(differences, key, **kwargs):
 
     return mark_safe("<dl><dt {difference}>{label_text}</dt><dd {difference}>{value}</dd></dl>".format(
         difference=difference, label_text=_(label_text), value=value))
-
-
-@register.filter
-def html_display(html_string):
-    return mark_safe(html_string)
-
-
-@register.filter
-def get_text(a_list, i):
-    try:
-        return mark_safe(a_list[i].text)
-    except:
-        return ''
-
-
-@register.filter
-def get_code_name(a_list, i):
-    try:
-        return mark_safe(a_list[i].code_name)
-    except:
-        return ''
