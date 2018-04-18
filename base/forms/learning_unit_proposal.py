@@ -39,6 +39,7 @@ from base.models.entity_version import find_main_entities_version, get_last_vers
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums.proposal_type import ProposalType
+from base.models.learning_unit_year import get_by_id
 from base.models.proposal_learning_unit import ProposalLearningUnit
 
 
@@ -83,8 +84,7 @@ class ProposalLearningUnitForm(forms.ModelForm):
         if hasattr(self.instance, 'learning_unit_year'):
             if self.instance.initial_data:
                 reinitialize_data_before_proposal(self.instance)
-
-            self.instance.initial_data = _copy_learning_unit_data(self.instance.learning_unit_year)
+            self.instance.initial_data = _copy_learning_unit_data(get_by_id(self.instance.learning_unit_year.id))
         return super().save(commit)
 
 
