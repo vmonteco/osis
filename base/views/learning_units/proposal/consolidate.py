@@ -25,25 +25,28 @@
 ##############################################################################
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages import ERROR
+from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
 from base.business import learning_unit_proposal as business_proposal
+from base.business.learning_units import perms
 from base.models.enums import proposal_type, proposal_state
 from base.models.person import Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views.common import display_error_messages, display_messages_by_level
-from base.views.learning_units import perms
 
 
 @login_required
 @require_POST
-@perms.can_consolidate_proposal
 def consolidate_proposal(request):
     learning_unit_year_id = request.POST.get("learning_unit_year_id")
     proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year__id=learning_unit_year_id)
     user_person = get_object_or_404(Person, user=request.user)
+
+    if not perms.is_eligible_to_consolidate_proposal(proposal, user_person):
+        raise PermissionDenied("Proposal cannot be consolidated")
 
     messages_by_level = {}
     try:

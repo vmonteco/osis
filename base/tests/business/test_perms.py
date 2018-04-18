@@ -419,11 +419,21 @@ class TestIsEligibleToConsolidateLearningUnitProposal(TestCase):
                 proposal = ProposalLearningUnitFactory(state=state)
                 self.assertFalse(is_eligible_to_consolidate_proposal(proposal, self.person_with_right_to_consolidate))
 
-    def test_when_person_has_right_to_consolidate_and_proposal_state_is_accepter_or_refused(self):
+    def test_when_person_not_linked_to_entiy(self):
+        proposal = ProposalLearningUnitFactory(state=proposal_state.ProposalState.ACCEPTED.name)
+        self.assertFalse(is_eligible_to_consolidate_proposal(proposal, self.person_with_right_to_consolidate))
+
+    def test_when_person_is_linked_to_entity(self):
         states = (state.name for state in proposal_state.ProposalState
                   if state in (proposal_state.ProposalState.ACCEPTED, proposal_state.ProposalState.REFUSED))
 
         for state in states:
             with self.subTest(state=state):
                 proposal = ProposalLearningUnitFactory(state=state)
+                entity_container = EntityContainerYearFactory(
+                    learning_container_year=proposal.learning_unit_year.learning_container_year,
+                    type=entity_container_year_link_type.REQUIREMENT_ENTITY
+                )
+                PersonEntityFactory(person=self.person_with_right_to_consolidate,
+                                    entity=entity_container.entity)
                 self.assertTrue(is_eligible_to_consolidate_proposal(proposal, self.person_with_right_to_consolidate))
