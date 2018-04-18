@@ -2810,3 +2810,6 @@ msgstr "Formation's type"
 
 msgid "absolute_and_relative_credits"
 msgstr "Relative / Absolute credits"
+
+msgid "Proposal is neither accepted nor refused."
+msgstr ""

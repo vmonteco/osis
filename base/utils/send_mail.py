@@ -126,6 +126,7 @@ def _send_mail_action_learning_unit_proposal(manager, tuple_proposals_results, h
     return message_service.send_messages(message_content)
 
 
+# FIXME should be moved to osis_common
 def build_proposal_report_attachment(manager, proposals_with_results, operation, research_criteria):
     table_data = [
         (
@@ -170,6 +171,7 @@ def _create_xls(parameters_dict):
     return save_virtual_workbook(workbook)
 
 
+# FIXME should be moved to osis_common
 def _build_worksheet_parameters(workbook, a_user, operation, research_criteria):
     worksheet_parameters = workbook.create_sheet(title=str(_('parameters')))
     now = datetime.datetime.now()

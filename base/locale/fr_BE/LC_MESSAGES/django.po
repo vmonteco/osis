@@ -2817,3 +2817,6 @@ msgstr "Type d'OF"
 
 msgid "absolute_and_relative_credits"
 msgstr "Crédits relatifs / absolus"
+
+msgid "Proposal is neither accepted nor refused."
+msgstr "La proposition n'est ni acceptée ni refusée."

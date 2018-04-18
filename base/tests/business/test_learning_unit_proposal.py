@@ -27,7 +27,7 @@ import datetime
 from unittest import mock
 from unittest.mock import patch
 
-from django.contrib.messages import SUCCESS, ERROR
+from django.contrib.messages import SUCCESS, ERROR, INFO
 from django.test import TestCase, SimpleTestCase
 from django.utils.translation import ugettext_lazy as _
 
@@ -61,7 +61,7 @@ class TestLearningUnitProposal(TestCase):
         self.assertIsNone(lu_proposal_business._get_data_dict('key1', {'key2': 'nothing serious'}))
         self.assertEqual(lu_proposal_business._get_data_dict('key1', {'key1': 'nothing serious'}), 'nothing serious')
 
-    def test_get_data_dict(self):
+    def test_get_data_rid_of_blank_value(self):
         data = {'key1': 'thing', 'key2': ''}
         self.assertEqual(lu_proposal_business._get_rid_of_blank_value(data),
                          {'key1': 'thing', 'key2': None})
@@ -95,7 +95,7 @@ class TestLearningUnitProposalCancel(TestCase):
     def test_cancel_proposal_of_type_suppression_case_success(self):
         proposal = self._create_proposal(prop_type=proposal_type.ProposalType.SUPPRESSION.name,
                                          prop_state=proposal_state.ProposalState.FACULTY.name)
-        lu_proposal_business.cancel_proposal(proposal, PersonFactory())
+        lu_proposal_business.cancel_proposal(proposal)
         self.assertCountEqual(list(mdl_base.proposal_learning_unit.ProposalLearningUnit.objects
                                    .filter(learning_unit_year=self.learning_unit_year)), [])
 
@@ -103,26 +103,19 @@ class TestLearningUnitProposalCancel(TestCase):
         proposal = self._create_proposal(prop_type=proposal_type.ProposalType.CREATION.name,
                                          prop_state=proposal_state.ProposalState.FACULTY.name)
         lu = proposal.learning_unit_year.learning_unit
-        lu_proposal_business.cancel_proposal(proposal, PersonFactory())
+        lu_proposal_business.cancel_proposal(proposal)
         self.assertCountEqual(list(mdl_base.proposal_learning_unit.ProposalLearningUnit.objects
                                    .filter(learning_unit_year=self.learning_unit_year)), [])
         self.assertCountEqual(list(mdl_base.learning_unit.LearningUnit.objects.filter(id=lu.id)),
                               [])
 
-    @patch('base.utils.send_mail.send_mail_after_the_learning_unit_proposal_cancellation')
+    @patch('base.utils.send_mail.send_mail_cancellation_learning_unit_proposals')
     def test_cancel_proposals_of_type_suppression(self, mock_send_mail):
         proposal = self._create_proposal(prop_type=proposal_type.ProposalType.SUPPRESSION.name,
                                          prop_state=proposal_state.ProposalState.FACULTY.name)
-        lu_proposal_business.cancel_proposals_and_send_report([proposal], PersonFactory())
+        lu_proposal_business.cancel_proposals_and_send_report([proposal], PersonFactory(), [])
         self.assertCountEqual(list(mdl_base.proposal_learning_unit.ProposalLearningUnit.objects
                                    .filter(learning_unit_year=self.learning_unit_year)), [])
-        self.assertTrue(mock_send_mail.called)
-
-    @patch('base.utils.send_mail.send_mail_after_the_learning_unit_proposal_cancellation')
-    def test_send_mail_after_proposal_cancellation(self, mock_send_mail):
-        proposal = self._create_proposal(prop_type=proposal_type.ProposalType.SUPPRESSION.name,
-                                         prop_state=proposal_state.ProposalState.FACULTY.name)
-        lu_proposal_business.cancel_proposal(proposal, author=PersonFactory(), send_mail=True)
         self.assertTrue(mock_send_mail.called)
 
     def _create_proposal(self, prop_type, prop_state):
@@ -212,23 +205,24 @@ class TestConsolidateProposals(TestCase):
 
     @mock.patch("base.business.learning_unit_proposal.consolidate_proposal",
                 side_effect=lambda prop: {SUCCESS: ["msg_success"]})
-    @mock.patch("base.utils.send_mail.send_mail_after_the_learning_unit_proposal_consolidation",
+    @mock.patch("base.utils.send_mail.send_mail_consolidation_learning_unit_proposal",
                 side_effect=None)
     def test_call_method_consolidate_proposal(self, mock_mail, mock_consolidate_proposal):
-        result = consolidate_proposals_and_send_report(self.proposals, self.author)
+        result = consolidate_proposals_and_send_report(self.proposals, self.author, [])
 
         consolidate_args_list = [((self.proposals[0],),), ((self.proposals[1],),)]
         self.assertTrue(mock_consolidate_proposal.call_args_list == consolidate_args_list)
 
         self.assertDictEqual(result, {
+            INFO: [_("A report has been sent.")],
             ERROR: [],
-            SUCCESS: [_("success_consolidate_proposal").format(
+            SUCCESS: [_("Proposal {acronym} ({academic_year}) successfully consolidated.").format(
                         acronym=proposal.learning_unit_year.acronym,
                         academic_year=proposal.learning_unit_year.academic_year
                     ) for proposal in self.proposals]
         })
 
-        mock_mail.assert_called_once_with([self.author], self.proposals)
+        self.assertTrue(mock_mail.called)
 
 
 def mock_message_by_level(*args, **kwargs):
@@ -244,10 +238,7 @@ class TestConsolidateProposal(TestCase):
                 proposal = ProposalLearningUnitFactory(state=state)
                 result = consolidate_proposal(proposal)
                 expected_result = {
-                    SUCCESS: [_("Proposal {acronym} ({academic_year}) successfully consolidated.").format(
-                        acronym=proposal.learning_unit_year.acronym,
-                        academic_year=proposal.learning_unit_year.academic_year
-                    )]
+                    ERROR: [_("Proposal is neither accepted nor refused.")]
                 }
                 self.assertDictEqual(result, expected_result)
 
@@ -258,16 +249,6 @@ class TestConsolidateProposal(TestCase):
         consolidate_proposal(proposal_refused)
 
         mock_cancel_proposal.assert_called_once_with(proposal_refused)
-
-    @mock.patch("base.business.learning_unit_proposal.cancel_proposal", side_effect=mock_message_by_level)
-    @mock.patch("base.utils.send_mail.send_mail_after_the_learning_unit_proposal_consolidation",
-                side_effect=None)
-    def test_when_sending_mail(self, mock_send_mail, mock_cancel_proposal):
-        author = PersonFactory()
-        creation_proposal = ProposalLearningUnitFactory(state=proposal_state.ProposalState.REFUSED.name)
-        consolidate_proposal(creation_proposal, author=author, send_mail=True)
-
-        mock_send_mail.assert_called_once_with([author], [creation_proposal])
 
     @mock.patch("base.business.learning_unit_proposal.edit_learning_unit_end_date")
     def test_when_proposal_of_type_creation_and_accepted(self, mock_edit_lu_end_date):

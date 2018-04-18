@@ -323,7 +323,7 @@ def apply_action_on_proposals(proposals, action_method):
 
 
 def consolidate_proposal(proposal):
-    results = {}
+    results = {ERROR: [_("Proposal is neither accepted nor refused.")]}
     if proposal.state == proposal_state.ProposalState.REFUSED.name:
         results = cancel_proposal(proposal)
     elif proposal.state == proposal_state.ProposalState.ACCEPTED.name:
