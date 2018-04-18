@@ -34,8 +34,8 @@ class OfferEnrollmentAdmin(SerializableModelAdmin):
     fieldsets = ((None, {'fields': ('offer_year', 'student', 'date_enrollment', 'enrollment_state')}),)
     list_filter = ('offer_year__academic_year', 'enrollment_state')
     raw_id_fields = ('offer_year', 'student')
-    search_fields = ['offer_year__acronym', 'student__person__first_name', 'student__person__last_name',
-                     'student__registration_id', 'enrollment_state']
+    search_fields = ['offer_year__acronym', 'education_group_year__acronym', 'student__person__first_name',
+                     'student__person__last_name', 'student__registration_id', 'enrollment_state']
 
 
 class OfferEnrollment(SerializableModel):
