@@ -34,7 +34,7 @@ from base.business.learning_unit import get_learning_units_and_summary_status
 from base.business.learning_units.educational_information import get_responsible_and_learning_unit_yr_list
 from base.forms.common import TooManyResultsException
 from base.forms.learning_unit.educational_information.mail_reminder import MailReminderRow, MailReminderFormset
-from base.forms.learning_units import LearningUnitYearForm
+from base.forms.learning_unit.search_form import LearningUnitYearForm
 from base.models.person import Person, find_by_user
 from base.utils.send_mail import send_mail_for_educational_information_update
 from base.views import layout

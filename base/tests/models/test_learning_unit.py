@@ -61,12 +61,6 @@ class LearningUnitTest(TestCase):
         LearningUnitFactory()
         self.assertEqual(2, len( learning_unit.find_by_ids( (l_unit_1.id, l_unit_2.id) )))
 
-    def test_search_by_acronym(self):
-        LearningUnitFactory(acronym="LT49786")
-        LearningUnitFactory()
-        LearningUnitFactory()
-        self.assertEqual(1, len(learning_unit.search(acronym="LT49786")))
-
     def test_get_partims_related(self):
         current_year = datetime.date.today().year
         academic_year = AcademicYearFactory(year=current_year)
