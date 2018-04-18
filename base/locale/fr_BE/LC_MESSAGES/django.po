@@ -2788,7 +2788,7 @@ msgstr "Proposition {acronym} ({academic_year}) ne peut pas être annulée."
 msgid "success_cancel_proposal"
 msgstr "Proposition {acronym} ({academic_year}) annulée avec succès"
 
-msgid "The learning Unit %(acronym)s is included in the following education groups"
+msgid "The learning unit %(acronym)s is included in the following education groups"
 msgstr "L'unité d'enseignement %(acronym)s est incluse dans les groupements suivants"
 
 msgid "type_code_formation"
