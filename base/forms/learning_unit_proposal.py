@@ -47,11 +47,7 @@ class ProposalLearningUnitForm(forms.ModelForm):
     entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
 
     def __init__(self, data, person, *args, initial=None, **kwargs):
-        super().__init__(data, *args, **kwargs)
-
-        if initial:
-            for key, value in initial.items():
-                setattr(self.instance, key, value)
+        super().__init__(data, *args, initial=initial, **kwargs)
 
         if hasattr(self.instance, 'entity'):
             self.initial['entity'] = get_last_version(self.instance.entity)

@@ -25,7 +25,7 @@
 ##############################################################################
 
 from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 
 from base.forms.learning_unit_proposal import CreationProposalBaseForm
 from base.models.academic_year import AcademicYear
@@ -48,4 +48,4 @@ def get_proposal_learning_unit_creation_form(request, academic_year):
                                                          'proposal_learning_unit_successfuly_created')
         return redirect('learning_unit', learning_unit_year_id=proposal.learning_unit_year.pk)
 
-    return layout.render(request, "learning_unit/proposal/creation.html", proposal_form.get_context())
+    return render(request, "learning_unit/proposal/creation.html", proposal_form.get_context())
