@@ -61,11 +61,6 @@ class TestLearningUnitProposal(TestCase):
         self.assertIsNone(lu_proposal_business._get_data_dict('key1', {'key2': 'nothing serious'}))
         self.assertEqual(lu_proposal_business._get_data_dict('key1', {'key1': 'nothing serious'}), 'nothing serious')
 
-    def test_get_data_rid_of_blank_value(self):
-        data = {'key1': 'thing', 'key2': ''}
-        self.assertEqual(lu_proposal_business._get_rid_of_blank_value(data),
-                         {'key1': 'thing', 'key2': None})
-
 
 class TestLearningUnitProposalCancel(TestCase):
     def setUp(self):
@@ -231,7 +226,7 @@ def mock_message_by_level(*args, **kwargs):
 
 class TestConsolidateProposal(TestCase):
     def test_when_proposal_is_not_accepted_nor_refused(self):
-        states = (state for state, _ in proposal_state.ProposalState.__members__.items()
+        states = (state for state, value in proposal_state.ProposalState.__members__.items()
                   if state not in PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES )
         for state in states:
             with self.subTest(state=state):
@@ -283,6 +278,3 @@ class TestConsolidateProposal(TestCase):
         self.assertEqual(lu_arg.end_year, suppression_proposal.initial_data["learning_unit"]["end_year"])
         suppression_proposal.learning_unit_year.learning_unit.refresh_from_db()
         self.assertEqual(academic_year_arg.year, suppression_proposal.learning_unit_year.learning_unit.end_year)
-
-
-
