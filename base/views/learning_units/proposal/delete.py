@@ -40,7 +40,7 @@ from base.views.learning_units import perms
 def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
     user_person = get_object_or_404(Person, user=request.user)
     learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learning_unit_year_id)
-    messages_by_level = business_proposal.cancel_proposals_and_send_report([learning_unit_proposal], user_person, None)
+    messages_by_level = business_proposal.cancel_proposals_and_send_report([learning_unit_proposal], user_person, {})
     display_messages_by_level(request, messages_by_level)
 
     if LearningUnitYear.objects.filter(pk=learning_unit_year_id).exists():
