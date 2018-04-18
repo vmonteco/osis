@@ -58,7 +58,7 @@ from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views.learning_units import perms
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
-from base.views.learning_units.search import _learning_units_search, learning_units
+from base.views.learning_units.search import learning_units_search, learning_units
 from cms.models import text_label
 from osis_common.decorators.ajax import ajax_required
 from . import layout
@@ -315,13 +315,13 @@ def check_acronym(request, subtype):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units_activity(request):
-    return _learning_units_search(request, SIMPLE_SEARCH)
+    return learning_units_search(request, SIMPLE_SEARCH)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units_service_course(request):
-    return _learning_units_search(request, SERVICE_COURSES_SEARCH)
+    return learning_units_search(request, SERVICE_COURSES_SEARCH)
 
 
 @login_required
