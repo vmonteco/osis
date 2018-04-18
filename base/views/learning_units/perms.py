@@ -85,6 +85,16 @@ def can_perform_cancel_proposal(view_func):
     return f_can_perform_cancel_proposal
 
 
+def can_consolidate_proposal(view_func):
+    def f_can_consolidate_proposal(request, learning_unit_year_id):
+        learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year__id=learning_unit_year_id)
+        pers = get_object_or_404(person.Person, user=request.user)
+        if not business_perms.is_eligible_to_consolidate_proposal(learning_unit_proposal, pers):
+            raise PermissionDenied("Learning unit proposal cannot be consolidated.")
+        return view_func(request, learning_unit_year_id)
+    return f_can_consolidate_proposal
+
+
 def can_perform_end_date_modification(view_func):
     def f_can_perform_end_date_modification(request, learning_unit_year_id):
         learn_unit_year = get_object_or_404(learning_unit_year.LearningUnitYear, pk=learning_unit_year_id)
