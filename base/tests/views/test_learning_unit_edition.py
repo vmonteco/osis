@@ -267,6 +267,7 @@ class TestEditLearningUnit(TestCase):
     def test_form_initial_data(self):
         response = self.client.get(self.url)
         context = response.context[-1]
+        acronym = self.learning_unit_year.acronym
         # Expected initials form
         expected_initials = {
             'learning_container_year_form': {
@@ -280,7 +281,7 @@ class TestEditLearningUnit(TestCase):
                 "type_declaration_vacant": self.learning_unit_year.learning_container_year.type_declaration_vacant
             },
             'learning_unit_year_form': {
-                "acronym": self.learning_unit_year.acronym,
+                "acronym": [acronym[0], acronym[1:]],
                 "academic_year": self.learning_unit_year.academic_year.id,
                 "status": self.learning_unit_year.status,
                 "credits": self.learning_unit_year.credits,
@@ -304,10 +305,10 @@ class TestEditLearningUnit(TestCase):
         # Expected form in formset entity container
         learning_container_year_id = self.learning_unit_year.learning_container_year.id
         expected_initials = [
-            {'entity': self.requirement_entity, 'learning_container_year': learning_container_year_id},
-            {'entity': self.allocation_entity, 'learning_container_year': learning_container_year_id},
-            {'entity': self.additional_entity_1, 'learning_container_year': learning_container_year_id},
-            {'entity': self.additional_entity_2, 'learning_container_year': learning_container_year_id},
+            {'entity': self.requirement_entity.pk , 'learning_container_year': learning_container_year_id},
+            {'entity': self.allocation_entity.pk, 'learning_container_year': learning_container_year_id},
+            {'entity': self.additional_entity_1.pk, 'learning_container_year': learning_container_year_id},
+            {'entity': self.additional_entity_2.pk, 'learning_container_year': learning_container_year_id},
         ]
         entity_container_formset = context['entity_container_form']
         for idx, expected_initial in enumerate(expected_initials):
