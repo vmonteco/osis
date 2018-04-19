@@ -102,7 +102,7 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, "learning_unit/update_end_date.html")
+        self.assertEqual(template, "learning_unit/simple/update_end_date.html")
 
     @mock.patch('base.business.learning_units.perms.is_eligible_for_modification_end_date')
     def test_view_learning_unit_edition_post(self, mock_perms):
@@ -123,6 +123,13 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         msg = [m.message for m in get_messages(request)]
         self.assertEqual(len(msg), 1)
         self.assertIn(messages.SUCCESS, msg_level)
+
+    @mock.patch('base.business.learning_units.perms.is_eligible_for_modification_end_date')
+    def test_view_learning_unit_edition_template(self, mock_perms):
+        mock_perms.return_value = True
+        url = reverse("learning_unit_edition", args=[self.learning_unit_year.id])
+        response = self.client.get(url)
+        self.assertTemplateUsed(response, "learning_unit/simple/update_end_date.html")
 
 
 class TestEditLearningUnit(TestCase):
@@ -496,4 +503,3 @@ class TestLearningUnitVolumesManagement(TestCase):
 
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, 'access_denied.html')
-

@@ -93,16 +93,18 @@ def learning_units_service_course(request):
 def learning_units_proposal_search(request):
     search_form = LearningUnitProposalForm(request.GET or None)
     proposals = []
+    cleaned_research_criteria = []
     try:
         if search_form.is_valid():
             proposals = search_form.get_proposal_learning_units()
             check_if_display_message(request, proposals)
+            cleaned_research_criteria = search_form.get_research_criteria()
 
     except TooManyResultsException:
         display_error_messages(request, 'too_many_results')
 
     if proposals:
-        proposals = _proposal_management(request, proposals)
+        proposals = _proposal_management(request, proposals, cleaned_research_criteria)
     a_person = find_by_user(request.user)
     context = {
         'form': search_form,
@@ -117,40 +119,42 @@ def learning_units_proposal_search(request):
     return layout.render(request, "learning_units.html", context)
 
 
-def _proposal_management(request, proposals):
+def _proposal_management(request, proposals, research_criteria):
     list_proposal_formset = formset_factory(form=ProposalRowForm, formset=ProposalListFormset,
                                             extra=len(proposals), max_num=MAX_RECORDS)
 
     formset = list_proposal_formset(request.POST or None,
                                     list_proposal_learning=proposals,
                                     action=request.POST.get('action') if request.POST else None)
-    return process_formset(formset, request)
+    return process_formset(formset, request, research_criteria)
 
 
-def process_formset(formset, request):
+def process_formset(formset, request, research_criteria):
     if formset.is_valid():
         if formset.action == 'back_to_initial':
-            formset = _go_back_to_initial_data(formset, request)
+            formset = _go_back_to_initial_data(formset, request, research_criteria)
         elif formset.action == "consolidate":
-            _consolidate_proposals(formset, request)
+            _consolidate_proposals(formset, request, research_criteria)
         else:
             _force_state(formset, request)
     return formset
 
 
-def _go_back_to_initial_data(formset, request):
-    return _apply_action_on_proposals(formset, request, proposal_business.cancel_proposals)
+def _go_back_to_initial_data(formset, request, research_criteria):
+    return _apply_action_on_proposals(formset, request, proposal_business.cancel_proposals_and_send_report,
+                                      research_criteria)
 
 
-def _consolidate_proposals(formset, request):
-    return _apply_action_on_proposals(formset, request, proposal_business.consolidate_proposals)
+def _consolidate_proposals(formset, request, research_criteria):
+    return _apply_action_on_proposals(formset, request, proposal_business.consolidate_proposals_and_send_report,
+                                      research_criteria)
 
 
-def _apply_action_on_proposals(formset, request, action_method):
+def _apply_action_on_proposals(formset, request, action_method, research_criteria):
     proposals = formset.get_checked_proposals()
     if proposals:
         user_person = get_object_or_404(Person, user=request.user)
-        messages_by_level = action_method(proposals, user_person)
+        messages_by_level = action_method(proposals, user_person, research_criteria)
         display_messages_by_level(request, messages_by_level)
         formset = None
     else:
