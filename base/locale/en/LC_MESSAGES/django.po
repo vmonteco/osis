@@ -2792,3 +2792,6 @@ msgstr "Relative / Absolute <br>credits"
 
 msgid "learning_achievements"
 msgstr "Learning achievements"
+
+msgid "learning_achievements_headline"
+msgstr "At the end of this learning unit, the student is able to:"
