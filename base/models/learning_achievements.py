@@ -70,4 +70,3 @@ def search(learning_unit_yr=None, a_language_code=None, position=None):
     if position:
         queryset = queryset.filter(order=position)
     return queryset.select_related('language').order_by('order', 'language__code')
-
