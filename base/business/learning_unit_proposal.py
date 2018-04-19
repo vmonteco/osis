@@ -224,12 +224,12 @@ def _apply_action_on_proposals_and_send_report(proposals, author, action_method,
         if ERROR in results:
             messages_by_level[ERROR].append(_(error_msg_id) % {
                 "acronym": proposal.learning_unit_year.acronym,
-                "academic_year":proposal.learning_unit_year.academic_year
+                "academic_year": proposal.learning_unit_year.academic_year
             })
         else:
             messages_by_level[SUCCESS].append(_(success_msg_id) % {
                 "acronym": proposal.learning_unit_year.acronym,
-                "academic_year":proposal.learning_unit_year.academic_year
+                "academic_year": proposal.learning_unit_year.academic_year
             })
     return messages_by_level
 
@@ -243,16 +243,18 @@ def consolidate_proposal(proposal):
     if proposal.state == proposal_state.ProposalState.REFUSED.name:
         results = cancel_proposal(proposal)
     elif proposal.state == proposal_state.ProposalState.ACCEPTED.name:
-        if proposal.type == proposal_type.ProposalType.CREATION.name:
-            results = _consolidate_creation_proposal_accepted(proposal)
-        elif proposal.type == proposal_type.ProposalType.SUPPRESSION.name:
-            results = _consolidate_suppression_proposal_accepted(proposal)
-        else:
-            results = _consolidate_modification_proposal_accepted(proposal)
-
+        results = _consolidate_accepted_proposal(proposal)
         if not results.get(ERROR):
             delete_learning_unit_proposal(proposal)
     return results
+
+
+def _consolidate_accepted_proposal(proposal)
+    if proposal.type == proposal_type.ProposalType.CREATION.name:
+        return _consolidate_creation_proposal_accepted(proposal)
+    elif proposal.type == proposal_type.ProposalType.SUPPRESSION.name:
+        return _consolidate_suppression_proposal_accepted(proposal)
+    return _consolidate_modification_proposal_accepted(proposal)
 
 
 def cancel_proposal(proposal):
