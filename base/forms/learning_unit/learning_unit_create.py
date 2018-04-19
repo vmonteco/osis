@@ -105,6 +105,10 @@ class LearningUnitYearModelForm(forms.ModelForm):
 
         self.instance.subtype = subtype
 
+        acronym = self.initial.get('acronym')
+        if acronym:
+            self.initial['acronym'] = [acronym[0], acronym[1:]]
+
         if subtype == learning_unit_year_subtypes.PARTIM:
             self.fields['acronym'] = PartimAcronymField()
             self.fields['specific_title'].label = _('official_title_proper_to_partim')
@@ -183,7 +187,8 @@ class EntityContainerYearModelForm(forms.ModelForm):
         self.fields['entity'].label = _(entity_type.lower())
 
         if hasattr(self.instance, 'entity'):
-            self.initial['entity'] = get_last_version(self.instance.entity)
+            self.initial['entity'] = get_last_version(self.instance.entity).pk
+
 
     def _set_field_by_entity_type(self, entity_type):
         set_by_entity_type = {

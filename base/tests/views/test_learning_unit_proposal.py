@@ -204,7 +204,8 @@ class TestLearningUnitModificationProposal(TestCase):
         lu_initial = response.context['learning_unit_form'].initial
         lcy_initial = response.context['learning_container_year_form'].initial
         self.assertEqual(luy_initial['academic_year'], self.learning_unit_year.academic_year.id)
-        self.assertEqual(luy_initial['acronym'], self.learning_unit_year.acronym)
+        self.assertEqual(luy_initial['acronym'], [
+            self.learning_unit_year.acronym[0], self.learning_unit_year.acronym[1:]])
         self.assertEqual(luy_initial['specific_title'], self.learning_unit_year.specific_title)
         self.assertEqual(lcy_initial['container_type'], self.learning_unit_year.
                          learning_container_year.container_type)

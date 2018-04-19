@@ -260,6 +260,7 @@ class TestEditLearningUnit(TestCase):
     def test_form_initial_data(self):
         response = self.client.get(self.url)
         context = response.context[-1]
+        acronym = self.learning_unit_year.acronym
         # Expected initials form
         expected_initials = {
             'learning_container_year_form': {
@@ -273,7 +274,7 @@ class TestEditLearningUnit(TestCase):
                 "type_declaration_vacant": self.learning_unit_year.learning_container_year.type_declaration_vacant
             },
             'learning_unit_year_form': {
-                "acronym": self.learning_unit_year.acronym,
+                "acronym": [acronym[0], acronym[1:]],
                 "academic_year": self.learning_unit_year.academic_year.id,
                 "status": self.learning_unit_year.status,
                 "credits": self.learning_unit_year.credits,
