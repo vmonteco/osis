@@ -190,7 +190,7 @@ def _get_rid_of_blank_value(data):
 
 
 def cancel_proposals_and_send_report(proposals, author, research_criteria):
-    return apply_action_on_proposals_and_send_report(
+    return _apply_action_on_proposals_and_send_report(
         proposals,
         author,
         cancel_proposal,
@@ -202,7 +202,7 @@ def cancel_proposals_and_send_report(proposals, author, research_criteria):
 
 
 def consolidate_proposals_and_send_report(proposals, author, research_criteria):
-    return apply_action_on_proposals_and_send_report(
+    return _apply_action_on_proposals_and_send_report(
         proposals,
         author,
         consolidate_proposal,
@@ -213,8 +213,8 @@ def consolidate_proposals_and_send_report(proposals, author, research_criteria):
     )
 
 
-def apply_action_on_proposals_and_send_report(proposals, author, action_method, success_msg_id, error_msg_id,
-                                              send_mail_method, research_criteria):
+def _apply_action_on_proposals_and_send_report(proposals, author, action_method, success_msg_id, error_msg_id,
+                                               send_mail_method, research_criteria):
     messages_by_level = {SUCCESS: [], ERROR: [], INFO: [_("A report has been sent.")]}
     proposals_with_results = apply_action_on_proposals(proposals, action_method)
 
@@ -239,11 +239,9 @@ def consolidate_proposal(proposal):
         results = cancel_proposal(proposal)
     elif proposal.state == proposal_state.ProposalState.ACCEPTED.name:
         if proposal.type == proposal_type.ProposalType.CREATION.name:
-            results = consolidate_creation_proposal_accepted(proposal)
+            results = _consolidate_creation_proposal_accepted(proposal)
         elif proposal.type == proposal_type.ProposalType.SUPPRESSION.name:
-            results = consolidate_suppression_proposal_accepted(proposal)
-        else:
-            results = consolidate_modification_proposal_accepted(proposal)
+            results = _consolidate_suppression_proposal_accepted(proposal)
     return results
 
 
@@ -260,7 +258,7 @@ def cancel_proposal(proposal):
     return results
 
 
-def consolidate_creation_proposal_accepted(proposal):
+def _consolidate_creation_proposal_accepted(proposal):
     proposal.learning_unit_year.learning_unit.end_year = proposal.learning_unit_year.academic_year.year
 
     results = {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, None)}
@@ -269,7 +267,7 @@ def consolidate_creation_proposal_accepted(proposal):
     return results
 
 
-def consolidate_suppression_proposal_accepted(proposal):
+def _consolidate_suppression_proposal_accepted(proposal):
     initial_end_year = proposal.initial_data["learning_unit"]["end_year"]
     new_end_year = proposal.learning_unit_year.learning_unit.end_year
 
@@ -280,11 +278,6 @@ def consolidate_suppression_proposal_accepted(proposal):
     if not results.get(ERROR):
         proposal.delete()
     return results
-
-
-# TODO implement modification proposal consolidation
-def consolidate_modification_proposal_accepted(proposal):
-    return {}
 
 
 def compute_proposal_state(a_person):

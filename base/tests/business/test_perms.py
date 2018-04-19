@@ -419,7 +419,7 @@ class TestIsEligibleToConsolidateLearningUnitProposal(TestCase):
                 proposal = ProposalLearningUnitFactory(state=state)
                 self.assertFalse(is_eligible_to_consolidate_proposal(proposal, self.person_with_right_to_consolidate))
 
-    def test_when_person_not_linked_to_entiy(self):
+    def test_when_person_not_linked_to_entity(self):
         proposal = ProposalLearningUnitFactory(state=proposal_state.ProposalState.ACCEPTED.name)
         self.assertFalse(is_eligible_to_consolidate_proposal(proposal, self.person_with_right_to_consolidate))
 
