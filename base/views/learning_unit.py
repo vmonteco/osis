@@ -184,7 +184,7 @@ def learning_unit_specifications(request, learning_unit_year_id):
     })
 
     context.update(get_achievements_group_by_language(learning_unit_year))
-    context.update({'LANGUAGE_CODE_FR': settings.LANGUAGE_CODE_FR,'LANGUAGE_CODE_EN': settings.LANGUAGE_CODE_EN})
+    context.update({'LANGUAGE_CODE_FR': settings.LANGUAGE_CODE_FR, 'LANGUAGE_CODE_EN': settings.LANGUAGE_CODE_EN})
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/specifications.html", context)
 
