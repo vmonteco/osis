@@ -194,6 +194,10 @@ def display_success_messages(request, messages_to_display, extra_tags=None):
     display_messages(request, messages_to_display, messages.SUCCESS, extra_tags=extra_tags)
 
 
+def display_info_messages(request, messages_to_display, extra_tags=None):
+    display_messages(request, messages_to_display, messages.INFO, extra_tags=extra_tags)
+
+
 def display_messages(request, messages_to_display, level, extra_tags=None):
     if not isinstance(messages_to_display, (tuple, list)):
         messages_to_display = [messages_to_display]
@@ -208,13 +212,6 @@ def check_if_display_message(request, results):
     return True
 
 
-def display_most_critical_messages(request, messages_by_level):
-    if messages_by_level.get(ERROR, []):
-        display_error_messages(request, messages_by_level[ERROR])
-    else:
-        display_success_messages(request, messages_by_level.get(SUCCESS, []), extra_tags='safe')
-
-
 def display_messages_by_level(request, messages_by_level):
-    display_error_messages(request, messages_by_level.get(ERROR, []))
-    display_success_messages(request, messages_by_level.get(SUCCESS, []), extra_tags='safe')
+    for level, msgs in messages_by_level.items():
+        display_messages(request, msgs, level, extra_tags='safe')
