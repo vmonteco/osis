@@ -59,13 +59,14 @@ $(document).ready(function(){
     $(".collapseIndicator").click(function(e){
         var index = $(this).data('index')
         var divCollapsable = $("div[id^='collapsable_" + index + "']")
-        if ($(e.target).hasClass('fa-arrow-up')) {
-            $(e.target).removeClass('fa-arrow-up');
-            $(e.target).addClass('fa-arrow-down');
+        var iconElem = $(this).find("i");
+        if (iconElem.hasClass('fa-arrow-up')) {
+            iconElem.removeClass('fa-arrow-up');
+            iconElem.addClass('fa-arrow-down');
             divCollapsable.css({'height':'60px','overflow':'hidden'});
         } else {
-            $(e.target).removeClass('fa-arrow-down');
-            $(e.target).addClass('fa-arrow-up');
+            iconElem.removeClass('fa-arrow-down');
+            iconElem.addClass('fa-arrow-up');
             divCollapsable.css({'height':'','overflow':''});
         }
     });
