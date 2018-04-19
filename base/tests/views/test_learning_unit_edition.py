@@ -298,10 +298,10 @@ class TestEditLearningUnit(TestCase):
         # Expected form in formset entity container
         learning_container_year_id = self.learning_unit_year.learning_container_year.id
         expected_initials = [
-            {'entity': self.requirement_entity , 'learning_container_year': learning_container_year_id},
-            {'entity': self.allocation_entity, 'learning_container_year': learning_container_year_id},
-            {'entity': self.additional_entity_1, 'learning_container_year': learning_container_year_id},
-            {'entity': self.additional_entity_2, 'learning_container_year': learning_container_year_id},
+            {'entity': self.requirement_entity.pk , 'learning_container_year': learning_container_year_id},
+            {'entity': self.allocation_entity.pk, 'learning_container_year': learning_container_year_id},
+            {'entity': self.additional_entity_1.pk, 'learning_container_year': learning_container_year_id},
+            {'entity': self.additional_entity_2.pk, 'learning_container_year': learning_container_year_id},
         ]
         entity_container_formset = context['entity_container_form']
         for idx, expected_initial in enumerate(expected_initials):
