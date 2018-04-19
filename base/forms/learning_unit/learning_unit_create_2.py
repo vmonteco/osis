@@ -49,6 +49,8 @@ PARTIM_FORM_READ_ONLY_FIELD = {'acronym_0', 'acronym_1', 'common_title', 'common
                                'academic_year', 'container_type', 'internship_subtype',
                                'additional_requirement_entity_1', 'additional_requirement_entity_2'}
 
+FACULTY_OPEN_FIELDS = {'quadrimester', 'session', 'team'}
+
 
 class LearningUnitBaseForm:
 
@@ -98,9 +100,20 @@ class LearningUnitBaseForm:
     def changed_data(self):
         return [form.changed_data for form in self.forms.values()]
 
-    def disable_fields(self, field_names):
+    def disable_fields(self, fields_to_disable):
         for key, value in self.get_all_fields().items():
-            value.disabled = key in field_names
+            if key in fields_to_disable:
+                self._disable_field(value)
+
+    def disable_all_fields_except(self, fields_not_to_disable):
+        for key, value in self.get_all_fields().items():
+            if key not in fields_not_to_disable:
+                self._disable_field(value)
+
+    @staticmethod
+    def _disable_field(field):
+        field.disabled = True
+        field.required = False
 
     def get_all_fields(self):
         fields = {}
@@ -183,12 +196,19 @@ class FullForm(LearningUnitBaseForm):
         check_learning_unit_year_instance(instance)
         self.instance = instance
         self.person = person
+        self.proposal = proposal
 
         self.postponement = bool(int(data.get('postponement', 1))) if data else False
 
         self.academic_year = instance.academic_year if instance else default_ac_year
         instances_data = self._build_instance_data(data, default_ac_year, instance, proposal)
         super().__init__(instances_data, *args, **kwargs)
+
+        if self.person.is_faculty_manager() and self.instance:
+            if self.proposal:
+                self.disable_fields(FACULTY_OPEN_FIELDS)
+            else:
+                self.disable_all_fields_except(FACULTY_OPEN_FIELDS)
 
     def _build_instance_data(self, data, default_ac_year, instance, proposal):
         return{
