@@ -124,6 +124,9 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         self.assertEqual(len(msg), 1)
         self.assertIn(messages.SUCCESS, msg_level)
 
+    @mock.patch('base.business.learning_units.perms.is_eligible_for_modification_end_date')
+    def test_view_learning_unit_edition_template(self, mock_perms):
+        mock_perms.return_value = True
         url = reverse("learning_unit_edition", args=[self.learning_unit_year.id])
         response = self.client.get(url)
         self.assertTemplateUsed(response, "learning_unit/simple/update_end_date.html")
