@@ -216,4 +216,3 @@ def _find_with_learning_unit_enrollment_count(learning_unit_year, education_grou
         .annotate(count_learning_unit_enrollments=Count('offerenrollment__learningunitenrollment'))\
         .values('id', 'count_learning_unit_enrollments')
     return {obj['id']: obj['count_learning_unit_enrollments'] for obj in objects}
-
