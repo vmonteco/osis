@@ -63,7 +63,6 @@
                                             <ul>
                                                 {% for training in  data.trainings %}
                                                     <li>{{ training.acronym }} - {{ training.title }}</li>
-                                                    <li>{{ training.acronym }} - {{ training.title }}</li>
                                                 {% endfor %}
                                             </ul>
                                         </td>
@@ -77,6 +76,39 @@
                 </div>
             </div>
         </div>
+
+    <br>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                {% trans 'enrollments_to_learning_unit' %}
+            </div>
+            <div class="panel-body">
+                <div class="tab-content" id="tab_content">
+                    <div role="tabpanel" class="tab-pane active" id="learning_unit_enrollments">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans 'training' %}</th>
+                                    <th>{% trans 'training_enrollments' %}</th>
+                                    <th>{% trans 'learning_unit_enrollments' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for education_group_year in root_formations %}
+                                <tr>
+                                    <td>{{ education_group_year.acronym }}</td>
+                                    <td>{{ education_group_year.count_formation_enrollments }}</td>
+                                    <td>{{ education_group_year.count_learning_unit_enrollments }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}
