@@ -189,7 +189,6 @@ class EntityContainerYearModelForm(forms.ModelForm):
         if hasattr(self.instance, 'entity'):
             self.initial['entity'] = get_last_version(self.instance.entity).pk
 
-
     def _set_field_by_entity_type(self, entity_type):
         set_by_entity_type = {
             REQUIREMENT_ENTITY: self.set_requirement_entity,

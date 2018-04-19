@@ -122,4 +122,3 @@ def split_acronym(value):
     last_digit_position = re.match('.+([0-9])[^0-9]*$', value).start(1)
     subdivision = value[last_digit_position + 1] if len(value) > last_digit_position + 1 else ''
     return [value[0], value[1:last_digit_position + 1], subdivision]
-
