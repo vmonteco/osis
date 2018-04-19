@@ -315,6 +315,7 @@ def check_postponement_conflict_report_errors(conflict_report):
         )
 
 
+# FIXME should used include and not exclude
 def _update_learning_unit_year(luy_to_update, fields_to_update, with_report):
     fields_to_exclude = ()
     if with_report:

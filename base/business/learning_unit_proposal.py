@@ -290,11 +290,13 @@ def _consolidate_modification_proposal_accepted(proposal):
     if next_luy:
         fields_to_update = {}
         fields_to_update.update(model_to_dict(proposal.learning_unit_year,
-                                              fields=list(proposal.initial_data["learning_unit_year"].keys()),
-                                              exclude=("id", )))
-        fields_to_update.update(model_to_dict(proposal.learning_unit_year.learning_unit, fields=(proposal.initial_data["learning_unit"].keys()),
+                                              fields=proposal.initial_data["learning_unit_year"].keys(),
                                               exclude=("id",)))
-        fields_to_update.update(model_to_dict(proposal.learning_unit_year.learning_container_year, fields=(proposal.initial_data["learning_container_year"].keys()),
+        fields_to_update.update(model_to_dict(proposal.learning_unit_year.learning_unit,
+                                              fields=proposal.initial_data["learning_unit"].keys(),
+                                              exclude=("id",)))
+        fields_to_update.update(model_to_dict(proposal.learning_unit_year.learning_container_year,
+                                              fields=proposal.initial_data["learning_container_year"].keys(),
                                               exclude=("id",)))
         fields_to_update_clean = {}
         for field_name, field_value in fields_to_update.items():

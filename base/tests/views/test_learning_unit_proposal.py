@@ -793,9 +793,10 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
 
         messages = [str(message) for message in get_messages(response.wsgi_request)]
-        self.assertIn(_("Proposal %s (%s) successfully canceled.").format(self.learning_unit_year.acronym,
-                                                                          self.learning_unit_year.academic_year),
-                      list(messages))
+        self.assertIn(_("Proposal %(acronym)s (%(academic_year)s) successfully canceled.") % {
+                "acronym": self.learning_unit_year.acronym,
+                "academic_year": self.learning_unit_year.academic_year
+            }, messages)
 
     def test_models_after_cancellation_of_proposal(self):
         _modify_learning_unit_year_data(self.learning_unit_year)

@@ -214,10 +214,10 @@ class TestConsolidateProposals(TestCase):
         self.assertDictEqual(result, {
             INFO: [_("A report has been sent.")],
             ERROR: [],
-            SUCCESS: [_("Proposal %s (%s) successfully consolidated.").format(
-                        acronym=proposal.learning_unit_year.acronym,
-                        academic_year=proposal.learning_unit_year.academic_year
-                    ) for proposal in self.proposals]
+            SUCCESS: [_("Proposal %(acronym)s (%(academic_year)s) successfully consolidated.") % {
+                "acronym": proposal.learning_unit_year.acronym,
+                "academic_year":proposal.learning_unit_year.academic_year
+            } for proposal in self.proposals]
         })
 
         self.assertTrue(mock_mail.called)
