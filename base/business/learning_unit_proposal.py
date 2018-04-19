@@ -249,7 +249,7 @@ def consolidate_proposal(proposal):
     return results
 
 
-def _consolidate_accepted_proposal(proposal)
+def _consolidate_accepted_proposal(proposal):
     if proposal.type == proposal_type.ProposalType.CREATION.name:
         return _consolidate_creation_proposal_accepted(proposal)
     elif proposal.type == proposal_type.ProposalType.SUPPRESSION.name:
