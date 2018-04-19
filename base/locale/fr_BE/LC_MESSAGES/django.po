@@ -2776,17 +2776,17 @@ msgstr "Voulez-vous consolider ?"
 msgid "need_no_reminder"
 msgstr "Pas besoin de rappel tout est en ordre"
 
-msgid "Proposal {acronym} ({academic_year}) cannot be consolidated."
-msgstr "Proposition {acronym} ({academic_year}) ne peut pas être consolidée."
+msgid "Proposal %s (%s) cannot be consolidated."
+msgstr "Proposition %s (%s) ne peut pas être consolidée."
 
-msgid "Proposal {acronym} ({academic_year}) successfully consolidated."
-msgstr "Proposition {acronym} ({academic_year}) consolidée avec succès."
+msgid "Proposal %s (%s) successfully consolidated."
+msgstr "Proposition %s (%s) consolidée avec succès."
 
-msgid "Proposal {acronym} ({academic_year}) cannot be canceled."
-msgstr "Proposition {acronym} ({academic_year}) ne peut pas être annulée."
+msgid "Proposal %s (%s) cannot be canceled."
+msgstr "Proposition %s (%s) ne peut pas être annulée."
 
-msgid "Proposal {acronym} ({academic_year}) successfully canceled."
-msgstr "Proposition {acronym} ({academic_year}) annulée avec succès"
+msgid "Proposal %s (%s) successfully canceled."
+msgstr "Proposition %s (%s) annulée avec succès"
 
 msgid "A report has been sent."
 msgstr "Un rapport a été envoyé."
@@ -2805,9 +2805,6 @@ msgstr "Unité d'enseignement"
 
 msgid "Research criteria"
 msgstr "Critères de recherche"
-
-msgid "success_cancel_proposal"
-msgstr "Proposition {acronym} ({academic_year}) annulée avec succès"
 
 msgid "The learning unit %(acronym)s is included in the following education groups"
 msgstr "L'unité d'enseignement %(acronym)s est incluse dans les groupements suivants"

@@ -194,8 +194,8 @@ def cancel_proposals_and_send_report(proposals, author, research_criteria):
         proposals,
         author,
         cancel_proposal,
-        "Proposal {acronym} ({academic_year}) successfully canceled.",
-        "Proposal {acronym} ({academic_year}) cannot be canceled.",
+        "Proposal %s (%s) successfully canceled.",
+        "Proposal %s (%s) cannot be canceled.",
         send_mail_util.send_mail_cancellation_learning_unit_proposals,
         research_criteria
     )
@@ -206,8 +206,8 @@ def consolidate_proposals_and_send_report(proposals, author, research_criteria):
         proposals,
         author,
         consolidate_proposal,
-        "Proposal {acronym} ({academic_year}) successfully consolidated.",
-        "Proposal {acronym} ({academic_year}) cannot be consolidated.",
+        "Proposal %s (%s) successfully consolidated.",
+        "Proposal %s (%s) cannot be consolidated.",
         send_mail_util.send_mail_consolidation_learning_unit_proposal,
         research_criteria
     )
@@ -221,15 +221,11 @@ def apply_action_on_proposals_and_send_report(proposals, author, action_method, 
     send_mail_method(author, proposals_with_results, research_criteria)
     for proposal, results in proposals_with_results:
         if ERROR in results:
-            messages_by_level[ERROR].append(_(error_msg_id).format(
-                acronym=proposal.learning_unit_year.acronym,
-                academic_year=proposal.learning_unit_year.academic_year)
-            )
+            messages_by_level[ERROR].append(_(error_msg_id).format(proposal.learning_unit_year.acronym,
+                                                                   proposal.learning_unit_year.academic_year))
         else:
-            messages_by_level[SUCCESS].append(_(success_msg_id).format(
-                acronym=proposal.learning_unit_year.acronym,
-                academic_year=proposal.learning_unit_year.academic_year)
-            )
+            messages_by_level[SUCCESS].append(_(success_msg_id).format(proposal.learning_unit_year.acronym,
+                                                                       proposal.learning_unit_year.academic_year))
     return messages_by_level
 
 
