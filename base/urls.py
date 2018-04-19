@@ -97,6 +97,10 @@ urlpatterns = [
             name='learning_units_summary'),
         url(r'^achievement/delete/(?P<learning_achievement_id>[0-9]+)$', learning_achievement.delete,
             name="delete_lu_achievement"),
+        url(r'^achievement/up/(?P<learning_achievement_id>[0-9]+)$', learning_achievement.up,
+            name="up_lu_achievement"),
+        url(r'^achievement/down/(?P<learning_achievement_id>[0-9]+)$', learning_achievement.down,
+            name="down_lu_achievement"),
         url(r'^new/', include([
             url(r'^academic_year_id=(?P<academic_year_id>[0-9]+)$', learning_unit.learning_unit_create,
                 name="learning_unit_create"),
