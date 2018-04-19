@@ -30,10 +30,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl_base
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components, \
-    edit_learning_unit_end_date
+    edit_learning_unit_end_date, update_learning_unit_year_with_report
 from base.business.learning_units.simple import deletion as business_deletion
 from base.models import entity_container_year, campus, entity
 from base.models.academic_year import find_academic_year_by_year
+from base.models.entity_container_year import find_entities_grouped_by_linktype
 from base.models.enums import proposal_state, proposal_type
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums.proposal_type import ProposalType
@@ -194,8 +195,8 @@ def cancel_proposals_and_send_report(proposals, author, research_criteria):
         proposals,
         author,
         cancel_proposal,
-        "Proposal %s (%s) successfully canceled.",
-        "Proposal %s (%s) cannot be canceled.",
+        "Proposal %(acronym)s (%(academic_year)s) successfully canceled.",
+        "Proposal %(acronym)s (%(academic_year)s) cannot be canceled.",
         send_mail_util.send_mail_cancellation_learning_unit_proposals,
         research_criteria
     )
@@ -206,8 +207,8 @@ def consolidate_proposals_and_send_report(proposals, author, research_criteria):
         proposals,
         author,
         consolidate_proposal,
-        "Proposal %s (%s) successfully consolidated.",
-        "Proposal %s (%s) cannot be consolidated.",
+        "Proposal %(acronym)s (%(academic_year)s) successfully consolidated.",
+        "Proposal %(acronym)s (%(academic_year)s) cannot be consolidated.",
         send_mail_util.send_mail_consolidation_learning_unit_proposal,
         research_criteria
     )
@@ -221,11 +222,15 @@ def _apply_action_on_proposals_and_send_report(proposals, author, action_method,
     send_mail_method(author, proposals_with_results, research_criteria)
     for proposal, results in proposals_with_results:
         if ERROR in results:
-            messages_by_level[ERROR].append(_(error_msg_id).format(proposal.learning_unit_year.acronym,
-                                                                   proposal.learning_unit_year.academic_year))
+            messages_by_level[ERROR].append(_(error_msg_id) % {
+                "acronym": proposal.learning_unit_year.acronym,
+                "academic_year":proposal.learning_unit_year.academic_year
+            })
         else:
-            messages_by_level[SUCCESS].append(_(success_msg_id).format(proposal.learning_unit_year.acronym,
-                                                                       proposal.learning_unit_year.academic_year))
+            messages_by_level[SUCCESS].append(_(success_msg_id) % {
+                "acronym": proposal.learning_unit_year.acronym,
+                "academic_year":proposal.learning_unit_year.academic_year
+            })
     return messages_by_level
 
 
@@ -242,6 +247,11 @@ def consolidate_proposal(proposal):
             results = _consolidate_creation_proposal_accepted(proposal)
         elif proposal.type == proposal_type.ProposalType.SUPPRESSION.name:
             results = _consolidate_suppression_proposal_accepted(proposal)
+        else:
+            results = _consolidate_modification_proposal_accepted(proposal)
+
+        if not results.get(ERROR):
+            delete_learning_unit_proposal(proposal)
     return results
 
 
@@ -262,8 +272,6 @@ def _consolidate_creation_proposal_accepted(proposal):
     proposal.learning_unit_year.learning_unit.end_year = proposal.learning_unit_year.academic_year.year
 
     results = {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, None)}
-    if not results.get(ERROR):
-        proposal.delete()
     return results
 
 
@@ -274,10 +282,28 @@ def _consolidate_suppression_proposal_accepted(proposal):
     proposal.learning_unit_year.learning_unit.end_year = initial_end_year
     new_academic_year = find_academic_year_by_year(new_end_year)
     results = {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, new_academic_year)}
-
-    if not results.get(ERROR):
-        proposal.delete()
     return results
+
+
+def _consolidate_modification_proposal_accepted(proposal):
+    next_luy = proposal.learning_unit_year.get_learning_unit_next_year()
+    if next_luy:
+        fields_to_update = {}
+        fields_to_update.update(model_to_dict(proposal.learning_unit_year,
+                                              fields=list(proposal.initial_data["learning_unit_year"].keys()),
+                                              exclude=("id", )))
+        fields_to_update.update(model_to_dict(proposal.learning_unit_year.learning_unit, fields=(proposal.initial_data["learning_unit"].keys()),
+                                              exclude=("id",)))
+        fields_to_update.update(model_to_dict(proposal.learning_unit_year.learning_container_year, fields=(proposal.initial_data["learning_container_year"].keys()),
+                                              exclude=("id",)))
+        fields_to_update_clean = {}
+        for field_name, field_value in fields_to_update.items():
+            fields_to_update_clean[field_name] = _clean_attribute_initial_value(field_name, field_value)
+
+        entities_to_update = find_entities_grouped_by_linktype(proposal.learning_unit_year.learning_container_year)
+
+        update_learning_unit_year_with_report(next_luy, fields_to_update_clean, entities_to_update)
+    return {}
 
 
 def compute_proposal_state(a_person):
