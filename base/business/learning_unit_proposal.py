@@ -23,29 +23,19 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-<<<<<<< HEAD
-from django.apps import apps
-from django.contrib.messages import ERROR, SUCCESS, INFO
-=======
-
 from django.contrib.messages import ERROR, SUCCESS
+from django.contrib.messages import INFO
 from django.forms import model_to_dict
->>>>>>> 3ce9f428aa4f57c17a858fad91f35502c012b71d
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl_base
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components, \
     edit_learning_unit_end_date
-from base.business.learning_units.perms import PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES
-from base.business.learning_units.simple import deletion as business_deletion, deletion
+from base.business.learning_units.simple import deletion as business_deletion
 from base.models import entity_container_year, campus, entity
-<<<<<<< HEAD
 from base.models.academic_year import find_academic_year_by_year
-from base.models.enums import entity_container_year_link_type, proposal_state, proposal_type
-=======
 from base.models.enums import proposal_state, proposal_type
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
->>>>>>> 3ce9f428aa4f57c17a858fad91f35502c012b71d
 from base.models.enums.proposal_type import ProposalType
 from base.utils import send_mail as send_mail_util
 from reference.models import language
