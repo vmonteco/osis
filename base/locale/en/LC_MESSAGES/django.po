@@ -2769,16 +2769,16 @@ msgstr "Do you want to consolidate ?"
 msgid "need_no_reminder"
 msgstr "Need no reminder"
 
-msgid "Proposal %s (%s) cannot be consolidated."
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be consolidated."
 msgstr ""
 
-msgid "Proposal %s (%s) successfully consolidated."
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully consolidated."
 msgstr ""
 
-msgid "Proposal %s (%s) cannot be canceled."
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be canceled."
 msgstr ""
 
-msgid "Proposal %s (%s) successfully canceled."
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully canceled."
 msgstr ""
 
 msgid "A report has been sent."

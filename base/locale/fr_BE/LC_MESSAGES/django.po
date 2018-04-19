@@ -2776,17 +2776,17 @@ msgstr "Voulez-vous consolider ?"
 msgid "need_no_reminder"
 msgstr "Pas besoin de rappel tout est en ordre"
 
-msgid "Proposal %s (%s) cannot be consolidated."
-msgstr "Proposition %s (%s) ne peut pas être consolidée."
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be consolidated."
+msgstr "Proposition %(acronym)s (%(academic_year)s) ne peut pas être consolidée."
 
-msgid "Proposal %s (%s) successfully consolidated."
-msgstr "Proposition %s (%s) consolidée avec succès."
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully consolidated."
+msgstr "Proposition %(acronym)s (%(academic_year)s) consolidée avec succès."
 
-msgid "Proposal %s (%s) cannot be canceled."
-msgstr "Proposition %s (%s) ne peut pas être annulée."
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be canceled."
+msgstr "Proposition %(acronym)s (%(academic_year)s) ne peut pas être annulée."
 
-msgid "Proposal %s (%s) successfully canceled."
-msgstr "Proposition %s (%s) annulée avec succès"
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully canceled."
+msgstr "Proposition %(acronym)s (%(academic_year)s) annulée avec succès"
 
 msgid "A report has been sent."
 msgstr "Un rapport a été envoyé."
