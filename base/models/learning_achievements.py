@@ -29,6 +29,7 @@ from django.utils.translation import ugettext_lazy as _
 from ckeditor.fields import RichTextField
 from ordered_model.models import OrderedModel
 from ordered_model.admin import OrderedModelAdmin
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class LearningAchievementsAdmin(OrderedModelAdmin):
@@ -70,3 +71,12 @@ def search(learning_unit_yr=None, a_language_code=None, position=None):
     if position:
         queryset = queryset.filter(order=position)
     return queryset.select_related('language').order_by('order', 'language__code')
+
+
+def find_learning_unit_achievement(learning_unit_yr, a_language_code, position):
+    try:
+        return LearningAchievements.objects.get(learning_unit_year=learning_unit_yr,
+                                                language__code=a_language_code,
+                                                order=position)
+    except ObjectDoesNotExist:
+        return None

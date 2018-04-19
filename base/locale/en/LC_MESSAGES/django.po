@@ -2792,3 +2792,9 @@ msgstr "Relative / Absolute <br>credits"
 
 msgid "learning_achievements"
 msgstr "Learning achievements"
+
+msgid "up"
+msgstr "Up"
+
+msgid "down"
+msgstr "Down"

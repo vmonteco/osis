@@ -1,6 +1,6 @@
 {% load staticfiles %}
 {% load i18n %}
-{% load learning_unit %}
+{% load index %}
 {% comment "License" %}
     * OSIS stands for Open Student Information System. It's an application
     * designed to manage the core business of higher education institutions,
@@ -24,76 +24,103 @@
     * at the root of the source code of this program.  If not,
     * see http://www.gnu.org/licenses/.
 {% endcomment %}
-
-<div class="row" style="margin-top:10px;">
-    <div class="col-md-2">
-        <label>{% trans 'learning_achievements' %}</label>
+<form method="post" action="{% url 'achievement_management' %}">
+    {% csrf_token %}
+    <input type="hidden" id="hdn_achievement_id"  name="achievement_id"/>
+    <input type="hidden" id="hdn_action"  name="action"/>
+    <div class="row" style="margin-top:10px;">
+        <div class="col-md-2">
+            <label>{% trans 'learning_achievements' %}</label>
+        </div>
+        <div class="col-md-10">
+        </div>
     </div>
-    <div class="col-md-10">
-        {% for achievement in achievements_FR %}
-            <div class="row">
-                <div class="col-md-2">
-                    <a class="show collapseIndicator" role="button" data-toggle="collapse" aria-expanded="false"
-                       data-target="#collapsable_{{ forloop.counter0 }}" aria-controls="collapse_expend">
-                        <i class="fa fa-arrow-up"></i>
-                    </a>
-                    {{ achievement.code_name }}
-                </div>
-                <div id="collapsable_{{ forloop.counter0 }}" class="collapse in">
-                    <div class="col-md-4">{{ achievement.text|safe }}</div>
-                    <div class="col-md-4">
-                    {% for achievement_EN in achievements_EN %}
-                        {% if forloop.counter == forloop.parentloop.counter %}
-                            {{ achievement_EN.text|safe }}
-                        {% endif %}
-                    {% endfor  %}
+    <div class="row" style="margin-top:10px;">
+        <div class="col-md-2">
+            {% for achievement in achievements_FR %}
+                <table class="pull-right" style="margin: 10px;">
+                    <tr>
+                        <td width="33%">
+                            {% if forloop.counter0 > 0 %}
+                                <button type="submit" title="{% trans 'up' %}"  class="btn btn-default btn-sm"
+                                        id="btn_operation_up_{{ achievement.id }}">
+                                    <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
+                                </button>
+                            {% endif %}
+                        </td>
+                        <td width="33%">
+                            {% if not forloop.last %}
+                                <button type="submit" title="{% trans 'down' %}" class="btn btn-default btn-sm"
+                                        id="btn_operation_down_{{ achievement.id }}">
+                                    <span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
+                                </button>
+                            {% endif %}
+                        </td>
+                        <td width="33%">
+                            <button type="submit" title="{% trans 'delete' %}"  class="btn btn-default btn-sm"
+                                    id="btn_operation_delete_{{ achievement.id }}">
+                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+
+            {% endfor %}
+        </div>
+        <div class="col-md-10">
+            {% for achievement in achievements_FR %}
+                <div class="row">
+                    <div class="col-md-2">
+                        <a class="show collapseIndicator" role="button" data-index="{{ forloop.counter0 }}">
+                            <i class="fa fa-arrow-up"></i>
+                        </a>
+                        {{ achievement.code_name }}
+                    </div>
+                    <div id="collapsable_{{ forloop.counter0 }}">
+                        <div class="col-md-5">{{ achievement.text|safe }}</div>
+                        <div class="col-md-5">
+                            {% with achievement_en=achievements_EN|index:forloop.counter0 %}
+                                {% if achievement_en %}
+                                    {{ achievement_en.text|safe }}
+                                {% endif %}
+                            {% endwith %}
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-2">
-                    <table class="pull-right">
-                        <tr>
-                            <td width="33%">
-                                {% if forloop.counter0 > 0 %}
-                                    <a href="{% url 'up_lu_achievement' achievement.id %}"
-                                       title="{% trans 'up' %}">
-                                        <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
-                                    </a>
-                                {% endif %}
-                            </td>
-                            <td width="33%">
-                                {% if not forloop.last %}
-                                    <a href="{% url 'down_lu_achievement' achievement.id %}"
-                                       title="{% trans 'down' %}">
-                                        <span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
-                                    </a>
-                                {% endif %}
-                            </td>
-                            <td width="33%">
-                                <a href="{% url 'delete_lu_achievement' achievement.id %}"
-                                   title="{% trans 'delete' %}">
-                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                                </a>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        {% endfor %}
+                <hr>
+            {% endfor %}
+        </div>
     </div>
-</div>
-
+</form>
 {% block script %}
 <script>
 $(document).ready(function(){
     $(".collapseIndicator").click(function(e){
-        if ($(e.target).hasClass('fa-arrow-up')) {
-            $(e.target).removeClass('fa-arrow-up');
-            $(e.target).addClass('fa-arrow-down');
+        var index = $(this).data('index')
+        var divCollapsable = $("div[id^='collapsable_" + index + "']")
+        var iconElem = $(this).find("i");
+        if (iconElem.hasClass('fa-arrow-up')) {
+            iconElem.removeClass('fa-arrow-up');
+            iconElem.addClass('fa-arrow-down');
+            divCollapsable.css({'height':'60px','overflow':'hidden'});
         } else {
-            $(e.target).removeClass('fa-arrow-down');
-            $(e.target).addClass('fa-arrow-up');
+            iconElem.removeClass('fa-arrow-down');
+            iconElem.addClass('fa-arrow-up');
+            divCollapsable.css({'height':'','overflow':''});
         }
     });
+
+    $("button[id^='btn_operation_']").click(function() {
+        var id = this.id;
+        id = id.replace('btn_operation_', '');
+        var pos = id.indexOf("_");
+        var achievement_id = id.substr(pos+1);
+        $('#hdn_achievement_id').val(achievement_id);
+        id = id.replace(achievement_id,'');
+        id = id.replace('_','');
+        $('#hdn_action').val(id.substr(0));
+    });
+
 });
 </script>
 {% endblock %}

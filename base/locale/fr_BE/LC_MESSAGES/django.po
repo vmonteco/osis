@@ -2799,3 +2799,9 @@ msgstr "Crédits<br>relatifs / absolus"
 
 msgid "learning_achievements"
 msgstr "Acquis d'apprentissage"
+
+msgid "up"
+msgstr "Remonter"
+
+msgid "down"
+msgstr "Descendre"
