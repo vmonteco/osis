@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -32,19 +31,27 @@ from django.shortcuts import get_object_or_404
 from base.models.learning_achievements import LearningAchievements, search
 
 EN_CODE_LANGAGUE = 'EN'
+DELETE_OPERATION = 'delete'
+UP_OPERATION = 'up'
+DOWN_OPERATION = 'down'
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def delete(request, learning_achievement_id):
+    return operation(learning_achievement_id, DELETE_OPERATION)
+
+
+def operation(learning_achievement_id, operation_string):
     a_learning_achievement_fr = get_object_or_404(LearningAchievements, pk=learning_achievement_id)
     lu_yr_id = a_learning_achievement_fr.learning_unit_year.id
     if a_learning_achievement_fr:
         a_learning_achievement_en = get_en_learning_achievement(a_learning_achievement_fr)
-        a_learning_achievement_fr.delete()
+        func = getattr(a_learning_achievement_fr, operation_string)
+        func()
         if a_learning_achievement_en:
-            a_learning_achievement_en.first().delete()
-
+            func = getattr(a_learning_achievement_en.first(), operation_string)
+            func()
     return HttpResponseRedirect(reverse("learning_unit_specifications",
                                         kwargs={'learning_unit_year_id': lu_yr_id}))
 
@@ -52,31 +59,13 @@ def delete(request, learning_achievement_id):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def up(request, learning_achievement_id):
-    a_learning_achievement_fr = get_object_or_404(LearningAchievements, pk=learning_achievement_id)
-    lu_yr_id = a_learning_achievement_fr.learning_unit_year.id
-    if a_learning_achievement_fr:
-        a_learning_achievement_en = get_en_learning_achievement(a_learning_achievement_fr)
-        a_learning_achievement_fr.up()
-        if a_learning_achievement_en:
-            a_learning_achievement_en.first().up()
-
-    return HttpResponseRedirect(reverse("learning_unit_specifications",
-                                        kwargs={'learning_unit_year_id': lu_yr_id}))
+    return operation(learning_achievement_id, UP_OPERATION)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def down(request, learning_achievement_id):
-    a_learning_achievement_fr = get_object_or_404(LearningAchievements, pk=learning_achievement_id)
-    lu_yr_id = a_learning_achievement_fr.learning_unit_year.id
-    if a_learning_achievement_fr:
-        a_learning_achievement_en = get_en_learning_achievement(a_learning_achievement_fr)
-        a_learning_achievement_fr.down()
-        if a_learning_achievement_en:
-            a_learning_achievement_en.first().down()
-
-    return HttpResponseRedirect(reverse("learning_unit_specifications",
-                                        kwargs={'learning_unit_year_id': lu_yr_id}))
+    return operation(learning_achievement_id, DOWN_OPERATION)
 
 
 def get_en_learning_achievement(a_learning_achievement_fr):
