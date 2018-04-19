@@ -102,7 +102,7 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, "learning_unit/update_end_date.html")
+        self.assertEqual(template, "learning_unit/simple/update_end_date.html")
 
     @mock.patch('base.business.learning_units.perms.is_eligible_for_modification_end_date')
     def test_view_learning_unit_edition_post(self, mock_perms):
@@ -123,6 +123,13 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         msg = [m.message for m in get_messages(request)]
         self.assertEqual(len(msg), 1)
         self.assertIn(messages.SUCCESS, msg_level)
+
+    @mock.patch('base.business.learning_units.perms.is_eligible_for_modification_end_date')
+    def test_view_learning_unit_edition_template(self, mock_perms):
+        mock_perms.return_value = True
+        url = reverse("learning_unit_edition", args=[self.learning_unit_year.id])
+        response = self.client.get(url)
+        self.assertTemplateUsed(response, "learning_unit/simple/update_end_date.html")
 
 
 class TestEditLearningUnit(TestCase):
@@ -260,6 +267,7 @@ class TestEditLearningUnit(TestCase):
     def test_form_initial_data(self):
         response = self.client.get(self.url)
         context = response.context[-1]
+        acronym = self.learning_unit_year.acronym
         # Expected initials form
         expected_initials = {
             'learning_container_year_form': {
@@ -273,7 +281,7 @@ class TestEditLearningUnit(TestCase):
                 "type_declaration_vacant": self.learning_unit_year.learning_container_year.type_declaration_vacant
             },
             'learning_unit_year_form': {
-                "acronym": self.learning_unit_year.acronym,
+                "acronym": [acronym[0], acronym[1:]],
                 "academic_year": self.learning_unit_year.academic_year.id,
                 "status": self.learning_unit_year.status,
                 "credits": self.learning_unit_year.credits,
@@ -297,10 +305,10 @@ class TestEditLearningUnit(TestCase):
         # Expected form in formset entity container
         learning_container_year_id = self.learning_unit_year.learning_container_year.id
         expected_initials = [
-            {'entity': self.requirement_entity , 'learning_container_year': learning_container_year_id},
-            {'entity': self.allocation_entity, 'learning_container_year': learning_container_year_id},
-            {'entity': self.additional_entity_1, 'learning_container_year': learning_container_year_id},
-            {'entity': self.additional_entity_2, 'learning_container_year': learning_container_year_id},
+            {'entity': self.requirement_entity.pk , 'learning_container_year': learning_container_year_id},
+            {'entity': self.allocation_entity.pk, 'learning_container_year': learning_container_year_id},
+            {'entity': self.additional_entity_1.pk, 'learning_container_year': learning_container_year_id},
+            {'entity': self.additional_entity_2.pk, 'learning_container_year': learning_container_year_id},
         ]
         entity_container_formset = context['entity_container_form']
         for idx, expected_initial in enumerate(expected_initials):
@@ -495,4 +503,3 @@ class TestLearningUnitVolumesManagement(TestCase):
 
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, 'access_denied.html')
-

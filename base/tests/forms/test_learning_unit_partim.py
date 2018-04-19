@@ -115,7 +115,7 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
                 'periodicity': self.learning_unit_year_full.learning_unit.periodicity
             },
             LearningUnitYearModelForm: {
-                'acronym': self.learning_unit_year_full.acronym,
+                'acronym': ['L', 'BIR1200'],
                 'acronym_0': 'L',  # Multiwidget decomposition
                 'acronym_1': 'BIR1200',
                 'acronym_2': '',
