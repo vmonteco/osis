@@ -39,7 +39,7 @@ def delete(request, learning_achievement_id):
     lu_yr_id = a_learning_achievement_fr.learning_unit_year.id
     if a_learning_achievement_fr:
         a_learning_achievement_en = search(a_learning_achievement_fr.learning_unit_year,
-                                                                          'EN',
+                                           'EN',
                                            a_learning_achievement_fr.order)
         a_learning_achievement_fr.delete()
         if a_learning_achievement_en:
