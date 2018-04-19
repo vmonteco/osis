@@ -2777,7 +2777,7 @@ msgid "need_no_reminder"
 msgstr "Pas besoin de rappel tout est en ordre"
 
 msgid "Proposal %(acronym)s (%(academic_year)s) cannot be consolidated."
-msgstr "Proposition %(acronym)s (%(academic_year)s ne peut pas être consolidée."
+msgstr "Proposition %(acronym)s (%(academic_year)s) ne peut pas être consolidée."
 
 msgid "Proposal %(acronym)s (%(academic_year)s) successfully consolidated."
 msgstr "Proposition %(acronym)s (%(academic_year)s) consolidée avec succès."
