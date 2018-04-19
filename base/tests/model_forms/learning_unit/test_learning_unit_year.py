@@ -31,6 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm
 from base.forms.utils.acronym_field import PartimAcronymField, AcronymField
 from base.models.entity_component_year import EntityComponentYear
+from base.models.enums import learning_container_year_types
 from base.models.enums.attribution_procedure import INTERNAL_TEAM
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
     ADDITIONAL_REQUIREMENT_ENTITY_2, ADDITIONAL_REQUIREMENT_ENTITY_1
@@ -96,7 +97,8 @@ class TestLearningUnitYearModelFormSave(TestCase):
 
         self.learning_container = LearningContainerFactory()
         self.learning_unit = LearningUnitFactory(learning_container=self.learning_container)
-        self.learning_container_year = LearningContainerYearFactory(learning_container=self.learning_container)
+        self.learning_container_year = LearningContainerYearFactory(learning_container=self.learning_container,
+                                                                    container_type=learning_container_year_types.COURSE)
         self.form = LearningUnitYearModelForm(data=None, person=self.central_manager, subtype=FULL)
         self.learning_unit_year_to_update = LearningUnitYearFactory(
             learning_unit=self.learning_unit, learning_container_year=self.learning_container_year)
