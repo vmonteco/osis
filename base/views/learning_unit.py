@@ -93,12 +93,10 @@ def learning_unit_formations(request, learning_unit_year_id):
     education_groups_years = [group_element_year.parent for group_element_year in group_elements_years]
     roots_by_educ_group_year = mdl.group_element_year.find_learning_unit_formation_roots(education_groups_years,
                                                                                          parents_as_instances=True)
-    for group_element_year in group_elements_years:
-        group_element_year.trainings = roots_by_educ_group_year[group_element_year.parent_id]
-
+    context['roots_by_educ_group_year'] = roots_by_educ_group_year
     context['group_elements_years'] = group_elements_years
 
-    flat_formations = list(set(itertools.chain.from_iterable(roots_by_educ_group_year.values())))
+    flat_formations = set(itertools.chain.from_iterable(roots_by_educ_group_year.values()))
     context['root_formations'] = education_group_year.find_with_enrollments_count(learn_unit_year, flat_formations)
 
     return layout.render(request, "learning_unit/formations.html", context)
