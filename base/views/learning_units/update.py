@@ -76,7 +76,7 @@ def learning_unit_edition_end_date(request, learning_unit_year_id):
             display_error_messages(request, e.args[0])
 
     context['form'] = form
-    return layout.render(request, 'learning_unit/update_end_date.html', context)
+    return layout.render(request, 'learning_unit/simple/update_end_date.html', context)
 
 
 def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year_id):
