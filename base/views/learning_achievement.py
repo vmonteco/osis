@@ -28,7 +28,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 
-from base.models.learning_achievements import LearningAchievements, find_learning_unit_achievement
+from base.models.learning_achievement import LearningAchievement, find_learning_unit_achievement
 from django.views.decorators.http import require_http_methods
 
 DOWN = 'down'
@@ -39,7 +39,7 @@ EN_CODE_LANGAGUE = 'EN'
 
 
 def operation(learning_achievement_id, operation_str):
-    achievement_fr = get_object_or_404(LearningAchievements, pk=learning_achievement_id)
+    achievement_fr = get_object_or_404(LearningAchievement, pk=learning_achievement_id)
     lu_yr_id = achievement_fr.learning_unit_year.id
 
     achievement_en = find_learning_unit_achievement(achievement_fr.learning_unit_year,

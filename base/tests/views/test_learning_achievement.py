@@ -30,9 +30,9 @@ from django.test import TestCase, RequestFactory
 from django.core.exceptions import PermissionDenied
 
 from base.models.enums import learning_unit_year_subtypes
-from base.models.learning_achievements import LearningAchievements
+from base.models.learning_achievement import LearningAchievement
 from base.tests.factories.academic_year import create_current_academic_year
-from base.tests.factories.learning_achievements import LearningAchievementsFactory
+from base.tests.factories.learning_achievement import LearningAchievementFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory
@@ -52,7 +52,7 @@ class TestLearningAchievementView(TestCase):
         self.user = UserFactory()
         PersonFactory(user=self.user)
         self.client.force_login(self.user)
-        self.achievement_fr = LearningAchievementsFactory(language=self.language_fr,
+        self.achievement_fr = LearningAchievementFactory(language=self.language_fr,
                                                           learning_unit_year=self.learning_unit_year,
                                                           order=0)
 
@@ -100,36 +100,36 @@ class TestLearningAchievementActions(TestCase):
         self.client.force_login(self.user)
 
     def test_delete(self):
-        achievement_fr_0 = LearningAchievementsFactory(language=self.language_fr,
+        achievement_fr_0 = LearningAchievementFactory(language=self.language_fr,
                                                        learning_unit_year=self.learning_unit_year,
                                                        order=0)
-        achievement_en_0 = LearningAchievementsFactory(language=self.language_en,
+        achievement_en_0 = LearningAchievementFactory(language=self.language_en,
                                                        learning_unit_year=self.learning_unit_year,
                                                        order=0)
-        achievement_fr_1 = LearningAchievementsFactory(language=self.language_fr,
+        achievement_fr_1 = LearningAchievementFactory(language=self.language_fr,
                                                        learning_unit_year=self.learning_unit_year,
                                                        order=1)
-        LearningAchievementsFactory(language=self.language_en,
+        LearningAchievementFactory(language=self.language_en,
                                     learning_unit_year=self.learning_unit_year,
                                     order=1)
         request_factory = RequestFactory()
         request = request_factory.post(management)
         request.user = self.user
         operation(achievement_fr_1.id, 'delete')
-        self.assertCountEqual(LearningAchievements.objects.all(), [achievement_fr_0,
+        self.assertCountEqual(LearningAchievement.objects.all(), [achievement_fr_0,
                                                                    achievement_en_0])
 
     def test_up(self):
-        achievement_fr_0 = LearningAchievementsFactory(language=self.language_fr,
+        achievement_fr_0 = LearningAchievementFactory(language=self.language_fr,
                                                        learning_unit_year=self.learning_unit_year)
         id_fr_0 = achievement_fr_0.id
-        achievement_en_0 = LearningAchievementsFactory(language=self.language_en,
+        achievement_en_0 = LearningAchievementFactory(language=self.language_en,
                                                        learning_unit_year=self.learning_unit_year)
         id_en_0 = achievement_en_0.id
-        achievement_fr_1 = LearningAchievementsFactory(language=self.language_fr,
+        achievement_fr_1 = LearningAchievementFactory(language=self.language_fr,
                                                        learning_unit_year=self.learning_unit_year)
         id_fr_1 = achievement_fr_1.id
-        achievement_en_1 = LearningAchievementsFactory(language=self.language_en,
+        achievement_en_1 = LearningAchievementFactory(language=self.language_en,
                                                        learning_unit_year=self.learning_unit_year)
         id_en_1 = achievement_en_1.id
 
@@ -138,22 +138,22 @@ class TestLearningAchievementActions(TestCase):
         request.user = self.user
         operation(achievement_fr_1.id, UP)
 
-        self.assertEqual(LearningAchievements.objects.get(pk=id_fr_0).order, 1)
-        self.assertEqual(LearningAchievements.objects.get(pk=id_fr_1).order, 0)
-        self.assertEqual(LearningAchievements.objects.get(pk=id_en_0).order, 1)
-        self.assertEqual(LearningAchievements.objects.get(pk=id_en_1).order, 0)
+        self.assertEqual(LearningAchievement.objects.get(pk=id_fr_0).order, 1)
+        self.assertEqual(LearningAchievement.objects.get(pk=id_fr_1).order, 0)
+        self.assertEqual(LearningAchievement.objects.get(pk=id_en_0).order, 1)
+        self.assertEqual(LearningAchievement.objects.get(pk=id_en_1).order, 0)
 
     def test_down(self):
-        achievement_fr_0 = LearningAchievementsFactory(language=self.language_fr,
+        achievement_fr_0 = LearningAchievementFactory(language=self.language_fr,
                                                        learning_unit_year=self.learning_unit_year)
         id_fr_0 = achievement_fr_0.id
-        achievement_en_0 = LearningAchievementsFactory(language=self.language_en,
+        achievement_en_0 = LearningAchievementFactory(language=self.language_en,
                                                        learning_unit_year=self.learning_unit_year)
         id_en_0 = achievement_en_0.id
-        achievement_fr_1 = LearningAchievementsFactory(language=self.language_fr,
+        achievement_fr_1 = LearningAchievementFactory(language=self.language_fr,
                                                        learning_unit_year=self.learning_unit_year)
         id_fr_1 = achievement_fr_1.id
-        achievement_en_1 = LearningAchievementsFactory(language=self.language_en,
+        achievement_en_1 = LearningAchievementFactory(language=self.language_en,
                                                        learning_unit_year=self.learning_unit_year)
         id_en_1 = achievement_en_1.id
 
@@ -162,7 +162,7 @@ class TestLearningAchievementActions(TestCase):
         request.user = self.user
         operation(achievement_fr_0.id, DOWN)
 
-        self.assertEqual(LearningAchievements.objects.get(pk=id_fr_0).order, 1)
-        self.assertEqual(LearningAchievements.objects.get(pk=id_fr_1).order, 0)
-        self.assertEqual(LearningAchievements.objects.get(pk=id_en_0).order, 1)
-        self.assertEqual(LearningAchievements.objects.get(pk=id_en_1).order, 0)
+        self.assertEqual(LearningAchievement.objects.get(pk=id_fr_0).order, 1)
+        self.assertEqual(LearningAchievement.objects.get(pk=id_fr_1).order, 0)
+        self.assertEqual(LearningAchievement.objects.get(pk=id_en_0).order, 1)
+        self.assertEqual(LearningAchievement.objects.get(pk=id_en_1).order, 0)

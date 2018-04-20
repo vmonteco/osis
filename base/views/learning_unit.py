@@ -63,7 +63,7 @@ from base.views.learning_units.search import learning_units_search, learning_uni
 from cms.models import text_label
 from osis_common.decorators.ajax import ajax_required
 from . import layout
-from base.models import learning_achievements
+from base.models import learning_achievement
 
 
 @login_required
