@@ -62,13 +62,19 @@
                                         <td>{{ group_element_year.block | default_if_none:'-' }}</td>
                                         <td>
                                             <ul>
-                                                {% for training in  roots_by_educ_group_year|get_item:group_element_year.parent_id %}
+                                                {% for training in  formations_by_educ_group_year|get_item:group_element_year.parent_id %}
                                                     <li>{{ training.acronym }} - {{ training.title }}</li>
                                                 {% endfor %}
                                             </ul>
                                         </td>
-                                        <td class="text-center">{{ group_element_year.relative_credits | default_if_none:'-' }} /
-                                            {{ group_element_year.child_leaf.credits | default_if_none:'-' }}</td>
+                                        <td class="text-center">
+                                            {% if group_element_year.relative_credits == group_element_year.child_leaf.credits %}
+                                                -
+                                            {% else %}
+                                                {{ group_element_year.relative_credits | default_if_none:'-' }}
+                                            {% endif %}
+                                                / {{ group_element_year.child_leaf.credits | default_if_none:'-' }}
+                                        </td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

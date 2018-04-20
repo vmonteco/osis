@@ -2823,6 +2823,9 @@ msgstr "Down"
 msgid "learning_achievements_headline"
 msgstr "At the end of this learning unit, the student is able to:"
 
+msgid "User %(person)s do not have rights on this proposal."
+msgstr ""
+
 msgid "Enrollments to learning unit"
 msgstr ""
 
