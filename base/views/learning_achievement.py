@@ -31,27 +31,41 @@ from django.shortcuts import get_object_or_404
 from base.models.learning_achievements import LearningAchievements, find_learning_unit_achievement
 from django.views.decorators.http import require_http_methods
 
+DOWN = 'down'
+UP = 'up'
+DELETE = 'delete'
+AVAILABLE_ACTIONS = [DELETE, UP, DOWN]
 EN_CODE_LANGAGUE = 'EN'
 
 
-def operation(learning_achievement_id, operation_string):
+def operation(learning_achievement_id, operation_str):
     achievement_fr = get_object_or_404(LearningAchievements, pk=learning_achievement_id)
     lu_yr_id = achievement_fr.learning_unit_year.id
-    if achievement_fr:
-        achievement_en = find_learning_unit_achievement(achievement_fr.learning_unit_year,
-                                                        EN_CODE_LANGAGUE,
-                                                        achievement_fr.order)
-        func = getattr(achievement_fr, operation_string)
-        func()
-        if achievement_en:
-            func = getattr(achievement_en, operation_string)
-            func()
+
+    achievement_en = find_learning_unit_achievement(achievement_fr.learning_unit_year,
+                                                    EN_CODE_LANGAGUE,
+                                                    achievement_fr.order)
+    execute_operation(achievement_fr, operation_str)
+    execute_operation(achievement_en, operation_str)
     return HttpResponseRedirect(reverse("learning_unit_specifications",
                                         kwargs={'learning_unit_year_id': lu_yr_id}))
+
+
+def execute_operation(an_achievement, operation_str):
+    if an_achievement:
+        func = getattr(an_achievement, operation_str)
+        func()
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 @require_http_methods(['POST'])
-def management(request):
-    return operation(request.POST.get('achievement_id'), request.POST.get('action'))
+def management(request, learning_unit_year_id):
+    return operation(request.POST.get('achievement_id'), get_action(request))
+
+
+def get_action(request):
+    action = request.POST.get('action', None)
+    if action not in AVAILABLE_ACTIONS:
+        raise AttributeError('Action should be {}, {} or {}'.format(DELETE, UP, DOWN))
+    return action

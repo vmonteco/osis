@@ -95,7 +95,6 @@ urlpatterns = [
             name='learning_units_proposal'),
         url(r'^by_summary/', base.views.learning_units.educational_information.learning_units_summary_list,
             name='learning_units_summary'),
-        url(r'^achievement/management$', learning_achievement.management, name="achievement_management"),
         url(r'^new/', include([
             url(r'^academic_year_id=(?P<academic_year_id>[0-9]+)$', learning_unit.learning_unit_create,
                 name="learning_unit_create"),
@@ -133,6 +132,9 @@ urlpatterns = [
                 name="learning_unit_delete_all"),
             url(r'^partim/', include([
                 url(r'^new/$', learning_unit.create_partim_form, name="learning_unit_create_partim"),
+            ])),
+            url(r'^achievements/', include([
+                url(r'^management/', learning_achievement.management, name="achievement_management"),
             ])),
         ])),
         url(r'^check/(?P<subtype>[A-Z]+)$', learning_unit.check_acronym, name="check_acronym"),

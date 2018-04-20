@@ -37,7 +37,7 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory
 from reference.tests.factories.language import LanguageFactory
-from base.views.learning_achievement import operation, management
+from base.views.learning_achievement import operation, management, DELETE, DOWN, UP
 
 
 class TestLearningAchievementView(TestCase):
@@ -58,21 +58,25 @@ class TestLearningAchievementView(TestCase):
 
     def test_operation_method_not_allowed(self):
         request_factory = RequestFactory()
-        request = request_factory.post(reverse(management), data={'achievement_id': self.achievement_fr.id,
-                                                                  'action': 'delete'})
+        request = request_factory.post(reverse('achievement_management',
+                                               args=[self.achievement_fr.learning_unit_year.id]),
+                                       data={'achievement_id': self.achievement_fr.id,
+                                             'action': DELETE})
         request.user = self.user
         with self.assertRaises(PermissionDenied):
-            management(request)
+            management(request, self.achievement_fr.learning_unit_year.id)
 
     def test_delete_redirection(self):
         request_factory = RequestFactory()
-        request = request_factory.post(reverse(management), data={'achievement_id': self.achievement_fr.id,
-                                                                  'action': 'delete'})
+        request = request_factory.post(reverse('achievement_management',
+                                               args=[self.achievement_fr.learning_unit_year.id]),
+                                       data={'achievement_id': self.achievement_fr.id,
+                                             'action': DELETE})
         self.user.user_permissions.add(Permission.objects.get(codename="can_access_learningunit"))
         self.user.user_permissions.add(Permission.objects.get(codename="can_create_learningunit"))
         request.user = self.user
 
-        response = management(request)
+        response = management(request, self.achievement_fr.learning_unit_year.id)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url,
                          "/learning_units/{}/specifications/".format(self.achievement_fr.learning_unit_year.id))
@@ -132,7 +136,7 @@ class TestLearningAchievementActions(TestCase):
         request_factory = RequestFactory()
         request = request_factory.post(management)
         request.user = self.user
-        operation(achievement_fr_1.id, 'up')
+        operation(achievement_fr_1.id, UP)
 
         self.assertEqual(LearningAchievements.objects.get(pk=id_fr_0).order, 1)
         self.assertEqual(LearningAchievements.objects.get(pk=id_fr_1).order, 0)
@@ -154,9 +158,9 @@ class TestLearningAchievementActions(TestCase):
         id_en_1 = achievement_en_1.id
 
         request_factory = RequestFactory()
-        request = request_factory.get(reverse(management))
+        request = request_factory.post(reverse('achievement_management', args=[achievement_fr_0.learning_unit_year.id]))
         request.user = self.user
-        operation(achievement_fr_0.id, 'down')
+        operation(achievement_fr_0.id, DOWN)
 
         self.assertEqual(LearningAchievements.objects.get(pk=id_fr_0).order, 1)
         self.assertEqual(LearningAchievements.objects.get(pk=id_fr_1).order, 0)
