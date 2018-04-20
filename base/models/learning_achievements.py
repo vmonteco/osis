@@ -62,17 +62,6 @@ def find_by_learning_unit_year(learning_unit_yr):
                                        .order_by('order', 'language__code')
 
 
-def search(learning_unit_yr=None, a_language_code=None, position=None):
-    queryset = LearningAchievements.objects
-    if learning_unit_yr:
-        queryset = queryset.filter(learning_unit_year=learning_unit_yr)
-    if a_language_code:
-        queryset = queryset.filter(language__code=a_language_code)
-    if position:
-        queryset = queryset.filter(order=position)
-    return queryset.select_related('language').order_by('order', 'language__code')
-
-
 def find_learning_unit_achievement(learning_unit_yr, a_language_code, position):
     try:
         return LearningAchievements.objects.get(learning_unit_year=learning_unit_yr,
