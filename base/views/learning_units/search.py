@@ -132,22 +132,14 @@ def _proposal_management(request, proposals, research_criteria):
 def process_formset(formset, request, research_criteria):
     if formset.is_valid():
         if formset.action == 'back_to_initial':
-            formset = _go_back_to_initial_data(formset, request, research_criteria)
+            _apply_action_on_proposals(formset, request, proposal_business.cancel_proposals_and_send_report,
+                                       research_criteria)
         elif formset.action == "consolidate":
-            _consolidate_proposals(formset, request, research_criteria)
+            _apply_action_on_proposals(formset, request, proposal_business.consolidate_proposals_and_send_report,
+                                       research_criteria)
         else:
             _force_state(formset, request)
     return formset
-
-
-def _go_back_to_initial_data(formset, request, research_criteria):
-    return _apply_action_on_proposals(formset, request, proposal_business.cancel_proposals_and_send_report,
-                                      research_criteria)
-
-
-def _consolidate_proposals(formset, request, research_criteria):
-    return _apply_action_on_proposals(formset, request, proposal_business.consolidate_proposals_and_send_report,
-                                      research_criteria)
 
 
 def _apply_action_on_proposals(formset, request, action_method, research_criteria):
