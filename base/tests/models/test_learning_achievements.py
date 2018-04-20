@@ -73,3 +73,14 @@ class LearningAchievementsTest(TestCase):
         expected_result = [luy_achievement_en_1, luy_achievement_fr_1, luy_achievement_fr_2]
         result = list(learning_achievements.find_by_learning_unit_year(self.luy))
         self.assertListEqual(result, expected_result)
+
+    def test_find_learning_unit_achievement(self):
+        luy_achievement_fr_1 = LearningAchievementsFactory(code_name=A_CODE_NAME,
+                                                           learning_unit_year=self.luy,
+                                                           language=self.language_fr)
+        self.assertEqual(learning_achievements.find_learning_unit_achievement(luy_achievement_fr_1.learning_unit_year,
+                                                                              luy_achievement_fr_1.language.code,
+                                                                              0), luy_achievement_fr_1)
+        self.assertIsNone(learning_achievements.find_learning_unit_achievement(luy_achievement_fr_1.learning_unit_year,
+                                                                               luy_achievement_fr_1.language.code,
+                                                                               100))
