@@ -44,6 +44,7 @@ from base.models.enums import organization_type, proposal_type, entity_type, \
 from base.models.enums.proposal_type import ProposalType
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
+from base.tests.factories.business.learning_units import GenerateAcademicYear, GenerateContainer
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -214,10 +215,10 @@ class TestConsolidateProposals(TestCase):
         self.assertDictEqual(result, {
             INFO: [_("A report has been sent.")],
             ERROR: [],
-            SUCCESS: [_("Proposal %s (%s) successfully consolidated.").format(
-                        acronym=proposal.learning_unit_year.acronym,
-                        academic_year=proposal.learning_unit_year.academic_year
-                    ) for proposal in self.proposals]
+            SUCCESS: [_("Proposal %(acronym)s (%(academic_year)s) successfully consolidated.") % {
+                "acronym": proposal.learning_unit_year.acronym,
+                "academic_year":proposal.learning_unit_year.academic_year
+            } for proposal in self.proposals]
         })
 
         self.assertTrue(mock_mail.called)
@@ -281,3 +282,20 @@ class TestConsolidateProposal(TestCase):
         self.assertEqual(lu_arg.end_year, suppression_proposal.initial_data["learning_unit"]["end_year"])
         suppression_proposal.learning_unit_year.learning_unit.refresh_from_db()
         self.assertEqual(academic_year_arg.year, suppression_proposal.learning_unit_year.learning_unit.end_year)
+
+    @mock.patch("base.business.learning_unit_proposal.update_learning_unit_year_with_report")
+    def test_when_proposal_of_type_modification_and_accepted(self, mock_update_learning_unit_with_report):
+        generatorContainer = GenerateContainer(datetime.date.today().year-2, datetime.date.today().year)
+        proposal = ProposalLearningUnitFactory(
+            state=proposal_state.ProposalState.ACCEPTED.name,
+            type=proposal_type.ProposalType.MODIFICATION.name,
+            learning_unit_year=generatorContainer.generated_container_years[0].learning_unit_year_full,
+            initial_data={
+                "learning_unit": {},
+                "learning_unit_year": {},
+                "learning_container_year": {}
+            }
+        )
+
+        consolidate_proposal(proposal)
+        self.assertTrue(mock_update_learning_unit_with_report.called)

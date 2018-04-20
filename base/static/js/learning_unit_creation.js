@@ -8,6 +8,7 @@ const trans_field_min = gettext('min_for_field');
 const trans_field_max = gettext('max_for_field');
 
 var form = $('#LearningUnitYearForm').closest("form");
+var InitialAcronym;
 
 
 function isLearningUnitSubtypeFull(){
@@ -56,9 +57,11 @@ function updateAdditionalEntityEditability(elem, id, disable_only){
 function validate_acronym() {
     cleanErrorMessage();
     var newAcronym = getCompleteAcronym();
-    var validationUrl = $('#LearningUnitYearForm').data('validate-url');
-    var year_id = $('#id_academic_year').val();
-    validateAcronymAjax(validationUrl, newAcronym, year_id, callbackAcronymValidation);
+    if (newAcronym !== InitialAcronym) {
+        var validationUrl = $('#LearningUnitYearForm').data('validate-url');
+        var year_id = $('#id_academic_year').val();
+        validateAcronymAjax(validationUrl, newAcronym, year_id, callbackAcronymValidation);
+    }
 }
 
 
@@ -149,6 +152,9 @@ $(document).ready(function() {
 
     $('#id_acronym_0').change(validate_acronym);
     $('#id_acronym_1').change(validate_acronym);
+
+    InitialAcronym = getCompleteAcronym();
+
     $('#id_academic_year').change(validate_acronym);
     $("#LearningUnitYearForm").submit(function( event ) {
         if (!window.valid_acronym) {

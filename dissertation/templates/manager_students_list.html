@@ -28,6 +28,8 @@
 
 {% block style %}
     <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dissertation_style.css' %}">
+
 {% endblock %}
 
 {% block breadcrumb %}
@@ -40,32 +42,29 @@
     <div class="page-header">
         <h2>{% trans 'students' as students_title %}{{ students_title|title }}</h2>
     </div>
-
-
-
-
     <div class="panel panel-default">
         <div class="panel-body table-responsive">
             <table class="table table-hover" id="students-list">
                 <thead>
                     <tr>
-                        <th>{{ students_title|title }}</th>
+                        <th class="col-xs-3">{{ students_title|title }}</th>
                         <th>{% trans 'offer_propositions' %}</th>
-                        <th>{% trans 'dissertations' %}  ({% trans 'acronym' %};{% trans 'status' %})</th>
-                    </tr>
+                        <th>{% trans 'status' %}</th>
+                        <th>{% trans 'dissertation' %}</th>
                 </thead>
                 <tbody>
-                    {% for student in students %}
+                    {% for offer_enrollement in offer_enrollements %}
                         <tr>
-                            <td>{{ student }}</td>
+                            <td>{{ offer_enrollement.student }}</td>
                             <td>
-                                <span class="label label-default">{{ student.offerenrollment_set.last.offer_year}}</span>
+                                <span class="label label-default">{{ offer_enrollement.offer_year}}</span>
                             </td>
                             <td>
-                            {% for dissertation in  student.dissertation_set.all %}
+                            {% for dissertation in  offer_enrollement.student.dissertation_set.all %}
                                 {% if forloop.first %}
                                     <dl class="dl-horizontal">
                                 {% endif %}
+                                <div class="div_in_datatable">
                                     <dt style="text-align: left;">
                                         {% if dissertation.status == 'DIR_SUBMIT' %}
                                         <span class="label label-warning">
@@ -81,22 +80,42 @@
                                             {{ dissertation.get_status_display }}
                                         </span>
                                     </dt>
-                                    <dd>
-                                        &nbsp;
-                                        <a href="{% url 'manager_dissertations_detail' pk=dissertation.pk %}" target="_blank">
-                                            {{ dissertation }} [{{ dissertation.offer_year_start.acronym }}]
-                                        </a>
-                                    </dd>
+                                </div>
                                 {% empty %}
                                     <span class="label label-danger">Pas de mémoire</span>
                                 {% if forloop.last %}
                                     </dl>
                                 {% endif %}
+                                    <br>
+                            {% endfor %}
+                            </td>
+                            <td>
+                            {% for dissertation in  offer_enrollement.student.dissertation_set.all %}
+
+                                    <div class="row">
+                                        <div class="pull-left col-xs-9 div_in_datatable">
+                                            <a href="{% url 'manager_dissertations_detail' pk=dissertation.pk %}"  title="{{ dissertation }}" target="_blank">
+                                            {{ dissertation|truncatechars:60 }}</a>
+                                        </div>
+                                        <div class="pull-left col-xs-2 div_in_datatable">
+                                            <span class="label label-default pull-right">[{{ dissertation.offer_year_start.acronym }}]</span>
+                                            <br>
+                                        </div>
+                                    </div>
+
                             {% endfor %}
                             </td>
                         </tr>
                     {% endfor %}
                 </tbody>
+                <tfoot id="foot-list">
+                    <tr>
+                        <th>{{ students_title|title }}</th>
+                        <th>{% trans 'offer_propositions' %}</th>
+                        <th>{% trans 'status' %}</th>
+                        <th>{% trans 'dissertation' %}</th>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>
@@ -105,14 +124,17 @@
 {% endblock %}
 
 {% block script %}
+    <script type="text/javascript" src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery.dataTables.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/dataTables.bootstrap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap.min.js'%}"></script>
+    <script type="text/javascript" src="{% static 'js/dataTables.bootstrap.min.js'%}"></script>
+
     <script>
         $(document).ready(function()
         {
-            $('#students-list').DataTable(
+            var table =$('#students-list').DataTable(
             {
-                "pageLength": 100,
+                "pageLength": 25,
                 "paging" : true,
                 "ordering" : true,
                 "info"  : false,
@@ -142,10 +164,29 @@
                 "columns":[
                     null,
                     null,
+                    null,
                     null
-                ]
+                ],
+                initComplete: function () {
+                    this.api().columns([1]).every( function () {
+                        var column = this;
+                        var select = $('<select class="search_select_filter"><option value=""></option></select>')
+                            .appendTo( $(column.header()).empty() )
+                            .on( 'change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex(
+                                    $(this).val()
+                                );
+                                column
+                                    .search( val ? '^'+val+'$' : '', true, false )
+                                    .draw();
+                            } );
+                            column.data().unique().sort().each( function ( d, j ) {
+                            var val = $('<div/>').html(d).text();
+                            select.append( '<option value="' + val + '">' + val + '</option>' );
+                        } );
+                    } );
+                }
             });
         });
-
     </script>
 {% endblock %}

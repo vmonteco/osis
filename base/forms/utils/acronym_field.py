@@ -34,31 +34,19 @@ from base.models.enums.learning_unit_management_sites import LearningUnitManagem
 class AcronymInput(forms.MultiWidget):
     template_name = 'learning_unit/blocks/widget/acronym_widget.html'
 
-    def __init__(self, *args, **kwargs):
-        choices = kwargs.pop('choices', [])
-        disabled = kwargs.pop('disabled', False)
-        widgets = [
-            forms.Select(choices=choices, attrs={'disabled': disabled}),
-            forms.TextInput(attrs={'class': 'text-uppercase', 'disabled': disabled}),
-        ]
+    def __init__(self, attrs=None):
+        attrs = attrs or {}
+        attrs['class'] = 'text-uppercase'
+        widgets = (
+            forms.Select(attrs=attrs, choices=_create_first_letter_choices()),
+            forms.TextInput(attrs=attrs))
 
-        super().__init__(widgets, *args, **kwargs)
+        super().__init__(widgets)
 
     def decompress(self, value):
         if value:
             return [value[0], value[1:]]
         return ['', '']
-
-
-def split_acronym(value):
-    """This function split acronym into small piece list
-    Index 0 :  Localisation (L/M/...)
-    Index 1 :  Sigle/Cnum
-    Index 2 :  Subdivision
-    """
-    last_digit_position = re.match('.+([0-9])[^0-9]*$', value).start(1)
-    subdivision = value[last_digit_position + 1] if len(value) > last_digit_position + 1 else ''
-    return [value[0], value[1:last_digit_position + 1], subdivision]
 
 
 class AcronymField(forms.MultiValueField):
@@ -67,12 +55,10 @@ class AcronymField(forms.MultiValueField):
     def __init__(self, *args, **kwargs):
         max_length = kwargs.pop('max_length', None)
         list_fields = [
-            forms.ChoiceField(choices=_create_first_letter_choices()),
-            forms.CharField(max_length=max_length)
+            forms.CharField(*args, max_length=1, **kwargs),
+            forms.CharField(*args, max_length=max_length, **kwargs)
         ]
-        kwargs['require_all_fields'] = kwargs.pop('required', True)
         super().__init__(list_fields, *args, **kwargs)
-        self.widget = AcronymInput(choices=_create_first_letter_choices())
 
     def compress(self, data_list):
         return ''.join(data_list).upper()
@@ -125,3 +111,14 @@ class PartimAcronymField(forms.MultiValueField):
 
 def _create_first_letter_choices():
     return add_blank(LearningUnitManagementSite.choices())
+
+
+def split_acronym(value):
+    """This function split acronym into small piece list
+    Index 0 :  Localisation (L/M/...)
+    Index 1 :  Sigle/Cnum
+    Index 2 :  Subdivision
+    """
+    last_digit_position = re.match('.+([0-9])[^0-9]*$', value).start(1)
+    subdivision = value[last_digit_position + 1] if len(value) > last_digit_position + 1 else ''
+    return [value[0], value[1:last_digit_position + 1], subdivision]

@@ -23,33 +23,34 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
-from django.test import TestCase
-from base.models import offer_enrollment
-from base.tests.factories.person import PersonFactory
-from base.tests.factories.student import StudentFactory
-from base.tests.factories import academic_year
-from base.tests.factories.offer_year import OfferYearFactory
-from base.tests.factories.offer_enrollment import OfferEnrollmentFactory
+from pprint import pprint
+
+from django.test import SimpleTestCase
+
+from base.forms.utils.acronym_field import AcronymField, _create_first_letter_choices
 
 
-def create_date_enrollment():
-    return datetime.date.today()
+class TestAcronymField(SimpleTestCase):
+    def test_initialize(self):
+        field = AcronymField()
+        first_letter_widget = field.widget.widgets[0]
+        self.assertEqual(first_letter_widget.choices, list(_create_first_letter_choices()))
 
+    def test_compress(self):
+        field = AcronymField()
+        result = field.compress(['L', 'DROIT'])
+        self.assertEqual(result, 'LDROIT')
 
-def create_offer_enrollment(student, offer_year):
-    an_offer_enrollment = offer_enrollment.OfferEnrollment(date_enrollment=create_date_enrollment(),
-                                                           student=student, offer_year=offer_year)
-    an_offer_enrollment.save()
-    return an_offer_enrollment
+    def test_field_not_required(self):
+        field = AcronymField(required=False)
+        self.assertFalse(all(f.required for f in field.fields))
 
+    def test_field_not_disabled(self):
+        field = AcronymField(disabled=True)
+        self.assertTrue(all(f.disabled for f in field.fields))
 
-class OfferEnrollementTest(TestCase):
-    def test_find_by_offers_year(self):
-        student1 = StudentFactory.create()
-        offer_year1 = OfferYearFactory()
-        OfferEnrollmentFactory(student=student1, offer_year=offer_year1)
-        result = list(offer_enrollment.find_by_offers_years([offer_year1]))
-        self.assertEqual(result[0].student, student1)
-        self.assertEqual(result[0].offer_year, offer_year1)
-        self.assertEqual(len(result), 1)
+    def test_field_clean(self):
+        field = AcronymField()
+        first_letter_widget = field.widget.widgets[0]
+        self.assertEqual(first_letter_widget.choices, list(_create_first_letter_choices()))
+        self.assertEqual(field.clean(['L', 'DROIT']), 'LDROIT')

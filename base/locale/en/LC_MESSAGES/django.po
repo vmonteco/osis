@@ -2769,16 +2769,16 @@ msgstr "Do you want to consolidate ?"
 msgid "need_no_reminder"
 msgstr "Need no reminder"
 
-msgid "Proposal %s (%s) cannot be consolidated."
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be consolidated."
 msgstr ""
 
-msgid "Proposal %s (%s) successfully consolidated."
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully consolidated."
 msgstr ""
 
-msgid "Proposal %s (%s) cannot be canceled."
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be canceled."
 msgstr ""
 
-msgid "Proposal %s (%s) successfully canceled."
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully canceled."
 msgstr ""
 
 msgid "A report has been sent."
@@ -2813,3 +2813,18 @@ msgstr ""
 
 msgid "learning_achievements"
 msgstr "Learning achievements"
+
+msgid "learning_achievements_headline"
+msgstr "At the end of this learning unit, the student is able to:"
+
+msgid "Enrollments to learning unit"
+msgstr ""
+
+msgid "Training"
+msgstr ""
+
+msgid "Enrollments to training"
+msgstr ""
+
+msgid "Enrolled to learning unit"
+msgstr "Enrollments to learning unit"

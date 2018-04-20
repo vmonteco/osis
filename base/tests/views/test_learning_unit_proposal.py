@@ -204,7 +204,8 @@ class TestLearningUnitModificationProposal(TestCase):
         lu_initial = response.context['learning_unit_form'].initial
         lcy_initial = response.context['learning_container_year_form'].initial
         self.assertEqual(luy_initial['academic_year'], self.learning_unit_year.academic_year.id)
-        self.assertEqual(luy_initial['acronym'], self.learning_unit_year.acronym)
+        self.assertEqual(luy_initial['acronym'], [
+            self.learning_unit_year.acronym[0], self.learning_unit_year.acronym[1:]])
         self.assertEqual(luy_initial['specific_title'], self.learning_unit_year.specific_title)
         self.assertEqual(lcy_initial['container_type'], self.learning_unit_year.
                          learning_container_year.container_type)
@@ -793,9 +794,10 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
 
         messages = [str(message) for message in get_messages(response.wsgi_request)]
-        self.assertIn(_("Proposal %s (%s) successfully canceled.").format(self.learning_unit_year.acronym,
-                                                                          self.learning_unit_year.academic_year),
-                      list(messages))
+        self.assertIn(_("Proposal %(acronym)s (%(academic_year)s) successfully canceled.") % {
+                "acronym": self.learning_unit_year.acronym,
+                "academic_year": self.learning_unit_year.academic_year
+            }, messages)
 
     def test_models_after_cancellation_of_proposal(self):
         _modify_learning_unit_year_data(self.learning_unit_year)
