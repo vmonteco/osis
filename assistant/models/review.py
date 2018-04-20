@@ -25,7 +25,9 @@
 ##############################################################################
 from django.db import models
 from django.utils import timezone
+
 from assistant.models.enums import review_status, review_advice_choices
+
 
 
 class Review(models.Model):
@@ -61,3 +63,10 @@ def find_by_reviewer_for_mandate(reviewer, mandate):
 
 def find_done_by_supervisor_for_mandate(mandate):
     return Review.objects.get(reviewer=None, mandate=mandate, status='DONE')
+
+
+def find_in_progress_for_mandate(mandate):
+    try:
+        return Review.objects.get(mandate=mandate, status=review_status.IN_PROGRESS)
+    except Review.DoesNotExist:
+        return False

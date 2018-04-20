@@ -86,6 +86,9 @@
                 </ul></td>
                 <td>{% trans mandate.assistant_type %}</td>
                 <td>
+                    {% if mandate.can_go_backward %}
+                        <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span>
+                    {% endif %}
                     {% trans mandate.state %}
                     {% if mandate.state == assistant_mandate_state.PHD_SUPERVISOR %}
                         <h6>

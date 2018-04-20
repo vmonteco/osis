@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,33 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-from django.test import TestCase
-
-from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
-from assistant.tests.factories import review
 from assistant.models.enums import assistant_mandate_state
-from assistant.models.enums import review_status
-from assistant.models.review import find_by_reviewer_for_mandate
 from assistant.models.review import find_in_progress_for_mandate
 
-class TestReviewFactory(TestCase):
 
-    def setUp(self):
-
-        self.mandate = AssistantMandateFactory(state=assistant_mandate_state.RESEARCH)
-        self.review = review.ReviewFactory(status=review_status.DONE, mandate=self.mandate)
-
-    def test_review_by_reviewer_for_mandate(self):
-        self.assertEqual(self.review, find_by_reviewer_for_mandate(self.review.reviewer, self.review.mandate))
-
-    def test_find_in_progress_for_mandate(self):
-        self.assertFalse(find_in_progress_for_mandate(self.review.mandate))
-        self.review.status = review_status.IN_PROGRESS
-        self.review.save()
-        self.assertEqual(find_in_progress_for_mandate(self.review.mandate), self.review)
-        self.review.delete()
-        self.mandate.state = assistant_mandate_state.TO_DO
-        self.assertFalse(find_in_progress_for_mandate(self.review.mandate))
-
-
+def mandate_can_go_backward(mandate):
+    if not find_in_progress_for_mandate(mandate) and mandate.state != assistant_mandate_state.TO_DO:
+        return True
+    else:
+        return False
