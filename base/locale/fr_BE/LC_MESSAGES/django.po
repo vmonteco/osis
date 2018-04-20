@@ -2823,3 +2823,6 @@ msgstr "Acquis d'apprentissage"
 
 msgid "learning_achievements_headline"
 msgstr "A la fin de cette unité d'enseignement, l'étudiant est capable de:"
+
+msgid "User %(person)s do not have rights on this proposal."
+msgstr "L'utilisateur %(person)s ne dispose pas de droits sur cette proposition."
