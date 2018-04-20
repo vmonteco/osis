@@ -201,6 +201,7 @@ def search(**kwargs):
 
 
 # TODO :: Annotate/Count() in only 1 query instead of 2
+# TODO :: Count() on category_type == MINI_TRAINING will be in the future in another field FK (or other table).
 def find_with_enrollments_count(learning_unit_year, education_groups_years):
     education_group_year_ids = [educ_group.id for educ_group in education_groups_years]
     educ_groups = search(id=education_group_year_ids).annotate(count_formation_enrollments=Count('offerenrollment'))\
