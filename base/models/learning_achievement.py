@@ -69,3 +69,7 @@ def find_learning_unit_achievement(learning_unit_yr, a_language_code, position):
                                                order=position)
     except ObjectDoesNotExist:
         return None
+
+
+def find_by_id(an_id):
+    return LearningAchievement.objects.get(pk=an_id)

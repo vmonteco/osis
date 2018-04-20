@@ -94,13 +94,35 @@
                         </a>
                         {{ achievement.code_name }}
                     </div>
-                    <div class="col-md-5 collapsable_{{ forloop.counter0 }}">{{ achievement.text|safe }}</div>
-                    <div class="col-md-6 collapsable_{{ forloop.counter0 }}">
+                    <div class="col-md-4 collapsable_{{ forloop.counter0 }}">{{ achievement.text|safe }}</div>
+                    <div class="col-md-1">
+                        {% if perms.base.can_edit_learningunit_specification %}
+                            <a class="achievement-edit-btn pull-right" href="#"
+                               data-form="{% url 'achievement_edit' learning_unit_year_id=learning_unit_year.id %}?achievement_id={{ achievement.id }}"
+                               title="{% trans 'edit' %}">
+                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                            </a>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-5 collapsable_{{ forloop.counter0 }}">
                         {% with achievement_en=achievements_EN|index:forloop.counter0 %}
                             {% if achievement_en %}
                                 {{ achievement_en.text|safe }}
                             {% endif %}
                         {% endwith %}
+                    </div>
+                    <div class="col-md-1">
+                        {% if perms.base.can_edit_learningunit_specification %}
+                            {% with achievement_en=achievements_EN|index:forloop.counter0 %}
+                                {% if achievement_en %}
+                                    <a class="achievement-edit-btn pull-right" href="#"
+                                       data-form="{% url 'achievement_edit' learning_unit_year_id=learning_unit_year.id %}?achievement_id={{ achievement_en.id }}"
+                                       title="{% trans 'edit' %}">
+                                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                    </a>
+                                {% endif %}
+                            {% endwith %}
+                        {% endif %}
                     </div>
                 </div>
 
@@ -108,7 +130,7 @@
         </div>
     </div>
 </form>
-
+<div class="modal fade" id="achievement_edit" role="dialog" data-backdrop="static"></div>
 {% block script %}
 <script>
 $(document).ready(function(){
@@ -134,6 +156,17 @@ $(document).ready(function(){
         var achievement_id = id.substr(pos+1);
         $('#hdn_achievement_id').val(achievement_id);
     });
-});
+    });
+
+    $(".achievement-edit-btn").click(function(ev) {
+        ev.preventDefault();
+        var url = $(this).data("form"); // get the contact form url
+        var achievement_edit_modal = $("#achievement_edit");
+        achievement_edit_modal.load(url, function() { // load the url into the modal
+            $(this).modal('show');
+        });
+        return false;
+    });
 </script>
 {% endblock %}
+
