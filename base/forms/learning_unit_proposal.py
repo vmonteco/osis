@@ -80,7 +80,7 @@ class ProposalLearningUnitForm(forms.ModelForm):
     def save(self, commit=True):
         if hasattr(self.instance, 'learning_unit_year'):
             # When we save a creation_proposal, we do not need to save the initial_data
-            if self.instance.type != ProposalType.CREATION.name:
+            if self.instance.type != ProposalType.CREATION.name and not self.instance.initial_data:
                 self.instance.initial_data = _copy_learning_unit_data(get_by_id(self.instance.learning_unit_year.id))
         return super().save(commit)
 
