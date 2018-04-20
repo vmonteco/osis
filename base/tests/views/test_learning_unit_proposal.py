@@ -76,7 +76,7 @@ from base.views.learning_unit import learning_unit_identification
 from base.views.learning_units.proposal.update import update_learning_unit_proposal, \
     learning_unit_modification_proposal, \
     learning_unit_suppression_proposal
-from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search, _go_back_to_initial_data
+from base.views.learning_units.search import PROPOSAL_SEARCH, learning_units_proposal_search
 from reference.tests.factories.language import LanguageFactory
 
 LABEL_VALUE_BEFORE_PROPOSAL = _('value_before_proposal')
@@ -482,6 +482,8 @@ class TestLearningUnitProposalSearch(TestCase):
         self.person_entity = PersonEntityFactory(person=self.person, entity=self.an_entity, with_child=True)
         self.client.force_login(self.person.user)
         self.proposals = [_create_proposal_learning_unit() for _ in range(3)]
+        for proposal in self.proposals:
+            PersonEntityFactory(person=self.person, entity=proposal.entity)
 
     def test_learning_units_proposal_search(self):
         url = reverse(learning_units_proposal_search)
@@ -647,10 +649,6 @@ class TestLearningUnitProposalSearch(TestCase):
         self.get_request(self.get_data(action='force_state'))
 
         self.assertTrue(mock_render.called)
-        request, template, context = mock_render.call_args[0]
-        formset = context['proposals']
-        setattr(request, '_messages', FallbackStorage(request))
-        self.assertIsNone(_go_back_to_initial_data(formset, request, []))
 
     @mock.patch('base.views.layout.render')
     def test_get_checked_proposals(self, mock_render):
@@ -849,7 +847,8 @@ def _create_proposal_learning_unit():
     a_learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212", subtype=learning_unit_year_subtypes.FULL)
     an_entity_container_year = EntityContainerYearFactory(
         learning_container_year=a_learning_unit_year.learning_container_year,
-        type=entity_container_year_link_type.REQUIREMENT_ENTITY
+        type=entity_container_year_link_type.REQUIREMENT_ENTITY,
+        entity=an_entity
     )
     initial_data = {
         "learning_container_year": {
