@@ -44,7 +44,7 @@ from base.models.enums import learning_unit_year_subtypes, learning_container_ye
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.business.entities import create_entities_hierarchy
-from base.tests.factories.business.learning_units import GenerateContainer
+from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
@@ -130,6 +130,10 @@ class LearningUnitFullFormContextMixin(TestCase):
             academic_year=self.current_academic_year
         )
 
+        acs = GenerateAcademicYear(
+            start_year=self.current_academic_year.year+1, end_year=self.current_academic_year.year+7).academic_years
+        for ac in acs:
+            LearningUnitYearFactory(academic_year=ac, learning_unit=self.learning_unit_year.learning_unit)
 
 class TestFullFormInit(LearningUnitFullFormContextMixin):
     """Unit tests for FullForm.__init__()"""
@@ -285,7 +289,7 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
 
     @mock.patch('base.forms.learning_unit.learning_unit_create.EntityContainerYearModelForm.is_valid', side_effect=lambda *args: False)
     def test_update_case_wrong_entity_container_year_data(self, mock_is_valid):
-        form = _instanciate_form(post_data=self.post_data, instance=self.learning_unit_year)
+        form = _instanciate_form(post_data=self.post_data, person=self.person, instance=self.learning_unit_year)
         self.assertFalse(form.is_valid())
 
 
@@ -307,6 +311,15 @@ class TestFullFormSave(LearningUnitFullFormContextMixin):
         form.save()
         self.assertTrue(mock_create_method.called)
         self.assertFalse(mock_update_method.called)
+
+    def test_when_update_method_with_no_postponement(self):
+        self.post_data['acronym_0'] = 'L'
+        self.post_data['acronym_1'] = 'OSIS1010'
+        form = _instanciate_form(post_data=self.post_data, person=self.person, instance=self.learning_unit_year)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save(postponement=False)
+        self.assertEqual(self.learning_unit_year.acronym, 'LOSIS1010')
+        self.assertEqual(LearningUnitYear.objects.filter(acronym='LOSIS1010').count(), 1)
 
 
 class testFullFormCreate(TestCase):

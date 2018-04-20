@@ -59,7 +59,7 @@ class LearningUnitBaseForm:
 
     forms = {}
     subtype = None
-    postponement = True
+    _postponement = None
     instance = None
 
     def __init__(self, instances_data, *args, **kwargs):
@@ -76,7 +76,7 @@ class LearningUnitBaseForm:
     @transaction.atomic
     def save(self, commit=True, postponement=True):
         if self._is_update_action():
-            return self._update_with_postponement()
+            return self._update_with_postponement(postponement)
         else:
             return self._create(commit, postponement)
 
@@ -154,13 +154,14 @@ class LearningUnitBaseForm:
         return new_luys
 
     # TODO :: should reuse duplicate_learning_unit_year() function
-    # TODO :: (the postponement function should be the same for creation AND update !)
-    def _update_with_postponement(self):
+    def _update_with_postponement(self, postponement=True):
+        postponement = self._postponement or postponement
+
         entities_data = self._get_entities_data()
         lu_type_full_data = self._get_flat_cleaned_data_apart_from_entities()
         edition_business.update_learning_unit_year_with_report(self.instance, lu_type_full_data,
                                                                entities_data,
-                                                               with_report=self.postponement,
+                                                               with_report=postponement,
                                                                override_postponement_consistency=True)
 
     @abc.abstractmethod
