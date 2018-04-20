@@ -87,11 +87,11 @@ def find_by_parent(an_education_group_year):
     return GroupElementYear.objects.filter(parent=an_education_group_year)
 
 
-def find_learning_unit_formation_roots(objects, parents_as_instances=False):
+def find_learning_unit_formations(objects, parents_as_instances=False):
     root_ids_by_object_id = {}
     if objects:
         filters = _get_root_filters()
-        root_ids_by_object_id = _find_related_root_education_groups(objects, filters=filters)
+        root_ids_by_object_id = _find_related_formations(objects, filters)
         if parents_as_instances:
             root_ids_by_object_id = _convert_parent_ids_to_instances(root_ids_by_object_id)
     return root_ids_by_object_id
@@ -125,7 +125,7 @@ def _raise_if_incorrect_instance(objects):
         raise AttributeError("All objects must be the same class instance ({})".format(obj_class))
 
 
-def _find_related_root_education_groups(objects, filters):
+def _find_related_formations(objects, filters):
     _raise_if_incorrect_instance(objects)
     academic_year = _extract_common_academic_year(objects)
     parents_by_id = _build_parent_list_by_education_group_year_id(academic_year, filters=filters)

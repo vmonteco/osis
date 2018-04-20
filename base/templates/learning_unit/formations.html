@@ -62,7 +62,7 @@
                                         <td>{{ group_element_year.block | default_if_none:'-' }}</td>
                                         <td>
                                             <ul>
-                                                {% for training in  roots_by_educ_group_year|get_item:group_element_year.parent_id %}
+                                                {% for training in  formations_by_educ_group_year|get_item:group_element_year.parent_id %}
                                                     <li>{{ training.acronym }} - {{ training.title }}</li>
                                                 {% endfor %}
                                             </ul>
