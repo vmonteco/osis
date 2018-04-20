@@ -204,7 +204,8 @@ class TestLearningUnitModificationProposal(TestCase):
         lu_initial = response.context['learning_unit_form'].initial
         lcy_initial = response.context['learning_container_year_form'].initial
         self.assertEqual(luy_initial['academic_year'], self.learning_unit_year.academic_year.id)
-        self.assertEqual(luy_initial['acronym'], self.learning_unit_year.acronym)
+        self.assertEqual(luy_initial['acronym'], [
+            self.learning_unit_year.acronym[0], self.learning_unit_year.acronym[1:]])
         self.assertEqual(luy_initial['specific_title'], self.learning_unit_year.specific_title)
         self.assertEqual(lcy_initial['container_type'], self.learning_unit_year.
                          learning_container_year.container_type)
@@ -649,7 +650,7 @@ class TestLearningUnitProposalSearch(TestCase):
         request, template, context = mock_render.call_args[0]
         formset = context['proposals']
         setattr(request, '_messages', FallbackStorage(request))
-        self.assertIsNone(_go_back_to_initial_data(formset, request))
+        self.assertIsNone(_go_back_to_initial_data(formset, request, []))
 
     @mock.patch('base.views.layout.render')
     def test_get_checked_proposals(self, mock_render):
@@ -793,9 +794,10 @@ class TestLearningUnitProposalCancellation(TestCase):
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
 
         messages = [str(message) for message in get_messages(response.wsgi_request)]
-        self.assertIn(_("success_cancel_proposal").format(acronym=self.learning_unit_year.acronym,
-                                                          academic_year=self.learning_unit_year.academic_year),
-                      list(messages))
+        self.assertIn(_("Proposal %(acronym)s (%(academic_year)s) successfully canceled.") % {
+                "acronym": self.learning_unit_year.acronym,
+                "academic_year": self.learning_unit_year.academic_year
+            }, messages)
 
     def test_models_after_cancellation_of_proposal(self):
         _modify_learning_unit_year_data(self.learning_unit_year)
@@ -1223,7 +1225,7 @@ class TestCreationProposalCancel(TestCase):
         self.client.force_login(self.a_person_central_manager.user)
 
     @mock.patch('base.views.learning_units.perms.business_perms.is_eligible_for_cancel_of_proposal', side_effect=lambda *args: True)
-    @mock.patch('base.utils.send_mail.send_mail_after_the_learning_unit_proposal_cancellation')
+    @mock.patch('base.utils.send_mail.send_mail_cancellation_learning_unit_proposals')
     def test_cancel_proposal_of_learning_unit(self, mock_send_mail, mock_perms):
         a_proposal = _create_proposal_learning_unit()
         luy = a_proposal.learning_unit_year
@@ -1235,6 +1237,6 @@ class TestCreationProposalCancel(TestCase):
         msgs = [str(message) for message in get_messages(response.wsgi_request)]
 
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
-        self.assertEqual(len(msgs), 1) # Only 1 proposal deleted
+        self.assertEqual(len(msgs), 2)
         self.assertTrue(mock_send_mail.called)
         self.assertTrue(mock_perms.called)

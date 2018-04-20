@@ -35,7 +35,7 @@
         <div class="col-md-10">
         </div>
     </div>
-    <div class="row" style="margin-top:10px;">
+    <div class="row">
         <div class="col-md-2">
             {% for achievement in achievements_FR %}
                 <table class="pull-right" style="margin: 10px;">
@@ -65,48 +65,62 @@
                     </tr>
                 </table>
 
-            {% endfor %}
+            {% endfor %}            
         </div>
         <div class="col-md-10">
-            {% for achievement in achievements_FR %}
+            {% if achievements_FR %}
                 <div class="row">
-                    <div class="col-md-2">
+                    <div class="col-md-1"></div>
+                    <div class="col-md-5">
+                        {% language LANGUAGE_CODE_FR %}
+                            {% trans 'learning_achievements_headline' %}
+                        {% endlanguage %}
+                    </div>
+                    <div class="col-md-6">
+                        {% language LANGUAGE_CODE_EN %}
+                            {% trans 'learning_achievements_headline' %}
+                        {% endlanguage %}
+                    </div>
+                </div>
+            {% endif %}
+    
+            {% for achievement in achievements_FR %}
+                <div class="row" style="margin-top:10px;">
+                    <div class="col-md-1">
                         <a class="show collapseIndicator" role="button" data-index="{{ forloop.counter0 }}">
                             <i class="fa fa-arrow-up"></i>
                         </a>
                         {{ achievement.code_name }}
                     </div>
-                    <div id="collapsable_{{ forloop.counter0 }}">
-                        <div class="col-md-5">{{ achievement.text|safe }}</div>
-                        <div class="col-md-5">
-                            {% with achievement_en=achievements_EN|index:forloop.counter0 %}
-                                {% if achievement_en %}
-                                    {{ achievement_en.text|safe }}
-                                {% endif %}
-                            {% endwith %}
-                        </div>
+                    <div class="col-md-5 collapsable_{{ forloop.counter0 }}">{{ achievement.text|safe }}</div>
+                    <div class="col-md-6 collapsable_{{ forloop.counter0 }}">
+                        {% with achievement_en=achievements_EN|index:forloop.counter0 %}
+                            {% if achievement_en %}
+                                {{ achievement_en.text|safe }}
+                            {% endif %}
+                        {% endwith %}
                     </div>
                 </div>
-                <hr>
             {% endfor %}
         </div>
     </div>
 </form>
+
 {% block script %}
 <script>
 $(document).ready(function(){
     $(".collapseIndicator").click(function(e){
         var index = $(this).data('index')
-        var divCollapsable = $("div[id^='collapsable_" + index + "']")
+        var divCollapsables = $(".collapsable_" + index + "")
         var iconElem = $(this).find("i");
         if (iconElem.hasClass('fa-arrow-up')) {
             iconElem.removeClass('fa-arrow-up');
             iconElem.addClass('fa-arrow-down');
-            divCollapsable.css({'height':'60px','overflow':'hidden'});
+            divCollapsables.css({'height':'60px','overflow':'hidden'});
         } else {
             iconElem.removeClass('fa-arrow-down');
             iconElem.addClass('fa-arrow-up');
-            divCollapsable.css({'height':'','overflow':''});
+            divCollapsables.css({'height':'','overflow':''});
         }
     });
 
@@ -120,7 +134,6 @@ $(document).ready(function(){
         id = id.replace('_','');
         $('#hdn_action').val(id.substr(0));
     });
-
 });
 </script>
 {% endblock %}

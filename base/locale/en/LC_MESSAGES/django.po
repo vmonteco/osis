@@ -2769,17 +2769,35 @@ msgstr "Do you want to consolidate ?"
 msgid "need_no_reminder"
 msgstr "Need no reminder"
 
-msgid "error_consolidate_proposal"
-msgstr "Proposal {acronym} ({academic_year}) cannot be consolidated."
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be consolidated."
+msgstr ""
 
-msgid "success_consolidate_proposal"
-msgstr "Proposal {acronym} ({academic_year}) successfully consolidated."
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully consolidated."
+msgstr ""
 
-msgid "error_cancel_proposal"
-msgstr "Proposal {acronym} ({academic_year}) cannot be canceled."
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be canceled."
+msgstr ""
 
-msgid "success_cancel_proposal"
-msgstr "Proposal {acronym} ({academic_year}) successfully canceled."
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully canceled."
+msgstr ""
+
+msgid "A report has been sent."
+msgstr ""
+
+msgid "Success"
+msgstr ""
+
+msgid "Failure"
+msgstr ""
+
+msgid "Remarks"
+msgstr ""
+
+msgid "Learning unit"
+msgstr ""
+
+msgid "Research criteria"
+msgstr ""
 
 msgid "The learning unit %(acronym)s is included in the following education groups"
 msgstr ""
@@ -2790,6 +2808,9 @@ msgstr "Formation's type"
 msgid "absolute_and_relative_credits"
 msgstr "Relative / Absolute <br>credits"
 
+msgid "Proposal is neither accepted nor refused."
+msgstr ""
+
 msgid "learning_achievements"
 msgstr "Learning achievements"
 
@@ -2798,3 +2819,6 @@ msgstr "Up"
 
 msgid "down"
 msgstr "Down"
+
+msgid "learning_achievements_headline"
+msgstr "At the end of this learning unit, the student is able to:"

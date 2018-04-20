@@ -23,27 +23,34 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import redirect, get_object_or_404
+from pprint import pprint
 
-from base.business import learning_unit_proposal as business_proposal
-from base.models.learning_unit_year import LearningUnitYear
-from base.models.person import Person
-from base.models.proposal_learning_unit import ProposalLearningUnit
-from base.views.common import display_messages_by_level
-from base.views.learning_units import perms
+from django.test import SimpleTestCase
+
+from base.forms.utils.acronym_field import AcronymField, _create_first_letter_choices
 
 
-@login_required
-@perms.can_perform_cancel_proposal
-@permission_required('base.can_propose_learningunit', raise_exception=True)
-def cancel_proposal_of_learning_unit(request, learning_unit_year_id):
-    user_person = get_object_or_404(Person, user=request.user)
-    learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learning_unit_year_id)
-    messages_by_level = business_proposal.cancel_proposals_and_send_report([learning_unit_proposal], user_person, {})
-    display_messages_by_level(request, messages_by_level)
+class TestAcronymField(SimpleTestCase):
+    def test_initialize(self):
+        field = AcronymField()
+        first_letter_widget = field.widget.widgets[0]
+        self.assertEqual(first_letter_widget.choices, list(_create_first_letter_choices()))
 
-    if LearningUnitYear.objects.filter(pk=learning_unit_year_id).exists():
-        return redirect('learning_unit', learning_unit_year_id=learning_unit_year_id)
+    def test_compress(self):
+        field = AcronymField()
+        result = field.compress(['L', 'DROIT'])
+        self.assertEqual(result, 'LDROIT')
 
-    return redirect('learning_units_proposal')
+    def test_field_not_required(self):
+        field = AcronymField(required=False)
+        self.assertFalse(all(f.required for f in field.fields))
+
+    def test_field_not_disabled(self):
+        field = AcronymField(disabled=True)
+        self.assertTrue(all(f.disabled for f in field.fields))
+
+    def test_field_clean(self):
+        field = AcronymField()
+        first_letter_widget = field.widget.widgets[0]
+        self.assertEqual(first_letter_widget.choices, list(_create_first_letter_choices()))
+        self.assertEqual(field.clean(['L', 'DROIT']), 'LDROIT')

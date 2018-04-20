@@ -2776,17 +2776,35 @@ msgstr "Voulez-vous consolider ?"
 msgid "need_no_reminder"
 msgstr "Pas besoin de rappel tout est en ordre"
 
-msgid "error_consolidate_proposal"
-msgstr "Proposition {acronym} ({academic_year}) ne peut pas être consolidée."
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be consolidated."
+msgstr "Proposition %(acronym)s (%(academic_year)s) ne peut pas être consolidée."
 
-msgid "success_consolidate_proposal"
-msgstr "Proposition {acronym} ({academic_year}) consolidée avec succès."
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully consolidated."
+msgstr "Proposition %(acronym)s (%(academic_year)s) consolidée avec succès."
 
-msgid "error_cancel_proposal"
-msgstr "Proposition {acronym} ({academic_year}) ne peut pas être annulée."
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be canceled."
+msgstr "Proposition %(acronym)s (%(academic_year)s) ne peut pas être annulée."
 
-msgid "success_cancel_proposal"
-msgstr "Proposition {acronym} ({academic_year}) annulée avec succès"
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully canceled."
+msgstr "Proposition %(acronym)s (%(academic_year)s) annulée avec succès"
+
+msgid "A report has been sent."
+msgstr "Un rapport a été envoyé."
+
+msgid "Success"
+msgstr "Succès"
+
+msgid "Failure"
+msgstr "Echec"
+
+msgid "Remarks"
+msgstr "Remarques"
+
+msgid "Learning unit"
+msgstr "Unité d'enseignement"
+
+msgid "Research criteria"
+msgstr "Critères de recherche"
 
 msgid "The learning unit %(acronym)s is included in the following education groups"
 msgstr "L'unité d'enseignement %(acronym)s est incluse dans les groupements suivants"
@@ -2797,6 +2815,9 @@ msgstr "Type d'OF"
 msgid "absolute_and_relative_credits"
 msgstr "Crédits<br>relatifs / absolus"
 
+msgid "Proposal is neither accepted nor refused."
+msgstr "La proposition n'est ni acceptée ni refusée."
+
 msgid "learning_achievements"
 msgstr "Acquis d'apprentissage"
 
@@ -2805,3 +2826,7 @@ msgstr "Remonter"
 
 msgid "down"
 msgstr "Descendre"
+
+msgid "learning_achievements_headline"
+msgstr "A la fin de cette unité d'enseignement, l'étudiant est capable de:"
+
