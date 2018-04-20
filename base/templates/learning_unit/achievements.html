@@ -27,7 +27,6 @@
 <form method="post" action="{% url 'achievement_management' learning_unit_year_id=learning_unit_year.id %}">
     {% csrf_token %}
     <input type="hidden" id="hdn_achievement_id"  name="achievement_id"/>
-    <input type="hidden" id="hdn_action"  name="action"/>
     <div class="row" style="margin-top:10px;">
         <div class="col-md-2">
             <label>{% trans 'learning_achievements' %}</label>
