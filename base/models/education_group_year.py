@@ -98,6 +98,7 @@ class EducationGroupYear(models.Model):
                                      blank=True, null=True)
     enrollment_enabled = models.BooleanField(default=False)
     partial_acronym = models.CharField(max_length=15, db_index=True, null=True)
+    # TODO :: rename credits into expected_credits
     credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     remark = models.TextField(blank=True, null=True)
     remark_english = models.TextField(blank=True, null=True)
@@ -200,6 +201,7 @@ def search(**kwargs):
 
 
 # TODO :: Annotate/Count() in only 1 query instead of 2
+# TODO :: Count() on category_type == MINI_TRAINING will be in the future in another field FK (or other table).
 def find_with_enrollments_count(learning_unit_year, education_groups_years):
     education_group_year_ids = [educ_group.id for educ_group in education_groups_years]
     educ_groups = search(id=education_group_year_ids).annotate(count_formation_enrollments=Count('offerenrollment'))\
