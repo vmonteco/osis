@@ -24,13 +24,10 @@
 #
 ##############################################################################
 from django import forms
+from ckeditor.widgets import CKEditorWidget
 
-from base.forms.common import set_trans_txt
-from base.models import learning_achievement
 from base.models.learning_achievement import LearningAchievement, find_learning_unit_achievement
 from base.views import learning_achievement as learning_achievement_view
-from cms.enums import entity_name
-from ckeditor.widgets import CKEditorWidget
 
 FR_CODE_LANGAGUE = 'FR'
 
