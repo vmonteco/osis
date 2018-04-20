@@ -31,6 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 from base import models as mdl_base
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components, \
     edit_learning_unit_end_date, update_learning_unit_year_with_report
+from base.business.learning_units import perms
 from base.business.learning_units.simple import deletion as business_deletion
 from base.models import entity_container_year, campus, entity
 from base.models.academic_year import find_academic_year_by_year
@@ -198,7 +199,8 @@ def cancel_proposals_and_send_report(proposals, author, research_criteria):
         "Proposal %(acronym)s (%(academic_year)s) successfully canceled.",
         "Proposal %(acronym)s (%(academic_year)s) cannot be canceled.",
         send_mail_util.send_mail_cancellation_learning_unit_proposals,
-        research_criteria
+        research_criteria,
+        perms.is_eligible_for_cancel_of_proposal
     )
 
 
@@ -210,14 +212,15 @@ def consolidate_proposals_and_send_report(proposals, author, research_criteria):
         "Proposal %(acronym)s (%(academic_year)s) successfully consolidated.",
         "Proposal %(acronym)s (%(academic_year)s) cannot be consolidated.",
         send_mail_util.send_mail_consolidation_learning_unit_proposal,
-        research_criteria
+        research_criteria,
+        perms.is_eligible_to_consolidate_proposal
     )
 
 
 def _apply_action_on_proposals_and_send_report(proposals, author, action_method, success_msg_id, error_msg_id,
-                                               send_mail_method, research_criteria):
+                                               send_mail_method, research_criteria, permission_check):
     messages_by_level = {SUCCESS: [], ERROR: [], INFO: [_("A report has been sent.")]}
-    proposals_with_results = apply_action_on_proposals(proposals, action_method)
+    proposals_with_results = apply_action_on_proposals(proposals, action_method, author, permission_check)
 
     send_mail_method(author, proposals_with_results, research_criteria)
     for proposal, results in proposals_with_results:
@@ -234,8 +237,19 @@ def _apply_action_on_proposals_and_send_report(proposals, author, action_method,
     return messages_by_level
 
 
-def apply_action_on_proposals(proposals, action_method):
-    return [(proposal, action_method(proposal)) for proposal in proposals]
+def apply_action_on_proposals(proposals, action_method, author, permission_check):
+    proposals_with_results = []
+    for proposal in proposals:
+        proposal_with_result = (proposal, {ERROR: ["User %(person)s do not have rights on this proposal." % {
+            "person": str(author)
+        }]})
+
+        if permission_check(proposal, author):
+            proposal_with_result = (proposal, action_method(proposal))
+
+        proposals_with_results.append(proposal_with_result)
+
+    return proposals_with_results
 
 
 def consolidate_proposal(proposal):

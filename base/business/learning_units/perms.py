@@ -79,7 +79,7 @@ def is_eligible_to_edit_proposal(proposal, person):
 def is_eligible_to_consolidate_proposal(proposal, person):
     return person.user.has_perm('base.can_consolidate_learningunit_proposal') and \
            is_proposal_in_state_to_be_consolidated(proposal) and \
-           person.is_linked_to_entity_in_charge_of_learning_unit_year(proposal.learning_unit_year)
+           _is_attached_to_initial_or_current_requirement_entity(proposal, person)
 
 
 def is_proposal_in_state_to_be_consolidated(proposal):
