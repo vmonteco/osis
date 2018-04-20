@@ -49,10 +49,9 @@
             {% endif %}
         </div>
     </div>
-
-    <div class="row">
-        <div class="col-md-2"  >
-            {% for achievement in achievements_FR %}
+    {% for achievement in achievements_FR %}
+        <div class="row">
+            <div class="col-md-2">
                 <table class="pull-right" style="margin: 10px;">
                     <tr>
                         <td width="33%">
@@ -83,10 +82,8 @@
                         </td>
                     </tr>
                 </table>
-            {% endfor %}            
-        </div>
-        <div class="col-md-10">
-            {% for achievement in achievements_FR %}
+            </div>
+            <div class="col-md-10">
                 <div class="row" style="margin-top:10px;">
                     <div class="col-md-1">
                         <a class="show collapseIndicator" role="button" data-index="{{ forloop.counter0 }}">
@@ -125,10 +122,9 @@
                         {% endif %}
                     </div>
                 </div>
-
-            {% endfor %}
+            </div>
         </div>
-    </div>
+    {% endfor %}
 </form>
 <div class="modal fade" id="achievement_edit" role="dialog" data-backdrop="static"></div>
 {% block script %}
