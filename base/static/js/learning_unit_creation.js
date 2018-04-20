@@ -66,8 +66,9 @@ function validate_acronym() {
 
 
 function cleanErrorMessage(){
-    parent = $("#id_acronym_0").closest(".form-group");
+    parent = $("#id_acronym_0").closest(".acronym-group");
     parent.removeClass('has-error');
+    parent.removeClass('has-warning');
     parent.children(".help-block").remove();
 }
 
@@ -109,14 +110,15 @@ function callbackAcronymValidation(data){
 
 
 function setErrorMessage(text, element){
-    parent = $(element).closest(".form-group");
+    parent = $(element).closest(".acronym-group");
     parent.addClass('has-error');
     parent.append("<div class='help-block'>" + text + "</div>");
 }
 
 function setWarningMessage(text, element){
-    $(element).addClass("warning").text(text);
-    $(element).css("color","orange");
+    parent = $(element).closest(".acronym-group");
+    parent.addClass('has-warning');
+    parent.append("<div class='help-block'>" + text + "</div>");
 }
 
 
