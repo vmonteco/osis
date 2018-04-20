@@ -98,4 +98,3 @@ def edit(request, learning_unit_year_id):
                'form': form}
 
     return layout.render(request, "learning_unit/achievement_edit.html", context)
-
