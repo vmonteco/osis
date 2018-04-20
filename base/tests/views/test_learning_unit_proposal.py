@@ -869,7 +869,6 @@ def _create_proposal_learning_unit():
             "specific_title_english": a_learning_unit_year.specific_title_english,
             "internship_subtype": a_learning_unit_year.internship_subtype,
             "credits": float(a_learning_unit_year.credits),
-            "quadrimester": a_learning_unit_year.quadrimester,
         },
         "learning_unit": {
             "id": a_learning_unit_year.learning_unit.id,
@@ -1107,8 +1106,7 @@ class TestLearningUnitProposalDisplay(TestCase):
         cls.initial_credits = 3.0
         cls.initial_quadrimester = 'Q1'
         cls.initial_language = cls.language_it.pk
-        cls.initial_data_learning_unit_year = {'credits': cls.initial_credits,
-                                               'quadrimester': cls.initial_quadrimester}
+        cls.initial_data_learning_unit_year = {'credits': cls.initial_credits}
 
         cls.initial_language_en = cls.language_it
         cls.generator_learning_container = GenerateContainer(start_year=cls.academic_year.year,
@@ -1126,16 +1124,13 @@ class TestLearningUnitProposalDisplay(TestCase):
     def test_check_differences(self):
         proposal = ProposalLearningUnitFactory()
         proposal.initial_data = {'learning_unit_year' : {
-            'credits': self.initial_credits,
-            'quadrimester': self.initial_quadrimester
+            'credits': self.initial_credits
         }}
         proposal.learning_unit_year.credits = self.learning_unit_yr.credits
-        proposal.learning_unit_year.quadrimester = 'Q3'
 
         differences = proposal_business.get_difference_of_proposal(proposal)
 
         self.assertEqual(differences.get('credits'), self.initial_credits)
-        self.assertEqual(differences.get('quadrimester'), self.initial_quadrimester)
 
     def test_get_the_old_value(self):
         differences = proposal_business._get_the_old_value('credits',
