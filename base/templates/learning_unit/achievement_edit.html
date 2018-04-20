@@ -1,5 +1,6 @@
 {% load staticfiles %}
 {% load i18n %}
+{% load bootstrap3 %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -28,15 +29,14 @@
 <div class="modal-dialog" role="document" style="width:850px;">
     <div class="modal-content">
         <form class="achivement-form" role="form" method="POST"
-              action="{% url 'achievement_edit' learning_unit_year_id=learning_unit_year.id %}?achievement_id={{ achievement.id }}">
+              action="{% url 'achievement_edit' learning_unit_year_id=learning_unit_year.id learning_achievement_id=learning_achievement.id %}">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">×</button>
-                <h4>{{ learning_achievement.code_name }}</h4>
+                <h4>{% trans 'learning_achievements' %}</h4>
             </div>
             <div class="modal-body">
                 {% csrf_token %}
-                {{ form.text }}
-                {{ form.achievement_id }}
+                {% bootstrap_form form %}
             </div>
             <div class="modal-footer">
                 <button class="btn btn-primary" type="submit">{% trans 'save' %}</button>

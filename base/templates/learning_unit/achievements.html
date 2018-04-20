@@ -98,7 +98,7 @@
                     <div class="col-md-1">
                         {% if perms.base.can_edit_learningunit_specification %}
                             <a class="achievement-edit-btn pull-right" href="#"
-                               data-form="{% url 'achievement_edit' learning_unit_year_id=learning_unit_year.id %}?achievement_id={{ achievement.id }}"
+                               data-form="{% url 'achievement_edit' learning_unit_year_id=learning_unit_year.id learning_achievement_id=achievement.id %}"
                                title="{% trans 'edit' %}">
                                 <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                             </a>
@@ -116,7 +116,7 @@
                             {% with achievement_en=achievements_EN|index:forloop.counter0 %}
                                 {% if achievement_en %}
                                     <a class="achievement-edit-btn pull-right" href="#"
-                                       data-form="{% url 'achievement_edit' learning_unit_year_id=learning_unit_year.id %}?achievement_id={{ achievement_en.id }}"
+                                       data-form="{% url 'achievement_edit' learning_unit_year_id=learning_unit_year.id learning_achievement_id=achievement_en.id %}"
                                        title="{% trans 'edit' %}">
                                         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                                     </a>

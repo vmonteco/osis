@@ -77,21 +77,19 @@ def get_action(request):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 @require_http_methods(["GET", "POST"])
-def edit(request, learning_unit_year_id):
+def edit(request, learning_unit_year_id, learning_achievement_id):
+    learning_achievement = get_object_or_404(LearningAchievement, pk=learning_achievement_id)
+    learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+
     if request.method == 'POST':
-        form = LearningAchievementEditForm(request.POST)
+        form = LearningAchievementEditForm(request.POST,
+                                           instance=learning_achievement)
         if form.is_valid():
             form.save()
-        return HttpResponseRedirect(reverse("learning_unit_specifications",
-                                            kwargs={'learning_unit_year_id': learning_unit_year_id}))
+            return HttpResponseRedirect(reverse("learning_unit_specifications",
+                                                kwargs={'learning_unit_year_id': learning_unit_year_id}))
 
-    learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
-    learning_achievement = get_object_or_404(LearningAchievement, pk=request.GET.get('achievement_id'))
-
-    form = LearningAchievementEditForm(**{
-        'learning_achievement': learning_achievement
-    })
-    form.load_initial()  # Load data from database
+    form = LearningAchievementEditForm(instance=learning_achievement)
 
     context = {'learning_unit_year': learning_unit_year,
                'learning_achievement': learning_achievement,

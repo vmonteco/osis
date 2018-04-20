@@ -27,24 +27,39 @@ from django import forms
 
 from base.forms.common import set_trans_txt
 from base.models import learning_achievement
+from base.models.learning_achievement import LearningAchievement, find_learning_unit_achievement
 from cms.enums import entity_name
 from ckeditor.widgets import CKEditorWidget
 
 
-class LearningAchievementEditForm(forms.Form):
+class LearningAchievementEditForm(forms.ModelForm):
     text = forms.CharField(widget=CKEditorWidget(config_name='minimal'), required=False)
-    achievement_id = forms.IntegerField(widget=forms.HiddenInput, required=True)
+
+    class Meta:
+        model = LearningAchievement
+        fields = ['code_name', 'text']
 
     def __init__(self, *args, **kwargs):
-        self.learning_achievement = kwargs.pop('learning_achievement', None)
+        self.learning_unit_year = kwargs.pop('learning_unit_year', None)
         super(LearningAchievementEditForm, self).__init__(*args, **kwargs)
 
-    def load_initial(self):
-        self.fields['achievement_id'].initial = self.learning_achievement.id
-        self.fields['text'].initial = self.learning_achievement.text
+    def save(self, commit=True):
+        instance = super(LearningAchievementEditForm, self).save(commit=False)
+        learning_achievement_other_language = \
+            find_learning_unit_achievement(self.instance.learning_unit_year,
+                                           _get_a_language_code(self.instance.language),
+                                           self.instance.order)
+        if learning_achievement_other_language:
+            learning_achievement_other_language.code_name = self.instance.code_name
+            learning_achievement_other_language.save()
 
-    def save(self):
-        cleaned_data = self.cleaned_data
-        achievement = learning_achievement.find_by_id(cleaned_data['achievement_id'])
-        achievement.text = cleaned_data.get('text')
-        achievement.save()
+        if commit:
+            instance.save()
+        return instance
+
+
+def _get_a_language_code(a_language):
+    if a_language.code == 'FR':
+        return 'EN'
+    else:
+        return 'FR'
