@@ -35,7 +35,7 @@ from base.business.learning_units.simple import deletion as business_deletion
 from base.models import entity_container_year, campus, entity
 from base.models.academic_year import find_academic_year_by_year
 from base.models.entity_container_year import find_entities_grouped_by_linktype
-from base.models.enums import proposal_state, proposal_type
+from base.models.enums import proposal_state, proposal_type, entity_container_year_link_type
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums.proposal_type import ProposalType
 from base.utils import send_mail as send_mail_util
@@ -49,7 +49,7 @@ VALUES_WHICH_NEED_TRANSLATION = ["periodicity", "container_type", "internship_su
 LABEL_ACTIVE = _('active')
 LABEL_INACTIVE = _('inactive')
 INITIAL_DATA_FIELDS = {'learning_container_year': ["id", "acronym", "common_title", "common_title_english",
-                                                         "container_type", "campus", "language", "in_charge"],
+                                                   "container_type", "campus", "language", "in_charge"],
                        'learning_unit': ["id", "periodicity", "end_year"],
                        'learning_unit_year': ["id", "acronym", "specific_title", "specific_title_english",
                                               "internship_subtype", "status"]
@@ -119,6 +119,10 @@ def delete_learning_unit_proposal(learning_unit_proposal):
 
 def get_difference_of_proposal(learning_unit_yr_proposal):
     initial_data = learning_unit_yr_proposal.initial_data
+    if not initial_data['entities']['ADDITIONAL_REQUIREMENT_ENTITY_1']:
+        initial_data['entities']['ADDITIONAL_REQUIREMENT_ENTITY_1'] = "-"
+    if not initial_data['entities']['ADDITIONAL_REQUIREMENT_ENTITY_2']:
+        initial_data['entities']['ADDITIONAL_REQUIREMENT_ENTITY_2'] = "-"
     actual_data = _copy_learning_unit_data(learning_unit_yr_proposal.learning_unit_year)
     differences = {}
     for model in ['learning_unit', 'learning_unit_year', 'learning_container_year', 'entities']:
@@ -324,6 +328,11 @@ def compute_proposal_state(a_person):
 def _copy_learning_unit_data(learning_unit_year):
     learning_container_year = learning_unit_year.learning_container_year
     entities_by_type = entity_container_year.find_entities_grouped_by_linktype(learning_container_year)
+    entities_additional = entity_container_year.find_last_entity_version_grouped_by_linktypes(
+        learning_container_year, [entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
+                                  entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2])
+
+    entities_by_type.update(entities_additional)
 
     learning_container_year_values = _get_attributes_values(learning_container_year,
                                                             INITIAL_DATA_FIELDS['learning_container_year'])
