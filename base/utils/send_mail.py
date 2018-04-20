@@ -173,7 +173,6 @@ def _create_xls(parameters_dict):
 
     _build_worksheet_parameters(workbook, parameters_dict.get(xls_build.USER_KEY),
                                 parameters_dict.get("operation", ""), parameters_dict.get("research_criteria"))
-    save_workbook(workbook, "temp.xlsx")
     return save_virtual_workbook(workbook)
 
 
