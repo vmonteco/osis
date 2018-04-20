@@ -317,6 +317,28 @@ class TestConvertParentIdsToInstances(TestCase):
         self.assertIsInstance(list(result.keys())[0], int)
         self.assertIsInstance(result[group_element.child_leaf.id][0], EducationGroupYear)
 
+    def test_ordered_by_acronym(self):
+        learn_unit_year = LearningUnitYearFactory()
+        group_element1 = GroupElementYearFactory(
+            parent=EducationGroupYearFactory(acronym='ECGE1BA'),
+            child_branch=None,
+            child_leaf=learn_unit_year
+        )
+        group_element2 = GroupElementYearFactory(
+            parent=EducationGroupYearFactory(acronym='DROI1BA'),
+            child_branch=None,
+            child_leaf=learn_unit_year
+        )
+        group_element3 = GroupElementYearFactory(
+            parent=EducationGroupYearFactory(acronym='SPOL2MS/G'),
+            child_branch=None,
+            child_leaf=learn_unit_year
+        )
+        root_ids_by_object_id = group_element_year.find_learning_unit_formations([learn_unit_year])
+        result = group_element_year._convert_parent_ids_to_instances(root_ids_by_object_id)
+        expected_order = [group_element2.parent, group_element1.parent, group_element3.parent]
+        self.assertListEqual(result[learn_unit_year.id], expected_order)
+
 
 class TestBuildChildKey(TestCase):
     """Unit tests on _build_child_key() """

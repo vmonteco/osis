@@ -24,6 +24,9 @@
 #
 ##############################################################################
 import datetime
+from base.tests.factories.education_group_type import EducationGroupTypeFactory
+from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.group_element_year import GroupElementYearFactory
 import random
 from unittest import mock
 
@@ -50,7 +53,7 @@ from base.models import learning_unit_component
 from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear
 from base.models.bibliography import Bibliography
-from base.models.enums import entity_container_year_link_type, active_status
+from base.models.enums import entity_container_year_link_type, active_status, education_group_categories
 from base.models.enums import internship_subtypes
 from base.models.enums import learning_container_year_types, organization_type, entity_type
 from base.models.enums import learning_unit_periodicity
@@ -630,6 +633,20 @@ class LearningUnitViewTestCase(TestCase):
     def test_learning_unit_formation(self, mock_render):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=self.learning_container_yr)
+        educ_group_type_matching_filters = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
+        group_element1 = GroupElementYearFactory(
+            child_leaf=learning_unit_year,
+            child_branch=None,
+            parent=EducationGroupYearFactory(partial_acronym='LMATH600R', academic_year=self.current_academic_year, education_group_type=educ_group_type_matching_filters))
+        group_element2 = GroupElementYearFactory(
+            child_leaf=learning_unit_year,
+            child_branch=None,
+            parent=EducationGroupYearFactory(partial_acronym='LBIOL601R', academic_year=self.current_academic_year, education_group_type=educ_group_type_matching_filters))
+        group_element3 = GroupElementYearFactory(
+            child_leaf=learning_unit_year,
+            child_branch=None,
+            parent=EducationGroupYearFactory(partial_acronym='TMATH600R', academic_year=self.current_academic_year, education_group_type=educ_group_type_matching_filters))
+
         request_factory = RequestFactory()
 
         request = request_factory.get(reverse('learning_unit_formations', args=[learning_unit_year.id]))
@@ -645,8 +662,13 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_unit/formations.html')
         self.assertEqual(context['current_academic_year'], self.current_academic_year)
         self.assertEqual(context['learning_unit_year'], learning_unit_year)
-        self.assertIn('group_elements_years', context)
+        expected_order = [group_element2, group_element1, group_element3]
+        self._assert_group_elements_ordered_by_partial_acronym(context, expected_order)
         self.assertIn('root_formations', context)
+
+    def _assert_group_elements_ordered_by_partial_acronym(self, context, expected_order):
+        self.assertListEqual(list(context['group_elements_years']), expected_order)
+
 
     def test_learning_unit_usage_two_usages(self):
         learning_container_yr = LearningContainerYearFactory(academic_year=self.current_academic_year,

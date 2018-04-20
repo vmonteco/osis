@@ -111,7 +111,7 @@ def _convert_parent_ids_to_instances(root_ids_by_object_id):
     flat_root_ids = list(set(itertools.chain.from_iterable(root_ids_by_object_id.values())))
     map_instance_by_id = {obj.id: obj for obj in education_group_year.search(id=flat_root_ids)}
     return {
-        obj_id: [map_instance_by_id[parent_id] for parent_id in parents]
+        obj_id: sorted([map_instance_by_id[parent_id] for parent_id in parents], key=lambda obj: obj.acronym)
         for obj_id, parents in root_ids_by_object_id.items()
     }
 
@@ -138,7 +138,7 @@ def _find_related_formations(objects, filters):
 def _extract_common_academic_year(objects):
     if len(set(getattr(obj, 'academic_year_id') for obj in objects)) > 1:
         raise AttributeError("The algorithm should load only graph/structure for 1 academic_year "
-                             "to avoid too large 'in-memory' data.")
+                             "to avoid too large 'in-memory' data and performance issues.")
     return objects[0].academic_year
 
 
