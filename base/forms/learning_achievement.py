@@ -28,8 +28,11 @@ from django import forms
 from base.forms.common import set_trans_txt
 from base.models import learning_achievement
 from base.models.learning_achievement import LearningAchievement, find_learning_unit_achievement
+from base.views import learning_achievement as learning_achievement_view
 from cms.enums import entity_name
 from ckeditor.widgets import CKEditorWidget
+
+FR_CODE_LANGAGUE = 'FR'
 
 
 class LearningAchievementEditForm(forms.ModelForm):
@@ -40,7 +43,7 @@ class LearningAchievementEditForm(forms.ModelForm):
         fields = ['code_name', 'text']
 
     def save(self, commit=True):
-        instance = super(LearningAchievementEditForm, self).save(commit=False)
+        super(LearningAchievementEditForm, self).save(commit)
         learning_achievement_other_language = \
             find_learning_unit_achievement(self.instance.learning_unit_year,
                                            _get_a_language_code(self.instance.language),
@@ -49,13 +52,8 @@ class LearningAchievementEditForm(forms.ModelForm):
             learning_achievement_other_language.code_name = self.instance.code_name
             learning_achievement_other_language.save()
 
-        if commit:
-            instance.save()
-        return instance
-
 
 def _get_a_language_code(a_language):
-    if a_language.code == 'FR':
-        return 'EN'
-    else:
-        return 'FR'
+    if a_language.code == FR_CODE_LANGAGUE:
+        return learning_achievement_view.EN_CODE_LANGAGUE
+    return FR_CODE_LANGAGUE
