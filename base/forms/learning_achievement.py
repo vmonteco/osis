@@ -27,7 +27,6 @@ from django import forms
 from ckeditor.widgets import CKEditorWidget
 
 from base.models.learning_achievement import LearningAchievement, find_learning_unit_achievement
-from base.views import learning_achievement as learning_achievement_view
 
 FR_CODE_LANGAGUE = 'FR'
 
@@ -52,5 +51,5 @@ class LearningAchievementEditForm(forms.ModelForm):
 
 def _get_a_language_code(a_language):
     if a_language.code == FR_CODE_LANGAGUE:
-        return learning_achievement_view.EN_CODE_LANGAGUE
+        return 'EN'
     return FR_CODE_LANGAGUE
