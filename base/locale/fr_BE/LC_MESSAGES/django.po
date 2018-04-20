@@ -2821,6 +2821,12 @@ msgstr "La proposition n'est ni acceptée ni refusée."
 msgid "learning_achievements"
 msgstr "Acquis d'apprentissage"
 
+msgid "up"
+msgstr "Remonter"
+
+msgid "down"
+msgstr "Descendre"
+
 msgid "learning_achievements_headline"
 msgstr "A la fin de cette unité d'enseignement, l'étudiant est capable de:"
 

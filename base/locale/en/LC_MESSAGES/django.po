@@ -2814,6 +2814,12 @@ msgstr ""
 msgid "learning_achievements"
 msgstr "Learning achievements"
 
+msgid "up"
+msgstr "Up"
+
+msgid "down"
+msgstr "Down"
+
 msgid "learning_achievements_headline"
 msgstr "At the end of this learning unit, the student is able to:"
 
