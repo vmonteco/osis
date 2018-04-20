@@ -2816,3 +2816,15 @@ msgstr "Learning achievements"
 
 msgid "learning_achievements_headline"
 msgstr "At the end of this learning unit, the student is able to:"
+
+msgid "Enrollments to learning unit"
+msgstr ""
+
+msgid "Training"
+msgstr ""
+
+msgid "Enrollments to training"
+msgstr ""
+
+msgid "Enrolled to learning unit"
+msgstr "Enrollments to learning unit"
