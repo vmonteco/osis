@@ -241,8 +241,8 @@ class TestSave(TestCase):
             "entities": {
                 entity_container_year_link_type.REQUIREMENT_ENTITY: self.entity_container_year.entity.id,
                 entity_container_year_link_type.ALLOCATION_ENTITY: None,
-                entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1: None,
-                entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: None
+                entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1: "-",
+                entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: "-"
             }
         }
 

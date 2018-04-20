@@ -120,10 +120,11 @@ def delete_learning_unit_proposal(learning_unit_proposal):
 
 def get_difference_of_proposal(learning_unit_yr_proposal):
     initial_data = learning_unit_yr_proposal.initial_data
-    if not initial_data['entities']['ADDITIONAL_REQUIREMENT_ENTITY_1']:
-        initial_data['entities']['ADDITIONAL_REQUIREMENT_ENTITY_1'] = "-"
-    if not initial_data['entities']['ADDITIONAL_REQUIREMENT_ENTITY_2']:
-        initial_data['entities']['ADDITIONAL_REQUIREMENT_ENTITY_2'] = "-"
+    if 'entities' in initial_data:
+        if not initial_data['entities'][entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1]:
+            initial_data['entities'][entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1] = "-"
+        if not initial_data['entities'][entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2]:
+            initial_data['entities'][entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2] = "-"
     actual_data = _copy_learning_unit_data(learning_unit_yr_proposal.learning_unit_year)
     differences = {}
     for model in ['learning_unit', 'learning_unit_year', 'learning_container_year', 'entities']:
