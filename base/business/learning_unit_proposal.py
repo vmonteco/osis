@@ -48,6 +48,12 @@ NO_PREVIOUS_VALUE = '-'
 VALUES_WHICH_NEED_TRANSLATION = ["periodicity", "container_type", "internship_subtype"]
 LABEL_ACTIVE = _('active')
 LABEL_INACTIVE = _('inactive')
+INITIAL_DATA_FIELDS = {'learning_container_year': ["id", "acronym", "common_title", "common_title_english",
+                                                         "container_type", "campus", "language", "in_charge"],
+                       'learning_unit': ["id", "periodicity", "end_year"],
+                       'learning_unit_year': ["id", "acronym", "specific_title", "specific_title_english",
+                                              "internship_subtype", "status"]
+                       }
 
 
 def compute_proposal_type(proposal_learning_unit_year):
@@ -320,12 +326,11 @@ def _copy_learning_unit_data(learning_unit_year):
     entities_by_type = entity_container_year.find_entities_grouped_by_linktype(learning_container_year)
 
     learning_container_year_values = _get_attributes_values(learning_container_year,
-                                                            ["id", "acronym", "common_title", "common_title_english",
-                                                             "container_type", "campus", "language", "in_charge"])
-    learning_unit_values = _get_attributes_values(learning_unit_year.learning_unit, ["id", "periodicity", "end_year"])
-    learning_unit_year_values = _get_attributes_values(learning_unit_year, ["id", "acronym", "specific_title",
-                                                                            "specific_title_english",
-                                                                            "internship_subtype", "status"])
+                                                            INITIAL_DATA_FIELDS['learning_container_year'])
+    learning_unit_values = _get_attributes_values(learning_unit_year.learning_unit,
+                                                  INITIAL_DATA_FIELDS['learning_unit'])
+    learning_unit_year_values = _get_attributes_values(learning_unit_year,
+                                                       INITIAL_DATA_FIELDS['learning_unit_year'])
     learning_unit_year_values["credits"] = float(learning_unit_year.credits) if learning_unit_year.credits else None
     return get_initial_data(entities_by_type, learning_container_year_values, learning_unit_values,
                             learning_unit_year_values)
