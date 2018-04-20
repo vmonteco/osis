@@ -645,6 +645,8 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_unit/formations.html')
         self.assertEqual(context['current_academic_year'], self.current_academic_year)
         self.assertEqual(context['learning_unit_year'], learning_unit_year)
+        self.assertIn('group_elements_years', context)
+        self.assertIn('root_formations', context)
 
     def test_learning_unit_usage_two_usages(self):
         learning_container_yr = LearningContainerYearFactory(academic_year=self.current_academic_year,
