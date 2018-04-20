@@ -39,10 +39,6 @@ class LearningAchievementEditForm(forms.ModelForm):
         model = LearningAchievement
         fields = ['code_name', 'text']
 
-    def __init__(self, *args, **kwargs):
-        self.learning_unit_year = kwargs.pop('learning_unit_year', None)
-        super(LearningAchievementEditForm, self).__init__(*args, **kwargs)
-
     def save(self, commit=True):
         instance = super(LearningAchievementEditForm, self).save(commit=False)
         learning_achievement_other_language = \

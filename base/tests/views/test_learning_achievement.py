@@ -187,7 +187,7 @@ class TestLearningAchievementActions(TestCase):
 
         from base.views.learning_achievement import edit
 
-        edit(request, learning_unit_year.id)
+        edit(request, learning_unit_year.id, learning_achievement.id)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -197,8 +197,11 @@ class TestLearningAchievementActions(TestCase):
 
     def test_learning_achievement_save(self):
         learning_unit_year = LearningUnitYearFactory()
+        learning_achievement = LearningAchievementFactory(learning_unit_year=learning_unit_year,
+                                                          language=self.language_fr)
         response = self.client.post(reverse('achievement_edit',
-                                            kwargs={'learning_unit_year_id': learning_unit_year.id}))
+                                            kwargs={'learning_unit_year_id': learning_unit_year.id,
+                                                    'learning_achievement_id': learning_achievement.id}), data={'code_name': 'AA1', 'text': 'Text'})
 
         expected_redirection = reverse("learning_unit_specifications",
                                        kwargs={'learning_unit_year_id': learning_unit_year.id})
