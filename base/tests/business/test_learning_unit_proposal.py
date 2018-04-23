@@ -24,6 +24,8 @@
 #
 ##############################################################################
 import datetime
+
+from factory import fuzzy
 from unittest import mock
 from unittest.mock import patch
 
@@ -44,7 +46,7 @@ from base.models.enums import organization_type, proposal_type, entity_type, \
 from base.models.enums.proposal_type import ProposalType
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
-from base.tests.factories.business.learning_units import GenerateAcademicYear, GenerateContainer
+from base.tests.factories.business.learning_units import GenerateContainer
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -53,6 +55,7 @@ from base.tests.factories.learning_container_year import LearningContainerYearFa
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
+from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 
 
@@ -98,14 +101,20 @@ class TestLearningUnitProposalCancel(TestCase):
         self.assertCountEqual(list(mdl_base.learning_unit.LearningUnit.objects.filter(id=lu.id)),
                               [])
 
+    @patch("base.business.learning_units.perms.is_eligible_for_cancel_of_proposal",
+           side_effect=lambda proposal, person: True)
     @patch('base.utils.send_mail.send_mail_cancellation_learning_unit_proposals')
-    def test_cancel_proposals_of_type_suppression(self, mock_send_mail):
+    def test_cancel_proposals_of_type_suppression(self, mock_send_mail, mock_perm):
         proposal = self._create_proposal(prop_type=proposal_type.ProposalType.SUPPRESSION.name,
                                          prop_state=proposal_state.ProposalState.FACULTY.name)
-        lu_proposal_business.cancel_proposals_and_send_report([proposal], PersonFactory(), [])
+        proposal.entity = self.entity_container_year.entity
+        proposal.save()
+        person_entity = PersonEntityFactory(entity=self.entity_container_year.entity)
+        lu_proposal_business.cancel_proposals_and_send_report([proposal], person_entity.person, [])
         self.assertCountEqual(list(mdl_base.proposal_learning_unit.ProposalLearningUnit.objects
                                    .filter(learning_unit_year=self.learning_unit_year)), [])
         self.assertTrue(mock_send_mail.called)
+        self.assertTrue(mock_perm.called)
 
     def _create_proposal(self, prop_type, prop_state):
         initial_data_expected = {
@@ -201,16 +210,23 @@ class TestConsolidateProposals(TestCase):
     def setUp(self):
         self.author = PersonFactory()
         self.proposals = [ProposalLearningUnitFactory() for _ in range(2)]
+        person_entity = PersonEntityFactory(person=self.author)
+        for proposal in self.proposals:
+            EntityContainerYearFactory(learning_container_year=proposal.learning_unit_year.learning_container_year,
+                                       entity=person_entity.entity,
+                                       type=entity_container_year_link_type.REQUIREMENT_ENTITY)
 
+    @mock.patch("base.business.learning_units.perms.is_eligible_to_consolidate_proposal",
+                side_effect=lambda proposal, person: True)
     @mock.patch("base.business.learning_unit_proposal.consolidate_proposal",
                 side_effect=lambda prop: {SUCCESS: ["msg_success"]})
     @mock.patch("base.utils.send_mail.send_mail_consolidation_learning_unit_proposal",
                 side_effect=None)
-    def test_call_method_consolidate_proposal(self, mock_mail, mock_consolidate_proposal):
+    def test_call_method_consolidate_proposal(self, mock_mail, mock_consolidate_proposal, mock_perm):
         result = consolidate_proposals_and_send_report(self.proposals, self.author, [])
 
         consolidate_args_list = [((self.proposals[0],),), ((self.proposals[1],),)]
-        self.assertTrue(mock_consolidate_proposal.call_args_list == consolidate_args_list)
+        self.assertListEqual(mock_consolidate_proposal.call_args_list, consolidate_args_list)
 
         self.assertDictEqual(result, {
             INFO: [_("A report has been sent.")],
@@ -222,6 +238,7 @@ class TestConsolidateProposals(TestCase):
         })
 
         self.assertTrue(mock_mail.called)
+        self.assertTrue(mock_perm.called)
 
 
 def mock_message_by_level(*args, **kwargs):
@@ -265,13 +282,18 @@ class TestConsolidateProposal(TestCase):
     @mock.patch("base.business.learning_unit_proposal.edit_learning_unit_end_date")
     def test_when_proposal_of_type_suppression_and_accepted(self, mock_edit_lu_end_date):
         academic_years = create_academic_years()
-        suppression_proposal = ProposalLearningUnitFactory(state=proposal_state.ProposalState.ACCEPTED.name,
-                                                           type=proposal_type.ProposalType.SUPPRESSION.name,
-                                                           initial_data={
-                                                               "learning_unit": {
-                                                                   "end_year": academic_years[2].year
-                                                               }
-                                                           })
+        initial_end_year_index = 2
+        suppression_proposal = ProposalLearningUnitFactory(
+            state=proposal_state.ProposalState.ACCEPTED.name,
+            type=proposal_type.ProposalType.SUPPRESSION.name,
+            initial_data={
+                "learning_unit": {
+                    "end_year": academic_years[initial_end_year_index].year
+                }
+            })
+        random_end_acad_year_index = fuzzy.FuzzyInteger(initial_end_year_index+1, len(academic_years)-1).fuzz()
+        suppression_proposal.learning_unit_year.learning_unit.end_year = academic_years[random_end_acad_year_index].year
+        suppression_proposal.learning_unit_year.learning_unit.save()
         consolidate_proposal(suppression_proposal)
 
         self.assertFalse(ProposalLearningUnit.objects.filter(pk=suppression_proposal.pk).exists())

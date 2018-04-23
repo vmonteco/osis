@@ -24,6 +24,8 @@
 #
 ##############################################################################
 
+from unittest import mock
+
 from django.contrib.auth.models import Permission
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
@@ -38,6 +40,8 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory
 from reference.tests.factories.language import LanguageFactory
 from base.views.learning_achievement import operation, management, DELETE, DOWN, UP
+from base.forms.learning_achievement import LearningAchievementEditForm
+from base.tests.factories.user import SuperUserFactory
 
 
 class TestLearningAchievementView(TestCase):
@@ -53,8 +57,8 @@ class TestLearningAchievementView(TestCase):
         PersonFactory(user=self.user)
         self.client.force_login(self.user)
         self.achievement_fr = LearningAchievementFactory(language=self.language_fr,
-                                                          learning_unit_year=self.learning_unit_year,
-                                                          order=0)
+                                                         learning_unit_year=self.learning_unit_year,
+                                                         order=0)
 
     def test_operation_method_not_allowed(self):
         request_factory = RequestFactory()
@@ -98,39 +102,40 @@ class TestLearningAchievementActions(TestCase):
 
         PersonFactory(user=self.user)
         self.client.force_login(self.user)
+        self.a_superuser = SuperUserFactory()
 
     def test_delete(self):
         achievement_fr_0 = LearningAchievementFactory(language=self.language_fr,
-                                                       learning_unit_year=self.learning_unit_year,
-                                                       order=0)
+                                                      learning_unit_year=self.learning_unit_year,
+                                                      order=0)
         achievement_en_0 = LearningAchievementFactory(language=self.language_en,
-                                                       learning_unit_year=self.learning_unit_year,
-                                                       order=0)
+                                                      learning_unit_year=self.learning_unit_year,
+                                                      order=0)
         achievement_fr_1 = LearningAchievementFactory(language=self.language_fr,
-                                                       learning_unit_year=self.learning_unit_year,
-                                                       order=1)
+                                                      learning_unit_year=self.learning_unit_year,
+                                                      order=1)
         LearningAchievementFactory(language=self.language_en,
-                                    learning_unit_year=self.learning_unit_year,
-                                    order=1)
+                                   learning_unit_year=self.learning_unit_year,
+                                   order=1)
         request_factory = RequestFactory()
         request = request_factory.post(management)
         request.user = self.user
         operation(achievement_fr_1.id, 'delete')
         self.assertCountEqual(LearningAchievement.objects.all(), [achievement_fr_0,
-                                                                   achievement_en_0])
+                                                                  achievement_en_0])
 
     def test_up(self):
         achievement_fr_0 = LearningAchievementFactory(language=self.language_fr,
-                                                       learning_unit_year=self.learning_unit_year)
+                                                      learning_unit_year=self.learning_unit_year)
         id_fr_0 = achievement_fr_0.id
         achievement_en_0 = LearningAchievementFactory(language=self.language_en,
-                                                       learning_unit_year=self.learning_unit_year)
+                                                      learning_unit_year=self.learning_unit_year)
         id_en_0 = achievement_en_0.id
         achievement_fr_1 = LearningAchievementFactory(language=self.language_fr,
-                                                       learning_unit_year=self.learning_unit_year)
+                                                      learning_unit_year=self.learning_unit_year)
         id_fr_1 = achievement_fr_1.id
         achievement_en_1 = LearningAchievementFactory(language=self.language_en,
-                                                       learning_unit_year=self.learning_unit_year)
+                                                      learning_unit_year=self.learning_unit_year)
         id_en_1 = achievement_en_1.id
 
         request_factory = RequestFactory()
@@ -145,16 +150,16 @@ class TestLearningAchievementActions(TestCase):
 
     def test_down(self):
         achievement_fr_0 = LearningAchievementFactory(language=self.language_fr,
-                                                       learning_unit_year=self.learning_unit_year)
+                                                      learning_unit_year=self.learning_unit_year)
         id_fr_0 = achievement_fr_0.id
         achievement_en_0 = LearningAchievementFactory(language=self.language_en,
-                                                       learning_unit_year=self.learning_unit_year)
+                                                      learning_unit_year=self.learning_unit_year)
         id_en_0 = achievement_en_0.id
         achievement_fr_1 = LearningAchievementFactory(language=self.language_fr,
-                                                       learning_unit_year=self.learning_unit_year)
+                                                      learning_unit_year=self.learning_unit_year)
         id_fr_1 = achievement_fr_1.id
         achievement_en_1 = LearningAchievementFactory(language=self.language_en,
-                                                       learning_unit_year=self.learning_unit_year)
+                                                      learning_unit_year=self.learning_unit_year)
         id_en_1 = achievement_en_1.id
 
         request_factory = RequestFactory()
@@ -166,3 +171,38 @@ class TestLearningAchievementActions(TestCase):
         self.assertEqual(LearningAchievement.objects.get(pk=id_fr_1).order, 0)
         self.assertEqual(LearningAchievement.objects.get(pk=id_en_0).order, 1)
         self.assertEqual(LearningAchievement.objects.get(pk=id_en_1).order, 0)
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_achievement_edit(self, mock_render):
+
+        learning_unit_year = LearningUnitYearFactory()
+        learning_achievement = LearningAchievementFactory(learning_unit_year=learning_unit_year)
+
+        request_factory = RequestFactory()
+        request = request_factory.get(reverse('learning_unit',
+                                              args=[learning_unit_year.id]), data={
+            'achievement_id': learning_achievement.id
+        })
+        request.user = self.a_superuser
+
+        from base.views.learning_achievement import edit
+
+        edit(request, learning_unit_year.id, learning_achievement.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/achievement_edit.html')
+        self.assertIsInstance(context['form'], LearningAchievementEditForm)
+
+    def test_learning_achievement_save(self):
+        learning_unit_year = LearningUnitYearFactory()
+        learning_achievement = LearningAchievementFactory(learning_unit_year=learning_unit_year,
+                                                          language=self.language_fr)
+        response = self.client.post(reverse('achievement_edit',
+                                            kwargs={'learning_unit_year_id': learning_unit_year.id,
+                                                    'learning_achievement_id': learning_achievement.id}), data={'code_name': 'AA1', 'text': 'Text'})
+
+        expected_redirection = reverse("learning_unit_specifications",
+                                       kwargs={'learning_unit_year_id': learning_unit_year.id})
+        self.assertRedirects(response, expected_redirection, fetch_redirect_response=False)

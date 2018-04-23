@@ -98,6 +98,8 @@ class EducationGroupYear(models.Model):
                                      blank=True, null=True)
     enrollment_enabled = models.BooleanField(default=False)
     partial_acronym = models.CharField(max_length=15, db_index=True, null=True)
+    # TODO :: rename credits into expected_credits
+    credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     remark = models.TextField(blank=True, null=True)
     remark_english = models.TextField(blank=True, null=True)
 
@@ -199,20 +201,22 @@ def search(**kwargs):
 
 
 # TODO :: Annotate/Count() in only 1 query instead of 2
-def find_with_enrollments_count(learning_unit_year, education_groups_years):
-    education_group_year_ids = [educ_group.id for educ_group in education_groups_years]
-    educ_groups = search(id=education_group_year_ids).annotate(count_formation_enrollments=Count('offerenrollment'))\
-                                                     .order_by('acronym')
-    learning_unit_enrol_count_by_id = _find_with_learning_unit_enrollment_count(learning_unit_year,
-                                                                                education_group_year_ids)
-    for educ_group in educ_groups:
-        educ_group.count_learning_unit_enrollments = learning_unit_enrol_count_by_id.get(educ_group.id, 0)
-    return educ_groups
+# TODO :: Count() on category_type == MINI_TRAINING will be in the future in another field FK (or other table).
+def find_with_enrollments_count(learning_unit_year):
+    education_groups_years = _find_with_learning_unit_enrollment_count(learning_unit_year)
+    count_by_id = _count_education_group_enrollments_by_id(education_groups_years)
+    for educ_group in education_groups_years:
+        educ_group.count_formation_enrollments = count_by_id.get(educ_group.id) or 0
+    return education_groups_years
 
 
-def _find_with_learning_unit_enrollment_count(learning_unit_year, education_group_year_ids):
-    objects = search(id=education_group_year_ids)\
+def _count_education_group_enrollments_by_id(education_groups_years):
+    educ_groups = search(id=[educ_group.id for educ_group in education_groups_years]) \
+        .annotate(count_formation_enrollments=Count('offerenrollment')).values('id', 'count_formation_enrollments')
+    return {obj['id']: obj['count_formation_enrollments'] for obj in educ_groups}
+
+
+def _find_with_learning_unit_enrollment_count(learning_unit_year):
+    return EducationGroupYear.objects\
         .filter(offerenrollment__learningunitenrollment__learning_unit_year_id=learning_unit_year)\
-        .annotate(count_learning_unit_enrollments=Count('offerenrollment__learningunitenrollment'))\
-        .values('id', 'count_learning_unit_enrollments')
-    return {obj['id']: obj['count_learning_unit_enrollments'] for obj in objects}
+        .annotate(count_learning_unit_enrollments=Count('offerenrollment__learningunitenrollment')).order_by('acronym')

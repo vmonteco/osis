@@ -78,11 +78,10 @@ class ProposalLearningUnitForm(forms.ModelForm):
         fields = ['entity', 'folder_id', 'state', 'type']
 
     def save(self, commit=True):
-        # When we save a creation_proposal, we do not need to save the initial_data
         if hasattr(self.instance, 'learning_unit_year'):
-            if self.instance.initial_data:
-                reinitialize_data_before_proposal(self.instance)
-            self.instance.initial_data = _copy_learning_unit_data(get_by_id(self.instance.learning_unit_year.id))
+            # When we save a creation_proposal, we do not need to save the initial_data
+            if self.instance.type != ProposalType.CREATION.name and not self.instance.initial_data:
+                self.instance.initial_data = _copy_learning_unit_data(get_by_id(self.instance.learning_unit_year.id))
         return super().save(commit)
 
 
@@ -124,12 +123,12 @@ class ProposalBaseForm:
 
     @transaction.atomic
     def save(self):
-        proposal = self.form_proposal.save()
+        proposal = self.form_proposal.save(commit=False)
         # Update the type when initial_data has been set
         proposal.type = compute_proposal_type(proposal)
         proposal.save()
 
-        self.learning_unit_form_container.save()
+        self.learning_unit_form_container.save(postponement=False)
         return proposal
 
     def _get_initial(self):
