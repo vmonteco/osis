@@ -239,7 +239,7 @@ class TestLearningUnitModificationProposal(TestCase):
         messages_list = [str(message) for message in get_messages(response.wsgi_request)]
         self.assertIn(
             _("success_modification_proposal").format(
-                _(proposal_type.ProposalType.MODIFICATION.name),
+                _(proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name),
                 self.learning_unit_year.acronym),
             list(messages_list))
 
