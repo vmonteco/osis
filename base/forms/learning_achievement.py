@@ -26,7 +26,7 @@
 from django import forms
 from ckeditor.widgets import CKEditorWidget
 
-from base.models.learning_achievement import LearningAchievement, find_learning_unit_achievement
+from base.models.learning_achievement import LearningAchievement, find_learning_unit_achievement, search
 
 FR_CODE_LANGAGUE = 'FR'
 
@@ -38,15 +38,12 @@ class LearningAchievementEditForm(forms.ModelForm):
         model = LearningAchievement
         fields = ['code_name', 'text']
 
-    def save(self, commit=True):
-        super(LearningAchievementEditForm, self).save(commit)
-        learning_achievement_other_language = \
-            find_learning_unit_achievement(self.instance.learning_unit_year,
-                                           _get_a_language_code(self.instance.language),
-                                           self.instance.order)
+    def save(self):
+        super(LearningAchievementEditForm, self).save()
+        learning_achievement_other_language = search(self.instance.learning_unit_year,
+                                                     self.instance.order)
         if learning_achievement_other_language:
-            learning_achievement_other_language.code_name = self.instance.code_name
-            learning_achievement_other_language.save()
+            learning_achievement_other_language.update(code_name=self.instance.code_name)
 
 
 def _get_a_language_code(a_language):
