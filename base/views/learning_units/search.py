@@ -25,21 +25,21 @@
 ##############################################################################
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db import IntegrityError
-from django.forms import formset_factory
-from django.shortcuts import get_object_or_404
+from django.contrib.messages import WARNING
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import SERVICE_COURSES_SEARCH, create_xls, SIMPLE_SEARCH
 from base.forms.common import TooManyResultsException
 from base.forms.learning_unit.search_form import LearningUnitYearForm, MAX_RECORDS
-from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalRowForm, ProposalListFormset
+from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalStateModelForm
 from base.models.academic_year import current_academic_year, get_last_academic_years
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.person import Person, find_by_user
+from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views import layout
-from base.views.common import check_if_display_message, display_error_messages, display_success_messages, \
-    display_messages_by_level
+from base.views.common import check_if_display_message, display_error_messages, display_messages_by_level
 from base.business import learning_unit_proposal as proposal_business
 
 PROPOSAL_SEARCH = 3
@@ -92,75 +92,51 @@ def learning_units_service_course(request):
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units_proposal_search(request):
     search_form = LearningUnitProposalForm(request.GET or None)
+    user_person = get_object_or_404(Person, user=request.user)
     proposals = []
     cleaned_research_criteria = []
     try:
         if search_form.is_valid():
-            proposals = search_form.get_proposal_learning_units()
-            check_if_display_message(request, proposals)
             cleaned_research_criteria = search_form.get_research_criteria()
-
+            proposals = search_form.get_proposal_learning_units()
     except TooManyResultsException:
         display_error_messages(request, 'too_many_results')
 
-    if proposals:
-        proposals = _proposal_management(request, proposals, cleaned_research_criteria)
-    a_person = find_by_user(request.user)
+    if request.POST:
+        selected_proposals_id =request.POST.getlist("selected_action", default=[])
+        selected_proposals = ProposalLearningUnit.objects.filter(id__in=selected_proposals_id)
+        messages_by_level= apply_action_on_proposals(selected_proposals, user_person, request.POST,
+                                                     cleaned_research_criteria)
+        display_messages_by_level(request, messages_by_level)
+        return redirect(reverse("learning_unit_proposal_search") + "?/{}".format(request.GET.urlencode()))
+
+    check_if_display_message(request, proposals)
     context = {
         'form': search_form,
+        'form_proposal_state': ProposalStateModelForm(),
         'academic_years': get_last_academic_years(),
         'current_academic_year': current_academic_year(),
         'experimental_phase': True,
         'search_type': PROPOSAL_SEARCH,
         'proposals': proposals,
-        'is_faculty_manager': a_person.is_faculty_manager()
+        'is_faculty_manager': user_person.is_faculty_manager()
     }
 
     return layout.render(request, "learning_units.html", context)
 
 
-def _proposal_management(request, proposals, research_criteria):
-    list_proposal_formset = formset_factory(form=ProposalRowForm, formset=ProposalListFormset,
-                                            extra=len(proposals), max_num=MAX_RECORDS)
+def apply_action_on_proposals(proposals, author, post_data, research_criteria):
+    if not proposals.exists():
+        return {WARNING: [_("No proposals was selected.")]}
 
-    formset = list_proposal_formset(request.POST or None,
-                                    list_proposal_learning=proposals,
-                                    action=request.POST.get('action') if request.POST else None)
-    return process_formset(formset, request, research_criteria)
-
-
-def process_formset(formset, request, research_criteria):
-    if formset.is_valid():
-        if formset.action == 'back_to_initial':
-            _apply_action_on_proposals(formset, request, proposal_business.cancel_proposals_and_send_report,
-                                       research_criteria)
-        elif formset.action == "consolidate":
-            _apply_action_on_proposals(formset, request, proposal_business.consolidate_proposals_and_send_report,
-                                       research_criteria)
-        else:
-            _force_state(formset, request)
-    return formset
-
-
-def _apply_action_on_proposals(formset, request, action_method, research_criteria):
-    proposals = formset.get_checked_proposals()
-    if proposals:
-        user_person = get_object_or_404(Person, user=request.user)
-        messages_by_level = action_method(proposals, user_person, research_criteria)
-        display_messages_by_level(request, messages_by_level)
-        formset = None
-    else:
-        _build_no_data_error_message(request)
-    return formset
-
-
-def _build_no_data_error_message(request):
-    display_error_messages(request, _("error_proposal_no_data"))
-
-
-def _force_state(formset, request):
-    try:
-        formset.save()
-        display_success_messages(request, _("proposal_edited_successfully"))
-    except IntegrityError:
-        display_error_messages(request, _("error_modification_learning_unit"))
+    action = post_data.get("action", "")
+    if action == 'back_to_initial':
+        return proposal_business.cancel_proposals_and_send_report(proposals, author, research_criteria)
+    elif action == "consolidate":
+        return proposal_business.consolidate_proposals_and_send_report(proposals, author, research_criteria)
+    elif action == "force_state":
+        form = ProposalStateModelForm(post_data)
+        if form.is_valid():
+            new_state = form.cleaned_data.get("state")
+            return proposal_business.force_state_of_proposals(proposals, author, new_state)
+    return {}

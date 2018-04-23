@@ -32,12 +32,19 @@
 
 {% block modal_body %}
     {% trans 'do_you_want_to_consolidate' %}
-    <input type="text" id="action" name="action" class="action" value="consolidate" hidden/>
+    <input type="hidden" id="action" name="action" class="action"/>
 {% endblock %}
 
 {% block modal_footer %}
-    <button type="submit" class="btn btn-primary">{% trans 'yes' %}</button>
+    <button type="hidden" class="btn btn-primary" onclick="submit_form_consolidate()">{% trans 'yes' %}</button>
     <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "cancel" %}</button>
+
+    <script>
+        function submit_form_consolidate(){
+        $(".action").val('consolidate');
+        $('form').submit()
+    }
+    </script>
 {% endblock %}
 
 
