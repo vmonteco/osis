@@ -28,6 +28,7 @@ import re
 from django import forms
 
 from base.forms.utils.choice_field import add_blank
+from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 
 
@@ -113,12 +114,14 @@ def _create_first_letter_choices():
     return add_blank(LearningUnitManagementSite.choices())
 
 
-def split_acronym(value):
+def split_acronym(value, subtype=learning_unit_year_subtypes.PARTIM):
     """This function split acronym into small piece list
     Index 0 :  Localisation (L/M/...)
     Index 1 :  Sigle/Cnum
     Index 2 :  Subdivision
     """
     last_digit_position = re.match('.+([0-9])[^0-9]*$', value).start(1)
-    subdivision = value[last_digit_position + 1] if len(value) > last_digit_position + 1 else ''
-    return [value[0], value[1:last_digit_position + 1], subdivision]
+    base_acronym = [value[0], value[1:last_digit_position + 1]]
+    if subtype == learning_unit_year_subtypes.PARTIM:
+        base_acronym.append(value[last_digit_position + 1] if len(value) > last_digit_position + 1 else '')
+    return base_acronym
