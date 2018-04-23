@@ -32,7 +32,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import SERVICE_COURSES_SEARCH, create_xls, SIMPLE_SEARCH
 from base.forms.common import TooManyResultsException
-from base.forms.learning_unit.search_form import LearningUnitYearForm, MAX_RECORDS
+from base.forms.learning_unit.search_form import LearningUnitYearForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalStateModelForm
 from base.models.academic_year import current_academic_year, get_last_academic_years
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
@@ -108,7 +108,7 @@ def learning_units_proposal_search(request):
         messages_by_level= apply_action_on_proposals(selected_proposals, user_person, request.POST,
                                                      cleaned_research_criteria)
         display_messages_by_level(request, messages_by_level)
-        return redirect(reverse("learning_unit_proposal_search") + "?/{}".format(request.GET.urlencode()))
+        return redirect(reverse("learning_unit_proposal_search") + "?{}".format(request.GET.urlencode()))
 
     check_if_display_message(request, proposals)
     context = {
@@ -126,7 +126,7 @@ def learning_units_proposal_search(request):
 
 
 def apply_action_on_proposals(proposals, author, post_data, research_criteria):
-    if not proposals.exists():
+    if not bool(proposals):
         return {WARNING: [_("No proposals was selected.")]}
 
     action = post_data.get("action", "")
