@@ -244,21 +244,14 @@ class TestLearningUnitModificationProposal(TestCase):
             list(messages_list))
 
     def test_initial_data_fields(self):
-        self.client.post(self.url, data=self.form_data)
-        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
-        initial_data = a_proposal_learning_unit.initial_data
-        self.assertEqual(all(name in INITIAL_DATA_FIELDS["learning_container_year"]
-                             for name in initial_data["learning_container_year"]), True)
-        self.assertEqual(all(name in INITIAL_DATA_FIELDS["learning_unit"]
-                             for name in initial_data["learning_unit"]), True)
-        self.assertEqual(all(name in INITIAL_DATA_FIELDS["learning_unit_year"]
-                             for name in initial_data["learning_unit_year"]), True)
-        initial_data["learning_unit_year"].update({"quadrimestre": "Q1"})
-        self.assertEqual(all(name in INITIAL_DATA_FIELDS["learning_unit_year"]
-                             for name in a_proposal_learning_unit.initial_data["learning_unit_year"]), False)
-        INITIAL_DATA_FIELDS["learning_container_year"].remove("acronym")
-        self.assertEqual(all(name in INITIAL_DATA_FIELDS["learning_container_year"]
-                             for name in a_proposal_learning_unit.initial_data["learning_container_year"]), False)
+        expected_initial_data_fields = {'learning_container_year': ["id", "acronym", "common_title",
+                                                                    "common_title_english", "container_type",
+                                                                    "campus", "language", "in_charge"],
+                                        'learning_unit': ["id", "periodicity", "end_year"],
+                                        'learning_unit_year': ["id", "acronym", "specific_title",
+                                                               "specific_title_english", "internship_subtype",
+                                                               "status", "credits"]}
+        self.assertEqual(expected_initial_data_fields, INITIAL_DATA_FIELDS)
 
     def test_learning_unit_of_type_undefined(self):
         self.learning_unit_year.subtype = None
