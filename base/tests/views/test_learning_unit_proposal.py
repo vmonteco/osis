@@ -94,11 +94,12 @@ class TestLearningUnitModificationProposal(TestCase):
         an_organization = OrganizationFactory(type=organization_type.MAIN)
         current_academic_year = create_current_academic_year()
         learning_container_year = LearningContainerYearFactory(
+            acronym="LOSIS1212",
             academic_year=current_academic_year,
             container_type=learning_container_year_types.COURSE,
             campus=CampusFactory(organization=an_organization, is_administration=True)
         )
-        self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212",
+        self.learning_unit_year = LearningUnitYearFakerFactory(acronym=learning_container_year.acronym,
                                                                subtype=learning_unit_year_subtypes.FULL,
                                                                academic_year=current_academic_year,
                                                                learning_container_year=learning_container_year,
@@ -239,7 +240,7 @@ class TestLearningUnitModificationProposal(TestCase):
         messages_list = [str(message) for message in get_messages(response.wsgi_request)]
         self.assertIn(
             _("success_modification_proposal").format(
-                _(proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name),
+                _(proposal_type.ProposalType.MODIFICATION.name),
                 self.learning_unit_year.acronym),
             list(messages_list))
 
