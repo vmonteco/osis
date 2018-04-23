@@ -57,9 +57,10 @@ def academic_year(year):
 @register.filter
 def get_difference_css(differences, parameter, default_if_none=""):
     if parameter in differences:
-        return mark_safe(" data-toggle=tooltip title='{} : {}' class={} ".format(_("value_before_proposal"),
-                                                                                 differences[parameter] or default_if_none,
-                                                                                 "proposal_value"))
+        return mark_safe(
+            " data-toggle=tooltip title='{} : {}' class={} ".format(_("value_before_proposal"),
+                                                                    differences[parameter] or default_if_none,
+                                                                    "proposal_value"))
     return None
 
 
