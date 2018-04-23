@@ -40,7 +40,7 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory
 from reference.tests.factories.language import LanguageFactory
 from base.views.learning_achievement import operation, management, DELETE, DOWN, UP
-from base.forms.learning_achievement import LearningAchievementEditForm
+from base.forms.learning_achievement import LearningAchievementEditForm, LearningAchievementCreateForm
 from base.tests.factories.user import SuperUserFactory
 
 
@@ -206,3 +206,22 @@ class TestLearningAchievementActions(TestCase):
         expected_redirection = reverse("learning_unit_specifications",
                                        kwargs={'learning_unit_year_id': learning_unit_year.id})
         self.assertRedirects(response, expected_redirection, fetch_redirect_response=False)
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_achievement_create(self, mock_render):
+        learning_unit_year = LearningUnitYearFactory()
+
+        request_factory = RequestFactory()
+        request = request_factory.get(reverse('learning_unit',
+                                              args=[learning_unit_year.id]))
+        request.user = self.a_superuser
+
+        from base.views.learning_achievement import create
+
+        create(request, learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/achievement_edit.html')
+        self.assertIsInstance(context['form'], LearningAchievementCreateForm)
