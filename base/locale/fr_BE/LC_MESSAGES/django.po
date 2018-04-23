@@ -2853,3 +2853,9 @@ msgstr "Proposition %(acronym)s (%(academic_year)s) a changé d'état avec succ�
 
 msgid "Proposal %(acronym)s (%(academic_year)s) cannot be changed state."
 msgstr "Proposition %(acronym)s (%(academic_year)s) ne peut pas changer d'état."
+
+msgid "cancellation"
+msgstr "annulation"
+
+msgid "consolidation"
+msgstr ""

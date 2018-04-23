@@ -2846,3 +2846,9 @@ msgstr ""
 
 msgid "Proposal %(acronym)s (%(academic_year)s) cannot be changed state."
 msgstr ""
+
+msgid "cancellation"
+msgstr ""
+
+msgid "consolidation"
+msgstr "consolidation"

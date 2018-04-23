@@ -25,6 +25,7 @@
 ##############################################################################
 from django.contrib.messages import ERROR, SUCCESS
 from django.contrib.messages import INFO
+from django.db import IntegrityError
 from django.forms import model_to_dict
 from django.utils.translation import ugettext_lazy as _
 
@@ -317,7 +318,10 @@ def _consolidate_suppression_proposal_accepted(proposal):
 
     proposal.learning_unit_year.learning_unit.end_year = initial_end_year
     new_academic_year = find_academic_year_by_year(new_end_year)
-    results = {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, new_academic_year)}
+    try:
+        results = {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, new_academic_year)}
+    except IntegrityError as err:
+        results = {ERROR: err.args[0]}
     return results
 
 
