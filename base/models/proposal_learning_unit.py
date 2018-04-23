@@ -31,7 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.models.enums import proposal_type, proposal_state
 from base.models.osis_model_admin import OsisModelAdmin
-from base.models import entity
+from base.models import entity, entity_version
 
 
 class ProposalLearningUnitAdmin(OsisModelAdmin):
@@ -56,14 +56,19 @@ class ProposalLearningUnit(models.Model):
     entity = models.ForeignKey('Entity')
     folder_id = models.PositiveIntegerField()
 
-    def __str__(self):
-        return "{} - {}".format(self.folder_id, self.learning_unit_year)
-
     class Meta:
         permissions = (
             # TODO: Remove this permissions : already exists with can_change_proposal_learning_unit
             ("can_edit_learning_unit_proposal", "Can edit learning unit proposal"),
         )
+
+    def __str__(self):
+        return "{} - {}".format(self.folder_id, self.learning_unit_year)
+
+    @property
+    def folder(self):
+        last_entity = entity_version.get_last_version(self.entity)
+        return "{}{}".format(last_entity.acronym if last_entity else '', str(self.folder_id))
 
 
 def find_by_learning_unit_year(a_learning_unit_year):
