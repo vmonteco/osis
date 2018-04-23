@@ -235,10 +235,12 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertTrue(a_proposal_learning_unit)
         self.assertEqual(a_proposal_learning_unit.author, self.person)
 
-        messages = [str(message) for message in get_messages(response.wsgi_request)]
-        self.assertIn(_("success_modification_proposal").format(_(proposal_type.ProposalType.MODIFICATION.name),
-                                                                self.learning_unit_year.acronym),
-                      list(messages))
+        messages_list = [str(message) for message in get_messages(response.wsgi_request)]
+        self.assertIn(
+            _("success_modification_proposal").format(
+                _(proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name),
+                self.learning_unit_year.acronym),
+            list(messages_list))
 
     def test_learning_unit_of_type_undefined(self):
         self.learning_unit_year.subtype = None
@@ -369,7 +371,7 @@ class TestLearningUnitSuppressionProposal(TestCase):
         an_organization = OrganizationFactory(type=organization_type.MAIN)
         current_academic_year = create_current_academic_year()
 
-        self.next_academic_year = AcademicYearFactory(year=current_academic_year.year+1)
+        self.next_academic_year = AcademicYearFactory(year=current_academic_year.year + 1)
 
         learning_container_year = LearningContainerYearFactory(
             academic_year=current_academic_year,
@@ -501,7 +503,7 @@ class TestLearningUnitProposalSearch(TestCase):
         tutor = TutorFactory(person=self.person)
         attribution = AttributionNewFactory(tutor=tutor)
         learning_unit_component = LearningUnitComponentFactory(learning_unit_year=proposal.learning_unit_year)
-        AttributionChargeNewFactory(attribution= attribution,
+        AttributionChargeNewFactory(attribution=attribution,
                                     learning_component_year=learning_unit_component.learning_component_year)
         url = reverse(learning_units_proposal_search)
         response = self.client.get(url, data={'tutor': self.person.first_name})
@@ -793,9 +795,9 @@ class TestLearningUnitProposalCancellation(TestCase):
 
         messages = [str(message) for message in get_messages(response.wsgi_request)]
         self.assertIn(_("Proposal %(acronym)s (%(academic_year)s) successfully canceled.") % {
-                "acronym": self.learning_unit_year.acronym,
-                "academic_year": self.learning_unit_year.academic_year
-            }, messages)
+            "acronym": self.learning_unit_year.acronym,
+            "academic_year": self.learning_unit_year.academic_year
+        }, messages)
 
     def test_models_after_cancellation_of_proposal(self):
         _modify_learning_unit_year_data(self.learning_unit_year)
@@ -1122,7 +1124,7 @@ class TestLearningUnitProposalDisplay(TestCase):
 
     def test_check_differences(self):
         proposal = ProposalLearningUnitFactory()
-        proposal.initial_data = {'learning_unit_year' : {
+        proposal.initial_data = {'learning_unit_year': {
             'credits': self.initial_credits
         }}
         proposal.learning_unit_year.credits = self.learning_unit_yr.credits
@@ -1185,7 +1187,6 @@ class TestLearningUnitProposalDisplay(TestCase):
              'key2': 2})
         self.assertEqual(changed_dict, {'key1': 1, 'key2': 2})
 
-
     def test_get_old_value_of_foreign_key_for_campus(self):
         differences = proposal_business._get_old_value_of_foreign_key('campus', self.campus.id)
         self.assertEqual(differences.get('campus'), str(self.campus))
@@ -1218,7 +1219,8 @@ class TestCreationProposalCancel(TestCase):
         self.a_person_central_manager.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
         self.client.force_login(self.a_person_central_manager.user)
 
-    @mock.patch('base.views.learning_units.perms.business_perms.is_eligible_for_cancel_of_proposal', side_effect=lambda *args: True)
+    @mock.patch('base.views.learning_units.perms.business_perms.is_eligible_for_cancel_of_proposal',
+                side_effect=lambda *args: True)
     @mock.patch('base.utils.send_mail.send_mail_cancellation_learning_unit_proposals')
     def test_cancel_proposal_of_learning_unit(self, mock_send_mail, mock_perms):
         a_proposal = _create_proposal_learning_unit()
