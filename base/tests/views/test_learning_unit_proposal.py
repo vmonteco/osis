@@ -40,6 +40,7 @@ from django.utils.translation import ugettext_lazy as _
 from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
 from attribution.tests.factories.attribution_new import AttributionNewFactory
 from base.business import learning_unit_proposal as proposal_business
+from base.business.learning_unit_proposal import INITIAL_DATA_FIELDS
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.forms.learning_unit_proposal import ProposalLearningUnitForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
@@ -238,9 +239,26 @@ class TestLearningUnitModificationProposal(TestCase):
         messages_list = [str(message) for message in get_messages(response.wsgi_request)]
         self.assertIn(
             _("success_modification_proposal").format(
-                _(proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name),
+                _(proposal_type.ProposalType.MODIFICATION.name),
                 self.learning_unit_year.acronym),
             list(messages_list))
+
+    def test_initial_data_fields(self):
+        self.client.post(self.url, data=self.form_data)
+        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
+        initial_data = a_proposal_learning_unit.initial_data
+        self.assertEqual(all(name in INITIAL_DATA_FIELDS["learning_container_year"]
+                             for name in initial_data["learning_container_year"]), True)
+        self.assertEqual(all(name in INITIAL_DATA_FIELDS["learning_unit"]
+                             for name in initial_data["learning_unit"]), True)
+        self.assertEqual(all(name in INITIAL_DATA_FIELDS["learning_unit_year"]
+                             for name in initial_data["learning_unit_year"]), True)
+        initial_data["learning_unit_year"].update({"quadrimestre": "Q1"})
+        self.assertEqual(all(name in INITIAL_DATA_FIELDS["learning_unit_year"]
+                             for name in a_proposal_learning_unit.initial_data["learning_unit_year"]), False)
+        INITIAL_DATA_FIELDS["learning_container_year"].remove("acronym")
+        self.assertEqual(all(name in INITIAL_DATA_FIELDS["learning_container_year"]
+                             for name in a_proposal_learning_unit.initial_data["learning_container_year"]), False)
 
     def test_learning_unit_of_type_undefined(self):
         self.learning_unit_year.subtype = None

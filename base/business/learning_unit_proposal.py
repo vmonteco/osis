@@ -53,7 +53,7 @@ INITIAL_DATA_FIELDS = {'learning_container_year': ["id", "acronym", "common_titl
                                                    "container_type", "campus", "language", "in_charge"],
                        'learning_unit': ["id", "periodicity", "end_year"],
                        'learning_unit_year': ["id", "acronym", "specific_title", "specific_title_english",
-                                              "internship_subtype", "status"]
+                                              "internship_subtype", "status", "credits"]
                        }
 
 
