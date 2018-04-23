@@ -350,20 +350,12 @@ def find_all_current_entities_version():
 def build_current_entity_version_structure_in_memory():
     all_current_entities_version = find_all_current_entities_version()
     entity_version_by_entity_id = _build_entity_version_by_entity_id(all_current_entities_version)
-    if 'SSH' not in [ent.acronym for ent in entity_version_by_entity_id.values()]:
-        print()
     direct_children_by_entity_version_id = _build_direct_children_by_entity_version_id(entity_version_by_entity_id)
     all_children_by_entity_version_id = _build_all_children_by_entity_version_id(direct_children_by_entity_version_id)
 
-    # for entity_version in versions:
-    #     entity_version_id = entity_version.id
-    #     entity_version.entity_version_parent = entity_version_by_entity_id.get(entity_version.parent_id)
-    #     entity_version.direct_children = direct_children_by_entity_version_id.get(entity_version_id, [])
-    #     entity_version.all_children = all_children_by_entity_version_id.get(entity_version_id, [])
-
     entity_versions = {}
     for entity_version in all_current_entities_version:
-        entity_versions[entity_version.id] = {
+        entity_versions[entity_version.entity_id] = {
             'entity_version_parent': entity_version_by_entity_id.get(entity_version.parent_id),
             'direct_children': direct_children_by_entity_version_id.get(entity_version.id, []),
             'all_children': all_children_by_entity_version_id.get(entity_version.id, []),

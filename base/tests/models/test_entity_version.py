@@ -471,17 +471,17 @@ class EntityVersionLoadInMemoryTest(TestCase):
 
     def test_build_entity_version_structure_in_memory(self):
         partial_expected_result = {
-            self.root.id: {
+            self.root.entity.id: {
                 'entity_version_parent': None,
                 'direct_children': [self.SC, self.LOCI],
                 'all_children': [self.SC, self.LOCI, self.MATH, self.PHYS, self.URBA, self.BARC],
             },
-            self.SC.id: {
+            self.SC.entity.id: {
                 'entity_version_parent': self.root,
                 'direct_children': [self.MATH, self.PHYS],
                 'all_children': [self.MATH, self.PHYS],
             },
-            self.MATH.id: {
+            self.MATH.entity.id: {
                 'entity_version_parent': self.SC,
                 'direct_children': [],
                 'all_children': [],
@@ -493,7 +493,7 @@ class EntityVersionLoadInMemoryTest(TestCase):
 
         # assert entities without children are present in the result
         self.assertEqual(len(result.keys()), len(all_current_entities_version))
-        self.assertEqual(result[self.MATH.id]['all_children'], [])
+        self.assertEqual(result[self.MATH.entity.id]['all_children'], [])
 
 
 class TestFindLastEntityVersionByLearningUnitYearId(TestCase):
