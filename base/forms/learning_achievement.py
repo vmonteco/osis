@@ -44,4 +44,3 @@ class LearningAchievementEditForm(forms.ModelForm):
                                                      self.instance.order)
         if learning_achievement_other_language:
             learning_achievement_other_language.update(code_name=self.instance.code_name)
-
