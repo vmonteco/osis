@@ -362,6 +362,10 @@ def find_max_credits_of_related_partims(a_learning_unit_year):
     return a_learning_unit_year.get_partims_related().aggregate(max_credits=models.Max("credits"))["max_credits"]
 
 
+def find_partims_with_active_status(a_learning_unit_year):
+    return a_learning_unit_year.get_partims_related().filter(status=True)
+
+
 def find_by_learning_unit(a_learning_unit):
     return search(learning_unit=a_learning_unit)
 

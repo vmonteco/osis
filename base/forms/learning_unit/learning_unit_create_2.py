@@ -40,7 +40,8 @@ from base.models.campus import Campus
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
-from base.models.learning_unit_year import LearningUnitYear, find_max_credits_of_related_partims
+from base.models.learning_unit_year import LearningUnitYear, find_max_credits_of_related_partims, \
+    find_partims_with_active_status
 from reference.models import language
 
 FULL_READ_ONLY_FIELDS = {"acronym_0", "acronym_1", "academic_year", "container_type", "subtype"}
@@ -287,10 +288,9 @@ class FullForm(LearningUnitBaseForm):
             raise ValidationError(_("At least one of the partims has a higher or equal number of credits"))
 
     def _check_status_consistency_on_academic_year(self):
-        luy_instance = self.forms[LearningUnitYearModelForm].instance
         parent_status = self.forms[LearningUnitYearModelForm].cleaned_data["status"]
-        partims = luy_instance.get_partims_related()
-        if parent_status is False and any([p.status is True for p in partims]):
+        active_partims = find_partims_with_active_status(self.forms[LearningUnitYearModelForm].instance)
+        if parent_status is False and active_partims.exists():
             raise ValidationError(_("There is at least one partim active, so the parent must be active"))
 
 
