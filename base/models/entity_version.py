@@ -344,7 +344,7 @@ def _match_dates(osis_date, esb_date):
 
 def find_all_current_entities_version():
     now = datetime.datetime.now(get_tzinfo())
-    return find_latest_version(date=now)
+    return find_latest_version(date=now).select_related('entity')
 
 
 def build_current_entity_version_structure_in_memory():
