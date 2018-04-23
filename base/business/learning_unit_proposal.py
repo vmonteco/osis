@@ -36,7 +36,7 @@ from base.business.learning_units.simple import deletion as business_deletion
 from base.models import entity_container_year, campus, entity
 from base.models.academic_year import find_academic_year_by_year
 from base.models.entity_container_year import find_entities_grouped_by_linktype
-from base.models.enums import proposal_state, proposal_type, entity_container_year_link_type
+from base.models.enums import proposal_state, proposal_type
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums.proposal_type import ProposalType
 from base.utils import send_mail as send_mail_util
@@ -60,7 +60,6 @@ INITIAL_DATA_FIELDS = {'learning_container_year': ["id", "acronym", "common_titl
 def compute_proposal_type(proposal_learning_unit_year):
     if proposal_learning_unit_year.type in [ProposalType.CREATION.name, ProposalType.SUPPRESSION.name]:
         return proposal_learning_unit_year.type
-
     differences = get_difference_of_proposal(proposal_learning_unit_year)
     if differences.get('acronym') and len(differences) == 1:
         return ProposalType.TRANSFORMATION.name
@@ -120,7 +119,7 @@ def delete_learning_unit_proposal(learning_unit_proposal):
 
 def get_difference_of_proposal(learning_unit_yr_proposal):
     initial_data = learning_unit_yr_proposal.initial_data
-    actual_data = _copy_learning_unit_data(learning_unit_yr_proposal.learning_unit_year)
+    actual_data = copy_learning_unit_data(learning_unit_yr_proposal.learning_unit_year)
     differences = {}
     for model in ['learning_unit', 'learning_unit_year', 'learning_container_year', 'entities']:
         initial_data_by_model = initial_data.get(model)
@@ -335,7 +334,7 @@ def compute_proposal_state(a_person):
         else proposal_state.ProposalState.FACULTY.name
 
 
-def _copy_learning_unit_data(learning_unit_year):
+def copy_learning_unit_data(learning_unit_year):
     learning_container_year = learning_unit_year.learning_container_year
     entities_by_type = entity_container_year.find_entities_grouped_by_linktype(learning_container_year)
     learning_container_year_values = _get_attributes_values(learning_container_year,
