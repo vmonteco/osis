@@ -183,7 +183,7 @@ def _find_elements(group_elements_by_child_id, filters, child_leaf_id=None, chil
         else:
             # Recursive call ; the parent_id becomes the child_branch.
             roots.extend(_find_elements(group_elements_by_child_id, filters, child_branch_id=parent_id))
-    return roots
+    return list(set(roots))
 
 
 def _match_any_filters(element_year, filters):
