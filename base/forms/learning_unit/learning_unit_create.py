@@ -107,7 +107,7 @@ class LearningUnitYearModelForm(forms.ModelForm):
 
         acronym = self.initial.get('acronym')
         if acronym:
-            self.initial['acronym'] = split_acronym(acronym)
+            self.initial['acronym'] = split_acronym(acronym, subtype)
 
         if subtype == learning_unit_year_subtypes.PARTIM:
             self.fields['acronym'] = PartimAcronymField()
