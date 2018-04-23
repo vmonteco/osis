@@ -35,7 +35,7 @@ from assistant.models.tutoring_learning_unit_year import TutoringLearningUnitYea
 from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 from attribution.tests.factories.attribution import AttributionNewFactory
 from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
-from base.business import learning_unit_deletion
+from base.business.learning_units.simple import deletion
 from base.business.learning_unit import CMS_LABEL_SPECIFICATIONS, CMS_LABEL_PEDAGOGY, CMS_LABEL_SUMMARY
 from base.models.enums import entity_container_year_link_type
 from base.models.enums import entity_type
@@ -78,7 +78,7 @@ class LearningUnitYearDeletion(TestCase):
             learning_container_year=l_container_year,
             academic_year=self.academic_year, subtype=learning_unit_year_subtypes.FULL,
             learning_unit=self.learning_unit)
-        msg = learning_unit_deletion._check_related_partims_deletion(l_container_year)
+        msg = deletion._check_related_partims_deletion(l_container_year)
         self.assertEqual(len(msg.values()), 0)
 
         l_unit_2 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
@@ -103,7 +103,7 @@ class LearningUnitYearDeletion(TestCase):
         AttributionChargeNewFactory(learning_component_year=component.learning_component_year,
                                     attribution=attribution_2)
 
-        msg = learning_unit_deletion._check_related_partims_deletion(l_container_year)
+        msg = deletion._check_related_partims_deletion(l_container_year)
         msg = list(msg.values())
 
         self.assertEqual(len(msg), 5)
@@ -145,7 +145,7 @@ class LearningUnitYearDeletion(TestCase):
         l_container_year = LearningContainerYearFactory(acronym="LBIR1212", academic_year=self.academic_year)
         l_unit_1 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
                                            academic_year=self.academic_year, subtype=learning_unit_year_subtypes.FULL)
-        msg = learning_unit_deletion.check_learning_unit_year_deletion(l_unit_1)
+        msg = deletion.check_learning_unit_year_deletion(l_unit_1)
 
         msg = list(msg.values())
         self.assertEqual(msg, [])
@@ -158,7 +158,7 @@ class LearningUnitYearDeletion(TestCase):
         LearningUnitEnrollmentFactory(learning_unit_year=l_unit_1)
         LearningUnitEnrollmentFactory(learning_unit_year=l_unit_2)
 
-        msg = learning_unit_deletion.check_learning_unit_year_deletion(l_unit_1)
+        msg = deletion.check_learning_unit_year_deletion(l_unit_1)
 
         msg = list(msg.values())
         self.assertEqual(len(msg), 2)
@@ -168,7 +168,7 @@ class LearningUnitYearDeletion(TestCase):
         l_unit_1 = LearningUnitYearFactory(acronym="LBIR1212", learning_container_year=l_container_year,
                                            academic_year=self.academic_year, subtype=learning_unit_year_subtypes.FULL)
         ProposalLearningUnitFactory(learning_unit_year=l_unit_1)
-        msg = learning_unit_deletion._check_learning_unit_proposal(l_unit_1)
+        msg = deletion._check_learning_unit_proposal(l_unit_1)
 
         msg = list(msg.values())
         self.assertEqual(msg, [
@@ -186,7 +186,7 @@ class LearningUnitYearDeletion(TestCase):
             dict_learning_units[year] = LearningUnitYearFactory(academic_year=academic_year, learning_unit=l_unit)
 
         year_to_delete = 2007
-        msg = learning_unit_deletion.delete_from_given_learning_unit_year(dict_learning_units[year_to_delete])
+        msg = deletion.delete_from_given_learning_unit_year(dict_learning_units[year_to_delete])
         self.assertEqual(LearningUnitYear.objects.filter(academic_year__year__gte=year_to_delete,
                                                          learning_unit=l_unit).count(),
                          0)
@@ -209,7 +209,7 @@ class LearningUnitYearDeletion(TestCase):
                                                   learning_unit=LearningUnitFactory(start_year=1900),
                                                   academic_year=l_container_year.academic_year)
 
-        learning_unit_deletion.delete_from_given_learning_unit_year(l_unit_year)
+        deletion.delete_from_given_learning_unit_year(l_unit_year)
 
         with self.assertRaises(ObjectDoesNotExist):
             LearningUnitYear.objects.get(id=l_unit_partim_1.id)
@@ -236,12 +236,11 @@ class LearningUnitYearDeletion(TestCase):
         learning_unit_year.subtype = learning_unit_year_subtypes.PARTIM
         learning_unit_year.save()
 
-        msg = learning_unit_deletion.delete_from_given_learning_unit_year(learning_unit_year)
+        msg = deletion.delete_from_given_learning_unit_year(learning_unit_year)
 
-        msg_success = _("%(subtype)s %(acronym)s has been deleted for the year %(year)s")
-        self.assertEqual(msg_success % {'subtype': _('The partim'),
-                                        'acronym': learning_unit_year.acronym,
-                                        'year': learning_unit_year.academic_year},
+        msg_success = _("learning_unit_successfuly_deleted")
+        self.assertEqual(msg_success.format(acronym=learning_unit_year.acronym,
+                                            academic_year=learning_unit_year.academic_year),
                          msg.pop())
 
         self.assertEqual(LearningClassYear.objects.all().count(), 0)
@@ -272,7 +271,7 @@ class LearningUnitYearDeletion(TestCase):
                                                                learning_unit=LearningUnitFactory(start_year=1900),
                                                                academic_year=learning_container_year.academic_year)
 
-        learning_unit_deletion.delete_from_given_learning_unit_year(learning_unit_year_to_delete)
+        deletion.delete_from_given_learning_unit_year(learning_unit_year_to_delete)
 
         with self.assertRaises(ObjectDoesNotExist):
             LearningUnitYear.objects.get(id=learning_unit_year_to_delete.id)
@@ -280,14 +279,14 @@ class LearningUnitYearDeletion(TestCase):
         self.assertEqual(learning_unit_year_full, LearningUnitYear.objects.get(id=learning_unit_year_full.id))
         self.assertEqual(learning_container_year, LearningContainerYear.objects.get(id=learning_container_year.id))
 
-        learning_unit_deletion.delete_from_given_learning_unit_year(learning_unit_year_partim)
+        deletion.delete_from_given_learning_unit_year(learning_unit_year_partim)
 
         with self.assertRaises(ObjectDoesNotExist):
             LearningUnitYear.objects.get(id=learning_unit_year_partim.id)
         self.assertEqual(learning_unit_year_full, LearningUnitYear.objects.get(id=learning_unit_year_full.id))
         self.assertEqual(learning_container_year, LearningContainerYear.objects.get(id=learning_container_year.id))
 
-        learning_unit_deletion.delete_from_given_learning_unit_year(learning_unit_year_full)
+        deletion.delete_from_given_learning_unit_year(learning_unit_year_full)
 
         with self.assertRaises(ObjectDoesNotExist):
             LearningUnitYear.objects.get(id=learning_unit_year_full.id)
@@ -320,7 +319,7 @@ class LearningUnitYearDeletion(TestCase):
         # Before delete, we should have 3 data in CMS
         self.assertEqual(3, TranslatedText.objects.all().count())
 
-        learning_unit_deletion._delete_cms_data(learning_unit_year_to_delete)
+        deletion._delete_cms_data(learning_unit_year_to_delete)
 
         # After deletion, we should have no data in CMS
         self.assertFalse(TranslatedText.objects.all().count())
@@ -331,7 +330,7 @@ class LearningUnitYearDeletion(TestCase):
         tutoring = TutoringLearningUnitYear.objects.create(mandate=assistant_mandate,
                                                            learning_unit_year=learning_unit_year)
 
-        msg = learning_unit_deletion.check_learning_unit_year_deletion(learning_unit_year)
+        msg = deletion.check_learning_unit_year_deletion(learning_unit_year)
         self.assertIn(tutoring, msg.keys())
 
     def test_can_delete_learning_unit_year_with_faculty_manager_role(self):

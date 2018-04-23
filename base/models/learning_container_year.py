@@ -24,15 +24,16 @@
 #
 ##############################################################################
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 from attribution.models.attribution_new import AttributionNew
 from base.models import learning_unit_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types
 from base.models.enums import vacant_declaration_type
-from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
+from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
-class LearningContainerYearAdmin(AuditableSerializableModelAdmin):
+class LearningContainerYearAdmin(SerializableModelAdmin):
     list_display = ('learning_container', 'academic_year', 'container_type', 'acronym', 'common_title')
     fieldsets = ((None, {'fields': ('academic_year', 'learning_container',  'container_type', 'acronym', 'common_title',
                                     'common_title_english', 'language', 'campus', 'is_vacant',
@@ -42,18 +43,19 @@ class LearningContainerYearAdmin(AuditableSerializableModelAdmin):
     list_filter = ('academic_year', 'in_charge', 'is_vacant',)
 
 
-class LearningContainerYear(AuditableSerializableModel):
+class LearningContainerYear(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     academic_year = models.ForeignKey('AcademicYear')
     learning_container = models.ForeignKey('LearningContainer')
-    container_type = models.CharField(max_length=20, blank=True, null=True,
+    container_type = models.CharField(max_length=20, verbose_name=_('type'),
                                       choices=learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES)
-    common_title = models.CharField(max_length=255, blank=True, null=True)
-    common_title_english = models.CharField(max_length=250, blank=True, null=True)
+    common_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_('common_official_title'))
+    common_title_english = models.CharField(max_length=250, blank=True, null=True,
+                                            verbose_name=_('common_official_english_title'))
     acronym = models.CharField(max_length=10)
     changed = models.DateTimeField(null=True, auto_now=True)
-    language = models.ForeignKey('reference.Language', blank=True, null=True)
-    campus = models.ForeignKey('Campus', blank=True, null=True)
+    language = models.ForeignKey('reference.Language', null=True, verbose_name=_('language'))
+    campus = models.ForeignKey('Campus', null=True)
     team = models.BooleanField(default=False)
     is_vacant = models.BooleanField(default=False)
     type_declaration_vacant = models.CharField(max_length=100, blank=True, null=True,
@@ -64,7 +66,7 @@ class LearningContainerYear(AuditableSerializableModel):
         return u"%s - %s" % (self.acronym, self.common_title)
 
     class Meta:
-        unique_together = ("learning_container", "academic_year", "deleted", )
+        unique_together = ("learning_container", "academic_year",)
         permissions = (
             ("can_access_learningcontaineryear", "Can access learning container year"),
         )

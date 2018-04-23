@@ -27,7 +27,6 @@ from django.test import TestCase
 from django.utils import timezone
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
-from base.tests.factories.proposal_folder import ProposalFolderFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.entity import EntityFactory
@@ -48,13 +47,16 @@ class TestSearch(TestCase):
         )
         self.assertEqual(a_proposal_learning_unit, self.proposal_learning_unit)
 
-    def test_find_by_folder(self):
-        folder = self.proposal_learning_unit.folder
-        self.assertTrue(proposal_learning_unit.find_by_folder(folder))
+    def test_find_by_learning_unit(self):
+        a_proposal_learning_unit = proposal_learning_unit.find_by_learning_unit(
+            self.proposal_learning_unit.learning_unit_year.learning_unit
+        )
+        self.assertEqual(a_proposal_learning_unit, self.proposal_learning_unit)
 
-        self.proposal_learning_unit.delete()
-
-        self.assertFalse(proposal_learning_unit.find_by_folder(folder))
+    def test_str(self):
+        expected_str = "{} - {}".format(self.proposal_learning_unit.folder_id,
+                                        self.proposal_learning_unit.learning_unit_year)
+        self.assertEqual(str(self.proposal_learning_unit), expected_str)
 
 
 class TestSearchCases(TestCase):
@@ -73,11 +75,10 @@ class TestSearchCases(TestCase):
         a_learning_unit_year = LearningUnitYearFactory(acronym=self.an_acronym,
                                                        academic_year=self.an_academic_year,
                                                        learning_container_year=self.learning_container_yr)
-        self.a_proposal_folder = ProposalFolderFactory(entity=self.entity_1)
         self.a_proposal_learning_unit = ProposalLearningUnitFactory(learning_unit_year=a_learning_unit_year,
-                                                                    folder=self.a_proposal_folder,
                                                                     type=proposal_type.ProposalType.CREATION,
-                                                                    state=proposal_state.ProposalState.CENTRAL)
+                                                                    state=proposal_state.ProposalState.CENTRAL,
+                                                                    entity=self.entity_1)
 
     def test_search_by_academic_year(self):
         results = proposal_learning_unit.search(academic_year_id=self.an_academic_year.id)
@@ -99,17 +100,26 @@ class TestSearchCases(TestCase):
         self.check_search_result(results)
 
     def test_search_by_folder_id(self):
-        results = proposal_learning_unit.search(folder_id=self.a_proposal_folder.folder_id)
+        results = proposal_learning_unit.search(folder_id=self.a_proposal_learning_unit.folder_id)
         self.check_search_result(results)
 
     def test_search_by_entity_folder(self):
-        results = proposal_learning_unit.search(entity_folder_id=self.a_proposal_folder.entity.id)
+        results = proposal_learning_unit.search(entity_folder_id=self.a_proposal_learning_unit.entity.id)
         self.check_search_result(results)
 
     def test_search_by_proposal_learning_container_yr(self):
         results = proposal_learning_unit.search(learning_container_year_id=self.learning_container_yr.id)
         self.check_search_result(results)
 
+    def test_search_by_proposal_list_learning_container_yr(self):
+        self.check_search_result(proposal_learning_unit.search(learning_container_year_id=[self.learning_container_yr.id]))
+
     def check_search_result(self, results):
-        self.assertEqual(results.count(), 1)
-        self.assertEqual(results[0].id, self.a_proposal_learning_unit.id)
+        self.assertCountEqual(results, [self.a_proposal_learning_unit])
+
+    def test_find_distinct_folder_entities(self):
+        entity_2 = EntityFactory()
+        ProposalLearningUnitFactory(entity=entity_2)
+
+        entities_result = proposal_learning_unit.find_distinct_folder_entities()
+        self.assertCountEqual(entities_result, [self.entity_1, entity_2])

@@ -67,7 +67,8 @@ INSTALLED_APPS = (
     'statici18n',
     'rest_framework',
     'rest_framework.authtoken',
-    'bootstrap3'
+    'bootstrap3',
+    'ordered_model'
 )
 
 MIDDLEWARE = (
@@ -124,7 +125,7 @@ DATABASES = {
         'PASSWORD': os.environ.get("POSTGRES_PASSWORD", 'osis'),
         'HOST': os.environ.get("POSTGRES_HOST", '127.0.0.1'),
         'PORT': os.environ.get("POSTGRES_PORT", '5432'),
-        'ATOMIC_REQUEST':  os.environ.get('DATABASE_ATOMIC_REQUEST', 'False').lower() == 'true'
+        'ATOMIC_REQUESTS':  os.environ.get('DATABASE_ATOMIC_REQUEST', 'False').lower() == 'true'
     },
 }
 

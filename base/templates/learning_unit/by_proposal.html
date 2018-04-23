@@ -26,7 +26,7 @@
 {% block content %}
 <div class="panel panel-default">
 
-    {% include "learning_unit/components/search_form_proposal.html" %}
+    {% include "learning_unit/blocks/form/search_form_proposal.html" %}
 
     <form method="post">
         {% csrf_token %}
@@ -38,6 +38,10 @@
                 <button type="button" class="btn btn-default" style="margin-left:10px;" id="btn_modal_get_back_to_initial"
                         data-toggle="modal" data-target="#modalBackToInitial">
                     {% trans 'get_back_to_initial' %}
+                </button>
+                <button type="button" class="btn btn-default" style="margin-left:10px;" id="btn_modal_consolidate"
+                        data-toggle="modal" data-target="#modalConsolidate">
+                    {% trans 'consolidate' %}
                 </button>
 
                 {% bootstrap_formset_errors proposals %}
@@ -74,6 +78,7 @@
             </table>
             {% include "learning_unit/blocks/modal/modal_force_state.html" %}
             {% include "learning_unit/blocks/modal/modal_back_to_initial.html" %}
+            {% include "learning_unit/blocks/modal/modal_consolidate.html" %}
         {% endif %}
         </div>
     </form>

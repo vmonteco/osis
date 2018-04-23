@@ -23,9 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 from base.models.abstracts.abstract_calendar import AbstractCalendar
+from base.models.academic_year import current_academic_year
 from base.models.osis_model_admin import OsisModelAdmin
 
 
@@ -43,3 +45,12 @@ class EntityCalendar(AbstractCalendar):
 
     def __str__(self):
         return "{} - {}".format(self.academic_calendar, self.entity)
+
+
+def find_by_entity_and_reference_for_current_academic_year(entity_id, reference):
+    try:
+        return EntityCalendar.objects.get(entity_id=entity_id,
+                                          academic_calendar__academic_year=current_academic_year(),
+                                          academic_calendar__reference=reference)
+    except ObjectDoesNotExist:
+        return None

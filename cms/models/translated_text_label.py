@@ -24,12 +24,12 @@
 #
 ##############################################################################
 from django.db import models
+from django.contrib import admin
 from django.conf import settings
 from .text_label import TextLabel
-from osis_common.models.auditable_model import AuditableModel, AuditableModelAdmin
 
 
-class TranslatedTextLabelAdmin(AuditableModelAdmin):
+class TranslatedTextLabelAdmin(admin.ModelAdmin):
     actions = None  # Remove ability to delete in Admin Interface
     list_display = ('label', 'language', 'text_label',)
     search_fields = ['label', 'text_label__label']
@@ -42,7 +42,7 @@ class TranslatedTextLabelAdmin(AuditableModelAdmin):
         return False
 
 
-class TranslatedTextLabel(AuditableModel):
+class TranslatedTextLabel(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     language = models.CharField(max_length=30, null=True, choices=settings.LANGUAGES, default=settings.LANGUAGE_CODE)

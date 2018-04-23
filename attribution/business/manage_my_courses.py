@@ -27,6 +27,6 @@ from base.models.learning_unit_year import LearningUnitYear
 
 
 def find_learning_unit_years_summary_editable(tutor):
-    return LearningUnitYear.objects.filter(summary_editable=True,
+    return LearningUnitYear.objects.filter(summary_locked=False,
                                            attribution__summary_responsible=True,
                                            attribution__tutor=tutor).order_by('academic_year__year', 'acronym')

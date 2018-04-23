@@ -32,17 +32,13 @@ from django.forms import formset_factory
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
+from base.business.learning_units import edition
+from base.business.learning_units.edition import check_postponement_conflict_report_errors
+from base.forms.utils.emptyfield import EmptyField
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type as entity_types
 from base.models.enums.component_type import PRACTICAL_EXERCISES, LECTURING
 from base.models.learning_unit_component import LearningUnitComponent
-
-
-class EmptyField(forms.CharField):
-    widget = forms.HiddenInput
-
-    def __init__(self, label):
-        super().__init__(label=label, required=False)
 
 
 class VolumeField(forms.DecimalField):
@@ -141,11 +137,12 @@ class VolumeEditionForm(forms.Form):
     def validate_parent_partim_component(self, parent_data):
         self._parent_data = parent_data
 
-        self._compare('volume_total', 'vol_tot_full_must_be_greater_than_partim', lower_or_equal=True)
-        self._compare('volume_q1', 'vol_q1_full_must_be_greater_or_equal_to_partim')
-        self._compare('volume_q2', 'vol_q2_full_must_be_greater_or_equal_to_partim')
-        self._compare('planned_classes', 'planned_classes_full_must_be_greater_or_equal_to_partim')
-        self._compare(self.requirement_entity_key, 'entity_requirement_full_must_be_greater_or_equal_to_partim')
+        self._compare_parent_partim('volume_total', 'vol_tot_full_must_be_greater_than_partim', lower_or_equal=True)
+        self._compare_parent_partim('volume_q1', 'vol_q1_full_must_be_greater_or_equal_to_partim')
+        self._compare_parent_partim('volume_q2', 'vol_q2_full_must_be_greater_or_equal_to_partim')
+        self._compare_parent_partim('planned_classes', 'planned_classes_full_must_be_greater_or_equal_to_partim')
+        self._compare_parent_partim(self.requirement_entity_key,
+                                    'entity_requirement_full_must_be_greater_or_equal_to_partim')
         self._compare_additional_entities(self.additional_requirement_entity_1_key)
         self._compare_additional_entities(self.additional_requirement_entity_2_key)
 
@@ -154,28 +151,42 @@ class VolumeEditionForm(forms.Form):
     def _compare_additional_entities(self, key):
         # Verify if we have additional_requirement entity
         if key in self._parent_data and key in self.cleaned_data:
-            self._compare(key, 'entity_requirement_full_must_be_greater_or_equal_to_partim')
+            self._compare_parent_partim(key, 'entity_requirement_full_must_be_greater_or_equal_to_partim')
 
-    def _compare(self, key, msg, lower_or_equal=False):
+    def _compare_parent_partim(self, key, msg, lower_or_equal=False):
         partim_data = self.cleaned_data or self.initial
-
-        if lower_or_equal:
-            condition = self._parent_data[key] <= partim_data[key]
-        else:
-            condition = self._parent_data[key] < partim_data[key]
+        condition = self._compare(self._parent_data[key],  partim_data[key], lower_or_equal)
 
         if condition:
             self.add_error(key, _(msg))
+
+    @staticmethod
+    def _compare(value_parent, value_partim, lower_or_equal):
+        if value_parent == 0 and value_partim == 0:
+            condition = False
+        elif lower_or_equal:
+            condition = value_parent <= value_partim
+        else:
+            condition = value_parent < value_partim
+        return condition
 
     def save(self, postponement):
         if not self.changed_data:
             return None
 
+        conflict_report = {}
         if postponement:
-            for component in self._find_gte_learning_components_year():
-                self._save(component)
+            conflict_report = edition.get_postponement_conflict_report(self.learning_unit_year)
+            luy_to_update_list = conflict_report['luy_without_conflict']
         else:
-            self._save(self.component)
+            luy_to_update_list = [self.learning_unit_year]
+
+        with transaction.atomic():
+            for component in self._find_learning_components_year(luy_to_update_list):
+                self._save(component)
+
+        # Show conflict error if exists
+        check_postponement_conflict_report_errors(conflict_report)
 
     def _save(self, component):
         component.hourly_volume_partial = self.cleaned_data['volume_q1']
@@ -194,8 +205,7 @@ class VolumeEditionForm(forms.Form):
             ecy.repartition_volume = repartition_volume
             ecy.save()
 
-    def _find_gte_learning_components_year(self):
-        gt_learning_units = self.learning_unit_year.find_gte_learning_units_year()
+    def _find_learning_components_year(self, luy_to_update_list):
         prefetch = Prefetch(
             'learning_component_year__entitycomponentyear_set',
             queryset=EntityComponentYear.objects.all(),
@@ -204,7 +214,7 @@ class VolumeEditionForm(forms.Form):
         return [
             luc.learning_component_year
             for luc in LearningUnitComponent.objects.filter(
-                learning_unit_year__in=gt_learning_units).prefetch_related(prefetch)
+                learning_unit_year__in=luy_to_update_list).prefetch_related(prefetch)
             if luc.learning_component_year.type == self.component.type
         ]
 
@@ -265,6 +275,7 @@ class VolumeEditionFormsetContainer:
         self.formsets = OrderedDict()
         self.learning_units = learning_units
         self.parent = self.learning_units[0]
+        self.postponement = int(request.POST.get('postponement', 1))
         self.request = request
 
         self.is_faculty_manager = person.is_faculty_manager() and not person.is_central_manager()
@@ -297,10 +308,9 @@ class VolumeEditionFormsetContainer:
         return all(self.formsets[luy].validate_parent_partim(self.formsets[self.parent]) for luy in self.formsets
                    if luy != self.parent)
 
-    def save(self, postponement):
-        with transaction.atomic():
-            for formset in self.formsets.values():
-                formset.save(postponement)
+    def save(self):
+        for formset in self.formsets.values():
+            formset.save(self.postponement)
 
     @property
     def errors(self):

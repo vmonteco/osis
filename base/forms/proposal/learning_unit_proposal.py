@@ -33,16 +33,16 @@ from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
 from base.business.learning_unit_year_with_context import append_latest_entities
-from base.forms import learning_units as learning_units_form
+from base.forms.learning_unit import search_form as learning_units_form
 from base.forms.common import get_clean_data, TooManyResultsException
-from base.forms.learning_unit_search import SearchForm
+from base.forms.learning_unit.search_form import SearchForm
 from base.models import entity_version
 from base.models.enums import entity_container_year_link_type, proposal_type, proposal_state
 from base.models.proposal_learning_unit import ProposalLearningUnit
 
 
 def _get_entity_folder_id_ordered_by_acronym():
-    entities = mdl.proposal_folder.find_distinct_folder_entities()
+    entities = mdl.proposal_learning_unit.find_distinct_folder_entities()
     entities_sorted_by_acronym = sorted(list(entities), key=lambda t: t.most_recent_acronym)
 
     return [SearchForm.ALL_LABEL] + [(ent.pk, ent.most_recent_acronym) for ent in entities_sorted_by_acronym]
@@ -126,6 +126,19 @@ class LearningUnitProposalForm(SearchForm):
 
         return proposal
 
+    def get_research_criteria(self):
+        tuples_label_value = []
+        for field_name, field in self.fields.items():
+            if not self.cleaned_data[field_name]:
+                continue
+            tuple_to_append = (str(field.label), self.cleaned_data[field_name])
+            if type(field) == forms.ChoiceField:
+                dict_choices = {str(key): value for key, value in field.choices}
+                label_choice = dict_choices[self.cleaned_data[field_name]]
+                tuple_to_append = (str(field.label), label_choice)
+            tuples_label_value.append(tuple_to_append)
+        return tuples_label_value
+
 
 class ProposalStateModelForm(forms.ModelForm):
     class Meta:
@@ -144,9 +157,9 @@ class ProposalRowForm(ProposalStateModelForm):
 
     @property
     def folder(self):
-        last_entity = entity_version.get_last_version(self.instance.folder.entity)
+        last_entity = entity_version.get_last_version(self.instance.entity)
         folder = last_entity.acronym if last_entity else ''
-        folder += str(self.instance.folder.pk)
+        folder += str(self.instance.folder_id)
 
         return folder
 
@@ -165,7 +178,7 @@ class ProposalRowForm(ProposalStateModelForm):
     @property
     def container_type(self):
         container = self.instance.learning_unit_year.learning_container_year
-        return container.container_type if container.container_type else ''
+        return _(container.container_type) if container.container_type else '-'
 
     @property
     def requirement_entity(self):

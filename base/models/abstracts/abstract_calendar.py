@@ -41,14 +41,13 @@ class AbstractCalendar(models.Model):
         abstract = True
 
     def clean(self):
-        try:
-            self.end_start_dates_validation()
-        except AttributeError as e:
-            raise ValidationError(e)
+        self.end_start_dates_validation()
 
     def end_start_dates_validation(self):
         if self._dates_are_set() and not is_in_chronological_order(self.start_date, self.end_date):
-            raise AttributeError(_('end_start_date_error'))
+            raise ValidationError({
+                "end_date": _('end_start_date_error')
+            })
 
     def _dates_are_set(self):
         return bool(self.start_date and self.end_date)

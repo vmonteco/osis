@@ -25,6 +25,7 @@
 ##############################################################################
 import datetime
 
+from django.db import DatabaseError
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
@@ -59,12 +60,6 @@ class LearningUnitTest(TestCase):
         LearningUnitFactory()
         LearningUnitFactory()
         self.assertEqual(2, len( learning_unit.find_by_ids( (l_unit_1.id, l_unit_2.id) )))
-
-    def test_search_by_acronym(self):
-        LearningUnitFactory(acronym="LT49786")
-        LearningUnitFactory()
-        LearningUnitFactory()
-        self.assertEqual(1, len(learning_unit.search(acronym="LT49786")))
 
     def test_get_partims_related(self):
         current_year = datetime.date.today().year
@@ -111,3 +106,12 @@ class LearningUnitTest(TestCase):
 
         # Case end year > start year
         LearningUnitFactory(start_year=2017, end_year=2018)
+
+    def test_delete_before_2015(self):
+        lu = LearningUnitFactory(start_year=2014, end_year=2018)
+
+        with self.assertRaises(DatabaseError):
+            lu.delete()
+
+        lu.start_year = 2015
+        lu.delete()

@@ -132,6 +132,12 @@ class TestVolumeEditionForm(TestCase):
             errors = form.validate_parent_partim_component(parent_data)
             self.assertEqual(len(errors), 7)
 
+    def test_compare(self):
+        self.assertFalse(VolumeEditionForm._compare(0, 0, False))
+        self.assertTrue(VolumeEditionForm._compare(12, 14, False))
+        self.assertTrue(VolumeEditionForm._compare(12, 12, True))
+        self.assertFalse(VolumeEditionForm._compare(12, 12, False))
+
 
 def _get_wrong_data_empty_field():
     data = _get_valid_data()
@@ -230,6 +236,7 @@ class TestVolumeEditionFormsetContainer(TestCase):
 
         data_forms = get_valid_formset_data(self.learning_unit_year_full.acronym)
         data_forms.update(get_valid_formset_data(self.learning_unit_year_partim.acronym, is_partim=True))
+        data_forms.update({'postponement': 1})
 
         volume_edition_formset_container = VolumeEditionFormsetContainer(
             request_factory.post(None, data=data_forms),
@@ -237,7 +244,7 @@ class TestVolumeEditionFormsetContainer(TestCase):
 
         self.assertTrue(volume_edition_formset_container.is_valid())
 
-        volume_edition_formset_container.save(1)
+        volume_edition_formset_container.save()
 
     def test_post_volume_edition_formset_container_wrong_vol_tot_full_must_be_greater_than_partim(self):
         request_factory = RequestFactory()

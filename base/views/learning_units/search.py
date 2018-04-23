@@ -30,26 +30,26 @@ from django.forms import formset_factory
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.learning_unit import SERVICE_COURSES_SEARCH, create_xls, get_last_academic_years, SIMPLE_SEARCH
+from base.business.learning_unit import SERVICE_COURSES_SEARCH, create_xls, SIMPLE_SEARCH
 from base.forms.common import TooManyResultsException
-from base.forms.learning_unit_create import MAX_RECORDS
-from base.forms.learning_units import LearningUnitYearForm
+from base.forms.learning_unit.search_form import LearningUnitYearForm, MAX_RECORDS
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalRowForm, ProposalListFormset
-from base.models.academic_year import current_academic_year
+from base.models.academic_year import current_academic_year, get_last_academic_years
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
-from base.models.person import Person
+from base.models.person import Person, find_by_user
 from base.views import layout
-from base.views.common import check_if_display_message, display_error_messages, display_success_messages
+from base.views.common import check_if_display_message, display_error_messages, display_success_messages, \
+    display_messages_by_level
 from base.business import learning_unit_proposal as proposal_business
 
 PROPOSAL_SEARCH = 3
+SUMMARY_LIST = 4
 
 
-def _learning_units_search(request, search_type):
+def learning_units_search(request, search_type):
     service_course_search = search_type == SERVICE_COURSES_SEARCH
 
     form = LearningUnitYearForm(request.GET or None, service_course_search=service_course_search)
-
     found_learning_units = []
     try:
         if form.is_valid():
@@ -61,7 +61,7 @@ def _learning_units_search(request, search_type):
 
     if request.GET.get('xls_status') == "xls":
         return create_xls(request.user, found_learning_units)
-
+    a_person = find_by_user(request.user)
     context = {
         'form': form,
         'academic_years': get_last_academic_years(),
@@ -70,7 +70,8 @@ def _learning_units_search(request, search_type):
         'learning_units': found_learning_units,
         'current_academic_year': current_academic_year(),
         'experimental_phase': True,
-        'search_type': search_type
+        'search_type': search_type,
+        'is_faculty_manager': a_person.is_faculty_manager()
     }
     return layout.render(request, "learning_units.html", context)
 
@@ -78,13 +79,13 @@ def _learning_units_search(request, search_type):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units(request):
-    return _learning_units_search(request, SIMPLE_SEARCH)
+    return learning_units_search(request, SIMPLE_SEARCH)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units_service_course(request):
-    return _learning_units_search(request, SERVICE_COURSES_SEARCH)
+    return learning_units_search(request, SERVICE_COURSES_SEARCH)
 
 
 @login_required
@@ -92,62 +93,61 @@ def learning_units_service_course(request):
 def learning_units_proposal_search(request):
     search_form = LearningUnitProposalForm(request.GET or None)
     proposals = []
+    cleaned_research_criteria = []
     try:
         if search_form.is_valid():
             proposals = search_form.get_proposal_learning_units()
             check_if_display_message(request, proposals)
+            cleaned_research_criteria = search_form.get_research_criteria()
 
     except TooManyResultsException:
         display_error_messages(request, 'too_many_results')
 
     if proposals:
-        proposals = _proposal_management(request, proposals)
-
+        proposals = _proposal_management(request, proposals, cleaned_research_criteria)
+    a_person = find_by_user(request.user)
     context = {
         'form': search_form,
         'academic_years': get_last_academic_years(),
         'current_academic_year': current_academic_year(),
         'experimental_phase': True,
         'search_type': PROPOSAL_SEARCH,
-        'proposals': proposals
+        'proposals': proposals,
+        'is_faculty_manager': a_person.is_faculty_manager()
     }
 
     return layout.render(request, "learning_units.html", context)
 
 
-def _proposal_management(request, proposals):
+def _proposal_management(request, proposals, research_criteria):
     list_proposal_formset = formset_factory(form=ProposalRowForm, formset=ProposalListFormset,
                                             extra=len(proposals), max_num=MAX_RECORDS)
 
     formset = list_proposal_formset(request.POST or None,
                                     list_proposal_learning=proposals,
                                     action=request.POST.get('action') if request.POST else None)
-    return process_formset(formset, request)
+    return process_formset(formset, request, research_criteria)
 
 
-def process_formset(formset, request):
+def process_formset(formset, request, research_criteria):
     if formset.is_valid():
         if formset.action == 'back_to_initial':
-            formset = _go_back_to_initial_data(formset, request)
+            _apply_action_on_proposals(formset, request, proposal_business.cancel_proposals_and_send_report,
+                                       research_criteria)
+        elif formset.action == "consolidate":
+            _apply_action_on_proposals(formset, request, proposal_business.consolidate_proposals_and_send_report,
+                                       research_criteria)
         else:
             _force_state(formset, request)
     return formset
 
 
-def _go_back_to_initial_data(formset, request):
-    proposals_candidate_to_cancellation = formset.get_checked_proposals()
-    if proposals_candidate_to_cancellation:
-        formset = _cancel_proposals(formset, proposals_candidate_to_cancellation, request)
-    else:
-        _build_no_data_error_message(request)
-    return formset
-
-
-def _cancel_proposals(formset, proposals_to_cancel, request):
-    if proposals_to_cancel:
+def _apply_action_on_proposals(formset, request, action_method, research_criteria):
+    proposals = formset.get_checked_proposals()
+    if proposals:
         user_person = get_object_or_404(Person, user=request.user)
-        proposal_business.cancel_proposals(proposals_to_cancel, user_person)
-        display_success_messages(request, _("proposals_cancelled_successfully"))
+        messages_by_level = action_method(proposals, user_person, research_criteria)
+        display_messages_by_level(request, messages_by_level)
         formset = None
     else:
         _build_no_data_error_message(request)

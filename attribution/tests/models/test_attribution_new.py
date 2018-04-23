@@ -63,8 +63,8 @@ class AttributionChargeNewTest(TestCase):
     def test_search_with_learning_container_years(self):
         result = attribution_new.search(learning_container_year__in=[self.learning_container_year])
         self.assertCountEqual(result, [self.attribution_new])
-    def test_search_with_score_responsible(self):
 
+    def test_search_with_score_responsible(self):
         result = attribution_new.search(score_responsible=True)
         self.assertCountEqual(result, [self.attribution_new])
 

@@ -57,7 +57,7 @@ class TranslatedTextTest(TestCase):
                                                      reference=REFERENCE)
 
 
-        self.assertEqual(list(translated_text.find_by_entity_reference(entity_name.OFFER_YEAR, REFERENCE)),
+        self.assertEqual(list(translated_text.find_labels_list_by_label_entity_and_reference(entity_name.OFFER_YEAR, REFERENCE)),
                          [text_label_oy_1.label, text_label_oy_2.label,text_label_oy_3.label])
 
 

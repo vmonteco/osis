@@ -235,7 +235,11 @@ def get_last_version(entity, date=None):
     qs = EntityVersion.objects.current(date).entity(entity)
 
     return qs.latest('start_date')
-    # find_latest_version(academic_year.current_academic_year().start_date).get(entity=entity)
+
+
+def get_last_version_by_entity_id(entity_id):
+    now = datetime.datetime.now(get_tzinfo())
+    return EntityVersion.objects.current(now).filter(entity__id=entity_id).latest('start_date')
 
 
 def get_by_entity_parent(entity_parent):
@@ -285,9 +289,7 @@ def count(**kwargs):
     return search(**kwargs).count()
 
 
-def search_entities(acronym=None, title=None, type=None, with_entity=None):
-    if not acronym and not title and not type:
-        return
+def search_entities(acronym=None, title=None, entity_type=None, with_entity=None):
     queryset = EntityVersion.objects
     if with_entity:
         queryset = queryset.select_related('entity__organization')
@@ -296,8 +298,8 @@ def search_entities(acronym=None, title=None, type=None, with_entity=None):
         queryset = queryset.filter(acronym__icontains=acronym)
     if title:
         queryset = queryset.filter(title__icontains=title)
-    if type:
-        queryset = queryset.filter(entity_type=type)
+    if entity_type:
+        queryset = queryset.filter(entity_type=entity_type)
 
     return queryset
 
@@ -402,3 +404,20 @@ def find_main_entities_version():
 
 def find_latest_version_by_entity(entity, date):
     return EntityVersion.objects.current(date).entity(entity).select_related('entity', 'parent').first()
+
+
+def find_last_entity_version_by_learning_unit_year_id(learning_unit_year_id):
+    now = datetime.datetime.now(get_tzinfo())
+    try:
+        return EntityVersion.objects.current(now).\
+            filter(entity__entitycontaineryear__learning_container_year__learningunityear__id=learning_unit_year_id). \
+            latest('start_date')
+    except EntityVersion.DoesNotExist:
+        return None
+
+
+def search_by_acronyms(entities):
+    q = Q()
+    for entity in entities:
+        q |= Q(acronym__icontains=entity.acronym)
+    return EntityVersion.objects.filter(q)
