@@ -27,7 +27,7 @@ from django import forms
 from django.forms import inlineformset_factory
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.utils.acronym_field import AcronymField, PartimAcronymField
+from base.forms.utils.acronym_field import AcronymField, PartimAcronymField, split_acronym
 from base.forms.utils.choice_field import add_blank
 from base.models.campus import find_main_campuses
 from base.models.entity_component_year import EntityComponentYear
@@ -107,7 +107,7 @@ class LearningUnitYearModelForm(forms.ModelForm):
 
         acronym = self.initial.get('acronym')
         if acronym:
-            self.initial['acronym'] = [acronym[0], acronym[1:]]
+            self.initial['acronym'] = split_acronym(acronym, subtype)
 
         if subtype == learning_unit_year_subtypes.PARTIM:
             self.fields['acronym'] = PartimAcronymField()
