@@ -29,8 +29,9 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
 
+from base.business.learning_units.achievement import get_new_achievement, get_language_id
 from base.models.learning_achievement import LearningAchievement, find_learning_unit_achievement
-from base.forms.learning_achievement import LearningAchievementEditForm
+from base.forms.learning_achievement import LearningAchievementEditForm, LearningAchievementCreateForm
 from base.models.learning_unit_year import LearningUnitYear
 from . import layout
 
@@ -38,7 +39,7 @@ DOWN = 'down'
 UP = 'up'
 DELETE = 'delete'
 AVAILABLE_ACTIONS = [DELETE, UP, DOWN]
-EN_CODE_LANGAGUE = 'EN'
+EN_CODE_LANGUAGE = 'EN'
 
 
 def operation(learning_achievement_id, operation_str):
@@ -46,7 +47,7 @@ def operation(learning_achievement_id, operation_str):
     lu_yr_id = achievement_fr.learning_unit_year.id
 
     achievement_en = find_learning_unit_achievement(achievement_fr.learning_unit_year,
-                                                    EN_CODE_LANGAGUE,
+                                                    EN_CODE_LANGUAGE,
                                                     achievement_fr.order)
     execute_operation(achievement_fr, operation_str)
     execute_operation(achievement_en, operation_str)
@@ -96,3 +97,27 @@ def edit(request, learning_unit_year_id, learning_achievement_id):
                'form': form}
 
     return layout.render(request, "learning_unit/achievement_edit.html", context)
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+@require_http_methods(['POST', 'GET'])
+def create(request, learning_unit_year_id):
+    learning_unit_yr = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+    language_id = request.POST.get('language_id', None)
+
+    if request.method == 'POST':
+        form = LearningAchievementCreateForm(request.POST,
+                                             instance=get_new_achievement(learning_unit_yr, language_id))
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse("learning_unit_specifications",
+                                                kwargs={'learning_unit_year_id': learning_unit_year_id}))
+    context = {'learning_unit_year': learning_unit_yr,
+               'learning_achievement': LearningAchievement(),
+               'form': LearningAchievementCreateForm(instance=get_new_achievement(learning_unit_yr, language_id)),
+               'language': get_language_id(request)}
+
+    return layout.render(request, "learning_unit/achievement_edit.html", context)
+

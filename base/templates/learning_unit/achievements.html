@@ -91,20 +91,27 @@
                         </a>
                         {{ achievement.code_name }}
                     </div>
-                    <div class="col-md-4 collapsable_{{ forloop.counter0 }}">{{ achievement.text|safe }}</div>
+                    <div class="col-md-4 collapsable_{{ forloop.counter0 }}">{{ achievement.text| default_if_none:''|safe }}</div>
                     <div class="col-md-1">
                         {% if perms.base.can_edit_learningunit_specification %}
-                            <a class="achievement-edit-btn pull-right" href="#"
+                            <a class="achievement-edit-btn" href="#"
                                data-form="{% url 'achievement_edit' learning_unit_year_id=learning_unit_year.id learning_achievement_id=achievement.id %}"
                                title="{% trans 'edit' %}">
                                 <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                             </a>
+                            {% if forloop.last %}
+                                <a class="achievement-edit-btn" href="#"
+                                   data-form="{% url 'achievement_create' learning_unit_year_id=learning_unit_year.id %}?language_id={{ achievement.language.id }}"
+                                   title="{% trans 'create' %}">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                </a>
+                            {% endif %}
                         {% endif %}
                     </div>
                     <div class="col-md-5 collapsable_{{ forloop.counter0 }}">
                         {% with achievement_en=achievements_EN|index:forloop.counter0 %}
                             {% if achievement_en %}
-                                {{ achievement_en.text|safe }}
+                                {{ achievement_en.text| default_if_none:''|safe }}
                             {% endif %}
                         {% endwith %}
                     </div>
@@ -112,11 +119,18 @@
                         {% if perms.base.can_edit_learningunit_specification %}
                             {% with achievement_en=achievements_EN|index:forloop.counter0 %}
                                 {% if achievement_en %}
-                                    <a class="achievement-edit-btn pull-right" href="#"
+                                    <a class="achievement-edit-btn" href="#"
                                        data-form="{% url 'achievement_edit' learning_unit_year_id=learning_unit_year.id learning_achievement_id=achievement_en.id %}"
                                        title="{% trans 'edit' %}">
                                         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                                     </a>
+                                    {% if forloop.last %}
+                                        <a class="achievement-edit-btn" href="#"
+                                           data-form="{% url 'achievement_create' learning_unit_year_id=learning_unit_year.id %}?language_id={{ achievement_en.language.id }}"
+                                           title="{% trans 'create' %}">
+                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                        </a>
+                                    {% endif %}
                                 {% endif %}
                             {% endwith %}
                         {% endif %}

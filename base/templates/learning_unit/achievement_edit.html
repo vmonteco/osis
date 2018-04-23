@@ -28,8 +28,14 @@
 {% block content %}
 <div class="modal-dialog" role="document" style="width:850px;">
     <div class="modal-content">
-        <form class="achivement-form" role="form" method="POST"
-              action="{% url 'achievement_edit' learning_unit_year_id=learning_unit_year.id learning_achievement_id=learning_achievement.id %}">
+        <form id="achievement-form" role="form" method="POST"
+                {% if learning_achievement.id %}
+                    action="{% url 'achievement_edit' learning_unit_year_id=learning_unit_year.id learning_achievement_id=learning_achievement.id %}"
+                {% else %}
+                    action="{% url 'achievement_create' learning_unit_year_id=learning_unit_year.id %}"
+                {% endif %}
+                >
+            <input type="hidden" name="language_id" id="language_id" value="{% if language %}{{ language}}{% endif %}">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">×</button>
                 <h4>{% trans 'learning_achievements' %}</h4>
