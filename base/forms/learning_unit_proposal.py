@@ -123,12 +123,11 @@ class ProposalBaseForm:
 
     @transaction.atomic
     def save(self):
-        proposal = self.form_proposal.save(commit=False)
-        # Update the type when initial_data has been set
+        #First save to calculate ProposalType
+        proposal = self.form_proposal.save()
+        self.learning_unit_form_container.save(postponement=False)
         proposal.type = compute_proposal_type(proposal)
         proposal.save()
-
-        self.learning_unit_form_container.save(postponement=False)
         return proposal
 
     def _get_initial(self):

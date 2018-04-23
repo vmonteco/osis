@@ -55,10 +55,11 @@ def academic_year(year):
 
 
 @register.filter
-def get_difference_css(differences, parameter):
-    if differences.get(parameter, None):
+def get_difference_css(differences, parameter, default_if_none=""):
+    if parameter in differences:
         return mark_safe(" data-toggle=tooltip title='{} : {}' class={} ".format(_("value_before_proposal"),
-                                                                                 differences.get(parameter),
+                                                                                 differences[parameter]
+                                                                                 or default_if_none,
                                                                                  "proposal_value"))
     return None
 
@@ -74,11 +75,12 @@ def dl_tooltip(differences, key, **kwargs):
     label_text = kwargs.get('label_text', '')
     value = kwargs.get('value', '')
     url = kwargs.get('url', '')
+    default_if_none = kwargs.get('default_if_none', '')
 
     if not label_text:
         label_text = key.lower()
 
-    difference = get_difference_css(differences, key) or 'title="{}"'.format(_(title))
+    difference = get_difference_css(differences, key, default_if_none) or 'title="{}"'.format(_(title))
     if url:
         value = "<a href='{url}'>{value}</a>".format(value=value, url=url)
 

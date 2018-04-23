@@ -120,10 +120,6 @@ def delete_learning_unit_proposal(learning_unit_proposal):
 
 def get_difference_of_proposal(learning_unit_yr_proposal):
     initial_data = learning_unit_yr_proposal.initial_data
-    if 'entities' in initial_data and not initial_data['entities'][entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1]:
-        initial_data['entities'][entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1] = "-"
-    if 'entities' in initial_data and not initial_data['entities'][entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2]:
-        initial_data['entities'][entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2] = "-"
     actual_data = _copy_learning_unit_data(learning_unit_yr_proposal.learning_unit_year)
     differences = {}
     for model in ['learning_unit', 'learning_unit_year', 'learning_container_year', 'entities']:
@@ -342,12 +338,6 @@ def compute_proposal_state(a_person):
 def _copy_learning_unit_data(learning_unit_year):
     learning_container_year = learning_unit_year.learning_container_year
     entities_by_type = entity_container_year.find_entities_grouped_by_linktype(learning_container_year)
-    entities_additional = entity_container_year.find_last_entity_version_grouped_by_linktypes(
-        learning_container_year, [entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
-                                  entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2])
-
-    entities_by_type.update(entities_additional)
-
     learning_container_year_values = _get_attributes_values(learning_container_year,
                                                             INITIAL_DATA_FIELDS['learning_container_year'])
     learning_unit_values = _get_attributes_values(learning_unit_year.learning_unit,
