@@ -27,3 +27,4 @@ dev-requirements.txt
 .DS_Store
 .coveragerc
 /dev_requirements.txt
+/geckodriver.log

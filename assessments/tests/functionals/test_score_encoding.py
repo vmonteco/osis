@@ -15,6 +15,7 @@ import magic
 import parse
 import pendulum
 
+from django.conf import settings
 from django.contrib.auth.models import Group, Permission
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.urls import reverse
@@ -48,7 +49,6 @@ from base.tests.factories.student import StudentFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
 
-SIZE = (1920, 1080)
 
 class BusinessMixin:
     def create_user(self):
@@ -77,28 +77,45 @@ class SeleniumTestCase(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.display = pyvirtualdisplay.Display(size=SIZE)
-        #cls.display = Xvfb()
-        cls.display.start()
-        options = webdriver.ChromeOptions()
+        cls.sel_settings = settings.SELENIUM_SETTINGS
+        cls.screen_size = (cls.sel_settings.get('SCREEN_WIDTH'), cls.sel_settings.get('SCREEN_HIGH'))
         cls.full_path_temp_dir = tempfile.mkdtemp('osis-selenium')
-        # cls.full_path_temp_dir = '/tmp/test'
-        # print(cls.full_path_temp_dir)
-        options.add_experimental_option('prefs', {
-            'download.default_directory': cls.full_path_temp_dir,
-            'download.prompt_for_download': False,
-            'download.directory_upgrade': True,
-            'safebrowsing.enabled': True
-        })
-        cls.driver = webdriver.Chrome(chrome_options=options)
+        if cls.sel_settings.get('VIRTUAL_DISPLAY'):
+            cls.display = pyvirtualdisplay.Display(size=cls.screen_size)
+            cls.display.start()
+
+        if cls.sel_settings.get('WEB_BROWSER').upper() == 'FIREFOX':
+            fp = webdriver.FirefoxProfile()
+            fp.set_preference('browser.download.dir', cls.full_path_temp_dir)
+            fp.set_preference('browser.download.folderList', 2)
+            fp.set_preference('browser.download.manager.showWhenStarting', False)
+            fp.set_preference('pdfjs.disabled', True)
+            known_mimes = ['application/vnd.ms-excel',
+                           'application/pdf',
+                           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+            fp.set_preference('browser.helperApps.neverAsk.saveToDisk', ','.join(known_mimes))
+            cls.driver = webdriver.Firefox(executable_path=cls.sel_settings.get('GECKO_DRIVER'),
+                                           firefox_profile=fp)
+
+        if cls.sel_settings.get('WEB_BROWSER').upper() == 'CHROME':
+            options = webdriver.ChromeOptions()
+            options.add_experimental_option('prefs', {
+                 'download.default_directory': cls.full_path_temp_dir,
+                 'download.prompt_for_download': False,
+                 'download.directory_upgrade': True,
+                 'safebrowsing.enabled': True
+             })
+            cls.driver = webdriver.Chrome(chrome_options=options)
+
         cls.driver.implicitly_wait(10)
-        cls.driver.set_window_size(*SIZE)
+        cls.driver.set_window_size(*cls.screen_size)
 
     @classmethod
     def tearDownClass(cls):
         shutil.rmtree(cls.full_path_temp_dir)
         cls.driver.quit()
-        cls.display.stop()
+        if cls.sel_settings.get('VIRTUAL_DISPLAY'):
+            cls.display.stop()
 
         super().tearDownClass()
 
