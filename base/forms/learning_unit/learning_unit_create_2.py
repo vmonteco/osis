@@ -26,6 +26,7 @@
 import abc
 from collections import OrderedDict
 
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
@@ -39,7 +40,7 @@ from base.models.campus import Campus
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
-from base.models.learning_unit_year import LearningUnitYear
+from base.models.learning_unit_year import LearningUnitYear, find_max_credits_of_related_partims
 from reference.models import language
 
 FULL_READ_ONLY_FIELDS = {"acronym_0", "acronym_1", "academic_year", "container_type", "subtype"}
@@ -73,8 +74,13 @@ class LearningUnitBaseForm:
     def is_valid(self):
         return False
 
+    @abc.abstractmethod
+    def check_consistency_on_academic_year(self):
+        return False
+
     @transaction.atomic
     def save(self, commit=True, postponement=True):
+        self.check_consistency_on_academic_year()
         if self._is_update_action():
             return self._update_with_postponement(postponement)
         else:
@@ -263,6 +269,17 @@ class FullForm(LearningUnitBaseForm):
             return False
         common_title = self.forms[LearningContainerYearModelForm].cleaned_data["common_title"]
         return self._validate_no_empty_title(common_title) and self._validate_same_entities_container()
+
+    def check_consistency_on_academic_year(self):
+        self._check_credits_consistency_on_academic_year()
+        return False
+
+    def _check_credits_consistency_on_academic_year(self):
+        parent_credits = self.forms[LearningUnitYearModelForm].cleaned_data["credits"]
+        max_partim_credits = find_max_credits_of_related_partims(self.forms[LearningUnitYearModelForm].instance)
+        if parent_credits < max_partim_credits:
+            raise ValidationError('credits partim')
+
 
     def _validate_same_entities_container(self):
         container_type = self.forms[LearningContainerYearModelForm].cleaned_data["container_type"]
