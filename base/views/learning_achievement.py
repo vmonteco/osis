@@ -86,9 +86,7 @@ def edit(request, learning_unit_year_id, learning_achievement_id):
         form = LearningAchievementEditForm(request.POST,
                                            instance=learning_achievement)
         if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse("learning_unit_specifications",
-                                                kwargs={'learning_unit_year_id': learning_unit_year_id}))
+            return _save_and_redirect(form, learning_unit_year_id)
 
     form = LearningAchievementEditForm(instance=learning_achievement)
 
@@ -111,9 +109,8 @@ def create(request, learning_unit_year_id):
                                              instance=get_new_achievement(learning_unit_yr, language_id))
 
         if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse("learning_unit_specifications",
-                                                kwargs={'learning_unit_year_id': learning_unit_year_id}))
+            return _save_and_redirect(form, learning_unit_year_id)
+
     context = {'learning_unit_year': learning_unit_yr,
                'learning_achievement': LearningAchievement(),
                'form': LearningAchievementCreateForm(instance=get_new_achievement(learning_unit_yr, language_id)),
@@ -121,3 +118,8 @@ def create(request, learning_unit_year_id):
 
     return layout.render(request, "learning_unit/achievement_edit.html", context)
 
+
+def _save_and_redirect(form, learning_unit_year_id):
+    form.save()
+    return HttpResponseRedirect(reverse("learning_unit_specifications",
+                                        kwargs={'learning_unit_year_id': learning_unit_year_id}))
