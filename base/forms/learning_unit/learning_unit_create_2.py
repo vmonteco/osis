@@ -275,11 +275,15 @@ class FullForm(LearningUnitBaseForm):
         return False
 
     def _check_credits_consistency_on_academic_year(self):
-        parent_credits = self.forms[LearningUnitYearModelForm].cleaned_data["credits"]
-        max_partim_credits = find_max_credits_of_related_partims(self.forms[LearningUnitYearModelForm].instance)
-        if parent_credits <= max_partim_credits:
+        credits_ = self.forms[LearningUnitYearModelForm].cleaned_data["credits"]
+
+        if credits_ <= 0:
+            raise ValidationError(_("Credits must be strictly positive"))
+
+        max_partim_credits = find_max_credits_of_related_partims(self.forms[LearningUnitYearModelForm].instance) or 0
+        if credits_ <= max_partim_credits:
             # TODO :: This should show an alert, not block save()
-            raise ValidationError('credits partim')
+            raise ValidationError(_("At least one of the partims has a higher or equal number of credits"))
 
 
     def _validate_same_entities_container(self):
