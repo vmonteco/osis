@@ -45,8 +45,3 @@ class LearningAchievementEditForm(forms.ModelForm):
         if learning_achievement_other_language:
             learning_achievement_other_language.update(code_name=self.instance.code_name)
 
-
-def _get_a_language_code(a_language):
-    if a_language.code == FR_CODE_LANGAGUE:
-        return 'EN'
-    return FR_CODE_LANGAGUE
