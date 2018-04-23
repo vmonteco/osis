@@ -340,7 +340,8 @@ def _consolidate_modification_proposal_accepted(proposal):
 
         entities_to_update = find_entities_grouped_by_linktype(proposal.learning_unit_year.learning_container_year)
 
-        update_learning_unit_year_with_report(next_luy, fields_to_update_clean, entities_to_update)
+        update_learning_unit_year_with_report(next_luy, fields_to_update_clean, entities_to_update,
+                                              override_postponement_consistency=True)
     return {}
 
 
