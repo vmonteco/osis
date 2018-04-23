@@ -274,6 +274,7 @@ class FullForm(LearningUnitBaseForm):
     def check_consistency_on_academic_year(self):
         self._check_credits_consistency_on_academic_year()
         self._check_status_consistency_on_academic_year()
+        self._check_person_linked_to_entity_of_charge()
         return False
 
     def _check_credits_consistency_on_academic_year(self):
@@ -293,6 +294,10 @@ class FullForm(LearningUnitBaseForm):
         if parent_status is False and active_partims.exists():
             raise ValidationError(_("There is at least one partim active, so the parent must be active"))
 
+    def _check_person_linked_to_entity_of_charge(self):
+        luy_instance = self.forms[LearningUnitYearModelForm].instance
+        if not self.person.is_linked_to_entity_in_charge_of_learning_unit_year(luy_instance):
+            raise ValidationError(_("The logged person is not linked to the entity of charge of the learning unit"))
 
     def _validate_same_entities_container(self):
         container_type = self.forms[LearningContainerYearModelForm].cleaned_data["container_type"]
