@@ -277,7 +277,8 @@ class FullForm(LearningUnitBaseForm):
     def _check_credits_consistency_on_academic_year(self):
         parent_credits = self.forms[LearningUnitYearModelForm].cleaned_data["credits"]
         max_partim_credits = find_max_credits_of_related_partims(self.forms[LearningUnitYearModelForm].instance)
-        if parent_credits < max_partim_credits:
+        if parent_credits <= max_partim_credits:
+            # TODO :: This should show an alert, not block save()
             raise ValidationError('credits partim')
 
 
