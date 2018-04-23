@@ -27,9 +27,12 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_http_methods
 
 from base.models.learning_achievement import LearningAchievement, find_learning_unit_achievement
-from django.views.decorators.http import require_http_methods
+from base.forms.learning_achievement import LearningAchievementEditForm
+from base.models.learning_unit_year import LearningUnitYear
+from . import layout
 
 DOWN = 'down'
 UP = 'up'
@@ -69,3 +72,27 @@ def get_action(request):
     if action not in AVAILABLE_ACTIONS:
         raise AttributeError('Action should be {}, {} or {}'.format(DELETE, UP, DOWN))
     return action
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+@require_http_methods(["GET", "POST"])
+def edit(request, learning_unit_year_id, learning_achievement_id):
+    learning_achievement = get_object_or_404(LearningAchievement, pk=learning_achievement_id)
+    learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+
+    if request.method == 'POST':
+        form = LearningAchievementEditForm(request.POST,
+                                           instance=learning_achievement)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse("learning_unit_specifications",
+                                                kwargs={'learning_unit_year_id': learning_unit_year_id}))
+
+    form = LearningAchievementEditForm(instance=learning_achievement)
+
+    context = {'learning_unit_year': learning_unit_year,
+               'learning_achievement': learning_achievement,
+               'form': form}
+
+    return layout.render(request, "learning_unit/achievement_edit.html", context)

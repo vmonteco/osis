@@ -135,6 +135,8 @@ urlpatterns = [
             ])),
             url(r'^achievements/', include([
                 url(r'^management/', learning_achievement.management, name="achievement_management"),
+                url(r'^(?P<learning_achievement_id>[0-9]+)/edit/', learning_achievement.edit, name="achievement_edit"),
+
             ])),
         ])),
         url(r'^check/(?P<subtype>[A-Z]+)$', learning_unit.check_acronym, name="check_acronym"),

@@ -24,6 +24,8 @@
 #
 ##############################################################################
 import datetime
+
+from factory import fuzzy
 from unittest import mock
 from unittest.mock import patch
 
@@ -280,13 +282,18 @@ class TestConsolidateProposal(TestCase):
     @mock.patch("base.business.learning_unit_proposal.edit_learning_unit_end_date")
     def test_when_proposal_of_type_suppression_and_accepted(self, mock_edit_lu_end_date):
         academic_years = create_academic_years()
-        suppression_proposal = ProposalLearningUnitFactory(state=proposal_state.ProposalState.ACCEPTED.name,
-                                                           type=proposal_type.ProposalType.SUPPRESSION.name,
-                                                           initial_data={
-                                                               "learning_unit": {
-                                                                   "end_year": academic_years[2].year
-                                                               }
-                                                           })
+        initial_end_year_index = 2
+        suppression_proposal = ProposalLearningUnitFactory(
+            state=proposal_state.ProposalState.ACCEPTED.name,
+            type=proposal_type.ProposalType.SUPPRESSION.name,
+            initial_data={
+                "learning_unit": {
+                    "end_year": academic_years[initial_end_year_index].year
+                }
+            })
+        random_end_acad_year_index = fuzzy.FuzzyInteger(initial_end_year_index+1, len(academic_years)-1).fuzz()
+        suppression_proposal.learning_unit_year.learning_unit.end_year = academic_years[random_end_acad_year_index].year
+        suppression_proposal.learning_unit_year.learning_unit.save()
         consolidate_proposal(suppression_proposal)
 
         self.assertFalse(ProposalLearningUnit.objects.filter(pk=suppression_proposal.pk).exists())
