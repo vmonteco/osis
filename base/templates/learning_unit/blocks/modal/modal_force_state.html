@@ -46,9 +46,6 @@
     const ACCEPTED = gettext('ACCEPTED');
     const CENTRAL = gettext('CENTRAL');
     const FACULTY = gettext('FACULTY');
-    $('#modal_force_state').on('loaded.bs.modal', function () {
-        console.log("tcheu");
-    });
 
     // trigger events
     $('#modal_force_state').on('shown.bs.modal', function () {
@@ -68,10 +65,10 @@
         var alert_node = $('#alert_warning');
         remove_alert_msg(alert_node);
         var new_state = $("#id_state" ).children("select option:selected").text();
-        $('#table_learning_units tbody tr').each(function(){
+        $('.row-proposal').each(function(){
             if($(this).find("input").is(":checked")){
-                const old_state = $(this).find("td").eq(8).text().trim();
-                const acronym = $(this).find("td").eq(2).text().trim();
+                var old_state = $(this).find(".col-proposal_state").text().trim();
+                var acronym = $(this).find(".col-acronym").text().trim();
                 if ((old_state === REFUSED && new_state === ACCEPTED) ||
                     (old_state === CENTRAL && new_state === FACULTY)){
                     add_warning(alert_node, acronym, old_state, new_state)

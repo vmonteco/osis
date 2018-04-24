@@ -60,10 +60,10 @@
                 </thead>
                 <tbody>
                 {% for proposal in proposals %}
-                    <tr data-id="{{proposal.id}}" data-value="{{proposal.acronym}}">
+                    <tr class="row-proposal" data-id="{{proposal.id}}" data-value="{{proposal.acronym}}">
                         <td><input type="checkbox" name="selected_action" value="{{ proposal.id }}"/></td>
                         <td>{{ proposal.folder }}</td>
-                        <td><a href="{% url "learning_unit" learning_unit_year_id=proposal.learning_unit_year.id %}">{{ proposal.learning_unit_year.acronym }}</a></td>
+                        <td class="col-acronym"><a href="{% url "learning_unit" learning_unit_year_id=proposal.learning_unit_year.id %}">{{ proposal.learning_unit_year.acronym }}</a></td>
                         <td>{{ proposal.learning_unit_year.academic_year }}</td>
                         <td>{{ proposal.learning_unit_year.complete_title }}</td>
                         <td>{% with proposal.learning_unit_year.learning_container_year.container_type|default_if_none:'-' as type %}
@@ -75,7 +75,7 @@
                                     {% trans proposal_type %}
                             {% endwith %}
                         </td>
-                        <td>{% with proposal.state|default_if_none:'-' as proposal_state %}
+                        <td class="col-proposal_state">{% with proposal.state|default_if_none:'-' as proposal_state %}
                                     {% trans proposal_state%}
                             {% endwith %}
                         </td>
