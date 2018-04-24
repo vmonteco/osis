@@ -195,11 +195,13 @@
 
                                 {% url 'entity_read' entity_version_id=requirement_entity.id as url_entity_requirement %}
                                 {% url 'entity_read' entity_version_id=allocation_entity.id as url_entity_allocation %}
+                                {% url 'entity_read' entity_version_id=additional_requirement_entity_1.id as url_additional_requirement_entity_1 %}
+                                {% url 'entity_read' entity_version_id=additional_requirement_entity_2.id as url_additional_requirement_entity_2 %}
 
-                                {% dl_tooltip differences 'REQUIREMENT_ENTITY' value=requirement_entity.acronym title=requirement_entity.title url=url_entity_requirement %}
-                                {% dl_tooltip differences 'ALLOCATION_ENTITY' value=allocation_entity.acronym title=allocation_entity.title url=url_entity_allocation %}
-                                {% dl_tooltip differences 'ADDITIONAL_REQUIREMENT_ENTITY_1' value=additional_requirement_entity_1.acronym %}
-                                {% dl_tooltip differences 'ADDITIONAL_REQUIREMENT_ENTITY_2' value=additional_requirement_entity_2.acronym %}
+                                {% dl_tooltip differences 'REQUIREMENT_ENTITY' default_if_none="-" value=requirement_entity.acronym title=requirement_entity.title url=url_entity_requirement %}
+                                {% dl_tooltip differences 'ALLOCATION_ENTITY' default_if_none="-" value=allocation_entity.acronym title=allocation_entity.title url=url_entity_allocation %}
+                                {% dl_tooltip differences 'ADDITIONAL_REQUIREMENT_ENTITY_1' title=additional_requirement_entity_1.title value=additional_requirement_entity_1.acronym url=url_additional_requirement_entity_1 default_if_none="-" %}
+                                {% dl_tooltip differences 'ADDITIONAL_REQUIREMENT_ENTITY_2' title=additional_requirement_entity_2.title value=additional_requirement_entity_2.acronym url=url_additional_requirement_entity_2 default_if_none="-" %}
 
                                 {% block edit_academic_year %}
                                     {% dl_tooltip differences 'end_year' label_text='academic_years' value=learning_unit_year.learning_unit.start_year|academic_years:learning_unit_year.learning_unit.end_year %}

@@ -231,7 +231,6 @@ class TestSave(TestCase):
                 "specific_title_english": self.learning_unit_year.specific_title_english,
                 "internship_subtype": self.learning_unit_year.internship_subtype,
                 "credits": self.learning_unit_year.credits,
-                "quadrimester": self.learning_unit_year.quadrimester,
                 "status": self.learning_unit_year.status
             },
             "learning_unit": {
