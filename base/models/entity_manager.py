@@ -26,7 +26,7 @@
 from django.db import models
 from django.db.models import Prefetch
 
-from base.models import entity
+from base.models import entity, entity_version
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
@@ -66,6 +66,10 @@ def is_entity_manager(user):
 
 
 def find_entities_with_descendants_from_entity_managers(entities_manager):
-    entities = [entity_manager.entity for entity_manager in entities_manager]
-    entities_with_descendants = entity.find_descendants(entities)
+    entities_with_descendants = []
+    entities_by_id = entity_version.build_current_entity_version_structure_in_memory()
+    for entity_manager in entities_manager:
+        entities_with_descendants.append(entity_manager.entity)
+        entities_with_descendants += [ent_version.entity for ent_version in entities_by_id[entity_manager.entity_id].get('all_children')]
+    # entities_with_descendants = entity.find_descendants(entities)
     return entities_with_descendants

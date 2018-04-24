@@ -25,7 +25,6 @@
 ##############################################################################
 from django.db import models
 
-from base.models import entity
 from base.models import entity_version
 from base.models.entity import Entity
 from base.models.entity_version import EntityVersion
@@ -77,10 +76,7 @@ def find_entities_by_person(person):
         entities.add(entity_with_child)
         entity_data = entities_data.get(entity_with_child.id)
         if entity_data:
-            entities |= set(entity_data['all_children'])
-    # if entities_with_child:
-        # entity_with_find_descendants = entity.find_descendants(entities_with_child, with_entities=True)
-        # entities |= set(entity_with_find_descendants) if entity_with_find_descendants else set()
+            entities |= set([ent_version.entity for ent_version in entity_data['all_children']])
     return list(entities)
 
 
