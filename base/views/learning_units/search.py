@@ -45,6 +45,9 @@ from base.business import learning_unit_proposal as proposal_business
 PROPOSAL_SEARCH = 3
 SUMMARY_LIST = 4
 
+ACTION_BACK_TO_INITIAL = "back_to_initial"
+ACTION_CONSOLIDATE = "consolidate"
+ACTION_FORCE_STATE = "force_state"
 
 def learning_units_search(request, search_type):
     service_course_search = search_type == SERVICE_COURSES_SEARCH
@@ -130,11 +133,11 @@ def apply_action_on_proposals(proposals, author, post_data, research_criteria):
         return {WARNING: [_("No proposals was selected.")]}
 
     action = post_data.get("action", "")
-    if action == 'back_to_initial':
+    if action == ACTION_BACK_TO_INITIAL:
         return proposal_business.cancel_proposals_and_send_report(proposals, author, research_criteria)
-    elif action == "consolidate":
+    elif action == ACTION_CONSOLIDATE:
         return proposal_business.consolidate_proposals_and_send_report(proposals, author, research_criteria)
-    elif action == "force_state":
+    elif action == ACTION_FORCE_STATE:
         form = ProposalStateModelForm(post_data)
         if form.is_valid():
             new_state = form.cleaned_data.get("state")
