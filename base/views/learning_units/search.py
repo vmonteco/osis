@@ -131,7 +131,8 @@ def apply_action_on_proposals(proposals, author, post_data, research_criteria):
     if action == ACTION_BACK_TO_INITIAL:
         messages_by_level = proposal_business.cancel_proposals_and_send_report(proposals, author, research_criteria)
     elif action == ACTION_CONSOLIDATE:
-        messages_by_level = proposal_business.consolidate_proposals_and_send_report(proposals, author, research_criteria)
+        messages_by_level = proposal_business.consolidate_proposals_and_send_report(proposals, author,
+                                                                                    research_criteria)
     elif action == ACTION_FORCE_STATE:
         form = ProposalStateModelForm(post_data)
         if form.is_valid():
