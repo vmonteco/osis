@@ -31,13 +31,17 @@ EN_CODE_LANGUAGE = 'EN'
 
 def get_code_name(previous_achievement_fr, a_language_code):
     if a_language_code == EN_CODE_LANGUAGE:
-        if not LearningAchievement.objects.filter(
-                language__code=a_language_code,
-                learning_unit_year=previous_achievement_fr.learning_unit_year).exists():
-            return previous_achievement_fr.code_name
-        else:
-            achievement_fr_next = find_learning_unit_achievement(previous_achievement_fr.learning_unit_year,
-                                                                 previous_achievement_fr.language.code,
-                                                                 previous_achievement_fr.order + 1)
-            return achievement_fr_next.code_name if achievement_fr_next else ''
+        return get_existing_code_name(a_language_code, previous_achievement_fr)
     return ''
+
+
+def get_existing_code_name(a_language_code, previous_achievement_fr):
+    if not LearningAchievement.objects.filter(
+            language__code=a_language_code,
+            learning_unit_year=previous_achievement_fr.learning_unit_year).exists():
+        return previous_achievement_fr.code_name
+    else:
+        achievement_fr_next = find_learning_unit_achievement(previous_achievement_fr.learning_unit_year,
+                                                             previous_achievement_fr.language.code,
+                                                             previous_achievement_fr.order + 1)
+        return achievement_fr_next.code_name if achievement_fr_next else ''
