@@ -36,7 +36,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl_base
 from base.business import learning_unit_proposal as lu_proposal_business
-from base.business.learning_unit_proposal import compute_proposal_type, consolidate_proposal
+from base.business.learning_unit_proposal import compute_proposal_type, consolidate_proposal, modify_proposal_state
 from base.business.learning_unit_proposal import consolidate_proposals_and_send_report
 from base.business.learning_units.perms import PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES
 from base.models.academic_year import AcademicYear, LEARNING_UNIT_CREATION_SPAN_YEARS
@@ -321,3 +321,13 @@ class TestConsolidateProposal(TestCase):
 
         consolidate_proposal(proposal)
         self.assertTrue(mock_update_learning_unit_with_report.called)
+
+
+class TestModifyProposalState(TestCase):
+    def test_change_new_state(self):
+        proposal = ProposalLearningUnitFactory(state=proposal_state.ProposalState.FACULTY.name)
+        new_state = proposal_state.ProposalState.SUSPENDED.name
+        modify_proposal_state(new_state, proposal)
+
+        proposal.refresh_from_db()
+        self.assertEqual(proposal.state, new_state)

@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import functools
 from django.contrib.messages import ERROR, SUCCESS
 from django.contrib.messages import INFO
 from django.db import IntegrityError
@@ -193,11 +194,7 @@ def _get_rid_of_blank_value(data):
 
 
 def force_state_of_proposals(proposals, author, new_state):
-    def change_state(proposal):
-        proposal.state = new_state
-        proposal.save()
-        return {}
-
+    change_state = functools.partial(modify_proposal_state, new_state)
     return _apply_action_on_proposals_and_send_report(
         proposals,
         author,
@@ -208,6 +205,12 @@ def force_state_of_proposals(proposals, author, new_state):
         None,
         perms.is_eligible_to_edit_proposal
     )
+
+
+def modify_proposal_state(new_state, proposal):
+    proposal.state = new_state
+    proposal.save()
+    return {}
 
 
 def cancel_proposals_and_send_report(proposals, author, research_criteria):
