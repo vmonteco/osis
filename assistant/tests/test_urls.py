@@ -55,3 +55,7 @@ class AssistantURLsTestCase(TestCase):
     def test_url_resolves_to_manager_assistant_form(self):
         found = resolve(reverse('manager_assistant_form_view', args=[1]))
         self.assertEqual(found.func, assistant_form_view)
+
+    def test_url_resolves_to_manager_assistant_mandate_go_backward(self):
+        found = resolve(reverse('assistant_mandate_step_back'))
+        self.assertEqual(found.func, assistant_mandate_step_back)
