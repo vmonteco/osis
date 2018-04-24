@@ -251,10 +251,6 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
 
 class TestPartimFormSaveInsert(LearningUnitPartimFormContextMixin):
     """Unit tests for save() for insert"""
-    def test_is_update_action(self):
-        form = _instanciate_form(self.learning_unit_year_full, instance=None)
-        self.assertFalse(form._is_update_action())
-
     @mock.patch('base.forms.learning_unit.learning_unit_create_2.LearningUnitBaseForm._update_with_postponement',
                 side_effect=None)
     @mock.patch('base.forms.learning_unit.learning_unit_create_2.PartimForm._create', side_effect=None)
@@ -325,10 +321,6 @@ class TestPartimFormSaveInsert(LearningUnitPartimFormContextMixin):
 
 class TestPartimFormSaveUpdate(LearningUnitPartimFormContextMixin):
     """Unit tests for save() for update"""
-    def test_is_update_action(self):
-        form = _instanciate_form(self.learning_unit_year_full, instance=self.learning_unit_year_partim)
-        self.assertTrue(form._is_update_action())
-
     @mock.patch('base.forms.learning_unit.learning_unit_create_2.LearningUnitBaseForm._update_with_postponement',
                 side_effect=None)
     @mock.patch('base.forms.learning_unit.learning_unit_create_2.PartimForm._create', side_effect=None)

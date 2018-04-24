@@ -78,7 +78,7 @@ class LearningUnitModelForm(forms.ModelForm):
 
     def save(self, **kwargs):
         self.instance.learning_container = kwargs.pop('learning_container')
-        self.instance.start_year = kwargs.pop('academic_year').year
+        self.instance.start_year = kwargs.pop('start_year')
         return super(LearningUnitModelForm, self).save(**kwargs)
 
     class Meta:
@@ -128,6 +128,7 @@ class LearningUnitYearModelForm(forms.ModelForm):
     # TODO :: Make these kwarg to args (learning_container_year, learning_unit, ... are required args)
     def save(self, **kwargs):
         self.instance.learning_container_year = kwargs.pop('learning_container_year')
+        self.instance.academic_year = self.instance.learning_container_year.academic_year
         self.instance.learning_unit = kwargs.pop('learning_unit')
         entity_container_years = kwargs.pop('entity_container_years')
         instance = super().save(**kwargs)

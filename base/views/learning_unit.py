@@ -49,6 +49,7 @@ from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit.learning_unit_create_2 import PartimForm, FullForm
+from base.forms.learning_unit.learning_unit_postponement import LearningUnitPostponementForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
@@ -285,7 +286,14 @@ def learning_unit_create(request, academic_year_id):
                                             default_ac_year=get_object_or_404(AcademicYear, pk=academic_year_id))
 
     if learning_unit_form_container.is_valid():
-        new_luys = learning_unit_form_container.save()
+        # Save current learning unit form container
+        new_luys = [learning_unit_form_container.save()]
+
+        # Make postponement - In Creation mode, we make always the postponement
+        postponement_form = LearningUnitPostponementForm(instance=learning_unit_form_container, person=person)
+        if postponement_form.is_valid():
+            new_luys.extend(postponement_form.save())
+        raise Exception
         for luy in new_luys:
             show_success_learning_unit_year_creation_message(request, luy, 'learning_unit_successfuly_created')
         return redirect('learning_unit', learning_unit_year_id=new_luys[0].pk)

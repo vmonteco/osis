@@ -33,8 +33,10 @@ from base.models.academic_year import AcademicYear, LEARNING_UNIT_CREATION_SPAN_
     compute_max_academic_year_adjournment
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
     learning_unit_periodicity, learning_unit_year_subtypes, component_type
+from base.models.enums import entity_type
 from base.models.enums import learning_unit_year_quadrimesters
 from base.models.enums import learning_unit_year_session
+from base.models.enums import organization_type
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.bibliography import BibliographyFactory
 from base.tests.factories.campus import CampusFactory
@@ -260,13 +262,15 @@ class GenerateContainer:
         self.entities = [
             EntityVersionFactory(
                 start_date=datetime.datetime(1900, 1, 1),
-                end_date=None
+                end_date=None,
+                entity_type=entity_type.FACULTY,
+                entity__organization__type=organization_type.MAIN
             ).entity for _ in range(4)
         ]
 
     def _setup_common_data(self):
         self.language = LanguageFactory(code='FR', name='French')
-        self.campus = CampusFactory(name='Louvain-la-Neuve')
+        self.campus = CampusFactory(name='Louvain-la-Neuve', organization__type=organization_type.MAIN)
 
     def __iter__(self):
         for generated_container_year in self.generated_container_years:
