@@ -25,14 +25,6 @@
 ##############################################################################
 import datetime
 from unittest import mock
-from base.models.entity_component_year import EntityComponentYear
-from base.models.entity_container_year import EntityContainerYear
-from base.models.learning_component_year import LearningComponentYear
-from base.models.learning_container import LearningContainer
-from base.models.learning_container_year import LearningContainerYear
-from base.models.learning_unit import LearningUnit
-from base.models.learning_unit_component import LearningUnitComponent
-from base.tests.factories.entity_version import EntityVersionFactory
 
 from django.test import TestCase
 
@@ -40,12 +32,20 @@ from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelF
     LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
 from base.forms.learning_unit.learning_unit_create_2 import FullForm
 from base.models.academic_year import AcademicYear
+from base.models.entity_component_year import EntityComponentYear
+from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, organization_type
+from base.models.learning_component_year import LearningComponentYear
+from base.models.learning_container import LearningContainer
+from base.models.learning_container_year import LearningContainerYear
+from base.models.learning_unit import LearningUnit
+from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.business.entities import create_entities_hierarchy
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
 from base.tests.factories.campus import CampusFactory
+from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
@@ -184,7 +184,7 @@ class TestFullFormInit(LearningUnitFullFormContextMixin):
 
     def test_model_forms_case_update(self):
         learn_unit_year = self.learning_unit_year
-        form = _instanciate_form(post_data=self.post_data, instance=learn_unit_year)
+        form = _instanciate_form(post_data=self.post_data, person=self.person, instance=learn_unit_year)
 
         self.assertEqual(form.forms[LearningUnitModelForm].instance, learn_unit_year.learning_unit)
         self.assertEqual(form.forms[LearningContainerModelForm].instance, learn_unit_year.learning_container_year.learning_container)
