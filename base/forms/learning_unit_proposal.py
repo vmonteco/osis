@@ -29,8 +29,8 @@ from itertools import chain
 from django import forms
 from django.db import transaction
 
-from base.business.learning_unit_proposal import reinitialize_data_before_proposal, compute_proposal_type, \
-    compute_proposal_state, _copy_learning_unit_data
+from base.business.learning_unit_proposal import compute_proposal_type, \
+    compute_proposal_state, copy_learning_unit_data
 from base.forms.learning_unit.learning_unit_create import EntitiesVersionChoiceField
 from base.forms.learning_unit.learning_unit_create_2 import FullForm, PartimForm
 from base.models.academic_year import current_academic_year
@@ -81,7 +81,7 @@ class ProposalLearningUnitForm(forms.ModelForm):
         if hasattr(self.instance, 'learning_unit_year'):
             # When we save a creation_proposal, we do not need to save the initial_data
             if self.instance.type != ProposalType.CREATION.name and not self.instance.initial_data:
-                self.instance.initial_data = _copy_learning_unit_data(get_by_id(self.instance.learning_unit_year.id))
+                self.instance.initial_data = copy_learning_unit_data(get_by_id(self.instance.learning_unit_year.id))
         return super().save(commit)
 
 
@@ -123,12 +123,11 @@ class ProposalBaseForm:
 
     @transaction.atomic
     def save(self):
-        proposal = self.form_proposal.save(commit=False)
-        # Update the type when initial_data has been set
+        # First save to calculate ProposalType
+        proposal = self.form_proposal.save()
+        self.learning_unit_form_container.save(postponement=False)
         proposal.type = compute_proposal_type(proposal)
         proposal.save()
-
-        self.learning_unit_form_container.save(postponement=False)
         return proposal
 
     def _get_initial(self):
