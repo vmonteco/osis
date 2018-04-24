@@ -49,6 +49,7 @@ ACTION_BACK_TO_INITIAL = "back_to_initial"
 ACTION_CONSOLIDATE = "consolidate"
 ACTION_FORCE_STATE = "force_state"
 
+
 def learning_units_search(request, search_type):
     service_course_search = search_type == SERVICE_COURSES_SEARCH
 
@@ -97,33 +98,26 @@ def learning_units_proposal_search(request):
     search_form = LearningUnitProposalForm(request.GET or None)
     user_person = get_object_or_404(Person, user=request.user)
     proposals = []
-    cleaned_research_criteria = []
+    research_criteria = []
     try:
         if search_form.is_valid():
-            cleaned_research_criteria = search_form.get_research_criteria()
+            research_criteria = search_form.get_research_criteria()
             proposals = search_form.get_proposal_learning_units()
     except TooManyResultsException:
         display_error_messages(request, 'too_many_results')
 
     if request.POST:
-        selected_proposals_id =request.POST.getlist("selected_action", default=[])
+        selected_proposals_id = request.POST.getlist("selected_action", default=[])
         selected_proposals = ProposalLearningUnit.objects.filter(id__in=selected_proposals_id)
-        messages_by_level= apply_action_on_proposals(selected_proposals, user_person, request.POST,
-                                                     cleaned_research_criteria)
+        messages_by_level = apply_action_on_proposals(selected_proposals, user_person, request.POST, research_criteria)
         display_messages_by_level(request, messages_by_level)
         return redirect(reverse("learning_unit_proposal_search") + "?{}".format(request.GET.urlencode()))
 
     check_if_display_message(request, proposals)
-    context = {
-        'form': search_form,
-        'form_proposal_state': ProposalStateModelForm(),
-        'academic_years': get_last_academic_years(),
-        'current_academic_year': current_academic_year(),
-        'experimental_phase': True,
-        'search_type': PROPOSAL_SEARCH,
-        'proposals': proposals,
-        'is_faculty_manager': user_person.is_faculty_manager()
-    }
+    context = {'form': search_form, 'form_proposal_state': ProposalStateModelForm(),
+               'academic_years': get_last_academic_years(), 'current_academic_year': current_academic_year(),
+               'experimental_phase': True, 'search_type': PROPOSAL_SEARCH, 'proposals': proposals,
+               'is_faculty_manager': user_person.is_faculty_manager()}
 
     return layout.render(request, "learning_units.html", context)
 
@@ -133,13 +127,14 @@ def apply_action_on_proposals(proposals, author, post_data, research_criteria):
         return {WARNING: [_("No proposals was selected.")]}
 
     action = post_data.get("action", "")
+    messages_by_level = {}
     if action == ACTION_BACK_TO_INITIAL:
-        return proposal_business.cancel_proposals_and_send_report(proposals, author, research_criteria)
+        messages_by_level = proposal_business.cancel_proposals_and_send_report(proposals, author, research_criteria)
     elif action == ACTION_CONSOLIDATE:
-        return proposal_business.consolidate_proposals_and_send_report(proposals, author, research_criteria)
+        messages_by_level = proposal_business.consolidate_proposals_and_send_report(proposals, author, research_criteria)
     elif action == ACTION_FORCE_STATE:
         form = ProposalStateModelForm(post_data)
         if form.is_valid():
             new_state = form.cleaned_data.get("state")
-            return proposal_business.force_state_of_proposals(proposals, author, new_state)
-    return {}
+            messages_by_level = proposal_business.force_state_of_proposals(proposals, author, new_state)
+    return messages_by_level
