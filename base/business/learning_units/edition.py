@@ -322,7 +322,12 @@ def _update_learning_unit_year(luy_to_update, fields_to_update, with_report):
         fields_to_exclude = FIELDS_TO_EXCLUDE_WITH_REPORT
 
     update_instance_model_from_data(luy_to_update.learning_unit, fields_to_update, exclude=('acronym',))
-    update_instance_model_from_data(luy_to_update.learning_container_year, fields_to_update, exclude=fields_to_exclude)
+
+    # Only the subtype FULL can edit the container
+    if luy_to_update.subtype == learning_unit_year_subtypes.FULL:
+        update_instance_model_from_data(luy_to_update.learning_container_year, fields_to_update,
+                                        exclude=fields_to_exclude)
+
     update_instance_model_from_data(luy_to_update, fields_to_update,
                                     exclude=fields_to_exclude + ("in_charge",))
 
