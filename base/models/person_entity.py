@@ -66,10 +66,10 @@ def search(**kwargs):
 
 
 def find_entities_by_person(person):
-    person_entities = search(person=person).select_related('entity')
+    person_entities = PersonEntity.objects.filter(person=person).select_related('entity')
 
     entities = set()
-    entities |= {pers_ent.entity for pers_ent in person_entities if not pers_ent.with_child }
+    entities |= {pers_ent.entity for pers_ent in person_entities if not pers_ent.with_child}
     entities_with_child = [pers_ent.entity for pers_ent in person_entities if pers_ent.with_child]
     entities_data = entity_version.build_current_entity_version_structure_in_memory()
     for entity_with_child in entities_with_child:

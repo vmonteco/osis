@@ -23,13 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base import models as mdl
-from base.models import entity_calendar, entity_version, entity_version, entity_version
-
-from base.models.enums import entity_container_year_link_type, academic_calendar_type
-from django.utils import timezone
 from django.db.models import Prefetch
+from django.utils import timezone
+
+from base import models as mdl
+from base.models import entity_calendar, entity_version
 from base.models import entity_version as mdl_entity_version
+from base.models.enums import entity_container_year_link_type, academic_calendar_type
 
 
 def get_entities_ids(requirement_entity_acronym, with_entity_subordinated):
@@ -44,7 +44,7 @@ def _get_distinct_entity_ids(entity_versions, with_entity_subordinated):
         entities_data = mdl.entity_version.build_current_entity_version_structure_in_memory()
         for an_entity_version in entity_versions:
             all_descendants = entities_data.get(an_entity_version.entity_id)
-            entities_ids |= {descendant.entity.id for descendant in all_descendants}
+            entities_ids |= {descendant.entity.id for descendant in all_descendants['all_children']}
     return list(entities_ids)
 
 

@@ -106,24 +106,13 @@ def find_descendants(entities, date=None, with_entities=True):
 
     entities_descendants = set()
     entities_by_id = entity_version.build_current_entity_version_structure_in_memory(date=date)
+
     for entity in entities:
-        entities_descendants.add(entity)
-        entities_descendants |= {ent_version.entity for ent_version in entities_by_id[entity.id].get('all_children')}
-    # for entity in entities:
-    #     entities_descendants |= _find_descendants(entity, date, with_entities)
+        if with_entities and entities_by_id.get(entity.id):
+            entities_descendants.add(entity)
+        if entity.id in entities_by_id:
+            entities_descendants |= {ent_version.entity for ent_version in entities_by_id[entity.id].get('all_children')}
     return list(entities_descendants)
-#
-#
-# def _find_descendants(entity, date=None, with_entities=True):
-#     entities_descendants = set()
-#     try:
-#         entity_vers = entity_version.get_last_version(entity, date=date)
-#         if with_entities:
-#                 entities_descendants.add(entity_vers.entity)
-#         entities_descendants |= {entity_version_descendant.entity for entity_version_descendant in
-#                                  entity_vers.find_descendants(date=date)}
-#     finally:
-#         return entities_descendants
 
 
 def find_versions_from_entites(entities, date):
