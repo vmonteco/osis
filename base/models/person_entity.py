@@ -58,13 +58,6 @@ class PersonEntity(models.Model):
         return u"%s" % self.person
 
 
-def search(**kwargs):
-    queryset = PersonEntity.objects
-    if 'person' in kwargs:
-        queryset = queryset.filter(person=kwargs['person'])
-    return queryset
-
-
 def find_entities_by_person(person):
     person_entities = PersonEntity.objects.filter(person=person).select_related('entity')
 
@@ -83,7 +76,7 @@ def find_entities_by_person(person):
 def is_attached_entities(person, entity_queryset):
     admissible_entities = list(entity_queryset.values_list('pk', flat=True))
 
-    qs = search(person=person)
+    qs = PersonEntity.objects.filter(person=person)
     if qs.filter(entity__in=admissible_entities).exists():
         return True
     elif qs.filter(entity__in=_entity_ancestors(entity_queryset), with_child=True).exists():
