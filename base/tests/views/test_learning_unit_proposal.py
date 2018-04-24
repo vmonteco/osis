@@ -580,7 +580,7 @@ class TestGroupActionsOnProposals(TestCase):
         response = self.client.post(self.url, data=post_data, follow=True)
 
         proposals, author, new_state = mock_force_state.call_args[0]
-        self.assertEqual(list(proposals), [self.proposals[0], self.proposals[2]])
+        self.assertCountEqual(list(proposals), [self.proposals[0], self.proposals[2]])
         self.assertEqual(author, self.person)
         self.assertEqual(new_state, proposal_state.ProposalState.ACCEPTED.name)
 
