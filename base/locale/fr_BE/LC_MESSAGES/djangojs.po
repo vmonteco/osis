@@ -49,3 +49,6 @@ msgstr "ajouter un autre"
 
 msgid "remove"
 msgstr "supprimer"
+
+msgid "confirm_achievement_delete"
+msgstr "Etes-vous sûre de vouloir supprimer l'acquis d'apprentissage?"

@@ -152,6 +152,12 @@ $(document).ready(function(){
         var achievement_id = id.substr(pos+1);
         $('#hdn_achievement_id').val(achievement_id);
     });
+
+    //Show confirm popup before delete application
+    $("button[id^='btn_operation_delete_']").click(function() {
+        return confirm(gettext('confirm_achievement_delete'));
+    });
+
     });
 
     $(".achievement-edit-btn").click(function(ev) {

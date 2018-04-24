@@ -69,12 +69,15 @@ class LearningUnitPartimFormContextMixin(TestCase):
             academic_year=self.current_academic_year
         )
         self.learning_unit_year_full.acronym = FULL_ACRONYM
+        self.learning_unit_year_full.learning_container_year.acronym = FULL_ACRONYM
+        self.learning_unit_year_full.learning_container_year.save()
         self.learning_unit_year_full.save()
 
         # Update Partim learning unit year acronym
         self.learning_unit_year_partim = LearningUnitYear.objects.get(
             learning_unit=self.learn_unit_structure.learning_unit_partim,
-            academic_year=self.current_academic_year
+            academic_year=self.current_academic_year,
+            learning_container_year=self.learning_unit_year_full.learning_container_year
         )
         self.learning_unit_year_partim.acronym = FULL_ACRONYM + SUBDIVISION_ACRONYM
         self.learning_unit_year_partim.save()
@@ -115,7 +118,7 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
                 'periodicity': self.learning_unit_year_full.learning_unit.periodicity
             },
             LearningUnitYearModelForm: {
-                'acronym': ['L', 'BIR1200'],
+                'acronym': ['L', 'BIR1200', ''],
                 'acronym_0': 'L',  # Multiwidget decomposition
                 'acronym_1': 'BIR1200',
                 'acronym_2': '',
@@ -134,6 +137,12 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
         partim_form = _instanciate_form(self.learning_unit_year_full)
         for form_class, initial in expected_initials.items():
             self.assertEqual(partim_form.forms[form_class].initial, initial)
+
+    def test_instance_partim_values(self):
+        partim = LearningUnitYearFactory(acronym='LBIR1200A', subtype=learning_unit_year_subtypes.PARTIM,
+                                         learning_container_year=self.learning_unit_year_full.learning_container_year)
+        partim_form = _instanciate_form(self.learning_unit_year_full, instance=partim)
+        self.assertEqual(partim_form.forms[LearningUnitYearModelForm].initial['acronym'], ['L', 'BIR1200', 'A'])
 
     def test_disabled_fields(self):
         """This function will check if fields is disabled"""
@@ -361,6 +370,23 @@ class TestPartimFormSaveUpdate(LearningUnitPartimFormContextMixin):
         learning_unit_dict = model_to_dict(self.learning_unit_year_partim.learning_unit)
         for field, value in update_fields_lu_model.items():
             self.assertEqual(learning_unit_dict[field], value)
+
+    def test_save_partim_without_container(self):
+        post_data = get_valid_form_data(self.learning_unit_year_partim)
+        parent_acronym = self.learning_unit_year_partim.learning_container_year.acronym
+        partim_acronym = parent_acronym + 'X'
+        post_data['acronym_2'] = partim_acronym[-1]
+        post_data['credits'] = 2.5
+
+        form = _instanciate_form(self.learning_unit_year_full, post_data=post_data,
+                                 instance=self.learning_unit_year_partim)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+
+        # Refresh learning unit year
+        self.learning_unit_year_partim.refresh_from_db()
+        self.assertEqual(self.learning_unit_year_partim.acronym, partim_acronym)
+        self.assertEqual(self.learning_unit_year_partim.learning_container_year.acronym, parent_acronym)
 
 
 def get_valid_form_data(learning_unit_year_partim):
