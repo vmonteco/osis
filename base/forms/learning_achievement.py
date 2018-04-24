@@ -29,9 +29,6 @@ from ckeditor.widgets import CKEditorWidget
 from base.models.learning_achievement import LearningAchievement, search
 from reference.models.language import find_by_code
 
-FR_CODE_LANGUAGE = 'FR'
-EN_CODE_LANGUAGE = 'EN'
-
 
 class LearningAchievementEditForm(forms.ModelForm):
     text = forms.CharField(widget=CKEditorWidget(config_name='minimal'), required=False)
@@ -40,27 +37,16 @@ class LearningAchievementEditForm(forms.ModelForm):
         model = LearningAchievement
         fields = ['code_name', 'text']
 
+    def __init__(self,  *args, initial=None, **kwargs):
+        super().__init__(*args, initial=initial, **kwargs)
+
+        if initial:
+            for key, value in initial.items():
+                setattr(self.instance, key, value)
+
     def save(self):
         super(LearningAchievementEditForm, self).save()
         learning_achievement_other_language = search(self.instance.learning_unit_year,
                                                      self.instance.order)
         if learning_achievement_other_language:
             learning_achievement_other_language.update(code_name=self.instance.code_name)
-
-
-class LearningAchievementCreateForm(LearningAchievementEditForm):
-
-    def save(self):
-        super(LearningAchievementCreateForm, self).save()
-
-        self._duplicate_other_language()
-
-    def _duplicate_other_language(self):
-        new_achievement = LearningAchievement(code_name=self.instance.code_name,
-                                              learning_unit_year=self.instance.learning_unit_year,
-                                              text=None,
-                                              language=find_by_code(self._get_other_language()))
-        new_achievement.save()
-
-    def _get_other_language(self):
-        return EN_CODE_LANGUAGE if self.instance.language.code == FR_CODE_LANGUAGE else FR_CODE_LANGUAGE

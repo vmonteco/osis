@@ -81,4 +81,4 @@ def search(learning_unit_yr=None, position=None):
         queryset = queryset.filter(learning_unit_year=learning_unit_yr)
     if position is not None:
         queryset = queryset.filter(order=position)
-    return queryset.order_by('order')
+    return queryset

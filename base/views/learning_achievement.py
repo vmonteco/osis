@@ -29,17 +29,19 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
 
-from base.business.learning_units.achievement import get_new_achievement, get_language_id
+from base.business.learning_units.achievement import get_code_name
 from base.models.learning_achievement import LearningAchievement, find_learning_unit_achievement
-from base.forms.learning_achievement import LearningAchievementEditForm, LearningAchievementCreateForm
+from base.forms.learning_achievement import LearningAchievementEditForm
 from base.models.learning_unit_year import LearningUnitYear
 from . import layout
+from reference.models import language
+from base.business.learning_units.achievement import EN_CODE_LANGUAGE
 
 DOWN = 'down'
 UP = 'up'
 DELETE = 'delete'
 AVAILABLE_ACTIONS = [DELETE, UP, DOWN]
-EN_CODE_LANGUAGE = 'EN'
+FR_CODE_LANGUAGE = 'FR'
 
 
 def operation(learning_achievement_id, operation_str):
@@ -100,21 +102,27 @@ def edit(request, learning_unit_year_id, learning_achievement_id):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 @require_http_methods(['POST', 'GET'])
-def create(request, learning_unit_year_id):
+def create(request, learning_unit_year_id, learning_achievement_id):
     learning_unit_yr = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
-    language_id = request.POST.get('language_id', None)
 
     if request.method == 'POST':
-        form = LearningAchievementCreateForm(request.POST,
-                                             instance=get_new_achievement(learning_unit_yr, language_id))
+        a_language = language.find_by_code(request.POST.get('language_code', None))
+        form = LearningAchievementEditForm(request.POST,
+                                           initial={'language': a_language,
+                                                    'learning_unit_year': learning_unit_yr})
 
         if form.is_valid():
             return _save_and_redirect(form, learning_unit_year_id)
 
+    a_language_code = request.GET.get('language_code', None)
+    learning_achievement_fr = get_object_or_404(LearningAchievement, pk=learning_achievement_id)
+
     context = {'learning_unit_year': learning_unit_yr,
-               'learning_achievement': LearningAchievement(),
-               'form': LearningAchievementCreateForm(instance=get_new_achievement(learning_unit_yr, language_id)),
-               'language': get_language_id(request)}
+               'learning_achievement': learning_achievement_fr,
+               'form': LearningAchievementEditForm(initial={'code_name': get_code_name(learning_achievement_fr,
+                                                                                       a_language_code)}),
+               'language_code': a_language_code,
+               'create': True}
 
     return layout.render(request, "learning_unit/achievement_edit.html", context)
 
@@ -123,3 +131,23 @@ def _save_and_redirect(form, learning_unit_year_id):
     form.save()
     return HttpResponseRedirect(reverse("learning_unit_specifications",
                                         kwargs={'learning_unit_year_id': learning_unit_year_id}))
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+@require_http_methods(['POST', 'GET'])
+def create_first(request, learning_unit_year_id):
+    learning_unit_yr = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+    if request.method == 'POST':
+        form = LearningAchievementEditForm(request.POST,
+                                           initial={'language': language.find_by_code(FR_CODE_LANGUAGE),
+                                                    'learning_unit_year': learning_unit_yr})
+
+        if form.is_valid():
+            return _save_and_redirect(form, learning_unit_year_id)
+
+    context = {'learning_unit_year': learning_unit_yr,
+               'form': LearningAchievementEditForm(),
+               'language_code': FR_CODE_LANGUAGE}
+
+    return layout.render(request, "learning_unit/achievement_edit.html", context)
