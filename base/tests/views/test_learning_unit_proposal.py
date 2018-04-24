@@ -40,6 +40,7 @@ from django.utils.translation import ugettext_lazy as _
 from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
 from attribution.tests.factories.attribution_new import AttributionNewFactory
 from base.business import learning_unit_proposal as proposal_business
+from base.business.learning_unit_proposal import INITIAL_DATA_FIELDS
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.forms.learning_unit_proposal import ProposalLearningUnitForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
@@ -93,11 +94,12 @@ class TestLearningUnitModificationProposal(TestCase):
         an_organization = OrganizationFactory(type=organization_type.MAIN)
         current_academic_year = create_current_academic_year()
         learning_container_year = LearningContainerYearFactory(
+            acronym="LOSIS1212",
             academic_year=current_academic_year,
             container_type=learning_container_year_types.COURSE,
             campus=CampusFactory(organization=an_organization, is_administration=True)
         )
-        self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212",
+        self.learning_unit_year = LearningUnitYearFakerFactory(acronym=learning_container_year.acronym,
                                                                subtype=learning_unit_year_subtypes.FULL,
                                                                academic_year=current_academic_year,
                                                                learning_container_year=learning_container_year,
@@ -235,10 +237,22 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertTrue(a_proposal_learning_unit)
         self.assertEqual(a_proposal_learning_unit.author, self.person)
 
-        messages = [str(message) for message in get_messages(response.wsgi_request)]
-        self.assertIn(_("success_modification_proposal").format(_(proposal_type.ProposalType.MODIFICATION.name),
-                                                                self.learning_unit_year.acronym),
-                      list(messages))
+        messages_list = [str(message) for message in get_messages(response.wsgi_request)]
+        self.assertIn(
+            _("success_modification_proposal").format(
+                _(proposal_type.ProposalType.MODIFICATION.name),
+                self.learning_unit_year.acronym),
+            list(messages_list))
+
+    def test_initial_data_fields(self):
+        expected_initial_data_fields = {'learning_container_year': ["id", "acronym", "common_title",
+                                                                    "common_title_english", "container_type",
+                                                                    "campus", "language", "in_charge"],
+                                        'learning_unit': ["id", "periodicity", "end_year"],
+                                        'learning_unit_year': ["id", "acronym", "specific_title",
+                                                               "specific_title_english", "internship_subtype",
+                                                               "status", "credits"]}
+        self.assertEqual(expected_initial_data_fields, INITIAL_DATA_FIELDS)
 
     def test_learning_unit_of_type_undefined(self):
         self.learning_unit_year.subtype = None
@@ -369,7 +383,7 @@ class TestLearningUnitSuppressionProposal(TestCase):
         an_organization = OrganizationFactory(type=organization_type.MAIN)
         current_academic_year = create_current_academic_year()
 
-        self.next_academic_year = AcademicYearFactory(year=current_academic_year.year+1)
+        self.next_academic_year = AcademicYearFactory(year=current_academic_year.year + 1)
 
         learning_container_year = LearningContainerYearFactory(
             academic_year=current_academic_year,
@@ -501,7 +515,7 @@ class TestLearningUnitProposalSearch(TestCase):
         tutor = TutorFactory(person=self.person)
         attribution = AttributionNewFactory(tutor=tutor)
         learning_unit_component = LearningUnitComponentFactory(learning_unit_year=proposal.learning_unit_year)
-        AttributionChargeNewFactory(attribution= attribution,
+        AttributionChargeNewFactory(attribution=attribution,
                                     learning_component_year=learning_unit_component.learning_component_year)
         url = reverse(learning_units_proposal_search)
         response = self.client.get(url, data={'tutor': self.person.first_name})
@@ -793,9 +807,9 @@ class TestLearningUnitProposalCancellation(TestCase):
 
         messages = [str(message) for message in get_messages(response.wsgi_request)]
         self.assertIn(_("Proposal %(acronym)s (%(academic_year)s) successfully canceled.") % {
-                "acronym": self.learning_unit_year.acronym,
-                "academic_year": self.learning_unit_year.academic_year
-            }, messages)
+            "acronym": self.learning_unit_year.acronym,
+            "academic_year": self.learning_unit_year.academic_year
+        }, messages)
 
     def test_models_after_cancellation_of_proposal(self):
         _modify_learning_unit_year_data(self.learning_unit_year)
@@ -868,7 +882,6 @@ def _create_proposal_learning_unit():
             "specific_title_english": a_learning_unit_year.specific_title_english,
             "internship_subtype": a_learning_unit_year.internship_subtype,
             "credits": float(a_learning_unit_year.credits),
-            "quadrimester": a_learning_unit_year.quadrimester,
         },
         "learning_unit": {
             "id": a_learning_unit_year.learning_unit.id,
@@ -1106,8 +1119,7 @@ class TestLearningUnitProposalDisplay(TestCase):
         cls.initial_credits = 3.0
         cls.initial_quadrimester = 'Q1'
         cls.initial_language = cls.language_it.pk
-        cls.initial_data_learning_unit_year = {'credits': cls.initial_credits,
-                                               'quadrimester': cls.initial_quadrimester}
+        cls.initial_data_learning_unit_year = {'credits': cls.initial_credits}
 
         cls.initial_language_en = cls.language_it
         cls.generator_learning_container = GenerateContainer(start_year=cls.academic_year.year,
@@ -1124,17 +1136,14 @@ class TestLearningUnitProposalDisplay(TestCase):
 
     def test_check_differences(self):
         proposal = ProposalLearningUnitFactory()
-        proposal.initial_data = {'learning_unit_year' : {
-            'credits': self.initial_credits,
-            'quadrimester': self.initial_quadrimester
+        proposal.initial_data = {'learning_unit_year': {
+            'credits': self.initial_credits
         }}
         proposal.learning_unit_year.credits = self.learning_unit_yr.credits
-        proposal.learning_unit_year.quadrimester = 'Q3'
 
         differences = proposal_business.get_difference_of_proposal(proposal)
 
         self.assertEqual(differences.get('credits'), self.initial_credits)
-        self.assertEqual(differences.get('quadrimester'), self.initial_quadrimester)
 
     def test_get_the_old_value(self):
         differences = proposal_business._get_the_old_value('credits',
@@ -1190,7 +1199,6 @@ class TestLearningUnitProposalDisplay(TestCase):
              'key2': 2})
         self.assertEqual(changed_dict, {'key1': 1, 'key2': 2})
 
-
     def test_get_old_value_of_foreign_key_for_campus(self):
         differences = proposal_business._get_old_value_of_foreign_key('campus', self.campus.id)
         self.assertEqual(differences.get('campus'), str(self.campus))
@@ -1223,7 +1231,8 @@ class TestCreationProposalCancel(TestCase):
         self.a_person_central_manager.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
         self.client.force_login(self.a_person_central_manager.user)
 
-    @mock.patch('base.views.learning_units.perms.business_perms.is_eligible_for_cancel_of_proposal', side_effect=lambda *args: True)
+    @mock.patch('base.views.learning_units.perms.business_perms.is_eligible_for_cancel_of_proposal',
+                side_effect=lambda *args: True)
     @mock.patch('base.utils.send_mail.send_mail_cancellation_learning_unit_proposals')
     def test_cancel_proposal_of_learning_unit(self, mock_send_mail, mock_perms):
         a_proposal = _create_proposal_learning_unit()
