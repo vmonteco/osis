@@ -48,7 +48,7 @@
             </form>
         </li>
         <li><a href="{% url 'manager_assistant_form_view' mandate_id=mandate_id %}">{% trans 'assistant_form' %}</a></li>
-        <li class="active"><a href="#">{% trans 'reviews' %}</a></li>
+        <li class="active"><a href="#">{% trans 'workflow_and_reviews' %}</a></li>
     </ul>
 </div>
 <div class="panel panel-default">
@@ -120,8 +120,33 @@
                 <dl class="row"></dl>
             {% endfor %}
         </dl>
+        <form method="POST" action="{% url 'assistant_mandate_step_back' %}">
+            {{ form.non_field_errors }}
+            {% csrf_token %}
+            {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+            {% endfor %}
+            <input type="hidden" value="{{ mandate_id }}" name="mandate_id" >
+            {% if can_go_backward %}
+                <button type="submit" class="btn btn-primary" title="{% trans 'save'%}" id="bt_add_reviewer_save"
+                        onclick="return confirm_click();">
+                    <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span> {% trans 'step_back'%}
+                </button>
+            {% else %}
+                <button type="submit" class="btn btn-primary" title="{% trans 'save'%}"
+                        id="bt_add_reviewer_save_disabled" disabled>
+                    <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span> {% trans 'step_back'%}
+                </button>
+            {% endif %}
+        </form>
     </div>
 </div>
 {% endblock %}
 {% block script %}
+<script>
+function confirm_click()
+{
+return confirm("{% trans 'confirm_mandate_step_back' %}");
+}
+</script>
 {% endblock %}

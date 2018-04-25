@@ -49,7 +49,7 @@ class TestReviewFactory(TestCase):
         self.review.save()
         self.assertEqual(find_in_progress_for_mandate(self.review.mandate), self.review)
         self.review.delete()
-        self.mandate.state = assistant_mandate_state.TO_DO
+        self.mandate.state = assistant_mandate_state.TRTS
         self.assertFalse(find_in_progress_for_mandate(self.review.mandate))
 
 
