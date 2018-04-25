@@ -205,14 +205,17 @@ class FullForm(LearningUnitBaseForm):
         instances_data = self._build_instance_data(data, default_ac_year, instance, proposal)
         super().__init__(instances_data, *args, **kwargs)
 
-        self._disable_field_for_facutly_manager()
+        self._disable_fields()
 
-    def _disable_field_for_facutly_manager(self):
+    def _disable_fields(self):
         if self.person.is_faculty_manager() and self.instance:
             if self.proposal:
                 self.disable_fields(FACULTY_OPEN_FIELDS)
             else:
                 self.disable_all_fields_except(FACULTY_OPEN_FIELDS)
+        else:
+            self.disable_fields(FULL_READ_ONLY_FIELDS)
+
 
     def _build_instance_data(self, data, default_ac_year, instance, proposal):
         return{
