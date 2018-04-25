@@ -3,6 +3,9 @@ import json
 import pathlib
 from functools import partial
 from itertools import chain
+
+import sys
+from django.conf import settings
 from lxml.builder import E
 
 import prettyprinter
@@ -288,7 +291,7 @@ def find_education_group_year_for_offer(item):
     return records.first()
 
 
-def run(filename, language):
+def run(filename, language='fr-be'):
     """
     Import the json file,
 
@@ -298,7 +301,16 @@ def run(filename, language):
     * common
     * group
     """
+    languages = {x[0] for x in settings.LANGUAGES}
+    if language not in languages:
+        print('The language must to be one item of these languages {0}'.format(languages))
+        sys.exit(0)
+
     path = pathlib.Path(filename)
+
+    if not path.exists():
+        print('The file must to exist')
+        sys.exit(0)
 
     entity = 'offer_year'
 
