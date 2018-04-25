@@ -33,6 +33,7 @@ from base.business.learning_units.achievement import get_code_name
 from base.models.learning_achievement import LearningAchievement, find_learning_unit_achievement
 from base.forms.learning_achievement import LearningAchievementEditForm, EN_CODE_LANGUAGE, FR_CODE_LANGUAGE
 from base.models.learning_unit_year import LearningUnitYear
+from base.views.learning_unit import learning_unit_specifications
 from . import layout
 from reference.models import language
 
@@ -51,7 +52,7 @@ def operation(learning_achievement_id, operation_str):
                                                     achievement_fr.order)
     execute_operation(achievement_fr, operation_str)
     execute_operation(achievement_en, operation_str)
-    return HttpResponseRedirect(reverse("learning_unit_specifications",
+    return HttpResponseRedirect(reverse(learning_unit_specifications,
                                         kwargs={'learning_unit_year_id': lu_yr_id}))
 
 

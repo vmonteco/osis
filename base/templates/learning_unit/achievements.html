@@ -157,8 +157,8 @@
 <script>
 $(document).ready(function(){
     $(".collapseIndicator").click(function(e){
-        var index = $(this).data('index')
-        var divCollapsables = $(".collapsable_" + index + "")
+        var index = $(this).data('index');
+        var divCollapsables = $(".collapsable_" + index + "");
         var iconElem = $(this).find("i");
         if (iconElem.hasClass('fa-arrow-up')) {
             iconElem.removeClass('fa-arrow-up');
