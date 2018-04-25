@@ -304,8 +304,7 @@ class FullForm(LearningUnitBaseForm):
     def _check_existence_of_linked_entities(self):
         luy_instance = self.forms[LearningUnitYearModelForm].instance
         linked_entities = self._get_linked_entities()
-        import pudb
-        pudb.set_trace()
+
         if not all([entity_version.get_by_entity_and_date(entity, luy_instance.academic_year.start_date)
                     for entity in linked_entities.values()]):
             raise ValidationError(_("One of the linked entities does not exist at the start date of the academic year "
