@@ -139,6 +139,7 @@ class ProposalBaseForm:
         }
         if self.proposal:
             initial['type'] = self.proposal.type
+            initial['state'] = self.proposal.state
         return initial
 
     def get_context(self):
