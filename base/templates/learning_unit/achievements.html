@@ -59,6 +59,7 @@
     {% for achievement in achievements_FR %}
         <div class="row">
             <div class="col-md-2">
+                {% if can_update_learning_achievement %}
                 <table class="pull-right" style="margin: 10px;">
                     <tr>
                         <td width="33%">
@@ -85,6 +86,7 @@
                         </td>
                     </tr>
                 </table>
+                {% endif %}
             </div>
             <div class="col-md-10">
                 <div class="row" style="margin-top:10px;">
@@ -96,7 +98,7 @@
                     </div>
                     <div class="col-md-4 collapsable_{{ forloop.counter0 }}">{{ achievement.text| default_if_none:''|safe }}</div>
                     <div class="col-md-1">
-                        {% if perms.base.can_edit_learningunit_specification %}
+                        {% if can_update_learning_achievement %}
                             <a class="achievement-edit-btn" href="#"
                                data-form="{% url 'achievement_edit' learning_unit_year_id=learning_unit_year.id learning_achievement_id=achievement.id %}"
                                title="{% trans 'edit' %}">
@@ -119,7 +121,7 @@
                         {% endwith %}
                     </div>
                     <div class="col-md-1">
-                        {% if perms.base.can_edit_learningunit_specification %}
+                        {% if can_update_learning_achievement %}
                             {% if  achievements_EN%}
                                 {% with achievement_en=achievements_EN|index:forloop.counter0 %}
                                     {% if achievement_en %}

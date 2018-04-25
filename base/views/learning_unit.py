@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import itertools
 import re
 
 from django.conf import settings
@@ -46,15 +45,16 @@ from base.business.learning_unit import get_cms_label_data, \
     CMS_LABEL_SPECIFICATIONS, get_achievements_group_by_language
 from base.business.learning_unit_proposal import get_difference_of_proposal
 from base.business.learning_units import perms as business_perms
-from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions
+from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions, \
+    can_update_learning_achievement
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit.learning_unit_create_2 import PartimForm, FullForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
+from base.models import proposal_learning_unit, education_group_year
 from base.models.academic_year import AcademicYear
 from base.models.learning_unit import REGEX_BY_SUBTYPE
-from base.models import proposal_learning_unit, education_group_year
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views.learning_units import perms
@@ -63,7 +63,6 @@ from base.views.learning_units.search import learning_units_search
 from cms.models import text_label
 from osis_common.decorators.ajax import ajax_required
 from . import layout
-from base.models import learning_achievement
 
 
 @login_required
@@ -167,8 +166,8 @@ def learning_unit_attributions(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_specifications(request, learning_unit_year_id):
-    context = get_common_context_learning_unit_year(learning_unit_year_id,
-                                                    get_object_or_404(Person, user=request.user))
+    person = get_object_or_404(Person, user=request.user)
+    context = get_common_context_learning_unit_year(learning_unit_year_id, person)
     learning_unit_year = context['learning_unit_year']
 
     user_language = mdl.person.get_user_interface_language(request.user)
@@ -184,6 +183,7 @@ def learning_unit_specifications(request, learning_unit_year_id):
 
     context.update(get_achievements_group_by_language(learning_unit_year))
     context.update({'LANGUAGE_CODE_FR': settings.LANGUAGE_CODE_FR, 'LANGUAGE_CODE_EN': settings.LANGUAGE_CODE_EN})
+    context['can_update_learning_achievement'] = can_update_learning_achievement(learning_unit_year, person)
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/specifications.html", context)
 
