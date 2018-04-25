@@ -23,11 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import forms
 from ckeditor.widgets import CKEditorWidget
+from django import forms
 
-from base.models.learning_achievement import LearningAchievement, search
-from reference.models.language import find_by_code
+from base.models.learning_achievement import LearningAchievement, search, find_learning_unit_achievement
+from reference.models import language
+
+EN_CODE_LANGUAGE = 'EN'
+FR_CODE_LANGUAGE = 'FR'
 
 
 class LearningAchievementEditForm(forms.ModelForm):
@@ -37,16 +40,22 @@ class LearningAchievementEditForm(forms.ModelForm):
         model = LearningAchievement
         fields = ['code_name', 'text']
 
-    def __init__(self,  *args, initial=None, **kwargs):
-        super().__init__(*args, initial=initial, **kwargs)
+    def __init__(self, data=None, initial=None, **kwargs):
+        initial = initial or {}
 
-        if initial:
-            for key, value in initial.items():
-                setattr(self.instance, key, value)
+        if data and data.get('language_code'):
+            initial['language'] = language.find_by_code(data.get('language_code'))
 
-    def save(self):
-        super(LearningAchievementEditForm, self).save()
+        super().__init__(data, initial=initial, **kwargs)
+
+        for key, value in initial.items():
+            setattr(self.instance, key, value)
+
+    def save(self, commit=True):
+        instance = super().save(commit)
         learning_achievement_other_language = search(self.instance.learning_unit_year,
                                                      self.instance.order)
         if learning_achievement_other_language:
             learning_achievement_other_language.update(code_name=self.instance.code_name)
+
+        return instance

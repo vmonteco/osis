@@ -40,10 +40,8 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory
 from reference.tests.factories.language import LanguageFactory
 from base.views.learning_achievement import operation, management, DELETE, DOWN, UP
-from base.forms.learning_achievement import LearningAchievementEditForm
+from base.forms.learning_achievement import LearningAchievementEditForm, FR_CODE_LANGUAGE
 from base.tests.factories.user import SuperUserFactory
-
-FR_CODE_LANGUAGE = 'FR'
 
 
 class TestLearningAchievementView(TestCase):
@@ -218,9 +216,9 @@ class TestLearningAchievementActions(TestCase):
         })
         request.user = self.a_superuser
 
-        from base.views.learning_achievement import edit
+        from base.views.learning_achievement import update
 
-        edit(request, learning_unit_year.id, learning_achievement.id)
+        update(request, learning_unit_year.id, learning_achievement.id)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]

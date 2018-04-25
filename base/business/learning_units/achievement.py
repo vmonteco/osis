@@ -26,16 +26,7 @@
 from base.models.learning_achievement import LearningAchievement, find_learning_unit_achievement
 
 
-EN_CODE_LANGUAGE = 'EN'
-
-
 def get_code_name(previous_achievement_fr, a_language_code):
-    if a_language_code == EN_CODE_LANGUAGE:
-        return get_existing_code_name(a_language_code, previous_achievement_fr)
-    return ''
-
-
-def get_existing_code_name(a_language_code, previous_achievement_fr):
     if not LearningAchievement.objects.filter(
             language__code=a_language_code,
             learning_unit_year=previous_achievement_fr.learning_unit_year).exists():
