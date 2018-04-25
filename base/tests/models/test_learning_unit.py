@@ -119,6 +119,6 @@ class LearningUnitTest(TestCase):
 
     def test_title(self):
         a_learning_unit = LearningUnitFactory()
-        a_learning_unit_year = LearningUnitYearFactory(learning_unit=learning_unit)
+        a_learning_unit_year = LearningUnitYearFactory(learning_unit=a_learning_unit)
         self.assertEqual(a_learning_unit.title, a_learning_unit_year.specific_title)
         self.assertEqual(a_learning_unit.acronym, a_learning_unit_year.acronym)
