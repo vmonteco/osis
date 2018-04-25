@@ -37,6 +37,7 @@ from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm,
 from base.forms.utils.acronym_field import split_acronym
 from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear
 from base.models.campus import Campus
+from base.models import entity_version
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
@@ -272,9 +273,10 @@ class FullForm(LearningUnitBaseForm):
         return self._validate_no_empty_title(common_title) and self._validate_same_entities_container()
 
     def check_consistency_on_academic_year(self):
-        self._check_credits_consistency_on_academic_year()
-        self._check_status_consistency_on_academic_year()
-        self._check_person_linked_to_entity_of_charge()
+        # self._check_credits_consistency_on_academic_year()
+        # self._check_status_consistency_on_academic_year()
+        # self._check_person_linked_to_entity_of_charge()
+        # self._check_existence_of_linked_entities()
         return False
 
     def _check_credits_consistency_on_academic_year(self):
@@ -298,6 +300,16 @@ class FullForm(LearningUnitBaseForm):
         luy_instance = self.forms[LearningUnitYearModelForm].instance
         if not self.person.is_linked_to_entity_in_charge_of_learning_unit_year(luy_instance):
             raise ValidationError(_("The logged person is not linked to the entity of charge of the learning unit"))
+
+    def _check_existence_of_linked_entities(self):
+        luy_instance = self.forms[LearningUnitYearModelForm].instance
+        linked_entities = self._get_linked_entities()
+        import pudb
+        pudb.set_trace()
+        if not all([entity_version.get_by_entity_and_date(entity, luy_instance.academic_year.start_date)
+                    for entity in linked_entities.values()]):
+            raise ValidationError(_("One of the linked entities does not exist at the start date of the academic year "
+                                    "linked to this learning unit"))
 
     def _validate_same_entities_container(self):
         container_type = self.forms[LearningContainerYearModelForm].cleaned_data["container_type"]
