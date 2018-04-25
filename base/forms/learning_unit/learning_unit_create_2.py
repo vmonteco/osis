@@ -301,14 +301,27 @@ class FullForm(LearningUnitBaseForm):
 
     def _validate_same_entities_container(self):
         container_type = self.forms[LearningContainerYearModelForm].cleaned_data["container_type"]
-        requirement_entity = self.forms[EntityContainerFormset][0].cleaned_data["entity"]
-        allocation_entity = self.forms[EntityContainerFormset][1].cleaned_data["entity"]
+        linked_entities = self._get_linked_entities()
         if container_type in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES:
-            if requirement_entity != allocation_entity:
+            if linked_entities.get('requirement_entity') != linked_entities.get('allocation_entity'):
                 self.forms[EntityContainerFormset][1].add_error(
                     "entity", _("requirement_and_allocation_entities_cannot_be_different"))
                 return False
         return True
+
+    def _get_linked_entities(self):
+        return {
+            'requirement_entity': self._extract_entity_from_form(0),
+            'allocation_entity': self._extract_entity_from_form(1),
+            'additional_requirement_entity_1': self._extract_entity_from_form(2),
+            'additional_requirement_entity_2': self._extract_entity_from_form(3)
+        }
+
+    def _extract_entity_from_form(self, index):
+        try:
+            return self.forms[EntityContainerFormset][index].cleaned_data.get("entity")
+        except(AttributeError, IndexError):
+            return None
 
     def _create(self, commit, postponement):
         academic_year = self.academic_year
