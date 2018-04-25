@@ -285,12 +285,15 @@ def cancel_proposal(proposal):
     results = {}
     if proposal.type == ProposalType.CREATION.name:
         learning_unit_year = proposal.learning_unit_year
-        results = (business_deletion.check_can_delete_ignoring_proposal_validation(learning_unit_year))
-        if not results:
-            results = (business_deletion.delete_from_given_learning_unit_year(learning_unit_year))
+        results = {
+            ERROR: list(business_deletion.check_can_delete_ignoring_proposal_validation(learning_unit_year).values())
+        }
+        if not results[ERROR]:
+            results = {SUCCESS: business_deletion.delete_from_given_learning_unit_year(learning_unit_year)}
+            delete_learning_unit_proposal(proposal)
     else:
         reinitialize_data_before_proposal(proposal)
-    delete_learning_unit_proposal(proposal)
+        delete_learning_unit_proposal(proposal)
     return results
 
 
