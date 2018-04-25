@@ -104,8 +104,7 @@ class TestLearningUnitYearModelFormSave(TestCase):
                                                                     academic_year=self.current_academic_year)
         self.form = LearningUnitYearModelForm(data=None, person=self.central_manager, subtype=FULL)
         self.learning_unit_year_to_update = LearningUnitYearFactory(
-            learning_unit=self.learning_unit, learning_container_year=self.learning_container_year,
-            academic_year=self.current_academic_year)
+            learning_unit=self.learning_unit, learning_container_year=self.learning_container_year)
 
         self.post_data = {
             'acronym_0': 'L',
@@ -121,10 +120,16 @@ class TestLearningUnitYearModelFormSave(TestCase):
             'attribution_procedure': INTERNAL_TEAM
         }
 
-        self.requirement_entity = EntityContainerYearFactory(type=REQUIREMENT_ENTITY)
-        self.allocation_entity = EntityContainerYearFactory(type=ALLOCATION_ENTITY)
-        self.additional_requirement_entity_1 = EntityContainerYearFactory(type=ADDITIONAL_REQUIREMENT_ENTITY_1)
-        self.additional_requirement_entity_2 = EntityContainerYearFactory(type=ADDITIONAL_REQUIREMENT_ENTITY_2)
+        self.requirement_entity = EntityContainerYearFactory(type=REQUIREMENT_ENTITY,
+                                                             learning_container_year=self.learning_container_year)
+        self.allocation_entity = EntityContainerYearFactory(type=ALLOCATION_ENTITY,
+                                                            learning_container_year=self.learning_container_year)
+        self.additional_requirement_entity_1 = EntityContainerYearFactory(
+            type=ADDITIONAL_REQUIREMENT_ENTITY_1,
+            learning_container_year=self.learning_container_year)
+        self.additional_requirement_entity_2 = EntityContainerYearFactory(
+            type=ADDITIONAL_REQUIREMENT_ENTITY_2,
+            learning_container_year=self.learning_container_year)
 
         self.entity_container_years=[self.requirement_entity, self.allocation_entity,
                                      self.additional_requirement_entity_1, self.additional_requirement_entity_2]
