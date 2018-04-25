@@ -104,7 +104,8 @@ class TestLearningUnitYearModelFormSave(TestCase):
                                                                     academic_year=self.current_academic_year)
         self.form = LearningUnitYearModelForm(data=None, person=self.central_manager, subtype=FULL)
         self.learning_unit_year_to_update = LearningUnitYearFactory(
-            learning_unit=self.learning_unit, learning_container_year=self.learning_container_year)
+            learning_unit=self.learning_unit, learning_container_year=self.learning_container_year,
+            academic_year=self.current_academic_year)
 
         self.post_data = {
             'acronym_0': 'L',
