@@ -135,6 +135,7 @@ class LearningUnitFullFormContextMixin(TestCase):
         for ac in acs:
             LearningUnitYearFactory(academic_year=ac, learning_unit=self.learning_unit_year.learning_unit)
 
+
 class TestFullFormInit(LearningUnitFullFormContextMixin):
     """Unit tests for FullForm.__init__()"""
 
