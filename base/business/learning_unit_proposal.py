@@ -289,7 +289,7 @@ def cancel_proposal(proposal):
         errors = list(business_deletion.check_can_delete_ignoring_proposal_validation(learning_unit_year).values())
 
         if errors:
-            results = { ERROR: errors}
+            results = {ERROR: errors}
         else:
             results = {SUCCESS: business_deletion.delete_from_given_learning_unit_year(learning_unit_year)}
             delete_learning_unit_proposal(proposal)
