@@ -54,18 +54,21 @@ FACULTY_OPEN_FIELDS = {'quadrimester', 'session', 'team'}
 
 
 class LearningUnitBaseForm:
-
-    form_classes = [LearningUnitModelForm, LearningUnitYearModelForm, LearningContainerModelForm,
-                    LearningContainerYearModelForm, EntityContainerFormset]
-
-    forms = {}
+    forms = OrderedDict()
     data = {}
     subtype = None
     instance = None
+    start_year = None
 
     def __init__(self, instances_data, *args, **kwargs):
-        for form_class in self.form_classes:
-            self.forms[form_class] = form_class(*args, **instances_data[form_class])
+        self.forms = OrderedDict({
+            LearningContainerModelForm: LearningContainerModelForm(*args, **instances_data[LearningContainerModelForm]),
+            LearningContainerYearModelForm: LearningContainerYearModelForm(*args, **instances_data[
+                LearningContainerYearModelForm]),
+            LearningUnitModelForm: LearningUnitModelForm(*args, **instances_data[LearningUnitModelForm]),
+            LearningUnitYearModelForm: LearningUnitYearModelForm(*args, **instances_data[LearningUnitYearModelForm]),
+            EntityContainerFormset: EntityContainerFormset(*args, **instances_data[EntityContainerFormset])
+        })
 
     @abc.abstractmethod
     def is_valid(self):
@@ -121,7 +124,7 @@ class LearningUnitBaseForm:
     def _get_formset_fields(form_instance):
         return {
             ENTITY_TYPE_LIST[index].lower(): form.fields['entity'] for index, form in enumerate(form_instance.forms)
-        }
+            }
 
     def get_context(self):
         return {
@@ -145,13 +148,15 @@ class FullForm(LearningUnitBaseForm):
 
     subtype = learning_unit_year_subtypes.FULL
 
-    def __init__(self, data, person, default_ac_year=None, instance=None, proposal=False, *args, **kwargs):
+    def __init__(self, data, person, default_ac_year=None, start_year=None, instance=None, proposal=False,
+                 *args, **kwargs):
         check_learning_unit_year_instance(instance)
         self.instance = instance
         self.person = person
         self.proposal = proposal
         self.data = data
         self.academic_year = instance.academic_year if instance else default_ac_year
+        self.start_year = instance.learning_unit.start_year if instance else start_year
 
         instances_data = self._build_instance_data(self.data, default_ac_year, instance, proposal)
         super().__init__(instances_data, *args, **kwargs)
@@ -227,12 +232,10 @@ class FullForm(LearningUnitBaseForm):
 
     def save(self, commit=True):
         academic_year = self.academic_year
-        start_year = self.instance.learning_unit_year.learning_unit.start_year if self.instance else \
-                        academic_year.year
 
         learning_container = self.forms[LearningContainerModelForm].save(commit)
         learning_unit = self.forms[LearningUnitModelForm].save(
-            start_year=start_year,
+            start_year=self.start_year,
             learning_container=learning_container,
             commit=commit
         )
@@ -269,12 +272,12 @@ class PartimForm(LearningUnitBaseForm):
     subtype = learning_unit_year_subtypes.PARTIM
     form_cls_to_validate = [LearningUnitModelForm, LearningUnitYearModelForm]
 
-    def __init__(self, data, person, learning_unit_year_full, instance=None, *args, **kwargs):
+    def __init__(self, data, person, learning_unit_year_full, start_year=None, instance=None, *args, **kwargs):
         check_learning_unit_year_instance(instance)
         self.instance = instance
         self.person = person
         self.data = data
-        self.academic_year = self.learning_unit_year_full.academic_year
+        self.start_year = self.instance.learning_unit.start_year if self.instance else start_year
 
         if not isinstance(learning_unit_year_full, LearningUnitYear):
             raise AttributeError('learning_unit_year_full arg should be an instance of {}'.format(LearningUnitYear))
@@ -282,6 +285,7 @@ class PartimForm(LearningUnitBaseForm):
             error_args = 'learning_unit_year_full arg should have a subtype {}'.format(learning_unit_year_subtypes.FULL)
             raise AttributeError(error_args)
         self.learning_unit_year_full = learning_unit_year_full
+        self.academic_year = self.learning_unit_year_full.academic_year
 
         # Inherit values cannot be changed by user
         inherit_lu_values = self._get_inherit_learning_unit_full_value()
@@ -375,7 +379,7 @@ class PartimForm(LearningUnitBaseForm):
     def save(self, commit=True):
         # Save learning unit
         learning_unit = self.forms[LearningUnitModelForm].save(
-            academic_year=self.academic_year,
+            start_year=self.start_year,
             learning_container=self.learning_unit_year_full.learning_container_year.learning_container,
             commit=commit
         )

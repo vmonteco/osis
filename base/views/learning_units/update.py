@@ -39,6 +39,7 @@ from base.business.learning_units.edition import ConsistencyError
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.forms.learning_unit.edition_volume import VolumeEditionFormsetContainer
 from base.forms.learning_unit.learning_unit_create_2 import FullForm, PartimForm
+from base.forms.learning_unit.learning_unit_postponement import LearningUnitPostponementForm
 from base.forms.learning_unit_pedagogy import SummaryModelForm, LearningUnitPedagogyForm, \
     BibliographyModelForm
 from base.models.bibliography import Bibliography
@@ -102,12 +103,19 @@ def update_learning_unit(request, learning_unit_year_id):
                                                   instance=learning_unit_year)
 
     if learning_unit_form_container.is_valid():
-        _save_form_and_display_messages(request, learning_unit_form_container)
+        # Update current learning unit year
+        luy_updated = [learning_unit_form_container.save()]
+        if bool(int(request.POST.get('postponement', 1))):
+            # Make postponement if user select it
+            postponement_form = LearningUnitPostponementForm(instance=learning_unit_form_container, person=person)
+            if postponement_form.is_valid():
+                luy_updated.extend(postponement_form.save())
+
+        display_success_messages(request, _('success_modification_learning_unit'))
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year_id)
 
     context = learning_unit_form_container.get_context()
     context["learning_unit_year"] = learning_unit_year
-
     return render(request, 'learning_unit/simple/update.html', context)
 
 

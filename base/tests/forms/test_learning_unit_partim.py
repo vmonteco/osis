@@ -104,8 +104,10 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
                               instance=wrong_instance)
 
     def test_model_forms_case_creation(self):
+        form_classes_expected = [LearningUnitModelForm, LearningUnitYearModelForm, LearningContainerModelForm,
+                                 LearningContainerYearModelForm, EntityContainerFormset]
         form = _instanciate_form(self.learning_unit_year_full)
-        for cls in PartimForm.form_classes:
+        for cls in form_classes_expected:
             self.assertIsInstance(form.forms[cls], cls)
 
     def test_inherit_initial_values(self):

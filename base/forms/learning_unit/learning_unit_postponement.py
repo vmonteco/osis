@@ -23,15 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from copy import deepcopy
-
-from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, LearningUnitModelForm
+from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, LearningUnitModelForm, \
+    LearningContainerModelForm
 from base.forms.learning_unit.learning_unit_create_2 import LearningUnitBaseForm, PartimForm, FullForm
 from base.models import academic_year
 from base.models import learning_unit_year
 from base.models.enums import learning_unit_year_subtypes
 
 
+# @TODO: Use LearningUnitPostponementForm to manage END_DATE of learning unit year
 class LearningUnitPostponementForm:
     instance = None
     person = None
@@ -98,7 +98,7 @@ class LearningUnitPostponementForm:
         max_postponement_year = academic_year.compute_max_academic_year_adjournment()
         end_year = min(end_year,  max_postponement_year) if end_year else max_postponement_year
 
-        if start_year < end_year:
+        if start_year <= end_year:
             ac_years = academic_year.find_academic_years(start_year=start_year, end_year=end_year)
             luy_base_form_insert = [self._get_learning_unit_base_form(academic_year=ac_year) for ac_year in ac_years]
         return luy_base_form_insert
@@ -110,18 +110,46 @@ class LearningUnitPostponementForm:
                 for luy_to_delete in luy_to_delete_qs]
 
     def _get_learning_unit_base_form(self, learning_unit_year_instance=None, academic_year=None):
-        form = FullForm if self.instance.subtype == learning_unit_year_subtypes.FULL else PartimForm
-        data = deepcopy(self.instance.data)
-        if learning_unit_year_instance:
-            # Update case
-            form_args = {'instance': learning_unit_year_instance,
-                         'learning_unit_year_full': learning_unit_year_instance.parent}
+        if self.instance.subtype == learning_unit_year_subtypes.FULL:
+            form_kwargs = self._get_full_form_kwargs(learning_unit_year_instance, academic_year)
+            form = FullForm(**form_kwargs)
         else:
+            form_kwargs = self._get_partim_form_kwargs(learning_unit_year_instance, academic_year)
+            form = PartimForm(**form_kwargs)
+
+        # No annual data, copy by reference from 'base' instance
+        form.forms[LearningContainerModelForm] = self.instance.forms[LearningContainerModelForm]
+        form.forms[LearningUnitModelForm] = self.instance.forms[LearningUnitModelForm]
+        return form
+
+    def _get_full_form_kwargs(self, learning_unit_year_full_instance=None, academic_year=None):
+        form_kwargs = {
+            'person': self.person,
+            'data': self.instance.data.copy(),
+            'instance': learning_unit_year_full_instance,
+            'start_year': self.instance.start_year,
+            'default_ac_year': academic_year
+        }
+        if not learning_unit_year_full_instance:
             # Creation case
-            form_args = {'default_ac_year': academic_year}
-            data.update({'academic_year': academic_year.id})
-        form_args.update({'data': data, 'person': self.person})
-        return form(**form_args)
+            form_kwargs['data']['academic_year'] = academic_year.id
+        return form_kwargs
+
+    def _get_partim_form_kwargs(self, learning_unit_year_partim_instance=None, academic_year=None):
+        if learning_unit_year_partim_instance:
+            learning_unit_year_full = learning_unit_year_partim_instance.parent
+        else:
+            learning_unit_year_instance = getattr(self.instance, 'learning_unit_year_full')
+            learning_unit_year_full = learning_unit_year.search(learning_unit=learning_unit_year_instance.learning_unit,
+                                                                academic_year_id=academic_year.id,
+                                                                subtype=learning_unit_year_subtypes.FULL).get()
+        return {
+            'person': self.person,
+            'data': self.instance.data.copy(),
+            'instance': learning_unit_year_partim_instance,
+            'learning_unit_year_full': learning_unit_year_full,
+            'start_year': self.instance.start_year,
+        }
 
     def is_valid(self):
         if any([not form_instance.is_valid() for form_instance in self._forms_to_upsert]):

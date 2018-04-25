@@ -282,9 +282,12 @@ def learning_class_year_edit(request, learning_unit_year_id):
 @permission_required('base.can_create_learningunit', raise_exception=True)
 def learning_unit_create(request, academic_year_id):
     person = get_object_or_404(Person, user=request.user)
-    learning_unit_form_container = FullForm(request.POST or None, person,
-                                            default_ac_year=get_object_or_404(AcademicYear, pk=academic_year_id))
+    if request.POST.get('academic_year'):
+        academic_year_id = request.POST.get('academic_year')
 
+    academic_year = get_object_or_404(AcademicYear, pk=academic_year_id)
+    learning_unit_form_container = FullForm(request.POST or None, person, start_year=academic_year.year,
+                                            default_ac_year=academic_year)
     if learning_unit_form_container.is_valid():
         # Save current learning unit form container
         new_luys = [learning_unit_form_container.save()]
@@ -293,11 +296,9 @@ def learning_unit_create(request, academic_year_id):
         postponement_form = LearningUnitPostponementForm(instance=learning_unit_form_container, person=person)
         if postponement_form.is_valid():
             new_luys.extend(postponement_form.save())
-        raise Exception
         for luy in new_luys:
             show_success_learning_unit_year_creation_message(request, luy, 'learning_unit_successfuly_created')
         return redirect('learning_unit', learning_unit_year_id=new_luys[0].pk)
-
     return render(request, "learning_unit/simple/creation.html", learning_unit_form_container.get_context())
 
 
@@ -360,11 +361,18 @@ def create_partim_form(request, learning_unit_year_id):
     learning_unit_form_container = PartimForm(
         data=request.POST or None,
         person=person,
+        start_year=learning_unit_year_full.academic_year.year,
         learning_unit_year_full=learning_unit_year_full
     )
 
     if learning_unit_form_container.is_valid():
-        new_luys = learning_unit_form_container.save()
+        # Save current learning unit form container
+        new_luys = [learning_unit_form_container.save()]
+
+        # Make postponement - In Creation mode, we make always the postponement
+        postponement_form = LearningUnitPostponementForm(instance=learning_unit_form_container, person=person)
+        if postponement_form.is_valid():
+            new_luys.extend(postponement_form.save())
         for luy in new_luys:
             show_success_learning_unit_year_creation_message(request, luy, 'learning_unit_successfuly_created')
         return redirect('learning_unit', learning_unit_year_id=new_luys[0].pk)

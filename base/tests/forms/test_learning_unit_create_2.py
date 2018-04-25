@@ -164,8 +164,10 @@ class TestFullFormInit(LearningUnitFullFormContextMixin):
         self.assertEqual(form.academic_year, learning_unit_year_instance.academic_year)
 
     def test_model_forms_case_creation(self):
+        form_classes_expected = [LearningUnitModelForm, LearningUnitYearModelForm, LearningContainerModelForm,
+                                 LearningContainerYearModelForm, EntityContainerFormset]
         form = _instanciate_form(post_data=self.post_data, default_ac_year=self.current_academic_year)
-        for cls in FullForm.form_classes:
+        for cls in form_classes_expected:
             self.assertIsInstance(form.forms[cls], cls)
 
     def test_initial_values_of_forms_case_creation(self):
