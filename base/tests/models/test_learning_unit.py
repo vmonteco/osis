@@ -117,7 +117,7 @@ class LearningUnitTest(TestCase):
         lu.start_year = 2015
         lu.delete()
 
-    def test_title(self):
+    def test_properties_acronym_and_title(self):
         a_learning_unit = LearningUnitFactory()
         a_learning_unit_year = LearningUnitYearFactory(learning_unit=a_learning_unit)
         self.assertEqual(a_learning_unit.title, a_learning_unit_year.specific_title)
