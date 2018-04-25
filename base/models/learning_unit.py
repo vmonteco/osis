@@ -82,7 +82,7 @@ class LearningUnit(SerializableModel):
 
     @property
     def title(self):
-        return self.most_recent_learning_unit_year().title
+        return self.most_recent_learning_unit_year().specific_title
 
     def delete(self, *args, **kwargs):
         if self.start_year < 2015:
