@@ -58,7 +58,8 @@ from reference.tests.factories.language import LanguageFactory
 def _instanciate_form(default_ac_year=None, person=None, post_data=None, instance=None):
     if not person:
         person = PersonFactory()
-    return FullForm(post_data, person, instance=instance, default_ac_year=default_ac_year)
+    start_year = instance.learning_unit.start_year if instance else default_ac_year.year
+    return FullForm(post_data, person, instance=instance, default_ac_year=default_ac_year, start_year=start_year)
 
 
 def get_valid_form_data(academic_year, person, learning_unit_year=None):
@@ -119,7 +120,7 @@ class LearningUnitFullFormContextMixin(TestCase):
     """This mixin is used in this test file in order to setup an environment for testing FULL FORM"""
     def setUp(self):
         self.initial_language = LanguageFactory(code='FR')
-        self.initial_campus = CampusFactory(name='Louvain-la-Neuve')
+        self.initial_campus = CampusFactory(name='Louvain-la-Neuve', organization__type=organization_type.MAIN)
         self.current_academic_year = create_current_academic_year()
         self.person = PersonFactory()
         self.post_data = get_valid_form_data(self.current_academic_year, person=self.person)
@@ -297,75 +298,33 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
 
 class TestFullFormSave(LearningUnitFullFormContextMixin):
     """Unit tests for save() """
-
-    @mock.patch('base.forms.learning_unit.learning_unit_create_2.LearningUnitBaseForm._update_with_postponement', side_effect=None)
-    @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm._create', side_effect=None)
-    def test_when_update_method(self, mock_create_method, mock_update_method):
-        form = _instanciate_form(post_data=self.post_data, instance=self.learning_unit_year)
-        form.save()
-        self.assertTrue(mock_update_method.called)
-        self.assertFalse(mock_create_method.called)
-
-    @mock.patch('base.forms.learning_unit.learning_unit_create_2.LearningUnitBaseForm._update_with_postponement', side_effect=None)
-    @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm._create', side_effect=None)
-    def test_when_create_method(self, mock_create_method, mock_update_method):
-        form = _instanciate_form(post_data=self.post_data, default_ac_year=self.current_academic_year)
-        form.save()
-        self.assertTrue(mock_create_method.called)
-        self.assertFalse(mock_update_method.called)
-
-    def test_when_update_method_with_no_postponement(self):
+    def test_when_update_instance(self):
         self.post_data['acronym_0'] = 'L'
         self.post_data['acronym_1'] = 'OSIS1010'
         form = _instanciate_form(post_data=self.post_data, person=self.person, instance=self.learning_unit_year)
         self.assertTrue(form.is_valid(), form.errors)
-        form.save(postponement=False)
+        form.save()
         self.assertEqual(self.learning_unit_year.acronym, 'LOSIS1010')
         self.assertEqual(LearningUnitYear.objects.filter(acronym='LOSIS1010').count(), 1)
 
-
-class testFullFormCreate(TestCase):
-    """Unit tests for FullForm._create()"""
-
-    def setUp(self):
-        self.initial_language = LanguageFactory(code='FR')
-        self.initial_campus = CampusFactory(name='Louvain-la-Neuve')
-        self.current_academic_year = create_current_academic_year()
-        self.person = PersonFactory()
-        AcademicYearFactory.produce_in_future(self.current_academic_year.year)
-        organization = OrganizationFactory(type=organization_type.MAIN)
-        campus = CampusFactory(organization=organization)
-        language = LanguageFactory()
-        container_year = LearningContainerYearFactory.build(academic_year=self.current_academic_year,
-                                                            container_type=learning_container_year_types.COURSE,
-                                                            campus=campus, language=language)
-        learning_unit_year = LearningUnitYearFactory.build(academic_year=self.current_academic_year,
-                                                           learning_container_year=container_year,
-                                                           subtype=learning_unit_year_subtypes.FULL)
-        self.post_data = get_valid_form_data(self.current_academic_year, person=self.person,
-                                             learning_unit_year=learning_unit_year)
-
-    def test_create_method_correctly_save_all_learning_unit_structure(self):
-        form = _instanciate_form(post_data=self.post_data, person=self.person,
+    def test_when_create_instance(self):
+        acronym = 'LAGRO1200'
+        new_learning_unit_year = LearningUnitYearFactory.build(
+            acronym=acronym,
+            academic_year=self.current_academic_year,
+            subtype=learning_unit_year_subtypes.FULL,
+            learning_container_year__academic_year=self.current_academic_year,
+            learning_container_year__container_type=learning_container_year_types.COURSE,
+            learning_container_year__campus=self.initial_campus,
+            learning_container_year__language=self.initial_language
+        )
+        post_data = get_valid_form_data(self.current_academic_year, person=self.person,
+                                        learning_unit_year=new_learning_unit_year)
+        form = _instanciate_form(post_data=post_data, person=self.person,
                                  default_ac_year=self.current_academic_year)
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
-
-        NUMBER_OF_POSTPONMENTS = 7
-        NUMBER_OF_ENTITIES_BY_CONTAINER = 2
-        NUMBER_OF_COMPONENTS = 2 # container_type == COURSE ==> 1 TP / 1 CM
-
-        self.assertEqual(self._count_records(LearningContainer), 1)
-        self.assertEqual(self._count_records(LearningContainerYear), NUMBER_OF_POSTPONMENTS)
-        self.assertEqual(self._count_records(LearningUnit), 1)
-        self.assertEqual(self._count_records(LearningUnitYear), NUMBER_OF_POSTPONMENTS)
-        self.assertEqual(self._count_records(EntityContainerYear), NUMBER_OF_ENTITIES_BY_CONTAINER * NUMBER_OF_POSTPONMENTS)
-        self.assertEqual(self._count_records(LearningComponentYear), NUMBER_OF_COMPONENTS * NUMBER_OF_POSTPONMENTS)
-        self.assertEqual(self._count_records(LearningUnitComponent), 2 * NUMBER_OF_POSTPONMENTS)
-        self.assertEqual(self._count_records(EntityComponentYear), NUMBER_OF_COMPONENTS * NUMBER_OF_POSTPONMENTS)
-
-    def _count_records(self, model_class):
-        return model_class.objects.all().count()
+        self.assertEqual(LearningUnitYear.objects.filter(acronym='LAGRO1200').count(), 1)
 
 
 class TestFullFormValidateSameEntitiesContainer(LearningUnitFullFormContextMixin):

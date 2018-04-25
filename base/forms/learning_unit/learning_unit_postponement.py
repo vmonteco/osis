@@ -30,11 +30,10 @@ from base.models import academic_year
 from base.models import learning_unit_year
 from base.models.enums import learning_unit_year_subtypes
 
-
-# @TODO: Use LearningUnitPostponementForm to manage END_DATE of learning unit year
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 
 
+# @TODO: Use LearningUnitPostponementForm to manage END_DATE of learning unit year
 class LearningUnitPostponementForm:
     instance = None
     person = None

@@ -128,7 +128,7 @@ class ProposalBaseForm:
         proposal.type = compute_proposal_type(proposal)
         proposal.save()
 
-        self.learning_unit_form_container.save(postponement=False)
+        self.learning_unit_form_container.save()
         return proposal
 
     def _get_initial(self):
@@ -162,6 +162,6 @@ class CreationProposalBaseForm(ProposalBaseForm):
 
     @transaction.atomic
     def save(self):
-        new_luys = self.learning_unit_form_container.save(postponement=False)
-        self.form_proposal.instance.learning_unit_year = new_luys[0]
+        new_luy = self.learning_unit_form_container.save()
+        self.form_proposal.instance.learning_unit_year = new_luy
         return self.form_proposal.save()
