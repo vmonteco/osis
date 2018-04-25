@@ -23,8 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import functools
 from django.contrib.messages import ERROR, SUCCESS
 from django.contrib.messages import INFO
+from django.db import IntegrityError
 from django.forms import model_to_dict
 from django.utils.translation import ugettext_lazy as _
 
@@ -196,6 +198,26 @@ def _get_rid_of_blank_value(data):
     return clean_data
 
 
+def force_state_of_proposals(proposals, author, new_state):
+    change_state = functools.partial(modify_proposal_state, new_state)
+    return _apply_action_on_proposals_and_send_report(
+        proposals,
+        author,
+        change_state,
+        "Proposal %(acronym)s (%(academic_year)s) successfully changed state.",
+        "Proposal %(acronym)s (%(academic_year)s) cannot be changed state.",
+        None,
+        None,
+        perms.is_eligible_to_edit_proposal
+    )
+
+
+def modify_proposal_state(new_state, proposal):
+    proposal.state = new_state
+    proposal.save()
+    return {}
+
+
 def cancel_proposals_and_send_report(proposals, author, research_criteria):
     return _apply_action_on_proposals_and_send_report(
         proposals,
@@ -224,10 +246,13 @@ def consolidate_proposals_and_send_report(proposals, author, research_criteria):
 
 def _apply_action_on_proposals_and_send_report(proposals, author, action_method, success_msg_id, error_msg_id,
                                                send_mail_method, research_criteria, permission_check):
-    messages_by_level = {SUCCESS: [], ERROR: [], INFO: [_("A report has been sent.")]}
-    proposals_with_results = apply_action_on_proposals(proposals, action_method, author, permission_check)
+    messages_by_level = {SUCCESS: [], ERROR: []}
+    proposals_with_results = _apply_action_on_proposals(proposals, action_method, author, permission_check)
 
-    send_mail_method(author, proposals_with_results, research_criteria)
+    if send_mail_method:
+        send_mail_method(author, proposals_with_results, research_criteria)
+        messages_by_level[INFO] = [_("A report has been sent.")]
+
     for proposal, results in proposals_with_results:
         if ERROR in results:
             messages_by_level[ERROR].append(_(error_msg_id) % {
@@ -242,19 +267,31 @@ def _apply_action_on_proposals_and_send_report(proposals, author, action_method,
     return messages_by_level
 
 
-def apply_action_on_proposals(proposals, action_method, author, permission_check):
+def _apply_action_on_proposals(proposals, action_method, author, permission_check):
     proposals_with_results = []
     for proposal in proposals:
         proposal_with_result = (proposal, {ERROR: ["User %(person)s do not have rights on this proposal." % {
             "person": str(author)
         }]})
-
         if permission_check(proposal, author):
             proposal_with_result = (proposal, action_method(proposal))
 
         proposals_with_results.append(proposal_with_result)
 
     return proposals_with_results
+
+
+def cancel_proposal(proposal):
+    results = {}
+    if proposal.type == ProposalType.CREATION.name:
+        learning_unit_year = proposal.learning_unit_year
+        results = (business_deletion.check_can_delete_ignoring_proposal_validation(learning_unit_year))
+        if not results:
+            results = (business_deletion.delete_from_given_learning_unit_year(learning_unit_year))
+    else:
+        reinitialize_data_before_proposal(proposal)
+    delete_learning_unit_proposal(proposal)
+    return results
 
 
 def consolidate_proposal(proposal):
@@ -276,19 +313,6 @@ def _consolidate_accepted_proposal(proposal):
     return _consolidate_modification_proposal_accepted(proposal)
 
 
-def cancel_proposal(proposal):
-    results = {}
-    if proposal.type == ProposalType.CREATION.name:
-        learning_unit_year = proposal.learning_unit_year
-        results = (business_deletion.check_can_delete_ignoring_proposal_validation(learning_unit_year))
-        if not results:
-            results = (business_deletion.delete_from_given_learning_unit_year(learning_unit_year))
-    else:
-        reinitialize_data_before_proposal(proposal)
-    delete_learning_unit_proposal(proposal)
-    return results
-
-
 def _consolidate_creation_proposal_accepted(proposal):
     proposal.learning_unit_year.learning_unit.end_year = proposal.learning_unit_year.academic_year.year
 
@@ -302,7 +326,10 @@ def _consolidate_suppression_proposal_accepted(proposal):
 
     proposal.learning_unit_year.learning_unit.end_year = initial_end_year
     new_academic_year = find_academic_year_by_year(new_end_year)
-    results = {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, new_academic_year)}
+    try:
+        results = {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, new_academic_year)}
+    except IntegrityError as err:
+        results = {ERROR: err.args[0]}
     return results
 
 
@@ -325,7 +352,8 @@ def _consolidate_modification_proposal_accepted(proposal):
 
         entities_to_update = find_entities_grouped_by_linktype(proposal.learning_unit_year.learning_container_year)
 
-        update_learning_unit_year_with_report(next_luy, fields_to_update_clean, entities_to_update)
+        update_learning_unit_year_with_report(next_luy, fields_to_update_clean, entities_to_update,
+                                              override_postponement_consistency=True)
     return {}
 
 

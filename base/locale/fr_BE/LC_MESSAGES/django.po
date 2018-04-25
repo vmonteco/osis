@@ -2844,3 +2844,18 @@ msgstr "Inscrits à la formation"
 
 msgid "Enrolled to learning unit"
 msgstr "Inscrits à l'UE"
+
+msgid "No proposals was selected."
+msgstr "Aucune propositions n'a été sélectionnées."
+
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully changed state."
+msgstr "Proposition %(acronym)s (%(academic_year)s) a changé d'état avec succès."
+
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be changed state."
+msgstr "Proposition %(acronym)s (%(academic_year)s) ne peut pas changer d'état."
+
+msgid "cancellation"
+msgstr "annulation"
+
+msgid "consolidation"
+msgstr ""
