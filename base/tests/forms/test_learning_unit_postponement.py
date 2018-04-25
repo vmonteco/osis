@@ -164,26 +164,8 @@ class LearningUnitPostponementFormContextMixin(TestCase):
 
 class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMixin):
 
-    @mock.patch('base.forms.learning_unit.learning_unit_create_2.LearningUnitBaseForm._create',
-                side_effect=None)
-    @mock.patch('base.forms.learning_unit.learning_unit_create_2.LearningUnitBaseForm._update_with_postponement',
-                side_effect=None)
-    def test_save_with_all_luy_existing(self, mock_luybaseform_update, mock_luybaseform_create):
-        """This test will ensure that the save will call LearningUnitBaseForm [UPDATE] for all luy
-           No creation because all LUY exist on db
-        """
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
-        form = _instanciate_postponement_form(instance_luy_base_form, self.person)
-        self.assertEqual(len(form._forms_to_upsert), 6)
-
-        form.save()
-        self.assertEqual(mock_luybaseform_update.call_count, 6)
-        self.assertFalse(mock_luybaseform_create.called)
-
-    @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm._create', side_effect=None)
-    @mock.patch('base.forms.learning_unit.learning_unit_create_2.LearningUnitBaseForm._update_with_postponement',
-                side_effect=None)
-    def test_save_with_all_luy_to_create(self, mock_luybaseform_update, mock_luybaseform_create):
+    @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm.save', side_effect=None)
+    def test_save_with_all_luy_to_create(self, mock_baseform_save):
         """This test will ensure that the save will call LearningUnitBaseForm [CREATE] for all luy
            No update because all LUY doesn't exist on db
         """
@@ -196,13 +178,10 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
         self.assertEqual(len(form._forms_to_upsert), 6)
 
         form.save()
-        self.assertEqual(mock_luybaseform_create.call_count, 6)
-        self.assertFalse(mock_luybaseform_update.called)
+        self.assertEqual(mock_baseform_save.call_count, 6)
 
-    @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm._create', side_effect=None)
-    @mock.patch('base.forms.learning_unit.learning_unit_create_2.LearningUnitBaseForm._update_with_postponement',
-                side_effect=None)
-    def test_save_with_luy_to_upsert(self, mock_luybaseform_update, mock_luybaseform_create):
+    @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm.save', side_effect=None)
+    def test_save_with_luy_to_upsert(self, mock_baseform_save):
         """This test will ensure that the save will call LearningUnitBaseForm [CREATE/UPDATE] for all luy
            2 Update because LUY exist until current_academic_year + 2
            4 Create because LUY doesn't exist after current_academic_year + 2
@@ -217,8 +196,7 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
         self.assertEqual(len(form._forms_to_upsert), 6)
 
         form.save()
-        self.assertEqual(mock_luybaseform_create.call_count, 4)
-        self.assertEqual(mock_luybaseform_update.call_count, 2)
+        self.assertEqual(mock_baseform_save.call_count, 4)
 
 
 def _instanciate_base_learning_unit_form(learning_unit_year_instance, person):

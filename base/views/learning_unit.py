@@ -286,8 +286,7 @@ def learning_unit_create(request, academic_year_id):
         academic_year_id = request.POST.get('academic_year')
 
     academic_year = get_object_or_404(AcademicYear, pk=academic_year_id)
-    learning_unit_form_container = FullForm(request.POST or None, person, start_year=academic_year.year,
-                                            default_ac_year=academic_year)
+    learning_unit_form_container = FullForm(request.POST or None, person, default_ac_year=academic_year)
     if learning_unit_form_container.is_valid():
         # Save current learning unit form container
         new_luys = [learning_unit_form_container.save()]
@@ -361,7 +360,6 @@ def create_partim_form(request, learning_unit_year_id):
     learning_unit_form_container = PartimForm(
         data=request.POST or None,
         person=person,
-        start_year=learning_unit_year_full.academic_year.year,
         learning_unit_year_full=learning_unit_year_full
     )
 

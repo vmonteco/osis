@@ -148,7 +148,7 @@ class FullForm(LearningUnitBaseForm):
 
     subtype = learning_unit_year_subtypes.FULL
 
-    def __init__(self, data, person, default_ac_year=None, start_year=None, instance=None, proposal=False,
+    def __init__(self, data, person, default_ac_year=None, instance=None, proposal=False,
                  *args, **kwargs):
         check_learning_unit_year_instance(instance)
         self.instance = instance
@@ -156,7 +156,7 @@ class FullForm(LearningUnitBaseForm):
         self.proposal = proposal
         self.data = data
         self.academic_year = instance.academic_year if instance else default_ac_year
-        self.start_year = instance.learning_unit.start_year if instance else start_year
+        self.start_year = instance.learning_unit.start_year if instance else default_ac_year.year
 
         instances_data = self._build_instance_data(self.data, default_ac_year, instance, proposal)
         super().__init__(instances_data, *args, **kwargs)
@@ -272,12 +272,15 @@ class PartimForm(LearningUnitBaseForm):
     subtype = learning_unit_year_subtypes.PARTIM
     form_cls_to_validate = [LearningUnitModelForm, LearningUnitYearModelForm]
 
-    def __init__(self, data, person, learning_unit_year_full, start_year=None, instance=None, *args, **kwargs):
+    def __init__(self, data, person, learning_unit_year_full, instance=None, *args, **kwargs):
         check_learning_unit_year_instance(instance)
         self.instance = instance
         self.person = person
         self.data = data
-        self.start_year = self.instance.learning_unit.start_year if self.instance else start_year
+        if self.instance:
+            self.start_year = self.instance.learning_unit.start_year
+        else:
+            self.start_year = learning_unit_year_full.academic_year.year
 
         if not isinstance(learning_unit_year_full, LearningUnitYear):
             raise AttributeError('learning_unit_year_full arg should be an instance of {}'.format(LearningUnitYear))
