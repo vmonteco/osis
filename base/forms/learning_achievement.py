@@ -26,7 +26,7 @@
 from ckeditor.widgets import CKEditorWidget
 from django import forms
 
-from base.models.learning_achievement import LearningAchievement, search, find_learning_unit_achievement
+from base.models.learning_achievement import LearningAchievement, search
 from reference.models import language
 
 EN_CODE_LANGUAGE = 'EN'
@@ -53,9 +53,16 @@ class LearningAchievementEditForm(forms.ModelForm):
 
     def save(self, commit=True):
         instance = super().save(commit)
-        learning_achievement_other_language = search(self.instance.learning_unit_year,
-                                                     self.instance.order)
+        learning_achievement_other_language = search(instance.learning_unit_year,
+                                                     instance.order)
         if learning_achievement_other_language:
-            learning_achievement_other_language.update(code_name=self.instance.code_name)
+            learning_achievement_other_language.update(code_name=instance.code_name)
+
+        # FIXME : We must have a English entry for each french entries
+        # Needs a refactoring of its model to include all languages in a single row.
+        if instance.language == language.find_by_code(FR_CODE_LANGUAGE):
+            LearningAchievement.objects.get_or_create(learning_unit_year=instance.learning_unit_year,
+                                                      code_name=instance.code_name,
+                                                      language=language.find_by_code(EN_CODE_LANGUAGE))
 
         return instance
