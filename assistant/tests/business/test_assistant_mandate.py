@@ -55,7 +55,8 @@ class TestMandateEntity(TestCase):
         self.assistant = AcademicAssistantFactory()
         self.assistant_mandate = AssistantMandateFactory(
             state=assistant_mandate_state.TRTS,
-            assistant=self.assistant
+            assistant=self.assistant,
+            assistant_type=assistant_type.ASSISTANT
         )
         self.assistant2 = AcademicAssistantFactory()
         self.assistant_mandate2 = AssistantMandateFactory(
