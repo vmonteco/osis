@@ -293,7 +293,7 @@ class PartimForm(LearningUnitBaseForm):
         instances_data = self._build_instance_data(data, inherit_lu_values, inherit_luy_values)
 
         super(PartimForm, self).__init__(instances_data, *args, **kwargs)
-        self.disable_fields(self._get_fields_to_disabled())
+        self.disable_fields(inherit_luy_values)
 
     def _build_instance_data(self, data, inherit_lu_values, inherit_luy_values):
         return {
@@ -329,16 +329,10 @@ class PartimForm(LearningUnitBaseForm):
             'initial': inherit_lu_values if not self.instance else None,
         }
 
-    def _get_fields_to_disabled(self):
-        field_to_disabled = PARTIM_FORM_READ_ONLY_FIELD.copy()
-        if self.instance:
-            field_to_disabled.update({'acronym_2'})
-        return field_to_disabled
-
     def _get_inherit_learning_unit_year_full_value(self):
         """This function will return the inherit value come from learning unit year FULL"""
         return {field: value for field, value in self._get_initial_learning_unit_year_form().items() if
-                field in self._get_fields_to_disabled()}
+                field in PARTIM_FORM_READ_ONLY_FIELD}
 
     def _get_initial_learning_unit_year_form(self):
         acronym = self.instance.acronym if self.instance else self.learning_unit_year_full.acronym
