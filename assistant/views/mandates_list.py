@@ -31,7 +31,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 import base.models.entity
 from base.models import academic_year
 
-from assistant.business.assistant_mandate import mandate_can_go_backward
 from assistant.forms import MandatesArchivesForm
 from assistant.models import assistant_mandate
 from assistant.utils import manager_access
@@ -82,7 +81,6 @@ class MandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMi
         for mandate in context['object_list']:
             entities_id = mandate.mandateentity_set.all().order_by('id').values_list('entity', flat=True)
             mandate.entities = base.models.entity.find_versions_from_entites(entities_id, start_date)
-            mandate.can_go_backward = mandate_can_go_backward(mandate)
         return context
 
     def get_initial(self):
