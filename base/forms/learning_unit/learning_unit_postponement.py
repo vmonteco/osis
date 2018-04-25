@@ -32,6 +32,9 @@ from base.models.enums import learning_unit_year_subtypes
 
 
 # @TODO: Use LearningUnitPostponementForm to manage END_DATE of learning unit year
+from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
+
+
 class LearningUnitPostponementForm:
     instance = None
     person = None
@@ -123,17 +126,32 @@ class LearningUnitPostponementForm:
         return form
 
     def _get_full_form_kwargs(self, learning_unit_year_full_instance=None, academic_year=None):
+        data = self.instance.data.copy()
         form_kwargs = {
             'person': self.person,
-            'data': self.instance.data.copy(),
             'instance': learning_unit_year_full_instance,
             'start_year': self.instance.start_year,
             'default_ac_year': academic_year
         }
-        if not learning_unit_year_full_instance:
+        if learning_unit_year_full_instance:
+            # Update case
+            management_form_updated = self._get_entity_formset_management_form(data, learning_unit_year_full_instance)
+            data.update(management_form_updated)
+        else:
             # Creation case
-            form_kwargs['data']['academic_year'] = academic_year.id
+           data['academic_year'] = academic_year.id
+        form_kwargs['data'] = data
         return form_kwargs
+
+    def _get_entity_formset_management_form(self, data, learning_unit_year_full_instance):
+        """This function will update specific key [related to learning container year]
+           of management form provided by formset"""
+        management_form = {}
+        for index, type in enumerate(ENTITY_TYPE_LIST):
+            if data.get('entitycontaineryear_set-{}-learning_container_year'.format(index)):
+                management_form['entitycontaineryear_set-{}-learning_container_year'.format(index)] = \
+                    learning_unit_year_full_instance.learning_container_year.id
+        return management_form
 
     def _get_partim_form_kwargs(self, learning_unit_year_partim_instance=None, academic_year=None):
         if learning_unit_year_partim_instance:
