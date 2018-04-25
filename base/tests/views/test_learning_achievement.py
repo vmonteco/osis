@@ -39,7 +39,7 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory
 from reference.tests.factories.language import LanguageFactory
-from base.views.learning_achievement import operation, management, DELETE, DOWN, UP
+from base.views.learning_achievement import operation, management, DELETE, DOWN, UP, create, update, create_first
 from base.forms.learning_achievement import LearningAchievementEditForm, FR_CODE_LANGUAGE
 from base.tests.factories.user import SuperUserFactory
 
@@ -90,7 +90,6 @@ class TestLearningAchievementView(TestCase):
         request_factory = RequestFactory()
         request = request_factory.get(self.reverse_learning_unit_yr)
         request.user = self.user
-        from base.views.learning_achievement import create
 
         with self.assertRaises(PermissionDenied):
             create(request, self.learning_unit_year.id, self.achievement_fr.id)
@@ -105,7 +104,6 @@ class TestLearningAchievementView(TestCase):
         request_factory = RequestFactory()
         request = request_factory.get(self.reverse_learning_unit_yr)
         request.user = self.user
-        from base.views.learning_achievement import create_first
 
         with self.assertRaises(PermissionDenied):
             create_first(request, self.learning_unit_year.id)
@@ -216,8 +214,6 @@ class TestLearningAchievementActions(TestCase):
         })
         request.user = self.a_superuser
 
-        from base.views.learning_achievement import update
-
         update(request, learning_unit_year.id, learning_achievement.id)
 
         self.assertTrue(mock_render.called)
@@ -250,8 +246,6 @@ class TestLearningAchievementActions(TestCase):
                                       data={'language_code': self.language_fr.code})
         request.user = self.a_superuser
 
-        from base.views.learning_achievement import create
-
         create(request, learning_unit_year.id, achievement_fr.id)
 
         self.assertTrue(mock_render.called)
@@ -272,8 +266,6 @@ class TestLearningAchievementActions(TestCase):
                                               args=[learning_unit_year.id]),
                                       data={'language_code': FR_CODE_LANGUAGE})
         request.user = self.a_superuser
-
-        from base.views.learning_achievement import create_first
 
         create_first(request, learning_unit_year.id)
 

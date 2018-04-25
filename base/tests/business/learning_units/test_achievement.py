@@ -26,12 +26,13 @@
 
 from django.test import TestCase
 
+from base.business.learning_units.achievement import get_code_name
 from base.models.enums import learning_unit_year_subtypes
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.learning_achievement import LearningAchievementFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from reference.tests.factories.language import LanguageFactory
-from base.forms.learning_achievement import EN_CODE_LANGUAGE, get_code_name, FR_CODE_LANGUAGE
+from base.forms.learning_achievement import EN_CODE_LANGUAGE, FR_CODE_LANGUAGE
 
 
 class TestLearningAchievementView(TestCase):
