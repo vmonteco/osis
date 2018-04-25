@@ -29,7 +29,6 @@ from django.utils import timezone
 from assistant.models.enums import review_status, review_advice_choices
 
 
-
 class Review(models.Model):
     mandate = models.ForeignKey('AssistantMandate')
     reviewer = models.ForeignKey('Reviewer', null=True)
