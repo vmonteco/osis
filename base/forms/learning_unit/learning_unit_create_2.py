@@ -42,7 +42,8 @@ from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_Y
 from base.models.learning_unit_year import LearningUnitYear
 from reference.models import language
 
-FULL_READ_ONLY_FIELDS = {"acronym", "academic_year", "container_type", "subtype"}
+FULL_READ_ONLY_FIELDS = {"acronym", "academic_year", "container_type"}
+FULL_PROPOSAL_READ_ONLY_FIELDS = {"academic_year", "container_type"}
 
 PARTIM_FORM_READ_ONLY_FIELD = {'acronym_0', 'acronym_1', 'common_title', 'common_title_english',
                                'requirement_entity', 'allocation_entity', 'language', 'periodicity', 'campus',
@@ -86,11 +87,7 @@ class LearningUnitBaseForm:
 
     @property
     def fields(self):
-        fields = OrderedDict()
-        for form in self.forms.values():
-            if hasattr(form, 'fields'):
-                fields.update(form.fields.items())
-        return fields
+        return self.get_all_fields()
 
     @property
     def cleaned_data(self):
@@ -116,7 +113,7 @@ class LearningUnitBaseForm:
         field.required = False
 
     def get_all_fields(self):
-        fields = {}
+        fields = OrderedDict()
         for cls, form_instance in self.forms.items():
             fields.update(self._get_formset_fields(form_instance) if cls == EntityContainerFormset
                           else form_instance.fields)
@@ -213,8 +210,12 @@ class FullForm(LearningUnitBaseForm):
                 self.disable_fields(FACULTY_OPEN_FIELDS)
             else:
                 self.disable_all_fields_except(FACULTY_OPEN_FIELDS)
-        else:
-            self.disable_fields(FULL_READ_ONLY_FIELDS)
+
+        if self._is_update_action():
+            if self.proposal:
+                self.disable_fields(FULL_PROPOSAL_READ_ONLY_FIELDS)
+            else:
+                self.disable_fields(FULL_READ_ONLY_FIELDS)
 
     def _build_instance_data(self, data, default_ac_year, instance, proposal):
         return{
