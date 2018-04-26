@@ -30,7 +30,8 @@ from django.test import TestCase
 
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
-from base.forms.learning_unit.learning_unit_create_2 import FullForm
+from base.forms.learning_unit.learning_unit_create_2 import FullForm, FULL_READ_ONLY_FIELDS, \
+    FULL_PROPOSAL_READ_ONLY_FIELDS
 from base.models.academic_year import AcademicYear
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -135,8 +136,21 @@ class LearningUnitFullFormContextMixin(TestCase):
         for ac in acs:
             LearningUnitYearFactory(academic_year=ac, learning_unit=self.learning_unit_year.learning_unit)
 
+
 class TestFullFormInit(LearningUnitFullFormContextMixin):
     """Unit tests for FullForm.__init__()"""
+
+    def test_disable_fields_full(self):
+
+        form = FullForm(None, self.person, instance=self.learning_unit_year)
+        disabled_fields = {key for key, value in form.fields.items() if value.disabled == True}
+        self.assertEqual(disabled_fields, FULL_READ_ONLY_FIELDS)
+
+    def test_disable_fields_full_proposal(self):
+
+        form = FullForm(None, self.person, instance=self.learning_unit_year, proposal=True)
+        disabled_fields = {key for key, value in form.fields.items() if value.disabled == True}
+        self.assertEqual(disabled_fields, FULL_PROPOSAL_READ_ONLY_FIELDS)
 
     def test_subtype_is_full(self):
         form = _instanciate_form(instance=LearningUnitYearFactory())
@@ -312,17 +326,8 @@ class TestFullFormSave(LearningUnitFullFormContextMixin):
         self.assertTrue(mock_create_method.called)
         self.assertFalse(mock_update_method.called)
 
-    def test_when_update_method_with_no_postponement(self):
-        self.post_data['acronym_0'] = 'L'
-        self.post_data['acronym_1'] = 'OSIS1010'
-        form = _instanciate_form(post_data=self.post_data, person=self.person, instance=self.learning_unit_year)
-        self.assertTrue(form.is_valid(), form.errors)
-        form.save(postponement=False)
-        self.assertEqual(self.learning_unit_year.acronym, 'LOSIS1010')
-        self.assertEqual(LearningUnitYear.objects.filter(acronym='LOSIS1010').count(), 1)
 
-
-class testFullFormCreate(TestCase):
+class TestFullFormCreate(TestCase):
     """Unit tests for FullForm._create()"""
 
     def setUp(self):

@@ -134,7 +134,7 @@ class TestSave(TestCase):
 
     def test_learning_unit_year_update(self):
         form = ProposalBaseForm(self.form_data, self.person, self.learning_unit_year)
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
         form.save()
         self.learning_unit_year.refresh_from_db()
         self._assert_acronym_has_changed_in_proposal()
@@ -158,7 +158,7 @@ class TestSave(TestCase):
 
     def test_learning_container_update(self):
         form = ProposalBaseForm(self.form_data, self.person, self.learning_unit_year)
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
         self.learning_unit_year.refresh_from_db()
@@ -172,7 +172,7 @@ class TestSave(TestCase):
 
     def test_requirement_entity(self):
         form = ProposalBaseForm(self.form_data, self.person, self.learning_unit_year)
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
         self.entity_container_year.refresh_from_db()
@@ -209,6 +209,10 @@ class TestSave(TestCase):
         self.assertDictEqual(entities_by_type, expected_entities)
 
     def test_modify_learning_container_subtype(self):
+        self.learning_unit_year.learning_container_year.container_type = learning_container_year_types.INTERNSHIP
+        self.learning_unit_year.internship_subtype = internship_subtypes.CLINICAL_INTERNSHIP
+        self.learning_unit_year.learning_container_year.save()
+        self.learning_unit_year.save()
         self.form_data["container_type"] = learning_container_year_types.INTERNSHIP
         self.form_data["internship_subtype"] = internship_subtypes.TEACHING_INTERNSHIP
 
@@ -257,7 +261,7 @@ class TestSave(TestCase):
         }
 
         form = ProposalBaseForm(self.form_data, self.person, self.learning_unit_year)
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
         a_proposal_learning_unt = proposal_learning_unit.find_by_learning_unit_year(self.learning_unit_year)
@@ -271,7 +275,7 @@ class TestSave(TestCase):
     def test_when_setting_additional_entity_to_none(self):
         self.form_data['entitycontaineryear_set-2-entity'] = None
         form = ProposalBaseForm(self.form_data, self.person, self.learning_unit_year)
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
         with self.assertRaises(ObjectDoesNotExist):
