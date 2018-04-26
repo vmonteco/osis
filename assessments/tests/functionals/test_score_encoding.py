@@ -78,7 +78,7 @@ class SeleniumTestCase(StaticLiveServerTestCase):
         cls.screen_size = (cls.sel_settings.get('SCREEN_WIDTH'), cls.sel_settings.get('SCREEN_HIGH'))
         cls.full_path_temp_dir = tempfile.mkdtemp('osis-selenium')
         if cls.sel_settings.get('VIRTUAL_DISPLAY'):
-            cls.display = pyvirtualdisplay.Display(size=cls.screen_size)
+            cls.display = pyvirtualdisplay.Display(visible=0, size=cls.screen_size)
             cls.display.start()
 
         if cls.sel_settings.get('WEB_BROWSER').upper() == 'FIREFOX':
