@@ -955,6 +955,9 @@ msgstr "Rechercher/mettre à jour la liste"
 msgid "registration_id"
 msgstr "NOMA"
 
+msgid "registration_id_does_not_match_email"
+msgstr "Le NOMA ne correspond pas à l'email"
+
 msgid "identification_number"
 msgstr "Matricule"
 
@@ -1145,6 +1148,9 @@ msgstr "Sauvegarde temporaire (non soumis à la faculté)"
 
 msgid "the_coordinator_must_still_submit_scores"
 msgstr "Le coordinateur doit toujours soumettre les notes"
+
+msgid "text"
+msgstr "Texte"
 
 msgid "title"
 msgstr "Intitulé"
@@ -1811,7 +1817,7 @@ msgid "existed_acronym"
 msgstr "Code a déjà existé pour "
 
 msgid "existing_acronym"
-msgstr "Code déja existant en "
+msgstr "Code déjà existant en "
 
 msgid "invalid_acronym"
 msgstr "Code non valide"
@@ -2378,6 +2384,9 @@ msgstr "Proposition modifiée avec succès"
 msgid "proposals_cancelled_successfully"
 msgstr "Propositions annulées avec succès"
 
+msgid "proposals_consolidated_successfully"
+msgstr "Propositions consolidées avec succès"
+
 msgid "content"
 msgstr "Contenu"
 
@@ -2471,14 +2480,14 @@ msgstr "Xls avec les activités"
 msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
 msgstr "%(date)s doit être comprise entre %(start_date)s et %(end_date)s"
 
-msgid "success_cancel_proposal"
-msgstr "La proposition pour {} a été annulée."
-
 msgid "cancel_proposal"
 msgstr "Annuler proposition"
 
 msgid "edit_proposal"
 msgstr "Editer proposition"
+
+msgid "Consolidate proposal"
+msgstr "Consolider proposition"
 
 msgid "msg_confirm_cancel_proposal"
 msgstr "Etes-vous certain de vouloir annuler la proposition ?"
@@ -2531,6 +2540,9 @@ msgstr "Caractère déjà utilisé"
 msgid "learning_unit_successfuly_created"
 msgstr "Unité d'enseignement <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> créée avec succès."
 
+msgid "learning_unit_successfuly_deleted"
+msgstr "Unité d'enseignement {acronym} ({academic_year}) supprimée avec succès."
+
 msgid "learning_unit_creation_academic_year_max_error"
 msgstr "Impossible de créer une UE dont l'année académique est supérieure à {}."
 
@@ -2541,7 +2553,7 @@ msgid "learning_unit_created"
 msgstr "L'unité d'enseignement %(learning_unit)s créée pour l'année academique %(academic_year)s"
 
 msgid "learning_unit_updated"
-msgstr "L'unité d'enseignement %(learning_unit)s a été mise à jour avec succès"
+msgstr "Unité d'enseignement {acronym} mise à jour avec succès"
 
 msgid "partim_greater_than_parent"
 msgstr "L'unité d'enseignement %(learning_unit)s a un partim %(partim)s avec une année de fin plus grande que %(year)s"
@@ -2742,3 +2754,108 @@ msgstr "Le partim doit être inactif car le cours complet est inactif"
 
 msgid "The parent must be active because there are partim active"
 msgstr "Le cours complet doit être actif car un partim est actif"
+
+msgid "educational_information_update_reminder"
+msgstr "Mail de rappel résumés"
+
+msgid "do_you_want_to_sent_email"
+msgstr "Voulez-vous envoyer un email de rappel?"
+
+msgid "desc_mail_reminder"
+msgstr "Envoyer un email de rappel pour la mise à jour des informations pédagogiques"
+
+msgid "success_mail_reminder"
+msgstr "Messages de rappel envoyés"
+
+msgid "consolidate"
+msgstr "Consolider"
+
+msgid "do_you_want_to_consolidate"
+msgstr "Voulez-vous consolider ?"
+
+msgid "need_no_reminder"
+msgstr "Pas besoin de rappel tout est en ordre"
+
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be consolidated."
+msgstr "Proposition %(acronym)s (%(academic_year)s) ne peut pas être consolidée."
+
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully consolidated."
+msgstr "Proposition %(acronym)s (%(academic_year)s) consolidée avec succès."
+
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be canceled."
+msgstr "Proposition %(acronym)s (%(academic_year)s) ne peut pas être annulée."
+
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully canceled."
+msgstr "Proposition %(acronym)s (%(academic_year)s) annulée avec succès"
+
+msgid "A report has been sent."
+msgstr "Un rapport a été envoyé."
+
+msgid "Success"
+msgstr "Succès"
+
+msgid "Failure"
+msgstr "Echec"
+
+msgid "Remarks"
+msgstr "Remarques"
+
+msgid "Learning unit"
+msgstr "Unité d'enseignement"
+
+msgid "Research criteria"
+msgstr "Critères de recherche"
+
+msgid "The learning unit %(acronym)s is included in the following education groups"
+msgstr "L'unité d'enseignement %(acronym)s est incluse dans les groupements suivants"
+
+msgid "type_code_formation"
+msgstr "Type d'OF"
+
+msgid "absolute_and_relative_credits"
+msgstr "Crédits<br>relatifs / absolus"
+
+msgid "Proposal is neither accepted nor refused."
+msgstr "La proposition n'est ni acceptée ni refusée."
+
+msgid "learning_achievements"
+msgstr "Acquis d'apprentissage"
+
+msgid "up"
+msgstr "Remonter"
+
+msgid "down"
+msgstr "Descendre"
+
+msgid "learning_achievements_headline"
+msgstr "A la fin de cette unité d'enseignement, l'étudiant est capable de:"
+
+msgid "User %(person)s do not have rights on this proposal."
+msgstr "L'utilisateur %(person)s ne dispose pas de droits sur cette proposition."
+
+msgid "Enrollments to learning unit"
+msgstr "Inscriptions à l'UE"
+
+msgid "Training"
+msgstr "Formation"
+
+msgid "Enrollments to training"
+msgstr "Inscrits à la formation"
+
+msgid "Enrolled to learning unit"
+msgstr "Inscrits à l'UE"
+
+msgid "No proposals was selected."
+msgstr "Aucune propositions n'a été sélectionnées."
+
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully changed state."
+msgstr "Proposition %(acronym)s (%(academic_year)s) a changé d'état avec succès."
+
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be changed state."
+msgstr "Proposition %(acronym)s (%(academic_year)s) ne peut pas changer d'état."
+
+msgid "cancellation"
+msgstr "annulation"
+
+msgid "consolidation"
+msgstr ""

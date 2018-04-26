@@ -33,23 +33,25 @@ from base.business.learning_unit import CMS_LABEL_SPECIFICATIONS, CMS_LABEL_PEDA
 from base.models import learning_unit_enrollment, learning_unit_component, learning_class_year, \
     learning_unit_year as learn_unit_year_model
 from base.models import proposal_learning_unit
+from base.views.learning_units.common import create_learning_unit_year_deletion_message
 from cms.enums import entity_name
 from cms.models import translated_text
 
 
-def check_learning_unit_deletion(learning_unit):
+def check_learning_unit_deletion(learning_unit, check_proposal=True):
     msg = {}
 
     for learning_unit_year in learn_unit_year_model.search(learning_unit=learning_unit).order_by('academic_year__year'):
-        msg.update(check_learning_unit_year_deletion(learning_unit_year))
+        msg.update(check_learning_unit_year_deletion(learning_unit_year, check_proposal=check_proposal))
 
     return msg
 
 
-def check_learning_unit_year_deletion(learning_unit_year):
+def check_learning_unit_year_deletion(learning_unit_year, check_proposal=True):
     msg = {}
 
-    msg.update(_check_learning_unit_proposal(learning_unit_year))
+    if check_proposal:
+        msg.update(_check_learning_unit_proposal(learning_unit_year))
     msg.update(check_can_delete_ignoring_proposal_validation(learning_unit_year))
     return msg
 
@@ -172,10 +174,7 @@ def delete_from_given_learning_unit_year(learning_unit_year):
 
     learning_unit_year.delete()
 
-    msg.append(_("%(subtype)s %(acronym)s has been deleted for the year %(year)s")
-               % {'subtype': _str_partim_or_full(learning_unit_year),
-                  'acronym': learning_unit_year.acronym,
-                  'year': learning_unit_year.academic_year})
+    msg.append(create_learning_unit_year_deletion_message(learning_unit_year))
     return msg
 
 

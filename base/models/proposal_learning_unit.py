@@ -31,7 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.models.enums import proposal_type, proposal_state
 from base.models.osis_model_admin import OsisModelAdmin
-from base.models import entity
+from base.models import entity, entity_version
 
 
 class ProposalLearningUnitAdmin(OsisModelAdmin):
@@ -39,7 +39,7 @@ class ProposalLearningUnitAdmin(OsisModelAdmin):
 
     search_fields = ['folder_id', 'learning_unit_year__acronym']
     list_filter = ('type', 'state')
-    raw_id_fields = ('learning_unit_year', 'author')
+    raw_id_fields = ('learning_unit_year', 'author', 'entity')
 
 
 class ProposalLearningUnit(models.Model):
@@ -48,15 +48,13 @@ class ProposalLearningUnit(models.Model):
     author = models.ForeignKey('Person', null=True)
     date = models.DateTimeField(auto_now=True)
     learning_unit_year = models.OneToOneField('LearningUnitYear')
-    type = models.CharField(max_length=50, choices=proposal_type.CHOICES)
+    type = models.CharField(max_length=50, choices=proposal_type.CHOICES, verbose_name=_("type"),
+                            default=proposal_type.ProposalType.MODIFICATION.name)
     state = models.CharField(max_length=50, choices=proposal_state.CHOICES, verbose_name=_("state"),
                              default=proposal_state.ProposalState.FACULTY.name)
     initial_data = JSONField(default={})
     entity = models.ForeignKey('Entity')
     folder_id = models.PositiveIntegerField()
-
-    def __str__(self):
-        return "{} - {}".format(self.folder_id, self.learning_unit_year)
 
     class Meta:
         permissions = (
@@ -64,10 +62,25 @@ class ProposalLearningUnit(models.Model):
             ("can_edit_learning_unit_proposal", "Can edit learning unit proposal"),
         )
 
+    def __str__(self):
+        return "{} - {}".format(self.folder_id, self.learning_unit_year)
+
+    @property
+    def folder(self):
+        last_entity = entity_version.get_last_version(self.entity)
+        return "{}{}".format(last_entity.acronym if last_entity else '', str(self.folder_id))
+
 
 def find_by_learning_unit_year(a_learning_unit_year):
     try:
         return ProposalLearningUnit.objects.get(learning_unit_year=a_learning_unit_year)
+    except ProposalLearningUnit.DoesNotExist:
+        return None
+
+
+def find_by_learning_unit(a_learning_unit):
+    try:
+        return ProposalLearningUnit.objects.get(learning_unit_year__learning_unit=a_learning_unit)
     except ObjectDoesNotExist:
         return None
 

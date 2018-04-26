@@ -39,7 +39,7 @@ class AcademicCalendarAdmin(SerializableModelAdmin):
     list_display = ('academic_year', 'title', 'start_date', 'end_date')
     list_display_links = None
     readonly_fields = ('academic_year', 'title', 'start_date', 'end_date')
-    list_filter = ('academic_year',)
+    list_filter = ('academic_year', 'reference')
     search_fields = ['title']
     ordering = ('start_date',)
 

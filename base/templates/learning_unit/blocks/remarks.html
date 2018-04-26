@@ -1,27 +1,14 @@
-
 {% load bootstrap3 %}
 {% load i18n %}
 
 <div class="panel panel-default">
+    <div class="panel-heading">
+        <label>{% trans 'remarks_title' %}</label>
+    </div>
     <div class="panel-body">
-        <div>
-            <label for="{{ form.faculty_remarks.id_for_label }}">
-                {% trans 'faculty_remark' %}
-            </label><br>
-            {{ form.faculty_remark }}
-            <span class="error">
-                {{ form.faculty.errors }}
-            </span>
-        </div>
-        <br>
-        <div>
-            <label for="{{ form.other_remark.id_for_label }}">
-                {% trans 'other_remark' %}
-            </label><br>
-            {{ form.other_remark }}
-            <span class="error">
-                {{ form.other_remark.errors }}
-            </span>
+        <div class="row">
+            {% bootstrap_field learning_unit_form.faculty_remark form_group_class="col-md-6" %}
+            {% bootstrap_field learning_unit_form.other_remark form_group_class="col-md-6" %}
         </div>
     </div>
 </div>

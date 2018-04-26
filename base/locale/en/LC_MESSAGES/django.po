@@ -942,6 +942,9 @@ msgstr "Search/update the list"
 msgid "registration_id"
 msgstr "Registration ID"
 
+msgid "registration_id_does_not_match_email"
+msgstr "Registration ID does not match email"
+
 msgid "identification_number"
 msgstr "Number ID"
 
@@ -1127,6 +1130,9 @@ msgstr "Temporary save (not submitted to the faculty yet)"
 
 msgid "the_coordinator_must_still_submit_scores"
 msgstr "The coordinator must still submit the scores"
+
+msgid "text"
+msgstr "Text"
 
 msgid "title"
 msgstr "Title"
@@ -2371,6 +2377,9 @@ msgstr "Proposal edited successfully"
 msgid "proposals_cancelled_successfully"
 msgstr "Proposals cancelled successfully"
 
+msgid "proposals_consolidated_successfully"
+msgstr "Proposals consolidated successfully"
+
 msgid "content"
 msgstr "Content"
 
@@ -2464,14 +2473,14 @@ msgstr "Xls with learning units"
 msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
 msgstr ""
 
-msgid "success_cancel_proposal"
-msgstr "The proposal for {} was cancelled."
-
 msgid "cancel_proposal"
 msgstr "Cancel proposal"
 
 msgid "edit_proposal"
 msgstr "Edit proposal"
+
+msgid "Consolidate proposal"
+msgstr ""
 
 msgid "msg_confirm_cancel_proposal"
 msgstr "Are you certain that you want to cancel the learning unit proposal ?"
@@ -2515,6 +2524,9 @@ msgstr "Create a new partim"
 msgid "learning_unit_successfuly_created"
 msgstr "Learning unit <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
 
+msgid "learning_unit_successfuly_deleted"
+msgstr "Learning unit {acronym} ({academic_year}) successfuly deleted."
+
 msgid "learning_unit_creation_academic_year_max_error"
 msgstr "Please select an academic year lower than {}."
 
@@ -2525,7 +2537,7 @@ msgid "learning_unit_created"
 msgstr "Learning unit %(learning_unit)s created for the academic year %(academic_year)s"
 
 msgid "learning_unit_updated"
-msgstr "Learning unit %(learning_unit)s has been updated successfully"
+msgstr "Learning unit {acronym} successfully updated."
 
 msgid "partim_greater_than_parent"
 msgstr "The learning unit %(learning_unit)s has a partim %(partim)s with an end year greater than %(year)s"
@@ -2735,3 +2747,108 @@ msgstr ""
 
 msgid "The parent must be active because there are partim active"
 msgstr ""
+
+msgid "educational_information_update_reminder"
+msgstr "Mail to remind educational information update"
+
+msgid "do_you_want_to_sent_email"
+msgstr "Do you want to sent email to remind to update the educational informations?"
+
+msgid "desc_mail_reminder"
+msgstr "Sent email to remind to update educational information"
+
+msgid "success_mail_reminder"
+msgstr "Reminding mails sent"
+
+msgid "consolidate"
+msgstr "Consolidate"
+
+msgid "do_you_want_to_consolidate"
+msgstr "Do you want to consolidate ?"
+
+msgid "need_no_reminder"
+msgstr "Need no reminder"
+
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be consolidated."
+msgstr ""
+
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully consolidated."
+msgstr ""
+
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be canceled."
+msgstr ""
+
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully canceled."
+msgstr ""
+
+msgid "A report has been sent."
+msgstr ""
+
+msgid "Success"
+msgstr ""
+
+msgid "Failure"
+msgstr ""
+
+msgid "Remarks"
+msgstr ""
+
+msgid "Learning unit"
+msgstr ""
+
+msgid "Research criteria"
+msgstr ""
+
+msgid "The learning unit %(acronym)s is included in the following education groups"
+msgstr ""
+
+msgid "type_code_formation"
+msgstr "Formation's type"
+
+msgid "absolute_and_relative_credits"
+msgstr "Relative / Absolute <br>credits"
+
+msgid "Proposal is neither accepted nor refused."
+msgstr ""
+
+msgid "learning_achievements"
+msgstr "Learning achievements"
+
+msgid "up"
+msgstr "Up"
+
+msgid "down"
+msgstr "Down"
+
+msgid "learning_achievements_headline"
+msgstr "At the end of this learning unit, the student is able to:"
+
+msgid "User %(person)s do not have rights on this proposal."
+msgstr ""
+
+msgid "Enrollments to learning unit"
+msgstr ""
+
+msgid "Training"
+msgstr ""
+
+msgid "Enrollments to training"
+msgstr ""
+
+msgid "Enrolled to learning unit"
+msgstr "Enrollments to learning unit"
+
+msgid "No proposals was selected."
+msgstr ""
+
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully changed state."
+msgstr ""
+
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be changed state."
+msgstr ""
+
+msgid "cancellation"
+msgstr ""
+
+msgid "consolidation"
+msgstr "consolidation"

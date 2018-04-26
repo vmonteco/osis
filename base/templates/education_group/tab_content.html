@@ -62,7 +62,7 @@
                                     <tr>
                                         <td>{{ element.code_scs | default_if_none:''  }}</td>
                                         <td>{{ element.title | default_if_none:'' }}</td>
-                                        <td>{{ element.group_element.absolute_credits | default_if_none:'-' }}</td>
+                                        <td>{{ element.group_element.child_leaf.credits | default_if_none:'-' }}</td>
                                         <td>{{ element.group_element.relative_credits | default_if_none:'-' }}</td>
                                         <td>{{ element.credits_min | default_if_none:'-' }}</td>
                                         <td>{{ element.credits_max | default_if_none:'-' }}</td>

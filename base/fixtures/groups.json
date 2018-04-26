@@ -2993,6 +2993,11 @@
                 "proposallearningunit"
             ],
             [
+                "can_edit_learning_unit_proposal",
+                "base",
+                "proposallearningunit"
+            ],
+            [
                 "change_proposallearningunit",
                 "base",
                 "proposallearningunit"
