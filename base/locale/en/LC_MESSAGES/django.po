@@ -2837,3 +2837,18 @@ msgstr ""
 
 msgid "Enrolled to learning unit"
 msgstr "Enrollments to learning unit"
+
+msgid "No proposals was selected."
+msgstr ""
+
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully changed state."
+msgstr ""
+
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be changed state."
+msgstr ""
+
+msgid "cancellation"
+msgstr ""
+
+msgid "consolidation"
+msgstr "consolidation"

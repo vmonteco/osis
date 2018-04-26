@@ -23,8 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import functools
 from django.contrib.messages import ERROR, SUCCESS
 from django.contrib.messages import INFO
+from django.db import IntegrityError
 from django.forms import model_to_dict
 from django.utils.translation import ugettext_lazy as _
 
@@ -49,12 +51,17 @@ NO_PREVIOUS_VALUE = '-'
 VALUES_WHICH_NEED_TRANSLATION = ["periodicity", "container_type", "internship_subtype"]
 LABEL_ACTIVE = _('active')
 LABEL_INACTIVE = _('inactive')
+INITIAL_DATA_FIELDS = {'learning_container_year': ["id", "acronym", "common_title", "common_title_english",
+                                                   "container_type", "campus", "language", "in_charge"],
+                       'learning_unit': ["id", "periodicity", "end_year"],
+                       'learning_unit_year': ["id", "acronym", "specific_title", "specific_title_english",
+                                              "internship_subtype", "status", "credits"]
+                       }
 
 
 def compute_proposal_type(proposal_learning_unit_year):
     if proposal_learning_unit_year.type in [ProposalType.CREATION.name, ProposalType.SUPPRESSION.name]:
         return proposal_learning_unit_year.type
-
     differences = get_difference_of_proposal(proposal_learning_unit_year)
     if differences.get('acronym') and len(differences) == 1:
         return ProposalType.TRANSFORMATION.name
@@ -114,7 +121,7 @@ def delete_learning_unit_proposal(learning_unit_proposal):
 
 def get_difference_of_proposal(learning_unit_yr_proposal):
     initial_data = learning_unit_yr_proposal.initial_data
-    actual_data = _copy_learning_unit_data(learning_unit_yr_proposal.learning_unit_year)
+    actual_data = copy_learning_unit_data(learning_unit_yr_proposal.learning_unit_year)
     differences = {}
     for model in ['learning_unit', 'learning_unit_year', 'learning_container_year', 'entities']:
         initial_data_by_model = initial_data.get(model)
@@ -191,6 +198,26 @@ def _get_rid_of_blank_value(data):
     return clean_data
 
 
+def force_state_of_proposals(proposals, author, new_state):
+    change_state = functools.partial(modify_proposal_state, new_state)
+    return _apply_action_on_proposals_and_send_report(
+        proposals,
+        author,
+        change_state,
+        "Proposal %(acronym)s (%(academic_year)s) successfully changed state.",
+        "Proposal %(acronym)s (%(academic_year)s) cannot be changed state.",
+        None,
+        None,
+        perms.is_eligible_to_edit_proposal
+    )
+
+
+def modify_proposal_state(new_state, proposal):
+    proposal.state = new_state
+    proposal.save()
+    return {}
+
+
 def cancel_proposals_and_send_report(proposals, author, research_criteria):
     return _apply_action_on_proposals_and_send_report(
         proposals,
@@ -219,10 +246,13 @@ def consolidate_proposals_and_send_report(proposals, author, research_criteria):
 
 def _apply_action_on_proposals_and_send_report(proposals, author, action_method, success_msg_id, error_msg_id,
                                                send_mail_method, research_criteria, permission_check):
-    messages_by_level = {SUCCESS: [], ERROR: [], INFO: [_("A report has been sent.")]}
-    proposals_with_results = apply_action_on_proposals(proposals, action_method, author, permission_check)
+    messages_by_level = {SUCCESS: [], ERROR: []}
+    proposals_with_results = _apply_action_on_proposals(proposals, action_method, author, permission_check)
 
-    send_mail_method(author, proposals_with_results, research_criteria)
+    if send_mail_method:
+        send_mail_method(author, proposals_with_results, research_criteria)
+        messages_by_level[INFO] = [_("A report has been sent.")]
+
     for proposal, results in proposals_with_results:
         if ERROR in results:
             messages_by_level[ERROR].append(_(error_msg_id) % {
@@ -237,19 +267,37 @@ def _apply_action_on_proposals_and_send_report(proposals, author, action_method,
     return messages_by_level
 
 
-def apply_action_on_proposals(proposals, action_method, author, permission_check):
+def _apply_action_on_proposals(proposals, action_method, author, permission_check):
     proposals_with_results = []
     for proposal in proposals:
         proposal_with_result = (proposal, {ERROR: ["User %(person)s do not have rights on this proposal." % {
             "person": str(author)
         }]})
-
         if permission_check(proposal, author):
             proposal_with_result = (proposal, action_method(proposal))
 
         proposals_with_results.append(proposal_with_result)
 
     return proposals_with_results
+
+
+def cancel_proposal(proposal):
+    results = {}
+    if proposal.type == ProposalType.CREATION.name:
+        learning_unit_year = proposal.learning_unit_year
+
+        errors = list(business_deletion.check_can_delete_ignoring_proposal_validation(learning_unit_year).values())
+
+        if errors:
+            results = {ERROR: errors}
+        else:
+            results = {SUCCESS: business_deletion.delete_from_given_learning_unit_year(learning_unit_year)}
+            delete_learning_unit_proposal(proposal)
+    else:
+        reinitialize_data_before_proposal(proposal)
+        delete_learning_unit_proposal(proposal)
+
+    return results
 
 
 def consolidate_proposal(proposal):
@@ -271,19 +319,6 @@ def _consolidate_accepted_proposal(proposal):
     return _consolidate_modification_proposal_accepted(proposal)
 
 
-def cancel_proposal(proposal):
-    results = {}
-    if proposal.type == ProposalType.CREATION.name:
-        learning_unit_year = proposal.learning_unit_year
-        results = (business_deletion.check_can_delete_ignoring_proposal_validation(learning_unit_year))
-        if not results:
-            results = (business_deletion.delete_from_given_learning_unit_year(learning_unit_year))
-    else:
-        reinitialize_data_before_proposal(proposal)
-    delete_learning_unit_proposal(proposal)
-    return results
-
-
 def _consolidate_creation_proposal_accepted(proposal):
     proposal.learning_unit_year.learning_unit.end_year = proposal.learning_unit_year.academic_year.year
 
@@ -297,7 +332,10 @@ def _consolidate_suppression_proposal_accepted(proposal):
 
     proposal.learning_unit_year.learning_unit.end_year = initial_end_year
     new_academic_year = find_academic_year_by_year(new_end_year)
-    results = {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, new_academic_year)}
+    try:
+        results = {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, new_academic_year)}
+    except IntegrityError as err:
+        results = {ERROR: err.args[0]}
     return results
 
 
@@ -320,7 +358,8 @@ def _consolidate_modification_proposal_accepted(proposal):
 
         entities_to_update = find_entities_grouped_by_linktype(proposal.learning_unit_year.learning_container_year)
 
-        update_learning_unit_year_with_report(next_luy, fields_to_update_clean, entities_to_update)
+        update_learning_unit_year_with_report(next_luy, fields_to_update_clean, entities_to_update,
+                                              override_postponement_consistency=True)
     return {}
 
 
@@ -329,18 +368,15 @@ def compute_proposal_state(a_person):
         else proposal_state.ProposalState.FACULTY.name
 
 
-def _copy_learning_unit_data(learning_unit_year):
+def copy_learning_unit_data(learning_unit_year):
     learning_container_year = learning_unit_year.learning_container_year
     entities_by_type = entity_container_year.find_entities_grouped_by_linktype(learning_container_year)
-
     learning_container_year_values = _get_attributes_values(learning_container_year,
-                                                            ["id", "acronym", "common_title", "common_title_english",
-                                                             "container_type", "campus", "language", "in_charge"])
-    learning_unit_values = _get_attributes_values(learning_unit_year.learning_unit, ["id", "periodicity", "end_year"])
-    learning_unit_year_values = _get_attributes_values(learning_unit_year, ["id", "acronym", "specific_title",
-                                                                            "specific_title_english",
-                                                                            "internship_subtype", "quadrimester",
-                                                                            "status"])
+                                                            INITIAL_DATA_FIELDS['learning_container_year'])
+    learning_unit_values = _get_attributes_values(learning_unit_year.learning_unit,
+                                                  INITIAL_DATA_FIELDS['learning_unit'])
+    learning_unit_year_values = _get_attributes_values(learning_unit_year,
+                                                       INITIAL_DATA_FIELDS['learning_unit_year'])
     learning_unit_year_values["credits"] = float(learning_unit_year.credits) if learning_unit_year.credits else None
     return get_initial_data(entities_by_type, learning_container_year_values, learning_unit_values,
                             learning_unit_year_values)

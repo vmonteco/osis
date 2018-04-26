@@ -119,10 +119,16 @@ class TestLearningUnitYearModelFormSave(TestCase):
             'attribution_procedure': INTERNAL_TEAM
         }
 
-        self.requirement_entity = EntityContainerYearFactory(type=REQUIREMENT_ENTITY)
-        self.allocation_entity = EntityContainerYearFactory(type=ALLOCATION_ENTITY)
-        self.additional_requirement_entity_1 = EntityContainerYearFactory(type=ADDITIONAL_REQUIREMENT_ENTITY_1)
-        self.additional_requirement_entity_2 = EntityContainerYearFactory(type=ADDITIONAL_REQUIREMENT_ENTITY_2)
+        self.requirement_entity = EntityContainerYearFactory(type=REQUIREMENT_ENTITY,
+                                                             learning_container_year=self.learning_container_year)
+        self.allocation_entity = EntityContainerYearFactory(type=ALLOCATION_ENTITY,
+                                                            learning_container_year=self.learning_container_year)
+        self.additional_requirement_entity_1 = EntityContainerYearFactory(
+            type=ADDITIONAL_REQUIREMENT_ENTITY_1,
+            learning_container_year=self.learning_container_year)
+        self.additional_requirement_entity_2 = EntityContainerYearFactory(
+            type=ADDITIONAL_REQUIREMENT_ENTITY_2,
+            learning_container_year=self.learning_container_year)
 
         self.entity_container_years=[self.requirement_entity, self.allocation_entity,
                                      self.additional_requirement_entity_1, self.additional_requirement_entity_2]

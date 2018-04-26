@@ -85,81 +85,81 @@ class LearningUnitPostponementFormContextMixin(TestCase):
             PersonEntityFactory(person=self.person, entity=entity)
 
 
-# class TestLearningUnitPostponementFormInit(LearningUnitPostponementFormContextMixin):
-#     """Unit tests for LearningUnitPostponementForm.__init__()"""
-#     def test_wrong_instance_args(self):
-#         wrong_instance = LearningUnitFactory()
-#         with self.assertRaises(AttributeError):
-#             _instanciate_postponement_form(instance=wrong_instance, person=self.person)
-#
-#     def test_consistency_property_default_value_is_true(self):
-#         instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
-#         form = _instanciate_postponement_form(instance_luy_base_form, self.person)
-#         self.assertTrue(form.check_consistency)
-#
-#     def test_forms_property_end_year_is_none(self):
-#         self.learn_unit_structure.learning_unit_full.end_year = None
-#         self.learn_unit_structure.learning_unit_full.save()
-#         instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
-#         form = _instanciate_postponement_form(instance_luy_base_form, self.person)
-#
-#         self.assertIsInstance(form._forms_to_upsert, list)
-#         self.assertIsInstance(form._forms_to_delete, list)
-#         self.assertEqual(len(form._forms_to_upsert), 6)
-#         self.assertFalse(form._forms_to_delete)
-#
-#     def test_forms_property_end_year_is_current_year(self):
-#         self.learn_unit_structure.learning_unit_full.end_year = self.current_academic_year.year
-#         self.learn_unit_structure.learning_unit_full.save()
-#         instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
-#         form = _instanciate_postponement_form(instance_luy_base_form, self.person)
-#
-#         self.assertFalse(form._forms_to_upsert)
-#         self.assertEqual(len(form._forms_to_delete), 6)
-#
-#     def test_forms_property_end_year_is_more_than_current_and_less_than_none(self):
-#         self.learn_unit_structure.learning_unit_full.end_year = self.current_academic_year.year + 2
-#         self.learn_unit_structure.learning_unit_full.save()
-#
-#         instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
-#         form = _instanciate_postponement_form(instance_luy_base_form, self.person)
-#
-#         self.assertEqual(len(form._forms_to_upsert), 2)
-#         self.assertEqual(len(form._forms_to_delete), 4)
-#
-#     def test_forms_property_no_learning_unit_year_in_future(self):
-#         self.learn_unit_structure.learning_unit_full.end_year = None
-#         self.learn_unit_structure.learning_unit_full.save()
-#         LearningUnitYear.objects.filter(
-#             learning_unit=self.learn_unit_structure.learning_unit_full,
-#             academic_year__year__gt=self.current_academic_year.year
-#         ).delete()
-#
-#         instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
-#         form = _instanciate_postponement_form(instance_luy_base_form, self.person)
-#
-#         self.assertEqual(len(form._forms_to_upsert), 6)
-#         self.assertFalse(form._forms_to_delete)
-#
-#
-# class TestLearningUnitPostponementFormIsValid(LearningUnitPostponementFormContextMixin):
-#     """Unit tests for LearningUnitPostponementForm.is_valid()"""
-#     @mock.patch('base.forms.learning_unit_postponement.LearningUnitPostponementForm._check_consistency',
-#                 side_effect=None)
-#     def test_is_valid_with_consitency_property_to_false(self, mock_check_consistency):
-#         instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
-#         form = _instanciate_postponement_form(instance_luy_base_form, self.person)
-#         form.check_consistency = False
-#         self.assertTrue(form.is_valid())
-#         self.assertFalse(mock_check_consistency.called)
-#
-#     @mock.patch('base.forms.learning_unit_postponement.LearningUnitPostponementForm._check_consistency',
-#                 side_effect=None)
-#     def test_is_valid_with_consitency_property_to_true(self, mock_check_consistency):
-#         instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
-#         form = _instanciate_postponement_form(instance_luy_base_form, self.person)
-#         form.check_consistency = False
-#         mock_check_consistency.assert_called_once_with()
+class TestLearningUnitPostponementFormInit(LearningUnitPostponementFormContextMixin):
+    """Unit tests for LearningUnitPostponementForm.__init__()"""
+    def test_wrong_instance_args(self):
+        wrong_instance = LearningUnitFactory()
+        with self.assertRaises(AttributeError):
+            _instanciate_postponement_form(instance=wrong_instance, person=self.person)
+
+    def test_consistency_property_default_value_is_true(self):
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        form = _instanciate_postponement_form(instance_luy_base_form, self.person)
+        self.assertTrue(form.check_consistency)
+
+    def test_forms_property_end_year_is_none(self):
+        self.learn_unit_structure.learning_unit_full.end_year = None
+        self.learn_unit_structure.learning_unit_full.save()
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        form = _instanciate_postponement_form(instance_luy_base_form, self.person)
+
+        self.assertIsInstance(form._forms_to_upsert, list)
+        self.assertIsInstance(form._forms_to_delete, list)
+        self.assertEqual(len(form._forms_to_upsert), 6)
+        self.assertFalse(form._forms_to_delete)
+
+    def test_forms_property_end_year_is_current_year(self):
+        self.learn_unit_structure.learning_unit_full.end_year = self.current_academic_year.year
+        self.learn_unit_structure.learning_unit_full.save()
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        form = _instanciate_postponement_form(instance_luy_base_form, self.person)
+
+        self.assertFalse(form._forms_to_upsert)
+        self.assertEqual(len(form._forms_to_delete), 6)
+
+    def test_forms_property_end_year_is_more_than_current_and_less_than_none(self):
+        self.learn_unit_structure.learning_unit_full.end_year = self.current_academic_year.year + 2
+        self.learn_unit_structure.learning_unit_full.save()
+
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        form = _instanciate_postponement_form(instance_luy_base_form, self.person)
+
+        self.assertEqual(len(form._forms_to_upsert), 2)
+        self.assertEqual(len(form._forms_to_delete), 4)
+
+    def test_forms_property_no_learning_unit_year_in_future(self):
+        self.learn_unit_structure.learning_unit_full.end_year = None
+        self.learn_unit_structure.learning_unit_full.save()
+        LearningUnitYear.objects.filter(
+            learning_unit=self.learn_unit_structure.learning_unit_full,
+            academic_year__year__gt=self.current_academic_year.year
+        ).delete()
+
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        form = _instanciate_postponement_form(instance_luy_base_form, self.person)
+
+        self.assertEqual(len(form._forms_to_upsert), 6)
+        self.assertFalse(form._forms_to_delete)
+
+
+class TestLearningUnitPostponementFormIsValid(LearningUnitPostponementFormContextMixin):
+    """Unit tests for LearningUnitPostponementForm.is_valid()"""
+    @mock.patch('base.forms.learning_unit_postponement.LearningUnitPostponementForm._check_consistency',
+                side_effect=None)
+    def test_is_valid_with_consitency_property_to_false(self, mock_check_consistency):
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        form = _instanciate_postponement_form(instance_luy_base_form, self.person)
+        form.check_consistency = False
+        self.assertTrue(form.is_valid())
+        self.assertFalse(mock_check_consistency.called)
+
+    @mock.patch('base.forms.learning_unit_postponement.LearningUnitPostponementForm._check_consistency',
+                side_effect=None)
+    def test_is_valid_with_consitency_property_to_true(self, mock_check_consistency):
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        form = _instanciate_postponement_form(instance_luy_base_form, self.person)
+        form.check_consistency = False
+        mock_check_consistency.assert_called_once_with()
 
 
 class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMixin):
@@ -196,7 +196,7 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
         self.assertEqual(len(form._forms_to_upsert), 6)
 
         form.save()
-        self.assertEqual(mock_baseform_save.call_count, 4)
+        self.assertEqual(mock_baseform_save.call_count, 6)
 
 
 def _instanciate_base_learning_unit_form(learning_unit_year_instance, person):

@@ -296,7 +296,7 @@ class PartimForm(LearningUnitBaseForm):
         instances_data = self._build_instance_data(data, inherit_lu_values, inherit_luy_values)
 
         super(PartimForm, self).__init__(instances_data, *args, **kwargs)
-        self.disable_fields(inherit_luy_values)
+        self.disable_fields(PARTIM_FORM_READ_ONLY_FIELD)
 
     def _build_instance_data(self, data, inherit_lu_values, inherit_luy_values):
         return {
