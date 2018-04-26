@@ -18,6 +18,7 @@ import pendulum
 from django.conf import settings
 from django.contrib.auth.models import Group, Permission
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.test import tag
 from django.urls import reverse
 from django.utils import timezone
 from openpyxl import load_workbook
@@ -73,11 +74,13 @@ class BusinessMixin:
             user.user_permissions.add(permission)
 
 
+@tag('selenium')
 class SeleniumTestCase(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.sel_settings = settings.SELENIUM_SETTINGS
+        print("### Virtual Display : {}".format(cls.sel_settings.get('VIRTUAL_DISPLAY')))
         cls.screen_size = (cls.sel_settings.get('SCREEN_WIDTH'), cls.sel_settings.get('SCREEN_HIGH'))
         cls.full_path_temp_dir = tempfile.mkdtemp('osis-selenium')
         if cls.sel_settings.get('VIRTUAL_DISPLAY'):
