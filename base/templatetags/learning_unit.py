@@ -26,6 +26,7 @@
 from django import template
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
+from base.models.proposal_learning_unit import ProposalLearningUnit
 register = template.Library()
 
 
@@ -60,3 +61,26 @@ def get_difference_css(differences, parameter):
                                                                                  differences.get(parameter),
                                                                                  "proposal_value"))
     return None
+
+
+@register.filter
+def has_proposal(luy):
+    return ProposalLearningUnit.objects.filter(learning_unit_year=luy).exists()
+
+
+@register.simple_tag
+def dl_tooltip(differences, key, **kwargs):
+    title = kwargs.get('title', '')
+    label_text = kwargs.get('label_text', '')
+    value = kwargs.get('value', '')
+    url = kwargs.get('url', '')
+
+    if not label_text:
+        label_text = key.lower()
+
+    difference = get_difference_css(differences, key) or 'title="{}"'.format(_(title))
+    if url:
+        value = "<a href='{url}'>{value}</a>".format(value=value, url=url)
+
+    return mark_safe("<dl><dt {difference}>{label_text}</dt><dd {difference}>{value}</dd></dl>".format(
+        difference=difference, label_text=_(label_text), value=value))

@@ -30,7 +30,6 @@ from django.contrib import messages
 from django.contrib.auth.models import Permission
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
-from django.db import IntegrityError
 from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpResponse
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
@@ -52,7 +51,7 @@ from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.user import UserFactory, SuperUserFactory
 from base.tests.forms.test_edition_form import get_valid_formset_data
-from base.views.learning_units.edition import learning_unit_edition, learning_unit_volumes_management
+from base.views.learning_units.update import learning_unit_edition_end_date, learning_unit_volumes_management
 
 
 class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
@@ -82,9 +81,9 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         self.a_superperson = PersonFactory(user=self.a_superuser)
 
     def test_view_learning_unit_edition_permission_denied(self):
-        from base.views.learning_units.edition import learning_unit_edition
+        from base.views.learning_units.update import learning_unit_edition_end_date
 
-        response = self.client.get(reverse(learning_unit_edition, args=[self.learning_unit_year.id]))
+        response = self.client.get(reverse(learning_unit_edition_end_date, args=[self.learning_unit_year.id]))
         self.assertEqual(response.status_code, 403)
 
     @mock.patch('base.business.learning_units.perms.is_eligible_for_modification_end_date')
@@ -93,14 +92,14 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         mock_perms.return_value = True
 
         request_factory = RequestFactory()
-        request = request_factory.get(reverse('learning_unit_edition', args=[self.learning_unit_year.id]))
+        request = request_factory.get(reverse(learning_unit_edition_end_date, args=[self.learning_unit_year.id]))
         request.user = self.a_superuser
 
-        learning_unit_edition(request, self.learning_unit_year.id)
+        learning_unit_edition_end_date(request, self.learning_unit_year.id)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, "learning_unit/edition.html")
+        self.assertEqual(template, "learning_unit/update_end_date.html")
 
     @mock.patch('base.business.learning_units.perms.is_eligible_for_modification_end_date')
     def test_view_learning_unit_edition_post(self, mock_perms):
@@ -115,7 +114,7 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
-        learning_unit_edition(request, self.learning_unit_year.id)
+        learning_unit_edition_end_date(request, self.learning_unit_year.id)
 
         msg_level = [m.level for m in get_messages(request)]
         msg = [m.message for m in get_messages(request)]
@@ -278,7 +277,7 @@ class TestEditLearningUnit(TestCase):
             "allocation_entity": self.allocation_entity.id,
             "additional_requirement_entity_1": self.additional_entity_1.id,
             "additional_requirement_entity_2": self.additional_entity_2.id,
-            "language": self.learning_unit_year.learning_container_year.language.id,
+            "language": self.learning_unit_year.learning_container_year.language.pk,
             "is_vacant": self.learning_unit_year.learning_container_year.is_vacant,
             "team": self.learning_unit_year.learning_container_year.team,
             "type_declaration_vacant": self.learning_unit_year.learning_container_year.type_declaration_vacant,
@@ -286,27 +285,53 @@ class TestEditLearningUnit(TestCase):
         }
         self.assertDictEqual(initial_data, expected_initial)
 
-    @mock.patch("base.views.learning_units.edition.update_learning_unit_year_with_report", side_effect=None)
-    @mock.patch("base.views.learning_units.edition.update_learning_unit_year_entities_with_report", side_effect=None)
-    def test_valid_post_request(self, mock_update_learning_unit_year, mock_update_entities):
+    def test_valid_post_request(self):
+        credits = 18
+        form_data = self._get_valid_form_data()
+        form_data['credits'] = credits
+        response = self.client.post(self.url, data=form_data)
+
+        expected_redirection = reverse("learning_unit", args=[self.learning_unit_year.id])
+        self.assertRedirects(response, expected_redirection)
+
+        self.learning_unit_year.refresh_from_db()
+        self.assertEqual(self.learning_unit_year.credits, credits)
+
+    def test_consistency_report_error_displayed(self):
+        next_academic_year = AcademicYearFactory(year=self.learning_unit_year.academic_year.year + 1)
+        next_learning_container_year = LearningContainerYearFactory(academic_year=next_academic_year,
+                                                                    container_type=learning_container_year_types.COURSE)
+        LearningUnitYearFactory(learning_container_year=next_learning_container_year,
+                                learning_unit=self.learning_unit_year.learning_unit,
+                                acronym="LOSIS4512",
+                                academic_year=next_academic_year,
+                                subtype=learning_unit_year_subtypes.FULL,
+                                credits=26)
+
+        form_data = self._get_valid_form_data()
+        response = self.client.post(self.url, data=form_data)
+
+        expected_redirection = reverse("learning_unit", args=[self.learning_unit_year.id])
+        self.assertRedirects(response, expected_redirection, fetch_redirect_response=False)
+
+        messages = [str(message) for message in get_messages(response.wsgi_request)]
+        self.assertIn(_('The learning unit has been updated until %(year)s.')
+                          % {'year': self.learning_unit_year.academic_year}, list(messages))
+
+    def _get_valid_form_data(self):
         form_data = {
             "acronym": self.learning_unit_year.acronym[1:],
-            "credits": str(self.learning_unit_year.credits + 1),
+            "credits": str(self.learning_unit_year.credits),
             "specific_title": self.learning_unit_year.specific_title,
             "first_letter": self.learning_unit_year.acronym[0],
             "periodicity": learning_unit_periodicity.ANNUAL,
             "campus": str(self.learning_unit_year.learning_container_year.campus.id),
             "requirement_entity": str(self.requirement_entity.id),
             "allocation_entity": str(self.requirement_entity.id),
-            "language": str(self.learning_unit_year.learning_container_year.language.id)
+            "language": str(self.learning_unit_year.learning_container_year.language.pk),
+            "status": True
         }
-        response = self.client.post(self.url, data=form_data)
-
-        self.assertTrue(mock_update_learning_unit_year.called)
-        self.assertTrue(mock_update_entities.called)
-
-        expected_redirection = reverse("learning_unit", args=[self.learning_unit_year.id])
-        self.assertRedirects(response, expected_redirection)
+        return form_data
 
 
 class TestLearningUnitVolumesManagement(TestCase):
@@ -426,7 +451,7 @@ class TestLearningUnitVolumesManagement(TestCase):
 
         request = request_factory.post(reverse(learning_unit_volumes_management,
                                                args=[self.learning_unit_year.id]),
-                                       data=data, 
+                                       data=data,
                                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         request.user = self.user
@@ -438,30 +463,6 @@ class TestLearningUnitVolumesManagement(TestCase):
                                   {prefix+"-0-volume_total": [_("vol_tot_full_must_be_greater_than_partim")],
                                    prefix+"-1-volume_total": [_("vol_tot_full_must_be_greater_than_partim")]}
                               })
-
-    @mock.patch('base.models.learning_component_year.LearningComponentYear.save', side_effect=IntegrityError)
-    @mock.patch('base.models.program_manager.is_program_manager')
-    def test_learning_unit_volumes_management_post_wrong_save(self, mock_program_manager, save):
-        mock_program_manager.return_value = True
-
-        request_factory = RequestFactory()
-        data = get_valid_formset_data(self.learning_unit_year.acronym)
-        data.update(get_valid_formset_data(self.learning_unit_year_partim.acronym, is_partim=True))
-
-        request = request_factory.post(reverse(learning_unit_volumes_management,
-                                               args=[self.learning_unit_year.id]),
-                                       data=data)
-
-        request.user = self.user
-        setattr(request, 'session', 'session')
-        setattr(request, '_messages', FallbackStorage(request))
-
-        learning_unit_volumes_management(request, self.learning_unit_year.id)
-
-        msg_level = [m.level for m in get_messages(request)]
-        msg = [m.message for m in get_messages(request)]
-        self.assertEqual(len(msg), 1)
-        self.assertIn(messages.ERROR, msg_level)
 
     def test_with_user_not_logged(self):
         self.client.logout()

@@ -31,6 +31,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 
 from base.models.enums import entity_type
+from base.models.enums.entity_type import MAIN_ENTITY_TYPE
 from base.models.enums.organization_type import MAIN
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from osis_common.utils.datetime import get_tzinfo
@@ -234,7 +235,11 @@ def get_last_version(entity, date=None):
     qs = EntityVersion.objects.current(date).entity(entity)
 
     return qs.latest('start_date')
-    # find_latest_version(academic_year.current_academic_year().start_date).get(entity=entity)
+
+
+def get_last_version_by_entity_id(entity_id):
+    now = datetime.datetime.now(get_tzinfo())
+    return EntityVersion.objects.current(now).filter(entity__id=entity_id).latest('start_date')
 
 
 def get_by_entity_parent(entity_parent):
@@ -284,9 +289,7 @@ def count(**kwargs):
     return search(**kwargs).count()
 
 
-def search_entities(acronym=None, title=None, type=None, with_entity=None):
-    if not acronym and not title and not type:
-        return
+def search_entities(acronym=None, title=None, entity_type=None, with_entity=None):
     queryset = EntityVersion.objects
     if with_entity:
         queryset = queryset.select_related('entity__organization')
@@ -295,8 +298,8 @@ def search_entities(acronym=None, title=None, type=None, with_entity=None):
         queryset = queryset.filter(acronym__icontains=acronym)
     if title:
         queryset = queryset.filter(title__icontains=title)
-    if type:
-        queryset = queryset.filter(entity_type=type)
+    if entity_type:
+        queryset = queryset.filter(entity_type=entity_type)
 
     return queryset
 
@@ -340,12 +343,27 @@ def _match_dates(osis_date, esb_date):
 
 
 def find_main_entities_version():
-    entities_version = find_latest_version(date=datetime.datetime.now(get_tzinfo())) \
-        .filter(entity_type__in=[entity_type.SECTOR, entity_type.FACULTY, entity_type.SCHOOL,
-                                 entity_type.INSTITUTE, entity_type.DOCTORAL_COMMISSION, entity_type.LOGISTICS_ENTITY],
-                entity__organization__type=MAIN).order_by('acronym')
-    return entities_version
+    now = datetime.datetime.now(get_tzinfo())
+    return find_latest_version(date=now).filter(
+        entity_type__in=MAIN_ENTITY_TYPE, entity__organization__type=MAIN).order_by('acronym')
 
 
 def find_latest_version_by_entity(entity, date):
     return EntityVersion.objects.current(date).entity(entity).select_related('entity', 'parent').first()
+
+
+def find_last_entity_version_by_learning_unit_year_id(learning_unit_year_id):
+    now = datetime.datetime.now(get_tzinfo())
+    try:
+        return EntityVersion.objects.current(now).\
+            filter(entity__entitycontaineryear__learning_container_year__learningunityear__id=learning_unit_year_id). \
+            latest('start_date')
+    except EntityVersion.DoesNotExist:
+        return None
+
+
+def search_by_acronyms(entities):
+    q = Q()
+    for entity in entities:
+        q |= Q(acronym__icontains=entity.acronym)
+    return EntityVersion.objects.filter(q)

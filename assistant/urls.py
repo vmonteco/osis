@@ -24,12 +24,14 @@
 #
 ##############################################################################
 from django.conf.urls import url, include
+from assistant.views import manager_assistant_form
 from assistant.views import mandate, home, assistant_form, assistant, phd_supervisor_review
 from assistant.views import manager_settings, reviewers_management, upload_assistant_file
 from assistant.views import mandates_list, reviewer_mandates_list, reviewer_review, reviewer_delegation
 from assistant.utils import get_persons
 from assistant.views import messages, phd_supervisor_assistants_list
 from assistant.views import assistant_mandate_reviews
+from assistant.views import manager_reviews_view
 from assistant.utils import send_email, import_xls_file_data, export_utils_pdf
 
 urlpatterns = [
@@ -92,6 +94,8 @@ urlpatterns = [
 
     url(r'^manager/', include([
         url(r'^$', home.manager_home, name='manager_home'),
+        url(r'^assistant_form/(?P<mandate_id>\d+)/$', manager_assistant_form.assistant_form_view,
+            name='manager_assistant_form_view'),
         url(r'^mandates/', include([
             url(r'^$', mandates_list.MandatesListView.as_view(), name='mandates_list'),
             url(r'^edit/$', mandate.mandate_edit, name='mandate_read'),
@@ -112,6 +116,7 @@ urlpatterns = [
             url(r'^add/$', reviewers_management.reviewer_add, name='reviewer_add'),
             url(r'^replace/$', reviewers_management.reviewer_replace, name='reviewer_replace'),
         ])),
+        url(r'^reviews/(?P<mandate_id>\d+)/$', manager_reviews_view.reviews_view, name='manager_reviews_view'),
         url(r'^settings/', include([
             url(r'^edit/$', manager_settings.settings_edit, name='settings_edit'),
             url(r'^save/$', manager_settings.settings_save, name='settings_save'),

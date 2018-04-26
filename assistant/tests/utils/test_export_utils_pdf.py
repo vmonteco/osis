@@ -127,7 +127,7 @@ class ExportPdfTestCase(TestCase):
         entities_data = ""
         for entity in entities:
             type = "%s" % (_(entity.entity_type))
-            entities_data += "<strong>" + type + " :</strong> " + entity.acronym + "<br />"
+            entities_data += "<strong>" + type + " : </strong>" + entity.acronym + "<br />"
         self.assertEqual(entities_data, export_utils_pdf.get_entities(self.mandate))
 
 

@@ -17,11 +17,20 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+msgid "courses"
+msgstr "Cours"
+
+msgid "desc_lnk_summary_responsible"
+msgstr "Permet d'administrer la liste des enseignants responsables des infos pédagogiques"
+
+msgid "manage_educational_information"
+msgstr "Gérer les informations pédagogiques"
+
+msgid "no_attribution_summary_editable"
+msgstr "Il n'existe aucun cours dont vous pouvez modifier les informations pédagogiques."
+
 msgid "summary_responsible"
 msgstr "Responsable des infos pédagogiques"
 
 msgid "summary_responsibles"
 msgstr "Responsables des infos pédagogiques"
-
-msgid "desc_lnk_summary_responsible"
-msgstr "Permet d'administrer la liste des enseignants responsables des infos pédagogiques"

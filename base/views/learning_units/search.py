@@ -27,6 +27,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
 from django.forms import formset_factory
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import SERVICE_COURSES_SEARCH, create_xls, get_last_academic_years, SIMPLE_SEARCH
@@ -36,17 +37,20 @@ from base.forms.learning_units import LearningUnitYearForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalRowForm, ProposalListFormset
 from base.models.academic_year import current_academic_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
+from base.models.person import Person, find_by_user
 from base.views import layout
-from base.views.common import check_if_display_message, display_error_messages, display_success_messages
+from base.views.common import check_if_display_message, display_error_messages, display_success_messages, \
+    display_messages_by_level
+from base.business import learning_unit_proposal as proposal_business
 
 PROPOSAL_SEARCH = 3
+SUMMARY_LIST = 4
 
 
 def _learning_units_search(request, search_type):
     service_course_search = search_type == SERVICE_COURSES_SEARCH
 
     form = LearningUnitYearForm(request.GET or None, service_course_search=service_course_search)
-
     found_learning_units = []
     try:
         if form.is_valid():
@@ -58,7 +62,7 @@ def _learning_units_search(request, search_type):
 
     if request.GET.get('xls_status') == "xls":
         return create_xls(request.user, found_learning_units)
-
+    a_person = find_by_user(request.user)
     context = {
         'form': form,
         'academic_years': get_last_academic_years(),
@@ -67,7 +71,8 @@ def _learning_units_search(request, search_type):
         'learning_units': found_learning_units,
         'current_academic_year': current_academic_year(),
         'experimental_phase': True,
-        'search_type': search_type
+        'search_type': search_type,
+        'is_faculty_manager': a_person.is_faculty_manager()
     }
     return layout.render(request, "learning_units.html", context)
 
@@ -99,14 +104,15 @@ def learning_units_proposal_search(request):
 
     if proposals:
         proposals = _proposal_management(request, proposals)
-
+    a_person = find_by_user(request.user)
     context = {
         'form': search_form,
         'academic_years': get_last_academic_years(),
         'current_academic_year': current_academic_year(),
         'experimental_phase': True,
         'search_type': PROPOSAL_SEARCH,
-        'proposals': proposals
+        'proposals': proposals,
+        'is_faculty_manager': a_person.is_faculty_manager()
     }
 
     return layout.render(request, "learning_units.html", context)
@@ -116,12 +122,50 @@ def _proposal_management(request, proposals):
     list_proposal_formset = formset_factory(form=ProposalRowForm, formset=ProposalListFormset,
                                             extra=len(proposals), max_num=MAX_RECORDS)
 
-    formset = list_proposal_formset(request.POST or None, list_proposal_learning=proposals)
-    if formset.is_valid():
-        try:
-            formset.save()
-            display_success_messages(request, _("proposal_edited_successfully"))
-        except IntegrityError:
-            display_error_messages(request, _("error_modification_learning_unit"))
+    formset = list_proposal_formset(request.POST or None,
+                                    list_proposal_learning=proposals,
+                                    action=request.POST.get('action') if request.POST else None)
+    return process_formset(formset, request)
 
+
+def process_formset(formset, request):
+    if formset.is_valid():
+        if formset.action == 'back_to_initial':
+            formset = _go_back_to_initial_data(formset, request)
+        elif formset.action == "consolidate":
+            _consolidate_proposals(formset, request)
+        else:
+            _force_state(formset, request)
     return formset
+
+
+def _go_back_to_initial_data(formset, request):
+    return _apply_action_on_proposals(formset, request, proposal_business.cancel_proposals)
+
+
+def _consolidate_proposals(formset, request):
+    return _apply_action_on_proposals(formset, request, proposal_business.consolidate_proposals)
+
+
+def _apply_action_on_proposals(formset, request, action_method):
+    proposals = formset.get_checked_proposals()
+    if proposals:
+        user_person = get_object_or_404(Person, user=request.user)
+        messages_by_level = action_method(proposals, user_person)
+        display_messages_by_level(request, messages_by_level)
+        formset = None
+    else:
+        _build_no_data_error_message(request)
+    return formset
+
+
+def _build_no_data_error_message(request):
+    display_error_messages(request, _("error_proposal_no_data"))
+
+
+def _force_state(formset, request):
+    try:
+        formset.save()
+        display_success_messages(request, _("proposal_edited_successfully"))
+    except IntegrityError:
+        display_error_messages(request, _("error_modification_learning_unit"))

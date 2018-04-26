@@ -38,8 +38,9 @@ class LanguageAdmin(SerializableModelAdmin):
 
 
 class Language(SerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
     code = models.CharField(max_length=4, unique=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True)
+    changed = models.DateTimeField(null=True, auto_now=True)
     name = models.CharField(max_length=80, unique=True)
     recognized = models.BooleanField(default=False)
 
@@ -49,7 +50,7 @@ class Language(SerializableModel):
 
 def find_by_id(language_id):
     try:
-        return Language.objects.get(id=language_id)
+        return Language.objects.get(pk=language_id)
     except ObjectDoesNotExist:
         return None
 

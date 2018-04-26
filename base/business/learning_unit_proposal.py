@@ -23,47 +23,55 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.business.learning_units.edition import update_or_create_entity_container_year_with_components
-from base.models import entity_container_year, campus, entity, entity_version
-from base.models.enums import proposal_type, entity_container_year_link_type
-from base.models.proposal_learning_unit import find_by_folder
-from reference.models import language
-from django.utils.translation import ugettext_lazy as _
-from base import models as mdl_base
 from django.apps import apps
+from django.contrib.messages import ERROR, SUCCESS
+from django.utils.translation import ugettext_lazy as _
 
+from base import models as mdl_base
+from base.business.learning_units.edition import update_or_create_entity_container_year_with_components, \
+    edit_learning_unit_end_date
+from base.business.learning_units import perms
+from base.business.learning_units.perms import PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES
+from base.business.learning_units.simple import deletion as business_deletion, deletion
+from base.models import entity_container_year, campus, entity
+from base.models.enums import entity_container_year_link_type, proposal_state, proposal_type
+from base.models.enums.proposal_type import ProposalType
+from base.utils import send_mail as send_mail_util
+from reference.models import language
 
 APP_BASE_LABEL = 'base'
 END_FOREIGN_KEY_NAME = "_id"
 NO_PREVIOUS_VALUE = '-'
+# TODO : VALUES_WHICH_NEED_TRANSLATION ?
 VALUES_WHICH_NEED_TRANSLATION = ["periodicity", "container_type", "internship_subtype"]
 LABEL_ACTIVE = _('active')
 LABEL_INACTIVE = _('inactive')
 
 
-def compute_proposal_type(initial_data, current_data):
-    data_changed = _compute_data_changed(initial_data, current_data)
-    filtered_data_changed = filter(lambda key: key not in ["academic_year", "subtype", "acronym"], data_changed)
-    transformation = "{}{}".format(current_data["first_letter"], current_data["acronym"]) != \
-                     "{}{}".format(initial_data["first_letter"], initial_data["acronym"])
-    modification = any(map(lambda x: x != "acronym", filtered_data_changed))
-    if transformation and modification:
-        return proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name
-    elif transformation:
-        return proposal_type.ProposalType.TRANSFORMATION.name
-    return proposal_type.ProposalType.MODIFICATION.name
+def compute_proposal_type(data_changed, initial_proposal_type):
+    if initial_proposal_type in [ProposalType.CREATION.name, ProposalType.SUPPRESSION.name]:
+        return initial_proposal_type
+
+    is_transformation = any(map(_is_transformation_field, data_changed))
+    is_modification = any(map(_is_modification_field, data_changed))
+    if is_transformation:
+        if is_modification:
+            return ProposalType.TRANSFORMATION_AND_MODIFICATION.name
+        else:
+            return ProposalType.TRANSFORMATION.name
+    return ProposalType.MODIFICATION.name
 
 
-def _compute_data_changed(initial_data, current_data):
-    data_changed = []
-    for key, value in initial_data.items():
-        current_value = current_data.get(key)
-        if str(value) != str(current_value):
-            data_changed.append(key)
-    return data_changed
+def _is_transformation_field(field):
+    return field in ["acronym", "first_letter"]
 
 
-def reinitialize_data_before_proposal(learning_unit_proposal, learning_unit_year):
+def _is_modification_field(field):
+    return not _is_transformation_field(field)
+
+
+def reinitialize_data_before_proposal(learning_unit_proposal):
+    learning_unit_year = learning_unit_proposal.learning_unit_year
     initial_data = learning_unit_proposal.initial_data
     _reinitialize_model_before_proposal(learning_unit_year, initial_data["learning_unit_year"])
     _reinitialize_model_before_proposal(learning_unit_year.learning_unit, initial_data["learning_unit"])
@@ -103,13 +111,14 @@ def _reinitialize_entities_before_proposal(learning_container_year, initial_enti
 
 
 def delete_learning_unit_proposal(learning_unit_proposal):
-    proposal_folder = learning_unit_proposal.folder
+    prop_type = learning_unit_proposal.type
+    lu = learning_unit_proposal.learning_unit_year.learning_unit
     learning_unit_proposal.delete()
-    if not find_by_folder(proposal_folder).exists():
-        proposal_folder.delete()
+    if prop_type == ProposalType.CREATION.name:
+        lu.delete()
 
 
-def _get_difference_of_proposal(learning_unit_yr_proposal):
+def get_difference_of_proposal(learning_unit_yr_proposal):
     differences = {}
     if learning_unit_yr_proposal and learning_unit_yr_proposal.initial_data.get('learning_container_year'):
         differences.update(_get_differences_in_learning_unit_data(learning_unit_yr_proposal))
@@ -175,7 +184,7 @@ def _compare_model_with_initial_value(an_id, model_initial_data, mymodel):
     differences = {}
     qs = mymodel.objects.filter(pk=an_id).values()
     if len(qs) > 0:
-        differences.update(_check_differences(model_initial_data,
+        differences.update(_check_differences(_get_rid_of_blank_value(model_initial_data),
                                               _get_rid_of_blank_value(qs[0])))
     return differences
 
@@ -257,7 +266,102 @@ def _get_old_value_when_not_foreign_key(initial_value, key):
 
 
 def _get_rid_of_blank_value(data):
-    clean_data = {}
-    for k, v in data.items():
-        clean_data.update({k: None}) if v == '' else clean_data.update({k: v})
+    clean_data = data.copy()
+    for key, value in clean_data.items():
+        if value == '':
+            clean_data[key] = None
     return clean_data
+
+
+def cancel_proposals(proposals, author):
+    return apply_action_on_proposals(proposals, author, cancel_proposal, "success_cancel_proposal",
+                                     "error_cancel_proposal",
+                                     send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation)
+
+
+def consolidate_proposals(proposals, author):
+    return apply_action_on_proposals(proposals, author, consolidate_proposal, "success_consolidate_proposal",
+                                     "error_consolidate_proposal",
+                                     send_mail_util.send_mail_after_the_learning_unit_proposal_consolidation)
+
+
+def apply_action_on_proposals(proposals, author, action_method, success_msg_id, error_msg_id, send_mail_method):
+    messages_by_level = {SUCCESS: [], ERROR: []}
+
+    for proposal in proposals:
+        msg = action_method(proposal)
+        if msg.get(ERROR):
+            error_msg = _(error_msg_id).format(acronym=proposal.learning_unit_year.acronym,
+                                               academic_year=proposal.learning_unit_year.academic_year)
+            messages_by_level[ERROR].append(error_msg)
+        else:
+            success_msg = _(success_msg_id).format(acronym=proposal.learning_unit_year.acronym,
+                                                   academic_year=proposal.learning_unit_year.academic_year)
+            messages_by_level[SUCCESS].append(success_msg)
+
+    send_mail_method([author], proposals)
+    return messages_by_level
+
+
+def cancel_proposal(learning_unit_proposal, author=None, send_mail=False):
+    acronym = learning_unit_proposal.learning_unit_year.acronym
+    academic_year = learning_unit_proposal.learning_unit_year.academic_year
+    error_messages = []
+    success_messages = []
+    if learning_unit_proposal.type == ProposalType.CREATION.name:
+        learning_unit_year = learning_unit_proposal.learning_unit_year
+        error_messages.extend(business_deletion.check_can_delete_ignoring_proposal_validation(learning_unit_year))
+        if not error_messages:
+            success_messages.extend(business_deletion.delete_from_given_learning_unit_year(learning_unit_year))
+    else:
+        reinitialize_data_before_proposal(learning_unit_proposal)
+    delete_learning_unit_proposal(learning_unit_proposal)
+    success_messages.append(_("success_cancel_proposal").format(acronym=acronym,
+                                                                academic_year=academic_year))
+    if send_mail and author is not None:
+        send_mail_util.send_mail_after_the_learning_unit_proposal_cancellation([author], [learning_unit_proposal])
+    return {
+        SUCCESS: success_messages,
+        ERROR: error_messages
+    }
+
+
+def consolidate_proposal(proposal, author=None, send_mail=False):
+    messages_by_level = {}
+    if proposal.state not in PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES:
+        return {
+            ERROR: [_("error_consolidate_proposal").format(acronym=proposal.learning_unit_year.acronym,
+                                                           academic_year=proposal.learning_unit_year.academic_year)]
+        }
+    if proposal.type == proposal_type.ProposalType.CREATION.name:
+        messages_by_level = consolidate_creation_proposal(proposal)
+
+    if send_mail and author is not None:
+        send_mail_util.send_mail_after_the_learning_unit_proposal_consolidation([author], [proposal])
+
+    return messages_by_level
+
+
+def consolidate_creation_proposal(proposal):
+    proposal.learning_unit_year.learning_unit.end_year = proposal.learning_unit_year.academic_year.year
+    proposal.learning_unit_year.learning_unit.save()
+
+    if proposal.state == proposal_state.ProposalState.ACCEPTED.name:
+        results = _consolidate_creation_proposal_of_state_accepted(proposal)
+    else:
+        results = _consolidate_creation_proposal_of_state_refused(proposal)
+    if not results.get(ERROR, []):
+        proposal.delete()
+    return results
+
+
+def _consolidate_creation_proposal_of_state_accepted(proposal):
+    return {SUCCESS: edit_learning_unit_end_date(proposal.learning_unit_year.learning_unit, None)}
+
+
+def _consolidate_creation_proposal_of_state_refused(proposal):
+    messages_by_level = deletion.check_learning_unit_deletion(proposal.learning_unit_year.learning_unit,
+                                                              check_proposal=False)
+    if messages_by_level:
+        return {ERROR: list(messages_by_level.values())}
+    return {SUCCESS: deletion.delete_learning_unit(proposal.learning_unit_year.learning_unit)}

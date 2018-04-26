@@ -1,4 +1,4 @@
-{% load staticfiles %}
+{% load staticfiles bootstrap3 %}
 {% load i18n %}
 {% comment "License" %}
     * OSIS stands for Open Student Information System. It's an application
@@ -34,7 +34,7 @@
                 <div class="row" style="margin:0;">
                     <div class="col-md-4" style="padding-right:0;">
                         <label>
-                            {% trans 'acronym' %}*
+                            {% trans 'code' %}*
                         </label>
                         {{ learning_unit_form.first_letter }}
                     </div>
@@ -47,8 +47,8 @@
                         <span class='error' id="{{ learning_unit_form.acronym.name }}_message"
                               for='{{ learning_unit_form.acronym.name }}' generated="true"></span>
                         {% if learning_unit_form.acronym.errors %}
-                        <b class='error' for='{{ learning_unit_form.acronym.name }}' generated="true">{{
-                            learning_unit_form.acronym.errors|join:". " }}</b>
+                        <b class='error' for='{{ learning_unit_form.acronym.name }}' generated="true">
+                            {{ learning_unit_form.acronym.errors| join:". " }}</b>
                         {% endif %}
                     </div>
                 </div>
@@ -137,30 +137,16 @@
     </div>
     <div class="panel-body">
         <div>
-            <label {% if learning_unit_form.errors.common_title%}style="color:red;" {% endif %}>
-                {% trans 'common_official_title' %}
-            </label>
-            {{ learning_unit_form.common_title }}
-            <label {% if learning_unit_form.errors.common_title%}style="color:red;" {% endif %}>
-                {{ learning_unit_form.errors.common_title| striptags }}
-            </label>
+            {% bootstrap_field  learning_unit_form.common_title  label=_('common_official_title') %}
         </div>
         <div>
-            <label {% if learning_unit_form.errors.specific_title%}style="color:red;" {% endif %}>
-                {% trans 'official_title_proper_to_UE' %}
-            </label>
-            {{ learning_unit_form.specific_title }}
-            <label {% if learning_unit_form.errors.specific_title%}style="color:red;" {% endif %}>
-                {{ learning_unit_form.errors.specific_title| striptags }}
-            </label>
+            {% bootstrap_field  learning_unit_form.specific_title label=_('official_title_proper_to_UE') %}
         </div>
         <div>
-            <label>{% trans 'common_official_english_title' %}</label>
-            {{ learning_unit_form.common_title_english }}
+            {% bootstrap_field  learning_unit_form.common_title_english label=_('common_official_english_title') %}
         </div>
         <div>
-            <label>{% trans 'official_english_title_proper_to_UE' %}</label>
-            {{ learning_unit_form.specific_title_english }}
+            {% bootstrap_field  learning_unit_form.specific_title_english label=_('official_english_title_proper_to_UE') %}
         </div>
     </div>
 </div>
@@ -186,11 +172,11 @@
         </div>
         <div class="row">
             <div class="col-md-6">
-                <label>{% trans 'additional_requirement_entity' %} 1</label>
+                <label>{% trans 'additional_requirement_entity_1' %}</label>
                 {{ learning_unit_form.additional_requirement_entity_1 }}
             </div>
             <div class="col-md-6">
-                <label>{% trans 'additional_requirement_entity' %} 2</label>
+                <label>{% trans 'additional_requirement_entity_2' %}</label>
                 {{ learning_unit_form.additional_requirement_entity_2 }}
             </div>
         </div>

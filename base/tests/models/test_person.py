@@ -133,7 +133,7 @@ class PersonTest(PersonTestCase):
         usr.save()
         a_person = create_person_with_user(usr)
         person.change_language(usr, 'ru')
-        self.assertNotEquals(a_person.language, "ru")
+        self.assertNotEqual(a_person.language, "ru")
 
     def test_change_language(self):
         usr = user.UserFactory()
@@ -142,14 +142,14 @@ class PersonTest(PersonTestCase):
 
         person.change_language(usr, "en")
         a_person = person.find_by_user(usr)
-        self.assertEquals(a_person.language, "en")
+        self.assertEqual(a_person.language, "en")
 
     def test_calculate_age(self):
         a_person = PersonFactory()
         a_person.birth_date = datetime.datetime.now() - datetime.timedelta(days=((30*365)+15))
-        self.assertEquals(person.calculate_age(a_person), 30)
+        self.assertEqual(person.calculate_age(a_person), 30)
         a_person.birth_date = datetime.datetime.now() - datetime.timedelta(days=((30*365)-5))
-        self.assertEquals(person.calculate_age(a_person), 29)
+        self.assertEqual(person.calculate_age(a_person), 29)
 
     def test_is_central_manager(self):
         a_person = PersonFactory()

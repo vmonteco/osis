@@ -794,6 +794,18 @@ def manager_dissertations_wait_recep_list(request):
                           'show_evaluation_first_year': show_evaluation_first_year})
 
 
+@login_required
+@user_passes_test(adviser.is_manager)
+def manager_students_list(request):
+
+    current_manager = adviser.search_by_person(mdl.person.find_by_user(request.user))
+    offers = faculty_adviser.search_by_adviser(current_manager)
+    students = mdl.student.find_by_offers_and_academic_year(offers, mdl.academic_year.starting_academic_year())\
+        .prefetch_related('dissertation_set', 'offerenrollment_set')
+
+    return layout.render(request, 'manager_students_list.html', {'students': students})
+
+
 ###########################
 #      TEACHER VIEWS      #
 ###########################

@@ -35,6 +35,7 @@ from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory, create_learning_units_year
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 
 
 class LearningUnitYearTest(TestCase):
@@ -47,7 +48,7 @@ class LearningUnitYearTest(TestCase):
                                                           subtype=learning_unit_year_subtypes.FULL)
 
     def test_find_by_tutor_with_none_argument(self):
-        self.assertEquals(attribution.find_by_tutor(None), None)
+        self.assertEqual(attribution.find_by_tutor(None), None)
 
     def test_subdivision_computation(self):
         l_container_year = LearningContainerYearFactory(acronym="LBIR1212", academic_year=self.academic_year)
@@ -190,3 +191,11 @@ class LearningUnitYearTest(TestCase):
 
         luy = LearningUnitYearFactory(specific_title=specific_title, learning_container_year__common_title=common_title)
         self.assertEqual(luy.complete_title, '{} {}'.format(common_title, specific_title))
+
+    def test_common_title_property(self):
+        self.assertEqual(self.learning_unit_year.container_common_title,
+                         self.learning_unit_year.learning_container_year.common_title)
+
+    def test_common_title_property_no_container(self):
+        self.learning_unit_year.learning_container_year = None
+        self.assertEqual(self.learning_unit_year.container_common_title, '')

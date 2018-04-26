@@ -48,11 +48,11 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-4">
-                            <label for="{{ proposal_form.folder_id.id_for_label }}">{% trans 'folder' %}</label>
+                            <label for="{{ proposal_form.folder_id.id_for_label }}">{% trans 'folder' %}*</label>
                         </div>
                         <div class="col-md-4">
-                            {{ proposal_form.folder_entity }}
-                            <span class="error">{{ proposal_form.folder_entity.errors }}</span>
+                            {{ proposal_form.entity }}
+                            <span class="error">{{ proposal_form.entity.errors }}</span>
                         </div>
                         <div class="col-md-4">
                             {{ proposal_form.folder_id }}
@@ -96,13 +96,5 @@
 </div>
 {% endblock %}
 {% block script %}
-<script type="text/javascript">
-    const trans_existed_acronym = "{% trans 'existed_acronym' %}";
-    const trans_existing_acronym = "{% trans 'existing_acronym' %}";
-    const trans_invalid_acronym = "{% trans 'invalid_acronym' %}";
-    const trans_field_required = "{% trans 'field_is_required' %}";
-    const trans_field_min = "{% trans 'min_for_field' %}";
-    const trans_field_max = "{% trans 'max_for_field' %}";
-</script>
 <script type="text/javascript" src="{% static 'js/learning_unit_creation.js' %}"></script>
 {% endblock %}

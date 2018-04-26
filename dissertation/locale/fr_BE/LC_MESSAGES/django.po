@@ -289,6 +289,9 @@ msgstr "Paramétrage de la plateforme"
 msgid "desc_lnk_manager_proposition_dissertations"
 msgstr "Sujets de mémoire proposés par les enseignants"
 
+msgid "desc_lnk_manager_students_list"
+msgstr "Liste des étudiants"
+
 msgid "desc_lnk_propositions_dissertations"
 msgstr "Sujets de mémoire proposés par moi-même et par les autres enseignants"
 
@@ -840,6 +843,9 @@ msgstr "Cochez les programmes de cours en relation avec ce sujet"
 
 msgid "select_program_first"
 msgstr "Choisissez d'abord le Programme/Année de début"
+
+msgid "send_email_to_commission_accepted"
+msgstr "Envoyer un email à la commission de lecture à l'acceptation de la commission d'évaluation"
 
 msgid "september"
 msgstr "Septembre"

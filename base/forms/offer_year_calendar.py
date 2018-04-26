@@ -24,7 +24,6 @@
 #
 ##############################################################################
 from django import forms
-from django.forms import ModelForm
 
 from base.forms.bootstrap import BootstrapModelForm
 from base.models import offer_year_calendar

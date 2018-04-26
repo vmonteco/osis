@@ -42,7 +42,7 @@ from base.models.proposal_learning_unit import ProposalLearningUnit
 
 
 def _get_entity_folder_id_ordered_by_acronym():
-    entities = mdl.proposal_folder.find_distinct_folder_entities()
+    entities = mdl.proposal_learning_unit.find_distinct_folder_entities()
     entities_sorted_by_acronym = sorted(list(entities), key=lambda t: t.most_recent_acronym)
 
     return [SearchForm.ALL_LABEL] + [(ent.pk, ent.most_recent_acronym) for ent in entities_sorted_by_acronym]
@@ -144,9 +144,9 @@ class ProposalRowForm(ProposalStateModelForm):
 
     @property
     def folder(self):
-        last_entity = entity_version.get_last_version(self.instance.folder.entity)
+        last_entity = entity_version.get_last_version(self.instance.entity)
         folder = last_entity.acronym if last_entity else ''
-        folder += str(self.instance.folder.pk)
+        folder += str(self.instance.folder_id)
 
         return folder
 
@@ -165,7 +165,7 @@ class ProposalRowForm(ProposalStateModelForm):
     @property
     def container_type(self):
         container = self.instance.learning_unit_year.learning_container_year
-        return container.container_type if container.container_type else ''
+        return _(container.container_type) if container.container_type else '-'
 
     @property
     def requirement_entity(self):
@@ -195,6 +195,7 @@ class ProposalListFormset(forms.BaseFormSet):
 
     def __init__(self, *args, **kwargs):
         self.list_proposal_learning = kwargs.pop("list_proposal_learning")
+        self.action = kwargs.pop("action")
         super().__init__(*args, **kwargs)
 
     def get_form_kwargs(self, index):
@@ -206,3 +207,6 @@ class ProposalListFormset(forms.BaseFormSet):
         with transaction.atomic():
             for form in self.forms:
                 form.save()
+
+    def get_checked_proposals(self):
+        return [form.instance for form in self.forms if form.cleaned_data.get('check')]

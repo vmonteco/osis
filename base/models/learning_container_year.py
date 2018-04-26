@@ -29,10 +29,10 @@ from attribution.models.attribution_new import AttributionNew
 from base.models import learning_unit_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types
 from base.models.enums import vacant_declaration_type
-from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
+from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
-class LearningContainerYearAdmin(AuditableSerializableModelAdmin):
+class LearningContainerYearAdmin(SerializableModelAdmin):
     list_display = ('learning_container', 'academic_year', 'container_type', 'acronym', 'common_title')
     fieldsets = ((None, {'fields': ('academic_year', 'learning_container',  'container_type', 'acronym', 'common_title',
                                     'common_title_english', 'language', 'campus', 'is_vacant',
@@ -42,7 +42,7 @@ class LearningContainerYearAdmin(AuditableSerializableModelAdmin):
     list_filter = ('academic_year', 'in_charge', 'is_vacant',)
 
 
-class LearningContainerYear(AuditableSerializableModel):
+class LearningContainerYear(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     academic_year = models.ForeignKey('AcademicYear')
     learning_container = models.ForeignKey('LearningContainer')
@@ -64,7 +64,7 @@ class LearningContainerYear(AuditableSerializableModel):
         return u"%s - %s" % (self.acronym, self.common_title)
 
     class Meta:
-        unique_together = ("learning_container", "academic_year", "deleted", )
+        unique_together = ("learning_container", "academic_year",)
         permissions = (
             ("can_access_learningcontaineryear", "Can access learning container year"),
         )

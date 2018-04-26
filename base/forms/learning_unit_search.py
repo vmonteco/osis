@@ -40,24 +40,34 @@ class SearchForm(forms.Form):
         label=_('academic_year_small'),
         queryset=AcademicYear.objects.all(),
         empty_label=_('all_label'),
-        required=False,
     )
 
     requirement_entity_acronym = forms.CharField(
         max_length=20,
-        required=False,
         label=_('requirement_entity_small')
     )
 
     acronym = forms.CharField(
         max_length=15,
-        required=False,
         label=_('code')
+    )
+
+    tutor = forms.CharField(
+        max_length=20,
+        label=_('tutor')
+    )
+
+    summary_responsible = forms.CharField(
+        max_length=20,
+        label=_('summary_responsible')
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['academic_year_id'].initial = current_academic_year()
+        for field in self.fields.values():
+            # In a search form, the fields are never required
+            field.required = False
 
     def clean_requirement_entity_acronym(self):
         return convert_to_uppercase(self.cleaned_data.get('requirement_entity_acronym'))
