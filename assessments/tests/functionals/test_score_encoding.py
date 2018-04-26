@@ -1,20 +1,17 @@
 import datetime
+import time
+from urllib import request
+
+import faker
+import functools
+import magic
 import os
+import parse
+import pendulum
+import pyvirtualdisplay
 import random
 import shutil
 import tempfile
-import time
-import unittest
-import pdb
-from urllib import request
-
-import functools
-import pyvirtualdisplay
-import faker
-import magic
-import parse
-import pendulum
-
 from django.conf import settings
 from django.contrib.auth.models import Group, Permission
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
@@ -22,12 +19,9 @@ from django.test import tag
 from django.urls import reverse
 from django.utils import timezone
 from openpyxl import load_workbook
-from prettyprinter import cpprint
 from selenium import webdriver
-from selenium.webdriver.support.ui import Select
-from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select
 
 from attribution.tests.factories.attribution import AttributionFactory
 from base.tests.factories.academic_calendar import (AcademicCalendarExamSubmissionFactory,
