@@ -33,6 +33,7 @@ from base.business.learning_units.achievement import get_code_name
 from base.models.learning_achievement import LearningAchievement, find_learning_unit_achievement
 from base.forms.learning_achievement import LearningAchievementEditForm, EN_CODE_LANGUAGE, FR_CODE_LANGUAGE
 from base.models.learning_unit_year import LearningUnitYear
+from base.views.learning_units import perms
 from base.views.learning_unit import learning_unit_specifications
 from . import layout
 from reference.models import language
@@ -65,6 +66,7 @@ def execute_operation(an_achievement, operation_str):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 @require_http_methods(['POST'])
+@perms.can_update_learning_achievement
 def management(request, learning_unit_year_id):
     return operation(request.POST.get('achievement_id'), get_action(request))
 
@@ -79,6 +81,7 @@ def get_action(request):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 @require_http_methods(["GET", "POST"])
+@perms.can_update_learning_achievement
 def update(request, learning_unit_year_id, learning_achievement_id):
     learning_achievement = get_object_or_404(LearningAchievement, pk=learning_achievement_id)
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
@@ -97,6 +100,7 @@ def update(request, learning_unit_year_id, learning_achievement_id):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 @require_http_methods(['POST', 'GET'])
+@perms.can_update_learning_achievement
 def create(request, learning_unit_year_id, learning_achievement_id):
     learning_unit_yr = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     a_language_code = request.GET.get('language_code', None)
@@ -121,13 +125,14 @@ def create(request, learning_unit_year_id, learning_achievement_id):
 
 def _save_and_redirect(form, learning_unit_year_id):
     form.save()
-    return HttpResponseRedirect(reverse("learning_unit_specifications",
+    return HttpResponseRedirect(reverse(learning_unit_specifications,
                                         kwargs={'learning_unit_year_id': learning_unit_year_id}))
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 @require_http_methods(['POST', 'GET'])
+@perms.can_update_learning_achievement
 def create_first(request, learning_unit_year_id):
     learning_unit_yr = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     form = LearningAchievementEditForm(request.POST or None,
