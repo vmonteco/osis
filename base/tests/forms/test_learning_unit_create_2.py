@@ -30,7 +30,8 @@ from django.test import TestCase
 
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
-from base.forms.learning_unit.learning_unit_create_2 import FullForm
+from base.forms.learning_unit.learning_unit_create_2 import FullForm, PARTIM_FORM_READ_ONLY_FIELD, \
+    FULL_READ_ONLY_FIELDS, PartimForm
 from base.models.academic_year import AcademicYear
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -138,6 +139,26 @@ class LearningUnitFullFormContextMixin(TestCase):
 
 class TestFullFormInit(LearningUnitFullFormContextMixin):
     """Unit tests for FullForm.__init__()"""
+
+    def test_disable_fields_full(self):
+
+        form = FullForm(None, self.person, instance=self.learning_unit_year)
+
+        fields = []
+        for item in form.__dict__.items():
+            print('ITEM:')
+            print(item)
+            for field in item:
+                print('FIELD')
+                print(field)
+                if field.disabled:
+                    fields.append(field)
+
+        self.assertEqual(fields, FULL_READ_ONLY_FIELDS)
+
+    def test_disable_fields_partim(self):
+        form = PartimForm(None, self.person, instance=self.learning_unit_year)
+        self.assertEqual(None, PARTIM_FORM_READ_ONLY_FIELD)
 
     def test_subtype_is_full(self):
         form = _instanciate_form(instance=LearningUnitYearFactory())
@@ -323,7 +344,7 @@ class TestFullFormSave(LearningUnitFullFormContextMixin):
         self.assertEqual(LearningUnitYear.objects.filter(acronym='LOSIS1010').count(), 1)
 
 
-class testFullFormCreate(TestCase):
+class TestFullFormCreate(TestCase):
     """Unit tests for FullForm._create()"""
 
     def setUp(self):
