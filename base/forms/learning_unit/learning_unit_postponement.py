@@ -131,11 +131,11 @@ class LearningUnitPostponementForm:
         form_kwargs = {
             'person': self.person,
             'learning_unit_instance': self.learning_unit_instance,
-            'academic_year': academic_year,
-            'data': data,
+            'academic_year': learning_unit_year_instance.academic_year if learning_unit_year_instance else academic_year,
+            'data': data.copy() if data else None,
             'learning_unit_full_instance': self.learning_unit_full_instance
         }
-        if learning_unit_year_instance:
+        if learning_unit_year_instance and data:
             management_form_updated = self._get_entity_formset_management_form(data, learning_unit_year_instance)
             form_kwargs['data'].update(management_form_updated)
 

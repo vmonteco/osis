@@ -95,28 +95,26 @@ def update_learning_unit(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     person = get_object_or_404(Person, user=request.user)
 
-    if learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
-        learning_unit_form_container = FullForm(person, learning_unit_year.academic_year,
-                                                learning_unit_instance=learning_unit_year.learning_unit,
-                                                data=request.POST or None)
-    else:
-        learning_unit_form_container = PartimForm(request.POST or None, person,
-                                                  learning_unit_year_full=learning_unit_year.parent,
-                                                  instance=learning_unit_year)
+    learning_unit_full_instance = None
+    if learning_unit_year.subtype == learning_unit_year_subtypes.PARTIM:
+        learning_unit_full_instance = learning_unit_year.parent.learning_unit
 
-    if learning_unit_form_container.is_valid():
+    end_postponement = learning_unit_year.academic_year if not bool(int(request.POST.get('postponement', 1))) else None
+    postponement_form = LearningUnitPostponementForm(
+        person=person,
+        start_postponement=learning_unit_year.academic_year,
+        end_postponement=end_postponement,
+        learning_unit_instance=learning_unit_year.learning_unit,
+        learning_unit_full_instance=learning_unit_full_instance,
+        data=request.POST or None
+    )
+
+    if postponement_form.is_valid():
         # Update current learning unit year
-        luy_updated = [learning_unit_form_container.save()]
-        if bool(int(request.POST.get('postponement', 1))):
-            # Make postponement if user select it
-            postponement_form = LearningUnitPostponementForm(instance=learning_unit_form_container, person=person)
-            if postponement_form.is_valid():
-                luy_updated.extend(postponement_form.save())
-
-        display_success_messages(request, _('success_modification_learning_unit'))
+        _save_form_and_display_messages(request, postponement_form)
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year_id)
 
-    context = learning_unit_form_container.get_context()
+    context = postponement_form.get_context()
     context["learning_unit_year"] = learning_unit_year
     return render(request, 'learning_unit/simple/update.html', context)
 
