@@ -29,7 +29,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
 
-from base.business.learning_units.achievement import get_code_name
+from base.business.learning_units.achievement import get_code_name, get_anchor_reference, DELETE, DOWN, UP, \
+    AVAILABLE_ACTIONS, HTML_ANCHOR
 from base.models.learning_achievement import LearningAchievement, find_learning_unit_achievement
 from base.forms.learning_achievement import LearningAchievementEditForm, EN_CODE_LANGUAGE, FR_CODE_LANGUAGE
 from base.models.learning_unit_year import LearningUnitYear
@@ -37,11 +38,6 @@ from base.views.learning_units import perms
 from base.views.learning_unit import learning_unit_specifications
 from . import layout
 from reference.models import language
-
-DOWN = 'down'
-UP = 'up'
-DELETE = 'delete'
-AVAILABLE_ACTIONS = [DELETE, UP, DOWN]
 
 
 def operation(learning_achievement_id, operation_str):
@@ -51,10 +47,12 @@ def operation(learning_achievement_id, operation_str):
     achievement_en = find_learning_unit_achievement(achievement_fr.learning_unit_year,
                                                     EN_CODE_LANGUAGE,
                                                     achievement_fr.order)
+    anchor = get_anchor_reference(operation_str, achievement_fr)
     execute_operation(achievement_fr, operation_str)
     execute_operation(achievement_en, operation_str)
+
     return HttpResponseRedirect(reverse(learning_unit_specifications,
-                                        kwargs={'learning_unit_year_id': lu_yr_id}))
+                                        kwargs={'learning_unit_year_id': lu_yr_id}) + anchor)
 
 
 def execute_operation(an_achievement, operation_str):
@@ -108,6 +106,7 @@ def create(request, learning_unit_year_id, learning_achievement_id):
 
     form = LearningAchievementEditForm(request.POST or None,
                                        initial={'learning_unit_year': learning_unit_yr,
+                                                'language_code': a_language_code,
                                                 'code_name': get_code_name(learning_achievement_fr,
                                                                            a_language_code)})
 
@@ -124,9 +123,11 @@ def create(request, learning_unit_year_id, learning_achievement_id):
 
 
 def _save_and_redirect(form, learning_unit_year_id):
-    form.save()
+    achievement = form.save()
     return HttpResponseRedirect(reverse(learning_unit_specifications,
-                                        kwargs={'learning_unit_year_id': learning_unit_year_id}))
+                                        kwargs={'learning_unit_year_id': learning_unit_year_id}) + "{}{}".format(
+        HTML_ANCHOR,
+        achievement.id))
 
 
 @login_required
