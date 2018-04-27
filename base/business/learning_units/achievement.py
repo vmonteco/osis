@@ -53,4 +53,3 @@ def get_anchor_reference(operation_str, achievement_fr):
         if achievement_previous:
             return "?anchor={}".format(achievement_previous.id)
     return ''
-
