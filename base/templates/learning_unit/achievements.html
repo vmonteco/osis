@@ -134,13 +134,15 @@
         </div>
 
         {% if forloop.last %}
-            <a class="btn btn-info btn-sm achievement-edit-btn" href="#"
-               id="btn_edit_{{ achievement.id }}"
-               data-form="{% url 'achievement_create' learning_unit_year_id=learning_unit_year.id learning_achievement_id=achievement.id %}?language_code=FR"
-               title="{% trans 'create' %}"
-               style="margin-top:10px;">
-                {% trans 'add_another' %}
-            </a>
+            {% if can_update_learning_achievement %}
+                <a class="btn btn-info btn-sm achievement-edit-btn" href="#"
+                   id="btn_edit_{{ achievement.id }}"
+                   data-form="{% url 'achievement_create' learning_unit_year_id=learning_unit_year.id learning_achievement_id=achievement.id %}?language_code=FR"
+                   title="{% trans 'create' %}"
+                   style="margin-top:10px;">
+                    {% trans 'add_another' %}
+                </a>
+            {% endif %}
         {% else %}
             <hr>
         {% endif %}
