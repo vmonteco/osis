@@ -273,10 +273,13 @@ class FullForm(LearningUnitBaseForm):
         return self._validate_no_empty_title(common_title) and self._validate_same_entities_container()
 
     def check_consistency_on_academic_year(self):
+        # TODO :: Décommenter ces lignes et voir les tests qui cassent -> corriger
+        # TODO :: Ajouter une fonction de check : si UE est bisannuel PAIR/IMPAIR, le partim DOIT être bisanunel PAIR/IMPAIR (le même que le parent)
+        # TODO :: Ajouter des tests qui couvrent les cas checkés ici
         # self._check_credits_consistency_on_academic_year()
         # self._check_status_consistency_on_academic_year()
         # self._check_person_linked_to_entity_of_charge()
-        # self._check_existence_of_linked_entities()
+        # self._check_linked_entities()
         return False
 
     def _check_credits_consistency_on_academic_year(self):
@@ -301,14 +304,27 @@ class FullForm(LearningUnitBaseForm):
         if not self.person.is_linked_to_entity_in_charge_of_learning_unit_year(luy_instance):
             raise ValidationError(_("The logged person is not linked to the entity of charge of the learning unit"))
 
-    def _check_existence_of_linked_entities(self):
-        luy_instance = self.forms[LearningUnitYearModelForm].instance
+    def _check_linked_entities(self):
         linked_entities = self._get_linked_entities()
 
+        self._check_existence_of_linked_entities(linked_entities)
+        self._check_linked_entities_attachment(linked_entities)
+
+
+    def _check_existence_of_linked_entities(self, linked_entities):
+        luy_instance = self.forms[LearningUnitYearModelForm].instance
         if not all([entity_version.get_by_entity_and_date(entity, luy_instance.academic_year.start_date)
                     for entity in linked_entities.values()]):
             raise ValidationError(_("One of the linked entities does not exist at the start date of the academic year "
                                     "linked to this learning unit"))
+
+    def _check_linked_entities_attachment(self, linked_entities):
+        # TODO :: Il faut checker si requirement_entity et allocation_entity sont liées à la même fac pour les types THESE - MEMOIRE - STAGE
+        # PSEUDO-CODE :
+        # linked_entities = self._get_linked_entities()
+        # if self.ue_type in (THESE, MEMOIRE, STAGE) and _have_same_fac_ascendant(linked_entities.get('requirement_entity'), linked_entities.get('allocation_entity')):
+        #   raise ValidationError(_("requirement entity and allocation_entity must relate to the same faculty for master thesis, dissertation and internship learning units"))
+        pass
 
     def _validate_same_entities_container(self):
         container_type = self.forms[LearningContainerYearModelForm].cleaned_data["container_type"]
@@ -472,6 +488,11 @@ class PartimForm(LearningUnitBaseForm):
 
         common_title = self.learning_unit_year_full.learning_container_year.common_title
         return self._validate_no_empty_title(common_title)
+
+    def check_consistency_on_academic_year(self):
+        # TODO :: implémenter les checks correpondant à ceux du FullForm mais du partim par rapport au parent.
+        # TODO :: fix tests existants + écriture nouveaux tests pour couvrir tous les cas
+        pass
 
     def _create(self, commit, postponement):
         academic_year = self.learning_unit_year_full.academic_year
