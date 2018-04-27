@@ -2860,5 +2860,8 @@ msgstr "annulation"
 msgid "consolidation"
 msgstr ""
 
+msgid "borrowed_course_search"
+msgstr "Recherche - Cours empruntés"msgstr ""
+
 msgid "add_another"
 msgstr "Ajouter un autre"

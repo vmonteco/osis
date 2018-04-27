@@ -30,7 +30,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.learning_unit import SERVICE_COURSES_SEARCH, create_xls, SIMPLE_SEARCH
+from base.business.learning_unit import create_xls
 from base.forms.common import TooManyResultsException
 from base.forms.learning_unit.search_form import LearningUnitYearForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalStateModelForm
@@ -42,8 +42,12 @@ from base.views import layout
 from base.views.common import check_if_display_message, display_error_messages, display_messages_by_level
 from base.business import learning_unit_proposal as proposal_business
 
+
+SIMPLE_SEARCH = 1
+SERVICE_COURSES_SEARCH = 2
 PROPOSAL_SEARCH = 3
 SUMMARY_LIST = 4
+BORROWED_COURSE = 5
 
 ACTION_BACK_TO_INITIAL = "back_to_initial"
 ACTION_CONSOLIDATE = "consolidate"
@@ -90,6 +94,12 @@ def learning_units(request):
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units_service_course(request):
     return learning_units_search(request, SERVICE_COURSES_SEARCH)
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+def learning_units_borrowed_course(request):
+    return learning_units_search(request, BORROWED_COURSE)
 
 
 @login_required
