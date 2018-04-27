@@ -54,5 +54,5 @@ def get_anchor_reference(operation_str, achievement_fr):
     if operation_str in AVAILABLE_ACTIONS:
         achievement_previous = get_previous_achievement(achievement_fr)
         if achievement_previous:
-            return "{}{}".format(achievement_previous.id, HTML_ANCHOR)
+            return "{}{}".format(HTML_ANCHOR, achievement_previous.id)
     return ''
