@@ -2859,3 +2859,6 @@ msgstr "annulation"
 
 msgid "consolidation"
 msgstr ""
+
+msgid "add_another"
+msgstr "Ajouter un autre"
