@@ -24,12 +24,9 @@
 #
 ##############################################################################
 from base.forms.learning_unit.learning_unit_create_2 import PartimForm, FullForm
-from base.models import academic_year
-from base.models import learning_unit_year
+from base.models import academic_year, learning_unit_year
 from base.models.learning_unit import LearningUnit
-from base.models.enums import learning_unit_year_subtypes
-
-from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
+from base.models.enums import learning_unit_year_subtypes, entity_container_year_link_type
 
 
 # @TODO: Use LearningUnitPostponementForm to manage END_DATE of learning unit year
@@ -55,6 +52,7 @@ class LearningUnitPostponementForm:
         self.end_postponement = end_postponement
         self._init_forms(data)
 
+    # @TODO: WHEN CREATION, we must keep first learning_unit instance created in order to keep start date !!!
     def _init_forms(self, data=None):
         """This function will init two forms var:
            forms_to_upsert: LearningUnitBaseForm which must be created/updated
@@ -124,7 +122,7 @@ class LearningUnitPostponementForm:
         """This function will update specific key [related to learning container year]
            of management form provided by formset"""
         management_form = {}
-        for index, type in enumerate(ENTITY_TYPE_LIST):
+        for index, type in enumerate(entity_container_year_link_type.ENTITY_TYPE_LIST):
             if data.get('entitycontaineryear_set-{}-learning_container_year'.format(index)):
                 management_form['entitycontaineryear_set-{}-learning_container_year'.format(index)] = \
                     learning_unit_year_full_instance.learning_container_year.id

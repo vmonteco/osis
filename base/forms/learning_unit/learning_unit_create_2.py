@@ -28,6 +28,7 @@ from collections import OrderedDict
 
 from copy import deepcopy
 from django.db import transaction
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_units import edition as edition_business
@@ -35,11 +36,13 @@ from base.business.utils.model import merge_two_dicts
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
     LearningContainerModelForm, EntityContainerFormset, LearningContainerYearModelForm
 from base.forms.utils.acronym_field import split_acronym
+from base.models import learning_unit_year
 from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear
 from base.models.campus import Campus
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
+from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
 from reference.models import language
 
@@ -281,23 +284,17 @@ class PartimForm(LearningUnitBaseForm):
     subtype = learning_unit_year_subtypes.PARTIM
     form_cls_to_validate = [LearningUnitModelForm, LearningUnitYearModelForm]
 
-    def __init__(self, data, person, learning_unit_year_full, instance=None, *args, **kwargs):
-        check_learning_unit_year_instance(instance)
-        self.instance = instance
-        self.person = person
-        self.data = data
-        if self.instance:
-            self.start_year = self.instance.learning_unit.start_year
-        else:
-            self.start_year = learning_unit_year_full.academic_year.year
+    def __init__(self, person, learning_unit_full_instance, academic_year, learning_unit_partim_instance=None,
+                 data=None, *args, **kwargs):
+        if not isinstance(learning_unit_full_instance, LearningUnit):
+            raise AttributeError('learning_unit_full arg should be an instance of {}'.format(LearningUnit))
+        if learning_unit_partim_instance is not None and not isinstance(learning_unit_partim_instance, LearningUnit):
+            raise AttributeError('learning_unit_partim_instance arg should be an instance of {}'.format(LearningUnit))
 
-        if not isinstance(learning_unit_year_full, LearningUnitYear):
-            raise AttributeError('learning_unit_year_full arg should be an instance of {}'.format(LearningUnitYear))
-        if learning_unit_year_full.subtype != learning_unit_year_subtypes.FULL:
-            error_args = 'learning_unit_year_full arg should have a subtype {}'.format(learning_unit_year_subtypes.FULL)
-            raise AttributeError(error_args)
-        self.learning_unit_year_full = learning_unit_year_full
-        self.academic_year = self.learning_unit_year_full.academic_year
+        self.person = person
+        self.academic_year = academic_year
+        self.learning_unit_full_instance = learning_unit_full_instance
+        self.learning_unit_partim_instance = learning_unit_partim_instance
 
         # Inherit values cannot be changed by user
         inherit_lu_values = self._get_inherit_learning_unit_full_value()
@@ -306,6 +303,12 @@ class PartimForm(LearningUnitBaseForm):
 
         super(PartimForm, self).__init__(instances_data, *args, **kwargs)
         self.disable_fields(PARTIM_FORM_READ_ONLY_FIELD)
+
+    @cached_property
+    def learning_unit_year_full(self):
+        return learning_unit_year.search(academic_year_id=self.academic_year.id,
+                                         learning_unit=self.learning_unit_full_instance.id,
+                                         subtype=learning_unit_year_subtypes.FULL).get()
 
     def _build_instance_data(self, data, inherit_lu_values, inherit_luy_values):
         return {
@@ -369,9 +372,8 @@ class PartimForm(LearningUnitBaseForm):
 
     def _get_inherit_learning_unit_full_value(self):
         """This function will return the inherit value come from learning unit FULL"""
-        learning_unit_full = self.learning_unit_year_full.learning_unit
         return {
-            'periodicity': learning_unit_full.periodicity
+            'periodicity': self.learning_unit_full_instance.periodicity
         }
 
     def is_valid(self):
@@ -383,9 +385,12 @@ class PartimForm(LearningUnitBaseForm):
         return self._validate_no_empty_title(common_title)
 
     def save(self, commit=True):
+        start_year = self.instance.learning_unit.start_year if self.instance else \
+                        self.learning_unit_full_instance.start_year
+
         # Save learning unit
         learning_unit = self.forms[LearningUnitModelForm].save(
-            start_year=self.start_year,
+            start_year=start_year,
             learning_container=self.learning_unit_year_full.learning_container_year.learning_container,
             commit=commit
         )
