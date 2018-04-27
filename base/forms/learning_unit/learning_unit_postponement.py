@@ -49,9 +49,9 @@ class LearningUnitPostponementForm:
         :param data: Data which will be applied on each FORM (PartimForm/FullForm)
         :param check_consistency: Enable check consitency [Default TRUE]
         """
-        if not isinstance(learning_unit_instance, LearningUnit):
+        if learning_unit_instance and not isinstance(learning_unit_instance, LearningUnit):
             raise AttributeError('learning_unit_instance arg should be an instance of {}'.format(LearningUnit))
-        if not isinstance(learning_unit_full_instance, LearningUnit):
+        if learning_unit_full_instance and not isinstance(learning_unit_full_instance, LearningUnit):
             raise AttributeError('learning_unit_full_instance arg should be an instance of {}'.format(LearningUnit))
 
         self.learning_unit_instance = learning_unit_instance
@@ -61,7 +61,7 @@ class LearningUnitPostponementForm:
         self.start_postponement = start_postponement
         self.person = person
         self.check_consistency = check_consistency
-        if end_postponement is None and self.learning_unit_instance.end_year:
+        if end_postponement is None and self.learning_unit_instance and self.learning_unit_instance.end_year:
             end_postponement = academic_year.find_academic_year_by_year(self.learning_unit_instance.end_year)
         self.end_postponement = end_postponement
         self._init_forms(data)
@@ -75,7 +75,15 @@ class LearningUnitPostponementForm:
         if self.end_postponement:
             # CASE end year specify in learning unit
             self._forms_to_delete = self._get_forms_to_delete()
-        self._forms_to_upsert = self._get_forms_to_upsert(data)
+
+        if self.learning_unit_instance:
+            # Update case
+            self._forms_to_upsert = self._get_forms_to_upsert(data)
+        else:
+            # Creation case
+            start_year = self.start_postponement.year
+            end_year = self.end_postponement.year if self.end_postponement else None
+            self._forms_to_upsert = self._get_forms_to_insert(start_year, end_year, data)
 
     def _get_forms_to_upsert(self, data=None):
         learning_unit = self.learning_unit_instance
@@ -96,17 +104,18 @@ class LearningUnitPostponementForm:
         lastest_luy = luy_to_upsert_qs.last()
         start_insert_year = lastest_luy.academic_year.year + 1 if lastest_luy else start_academic_year.year
         end_insert_year = end_academic_year.year if end_academic_year else None
-        luy_base_form_insert = self._get_forms_to_insert(start_insert_year, end_insert_year)
+        luy_base_form_insert = self._get_forms_to_insert(start_insert_year, end_year=end_insert_year, data=data)
         return luy_base_form_update + luy_base_form_insert
 
-    def _get_forms_to_insert(self, start_year, end_year=None):
+    def _get_forms_to_insert(self, start_year, end_year=None, data=None):
         luy_base_form_insert = []
         max_postponement_year = academic_year.compute_max_academic_year_adjournment()
         end_year = min(end_year,  max_postponement_year) if end_year else max_postponement_year
 
         if start_year <= end_year:
             ac_years = academic_year.find_academic_years(start_year=start_year, end_year=end_year)
-            luy_base_form_insert = [self._get_learning_unit_base_form(academic_year=ac_year) for ac_year in ac_years]
+            luy_base_form_insert = [self._get_learning_unit_base_form(academic_year=ac_year, data=data)
+                                    for ac_year in ac_years]
         return luy_base_form_insert
 
     def _get_forms_to_delete(self):
@@ -123,7 +132,7 @@ class LearningUnitPostponementForm:
             'person': self.person,
             'learning_unit_instance': self.learning_unit_instance,
             'academic_year': academic_year,
-            'data': data.copy(),
+            'data': data,
             'learning_unit_full_instance': self.learning_unit_full_instance
         }
         if learning_unit_year_instance:
@@ -159,3 +168,8 @@ class LearningUnitPostponementForm:
     def _check_consistency(self):
         """This function will check all field"""
         return True
+
+    def get_context(self):
+        if self._forms_to_upsert:
+            return self._forms_to_upsert[0].get_context()
+        return {}
