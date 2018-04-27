@@ -87,7 +87,7 @@ class ProposalLearningUnitForm(forms.ModelForm):
 
 class ProposalBaseForm:
     # Default values
-    proposal_type = ProposalType.TRANSFORMATION.name
+    proposal_type = ProposalType.MODIFICATION.name
 
     def __init__(self, data, person, learning_unit_year=None, proposal=None, proposal_type=None, default_ac_year=None):
         self.person = person
@@ -139,6 +139,7 @@ class ProposalBaseForm:
         }
         if self.proposal:
             initial['type'] = self.proposal.type
+            initial['state'] = self.proposal.state
         return initial
 
     def get_context(self):

@@ -23,12 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import forms
 from ckeditor.widgets import CKEditorWidget
+from django import forms
 
-from base.models.learning_achievement import LearningAchievement, find_learning_unit_achievement, search
+from base.models.learning_achievement import LearningAchievement, search
+from reference.models import language
 
-FR_CODE_LANGAGUE = 'FR'
+EN_CODE_LANGUAGE = 'EN'
+FR_CODE_LANGUAGE = 'FR'
 
 
 class LearningAchievementEditForm(forms.ModelForm):
@@ -38,9 +40,29 @@ class LearningAchievementEditForm(forms.ModelForm):
         model = LearningAchievement
         fields = ['code_name', 'text']
 
-    def save(self):
-        super(LearningAchievementEditForm, self).save()
-        learning_achievement_other_language = search(self.instance.learning_unit_year,
-                                                     self.instance.order)
+    def __init__(self, data=None, initial=None, **kwargs):
+        initial = initial or {}
+
+        if data and data.get('language_code'):
+            initial['language'] = language.find_by_code(data.get('language_code'))
+
+        super().__init__(data, initial=initial, **kwargs)
+
+        for key, value in initial.items():
+            setattr(self.instance, key, value)
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        learning_achievement_other_language = search(instance.learning_unit_year,
+                                                     instance.order)
         if learning_achievement_other_language:
-            learning_achievement_other_language.update(code_name=self.instance.code_name)
+            learning_achievement_other_language.update(code_name=instance.code_name)
+
+        # FIXME : We must have a English entry for each french entries
+        # Needs a refactoring of its model to include all languages in a single row.
+        if instance.language == language.find_by_code(FR_CODE_LANGUAGE):
+            LearningAchievement.objects.get_or_create(learning_unit_year=instance.learning_unit_year,
+                                                      code_name=instance.code_name,
+                                                      language=language.find_by_code(EN_CODE_LANGUAGE))
+
+        return instance

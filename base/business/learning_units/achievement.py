@@ -23,18 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models.utils.utils import ChoiceEnum
-from django.utils.translation import ugettext_lazy as _
+from base.models.learning_achievement import LearningAchievement, find_learning_unit_achievement
 
 
-INTERNAL_TEAM = "INTERNAL_TEAM"
-EXTERNAL = "EXTERNAL"
-
-ATTRIBUTION_PROCEDURES = (
-    (INTERNAL_TEAM, _(INTERNAL_TEAM)),
-    (EXTERNAL, _(EXTERNAL)))
-
-
-class AttributionProcedures(ChoiceEnum):
-    INTERNAL_TEAM = "INTERNAL_TEAM"
-    EXTERNAL = "EXTERNAL"
+def get_code_name(previous_achievement_fr, a_language_code):
+    if not LearningAchievement.objects.filter(
+            language__code=a_language_code,
+            learning_unit_year=previous_achievement_fr.learning_unit_year).exists():
+        return previous_achievement_fr.code_name
+    else:
+        achievement_fr_next = find_learning_unit_achievement(previous_achievement_fr.learning_unit_year,
+                                                             previous_achievement_fr.language.code,
+                                                             previous_achievement_fr.order + 1)
+        return achievement_fr_next.code_name if achievement_fr_next else ''

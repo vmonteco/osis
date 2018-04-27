@@ -41,6 +41,7 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 def create_learning_unit(acronym, title):
     return LearningUnitFactory(acronym=acronym, title=title, start_year=2010)
 
+
 class LearningUnitTest(TestCase):
 
     def test_create_learning_unit_with_start_year_higher_than_end_year(self):
@@ -115,3 +116,9 @@ class LearningUnitTest(TestCase):
 
         lu.start_year = 2015
         lu.delete()
+
+    def test_properties_acronym_and_title(self):
+        a_learning_unit = LearningUnitFactory()
+        a_learning_unit_year = LearningUnitYearFactory(learning_unit=a_learning_unit)
+        self.assertEqual(a_learning_unit.title, a_learning_unit_year.specific_title)
+        self.assertEqual(a_learning_unit.acronym, a_learning_unit_year.acronym)

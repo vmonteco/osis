@@ -52,7 +52,6 @@ from base.models.enums import organization_type, entity_type, \
 from base.models.enums.proposal_state import ProposalState
 from base.models.enums.proposal_type import ProposalType
 from base.models.person import CENTRAL_MANAGER_GROUP, FACULTY_MANAGER_GROUP
-from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories import academic_year as academic_year_factory, campus as campus_factory, \
     organization as organization_factory
 from base.tests.factories.academic_year import AcademicYearFakerFactory, create_current_academic_year, get_current_year, \
@@ -831,6 +830,21 @@ class TestEditProposal(TestCase):
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_unit/proposal/update_modification.html')
         self.assertIsInstance(context['form_proposal'], ProposalLearningUnitForm)
+
+    @mock.patch('base.views.layout.render')
+    def test_edit_proposal_get_as_central_manager_with_instance(self, mock_render):
+        request_factory = RequestFactory()
+
+        request = request_factory.get(self.url)
+
+        request.user = self.person.user
+        update_learning_unit_proposal(request, self.learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        self.assertEqual(template, 'learning_unit/proposal/update_modification.html')
+        self.assertIsInstance(context['form_proposal'], ProposalLearningUnitForm)
+        self.assertEqual(context['form_proposal'].initial['state'], str(ProposalState.FACULTY.name))
 
     def get_valid_data(self):
         return {

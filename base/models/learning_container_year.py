@@ -56,9 +56,10 @@ class LearningContainerYear(SerializableModel):
     changed = models.DateTimeField(null=True, auto_now=True)
     language = models.ForeignKey('reference.Language', null=True, verbose_name=_('language'))
     campus = models.ForeignKey('Campus', null=True)
-    team = models.BooleanField(default=False)
-    is_vacant = models.BooleanField(default=False)
+    team = models.BooleanField(default=False, verbose_name=_('team_management'))
+    is_vacant = models.BooleanField(default=False,  verbose_name=_('vacant'))
     type_declaration_vacant = models.CharField(max_length=100, blank=True, null=True,
+                                               verbose_name=_('type_declaration_vacant'),
                                                choices=vacant_declaration_type.DECLARATION_TYPE)
     in_charge = models.BooleanField(default=False)
 

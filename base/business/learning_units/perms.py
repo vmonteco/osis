@@ -105,6 +105,10 @@ def is_eligible_for_modification(learning_unit_year, person):
     return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
 
 
+def can_update_learning_achievement(learning_unit_year, person):
+    return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
+
+
 def can_delete_learning_unit_year(learning_unit_year, person):
     if not _can_delete_learning_unit_year_according_type(learning_unit_year, person):
         return False
@@ -154,7 +158,7 @@ def learning_unit_year_permissions(learning_unit_year, person):
         'can_propose': is_eligible_to_create_modification_proposal(learning_unit_year, person),
         'can_edit_date': is_eligible_for_modification_end_date(learning_unit_year, person),
         'can_edit': is_eligible_for_modification(learning_unit_year, person),
-        'can_delete': can_delete_learning_unit_year(learning_unit_year, person)
+        'can_delete': can_delete_learning_unit_year(learning_unit_year, person),
     }
 
 

@@ -93,6 +93,8 @@ urlpatterns = [
             name='learning_units_service_course'),
         url(r'^by_proposal/', base.views.learning_units.search.learning_units_proposal_search,
             name='learning_units_proposal'),
+        url(r'^by_borrowed_course/', base.views.learning_units.search.learning_units_borrowed_course,
+            name='learning_units_borrowed_course'),
         url(r'^by_summary/', base.views.learning_units.educational_information.learning_units_summary_list,
             name='learning_units_summary'),
         url(r'^new/', include([
@@ -135,7 +137,13 @@ urlpatterns = [
             ])),
             url(r'^achievements/', include([
                 url(r'^management/', learning_achievement.management, name="achievement_management"),
-                url(r'^(?P<learning_achievement_id>[0-9]+)/edit/', learning_achievement.edit, name="achievement_edit"),
+                url(r'^(?P<learning_achievement_id>[0-9]+)/edit/', learning_achievement.update,
+                    name="achievement_edit"),
+                url(r'^create/', learning_achievement.create_first,
+                    name="achievement_create_first"),
+
+                url(r'^(?P<learning_achievement_id>[0-9]+)/create/', learning_achievement.create,
+                    name="achievement_create"),
 
             ])),
         ])),

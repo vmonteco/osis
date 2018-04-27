@@ -44,7 +44,8 @@ def _get_distinct_entity_ids(entity_versions, with_entity_subordinated):
         entities_data = mdl.entity_version.build_current_entity_version_structure_in_memory()
         for an_entity_version in entity_versions:
             all_descendants = entities_data.get(an_entity_version.entity_id)
-            entities_ids |= {descendant.entity.id for descendant in all_descendants['all_children']}
+            if all_descendants:
+                entities_ids |= {descendant.entity.id for descendant in all_descendants['all_children']}
     return list(entities_ids)
 
 
