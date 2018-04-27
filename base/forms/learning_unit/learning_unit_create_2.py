@@ -274,7 +274,7 @@ class FullForm(LearningUnitBaseForm):
 
     def check_consistency_on_academic_year(self):
         # TODO :: Décommenter ces lignes et voir les tests qui cassent -> corriger
-        # TODO :: Ajouter une fonction de check : si UE est bisannuel PAIR/IMPAIR, le partim DOIT être bisanunel PAIR/IMPAIR (le même que le parent)
+        # TODO :: Ajouter une fonction de check : si UE parent est bisannuel PAIR/IMPAIR, tous ses partims doivent être bisanunel PAIR/IMPAIR (le même que le parent)
         # TODO :: Ajouter des tests qui couvrent les cas checkés ici
         # self._check_credits_consistency_on_academic_year()
         # self._check_status_consistency_on_academic_year()
