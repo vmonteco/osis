@@ -80,6 +80,11 @@
             {% trans 'service_course_search'%}
         </a>
     </li>
+    <li role="presentation" {% if search_type == 5 %} class="active" {% endif %}>
+        <a href="{% url 'learning_units_borrowed_course'%}" role="tab" id="lnk_borrowed_course_search">
+            {% trans 'borrowed_course_search'%}
+        </a>
+    </li>
     <li role="presentation" {% if search_type == 3 %} class="active" {% endif %}>
         <a href="{% url 'learning_units_proposal'%}" role="tab" id="lnk_proposal_search">
             {% trans 'proposals_search'%}
@@ -95,12 +100,12 @@
 </ul>
 {% if search_type == 3 %}
     {% include 'learning_unit/by_proposal.html' %}
-{% else %}
-    {% if search_type == 4 %}
+{% elif search_type == 4 %}
         {% include 'learning_unit/summary_list.html' %}
-    {% else %}
-        {% include 'learning_unit/by_activity.html' %}
-    {% endif %}
+{% elif search_type == 5 %}
+    {% include 'learning_unit/borrowed_learning_units.html' %}
+{% else %}
+    {% include 'learning_unit/by_activity.html' %}
 {% endif %}
 
 {% endblock %}
