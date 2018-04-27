@@ -357,24 +357,27 @@ def outside_period(request):
 def create_partim_form(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
     learning_unit_year_full = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
-    learning_unit_form_container = PartimForm(
-        data=request.POST or None,
+
+    postponement_form = LearningUnitPostponementForm(
         person=person,
-        learning_unit_year_full=learning_unit_year_full
+        learning_unit_full_instance=learning_unit_year_full.learning_unit,
+        start_postponement=learning_unit_year_full.academic_year,
+        data=request.POST or None
     )
 
-    if learning_unit_form_container.is_valid():
-        # Save current learning unit form container
-        new_luys = [learning_unit_form_container.save()]
-
-        # Make postponement - In Creation mode, we make always the postponement
-        postponement_form = LearningUnitPostponementForm(instance=learning_unit_form_container, person=person)
-        if postponement_form.is_valid():
-            new_luys.extend(postponement_form.save())
+    if postponement_form.is_valid():
+        new_luys = postponement_form.save()
         for luy in new_luys:
             show_success_learning_unit_year_creation_message(request, luy, 'learning_unit_successfuly_created')
         return redirect('learning_unit', learning_unit_year_id=new_luys[0].pk)
 
+    # TODO Use postponement for to get context of first elem
+    learning_unit_form_container = PartimForm(
+        data=request.POST or None,
+        person=person,
+        learning_unit_full_instance=learning_unit_year_full.learning_unit,
+        academic_year=learning_unit_year_full.academic_year
+    )
     return render(request, "learning_unit/simple/creation_partim.html", learning_unit_form_container.get_context())
 
 

@@ -38,12 +38,26 @@ class LearningUnitPostponementForm:
     _forms_to_upsert = []
     _forms_to_delete = []
 
-    def __init__(self, person, learning_unit_instance, subtype, start_postponement, end_postponement=None, data=None,
-                 check_consistency=True):
+    def __init__(self, person, start_postponement, end_postponement=None, learning_unit_instance=None,
+                 learning_unit_full_instance=None, data=None, check_consistency=True):
+        """
+        :param person: The person who make action form
+        :param start_postponement: Start academic year postponement
+        :param end_postponement: End academic year postponement [If None, get end_year from learning_unit_instance]
+        :param learning_unit_instance: The instance on which modification will be done each year
+        :param learning_unit_full_instance: The FULL instance on which modification will be done each year [Used when Partim]
+        :param data: Data which will be applied on each FORM (PartimForm/FullForm)
+        :param check_consistency: Enable check consitency [Default TRUE]
+        """
         if not isinstance(learning_unit_instance, LearningUnit):
             raise AttributeError('learning_unit_instance arg should be an instance of {}'.format(LearningUnit))
+        if not isinstance(learning_unit_full_instance, LearningUnit):
+            raise AttributeError('learning_unit_full_instance arg should be an instance of {}'.format(LearningUnit))
+
         self.learning_unit_instance = learning_unit_instance
-        self.subtype = subtype
+        self.learning_unit_full_instance = learning_unit_full_instance
+        self.subtype = learning_unit_year_subtypes.PARTIM if learning_unit_full_instance else \
+            learning_unit_year_subtypes.FULL
         self.start_postponement = start_postponement
         self.person = person
         self.check_consistency = check_consistency
@@ -107,16 +121,17 @@ class LearningUnitPostponementForm:
     def _get_learning_unit_base_form(self, learning_unit_year_instance=None, academic_year=None, data=None):
         form_kwargs = {
             'person': self.person,
-            'learning_unit': self.learning_unit_instance,
+            'learning_unit_instance': self.learning_unit_instance,
             'academic_year': academic_year,
-            'data': data.copy()
+            'data': data.copy(),
+            'learning_unit_full_instance': self.learning_unit_full_instance
         }
         if learning_unit_year_instance:
             management_form_updated = self._get_entity_formset_management_form(data, learning_unit_year_instance)
             form_kwargs['data'].update(management_form_updated)
 
         return FullForm(**form_kwargs) if self.subtype == learning_unit_year_subtypes.FULL else \
-               PartimForm(**form_kwargs)
+            PartimForm(**form_kwargs)
 
     def _get_entity_formset_management_form(self, data, learning_unit_year_full_instance):
         """This function will update specific key [related to learning container year]

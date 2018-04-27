@@ -26,24 +26,20 @@
 import abc
 from collections import OrderedDict
 
-from copy import deepcopy
 from django.db import transaction
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.learning_units import edition as edition_business
 from base.business.utils.model import merge_two_dicts
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
     LearningContainerModelForm, EntityContainerFormset, LearningContainerYearModelForm
 from base.forms.utils.acronym_field import split_acronym
 from base.models import learning_unit_year
-from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear
 from base.models.campus import Campus
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
 from base.models.learning_unit import LearningUnit
-from base.models.learning_unit_year import LearningUnitYear
 from reference.models import language
 
 FULL_READ_ONLY_FIELDS = {"acronym", "academic_year", "container_type"}
@@ -287,17 +283,17 @@ class PartimForm(LearningUnitBaseForm):
     subtype = learning_unit_year_subtypes.PARTIM
     form_cls_to_validate = [LearningUnitModelForm, LearningUnitYearModelForm]
 
-    def __init__(self, person, learning_unit_full_instance, academic_year, learning_unit_partim_instance=None,
+    def __init__(self, person, learning_unit_full_instance, academic_year, learning_unit_instance=None,
                  data=None, *args, **kwargs):
         if not isinstance(learning_unit_full_instance, LearningUnit):
             raise AttributeError('learning_unit_full arg should be an instance of {}'.format(LearningUnit))
-        if learning_unit_partim_instance is not None and not isinstance(learning_unit_partim_instance, LearningUnit):
+        if learning_unit_instance is not None and not isinstance(learning_unit_instance, LearningUnit):
             raise AttributeError('learning_unit_partim_instance arg should be an instance of {}'.format(LearningUnit))
 
         self.person = person
         self.academic_year = academic_year
         self.learning_unit_full_instance = learning_unit_full_instance
-        self.learning_unit_partim_instance = learning_unit_partim_instance
+        self.learning_unit_instance = learning_unit_instance
 
         # Inherit values cannot be changed by user
         inherit_lu_values = self._get_inherit_learning_unit_full_value()

@@ -35,7 +35,6 @@ from base.forms.utils import acronym_field
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
-from base.tests.factories.learning_unit import LearningUnitFactory
 
 from django.test import TestCase
 
@@ -353,7 +352,9 @@ class TestPartimFormSave(LearningUnitPartimFormContextMixin):
         learning_unit_year_dict = model_to_dict(self.learning_unit_year_partim)
         for field, value in update_fields_luy_model.items():
             self.assertEqual(learning_unit_year_dict[field], value)
+
         # Check learning unit update
+        self.learning_unit_year_partim.learning_unit.refresh_from_db()
         learning_unit_dict = model_to_dict(self.learning_unit_year_partim.learning_unit)
         for field, value in update_fields_lu_model.items():
             self.assertEqual(learning_unit_dict[field], value)
@@ -413,4 +414,4 @@ def get_valid_form_data(learning_unit_year_partim):
 def _instanciate_form(learning_unit_full, academic_year, post_data=None, instance=None):
     person = PersonFactory()
     return PartimForm(person, learning_unit_full, academic_year, data=post_data,
-                      learning_unit_partim_instance=instance)
+                      learning_unit_instance=instance)
