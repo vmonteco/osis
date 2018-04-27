@@ -88,7 +88,7 @@ class LearningUnitPostponementFormContextMixin(TestCase):
 class TestLearningUnitPostponementFormInit(LearningUnitPostponementFormContextMixin):
     """Unit tests for LearningUnitPostponementForm.__init__()"""
     def test_wrong_instance_args(self):
-        wrong_instance = LearningUnitFactory()
+        wrong_instance = LearningUnitYearFactory()
         with self.assertRaises(AttributeError):
             _instanciate_postponement_form(instance=wrong_instance, person=self.person)
 
@@ -255,5 +255,7 @@ def _instanciate_base_learning_unit_form(learning_unit_year_instance, person):
     return form(**form_args)
 
 
-def _instanciate_postponement_form(instance, person):
-    return LearningUnitPostponementForm(instance, person)
+def _instanciate_postponement_form(person, learning_unit_instance, start_postponement, end_postponement):
+    full_subtype = learning_unit_year_subtypes.FULL
+    return LearningUnitPostponementForm(person, learning_unit_instance, full_subtype, start_postponement,
+                                        end_postponement)

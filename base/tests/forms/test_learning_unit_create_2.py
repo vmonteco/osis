@@ -136,8 +136,21 @@ class LearningUnitFullFormContextMixin(TestCase):
         for ac in acs:
             LearningUnitYearFactory(academic_year=ac, learning_unit=self.learning_unit_year.learning_unit)
 
+
 class TestFullFormInit(LearningUnitFullFormContextMixin):
     """Unit tests for FullForm.__init__()"""
+
+    def test_disable_fields_full(self):
+
+        form = FullForm(None, self.person, instance=self.learning_unit_year)
+        disabled_fields = {key for key, value in form.fields.items() if value.disabled == True}
+        self.assertEqual(disabled_fields, FULL_READ_ONLY_FIELDS)
+
+    def test_disable_fields_full_proposal(self):
+
+        form = FullForm(None, self.person, instance=self.learning_unit_year, proposal=True)
+        disabled_fields = {key for key, value in form.fields.items() if value.disabled == True}
+        self.assertEqual(disabled_fields, FULL_PROPOSAL_READ_ONLY_FIELDS)
 
     def test_subtype_is_full(self):
         form = _instanciate_form(instance=LearningUnitYearFactory())

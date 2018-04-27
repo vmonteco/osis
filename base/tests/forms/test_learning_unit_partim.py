@@ -30,7 +30,7 @@ import factory.fuzzy
 from django.forms import model_to_dict
 from django.http import QueryDict
 
-from base.forms.learning_unit.learning_unit_create_2 import PartimForm
+from base.forms.learning_unit.learning_unit_create_2 import PartimForm, PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.utils import acronym_field
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
@@ -183,7 +183,7 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
         post_data = get_valid_form_data(a_new_learning_unit_partim)
         form = _instanciate_form(self.learning_unit_year_full, post_data=post_data)
         # The form should be valid
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
         # In partim, we can only modify LearningUnitYearModelForm / LearningUnitModelForm
         self._test_learning_unit_model_form_instance(form, post_data)
         self._test_learning_unit_year_model_form_instance(form, post_data)
@@ -359,6 +359,13 @@ class TestPartimFormSave(LearningUnitPartimFormContextMixin):
         self.learning_unit_year_partim.refresh_from_db()
         self.assertEqual(self.learning_unit_year_partim.acronym, partim_acronym)
         self.assertEqual(self.learning_unit_year_partim.learning_container_year.acronym, parent_acronym)
+
+    def test_disable_fields_partim(self):
+        form = _instanciate_form(self.learning_unit_year_full, instance=self.learning_unit_year_partim)
+        disabled_fields = {key for key, value in form.fields.items() if value.disabled == True}
+        # acronym_0 and acronym_1 are disabled in the widget, not in the field
+        disabled_fields.update({'acronym_0', 'acronym_1'})
+        self.assertEqual(disabled_fields, PARTIM_FORM_READ_ONLY_FIELD)
 
 
 def get_valid_form_data(learning_unit_year_partim):
