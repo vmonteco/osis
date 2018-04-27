@@ -64,7 +64,7 @@ def add_header_footer(canvas, doc):
 @user_passes_test(manager_access.user_is_manager, login_url='assistants_home')
 def export_mandates(mandates=None):
     if not isinstance(mandates, QuerySet):
-        mandates = assistant_mandate.find_by_academic_year(academic_year.current_academic_year())
+        mandates = assistant_mandate.find_by_academic_year_by_excluding_declined(academic_year.current_academic_year())
     filename = ('%s_%s.pdf' % (_('assistants_mandates'), time.strftime("%Y%m%d_%H%M")))
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="%s"' % filename
