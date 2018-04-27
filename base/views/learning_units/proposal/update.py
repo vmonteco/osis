@@ -27,6 +27,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.db import transaction
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
+from waffle.decorators import waffle_switch, waffle_flag
 
 from base.business.learning_unit_proposal import compute_proposal_state
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
@@ -41,6 +42,7 @@ from base.views.learning_unit import get_learning_unit_identification_context
 from base.views.learning_units import perms
 
 
+@waffle_flag('proposal')
 @login_required
 @perms.can_create_modification_proposal
 @permission_required('base.can_propose_learningunit', raise_exception=True)
@@ -49,6 +51,7 @@ def learning_unit_modification_proposal(request, learning_unit_year_id):
     return _update_or_create_proposal(request, learning_unit_year)
 
 
+@waffle_flag('proposal')
 @login_required
 @perms.can_create_modification_proposal
 @permission_required('base.can_propose_learningunit', raise_exception=True)
@@ -57,6 +60,7 @@ def learning_unit_suppression_proposal(request, learning_unit_year_id):
     return _update_or_create_suppression_proposal(request, learning_unit_year)
 
 
+@waffle_flag('proposal')
 @login_required
 @perms.can_edit_learning_unit_proposal
 def update_learning_unit_proposal(request, learning_unit_year_id):

@@ -23,9 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import redirect, get_object_or_404
+from waffle.decorators import waffle_switch, waffle_flag
 
 from base.forms.learning_unit_proposal import CreationProposalBaseForm
 from base.models.academic_year import AcademicYear
@@ -34,6 +34,7 @@ from base.views import layout
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
 
 
+@waffle_flag('proposal')
 @login_required
 @permission_required('base.can_propose_learningunit', raise_exception=True)
 def get_proposal_learning_unit_creation_form(request, academic_year):
