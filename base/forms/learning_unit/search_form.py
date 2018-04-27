@@ -216,3 +216,7 @@ def get_filter_learning_container_ids(filter_data):
                                                      entity_container_year_link_type.ALLOCATION_ENTITY)
 
     return entities_id_list if entities_id_list else None
+
+
+def filter_is_borrowed_learning_unit_year(learning_unit_year_qs):
+    return learning_unit_year_qs.none()
