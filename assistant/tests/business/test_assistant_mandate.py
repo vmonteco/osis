@@ -51,7 +51,6 @@ class TestMandateEntity(TestCase):
         self.client = Client()
         self.manager = ManagerFactory()
         self.client.force_login(self.manager.person.user)
-        self.maxDiff = None
         self.assistant = AcademicAssistantFactory()
         self.assistant_mandate = AssistantMandateFactory(
             state=assistant_mandate_state.TRTS,
@@ -101,19 +100,21 @@ class TestMandateEntity(TestCase):
         self.assistant_mandate.save()
         self.assertFalse(mandate_can_go_backward(self.assistant_mandate))
 
-    def test_assistant_mandate_step_back(self):
+    def test_assistant_mandate_step_back_from_assistant_to_beginning(self):
         self.assistant_mandate.state = assistant_mandate_state.TRTS
         self.assistant_mandate.save()
         self.client.post(reverse('assistant_mandate_step_back'), {'mandate_id': self.assistant_mandate.id})
         self.assistant_mandate.refresh_from_db()
         self.assertEqual(self.assistant_mandate.state, assistant_mandate_state.TO_DO)
 
+    def test_assistant_mandate_step_back_from_phd_supervisor_to_assistant(self):
         self.assistant_mandate.state = assistant_mandate_state.PHD_SUPERVISOR
         self.assistant_mandate.save()
         self.client.post(reverse('assistant_mandate_step_back'), {'mandate_id': self.assistant_mandate.id})
         self.assistant_mandate.refresh_from_db()
         self.assertEqual(self.assistant_mandate.state, assistant_mandate_state.TRTS)
 
+    def test_assistant_mandate_step_back_from_institute_president_to_php_supervisor(self):
         self.assistant.supervisor = PersonFactory()
         self.assistant.save()
         self.review1 = ReviewFactory(
@@ -132,6 +133,8 @@ class TestMandateEntity(TestCase):
         self.assistant_mandate.refresh_from_db()
         self.assertEqual(self.assistant_mandate.state, assistant_mandate_state.PHD_SUPERVISOR)
 
+    def test_assistant_mandate_step_back_from_institute_president_to_assistant(self):
+        # Test if assistant does not have a phd supervisor
         self.assistant_mandate.state = assistant_mandate_state.RESEARCH
         self.assistant_mandate.save()
         self.assistant.supervisor = None
@@ -140,6 +143,7 @@ class TestMandateEntity(TestCase):
         self.assistant_mandate.refresh_from_db()
         self.assertEqual(self.assistant_mandate.state, assistant_mandate_state.TRTS)
 
+    def test_assistant_mandate_step_back_from_dean_of_faculty_to_institute_president(self):
         self.research_review = ReviewFactory(mandate=self.assistant_mandate, reviewer=self.reviewer1)
         self.assistant_mandate.state = assistant_mandate_state.SUPERVISION
         self.assistant_mandate.save()
@@ -147,6 +151,7 @@ class TestMandateEntity(TestCase):
         self.assistant_mandate.refresh_from_db()
         self.assertEqual(self.assistant_mandate.state, assistant_mandate_state.RESEARCH)
 
+    def test_assistant_mandate_step_back_from_vice_rector_to_dean_of_faculty(self):
         self.supervision_review = ReviewFactory(mandate=self.assistant_mandate, reviewer=self.reviewer2)
         self.assistant_mandate.state = assistant_mandate_state.VICE_RECTOR
         self.assistant_mandate.save()
@@ -154,10 +159,16 @@ class TestMandateEntity(TestCase):
         self.assistant_mandate.refresh_from_db()
         self.assertEqual(self.assistant_mandate.state, assistant_mandate_state.SUPERVISION)
 
+    def test_assistant_mandate_step_back_from_dean_of_faculty_to_assistant(self):
+        # Test if assistant is teaching assistant
+        self.research_review = ReviewFactory(mandate=self.assistant_mandate, reviewer=self.reviewer1)
+        self.assistant_mandate.state = assistant_mandate_state.SUPERVISION
+        self.assistant_mandate.save()
         self.client.post(reverse('assistant_mandate_step_back'), {'mandate_id': self.assistant_mandate2.id})
         self.assistant_mandate2.refresh_from_db()
         self.assertEqual(self.assistant_mandate2.state, assistant_mandate_state.TRTS)
 
+    def test_assistant_mandate_step_back_from_done_to_vice_rector(self):
         self.review4 = ReviewFactory(
             reviewer=self.reviewer3,
             mandate=self.assistant_mandate2,

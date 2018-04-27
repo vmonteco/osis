@@ -31,7 +31,7 @@ from assistant.tests.factories import review
 from assistant.models.enums import assistant_mandate_state
 from assistant.models.enums import review_status
 from assistant.models.review import find_by_reviewer_for_mandate
-from assistant.models.review import find_in_progress_for_mandate
+from assistant.models.review import get_in_progress_for_mandate
 
 class TestReviewFactory(TestCase):
 
@@ -44,12 +44,12 @@ class TestReviewFactory(TestCase):
         self.assertEqual(self.review, find_by_reviewer_for_mandate(self.review.reviewer, self.review.mandate))
 
     def test_find_in_progress_for_mandate(self):
-        self.assertFalse(find_in_progress_for_mandate(self.review.mandate))
+        self.assertFalse(get_in_progress_for_mandate(self.review.mandate))
         self.review.status = review_status.IN_PROGRESS
         self.review.save()
-        self.assertEqual(find_in_progress_for_mandate(self.review.mandate), self.review)
+        self.assertEqual(get_in_progress_for_mandate(self.review.mandate), self.review)
         self.review.delete()
         self.mandate.state = assistant_mandate_state.TRTS
-        self.assertFalse(find_in_progress_for_mandate(self.review.mandate))
+        self.assertFalse(get_in_progress_for_mandate(self.review.mandate))
 
 

@@ -64,8 +64,8 @@ def find_done_by_supervisor_for_mandate(mandate):
     return Review.objects.get(reviewer=None, mandate=mandate, status='DONE')
 
 
-def find_in_progress_for_mandate(mandate):
+def get_in_progress_for_mandate(mandate):
     try:
         return Review.objects.get(mandate=mandate, status=review_status.IN_PROGRESS)
     except Review.DoesNotExist:
-        return False
+        return None

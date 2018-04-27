@@ -124,29 +124,21 @@
             {{ form.non_field_errors }}
             {% csrf_token %}
             {% for hidden in form.hidden_fields %}
-            {{ hidden }}
+                {{ hidden }}
             {% endfor %}
             <input type="hidden" value="{{ mandate_id }}" name="mandate_id" >
-            {% if can_go_backward %}
-                <button type="submit" class="btn btn-primary" title="{% trans 'save'%}" id="bt_add_reviewer_save"
-                        onclick="return confirm_click();">
-                    <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span> {% trans 'step_back'%}
-                </button>
-            {% else %}
-                <button type="submit" class="btn btn-primary" title="{% trans 'save'%}"
-                        id="bt_add_reviewer_save_disabled" disabled>
-                    <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span> {% trans 'step_back'%}
-                </button>
-            {% endif %}
+            <button type="submit" class="btn btn-primary" title="{% trans 'save'%}" id="bt_add_reviewer_save"
+                    {% if can_go_backward %}onclick="return confirm_click();"{% else %}disabled{% endif %}>
+                <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span> {% trans 'step_back'%}
+            </button>
         </form>
     </div>
 </div>
 {% endblock %}
 {% block script %}
 <script>
-function confirm_click()
-{
-return confirm("{% trans 'confirm_mandate_step_back' %}");
+function confirm_click() {
+    return confirm("{% trans 'confirm_mandate_step_back' %}");
 }
 </script>
 {% endblock %}

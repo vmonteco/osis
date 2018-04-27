@@ -34,16 +34,13 @@ from assistant.models.enums import assistant_type
 from assistant.models.enums import review_status
 from assistant.models.enums import reviewer_role
 from assistant.models.review import find_done_by_supervisor_for_mandate
-from assistant.models.review import find_in_progress_for_mandate
+from assistant.models.review import get_in_progress_for_mandate
 from assistant.models.review import find_review_for_mandate_by_role
 from assistant.utils import manager_access
 
 
 def mandate_can_go_backward(mandate):
-    if not find_in_progress_for_mandate(mandate) and mandate.state != assistant_mandate_state.TO_DO:
-        return True
-    else:
-        return False
+    return not get_in_progress_for_mandate(mandate) and mandate.state != assistant_mandate_state.TO_DO
 
 
 @require_http_methods(["POST"])
