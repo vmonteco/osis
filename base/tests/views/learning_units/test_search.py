@@ -64,4 +64,4 @@ class TestSearchBorrowedLearningUnits(TestCase):
 
         context = response.context
         self.assertEqual(context["search_type"], BORROWED_COURSE)
-        self.assertTemplateUsed(response, "learning_unit/borrowed_learning_units.html")
+        self.assertTemplateUsed(response, "learning_unit/by_activity.html")
