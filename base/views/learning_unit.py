@@ -41,7 +41,7 @@ from base import models as mdl
 from base.business.learning_unit import get_cms_label_data, \
     get_same_container_year_components, get_components_identification, show_subtype, \
     get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
-    get_all_attributions, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, find_language_in_settings, \
+    get_all_attributions, find_language_in_settings, \
     CMS_LABEL_SPECIFICATIONS, get_achievements_group_by_language
 from base.business.learning_unit_proposal import get_difference_of_proposal
 from base.business.learning_units import perms as business_perms
@@ -59,7 +59,6 @@ from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views.learning_units import perms
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
-from base.views.learning_units.search import learning_units_search
 from cms.models import text_label
 from osis_common.decorators.ajax import ajax_required
 from . import layout
@@ -321,18 +320,6 @@ def check_acronym(request, subtype):
 
     return JsonResponse({'valid': valid, 'existing_acronym': existing_acronym, 'existed_acronym': existed_acronym,
                          'first_using': first_using, 'last_using': last_using}, safe=False)
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def learning_units_activity(request):
-    return learning_units_search(request, SIMPLE_SEARCH)
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def learning_units_service_course(request):
-    return learning_units_search(request, SERVICE_COURSES_SEARCH)
 
 
 @login_required
