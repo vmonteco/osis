@@ -27,7 +27,7 @@
 from django.test import TestCase
 
 from base.business.learning_units.achievement import get_code_name, get_anchor_reference, DELETE, \
-    get_previous_achievement
+    get_previous_achievement, HTML_ANCHOR
 from base.models.enums import learning_unit_year_subtypes
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.learning_achievement import LearningAchievementFactory
@@ -78,12 +78,14 @@ class TestLearningAchievementView(TestCase):
         achievement_fr_1 = LearningAchievementFactory(language=self.language_fr,
                                                       learning_unit_year=self.learning_unit_year)
 
-        self.assertEqual(get_anchor_reference(DELETE, achievement_fr_1), "?anchor={}".format(achievement_fr_0.id))
+        self.assertEqual(get_anchor_reference(DELETE, achievement_fr_1),
+                         "{}{}".format(HTML_ANCHOR, achievement_fr_0.id))
 
         achievement_fr_3 = LearningAchievementFactory(language=self.language_fr,
                                                       learning_unit_year=self.learning_unit_year)
 
-        self.assertEqual(get_anchor_reference(DELETE, achievement_fr_3), "?anchor={}".format(achievement_fr_1.id))
+        self.assertEqual(get_anchor_reference(DELETE, achievement_fr_3),
+                         "{}{}".format(HTML_ANCHOR, achievement_fr_1.id))
 
     def test_get_anchor_reference_for_no_delete_operation(self):
         achievement_fr_0 = LearningAchievementFactory(language=self.language_fr,

@@ -29,7 +29,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
 
-from base.business.learning_units.achievement import get_code_name, get_anchor_reference, DELETE
+from base.business.learning_units.achievement import get_code_name, get_anchor_reference, DELETE, DOWN, UP, \
+    AVAILABLE_ACTIONS, HTML_ANCHOR
 from base.models.learning_achievement import LearningAchievement, find_learning_unit_achievement
 from base.forms.learning_achievement import LearningAchievementEditForm, EN_CODE_LANGUAGE, FR_CODE_LANGUAGE
 from base.models.learning_unit_year import LearningUnitYear
@@ -37,10 +38,6 @@ from base.views.learning_units import perms
 from base.views.learning_unit import learning_unit_specifications
 from . import layout
 from reference.models import language
-
-DOWN = 'down'
-UP = 'up'
-AVAILABLE_ACTIONS = [DELETE, UP, DOWN]
 
 
 def operation(learning_achievement_id, operation_str):
@@ -128,7 +125,8 @@ def create(request, learning_unit_year_id, learning_achievement_id):
 def _save_and_redirect(form, learning_unit_year_id):
     achievement = form.save()
     return HttpResponseRedirect(reverse(learning_unit_specifications,
-                                        kwargs={'learning_unit_year_id': learning_unit_year_id}) + "?anchor={}".format(
+                                        kwargs={'learning_unit_year_id': learning_unit_year_id}) + "{}{}".format(
+        HTML_ANCHOR,
         achievement.id))
 
 

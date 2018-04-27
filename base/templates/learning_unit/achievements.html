@@ -24,7 +24,7 @@
     * at the root of the source code of this program.  If not,
     * see http://www.gnu.org/licenses/.
 {% endcomment %}
-<form method="post" action="{% url 'achievement_management' learning_unit_year_id=learning_unit_year.id %}">
+<form method="post" action="{% url 'achievement_management' learning_unit_year_id=learning_unit_year.id %}" id="form_achievements">
     {% csrf_token %}
     <input type="hidden" id="hdn_achievement_id"  name="achievement_id"/>
     <div class="row" style="margin-top:10px;">
@@ -57,6 +57,7 @@
         </div>
     </div>
     {% for achievement in achievements_FR %}
+        <a id="anchor_{{achievement.id }}"></a>
         <div class="row">
             <div class="col-md-2">
                 {% if can_update_learning_achievement %}
@@ -108,6 +109,7 @@
                     <div class="col-md-5">
                         {% with achievement_en=achievements_EN|index:forloop.counter0 %}
                             {% if achievement_en %}
+                                <a id="anchor_{{achievement_en.id }}"></a>
                                 {{ achievement_en.text| default_if_none:''|safe }}
                             {% endif %}
                         {% endwith %}
@@ -162,16 +164,6 @@ $(document).ready(function(){
         return confirm(gettext('confirm_achievement_delete'));
     });
 
-    function getVal(str) {
-        var v = window.location.search.match(new RegExp('(?:[\?\&]'+str+'=)([^&]+)'));
-        return v ? v[1] : null;
-    }
-
-    var focus_elt = getVal('anchor');
-    if (focus_elt){
-        var elt_id = "btn_edit_"+focus_elt+".focus();window.scrollBy(0, 200);";
-        setTimeout(elt_id,0);
-    }
 
     });
 
