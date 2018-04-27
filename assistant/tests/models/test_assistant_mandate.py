@@ -25,12 +25,15 @@
 ##############################################################################
 import factory
 import datetime
+
 from django.test import TestCase
+
+from base.tests.factories.academic_year import AcademicYearFactory
+
 from assistant.models.assistant_mandate import find_by_academic_year_by_excluding_declined
 from assistant.models.enums import assistant_mandate_state
-from base.tests.factories.academic_year import AcademicYearFactory
-from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 from assistant.models import assistant_mandate
+from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 
 class TestAssistantMandateFactory(TestCase):
 
