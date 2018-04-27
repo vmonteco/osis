@@ -99,7 +99,8 @@ class ProposalBaseForm:
         initial = self._get_initial()
 
         if not learning_unit_year or learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
-            self.learning_unit_form_container = FullForm(data, person, default_ac_year, instance=learning_unit_year,
+            learning_unit = learning_unit_year.learning_unit if learning_unit_year else None
+            self.learning_unit_form_container = FullForm(person, default_ac_year, learning_unit_instance=learning_unit,
                                                          proposal=True)
         else:
             self.learning_unit_form_container = PartimForm(data, person,

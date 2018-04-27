@@ -96,7 +96,9 @@ def update_learning_unit(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
 
     if learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
-        learning_unit_form_container = FullForm(request.POST or None, person, instance=learning_unit_year)
+        learning_unit_form_container = FullForm(person, learning_unit_year.academic_year,
+                                                learning_unit_instance=learning_unit_year.learning_unit,
+                                                data=request.POST or None)
     else:
         learning_unit_form_container = PartimForm(request.POST or None, person,
                                                   learning_unit_year_full=learning_unit_year.parent,

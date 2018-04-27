@@ -61,8 +61,8 @@ class LearningUnitBaseForm:
     forms = OrderedDict()
     data = {}
     subtype = None
-    instance = None
-    start_year = None
+    learning_unit_instance = None
+    academic_year = None
 
     def __init__(self, instances_data, *args, **kwargs):
         self.forms = OrderedDict({
@@ -81,6 +81,16 @@ class LearningUnitBaseForm:
     @transaction.atomic
     def save(self, commit=True):
         pass
+
+    @cached_property
+    def instance(self):
+        if self.learning_unit_instance:
+            return learning_unit_year.search(
+                academic_year_id=self.academic_year.id,
+                learning_unit=self.learning_unit_instance,
+                subtype=self.subtype
+            ).get()
+        return None
 
     @property
     def errors(self):
@@ -148,17 +158,15 @@ class FullForm(LearningUnitBaseForm):
 
     subtype = learning_unit_year_subtypes.FULL
 
-    def __init__(self, data, person, default_ac_year=None, instance=None, proposal=False,
-                 *args, **kwargs):
-        check_learning_unit_year_instance(instance)
-        self.instance = instance
+    def __init__(self, person, academic_year, learning_unit_instance=None, data=None, proposal=False, *args, **kwargs):
+        self.academic_year = academic_year
+        self.learning_unit_instance = learning_unit_instance
         self.person = person
         self.proposal = proposal
         self.data = data
-        self.academic_year = instance.academic_year if instance else default_ac_year
-        self.start_year = instance.learning_unit.start_year if instance else default_ac_year.year
+        self.start_year = self.instance.learning_unit.start_year if self.instance else academic_year.year
 
-        instances_data = self._build_instance_data(self.data, default_ac_year, instance, proposal)
+        instances_data = self._build_instance_data(self.data, academic_year, proposal)
         super().__init__(instances_data, *args, **kwargs)
         if self.instance:
             self._disable_fields()
@@ -181,46 +189,46 @@ class FullForm(LearningUnitBaseForm):
         else:
             self.disable_fields(FULL_READ_ONLY_FIELDS)
 
-    def _build_instance_data(self, data, default_ac_year, instance, proposal):
+    def _build_instance_data(self, data, default_ac_year, proposal):
         return {
             LearningUnitModelForm: {
                 'data': data,
-                'instance': instance.learning_unit if instance else None,
+                'instance': self.instance.learning_unit if self.instance else None,
             },
             LearningContainerModelForm: {
                 'data': data,
-                'instance': instance.learning_container_year.learning_container if instance else None,
+                'instance': self.instance.learning_container_year.learning_container if self.instance else None,
             },
-            LearningUnitYearModelForm: self._build_instance_data_learning_unit_year(data, default_ac_year, instance),
-            LearningContainerYearModelForm: self._build_instance_data_learning_container_year(data, instance, proposal),
+            LearningUnitYearModelForm: self._build_instance_data_learning_unit_year(data, default_ac_year),
+            LearningContainerYearModelForm: self._build_instance_data_learning_container_year(data, proposal),
             EntityContainerFormset: {
                 'data': data,
-                'instance': instance.learning_container_year if instance else None,
+                'instance': self.instance.learning_container_year if self.instance else None,
                 'form_kwargs': {'person': self.person}
             }
         }
 
-    def _build_instance_data_learning_container_year(self, data, instance, proposal):
+    def _build_instance_data_learning_container_year(self, data, proposal):
         return {
             'data': data,
-            'instance': instance.learning_container_year if instance else None,
+            'instance': self.instance.learning_container_year if self.instance else None,
             'proposal': proposal,
             'initial': {
                 # Default campus selected 'Louvain-la-Neuve' if exist
                 'campus': Campus.objects.filter(name='Louvain-la-Neuve').first(),
                 # Default language French
                 'language': language.find_by_code('FR')
-            } if not instance else None,
+            } if not self.instance else None,
             'person': self.person
         }
 
-    def _build_instance_data_learning_unit_year(self, data, default_ac_year, instance):
+    def _build_instance_data_learning_unit_year(self, data, default_ac_year):
         return {
             'data': data,
-            'instance': instance,
+            'instance': self.instance,
             'initial': {
                 'status': True, 'academic_year': default_ac_year,
-            } if not instance else None,
+            } if not self.instance else None,
             'person': self.person,
             'subtype': self.subtype
         }
@@ -269,11 +277,6 @@ class FullForm(LearningUnitBaseForm):
             commit=commit
         )
         return learning_unit_year
-
-
-def check_learning_unit_year_instance(instance):
-    if instance and not isinstance(instance, LearningUnitYear):
-        raise AttributeError('instance arg should be an instance of {}'.format(LearningUnitYear))
 
 
 def merge_data(data, inherit_lu_values):

@@ -286,7 +286,7 @@ def learning_unit_create(request, academic_year_id):
         academic_year_id = request.POST.get('academic_year')
 
     academic_year = get_object_or_404(AcademicYear, pk=academic_year_id)
-    learning_unit_form_container = FullForm(request.POST or None, person, default_ac_year=academic_year)
+    learning_unit_form_container = FullForm(person, academic_year, data=request.POST or None)
     if learning_unit_form_container.is_valid():
         # Save current learning unit form container
         new_luys = [learning_unit_form_container.save()]
