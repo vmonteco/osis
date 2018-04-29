@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = 'auth.User'
 
+<<<<<<< HEAD
     username = factory.Sequence(lambda n: 'user{}'.format(n))
     #username = factory.Faker('user_name')
     first_name = factory.Faker('first_name')
@@ -56,6 +57,9 @@ class UserFactory(factory.django.DjangoModelFactory):
 
 
 class SuperUserFactory(UserFactory):
+=======
+    username = factory.Sequence(lambda n: 'superusername_{0}'.format(n))
+>>>>>>> dev
     is_superuser = True
     is_staff = True
     is_active = True
