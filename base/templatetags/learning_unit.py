@@ -86,7 +86,8 @@ def dl_tooltip(differences, key, **kwargs):
         value = "<a href='{url}'>{value}</a>".format(value=value, url=url)
 
     if inherited == "PARTIM":
-        return mark_safe("<dl><dt {difference}>{label_text} <span title={inherited_title}>[H]</span></dt><dd {difference}>{value}</dd></dl>"
+        return mark_safe("<dl><dt {difference}>{label_text} <span title={inherited_title}>[H]</span>"
+                         "</dt><dd {difference}>{value}</dd></dl>"
                          .format(difference=difference, label_text=_(label_text),
                                  inherited_title=_("inherited"), value=value))
     else:
