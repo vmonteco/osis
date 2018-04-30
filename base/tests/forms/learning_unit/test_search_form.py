@@ -115,4 +115,9 @@ def create_learning_unit_years_with_requirement_entity_not_in_same_faculty_than_
         EntityVersionFactory(entity=offer_year_entity.entity, entity_type=entity_type.FACULTY, parent=None)
         group_element_year = GroupElementYearFactory(child_branch=offer_year_entity.education_group_year,
                                                      child_leaf=luy)
+
+        offer_year_entity = OfferYearEntityFactory()
+        EntityVersionFactory(entity=offer_year_entity.entity, entity_type=entity_type.FACULTY, parent=None)
+        group_element_year = GroupElementYearFactory(child_branch=offer_year_entity.education_group_year,
+                                                     child_leaf=luy)
     return learning_unit_years

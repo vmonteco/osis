@@ -24,6 +24,8 @@
 #
 ##############################################################################
 import datetime
+from collections import defaultdict
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import OuterRef, Subquery
@@ -240,7 +242,10 @@ def get_map_learning_unit_year_id_with_entity(learning_unit_year_qs):
 
 def get_map_learning_unit_year_education_group(learning_unit_year_qs):
     group_element_years = GroupElementYear.objects.filter(child_leaf__in=learning_unit_year_qs).values_list("child_leaf", "child_branch__offeryearentity__entity")
-    return {luy_id: [entity_id] for luy_id, entity_id in group_element_years}
+    dict_luy_entities = defaultdict(list)
+    for luy_id, entity_id in group_element_years:
+        dict_luy_entities[luy_id].append(entity_id)
+    return dict_luy_entities
 
 
 def __search_faculty_parent(current, value, dic_entities):
