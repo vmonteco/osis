@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
+import datetime
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -36,8 +36,9 @@ from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, T
 from base.forms.utils.uppercase import convert_to_uppercase
 from base.models import learning_unit_year
 from base.models.academic_year import AcademicYear, current_academic_year
+from base.models.entity_version import EntityVersion
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
-    learning_unit_year_subtypes, active_status
+    learning_unit_year_subtypes, active_status, entity_type
 from base.models.learning_unit_year import convert_status_bool
 
 MAX_RECORDS = 1000
@@ -218,5 +219,26 @@ def get_filter_learning_container_ids(filter_data):
     return entities_id_list if entities_id_list else None
 
 
+def get_entities_faculty(date):
+    entities = EntityVersion.objects.current(date).values_list("entity", "parent", "entity_type")
+    dict_entities = {entity_id: (parent_id, entity_type) for entity_id, parent_id, entity_type in entities}
+    dict_entities_faculty_parent = {}
+    for key, value in dict_entities.items():
+        dict_entities_faculty_parent[key] = __search_faculty_parent(key, value, dict_entities)
+    return dict_entities_faculty_parent
+
+
+def __search_faculty_parent(current, value, dic_entities):
+    parent, type = value
+    if type == entity_type.FACULTY:
+        return current
+    if parent is None or parent not in dic_entities:
+        return current
+    new_current = parent
+    new_value = dic_entities[new_current]
+    return __search_faculty_parent(new_current, new_value, dic_entities)
+
+
 def filter_is_borrowed_learning_unit_year(learning_unit_year_qs):
+    entities_faculty = get_entities_faculty(datetime.date.today())
     return learning_unit_year_qs.none()
