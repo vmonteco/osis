@@ -926,7 +926,7 @@ msgid "program_commission"
 msgstr "Commison d'enseignement/programme"
 
 msgid "program_managers"
-msgstr "Program managers"
+msgstr "Gestionnaires de programme"
 
 msgid "program_s"
 msgstr "programme(s)"
