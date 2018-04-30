@@ -48,8 +48,14 @@ class LearningAchievementEditForm(forms.ModelForm):
 
         super().__init__(data, initial=initial, **kwargs)
 
+        self._get_code_name_disabled_status()
+
         for key, value in initial.items():
             setattr(self.instance, key, value)
+
+    def _get_code_name_disabled_status(self):
+        if self.instance.pk and self.instance.language.code == EN_CODE_LANGUAGE:
+            self.fields["code_name"].disabled = True
 
     def save(self, commit=True):
         instance = super().save(commit)
