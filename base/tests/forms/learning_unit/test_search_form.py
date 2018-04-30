@@ -48,7 +48,7 @@ class TestFilterIsBorrowedLearningUnitYear(TestCase):
 
     def test_empty_queryset(self):
         empty_qs = LearningUnitYear.objects.none()
-        result = filter_is_borrowed_learning_unit_year(empty_qs)
+        result = list(filter_is_borrowed_learning_unit_year(empty_qs))
         self.assertFalse(result)
 
     def test_with_learning_unit_years_not_used_in_any_education_group(self):
@@ -64,12 +64,12 @@ class TestFilterIsBorrowedLearningUnitYear(TestCase):
         qs = LearningUnitYear.objects.filter(
             pk__in=[luy.pk for luy in self.luys_in_different_faculty_than_education_group]
         )
-        result = filter_is_borrowed_learning_unit_year(qs)
-        self.assertQuerysetEqual(result, self.luys_in_different_faculty_than_education_group, ordered=False)
+        result = list(filter_is_borrowed_learning_unit_year(qs))
+        self.assertCountEqual(result, self.luys_in_different_faculty_than_education_group)
 
     def assert_filter_borrowed_luys_returns_empty_qs(self, learning_unit_years):
         qs = LearningUnitYear.objects.filter(pk__in=[luy.pk for luy in learning_unit_years])
-        result = filter_is_borrowed_learning_unit_year(qs)
+        result = list(filter_is_borrowed_learning_unit_year(qs))
         self.assertFalse(result)
 
 
@@ -110,7 +110,9 @@ def create_learning_unit_years_with_requirement_entity_not_in_same_faculty_than_
             learning_container_year=luy.learning_container_year,
             type=entity_container_year_link_type.REQUIREMENT_ENTITY
         )
+        EntityVersionFactory(entity=entity_container_year.entity, entity_type=entity_type.FACULTY, parent=None)
         offer_year_entity = OfferYearEntityFactory()
+        EntityVersionFactory(entity=offer_year_entity.entity, entity_type=entity_type.FACULTY, parent=None)
         group_element_year = GroupElementYearFactory(child_branch=offer_year_entity.education_group_year,
                                                      child_leaf=luy)
     return learning_unit_years

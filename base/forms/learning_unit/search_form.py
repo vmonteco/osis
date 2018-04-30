@@ -26,6 +26,7 @@
 import datetime
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db.models import OuterRef, Subquery
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
@@ -36,9 +37,12 @@ from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, T
 from base.forms.utils.uppercase import convert_to_uppercase
 from base.models import learning_unit_year
 from base.models.academic_year import AcademicYear, current_academic_year
+from base.models.entity import Entity
+from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import EntityVersion
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
     learning_unit_year_subtypes, active_status, entity_type
+from base.models.group_element_year import GroupElementYear
 from base.models.learning_unit_year import convert_status_bool
 
 MAX_RECORDS = 1000
@@ -228,6 +232,17 @@ def get_entities_faculty(date):
     return dict_entities_faculty_parent
 
 
+def get_map_learning_unit_year_id_with_entity(learning_unit_year_qs):
+    entity_container_years = EntityContainerYear.objects.filter(learning_container_year__pk=OuterRef("learning_container_year__pk"), type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+    learning_unit_years = learning_unit_year_qs.values_list("id").annotate(entity=Subquery(entity_container_years.values("entity")))
+    return {luy_id: entity_id for luy_id, entity_id in learning_unit_years}
+
+
+def get_map_learning_unit_year_education_group(learning_unit_year_qs):
+    group_element_years = GroupElementYear.objects.filter(child_leaf__in=learning_unit_year_qs).values_list("child_leaf", "child_branch__offeryearentity__entity")
+    return {luy_id: [entity_id] for luy_id, entity_id in group_element_years}
+
+
 def __search_faculty_parent(current, value, dic_entities):
     parent, type = value
     if type == entity_type.FACULTY:
@@ -240,5 +255,19 @@ def __search_faculty_parent(current, value, dic_entities):
 
 
 def filter_is_borrowed_learning_unit_year(learning_unit_year_qs):
-    entities_faculty = get_entities_faculty(datetime.date.today())
-    return learning_unit_year_qs.none()
+    date = datetime.date.today()
+    entities_faculty = get_entities_faculty(date)
+    map_luy_entity = get_map_learning_unit_year_id_with_entity(learning_unit_year_qs)
+    map_luy_education_group_entities = get_map_learning_unit_year_education_group(learning_unit_year_qs)
+    for luy in learning_unit_year_qs:
+        if __is_borrowed_learning_unit(luy, entities_faculty, map_luy_entity, map_luy_education_group_entities):
+            yield luy
+
+
+def __is_borrowed_learning_unit(luy, map_entity_faculty, map_luy_entity, map_luy_education_group_entities):
+    luy_entity = map_luy_entity.get(luy.id)
+    luy_faculty = map_entity_faculty.get(luy_entity)
+    for education_group_entity in map_luy_education_group_entities.get(luy.id, []):
+        if luy_faculty != map_entity_faculty.get(education_group_entity):
+            return True
+    return False
