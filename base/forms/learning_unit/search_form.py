@@ -261,10 +261,11 @@ def map_learning_unit_year_with_requirement_entity(learning_unit_year_qs):
     return {luy_id: entity_id for luy_id, entity_id in learning_unit_years_with_entity}
 
 
-def map_learning_unit_year_with_entities_of_education_groups(formations):
+def map_learning_unit_year_with_entities_of_education_groups(learning_unit_year_qs):
+    formations = group_element_year.find_learning_unit_formations(learning_unit_year_qs, parents_as_instances=False)
     education_group_ids = list(itertools.chain.from_iterable(formations.values()))
     group_element_years = GroupElementYear.objects.filter(child_branch__in=education_group_ids).\
-        values_list("child_branch", "parent__offeryearentity__entity")
+        values_list("child_branch", "child_branch__offeryearentity__entity")
 
     dict_entity_of_education_group = {education_group_year_id: entity_id for education_group_year_id, entity_id
                                       in group_element_years}
@@ -280,11 +281,9 @@ def filter_is_borrowed_learning_unit_year(learning_unit_year_qs):
     date = datetime.date.today()
 
     entities_faculty = compute_faculty_for_entities(date)
-    dict_education_group_years_of_learning_unit_year = \
-        group_element_year.find_learning_unit_formations(learning_unit_year_qs, parents_as_instances=False)
     map_luy_entity = map_learning_unit_year_with_requirement_entity(learning_unit_year_qs)
     map_luy_education_group_entities = \
-        map_learning_unit_year_with_entities_of_education_groups(dict_education_group_years_of_learning_unit_year)
+        map_learning_unit_year_with_entities_of_education_groups(learning_unit_year_qs)
 
     for luy in learning_unit_year_qs:
         if __is_borrowed_learning_unit(luy, entities_faculty, map_luy_entity, map_luy_education_group_entities):
@@ -294,6 +293,10 @@ def filter_is_borrowed_learning_unit_year(learning_unit_year_qs):
 def __is_borrowed_learning_unit(luy, map_entity_faculty, map_luy_entity, map_luy_education_group_entities):
     luy_entity = map_luy_entity.get(luy.id)
     luy_faculty = map_entity_faculty.get(luy_entity)
+
+    if luy_faculty is None:
+        return False
+
     for education_group_entity in map_luy_education_group_entities.get(luy.id, []):
         if luy_faculty != map_entity_faculty.get(education_group_entity) \
                 and map_entity_faculty.get(education_group_entity) is not None:

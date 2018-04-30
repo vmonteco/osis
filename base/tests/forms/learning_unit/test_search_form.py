@@ -28,6 +28,7 @@ from django.test import TestCase
 from base.forms.learning_unit.search_form import filter_is_borrowed_learning_unit_year
 from base.models.enums import entity_container_year_link_type, entity_type
 from base.models.learning_unit_year import LearningUnitYear
+from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
@@ -38,13 +39,26 @@ from base.tests.factories.offer_year_entity import OfferYearEntityFactory
 class TestFilterIsBorrowedLearningUnitYear(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.luys_not_in_education_group = [LearningUnitYearFactory() for _ in range(3)]
-        cls.luys_with_same_entity_as_education_group = \
-            create_learning_unit_years_with_same_requirement_entity_and_entity_of_education_group()
-        cls.luys_in_same_faculty_as_education_group = \
-            create_learning_unit_years_with_requirement_entity_and_entity_of_education_group_in_same_faculty()
-        cls.luys_in_different_faculty_than_education_group = \
-            create_learning_unit_years_with_requirement_entity_not_in_same_faculty_than_education_group()
+        cls.academic_year = create_current_academic_year()
+
+        cls.luys_not_in_education_group = [
+            LearningUnitYearFactory(academic_year=cls.academic_year,
+                                    learning_container_year__academic_year=cls.academic_year) for _ in range(3)
+        ]
+
+        cls.luys_with_same_entity_as_education_group = [
+            generate_learning_unit_year_with_associated_education_group(cls.academic_year)
+        ]
+
+        cls.luys_in_same_faculty_as_education_group = [
+            generate_learning_unit_year_with_associated_education_group(cls.academic_year, same_entity=False)
+            for _ in range(3)
+        ]
+
+        cls.luys_in_different_faculty_than_education_group = [
+            generate_learning_unit_year_with_associated_education_group(cls.academic_year, same_faculty=False)
+            for _ in range(3)
+        ]
 
     def test_empty_queryset(self):
         empty_qs = LearningUnitYear.objects.none()
@@ -73,51 +87,26 @@ class TestFilterIsBorrowedLearningUnitYear(TestCase):
         self.assertFalse(result)
 
 
-def create_learning_unit_years_with_same_requirement_entity_and_entity_of_education_group():
-    learning_unit_years = [LearningUnitYearFactory() for _ in range(3)]
-    for luy in learning_unit_years:
-        entity_container_year = EntityContainerYearFactory(
-            learning_container_year=luy.learning_container_year,
-            type=entity_container_year_link_type.REQUIREMENT_ENTITY
-        )
-        offer_year_entity = OfferYearEntityFactory(entity=entity_container_year.entity)
-        group_element_year = GroupElementYearFactory(child_branch=offer_year_entity.education_group_year,
-                                                     child_leaf=luy)
-    return learning_unit_years
+def generate_learning_unit_year_with_associated_education_group(academic_year, same_faculty=True, same_entity=True):
+    luy = LearningUnitYearFactory(academic_year=academic_year, learning_container_year__academic_year=academic_year)
 
+    entity_container_year = EntityContainerYearFactory(learning_container_year=luy.learning_container_year,
+                                                       type=entity_container_year_link_type.REQUIREMENT_ENTITY)
 
-def create_learning_unit_years_with_requirement_entity_and_entity_of_education_group_in_same_faculty():
-    learning_unit_years = [LearningUnitYearFactory() for _ in range(3)]
-    for luy in learning_unit_years:
-        entity_container_year = EntityContainerYearFactory(
-            learning_container_year=luy.learning_container_year,
-            type=entity_container_year_link_type.REQUIREMENT_ENTITY
-        )
-        entity_version = EntityVersionFactory(entity=entity_container_year.entity,
-                                              entity_type=entity_type.SCHOOL)
-        parent_entity_version = EntityVersionFactory(entity=entity_version.parent,
-                                                     parent=None,
-                                                     entity_type=entity_type.FACULTY)
-        offer_year_entity = OfferYearEntityFactory(entity=entity_version.parent)
-        group_element_year = GroupElementYearFactory(child_branch=offer_year_entity.education_group_year,
-                                                     child_leaf=luy)
-    return learning_unit_years
+    entity_version = EntityVersionFactory(entity=entity_container_year.entity,
+                                          entity_type=entity_type.SCHOOL)
+    parent_entity = EntityVersionFactory(entity=entity_version.parent, parent=None, entity_type=entity_type.FACULTY)
 
-def create_learning_unit_years_with_requirement_entity_not_in_same_faculty_than_education_group():
-    learning_unit_years = [LearningUnitYearFactory() for _ in range(3)]
-    for luy in learning_unit_years:
-        entity_container_year = EntityContainerYearFactory(
-            learning_container_year=luy.learning_container_year,
-            type=entity_container_year_link_type.REQUIREMENT_ENTITY
-        )
-        EntityVersionFactory(entity=entity_container_year.entity, entity_type=entity_type.FACULTY, parent=None)
-        offer_year_entity = OfferYearEntityFactory()
-        EntityVersionFactory(entity=offer_year_entity.entity, entity_type=entity_type.FACULTY, parent=None)
-        group_element_year = GroupElementYearFactory(child_branch=offer_year_entity.education_group_year,
-                                                     child_leaf=luy)
+    if not same_entity:
+        entity_version = parent_entity
+    if not same_faculty:
+        entity_version = EntityVersionFactory(entity_type=entity_type.FACULTY)
 
-        offer_year_entity = OfferYearEntityFactory()
-        EntityVersionFactory(entity=offer_year_entity.entity, entity_type=entity_type.FACULTY, parent=None)
-        group_element_year = GroupElementYearFactory(child_branch=offer_year_entity.education_group_year,
-                                                     child_leaf=luy)
-    return learning_unit_years
+    offer_year_entity = OfferYearEntityFactory(entity=entity_version.entity,
+                                               education_group_year__academic_year=academic_year)
+
+    branch_group = GroupElementYearFactory(child_branch=offer_year_entity.education_group_year, parent=None)
+    leaf_group = GroupElementYearFactory(child_branch=None, child_leaf=luy,
+                                         parent=offer_year_entity.education_group_year)
+
+    return luy
