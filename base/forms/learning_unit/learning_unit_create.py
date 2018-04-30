@@ -272,7 +272,7 @@ class EntityContainerYearFormset(forms.BaseInlineFormSet):
             return None
 
     def get_linked_entities_forms(self):
-        return {key.lower(): self.get_clean_data_entity(key) for key in ENTITY_TYPE_LIST}
+        return {key: self.get_clean_data_entity(key) for key in ENTITY_TYPE_LIST}
 
     @property
     def fields(self):
@@ -327,7 +327,7 @@ class LearningContainerYearModelForm(forms.ModelForm):
                   'type_declaration_vacant', 'team', 'is_vacant')
 
     def post_clean(self, specific_title):
-        if not self.cleaned_data['common_title'] and not specific_title:
+        if not self.instance.common_title and not specific_title:
             self.add_error("common_title", _("must_set_common_title_or_specific_title"))
 
         return not self.errors

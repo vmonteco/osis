@@ -62,12 +62,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
         EntityContainerFormset
     ]
 
-    form_cls_to_validate = [
-        LearningUnitModelForm,
-        LearningUnitYearModelForm,
-        LearningContainerModelForm,
-        LearningContainerYearModelForm,
-    ]
+    form_cls_to_validate = form_classes
 
     forms = OrderedDict()
     subtype = None
@@ -82,13 +77,12 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
         return self.instance
 
     def is_valid(self):
-        if any([not form_instance.is_valid() for form_instance in self.forms.values()]):
+        if any([not form_instance.is_valid() for cls, form_instance in self.forms.items()
+                if cls in self.form_cls_to_validate]):
             return False
 
-        self.entity_container_form.post_clean(
-            self.learning_container_year_form.cleaned_data['container_type'],
-            self.learning_unit_year_form.instance.academic_year.start_date)
         self.learning_container_year_form.post_clean(self.learning_unit_year_form.cleaned_data["specific_title"])
+
         return not self.errors
 
     @transaction.atomic
@@ -175,7 +169,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
     def _get_flat_cleaned_data_apart_from_entities(self):
         all_clean_data = {}
         for cls, form_instance in self.forms.items():
-            if cls in self.form_cls_to_validate:
+            if cls in self.form_cls_to_validate and cls is not EntityContainerFormset:
                 all_clean_data.update({field: value for field, value in form_instance.cleaned_data.items()
                                       if field not in FULL_READ_ONLY_FIELDS})
         return all_clean_data
@@ -295,6 +289,15 @@ class FullForm(LearningUnitBaseForm):
     #     if parent_credits <= max_partim_credits:
     #         # TODO :: This should show an alert, not block save()
     #         raise ValidationError(_("At least one of the partims has a higher or equal number of credits"))
+
+    def is_valid(self):
+        result = super().is_valid()
+        if result:
+            result = self.entity_container_form.post_clean(
+                self.learning_container_year_form.cleaned_data['container_type'],
+                self.learning_unit_year_form.instance.academic_year.start_date)
+
+        return result
 
     def _create(self, commit, postponement):
         academic_year = self.academic_year
@@ -457,9 +460,3 @@ class PartimForm(LearningUnitBaseForm):
 
     def _get_entity_container_year(self):
         return self.learning_unit_year_full.learning_container_year.entitycontaineryear_set.all()
-
-    def _get_entities_data(self):
-        learning_container_year_full = self.learning_unit_year_full.learning_container_year
-        entity_container_years = learning_container_year_full.entitycontaineryear_set.all()
-        return {entity_container.type.upper(): entity_container.entity for entity_container in
-                entity_container_years}
