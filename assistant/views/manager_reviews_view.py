@@ -28,6 +28,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 
+from assistant.business.assistant_mandate import mandate_can_go_backward
 from assistant.models.review import find_by_mandate
 from assistant.models import assistant_mandate
 from assistant.utils import manager_access
@@ -38,11 +39,14 @@ from assistant.utils import manager_access
 def reviews_view(request, mandate_id):
     reviews = find_by_mandate(mandate_id)
     mandate = assistant_mandate.find_mandate_by_id(mandate_id)
+    can_go_backward = mandate_can_go_backward(mandate)
+
     return render(
         request, 'manager_reviews_view.html',
         {
             'mandate_id': mandate_id,
             'year': mandate.academic_year.year + 1,
-            'reviews': reviews
+            'reviews': reviews,
+            'can_go_backward': can_go_backward
         }
     )

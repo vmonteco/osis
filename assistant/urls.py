@@ -24,6 +24,8 @@
 #
 ##############################################################################
 from django.conf.urls import url, include
+
+from assistant.business.assistant_mandate import find_assistant_mandate_step_backward_state
 from assistant.views import manager_assistant_form
 from assistant.views import mandate, home, assistant_form, assistant, phd_supervisor_review
 from assistant.views import manager_settings, reviewers_management, upload_assistant_file
@@ -100,6 +102,7 @@ urlpatterns = [
             url(r'^$', mandates_list.MandatesListView.as_view(), name='mandates_list'),
             url(r'^edit/$', mandate.mandate_edit, name='mandate_read'),
             url(r'^save/$', mandate.mandate_save, name='mandate_save'),
+            url(r'^go_backward/$', find_assistant_mandate_step_backward_state, name='assistant_mandate_step_back'),
             url(r'^load/$', mandate.load_mandates, name='load_mandates'),
             url(r'^upload/$', import_xls_file_data.upload_mandates_file, name='upload_mandates_file'),
             url(r'^export/$', mandate.export_mandates, name='export_mandates'),

@@ -2855,3 +2855,7 @@ msgstr "consolidation"
 
 msgid "borrowed_course_search"
 msgstr "Borrowed courses - search"
+
+msgid "add_another"
+msgstr "Add another"
+

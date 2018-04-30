@@ -2862,3 +2862,6 @@ msgstr ""
 
 msgid "borrowed_course_search"
 msgstr "Recherche - Cours empruntés"
+
+msgid "add_another"
+msgstr "Ajouter un autre"
