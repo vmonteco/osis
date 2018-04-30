@@ -26,6 +26,7 @@
 import datetime
 from collections import defaultdict
 
+import itertools
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import OuterRef, Subquery
@@ -37,7 +38,7 @@ from base.business.entity_version import SERVICE_COURSE
 from base.business.learning_unit_year_with_context import append_latest_entities
 from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, TooManyResultsException
 from base.forms.utils.uppercase import convert_to_uppercase
-from base.models import learning_unit_year
+from base.models import learning_unit_year, group_element_year
 from base.models.academic_year import AcademicYear, current_academic_year
 from base.models.entity import Entity
 from base.models.entity_container_year import EntityContainerYear
@@ -122,6 +123,7 @@ class LearningUnitYearForm(SearchForm):
 
     def __init__(self, *args, **kwargs):
         self.service_course_search = kwargs.pop('service_course_search', False)
+        self.borrowed_course_search = kwargs.pop('borrowed_course_search', False)
         super().__init__(*args, **kwargs)
 
     def clean_acronym(self):
@@ -167,6 +169,9 @@ class LearningUnitYearForm(SearchForm):
                             'learning_container_year__academic_year') \
             .prefetch_related(build_entity_container_prefetch()) \
             .order_by('academic_year__year', 'acronym')
+
+        if self.borrowed_course_search:
+            learning_units = filter_is_borrowed_learning_unit_year(learning_units)
 
         # FIXME We must keep a queryset
         return [append_latest_entities(learning_unit, service_course_search) for learning_unit in
@@ -225,45 +230,62 @@ def get_filter_learning_container_ids(filter_data):
     return entities_id_list if entities_id_list else None
 
 
-def get_entities_faculty(date):
+def compute_faculty_for_entities(date):
     entities = EntityVersion.objects.current(date).values_list("entity", "parent", "entity_type")
-    dict_entities = {entity_id: (parent_id, entity_type) for entity_id, parent_id, entity_type in entities}
-    dict_entities_faculty_parent = {}
-    for key, value in dict_entities.items():
-        dict_entities_faculty_parent[key] = __search_faculty_parent(key, value, dict_entities)
-    return dict_entities_faculty_parent
+    dict_parent_and_type_of_entity = {entity_id: (parent_id, entity_type) for entity_id, parent_id, entity_type
+                                      in entities}
+    dict_faculty_of_entity = {}
+    for entity_id, tuple_parent_and_type in dict_parent_and_type_of_entity.items():
+        dict_faculty_of_entity[entity_id] = __search_faculty_for_entity(entity_id, tuple_parent_and_type,
+                                                                        dict_parent_and_type_of_entity)
+    return dict_faculty_of_entity
 
 
-def get_map_learning_unit_year_id_with_entity(learning_unit_year_qs):
-    entity_container_years = EntityContainerYear.objects.filter(learning_container_year__pk=OuterRef("learning_container_year__pk"), type=entity_container_year_link_type.REQUIREMENT_ENTITY)
-    learning_unit_years = learning_unit_year_qs.values_list("id").annotate(entity=Subquery(entity_container_years.values("entity")))
-    return {luy_id: entity_id for luy_id, entity_id in learning_unit_years}
-
-
-def get_map_learning_unit_year_education_group(learning_unit_year_qs):
-    group_element_years = GroupElementYear.objects.filter(child_leaf__in=learning_unit_year_qs).values_list("child_leaf", "child_branch__offeryearentity__entity")
-    dict_luy_entities = defaultdict(list)
-    for luy_id, entity_id in group_element_years:
-        dict_luy_entities[luy_id].append(entity_id)
-    return dict_luy_entities
-
-
-def __search_faculty_parent(current, value, dic_entities):
-    parent, type = value
+def __search_faculty_for_entity(entity_id, tuple_parent_and_type, dict_parent_and_type_of_entity):
+    parent, type = tuple_parent_and_type
     if type == entity_type.FACULTY:
-        return current
-    if parent is None or parent not in dic_entities:
-        return current
+        return entity_id
+    if parent is None or parent not in dict_parent_and_type_of_entity:
+        return entity_id
     new_current = parent
-    new_value = dic_entities[new_current]
-    return __search_faculty_parent(new_current, new_value, dic_entities)
+    new_value = dict_parent_and_type_of_entity[new_current]
+    return __search_faculty_for_entity(new_current, new_value, dict_parent_and_type_of_entity)
+
+
+def map_learning_unit_year_with_requirement_entity(learning_unit_year_qs):
+    entity_container_years = EntityContainerYear.objects.\
+        filter(learning_container_year__pk=OuterRef("learning_container_year__pk"),
+               type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+    learning_unit_years_with_entity = learning_unit_year_qs.values_list("id").\
+        annotate(entity=Subquery(entity_container_years.values("entity")))
+    return {luy_id: entity_id for luy_id, entity_id in learning_unit_years_with_entity}
+
+
+def map_learning_unit_year_with_entities_of_education_groups(formations):
+    education_group_ids = list(itertools.chain.from_iterable(formations.values()))
+    group_element_years = GroupElementYear.objects.filter(child_branch__in=education_group_ids).\
+        values_list("child_branch", "parent__offeryearentity__entity")
+
+    dict_entity_of_education_group = {education_group_year_id: entity_id for education_group_year_id, entity_id
+                                      in group_element_years}
+
+    dict_education_group_year_entities_for_learning_unit_year = {}
+    for luy_id, formations_ids in formations.items():
+        dict_education_group_year_entities_for_learning_unit_year[luy_id] = \
+            [dict_entity_of_education_group.get(formation_id) for formation_id in formations_ids]
+    return dict_education_group_year_entities_for_learning_unit_year
 
 
 def filter_is_borrowed_learning_unit_year(learning_unit_year_qs):
     date = datetime.date.today()
-    entities_faculty = get_entities_faculty(date)
-    map_luy_entity = get_map_learning_unit_year_id_with_entity(learning_unit_year_qs)
-    map_luy_education_group_entities = get_map_learning_unit_year_education_group(learning_unit_year_qs)
+
+    entities_faculty = compute_faculty_for_entities(date)
+    dict_education_group_years_of_learning_unit_year = \
+        group_element_year.find_learning_unit_formations(learning_unit_year_qs, parents_as_instances=False)
+    map_luy_entity = map_learning_unit_year_with_requirement_entity(learning_unit_year_qs)
+    map_luy_education_group_entities = \
+        map_learning_unit_year_with_entities_of_education_groups(dict_education_group_years_of_learning_unit_year)
+
     for luy in learning_unit_year_qs:
         if __is_borrowed_learning_unit(luy, entities_faculty, map_luy_entity, map_luy_education_group_entities):
             yield luy
@@ -273,6 +295,7 @@ def __is_borrowed_learning_unit(luy, map_entity_faculty, map_luy_entity, map_luy
     luy_entity = map_luy_entity.get(luy.id)
     luy_faculty = map_entity_faculty.get(luy_entity)
     for education_group_entity in map_luy_education_group_entities.get(luy.id, []):
-        if luy_faculty != map_entity_faculty.get(education_group_entity):
+        if luy_faculty != map_entity_faculty.get(education_group_entity) \
+                and map_entity_faculty.get(education_group_entity) is not None:
             return True
     return False

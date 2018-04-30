@@ -56,8 +56,10 @@ ACTION_FORCE_STATE = "force_state"
 
 def learning_units_search(request, search_type):
     service_course_search = search_type == SERVICE_COURSES_SEARCH
+    borrowed_course_search = search_type == BORROWED_COURSE
 
-    form = LearningUnitYearForm(request.GET or None, service_course_search=service_course_search)
+    form = LearningUnitYearForm(request.GET or None, service_course_search=service_course_search,
+                                borrowed_course_search=borrowed_course_search)
     found_learning_units = []
     try:
         if form.is_valid():
