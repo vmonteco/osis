@@ -24,9 +24,9 @@
 #
 ##############################################################################
 import abc
+from abc import ABCMeta
 from collections import OrderedDict
 
-from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
@@ -37,12 +37,8 @@ from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm,
 from base.forms.utils.acronym_field import split_acronym
 from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear
 from base.models.campus import Campus
-from base.models import entity_version
 from base.models.enums import learning_unit_year_subtypes
-from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
-from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
-from base.models.learning_unit_year import LearningUnitYear, find_max_credits_of_related_partims, \
-    find_partims_with_active_status
+from base.models.learning_unit_year import LearningUnitYear
 from reference.models import language
 
 FULL_READ_ONLY_FIELDS = {"acronym", "academic_year", "container_type"}
@@ -56,12 +52,24 @@ PARTIM_FORM_READ_ONLY_FIELD = {'acronym_0', 'acronym_1', 'common_title', 'common
 FACULTY_OPEN_FIELDS = {'quadrimester', 'session', 'team', "faculty_remark", "other_remark"}
 
 
-class LearningUnitBaseForm:
+class LearningUnitBaseForm(metaclass=ABCMeta):
 
-    form_classes = [LearningUnitModelForm, LearningUnitYearModelForm, LearningContainerModelForm,
-                    LearningContainerYearModelForm, EntityContainerFormset]
+    form_classes = [
+        LearningUnitModelForm,
+        LearningUnitYearModelForm,
+        LearningContainerModelForm,
+        LearningContainerYearModelForm,
+        EntityContainerFormset
+    ]
 
-    forms = {}
+    form_cls_to_validate = [
+        LearningUnitModelForm,
+        LearningUnitYearModelForm,
+        LearningContainerModelForm,
+        LearningContainerYearModelForm,
+    ]
+
+    forms = OrderedDict()
     subtype = None
     _postponement = None
     instance = None
@@ -73,17 +81,18 @@ class LearningUnitBaseForm:
     def _is_update_action(self):
         return self.instance
 
-    @abc.abstractmethod
     def is_valid(self):
-        return False
+        if any([not form_instance.is_valid() for form_instance in self.forms.values()]):
+            return False
 
-    @abc.abstractmethod
-    def check_consistency_on_academic_year(self):
-        return False
+        self.entity_container_form.post_clean(
+            self.learning_container_year_form.cleaned_data['container_type'],
+            self.learning_unit_year_form.instance.academic_year.start_date)
+        self.learning_container_year_form.post_clean(self.learning_unit_year_form.cleaned_data["specific_title"])
+        return not self.errors
 
     @transaction.atomic
     def save(self, commit=True, postponement=True):
-        self.check_consistency_on_academic_year()
         if self._is_update_action():
             return self._update_with_postponement(postponement)
         else:
@@ -91,11 +100,14 @@ class LearningUnitBaseForm:
 
     @property
     def errors(self):
-        return [form.errors for form in self.forms.values()]
+        return [form.errors for form in self.forms.values() if any(form.errors)]
 
     @property
     def fields(self):
-        return self.get_all_fields()
+        fields = OrderedDict()
+        for cls, form_instance in self.forms.items():
+            fields.update(form_instance.fields)
+        return fields
 
     @property
     def cleaned_data(self):
@@ -106,12 +118,12 @@ class LearningUnitBaseForm:
         return [form.changed_data for form in self.forms.values()]
 
     def disable_fields(self, fields_to_disable):
-        for key, value in self.get_all_fields().items():
+        for key, value in self.fields.items():
             if key in fields_to_disable:
                 self._disable_field(value)
 
     def disable_all_fields_except(self, fields_not_to_disable):
-        for key, value in self.get_all_fields().items():
+        for key, value in self.fields.items():
             if key not in fields_not_to_disable:
                 self._disable_field(value)
 
@@ -120,32 +132,19 @@ class LearningUnitBaseForm:
         field.disabled = True
         field.required = False
 
-    def get_all_fields(self):
-        fields = OrderedDict()
-        for cls, form_instance in self.forms.items():
-            fields.update(self._get_formset_fields(form_instance) if cls == EntityContainerFormset
-                          else form_instance.fields)
-        return fields
-
-    @staticmethod
-    def _get_formset_fields(form_instance):
-        return {
-            ENTITY_TYPE_LIST[index].lower(): form.fields['entity'] for index, form in enumerate(form_instance.forms)
-        }
-
     def get_context(self):
         return {
             'subtype': self.subtype,
-            'learning_unit_form': self.forms[LearningUnitModelForm],
-            'learning_unit_year_form': self.forms[LearningUnitYearModelForm],
-            'learning_container_year_form': self.forms[LearningContainerYearModelForm],
-            'entity_container_form': self.forms[EntityContainerFormset]
+            'learning_unit_form': self.learning_unit_form,
+            'learning_unit_year_form': self.learning_unit_year_form,
+            'learning_container_year_form': self.learning_container_year_form,
+            'entity_container_form': self.entity_container_form
         }
 
     def _validate_no_empty_title(self, common_title):
-        specific_title = self.forms[LearningUnitYearModelForm].cleaned_data["specific_title"]
+        specific_title = self.learning_unit_year_form.cleaned_data["specific_title"]
         if not common_title and not specific_title:
-            self.forms[LearningContainerYearModelForm].add_error(
+            self.learning_container_year_form.add_error(
                 "common_title", _("must_set_common_title_or_specific_title"))
             return False
         return True
@@ -162,7 +161,7 @@ class LearningUnitBaseForm:
     def _update_with_postponement(self, postponement=True):
         postponement = self._postponement or postponement
 
-        entities_data = self._get_entities_data()
+        entities_data = self.entity_container_form.get_linked_entities_forms()
         lu_type_full_data = self._get_flat_cleaned_data_apart_from_entities()
         edition_business.update_learning_unit_year_with_report(self.instance, lu_type_full_data,
                                                                entities_data,
@@ -173,25 +172,38 @@ class LearningUnitBaseForm:
     def _create(self, commit, postponement):
         pass
 
-    def _get_entities_data(self):
-        entities_data = {}
-        all_data_cleaned = self.forms[EntityContainerFormset].cleaned_data
-        for index, data_cleaned in enumerate(all_data_cleaned):
-            entities_data[ENTITY_TYPE_LIST[index]] = data_cleaned.get('entity')
-        return entities_data
-
     def _get_flat_cleaned_data_apart_from_entities(self):
         all_clean_data = {}
         for cls, form_instance in self.forms.items():
-            if cls != EntityContainerFormset:
+            if cls in self.form_cls_to_validate:
                 all_clean_data.update({field: value for field, value in form_instance.cleaned_data.items()
-                                       if field not in FULL_READ_ONLY_FIELDS})
+                                      if field not in FULL_READ_ONLY_FIELDS})
         return all_clean_data
 
     def make_postponement(self, learning_unit_year, postponement):
         if postponement:
             return self._create_with_postponement(learning_unit_year)
         return [learning_unit_year]
+
+    @property
+    def learning_unit_form(self):
+        return self.forms[LearningUnitModelForm]
+
+    @property
+    def learning_unit_year_form(self):
+        return self.forms[LearningUnitYearModelForm]
+
+    @property
+    def learning_container_year_form(self):
+        return self.forms[LearningContainerYearModelForm]
+
+    @property
+    def entity_container_form(self):
+        return self.forms[EntityContainerFormset]
+
+    def __iter__(self):
+        """Yields the forms in the order they should be rendered"""
+        return iter(self.forms.values())
 
 
 class FullForm(LearningUnitBaseForm):
@@ -275,89 +287,14 @@ class FullForm(LearningUnitBaseForm):
             'subtype': self.subtype
         }
 
-    def is_valid(self):
-        if any([not form_instance.is_valid() for form_instance in self.forms.values()]):
-            return False
-        common_title = self.forms[LearningContainerYearModelForm].cleaned_data["common_title"]
-        return self._validate_no_empty_title(common_title) and self._validate_same_entities_container()
-
-    def check_consistency_on_academic_year(self):
-        # TODO :: Décommenter ces lignes et voir les tests qui cassent -> corriger
-        # TODO :: Ajouter une fonction de check : si UE parent est bisannuel PAIR/IMPAIR, tous ses partims doivent être bisanunel PAIR/IMPAIR (le même que le parent)
-        # TODO :: Ajouter des tests qui couvrent les cas checkés ici
-        # self._check_credits_consistency_on_academic_year()
-        # self._check_status_consistency_on_academic_year()
-        # self._check_person_linked_to_entity_of_charge()
-        # self._check_linked_entities()
-        return False
-
-    def _check_credits_consistency_on_academic_year(self):
-        parent_credits = self.forms[LearningUnitYearModelForm].cleaned_data["credits"]
-
-        if parent_credits <= 0:
-            raise ValidationError(_("Credits must be strictly positive"))
-
-        max_partim_credits = find_max_credits_of_related_partims(self.forms[LearningUnitYearModelForm].instance) or 0
-        if parent_credits <= max_partim_credits:
-            # TODO :: This should show an alert, not block save()
-            raise ValidationError(_("At least one of the partims has a higher or equal number of credits"))
-
-    def _check_status_consistency_on_academic_year(self):
-        parent_status = self.forms[LearningUnitYearModelForm].cleaned_data["status"]
-        active_partims = find_partims_with_active_status(self.forms[LearningUnitYearModelForm].instance)
-        if parent_status is False and active_partims.exists():
-            raise ValidationError(_("There is at least one partim active, so the parent must be active"))
-
-    def _check_person_linked_to_entity_of_charge(self):
-        luy_instance = self.forms[LearningUnitYearModelForm].instance
-        if not self.person.is_linked_to_entity_in_charge_of_learning_unit_year(luy_instance):
-            raise ValidationError(_("The logged person is not linked to the entity of charge of the learning unit"))
-
-    def _check_linked_entities(self):
-        linked_entities = self._get_linked_entities()
-
-        self._check_existence_of_linked_entities(linked_entities)
-        self._check_linked_entities_attachment(linked_entities)
-
-
-    def _check_existence_of_linked_entities(self, linked_entities):
-        luy_instance = self.forms[LearningUnitYearModelForm].instance
-        if not all([entity_version.get_by_entity_and_date(entity, luy_instance.academic_year.start_date)
-                    for entity in linked_entities.values()]):
-            raise ValidationError(_("One of the linked entities does not exist at the start date of the academic year "
-                                    "linked to this learning unit"))
-
-    def _check_linked_entities_attachment(self, linked_entities):
-        # TODO :: Il faut checker si requirement_entity et allocation_entity sont liées à la même fac pour les types THESE - MEMOIRE - STAGE
-        # PSEUDO-CODE :
-        # linked_entities = self._get_linked_entities()
-        # if self.ue_type in (THESE, MEMOIRE, STAGE) and _have_same_fac_ascendant(linked_entities.get('requirement_entity'), linked_entities.get('allocation_entity')):
-        #   raise ValidationError(_("requirement entity and allocation_entity must relate to the same faculty for master thesis, dissertation and internship learning units"))
-        pass
-
-    def _validate_same_entities_container(self):
-        container_type = self.forms[LearningContainerYearModelForm].cleaned_data["container_type"]
-        linked_entities = self._get_linked_entities()
-        if container_type in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES:
-            if linked_entities.get('requirement_entity') != linked_entities.get('allocation_entity'):
-                self.forms[EntityContainerFormset][1].add_error(
-                    "entity", _("requirement_and_allocation_entities_cannot_be_different"))
-                return False
-        return True
-
-    def _get_linked_entities(self):
-        return {
-            'requirement_entity': self._extract_entity_from_form(0),
-            'allocation_entity': self._extract_entity_from_form(1),
-            'additional_requirement_entity_1': self._extract_entity_from_form(2),
-            'additional_requirement_entity_2': self._extract_entity_from_form(3)
-        }
-
-    def _extract_entity_from_form(self, index):
-        try:
-            return self.forms[EntityContainerFormset][index].cleaned_data.get("entity")
-        except(AttributeError, IndexError):
-            return None
+    # This check is already implemented in the model
+    # def _check_credits_consistency_on_academic_year(self):
+    #     parent_credits = self.learning_unit_year_form.cleaned_data["credits"]
+    #
+    #     max_partim_credits = find_max_credits_of_related_partims(self.learning_unit_year_form.instance) or 0
+    #     if parent_credits <= max_partim_credits:
+    #         # TODO :: This should show an alert, not block save()
+    #         raise ValidationError(_("At least one of the partims has a higher or equal number of credits"))
 
     def _create(self, commit, postponement):
         academic_year = self.academic_year
@@ -490,14 +427,6 @@ class PartimForm(LearningUnitBaseForm):
             'periodicity': learning_unit_full.periodicity
         }
 
-    def is_valid(self):
-        if any([not form_instance.is_valid() for cls, form_instance in self.forms.items()
-               if cls in self.form_cls_to_validate]):
-            return False
-
-        common_title = self.learning_unit_year_full.learning_container_year.common_title
-        return self._validate_no_empty_title(common_title)
-
     def check_consistency_on_academic_year(self):
         # TODO :: implémenter les checks correpondant à ceux du FullForm mais du partim par rapport au parent.
         # TODO :: fix tests existants + écriture nouveaux tests pour couvrir tous les cas
@@ -534,11 +463,3 @@ class PartimForm(LearningUnitBaseForm):
         entity_container_years = learning_container_year_full.entitycontaineryear_set.all()
         return {entity_container.type.upper(): entity_container.entity for entity_container in
                 entity_container_years}
-
-    def _get_flat_cleaned_data_apart_from_entities(self):
-        all_clean_data = {}
-        for cls, form_instance in self.forms.items():
-            if cls in self.form_cls_to_validate:
-                all_clean_data.update({field: value for field, value in form_instance.cleaned_data.items()
-                                      if field not in FULL_READ_ONLY_FIELDS})
-        return all_clean_data

@@ -84,8 +84,6 @@ class TestLearningUnitYearModelFormInit(TestCase):
         self.assertTrue(self.form.fields['academic_year'].disabled)
 
 
-# TODO :: unit tests on AcronymField et PartimAcronymField
-
 class TestLearningUnitYearModelFormSave(TestCase):
     """Tests LearningUnitYearModelForm.save()"""
 

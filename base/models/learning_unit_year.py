@@ -82,7 +82,7 @@ class LearningUnitYear(SerializableModel):
                                               verbose_name=_('official_english_title_proper_to_UE'))
     subtype = models.CharField(max_length=50, choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
                                default=learning_unit_year_subtypes.FULL)
-    credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True,
+    credits = models.DecimalField(max_digits=5, decimal_places=2, null=True,
                                   validators=[MinValueValidator(MINIMUM_CREDITS), MaxValueValidator(MAXIMUM_CREDITS)])
     decimal_scores = models.BooleanField(default=False)
     structure = models.ForeignKey('Structure', blank=True, null=True)
@@ -220,6 +220,7 @@ class LearningUnitYear(SerializableModel):
         self.clean_internship_subtype()
         self.clean_status()
         self.clean_credits()
+        self.clean_periodicity()
 
     def clean_internship_subtype(self):
         if getattr(self, 'learning_container_year', None):
@@ -238,17 +239,23 @@ class LearningUnitYear(SerializableModel):
         if self.parent:
             if not self.parent.status and self.status:
                 raise ValidationError({'status', _('The partim must be inactive because the parent is inactive')})
+        else:
+            if self.status is False and find_partims_with_active_status(self).exists():
+                raise ValidationError(
+                    {'status', _("There is at least one partim active, so the parent must be active")})
 
     def clean_credits(self):
-        # TODO :: Create non null constraint in DB (how to manage external learning units with credits==Null?)
-        if not self.credits:
-            raise ValidationError({'credits': _('field_is_required')})
         if not self.parent:
             return
         if self.credits > self.parent.credits:
             raise ValidationError({'credits': _('partim_credits_gt_parent_credits')})
         elif self.credits == self.parent.credits:
             raise ValidationError({'credits':  _('partim_credits_equals_parent_credits')})
+
+    def clean_periodicity(self):
+        if self.parent and self.parent.learning_unit.periodicity != self.learning_unit.periodicity:
+            raise ValidationError(
+                {'periodicity': _('The periodicity of the partim must be the same as that of the parent')})
 
 
 def get_by_id(learning_unit_year_id):

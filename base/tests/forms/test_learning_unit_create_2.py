@@ -268,12 +268,12 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
         form = _instanciate_form(post_data=self.post_data, default_ac_year=self.current_academic_year)
         self.assertFalse(form.is_valid())
 
-    @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm._validate_same_entities_container', side_effect=lambda *args: False)
+    @mock.patch('base.forms.learning_unit.learning_unit_create.EntityContainerYearFormset.post_clean', side_effect=lambda *args: False)
     def test_creation_case_not_same_entities_container(self, mock_is_valid):
         form = _instanciate_form(post_data=self.post_data, default_ac_year=self.current_academic_year)
         self.assertFalse(form.is_valid())
 
-    @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm._validate_no_empty_title', side_effect=lambda *args: False)
+    @mock.patch('base.forms.learning_unit.learning_unit_create.EntityContainerYearFormset.post_clean', side_effect=lambda *args: False)
     def test_creation_case_wrong_titles(self, mock_is_valid):
         form = _instanciate_form(post_data=self.post_data, default_ac_year=self.current_academic_year)
         self.assertFalse(form.is_valid())

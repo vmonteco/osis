@@ -154,7 +154,7 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
             'academic_year', 'container_type', 'internship_subtype',
             'additional_requirement_entity_1', 'additional_requirement_entity_2'
         }
-        all_fields = partim_form.get_all_fields().items()
+        all_fields = partim_form.fields.items()
         self.assertTrue(all(field.disabled == (field_name in expected_disabled_fields)
                             for field_name, field in all_fields))
 
