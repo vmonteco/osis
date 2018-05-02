@@ -36,7 +36,7 @@ from base import models as mdl
 from base.business.entity import get_entities_ids, get_entity_container_list, build_entity_container_prefetch
 from base.business.entity_version import SERVICE_COURSE
 from base.business.learning_unit_year_with_context import append_latest_entities
-from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none
+from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, TooManyResultsException
 from base.forms.utils.uppercase import convert_to_uppercase
 from base.models import learning_unit_year, group_element_year
 from base.models.academic_year import AcademicYear, current_academic_year
@@ -246,20 +246,18 @@ def get_filter_learning_container_ids(filter_data):
 
 
 def compute_faculty_for_entities(entities):
-    dict_faculty_of_entity = {}
-    for entity_id in entities.keys():
-        faculty = __search_faculty_for_entity(entity_id, entities)
-        dict_faculty_of_entity[entity_id] = faculty
-    return dict_faculty_of_entity
+    return {entity_id: __search_faculty_for_entity(entity_id, entities) for entity_id in entities.keys()}
 
 
 def __search_faculty_for_entity(entity_id, entities):
     entity_data = entities[entity_id]
     if entity_data["entity_version"].entity_type == entity_type.FACULTY:
         return entity_id
+
     entity_version_parent = entity_data["entity_version_parent"]
     if entity_version_parent is None or entity_version_parent.entity.id not in entities:
         return entity_id
+
     new_current = entity_version_parent.entity.id
     return __search_faculty_for_entity(new_current, entities)
 
@@ -300,22 +298,25 @@ def filter_is_borrowed_learning_unit_year(learning_unit_year_qs, date, faculty_b
     map_luy_entity = map_learning_unit_year_with_requirement_entity(learning_unit_year_qs)
     map_luy_education_group_entities = \
         map_learning_unit_year_with_entities_of_education_groups(learning_unit_year_qs)
-    for luy in learning_unit_year_qs:
-        if __is_borrowed_learning_unit(luy, entities_faculty, map_luy_entity, map_luy_education_group_entities,
-                                       entities_borrowing_allowed):
-            yield luy
+
+    return filter(lambda luy: __is_borrowed_learning_unit(luy, entities_faculty, map_luy_entity,
+                                                          map_luy_education_group_entities,entities_borrowing_allowed),
+                  learning_unit_year_qs)
 
 
-def __is_borrowed_learning_unit(luy, map_entity_faculty, map_luy_entity, map_luy_education_group_entities, entities_borrowing_allowed):
+def __is_borrowed_learning_unit(luy, map_entity_faculty, map_luy_entity, map_luy_education_group_entities,
+                                entities_borrowing_allowed):
     luy_entity = map_luy_entity.get(luy.id)
     luy_faculty = map_entity_faculty.get(luy_entity)
 
     if luy_faculty is None:
         return False
 
-    for education_group_entity in map_luy_education_group_entities.get(luy.id, []):
+    is_entity_allowed = lambda entity: not entities_borrowing_allowed or map_entity_faculty.get(entity) \
+                                       in entities_borrowing_allowed
+    entities_allowed = filter(is_entity_allowed , map_luy_education_group_entities.get(luy.id, []))
+    for education_group_entity in entities_allowed:
         if luy_faculty != map_entity_faculty.get(education_group_entity) \
-                and map_entity_faculty.get(education_group_entity) is not None \
-                and (not entities_borrowing_allowed or map_entity_faculty.get(education_group_entity) in entities_borrowing_allowed):
+                and map_entity_faculty.get(education_group_entity) is not None:
             return True
     return False
