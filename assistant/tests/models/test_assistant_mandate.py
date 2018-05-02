@@ -50,6 +50,8 @@ class TestAssistantMandateFactory(TestCase):
 
     def test_find_mandate_by_id(self):
         self.assertEqual(self.mandate, assistant_mandate.find_mandate_by_id(self.mandate.id))
+        self.mandate.delete()
+        self.assertEqual(None, assistant_mandate.find_mandate_by_id(self.mandate.id))
 
     def test_find_by_academic_year(self):
         for current_mandate in assistant_mandate.find_by_academic_year(self.researched_academic_year):
