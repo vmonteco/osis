@@ -169,10 +169,10 @@ class LearningUnitYearForm(SearchForm):
         # TODO Use a queryset instead !!
         clean_data['learning_container_year_id'] = get_filter_learning_container_ids(clean_data)
 
-        # if not service_course_search \
-        #         and clean_data \
-        #         and mdl.learning_unit_year.count_search_results(**clean_data) > SearchForm.MAX_RECORDS:
-        #     raise TooManyResultsException
+        if not service_course_search \
+                and clean_data \
+                and mdl.learning_unit_year.count_search_results(**clean_data) > SearchForm.MAX_RECORDS:
+            raise TooManyResultsException
 
         learning_units = mdl.learning_unit_year.search(**clean_data) \
             .select_related('academic_year', 'learning_container_year',
