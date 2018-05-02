@@ -2871,3 +2871,6 @@ msgstr "Faculté emprunteuse"
 
 msgid "inherited"
 msgstr "Hérité"
+
+msgid "annualized"
+msgstr "Annualisé"

@@ -2864,3 +2864,6 @@ msgstr "Faculty borrowing"
 
 msgid "inherited"
 msgstr "Inherited"
+
+msgid "annualized"
+msgstr "Annualized"
