@@ -77,6 +77,7 @@ def dl_tooltip(differences, key, **kwargs):
     url = kwargs.get('url', '')
     default_if_none = kwargs.get('default_if_none', '')
     inherited = kwargs.get('inherited', '')
+    annualized = kwargs.get('annualized', '')
 
     if not label_text:
         label_text = _(str(key.lower()))
@@ -90,6 +91,9 @@ def dl_tooltip(differences, key, **kwargs):
 
     if inherited == "PARTIM":
         label_text += "<span title={inherited_title}> [H]</span>".format(inherited_title=_("inherited"))
+
+    if annualized:
+        label_text += "<span title={annualized_title}> [A]</span>".format(annualized_title=_("annualized"))
 
     return mark_safe("<dl><dt {difference}>{label_text}</dt><dd {difference}>{value}</dd></dl>".format(
         difference=difference, label_text=label_text, value=value))
