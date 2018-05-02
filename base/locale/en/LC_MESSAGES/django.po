@@ -2861,3 +2861,6 @@ msgstr "Add another"
 
 msgid "inherited"
 msgstr "Inherited"
+
+msgid "to_complete"
+msgstr "To complete"

@@ -184,6 +184,11 @@ class LearningUnitYear(SerializableModel):
     def status_verbose(self):
         return _("active") if self.status else _("inactive")
 
+    @property
+    def internship_subtype_verbose(self):
+        return _('to_complete') if self.learning_container_year.container_type == INTERNSHIP and\
+                                   not self.internship_subtype else self.internship_subtype
+
     def is_in_proposal(self):
         return ProposalLearningUnit.objects.filter(learning_unit_year=self).exists()
 
