@@ -175,8 +175,7 @@ class LearningUnitYearForm(SearchForm):
             raise TooManyResultsException
 
         learning_units = mdl.learning_unit_year.search(**clean_data) \
-            .select_related('academic_year', 'learning_container_year',
-                            'learning_container_year__academic_year') \
+            .select_related('academic_year', 'learning_container_year', 'learning_container_year__academic_year') \
             .prefetch_related(build_entity_container_prefetch()) \
             .order_by('academic_year__year', 'acronym')
 
@@ -184,8 +183,7 @@ class LearningUnitYearForm(SearchForm):
             learning_units = self._filter_borrowed_learning_units(learning_units)
 
         # FIXME We must keep a queryset
-        return [append_latest_entities(learning_unit, service_course_search) for learning_unit in
-                learning_units]
+        return [append_latest_entities(learning_unit, service_course_search) for learning_unit in learning_units]
 
     def _set_status(self, luy_status):
         return convert_status_bool(luy_status) if luy_status else self.cleaned_data['status']
