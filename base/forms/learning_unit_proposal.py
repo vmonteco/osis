@@ -89,6 +89,7 @@ class ProposalBaseForm:
     # Default values
     proposal_type = ProposalType.MODIFICATION.name
 
+    # TODO :: set acdemic_year as mandatory param and use a kwarg learning_unit_instance (like FullForm and PartimForm)
     def __init__(self, data, person, learning_unit_year=None, proposal=None, proposal_type=None, default_ac_year=None):
         self.person = person
         self.learning_unit_year = learning_unit_year
@@ -98,14 +99,18 @@ class ProposalBaseForm:
 
         initial = self._get_initial()
 
+        ac_year = default_ac_year or learning_unit_year.academic_year
         if not learning_unit_year or learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
             learning_unit = learning_unit_year.learning_unit if learning_unit_year else None
-            self.learning_unit_form_container = FullForm(person, default_ac_year, learning_unit_instance=learning_unit,
-                                                         proposal=True)
+            start_year = default_ac_year.year if default_ac_year else None
+            self.learning_unit_form_container = FullForm(person, ac_year, learning_unit_instance=learning_unit,
+                                                         data=data, start_year=start_year, proposal=True)
         else:
-            self.learning_unit_form_container = PartimForm(data, person,
-                                                           learning_unit_year_full=learning_unit_year.parent,
-                                                           instance=learning_unit_year,
+            self.learning_unit_form_container = PartimForm(person,
+                                                           learning_unit_year.parent.learning_unit,
+                                                           ac_year,
+                                                           learning_unit_instance=learning_unit_year.learning_unit,
+                                                           data=data,
                                                            proposal=True)
 
         self.form_proposal = ProposalLearningUnitForm(data, person=person, instance=proposal,

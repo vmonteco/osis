@@ -154,13 +154,16 @@ class FullForm(LearningUnitBaseForm):
 
     subtype = learning_unit_year_subtypes.FULL
 
-    def __init__(self, person, academic_year, learning_unit_instance=None, data=None, proposal=False, *args, **kwargs):
+    def __init__(self, person, academic_year, learning_unit_instance=None, data=None, start_year=None, proposal=False,
+                 *args, **kwargs):
+        if not learning_unit_instance and not start_year:
+            raise AttributeError("Should set at least learning_unit_instance or start_year instance.")
         self.academic_year = academic_year
         self.learning_unit_instance = learning_unit_instance
         self.person = person
         self.proposal = proposal
         self.data = data
-        self.start_year = self.instance.learning_unit.start_year if self.instance else academic_year.year
+        self.start_year = self.instance.learning_unit.start_year if self.instance else start_year
 
         instances_data = self._build_instance_data(self.data, academic_year, proposal)
         super().__init__(instances_data, *args, **kwargs)
