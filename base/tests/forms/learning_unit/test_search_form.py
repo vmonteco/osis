@@ -26,8 +26,12 @@
 from django.test import TestCase
 
 from base.forms.learning_unit.search_form import filter_is_borrowed_learning_unit_year
+from base.models.entity_container_year import EntityContainerYear
+from base.models.entity_version import EntityVersion
 from base.models.enums import entity_container_year_link_type, entity_type
+from base.models.group_element_year import GroupElementYear
 from base.models.learning_unit_year import LearningUnitYear
+from base.models.offer_year_entity import OfferYearEntity
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
@@ -80,6 +84,15 @@ class TestFilterIsBorrowedLearningUnitYear(TestCase):
         )
         result = list(filter_is_borrowed_learning_unit_year(qs))
         self.assertCountEqual(result, self.luys_in_different_faculty_than_education_group)
+
+    def test_with_faculty_borrowing_set(self):
+        qs = LearningUnitYear.objects.filter(
+            pk__in=[luy.pk for luy in self.luys_in_different_faculty_than_education_group]
+        )
+        group = GroupElementYear.objects.get(child_leaf=self.luys_in_different_faculty_than_education_group[0])
+        entity = OfferYearEntity.objects.get(education_group_year=group.parent).entity
+        result = list(filter_is_borrowed_learning_unit_year(qs, faculty_borrowing=entity.id))
+        self.assertCountEqual(result, self.luys_in_different_faculty_than_education_group[:1])
 
     def assert_filter_borrowed_luys_returns_empty_qs(self, learning_unit_years):
         qs = LearningUnitYear.objects.filter(pk__in=[luy.pk for luy in learning_unit_years])
