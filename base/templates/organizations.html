@@ -27,12 +27,11 @@
 {% endcomment %}
 
 {% block breadcrumb %}
-<li><a href="{% url 'institution' %}" id="lnk_institution">{% trans 'institution' %}</a></li>
-<li class="active">{% trans 'organizations' %}</li>
+    <li><a href="{% url 'institution' %}" id="lnk_institution">{% trans 'institution' %}</a></li>
+    <li class="active">{% trans 'organizations' %}</li>
 {% endblock %}
-{% block content %}
-{% include "template_messages.html" %}
 
+{% block content %}
 <div class="page-header">
     <h2>{% trans 'organizations' %}</h2>
 </div>
@@ -95,6 +94,5 @@
             </tbody>
         </table>
     </div>
-
 </div>
 {% endblock %}

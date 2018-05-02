@@ -36,6 +36,10 @@ from osis_common.messaging import message_config, send_message as message_servic
 from base.models import person as person_mdl
 from osis_common.document import paper_sheet
 
+EDUCATIONAL_INFORMATION_UPDATE_TXT = 'educational_information_update_txt'
+
+EDUCATIONAL_INFORMATION_UPDATE_HTML = 'educational_information_update_html'
+
 
 def send_mail_after_scores_submission(persons, learning_unit_name, submitted_enrollments, all_encoded):
     """
@@ -74,19 +78,6 @@ def send_mail_after_scores_submission(persons, learning_unit_name, submitted_enr
 
 
 def send_mail_after_the_learning_unit_year_deletion(managers, acronym, academic_year, msg_list):
-    """
-    Send email to the program managers after deletions made on a learning_unit_year or partials or classes
-    :param acronym: the deleted learning unit
-    :param academic_year: starting academic year at which the deletion must start (can be None if it is a learning_unit)
-    :param msg_list : the list of the messages detailing the deletion
-    :return An error message if the template is not in the database
-    """
-
-    # TODO : At the moment, there is no link between managers and learning_units. So here is an empty list.
-    #Later on, we will have to call a function like 'get_managers(learning_unit_year)' instead.
-    #Something like this :
-    #managers = learning_unit_year.get_managers_of_learning_unit_year(learning_unit_year)
-
     html_template_ref = 'learning_unit_year_deletion_html'
     txt_template_ref = 'learning_unit_year_deletion_txt'
     receivers = [message_config.create_receiver(manager.id, manager.email, manager.language) for manager in managers]
@@ -95,6 +86,27 @@ def send_mail_after_the_learning_unit_year_deletion(managers, acronym, academic_
                           'academic_year': academic_year,
                           'msg_list':msg_list,
                           }
+    message_content = message_config.create_message_content(html_template_ref, txt_template_ref, None, receivers,
+                                                            template_base_data, suject_data, None)
+    return message_service.send_messages(message_content)
+
+
+def send_mail_after_the_learning_unit_proposal_cancellation(managers, proposals):
+    html_template_ref = 'learning_unit_proposal_canceled_html'
+    txt_template_ref = 'learning_unit_proposal_canceled_txt'
+    return _send_mail_after_learning_unit_proposal_action(managers, proposals, html_template_ref, txt_template_ref)
+
+
+def send_mail_after_the_learning_unit_proposal_consolidation(managers, proposals):
+    html_template_ref = 'learning_unit_proposal_consolidated_html'
+    txt_template_ref = 'learning_unit_proposal_consolidated_txt'
+    return _send_mail_after_learning_unit_proposal_action(managers, proposals, html_template_ref, txt_template_ref)
+
+
+def _send_mail_after_learning_unit_proposal_action(managers, proposals, html_template_ref, txt_template_ref):
+    receivers = [message_config.create_receiver(manager.id, manager.email, manager.language) for manager in managers]
+    suject_data = {}
+    template_base_data = {'proposals': proposals}
     message_content = message_config.create_message_content(html_template_ref, txt_template_ref, None, receivers,
                                                             template_base_data, suject_data, None)
     return message_service.send_messages(message_content)
@@ -172,3 +184,14 @@ def send_again(message_history_id):
         return message_service.send_again(receiver, message_history_id)
     else:
         return _('no_receiver_error')
+
+
+def send_mail_for_educational_information_update(teachers, learning_units_years):
+    html_template_ref = EDUCATIONAL_INFORMATION_UPDATE_HTML
+    txt_template_ref = EDUCATIONAL_INFORMATION_UPDATE_TXT
+    receivers = [message_config.create_receiver(teacher.id, teacher.email, teacher.language) for teacher in teachers]
+    template_base_data = {'learning_unit_years': learning_units_years}
+
+    message_content = message_config.create_message_content(html_template_ref, txt_template_ref, None, receivers,
+                                                            template_base_data, {}, None)
+    return message_service.send_messages(message_content)

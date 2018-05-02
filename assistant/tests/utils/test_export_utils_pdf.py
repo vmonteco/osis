@@ -127,7 +127,7 @@ class ExportPdfTestCase(TestCase):
         entities_data = ""
         for entity in entities:
             type = "%s" % (_(entity.entity_type))
-            entities_data += "<strong>" + type + " :</strong> " + entity.acronym + "<br />"
+            entities_data += "<strong>" + type + " : </strong>" + entity.acronym + "<br />"
         self.assertEqual(entities_data, export_utils_pdf.get_entities(self.mandate))
 
 
@@ -233,7 +233,7 @@ class ExportPdfTestCase(TestCase):
         tutoring_learning_units_year = tutoring_learning_unit_year.find_by_mandate(self.mandate)
         for this_tutoring_learning_unit_year in tutoring_learning_units_year:
             academic_year = str(this_tutoring_learning_unit_year.learning_unit_year.academic_year)
-            data.append([Paragraph(this_tutoring_learning_unit_year.learning_unit_year.title + " (" +
+            data.append([Paragraph(this_tutoring_learning_unit_year.learning_unit_year.complete_title + " (" +
                                    this_tutoring_learning_unit_year.learning_unit_year.acronym + ")", style),
                          Paragraph(academic_year, self.styles['Tiny']),
                          Paragraph(str(this_tutoring_learning_unit_year.sessions_number), style),

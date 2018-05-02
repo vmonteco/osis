@@ -24,6 +24,8 @@
 {% endcomment %}
 
 {% block messages %}
+    <!-- div to display message coming from Javascript function -->
+    <div id="message_info_container" class="alert alert-info" role="alert" style="visibility: hidden; display: none;"></div>
 
     {% as_messages_error as messages_error %}
     {% if messages_error %}

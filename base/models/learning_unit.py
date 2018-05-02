@@ -23,12 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
+from django.db import models, IntegrityError
+from django.utils.translation import ugettext_lazy as _
 
-from base.models import academic_year
+from base.models.academic_year import current_academic_year
 from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES
-from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
-
+from base.models.proposal_learning_unit import ProposalLearningUnit
+from osis_common.models.serializable_model import SerializableModelAdmin, SerializableModel
 
 LEARNING_UNIT_ACRONYM_REGEX_BASE = "^[BLMW][A-Z]{2,4}\d{4}"
 LETTER_OR_DIGIT = "[A-Z0-9]"
@@ -38,7 +39,7 @@ LEARNING_UNIT_ACRONYM_REGEX_FULL = LEARNING_UNIT_ACRONYM_REGEX_BASE + STRING_END
 LEARNING_UNIT_ACRONYM_REGEX_PARTIM = LEARNING_UNIT_ACRONYM_REGEX_BASE + LETTER_OR_DIGIT + STRING_END
 
 
-class LearningUnitAdmin(AuditableSerializableModelAdmin):
+class LearningUnitAdmin(SerializableModelAdmin):
     list_display = ('learning_container', 'acronym', 'title', 'start_year', 'end_year', 'changed')
     fieldsets = ((None, {
                     'fields': ('learning_container', 'acronym', 'title', 'start_year', 'end_year',
@@ -49,7 +50,7 @@ class LearningUnitAdmin(AuditableSerializableModelAdmin):
     list_filter = ('periodicity', 'start_year')
 
 
-class LearningUnit(AuditableSerializableModel):
+class LearningUnit(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     learning_container = models.ForeignKey('LearningContainer', blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
@@ -70,6 +71,17 @@ class LearningUnit(AuditableSerializableModel):
             raise AttributeError("Start date should be before the end date")
         super(LearningUnit, self).save(*args, **kwargs)
 
+    def delete(self, *args, **kwargs):
+        if self.start_year < 2015:
+            raise IntegrityError(_('Prohibition to delete a learning unit before 2015.'))
+        return super().delete(*args, **kwargs)
+
+    def is_past(self):
+        return self.end_year and current_academic_year().year > self.end_year
+
+    def has_proposal(self):
+        return ProposalLearningUnit.objects.filter(learning_unit_year__learning_unit=self).exists()
+
     class Meta:
         permissions = (
             ("can_access_learningunit", "Can access learning unit"),
@@ -80,6 +92,7 @@ class LearningUnit(AuditableSerializableModel):
             ("can_delete_learningunit", "Can delete learning unit"),
             ("can_propose_learningunit", "Can propose learning unit "),
             ("can_create_learningunit", "Can create learning unit"),
+            ("can_consolidate_learningunit_proposal", "Can consolidate learning unit proposal"),
         )
 
 
@@ -98,8 +111,3 @@ def search(acronym=None):
         queryset = queryset.filter(acronym=acronym)
 
     return queryset
-
-
-def is_old_learning_unit(learning_unit):
-    current_academic_year = academic_year.current_academic_year()
-    return learning_unit.end_year and current_academic_year.year > learning_unit.end_year
