@@ -72,17 +72,24 @@ def has_proposal(luy):
 @register.simple_tag
 def dl_tooltip(differences, key, **kwargs):
     title = kwargs.get('title', '')
-    label_text = kwargs.get('label_text', '')
-    value = kwargs.get('value', '')
+    label_text = _(str(kwargs.get('label_text', '')))
+    value = _(str(kwargs.get('value', '')))
     url = kwargs.get('url', '')
     default_if_none = kwargs.get('default_if_none', '')
+    inherited = kwargs.get('inherited', '')
 
     if not label_text:
-        label_text = key.lower()
+        label_text = _(str(key.lower()))
+
+    if value == _(str(None)):
+        value = default_if_none
 
     difference = get_difference_css(differences, key, default_if_none) or 'title="{}"'.format(_(title))
     if url:
         value = "<a href='{url}'>{value}</a>".format(value=value, url=url)
 
+    if inherited == "PARTIM":
+        label_text += "<span title={inherited_title}> [H]</span>".format(inherited_title=_("inherited"))
+
     return mark_safe("<dl><dt {difference}>{label_text}</dt><dd {difference}>{value}</dd></dl>".format(
-        difference=difference, label_text=_(label_text), value=value))
+        difference=difference, label_text=label_text, value=value))
