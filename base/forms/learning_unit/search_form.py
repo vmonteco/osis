@@ -121,6 +121,12 @@ class LearningUnitYearForm(SearchForm):
 
     with_entity_subordinated = forms.BooleanField(label=_('with_entity_subordinated_small'))
 
+    faculty_borrowing = forms.ModelChoiceField(
+        label=_("faculty_borrowing"),
+        empty_label=_('all_label'),
+        queryset=EntityVersion.objects.filter(entity_type=entity_type.FACULTY)
+    )
+
     def __init__(self, *args, **kwargs):
         self.service_course_search = kwargs.pop('service_course_search', False)
         self.borrowed_course_search = kwargs.pop('borrowed_course_search', False)
@@ -159,10 +165,10 @@ class LearningUnitYearForm(SearchForm):
         # TODO Use a queryset instead !!
         clean_data['learning_container_year_id'] = get_filter_learning_container_ids(clean_data)
 
-        if not service_course_search \
-                and clean_data \
-                and mdl.learning_unit_year.count_search_results(**clean_data) > SearchForm.MAX_RECORDS:
-            raise TooManyResultsException
+        # if not service_course_search \
+        #         and clean_data \
+        #         and mdl.learning_unit_year.count_search_results(**clean_data) > SearchForm.MAX_RECORDS:
+        #     raise TooManyResultsException
 
         learning_units = mdl.learning_unit_year.search(**clean_data) \
             .select_related('academic_year', 'learning_container_year',
@@ -171,7 +177,9 @@ class LearningUnitYearForm(SearchForm):
             .order_by('academic_year__year', 'acronym')
 
         if self.borrowed_course_search:
-            learning_units = filter_is_borrowed_learning_unit_year(learning_units)
+            faculty_borrowing_id = clean_data["faculty_borrowing"].entity.id if clean_data.get("faculty_borrowing") \
+                else None
+            learning_units = filter_is_borrowed_learning_unit_year(learning_units, faculty_borrowing=faculty_borrowing_id)
 
         # FIXME We must keep a queryset
         return [append_latest_entities(learning_unit, service_course_search) for learning_unit in
@@ -236,8 +244,9 @@ def compute_faculty_for_entities(date):
                                       in entities}
     dict_faculty_of_entity = {}
     for entity_id, tuple_parent_and_type in dict_parent_and_type_of_entity.items():
-        dict_faculty_of_entity[entity_id] = __search_faculty_for_entity(entity_id, tuple_parent_and_type,
-                                                                        dict_parent_and_type_of_entity)
+        faculty = __search_faculty_for_entity(entity_id, tuple_parent_and_type,
+                                              dict_parent_and_type_of_entity)
+        dict_faculty_of_entity[entity_id] = faculty
     return dict_faculty_of_entity
 
 
@@ -277,7 +286,7 @@ def map_learning_unit_year_with_entities_of_education_groups(learning_unit_year_
     return dict_education_group_year_entities_for_learning_unit_year
 
 
-def filter_is_borrowed_learning_unit_year(learning_unit_year_qs):
+def filter_is_borrowed_learning_unit_year(learning_unit_year_qs, faculty_borrowing=None):
     date = datetime.date.today()
 
     entities_faculty = compute_faculty_for_entities(date)
@@ -286,11 +295,13 @@ def filter_is_borrowed_learning_unit_year(learning_unit_year_qs):
         map_learning_unit_year_with_entities_of_education_groups(learning_unit_year_qs)
 
     for luy in learning_unit_year_qs:
-        if __is_borrowed_learning_unit(luy, entities_faculty, map_luy_entity, map_luy_education_group_entities):
+        if __is_borrowed_learning_unit(luy, entities_faculty, map_luy_entity, map_luy_education_group_entities,
+                                       faculty_borrowing):
             yield luy
 
 
-def __is_borrowed_learning_unit(luy, map_entity_faculty, map_luy_entity, map_luy_education_group_entities):
+def __is_borrowed_learning_unit(luy, map_entity_faculty, map_luy_entity, map_luy_education_group_entities,
+                                faculty_borrowing):
     luy_entity = map_luy_entity.get(luy.id)
     luy_faculty = map_entity_faculty.get(luy_entity)
 
@@ -299,6 +310,7 @@ def __is_borrowed_learning_unit(luy, map_entity_faculty, map_luy_entity, map_luy
 
     for education_group_entity in map_luy_education_group_entities.get(luy.id, []):
         if luy_faculty != map_entity_faculty.get(education_group_entity) \
-                and map_entity_faculty.get(education_group_entity) is not None:
+                and map_entity_faculty.get(education_group_entity) is not None \
+                and (map_entity_faculty.get(education_group_entity) == faculty_borrowing or faculty_borrowing is not None):
             return True
     return False
