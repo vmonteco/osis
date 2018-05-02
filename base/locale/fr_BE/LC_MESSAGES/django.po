@@ -2871,3 +2871,6 @@ msgstr "Hérité"
 
 msgid "to_complete"
 msgstr "A compléter"
+
+msgid "annualized"
+msgstr "Annualisé"

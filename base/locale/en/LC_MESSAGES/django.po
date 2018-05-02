@@ -2864,3 +2864,6 @@ msgstr "Inherited"
 
 msgid "to_complete"
 msgstr "To complete"
+
+msgid "annualized"
+msgstr "Annualized"
