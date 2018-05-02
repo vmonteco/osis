@@ -50,9 +50,6 @@ CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'teaching_methods', 'evaluation_methods', 'other_informations', 'online_resources']
 CMS_LABEL_SUMMARY = ['resume']
 
-SIMPLE_SEARCH = 1
-SERVICE_COURSES_SEARCH = 2
-
 
 def get_same_container_year_components(learning_unit_year, with_classes=False):
     learning_container_year = learning_unit_year.learning_container_year
@@ -81,15 +78,6 @@ def get_same_container_year_components(learning_unit_year, with_classes=False):
                            })
 
     return _compose_components_dict(components, additionnal_entities)
-
-
-def show_subtype(learning_unit_year):
-    learning_container_year = learning_unit_year.learning_container_year
-
-    if learning_container_year:
-        return learning_container_year.container_type == learning_container_year_types.COURSE or \
-               learning_container_year.container_type == learning_container_year_types.INTERNSHIP
-    return False
 
 
 def get_campus_from_learning_unit_year(learning_unit_year):

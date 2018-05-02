@@ -27,7 +27,7 @@
 <ul>
     <li {% if not children %} data-jstree='{"icon":"jstree-icon jstree-file"}' {% endif %}>
         <a href="{% url viewname education_group_year_id=parent.id %}?root={{ root.id }}" {% if parent.id == current_education_group_year.id %}class="jstree-wholerow-clicked"{% endif %} >
-            {{ parent.partial_acronym }} - {{ parent.acronym }}
+            {{ parent.partial_acronym| default_if_none:'' }} - {{ parent.acronym }}
         </a>
         {% for elem in children %}
         {% include "education_group/branch.html" with children=elem.children_by_group_element_year parent=elem root=root current_education_group_year=current_education_group_year viewname=viewname only%}

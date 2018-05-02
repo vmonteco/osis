@@ -39,9 +39,9 @@ from django.views.decorators.http import require_http_methods
 from attribution.business import attribution_charge_new
 from base import models as mdl
 from base.business.learning_unit import get_cms_label_data, \
-    get_same_container_year_components, get_components_identification, show_subtype, \
-    get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
-    get_all_attributions, SIMPLE_SEARCH, SERVICE_COURSES_SEARCH, find_language_in_settings, \
+    get_same_container_year_components, get_components_identification, get_organization_from_learning_unit_year,\
+    get_campus_from_learning_unit_year, \
+    get_all_attributions, find_language_in_settings, \
     CMS_LABEL_SPECIFICATIONS, get_achievements_group_by_language
 from base.business.learning_unit_proposal import get_difference_of_proposal
 from base.business.learning_units import perms as business_perms
@@ -60,7 +60,6 @@ from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views.learning_units import perms
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
-from base.views.learning_units.search import learning_units_search
 from cms.models import text_label
 from osis_common.decorators.ajax import ajax_required
 from . import layout
@@ -330,18 +329,6 @@ def check_acronym(request, subtype):
 
 
 @login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def learning_units_activity(request):
-    return learning_units_search(request, SIMPLE_SEARCH)
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def learning_units_service_course(request):
-    return learning_units_search(request, SERVICE_COURSES_SEARCH)
-
-
-@login_required
 def outside_period(request):
     text = _('summary_responsible_denied')
     messages.add_message(request, messages.WARNING, "%s" % text)
@@ -381,7 +368,6 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
     context['campus'] = get_campus_from_learning_unit_year(learning_unit_year)
     context['experimental_phase'] = True
-    context['show_subtype'] = show_subtype(learning_unit_year)
     context.update(get_all_attributions(learning_unit_year))
     components = get_components_identification(learning_unit_year)
     context['components'] = components.get('components')

@@ -25,6 +25,7 @@
 ##############################################################################
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import redirect, get_object_or_404
+from waffle.decorators import waffle_flag
 
 from base.business import learning_unit_proposal as business_proposal
 from base.models.learning_unit_year import LearningUnitYear
@@ -34,6 +35,7 @@ from base.views.common import display_messages_by_level
 from base.views.learning_units import perms
 
 
+@waffle_flag('proposal')
 @login_required
 @perms.can_perform_cancel_proposal
 @permission_required('base.can_propose_learningunit', raise_exception=True)

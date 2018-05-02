@@ -82,3 +82,9 @@ def search(learning_unit_yr=None, position=None):
     if position is not None:
         queryset = queryset.filter(order=position)
     return queryset
+
+
+def find_previous_achievements(learning_unit_yr, a_language, position):
+    return LearningAchievement.objects.filter(learning_unit_year=learning_unit_yr,
+                                              language=a_language,
+                                              order__lt=position)

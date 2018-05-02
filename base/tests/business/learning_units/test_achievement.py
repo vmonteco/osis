@@ -26,7 +26,8 @@
 
 from django.test import TestCase
 
-from base.business.learning_units.achievement import get_code_name
+from base.business.learning_units.achievement import get_code_name, get_anchor_reference, DELETE, \
+    get_previous_achievement, HTML_ANCHOR
 from base.models.enums import learning_unit_year_subtypes
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.learning_achievement import LearningAchievementFactory
@@ -69,3 +70,32 @@ class TestLearningAchievementView(TestCase):
                                    learning_unit_year=self.learning_unit_year)
 
         self.assertEqual(get_code_name(achievement_fr_0, EN_CODE_LANGUAGE), achievement_fr_1.code_name)
+
+    def test_get_anchor_reference_for_delete(self):
+        achievement_fr_0 = LearningAchievementFactory(language=self.language_fr,
+                                                      learning_unit_year=self.learning_unit_year)
+        self.assertEqual(get_anchor_reference(DELETE, achievement_fr_0), "")
+        achievement_fr_1 = LearningAchievementFactory(language=self.language_fr,
+                                                      learning_unit_year=self.learning_unit_year)
+
+        self.assertEqual(get_anchor_reference(DELETE, achievement_fr_1),
+                         "{}{}".format(HTML_ANCHOR, achievement_fr_0.id))
+
+        achievement_fr_3 = LearningAchievementFactory(language=self.language_fr,
+                                                      learning_unit_year=self.learning_unit_year)
+
+        self.assertEqual(get_anchor_reference(DELETE, achievement_fr_3),
+                         "{}{}".format(HTML_ANCHOR, achievement_fr_1.id))
+
+    def test_get_anchor_reference_for_no_delete_operation(self):
+        achievement_fr_0 = LearningAchievementFactory(language=self.language_fr,
+                                                      learning_unit_year=self.learning_unit_year)
+        self.assertEqual(get_anchor_reference('NO_DELETE', None), "")
+        self.assertEqual(get_anchor_reference('NO_DELETE', achievement_fr_0), "")
+
+    def test_get_previous_achievement(self):
+        achievement_fr_0 = LearningAchievementFactory(language=self.language_fr,
+                                                      learning_unit_year=self.learning_unit_year)
+        achievement_fr_1 = LearningAchievementFactory(language=self.language_fr,
+                                                      learning_unit_year=self.learning_unit_year)
+        self.assertEqual(get_previous_achievement(achievement_fr_1), achievement_fr_0)

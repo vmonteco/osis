@@ -93,6 +93,8 @@ urlpatterns = [
             name='learning_units_service_course'),
         url(r'^by_proposal/', base.views.learning_units.search.learning_units_proposal_search,
             name='learning_units_proposal'),
+        url(r'^by_borrowed_course/', base.views.learning_units.search.learning_units_borrowed_course,
+            name='learning_units_borrowed_course'),
         url(r'^by_summary/', base.views.learning_units.educational_information.learning_units_summary_list,
             name='learning_units_summary'),
         url(r'^new/', include([

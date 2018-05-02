@@ -2134,7 +2134,7 @@ msgid "activity_search"
 msgstr "Activity - Search"
 
 msgid "service_course_search"
-msgstr "Service cours - Search"
+msgstr "Service courses - Search"
 
 msgid "TRAINING"
 msgstr "Training"
@@ -2852,3 +2852,15 @@ msgstr ""
 
 msgid "consolidation"
 msgstr "consolidation"
+
+msgid "borrowed_course_search"
+msgstr "Borrowed courses - search"
+
+msgid "add_another"
+msgstr "Add another"
+
+msgid "inherited"
+msgstr "Inherited"
+
+msgid "annualized"
+msgstr "Annualized"

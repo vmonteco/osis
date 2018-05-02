@@ -107,6 +107,7 @@ def review_edit(request):
                                                 'mandate_id': mandate.id,
                                                 'previous_mandates': previous_mandates,
                                                 'current_person': current_person,
+                                                'can_validate': True,
                                                 'assistant': assistant,
                                                 'menu': menu,
                                                 'menu_type': 'phd_supervisor_menu',
