@@ -199,8 +199,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
         """Yields the forms in the order they should be rendered"""
         return iter(self.forms.values())
 
-    @property
-    def warnings(self):
+    def get_warnings(self):
         return [form.warnings for form in self.forms if hasattr(form, 'warnings')]
 
 

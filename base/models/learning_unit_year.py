@@ -219,7 +219,7 @@ class LearningUnitYear(SerializableModel):
         self.clean_acronym(learning_unit_years)
         self.clean_internship_subtype()
         self.clean_status()
-        self.clean_credits()
+        # self.clean_credits()
 
     def clean_internship_subtype(self):
         if getattr(self, 'learning_container_year', None):

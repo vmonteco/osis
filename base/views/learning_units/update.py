@@ -46,7 +46,7 @@ from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
-from base.views.common import display_error_messages, display_success_messages
+from base.views.common import display_error_messages, display_success_messages, display_warning_messages
 from base.views.learning_unit import get_learning_unit_identification_context, \
     get_common_context_learning_unit_year, learning_unit_components
 from base.views.learning_units import perms
@@ -142,6 +142,9 @@ def _save_form_and_display_messages(request, form):
     try:
         records = form.save()
         display_success_messages(request, _('success_modification_learning_unit'))
+        warnings = form.get_warnings()
+        if warnings:
+            display_warning_messages(request, warnings)
     except ConsistencyError as e:
         error_list = e.error_list
         error_list.insert(0, _('The learning unit has been updated until %(year)s.')

@@ -164,8 +164,7 @@ class LearningUnitYearModelForm(forms.ModelForm):
             EntityComponentYear.objects.get_or_create(entity_container_year=requirement_entity_container,
                                                       learning_component_year=component)
 
-    @property
-    def warnings(self):
+    def get_warnings(self):
         warnings = []
         if self.instance.parent and self.credits >= self.instance.parent.credits:
             warnings.append(_('partim_credits_gt_parent_credits'))
