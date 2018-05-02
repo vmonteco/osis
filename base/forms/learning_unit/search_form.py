@@ -133,6 +133,8 @@ class LearningUnitYearForm(SearchForm):
         if self.borrowed_course_search:
             self.fields["with_entity_subordinated"].initial = True
             self.fields["with_entity_subordinated"].disabled = True
+            self.fields["academic_year_id"].required = True
+            self.fields["academic_year_id"].empty_label = None
 
     def clean_acronym(self):
         data_cleaned = self.cleaned_data.get('acronym')
@@ -179,8 +181,12 @@ class LearningUnitYearForm(SearchForm):
             .order_by('academic_year__year', 'acronym')
 
         if self.borrowed_course_search:
-            faculty_borrowing_id = EntityVersion.objects.get(acronym=self.cleaned_data["faculty_borrowing_acronym"]).entity.id
-            learning_units = filter_is_borrowed_learning_unit_year(learning_units, faculty_borrowing=faculty_borrowing_id)
+            try:
+                faculty_borrowing_id = EntityVersion.objects.get(acronym=self.cleaned_data["faculty_borrowing_acronym"]).entity.id
+            except EntityVersion.DoesNotExist:
+                faculty_borrowing_id = None
+            learning_units = filter_is_borrowed_learning_unit_year(learning_units, self.cleaned_data["academic_year_id"].start_date,
+                                                                   faculty_borrowing=faculty_borrowing_id)
 
         # FIXME We must keep a queryset
         return [append_latest_entities(learning_unit, service_course_search) for learning_unit in
@@ -283,9 +289,8 @@ def map_learning_unit_year_with_entities_of_education_groups(learning_unit_year_
     return dict_education_group_year_entities_for_learning_unit_year
 
 
-def filter_is_borrowed_learning_unit_year(learning_unit_year_qs, faculty_borrowing=None):
-    date = datetime.date.today()
-    entities = build_current_entity_version_structure_in_memory()
+def filter_is_borrowed_learning_unit_year(learning_unit_year_qs, date, faculty_borrowing=None):
+    entities = build_current_entity_version_structure_in_memory(date)
     entities_borrowing_allowed = []
     if faculty_borrowing in entities:
         entities_borrowing_allowed.extend(entities[faculty_borrowing]["all_children"])

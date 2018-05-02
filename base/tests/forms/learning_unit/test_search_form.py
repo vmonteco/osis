@@ -66,7 +66,7 @@ class TestFilterIsBorrowedLearningUnitYear(TestCase):
 
     def test_empty_queryset(self):
         empty_qs = LearningUnitYear.objects.none()
-        result = list(filter_is_borrowed_learning_unit_year(empty_qs))
+        result = list(filter_is_borrowed_learning_unit_year(empty_qs, self.academic_year.start_date))
         self.assertFalse(result)
 
     def test_with_learning_unit_years_not_used_in_any_education_group(self):
@@ -82,7 +82,7 @@ class TestFilterIsBorrowedLearningUnitYear(TestCase):
         qs = LearningUnitYear.objects.filter(
             pk__in=[luy.pk for luy in self.luys_in_different_faculty_than_education_group]
         )
-        result = list(filter_is_borrowed_learning_unit_year(qs))
+        result = list(filter_is_borrowed_learning_unit_year(qs, self.academic_year.start_date))
         self.assertCountEqual(result, self.luys_in_different_faculty_than_education_group)
 
     def test_with_faculty_borrowing_set(self):
@@ -91,12 +91,13 @@ class TestFilterIsBorrowedLearningUnitYear(TestCase):
         )
         group = GroupElementYear.objects.get(child_leaf=self.luys_in_different_faculty_than_education_group[0])
         entity = OfferYearEntity.objects.get(education_group_year=group.parent).entity
-        result = list(filter_is_borrowed_learning_unit_year(qs, faculty_borrowing=entity.id))
+        result = list(filter_is_borrowed_learning_unit_year(qs, self.academic_year.start_date,
+                                                            faculty_borrowing=entity.id))
         self.assertCountEqual(result, self.luys_in_different_faculty_than_education_group[:1])
 
     def assert_filter_borrowed_luys_returns_empty_qs(self, learning_unit_years):
         qs = LearningUnitYear.objects.filter(pk__in=[luy.pk for luy in learning_unit_years])
-        result = list(filter_is_borrowed_learning_unit_year(qs))
+        result = list(filter_is_borrowed_learning_unit_year(qs, self.academic_year.start_date))
         self.assertFalse(result)
 
 
