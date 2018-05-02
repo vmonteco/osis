@@ -27,7 +27,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.db import transaction
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
-from waffle.decorators import waffle_switch, waffle_flag
+from waffle.decorators import waffle_flag
 
 from base.business.learning_unit_proposal import compute_proposal_state
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
