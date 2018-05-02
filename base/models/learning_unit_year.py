@@ -220,7 +220,6 @@ class LearningUnitYear(SerializableModel):
         self.clean_internship_subtype()
         self.clean_status()
         self.clean_credits()
-        self.clean_periodicity()
 
     def clean_internship_subtype(self):
         if getattr(self, 'learning_container_year', None):
@@ -251,11 +250,6 @@ class LearningUnitYear(SerializableModel):
             raise ValidationError({'credits': _('partim_credits_gt_parent_credits')})
         elif self.credits == self.parent.credits:
             raise ValidationError({'credits':  _('partim_credits_equals_parent_credits')})
-
-    def clean_periodicity(self):
-        if self.parent and self.parent.learning_unit.periodicity != self.learning_unit.periodicity:
-            raise ValidationError(
-                {'periodicity': _('The periodicity of the partim must be the same as that of the parent')})
 
 
 def get_by_id(learning_unit_year_id):
