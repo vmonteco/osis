@@ -82,6 +82,9 @@ def dl_tooltip(differences, key, **kwargs):
     if not label_text:
         label_text = _(str(key.lower()))
 
+    if not value:
+        value = default_if_none
+
     difference = get_difference_css(differences, key, default_if_none) or 'title="{}"'.format(_(title))
 
     if url:
@@ -94,4 +97,4 @@ def dl_tooltip(differences, key, **kwargs):
         label_text += "<span title={annualized_title}> [A]</span>".format(annualized_title=_("annualized"))
 
     return mark_safe("<dl><dt {difference}>{label_text}</dt><dd {difference}>{value}</dd></dl>".format(
-        difference=difference, label_text=label_text, value=_(str(value)) if value else ""))
+        difference=difference, label_text=label_text, value=_(str(value))))
