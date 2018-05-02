@@ -181,12 +181,7 @@ class LearningUnitYearForm(SearchForm):
             .order_by('academic_year__year', 'acronym')
 
         if self.borrowed_course_search:
-            try:
-                faculty_borrowing_id = EntityVersion.objects.get(acronym=self.cleaned_data["faculty_borrowing_acronym"]).entity.id
-            except EntityVersion.DoesNotExist:
-                faculty_borrowing_id = None
-            learning_units = filter_is_borrowed_learning_unit_year(learning_units, self.cleaned_data["academic_year_id"].start_date,
-                                                                   faculty_borrowing=faculty_borrowing_id)
+            learning_units = self._filter_borrowed_learning_units(learning_units)
 
         # FIXME We must keep a queryset
         return [append_latest_entities(learning_unit, service_course_search) for learning_unit in
@@ -206,6 +201,15 @@ class LearningUnitYearForm(SearchForm):
                 service_courses.append(learning_unit)
 
         return service_courses
+
+    def _filter_borrowed_learning_units(self, learning_units):
+        try:
+            faculty_borrowing_id = EntityVersion.objects.get(
+                acronym=self.cleaned_data["faculty_borrowing_acronym"]).entity.id
+        except EntityVersion.DoesNotExist:
+            faculty_borrowing_id = None
+        return filter_is_borrowed_learning_unit_year(learning_units, self.cleaned_data["academic_year_id"].start_date,
+                                                     faculty_borrowing=faculty_borrowing_id)
 
     def _is_matching_learning_unit(self, learning_unit):
         allocation_entity_acronym = self.cleaned_data['allocation_entity_acronym']
@@ -300,7 +304,7 @@ def filter_is_borrowed_learning_unit_year(learning_unit_year_qs, date, faculty_b
         map_learning_unit_year_with_entities_of_education_groups(learning_unit_year_qs)
 
     return filter(lambda luy: __is_borrowed_learning_unit(luy, entities_faculty, map_luy_entity,
-                                                          map_luy_education_group_entities,entities_borrowing_allowed),
+                                                          map_luy_education_group_entities, entities_borrowing_allowed),
                   learning_unit_year_qs)
 
 
@@ -312,9 +316,9 @@ def __is_borrowed_learning_unit(luy, map_entity_faculty, map_luy_entity, map_luy
     if luy_faculty is None:
         return False
 
-    is_entity_allowed = lambda entity: not entities_borrowing_allowed or map_entity_faculty.get(entity) \
-                                       in entities_borrowing_allowed
-    entities_allowed = filter(is_entity_allowed , map_luy_education_group_entities.get(luy.id, []))
+    entities_allowed = filter(lambda entity: not entities_borrowing_allowed or
+                                             map_entity_faculty.get(entity) in entities_borrowing_allowed,
+                              map_luy_education_group_entities.get(luy.id, []))
     for education_group_entity in entities_allowed:
         if luy_faculty != map_entity_faculty.get(education_group_entity) \
                 and map_entity_faculty.get(education_group_entity) is not None:
