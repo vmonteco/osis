@@ -249,6 +249,7 @@ class EntityContainerYearModelForm(forms.ModelForm):
             return super(EntityContainerYearModelForm, self).save(**kwargs)
 
     def post_clean(self, start_date):
+        # TODO
         return
         if not entity_version.get_by_entity_and_date(self.cleaned_data.get('entity'), start_date):
             self.add_error('entity', _("The linked entity does not exist at the start date of the "
@@ -274,7 +275,8 @@ class EntityContainerYearFormset(forms.BaseInlineFormSet):
 
     def get_clean_data_entity(self, key):
         try:
-            return self.forms[ENTITY_TYPE_LIST.index(key.upper())].cleaned_data.get("entity")
+            form = self.forms[ENTITY_TYPE_LIST.index(key.upper())]
+            return form.instance.entity
         except(AttributeError, IndexError):
             return None
 

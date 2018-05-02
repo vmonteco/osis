@@ -284,15 +284,6 @@ class FullForm(LearningUnitBaseForm):
             'subtype': self.subtype
         }
 
-    # This check is already implemented in the model
-    # def _check_credits_consistency_on_academic_year(self):
-    #     parent_credits = self.learning_unit_year_form.cleaned_data["credits"]
-    #
-    #     max_partim_credits = find_max_credits_of_related_partims(self.learning_unit_year_form.instance) or 0
-    #     if parent_credits <= max_partim_credits:
-    #         # TODO :: This should show an alert, not block save()
-    #         raise ValidationError(_("At least one of the partims has a higher or equal number of credits"))
-
     def is_valid(self):
         result = super().is_valid()
         if result:
