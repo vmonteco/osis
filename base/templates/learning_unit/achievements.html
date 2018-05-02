@@ -41,8 +41,7 @@
         <div class="col-md-10">
             {% if achievements_FR %}
                 <div class="row">
-                    <div class="col-md-1"></div>
-                    <div class="col-md-5">
+                    <div class="col-md-6">
                         {% language LANGUAGE_CODE_FR %}
                             <label>{% trans 'learning_achievements_headline' %}</label>
                         {% endlanguage %}
@@ -61,43 +60,42 @@
         <div class="row">
             <div class="col-md-2">
                 {% if can_update_learning_achievement %}
-                <table class="" style="margin-top: 10px;">
-                    <tr>
-                        <td width="33%">
-                            <button type="submit" title="{% trans 'up' %}"  class="btn btn-default btn-sm"
-                                    id="btn_operation_up_{{ achievement.id }}"
-                                    name="action" value="up" {% if forloop.counter0 == 0 %}disabled{% endif %} >
-                                <i class="fa fa-arrow-up"></i>
-                            </button>
-                        </td>
-                        <td width="33%">
-                            <button type="submit" title="{% trans 'down' %}" class="btn btn-default btn-sm"
-                                    id="btn_operation_down_{{ achievement.id }}"
-                                    name="action" value="down" {% if forloop.last %}disabled{% endif %}>
-                                <i class="fa fa-arrow-down"></i>
-                            </button>
-                        </td>
-                        <td width="33%">
-                            <button type="submit" title="{% trans 'delete' %}"  class="btn btn-default btn-sm"
-                                    id="btn_operation_delete_{{ achievement.id }}"
-                                    name="action" value="delete">
-                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                                <i class="fa fa-arrow-remove"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </table>
+                    <table class="" style="margin-top: 10px;">
+                        <tr>
+                            <td width="33%">
+                                <button type="submit" title="{% trans 'up' %}"  class="btn btn-default btn-sm"
+                                        id="btn_operation_up_{{ achievement.id }}"
+                                        name="action" value="up" {% if forloop.counter0 == 0 %}disabled{% endif %} >
+                                    <i class="fa fa-arrow-up"></i>
+                                </button>
+                            </td>
+                            <td width="33%">
+                                <button type="submit" title="{% trans 'down' %}" class="btn btn-default btn-sm"
+                                        id="btn_operation_down_{{ achievement.id }}"
+                                        name="action" value="down" {% if forloop.last %}disabled{% endif %}>
+                                    <i class="fa fa-arrow-down"></i>
+                                </button>
+                            </td>
+                            <td width="33%">
+                                <button type="submit" title="{% trans 'delete' %}"  class="btn btn-default btn-sm"
+                                        id="btn_operation_delete_{{ achievement.id }}"
+                                        name="action" value="delete">
+                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                    <i class="fa fa-arrow-remove"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </table>
+                    <br>
+                    {{ achievement.code_name }}
                 {% endif %}
             </div>
             <div class="col-md-10">
                 <div class="row" style="margin-top:10px;">
-                    <div class="col-md-1">
-                        {{ achievement.code_name }}
-                    </div>
-                    <div class="col-md-4">{{ achievement.text| default_if_none:''|safe }}</div>
+                    <div class="col-md-5">{{ achievement.text| default_if_none:''|safe }}</div>
                     <div class="col-md-1">
                         {% if can_update_learning_achievement %}
-                            <a class="achievement-edit-btn" href="#"
+                            <a class="achievement-edit-btn pull-right" href="#"
                                id="btn_edit_{{ achievement.id }}"
                                data-form="{% url 'achievement_edit' learning_unit_year_id=learning_unit_year.id learning_achievement_id=achievement.id %}"
                                title="{% trans 'edit' %}">
@@ -119,7 +117,7 @@
                             {% if  achievements_EN%}
                                 {% with achievement_en=achievements_EN|index:forloop.counter0 %}
                                     {% if achievement_en %}
-                                        <a class="achievement-edit-btn" href="#"
+                                        <a class="achievement-edit-btn pull-right" href="#"
                                            data-form="{% url 'achievement_edit' learning_unit_year_id=learning_unit_year.id learning_achievement_id=achievement_en.id %}"
                                            title="{% trans 'edit' %}">
                                             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
