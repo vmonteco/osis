@@ -2868,3 +2868,6 @@ msgstr "Ajouter un autre"
 
 msgid "inherited"
 msgstr "Hérité"
+
+msgid "annualized"
+msgstr "Annualisé"
