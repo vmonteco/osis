@@ -105,7 +105,7 @@
                                     {% dl_tooltip differences 'common_title_english' label_text='common_official_english_title' title='title_in_english' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.common_title_english %}
                                     {% dl_tooltip differences 'specific_title_english' label_text='official_english_title_proper_to_partim' title='title_in_english' value=learning_unit_year.specific_title_english %}
                                 {% else %}
-                                    {% dl_tooltip differences 'common_title' label_text='common_official_title' title='title_official_1' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.common_title %}
+                                    {% dl_tooltip differences 'common_title' default_if_none="-" label_text='common_official_title' title='title_official_1' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.common_title %}
                                     {% dl_tooltip differences 'specific_title' label_text='official_title_proper_to_UE' title='title_official_2' value=learning_unit_year.specific_title %}
                                     {% dl_tooltip differences 'common_title_english' label_text='common_official_english_title' title='title_in_english' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.common_title_english %}
                                     {% dl_tooltip differences 'specific_title_english' label_text='official_english_title_proper_to_UE' title='title_in_english' value=learning_unit_year.specific_title_english %}
