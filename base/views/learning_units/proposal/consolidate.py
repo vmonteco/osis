@@ -29,6 +29,7 @@ from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.http import require_POST
+from waffle.decorators import waffle_flag
 
 from base.business import learning_unit_proposal as business_proposal
 from base.business.learning_units import perms
@@ -38,6 +39,7 @@ from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views.common import display_error_messages, display_messages_by_level
 
 
+@waffle_flag('proposal')
 @login_required
 @require_POST
 def consolidate_proposal(request):
