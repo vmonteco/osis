@@ -117,7 +117,9 @@ class LearningUnit(SerializableModel):
         # TODO The subtype must move in learning_unit model !
         luy = self.learningunityear_set.last()
         if luy and luy.subtype == PARTIM:
-            return LearningUnit.objects.filter(learningunityear__subtype=FULL, learning_container=self.learning_container).get()
+            return LearningUnit.objects.filter(
+                learningunityear__subtype=FULL, learning_container=self.learning_container
+            ).last()
         return None
 
     def clean(self):
