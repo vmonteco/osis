@@ -73,17 +73,14 @@ def has_proposal(luy):
 def dl_tooltip(differences, key, **kwargs):
     title = kwargs.get('title', '')
     label_text = _(str(kwargs.get('label_text', '')))
-    value = _(str(kwargs.get('value', '')))
     url = kwargs.get('url', '')
     default_if_none = kwargs.get('default_if_none', '')
+    value = _(str(kwargs.get('value', default_if_none)))
     inherited = kwargs.get('inherited', '')
     annualized = kwargs.get('annualized', '')
 
     if not label_text:
         label_text = _(str(key.lower()))
-
-    if value == _(str(None)):
-        value = default_if_none
 
     difference = get_difference_css(differences, key, default_if_none) or 'title="{}"'.format(_(title))
     if url:
