@@ -2867,4 +2867,4 @@ msgid "add_another"
 msgstr "Ajouter un autre"
 
 msgid "inherited"
-msgstr "Héritée"
+msgstr "Hérité"

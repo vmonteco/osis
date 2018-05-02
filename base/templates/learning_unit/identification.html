@@ -54,7 +54,7 @@
                                         {# FIXME Use dl_tooltip for all label/span #}
                                         <label {{ differences|get_difference_css:'acronym' }}>{% trans 'code'%}</label><br>
                                         {% if learning_unit_year.parent %}
-                                            <a href="{% url 'learning_unit' learning_unit_year.parent.id%}" {{ differences|get_difference_css:'acronym'  }}>{{ learning_unit_year.learning_container_year.acronym }}</a>{{learning_unit_year.subdivision}}
+                                            <a href="{% url 'learning_unit' learning_unit_year.parent.id%}" {{ differences|get_difference_css:'acronym' }}>{{ learning_unit_year.learning_container_year.acronym }}</a>{{learning_unit_year.subdivision}}
                                         {% else %}
                                            <span {{ differences|get_difference_css:'acronym' }}>{{ learning_unit_year.acronym }}</span>
                                         {% endif%}
@@ -71,85 +71,54 @@
                                         </div>
                                     </div>
                                     <div class="col-md-3">
-                                        {% if learning_unit_year.learning_container_year.container_type %}
-                                            <label {{ differences|get_difference_css:'container_type' }}>{% trans 'type' %}{% if learning_unit_year.subtype == "PARTIM" %}<span title={% trans 'inherited' %}> [H]</span>{% endif %}</label><br>
-                                            <span {{ differences|get_difference_css:'container_type' }}>{% trans learning_unit_year.learning_container_year.container_type %}</span>
-                                        {% endif %}
-                                        {% if show_subtype %}
-                                            {% if learning_unit_year.subtype%}
-                                                <span {{ differences|get_difference_css:'subtype' }}>({% trans learning_unit_year.subtype|lower  %})</span>
-                                            {% endif %}
-                                        {% endif %}
+                                        {% dl_tooltip differences 'container_type' label_text='type' inherited=learning_unit_year.subtype value=learning_unit_year.container_type_verbose %}
                                     </div>
                                     <div class="col-md-3">
-                                        <label {{ differences|get_difference_css:'internship_subtype' }}>{% trans 'internship_subtype' %}</label><br>
-                                        {% if learning_unit_year.internship_subtype %}
-                                            <span {{ differences|get_difference_css:'internship_subtype' }}>{% trans learning_unit_year.internship_subtype %}</span>
-                                        {% endif %}
+                                        {% dl_tooltip differences 'internship_subtype' value=learning_unit_year.internship_subtype %}
                                     </div>
                                 </div>
-                                <br>
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <label {{ differences|get_difference_css:'credits' }}>{% trans 'nominal_credits' %}</label><br>
-                                        <span {{ differences|get_difference_css:'credits' }}>{{ learning_unit_year.credits }}</span>
+                                        {% dl_tooltip differences 'credits' label_text='nominal_credits' value=learning_unit_year.credits %}
                                     </div>
                                     <div class="col-md-3">
-                                        <label {{ differences|get_difference_css:'periodicity' }}>{% trans 'periodicity' %}</label><br>
-                                        {% if learning_unit_year.learning_unit.periodicity %}
-                                            <span {{ differences|get_difference_css:'periodicity' }}>{% trans learning_unit_year.learning_unit.periodicity %}</span>
-                                        {% endif %}
+                                        {% dl_tooltip differences 'periodicity' value=learning_unit_year.learning_unit.periodicity %}
                                     </div>
                                     <div class="col-md-3">
-                                        <label {{ differences|get_difference_css:'status' }}>{% trans 'status' %}</label><br>
-                                        <span {{ differences|get_difference_css:'status' }}>
-                                        {% if learning_unit_year.status %}
-                                            {% trans 'active'|title %}
-                                        {% else %}
-                                            {% trans 'inactive'|title %}
-                                        {% endif %}
-                                        </span>
+                                        {% dl_tooltip differences 'status' label_text='status' value=learning_unit_year.status_verbose.title %}
                                     </div>
                                     <div class="col-md-3">
                                         {% dl_tooltip differences 'language' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.language %}
                                     </div>
                                 </div>
-                                <br>
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <label {{ differences|get_difference_css:'quadrimester' }}>{% trans 'quadrimester' %}</label><br>
-                                        <span {{ differences|get_difference_css:'quadrimester' }}>{{ learning_unit_year.quadrimester | default_if_none:'' }}</span>
+                                        {% dl_tooltip differences 'periodicity' value=learning_unit_year.learning_unit.periodicity %}
                                     </div>
                                     <div class="col-md-9">
-                                        <label {{ differences|get_difference_css:'session' }}>{% trans 'session_title' %}</label><br>
-                                        <span {{ differences|get_difference_css:'session' }}>{{ learning_unit_year.session | default_if_none:'' }}</span>
+                                        {% dl_tooltip differences 'session' label_text="session_title"  value=learning_unit_year.session %}
                                     </div>
                                 </div>
-                                <br>
-                                <label {% if differences|get_difference_css:'common_title' %}{{ differences|get_difference_css:'common_title' }}{% else %} title="{% trans 'title_official_1' %}"{% endif %}>{% trans 'common_official_title' %}{% if learning_unit_year.subtype == "PARTIM" %}<span title={% trans 'inherited' %}> [H]</span>{% endif %}</label><br>
-                                <span {{ differences|get_difference_css:'common_title' }}>{{ learning_unit_year.learning_container_year.common_title | default_if_none:'' }}</span>
-                                <br><br>
-                                <label {% if differences|get_difference_css:'specific_title'%}{{ differences|get_difference_css:'specific_title' }}{% else %}title="{% trans 'title_official_2' %}"{% endif %}>{% if learning_unit_year.subtype == "PARTIM" %}{% trans 'official_title_proper_to_partim' %}{% else %}{% trans 'official_title_proper_to_UE' %}{% endif %}</label><br>
-                                    <span {{ differences|get_difference_css:'specific_title' }}>{{learning_unit_year.specific_title | default_if_none:''}}</span>
-                                <br><br>
-                                <label {% if differences|get_difference_css:'common_title_english' %}{{ differences|get_difference_css:'common_title_english' }}{% else %}title="{% trans 'title_in_english' %} {% trans 'title_in_english_1' %}"{% endif %}>{% trans 'common_official_english_title' %}{% if learning_unit_year.subtype == "PARTIM" %}<span title={% trans 'inherited' %}> [H]</span>{% endif %}</label><br>
-                                <span {{ differences|get_difference_css:'common_title_english' }}>{{learning_unit_year.learning_container_year.common_title_english | default_if_none:'' }}</span>
-                                <br><br>
-                                <label {% if differences|get_difference_css:'specific_title_english' %}{{ differences|get_difference_css:'specific_title_english' }} {% else %}title="{% trans 'title_in_english' %} {% trans 'title_in_english_2' %}"{% endif %}>{% if learning_unit_year.subtype == "PARTIM" %}{% trans 'official_english_title_proper_to_partim' %}{% else %}{% trans 'official_english_title_proper_to_UE' %}{% endif %}</label><br>
-                                    <span {{ differences|get_difference_css:'specific_title_english'  }}>{{learning_unit_year.specific_title_english | default_if_none:'' }}</span>
-                                <br>
+                                {% if learning_unit_year.subtype == "PARTIM" %}
+                                    {% dl_tooltip differences 'common_title' label_text='common_official_title' title='title_official_1' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.common_title %}
+                                    {% dl_tooltip differences 'specific_title' label_text='official_title_proper_to_partim' title='title_official_2' value=learning_unit_year.specific_title %}
+                                    {% dl_tooltip differences 'common_title_english' label_text='common_official_english_title' title='title_in_english' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.common_title_english %}
+                                    {% dl_tooltip differences 'specific_title_english' label_text='official_english_title_proper_to_partim' title='title_in_english' value=learning_unit_year.specific_title_english %}
+                                {% else %}
+                                    {% dl_tooltip differences 'common_title' label_text='common_official_title' title='title_official_1' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.common_title %}
+                                    {% dl_tooltip differences 'specific_title' label_text='official_title_proper_to_UE' title='title_official_2' value=learning_unit_year.specific_title %}
+                                    {% dl_tooltip differences 'common_title_english' label_text='common_official_english_title' title='title_in_english' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.common_title_english %}
+                                    {% dl_tooltip differences 'specific_title_english' label_text='official_english_title_proper_to_UE' title='title_in_english' value=learning_unit_year.specific_title_english %}
+                                {% endif %}
                             </div>
                         </div>
                         <div class="panel panel-default">
                             <div class="panel-body">
                                 <div>
-                                    <label {{ differences|get_difference_css:'faculty_remark' }}>{% trans 'faculty_remark' %}</label><br>
-                                    <span {{ differences|get_difference_css:'faculty_remark' }}>{{ learning_unit_year.learning_unit.faculty_remark | default_if_none:'' }}</span>
+                                    {% dl_tooltip differences 'faculty_remark' label_text='faculty_remark' value=learning_unit_year.learning_unit.faculty_remark %}
                                 </div>
-                                <br>
                                 <div>
-                                    <label {{ differences|get_difference_css:'other_remark' }}>{% trans 'other_remark' %}</label><br>
-                                    <span {{ differences|get_difference_css:'other_remark' }}>{{ learning_unit_year.learning_unit.other_remark | default_if_none:'' }}</span>
+                                    {% dl_tooltip differences 'other_remark' label_text='other_remark' value=learning_unit_year.learning_unit.other_remark %}
                                 </div>
                             </div>
                         </div>
