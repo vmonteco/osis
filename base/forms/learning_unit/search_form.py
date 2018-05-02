@@ -314,9 +314,10 @@ def __is_borrowed_learning_unit(luy, map_entity_faculty, map_luy_entity, map_luy
     if luy_faculty is None:
         return False
 
-    entities_allowed = filter(lambda entity: not entities_borrowing_allowed or
-                                             map_entity_faculty.get(entity) in entities_borrowing_allowed,
-                              map_luy_education_group_entities.get(luy.id, []))
+    def is_entity_allowed(entity):
+        return not entities_borrowing_allowed or map_entity_faculty.get(entity) in entities_borrowing_allowed
+
+    entities_allowed = filter(is_entity_allowed, map_luy_education_group_entities.get(luy.id, []))
     for education_group_entity in entities_allowed:
         if luy_faculty != map_entity_faculty.get(education_group_entity) \
                 and map_entity_faculty.get(education_group_entity) is not None:
