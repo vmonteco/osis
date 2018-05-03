@@ -91,7 +91,6 @@ class TestLearningUnitModelFormSave(TestCase):
         self.assertEqual(lu.faculty_remark, self.quote_1)
         self.assertEqual(lu.other_remark, self.quote_2)
 
-
     def test_full_periodicity_biannual_with_partim_annual(self):
         a_new_learning_unit_full = LearningUnitYearFactory(
             academic_year=self.current_academic_year,
@@ -100,10 +99,10 @@ class TestLearningUnitModelFormSave(TestCase):
         a_new_learning_unit_partim = LearningUnitYearFactory(
             academic_year=self.current_academic_year,
             subtype=learning_unit_year_subtypes.PARTIM,
-            credits=12
-        )
+            credits=12)
 
-        a_new_learning_unit_partim.learning_unit.learning_container = a_new_learning_unit_full.learning_unit.learning_container
+        a_new_learning_unit_partim.learning_unit.learning_container = a_new_learning_unit_full.\
+            learning_unit.learning_container
         a_new_learning_unit_partim.learning_container_year = a_new_learning_unit_full.learning_container_year
         a_new_learning_unit_partim.learning_unit.save()
         a_new_learning_unit_partim.save()

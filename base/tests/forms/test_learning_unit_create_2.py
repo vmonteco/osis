@@ -39,6 +39,7 @@ from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import EntityVersion
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, organization_type
+from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_container import LearningContainer
 from base.models.learning_container_year import LearningContainerYear
@@ -294,6 +295,7 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
     def test_update_case_correct_data(self):
         now = datetime.datetime.now()
         learn_unit_structure = GenerateContainer(now.year, now.year)
+        self.post_data['periodicity'] = ANNUAL
         learn_unit_year = LearningUnitYear.objects.get(learning_unit=learn_unit_structure.learning_unit_full,
                                                        academic_year=AcademicYear.objects.get(year=now.year))
         form = _instanciate_form(post_data=self.post_data, person=self.person, instance=learn_unit_year)
