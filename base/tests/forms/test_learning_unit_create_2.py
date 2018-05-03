@@ -24,10 +24,9 @@
 #
 ##############################################################################
 import datetime
+from datetime import datetime
 from unittest import mock
 
-from dateutil import relativedelta
-from dateutil.relativedelta import relativedelta
 from django.test import TestCase
 
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
@@ -328,7 +327,8 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
     def test_update_case_wrong_entity_version_start_year_data(self):
         allocation_entity_id = self.post_data['entitycontaineryear_set-1-entity']
         allocation_entity = EntityVersion.objects.get(pk=allocation_entity_id)
-        allocation_entity.start_date = self.learning_unit_year.academic_year.start_date + relativedelta(years=2)
+        start_date = self.learning_unit_year.academic_year.start_date
+        allocation_entity.start_date = start_date.replace(year=start_date.year + 2)
         allocation_entity.save()
 
         form = _instanciate_form(post_data=self.post_data, person=self.person, instance=self.learning_unit_year)
