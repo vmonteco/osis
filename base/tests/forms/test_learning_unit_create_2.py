@@ -158,7 +158,7 @@ class TestFullFormInit(LearningUnitFullFormContextMixin):
         self.assertEqual(disabled_fields, FULL_PROPOSAL_READ_ONLY_FIELDS)
 
     def test_subtype_is_full(self):
-        learn_unit_year = LearningUnitYearFactory()
+        learn_unit_year = LearningUnitYearFactory(subtype=learning_unit_year_subtypes.FULL)
         form = _instanciate_form(learn_unit_year.academic_year, learning_unit_instance=learn_unit_year.learning_unit)
         self.assertEqual(form.subtype, learning_unit_year_subtypes.FULL)
 
