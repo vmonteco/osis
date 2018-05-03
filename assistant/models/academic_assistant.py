@@ -47,7 +47,7 @@ class AcademicAssistant(models.Model):
                                    null=True, default=None)
 
     def __str__(self):
-        return u"%s %s" % (self.person.first_name, self.person.last_name)
+        return u"%s %s" % (self.person.last_name.upper(), self.person.first_name)
 
 
 def find_by_id(assistant_id):
