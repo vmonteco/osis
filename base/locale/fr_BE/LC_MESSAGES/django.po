@@ -2711,11 +2711,8 @@ msgstr "Intitulé officiel en anglais propre au partim"
 msgid "Educational information submission dates updated"
 msgstr "Date de soumission des informations pédagogiques mis à jour"
 
-msgid "partim_credits_gt_parent_credits"
-msgstr "Le nombre de crédits est supérieur à celui de l'unité d'enseignement"
-
-msgid "partim_credits_equals_parent_credits"
-msgstr "Le nombre de crédits est égal à celui de l'unité d'enseignement"
+msgid "partim_credits_gte_parent_credits"
+msgstr "Le nombre de crédits du partim est supérieur ou égal à celui de l'unité d'enseignement parent"
 
 msgid "The learning unit has been updated until %(year)s."
 msgstr "L'unité d'enseignement a été modifiée jusqu'en %(year)s."

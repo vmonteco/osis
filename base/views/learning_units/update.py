@@ -142,7 +142,7 @@ def _save_form_and_display_messages(request, form):
     try:
         records = form.save()
         display_success_messages(request, _('success_modification_learning_unit'))
-        warnings = form.get_warnings()
+        warnings = form.warnings
         if warnings:
             display_warning_messages(request, warnings)
     except ConsistencyError as e:

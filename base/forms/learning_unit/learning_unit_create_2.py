@@ -68,6 +68,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
     subtype = None
     _postponement = None
     instance = None
+    _warnings = None
 
     def __init__(self, instances_data, *args, **kwargs):
         for form_class in self.form_classes:
@@ -199,8 +200,14 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
         """Yields the forms in the order they should be rendered"""
         return iter(self.forms.values())
 
-    def get_warnings(self):
-        return [form.warnings for form in self.forms if hasattr(form, 'warnings')]
+    @property
+    def warnings(self):
+        if self._warnings is None :
+            self._warnings = []
+            for form in self.forms.values():
+                if hasattr(form, 'warnings'):
+                    self._warnings.extend(form.warnings)
+        return self._warnings
 
 
 class FullForm(LearningUnitBaseForm):

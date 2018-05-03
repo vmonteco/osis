@@ -100,6 +100,8 @@ class LearningContainerModelForm(forms.ModelForm):
 
 
 class LearningUnitYearModelForm(forms.ModelForm):
+    _warnings = None
+
     def __init__(self, data, person, subtype, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
 
@@ -164,12 +166,14 @@ class LearningUnitYearModelForm(forms.ModelForm):
             EntityComponentYear.objects.get_or_create(entity_container_year=requirement_entity_container,
                                                       learning_component_year=component)
 
-    def get_warnings(self):
-        warnings = []
-        if self.instance.parent and self.credits >= self.instance.parent.credits:
-            warnings.append(_('partim_credits_gt_parent_credits'))
+    @property
+    def warnings(self):
+        if self._warnings is None:
+            self._warnings = []
+            if self.instance.parent and self.instance.credits >= self.instance.parent.credits:
+                self._warnings.append(_('partim_credits_gte_parent_credits'))
 
-        return warnings
+        return self._warnings
 
 
 class LearningUnitYearPartimModelForm(LearningUnitYearModelForm):

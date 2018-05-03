@@ -219,7 +219,6 @@ class LearningUnitYear(SerializableModel):
         self.clean_acronym(learning_unit_years)
         self.clean_internship_subtype()
         self.clean_status()
-        # self.clean_credits()
 
     def clean_internship_subtype(self):
         if getattr(self, 'learning_container_year', None):
@@ -243,13 +242,6 @@ class LearningUnitYear(SerializableModel):
                 raise ValidationError(
                     {'status', _("There is at least one partim active, so the parent must be active")})
 
-    def clean_credits(self):
-        if not self.parent:
-            return
-        if self.credits > self.parent.credits:
-            raise ValidationError({'credits': _('partim_credits_gt_parent_credits')})
-        elif self.credits == self.parent.credits:
-            raise ValidationError({'credits':  _('partim_credits_equals_parent_credits')})
 
 
 def get_by_id(learning_unit_year_id):
