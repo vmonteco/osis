@@ -202,7 +202,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
 
     @property
     def warnings(self):
-        if self._warnings is None :
+        if self._warnings is None:
             self._warnings = []
             for form in self.forms.values():
                 if hasattr(form, 'warnings'):

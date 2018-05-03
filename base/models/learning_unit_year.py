@@ -264,7 +264,6 @@ class LearningUnitYear(SerializableModel):
                     {'status', _("There is at least one partim active, so the parent must be active")})
 
 
-
 def get_by_id(learning_unit_year_id):
     return LearningUnitYear.objects.select_related('learning_container_year__learning_container') \
         .get(pk=learning_unit_year_id)
