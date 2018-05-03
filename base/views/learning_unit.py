@@ -377,7 +377,7 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context['proposal'] = proposal
     context['proposal_folder_entity_version'] = mdl.entity_version.get_by_entity_and_date(
         proposal.entity, None) if proposal else None
-    context['differences'] = get_difference_of_proposal(proposal) \
+    context['differences'] = get_difference_of_proposal(proposal.initial_data, learning_unit_year) \
         if proposal and proposal.learning_unit_year == learning_unit_year \
         else {}
 

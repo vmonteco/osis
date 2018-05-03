@@ -25,6 +25,7 @@
 ##############################################################################
 import datetime
 from decimal import Decimal
+from base.models.learning_unit_year import LearningUnitYear
 
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
@@ -79,7 +80,7 @@ class TestSave(TestCase):
         an_entity = EntityFactory(organization=an_organization)
         self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
                                                    start_date=today.replace(year=1900),
-                                                   end_date=today.replace(year=today.year + 1))
+                                                   end_date=None)
         PersonEntityFactory(person=self.person, entity=an_entity)
         self.language = LanguageFactory(code="EN")
         self.campus = CampusFactory(name="OSIS Campus", organization=OrganizationFactory(type=organization_type.MAIN),
@@ -137,24 +138,24 @@ class TestSave(TestCase):
         form = ProposalBaseForm(self.form_data, self.person, self.learning_unit_year)
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
-        self.learning_unit_year.refresh_from_db()
-        self._assert_acronym_has_changed_in_proposal()
-        self._assert_common_titles_stored_in_container()
-        self.assertFalse(self.learning_unit_year.status)
-        self.assertEqual(self.learning_unit_year.credits, Decimal(self.form_data['credits']))
-        self.assertEqual(self.learning_unit_year.quadrimester, self.form_data['quadrimester'])
-        self.assertEqual(self.learning_unit_year.specific_title, self.form_data["specific_title"])
-        self.assertEqual(self.learning_unit_year.specific_title_english, self.form_data["specific_title_english"])
+        learning_unit_year = LearningUnitYear.objects.get(pk=self.learning_unit_year.id)
+        self._assert_acronym_has_changed_in_proposal(learning_unit_year)
+        self._assert_common_titles_stored_in_container(learning_unit_year)
+        self.assertFalse(learning_unit_year.status)
+        self.assertEqual(learning_unit_year.credits, Decimal(self.form_data['credits']))
+        self.assertEqual(learning_unit_year.quadrimester, self.form_data['quadrimester'])
+        self.assertEqual(learning_unit_year.specific_title, self.form_data["specific_title"])
+        self.assertEqual(learning_unit_year.specific_title_english, self.form_data["specific_title_english"])
 
-    def _assert_acronym_has_changed_in_proposal(self):
-        self.assertEqual(self.learning_unit_year.acronym,
+    def _assert_acronym_has_changed_in_proposal(self, learning_unit_year):
+        self.assertEqual(learning_unit_year.acronym,
                          "{}{}".format(self.form_data['acronym_0'], self.form_data['acronym_1']))
 
-    def _assert_common_titles_stored_in_container(self):
-        self.assertNotEqual(self.learning_unit_year.specific_title, self.form_data['common_title'])
-        self.assertNotEqual(self.learning_unit_year.specific_title_english, self.form_data['common_title_english'])
-        self.assertEqual(self.learning_unit_year.learning_container_year.common_title, self.form_data['common_title'])
-        self.assertEqual(self.learning_unit_year.learning_container_year.common_title_english,
+    def _assert_common_titles_stored_in_container(self, learning_unit_year):
+        self.assertNotEqual(learning_unit_year.specific_title, self.form_data['common_title'])
+        self.assertNotEqual(learning_unit_year.specific_title_english, self.form_data['common_title_english'])
+        self.assertEqual(learning_unit_year.learning_container_year.common_title, self.form_data['common_title'])
+        self.assertEqual(learning_unit_year.learning_container_year.common_title_english,
                          self.form_data['common_title_english'])
 
     def test_learning_container_update(self):
@@ -162,10 +163,10 @@ class TestSave(TestCase):
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
-        self.learning_unit_year.refresh_from_db()
-        learning_container_year = self.learning_unit_year.learning_container_year
+        learning_unit_year = LearningUnitYear.objects.get(pk=self.learning_unit_year.id)
+        learning_container_year = learning_unit_year.learning_container_year
 
-        self.assertEqual(self.learning_unit_year.acronym, self.form_data['acronym_0'] + self.form_data['acronym_1'])
+        self.assertEqual(learning_unit_year.acronym, self.form_data['acronym_0'] + self.form_data['acronym_1'])
         self.assertEqual(learning_container_year.common_title, self.form_data['common_title'])
         self.assertEqual(learning_container_year.common_title_english, self.form_data['common_title_english'])
         self.assertEqual(learning_container_year.language, self.language)

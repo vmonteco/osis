@@ -797,7 +797,7 @@ class TestEditProposal(TestCase):
         self.entity = EntityFactory(organization=self.organization)
         self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL,
                                                    start_date=today.replace(year=1900),
-                                                   end_date=today.replace(year=today.year + 1))
+                                                   end_date=None)
 
         self.generated_container = GenerateContainer(start_year, end_year)
         self.generated_container_first_year = self.generated_container.generated_container_years[0]
@@ -1018,7 +1018,7 @@ class TestLearningUnitProposalDisplay(TestCase):
         }}
         proposal.learning_unit_year.credits = self.learning_unit_yr.credits
 
-        differences = proposal_business.get_difference_of_proposal(proposal)
+        differences = proposal_business.get_difference_of_proposal(proposal.initial_data, proposal.learning_unit_year)
 
         self.assertEqual(differences.get('credits'), self.initial_credits)
 
