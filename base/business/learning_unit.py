@@ -84,15 +84,6 @@ def get_same_container_year_components(learning_unit_year, with_classes=False):
     return _compose_components_dict(components, additionnal_entities)
 
 
-def show_subtype(learning_unit_year):
-    learning_container_year = learning_unit_year.learning_container_year
-
-    if learning_container_year:
-        return learning_container_year.container_type == learning_container_year_types.COURSE or \
-               learning_container_year.container_type == learning_container_year_types.INTERNSHIP
-    return False
-
-
 def get_campus_from_learning_unit_year(learning_unit_year):
     if learning_unit_year.learning_container_year:
         return learning_unit_year.learning_container_year.campus

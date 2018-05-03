@@ -2859,6 +2859,15 @@ msgstr "Borrowed courses - search"
 msgid "add_another"
 msgstr "Add another"
 
+msgid "inherited"
+msgstr "Inherited"
+
+msgid "to_complete"
+msgstr "To complete"
+
+msgid "annualized"
+msgstr "Annualized"
+
 msgid "start_year"
 msgstr "Starting year"
 

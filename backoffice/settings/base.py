@@ -68,7 +68,8 @@ INSTALLED_APPS = (
     'rest_framework',
     'rest_framework.authtoken',
     'bootstrap3',
-    'ordered_model'
+    'ordered_model',
+    'waffle',
 )
 
 MIDDLEWARE = (
@@ -81,7 +82,8 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'base.middlewares.extra_http_responses_midleware.ExtraHttpResponsesMiddleware'
+    'base.middlewares.extra_http_responses_midleware.ExtraHttpResponsesMiddleware',
+    'waffle.middleware.WaffleMiddleware',
 )
 
 # check if we are testing right now
