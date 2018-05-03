@@ -253,8 +253,6 @@ class EntityContainerYearModelForm(forms.ModelForm):
             return super(EntityContainerYearModelForm, self).save(**kwargs)
 
     def post_clean(self, start_date):
-        # TODO
-        return
         if not entity_version.get_by_entity_and_date(self.cleaned_data.get('entity'), start_date):
             self.add_error('entity', _("The linked entity does not exist at the start date of the "
                                        "academic year linked to this learning unit"))
@@ -304,7 +302,8 @@ class EntityContainerYearFormset(forms.BaseInlineFormSet):
             if requirement_entity != allocation_entity:
                 self.forms[1].add_error("entity", _("requirement_and_allocation_entities_cannot_be_different"))
 
-        return not all(form.errors for form in self.forms)
+        return not any(form.errors for form in self.forms)
+
 
 EntityContainerFormset = inlineformset_factory(
     LearningContainerYear, EntityContainerYear, form=EntityContainerYearModelForm,
