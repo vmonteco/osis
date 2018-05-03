@@ -2865,3 +2865,15 @@ msgstr "Recherche - Cours empruntés"
 
 msgid "add_another"
 msgstr "Ajouter un autre"
+
+msgid "start_year"
+msgstr "Début"
+
+msgid "produce_xls_attributions"
+msgstr "Xls avec les activités et les attributions"
+
+msgid "produce_xls_proposals"
+msgstr "Xls avec les propositions"
+
+msgid "proposal_date"
+msgstr "Date proposition"

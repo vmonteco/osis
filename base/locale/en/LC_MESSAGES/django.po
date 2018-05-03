@@ -2859,3 +2859,14 @@ msgstr "Borrowed courses - search"
 msgid "add_another"
 msgstr "Add another"
 
+msgid "start_year"
+msgstr "Starting year"
+
+msgid "produce_xls_attributions"
+msgstr "Xls with learning units and attributions"
+
+msgid "produce_xls_proposals"
+msgstr "Xls with proposals"
+
+msgid "proposal_date"
+msgstr "Proposals date"

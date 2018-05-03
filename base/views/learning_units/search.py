@@ -30,7 +30,9 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from attribution.business.xls_build import create_xls_attribution
 from base.business.learning_unit import create_xls
+from base.business.proposal_xls import create_xls_proposal
 from base.forms.common import TooManyResultsException
 from base.forms.learning_unit.search_form import LearningUnitYearForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalStateModelForm
@@ -67,8 +69,13 @@ def learning_units_search(request, search_type):
     except TooManyResultsException:
         messages.add_message(request, messages.ERROR, _('too_many_results'))
 
-    if request.GET.get('xls_status') == "xls":
-        return create_xls(request.user, found_learning_units)
+    if search_type == SIMPLE_SEARCH:
+        if request.GET.get('xls_status') == "xls":
+            return create_xls(request.user, found_learning_units, _get_filter(form))
+
+        if request.GET.get('xls_status') == "xls_attribution":
+            return create_xls_attribution(request.user, found_learning_units, _get_filter(form))
+
     a_person = find_by_user(request.user)
     context = {
         'form': form,
@@ -116,6 +123,9 @@ def learning_units_proposal_search(request):
     except TooManyResultsException:
         display_error_messages(request, 'too_many_results')
 
+    if request.GET.get('xls_status') == "xls":
+        return create_xls_proposal(request.user, proposals, _get_filter(search_form))
+
     if request.POST:
         selected_proposals_id = request.POST.getlist("selected_action", default=[])
         selected_proposals = ProposalLearningUnit.objects.filter(id__in=selected_proposals_id)
@@ -149,3 +159,12 @@ def apply_action_on_proposals(proposals, author, post_data, research_criteria):
             new_state = form.cleaned_data.get("state")
             messages_by_level = proposal_business.force_state_of_proposals(proposals, author, new_state)
     return messages_by_level
+
+
+def _get_filter(form):
+    form_data = form.cleaned_data
+    filter_data = {}
+    for key, value in form_data.items():
+        if value:
+            filter_data.update({form[key].label: value})
+    return filter_data

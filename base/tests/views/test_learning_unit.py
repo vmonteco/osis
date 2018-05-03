@@ -1056,14 +1056,14 @@ class LearningUnitViewTestCase(TestCase):
     def test_get_username_with_no_person(self):
         a_username = 'dupontm'
         a_user = UserFactory(username=a_username)
-        self.assertEqual(base.business.learning_unit._get_name_or_username(a_user), a_username)
+        self.assertEqual(base.business.learning_unit.get_name_or_username(a_user), a_username)
 
     def test_get_username_with_person(self):
         a_user = UserFactory(username='dupontm')
         last_name = 'dupont'
         first_name = 'marcel'
         self.person = PersonFactory(user=a_user, last_name=last_name, first_name=first_name)
-        self.assertEqual(base.business.learning_unit._get_name_or_username(a_user),
+        self.assertEqual(base.business.learning_unit.get_name_or_username(a_user),
                          '{}, {}'.format(last_name, first_name))
 
     def test_prepare_xls_content_no_data(self):
