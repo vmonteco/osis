@@ -1330,23 +1330,23 @@ class TestCreateXls(TestCase):
 
     @mock.patch("osis_common.document.xls_build.generate_xls")
     def test_generate_xls_data_with_no_data(self, mock_generate_xls):
-        learning_unit_business.create_xls(self.user, [])
+        learning_unit_business.create_xls(self.user, [], None)
         expected_argument = _generate_xls_build_parameter([], self.user)
-        mock_generate_xls.assert_called_with(expected_argument)
+        mock_generate_xls.assert_called_with(expected_argument, None)
 
     @mock.patch("osis_common.document.xls_build.generate_xls")
     def test_generate_xls_data_with_a_learning_unit(self, mock_generate_xls):
         a_form = LearningUnitYearForm({"acronym": self.learning_unit_year.acronym}, service_course_search=False)
         self.assertTrue(a_form.is_valid())
         found_learning_units = a_form.get_activity_learning_units()
-        learning_unit_business.create_xls(self.user, found_learning_units)
+        learning_unit_business.create_xls(self.user, found_learning_units, None)
         xls_data = [[self.learning_unit_year.academic_year.name, self.learning_unit_year.acronym,
                      self.learning_unit_year.complete_title,
                      xls_build.translate(self.learning_unit_year.learning_container_year.container_type),
                      xls_build.translate(self.learning_unit_year.subtype), None, None, self.learning_unit_year.credits,
                      xls_build.translate(self.learning_unit_year.status)]]
         expected_argument = _generate_xls_build_parameter(xls_data, self.user)
-        mock_generate_xls.assert_called_with(expected_argument)
+        mock_generate_xls.assert_called_with(expected_argument, None)
 
 
 def _generate_xls_build_parameter(xls_data, user):
