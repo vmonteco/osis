@@ -39,8 +39,8 @@ from django.views.decorators.http import require_http_methods
 from attribution.business import attribution_charge_new
 from base import models as mdl
 from base.business.learning_unit import get_cms_label_data, \
-    get_same_container_year_components, get_components_identification, show_subtype, \
-    get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
+    get_same_container_year_components, get_components_identification, get_organization_from_learning_unit_year,\
+    get_campus_from_learning_unit_year, \
     get_all_attributions, find_language_in_settings, \
     CMS_LABEL_SPECIFICATIONS, get_achievements_group_by_language
 from base.business.learning_unit_proposal import get_difference_of_proposal
@@ -361,7 +361,6 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
     context['campus'] = get_campus_from_learning_unit_year(learning_unit_year)
     context['experimental_phase'] = True
-    context['show_subtype'] = show_subtype(learning_unit_year)
     context.update(get_all_attributions(learning_unit_year))
     components = get_components_identification(learning_unit_year)
     context['components'] = components.get('components')

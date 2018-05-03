@@ -32,5 +32,10 @@ ul.ui-autocomplete {
 }
 
 .search_select_filter{
-    font-size: x-small;
+    margin-left: 0.5em;
+    width: auto;
+    width: 75px;
+    display: inline-block;
 }
+
+

@@ -56,13 +56,14 @@ ACTION_FORCE_STATE = "force_state"
 
 def learning_units_search(request, search_type):
     service_course_search = search_type == SERVICE_COURSES_SEARCH
+    borrowed_course_search = search_type == BORROWED_COURSE
 
-    form = LearningUnitYearForm(request.GET or None, service_course_search=service_course_search)
+    form = LearningUnitYearForm(request.GET or None, service_course_search=service_course_search,
+                                borrowed_course_search=borrowed_course_search)
     found_learning_units = []
     try:
         if form.is_valid():
             found_learning_units = form.get_activity_learning_units()
-
             check_if_display_message(request, found_learning_units)
     except TooManyResultsException:
         messages.add_message(request, messages.ERROR, _('too_many_results'))
@@ -70,17 +71,11 @@ def learning_units_search(request, search_type):
     if request.GET.get('xls_status') == "xls":
         return create_xls(request.user, found_learning_units)
     a_person = find_by_user(request.user)
-    context = {
-        'form': form,
-        'academic_years': get_last_academic_years(),
-        'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
-        'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
-        'learning_units': found_learning_units,
-        'current_academic_year': current_academic_year(),
-        'experimental_phase': True,
-        'search_type': search_type,
-        'is_faculty_manager': a_person.is_faculty_manager()
-    }
+    context = {'form': form, 'academic_years': get_last_academic_years(),
+               'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
+               'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, 'learning_units': found_learning_units,
+               'current_academic_year': current_academic_year(), 'experimental_phase': True, 'search_type': search_type,
+               'is_faculty_manager': a_person.is_faculty_manager()}
     return layout.render(request, "learning_units.html", context)
 
 
@@ -124,11 +119,16 @@ def learning_units_proposal_search(request):
         return redirect(reverse("learning_unit_proposal_search") + "?{}".format(request.GET.urlencode()))
 
     check_if_display_message(request, proposals)
-    context = {'form': search_form, 'form_proposal_state': ProposalStateModelForm(),
-               'academic_years': get_last_academic_years(), 'current_academic_year': current_academic_year(),
-               'experimental_phase': True, 'search_type': PROPOSAL_SEARCH, 'proposals': proposals,
-               'is_faculty_manager': user_person.is_faculty_manager()}
-
+    context = {
+        'form': search_form,
+        'form_proposal_state': ProposalStateModelForm(),
+        'academic_years': get_last_academic_years(),
+        'current_academic_year': current_academic_year(),
+        'experimental_phase': True,
+        'search_type': PROPOSAL_SEARCH,
+        'proposals': proposals,
+        'is_faculty_manager': user_person.is_faculty_manager()
+    }
     return layout.render(request, "learning_units.html", context)
 
 

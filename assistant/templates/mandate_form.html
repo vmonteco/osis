@@ -47,7 +47,7 @@
 </div>
 <div class="panel panel-default">
     <div class="panel-body">
-        <h3>{{ mandate.assistant.person }} ({{ mandate.assistant.person.gender }})</h3>
+        <h3>{{ mandate.assistant }} ({{ mandate.assistant.person.gender }})</h3>
         <form method="post" action=" {% url 'mandate_save' %} ">
             {% csrf_token %}
             {{ mandate.assistant.person.email }}
