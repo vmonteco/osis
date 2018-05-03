@@ -181,8 +181,7 @@ class ExportPdfTestCase(TestCase):
         entities = find_versions_from_entites(entities_id, self.mandate.academic_year.start_date)
         entities_data = ""
         for entity in entities:
-            entity_type = "%s" % (_(entity.entity_type))
-            entities_data += "<strong>" + entity_type + " : </strong>" + entity.acronym + "<br />"
+            entities_data += "<strong>{} : </strong>{}<br />".format(_(entity.entity_type), entity.acronym)
         self.assertEqual(entities_data, export_utils_pdf.get_entities(self.mandate))
 
     def test_get_absences(self):
@@ -314,12 +313,17 @@ class ExportPdfTestCase(TestCase):
             if rev.status == review_status.IN_PROGRESS:
                 break
             if rev.reviewer is None:
-                supervisor = "<br/>(%s)" % (str(_('supervisor')))
-                person = self.mandate.assistant.supervisor.first_name + " " + \
-                         self.mandate.assistant.supervisor.last_name + supervisor
+                person = "{} {}<br/>({})".format(
+                    self.mandate.assistant.supervisor.first_name,
+                    self.mandate.assistant.supervisor.last_name,
+                    str(_('supervisor'))
+                )
             else:
-                entity = get_last_version(rev.reviewer.entity).acronym
-                person = rev.reviewer.person.first_name + " " + rev.reviewer.person.last_name + "<br/>(" + entity + ")"
+                person = "{} {}<br/>({})".format(
+                    rev.reviewer.person.first_name,
+                    rev.reviewer.person.last_name,
+                    get_last_version(rev.reviewer.entity).acronym
+                )
             data.append([Paragraph(person, style),
                          Paragraph(_(rev.advice), style),
                          Paragraph(rev.remark or '', style),

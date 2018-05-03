@@ -161,8 +161,7 @@ def get_entities(mandate):
     entities = find_versions_from_entites(entities_id, start_date)
     entities_data = ""
     for entity in entities:
-        type = "%s" % (_(entity.entity_type))
-        entities_data += "<strong>" + type + " : </strong>" + entity.acronym + "<br />"
+        entities_data += "<strong>{} : </strong>{}<br />".format(_(entity.entity_type), entity.acronym)
     return entities_data
 
 
@@ -259,11 +258,17 @@ def get_reviews_for_mandate(mandate, style):
         if rev.status == review_status.IN_PROGRESS:
             break
         if rev.reviewer is None:
-            supervisor = "<br/>(%s)" % (str(_('supervisor')))
-            person = mandate.assistant.supervisor.first_name + " " + mandate.assistant.supervisor.last_name + supervisor
+            person = "{} {}<br/>({})".format(
+                mandate.assistant.supervisor.first_name,
+                mandate.assistant.supervisor.last_name,
+                str(_('supervisor'))
+            )
         else:
-            entity = entity_version.get_last_version(rev.reviewer.entity).acronym
-            person = rev.reviewer.person.first_name + " " + rev.reviewer.person.last_name + "<br/>(" + entity + ")"
+            person = "{} {}<br/>({})".format(
+                rev.reviewer.person.first_name,
+                rev.reviewer.person.last_name,
+                entity_version.get_last_version(rev.reviewer.entity).acronym
+            )
         data.append([Paragraph(person, style),
                      Paragraph(_(rev.advice), style),
                      Paragraph(rev.remark or '', style),
