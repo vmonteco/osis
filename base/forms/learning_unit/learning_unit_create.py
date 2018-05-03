@@ -253,7 +253,11 @@ class EntityContainerYearModelForm(forms.ModelForm):
             return super(EntityContainerYearModelForm, self).save(**kwargs)
 
     def post_clean(self, start_date):
-        if not entity_version.get_by_entity_and_date(self.cleaned_data.get('entity'), start_date):
+        entity = self.cleaned_data.get('entity')
+        if not entity:
+            return
+
+        if not entity_version.get_by_entity_and_date(entity, start_date):
             self.add_error('entity', _("The linked entity does not exist at the start date of the "
                                        "academic year linked to this learning unit"))
 

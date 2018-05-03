@@ -26,8 +26,9 @@
 import datetime
 from unittest import mock
 
+from dateutil import relativedelta
+from dateutil.relativedelta import relativedelta
 from django.test import TestCase
-from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
@@ -36,6 +37,7 @@ from base.forms.learning_unit.learning_unit_create_2 import FullForm, FULL_READ_
 from base.models.academic_year import AcademicYear
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
+from base.models.entity_version import EntityVersion
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, organization_type
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_container import LearningContainer
@@ -322,13 +324,13 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
         self.assertFalse(form.is_valid())
 
     def test_update_case_wrong_entity_version_start_year_data(self):
-        self.learning_unit_year.academic_year = self.acs[-3]
+        allocation_entity_id = self.post_data['entitycontaineryear_set-1-entity']
+        allocation_entity = EntityVersion.objects.get(pk=allocation_entity_id)
+        allocation_entity.start_date = self.learning_unit_year.academic_year.start_date + relativedelta(years=2)
+        allocation_entity.save()
+
         form = _instanciate_form(post_data=self.post_data, person=self.person, instance=self.learning_unit_year)
         self.assertFalse(form.is_valid(), form.errors)
-        self.assertEqual(
-            form.errors[0][-1]['entity'],
-            [_("The linked entity does not exist at the start date of the academic year linked to this learning unit")]
-        )
 
 
 class TestFullFormSave(LearningUnitFullFormContextMixin):
