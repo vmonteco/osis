@@ -157,6 +157,9 @@ msgstr "Êtes-vous certain de vouloir accepter la demande de renouvellement ? Ce
 msgid "confirm_decline"
 msgstr "Êtes-vous certain de vouloir décliner la demande de renouvellement ? Cette action est irréversible."
 
+msgid "confirm_mandate_step_back"
+msgstr "Êtes-vous certain de vouloir reculer d'une étape ? Cette action est irréversible."
+
 msgid "confirm_removal"
 msgstr "Êtes-vous certain de vouloir supprimer ce cours ?"
 
@@ -677,6 +680,9 @@ msgstr "Spécial"
 msgid "startup_precedure"
 msgstr "Procédure de démarrage"
 
+msgid "step_back"
+msgstr "Effectuer un retour en arrière d'une étape dans le workflow"
+
 msgid "students_service"
 msgstr "Informations aux futurs étudiants (CIO, salons, Campus Days, Midi Masters...)"
 
@@ -779,6 +785,9 @@ msgstr "DAS/CAS"
 
 msgid "view"
 msgstr "Voir"
+
+msgid "workflow_and_reviews"
+msgstr "Workflow et évaluations"
 
 msgid "yes"
 msgstr "Oui"

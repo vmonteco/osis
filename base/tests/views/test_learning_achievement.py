@@ -41,7 +41,8 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import UserFactory
 from reference.tests.factories.language import LanguageFactory
-from base.views.learning_achievement import operation, management, DELETE, DOWN, UP, create, update, create_first
+from base.views.learning_achievement import operation, management, create, update, create_first
+from base.business.learning_units.achievement import DELETE, DOWN, UP, HTML_ANCHOR
 from base.forms.learning_achievement import LearningAchievementEditForm, FR_CODE_LANGUAGE
 from base.tests.factories.user import SuperUserFactory
 
@@ -257,7 +258,8 @@ class TestLearningAchievementActions(TestCase):
                                     data={'code_name': 'AA1', 'text': 'Text'})
 
         expected_redirection = reverse("learning_unit_specifications",
-                                       kwargs={'learning_unit_year_id': self.learning_unit_year.id})
+                                       kwargs={'learning_unit_year_id': self.learning_unit_year.id}) + "{}{}".format(
+            HTML_ANCHOR, learning_achievement.id)
         self.assertRedirects(response, expected_redirection, fetch_redirect_response=False)
 
     @mock.patch('base.views.layout.render')

@@ -55,20 +55,20 @@ class LearningAchievementTest(TestCase):
 
     def test_find_by_learning_unit_year(self):
         luy_achievement_fr = LearningAchievementFactory(code_name=A_CODE_NAME, learning_unit_year=self.luy,
-                                                         language=self.language_fr)
+                                                        language=self.language_fr)
         luy_achievement_en = LearningAchievementFactory(code_name=A_CODE_NAME, learning_unit_year=self.luy,
-                                                         language=self.language_en)
+                                                        language=self.language_en)
         result = learning_achievement.find_by_learning_unit_year(self.luy)
         self.assertIn(luy_achievement_fr, result)
         self.assertIn(luy_achievement_en, result)
 
     def test_find_by_learning_unit_year_order(self):
         luy_achievement_fr_1 = LearningAchievementFactory(code_name=A_CODE_NAME, learning_unit_year=self.luy,
-                                                           language=self.language_fr)
+                                                          language=self.language_fr)
         luy_achievement_en_1 = LearningAchievementFactory(code_name=A_CODE_NAME, learning_unit_year=self.luy,
-                                                           language=self.language_en)
+                                                          language=self.language_en)
         luy_achievement_fr_2 = LearningAchievementFactory(code_name=A2_CODE_NAME, learning_unit_year=self.luy,
-                                                           language=self.language_fr)
+                                                          language=self.language_fr)
         # By default, OrderModel insert with the highest model + 1
         expected_result = [luy_achievement_en_1, luy_achievement_fr_1, luy_achievement_fr_2]
         result = list(learning_achievement.find_by_learning_unit_year(self.luy))
@@ -76,11 +76,35 @@ class LearningAchievementTest(TestCase):
 
     def test_find_learning_unit_achievement(self):
         luy_achievement_fr_1 = LearningAchievementFactory(code_name=A_CODE_NAME,
-                                                           learning_unit_year=self.luy,
-                                                           language=self.language_fr)
+                                                          learning_unit_year=self.luy,
+                                                          language=self.language_fr)
         self.assertEqual(learning_achievement.find_learning_unit_achievement(luy_achievement_fr_1.learning_unit_year,
-                                                                              luy_achievement_fr_1.language.code,
-                                                                              0), luy_achievement_fr_1)
+                                                                             luy_achievement_fr_1.language.code,
+                                                                             0), luy_achievement_fr_1)
         self.assertIsNone(learning_achievement.find_learning_unit_achievement(luy_achievement_fr_1.learning_unit_year,
-                                                                               luy_achievement_fr_1.language.code,
-                                                                               100))
+                                                                              luy_achievement_fr_1.language.code,
+                                                                              100))
+
+
+    def test_find_previous_achievements_no_result(self):
+        luy_achievement_fr = LearningAchievementFactory(code_name=A_CODE_NAME,
+                                                          learning_unit_year=self.luy,
+                                                          language=self.language_fr)
+        self.assertCountEqual(learning_achievement.find_previous_achievements(luy_achievement_fr.learning_unit_year,
+                                                            luy_achievement_fr.language,
+                                                        luy_achievement_fr.order), [])
+        self.assertCountEqual(learning_achievement.find_previous_achievements(None,
+                                                                              luy_achievement_fr.language,
+                                                                              luy_achievement_fr.order), [])
+
+
+    def test_find_previous_achievements(self):
+        luy_achievement_fr_0 = LearningAchievementFactory(code_name=A_CODE_NAME,
+                                                          learning_unit_year=self.luy,
+                                                          language=self.language_fr)
+        luy_achievement_fr_1 = LearningAchievementFactory(code_name=A2_CODE_NAME,
+                                                          learning_unit_year=self.luy,
+                                                          language=self.language_fr)
+        self.assertCountEqual(learning_achievement.find_previous_achievements(luy_achievement_fr_1.learning_unit_year,
+                                                                              luy_achievement_fr_1.language,
+                                                                              luy_achievement_fr_1.order), [luy_achievement_fr_0])

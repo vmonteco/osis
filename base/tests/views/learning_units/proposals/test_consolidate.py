@@ -29,6 +29,7 @@ from django.contrib.auth.models import Permission
 from django.http import HttpResponseNotAllowed, HttpResponseForbidden, HttpResponseNotFound
 from django.test import TestCase
 from rest_framework.reverse import reverse
+from waffle.testutils import override_flag
 
 from base.models.enums import proposal_state, entity_container_year_link_type
 from base.tests.factories.academic_year import create_current_academic_year
@@ -38,6 +39,7 @@ from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 
 
+@override_flag('proposal', active=True)
 class TestConsolidate(TestCase):
     @classmethod
     def setUpTestData(cls):
