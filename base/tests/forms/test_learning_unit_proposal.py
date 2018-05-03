@@ -71,16 +71,16 @@ class TestSave(TestCase):
                                                                academic_year=current_academic_year,
                                                                learning_container_year=learning_container_year)
 
-        self.entity_container_year = EntityContainerYearFactory(
-            learning_container_year=self.learning_unit_year.learning_container_year,
-            type=entity_container_year_link_type.REQUIREMENT_ENTITY
-        )
-
         today = datetime.date.today()
         an_entity = EntityFactory(organization=an_organization)
         self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
                                                    start_date=today.replace(year=1900),
                                                    end_date=None)
+        self.entity_container_year = EntityContainerYearFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year,
+            type=entity_container_year_link_type.REQUIREMENT_ENTITY,
+            entity=self.entity_version.entity
+        )
         PersonEntityFactory(person=self.person, entity=an_entity)
         self.language = LanguageFactory(code="EN")
         self.campus = CampusFactory(name="OSIS Campus", organization=OrganizationFactory(type=organization_type.MAIN),
