@@ -31,7 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.forms.utils.acronym_field import AcronymField, PartimAcronymField, split_acronym
 from base.forms.utils.choice_field import add_blank
-from base.models import entity_version
+from base.models import entity_version, entity_container_year
 from base.models.campus import find_main_campuses
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -257,6 +257,8 @@ class EntityContainerYearModelForm(forms.ModelForm):
     def save(self, **kwargs):
         if hasattr(self.instance, 'entity'):
             return super(EntityContainerYearModelForm, self).save(**kwargs)
+        else:
+            print()
 
     def post_clean(self, start_date):
         entity = self.cleaned_data.get('entity')
@@ -276,6 +278,13 @@ class EntityContainerYearFormset(forms.BaseInlineFormSet):
 
     def get_form_kwargs(self, index):
         kwargs = super().get_form_kwargs(index)
+
+        # entity_type = ENTITY_TYPE_LIST[index]
+        # if self.instance:
+        #     kwargs['instance'] = entity_container_year.search(learning_container_year=self.instance,
+        #                                                       link_type=entity_type).get()
+        # kwargs['entity_type'] = entity_type
+
         instance = kwargs.get('instance')
         if not instance:
             kwargs['entity_type'] = ENTITY_TYPE_LIST[index]
