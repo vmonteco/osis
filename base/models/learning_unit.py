@@ -120,15 +120,30 @@ class LearningUnit(SerializableModel):
             return LearningUnit.objects.filter(
                 learningunityear__subtype=FULL, learning_container=self.learning_container
             ).last()
-        return None
+        return self
+
+    @property
+    def children(self):
+        # TODO The subtype must move in learning_unit model !
+        luy = self.learningunityear_set.last()
+        if luy and luy.subtype == FULL:
+            return LearningUnit.objects.filter(
+                learningunityear__subtype=PARTIM, learning_container=self.learning_container
+            )
+        return [self]
 
     def clean(self):
-        if not self.parent:
+        parent = self.parent
+        children = self.children
+
+        if parent.periodicity == ANNUAL:
             return
 
-        if self.parent.periodicity != ANNUAL and self.periodicity == ANNUAL:
-            raise ValidationError(
-                {'periodicity': _('The periodicity of the partim must be the same as that of the parent')})
+        for child in children:
+            if child.periodicity == ANNUAL:
+                raise ValidationError(
+                    {'periodicity': _('The periodicity of the partim must be the same as that of the parent')}
+                )
 
 
 def find_by_id(learning_unit_id):
