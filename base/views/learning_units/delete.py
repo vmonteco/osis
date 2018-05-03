@@ -45,6 +45,8 @@ def delete_all_learning_units_year(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
 
     learning_unit = learning_unit_year.learning_unit
+    # save the acronym before the suppression
+    acronym = learning_unit.acronym
     messages_deletion = deletion.check_learning_unit_deletion(learning_unit)
     if messages_deletion:
         display_error_messages(request, sorted(messages_deletion.values()))
@@ -55,9 +57,9 @@ def delete_all_learning_units_year(request, learning_unit_year_id):
             result = deletion.delete_learning_unit(learning_unit)
         display_success_messages(request,
                                  _("The learning unit %(acronym)s has been successfully deleted for all years.") % {
-                                     'acronym': learning_unit.acronym})
+                                     'acronym': acronym})
         display_success_messages(request, sorted(result))
-        send_mail_after_the_learning_unit_year_deletion([], learning_unit.acronym, None, result)
+        send_mail_after_the_learning_unit_year_deletion([], acronym, None, result)
 
     except (ProtectedError, IntegrityError) as e:
         display_error_messages(request, str(e))

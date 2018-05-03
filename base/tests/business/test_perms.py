@@ -134,15 +134,26 @@ class PermsTestCase(TestCase):
         self.assertFalse(luy.can_update_by_faculty_manager())
 
     def test_can_central_manager_modify_end_date_full(self):
+        a_person = self.create_person_with_permission_and_group(CENTRAL_MANAGER_GROUP)
+        generated_container = GenerateContainer(start_year=self.academic_yr.year,
+                                                end_year=self.academic_yr.year)
+        generated_container_first_year = generated_container.generated_container_years[0]
+        luy = generated_container_first_year.learning_unit_year_full
+        requirement_entity = generated_container_first_year.requirement_entity_container_year.entity
+        PersonEntityFactory(entity=requirement_entity, person=a_person)
         for proposal_needed_container_type in ALL_TYPES:
             self.lunit_container_yr.container_type = proposal_needed_container_type
             self.lunit_container_yr.save()
-            person = self.create_person_with_permission_and_group(CENTRAL_MANAGER_GROUP)
-            self.assertTrue(perms.is_eligible_for_modification_end_date(self.luy, person))
+            self.assertTrue(perms.is_eligible_for_modification_end_date(luy, a_person))
 
     def test_access_edit_learning_unit_proposal_as_central_manager(self):
-        luy = LearningUnitYearFactory(academic_year=self.academic_yr)
         a_person = self.create_person_with_permission_and_group(CENTRAL_MANAGER_GROUP)
+        generated_container = GenerateContainer(start_year=self.academic_yr.year,
+                                                end_year=self.academic_yr.year)
+        generated_container_first_year = generated_container.generated_container_years[0]
+        luy = generated_container_first_year.learning_unit_year_full
+        requirement_entity = generated_container_first_year.requirement_entity_container_year.entity
+        PersonEntityFactory(entity=requirement_entity, person=a_person)
 
         self.assertFalse(perms.is_eligible_to_edit_proposal(None, a_person))
 
@@ -383,12 +394,6 @@ class TestIsEligibleToCreateModificationProposal(TestCase):
                 self.luy.learning_container_year.container_type = luy_container_type
                 self.luy.learning_container_year.save()
                 self.assertTrue(is_eligible_to_create_modification_proposal(self.luy, self.person))
-    @mock.patch.object(Person, "is_central_manager", side_effect=lambda: True)
-    def test_person_is_central_manager(self, mock_is_central_manager):
-        self.person_entity.delete()
-
-        self.assertTrue(is_eligible_to_create_modification_proposal(self.luy, self.person))
-        self.assertTrue(mock_is_central_manager.called)
 
 
 class TestIsEligibleToConsolidateLearningUnitProposal(TestCase):
@@ -414,11 +419,21 @@ class TestIsEligibleToConsolidateLearningUnitProposal(TestCase):
                 proposal = ProposalLearningUnitFactory(state=state)
                 self.assertFalse(is_eligible_to_consolidate_proposal(proposal, self.person_with_right_to_consolidate))
 
-    def test_when_person_has_right_to_consolidate_and_proposal_state_is_accepter_or_refused(self):
+    def test_when_person_not_linked_to_entity(self):
+        proposal = ProposalLearningUnitFactory(state=proposal_state.ProposalState.ACCEPTED.name)
+        self.assertFalse(is_eligible_to_consolidate_proposal(proposal, self.person_with_right_to_consolidate))
+
+    def test_when_person_is_linked_to_entity(self):
         states = (state.name for state in proposal_state.ProposalState
                   if state in (proposal_state.ProposalState.ACCEPTED, proposal_state.ProposalState.REFUSED))
 
         for state in states:
             with self.subTest(state=state):
                 proposal = ProposalLearningUnitFactory(state=state)
+                entity_container = EntityContainerYearFactory(
+                    learning_container_year=proposal.learning_unit_year.learning_container_year,
+                    type=entity_container_year_link_type.REQUIREMENT_ENTITY
+                )
+                PersonEntityFactory(person=self.person_with_right_to_consolidate,
+                                    entity=entity_container.entity)
                 self.assertTrue(is_eligible_to_consolidate_proposal(proposal, self.person_with_right_to_consolidate))

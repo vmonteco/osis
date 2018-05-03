@@ -175,7 +175,8 @@ def count_by_proposition(prop_dissert):
     return Dissertation.objects.filter(proposition_dissertation=prop_dissert)\
         .filter(active=True)\
         .filter(offer_year_start__academic_year=current_academic_year)\
-        .exclude(status='DRAFT')\
+        .exclude(status='DRAFT') \
+        .exclude(status='DIR_KO') \
         .count()
 
 

@@ -55,11 +55,12 @@ def academic_year(year):
 
 
 @register.filter
-def get_difference_css(differences, parameter):
-    if differences.get(parameter, None):
-        return mark_safe(" data-toggle=tooltip title='{} : {}' class={} ".format(_("value_before_proposal"),
-                                                                                 differences.get(parameter),
-                                                                                 "proposal_value"))
+def get_difference_css(differences, parameter, default_if_none=""):
+    if parameter in differences:
+        return mark_safe(
+            " data-toggle=tooltip title='{} : {}' class={} ".format(_("value_before_proposal"),
+                                                                    differences[parameter] or default_if_none,
+                                                                    "proposal_value"))
     return None
 
 
@@ -71,16 +72,25 @@ def has_proposal(luy):
 @register.simple_tag
 def dl_tooltip(differences, key, **kwargs):
     title = kwargs.get('title', '')
-    label_text = kwargs.get('label_text', '')
-    value = kwargs.get('value', '')
+    label_text = _(str(kwargs.get('label_text', '')))
     url = kwargs.get('url', '')
+    default_if_none = kwargs.get('default_if_none', '')
+    value = _(str(kwargs.get('value', default_if_none)))
+    inherited = kwargs.get('inherited', '')
+    annualized = kwargs.get('annualized', '')
 
     if not label_text:
-        label_text = key.lower()
+        label_text = _(str(key.lower()))
 
-    difference = get_difference_css(differences, key) or 'title="{}"'.format(_(title))
+    difference = get_difference_css(differences, key, default_if_none) or 'title="{}"'.format(_(title))
     if url:
         value = "<a href='{url}'>{value}</a>".format(value=value, url=url)
 
+    if inherited == "PARTIM":
+        label_text += "<span title={inherited_title}> [H]</span>".format(inherited_title=_("inherited"))
+
+    if annualized:
+        label_text += "<span title={annualized_title}> [A]</span>".format(annualized_title=_("annualized"))
+
     return mark_safe("<dl><dt {difference}>{label_text}</dt><dd {difference}>{value}</dd></dl>".format(
-        difference=difference, label_text=_(label_text), value=value))
+        difference=difference, label_text=label_text, value=value))

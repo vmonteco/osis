@@ -25,6 +25,8 @@
 ##############################################################################
 from django import forms
 
+from osis_common.decorators.deprecated import deprecated
+
 
 class BootstrapModelForm(forms.ModelForm):
 
@@ -40,6 +42,7 @@ class BootstrapForm(forms.Form):
         set_form_control(self)
 
 
+@deprecated
 def set_form_control(self):
     for field in iter(self.fields):
         attr_class = self.fields[field].widget.attrs.get('class') or ''

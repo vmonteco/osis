@@ -25,32 +25,39 @@
 ##############################################################################
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db import IntegrityError
-from django.forms import formset_factory
-from django.shortcuts import get_object_or_404
+from django.contrib.messages import WARNING
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.learning_unit import SERVICE_COURSES_SEARCH, create_xls, get_last_academic_years, SIMPLE_SEARCH
+from base.business.learning_unit import create_xls
 from base.forms.common import TooManyResultsException
-from base.forms.learning_unit_create import MAX_RECORDS
-from base.forms.learning_units import LearningUnitYearForm
-from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalRowForm, ProposalListFormset
-from base.models.academic_year import current_academic_year
+from base.forms.learning_unit.search_form import LearningUnitYearForm
+from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalStateModelForm
+from base.models.academic_year import current_academic_year, get_last_academic_years
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.person import Person, find_by_user
+from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views import layout
-from base.views.common import check_if_display_message, display_error_messages, display_success_messages
+from base.views.common import check_if_display_message, display_error_messages, display_messages_by_level
 from base.business import learning_unit_proposal as proposal_business
 
+
+SIMPLE_SEARCH = 1
+SERVICE_COURSES_SEARCH = 2
 PROPOSAL_SEARCH = 3
 SUMMARY_LIST = 4
+BORROWED_COURSE = 5
+
+ACTION_BACK_TO_INITIAL = "back_to_initial"
+ACTION_CONSOLIDATE = "consolidate"
+ACTION_FORCE_STATE = "force_state"
 
 
-def _learning_units_search(request, search_type):
+def learning_units_search(request, search_type):
     service_course_search = search_type == SERVICE_COURSES_SEARCH
 
     form = LearningUnitYearForm(request.GET or None, service_course_search=service_course_search)
-
     found_learning_units = []
     try:
         if form.is_valid():
@@ -80,90 +87,65 @@ def _learning_units_search(request, search_type):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units(request):
-    return _learning_units_search(request, SIMPLE_SEARCH)
+    return learning_units_search(request, SIMPLE_SEARCH)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units_service_course(request):
-    return _learning_units_search(request, SERVICE_COURSES_SEARCH)
+    return learning_units_search(request, SERVICE_COURSES_SEARCH)
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+def learning_units_borrowed_course(request):
+    return learning_units_search(request, BORROWED_COURSE)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units_proposal_search(request):
     search_form = LearningUnitProposalForm(request.GET or None)
+    user_person = get_object_or_404(Person, user=request.user)
     proposals = []
+    research_criteria = []
     try:
         if search_form.is_valid():
+            research_criteria = search_form.get_research_criteria()
             proposals = search_form.get_proposal_learning_units()
-            check_if_display_message(request, proposals)
-
     except TooManyResultsException:
         display_error_messages(request, 'too_many_results')
 
-    if proposals:
-        proposals = _proposal_management(request, proposals)
-    a_person = find_by_user(request.user)
-    context = {
-        'form': search_form,
-        'academic_years': get_last_academic_years(),
-        'current_academic_year': current_academic_year(),
-        'experimental_phase': True,
-        'search_type': PROPOSAL_SEARCH,
-        'proposals': proposals,
-        'is_faculty_manager': a_person.is_faculty_manager()
-    }
+    if request.POST:
+        selected_proposals_id = request.POST.getlist("selected_action", default=[])
+        selected_proposals = ProposalLearningUnit.objects.filter(id__in=selected_proposals_id)
+        messages_by_level = apply_action_on_proposals(selected_proposals, user_person, request.POST, research_criteria)
+        display_messages_by_level(request, messages_by_level)
+        return redirect(reverse("learning_unit_proposal_search") + "?{}".format(request.GET.urlencode()))
+
+    check_if_display_message(request, proposals)
+    context = {'form': search_form, 'form_proposal_state': ProposalStateModelForm(),
+               'academic_years': get_last_academic_years(), 'current_academic_year': current_academic_year(),
+               'experimental_phase': True, 'search_type': PROPOSAL_SEARCH, 'proposals': proposals,
+               'is_faculty_manager': user_person.is_faculty_manager()}
 
     return layout.render(request, "learning_units.html", context)
 
 
-def _proposal_management(request, proposals):
-    list_proposal_formset = formset_factory(form=ProposalRowForm, formset=ProposalListFormset,
-                                            extra=len(proposals), max_num=MAX_RECORDS)
+def apply_action_on_proposals(proposals, author, post_data, research_criteria):
+    if not bool(proposals):
+        return {WARNING: [_("No proposals was selected.")]}
 
-    formset = list_proposal_formset(request.POST or None,
-                                    list_proposal_learning=proposals,
-                                    action=request.POST.get('action') if request.POST else None)
-    return process_formset(formset, request)
-
-
-def process_formset(formset, request):
-    if formset.is_valid():
-        if formset.action == 'back_to_initial':
-            formset = _go_back_to_initial_data(formset, request)
-        else:
-            _force_state(formset, request)
-    return formset
-
-
-def _go_back_to_initial_data(formset, request):
-    proposals_candidate_to_cancellation = formset.get_checked_proposals()
-    if proposals_candidate_to_cancellation:
-        formset = _cancel_proposals(formset, proposals_candidate_to_cancellation, request)
-    else:
-        _build_no_data_error_message(request)
-    return formset
-
-
-def _cancel_proposals(formset, proposals_to_cancel, request):
-    if proposals_to_cancel:
-        user_person = get_object_or_404(Person, user=request.user)
-        proposal_business.cancel_proposals(proposals_to_cancel, user_person)
-        display_success_messages(request, _("proposals_cancelled_successfully"))
-        formset = None
-    else:
-        _build_no_data_error_message(request)
-    return formset
-
-
-def _build_no_data_error_message(request):
-    display_error_messages(request, _("error_proposal_no_data"))
-
-
-def _force_state(formset, request):
-    try:
-        formset.save()
-        display_success_messages(request, _("proposal_edited_successfully"))
-    except IntegrityError:
-        display_error_messages(request, _("error_modification_learning_unit"))
+    action = post_data.get("action", "")
+    messages_by_level = {}
+    if action == ACTION_BACK_TO_INITIAL:
+        messages_by_level = proposal_business.cancel_proposals_and_send_report(proposals, author, research_criteria)
+    elif action == ACTION_CONSOLIDATE:
+        messages_by_level = proposal_business.consolidate_proposals_and_send_report(proposals, author,
+                                                                                    research_criteria)
+    elif action == ACTION_FORCE_STATE:
+        form = ProposalStateModelForm(post_data)
+        if form.is_valid():
+            new_state = form.cleaned_data.get("state")
+            messages_by_level = proposal_business.force_state_of_proposals(proposals, author, new_state)
+    return messages_by_level

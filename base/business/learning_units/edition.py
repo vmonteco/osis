@@ -26,19 +26,17 @@
 
 from django.db import IntegrityError, transaction, Error
 from django.db.models import F
-from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from base import models as mdl_base
 from base.business import learning_unit_year_with_context
-from base.business.learning_unit import compute_max_academic_year_adjournment
+from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.learning_units.simple.deletion import delete_from_given_learning_unit_year, \
     check_learning_unit_year_deletion
-from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.utils.model import update_instance_model_from_data, update_related_object
-from base import models as mdl_base
 from base.models import entity_component_year
 from base.models import entity_container_year, learning_component_year, learning_class_year, learning_unit_component
-from base.models.academic_year import AcademicYear
+from base.models.academic_year import AcademicYear, compute_max_academic_year_adjournment
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import EntityVersion
@@ -47,6 +45,7 @@ from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit_year import LearningUnitYear
 from base.views.learning_units.common import create_learning_unit_year_creation_message
+from cms.models import translated_text
 
 FIELDS_TO_EXCLUDE_WITH_REPORT = ("is_vacant", "type_declaration_vacant", "attribution_procedure")
 
@@ -68,6 +67,7 @@ def _update_learning_unit_year_end_date(learning_unit_to_edit, new_academic_year
         return extend_learning_unit(learning_unit_to_edit, new_academic_year)
     elif new_end_year < end_year:
         return shorten_learning_unit(learning_unit_to_edit, new_academic_year)
+    return []
 
 
 def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
@@ -101,8 +101,8 @@ def extend_learning_unit(learning_unit_to_edit, new_academic_year):
         new_academic_year = AcademicYear.objects.get(year=compute_max_academic_year_adjournment())
 
     with transaction.atomic():
-        for ac_year in _get_next_academic_years(learning_unit_to_edit, new_academic_year.year):
-            new_luy = _duplicate_learning_unit_year(last_learning_unit_year, ac_year)
+        for ac_year in get_next_academic_years(learning_unit_to_edit, new_academic_year.year):
+            new_luy = duplicate_learning_unit_year(last_learning_unit_year, ac_year)
             result.append(create_learning_unit_year_creation_message(new_luy, 'learning_unit_successfuly_created'))
 
     return result
@@ -127,10 +127,12 @@ def _update_end_year_field(lu, year):
     return _('learning_unit_updated').format(acronym=lu.acronym)
 
 
-def _duplicate_learning_unit_year(old_learn_unit_year, new_academic_year):
+def duplicate_learning_unit_year(old_learn_unit_year, new_academic_year):
     duplicated_luy = update_related_object(old_learn_unit_year, 'academic_year', new_academic_year)
     duplicated_luy.attribution_procedure = None
     duplicated_luy.learning_container_year = _duplicate_learning_container_year(duplicated_luy, new_academic_year)
+    _duplicate_bibliography(duplicated_luy)
+    _duplicate_cms_data(duplicated_luy)
     duplicated_luy.save()
     return duplicated_luy
 
@@ -211,6 +213,18 @@ def _duplicate_learning_class_year(new_component):
         update_related_object(old_learning_class, 'learning_component_year', new_component)
 
 
+def _duplicate_bibliography(duplicated_luy):
+    previous_bibliography = mdl_base.bibliography.find_by_learning_unit_year(duplicated_luy.copied_from)
+    for bib in previous_bibliography:
+        update_related_object(bib, 'learning_unit_year', duplicated_luy)
+
+
+def _duplicate_cms_data(duplicated_luy):
+    previous_cms_data = translated_text.find_by_reference(duplicated_luy.copied_from.id)
+    for item in previous_cms_data:
+        update_related_object(item, 'reference', duplicated_luy.id)
+
+
 def _check_shorten_partims(learning_unit_to_edit, new_academic_year):
     if not LearningUnitYear.objects.filter(
             learning_unit=learning_unit_to_edit, subtype=learning_unit_year_subtypes.FULL).exists():
@@ -240,7 +254,7 @@ def get_new_end_year(new_academic_year):
     return new_academic_year.year if new_academic_year else None
 
 
-def _get_next_academic_years(learning_unit_to_edit, year):
+def get_next_academic_years(learning_unit_to_edit, year):
     range_years = list(range(learning_unit_to_edit.end_year + 1, year + 1))
     return AcademicYear.objects.filter(year__in=range_years).order_by('year')
 
@@ -301,14 +315,21 @@ def check_postponement_conflict_report_errors(conflict_report):
         )
 
 
+# FIXME should used include and not exclude
 def _update_learning_unit_year(luy_to_update, fields_to_update, with_report):
     fields_to_exclude = ()
     if with_report:
         fields_to_exclude = FIELDS_TO_EXCLUDE_WITH_REPORT
 
-    update_instance_model_from_data(luy_to_update.learning_unit, fields_to_update)
-    update_instance_model_from_data(luy_to_update.learning_container_year, fields_to_update, exclude=fields_to_exclude)
-    update_instance_model_from_data(luy_to_update, fields_to_update, exclude=fields_to_exclude)
+    update_instance_model_from_data(luy_to_update.learning_unit, fields_to_update, exclude=('acronym',))
+
+    # Only the subtype FULL can edit the container
+    if luy_to_update.subtype == learning_unit_year_subtypes.FULL:
+        update_instance_model_from_data(luy_to_update.learning_container_year, fields_to_update,
+                                        exclude=fields_to_exclude)
+
+    update_instance_model_from_data(luy_to_update, fields_to_update,
+                                    exclude=fields_to_exclude + ("in_charge",))
 
 
 def _update_learning_unit_year_entities(luy, entities_by_type_to_update):

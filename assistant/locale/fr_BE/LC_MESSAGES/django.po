@@ -40,6 +40,9 @@ msgstr "Ajouter une unité d'enseignement"
 msgid "address"
 msgstr "Adresse"
 
+msgid "administrative_data"
+msgstr "Données administratives"
+
 msgid "advice"
 msgstr "Avis"
 
@@ -109,6 +112,9 @@ msgstr "Prix et/ou distinction(s)"
 msgid "bad_filename"
 msgstr "Le nom du fichier ne peut pas contenir : ( ) % $ , ; : / = +"
 
+msgid "bad_person_msg"
+msgstr "Veuillez sélectionner une personne dans la liste après avoir effectué une recherche"
+
 msgid "beginning"
 msgstr "Début"
 
@@ -150,6 +156,9 @@ msgstr "Êtes-vous certain de vouloir accepter la demande de renouvellement ? Ce
 
 msgid "confirm_decline"
 msgstr "Êtes-vous certain de vouloir décliner la demande de renouvellement ? Cette action est irréversible."
+
+msgid "confirm_mandate_step_back"
+msgstr "Êtes-vous certain de vouloir reculer d'une étape ? Cette action est irréversible."
 
 msgid "confirm_removal"
 msgstr "Êtes-vous certain de vouloir supprimer ce cours ?"
@@ -671,6 +680,9 @@ msgstr "Spécial"
 msgid "startup_precedure"
 msgstr "Procédure de démarrage"
 
+msgid "step_back"
+msgstr "Effectuer un retour en arrière d'une étape dans le workflow"
+
 msgid "students_service"
 msgstr "Informations aux futurs étudiants (CIO, salons, Campus Days, Midi Masters...)"
 
@@ -773,6 +785,9 @@ msgstr "DAS/CAS"
 
 msgid "view"
 msgstr "Voir"
+
+msgid "workflow_and_reviews"
+msgstr "Workflow et évaluations"
 
 msgid "yes"
 msgstr "Oui"

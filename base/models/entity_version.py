@@ -228,7 +228,7 @@ def find(acronym, date=None):
 
 
 def find_latest_version(date):
-    return EntityVersion.objects.current(date).order_by('-start_date')
+    return EntityVersion.objects.current(date).select_related('entity').order_by('-start_date')
 
 
 def get_last_version(entity, date=None):
@@ -289,9 +289,7 @@ def count(**kwargs):
     return search(**kwargs).count()
 
 
-def search_entities(acronym=None, title=None, type=None, with_entity=None):
-    if not acronym and not title and not type:
-        return
+def search_entities(acronym=None, title=None, entity_type=None, with_entity=None):
     queryset = EntityVersion.objects
     if with_entity:
         queryset = queryset.select_related('entity__organization')
@@ -300,8 +298,8 @@ def search_entities(acronym=None, title=None, type=None, with_entity=None):
         queryset = queryset.filter(acronym__icontains=acronym)
     if title:
         queryset = queryset.filter(title__icontains=title)
-    if type:
-        queryset = queryset.filter(entity_type=type)
+    if entity_type:
+        queryset = queryset.filter(entity_type=entity_type)
 
     return queryset
 
@@ -344,9 +342,58 @@ def _match_dates(osis_date, esb_date):
         return osis_date.strftime('%Y-%m-%d') == esb_date
 
 
-def find_main_entities_version():
+def find_all_current_entities_version():
     now = datetime.datetime.now(get_tzinfo())
-    return find_latest_version(date=now).filter(
+    return find_latest_version(date=now)
+
+
+def build_current_entity_version_structure_in_memory(date=None):
+    if date:
+        all_current_entities_version = find_latest_version(date=date)
+    else:
+        all_current_entities_version = find_all_current_entities_version()
+    entity_version_by_entity_id = _build_entity_version_by_entity_id(all_current_entities_version)
+    direct_children_by_entity_version_id = _build_direct_children_by_entity_version_id(entity_version_by_entity_id)
+    all_children_by_entity_version_id = _build_all_children_by_entity_version_id(direct_children_by_entity_version_id)
+
+    entity_versions = {}
+    for entity_version in all_current_entities_version:
+        entity_versions[entity_version.entity_id] = {
+            'entity_version_parent': entity_version_by_entity_id.get(entity_version.parent_id),
+            'direct_children': direct_children_by_entity_version_id.get(entity_version.id, []),
+            'all_children': all_children_by_entity_version_id.get(entity_version.id, []),
+        }
+    return entity_versions
+
+
+def _build_entity_version_by_entity_id(versions):
+    return {version.entity_id: version for version in versions}
+
+
+def _build_direct_children_by_entity_version_id(entity_version_by_entity_id):
+    direct_children_by_entity_version_id = {}
+    for entity_version in entity_version_by_entity_id.values():
+        entity_version_parent = entity_version_by_entity_id.get(entity_version.parent_id)
+        entity_version_parent_id = entity_version_parent.id if entity_version_parent else None
+        direct_children_by_entity_version_id.setdefault(entity_version_parent_id, []).append(entity_version)
+    return direct_children_by_entity_version_id
+
+
+def _build_all_children_by_entity_version_id(direct_children_by_entity_version_id):
+    return {entity_version_id: _get_all_children(entity_version_id, direct_children_by_entity_version_id)
+            for entity_version_id in direct_children_by_entity_version_id.keys()}
+
+
+def _get_all_children(entity_version_id, direct_children_by_entity_version_id):
+    all_children = []
+    for entity_version in direct_children_by_entity_version_id.get(entity_version_id, []):
+        all_children.extend(_get_all_children(entity_version.id, direct_children_by_entity_version_id))
+        all_children.append(entity_version)
+    return all_children
+
+
+def find_main_entities_version():
+    return find_all_current_entities_version().filter(
         entity_type__in=MAIN_ENTITY_TYPE, entity__organization__type=MAIN).order_by('acronym')
 
 
@@ -362,3 +409,10 @@ def find_last_entity_version_by_learning_unit_year_id(learning_unit_year_id):
             latest('start_date')
     except EntityVersion.DoesNotExist:
         return None
+
+
+def search_by_acronyms(entities):
+    q = Q()
+    for entity in entities:
+        q |= Q(acronym__icontains=entity.acronym)
+    return EntityVersion.objects.filter(q)

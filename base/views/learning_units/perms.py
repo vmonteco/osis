@@ -77,24 +77,12 @@ def can_edit_learning_unit_proposal(view_func):
 
 def can_perform_cancel_proposal(view_func):
     def f_can_perform_cancel_proposal(request, learning_unit_year_id):
-        learn_unit_year = get_object_or_404(learning_unit_year.LearningUnitYear, pk=learning_unit_year_id)
-        learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learn_unit_year)
+        learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year__id=learning_unit_year_id)
         pers = get_object_or_404(person.Person, user=request.user)
         if not business_perms.is_eligible_for_cancel_of_proposal(learning_unit_proposal, pers):
             raise PermissionDenied("Learning unit proposal cannot be cancelled.")
         return view_func(request, learning_unit_year_id)
     return f_can_perform_cancel_proposal
-
-
-def can_perform_consolidation_of_proposal(view_func):
-    def f_can_perform_consolidation_of_proposal(request, learning_unit_year_id):
-        learn_unit_year = get_object_or_404(learning_unit_year.LearningUnitYear, pk=learning_unit_year_id)
-        learning_unit_proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year=learn_unit_year)
-        pers = get_object_or_404(person.Person, user=request.user)
-        if not business_perms.is_eligible_to_consolidate_proposal(learning_unit_proposal, pers):
-            raise PermissionDenied("Learning unit proposal cannot be consolidated.")
-        return view_func(request, learning_unit_year_id)
-    return f_can_perform_consolidation_of_proposal
 
 
 def can_perform_end_date_modification(view_func):
@@ -115,3 +103,13 @@ def can_perform_learning_unit_modification(view_func):
             raise PermissionDenied("Learning unit year cannot be modified.")
         return view_func(request, learning_unit_year_id, *args, **kwargs)
     return f_can_perform_learning_unit_modification
+
+
+def can_update_learning_achievement(view_func):
+    def f_can_update_learning_achievement(request, learning_unit_year_id, *args, **kwargs):
+        learn_unit_year = get_object_or_404(learning_unit_year.LearningUnitYear, pk=learning_unit_year_id)
+        pers = get_object_or_404(person.Person, user=request.user)
+        if not business_perms.can_update_learning_achievement(learn_unit_year, pers):
+            raise PermissionDenied("The user is not linked to the learning unit year")
+        return view_func(request, learning_unit_year_id, *args, **kwargs)
+    return f_can_update_learning_achievement
