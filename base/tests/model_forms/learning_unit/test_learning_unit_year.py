@@ -208,7 +208,7 @@ class TestLearningUnitYearModelFormSave(TestCase):
         self.assertEqual(luy, self.learning_unit_year_to_update)
 
     def test_warnings_credit(self):
-        LearningUnitYearFactory(learning_container_year=self.learning_container_year, subtype=PARTIM,
+        partim = LearningUnitYearFactory(learning_container_year=self.learning_container_year, subtype=PARTIM,
                                          credits=120)
 
         self.post_data['credits'] = 60
@@ -216,5 +216,6 @@ class TestLearningUnitYearModelFormSave(TestCase):
                                          instance=self.learning_unit_year_to_update)
         self.assertTrue(form.is_valid(), form.errors)
 
-        self.assertEqual(form.warnings, ["Le nombre de crédits du partim LFAC0001 est supérieur ou égal "
-                                         "à celui de l'unité d'enseignement parent"])
+        self.assertEqual(form.warnings, [_("The credits value of the partim %(acronym)s is greater or "
+                                           "equal than the credits value of the parent learning unit.") % {
+            'acronym':partim.acronym}])
