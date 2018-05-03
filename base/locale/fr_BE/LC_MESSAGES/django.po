@@ -2866,6 +2866,9 @@ msgstr "Recherche - Cours empruntés"
 msgid "add_another"
 msgstr "Ajouter un autre"
 
+msgid "faculty_borrowing"
+msgstr "Faculté emprunteuse"
+
 msgid "inherited"
 msgstr "Hérité"
 
