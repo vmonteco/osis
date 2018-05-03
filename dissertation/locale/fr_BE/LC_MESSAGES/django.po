@@ -391,6 +391,9 @@ msgstr "Exporter la recherche en XLS"
 msgid "first_name"
 msgstr "Prénom"
 
+msgid "filtre_by_offer"
+msgstr "filtre par programme"
+
 msgid "for_managers"
 msgstr "Pour les gesionnaires"
 
