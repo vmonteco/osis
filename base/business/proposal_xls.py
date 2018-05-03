@@ -29,9 +29,10 @@ from django.utils.translation import ugettext_lazy as _
 from osis_common.document import xls_build
 from base.business.learning_unit import get_name_or_username, get_entity_acronym
 
-PROPOSAL_TITLES = [str(_('requirement_entity_small')), str(_('code')), str(_('title')), str(_('type')), str(_('proposal_type')),
-         str(_('proposal_status')), str(_('folder_num')), str(_('type_declaration_vacant')), str(_('periodicity')),
-         str(_('credits')), str(_('allocation_entity_small')), str(_('proposal_date'))]
+PROPOSAL_TITLES = [str(_('requirement_entity_small')), str(_('code')), str(_('title')), str(_('type')),
+                   str(_('proposal_type')), str(_('proposal_status')), str(_('folder_num')),
+                   str(_('type_declaration_vacant')), str(_('periodicity')), str(_('credits')),
+                   str(_('allocation_entity_small')), str(_('proposal_date'))]
 
 
 def prepare_xls_content(proposals):
