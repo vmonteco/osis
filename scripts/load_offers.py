@@ -1,4 +1,5 @@
 # retrieve the data from json
+import collections
 import json
 import pathlib
 from functools import partial
@@ -17,6 +18,7 @@ from base.models.education_group_year import EducationGroupYear
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from cms.models.text_label import TextLabel
 from cms.models.translated_text import TranslatedText
+from cms.models.translated_text_label import TranslatedTextLabel
 
 
 def new_div(html_content, class_name):
@@ -119,6 +121,7 @@ def CLASS(*args):
 def generate_html_for_contacts(contacts):
     """Generate l'HTML pour la page des contacts"""
     calls = (
+        render_entity_code,
         render_responsible,
         partial(render_members, section='other_responsibles', class_name='responsibles'),
         partial(render_members, section='jury'),
@@ -141,14 +144,25 @@ def render_responsible(contacts):
     </div>
     """
     responsible = contacts.get('responsible')
+    print(responsible)
     if responsible:
         return E.div(
             E.ul(
                 E.li(
-                    E.a(responsible['name'], href=responsible['url'])
+                    # E.a(responsible[''], href=responsible['url'])
+                    "#contact:{0}:{1}#".format(responsible.get('title', ''), responsible['metadata']['foaf:mbox'].replace('mailto:', ''))
                 )
             ),
             CLASS('contacts_responsible')
+        )
+    return None
+
+def render_entity_code(contacts):
+    entity_code = contacts.get('entity_code')
+    if entity_code:
+        return E.div(
+            entity_code,
+            CLASS('contacts_entity_code')
         )
     return None
 
@@ -169,7 +183,11 @@ def render_members(contacts, section, class_name=None):
 
     class_name = section if class_name is None else class_name
 
-    apply = lambda member: E.li(member['title'] + ' ', E.a(member['name'], href=member['url']))
+    def apply(member):
+        title = member.get('title', '')
+        mbox = member['metadata']['foaf:mbox'].replace('mailto:', '')
+        contact = "#contact:{0}:{1}#".format(title, mbox)
+        return E.li(contact)
 
     if members:
         return E.div(
@@ -291,6 +309,29 @@ def find_education_group_year_for_offer(item):
     return records.first()
 
 
+LABEL_TEXTUALS = [
+    (settings.LANGUAGE_CODE_FR, 'comp_acquis', 'Compétences et Acquis'),
+    (settings.LANGUAGE_CODE_FR, 'pedagogie', 'Pédagogie'),
+    (settings.LANGUAGE_CODE_FR, 'contacts', 'Contacts'),
+    (settings.LANGUAGE_CODE_FR, 'mobilite', 'Mobilité'),
+    (settings.LANGUAGE_CODE_FR, 'formations_accessibles', 'Formations Accessibles'),
+    (settings.LANGUAGE_CODE_FR, 'certificats', 'Certificats'),
+    (settings.LANGUAGE_CODE_FR, 'module_complementaire', 'Module Complémentaire'),
+    (settings.LANGUAGE_CODE_FR, 'evaluation', 'Évaluation'),
+    (settings.LANGUAGE_CODE_FR, 'structure', 'Structure'),
+]
+
+MAPPING_LABEL_TEXTUAL = collections.defaultdict(dict)
+
+for language, key, term in LABEL_TEXTUALS:
+    MAPPING_LABEL_TEXTUAL[language][key] = term
+
+def find_translated_label(language, label):
+    if language in MAPPING_LABEL_TEXTUAL and label in MAPPING_LABEL_TEXTUAL[language]:
+        return MAPPING_LABEL_TEXTUAL[language][label]
+    else:
+        return label.title()
+
 def run(filename, language='fr-be'):
     """
     Import the json file,
@@ -318,10 +359,13 @@ def run(filename, language='fr-be'):
 
     labels = set(chain.from_iterable(o.get('info', {}).keys() for o in items))
 
-    mapping_label_text_label = {
-        label: get_text_label(entity, label)
-        for label in labels
-    }
+    mapping_label_text_label = {}
+    for label in labels:
+        text_label = get_text_label(entity, label)
+
+        TranslatedTextLabel.objects.get_or_create(text_label=text_label, language=language, label=find_translated_label(language, label))
+
+        mapping_label_text_label[label] = text_label
 
     for item in items:
         if 'info' not in item:
