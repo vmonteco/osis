@@ -2882,3 +2882,7 @@ msgstr "Xls with proposals"
 
 msgid "proposal_date"
 msgstr "Proposals date"
+
+msgid "search_type"
+msgstr "Search type"
+

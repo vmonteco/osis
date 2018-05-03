@@ -2888,3 +2888,6 @@ msgstr "Xls avec les propositions"
 
 msgid "proposal_date"
 msgstr "Date proposition"
+
+msgid "search_type"
+msgstr "Type de recherche"

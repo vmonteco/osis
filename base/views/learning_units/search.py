@@ -70,11 +70,10 @@ def learning_units_search(request, search_type):
     except TooManyResultsException:
         messages.add_message(request, messages.ERROR, _('too_many_results'))
 
-    if search_type == SIMPLE_SEARCH:
-        if request.GET.get('xls_status') == "xls":
-            return create_xls(request.user, found_learning_units, _get_filter(form))
-        if request.GET.get('xls_status') == "xls_attribution":
-            return create_xls_attribution(request.user, found_learning_units, _get_filter(form))
+    if request.GET.get('xls_status') == "xls":
+        return create_xls(request.user, found_learning_units, _get_filter(form, search_type))
+    if request.GET.get('xls_status') == "xls_attribution":
+        return create_xls_attribution(request.user, found_learning_units, _get_filter(form, search_type))
 
     a_person = find_by_user(request.user)
     context = {'form': form, 'academic_years': get_last_academic_years(),
@@ -118,7 +117,7 @@ def learning_units_proposal_search(request):
         display_error_messages(request, 'too_many_results')
 
     if request.GET.get('xls_status') == "xls":
-        return create_xls_proposal(request.user, proposals, _get_filter(search_form))
+        return create_xls_proposal(request.user, proposals, _get_filter(search_form, PROPOSAL_SEARCH))
 
     if request.POST:
         selected_proposals_id = request.POST.getlist("selected_action", default=[])
@@ -160,10 +159,22 @@ def apply_action_on_proposals(proposals, author, post_data, research_criteria):
     return messages_by_level
 
 
-def _get_filter(form):
+def _get_filter(form, search_type):
     form_data = form.cleaned_data
     filter_data = {}
     for key, value in form_data.items():
         if value:
             filter_data.update({form[key].label: value})
+    if search_type:
+        filter_data.update({_('search_type'): _get_search_type_label(search_type)})
     return filter_data
+
+
+def _get_search_type_label(search_type):
+    if search_type == PROPOSAL_SEARCH:
+        return _('proposals_search')
+    if search_type == SERVICE_COURSES_SEARCH:
+        return _('service_course_search')
+    if search_type == BORROWED_COURSE:
+        return _('borrowed_course_search')
+    return _('activity_search')
