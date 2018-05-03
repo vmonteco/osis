@@ -24,19 +24,18 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
+from django.db.models import Count
 
-from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
-    diploma_printing_orientation, active_status, duration_unit
+from base.models import entity_version as mdl_entity_version
 from base.models import offer_year_domain as mdl_offer_year_domain, education_group_organization
 from base.models import offer_year_entity as mdl_offer_year_entity
-from base.models import entity_version as mdl_entity_version
+from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
+    diploma_printing_orientation, active_status, duration_unit
 from base.models.enums import education_group_association
-from base.models.enums import offer_year_entity_type
 from base.models.enums import education_group_categories
+from base.models.enums import offer_year_entity_type
 from base.models.exceptions import MaximumOneParentAllowedException
 from base.models.osis_model_admin import OsisModelAdmin
-from django.db.models import Count, Q
 
 
 class EducationGroupYearAdmin(OsisModelAdmin):

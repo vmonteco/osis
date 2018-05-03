@@ -2711,11 +2711,8 @@ msgstr "Intitulé officiel en anglais propre au partim"
 msgid "Educational information submission dates updated"
 msgstr "Date de soumission des informations pédagogiques mis à jour"
 
-msgid "partim_credits_gt_parent_credits"
-msgstr "Le nombre de crédits est supérieur à celui de l'unité d'enseignement"
-
-msgid "partim_credits_equals_parent_credits"
-msgstr "Le nombre de crédits est égal à celui de l'unité d'enseignement"
+msgid "partim_credits_gte_parent_credits"
+msgstr "Le nombre de crédits du partim est supérieur ou égal à celui de l'unité d'enseignement parent"
 
 msgid "The learning unit has been updated until %(year)s."
 msgstr "L'unité d'enseignement a été modifiée jusqu'en %(year)s."
@@ -2871,3 +2868,7 @@ msgstr "Hérité"
 
 msgid "annualized"
 msgstr "Annualisé"
+
+msgid "The linked entity does not exist at the start date of the academic year linked to this learning unit"
+msgstr "L'entité liée n'existe pas à la date de début de l'année académique liée à cette unité d'enseignement"
+

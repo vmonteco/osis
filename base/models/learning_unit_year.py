@@ -83,7 +83,7 @@ class LearningUnitYear(SerializableModel):
                                               verbose_name=_('official_english_title_proper_to_UE'))
     subtype = models.CharField(max_length=50, choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
                                default=learning_unit_year_subtypes.FULL)
-    credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True,
+    credits = models.DecimalField(max_digits=5, decimal_places=2, null=True,
                                   validators=[MinValueValidator(MINIMUM_CREDITS), MaxValueValidator(MAXIMUM_CREDITS)])
     decimal_scores = models.BooleanField(default=False)
     structure = models.ForeignKey('Structure', blank=True, null=True)
@@ -235,7 +235,6 @@ class LearningUnitYear(SerializableModel):
         self.clean_acronym(learning_unit_years)
         self.clean_internship_subtype()
         self.clean_status()
-        self.clean_credits()
 
     def clean_internship_subtype(self):
         if getattr(self, 'learning_container_year', None):
@@ -254,17 +253,11 @@ class LearningUnitYear(SerializableModel):
         if self.parent:
             if not self.parent.status and self.status:
                 raise ValidationError({'status', _('The partim must be inactive because the parent is inactive')})
+        else:
+            if self.status is False and find_partims_with_active_status(self).exists():
+                raise ValidationError(
+                    {'status', _("There is at least one partim active, so the parent must be active")})
 
-    def clean_credits(self):
-        # TODO :: Create non null constraint in DB (how to manage external learning units with credits==Null?)
-        if not self.credits:
-            raise ValidationError({'credits': _('field_is_required')})
-        if not self.parent:
-            return
-        if self.credits > self.parent.credits:
-            raise ValidationError({'credits': _('partim_credits_gt_parent_credits')})
-        elif self.credits == self.parent.credits:
-            raise ValidationError({'credits':  _('partim_credits_equals_parent_credits')})
 
 
 def get_by_id(learning_unit_year_id):
@@ -376,6 +369,10 @@ def check_if_acronym_regex_is_valid(acronym):
 
 def find_max_credits_of_related_partims(a_learning_unit_year):
     return a_learning_unit_year.get_partims_related().aggregate(max_credits=models.Max("credits"))["max_credits"]
+
+
+def find_partims_with_active_status(a_learning_unit_year):
+    return a_learning_unit_year.get_partims_related().filter(status=True)
 
 
 def find_by_learning_unit(a_learning_unit):
