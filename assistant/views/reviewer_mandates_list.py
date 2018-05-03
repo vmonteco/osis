@@ -35,6 +35,7 @@ from assistant.business.users_access import user_is_reviewer_and_procedure_is_op
 from assistant.business.mandate_entity import add_entities_version_to_mandates_list
 from assistant.models import assistant_mandate
 from assistant.models import reviewer, mandate_entity
+from assistant.models.enums import review_status
 from assistant.forms import MandatesArchivesForm
 
 
@@ -99,6 +100,7 @@ class MandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMi
         context['supervision_list'] = supervision_list
         context['vice_rector_list'] = vice_rector_list
         context['is_supervisor'] = self.is_supervisor
+        context['review_status'] = review_status
         context['filter'] = self.kwargs.get("filter", None)
         context['year'] = academic_year.find_academic_year_by_id(
             self.request.session.get('selected_academic_year')).year
