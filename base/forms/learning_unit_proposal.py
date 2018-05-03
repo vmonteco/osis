@@ -132,10 +132,9 @@ class ProposalBaseForm:
         # First save to calculate ProposalType
         proposal = self.form_proposal.save()
         self.learning_unit_form_container.save()
-        proposal.type = compute_proposal_type(proposal)
+        learning_unit_year = self.learning_unit_form_container.instance
+        proposal.type = compute_proposal_type(proposal, learning_unit_year)
         proposal.save()
-
-        self.learning_unit_form_container.save()
         return proposal
 
     def _get_initial(self):
