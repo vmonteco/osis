@@ -388,6 +388,9 @@ msgstr "First year evaluation"
 msgid "export_search_as_xls"
 msgstr "Export search as XLS"
 
+msgid "filtre_by_offer"
+msgstr "filter by offer"
+
 msgid "first_name"
 msgstr "First name"
 

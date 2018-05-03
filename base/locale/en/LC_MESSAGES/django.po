@@ -2859,6 +2859,9 @@ msgstr "Borrowed courses - search"
 msgid "add_another"
 msgstr "Add another"
 
+msgid "faculty_borrowing"
+msgstr "Faculty borrowing"
+
 msgid "inherited"
 msgstr "Inherited"
 

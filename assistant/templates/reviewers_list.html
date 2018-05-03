@@ -55,7 +55,7 @@
         <tbody>
         {% for reviewer in reviewers_formset %}
             <tr>
-            <td>{{ reviewer.person.value }}{{ reviewer.access }}</td>
+            <td>{{ reviewer.person.value.last_name|upper }} {{ reviewer.person.value.first_name }}{{ reviewer.access }}</td>
             <td>{{ reviewer.entity_version.value.acronym }} - {{ reviewer.entity_version.value.title }}</td>
             <td>{% trans reviewer.role.value %}</td>
             <td>{{ reviewer.action }}</td>

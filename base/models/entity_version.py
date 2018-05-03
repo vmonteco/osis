@@ -362,6 +362,7 @@ def build_current_entity_version_structure_in_memory(date=None):
             'entity_version_parent': entity_version_by_entity_id.get(entity_version.parent_id),
             'direct_children': direct_children_by_entity_version_id.get(entity_version.id, []),
             'all_children': all_children_by_entity_version_id.get(entity_version.id, []),
+            'entity_version': entity_version
         }
     return entity_versions
 
