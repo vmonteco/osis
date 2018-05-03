@@ -169,10 +169,13 @@ class LearningUnitYearModelForm(forms.ModelForm):
 
     @property
     def warnings(self):
-        if self._warnings is None:
-            self._warnings = []
-            if self.instance.parent and self.instance.credits >= self.instance.parent.credits:
-                self._warnings.append(_('partim_credits_gte_parent_credits'))
+        if self._warnings is None and self.instance:
+            parent = self.instance.parent or self.instance
+            children = self.instance.get_partims_related() or [self.instance]
+            self._warnings = [
+                _('The credits value of the partim %(acronym)s is greater or equal than the credits value of the '
+                  'parent learning unit.') % {'acronym': child.acronym}
+                for child in children if child.credits >= parent.credits]
 
         return self._warnings
 
@@ -190,6 +193,7 @@ class LearningUnitYearPartimModelForm(LearningUnitYearModelForm):
 
 class EntityContainerYearModelForm(forms.ModelForm):
     entity = EntitiesVersionChoiceField(find_main_entities_version())
+    entity_version = None
 
     def __init__(self, *args, **kwargs):
         self.entity_type = kwargs.pop('entity_type')
@@ -247,6 +251,7 @@ class EntityContainerYearModelForm(forms.ModelForm):
 
     def clean_entity(self):
         ev_data = self.cleaned_data['entity']
+        self.entity_version = ev_data
         return ev_data.entity if ev_data else None
 
     def save(self, **kwargs):
@@ -296,16 +301,21 @@ class EntityContainerYearFormset(forms.BaseInlineFormSet):
             (ENTITY_TYPE_LIST[index].lower(), form.fields['entity']) for index, form in enumerate(self.forms)
         )
 
-    def post_clean(self, container_type, start_date):
+    def post_clean(self, container_type, academic_year):
         for form in self.forms:
-            form.post_clean(start_date)
+            form.post_clean(academic_year.start_date)
 
-        requirement_entity = self.get_clean_data_entity('requirement_entity')
-        allocation_entity = self.get_clean_data_entity('allocation_entity')
+        requirement_entity_version = self.forms[0].entity_version
+        allocation_entity_version = self.forms[1].entity_version
+        requirement_faculty = requirement_entity_version.find_faculty_version(academic_year)
+        allocation_faculty = allocation_entity_version.find_faculty_version(academic_year)
 
         if container_type in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES:
-            if requirement_entity != allocation_entity:
-                self.forms[1].add_error("entity", _("requirement_and_allocation_entities_cannot_be_different"))
+            if requirement_faculty != allocation_faculty:
+                self.forms[1].add_error(
+                    "entity", _("Requirement and allocation entities must be linked to the same "
+                                "faculty for this learning unit type.")
+                )
 
         return not any(form.errors for form in self.forms)
 
