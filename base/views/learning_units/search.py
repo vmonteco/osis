@@ -69,26 +69,7 @@ def learning_units_search(request, search_type):
     except TooManyResultsException:
         messages.add_message(request, messages.ERROR, _('too_many_results'))
 
-    if search_type == SIMPLE_SEARCH:
-        if request.GET.get('xls_status') == "xls":
-            return create_xls(request.user, found_learning_units, _get_filter(form))
-
-        if request.GET.get('xls_status') == "xls_attribution":
-            return create_xls_attribution(request.user, found_learning_units, _get_filter(form))
-
-    a_person = find_by_user(request.user)
-    context = {
-        'form': form,
-        'academic_years': get_last_academic_years(),
-        'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
-        'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
-        'learning_units': found_learning_units,
-        'current_academic_year': current_academic_year(),
-        'experimental_phase': True,
-        'search_type': search_type,
-        'is_faculty_manager': a_person.is_faculty_manager()
-    }
-    return layout.render(request, "learning_units.html", context)
+    return search_action(form, found_learning_units, request, search_type)
 
 
 @login_required
@@ -168,3 +149,25 @@ def _get_filter(form):
         if value:
             filter_data.update({form[key].label: value})
     return filter_data
+
+
+def search_action(form, found_learning_units, request, search_type):
+    if search_type == SIMPLE_SEARCH:
+        if request.GET.get('xls_status') == "xls":
+            return create_xls(request.user, found_learning_units, _get_filter(form))
+        if request.GET.get('xls_status') == "xls_attribution":
+            return create_xls_attribution(request.user, found_learning_units, _get_filter(form))
+
+    a_person = find_by_user(request.user)
+    context = {
+        'form': form,
+        'academic_years': get_last_academic_years(),
+        'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
+        'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
+        'learning_units': found_learning_units,
+        'current_academic_year': current_academic_year(),
+        'experimental_phase': True,
+        'search_type': search_type,
+        'is_faculty_manager': a_person.is_faculty_manager()
+    }
+    return layout.render(request, "learning_units.html", context)
