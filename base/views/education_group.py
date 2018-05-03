@@ -29,6 +29,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
+from django.db.models import Prefetch
 from django.forms import forms
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
@@ -50,6 +51,7 @@ from base.models.enums import education_group_categories
 from cms import models as mdl_cms
 from cms.enums import entity_name
 from cms.models import text_label
+from cms.models.text_label import TextLabel
 from . import layout
 
 CODE_SCS = 'code_scs'
@@ -335,7 +337,13 @@ def education_group_year_pedagogy_edit(request, education_group_year_id):
 
     label_name = request.GET.get('label')
     language = request.GET.get('language')
-    text_lb = text_label.find_root_by_name(label_name)
+
+    def find_root_by_name(text_label_name):
+        return TextLabel.objects.prefetch_related(
+            Prefetch('translatedtextlabel_set', to_attr="translated_text_labels")
+        ).get(label=text_label_name, parent__isnull=True)
+
+    text_lb = find_root_by_name(label_name)
     form = EducationGroupPedagogyEditForm(**{
         'education_group_year': context['education_group_year'],
         'language': language,
