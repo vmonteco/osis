@@ -212,7 +212,7 @@ CKEDITOR_CONFIGS = {
     'reddot': {
         "removePlugins": "stylesheetparser",
         'allowedContent': True,
-        'extraAllowedContent': 'div(reddot_*)',
+        'extraAllowedContent': 'div(reddot_*,contacts_*)',
         'extraPlugins': 'reddot',
         'stylesSet': [
             define_style_sheet('Intro', 'reddot_intro'),
@@ -222,6 +222,10 @@ CKEDITOR_CONFIGS = {
             define_style_sheet('Body', 'reddot_body'),
             define_style_sheet('Part1', 'reddot_part1'),
             define_style_sheet('Part2', 'reddot_part2'),
+            define_style_sheet('Contact Responsible', 'contacts_responsible'),
+            define_style_sheet('Contact Other Responsibles', 'contacts_responsibles'),
+            define_style_sheet('Contact Jury', 'contacts_jury'),
+            define_style_sheet('Contact Contact', 'contacts_contact'),
         ],
         'toolbar': 'Custom',
         'toolbar_Custom': [
@@ -234,7 +238,7 @@ CKEDITOR_CONFIGS = {
     'default': {
         "removePlugins": "stylesheetparser",
         'allowedContent': True,
-        'extraAllowedContent': 'div(reddot_*)',
+        'extraAllowedContent': 'div(reddot_*,contacts_*)',
         'extraPlugins': 'reddot',
         'toolbar': 'Custom',
         'toolbar_Custom': [
@@ -260,6 +264,11 @@ CKEDITOR_CONFIGS = {
             define_style_sheet('Body', 'reddot_body'),
             define_style_sheet('Part1', 'reddot_part1'),
             define_style_sheet('Part2', 'reddot_part2'),
+            define_style_sheet('Contact Responsible', 'contacts_responsible'),
+            define_style_sheet('Contact Other Responsibles', 'contacts_responsibles'),
+            define_style_sheet('Contact Jury', 'contacts_jury'),
+            define_style_sheet('Contact Contact', 'contacts_contact'),
+
         ],
     },
     'minimal': {
