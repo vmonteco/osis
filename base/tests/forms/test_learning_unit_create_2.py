@@ -331,7 +331,8 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
         allocation_entity.start_date = self.learning_unit_year.academic_year.start_date + relativedelta(years=2)
         allocation_entity.save()
 
-        form = _instanciate_form(post_data=self.post_data, person=self.person, instance=self.learning_unit_year)
+        form = _instanciate_form(self.learning_unit_year.academic_year, post_data=self.post_data, person=self.person,
+                                 learning_unit_instance=self.learning_unit_year.learning_unit)
         self.assertFalse(form.is_valid(), form.errors)
 
 
