@@ -120,7 +120,7 @@ class LearningUnit(SerializableModel):
             return LearningUnit.objects.filter(
                 learningunityear__subtype=FULL, learning_container=self.learning_container
             ).last()
-        return self
+        return None
 
     @property
     def children(self):
@@ -130,11 +130,11 @@ class LearningUnit(SerializableModel):
             return LearningUnit.objects.filter(
                 learningunityear__subtype=PARTIM, learning_container=self.learning_container
             )
-        return [self]
+        return []
 
     def clean(self):
-        parent = self.parent
-        children = self.children
+        parent = self.parent or self
+        children = self.children or [self]
 
         if parent.periodicity == ANNUAL:
             return

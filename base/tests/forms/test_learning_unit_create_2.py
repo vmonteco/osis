@@ -24,10 +24,10 @@
 #
 ##############################################################################
 import datetime
-from datetime import datetime
 from unittest import mock
 
 from django.test import TestCase
+from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
@@ -38,7 +38,10 @@ from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import EntityVersion
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, organization_type
+from base.models.enums.entity_type import FACULTY
+from base.models.enums.learning_container_year_types import MASTER_THESIS
 from base.models.enums.learning_unit_periodicity import ANNUAL
+from base.models.enums.organization_type import MAIN
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_container import LearningContainer
 from base.models.learning_container_year import LearningContainerYear
@@ -146,13 +149,13 @@ class TestFullFormInit(LearningUnitFullFormContextMixin):
     def test_disable_fields_full(self):
 
         form = FullForm(None, self.person, instance=self.learning_unit_year)
-        disabled_fields = {key for key, value in form.fields.items() if value.disabled == True}
+        disabled_fields = {key for key, value in form.fields.items() if value.disabled}
         self.assertEqual(disabled_fields, FULL_READ_ONLY_FIELDS)
 
     def test_disable_fields_full_proposal(self):
 
         form = FullForm(None, self.person, instance=self.learning_unit_year, proposal=True)
-        disabled_fields = {key for key, value in form.fields.items() if value.disabled == True}
+        disabled_fields = {key for key, value in form.fields.items() if value.disabled}
         self.assertEqual(disabled_fields, FULL_PROPOSAL_READ_ONLY_FIELDS)
 
     def test_subtype_is_full(self):
@@ -333,6 +336,23 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
 
         form = _instanciate_form(post_data=self.post_data, person=self.person, instance=self.learning_unit_year)
         self.assertFalse(form.is_valid(), form.errors)
+
+    def test_update_case_wrong_entity_container_type(self):
+        organization = OrganizationFactory(type=MAIN)
+        allocation_entity_version = EntityVersionFactory(entity_type=FACULTY)
+        allocation_entity_version.entity.organization = organization
+        allocation_entity_version.entity.save()
+
+        self.learning_unit_year.learning_container_year.container_type = MASTER_THESIS
+        self.learning_unit_year.learning_container_year.save()
+
+        PersonEntityFactory(person=self.person, entity=allocation_entity_version.entity)
+        self.post_data['entitycontaineryear_set-1-entity'] = allocation_entity_version.id
+
+        form = _instanciate_form(post_data=self.post_data, person=self.person, instance=self.learning_unit_year)
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertEqual(form.errors[0][1].get('entity'), [_("Requirement and allocation entities must be linked "
+                                                             "to the same faculty for this learning unit type.")])
 
 
 class TestFullFormSave(LearningUnitFullFormContextMixin):

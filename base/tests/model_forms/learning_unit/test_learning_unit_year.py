@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+
 from django import forms
 from django.contrib.auth.models import Group
 from django.test import TestCase
@@ -102,7 +103,7 @@ class TestLearningUnitYearModelFormSave(TestCase):
                                                                     academic_year=self.current_academic_year)
         self.form = LearningUnitYearModelForm(data=None, person=self.central_manager, subtype=FULL)
         self.learning_unit_year_to_update = LearningUnitYearFactory(
-            learning_unit=self.learning_unit, learning_container_year=self.learning_container_year)
+            learning_unit=self.learning_unit, learning_container_year=self.learning_container_year, subtype=FULL)
 
         self.post_data = {
             'acronym_0': 'L',
@@ -205,3 +206,15 @@ class TestLearningUnitYearModelFormSave(TestCase):
                         entity_container_years=self.entity_container_years)
 
         self.assertEqual(luy, self.learning_unit_year_to_update)
+
+    def test_warnings_credit(self):
+        LearningUnitYearFactory(learning_container_year=self.learning_container_year, subtype=PARTIM,
+                                         credits=120)
+
+        self.post_data['credits'] = 60
+        form = LearningUnitYearModelForm(data=self.post_data, person=self.central_manager, subtype=FULL,
+                                         instance=self.learning_unit_year_to_update)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        self.assertEqual(form.warnings, ["Le nombre de crédits du partim LFAC0001 est supérieur ou égal "
+                                         "à celui de l'unité d'enseignement parent"])

@@ -296,7 +296,7 @@ class FullForm(LearningUnitBaseForm):
         if result:
             result = self.entity_container_form.post_clean(
                 self.learning_container_year_form.cleaned_data['container_type'],
-                self.learning_unit_year_form.instance.academic_year.start_date)
+                self.learning_unit_year_form.instance.academic_year)
 
         return result
 
@@ -430,11 +430,6 @@ class PartimForm(LearningUnitBaseForm):
         return {
             'periodicity': learning_unit_full.periodicity
         }
-
-    def check_consistency_on_academic_year(self):
-        # TODO :: implémenter les checks correpondant à ceux du FullForm mais du partim par rapport au parent.
-        # TODO :: fix tests existants + écriture nouveaux tests pour couvrir tous les cas
-        pass
 
     def _create(self, commit, postponement):
         academic_year = self.learning_unit_year_full.academic_year
