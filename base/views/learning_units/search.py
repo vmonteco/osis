@@ -119,11 +119,16 @@ def learning_units_proposal_search(request):
         return redirect(reverse("learning_unit_proposal_search") + "?{}".format(request.GET.urlencode()))
 
     check_if_display_message(request, proposals)
-    context = {'form': search_form, 'form_proposal_state': ProposalStateModelForm(),
-               'academic_years': get_last_academic_years(), 'current_academic_year': current_academic_year(),
-               'experimental_phase': True, 'search_type': PROPOSAL_SEARCH, 'proposals': proposals,
-               'is_faculty_manager': user_person.is_faculty_manager()}
-
+    context = {
+        'form': search_form,
+        'form_proposal_state': ProposalStateModelForm(),
+        'academic_years': get_last_academic_years(),
+        'current_academic_year': current_academic_year(),
+        'experimental_phase': True,
+        'search_type': PROPOSAL_SEARCH,
+        'proposals': proposals,
+        'is_faculty_manager': user_person.is_faculty_manager()
+    }
     return layout.render(request, "learning_units.html", context)
 
 
