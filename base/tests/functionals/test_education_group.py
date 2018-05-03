@@ -41,7 +41,6 @@ class InputField(Field):
 
     def __get__(self, obj, owner):
         element = obj.find_element(*self.locator)
-        print(element)
         return element.get_attribute('value')
 
 
