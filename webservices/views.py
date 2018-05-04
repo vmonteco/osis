@@ -15,6 +15,7 @@ from cms.models.translated_text_label import TranslatedTextLabel
 
 LANGUAGES = {'fr': 'fr-be', 'en': 'en'}
 
+
 class JSONNotFoundResponse(Response):
     def __init__(self):
         super().__init__({'detail': 'Not found.'},
