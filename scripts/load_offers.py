@@ -71,6 +71,7 @@ def generate_html_for_program(info):
          ('programme_detaille', 'reddot_body')]
     )
 
+
 def generate_html_for_multiparts(info, parts):
     content = []
     for part_name, class_name in parts:
@@ -251,7 +252,7 @@ def convert_to_html(item, label, value):
     return value.strip()
 
 
-def import_terms(item, education_group_year, mapping_label_text_label, entity, language):
+def import_terms(item, education_group_year, mapping_label_text_label, context):
     for label, value in item['info'].items():
         value = convert_to_html(item, label, value)
 
@@ -259,10 +260,10 @@ def import_terms(item, education_group_year, mapping_label_text_label, entity, l
             continue
 
         translated_text, created = TranslatedText.objects.get_or_create(
-            entity=entity,
+            entity=context.entity,
             reference=education_group_year.id,
             text_label=mapping_label_text_label[label],
-            language=language,
+            language=context.language,
             defaults={
                 'text': value
             }
@@ -274,15 +275,27 @@ def import_terms(item, education_group_year, mapping_label_text_label, entity, l
 
 
 def find_education_group_year_for_group(item):
-    records = EducationGroupYear.objects.filter(
+    qs = EducationGroupYear.objects.filter(
         academic_year__year=item['year'],
         partial_acronym__iexact=item['acronym']
     )
 
-    if not records.exists():
+    if not qs.exists():
         return
 
-    return records.first()
+    return qs.first()
+
+
+def find_education_group_year_for_offer(item):
+    qs = EducationGroupYear.objects.filter(
+        academic_year__year=item['year'],
+        acronym__iexact=item['acronym']
+    )
+
+    if not qs.exists():
+        return
+
+    return qs.first()
 
 
 def find_education_group_year_for_common(item):
@@ -301,18 +314,6 @@ def find_education_group_year_for_common(item):
         education_group_year = records.first()
 
     return education_group_year
-
-
-def find_education_group_year_for_offer(item):
-    records = EducationGroupYear.objects.filter(
-        academic_year__year=item['year'],
-        acronym__iexact=item['acronym']
-    )
-
-    if not records.exists():
-        return
-
-    return records.first()
 
 
 LABEL_TEXTUALS = [
@@ -358,9 +359,13 @@ def run(filename, language='fr-be'):
 
     labels = set(chain.from_iterable(o.get('info', {}).keys() for o in items))
 
-    mapping_label_text_label = get_mapping_label_texts(entity, labels, language)
+    Context = collections.namedtuple('Context', 'entity language')
+    context = Context(entity=entity, language=language)
 
-    create_items(entity, items, language, mapping_label_text_label)
+    mapping_label_text_label = get_mapping_label_texts(context, labels)
+
+
+    create_items(context, items, mapping_label_text_label)
 
 
 def check_parameters(filename, language):
@@ -375,19 +380,22 @@ def check_parameters(filename, language):
     return path
 
 
-def get_mapping_label_texts(entity, labels, language):
+def get_mapping_label_texts(context, labels):
     mapping_label_text_label = {}
     for label in labels:
-        text_label = get_text_label(entity, label)
+        text_label = get_text_label(context.entity, label)
 
-        TranslatedTextLabel.objects.get_or_create(text_label=text_label, language=language,
-                                                  label=find_translated_label(language, label))
+        TranslatedTextLabel.objects.get_or_create(
+            text_label=text_label,
+            language=context.language,
+            label=find_translated_label(context.language, label)
+        )
 
         mapping_label_text_label[label] = text_label
     return mapping_label_text_label
 
 
-def create_items(entity, items, language, mapping_label_text_label):
+def create_items(context, items, mapping_label_text_label):
     for item in items:
         if 'info' not in item:
             continue
@@ -401,8 +409,8 @@ def create_items(entity, items, language, mapping_label_text_label):
         if not find_education_group_year:
             continue
 
-        education_group_year = find_education_group_year(item)
-        if not education_group_year:
+        egy = find_education_group_year(item)
+        if not egy:
             continue
 
-        import_terms(item, education_group_year, mapping_label_text_label, entity, language)
+        import_terms(item, egy, mapping_label_text_label, context)
