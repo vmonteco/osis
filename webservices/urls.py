@@ -6,7 +6,7 @@ from webservices.views import ws_catalog_group
 
 from rest_framework_swagger.views import get_swagger_view
 
-schema_view = get_swagger_view(title='Training Catalog API') # urlconf='webservices.urls')
+schema_view = get_swagger_view(title='Training Catalog API')
 
 urlpatterns = [
     url('^v0.1/catalog/offer/(?P<year>[0-9]{4})/(?P<language>[a-zA-Z]{2})/(?P<acronym>[a-zA-Z0-9]+)$',
