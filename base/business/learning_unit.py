@@ -47,9 +47,8 @@ from osis_common.utils.datetime import convert_date_to_datetime
 
 # List of key that a user can modify
 LEARNING_UNIT_TITLES = [str(_('academic_year_small')), str(_('code')), str(_('title')), str(_('type')),
-                        str(_('subtype')),
-                        str(_('requirement_entity_small')), str(_('allocation_entity_small')), str(_('credits')),
-                        str(_('active_title'))]
+                        str(_('subtype')), str(_('requirement_entity_small')), str(_('allocation_entity_small')),
+                        str(_('credits')), str(_('active_title'))]
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'teaching_methods', 'evaluation_methods', 'other_informations', 'online_resources']
 CMS_LABEL_SUMMARY = ['resume']

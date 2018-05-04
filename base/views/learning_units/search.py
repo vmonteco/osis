@@ -44,7 +44,6 @@ from base.views import layout
 from base.views.common import check_if_display_message, display_error_messages, display_messages_by_level
 from base.business import learning_unit_proposal as proposal_business
 
-
 SIMPLE_SEARCH = 1
 SERVICE_COURSES_SEARCH = 2
 PROPOSAL_SEARCH = 3
@@ -161,13 +160,23 @@ def apply_action_on_proposals(proposals, author, post_data, research_criteria):
 
 def _get_filter(form, search_type):
     form_data = form.cleaned_data
-    filter_data = {}
-    for key, value in form_data.items():
-        if value:
-            filter_data.update({form[key].label: value})
+
+    filter_data = {
+        form[key].label: _get_filter_value(form, key, value)
+        for key, value in form_data.items()
+        if value
+        }
+
     if search_type:
         filter_data.update({_('search_type'): _get_search_type_label(search_type)})
     return filter_data
+
+
+def _get_filter_value(form, key, value):
+    value_translated = value
+    if form[key].field.__class__.__name__ == 'ChoiceField' and form[key].field.choices:
+        value_translated = dict(form.fields[key].choices)[value]
+    return value_translated
 
 
 def _get_search_type_label(search_type):

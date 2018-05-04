@@ -66,6 +66,8 @@ class TestXlsBuild(TestCase):
     def test_prepare_xls_content_with_data(self):
         attributions = xls_build_attribution.prepare_xls_content([self.learning_unit_yr_1])
         self.assertEqual(len(attributions), len(self.learning_unit_yr_1.attribution_charge_news))
+        an_attribution = self.learning_unit_yr_1.attribution_charge_news.get(self.attribution_1.attribution.id)
+        self.assertEqual(attributions[0], self.get_xls_data(an_attribution, self.learning_unit_yr_1))
 
     def test_prepare_titles(self):
         self.assertCountEqual(xls_build_attribution._prepare_titles(),
@@ -81,26 +83,29 @@ class TestXlsBuild(TestCase):
     def test_generate_xls_data_with_a_learning_unit(self, mock_generate_xls):
         xls_build_attribution.create_xls_attribution(self.user, [self.learning_unit_yr_1], None)
         an_attribution = self.learning_unit_yr_1.attribution_charge_news.get(self.attribution_1.attribution.id)
-        xls_data = [[self.learning_unit_yr_1.academic_year.name,
-                     self.learning_unit_yr_1.acronym,
-                     self.learning_unit_yr_1.complete_title,
-                     xls_build.translate(self.learning_unit_yr_1.learning_container_year.container_type),
-                     xls_build.translate(self.learning_unit_yr_1.subtype),
-                     ACRONYM_REQUIREMENT,
-                     ACRONYM_ALLOCATION,
-                     self.learning_unit_yr_1.credits,
-                     xls_build.translate(self.learning_unit_yr_1.status),
-                     an_attribution.get('person'),
-                     xls_build.translate((an_attribution.get('function'))),
-                     an_attribution.get('substitute'),
-                     an_attribution.get('LECTURING'),
-                     an_attribution.get('PRACTICAL_EXERCISES'),
-                     an_attribution.get('start_year'),
-                     an_attribution.get('duration')
-                     ]]
+        xls_data = [self.get_xls_data(an_attribution, self.learning_unit_yr_1)]
 
         expected_argument = _generate_xls_build_parameter(xls_data, self.user)
         mock_generate_xls.assert_called_with(expected_argument, None)
+
+    def get_xls_data(self, an_attribution, learning_unit_yr):
+        return [learning_unit_yr.academic_year.name,
+                learning_unit_yr.acronym,
+                learning_unit_yr.complete_title,
+                xls_build.translate(learning_unit_yr.learning_container_year.container_type),
+                xls_build.translate(learning_unit_yr.subtype),
+                ACRONYM_REQUIREMENT,
+                ACRONYM_ALLOCATION,
+                learning_unit_yr.credits,
+                xls_build.translate(learning_unit_yr.status),
+                an_attribution.get('person'),
+                xls_build.translate((an_attribution.get('function'))),
+                an_attribution.get('substitute'),
+                an_attribution.get('LECTURING'),
+                an_attribution.get('PRACTICAL_EXERCISES'),
+                an_attribution.get('start_year'),
+                an_attribution.get('duration')
+                ]
 
 
 def _generate_xls_build_parameter(xls_data, user):
