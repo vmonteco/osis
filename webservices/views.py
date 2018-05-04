@@ -12,7 +12,14 @@ from base.models.offer_year_entity import OfferYearEntity
 from cms.models.translated_text import TranslatedText
 from cms.models.translated_text_label import TranslatedTextLabel
 
+
 LANGUAGES = {'fr': 'fr-be', 'en': 'en'}
+
+class JSONNotFoundResponse(Response):
+    def __init__(self):
+        super().__init__({'detail': 'Not found.'},
+                         content_type='application/json',
+                         status=404)
 
 
 def find_translated_labels_for_entity_and_language(entity, language):
@@ -61,13 +68,7 @@ def get_entity(education_group_year):
 @renderer_classes((JSONRenderer, ))
 def ws_catalog_offer(request, year, language, acronym):
     if language not in LANGUAGES:
-        return Response(
-            {
-                'detail': 'Not found.'
-            },
-            content_type='application/json',
-            status=404
-        )
+        return JSONNotFoundResponse()
 
     year = int(year)
 
@@ -206,10 +207,7 @@ def get_label(translated_labels, translated_text):
 @renderer_classes((JSONRenderer,))
 def ws_catalog_group(request, year, language, acronym):
     if language not in LANGUAGES:
-        return Response({'detail': 'Not found.'},
-            content_type='application/json',
-            status=404
-        )
+        return JSONNotFoundResponse()
 
     year = int(year)
 
