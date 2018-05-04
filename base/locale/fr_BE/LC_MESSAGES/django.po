@@ -923,7 +923,7 @@ msgid "profile"
 msgstr "Profil"
 
 msgid "program_commission"
-msgstr "Commison d'enseignement/programme"
+msgstr "Commission d'enseignement/programme"
 
 msgid "program_managers"
 msgstr "Gestionnaires de programme"
@@ -960,7 +960,6 @@ msgstr "Le NOMA ne correspond pas à l'email"
 
 msgid "identification_number"
 msgstr "Matricule"
-
 
 msgid "registration_id_not_access_or_not_exist"
 msgstr "Étudiant non inscrit à l'examen"
@@ -2738,7 +2737,7 @@ msgid "Bibliography"
 msgstr "Bibliographie"
 
 msgid "Modalities specific to IN and OUT mobility"
-msgstr "Modalités propores à la mobilité IN et OUT"
+msgstr "Modalités propres à la mobilité IN et OUT"
 
 msgid "updated"
 msgstr "Mis à jour"
@@ -2877,3 +2876,18 @@ msgstr "A compléter"
 
 msgid "annualized"
 msgstr "Annualisé"
+
+msgid "start_year"
+msgstr "Début"
+
+msgid "produce_xls_attributions"
+msgstr "Xls avec les activités et les attributions"
+
+msgid "produce_xls_proposals"
+msgstr "Xls avec les propositions"
+
+msgid "proposal_date"
+msgstr "Date proposition"
+
+msgid "search_type"
+msgstr "Type de recherche"

@@ -142,6 +142,14 @@
         status.val('');
     });
 
+    $("#btn_produce_xls_attributions").click(function(e) {
+        e.preventDefault();
+        var status = $("#xls_status");
+        status.val('xls_attribution');
+        $("#search_form").submit();
+        status.val('');
+    });
+
     $("#id_check_all").click(function(){
         $('input:checkbox').not(this).prop('checked', this.checked);
     });
