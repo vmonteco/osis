@@ -35,6 +35,7 @@ from django.test import TestCase, RequestFactory, TransactionTestCase
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from assessments.business.score_encoding_list import ScoresEncodingList
+from assessments.tests.views.test_upload_xls_utils import generate_exam_enrollments
 from base.models.enums import exam_enrollment_justification_type
 
 from base.tests.models import test_exam_enrollment, test_offer_enrollment, \
@@ -61,42 +62,18 @@ class MixinSetupOnlineEncoding:
         Group.objects.get_or_create(name="tutors")
         Group.objects.get_or_create(name="program_managers")
         self.request_factory = RequestFactory()
-        academic_year = _get_academic_year(year=2017)
-        academic_calendar = AcademicCalendarFactory(title="Submission of score encoding - 1",
-                                                    start_date=academic_year.start_date,
-                                                    end_date=academic_year.end_date,
-                                                    academic_year=academic_year,
-                                                    reference=academic_calendar_type.SCORES_EXAM_SUBMISSION)
+        data = generate_exam_enrollments(2017, with_different_offer=True)
 
-        SessionExamCalendarFactory(academic_calendar=academic_calendar, number_session=number_session.ONE)
+        self.learning_unit_year = data["learning_unit_year"]
+        self.enrollments = data["exam_enrollments"]
+        self.attribution = data["attribution"]
+        self.offer_years = data["offer_years"]
+        self.tutor = self.attribution.tutor
+        self.program_manager_1 = ProgramManagerFactory(offer_year=self.offer_years[0])
+        self.program_manager_2 = ProgramManagerFactory(offer_year=self.offer_years[1])
 
-        self.learning_unit_year = LearningUnitYearFactory(academic_year=academic_year)
-        self.offer_year = test_offer_year.create_offer_year('SINF1BA', 'Bachelor in informatica', academic_year)
-        self.session_exam = test_session_exam.create_session_exam(number_session.ONE, self.learning_unit_year,
-                                                                  self.offer_year)
-
-        # Create enrollment related
-        self.enrollments = []
-        for index in range(0, 2):
-            offer_year = OfferYearFactory(academic_year=academic_year)
-            OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offer_year)
-            offer_enrollment = test_offer_enrollment.create_offer_enrollment(StudentFactory(), offer_year)
-            learning_unit_enrollment = test_learning_unit_enrollment.create_learning_unit_enrollment(
-                offer_enrollment=offer_enrollment,
-                learning_unit_year=self.learning_unit_year)
-            exam_enrollment = test_exam_enrollment.create_exam_enrollment(self.session_exam, learning_unit_enrollment)
-            self.enrollments.append(exam_enrollment)
-
-        self.tutor = TutorFactory()
-        test_attribution.create_attribution(tutor=self.tutor, learning_unit_year=self.learning_unit_year)
         add_permission(self.tutor.person.user, "can_access_scoreencoding")
-
-        offer_year = self.enrollments[0].learning_unit_enrollment.offer_enrollment.offer_year
-        self.program_manager_1 = ProgramManagerFactory(offer_year=offer_year)
         add_permission(self.program_manager_1.person.user, "can_access_scoreencoding")
-
-        offer_year = self.enrollments[1].learning_unit_enrollment.offer_enrollment.offer_year
-        self.program_manager_2 = ProgramManagerFactory(offer_year=offer_year)
         add_permission(self.program_manager_2.person.user, "can_access_scoreencoding")
 
     def assert_exam_enrollments(self, exam_enrollment, score_draft, score_final, justification_draft,
