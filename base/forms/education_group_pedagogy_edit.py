@@ -53,4 +53,3 @@ class EducationGroupPedagogyEditForm(forms.Form):
         trans_text = translated_text.find_by_id(cleaned_data['cms_id'])
         trans_text.text = cleaned_data.get('trans_text')
         trans_text.save()
-
