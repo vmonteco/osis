@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import ValidationError
 from django.db import models, IntegrityError
 from django.utils.translation import ugettext_lazy as _
 
@@ -110,6 +111,39 @@ class LearningUnit(SerializableModel):
             ("can_create_learningunit", "Can create learning unit"),
             ("can_consolidate_learningunit_proposal", "Can consolidate learning unit proposal"),
         )
+
+    @property
+    def parent(self):
+        # TODO The subtype must move in learning_unit model !
+        luy = self.learningunityear_set.last()
+        if luy and luy.subtype == PARTIM:
+            return LearningUnit.objects.filter(
+                learningunityear__subtype=FULL, learning_container=self.learning_container
+            ).last()
+        return None
+
+    @property
+    def children(self):
+        # TODO The subtype must move in learning_unit model !
+        luy = self.learningunityear_set.last()
+        if luy and luy.subtype == FULL:
+            return LearningUnit.objects.filter(
+                learningunityear__subtype=PARTIM, learning_container=self.learning_container
+            )
+        return []
+
+    def clean(self):
+        parent = self.parent or self
+        children = self.children or [self]
+
+        if parent.periodicity == ANNUAL:
+            return
+
+        for child in children:
+            if child.periodicity == ANNUAL:
+                raise ValidationError(
+                    {'periodicity': _('The periodicity of the partim must be the same as that of the parent')}
+                )
 
 
 def find_by_id(learning_unit_id):
