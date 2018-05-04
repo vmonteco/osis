@@ -2856,9 +2856,6 @@ msgstr "Borrowed courses - search"
 msgid "add_another"
 msgstr "Add another"
 
-msgid "The linked entity does not exist at the start date of the academic year linked to this learning unit"
-msgstr ""
-
 msgid "faculty_borrowing"
 msgstr "Faculty borrowing"
 
