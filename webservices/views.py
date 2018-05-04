@@ -149,6 +149,13 @@ def ws_catalog_offer(request, year, language, acronym):
                 'content': term,
             })
 
+    if acronym.lower().endswith('2m'):
+        section_append({
+            'id': 'finalite-didactique-commun',
+            'label': 'Finalite Didactique',
+            'content': common_terms['finalites_didactiques']
+        })
+
     return Response(description, content_type='application/json')
 
 
