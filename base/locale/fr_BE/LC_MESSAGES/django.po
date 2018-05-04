@@ -1861,7 +1861,7 @@ msgid "planned_classes"
 msgstr "Classes prévues"
 
 msgid "planned_classes_pc"
-msgstr "P.C."
+msgstr "C.P."
 
 msgid "total_volume"
 msgstr "Volume total"
