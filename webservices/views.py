@@ -42,7 +42,8 @@ def get_common_education_group(academic_year, language, acronym):
 
 def get_entity(education_group_year):
     from base.models.enums.offer_year_entity_type import ENTITY_ADMINISTRATION
-    offer_year_entity = OfferYearEntity.objects.filter(education_group_year=education_group_year, type=ENTITY_ADMINISTRATION)
+    offer_year_entity = OfferYearEntity.objects.filter(education_group_year=education_group_year,
+                                                       type=ENTITY_ADMINISTRATION)
     entity = offer_year_entity.first().entity
 
     from django.forms import model_to_dict
@@ -59,7 +60,7 @@ def get_entity(education_group_year):
 @api_view(['GET'])
 @renderer_classes((JSONRenderer, ))
 def ws_catalog_offer(request, year, language, acronym):
-    if not language in LANGUAGES:
+    if language not in LANGUAGES:
         return Response(
             {
                 'detail': 'Not found.'
@@ -116,7 +117,7 @@ def ws_catalog_offer(request, year, language, acronym):
         if name in ('caap', 'prerequis'):
             content = normalize_caap_or_prerequis(common_terms, content, has_section, name)
 
-        elif name == 'program':
+        elif name == 'programme':
             content = normalize_program(common_terms, content, has_section, name)
 
         elif name == 'module_complementaire':
@@ -129,7 +130,7 @@ def ws_catalog_offer(request, year, language, acronym):
         })
 
     sections = [
-        ('program', 'agregations', 'program', 'Program'),
+        ('programme', 'agregations', 'programme', 'Programme'),
         ('caap', 'caap', 'caap', 'Caap'),
         ('prerequis', 'prerequis', 'prerequis', 'Prerequis')
     ]
@@ -204,11 +205,8 @@ def get_label(translated_labels, translated_text):
 @api_view(['GET'])
 @renderer_classes((JSONRenderer,))
 def ws_catalog_group(request, year, language, acronym):
-    if not language in LANGUAGES:
-        return Response(
-            {
-                'detail': 'Not found.'
-            },
+    if language not in LANGUAGES:
+        return Response({'detail': 'Not found.'},
             content_type='application/json',
             status=404
         )
