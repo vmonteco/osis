@@ -50,12 +50,11 @@ def generate_html_two_parts(info):
     <div class="reddot_part2">
     </div>
     """
-    content = []
-
-    append_if_content(content, info, 'part1', 'reddot_part1')
-    append_if_content(content, info, 'part2', 'reddot_part2')
-
-    return ''.join(content)
+    return generate_html_for_multiparts(
+        info,
+        [('part1', 'reddot_part1'),
+         ('part2', 'reddot_part2')]
+    )
 
 
 def generate_html_for_program(info):
@@ -66,11 +65,16 @@ def generate_html_for_program(info):
     <div class="reddot_body">
     </div>
     """
+    return generate_html_for_multiparts(
+        info,
+        [('intro', 'reddot_intro'),
+         ('programme_detaille', 'reddot_body')]
+    )
+
+def generate_html_for_multiparts(info, parts):
     content = []
-
-    append_if_content(content, info, 'intro', 'reddot_intro')
-    append_if_content(content, info, 'programme_detaille', 'reddot_body')
-
+    for part_name, class_name in parts:
+        append_if_content(content, info, part_name, class_name)
     return ''.join(content)
 
 
@@ -144,18 +148,16 @@ def render_responsible(contacts):
     </div>
     """
     responsible = contacts.get('responsible')
-    print(responsible)
     if responsible:
+        title = responsible.get('title', '')
+        mbox = responsible['metadata']['foaf:mbox'].replace('mailto:', '')
+        contact = "#contact:{0}:{1}#".format(title, mbox)
         return E.div(
-            E.ul(
-                E.li(
-                    # E.a(responsible[''], href=responsible['url'])
-                    "#contact:{0}:{1}#".format(responsible.get('title', ''), responsible['metadata']['foaf:mbox'].replace('mailto:', ''))
-                )
-            ),
+            E.ul(E.li(contact)),
             CLASS('contacts_responsible')
         )
     return None
+
 
 def render_entity_code(contacts):
     entity_code = contacts.get('entity_code')
@@ -330,11 +332,13 @@ MAPPING_LABEL_TEXTUAL = collections.defaultdict(dict)
 for language, key, term in LABEL_TEXTUALS:
     MAPPING_LABEL_TEXTUAL[language][key] = term
 
+
 def find_translated_label(language, label):
     if language in MAPPING_LABEL_TEXTUAL and label in MAPPING_LABEL_TEXTUAL[language]:
         return MAPPING_LABEL_TEXTUAL[language][label]
     else:
         return label.title()
+
 
 def run(filename, language='fr-be'):
     """
