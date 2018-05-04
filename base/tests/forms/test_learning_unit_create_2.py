@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import datetime
+import collections
 from unittest import mock
 
 from django.test import TestCase
@@ -350,7 +351,8 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
         self.learning_unit_year.learning_container_year.save()
 
         PersonEntityFactory(person=self.person, entity=allocation_entity_version.entity)
-        self.post_data['entitycontaineryear_set-1-entity'] = allocation_entity_version.id
+        post_data = dict(self.post_data)
+        post_data['entitycontaineryear_set-1-entity'] = allocation_entity_version.id
 
         form = _instanciate_form(self.learning_unit_year.academic_year, post_data=self.post_data, person=self.person,
                                  learning_unit_instance=self.learning_unit_year.learning_unit)
@@ -361,15 +363,36 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
 
 class TestFullFormSave(LearningUnitFullFormContextMixin):
     """Unit tests for save() """
+
+    def _get_initial_counts(self):
+        return collections.OrderedDict({
+            LearningContainer: self._count_records(LearningContainer),
+            LearningContainerYear: self._count_records(LearningContainerYear),
+            LearningUnit: self._count_records(LearningUnit),
+            LearningUnitYear: self._count_records(LearningUnitYear),
+            EntityContainerYear: self._count_records(EntityContainerYear),
+            LearningComponentYear: self._count_records(LearningComponentYear),
+            LearningUnitComponent: self._count_records(LearningUnitComponent),
+            EntityComponentYear: self._count_records(EntityComponentYear),
+        })
+
     def test_when_update_instance(self):
+        initial_counts = self._get_initial_counts()
         self.post_data['credits'] = 99
         form = _instanciate_form(self.learning_unit_year.academic_year, post_data=self.post_data, person=self.person,
                                  learning_unit_instance=self.learning_unit_year.learning_unit)
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
         self.assertEqual(LearningUnitYear.objects.get(pk=self.learning_unit_year.id).credits, 99)
+        self._assert_do_not_create_new_records(initial_counts)
+
+    def _assert_do_not_create_new_records(self, initial_counts):
+        for model_class, initial_count in initial_counts.items():
+            current_count = self._count_records(model_class)
+            self.assertEqual(current_count, initial_count)
 
     def test_when_create_instance(self):
+        initial_counts = self._get_initial_counts()
         acronym = 'LAGRO1200'
         new_learning_unit_year = LearningUnitYearFactory.build(
             acronym=acronym,
@@ -388,19 +411,24 @@ class TestFullFormSave(LearningUnitFullFormContextMixin):
         form.save()
         self.assertEqual(LearningUnitYear.objects.filter(acronym='LAGRO1200').count(), 1)
 
-        NUMBER_OF_POSTPONMENTS = 7
+        self._assert_correctly_create_records_in_all_learning_unit_structure(initial_counts)
+
+    def _assert_correctly_create_records_in_all_learning_unit_structure(self, initial_counts):
+        # NUMBER_OF_POSTPONMENTS = 7
         NUMBER_OF_ENTITIES_BY_CONTAINER = 2
         NUMBER_OF_COMPONENTS = 2  # container_type == COURSE ==> 1 TP / 1 CM
-
-        self.assertEqual(self._count_records(LearningContainer), 1)
-        self.assertEqual(self._count_records(LearningContainerYear), NUMBER_OF_POSTPONMENTS)
-        self.assertEqual(self._count_records(LearningUnit), 1)
-        self.assertEqual(self._count_records(LearningUnitYear), NUMBER_OF_POSTPONMENTS)
+        self.assertEqual(self._count_records(LearningContainer), initial_counts[LearningContainer] + 1)
+        self.assertEqual(self._count_records(LearningContainerYear), initial_counts[LearningContainerYear] + 1)
+        self.assertEqual(self._count_records(LearningUnit), initial_counts[LearningUnit] + 1)
+        self.assertEqual(self._count_records(LearningUnitYear), initial_counts[LearningUnitYear] + 1)
         self.assertEqual(self._count_records(EntityContainerYear),
-                         NUMBER_OF_ENTITIES_BY_CONTAINER * NUMBER_OF_POSTPONMENTS)
-        self.assertEqual(self._count_records(LearningComponentYear), NUMBER_OF_COMPONENTS * NUMBER_OF_POSTPONMENTS)
-        self.assertEqual(self._count_records(LearningUnitComponent), 2 * NUMBER_OF_POSTPONMENTS)
-        self.assertEqual(self._count_records(EntityComponentYear), NUMBER_OF_COMPONENTS * NUMBER_OF_POSTPONMENTS)
+                         initial_counts[EntityContainerYear] + NUMBER_OF_ENTITIES_BY_CONTAINER)
+        self.assertEqual(self._count_records(LearningComponentYear),
+                         initial_counts[LearningComponentYear] + NUMBER_OF_COMPONENTS)
+        self.assertEqual(self._count_records(LearningUnitComponent),
+                         initial_counts[LearningUnitComponent] + NUMBER_OF_COMPONENTS)
+        self.assertEqual(self._count_records(EntityComponentYear),
+                         initial_counts[EntityComponentYear] + NUMBER_OF_COMPONENTS)
 
     def _count_records(self, model_class):
         return model_class.objects.all().count()

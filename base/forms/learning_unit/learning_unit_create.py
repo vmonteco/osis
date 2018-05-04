@@ -57,9 +57,9 @@ DEFAULT_ACRONYM_COMPONENT = {
 }
 
 
-def _get_default_components_type(component_type):
+def _get_default_components_type(container_type):
     """This function will return the default components type to create/update according to container type"""
-    if component_type in CONTAINER_TYPE_WITH_DEFAULT_COMPONENT:
+    if container_type in CONTAINER_TYPE_WITH_DEFAULT_COMPONENT:
         return [LECTURING, PRACTICAL_EXERCISES]
     return [None]
 
@@ -274,8 +274,7 @@ class EntityContainerYearFormset(forms.BaseInlineFormSet):
         qs = EntityContainerYear.objects.filter(learning_container_year=self.instance, type=entity_type)
         if qs.exists():
             kwargs['instance'] = qs.get()
-        else:
-            kwargs['entity_type'] = ENTITY_TYPE_LIST[index]
+        kwargs['entity_type'] = ENTITY_TYPE_LIST[index]
         return kwargs
 
     @property
