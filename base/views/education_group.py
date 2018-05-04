@@ -314,20 +314,28 @@ def _get_learning_unit_detail(dict_param, group_element):
     return dict_param
 
 
+def find_root_by_name(text_label_name):
+    return TextLabel.objects.prefetch_related(
+        Prefetch('translatedtextlabel_set', to_attr="translated_text_labels")
+    ).get(label=text_label_name, parent__isnull=True)
+
+def education_group_year_pedagogy_edit_post(request, education_group_year_id):
+    form = EducationGroupPedagogyEditForm(request.POST)
+    if form.is_valid():
+        form.save()
+    redirect_url = reverse('education_group_general_informations',
+                           kwargs={
+                               'education_group_year_id': education_group_year_id
+                           })
+    return redirect(redirect_url)
+
 
 @login_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
 @require_http_methods(['GET', 'POST'])
 def education_group_year_pedagogy_edit(request, education_group_year_id):
-    redirect_url =reverse('education_group_general_informations',
-                          kwargs={
-                              'education_group_year_id': education_group_year_id
-                          })
     if request.method == 'POST':
-        form = EducationGroupPedagogyEditForm(request.POST)
-        if form.is_valid():
-            form.save()
-        return redirect(redirect_url)
+        return education_group_year_pedagogy_edit_post(request, education_group_year_id)
 
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
 
@@ -337,11 +345,6 @@ def education_group_year_pedagogy_edit(request, education_group_year_id):
 
     label_name = request.GET.get('label')
     language = request.GET.get('language')
-
-    def find_root_by_name(text_label_name):
-        return TextLabel.objects.prefetch_related(
-            Prefetch('translatedtextlabel_set', to_attr="translated_text_labels")
-        ).get(label=text_label_name, parent__isnull=True)
 
     text_lb = find_root_by_name(label_name)
     form = EducationGroupPedagogyEditForm(**{
