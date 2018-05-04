@@ -46,6 +46,7 @@ from base.models.enums import entity_container_year_link_type, learning_containe
     learning_unit_year_subtypes, active_status, entity_type
 from base.models.group_element_year import GroupElementYear
 from base.models.learning_unit_year import convert_status_bool
+from base.models.offer_year_entity import OfferYearEntity
 
 MAX_RECORDS = 1000
 
@@ -276,11 +277,10 @@ def map_learning_unit_year_with_requirement_entity(learning_unit_year_qs):
 def map_learning_unit_year_with_entities_of_education_groups(learning_unit_year_qs):
     formations = group_element_year.find_learning_unit_formations(learning_unit_year_qs, parents_as_instances=False)
     education_group_ids = list(itertools.chain.from_iterable(formations.values()))
-    group_element_years = GroupElementYear.objects.filter(child_branch__in=education_group_ids).\
-        values_list("child_branch", "child_branch__offeryearentity__entity")
-
+    offer_year_entity = OfferYearEntity.objects.filter(education_group_year__in=education_group_ids).\
+        values_list("education_group_year", "entity")
     dict_entity_of_education_group = {education_group_year_id: entity_id for education_group_year_id, entity_id
-                                      in group_element_years}
+                                      in offer_year_entity}
 
     dict_education_group_year_entities_for_learning_unit_year = {}
     for luy_id, formations_ids in formations.items():
