@@ -2705,7 +2705,7 @@ msgid "Educational information submission dates updated"
 msgstr ""
 
 msgid "The credits value of the partim %(acronym)s is greater or equal than the credits value of the parent learning unit."
-msgstr "The credits value of the partim %(acronym)s is greater or equal than the credits value of the parent learning unit."
+msgstr ""
 
 msgid "The learning unit has been updated until %(year)s."
 msgstr ""
