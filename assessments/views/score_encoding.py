@@ -34,7 +34,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.db import connection, close_old_connections
+from django.db import connection, close_old_connections, transaction
 from django.db.utils import OperationalError as DjangoOperationalError, InterfaceError as DjangoInterfaceError
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
@@ -200,6 +200,7 @@ def online_encoding(request, learning_unit_year_id=None):
 @login_required
 @permission_required('assessments.can_access_scoreencoding', raise_exception=True)
 @user_passes_test(_is_inside_scores_encodings_period, login_url=reverse_lazy('outside_scores_encodings_period'))
+@transaction.non_atomic_requests
 def online_encoding_form(request, learning_unit_year_id=None):
     template_name = "online_encoding_form.html"
     if request.method == 'POST':

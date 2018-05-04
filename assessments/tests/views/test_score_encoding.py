@@ -24,12 +24,14 @@
 #
 ##############################################################################
 from datetime import timedelta
+from unittest import mock
 from unittest.mock import patch
 
 from django.contrib.auth.models import Permission
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.test import TestCase, RequestFactory
+from django.http import Http404
+from django.test import TestCase, RequestFactory, TransactionTestCase
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from assessments.business.score_encoding_list import ScoresEncodingList
@@ -53,6 +55,126 @@ from base.tests.factories.offer_year import OfferYearFactory
 from base.tests.factories.offer_year_calendar import OfferYearCalendarFactory
 from base.tests.factories.student import StudentFactory
 
+
+class TestOnlineEncodingTransaction(TransactionTestCase):
+    def setUp(self):
+        self.request_factory = RequestFactory()
+        academic_year = _get_academic_year(year=2017)
+        academic_calendar = AcademicCalendarFactory(title="Submission of score encoding - 1",
+                                                    start_date=academic_year.start_date,
+                                                    end_date=academic_year.end_date,
+                                                    academic_year=academic_year,
+                                                    reference=academic_calendar_type.SCORES_EXAM_SUBMISSION)
+
+        SessionExamCalendarFactory(academic_calendar=academic_calendar, number_session=number_session.ONE)
+
+        self.learning_unit_year = LearningUnitYearFactory(academic_year=academic_year)
+        self.offer_year = test_offer_year.create_offer_year('SINF1BA', 'Bachelor in informatica', academic_year)
+        self.session_exam = test_session_exam.create_session_exam(number_session.ONE, self.learning_unit_year,
+                                                                  self.offer_year)
+
+        # Create enrollment related
+        self.enrollments = []
+        for index in range(0,2):
+            offer_year = OfferYearFactory(academic_year=academic_year)
+            OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offer_year)
+            offer_enrollment = test_offer_enrollment.create_offer_enrollment(StudentFactory(), offer_year)
+            learning_unit_enrollment = test_learning_unit_enrollment.create_learning_unit_enrollment(
+                                                                       offer_enrollment=offer_enrollment,
+                                                                       learning_unit_year=self.learning_unit_year)
+            exam_enrollment = test_exam_enrollment.create_exam_enrollment(self.session_exam, learning_unit_enrollment)
+            self.enrollments.append(exam_enrollment)
+
+        self.tutor = TutorFactory()
+        test_attribution.create_attribution(tutor=self.tutor, learning_unit_year=self.learning_unit_year)
+        add_permission(self.tutor.person.user, "can_access_scoreencoding")
+
+        offer_year = self.enrollments[0].learning_unit_enrollment.offer_enrollment.offer_year
+        self.program_manager_1 = ProgramManagerFactory(offer_year=offer_year)
+        add_permission(self.program_manager_1.person.user, "can_access_scoreencoding")
+
+        offer_year = self.enrollments[1].learning_unit_enrollment.offer_enrollment.offer_year
+        self.program_manager_2 = ProgramManagerFactory(offer_year=offer_year)
+        add_permission(self.program_manager_2.person.user, "can_access_scoreencoding")
+
+    @mock.patch("assessments.views.score_encoding._get_common_encoding_context", side_effect=Http404)
+    def test_tutor_encoding_with_all_students(self, mock_method_to_raise_error):
+        self.client.force_login(self.tutor.person.user)
+        url = reverse('online_encoding_form', args=[self.learning_unit_year.id])
+        self.client.post(url, data=self.get_form_with_all_students_filled())
+
+        self.refresh_exam_enrollments_from_db()
+        self.assert_exam_enrollments(self.enrollments[0], 15, None, None, None)
+        self.assert_exam_enrollments(self.enrollments[1], 18, None, None, None)
+
+
+    def assert_exam_enrollments(self, exam_enrollment, score_draft, score_final, justification_draft,
+                                justification_final):
+        self.assertEqual(exam_enrollment.score_draft, score_draft)
+        self.assertEqual(exam_enrollment.score_final, score_final)
+        self.assertEqual(exam_enrollment.justification_draft, justification_draft)
+        self.assertEqual(exam_enrollment.justification_final, justification_final)
+
+    def get_form_with_one_student_filled(self):
+        exam_enrollment_1 = self.enrollments[0]
+        exam_enrollment_2 = self.enrollments[1]
+
+        return {"score_" + str(exam_enrollment_1.id): "15",
+                "justification_" + str(exam_enrollment_1.id): "",
+                "score_changed_" + str(exam_enrollment_1.id): "true",
+                "score_" + str(exam_enrollment_2.id): "",
+                "justification_" + str(exam_enrollment_2.id): "",
+                "score_changed_" + str(exam_enrollment_2.id): "false"
+                }
+
+    def get_form_with_all_students_filled(self):
+        exam_enrollment_1 = self.enrollments[0]
+        exam_enrollment_2 = self.enrollments[1]
+
+        return {"score_" + str(exam_enrollment_1.id): "15",
+                "justification_" + str(exam_enrollment_1.id): "",
+                "score_changed_" + str(exam_enrollment_1.id): "true",
+                "score_" + str(exam_enrollment_2.id): "18",
+                "justification_" + str(exam_enrollment_2.id): "",
+                "score_changed_" + str(exam_enrollment_2.id): "true"
+                }
+
+    def get_form_with_all_students_filled_and_one_with_justification_unjustified(self):
+        exam_enrollment_1 = self.enrollments[0]
+        exam_enrollment_2 = self.enrollments[1]
+
+        return {"score_" + str(exam_enrollment_1.id): "15",
+                "justification_" + str(exam_enrollment_1.id): "",
+                "score_changed_" + str(exam_enrollment_1.id): "true",
+                "score_" + str(exam_enrollment_2.id): "",
+                "justification_" + str(exam_enrollment_2.id): "ABSENCE_UNJUSTIFIED",
+                "score_changed_" + str(exam_enrollment_2.id): "true"
+                }
+
+    def get_form_with_all_students_filled_and_one_with_justification_justified(self):
+        exam_enrollment_1 = self.enrollments[0]
+        exam_enrollment_2 = self.enrollments[1]
+
+        return {"score_" + str(exam_enrollment_1.id): "15",
+                "justification_" + str(exam_enrollment_1.id): "",
+                "score_changed_" + str(exam_enrollment_1.id): "true",
+                "score_" + str(exam_enrollment_2.id): "",
+                "justification_" + str(exam_enrollment_2.id): "ABSENCE_JUSTIFIED",
+                "score_changed_" + str(exam_enrollment_2.id): "true"
+                }
+
+    def get_form_for_specific_criteria(self):
+        exam_enrollment = self.enrollments[0]
+        offer_year = exam_enrollment.learning_unit_enrollment.offer_enrollment.offer_year
+        return {"score_" + str(exam_enrollment.id): "15",
+                "justification_" + str(exam_enrollment.id): "",
+                "score_changed_" + str(exam_enrollment.id): "true",
+                "program": str(offer_year.id)
+                }
+
+    def refresh_exam_enrollments_from_db(self):
+        for enrollment in self.enrollments:
+            enrollment.refresh_from_db()
 
 class OnlineEncodingTest(TestCase):
     def setUp(self):
