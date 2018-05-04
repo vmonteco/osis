@@ -103,6 +103,7 @@ def generate_exam_enrollments(year, with_different_offer=False):
 
 class MixinTestUploadScoresFile:
     def generate_data(self):
+        Group.objects.get_or_create(name="tutors")
         data = generate_exam_enrollments(2017)
         self.exam_enrollments = data["exam_enrollments"]
         self.attribution = data["attribution"]
