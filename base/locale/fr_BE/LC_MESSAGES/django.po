@@ -2579,7 +2579,7 @@ msgid "requirement_entity_end_date_too_short"
 msgstr "La durée de vie de l'entité responsable cahier de charges est trop courte."
 
 msgid "Requirement and allocation entities must be linked to the same faculty for this learning unit type."
-msgstr "L'entité responsable cahier de charges et celle d'attribution doivent appartenir à la même facutlé pour ce type d'unite d'enseignement."
+msgstr "L'entité responsable du cahier de charges et celle d'attribution doivent appartenir à la même faculté pour ce type d'unité d'enseignement."
 
 msgid "success_modification_learning_unit"
 msgstr "L'unité d'enseignement a été modifiée."
