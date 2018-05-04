@@ -31,7 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.forms.utils.acronym_field import AcronymField, PartimAcronymField, split_acronym
 from base.forms.utils.choice_field import add_blank
-from base.models import entity_version, entity_container_year
+from base.models import entity_version
 from base.models.campus import find_main_campuses
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -93,6 +93,7 @@ class LearningUnitModelForm(forms.ModelForm):
         }
 
 
+# TODO Is it really useful ?
 class LearningContainerModelForm(forms.ModelForm):
     class Meta:
         model = LearningContainer
@@ -196,26 +197,27 @@ class EntityContainerYearModelForm(forms.ModelForm):
     entity_version = None
 
     def __init__(self, *args, **kwargs):
-        self.entity_type = kwargs.pop('entity_type')
+        entity_type = kwargs.pop('entity_type', None)
         self.person = kwargs.pop('person')
+
         super().__init__(*args, **kwargs)
+        if not self.instance.type:
+            self.instance.type = entity_type
 
-        self.instance.type = self.entity_type
-        self._set_field_by_entity_type(self.entity_type)
-
-        self.fields['entity'].label = _(self.entity_type.lower())
+        self._set_field_by_entity_type()
+        self.fields['entity'].label = _(self.instance.type.lower())
 
         if hasattr(self.instance, 'entity'):
             self.initial['entity'] = get_last_version(self.instance.entity).pk
 
-    def _set_field_by_entity_type(self, entity_type):
+    def _set_field_by_entity_type(self):
         set_by_entity_type = {
             REQUIREMENT_ENTITY: self.set_requirement_entity,
             ALLOCATION_ENTITY: self.set_allocation_entity,
             ADDITIONAL_REQUIREMENT_ENTITY_1: self.set_additional_requirement_entity_1,
             ADDITIONAL_REQUIREMENT_ENTITY_2: self.set_additional_requirement_entity_2,
         }
-        set_by_entity_type[entity_type]()
+        set_by_entity_type[self.instance.type]()
 
     def set_requirement_entity(self):
         field = self.fields['entity']
@@ -254,12 +256,6 @@ class EntityContainerYearModelForm(forms.ModelForm):
         self.entity_version = ev_data
         return ev_data.entity if ev_data else None
 
-    def save(self, **kwargs):
-        if hasattr(self.instance, 'entity'):
-            return super(EntityContainerYearModelForm, self).save(**kwargs)
-        else:
-            print()
-
     def post_clean(self, start_date):
         entity = self.cleaned_data.get('entity')
         if not entity:
@@ -272,21 +268,13 @@ class EntityContainerYearModelForm(forms.ModelForm):
 
 class EntityContainerYearFormset(forms.BaseInlineFormSet):
 
-    def save(self, **kwargs):
-        self.instance = kwargs.pop('learning_container_year')
-        return super().save(**kwargs)
-
     def get_form_kwargs(self, index):
         kwargs = super().get_form_kwargs(index)
-
-        # entity_type = ENTITY_TYPE_LIST[index]
-        # if self.instance:
-        #     kwargs['instance'] = entity_container_year.search(learning_container_year=self.instance,
-        #                                                       link_type=entity_type).get()
-        # kwargs['entity_type'] = entity_type
-
-        instance = kwargs.get('instance')
-        if not instance:
+        entity_type = ENTITY_TYPE_LIST[index]
+        qs = EntityContainerYear.objects.filter(learning_container_year=self.instance, type=entity_type)
+        if qs.exists():
+            kwargs['instance'] = qs.get()
+        else:
             kwargs['entity_type'] = ENTITY_TYPE_LIST[index]
         return kwargs
 

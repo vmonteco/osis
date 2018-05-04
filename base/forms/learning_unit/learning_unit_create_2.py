@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import abc
 from abc import ABCMeta
 from collections import OrderedDict
 
@@ -38,10 +37,7 @@ from base.forms.utils.acronym_field import split_acronym
 from base.models import learning_unit_year
 from base.models.campus import Campus
 from base.models.enums import learning_unit_year_subtypes
-from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
-from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
 from base.models.learning_unit import LearningUnit
-from base.models.learning_unit_year import LearningUnitYear
 from reference.models import language
 
 FULL_READ_ONLY_FIELDS = {"acronym", "academic_year", "container_type"}
@@ -294,10 +290,10 @@ class FullForm(LearningUnitBaseForm):
             acronym=self.forms[LearningUnitYearModelForm].instance.acronym,
             commit=commit
         )
-        entity_container_years = self.forms[EntityContainerFormset].save(
-            learning_container_year=container_year,
-            commit=commit
-        )
+
+        self.entity_container_form.instance = container_year
+        entity_container_years = self.entity_container_form.save(commit=commit)
+
         # Save learning unit year (learning_unit_component +  learning_component_year + entity_component_year)
         learning_unit_year = self.forms[LearningUnitYearModelForm].save(
             learning_container_year=container_year,
