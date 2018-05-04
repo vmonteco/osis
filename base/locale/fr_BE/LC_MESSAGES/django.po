@@ -2748,8 +2748,8 @@ msgstr "Statut des informations pédagogiques"
 msgid "The partim must be inactive because the parent is inactive"
 msgstr "Le partim doit être inactif car le cours complet est inactif"
 
-msgid "The parent must be active because there are partim active"
-msgstr "Le cours complet doit être actif car un partim est actif"
+msgid "There is at least one partim active, so the parent must be active"
+msgstr "Il existe au moins un partim actif, donc l'UE parent doit être active"
 
 msgid "educational_information_update_reminder"
 msgstr "Mail de rappel résumés"
