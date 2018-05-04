@@ -981,13 +981,13 @@ msgid "reuse_address_entity"
 msgstr "Réutiliser l'adresse de"
 
 msgid "save"
-msgstr "Sauvegarder"
+msgstr "Enregistrer"
 
 msgid "saved"
 msgstr "Enregistré"
 
 msgid "saving"
-msgstr "Sauvegarde en cours"
+msgstr "Enregistrement en cours"
 
 msgid "score"
 msgstr "Note"
@@ -1035,7 +1035,7 @@ msgid "scores_saved"
 msgstr "note(s) enregistrée(s)"
 
 msgid "scores_saved_cannot_be_saved_anymore"
-msgstr "Notes sauvegardées, le bouton sauvegarder n'est plus présent"
+msgstr "Notes enregistrées, le bouton enregistrer n'est plus présent"
 
 msgid "scores_must_be_between_0_and_20"
 msgstr "Les notes doivent être comprise entre 0 et 20"
@@ -2492,7 +2492,7 @@ msgid "msg_confirm_cancel_proposal"
 msgstr "Etes-vous certain de vouloir annuler la proposition ?"
 
 msgid "The administrative data has been successfully modified"
-msgstr "Les données administratives ont été sauvées avec succès"
+msgstr "Les données administratives ont été enregistrées avec succès"
 
 msgid "vacant"
 msgstr "Vacant"
