@@ -142,7 +142,7 @@ class LearningUnit(SerializableModel):
         for child in children:
             if child.periodicity == ANNUAL:
                 raise ValidationError(
-                    {'periodicity': _('The periodicity of the partim must be the same as that of the parent')}
+                    {'periodicity': _('The periodicity of the parent and the partims do not match')}
                 )
 
 

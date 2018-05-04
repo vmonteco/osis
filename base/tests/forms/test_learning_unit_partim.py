@@ -211,7 +211,7 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
         # The form should be valid
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors.get('periodicity'),
-                         [_('The periodicity of the partim must be the same as that of the parent')])
+                         [_('The periodicity of the parent and the partims do not match')])
 
     def test_partim_periodicity_biannual_with_parent_annual(self):
         a_new_learning_unit_partim = LearningUnitYearFactory(
