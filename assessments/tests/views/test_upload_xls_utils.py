@@ -26,6 +26,7 @@
 import datetime
 from unittest import mock
 
+from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.http import HttpResponseNotFound, Http404
