@@ -2870,3 +2870,19 @@ msgstr "To complete"
 
 msgid "annualized"
 msgstr "Annualized"
+
+msgid "start_year"
+msgstr "Starting year"
+
+msgid "produce_xls_attributions"
+msgstr "Xls with learning units and attributions"
+
+msgid "produce_xls_proposals"
+msgstr "Xls with proposals"
+
+msgid "proposal_date"
+msgstr "Proposals date"
+
+msgid "search_type"
+msgstr "Search type"
+

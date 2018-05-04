@@ -30,7 +30,9 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from attribution.business.xls_build import create_xls_attribution
 from base.business.learning_unit import create_xls
+from base.business.proposal_xls import create_xls_proposal
 from base.forms.common import TooManyResultsException
 from base.forms.learning_unit.search_form import LearningUnitYearForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalStateModelForm
@@ -41,7 +43,6 @@ from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views import layout
 from base.views.common import check_if_display_message, display_error_messages, display_messages_by_level
 from base.business import learning_unit_proposal as proposal_business
-
 
 SIMPLE_SEARCH = 1
 SERVICE_COURSES_SEARCH = 2
@@ -69,7 +70,10 @@ def learning_units_search(request, search_type):
         messages.add_message(request, messages.ERROR, _('too_many_results'))
 
     if request.GET.get('xls_status') == "xls":
-        return create_xls(request.user, found_learning_units)
+        return create_xls(request.user, found_learning_units, _get_filter(form, search_type))
+    if request.GET.get('xls_status') == "xls_attribution":
+        return create_xls_attribution(request.user, found_learning_units, _get_filter(form, search_type))
+
     a_person = find_by_user(request.user)
     context = {'form': form, 'academic_years': get_last_academic_years(),
                'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
@@ -111,6 +115,9 @@ def learning_units_proposal_search(request):
     except TooManyResultsException:
         display_error_messages(request, 'too_many_results')
 
+    if request.GET.get('xls_status') == "xls":
+        return create_xls_proposal(request.user, proposals, _get_filter(search_form, PROPOSAL_SEARCH))
+
     if request.POST:
         selected_proposals_id = request.POST.getlist("selected_action", default=[])
         selected_proposals = ProposalLearningUnit.objects.filter(id__in=selected_proposals_id)
@@ -149,3 +156,34 @@ def apply_action_on_proposals(proposals, author, post_data, research_criteria):
             new_state = form.cleaned_data.get("state")
             messages_by_level = proposal_business.force_state_of_proposals(proposals, author, new_state)
     return messages_by_level
+
+
+def _get_filter(form, search_type):
+    form_data = form.cleaned_data
+
+    filter_data = {
+        form[key].label: _get_filter_value(form, key, value)
+        for key, value in form_data.items()
+        if value
+        }
+
+    if search_type:
+        filter_data.update({_('search_type'): _get_search_type_label(search_type)})
+    return filter_data
+
+
+def _get_filter_value(form, key, value):
+    value_translated = value
+    if form[key].field.__class__.__name__ == 'ChoiceField' and form[key].field.choices:
+        value_translated = dict(form.fields[key].choices)[value]
+    return value_translated
+
+
+def _get_search_type_label(search_type):
+    if search_type == PROPOSAL_SEARCH:
+        return _('proposals_search')
+    if search_type == SERVICE_COURSES_SEARCH:
+        return _('service_course_search')
+    if search_type == BORROWED_COURSE:
+        return _('borrowed_course_search')
+    return _('activity_search')
