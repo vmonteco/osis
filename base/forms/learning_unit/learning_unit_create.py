@@ -23,12 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from collections import OrderedDict
+
 from django import forms
 from django.forms import inlineformset_factory
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.utils.acronym_field import AcronymField, PartimAcronymField, split_acronym
 from base.forms.utils.choice_field import add_blank
+from base.models import entity_version
 from base.models.campus import find_main_campuses
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -38,7 +41,7 @@ from base.models.enums.component_type import LECTURING, PRACTICAL_EXERCISES
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
     ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2, ENTITY_TYPE_LIST, REQUIREMENT_ENTITIES
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, \
-    CONTAINER_TYPE_WITH_DEFAULT_COMPONENT
+    CONTAINER_TYPE_WITH_DEFAULT_COMPONENT, LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_container import LearningContainer
@@ -97,6 +100,8 @@ class LearningContainerModelForm(forms.ModelForm):
 
 
 class LearningUnitYearModelForm(forms.ModelForm):
+    _warnings = None
+
     def __init__(self, data, person, subtype, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
 
@@ -161,6 +166,18 @@ class LearningUnitYearModelForm(forms.ModelForm):
             EntityComponentYear.objects.get_or_create(entity_container_year=requirement_entity_container,
                                                       learning_component_year=component)
 
+    @property
+    def warnings(self):
+        if self._warnings is None and self.instance:
+            parent = self.instance.parent or self.instance
+            children = self.instance.get_partims_related() or [self.instance]
+            self._warnings = [
+                _('The credits value of the partim %(acronym)s is greater or equal than the credits value of the '
+                  'parent learning unit.') % {'acronym': child.acronym}
+                for child in children if child.credits >= parent.credits]
+
+        return self._warnings
+
 
 class LearningUnitYearPartimModelForm(LearningUnitYearModelForm):
     class Meta(LearningUnitYearModelForm.Meta):
@@ -175,16 +192,17 @@ class LearningUnitYearPartimModelForm(LearningUnitYearModelForm):
 
 class EntityContainerYearModelForm(forms.ModelForm):
     entity = EntitiesVersionChoiceField(find_main_entities_version())
+    entity_version = None
 
     def __init__(self, *args, **kwargs):
-        entity_type = kwargs.pop('entity_type')
+        self.entity_type = kwargs.pop('entity_type')
         self.person = kwargs.pop('person')
         super().__init__(*args, **kwargs)
 
-        self.instance.type = entity_type
-        self._set_field_by_entity_type(entity_type)
+        self.instance.type = self.entity_type
+        self._set_field_by_entity_type(self.entity_type)
 
-        self.fields['entity'].label = _(entity_type.lower())
+        self.fields['entity'].label = _(self.entity_type.lower())
 
         if hasattr(self.instance, 'entity'):
             self.initial['entity'] = get_last_version(self.instance.entity).pk
@@ -231,12 +249,22 @@ class EntityContainerYearModelForm(forms.ModelForm):
         fields = ['entity']
 
     def clean_entity(self):
-        entity_version = self.cleaned_data['entity']
-        return entity_version.entity if entity_version else None
+        ev_data = self.cleaned_data['entity']
+        self.entity_version = ev_data
+        return ev_data.entity if ev_data else None
 
     def save(self, **kwargs):
         if hasattr(self.instance, 'entity'):
             return super(EntityContainerYearModelForm, self).save(**kwargs)
+
+    def post_clean(self, start_date):
+        entity = self.cleaned_data.get('entity')
+        if not entity:
+            return
+
+        if not entity_version.get_by_entity_and_date(entity, start_date):
+            self.add_error('entity', _("The linked entity does not exist at the start date of the "
+                                       "academic year linked to this learning unit"))
 
 
 class EntityContainerYearFormset(forms.BaseInlineFormSet):
@@ -255,6 +283,40 @@ class EntityContainerYearFormset(forms.BaseInlineFormSet):
     @property
     def changed_data(self):
         return [form.changed_data for form in self.forms]
+
+    def get_clean_data_entity(self, key):
+        try:
+            form = self.forms[ENTITY_TYPE_LIST.index(key.upper())]
+            return form.instance.entity
+        except(AttributeError, IndexError):
+            return None
+
+    def get_linked_entities_forms(self):
+        return {key: self.get_clean_data_entity(key) for key in ENTITY_TYPE_LIST}
+
+    @property
+    def fields(self):
+        return OrderedDict(
+            (ENTITY_TYPE_LIST[index].lower(), form.fields['entity']) for index, form in enumerate(self.forms)
+        )
+
+    def post_clean(self, container_type, academic_year):
+        for form in self.forms:
+            form.post_clean(academic_year.start_date)
+
+        requirement_entity_version = self.forms[0].entity_version
+        allocation_entity_version = self.forms[1].entity_version
+        requirement_faculty = requirement_entity_version.find_faculty_version(academic_year)
+        allocation_faculty = allocation_entity_version.find_faculty_version(academic_year)
+
+        if container_type in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES:
+            if requirement_faculty != allocation_faculty:
+                self.forms[1].add_error(
+                    "entity", _("Requirement and allocation entities must be linked to the same "
+                                "faculty for this learning unit type.")
+                )
+
+        return not any(form.errors for form in self.forms)
 
 
 EntityContainerFormset = inlineformset_factory(
@@ -289,3 +351,9 @@ class LearningContainerYearModelForm(forms.ModelForm):
         model = LearningContainerYear
         fields = ('container_type', 'common_title', 'common_title_english', 'language', 'campus',
                   'type_declaration_vacant', 'team', 'is_vacant')
+
+    def post_clean(self, specific_title):
+        if not self.instance.common_title and not specific_title:
+            self.add_error("common_title", _("must_set_common_title_or_specific_title"))
+
+        return not self.errors

@@ -796,7 +796,7 @@ class TestEditProposal(TestCase):
         self.campus = campus_factory.CampusFactory(organization=self.organization, is_administration=True)
         self.entity = EntityFactory(organization=self.organization)
         self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL,
-                                                   start_date=today - datetime.timedelta(days=1),
+                                                   start_date=today.replace(year=1900),
                                                    end_date=today.replace(year=today.year + 1))
 
         self.generated_container = GenerateContainer(start_year, end_year)

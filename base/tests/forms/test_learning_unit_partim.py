@@ -24,28 +24,27 @@
 #
 ##############################################################################
 from unittest import mock
+
 import factory
 import factory.fuzzy
-
 from django.forms import model_to_dict
 from django.http import QueryDict
-
-from base.forms.learning_unit.learning_unit_create_2 import PartimForm, PARTIM_FORM_READ_ONLY_FIELD
-from base.forms.utils import acronym_field
-from base.models.learning_unit import LearningUnit
-from base.models.learning_unit_year import LearningUnitYear
-from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
-from base.tests.factories.learning_unit import LearningUnitFactory
-
 from django.test import TestCase
+from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
+from base.forms.learning_unit.learning_unit_create_2 import PartimForm, PARTIM_FORM_READ_ONLY_FIELD
+from base.forms.utils import acronym_field
 from base.models.enums import learning_unit_year_subtypes
+from base.models.enums.learning_unit_periodicity import ANNUAL, BIENNIAL_EVEN
+from base.models.learning_unit import LearningUnit
+from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
+from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
-
 
 FULL_ACRONYM = 'LBIR1200'
 SUBDIVISION_ACRONYM = 'A'
@@ -154,7 +153,7 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
             'academic_year', 'container_type', 'internship_subtype',
             'additional_requirement_entity_1', 'additional_requirement_entity_2'
         }
-        all_fields = partim_form.get_all_fields().items()
+        all_fields = partim_form.fields.items()
         self.assertTrue(all(field.disabled == (field_name in expected_disabled_fields)
                             for field_name, field in all_fields))
 
@@ -189,6 +188,52 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
         self._test_learning_container_model_form_instance(form)
         self._test_learning_container_year_model_form_instance(form)
         self._test_entity_container_model_formset_instance(form)
+
+    def test_partim_periodicity_annual_with_parent_biannual(self):
+        a_new_learning_unit_partim = LearningUnitYearFactory(
+            academic_year=self.current_academic_year,
+            acronym=FULL_ACRONYM + 'W',
+            subtype=learning_unit_year_subtypes.PARTIM,
+            credits=0,
+            learning_container_year=self.learning_unit_year_full.learning_container_year,
+        )
+        a_new_learning_unit_partim.learning_unit.learning_container = self.learning_unit_year_full.learning_unit.learning_container
+        a_new_learning_unit_partim.learning_unit.save()
+
+        self.learning_unit_year_full.learning_unit.periodicity = BIENNIAL_EVEN
+        self.learning_unit_year_full.learning_unit.save()
+
+        post_data = get_valid_form_data(a_new_learning_unit_partim)
+        post_data['periodicity'] = ANNUAL
+
+        form = LearningUnitModelForm(data=post_data, instance=a_new_learning_unit_partim.learning_unit)
+
+        # The form should be valid
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertEqual(form.errors.get('periodicity'),
+                         [_('The periodicity of the partim must be the same as that of the parent')])
+
+    def test_partim_periodicity_biannual_with_parent_annual(self):
+        a_new_learning_unit_partim = LearningUnitYearFactory(
+            academic_year=self.current_academic_year,
+            acronym=FULL_ACRONYM + 'W',
+            subtype=learning_unit_year_subtypes.PARTIM,
+            credits=0,
+            learning_container_year=self.learning_unit_year_full.learning_container_year,
+        )
+        a_new_learning_unit_partim.learning_unit.learning_container = self.learning_unit_year_full.learning_unit.learning_container
+        a_new_learning_unit_partim.learning_unit.save()
+
+        self.learning_unit_year_full.learning_unit.periodicity = ANNUAL
+        self.learning_unit_year_full.learning_unit.save()
+
+        post_data = get_valid_form_data(a_new_learning_unit_partim)
+        post_data['periodicity'] = BIENNIAL_EVEN
+
+        form = LearningUnitModelForm(data=post_data, instance=a_new_learning_unit_partim.learning_unit)
+
+        # The form should be valid
+        self.assertTrue(form.is_valid(), form.errors)
 
     def _test_learning_unit_model_form_instance(self, partim_form, post_data):
         form_instance = partim_form.forms[LearningUnitModelForm]

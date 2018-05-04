@@ -2578,8 +2578,8 @@ msgstr "Modifier l'unité d'enseignement"
 msgid "requirement_entity_end_date_too_short"
 msgstr "La durée de vie de l'entité responsable cahier de charges est trop courte."
 
-msgid "requirement_and_allocation_entities_cannot_be_different"
-msgstr "L'entité responsable cahier de charges et celle d'attribution ne peuvent pas être différentes pour ce type d'unite d'enseignement."
+msgid "Requirement and allocation entities must be linked to the same faculty for this learning unit type."
+msgstr "L'entité responsable cahier de charges et celle d'attribution doivent appartenir à la même facutlé pour ce type d'unite d'enseignement."
 
 msgid "success_modification_learning_unit"
 msgstr "L'unité d'enseignement a été modifiée."
@@ -2710,11 +2710,8 @@ msgstr "Intitulé officiel en anglais propre au partim"
 msgid "Educational information submission dates updated"
 msgstr "Date de soumission des informations pédagogiques mis à jour"
 
-msgid "partim_credits_gt_parent_credits"
-msgstr "Le nombre de crédits est supérieur à celui de l'unité d'enseignement"
-
-msgid "partim_credits_equals_parent_credits"
-msgstr "Le nombre de crédits est égal à celui de l'unité d'enseignement"
+msgid "The credits value of the partim %(acronym)s is greater or equal than the credits value of the parent learning unit."
+msgstr "Le nombre de crédits du partim %(acronym)s est supérieur ou égal à celui de l'unité d'enseignement parent"
 
 msgid "The learning unit has been updated until %(year)s."
 msgstr "L'unité d'enseignement a été modifiée jusqu'en %(year)s."
@@ -2864,6 +2861,9 @@ msgstr "Recherche - Cours empruntés"
 
 msgid "add_another"
 msgstr "Ajouter un autre"
+
+msgid "The linked entity does not exist at the start date of the academic year linked to this learning unit"
+msgstr "L'entité liée n'existe pas à la date de début de l'année académique liée à cette unité d'enseignement"
 
 msgid "faculty_borrowing"
 msgstr "Faculté emprunteuse"
