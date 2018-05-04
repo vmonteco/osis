@@ -232,17 +232,21 @@ def debugger(func):
 
 
 def convert_to_html(item, label, value):
-    if item['type'] == 'offer':
-        if label == 'comp_acquis':
-            value = generate_html_from_comp_acquis(value)
-        elif label in ('caap', 'prerequis'):
-            value = generate_html_two_parts(value)
-        elif label in ('program',):
-            value = generate_html_for_program(value)
-        elif label == 'contacts':
-            value = generate_html_for_contacts(value)
-        value = value.strip()
-    return value
+    if item['type'] != 'offer':
+        return value
+
+    MAPPING = {
+        'comp_acquis': generate_html_from_comp_acquis,
+        'caap': generate_html_two_parts,
+        'prerequis': generate_html_two_parts,
+        'program': generate_html_for_program,
+        'contacts': generate_html_for_contacts,
+    }
+
+    if label in MAPPING:
+        value = MAPPING[label](value)
+
+    return value.strip()
 
 
 def import_terms(item, education_group_year, mapping_label_text_label, entity, language):
