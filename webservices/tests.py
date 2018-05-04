@@ -50,44 +50,7 @@ class ReddotWebServiceTestCase(TestCase):
             'sections': []
         })
 
-    def test_education_group_year_with_translation_fr(self):
-        language, iso_language = 'fr', 'fr-be'
-        academic_year = AcademicYearFactory()
-        education_group_year = EducationGroupYearFactory(academic_year=academic_year)
-
-        text_label = TextLabelFactory(entity=OFFER_YEAR)
-        translated_text_label = TranslatedTextLabelFactory(language=iso_language,
-                                                           text_label=text_label)
-        tt_fr = TranslatedTextFactory(
-            text_label=text_label,
-            entity=text_label.entity,
-            reference=education_group_year.id,
-            language=iso_language,
-            # text is randomized
-        )
-
-        response = self._get_response(academic_year.year, language, education_group_year.acronym)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content_type, 'application/json')
-        response_json = json.loads(response.content.decode('utf-8'))
-
-        self.assertDictEqual(response_json, {
-            'acronym': education_group_year.acronym,
-            'title': education_group_year.title_english,
-            'year': academic_year.year,
-            'language': language,
-            'sections': [
-                {
-                    'content': tt_fr.text,
-                    'label': translated_text_label.label,
-                    'id': text_label.label
-                }
-            ]
-        })
-
-    def test_education_group_year_with_translation_en(self):
-        language, iso_language = 'en', 'en'
+    def _test_education_group_year_with_translation(self, language, iso_language):
         academic_year = AcademicYearFactory()
         education_group_year = EducationGroupYearFactory(academic_year=academic_year)
 
@@ -108,9 +71,15 @@ class ReddotWebServiceTestCase(TestCase):
         self.assertEqual(response.content_type, 'application/json')
         response_json = json.loads(response.content.decode('utf-8'))
 
-        self.assertDictEqual(response_json, {
+        fake_response = self._mock_response_dictionary(academic_year, education_group_year, language, text_label,
+                                                       translated_text, translated_text_label)
+        self.assertDictEqual(response_json, fake_response)
+
+    def _mock_response_dictionary(self, academic_year, education_group_year, language, text_label, translated_text,
+                                  translated_text_label):
+        return {
             'acronym': education_group_year.acronym,
-            'title': education_group_year.title,
+            'title': education_group_year.title_english,
             'year': academic_year.year,
             'language': language,
             'sections': [
@@ -120,4 +89,10 @@ class ReddotWebServiceTestCase(TestCase):
                     'id': text_label.label
                 }
             ]
-        })
+        }
+
+    def test_education_group_year_with_translation_fr(self):
+        self._test_education_group_year_with_translation('fr', 'fr-be')
+
+    def test_education_group_year_with_translation_en(self):
+        self._test_education_group_year_with_translation('en', 'en')
