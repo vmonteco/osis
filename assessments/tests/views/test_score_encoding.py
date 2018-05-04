@@ -69,15 +69,13 @@ class MixinSetupOnlineEncoding:
         self.attribution = data["attribution"]
         self.offer_years = data["offer_years"]
         self.tutor = self.attribution.tutor
-        self.program_manager_1 = ProgramManagerFactory(offer_year=self.offer_years[0])
-        self.program_manager_2 = ProgramManagerFactory(offer_year=self.offer_years[1])
-
         add_permission(self.tutor.person.user, "can_access_scoreencoding")
-        add_permission(self.program_manager_1.person.user, "can_access_scoreencoding")
-        add_permission(self.program_manager_2.person.user, "can_access_scoreencoding")
+        self.program_managers = [ProgramManagerFactory(offer_year=self.offer_years[i]) for i in range(0,2)]
+        [add_permission(self.program_managers[i].person.user, "can_access_scoreencoding") for i in range(0,2)]
 
     def assert_exam_enrollments(self, exam_enrollment, score_draft, score_final, justification_draft,
                                 justification_final):
+        exam_enrollment.refresh_from_db()
         self.assertEqual(exam_enrollment.score_draft, score_draft)
         self.assertEqual(exam_enrollment.score_final, score_final)
         self.assertEqual(exam_enrollment.justification_draft, justification_draft)
@@ -140,32 +138,26 @@ class MixinSetupOnlineEncoding:
                 "program": str(offer_year.id)
                 }
 
-    def refresh_exam_enrollments_from_db(self):
-        for enrollment in self.enrollments:
-            enrollment.refresh_from_db()
-
 class TestOnlineEncodingTransaction(TransactionTestCase, MixinSetupOnlineEncoding):
     def setUp(self):
         self.generate_online_encoding_data()
 
     @mock.patch("assessments.views.score_encoding._get_common_encoding_context", side_effect=Http404)
-    def test_tutor_encoding_with_all_students(self, mock_method_to_raise_error):
+    def test_with_online_encoding_form_is_non_atomic(self, mock_method_to_raise_error):
         self.client.force_login(self.tutor.person.user)
         url = reverse('online_encoding_form', args=[self.learning_unit_year.id])
         self.client.post(url, data=self.get_form_with_all_students_filled())
 
-        self.refresh_exam_enrollments_from_db()
         self.assert_exam_enrollments(self.enrollments[0], 15, None, None, None)
         self.assert_exam_enrollments(self.enrollments[1], 18, None, None, None)
 
     @mock.patch("assessments.views.score_encoding.send_messages_to_notify_encoding_progress", side_effect=Http404)
-    def test_pgm_double_encoding_for_a_student(self, mock_method_to_raise_error):
-        self.client.force_login(self.program_manager_1.person.user)
+    def test_view_online_double_encoding_validation_is_non_atomic(self, mock_method_to_raise_error):
+        self.client.force_login(self.program_managers[0].person.user)
         url = reverse('online_double_encoding_validation', args=[self.learning_unit_year.id])
         prepare_exam_enrollment_for_double_encoding_validation(self.enrollments[0])
         self.client.post(url, data=self.get_form_with_one_student_filled())
 
-        self.refresh_exam_enrollments_from_db()
         self.assert_exam_enrollments(self.enrollments[0], 15, 15, None, None)
         self.assert_exam_enrollments(self.enrollments[1], None, None, None, None)
 
@@ -188,7 +180,6 @@ class OnlineEncodingTest(TestCase, MixinSetupOnlineEncoding):
         url = reverse('online_encoding_form', args=[self.learning_unit_year.id])
         response = self.client.post(url, data=self.get_form_with_one_student_filled())
 
-        self.refresh_exam_enrollments_from_db()
         self.assert_exam_enrollments(self.enrollments[0], 15, None, None, None)
         self.assert_exam_enrollments(self.enrollments[1], None, None, None, None)
 
@@ -199,26 +190,22 @@ class OnlineEncodingTest(TestCase, MixinSetupOnlineEncoding):
         self.enrollments[0].save()
         url = reverse('online_encoding_form', args=[self.learning_unit_year.id])
         self.client.post(url, data=self.get_form_with_one_student_filled())
-
-        self.refresh_exam_enrollments_from_db()
         self.assert_exam_enrollments(self.enrollments[0], 16, 16, None, None)
         self.assert_exam_enrollments(self.enrollments[1], None, None, None, None)
 
     def test_pgm_encoding_for_a_student(self):
-        self.client.force_login(self.program_manager_1.person.user)
+        self.client.force_login(self.program_managers[0].person.user)
         url = reverse('online_encoding_form', args=[self.learning_unit_year.id])
         self.client.post(url, data=self.get_form_with_one_student_filled())
 
-        self.refresh_exam_enrollments_from_db()
         self.assert_exam_enrollments(self.enrollments[0], 15, 15, None, None)
         self.assert_exam_enrollments(self.enrollments[1], None, None, None, None)
 
     def test_pgm_encoding_with_justification_for_a_student(self):
-        self.client.force_login(self.program_manager_2.person.user)
+        self.client.force_login(self.program_managers[1].person.user)
         url = reverse('online_encoding_form', args=[self.learning_unit_year.id])
         self.client.post(url, data=self.get_form_with_all_students_filled_and_one_with_justification_justified())
 
-        self.refresh_exam_enrollments_from_db()
         self.assert_exam_enrollments(self.enrollments[0], None, None, None, None)
         self.assert_exam_enrollments(self.enrollments[1], None, None, "ABSENCE_JUSTIFIED", "ABSENCE_JUSTIFIED")
 
@@ -227,7 +214,6 @@ class OnlineEncodingTest(TestCase, MixinSetupOnlineEncoding):
         url = reverse('online_encoding_form', args=[self.learning_unit_year.id])
         self.client.post(url, data=self.get_form_with_all_students_filled())
 
-        self.refresh_exam_enrollments_from_db()
         self.assert_exam_enrollments(self.enrollments[0], 15, None, None, None)
         self.assert_exam_enrollments(self.enrollments[1], 18, None, None, None)
 
@@ -238,7 +224,6 @@ class OnlineEncodingTest(TestCase, MixinSetupOnlineEncoding):
         url = reverse('online_encoding_form', args=[self.learning_unit_year.id])
         self.client.post(url, data=self.get_form_with_all_students_filled())
 
-        self.refresh_exam_enrollments_from_db()
         self.assert_exam_enrollments(self.enrollments[0], 15, None, None, None)
         self.assert_exam_enrollments(self.enrollments[1], 18, None, None, None)
 
@@ -247,7 +232,6 @@ class OnlineEncodingTest(TestCase, MixinSetupOnlineEncoding):
         url = reverse('online_encoding_form', args=[self.learning_unit_year.id])
         self.client.post(url, data=self.get_form_with_all_students_filled_and_one_with_justification_unjustified())
 
-        self.refresh_exam_enrollments_from_db()
         self.assert_exam_enrollments(self.enrollments[0], 15, None, None, None)
         self.assert_exam_enrollments(self.enrollments[1], None, None, "ABSENCE_UNJUSTIFIED", None)
 
@@ -261,26 +245,23 @@ class OnlineEncodingTest(TestCase, MixinSetupOnlineEncoding):
         url = reverse('online_encoding_form', args=[self.learning_unit_year.id])
         self.client.post(url, data=self.get_form_with_all_students_filled_and_one_with_justification_justified())
 
-        self.refresh_exam_enrollments_from_db()
         self.assert_exam_enrollments(self.enrollments[0], 15, None, None, None)
         self.assert_exam_enrollments(self.enrollments[1], None, None, exam_enrollment_justification_type.CHEATING, None)
 
     def test_pgm_double_encoding_for_a_student(self):
-        self.client.force_login(self.program_manager_1.person.user)
+        self.client.force_login(self.program_managers[0].person.user)
         url = reverse('online_double_encoding_validation', args=[self.learning_unit_year.id])
         prepare_exam_enrollment_for_double_encoding_validation(self.enrollments[0])
         self.client.post(url, data=self.get_form_with_one_student_filled())
 
-        self.refresh_exam_enrollments_from_db()
         self.assert_exam_enrollments(self.enrollments[0], 15, 15, None, None)
         self.assert_exam_enrollments(self.enrollments[1], None, None, None, None)
 
     def test_encoding_by_specific_criteria(self):
-        self.client.force_login(self.program_manager_1.person.user)
+        self.client.force_login(self.program_managers[0].person.user)
         url = reverse('specific_criteria_submission')
         self.client.post(url, data=self.get_form_for_specific_criteria())
 
-        self.refresh_exam_enrollments_from_db()
         self.assert_exam_enrollments(self.enrollments[0], 15, 15, None, None)
         self.assert_exam_enrollments(self.enrollments[1], None, None, None, None)
 
@@ -296,7 +277,7 @@ class OnlineEncodingTest(TestCase, MixinSetupOnlineEncoding):
 
     @patch("base.utils.send_mail.send_message_after_all_encoded_by_manager")
     def test_email_after_encoding_all_students_for_offer_year(self, mock_send_email):
-        self.client.force_login(self.program_manager_1.person.user)
+        self.client.force_login(self.program_managers[0].person.user)
         mock_send_email.return_value = None
         url = reverse('online_encoding_form', args=[self.learning_unit_year.id])
         self.client.post(url, data=self.get_form_with_all_students_filled())
@@ -311,7 +292,7 @@ class OnlineEncodingTest(TestCase, MixinSetupOnlineEncoding):
 
     @patch("base.utils.send_mail.send_message_after_all_encoded_by_manager")
     def test_email_after_encoding_all_students_for_offer_year_with_justification(self, mock_send_email):
-        self.client.force_login(self.program_manager_2.person.user)
+        self.client.force_login(self.program_managers[1].person.user)
         mock_send_email.return_value = None
         url = reverse('online_encoding_form', args=[self.learning_unit_year.id])
         self.client.post(url, data=self.get_form_with_all_students_filled_and_one_with_justification_unjustified())
