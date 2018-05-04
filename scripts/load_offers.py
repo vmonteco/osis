@@ -239,7 +239,7 @@ def convert_to_html(item, label, value):
         'comp_acquis': generate_html_from_comp_acquis,
         'caap': generate_html_two_parts,
         'prerequis': generate_html_two_parts,
-        'program': generate_html_for_program,
+        'programme': generate_html_for_program,
         'contacts': generate_html_for_contacts,
     }
 
@@ -346,16 +346,7 @@ def run(filename, language='fr-be'):
     * common
     * group
     """
-    languages = {x[0] for x in settings.LANGUAGES}
-    if language not in languages:
-        print('The language must to be one item of these languages {0}'.format(languages))
-        sys.exit(0)
-
-    path = pathlib.Path(filename)
-
-    if not path.exists():
-        print('The file must to exist')
-        sys.exit(0)
+    path = check_parameters(filename, language)
 
     entity = 'offer_year'
 
@@ -363,14 +354,36 @@ def run(filename, language='fr-be'):
 
     labels = set(chain.from_iterable(o.get('info', {}).keys() for o in items))
 
+    mapping_label_text_label = get_mapping_label_texts(entity, labels, language)
+
+    create_items(entity, items, language, mapping_label_text_label)
+
+
+def check_parameters(filename, language):
+    languages = {x[0] for x in settings.LANGUAGES}
+    if language not in languages:
+        print('The language must to be one item of these languages {0}'.format(languages))
+        sys.exit(0)
+    path = pathlib.Path(filename)
+    if not path.exists():
+        print('The file must to exist')
+        sys.exit(0)
+    return path
+
+
+def get_mapping_label_texts(entity, labels, language):
     mapping_label_text_label = {}
     for label in labels:
         text_label = get_text_label(entity, label)
 
-        TranslatedTextLabel.objects.get_or_create(text_label=text_label, language=language, label=find_translated_label(language, label))
+        TranslatedTextLabel.objects.get_or_create(text_label=text_label, language=language,
+                                                  label=find_translated_label(language, label))
 
         mapping_label_text_label[label] = text_label
+    return mapping_label_text_label
 
+
+def create_items(entity, items, language, mapping_label_text_label):
     for item in items:
         if 'info' not in item:
             continue
