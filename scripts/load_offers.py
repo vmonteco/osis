@@ -252,7 +252,7 @@ def convert_to_html(item, label, value):
     return value.strip()
 
 
-def import_terms(item, education_group_year, mapping_label_text_label, context):
+def import_offer_and_items(item, education_group_year, mapping_label_text_label, context):
     for label, value in item['info'].items():
         value = convert_to_html(item, label, value)
 
@@ -364,8 +364,7 @@ def run(filename, language='fr-be'):
 
     mapping_label_text_label = get_mapping_label_texts(context, labels)
 
-
-    create_items(context, items, mapping_label_text_label)
+    create_offers(context, items, mapping_label_text_label)
 
 
 def check_parameters(filename, language):
@@ -395,22 +394,26 @@ def get_mapping_label_texts(context, labels):
     return mapping_label_text_label
 
 
-def create_items(context, items, mapping_label_text_label):
-    for item in items:
-        if 'info' not in item:
-            continue
+def create_offers(context, offers, mapping_label_text_label):
+    for offer in offers:
+        import_offer(context, offer, mapping_label_text_label)
 
-        find_education_group_year = {
-            'group': find_education_group_year_for_group,
-            'common': find_education_group_year_for_common,
-            'offer': find_education_group_year_for_offer,
-        }.get(item['type'])
 
-        if not find_education_group_year:
-            continue
+def import_offer(context, offer, mapping_label_text_label):
+    if 'info' not in offer:
+        return None
 
-        egy = find_education_group_year(item)
-        if not egy:
-            continue
+    function = {
+        'group': find_education_group_year_for_group,
+        'common': find_education_group_year_for_common,
+        'offer': find_education_group_year_for_offer,
+    }.get(offer['type'])
 
-        import_terms(item, egy, mapping_label_text_label, context)
+    if not function:
+        return None
+
+    egy = function(offer)
+    if not egy:
+        return None
+
+    import_offer_and_items(offer, egy, mapping_label_text_label, context)
