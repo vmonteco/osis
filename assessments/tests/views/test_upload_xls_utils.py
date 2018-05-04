@@ -66,18 +66,18 @@ def _get_list_tag_and_content(messages):
     return [(m.tags, m.message) for m in messages]
 
 
-class TestTransactionNonAtomicUploadXls(TransactionTestCase):
-    def setUp(self):
+class MixinSetUpUploadXlsData:
+    def generate_upload_score_file_data(self):
         today = datetime.datetime.today()
         twenty_days = datetime.timedelta(days=20)
 
-        #Take same academic year as the one in the associated xls file
+        # Take same academic year as the one in the associated xls file
         an_academic_year = AcademicYearFactory(year=2017)
 
-        a_learning_unit_year = LearningUnitYearFakerFactory(academic_year=an_academic_year,
+        self.a_learning_unit_year = LearningUnitYearFakerFactory(academic_year=an_academic_year,
                                                             acronym=LEARNING_UNIT_ACRONYM)
 
-        tutor = TutorFactory()
+        self.tutor = TutorFactory()
 
         an_academic_calendar = AcademicCalendarFactory(academic_year=an_academic_year,
                                                        start_date=today - twenty_days,
@@ -85,10 +85,10 @@ class TestTransactionNonAtomicUploadXls(TransactionTestCase):
                                                        reference=academic_calendar_type.SCORES_EXAM_SUBMISSION)
         SessionExamCalendarFactory(number_session=number_session.ONE,
                                    academic_calendar=an_academic_calendar)
-        AttributionFactory(learning_unit_year=a_learning_unit_year,
-                           tutor=tutor)
+        AttributionFactory(learning_unit_year=self.a_learning_unit_year,
+                           tutor=self.tutor)
         a_session_exam = SessionExamFactory(number_session=number_session.ONE,
-                                            learning_unit_year=a_learning_unit_year)
+                                            learning_unit_year=self.a_learning_unit_year)
 
         self.person_student_1 = PersonFactory(email=EMAIL_1)
         person_student_2 = PersonFactory(email=EMAIL_2)
@@ -103,9 +103,9 @@ class TestTransactionNonAtomicUploadXls(TransactionTestCase):
         offer_enrollment_2 = OfferEnrollmentFactory(offer_year=an_offer_year,
                                                     student=student_2)
 
-        learning_unit_enrollment_1 = LearningUnitEnrollmentFactory(learning_unit_year=a_learning_unit_year,
+        learning_unit_enrollment_1 = LearningUnitEnrollmentFactory(learning_unit_year=self.a_learning_unit_year,
                                                                    offer_enrollment=offer_enrollment_1)
-        learning_unit_enrollment_2 = LearningUnitEnrollmentFactory(learning_unit_year=a_learning_unit_year,
+        learning_unit_enrollment_2 = LearningUnitEnrollmentFactory(learning_unit_year=self.a_learning_unit_year,
                                                                    offer_enrollment=offer_enrollment_2)
 
         ExamEnrollmentFactory(session_exam=a_session_exam,
@@ -113,10 +113,16 @@ class TestTransactionNonAtomicUploadXls(TransactionTestCase):
         ExamEnrollmentFactory(session_exam=a_session_exam,
                               learning_unit_enrollment=learning_unit_enrollment_2)
 
-        user = tutor.person.user
+
+
+class TestTransactionNonAtomicUploadXls(TransactionTestCase, MixinSetUpUploadXlsData):
+    def setUp(self):
+        self.generate_upload_score_file_data()
+
+        user = self.tutor.person.user
         self.client = Client()
         self.client.force_login(user=user)
-        self.url = reverse('upload_encoding', kwargs={'learning_unit_year_id': a_learning_unit_year.id})
+        self.url = reverse('upload_encoding', kwargs={'learning_unit_year_id': self.a_learning_unit_year.id})
 
     @mock.patch("assessments.views.upload_xls_utils._show_error_messages", side_effect=Http404)
     def test_with_correct_score_sheet(self, mock_show_error_messages):
@@ -136,57 +142,14 @@ class TestTransactionNonAtomicUploadXls(TransactionTestCase):
             self.assertEqual(exam_enrollment_2.justification_draft, SCORE_2)
 
 
-class TestUploadXls(TestCase):
+class TestUploadXls(TestCase, MixinSetUpUploadXlsData):
     def setUp(self):
-        today = datetime.datetime.today()
-        twenty_days = datetime.timedelta(days=20)
+        self.generate_upload_score_file_data()
 
-        #Take same academic year as the one in the associated xls file
-        an_academic_year = AcademicYearFactory(year=2017)
-
-        a_learning_unit_year = LearningUnitYearFakerFactory(academic_year=an_academic_year,
-                                                            acronym=LEARNING_UNIT_ACRONYM)
-
-        tutor = TutorFactory()
-
-        an_academic_calendar = AcademicCalendarFactory(academic_year=an_academic_year,
-                                                       start_date=today - twenty_days,
-                                                       end_date=today + twenty_days,
-                                                       reference=academic_calendar_type.SCORES_EXAM_SUBMISSION)
-        SessionExamCalendarFactory(number_session=number_session.ONE,
-                                   academic_calendar=an_academic_calendar)
-        AttributionFactory(learning_unit_year=a_learning_unit_year,
-                           tutor=tutor)
-        a_session_exam = SessionExamFactory(number_session=number_session.ONE,
-                                            learning_unit_year=a_learning_unit_year)
-
-        self.person_student_1 = PersonFactory(email=EMAIL_1)
-        person_student_2 = PersonFactory(email=EMAIL_2)
-
-        student_1 = StudentFactory(registration_id=REGISTRATION_ID_1, person=self.person_student_1)
-        student_2 = StudentFactory(registration_id=REGISTRATION_ID_2, person=person_student_2)
-
-        an_offer_year = OfferYearFactory(academic_year=an_academic_year,
-                                         acronym=OFFER_ACRONYM)
-        offer_enrollment_1 = OfferEnrollmentFactory(offer_year=an_offer_year,
-                                                    student=student_1)
-        offer_enrollment_2 = OfferEnrollmentFactory(offer_year=an_offer_year,
-                                                    student=student_2)
-
-        learning_unit_enrollment_1 = LearningUnitEnrollmentFactory(learning_unit_year=a_learning_unit_year,
-                                                                   offer_enrollment=offer_enrollment_1)
-        learning_unit_enrollment_2 = LearningUnitEnrollmentFactory(learning_unit_year=a_learning_unit_year,
-                                                                   offer_enrollment=offer_enrollment_2)
-
-        ExamEnrollmentFactory(session_exam=a_session_exam,
-                              learning_unit_enrollment=learning_unit_enrollment_1)
-        ExamEnrollmentFactory(session_exam=a_session_exam,
-                              learning_unit_enrollment=learning_unit_enrollment_2)
-
-        user = tutor.person.user
+        user = self.tutor.person.user
         self.client = Client()
         self.client.force_login(user=user)
-        self.url = reverse('upload_encoding', kwargs={'learning_unit_year_id': a_learning_unit_year.id})
+        self.url = reverse('upload_encoding', kwargs={'learning_unit_year_id': self.a_learning_unit_year.id})
 
     def test_with_no_file_uploaded(self):
         response = self.client.post(self.url, {'file': ''}, follow=True)
