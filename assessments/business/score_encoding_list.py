@@ -136,6 +136,7 @@ def assign_encoded_to_reencoded_enrollments(scores_encoding_list):
     return scores_encoding_list
 
 
+# TODO single transaction
 def update_enrollment(enrollment, user, is_program_manager=None):
     if is_program_manager is None:
         is_program_manager = program_manager.is_program_manager(user)

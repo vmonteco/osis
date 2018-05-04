@@ -482,19 +482,9 @@ class UploadXLSTest(TestCase):
 
     def test_header_not_changed(self):
         from assessments.business.score_encoding_export import HEADER
-        self.assertEqual(HEADER.index('academic_year'), 0)
-        self.assertEqual(HEADER.index('session_title'), 1)
-        self.assertEqual(HEADER.index('learning_unit'), 2)
-        self.assertEqual(HEADER.index('program'), 3)
-        self.assertEqual(HEADER.index('registration_number'), 4)
-        self.assertEqual(HEADER.index('lastname'), 5)
-        self.assertEqual(HEADER.index('firstname'), 6)
-        self.assertEqual(HEADER.index('email'), 7)
-        self.assertEqual(HEADER.index('numbered_score'), 8)
-        self.assertEqual(HEADER.index('justification'), 9)
-        self.assertEqual(HEADER.index('end_date'), 10)
-
-
+        header_expected_list = ['academic_year', 'session_title', 'learning_unit', 'program', 'registration_number',
+                              'lastname', 'firstname', 'email', 'numbered_score', 'justification', 'end_date']
+        self.assertListEqual(HEADER, header_expected_list)
 
 
 def prepare_exam_enrollment_for_double_encoding_validation(exam_enrollment):
