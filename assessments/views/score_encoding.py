@@ -241,6 +241,7 @@ def online_encoding_form(request, learning_unit_year_id=None):
 @login_required
 @permission_required('assessments.can_access_scoreencoding', raise_exception=True)
 @user_passes_test(_is_inside_scores_encodings_period, login_url=reverse_lazy('outside_scores_encodings_period'))
+@transaction.non_atomic_requests
 def online_encoding_submission(request, learning_unit_year_id):
     scores_list = score_encoding_list.get_scores_encoding_list(user=request.user,
                                                                learning_unit_year_id=learning_unit_year_id)
@@ -258,8 +259,9 @@ def online_encoding_submission(request, learning_unit_year_id):
             if exam_enroll.justification_draft:
                 exam_enroll.justification_final = exam_enroll.justification_draft
             exam_enroll.full_clean()
-            exam_enroll.save()
-            mdl.exam_enrollment.create_exam_enrollment_historic(request.user, exam_enroll)
+            with transaction.atomic():
+                exam_enroll.save()
+                mdl.exam_enrollment.create_exam_enrollment_historic(request.user, exam_enroll)
 
     # Send mail to all the teachers of the submitted learning unit on any submission
     all_encoded = len(not_submitted_enrollments) == 0
@@ -347,6 +349,7 @@ def online_double_encoding_form(request, learning_unit_year_id=None):
 @login_required
 @permission_required('assessments.can_access_scoreencoding', raise_exception=True)
 @user_passes_test(_is_inside_scores_encodings_period, login_url=reverse_lazy('outside_scores_encodings_period'))
+@transaction.non_atomic_requests
 def online_double_encoding_validation(request, learning_unit_year_id=None):
     if request.method == 'POST':
         updated_enrollments = None

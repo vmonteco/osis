@@ -27,7 +27,7 @@ from datetime import timedelta
 from unittest import mock
 from unittest.mock import patch
 
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Permission, Group
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import Http404
@@ -58,6 +58,8 @@ from base.tests.factories.student import StudentFactory
 
 class TestOnlineEncodingTransaction(TransactionTestCase):
     def setUp(self):
+        Group.objects.get_or_create(name="tutors")
+        Group.objects.get_or_create(name="program_managers")
         self.request_factory = RequestFactory()
         academic_year = _get_academic_year(year=2017)
         academic_calendar = AcademicCalendarFactory(title="Submission of score encoding - 1",
@@ -107,6 +109,16 @@ class TestOnlineEncodingTransaction(TransactionTestCase):
         self.assert_exam_enrollments(self.enrollments[0], 15, None, None, None)
         self.assert_exam_enrollments(self.enrollments[1], 18, None, None, None)
 
+    @mock.patch("assessments.views.score_encoding.send_messages_to_notify_encoding_progress", side_effect=Http404)
+    def test_pgm_double_encoding_for_a_student(self, mock_method_to_raise_error):
+        self.client.force_login(self.program_manager_1.person.user)
+        url = reverse('online_double_encoding_validation', args=[self.learning_unit_year.id])
+        prepare_exam_enrollment_for_double_encoding_validation(self.enrollments[0])
+        self.client.post(url, data=self.get_form_with_one_student_filled())
+
+        self.refresh_exam_enrollments_from_db()
+        self.assert_exam_enrollments(self.enrollments[0], 15, 15, None, None)
+        self.assert_exam_enrollments(self.enrollments[1], None, None, None, None)
 
     def assert_exam_enrollments(self, exam_enrollment, score_draft, score_final, justification_draft,
                                 justification_final):
