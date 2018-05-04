@@ -206,6 +206,7 @@ QUEUES = {}
 # Add local path in your environment settings (ex: dev.py)
 LOCALE_PATHS = ()
 
+
 def define_style_sheet(name, class_name):
     return {'name': name, 'element': 'div', 'attributes': {'class': class_name}}
 

@@ -126,7 +126,8 @@ def education_group_general_informations(request, education_group_year_id):
     assert_category_of_education_group_year(
         education_group_year, (education_group_categories.TRAINING, education_group_categories.MINI_TRAINING))
 
-    cms_label = mdl_cms.translated_text.find_labels_list_by_label_entity_and_reference(entity_name.OFFER_YEAR, education_group_year_id)
+    cms_label = mdl_cms.translated_text.find_labels_list_by_label_entity_and_reference(entity_name.OFFER_YEAR,
+                                                                                       education_group_year_id)
 
     fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
     en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
@@ -318,6 +319,7 @@ def find_root_by_name(text_label_name):
     return TextLabel.objects.prefetch_related(
         Prefetch('translatedtextlabel_set', to_attr="translated_text_labels")
     ).get(label=text_label_name, parent__isnull=True)
+
 
 def education_group_year_pedagogy_edit_post(request, education_group_year_id):
     form = EducationGroupPedagogyEditForm(request.POST)
