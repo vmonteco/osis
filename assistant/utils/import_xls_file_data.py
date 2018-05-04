@@ -40,6 +40,7 @@ from base.views.common import display_error_messages
 from assistant import models as assistant_mdl
 from assistant.forms import MandateFileForm
 from assistant.models.enums import assistant_type, assistant_phd_inscription, assistant_mandate_renewal
+from assistant.models.enums import assistant_mandate_state
 from assistant.utils import manager_access
 
 COLS_NUMBER = 23
@@ -48,7 +49,7 @@ MANDATES_IMPORTED = 0
 ASSISTANTS_UPDATED = 0
 MANDATES_UPDATED = 0
 PERSONS_NOT_FOUND = 0
-COLS_TITLES = ['SECTOR','LOGISTICS_ENTITY', 'FACULTY', 'SCHOOL', 'INSTITUTE', 'POLE', 'SAP_ID', 'GLOBAL_ID',
+COLS_TITLES = ['SECTOR', 'LOGISTICS_ENTITY', 'FACULTY', 'SCHOOL', 'INSTITUTE', 'POLE', 'SAP_ID', 'GLOBAL_ID',
                'LAST_NAME', 'FIRST_NAME', 'FULLTIME_EQUIVALENT', 'ENTRY_DATE', 'END_DATE', 'ASSISTANT_TYPE_CODE',
                'SCALE', 'CONTRACT_DURATION', 'CONTRACT_DURATION_FTE', 'RENEWAL_TYPE', 'ABSENCES', 'COMMENT',
                'OTHER_STATUS', 'EMAIL', 'FGS']
@@ -108,13 +109,16 @@ def read_xls_mandates(request, file_name):
                                                             entity_type.FACULTY)
                 if faculty:
                     link_mandate_to_entity(mandate, faculty)
-                school = search_entity_by_acronym_and_type(current_record.get('SCHOOL'),
-                                                                       entity_type.SCHOOL)
+                school = search_entity_by_acronym_and_type(
+                    current_record.get('SCHOOL'),
+                    entity_type.SCHOOL
+                )
                 if school:
                     link_mandate_to_entity(mandate, school)
 
-                institute = search_entity_by_acronym_and_type(current_record.get('INSTITUTE'),
-                                                              entity_type.INSTITUTE)
+                institute = search_entity_by_acronym_and_type(
+                    current_record.get('INSTITUTE'),
+                    entity_type.INSTITUTE)
                 if institute:
                     link_mandate_to_entity(mandate, institute)
                 pole = search_entity_by_acronym_and_type(current_record.get('POLE'), entity_type.POLE)
@@ -175,12 +179,14 @@ def create_academic_assistant_if_not_exists(record):
 
 def create_assistant_mandate_if_not_exists(record, assistant, entry_date, end_date):
     global MANDATES_IMPORTED, MANDATES_UPDATED
+    new_mandate = False
     current_academic_year = mdl.academic_year.current_academic_year()
     mandates = assistant_mdl.assistant_mandate.find_mandate(assistant, current_academic_year, record.get('SAP_ID'))
     if len(mandates) == 0:
         mandate = assistant_mdl.assistant_mandate.AssistantMandate()
-        mandate.state = 'TO_DO'
+        mandate.state = assistant_mandate_state.TO_DO
         MANDATES_IMPORTED += 1
+        new_mandate = True
     else:
         mandate = mandates[0]
         MANDATES_UPDATED += 1
@@ -207,7 +213,27 @@ def create_assistant_mandate_if_not_exists(record, assistant, entry_date, end_da
         mandate.assistant_type = assistant_type.ASSISTANT
     mandate.scale = record.get('SCALE')
     mandate.save()
+    if new_mandate:
+        retrieve_learning_units_year_from_previous_mandate(assistant, mandate)
     return mandate
+
+
+def retrieve_learning_units_year_from_previous_mandate(assistant, new_mandate):
+    current_academic_year = mdl.academic_year.current_academic_year()
+    previous_mandates = assistant_mdl.assistant_mandate.find_before_year_for_assistant(
+        current_academic_year.year,
+        assistant
+    )
+    if previous_mandates:
+        previous_mandate = previous_mandates[0]
+        previous_tutoring_learning_units_year = assistant_mdl.tutoring_learning_unit_year.find_by_mandate(
+            previous_mandate
+        )
+        if previous_tutoring_learning_units_year:
+            for previous_tutoring_learning_unit_year in previous_tutoring_learning_units_year:
+                previous_tutoring_learning_unit_year.pk = None
+                previous_tutoring_learning_unit_year.mandate = new_mandate
+                previous_tutoring_learning_unit_year.save()
 
 
 def link_mandate_to_entity(mandate, entity=None):
