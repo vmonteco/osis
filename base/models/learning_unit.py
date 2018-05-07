@@ -53,7 +53,7 @@ class LearningUnitAdmin(SerializableModelAdmin):
                                'faculty_remark', 'other_remark')
                  }),)
     raw_id_fields = ('learning_container',)
-    search_fields = ['learningunityear__acronym', 'learningunityear__title', 'learning_container__external_id']
+    search_fields = ['learningunityear__acronym', 'learning_container__external_id']
     list_filter = ('periodicity', 'start_year')
 
 
