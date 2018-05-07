@@ -2889,3 +2889,5 @@ msgstr "Proposals date"
 msgid "search_type"
 msgstr "Search type"
 
+msgid "COURSE_ENROLLMENT"
+msgstr "Course enrollment"
