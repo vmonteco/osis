@@ -197,7 +197,8 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
             credits=0,
             learning_container_year=self.learning_unit_year_full.learning_container_year,
         )
-        a_new_learning_unit_partim.learning_unit.learning_container = self.learning_unit_year_full.learning_unit.learning_container
+        a_new_learning_unit_partim.learning_unit.learning_container = \
+            self.learning_unit_year_full.learning_unit.learning_container
         a_new_learning_unit_partim.learning_unit.save()
 
         self.learning_unit_year_full.status = False
@@ -224,7 +225,8 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
             credits=0,
             learning_container_year=self.learning_unit_year_full.learning_container_year,
         )
-        a_new_learning_unit_partim.learning_unit.learning_container = self.learning_unit_year_full.learning_unit.learning_container
+        a_new_learning_unit_partim.learning_unit.learning_container = \
+            self.learning_unit_year_full.learning_unit.learning_container
         a_new_learning_unit_partim.learning_unit.save()
 
         self.learning_unit_year_full.learning_unit.periodicity = BIENNIAL_EVEN
@@ -248,7 +250,8 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
             credits=0,
             learning_container_year=self.learning_unit_year_full.learning_container_year,
         )
-        a_new_learning_unit_partim.learning_unit.learning_container = self.learning_unit_year_full.learning_unit.learning_container
+        a_new_learning_unit_partim.learning_unit.learning_container = \
+            self.learning_unit_year_full.learning_unit.learning_container
         a_new_learning_unit_partim.learning_unit.save()
 
         self.learning_unit_year_full.learning_unit.periodicity = ANNUAL
