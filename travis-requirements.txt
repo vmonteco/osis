@@ -22,4 +22,4 @@ django-waffle==0.14.0
 
 -r ./osis_common/requirements.txt
 -r ./internship/requirements.txt
-
+-r ./features/requirements.txt
