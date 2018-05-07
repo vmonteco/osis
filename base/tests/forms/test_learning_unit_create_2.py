@@ -92,7 +92,6 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
         'credits': learning_unit_year.credits,
         'session': learning_unit_year.session,
         'quadrimester': learning_unit_year.quadrimester,
-        'status': learning_unit_year.status,
         'internship_subtype': learning_unit_year.internship_subtype,
         'attribution_procedure': learning_unit_year.attribution_procedure,
 
