@@ -1,17 +1,17 @@
 import datetime
+import functools
+import os
+import random
+import shutil
+import tempfile
 import time
 from urllib import request
 
 import faker
-import functools
 import magic
-import os
 import parse
 import pendulum
 import pyvirtualdisplay
-import random
-import shutil
-import tempfile
 from django.conf import settings
 from django.contrib.auth.models import Group, Permission
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
@@ -20,6 +20,7 @@ from django.urls import reverse
 from django.utils import timezone
 from openpyxl import load_workbook
 from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 
@@ -74,7 +75,7 @@ class SeleniumTestCase(StaticLiveServerTestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.sel_settings = settings.SELENIUM_SETTINGS
-        print("### Virtual Display : {}".format(cls.sel_settings.get('VIRTUAL_DISPLAY')))
+        print("### Virtual Display : {}".format(cls.sel_settings.get('SELENIUM_HEADLESS')))
         cls.screen_size = (cls.sel_settings.get('SCREEN_WIDTH'), cls.sel_settings.get('SCREEN_HIGH'))
         cls.full_path_temp_dir = tempfile.mkdtemp('osis-selenium')
         if cls.sel_settings.get('VIRTUAL_DISPLAY'):
@@ -91,8 +92,10 @@ class SeleniumTestCase(StaticLiveServerTestCase):
                            'application/pdf',
                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
             fp.set_preference('browser.helperApps.neverAsk.saveToDisk', ','.join(known_mimes))
+            options = Options()
+            options.add_argument('-headless')
             cls.driver = webdriver.Firefox(executable_path=cls.sel_settings.get('GECKO_DRIVER'),
-                                           firefox_profile=fp)
+                                           firefox_profile=fp, firefox_options=options)
 
         if cls.sel_settings.get('WEB_BROWSER').upper() == 'CHROME':
             options = webdriver.ChromeOptions()
@@ -161,7 +164,7 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
         user = self.create_super_user()
         academic_year = AcademicYearFactory(year=pendulum.today().year-1)
         academic_calendar = AcademicCalendarFactory.build(academic_year=academic_year)
-        academic_calendar.save(functions=[])
+        academic_calendar.save()
         self.login(user.username)
 
         self.goto('academic_calendar_read', academic_calendar_id=academic_calendar.id)
@@ -183,7 +186,7 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
         user = self.create_super_user()
         academic_year = AcademicYearFactory(year=pendulum.today().year-1)
         academic_calendar = AcademicCalendarFactory.build(academic_year=academic_year)
-        academic_calendar.save(functions=[])
+        academic_calendar.save()
 
         self.login(user.username)
 
@@ -217,7 +220,7 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
             start_date=start_date,
             end_date=start_date + datetime.timedelta(days=10),
         )
-        academic_calendar.save(functions=[])
+        academic_calendar.save()
 
         person = PersonFactory(user=user, language='fr-be')
         offer_year = OfferYearFactory(academic_year=academic_year)
@@ -250,7 +253,7 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         academic_year = AcademicYearFactory(year=pendulum.today().year-1)
         academic_calendar = AcademicCalendarExamSubmissionFactory.build(academic_year=academic_year)
-        academic_calendar.save(functions=[])
+        academic_calendar.save()
 
         person = PersonFactory(user=user, language='fr-be')
         offer_year_factory = functools.partial(OfferYearFactory, academic_year=academic_year)
@@ -443,7 +446,7 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         academic_year = AcademicYearFactory(year=pendulum.today().year-1)
         academic_calendar = AcademicCalendarExamSubmissionFactory.build(academic_year=academic_year)
-        academic_calendar.save(functions=[])
+        academic_calendar.save()
 
         person = PersonFactory(
             user=user,
@@ -658,7 +661,7 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         academic_year = AcademicYearFactory(year=pendulum.today().year-1)
         academic_calendar = AcademicCalendarExamSubmissionFactory.build(academic_year=academic_year)
-        academic_calendar.save(functions=[])
+        academic_calendar.save()
 
         person = PersonFactory(
             user=user,
@@ -839,7 +842,7 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         academic_year = AcademicYearFactory(year=pendulum.today().year-1)
         academic_calendar = AcademicCalendarExamSubmissionFactory.build(academic_year=academic_year)
-        academic_calendar.save(functions=[])
+        academic_calendar.save()
 
         person = PersonFactory(
             user=user,
@@ -1086,7 +1089,7 @@ class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         academic_year = AcademicYearFactory(year=year)
         academic_calendar = AcademicCalendarExamSubmissionFactory.build(academic_year=academic_year)
-        academic_calendar.save(functions=[])
+        academic_calendar.save()
 
         return academic_year, academic_calendar
 

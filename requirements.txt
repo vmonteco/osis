@@ -16,7 +16,6 @@ pendulum==1.2.0
 djangorestframework==3.3.2
 gitpython==2.1.9
 requests==2.18.3
-prettyprinter==0.13.1
 django-bootstrap3==9.1.0
 django-ordered-model==1.4.3
 django-waffle==0.14.0
