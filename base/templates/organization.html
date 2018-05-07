@@ -108,10 +108,12 @@
                 {%endif%}
 
                 {% if request.user.is_superuser %}
-                    <a href="{{ url_identification_edit }}" title="{% trans 'edit' %}"
-                       class="btn btn-primary" role="button" id="bt_organization_edit">
-                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans 'edit' %}
-                    </a>
+                    <div class="pull-right">
+                        <a href="{{ url_identification_edit }}" title="{% trans 'edit' %}"
+                           class="btn btn-primary" role="button" id="bt_organization_edit">
+                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans 'edit' %}
+                        </a>
+                    </div>
                 {% endif %}
             </div>
             <div id="tab_campus_list" class="tab-pane fade">
