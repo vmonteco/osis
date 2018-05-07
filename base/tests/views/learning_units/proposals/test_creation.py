@@ -30,6 +30,7 @@ from django.http import HttpResponse
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+from waffle.testutils import override_flag
 
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
     LearningContainerYearModelForm
@@ -50,6 +51,7 @@ from base.views.learning_units.proposal.create import get_proposal_learning_unit
 from reference.tests.factories.language import LanguageFactory
 
 
+@override_flag('proposal', active=True)
 class LearningUnitViewTestCase(TestCase):
     def setUp(self):
         today = datetime.date.today()
@@ -68,7 +70,7 @@ class LearningUnitViewTestCase(TestCase):
         self.campus = campus_factory.CampusFactory(organization=self.organization, is_administration=True)
         self.entity = EntityFactory(organization=self.organization)
         self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL,
-                                                   start_date=today - datetime.timedelta(days=1),
+                                                   start_date=today.replace(year=1900),
                                                    end_date=self.academic_years[-1].end_date)
 
         PersonEntityFactory(person=self.faculty_person, entity=self.entity)

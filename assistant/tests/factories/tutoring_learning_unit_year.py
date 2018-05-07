@@ -23,26 +23,24 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
-import operator
-import string
-
-import factory.fuzzy
-import factory.fuzzy
-
-from base.models.enums import number_session as number_session_enum
-from base.models.learning_unit_year import LearningUnitYear
-from base.tests.factories.offer_year import OfferYearFactory
-from osis_common.utils.datetime import get_tzinfo
+import factory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 
 
-class SessionExamFactory(factory.DjangoModelFactory):
+class TutoringLearningUnitYearFactory(factory.DjangoModelFactory):
     class Meta:
-        model = 'base.SessionExam'
+        model = 'assistant.TutoringLearningUnitYear'
+        django_get_or_create = ('mandate','learning_unit_year',)
 
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    number_session = factory.Iterator(number_session_enum.NUMBERS_SESSION, getter=operator.itemgetter(0))
-    learning_unit_year = factory.SubFactory(LearningUnitYear)
-    offer_year = factory.SubFactory(OfferYearFactory)
+    mandate = factory.SubFactory(AssistantMandateFactory)
+    learning_unit_year = factory.SubFactory(LearningUnitYearFactory)
+
+    sessions_duration = factory.fuzzy.FuzzyInteger(1, 4)
+    sessions_number = factory.fuzzy.FuzzyInteger(10, 20)
+    series_number = factory.fuzzy.FuzzyInteger(1, 3)
+    face_to_face_duration = factory.fuzzy.FuzzyInteger(10, 300)
+    attendees = factory.fuzzy.FuzzyInteger(5, 50)
+    preparation_duration = factory.fuzzy.FuzzyInteger(5, 10)
+    exams_supervision_duration = factory.fuzzy.FuzzyInteger(0, 10)
+    others_delivery = factory.Faker('text', max_nb_chars=100)

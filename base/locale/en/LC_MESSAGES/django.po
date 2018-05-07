@@ -2572,8 +2572,8 @@ msgstr "Edit learning unit"
 msgid "requirement_entity_end_date_too_short"
 msgstr "The requirement entity lifetime is too short."
 
-msgid "requirement_and_allocation_entities_cannot_be_different"
-msgstr "The requirement and allocation entities cannot be different for this learning unit type."
+msgid "Requirement and allocation entities must be linked to the same faculty for this learning unit type."
+msgstr ""
 
 msgid "success_modification_learning_unit"
 msgstr "The learning unit has been updated."
@@ -2704,11 +2704,8 @@ msgstr "Official English title proper to the partim"
 msgid "Educational information submission dates updated"
 msgstr ""
 
-msgid "partim_credits_gt_parent_credits"
-msgstr "The credits value is greater than the credits value of the learning unit."
-
-msgid "partim_credits_equals_parent_credits"
-msgstr "The credits value is equal to the credits value of the learning unit."
+msgid "The credits value of the partim %(acronym)s is greater or equal than the credits value of the parent learning unit."
+msgstr ""
 
 msgid "The learning unit has been updated until %(year)s."
 msgstr ""
@@ -2745,7 +2742,7 @@ msgstr ""
 msgid "The partim must be inactive because the parent is inactive"
 msgstr ""
 
-msgid "The parent must be active because there are partim active"
+msgid "The periodicity of the parent and the partims do not match"
 msgstr ""
 
 msgid "educational_information_update_reminder"
@@ -2858,4 +2855,37 @@ msgstr "Borrowed courses - search"
 
 msgid "add_another"
 msgstr "Add another"
+
+msgid "The linked entity does not exist at the start date of the academic year linked to this learning unit"
+msgstr ""
+
+msgid "There is at least one partim active, so the parent must be active"
+msgstr ""
+
+msgid "faculty_borrowing"
+msgstr "Faculty borrowing"
+
+msgid "inherited"
+msgstr "Inherited"
+
+msgid "to_complete"
+msgstr "To complete"
+
+msgid "annualized"
+msgstr "Annualized"
+
+msgid "start_year"
+msgstr "Starting year"
+
+msgid "produce_xls_attributions"
+msgstr "Xls with learning units and attributions"
+
+msgid "produce_xls_proposals"
+msgstr "Xls with proposals"
+
+msgid "proposal_date"
+msgstr "Proposals date"
+
+msgid "search_type"
+msgstr "Search type"
 

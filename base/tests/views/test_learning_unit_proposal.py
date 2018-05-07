@@ -32,10 +32,11 @@ from django.contrib.auth.models import Permission
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.urlresolvers import reverse
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.http import HttpResponseNotFound, HttpResponse, HttpResponseForbidden
 from django.test import TestCase, RequestFactory
 from django.utils.translation import ugettext_lazy as _
+from waffle.testutils import override_flag
 
 from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
 from attribution.tests.factories.attribution_new import AttributionNewFactory
@@ -83,6 +84,7 @@ from reference.tests.factories.language import LanguageFactory
 LABEL_VALUE_BEFORE_PROPOSAL = _('value_before_proposal')
 
 
+@override_flag('proposal', active=True)
 class TestLearningUnitModificationProposal(TestCase):
     def setUp(self):
         self.person = PersonFactory()
@@ -254,6 +256,7 @@ class TestLearningUnitModificationProposal(TestCase):
                                                                "status", "credits"]}
         self.assertEqual(expected_initial_data_fields, INITIAL_DATA_FIELDS)
 
+    @transaction.atomic()
     def test_learning_unit_of_type_undefined(self):
         self.learning_unit_year.subtype = None
         with self.assertRaises(IntegrityError):
@@ -372,6 +375,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertTemplateUsed(response, "access_denied.html")
 
 
+@override_flag('proposal', active=True)
 class TestLearningUnitSuppressionProposal(TestCase):
     def setUp(self):
         self.person = PersonFactory()
@@ -482,6 +486,7 @@ class TestLearningUnitSuppressionProposal(TestCase):
         self.assertEqual(self.learning_unit.end_year, self.next_academic_year.year)
 
 
+@override_flag('proposal', active=True)
 class TestLearningUnitProposalSearch(TestCase):
     def setUp(self):
         self.person = PersonFactory()
@@ -525,6 +530,7 @@ class TestLearningUnitProposalSearch(TestCase):
         self.assertIn(_("minimum_one_criteria"), form.errors['__all__'])
 
 
+@override_flag('proposal', active=True)
 class TestGroupActionsOnProposals(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -584,6 +590,7 @@ class TestGroupActionsOnProposals(TestCase):
         self.assertEqual(new_state, proposal_state.ProposalState.ACCEPTED.name)
 
 
+@override_flag('proposal', active=True)
 class TestLearningUnitProposalCancellation(TestCase):
     def setUp(self):
         create_current_academic_year()
@@ -775,6 +782,7 @@ def _modify_entities_linked_to_learning_container_year(a_learning_container_year
         update(entity=a_new_entity)
 
 
+@override_flag('proposal', active=True)
 class TestEditProposal(TestCase):
 
     def setUp(self):
@@ -788,7 +796,7 @@ class TestEditProposal(TestCase):
         self.campus = campus_factory.CampusFactory(organization=self.organization, is_administration=True)
         self.entity = EntityFactory(organization=self.organization)
         self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL,
-                                                   start_date=today - datetime.timedelta(days=1),
+                                                   start_date=today.replace(year=1900),
                                                    end_date=today.replace(year=today.year + 1))
 
         self.generated_container = GenerateContainer(start_year, end_year)
@@ -1089,6 +1097,8 @@ class TestLearningUnitProposalDisplay(TestCase):
         return entity_version.get_last_version(other_entity)
 
 
+
+@override_flag('proposal', active=True)
 class TestCreationProposalCancel(TestCase):
 
     def setUp(self):

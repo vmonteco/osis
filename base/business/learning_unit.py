@@ -46,6 +46,9 @@ from osis_common.document import xls_build
 from osis_common.utils.datetime import convert_date_to_datetime
 
 # List of key that a user can modify
+LEARNING_UNIT_TITLES = [str(_('academic_year_small')), str(_('code')), str(_('title')), str(_('type')),
+                        str(_('subtype')), str(_('requirement_entity_small')), str(_('allocation_entity_small')),
+                        str(_('credits')), str(_('active_title'))]
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'prerequisite']
 CMS_LABEL_PEDAGOGY = ['resume', 'teaching_methods', 'evaluation_methods', 'other_informations', 'online_resources']
 CMS_LABEL_SUMMARY = ['resume']
@@ -78,15 +81,6 @@ def get_same_container_year_components(learning_unit_year, with_classes=False):
                            })
 
     return _compose_components_dict(components, additionnal_entities)
-
-
-def show_subtype(learning_unit_year):
-    learning_container_year = learning_unit_year.learning_container_year
-
-    if learning_container_year:
-        return learning_container_year.container_type == learning_container_year_types.COURSE or \
-               learning_container_year.container_type == learning_container_year_types.INTERNSHIP
-    return False
 
 
 def get_campus_from_learning_unit_year(learning_unit_year):
@@ -174,50 +168,42 @@ def _is_used_by_full_learning_unit_year(a_learning_class_year):
 
 
 def prepare_xls_content(found_learning_units):
-    return [_extract_xls_data_from_learning_unit(lu) for lu in found_learning_units]
+    return [extract_xls_data_from_learning_unit(lu) for lu in found_learning_units]
 
 
-def _extract_xls_data_from_learning_unit(learning_unit_yr):
+def extract_xls_data_from_learning_unit(learning_unit_yr):
     return [learning_unit_yr.academic_year.name, learning_unit_yr.acronym, learning_unit_yr.complete_title,
             xls_build.translate(learning_unit_yr.learning_container_year.container_type),
             xls_build.translate(learning_unit_yr.subtype),
-            _get_entity_acronym(learning_unit_yr.entities.get('REQUIREMENT_ENTITY')),
-            _get_entity_acronym(learning_unit_yr.entities.get('ALLOCATION_ENTITY')),
+            get_entity_acronym(learning_unit_yr.entities.get('REQUIREMENT_ENTITY')),
+            get_entity_acronym(learning_unit_yr.entities.get('ALLOCATION_ENTITY')),
             learning_unit_yr.credits, xls_build.translate(learning_unit_yr.status)]
 
 
 def prepare_xls_parameters_list(user, workingsheets_data):
     return {xls_build.LIST_DESCRIPTION_KEY: "Liste d'activités",
             xls_build.FILENAME_KEY: 'Learning_units',
-            xls_build.USER_KEY: _get_name_or_username(user),
+            xls_build.USER_KEY: get_name_or_username(user),
             xls_build.WORKSHEETS_DATA:
                 [{xls_build.CONTENT_KEY: workingsheets_data,
-                  xls_build.HEADER_TITLES_KEY: [str(_('academic_year_small')),
-                                                str(_('code')),
-                                                str(_('title')),
-                                                str(_('type')),
-                                                str(_('subtype')),
-                                                str(_('requirement_entity_small')),
-                                                str(_('allocation_entity_small')),
-                                                str(_('credits')),
-                                                str(_('active_title'))],
+                  xls_build.HEADER_TITLES_KEY: LEARNING_UNIT_TITLES,
                   xls_build.WORKSHEET_TITLE_KEY: 'Learning_units',
                   }
                  ]}
 
 
-def _get_name_or_username(a_user):
+def get_name_or_username(a_user):
     person = mdl_base.person.find_by_user(a_user)
     return "{}, {}".format(person.last_name, person.first_name) if person else a_user.username
 
 
-def _get_entity_acronym(an_entity):
+def get_entity_acronym(an_entity):
     return an_entity.acronym if an_entity else None
 
 
-def create_xls(user, found_learning_units):
-    workingsheets_data = prepare_xls_content(found_learning_units)
-    return xls_build.generate_xls(prepare_xls_parameters_list(user, workingsheets_data))
+def create_xls(user, found_learning_units, filters):
+    working_sheets_data = prepare_xls_content(found_learning_units)
+    return xls_build.generate_xls(prepare_xls_parameters_list(user, working_sheets_data), filters)
 
 
 def is_summary_submission_opened():

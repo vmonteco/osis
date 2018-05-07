@@ -28,6 +28,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
+from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_http_methods
@@ -65,6 +66,7 @@ INFORMATIVE_JUSTIFICATION_ALIASES = {
 
 @login_required
 @require_http_methods(["POST"])
+@transaction.non_atomic_requests
 def upload_scores_file(request, learning_unit_year_id=None):
     # import pdb; pdb.set_trace()
     form = ScoreFileForm(request.POST, request.FILES)

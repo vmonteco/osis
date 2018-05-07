@@ -44,11 +44,11 @@ msgstr "Veuillez entrer une valeur supérieure ou égale à 0."
 msgid "max_for_field"
 msgstr "Veuillez entrer une valeur inférieur ou égale à 500."
 
-msgid "add another"
-msgstr "ajouter un autre"
+msgid "Add another"
+msgstr "Ajouter un autre"
 
 msgid "remove"
-msgstr "supprimer"
+msgstr "Supprimer"
 
 msgid "confirm_achievement_delete"
 msgstr "Etes-vous sûre de vouloir supprimer l'acquis d'apprentissage?"

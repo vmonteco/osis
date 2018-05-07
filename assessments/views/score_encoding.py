@@ -34,7 +34,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.db import connection, close_old_connections
+from django.db import connection, close_old_connections, transaction
 from django.db.utils import OperationalError as DjangoOperationalError, InterfaceError as DjangoInterfaceError
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
@@ -203,6 +203,7 @@ def online_encoding(request, learning_unit_year_id=None):
 @login_required
 @permission_required('assessments.can_access_scoreencoding', raise_exception=True)
 @user_passes_test(_is_inside_scores_encodings_period, login_url=reverse_lazy('outside_scores_encodings_period'))
+@transaction.non_atomic_requests
 def online_encoding_form(request, learning_unit_year_id=None):
     template_name = "online_encoding_form.html"
     if request.method == 'POST':
@@ -243,6 +244,7 @@ def online_encoding_form(request, learning_unit_year_id=None):
 @login_required
 @permission_required('assessments.can_access_scoreencoding', raise_exception=True)
 @user_passes_test(_is_inside_scores_encodings_period, login_url=reverse_lazy('outside_scores_encodings_period'))
+@transaction.non_atomic_requests
 def online_encoding_submission(request, learning_unit_year_id):
     scores_list = score_encoding_list.get_scores_encoding_list(user=request.user,
                                                                learning_unit_year_id=learning_unit_year_id)
@@ -260,8 +262,9 @@ def online_encoding_submission(request, learning_unit_year_id):
             if exam_enroll.justification_draft:
                 exam_enroll.justification_final = exam_enroll.justification_draft
             exam_enroll.full_clean()
-            exam_enroll.save()
-            mdl.exam_enrollment.create_exam_enrollment_historic(request.user, exam_enroll)
+            with transaction.atomic():
+                exam_enroll.save()
+                mdl.exam_enrollment.create_exam_enrollment_historic(request.user, exam_enroll)
 
     # Send mail to all the teachers of the submitted learning unit on any submission
     all_encoded = len(not_submitted_enrollments) == 0
@@ -349,6 +352,7 @@ def online_double_encoding_form(request, learning_unit_year_id=None):
 @login_required
 @permission_required('assessments.can_access_scoreencoding', raise_exception=True)
 @user_passes_test(_is_inside_scores_encodings_period, login_url=reverse_lazy('outside_scores_encodings_period'))
+@transaction.non_atomic_requests
 def online_double_encoding_validation(request, learning_unit_year_id=None):
     if request.method == 'POST':
         updated_enrollments = None

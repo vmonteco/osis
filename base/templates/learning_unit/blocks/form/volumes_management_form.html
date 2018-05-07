@@ -71,11 +71,13 @@
         {% endfor %}
     </table>
     <div class="pull-right">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalReport">
+            <span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span> {% trans 'save' %}
+        </button>
         <a class="btn btn-default"
            href="{% url 'learning_unit_components' learning_unit_year_id=learning_unit_year.id %}">
             {% trans 'cancel' %}
         </a>
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalReport">{% trans 'save' %}</button>
     </div>
     {% include "learning_unit/blocks/modal/modal_modification_ask_to_report.html" %}
 </form>

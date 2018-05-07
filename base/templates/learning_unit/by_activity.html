@@ -39,11 +39,28 @@
                 {% trans 'learning_units'|lower %}
             </strong>
 
-            <button type="submit" id="btn_produce_xls" class="btn btn-default pull-right"
-                    style="margin-right:10px;" title="{% trans 'produce_xls' %}" >
-                <i class="fa fa-table" aria-hidden="true" style="padding-left:10px;"></i>
-                &nbsp;{% trans 'produce_xls_lu' %}
-            </button>
+            <div class="dropdown {{ dropdirection }} text-right">
+                <button id="dLabel" class="btn btn-default" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> {% trans 'Xls' %}
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
+                    <li>
+                        <a id="btn_produce_xls"
+                                style="margin-right:10px;" title="{% trans 'produce_xls' %}" >
+                            <i class="fa fa-table" aria-hidden="true" style="padding-left:10px;"></i>
+                            &nbsp;{% trans 'produce_xls_lu' %}
+                        </a>
+                    </li>
+                    <li>
+                        <a id="btn_produce_xls_attributions"
+                                style="margin-right:10px;" title="{% trans 'produce_xls_attribution' %}" >
+                            <i class="fa fa-table" aria-hidden="true" style="padding-left:10px;"></i>
+                            &nbsp;{% trans 'produce_xls_attributions' %}
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
             <table id="table_learning_units" class="table table-striped table-hover">
             <thead>

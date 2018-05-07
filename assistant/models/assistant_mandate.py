@@ -107,6 +107,12 @@ def find_by_academic_year(academic_year):
     return AssistantMandate.objects.filter(academic_year=academic_year).order_by('assistant__person__last_name')
 
 
+def find_by_academic_year_by_excluding_declined(academic_year):
+    return AssistantMandate.objects.filter(academic_year=academic_year).\
+        exclude(state=assistant_mandate_state.DECLINED).\
+        order_by('assistant__person__last_name')
+
+
 def find_before_year_for_assistant(year, assistant):
     return AssistantMandate.objects.filter(academic_year__year__lt=year).filter(assistant=assistant)
 

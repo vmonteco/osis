@@ -198,6 +198,10 @@ def display_info_messages(request, messages_to_display, extra_tags=None):
     display_messages(request, messages_to_display, messages.INFO, extra_tags=extra_tags)
 
 
+def display_warning_messages(request, messages_to_display, extra_tags=None):
+    display_messages(request, messages_to_display, messages.WARNING, extra_tags=extra_tags)
+
+
 def display_messages(request, messages_to_display, level, extra_tags=None):
     if not isinstance(messages_to_display, (tuple, list)):
         messages_to_display = [messages_to_display]
