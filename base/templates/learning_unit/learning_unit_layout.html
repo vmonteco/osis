@@ -34,6 +34,9 @@
                 {% block form %}
                     <form method="post" id="LearningUnitYearForm"
                           data-validate-url="{% url 'check_acronym' subtype=learning_unit_year.subtype %}">
+                        {% block submit_up %}
+                            {% include "learning_unit/blocks/save_cancel_buttons.html" %}
+                        {% endblock submit_up %}
                         {% csrf_token %}
                         {% bootstrap_form_errors learning_unit_year_form %}
                         {% bootstrap_form_errors learning_unit_form %}
@@ -100,11 +103,10 @@
                             </div>
                         </div>
 
-                        <div class="row">
-                            {% block submit %}
-                                {% include "learning_unit/blocks/save_cancel_buttons.html" %}
-                            {% endblock submit %}
-                        </div>
+                        {% block submit_down %}
+                            {% include "learning_unit/blocks/save_cancel_buttons.html" %}
+                        {% endblock submit_down %}
+
 
                         {% block modal %}
                         {% endblock modal %}
