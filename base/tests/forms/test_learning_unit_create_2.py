@@ -92,6 +92,7 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
         'credits': learning_unit_year.credits,
         'session': learning_unit_year.session,
         'quadrimester': learning_unit_year.quadrimester,
+        'status': learning_unit_year.status,
         'internship_subtype': learning_unit_year.internship_subtype,
         'attribution_procedure': learning_unit_year.attribution_procedure,
 
@@ -150,13 +151,6 @@ class TestFullFormInit(LearningUnitFullFormContextMixin):
         form = FullForm(None, self.person, instance=self.learning_unit_year)
         disabled_fields = {key for key, value in form.fields.items() if value.disabled}
         self.assertEqual(disabled_fields, FULL_READ_ONLY_FIELDS)
-
-    def test_faculty_open_fields(self):
-
-        list_open_fields = {'quadrimester', 'session', 'team', "faculty_remark", "other_remark",
-                               'common_title_english',
-                               'specific_title_english', "status"}
-        self.assertEqual(FACULTY_OPEN_FIELDS, list_open_fields)
 
     def test_disable_fields_full_proposal(self):
 
