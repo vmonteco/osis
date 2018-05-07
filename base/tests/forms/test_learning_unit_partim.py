@@ -189,6 +189,34 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
         self._test_learning_container_year_model_form_instance(form)
         self._test_entity_container_model_formset_instance(form)
 
+    def test_partim_active_with_parent_inactive(self):
+        a_new_learning_unit_partim = LearningUnitYearFactory(
+            academic_year=self.current_academic_year,
+            acronym=FULL_ACRONYM + 'W',
+            subtype=learning_unit_year_subtypes.PARTIM,
+            credits=0,
+            learning_container_year=self.learning_unit_year_full.learning_container_year,
+        )
+        a_new_learning_unit_partim.learning_unit.learning_container = \
+            self.learning_unit_year_full.learning_unit.learning_container
+        a_new_learning_unit_partim.learning_unit.save()
+
+        self.learning_unit_year_full.status = False
+        self.learning_unit_year_full.save()
+
+        post_data = get_valid_form_data(a_new_learning_unit_partim)
+        post_data['status'] = True
+
+        form = LearningUnitYearModelForm(data=post_data,
+                                         instance=a_new_learning_unit_partim,
+                                         person=PersonFactory(),
+                                         subtype=learning_unit_year_subtypes.PARTIM)
+
+        # The form should not be valid
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertEqual(form.errors.get('status'),
+                         [_('The partim must be inactive because the parent is inactive')])
+
     def test_partim_periodicity_annual_with_parent_biannual(self):
         a_new_learning_unit_partim = LearningUnitYearFactory(
             academic_year=self.current_academic_year,
@@ -197,7 +225,8 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
             credits=0,
             learning_container_year=self.learning_unit_year_full.learning_container_year,
         )
-        a_new_learning_unit_partim.learning_unit.learning_container = self.learning_unit_year_full.learning_unit.learning_container
+        a_new_learning_unit_partim.learning_unit.learning_container = \
+            self.learning_unit_year_full.learning_unit.learning_container
         a_new_learning_unit_partim.learning_unit.save()
 
         self.learning_unit_year_full.learning_unit.periodicity = BIENNIAL_EVEN
@@ -208,10 +237,10 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
 
         form = LearningUnitModelForm(data=post_data, instance=a_new_learning_unit_partim.learning_unit)
 
-        # The form should be valid
+        # The form should not be valid
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors.get('periodicity'),
-                         [_('The periodicity of the partim must be the same as that of the parent')])
+                         [_('The periodicity of the parent and the partims do not match')])
 
     def test_partim_periodicity_biannual_with_parent_annual(self):
         a_new_learning_unit_partim = LearningUnitYearFactory(
@@ -221,7 +250,8 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
             credits=0,
             learning_container_year=self.learning_unit_year_full.learning_container_year,
         )
-        a_new_learning_unit_partim.learning_unit.learning_container = self.learning_unit_year_full.learning_unit.learning_container
+        a_new_learning_unit_partim.learning_unit.learning_container = \
+            self.learning_unit_year_full.learning_unit.learning_container
         a_new_learning_unit_partim.learning_unit.save()
 
         self.learning_unit_year_full.learning_unit.periodicity = ANNUAL

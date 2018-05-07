@@ -2742,7 +2742,7 @@ msgstr ""
 msgid "The partim must be inactive because the parent is inactive"
 msgstr ""
 
-msgid "The parent must be active because there are partim active"
+msgid "The periodicity of the parent and the partims do not match"
 msgstr ""
 
 msgid "educational_information_update_reminder"
@@ -2857,6 +2857,9 @@ msgid "add_another"
 msgstr "Add another"
 
 msgid "The linked entity does not exist at the start date of the academic year linked to this learning unit"
+msgstr ""
+
+msgid "There is at least one partim active, so the parent must be active"
 msgstr ""
 
 msgid "faculty_borrowing"
