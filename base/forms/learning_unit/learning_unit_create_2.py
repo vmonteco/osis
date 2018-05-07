@@ -49,7 +49,8 @@ PARTIM_FORM_READ_ONLY_FIELD = {'acronym_0', 'acronym_1', 'common_title', 'common
                                'academic_year', 'container_type', 'internship_subtype',
                                'additional_requirement_entity_1', 'additional_requirement_entity_2'}
 
-FACULTY_OPEN_FIELDS = {'quadrimester', 'session', 'team', "faculty_remark", "other_remark"}
+FACULTY_OPEN_FIELDS = {'quadrimester', 'session', 'team', "faculty_remark", "other_remark", 'common_title_english',
+                       'specific_title_english'}
 
 
 class LearningUnitBaseForm(metaclass=ABCMeta):
