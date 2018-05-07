@@ -32,7 +32,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
 from base.forms.learning_unit.learning_unit_create_2 import FullForm, FULL_READ_ONLY_FIELDS, \
-    FULL_PROPOSAL_READ_ONLY_FIELDS
+    FULL_PROPOSAL_READ_ONLY_FIELDS, FACULTY_OPEN_FIELDS
 from base.models.academic_year import AcademicYear
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -151,6 +151,13 @@ class TestFullFormInit(LearningUnitFullFormContextMixin):
         form = FullForm(None, self.person, instance=self.learning_unit_year)
         disabled_fields = {key for key, value in form.fields.items() if value.disabled}
         self.assertEqual(disabled_fields, FULL_READ_ONLY_FIELDS)
+
+    def test_faculty_open_fields(self):
+
+        list_open_fields = {'quadrimester', 'session', 'team', "faculty_remark", "other_remark",
+                               'common_title_english',
+                               'specific_title_english', "status"}
+        self.assertEqual(FACULTY_OPEN_FIELDS, list_open_fields)
 
     def test_disable_fields_full_proposal(self):
 
