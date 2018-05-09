@@ -88,7 +88,7 @@
                         <td><a href="{% url 'organization_read' organization_id=organization.id %}"
                                id="lnk_organization_read_{{organization.id}}">{{ organization.acronym | default_if_none:'-' }}</a></td>
                         <td>{{ organization.name }}</td>
-                        <td>{% if organization.type %}  {% trans organization.type %} {% else %} - {% endif %}</td>
+                        <td>{% if organization.type and organization.type != "UNKNOWN" %}  {% trans organization.type %} {% else %} - {% endif %}</td>
                     </tr>
                 {% endfor %}
             </tbody>

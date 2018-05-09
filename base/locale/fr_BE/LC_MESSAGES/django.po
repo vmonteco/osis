@@ -2894,3 +2894,6 @@ msgstr "Date proposition"
 
 msgid "search_type"
 msgstr "Type de recherche"
+
+msgid "COURSE_ENROLLMENT"
+msgstr "Inscription aux cours"

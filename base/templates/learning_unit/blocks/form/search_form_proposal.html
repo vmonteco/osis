@@ -30,7 +30,7 @@
         {% bootstrap_field form.academic_year_id %}
     </div>
     <div class="col-md-2">
-        {% bootstrap_field form.requirement_entity_acronym %}
+        {% bootstrap_field form.acronym %}
     </div>
     <div class="col-md-2">
         {% bootstrap_field form.entity_folder_id %}
@@ -48,11 +48,11 @@
 
 {% block search_form_row_2 %}
     <div class="col-md-2">
-        {% bootstrap_field form.acronym %}
-    </div>
-    <div class="col-md-2">
         {% bootstrap_field form.tutor %}
         <input type="hidden" id="xls_status" name="xls_status">
+    </div>
+    <div class="col-md-2">
+        {% bootstrap_field form.requirement_entity_acronym %}
     </div>
 {% endblock %}
 
