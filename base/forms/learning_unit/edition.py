@@ -47,7 +47,7 @@ class LearningUnitEndDateForm(forms.Form):
         self._set_initial_value(end_year)
 
         try:
-            queryset = self._get_academic_years(max_year)
+            queryset = get_academic_years(max_year, self.learning_unit)
 
             periodicity = self.learning_unit.periodicity
             self.fields['academic_year'].queryset = filter_biennial(queryset, periodicity)
@@ -63,27 +63,28 @@ class LearningUnitEndDateForm(forms.Form):
         except (AcademicYear.DoesNotExist, AcademicYear.MultipleObjectsReturned):
             self.fields['academic_year'].initial = None
 
-    def _get_academic_years(self, max_year):
-        current_academic_year = academic_year.current_academic_year()
-        min_year = current_academic_year.year
-
-        if not max_year:
-            max_year = compute_max_academic_year_adjournment()
-
-        if self.learning_unit.start_year > min_year:
-            min_year = self.learning_unit.start_year
-
-        if self.learning_unit.is_past():
-            raise ValueError(
-                'Learning_unit.end_year {} cannot be less than the current academic_year {}'.format(
-                    self.learning_unit.end_year, current_academic_year)
-            )
-
-        if min_year > max_year:
-            raise ValueError('Learning_unit {} cannot be modify'.format(self.learning_unit))
-
-        return academic_year.find_academic_years(start_year=min_year, end_year=max_year)
-
     def save(self, update_learning_unit_year=True):
         return edit_learning_unit_end_date(self.learning_unit, self.cleaned_data['academic_year'],
                                            update_learning_unit_year)
+
+
+def get_academic_years(max_year, learning_unit):
+    current_academic_year = academic_year.current_academic_year()
+    min_year = current_academic_year.year
+
+    if not max_year:
+        max_year = compute_max_academic_year_adjournment()
+
+    if learning_unit.start_year > min_year:
+        min_year = learning_unit.start_year
+
+    if learning_unit.is_past():
+        raise ValueError(
+            'Learning_unit.end_year {} cannot be less than the current academic_year {}'.format(
+                learning_unit.end_year, current_academic_year)
+        )
+
+    if min_year > max_year:
+        raise ValueError('Learning_unit {} cannot be modify'.format(learning_unit))
+
+    return academic_year.find_academic_years(start_year=min_year, end_year=max_year)

@@ -32,6 +32,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.forms.utils.acronym_field import AcronymField, PartimAcronymField, split_acronym
 from base.forms.utils.choice_field import add_blank
 from base.models import entity_version
+from base.models.academic_year import AcademicYear
 from base.models.campus import find_main_campuses
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -78,6 +79,10 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
 
 
 class LearningUnitModelForm(forms.ModelForm):
+    end_year = forms.ModelChoiceField(required=False,
+                                      queryset=AcademicYear.objects.none(),
+                                      empty_label=_('not_end_year'),
+                                      label=_('academic_end_year'))
 
     def save(self, **kwargs):
         self.instance.learning_container = kwargs.pop('learning_container')
@@ -86,11 +91,17 @@ class LearningUnitModelForm(forms.ModelForm):
 
     class Meta:
         model = LearningUnit
-        fields = ('periodicity', 'faculty_remark', 'other_remark', )
+        fields = ('periodicity', 'faculty_remark', 'other_remark', 'end_year')
         widgets = {
             'faculty_remark': forms.Textarea(attrs={'rows': '5'}),
             'other_remark': forms.Textarea(attrs={'rows': '5'})
         }
+
+    def clean_end_year(self):
+        clean_data = self.cleaned_data['end_year']
+        if clean_data:
+            return self.cleaned_data['end_year'].year
+        return None
 
 
 class LearningContainerModelForm(forms.ModelForm):

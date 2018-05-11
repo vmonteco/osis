@@ -40,6 +40,9 @@ from base.models.campus import Campus
 from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit_year import LearningUnitYear
 from reference.models import language
+from base.forms.learning_unit.edition import get_academic_years, filter_biennial
+from django import forms
+
 
 FULL_READ_ONLY_FIELDS = {"acronym", "academic_year", "container_type"}
 FULL_PROPOSAL_READ_ONLY_FIELDS = {"academic_year", "container_type"}
@@ -146,9 +149,13 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
         return True
 
     @staticmethod
-    def _create_with_postponement(start_luy):
+    def _create_with_postponement(start_luy, end_year=None):
         new_luys = [start_luy]
-        for ac_year in range(start_luy.learning_unit.start_year + 1, compute_max_academic_year_adjournment() + 1):
+        if end_year:
+            nb_occurences= range(start_luy.learning_unit.start_year + 1, end_year+1)
+        else:
+            nb_occurences = range(start_luy.learning_unit.start_year + 1, compute_max_academic_year_adjournment() + 1)
+        for ac_year in nb_occurences:
             new_luys.append(edition_business.duplicate_learning_unit_year(new_luys[0],
                                                                           AcademicYear.objects.get(year=ac_year)))
         return new_luys
@@ -176,9 +183,9 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
                                       if field not in FULL_READ_ONLY_FIELDS})
         return all_clean_data
 
-    def make_postponement(self, learning_unit_year, postponement):
+    def make_postponement(self, learning_unit_year, postponement, end_year=None):
         if postponement:
-            return self._create_with_postponement(learning_unit_year)
+            return self._create_with_postponement(learning_unit_year, end_year)
         return [learning_unit_year]
 
     @property
@@ -359,6 +366,16 @@ class PartimForm(LearningUnitBaseForm):
         instances_data = self._build_instance_data(data, inherit_lu_values, inherit_luy_values)
 
         super().__init__(instances_data, *args, **kwargs)
+
+        try:
+            self.end_year = AcademicYear.objects.get(year=self.learning_unit_year_full.learning_unit.end_year)
+        except (AcademicYear.DoesNotExist, AcademicYear.MultipleObjectsReturned):
+            self.end_year = None
+
+        queryset = get_academic_years(None, self.learning_unit_year_full.learning_unit)
+
+        periodicity = self.learning_unit_year_full.learning_unit.periodicity
+        self.fields['end_year'].queryset = filter_biennial(queryset, periodicity)
         self.disable_fields(self._get_fields_to_disabled())
 
     def _build_instance_data(self, data, inherit_lu_values, inherit_luy_values):
@@ -452,8 +469,10 @@ class PartimForm(LearningUnitBaseForm):
             entity_container_years=entity_container_years,
             commit=commit
         )
-
-        return self.make_postponement(learning_unit_year, postponement)
+        return self.make_postponement(learning_unit_year,
+                                      postponement,
+                                      self.forms[LearningUnitModelForm].cleaned_data['end_year'])
 
     def _get_entity_container_year(self):
         return self.learning_unit_year_full.learning_container_year.entitycontaineryear_set.all()
+

@@ -339,7 +339,7 @@ def create_partim_form(request, learning_unit_year_id):
     learning_unit_form_container = PartimForm(
         data=request.POST or None,
         person=person,
-        learning_unit_year_full=learning_unit_year_full
+        learning_unit_year_full=learning_unit_year_full,
     )
 
     if learning_unit_form_container.is_valid():
