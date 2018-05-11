@@ -157,7 +157,7 @@ def _create_learning_unit_year_with_components(academic_year, l_container, acron
     l_component_cm = LearningComponentYearFactory(learning_container_year=l_container,
                                  type=learning_component_year_type.LECTURING, acronym="PM")
     l_component_tp = LearningComponentYearFactory(learning_container_year=l_container,
-                                 type=learning_component_year_type.PRACTICAL_EXERCISES, acronym="TP")
+                                 type=learning_component_year_type.PRACTICAL_EXERCISES, acronym="PP")
 
     # Create Link between UE and component
     LearningUnitComponentFactory(learning_unit_year=l_unit_year, learning_component_year=l_component_cm)

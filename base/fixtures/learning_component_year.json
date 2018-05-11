@@ -19,7 +19,7 @@
     "fields": {
       "learning_container_year": 16,
       "title": null,
-      "acronym": "TP",
+      "acronym": "PP",
       "type": "PRACTICAL_EXERCISES",
       "comment": null,
       "planned_classes": 1,
@@ -75,7 +75,7 @@
     "fields": {
       "learning_container_year": 14,
       "title": null,
-      "acronym": "TP",
+      "acronym": "PP",
       "type": "PRACTICAL_EXERCISES",
       "comment": null,
       "planned_classes": 1,
@@ -117,7 +117,7 @@
     "fields": {
       "learning_container_year": 20,
       "title": null,
-      "acronym": "TP",
+      "acronym": "PP",
       "type": "PRACTICAL_EXERCISES",
       "comment": null,
       "planned_classes": 1,
@@ -145,7 +145,7 @@
     "fields": {
       "learning_container_year": 13,
       "title": null,
-      "acronym": "TP",
+      "acronym": "PP",
       "type": "PRACTICAL_EXERCISES",
       "comment": null,
       "planned_classes": 1,
@@ -173,7 +173,7 @@
     "fields": {
       "learning_container_year": 17,
       "title": null,
-      "acronym": "TP",
+      "acronym": "PP",
       "type": "PRACTICAL_EXERCISES",
       "comment": null,
       "planned_classes": 1,
@@ -243,7 +243,7 @@
     "fields": {
       "learning_container_year": 15,
       "title": null,
-      "acronym": "TP",
+      "acronym": "PP",
       "type": "PRACTICAL_EXERCISES",
       "comment": null,
       "planned_classes": 1,
@@ -299,7 +299,7 @@
     "fields": {
       "learning_container_year": 12,
       "title": null,
-      "acronym": "TP",
+      "acronym": "PP",
       "type": "PRACTICAL_EXERCISES",
       "comment": null,
       "planned_classes": 1,
@@ -369,7 +369,7 @@
     "fields": {
       "learning_container_year": 11,
       "title": null,
-      "acronym": "TP",
+      "acronym": "PP",
       "type": "PRACTICAL_EXERCISES",
       "comment": null,
       "planned_classes": 1,
@@ -439,7 +439,7 @@
     "fields": {
       "learning_container_year": 18,
       "title": null,
-      "acronym": "TP",
+      "acronym": "PP",
       "type": "PRACTICAL_EXERCISES",
       "comment": null,
       "planned_classes": 1,
@@ -467,7 +467,7 @@
     "fields": {
       "learning_container_year": 22,
       "title": null,
-      "acronym": "TP",
+      "acronym": "PP",
       "type": "PRACTICAL_EXERCISES",
       "comment": null,
       "planned_classes": null,
@@ -586,7 +586,7 @@
       "external_id": "osis.learning_component_year_32082_32082_PRACTICAL_EXERCISES_2017",
       "learning_container_year": 23,
       "title": null,
-      "acronym": "TP",
+      "acronym": "PP",
       "type": "PRACTICAL_EXERCISES",
       "comment": null,
       "planned_classes": 1,
