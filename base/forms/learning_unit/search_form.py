@@ -202,13 +202,12 @@ class LearningUnitYearForm(SearchForm):
         return service_courses
 
     def _filter_borrowed_learning_units(self, learning_units):
-        academic_year_start_date = self.cleaned_data["academic_year_id"].start_date
         try:
-            faculty_borrowing_id = EntityVersion.objects.current(academic_year_start_date).\
+            faculty_borrowing_id = EntityVersion.objects.current(self.cleaned_data["academic_year_id"].start_date).\
                 get(acronym=self.cleaned_data["faculty_borrowing_acronym"]).entity.id
         except EntityVersion.DoesNotExist:
             faculty_borrowing_id = None
-        return filter_is_borrowed_learning_unit_year(learning_units, academic_year_start_date,
+        return filter_is_borrowed_learning_unit_year(learning_units, self.cleaned_data["academic_year_id"].start_date,
                                                      faculty_borrowing=faculty_borrowing_id)
 
     def _is_matching_learning_unit(self, learning_unit):
