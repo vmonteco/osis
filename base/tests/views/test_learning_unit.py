@@ -92,6 +92,7 @@ from cms.tests.factories.translated_text import TranslatedTextFactory
 from osis_common.document import xls_build
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
+from base.tests.factories.learning_unit import LearningUnitFactory
 
 
 class LearningUnitViewCreateFullTestCase(TestCase):
@@ -210,13 +211,15 @@ class LearningUnitViewCreateFullTestCase(TestCase):
 class LearningUnitViewCreatePartimTestCase(TestCase):
     def setUp(self):
         self.current_academic_year = create_current_academic_year()
+        lu = LearningUnitFactory(start_year=self.current_academic_year.year)
         self.learning_unit_year_full = LearningUnitYearFactory(
             academic_year=self.current_academic_year,
             learning_container_year__academic_year=self.current_academic_year,
-            subtype=learning_unit_year_subtypes.FULL
+            subtype=learning_unit_year_subtypes.FULL,
+            learning_unit=lu
         )
-        self.url = reverse('learning_unit_create_partim', kwargs={'learning_unit_year_id':
-                                                                      self.learning_unit_year_full.id})
+        self.url = reverse('learning_unit_create_partim',
+                           kwargs={'learning_unit_year_id': self.learning_unit_year_full.id})
         self.user = UserFactory()
         self.user.user_permissions.add(Permission.objects.get(codename="can_access_learningunit"))
         self.user.user_permissions.add(Permission.objects.get(codename="can_create_learningunit"))
@@ -667,7 +670,6 @@ class LearningUnitViewTestCase(TestCase):
 
     def _assert_group_elements_ordered_by_partial_acronym(self, context, expected_order):
         self.assertListEqual(list(context['group_elements_years']), expected_order)
-
 
     def test_learning_unit_usage_two_usages(self):
         learning_container_yr = LearningContainerYearFactory(academic_year=self.current_academic_year,
@@ -1226,8 +1228,8 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_year = LearningUnitYearFactory()
         fr = LanguageFactory(code='FR')
         en = LanguageFactory(code='EN')
-        learning_unit_achievements_fr = LearningAchievementFactory(language=fr,learning_unit_year=learning_unit_year)
-        learning_unit_achievements_en = LearningAchievementFactory(language=en,learning_unit_year=learning_unit_year)
+        learning_unit_achievements_fr = LearningAchievementFactory(language=fr, learning_unit_year=learning_unit_year)
+        learning_unit_achievements_en = LearningAchievementFactory(language=en, learning_unit_year=learning_unit_year)
 
         request = self.create_learning_unit_request(learning_unit_year)
 
