@@ -251,6 +251,14 @@
                 <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {% trans 'experimental_phase' %}.
             </div>
         {% endif %}
+        {% if warnings %}
+            <div class="alert alert-info" style="margin-bottom: 10px;">
+                {% for warning in warnings %}
+                     <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {{ warning }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+
         {% include "template_messages.html" %}
         {% block content %}
         {% endblock %}
