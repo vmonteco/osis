@@ -23,8 +23,7 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-{% if field %}
-<td>
+<th>
     {% if field.help_text %}
         <abbr title="{{ field.help_text }}">
             {{ field.label }}
@@ -32,5 +31,4 @@
     {% else %}
         {{ field.label }}
     {% endif %}
-</td>
-{% endif %}
+</th>

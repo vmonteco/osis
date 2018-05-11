@@ -37,19 +37,20 @@
                     <abbr title="{% trans 'quadrimester' %} : {{ learning_unit.quadrimester }}">
                     ({{ learning_unit.quadrimester }})</abbr>
                 </td>
-                <td></td>
+                <th></th>
                 {% include "learning_unit/blocks/form/volume_management_table_header_element.html" with field=formset.0.volume_q1 %}
-                <td>+</td>
+                <th>+</th>
                 {% include "learning_unit/blocks/form/volume_management_table_header_element.html" with field=formset.0.volume_q2 %}
-                <td>=</td>
+                <th>=</th>
                 {% include "learning_unit/blocks/form/volume_management_table_header_element.html" with field=formset.0.volume_total %}
-                <td>*</td>
+                {% include "learning_unit/blocks/form/volume_management_table_header_element.html" with field=formset.0.volume_total %}
+                <th>*</th>
                 {% include "learning_unit/blocks/form/volume_management_table_header_element.html" with field=formset.0.planned_classes%}
                 {% for entity_field in formset.0.get_entity_fields %}
                     {% cycle "<td>=</td>" "<td>+</td>" "<td>+</td>" %}
                     {% include "learning_unit/blocks/form/volume_management_table_header_element.html" with field=entity_field %}
                 {% endfor %}
-                <td>=</td>
+                <th>=</th>
                 {% include "learning_unit/blocks/form/volume_management_table_header_element.html" with field=formset.0.volume_total_requirement_entities %}
             </tr>
             {% for form in formset %}
@@ -63,7 +64,7 @@
                     </td>
                     <td></td>{% bootstrap_form_errors form %}
                     {% for field in form %}
-                        <td>
+                        <td {% if forloop.counter == 3 %}colspan="2"{% endif %}>
                             {% bootstrap_field field show_label=False show_help=False%}
                         </td>
                         {% if not forloop.last %}
