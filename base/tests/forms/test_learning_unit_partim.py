@@ -33,7 +33,7 @@ from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
-    LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
+    LearningUnitModelForm, EntityContainerBaseForm, LearningContainerYearModelForm, LearningContainerModelForm
 from base.forms.learning_unit.learning_unit_create_2 import PartimForm, PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.utils import acronym_field
 from base.models.enums import learning_unit_year_subtypes
@@ -301,8 +301,8 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
     def _test_entity_container_model_formset_instance(self, partim_form):
         """ In this test, we ensure that the instance of learning container year model form inherit
             from full learning container year """
-        formset_instance = partim_form.forms[EntityContainerFormset]
-        self.assertEqual(formset_instance.instance,
+        formset_instance = partim_form.forms[EntityContainerBaseForm]
+        self.assertEqual(formset_instance.learning_container_year,
                          self.learning_unit_year_full.learning_container_year)
         # Test expected instance
         expected_instance_form = [

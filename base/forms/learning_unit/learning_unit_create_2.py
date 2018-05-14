@@ -33,7 +33,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.learning_units import edition as edition_business
 from base.business.utils.model import merge_two_dicts
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
-    LearningContainerModelForm, EntityContainerFormset, LearningContainerYearModelForm
+    LearningContainerModelForm, LearningContainerYearModelForm, EntityContainerBaseForm
 from base.forms.utils.acronym_field import split_acronym
 from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear
 from base.models.campus import Campus
@@ -60,7 +60,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
         LearningUnitYearModelForm,
         LearningContainerModelForm,
         LearningContainerYearModelForm,
-        EntityContainerFormset
+        EntityContainerBaseForm
     ]
 
     form_cls_to_validate = form_classes
@@ -171,7 +171,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
     def _get_flat_cleaned_data_apart_from_entities(self):
         all_clean_data = {}
         for cls, form_instance in self.forms.items():
-            if cls in self.form_cls_to_validate and cls is not EntityContainerFormset:
+            if cls in self.form_cls_to_validate and cls is not EntityContainerBaseForm:
                 all_clean_data.update({field: value for field, value in form_instance.cleaned_data.items()
                                       if field not in FULL_READ_ONLY_FIELDS})
         return all_clean_data
@@ -195,7 +195,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
 
     @property
     def entity_container_form(self):
-        return self.forms[EntityContainerFormset]
+        return self.forms[EntityContainerBaseForm]
 
     def __iter__(self):
         """Yields the forms in the order they should be rendered"""
@@ -260,10 +260,10 @@ class FullForm(LearningUnitBaseForm):
             },
             LearningUnitYearModelForm: self._build_instance_data_learning_unit_year(data, default_ac_year, instance),
             LearningContainerYearModelForm: self._build_instance_data_learning_container_year(data, instance, proposal),
-            EntityContainerFormset: {
+            EntityContainerBaseForm: {
                 'data': data,
-                'instance': instance.learning_container_year if instance else None,
-                'form_kwargs': {'person': self.person}
+                'learning_container_year': instance.learning_container_year if instance else None,
+                'person': self.person
             }
         }
 
@@ -315,7 +315,7 @@ class FullForm(LearningUnitBaseForm):
             acronym=self.forms[LearningUnitYearModelForm].instance.acronym,
             commit=commit)
 
-        entity_container_years = self.forms[EntityContainerFormset].save(
+        entity_container_years = self.forms[EntityContainerBaseForm].save(
             learning_container_year=container_year,
             commit=commit)
 
@@ -373,9 +373,9 @@ class PartimForm(LearningUnitBaseForm):
                 'instance': self.learning_unit_year_full.learning_container_year,
                 'person': self.person
             },
-            EntityContainerFormset: {
-                'instance': self.learning_unit_year_full.learning_container_year,
-                'form_kwargs': {'person': self.person}
+            EntityContainerBaseForm: {
+                'learning_container_year': self.learning_unit_year_full.learning_container_year,
+                'person': self.person
             }
         }
 
