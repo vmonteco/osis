@@ -352,7 +352,7 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
         form = _instanciate_form(self.learning_unit_year.academic_year, post_data=post_data, person=self.person,
                                  learning_unit_instance=self.learning_unit_year.learning_unit)
         self.assertFalse(form.is_valid(), form.errors)
-        self.assertEqual(form.errors[0][1].get('entity'), [_("Requirement and allocation entities must be linked "
+        self.assertEqual(form.errors[0][0].get('entity'), [_("Requirement and allocation entities must be linked "
                                                              "to the same faculty for this learning unit type.")])
 
 

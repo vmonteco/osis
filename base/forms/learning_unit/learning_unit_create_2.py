@@ -78,7 +78,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
                 LearningContainerYearModelForm]),
             LearningUnitModelForm: LearningUnitModelForm(*args, **instances_data[LearningUnitModelForm]),
             LearningUnitYearModelForm: LearningUnitYearModelForm(*args, **instances_data[LearningUnitYearModelForm]),
-            EntityContainerBaseForm: EntityContainerBaseForm(*args, **instances_data[EntityContainerFormset])
+            EntityContainerBaseForm: EntityContainerBaseForm(*args, **instances_data[EntityContainerBaseForm])
         })
 
     def is_valid(self):

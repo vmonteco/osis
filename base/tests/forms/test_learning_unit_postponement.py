@@ -25,29 +25,19 @@
 ##############################################################################
 from collections import OrderedDict
 from unittest import mock
-from base.models.academic_year import AcademicYear
-import factory
-import factory.fuzzy
-
-from django.forms import model_to_dict
-from django.http import QueryDict
-
-from base.forms.learning_unit.learning_unit_create_2 import PartimForm, FullForm
-from base.forms.learning_unit.learning_unit_postponement import LearningUnitPostponementForm
-from base.forms.utils import acronym_field
-from base.models import entity_container_year
-from base.models.enums import entity_container_year_link_type
-from base.models.learning_unit import LearningUnit
-from base.models.learning_unit_year import LearningUnitYear
-from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
-from base.tests.factories.learning_unit import LearningUnitFactory
 
 from django.test import TestCase
 
-from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
-    LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
+from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm
+from base.forms.learning_unit.learning_unit_create_2 import PartimForm, FullForm
+from base.forms.learning_unit.learning_unit_postponement import LearningUnitPostponementForm
+from base.models import entity_container_year
+from base.models.academic_year import AcademicYear
+from base.models.enums import entity_container_year_link_type
 from base.models.enums import learning_unit_year_subtypes
-from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
+from base.models.learning_unit_year import LearningUnitYear
+from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory

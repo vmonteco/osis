@@ -32,8 +32,9 @@ from django.http import QueryDict
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
+from base.forms.learning_unit.learning_unit_create import EntityContainerBaseForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
-    LearningUnitModelForm, EntityContainerBaseForm, LearningContainerYearModelForm, LearningContainerModelForm
+    LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
 from base.forms.learning_unit.learning_unit_create_2 import PartimForm, PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.utils import acronym_field
 from base.models.enums import learning_unit_year_subtypes
@@ -42,12 +43,6 @@ from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
-from django.test import TestCase
-from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
-    LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
-from base.models.enums import learning_unit_year_subtypes
-from base.tests.factories.academic_year import create_current_academic_year
-from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 
