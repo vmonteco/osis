@@ -361,63 +361,6 @@ class EntityContainerBaseForm:
     def get_linked_entities_forms(self):
         return {key: self.get_clean_data_entity(key) for key in ENTITY_TYPE_LIST}
 
-# class EntityContainerYearFormset(forms.BaseInlineFormSet):
-#
-#     def save(self, **kwargs):
-#         self.instance = kwargs.pop('learning_container_year')
-#         return super().save(**kwargs)
-#
-#     def get_form_kwargs(self, index):
-#         kwargs = super().get_form_kwargs(index)
-#         instance = kwargs.get('instance')
-#         if not instance:
-#             kwargs['entity_type'] = ENTITY_TYPE_LIST[index]
-#         return kwargs
-#
-#     @property
-#     def changed_data(self):
-#         return [form.changed_data for form in self.forms]
-#
-#     def get_clean_data_entity(self, key):
-#         try:
-#             form = self.forms[ENTITY_TYPE_LIST.index(key.upper())]
-#             return form.instance.entity
-#         except(AttributeError, IndexError):
-#             return None
-#
-#     def get_linked_entities_forms(self):
-#         return {key: self.get_clean_data_entity(key) for key in ENTITY_TYPE_LIST}
-#
-#     @property
-#     def fields(self):
-#         return OrderedDict(
-#             (ENTITY_TYPE_LIST[index].lower(), form.fields['entity']) for index, form in enumerate(self.forms)
-#         )
-#
-#     def post_clean(self, container_type, academic_year):
-#         for form in self.forms:
-#             form.post_clean(academic_year.start_date)
-#
-#         requirement_entity_version = self.forms[0].entity_version
-#         allocation_entity_version = self.forms[1].entity_version
-#         requirement_faculty = requirement_entity_version.find_faculty_version(academic_year)
-#         allocation_faculty = allocation_entity_version.find_faculty_version(academic_year)
-#
-#         if container_type in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES:
-#             if requirement_faculty != allocation_faculty:
-#                 self.forms[1].add_error(
-#                     "entity", _("Requirement and allocation entities must be linked to the same "
-#                                 "faculty for this learning unit type.")
-#                 )
-#
-#         return not any(form.errors for form in self.forms)
-#
-#
-# EntityContainerFormset = inlineformset_factory(
-#     LearningContainerYear, EntityContainerYear, form=EntityContainerYearModelForm,
-#     formset=EntityContainerYearFormset, fields=('entity',), max_num=4, min_num=3, extra=4, can_delete=False
-# )
-
 
 class LearningContainerYearModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):

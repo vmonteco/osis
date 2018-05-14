@@ -94,8 +94,6 @@ class TestEntityContainerYearForm(TestCase):
         )
         PersonEntityFactory(person=self.person, entity=self.entity_version.entity)
 
-
-
     def test_init(self):
         form = EntityContainerBaseForm(learning_container_year=self.learning_container_year, person=self.person)
         self.assertEqual(form.forms[0].instance.pk, self.requirement_entity.pk)
