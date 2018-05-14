@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm
+from collections import OrderedDict
 from base.forms.learning_unit.learning_unit_create_2 import PartimForm, FullForm
 from base.models import academic_year, learning_unit_year
 from base.models.learning_unit import LearningUnit
@@ -31,7 +31,7 @@ from base.models.enums import learning_unit_year_subtypes, entity_container_year
 
 
 # @TODO: Use LearningUnitPostponementForm to manage END_DATE of learning unit year
-# TODO :: This form should be the LearningUnitModelForm ==> should move code to LearningUnitModelForm class?
+# TODO :: Maybe could we move this code to LearningUnitModelForm class?
 class LearningUnitPostponementForm:
     learning_unit_instance = None
     subtype = None
@@ -39,6 +39,7 @@ class LearningUnitPostponementForm:
     check_consistency = True
     _forms_to_upsert = []
     _forms_to_delete = []
+    consistency_errors = OrderedDict()
 
     def __init__(self, person, start_postponement, end_postponement=None, learning_unit_instance=None,
                  learning_unit_full_instance=None, data=None, check_consistency=True):
@@ -216,18 +217,30 @@ class LearningUnitPostponementForm:
         return luy_created
 
     def _check_consistency(self):
-        """This function will check all field"""
-
-        return {
-            '2017-18': {
-                'acronym': {
-                    'old_value': 'LDROI1001',
-                    'new_value': 'LDROI9999'
-                }
-            }
-        }
+        if not self.learning_unit_instance or not self._forms_to_upsert or len(self._forms_to_upsert) == 1:
+            return True
+        return not self._find_consistency_errors()
 
     def get_context(self):
         if self._forms_to_upsert:
             return self._forms_to_upsert[0].get_context()
         return {}
+
+    def _find_consistency_errors(self):
+        form_kwargs = {'learning_unit_instance': self.learning_unit_instance,
+                       'start_year': self.learning_unit_instance.start_year}
+        current_form = self._get_learning_unit_base_form(self.start_postponement, **form_kwargs)
+        academic_years = sorted([form.instance.academic_year for form in self._forms_to_upsert],
+                                key=lambda ac_year: ac_year.year)
+        consistency_errors = OrderedDict()
+        FIELDS_TO_NOT_CHECK = ['academic_year']
+        for ac_year in academic_years:
+            next_form = self._get_learning_unit_base_form(ac_year, **form_kwargs)
+            differences = {col_name: {'current': value, 'new': next_form.instances_data[col_name]}
+                           for col_name, value in current_form.instances_data.items()
+                           if next_form.instances_data[col_name] != value and col_name not in FIELDS_TO_NOT_CHECK}
+            if differences:
+                consistency_errors[ac_year] = differences
+        self.consistency_errors = consistency_errors
+        return self.consistency_errors
+

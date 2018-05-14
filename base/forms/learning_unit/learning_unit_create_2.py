@@ -120,6 +120,14 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
         return [form.cleaned_data for form in self.forms.values()]
 
     @property
+    def instances_data(self):
+        data = {}
+        for form_instance in self.forms.values():
+            columns = form_instance.fields.keys()
+            data.update({col: getattr(form_instance.instance, col, None) for col in columns})
+        return data
+
+    @property
     def changed_data(self):
         return [form.changed_data for form in self.forms.values()]
 

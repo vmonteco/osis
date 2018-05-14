@@ -99,6 +99,8 @@ def update_learning_unit(request, learning_unit_year_id):
     if learning_unit_year.subtype == learning_unit_year_subtypes.PARTIM:
         learning_unit_full_instance = learning_unit_year.parent.learning_unit
 
+    # TODO :: clean code ; end_postponement could be removed from kwargs in this following
+    # LearningUnitPostponementForm instanciation + in the template form
     end_postponement = learning_unit_year.academic_year if not bool(int(request.POST.get('postponement', 1))) else None
     postponement_form = LearningUnitPostponementForm(
         person=person,

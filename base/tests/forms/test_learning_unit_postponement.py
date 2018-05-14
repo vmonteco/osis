@@ -23,7 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from collections import OrderedDict
 from unittest import mock
+from base.models.academic_year import AcademicYear
 import factory
 import factory.fuzzy
 
@@ -45,7 +47,7 @@ from django.test import TestCase
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
 from base.models.enums import learning_unit_year_subtypes
-from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
@@ -177,6 +179,7 @@ class TestLearningUnitPostponementFormIsValid(LearningUnitPostponementFormContex
 
 
 class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMixin):
+    """Unit tests for LearningUnitPostponementForm.save()"""
 
     @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm.save', side_effect=None)
     def test_save_with_all_luy_to_create(self, mock_baseform_save):
@@ -215,6 +218,91 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
 
         form.save()
         self.assertEqual(mock_baseform_save.call_count, 7)
+
+
+class TestLearningUnitPostponementFormCheckConsistency(LearningUnitPostponementFormContextMixin):
+    """Unit tests for LearningUnitPostponementForm._check_consistency()"""
+
+    def test_when_insert_postponement(self):
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
+                                              data=instance_luy_base_form.data)
+        self.assertTrue(form._check_consistency())
+
+    def test_when_end_postponement_updated_to_now(self):
+        """Nothing to upsert in the future, only deletions."""
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        academic_year = self.learning_unit_year_full.academic_year
+        form = _instanciate_postponement_form(self.person, academic_year,
+                                              learning_unit_instance=instance_luy_base_form.learning_unit_instance,
+                                              end_postponement=academic_year)
+        self.assertTrue(form._check_consistency())
+
+    def test_when_end_postponement_updated_to_next_year(self):
+        """Only 1 upsert to perform (next year)."""
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        next_academic_year = AcademicYear.objects.get(year=self.learning_unit_year_full.academic_year.year + 1)
+        form = _instanciate_postponement_form(self.person, next_academic_year,
+                                              learning_unit_instance=instance_luy_base_form.learning_unit_instance,
+                                              end_postponement=next_academic_year)
+        self.assertTrue(form._check_consistency())
+
+    @mock.patch('base.forms.learning_unit.learning_unit_postponement.LearningUnitPostponementForm._find_consistency_errors')
+    def test_find_consistency_errors_called(self, mock_find_consistency_errors):
+        mock_find_consistency_errors.return_value = {
+            self.learning_unit_year_full.academic_year: {'credits': {'current': 10, 'old': 15}}
+        }
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
+                                              learning_unit_instance=instance_luy_base_form.learning_unit_instance,
+                                              data=instance_luy_base_form.data)
+        self.assertFalse(form._check_consistency())
+        mock_find_consistency_errors.assert_called_once_with()
+
+
+class TestLearningUnitPostponementFormFindConsistencyErrors(LearningUnitPostponementFormContextMixin):
+    """Unit tests for LearningUnitPostponementForm._find_consistency_errors()"""
+
+    def _change_credits_value(self, academic_year):
+        initial_credits_value = self.learning_unit_year_full.credits
+        new_credits_value = initial_credits_value + 5
+        LearningUnitYear.objects.filter(academic_year=academic_year,
+                                        learning_unit=self.learning_unit_year_full.learning_unit) \
+                                .update(credits=new_credits_value)
+        return initial_credits_value, new_credits_value
+
+    def test_when_no_differences_found_in_future(self):
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
+                                              learning_unit_instance=instance_luy_base_form.learning_unit_instance,
+                                              data=instance_luy_base_form.data)
+        self.assertTrue(form.is_valid())
+        expected_result = {}
+        self.assertEqual(form.consistency_errors, expected_result)
+
+    def test_when_differences_found_on_2_next_years(self):
+        next_academic_year = AcademicYear.objects.get(year=self.learning_unit_year_full.academic_year.year + 1)
+        initial_credits_value, new_credits_value = self._change_credits_value(next_academic_year)
+        next_academic_year_2 = AcademicYear.objects.get(year=self.learning_unit_year_full.academic_year.year + 2)
+        initial_credits_value_2, new_credits_value_2 = self._change_credits_value(next_academic_year)
+        expected_result = OrderedDict({
+            next_academic_year: {
+                'credits': {'current': initial_credits_value, 'new': new_credits_value}
+            },
+            next_academic_year_2: {
+                'credits': {'current': initial_credits_value_2, 'new': new_credits_value_2}
+            },
+        })
+
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
+                                              learning_unit_instance=instance_luy_base_form.learning_unit_instance,
+                                              data=instance_luy_base_form.data)
+
+        self.assertFalse(form.is_valid())
+        result = form.consistency_errors
+        self.assertIsInstance(result, OrderedDict) # Need to be ordered by academic_year
+        self.assertDictEqual(expected_result[next_academic_year], result[next_academic_year])
 
 
 def _instanciate_base_learning_unit_form(learning_unit_year_instance, person):
