@@ -94,7 +94,8 @@ class VolumeEditionForm(forms.Form):
             self.fields["volume_"+key.lower()] = VolumeField(label=entity.acronym, help_text=entity.title)
 
     def get_entity_fields(self):
-        entity_keys = [self.requirement_entity_key, self.additional_requirement_entity_1_key, self.additional_requirement_entity_2_key]
+        entity_keys = [self.requirement_entity_key, self.additional_requirement_entity_1_key,
+                       self.additional_requirement_entity_2_key]
         return [self.fields[key] for key in entity_keys if key in self.fields]
 
     def clean(self):
