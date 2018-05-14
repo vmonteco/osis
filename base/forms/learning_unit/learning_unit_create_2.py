@@ -32,7 +32,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.business.utils.model import merge_two_dicts
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
-    LearningContainerModelForm, EntityContainerFormset, LearningContainerYearModelForm
+    LearningContainerModelForm, LearningContainerYearModelForm, EntityContainerBaseForm
 from base.forms.utils.acronym_field import split_acronym
 from base.models import learning_unit_year
 from base.models.campus import Campus
@@ -59,7 +59,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
         LearningUnitYearModelForm,
         LearningContainerModelForm,
         LearningContainerYearModelForm,
-        EntityContainerFormset
+        EntityContainerBaseForm
     ]
 
     form_cls_to_validate = form_classes
@@ -78,7 +78,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
                 LearningContainerYearModelForm]),
             LearningUnitModelForm: LearningUnitModelForm(*args, **instances_data[LearningUnitModelForm]),
             LearningUnitYearModelForm: LearningUnitYearModelForm(*args, **instances_data[LearningUnitYearModelForm]),
-            EntityContainerFormset: EntityContainerFormset(*args, **instances_data[EntityContainerFormset])
+            EntityContainerBaseForm: EntityContainerBaseForm(*args, **instances_data[EntityContainerFormset])
         })
 
     def is_valid(self):
@@ -177,7 +177,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
 
     @property
     def entity_container_form(self):
-        return self.forms[EntityContainerFormset]
+        return self.forms[EntityContainerBaseForm]
 
     def __iter__(self):
         """Yields the forms in the order they should be rendered"""
@@ -243,10 +243,10 @@ class FullForm(LearningUnitBaseForm):
             },
             LearningUnitYearModelForm: self._build_instance_data_learning_unit_year(data, default_ac_year),
             LearningContainerYearModelForm: self._build_instance_data_learning_container_year(data, proposal),
-            EntityContainerFormset: {
+            EntityContainerBaseForm: {
                 'data': data,
-                'instance': self.instance.learning_container_year if self.instance else None,
-                'form_kwargs': {'person': self.person}
+                'learning_container_year': self.instance.learning_container_year if self.instance else None,
+                'person': self.person
             }
         }
 
@@ -359,9 +359,9 @@ class PartimForm(LearningUnitBaseForm):
                 'instance': self.learning_unit_year_full.learning_container_year,
                 'person': self.person
             },
-            EntityContainerFormset: {
-                'instance': self.learning_unit_year_full.learning_container_year,
-                'form_kwargs': {'person': self.person}
+            EntityContainerBaseForm: {
+                'learning_container_year': self.learning_unit_year_full.learning_container_year,
+                'person': self.person
             }
         }
 

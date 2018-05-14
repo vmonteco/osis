@@ -36,7 +36,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
-    LearningContainerYearModelForm, EntityContainerFormset
+    LearningContainerYearModelForm, EntityContainerBaseForm
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import learning_unit_periodicity, learning_container_year_types, learning_unit_year_subtypes, \
     entity_container_year_link_type, vacant_declaration_type, attribution_procedure, entity_type, organization_type
@@ -263,7 +263,7 @@ class TestEditLearningUnit(TestCase):
         self.assertIsInstance(context["learning_unit_form"], LearningUnitModelForm)
         self.assertIsInstance(context["learning_unit_year_form"], LearningUnitYearModelForm)
         self.assertIsInstance(context["learning_container_year_form"], LearningContainerYearModelForm)
-        self.assertIsInstance(context["entity_container_form"], EntityContainerFormset)
+        self.assertIsInstance(context["entity_container_form"], EntityContainerBaseForm)
 
     def test_form_initial_data(self):
         response = self.client.get(self.url)
@@ -303,13 +303,11 @@ class TestEditLearningUnit(TestCase):
             initial_data = context[form_name].initial
             self.assertDictEqual(initial_data, expected_initial)
 
-        # Expected form in formset entity container
-        learning_container_year_id = self.learning_unit_year.learning_container_year.id
         expected_initials = [
-            {'entity': self.requirement_entity.pk , 'learning_container_year': learning_container_year_id},
-            {'entity': self.allocation_entity.pk, 'learning_container_year': learning_container_year_id},
-            {'entity': self.additional_entity_1.pk, 'learning_container_year': learning_container_year_id},
-            {'entity': self.additional_entity_2.pk, 'learning_container_year': learning_container_year_id},
+            {'entity': self.requirement_entity.pk},
+            {'entity': self.allocation_entity.pk},
+            {'entity': self.additional_entity_1.pk},
+            {'entity': self.additional_entity_2.pk},
         ]
         entity_container_formset = context['entity_container_form']
         for idx, expected_initial in enumerate(expected_initials):
@@ -340,13 +338,9 @@ class TestEditLearningUnit(TestCase):
             "language": self.learning_unit_year.learning_container_year.language.pk,
             "status": True,
 
-            'entitycontaineryear_set-0-entity': self.requirement_entity.id,
-            'entitycontaineryear_set-1-entity': self.requirement_entity.id,
-            'entitycontaineryear_set-2-entity': '',
-            'entitycontaineryear_set-INITIAL_FORMS': '0',
-            'entitycontaineryear_set-MAX_NUM_FORMS': '4',
-            'entitycontaineryear_set-MIN_NUM_FORMS': '3',
-            'entitycontaineryear_set-TOTAL_FORMS': '4',
+            'requirement_entity-entity': self.requirement_entity.id,
+            'allocation_entity-entity': self.requirement_entity.id,
+            'additional_requirement_entity_1-entity': '',
         }
         return form_data
 

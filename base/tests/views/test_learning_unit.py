@@ -24,9 +24,6 @@
 #
 ##############################################################################
 import datetime
-from base.tests.factories.education_group_type import EducationGroupTypeFactory
-from base.tests.factories.education_group_year import EducationGroupYearFactory
-from base.tests.factories.group_element_year import GroupElementYearFactory
 import random
 from unittest import mock
 
@@ -66,9 +63,12 @@ from base.models.person_entity import PersonEntity
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
 from base.tests.factories.campus import CampusFactory
+from base.tests.factories.education_group_type import EducationGroupTypeFactory
+from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.learning_achievement import LearningAchievementFactory
 from base.tests.factories.learning_class_year import LearningClassYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
@@ -201,14 +201,12 @@ class LearningUnitViewCreateFullTestCase(TestCase):
             "internship_subtype": internship_subtypes.TEACHING_INTERNSHIP,
             "title": "LAW",
             "title_english": "LAW",
-            "entitycontaineryear_set-0-entity": entity_version.id,
+            "requirement_entity-entity": entity_version.id,
             "subtype": learning_unit_year_subtypes.FULL,
             "language": language.pk,
             "session": learning_unit_year_session.SESSION_P23,
             "faculty_remark": "faculty remark",
             "other_remark": "other remark",
-            'entitycontaineryear_set-TOTAL_FORMS': ['4'],
-            'entitycontaineryear_set-INITIAL_FORMS': ['0'],
         }
 
         response = self.client.post(self.url, data=form_data)
@@ -334,12 +332,6 @@ class LearningUnitViewTestCase(TestCase):
         self.entity_container_yr = EntityContainerYearFactory(learning_container_year=self.learning_container_yr,
                                                               type=entity_container_year_link_type.REQUIREMENT_ENTITY,
                                                               entity=self.entity)
-        self.entity_container_yr_2 = EntityContainerYearFactory(learning_container_year=self.learning_container_yr,
-                                                                type=entity_container_year_link_type.REQUIREMENT_ENTITY,
-                                                                entity=self.entity_2)
-        self.entity_container_yr_3 = EntityContainerYearFactory(learning_container_year=self.learning_container_yr,
-                                                                type=entity_container_year_link_type.REQUIREMENT_ENTITY,
-                                                                entity=self.entity_3)
         self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL,
                                                    start_date=today - datetime.timedelta(days=1),
                                                    end_date=today.replace(year=today.year + 1))
@@ -917,14 +909,12 @@ class LearningUnitViewTestCase(TestCase):
             "campus": self.campus.id,
             "specific_title": "Specific UE title",
             "specific_title_english": "Specific English UUE title",
-            "entitycontaineryear_set-0-entity": self.entity_version.id,
-            "entitycontaineryear_set-1-entity": self.entity_version.id,
+            "requirement_entity-entity": self.entity_version.id,
+            "allocation_entity-entity": self.entity_version.id,
             "language": self.language.pk,
             "session": learning_unit_year_session.SESSION_P23,
             "faculty_remark": "faculty remark",
             "other_remark": "other remark",
-            'entitycontaineryear_set-TOTAL_FORMS': ['4'],
-            'entitycontaineryear_set-INITIAL_FORMS': ['0']
         }
 
     def get_learning_unit_data(self):

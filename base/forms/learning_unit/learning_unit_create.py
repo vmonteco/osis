@@ -26,7 +26,6 @@
 from collections import OrderedDict
 
 from django import forms
-from django.forms import inlineformset_factory
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.utils.acronym_field import AcronymField, PartimAcronymField, split_acronym
@@ -163,7 +162,8 @@ class LearningUnitYearModelForm(forms.ModelForm):
 
     @staticmethod
     def _save_entity_components_year(component, entity_container_years):
-        requirement_entity_containers = filter(lambda ec: ec.type in REQUIREMENT_ENTITIES, entity_container_years)
+        requirement_entity_containers = filter(lambda ec: getattr(ec, 'type', None) in REQUIREMENT_ENTITIES,
+                                               entity_container_years)
         for requirement_entity_container in requirement_entity_containers:
             EntityComponentYear.objects.get_or_create(entity_container_year=requirement_entity_container,
                                                       learning_component_year=component)
@@ -195,57 +195,18 @@ class LearningUnitYearPartimModelForm(LearningUnitYearModelForm):
 class EntityContainerYearModelForm(forms.ModelForm):
     entity = EntitiesVersionChoiceField(find_main_entities_version())
     entity_version = None
+    entity_type = ''
 
     def __init__(self, *args, **kwargs):
-        entity_type = kwargs.pop('entity_type', None)
         self.person = kwargs.pop('person')
 
-        super().__init__(*args, **kwargs)
-        if not self.instance.type:
-            self.instance.type = entity_type
+        super().__init__(*args, prefix=self.entity_type.lower(), **kwargs)
 
-        self._set_field_by_entity_type()
-        self.fields['entity'].label = _(self.instance.type.lower())
+        self.fields['entity'].label = _(self.entity_type.lower())
+        self.instance.type = self.entity_type
 
         if hasattr(self.instance, 'entity'):
             self.initial['entity'] = get_last_version(self.instance.entity).pk
-
-    def _set_field_by_entity_type(self):
-        set_by_entity_type = {
-            REQUIREMENT_ENTITY: self.set_requirement_entity,
-            ALLOCATION_ENTITY: self.set_allocation_entity,
-            ADDITIONAL_REQUIREMENT_ENTITY_1: self.set_additional_requirement_entity_1,
-            ADDITIONAL_REQUIREMENT_ENTITY_2: self.set_additional_requirement_entity_2,
-        }
-        set_by_entity_type[self.instance.type]()
-
-    def set_requirement_entity(self):
-        field = self.fields['entity']
-        field.queryset = self.person.find_main_entities_version
-        field.widget.attrs = {
-            'onchange': (
-                'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_1", false);'
-                'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", true);'
-            ), 'id': 'id_requirement_entity'}
-
-    def set_allocation_entity(self):
-        field = self.fields['entity']
-        field.widget.attrs = {'id': 'allocation_entity'}
-
-    def set_additional_requirement_entity_1(self):
-        field = self.fields['entity']
-        field.required = False
-        field.widget.attrs = {
-            'onchange':
-                'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", false)',
-                'disable': 'disable',
-                'id': 'id_additional_requirement_entity_1'
-            }
-
-    def set_additional_requirement_entity_2(self):
-        field = self.fields['entity']
-        field.required = False
-        field.widget.attrs = {'disable': 'disable', 'id': 'id_additional_requirement_entity_2'}
 
     class Meta:
         model = EntityContainerYear
@@ -255,6 +216,16 @@ class EntityContainerYearModelForm(forms.ModelForm):
         ev_data = self.cleaned_data['entity']
         self.entity_version = ev_data
         return ev_data.entity if ev_data else None
+
+    def pre_save(self, learning_container_year):
+        self.instance.learning_container_year = learning_container_year
+
+    def save(self, commit=True):
+        if hasattr(self.instance, 'entity'):
+            return super().save(commit)
+        elif self.instance.pk:
+            # if the instance has no entity, it must be deleted
+            self.instance.delete()
 
     def post_clean(self, start_date):
         entity = self.cleaned_data.get('entity')
@@ -266,20 +237,79 @@ class EntityContainerYearModelForm(forms.ModelForm):
                                        "academic year linked to this learning unit"))
 
 
-class EntityContainerYearFormset(forms.BaseInlineFormSet):
+class RequirementEntityContainerYearModelForm(EntityContainerYearModelForm):
+    entity_type = REQUIREMENT_ENTITY
 
-    def get_form_kwargs(self, index):
-        kwargs = super().get_form_kwargs(index)
-        entity_type = ENTITY_TYPE_LIST[index]
-        qs = EntityContainerYear.objects.filter(learning_container_year=self.instance, type=entity_type)
-        if qs.exists():
-            kwargs['instance'] = qs.get()
-        kwargs['entity_type'] = ENTITY_TYPE_LIST[index]
-        return kwargs
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        field = self.fields['entity']
+        field.queryset = self.person.find_main_entities_version
+        field.widget.attrs = {
+            'onchange': (
+                'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_1", false);'
+                'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", true);'
+            ), 'id': 'id_requirement_entity'}
+
+
+class AllocationEntityContainerYearModelForm(EntityContainerYearModelForm):
+    entity_type = ALLOCATION_ENTITY
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        field = self.fields['entity']
+        field.widget.attrs = {'id': 'allocation_entity'}
+
+
+class Additional1EntityContainerYearModelForm(EntityContainerYearModelForm):
+    entity_type = ADDITIONAL_REQUIREMENT_ENTITY_1
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        field = self.fields['entity']
+        field.required = False
+        field.widget.attrs = {
+            'onchange':
+                'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", false)',
+                'disable': 'disable',
+                'id': 'id_additional_requirement_entity_1'
+            }
+
+
+class Additional2EntityContainerYearModelForm(EntityContainerYearModelForm):
+    entity_type = ADDITIONAL_REQUIREMENT_ENTITY_2
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        field = self.fields['entity']
+        field.required = False
+        field.widget.attrs = {'disable': 'disable', 'id': 'id_additional_requirement_entity_2'}
+
+
+class EntityContainerBaseForm:
+    form_classes = [
+        RequirementEntityContainerYearModelForm,
+        AllocationEntityContainerYearModelForm,
+        Additional1EntityContainerYearModelForm,
+        Additional2EntityContainerYearModelForm
+    ]
+
+    def __init__(self, data=None, person=None, learning_container_year=None):
+        self.forms = []
+        self.learning_container_year = learning_container_year
+        for form in self.form_classes:
+            qs = EntityContainerYear.objects.filter(learning_container_year=learning_container_year,
+                                                    type=form.entity_type)
+
+            instance = qs.get() if qs.exists() else None
+            self.forms.append(form(data, person=person, instance=instance))
 
     @property
     def changed_data(self):
         return [form.changed_data for form in self.forms]
+
+    @property
+    def errors(self):
+        return [form.errors for form in self.forms if form.errors]
 
     def get_clean_data_entity(self, key):
         try:
@@ -287,9 +317,6 @@ class EntityContainerYearFormset(forms.BaseInlineFormSet):
             return form.instance.entity
         except(AttributeError, IndexError):
             return None
-
-    def get_linked_entities_forms(self):
-        return {key: self.get_clean_data_entity(key) for key in ENTITY_TYPE_LIST}
 
     @property
     def fields(self):
@@ -315,11 +342,26 @@ class EntityContainerYearFormset(forms.BaseInlineFormSet):
 
         return not any(form.errors for form in self.forms)
 
+    def is_valid(self):
+        """ Trigger the forms validation"""
+        return not self.errors
 
-EntityContainerFormset = inlineformset_factory(
-    LearningContainerYear, EntityContainerYear, form=EntityContainerYearModelForm,
-    formset=EntityContainerYearFormset, max_num=4, min_num=3, extra=4, can_delete=False
-)
+    def __iter__(self):
+        """Yields the forms in the order they should be rendered"""
+        return iter(self.forms)
+
+    def __getitem__(self, index):
+        """Returns the form at the given index, based on the rendering order"""
+        return self.forms[index]
+
+    def save(self, commit=True, learning_container_year=None):
+        if learning_container_year:
+            for form in self.forms:
+                form.pre_save(learning_container_year)
+        return [form.save(commit) for form in self.forms]
+
+    def get_linked_entities_forms(self):
+        return {key: self.get_clean_data_entity(key) for key in ENTITY_TYPE_LIST}
 
 
 class LearningContainerYearModelForm(forms.ModelForm):
