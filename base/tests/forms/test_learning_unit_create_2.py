@@ -354,7 +354,7 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
         post_data = dict(self.post_data)
         post_data['entitycontaineryear_set-1-entity'] = allocation_entity_version.id
 
-        form = _instanciate_form(self.learning_unit_year.academic_year, post_data=self.post_data, person=self.person,
+        form = _instanciate_form(self.learning_unit_year.academic_year, post_data=post_data, person=self.person,
                                  learning_unit_instance=self.learning_unit_year.learning_unit)
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(form.errors[0][1].get('entity'), [_("Requirement and allocation entities must be linked "
