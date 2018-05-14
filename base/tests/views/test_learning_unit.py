@@ -268,14 +268,15 @@ class LearningUnitViewCreatePartimTestCase(TestCase):
     @mock.patch('base.forms.learning_unit.learning_unit_create_2.PartimForm.save')
     def test_create_partim_success_with_redirection(self, mock_save, mock_is_valid,
                                                     mock_is_pers_linked_to_entity_charge):
+        learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
         LearningUnitYearFactory(
             academic_year=self.current_academic_year,
-            learning_container_year__academic_year=self.current_academic_year,
+            learning_container_year=learning_container_year,
             subtype=learning_unit_year_subtypes.FULL
         )
         a_partim_learning_unit_year = LearningUnitYearFactory(
             academic_year=self.current_academic_year,
-            learning_container_year__academic_year=self.current_academic_year,
+            learning_container_year=learning_container_year,
             subtype=learning_unit_year_subtypes.PARTIM
         )
         mock_save.return_value = [a_partim_learning_unit_year]
