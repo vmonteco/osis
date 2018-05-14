@@ -94,11 +94,8 @@ class VolumeEditionForm(forms.Form):
             self.fields["volume_"+key.lower()] = VolumeField(label=entity.acronym, help_text=entity.title)
 
     def get_entity_fields(self):
-        entity_fields = []
-        for key in ENTITY_TYPES_VOLUME:
-            if "volume_"+key.lower() in self.fields:
-                entity_fields.append(self.fields["volume_"+key.lower()])
-        return entity_fields
+        entity_keys = [self.requirement_entity_key, self.additional_requirement_entity_1_key, self.additional_requirement_entity_2_key]
+        return [self.fields[key] for key in entity_keys if key in self.fields]
 
     def clean(self):
         cleaned_data = super().clean().copy()
@@ -121,8 +118,9 @@ class VolumeEditionForm(forms.Form):
         additional_requirement_entity_1 = cleaned_data.get(self.additional_requirement_entity_1_key, 0)
         additional_requirement_entity_2 = cleaned_data.get(self.additional_requirement_entity_2_key, 0)
         total = requirement_entity + additional_requirement_entity_1 + additional_requirement_entity_2
+        planned_classes = cleaned_data.get("planned_classes", 1)
 
-        if cleaned_data.get('volume_total_requirement_entities') != total:
+        if cleaned_data.get('volume_total_requirement_entities') != total * planned_classes:
             error_msg = ' + '.join([self.entities.get(t).acronym for t in ENTITY_TYPES_VOLUME if self.entities.get(t)])
             error_msg += ' = {}'.format(_('vol_charge'))
             self.add_error("volume_total_requirement_entities", error_msg)
