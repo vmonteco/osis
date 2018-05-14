@@ -114,10 +114,10 @@ def _append_components(learning_unit):
             vol_req_entity = req_entities_volumes.get(entity_types.REQUIREMENT_ENTITY, 0) or 0
             vol_add_req_entity_1 = req_entities_volumes.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1, 0) or 0
             vol_add_req_entity_2 = req_entities_volumes.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2, 0) or 0
-            volume_total = vol_req_entity + vol_add_req_entity_1 + vol_add_req_entity_2
+            volume_global = vol_req_entity + vol_add_req_entity_1 + vol_add_req_entity_2
             volume_partial_component = float(component.hourly_volume_partial) if component.hourly_volume_partial else 0
             planned_classes = component.planned_classes or 1
-            volume_global = volume_total * planned_classes
+            volume_total = round(volume_global / planned_classes, 2)
 
             learning_unit.components[component] = {
                 'VOLUME_TOTAL': volume_total,
