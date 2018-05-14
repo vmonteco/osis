@@ -268,6 +268,11 @@ class LearningUnitViewCreatePartimTestCase(TestCase):
     @mock.patch('base.forms.learning_unit.learning_unit_create_2.PartimForm.save')
     def test_create_partim_success_with_redirection(self, mock_save, mock_is_valid,
                                                     mock_is_pers_linked_to_entity_charge):
+        LearningUnitYearFactory(
+            academic_year=self.current_academic_year,
+            learning_container_year__academic_year=self.current_academic_year,
+            subtype=learning_unit_year_subtypes.FULL
+        )
         a_partim_learning_unit_year = LearningUnitYearFactory(
             academic_year=self.current_academic_year,
             learning_container_year__academic_year=self.current_academic_year,
@@ -536,7 +541,8 @@ class LearningUnitViewTestCase(TestCase):
         learning_container_year = LearningContainerYearFactory(
             academic_year=self.current_academic_year, container_type=learning_container_year_types.OTHER_COLLECTIVE)
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
-                                                     learning_container_year=learning_container_year)
+                                                     learning_container_year=learning_container_year,
+                                                     subtype=learning_unit_year_subtypes.FULL)
         entity_container = EntityContainerYearFactory(learning_container_year=learning_container_year,
                                                       type=entity_container_year_link_type.REQUIREMENT_ENTITY)
 
@@ -554,6 +560,9 @@ class LearningUnitViewTestCase(TestCase):
     def test_learning_unit_of_type_partim_with_faculty_manager(self):
         learning_container_year = LearningContainerYearFactory(
             academic_year=self.current_academic_year, container_type=learning_container_year_types.COURSE)
+        LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                learning_container_year=learning_container_year,
+                                subtype=learning_unit_year_subtypes.FULL)
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=learning_container_year,
                                                      subtype=learning_unit_year_subtypes.PARTIM)
