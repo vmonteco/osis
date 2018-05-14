@@ -24,9 +24,6 @@
 #
 ##############################################################################
 import datetime
-from base.tests.factories.education_group_type import EducationGroupTypeFactory
-from base.tests.factories.education_group_year import EducationGroupYearFactory
-from base.tests.factories.group_element_year import GroupElementYearFactory
 import random
 from unittest import mock
 
@@ -66,9 +63,12 @@ from base.models.person_entity import PersonEntity
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
 from base.tests.factories.campus import CampusFactory
+from base.tests.factories.education_group_type import EducationGroupTypeFactory
+from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.learning_achievement import LearningAchievementFactory
 from base.tests.factories.learning_class_year import LearningClassYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
@@ -503,6 +503,34 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_unit/identification.html')
         self.assertEqual(context['learning_unit_year'], learning_unit_year)
 
+    @mock.patch('base.views.layout.render')
+    @mock.patch('base.models.program_manager.is_program_manager')
+    def test_warnings_learning_unit_read(self, mock_program_manager, mock_render):
+        mock_program_manager.return_value = True
+
+        learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year,
+                                                               container_type=learning_container_year_types.INTERNSHIP)
+        parent = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                         learning_container_year=learning_container_year,
+                                         internship_subtype=internship_subtypes.TEACHING_INTERNSHIP,
+                                         subtype=learning_unit_year_subtypes.FULL,
+                                         status=False)
+        partim_without_internship = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                            learning_container_year=learning_container_year,
+                                                            internship_subtype=None,
+                                                            subtype=learning_unit_year_subtypes.PARTIM,
+                                                            status=True)
+
+        request = self.create_learning_unit_request(partim_without_internship)
+
+        learning_unit_identification(request, partim_without_internship.id)
+
+        self.assertTrue(mock_render.called)
+
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/identification.html')
+        self.assertEqual(len(context['warnings']), 2)
 
     def test_learning_unit__with_faculty_manager_when_can_edit_end_date(self):
         learning_container_year = LearningContainerYearFactory(
