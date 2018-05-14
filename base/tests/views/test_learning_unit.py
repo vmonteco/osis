@@ -496,7 +496,8 @@ class LearningUnitViewTestCase(TestCase):
 
         learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
-                                                     learning_container_year=learning_container_year)
+                                                     learning_container_year=learning_container_year,
+                                                     subtype=learning_unit_year_subtypes.FULL)
 
         request = self.create_learning_unit_request(learning_unit_year)
 
