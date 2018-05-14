@@ -34,7 +34,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.learning_unit_create import EntityContainerBaseForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
-    LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
+    LearningUnitModelForm, LearningContainerYearModelForm, LearningContainerModelForm
 from base.forms.learning_unit.learning_unit_create_2 import PartimForm, PARTIM_FORM_READ_ONLY_FIELD
 from base.forms.utils import acronym_field
 from base.models.enums import learning_unit_year_subtypes
@@ -103,7 +103,7 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
 
     def test_model_forms_case_creation(self):
         form_classes_expected = [LearningUnitModelForm, LearningUnitYearModelForm, LearningContainerModelForm,
-                                 LearningContainerYearModelForm, EntityContainerFormset]
+                                 LearningContainerYearModelForm, EntityContainerBaseForm]
         form = _instanciate_form(learning_unit_full=self.learning_unit_year_full.learning_unit,
                                  academic_year=self.current_academic_year)
         for cls in form_classes_expected:

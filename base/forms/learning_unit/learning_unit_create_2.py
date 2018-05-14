@@ -300,8 +300,7 @@ class FullForm(LearningUnitBaseForm):
             commit=commit
         )
 
-        self.entity_container_form.instance = container_year
-        entity_container_years = self.entity_container_form.save(commit=commit)
+        entity_container_years = self.entity_container_form.save(commit=commit, learning_container_year=container_year)
 
         # Save learning unit year (learning_unit_component +  learning_component_year + entity_component_year)
         learning_unit_year = self.forms[LearningUnitYearModelForm].save(

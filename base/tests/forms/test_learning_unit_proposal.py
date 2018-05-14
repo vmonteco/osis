@@ -191,7 +191,7 @@ class TestSave(TestCase):
         self.form_data["additional_requirement_entity_2-entity"] = additional_entity_version_2.id
 
         form = ProposalBaseForm(self.form_data, self.person, self.learning_unit_year)
-        form.is_valid()
+        self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
         entities_by_type = \
