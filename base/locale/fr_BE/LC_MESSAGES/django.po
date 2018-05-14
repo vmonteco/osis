@@ -1864,7 +1864,7 @@ msgid "planned_classes_pc"
 msgstr "C.P."
 
 msgid "total_volume"
-msgstr "Volume total"
+msgstr "Volume total annuel"
 
 msgid "total_volume_voltot"
 msgstr "Vol.tot"
@@ -2896,4 +2896,4 @@ msgid "vol_global"
 msgstr "Vol.global"
 
 msgid "volume_global"
-msgstr "volume global"
+msgstr "volume total global"
