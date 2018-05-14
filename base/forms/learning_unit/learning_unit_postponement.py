@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm
 from collections import OrderedDict
 from base.forms.learning_unit.learning_unit_create_2 import PartimForm, FullForm
 from base.models import academic_year, learning_unit_year
@@ -32,6 +33,9 @@ from base.models.enums import learning_unit_year_subtypes, entity_container_year
 
 # @TODO: Use LearningUnitPostponementForm to manage END_DATE of learning unit year
 # TODO :: Maybe could we move this code to LearningUnitModelForm class?
+from django.db import transaction
+
+
 class LearningUnitPostponementForm:
     learning_unit_instance = None
     subtype = None
@@ -103,7 +107,6 @@ class LearningUnitPostponementForm:
     #         'to_insert': to_insert
     #     }
 
-    # @TODO: WHEN CREATION, we must keep first learning_unit instance created in order to keep start date !!!
     def _init_forms(self, data=None):
         """This function will init two forms var:
            forms_to_upsert: LearningUnitBaseForm which must be created/updated
@@ -144,28 +147,16 @@ class LearningUnitPostponementForm:
         luy_base_forms_insert = self._get_forms_to_insert(start_insert_year, end_year=end_insert_year, data=data)
         return luy_base_forms_update + luy_base_forms_insert
 
-    def _get_forms_to_insert(self, start_year, end_year=None, data=None):
+    def _get_forms_to_insert(self, start_insert_year, end_year=None, data=None):
         luy_base_form_insert = []
         max_postponement_year = academic_year.compute_max_academic_year_adjournment()
         end_year = min(end_year,  max_postponement_year) if end_year else max_postponement_year
 
-        if start_year <= end_year:
-            # Create a first LearningUnit not persistent (to get the same learningUnit for all LearningUnitYears)
-            # learn_unit = LearningUnit(start_year=start_year, end_year=self.end_postponement)
-            ac_years = academic_year.find_academic_years(start_year=start_year, end_year=end_year)
-            luy_base_form_insert = [self._get_learning_unit_base_form(ac_year, data=data, start_year=start_year)
+        if start_insert_year <= end_year:
+            ac_years = academic_year.find_academic_years(start_year=start_insert_year, end_year=end_year)
+            luy_base_form_insert = [self._get_learning_unit_base_form(ac_year, data=data, start_year=start_insert_year)
                                     for ac_year in ac_years]
 
-            # # Create a first LearningUnit not persistent (to get the same learningUnit for all LearningUnitYears)
-            # ac_years = academic_year.find_academic_years(start_year=start_year, end_year=end_year)
-            # first_form = self._get_learning_unit_base_form(ac_years[0], data=data)
-            # luy_base_form_insert = [first_form]
-            # if len(ac_years) > 1:
-            #     luy_base_form_insert += [
-            #         self._get_learning_unit_base_form(ac_year, data=data,
-            #                                           learning_unit_instance=first_form.forms[LearningUnitModelForm].instance)
-            #         for ac_year in ac_years
-            #         ]
         return luy_base_form_insert
 
     def _get_forms_to_delete(self, start_year, learning_unit_instance):
@@ -210,11 +201,17 @@ class LearningUnitPostponementForm:
             return self._check_consistency()
         return True
 
+    @transaction.atomic
     def save(self):
-        luy_created = []
-        for form in self._forms_to_upsert:
-            luy_created.append(form.save())
-        return luy_created
+        luy_upserted = []
+        if self._forms_to_upsert:
+            current_learn_unit_year = self._forms_to_upsert[0].save()
+            learning_unit = current_learn_unit_year.learning_unit
+            if len(self._forms_to_upsert) > 1:
+                for form in self._forms_to_upsert[1:]:
+                    form.forms[LearningUnitModelForm].instance = learning_unit
+                    luy_upserted.append(form.save())
+        return luy_upserted
 
     def _check_consistency(self):
         if not self.learning_unit_instance or not self._forms_to_upsert or len(self._forms_to_upsert) == 1:

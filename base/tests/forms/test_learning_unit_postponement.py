@@ -219,6 +219,18 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
         form.save()
         self.assertEqual(mock_baseform_save.call_count, 7)
 
+    def test_all_learning_unit_years_have_same_learning_unit(self):
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        data = dict(instance_luy_base_form.data)
+        data['acronym'] = 'LDROI1001'
+        data['acronym_0'] = 'L'
+        data['acronym_1'] = 'DROI1001'
+        form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
+                                              data=data)
+        self.assertTrue(form.is_valid())
+        learning_units = {learning_unit_year.learning_unit for learning_unit_year in form.save()}
+        self.assertEqual(len(learning_units), 1)
+
 
 class TestLearningUnitPostponementFormCheckConsistency(LearningUnitPostponementFormContextMixin):
     """Unit tests for LearningUnitPostponementForm._check_consistency()"""
