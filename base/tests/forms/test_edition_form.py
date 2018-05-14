@@ -115,7 +115,7 @@ class TestVolumeEditionForm(TestCase):
 
             error_msg = ' + '.join([self.learning_unit_with_context.entities.get(t).acronym for t in ENTITY_TYPES_VOLUME
                                     if self.learning_unit_with_context.entities.get(t)])
-            error_msg += ' = {}'.format(_('vol_charge'))
+            error_msg += ' = {}'.format(_('vol_global'))
             self.assertEqual(form.errors['volume_total_requirement_entities'][0], error_msg)
 
     def test_post_volume_form_partim_q1(self):

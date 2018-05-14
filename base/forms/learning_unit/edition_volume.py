@@ -78,7 +78,7 @@ class VolumeEditionForm(forms.Form):
             self._add_entity_fields(key)
 
         self.fields['volume_total_requirement_entities'] = VolumeField(
-            label=_('vol_charge'), help_text=_('total_volume_charge'))
+            label=_('vol_global'), help_text=_('volume_global'))
 
         if self.is_faculty_manager and self.learning_unit_year.is_full():
             self._disable_central_manager_fields()
@@ -121,7 +121,7 @@ class VolumeEditionForm(forms.Form):
 
         if cleaned_data.get('volume_total_requirement_entities') != total:
             error_msg = ' + '.join([self.entities.get(t).acronym for t in ENTITY_TYPES_VOLUME if self.entities.get(t)])
-            error_msg += ' = {}'.format(_('vol_charge'))
+            error_msg += ' = {}'.format(_('vol_global'))
             self.add_error("volume_total_requirement_entities", error_msg)
 
     def _check_tot_req_entities_equal_to_tot_annual_mult_cp(self, cleaned_data):

@@ -1866,14 +1866,8 @@ msgstr "C.P."
 msgid "total_volume"
 msgstr "Volume total"
 
-msgid "total_volume_charge"
-msgstr "Volume de charge total"
-
 msgid "total_volume_voltot"
 msgstr "Vol.tot"
-
-msgid "vol_charge"
-msgstr "Vol.charge"
 
 msgid "volumes_management"
 msgstr "Gestion des volumes horaires"
@@ -2897,3 +2891,9 @@ msgstr "Type de recherche"
 
 msgid "COURSE_ENROLLMENT"
 msgstr "Inscription aux cours"
+
+msgid "vol_global"
+msgstr "Vol.global"
+
+msgid "volume_global"
+msgstr "volume global"
