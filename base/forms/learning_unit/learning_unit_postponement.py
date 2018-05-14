@@ -29,13 +29,11 @@ from base.forms.learning_unit.learning_unit_create_2 import PartimForm, FullForm
 from base.models import academic_year, learning_unit_year
 from base.models.learning_unit import LearningUnit
 from base.models.enums import learning_unit_year_subtypes, entity_container_year_link_type
+from django.db import transaction
 
 
 # @TODO: Use LearningUnitPostponementForm to manage END_DATE of learning unit year
 # TODO :: Maybe could we move this code to LearningUnitModelForm class?
-from django.db import transaction
-
-
 class LearningUnitPostponementForm:
     learning_unit_instance = None
     subtype = None
@@ -47,15 +45,6 @@ class LearningUnitPostponementForm:
 
     def __init__(self, person, start_postponement, end_postponement=None, learning_unit_instance=None,
                  learning_unit_full_instance=None, data=None, check_consistency=True):
-        """
-        :param person: The person who make action form
-        :param start_postponement: Start academic year postponement
-        :param end_postponement: End academic year postponement [If None, get end_year from learning_unit_instance]
-        :param learning_unit_instance: The instance on which modification will be done each year
-        :param learning_unit_full_instance: The FULL instance on which modification will be done each year [Used when Partim]
-        :param data: Data which will be applied on each FORM (PartimForm/FullForm)
-        :param check_consistency: Enable check consitency [Default TRUE]
-        """
         if learning_unit_instance and not isinstance(learning_unit_instance, LearningUnit):
             raise AttributeError('learning_unit_instance arg should be an instance of {}'.format(LearningUnit))
         if learning_unit_full_instance and not isinstance(learning_unit_full_instance, LearningUnit):
@@ -72,40 +61,6 @@ class LearningUnitPostponementForm:
             end_postponement = academic_year.find_academic_year_by_year(self.learning_unit_instance.end_year)
         self.end_postponement = end_postponement
         self._init_forms(data)
-
-    # def _compute_max_postponement_year(self):
-    #     max_postponement_year = academic_year.compute_max_academic_year_adjournment()
-    #     end_year = self.end_postponement.year if self.end_postponement else None
-    #     return min(end_year,  max_postponement_year) if end_year else max_postponement_year
-    #
-    # def _split_academic_years_to_delete_and_to_upserts(self):
-    #     academic_years = academic_year.find_academic_years(start_year=self.start_postponement.year)
-    #     to_delete = to_insert = to_update = []
-    #     if self._is_update_action():
-    #         if self.end_postponement:
-    #             return self._calculate_records_to_insert_update_delete(academic_years)
-    #         else:
-    #             to_update = academic_years
-    #     else:
-    #         to_insert = academic_years
-    #     return {
-    #         'to_delete': to_delete,
-    #         'to_update': to_update,
-    #         'to_insert': to_insert
-    #     }
-    #
-    # def _calculate_records_to_insert_update_delete(self, academic_years):
-    #     last_existing_learn_unit_year = learning_unit_year.find_by_learning_unit(self.learning_unit_instance) \
-    #         .filter(academic_year__year__lte=self.end_postponement.year).select_related('academic_year').last()
-    #     to_delete = filter(lambda ac_year: ac_year.year >= self.end_postponement, academic_years)
-    #     to_update = filter(
-    #         lambda ac_year: last_existing_learn_unit_year.year < ac_year.year < self.end_postponement, academic_years)
-    #     to_insert = filter(lambda ac_year: ac_year.year < last_existing_learn_unit_year.year, academic_years)
-    #     return {
-    #         'to_delete': to_delete,
-    #         'to_update': to_update,
-    #         'to_insert': to_insert
-    #     }
 
     def _init_forms(self, data=None):
         """This function will init two forms var:
@@ -240,4 +195,3 @@ class LearningUnitPostponementForm:
                 consistency_errors[ac_year] = differences
         self.consistency_errors = consistency_errors
         return self.consistency_errors
-
