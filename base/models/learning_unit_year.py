@@ -257,11 +257,11 @@ class LearningUnitYear(SerializableModel):
         # If the parent is inactive, the partim can be only inactive
         if self.parent:
             if not self.parent.status and self.status:
-                raise ValidationError({'status', _('The partim must be inactive because the parent is inactive')})
+                raise ValidationError({'status': _('The partim must be inactive because the parent is inactive')})
         else:
             if self.status is False and find_partims_with_active_status(self).exists():
                 raise ValidationError(
-                    {'status', _("There is at least one partim active, so the parent must be active")})
+                    {'status': _("There is at least one partim active, so the parent must be active")})
 
 
 def get_by_id(learning_unit_year_id):

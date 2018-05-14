@@ -2742,7 +2742,7 @@ msgstr ""
 msgid "The partim must be inactive because the parent is inactive"
 msgstr ""
 
-msgid "The parent must be active because there are partim active"
+msgid "The periodicity of the parent and the partims do not match"
 msgstr ""
 
 msgid "educational_information_update_reminder"
@@ -2856,6 +2856,9 @@ msgstr "Borrowed courses - search"
 msgid "add_another"
 msgstr "Add another"
 
+msgid "There is at least one partim active, so the parent must be active"
+msgstr ""
+
 msgid "faculty_borrowing"
 msgstr "Faculty borrowing"
 
@@ -2883,6 +2886,8 @@ msgstr "Proposals date"
 msgid "search_type"
 msgstr "Search type"
 
-
 msgid "The linked entity does not exist at the start date of the academic year linked to this learning unit"
 msgstr ""
+
+msgid "COURSE_ENROLLMENT"
+msgstr "Course enrollment"

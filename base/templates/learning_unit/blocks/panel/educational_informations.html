@@ -75,7 +75,7 @@
         {% bootstrap_field summary_editable_form.mobility_modality %}
         {% buttons %}
             {% if perms.base.can_edit_learningunit_pedagogy %}
-                {% bootstrap_button _("save") button_type="submit" button_class="btn-primary pull-right" %}
+                {% bootstrap_button _("save") button_type="submit" button_class="btn-primary pull-right"  icon="glyphicon glyphicon-floppy-save" %}
             {% endif %}
         {% endbuttons %}
     </form>

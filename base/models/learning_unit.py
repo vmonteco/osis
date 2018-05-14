@@ -53,7 +53,7 @@ class LearningUnitAdmin(SerializableModelAdmin):
                                'faculty_remark', 'other_remark')
                  }),)
     raw_id_fields = ('learning_container',)
-    search_fields = ['learningunityear__acronym', 'learningunityear__title', 'learning_container__external_id']
+    search_fields = ['learningunityear__acronym', 'learningunityear__specific_title', 'learning_container__external_id']
     list_filter = ('periodicity', 'start_year')
 
 
@@ -144,7 +144,7 @@ class LearningUnit(SerializableModel):
         for child in children:
             if child.periodicity == ANNUAL:
                 raise ValidationError(
-                    {'periodicity': _('The periodicity of the partim must be the same as that of the parent')}
+                    {'periodicity': _('The periodicity of the parent and the partims do not match')}
                 )
 
 

@@ -112,6 +112,7 @@ def learning_units_proposal_search(request):
         if search_form.is_valid():
             research_criteria = search_form.get_research_criteria()
             proposals = search_form.get_proposal_learning_units()
+            check_if_display_message(request, proposals)
     except TooManyResultsException:
         display_error_messages(request, 'too_many_results')
 
@@ -125,7 +126,6 @@ def learning_units_proposal_search(request):
         display_messages_by_level(request, messages_by_level)
         return redirect(reverse("learning_unit_proposal_search") + "?{}".format(request.GET.urlencode()))
 
-    check_if_display_message(request, proposals)
     context = {
         'form': search_form,
         'form_proposal_state': ProposalStateModelForm(),

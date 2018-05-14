@@ -33,7 +33,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
 from base.forms.learning_unit.learning_unit_create_2 import FullForm, FULL_READ_ONLY_FIELDS, \
-    FULL_PROPOSAL_READ_ONLY_FIELDS
+    FULL_PROPOSAL_READ_ONLY_FIELDS, FACULTY_OPEN_FIELDS
 from base.models.academic_year import AcademicYear
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
