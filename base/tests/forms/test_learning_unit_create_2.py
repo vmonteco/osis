@@ -39,6 +39,8 @@ from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import EntityVersion
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, organization_type
+from base.models.enums.entity_container_year_link_type import ADDITIONAL_REQUIREMENT_ENTITY_1, \
+    ADDITIONAL_REQUIREMENT_ENTITY_2
 from base.models.enums.entity_type import FACULTY
 from base.models.enums.learning_container_year_types import MASTER_THESIS
 from base.models.enums.learning_unit_periodicity import ANNUAL
@@ -373,8 +375,14 @@ class TestFullFormSave(LearningUnitFullFormContextMixin):
         })
 
     def test_when_update_instance(self):
+
+        EntityContainerYear.objects.filter(type__in=[ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2],
+                                           learning_container_year=self.learning_unit_year.learning_container_year
+                                           ).delete()
+
         initial_counts = self._get_initial_counts()
         self.post_data['credits'] = 99
+
         form = FullForm(self.person, self.learning_unit_year.academic_year,
                         learning_unit_instance=self.learning_unit_year.learning_unit, data=self.post_data)
 
@@ -384,7 +392,7 @@ class TestFullFormSave(LearningUnitFullFormContextMixin):
 
         for model_class, initial_count in initial_counts.items():
             current_count = self._count_records(model_class)
-            self.assertEqual(current_count, initial_count)
+            self.assertEqual(current_count, initial_count, model_class.objects.all())
 
     def test_when_create_instance(self):
         initial_counts = self._get_initial_counts()

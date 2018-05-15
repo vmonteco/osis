@@ -24,9 +24,9 @@
 #
 ##############################################################################
 import datetime
-import factory.fuzzy
-
 from decimal import Decimal
+
+import factory.fuzzy
 
 from base.models import academic_year as mdl_academic_year
 from base.models.academic_year import AcademicYear, LEARNING_UNIT_CREATION_SPAN_YEARS, \
@@ -416,8 +416,7 @@ def _setup_learning_component_year(learning_unit_year, component_type):
                                              type=component_type,
                                              planned_classes=1)
 
-    LearningUnitComponentFactory(learning_unit_year=learning_unit_year,
-                                 learning_component_year=component)
+    LearningUnitComponentFactory(learning_unit_year=learning_unit_year, learning_component_year=component)
     return component
 
 
