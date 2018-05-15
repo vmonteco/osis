@@ -30,9 +30,9 @@ from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
-    LearningUnitModelForm, EntityContainerFormset, LearningContainerYearModelForm, LearningContainerModelForm
+    LearningUnitModelForm, LearningContainerYearModelForm, LearningContainerModelForm, EntityContainerBaseForm
 from base.forms.learning_unit.learning_unit_create_2 import FullForm, FULL_READ_ONLY_FIELDS, \
-    FULL_PROPOSAL_READ_ONLY_FIELDS, FACULTY_OPEN_FIELDS
+    FULL_PROPOSAL_READ_ONLY_FIELDS
 from base.models.academic_year import AcademicYear
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -111,13 +111,9 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
         'team': learning_unit_year.learning_container_year.team,
         'is_vacant': learning_unit_year.learning_container_year.is_vacant,
 
-        'entitycontaineryear_set-0-entity': requirement_entity_version.id,
-        'entitycontaineryear_set-1-entity': requirement_entity_version.id,
-        'entitycontaineryear_set-2-entity': '',
-        'entitycontaineryear_set-INITIAL_FORMS': '0',
-        'entitycontaineryear_set-MAX_NUM_FORMS': '4',
-        'entitycontaineryear_set-MIN_NUM_FORMS': '3',
-        'entitycontaineryear_set-TOTAL_FORMS': '4',
+        'requirement_entity-entity': requirement_entity_version.id,
+        'allocation_entity-entity': requirement_entity_version.id,
+        'additional_requirement_entity_1-entity': '',
     }
 
 
@@ -211,7 +207,7 @@ class TestFullFormInit(LearningUnitFullFormContextMixin):
                          learn_unit_year.learning_container_year.learning_container)
         self.assertEqual(form.forms[LearningUnitYearModelForm].instance, learn_unit_year)
         self.assertEqual(form.forms[LearningContainerYearModelForm].instance, learn_unit_year.learning_container_year)
-        formset_instance = form.forms[EntityContainerFormset]
+        formset_instance = form.forms[EntityContainerBaseForm]
         self.assertEqual(formset_instance.forms[0].instance.learning_container_year,
                          learn_unit_year.learning_container_year)
         self.assertEqual(formset_instance.forms[1].instance.learning_container_year,
@@ -256,7 +252,7 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
         self._assert_equal_values(form_instance.instance, self.post_data, fields_to_validate)
 
     def _test_entity_container_model_formset_instance(self, full_form):
-        self.assertIn(EntityContainerFormset, full_form.forms)
+        self.assertIn(EntityContainerBaseForm, full_form.forms)
 
     @mock.patch('base.forms.learning_unit.learning_unit_create.LearningUnitModelForm.is_valid',
                 side_effect=lambda *args: False)
@@ -282,13 +278,13 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
         form = _instanciate_form(post_data=self.post_data, default_ac_year=self.current_academic_year)
         self.assertFalse(form.is_valid())
 
-    @mock.patch('base.forms.learning_unit.learning_unit_create.EntityContainerYearFormset.post_clean',
+    @mock.patch('base.forms.learning_unit.learning_unit_create.EntityContainerBaseForm.post_clean',
                 side_effect=lambda *args: False)
     def test_creation_case_not_same_entities_container(self, mock_is_valid):
         form = _instanciate_form(post_data=self.post_data, default_ac_year=self.current_academic_year)
         self.assertFalse(form.is_valid())
 
-    @mock.patch('base.forms.learning_unit.learning_unit_create.EntityContainerYearFormset.post_clean',
+    @mock.patch('base.forms.learning_unit.learning_unit_create.EntityContainerBaseForm.post_clean',
                 side_effect=lambda *args: False)
     def test_creation_case_wrong_titles(self, mock_is_valid):
         form = _instanciate_form(post_data=self.post_data, default_ac_year=self.current_academic_year)
@@ -321,14 +317,14 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
         form = _instanciate_form(post_data=self.post_data, instance=self.learning_unit_year)
         self.assertFalse(form.is_valid())
 
-    @mock.patch('base.forms.learning_unit.learning_unit_create.EntityContainerYearModelForm.is_valid',
+    @mock.patch('base.forms.learning_unit.learning_unit_create.EntityContainerBaseForm.is_valid',
                 side_effect=lambda *args: False)
     def test_update_case_wrong_entity_container_year_data(self, mock_is_valid):
         form = _instanciate_form(post_data=self.post_data, person=self.person, instance=self.learning_unit_year)
         self.assertFalse(form.is_valid())
 
     def test_update_case_wrong_entity_version_start_year_data(self):
-        allocation_entity_id = self.post_data['entitycontaineryear_set-1-entity']
+        allocation_entity_id = self.post_data['allocation_entity-entity']
         allocation_entity = EntityVersion.objects.get(pk=allocation_entity_id)
         start_date = self.learning_unit_year.academic_year.start_date
         allocation_entity.start_date = start_date.replace(year=start_date.year + 2)
@@ -347,11 +343,11 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
         self.learning_unit_year.learning_container_year.save()
 
         PersonEntityFactory(person=self.person, entity=allocation_entity_version.entity)
-        self.post_data['entitycontaineryear_set-1-entity'] = allocation_entity_version.id
+        self.post_data['allocation_entity-entity'] = allocation_entity_version.id
 
         form = _instanciate_form(post_data=self.post_data, person=self.person, instance=self.learning_unit_year)
         self.assertFalse(form.is_valid(), form.errors)
-        self.assertEqual(form.errors[0][1].get('entity'), [_("Requirement and allocation entities must be linked "
+        self.assertEqual(form.errors[0][0].get('entity'), [_("Requirement and allocation entities must be linked "
                                                              "to the same faculty for this learning unit type.")])
 
 
@@ -455,5 +451,5 @@ class TestFullFormValidateSameEntitiesContainer(LearningUnitFullFormContextMixin
                                                            subtype=learning_unit_year_subtypes.FULL)
         post_data = get_valid_form_data(self.current_academic_year, person=self.person,
                                         learning_unit_year=learning_unit_year)
-        post_data['entitycontaineryear_set-1-entity'] = EntityVersionFactory().id
+        post_data['allocation_entity-entity'] = EntityVersionFactory().id
         return post_data
