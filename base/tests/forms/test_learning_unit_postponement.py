@@ -217,7 +217,7 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
         data['acronym_1'] = 'DROI1001'
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               data=data)
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
         learning_units = {learning_unit_year.learning_unit for learning_unit_year in form.save()}
         self.assertEqual(len(learning_units), 1)
 
@@ -352,18 +352,14 @@ def _instanciate_base_learning_unit_form(learning_unit_year_instance, person):
             'team': learning_unit_year_instance.learning_container_year.team,
             'is_vacant': learning_unit_year_instance.learning_container_year.is_vacant,
 
-            'entitycontaineryear_set-0-entity':
+            'requirement_entity-entity':
                 entity_version_by_type.get(entity_container_year_link_type.REQUIREMENT_ENTITY).id,
-            'entitycontaineryear_set-1-entity':
+            'allocation_entity-entity':
                 entity_version_by_type.get(entity_container_year_link_type.ALLOCATION_ENTITY).id,
-            'entitycontaineryear_set-2-entity':
+            'additional_requirement_entity_1-entity':
                 entity_version_by_type.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1).id,
-            'entitycontaineryear_set-3-entity':
+            'additional_requirement_entity_2-entity':
                 entity_version_by_type.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2).id,
-            'entitycontaineryear_set-INITIAL_FORMS': '0',
-            'entitycontaineryear_set-MAX_NUM_FORMS': '4',
-            'entitycontaineryear_set-MIN_NUM_FORMS': '4',
-            'entitycontaineryear_set-TOTAL_FORMS': '4',
         },
         'person': person
     }

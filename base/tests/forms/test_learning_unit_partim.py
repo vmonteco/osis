@@ -309,8 +309,7 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
         """ In this test, we ensure that the instance of learning container year model form inherit
             from full learning container year """
         formset_instance = partim_form.forms[EntityContainerBaseForm]
-        self.assertEqual(formset_instance.learning_container_year,
-                         self.learning_unit_year_full.learning_container_year)
+        self.assertEqual(formset_instance.instance, self.learning_unit_year_full.learning_container_year)
         # Test expected instance
         expected_instance_form = [
             self.generated_container_year.requirement_entity_container_year,

@@ -23,13 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm
 from collections import OrderedDict
+
+from django.db import transaction
+
+from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm
 from base.forms.learning_unit.learning_unit_create_2 import PartimForm, FullForm
 from base.models import academic_year, learning_unit_year
-from base.models.learning_unit import LearningUnit
 from base.models.enums import learning_unit_year_subtypes, entity_container_year_link_type
-from django.db import transaction
+from base.models.learning_unit import LearningUnit
 
 
 # @TODO: Use LearningUnitPostponementForm to manage END_DATE of learning unit year
@@ -155,6 +157,10 @@ class LearningUnitPostponementForm:
         if self.check_consistency:
             return self._check_consistency()
         return True
+
+    @property
+    def errors(self):
+        return [form_instance.errors for form_instance in self._forms_to_upsert]
 
     @transaction.atomic
     def save(self):

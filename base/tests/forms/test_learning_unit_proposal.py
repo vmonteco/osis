@@ -179,11 +179,13 @@ class TestSave(TestCase):
     def test_with_all_entities_set(self):
         today = datetime.date.today()
         entity_1 = EntityFactory(organization=OrganizationFactory(type=organization_type.MAIN))
-        additional_entity_version_1 = EntityVersionFactory(entity_type=entity_type.SCHOOL, start_date=today,
+        additional_entity_version_1 = EntityVersionFactory(entity_type=entity_type.SCHOOL,
+                                                           start_date=today.replace(year=1900),
                                                            end_date=today.replace(year=today.year + 1),
                                                            entity=entity_1)
         entity_2 = EntityFactory(organization=OrganizationFactory(type=organization_type.MAIN))
-        additional_entity_version_2 = EntityVersionFactory(entity_type=entity_type.SCHOOL, start_date=today,
+        additional_entity_version_2 = EntityVersionFactory(entity_type=entity_type.SCHOOL,
+                                                           start_date=today.replace(year=1900),
                                                            end_date=today.replace(year=today.year + 1),
                                                            entity=entity_2)
         self.form_data["allocation_entity-entity"] = self.entity_version.id

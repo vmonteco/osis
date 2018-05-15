@@ -352,8 +352,9 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
         form = _instanciate_form(self.learning_unit_year.academic_year, post_data=post_data, person=self.person,
                                  learning_unit_instance=self.learning_unit_year.learning_unit)
         self.assertFalse(form.is_valid(), form.errors)
-        self.assertEqual(form.errors[0][0].get('entity'), [_("Requirement and allocation entities must be linked "
-                                                             "to the same faculty for this learning unit type.")])
+        self.assertEqual(form.errors[0]['allocation_entity']['entity'],
+                         [_("Requirement and allocation entities must be linked "
+                            "to the same faculty for this learning unit type.")])
 
 
 class TestFullFormSave(LearningUnitFullFormContextMixin):
@@ -374,14 +375,13 @@ class TestFullFormSave(LearningUnitFullFormContextMixin):
     def test_when_update_instance(self):
         initial_counts = self._get_initial_counts()
         self.post_data['credits'] = 99
-        form = _instanciate_form(self.learning_unit_year.academic_year, post_data=self.post_data, person=self.person,
-                                 learning_unit_instance=self.learning_unit_year.learning_unit)
+        form = FullForm(self.person, self.learning_unit_year.academic_year,
+                        learning_unit_instance=self.learning_unit_year.learning_unit, data=self.post_data)
+
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
         self.assertEqual(LearningUnitYear.objects.get(pk=self.learning_unit_year.id).credits, 99)
-        self._assert_do_not_create_new_records(initial_counts)
 
-    def _assert_do_not_create_new_records(self, initial_counts):
         for model_class, initial_count in initial_counts.items():
             current_count = self._count_records(model_class)
             self.assertEqual(current_count, initial_count)

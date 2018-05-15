@@ -295,9 +295,9 @@ class EntityContainerBaseForm:
 
     def __init__(self, data=None, person=None, learning_container_year=None):
         self.forms = []
-        self.learning_container_year = learning_container_year
+        self.instance = learning_container_year
         for form in self.form_classes:
-            qs = EntityContainerYear.objects.filter(learning_container_year=learning_container_year,
+            qs = EntityContainerYear.objects.filter(learning_container_year=self.instance,
                                                     type=form.entity_type)
 
             instance = qs.get() if qs.exists() else None
@@ -309,7 +309,7 @@ class EntityContainerBaseForm:
 
     @property
     def errors(self):
-        return [form.errors for form in self.forms if form.errors]
+        return {form.prefix: form.errors for form in self.forms if form.errors}
 
     def get_clean_data_entity(self, key):
         try:
