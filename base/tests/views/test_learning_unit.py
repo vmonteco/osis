@@ -280,9 +280,15 @@ class LearningUnitViewCreatePartimTestCase(TestCase):
     def test_create_partim_success_with_redirection(self, mock_postponement_save, mock_postponement_is_valid,
                                                     mock_postponement_init, mock_partim_form_save,
                                                     mock_partim_form_is_valid, mock_is_pers_linked_to_entity_charge):
+        learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
+        LearningUnitYearFactory(
+            academic_year=self.current_academic_year,
+            learning_container_year=learning_container_year,
+            subtype=learning_unit_year_subtypes.FULL
+        )
         a_partim_learning_unit_year = LearningUnitYearFactory(
             academic_year=self.current_academic_year,
-            learning_container_year__academic_year=self.current_academic_year,
+            learning_container_year=learning_container_year,
             subtype=learning_unit_year_subtypes.PARTIM
         )
         mock_postponement_save.return_value = [a_partim_learning_unit_year]
@@ -497,7 +503,8 @@ class LearningUnitViewTestCase(TestCase):
 
         learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
-                                                     learning_container_year=learning_container_year)
+                                                     learning_container_year=learning_container_year,
+                                                     subtype=learning_unit_year_subtypes.FULL)
 
         request = self.create_learning_unit_request(learning_unit_year)
 
@@ -510,11 +517,41 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_unit/identification.html')
         self.assertEqual(context['learning_unit_year'], learning_unit_year)
 
+    @mock.patch('base.views.layout.render')
+    @mock.patch('base.models.program_manager.is_program_manager')
+    def test_warnings_learning_unit_read(self, mock_program_manager, mock_render):
+        mock_program_manager.return_value = True
+
+        learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year,
+                                                               container_type=learning_container_year_types.INTERNSHIP)
+        parent = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                         learning_container_year=learning_container_year,
+                                         internship_subtype=internship_subtypes.TEACHING_INTERNSHIP,
+                                         subtype=learning_unit_year_subtypes.FULL,
+                                         status=False)
+        partim_without_internship = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                            learning_container_year=learning_container_year,
+                                                            internship_subtype=None,
+                                                            subtype=learning_unit_year_subtypes.PARTIM,
+                                                            status=True)
+
+        request = self.create_learning_unit_request(partim_without_internship)
+
+        learning_unit_identification(request, partim_without_internship.id)
+
+        self.assertTrue(mock_render.called)
+
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/identification.html')
+        self.assertEqual(len(context['warnings']), 2)
+
     def test_learning_unit__with_faculty_manager_when_can_edit_end_date(self):
         learning_container_year = LearningContainerYearFactory(
             academic_year=self.current_academic_year, container_type=learning_container_year_types.OTHER_COLLECTIVE)
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
-                                                     learning_container_year=learning_container_year)
+                                                     learning_container_year=learning_container_year,
+                                                     subtype=learning_unit_year_subtypes.FULL)
         entity_container = EntityContainerYearFactory(learning_container_year=learning_container_year,
                                                       type=entity_container_year_link_type.REQUIREMENT_ENTITY)
 
@@ -522,8 +559,7 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_year.learning_unit.save()
 
         person_entity = PersonEntityFactory(entity=entity_container.entity)
-        group, created = Group.objects.get_or_create(name=FACULTY_MANAGER_GROUP)
-        person_entity.person.user.groups.add(group)
+        person_entity.person.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
         url = reverse("learning_unit", args=[learning_unit_year.id])
         self.client.force_login(person_entity.person.user)
 
@@ -533,6 +569,9 @@ class LearningUnitViewTestCase(TestCase):
     def test_learning_unit_of_type_partim_with_faculty_manager(self):
         learning_container_year = LearningContainerYearFactory(
             academic_year=self.current_academic_year, container_type=learning_container_year_types.COURSE)
+        LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                learning_container_year=learning_container_year,
+                                subtype=learning_unit_year_subtypes.FULL)
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=learning_container_year,
                                                      subtype=learning_unit_year_subtypes.PARTIM)

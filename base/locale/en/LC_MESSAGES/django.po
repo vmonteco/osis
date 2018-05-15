@@ -2891,3 +2891,9 @@ msgstr ""
 
 msgid "COURSE_ENROLLMENT"
 msgstr "Course enrollment"
+
+msgid "missing_internship_subtype"
+msgstr "It is necessary to indicate the internship subtype"
+
+msgid "different_status_with_parent"
+msgstr "The learning unit's parent is inactive"

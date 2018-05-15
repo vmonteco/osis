@@ -54,6 +54,7 @@ from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import proposal_learning_unit, education_group_year
 from base.models.academic_year import AcademicYear
+from base.models.enums.learning_container_year_types import INTERNSHIP
 from base.models.learning_unit import REGEX_BY_SUBTYPE
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
@@ -379,9 +380,20 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context['differences'] = get_difference_of_proposal(proposal.initial_data, learning_unit_year) \
         if proposal and proposal.learning_unit_year == learning_unit_year \
         else {}
+    get_warnings_messages(context, learning_unit_year)
 
     # append permissions
     context.update(learning_unit_year_permissions(learning_unit_year, person))
     context.update(learning_unit_proposal_permissions(proposal, person, learning_unit_year))
 
     return context
+
+
+def get_warnings_messages(context, learning_unit_year):
+    warnings = []
+    if learning_unit_year.learning_container_year.container_type == INTERNSHIP and \
+            not learning_unit_year.internship_subtype:
+        warnings.append(_('missing_internship_subtype'))
+    if learning_unit_year.parent and (not learning_unit_year.parent.status and learning_unit_year.status):
+        warnings.append(_('different_status_with_parent'))
+    context['warnings'] = warnings

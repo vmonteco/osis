@@ -251,6 +251,19 @@
                 <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {% trans 'experimental_phase' %}.
             </div>
         {% endif %}
+        {% if warnings %}
+            <a role="button" data-toggle="collapse" href="#CollapseWarnings"
+               aria-expanded="false" aria-controls="collapse_classes" style="border:0;padding:0;">
+                <span id="expandButton" class="glyphicon glyphicon-collapse-down" aria-hidden="true"></span></a>
+            <div class="collapse" id="CollapseWarnings">
+                <div class="alert alert-info" style="margin-bottom: 10px;">
+                    {% for warning in warnings %}
+                         <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {{ warning }}<br>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
         {% include "template_messages.html" %}
         {% block content %}
         {% endblock %}
