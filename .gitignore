@@ -25,4 +25,3 @@ dev.py
 ghostdriver.log
 .DS_Store
 .coveragerc
-/venv_3.6/
